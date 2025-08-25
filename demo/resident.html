@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resident Profile - Soralia Community</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'soralia-primary': '#4F46E5',
+                        'soralia-secondary': '#7C3AED',
+                        'soralia-accent': '#F59E0B',
+                        'soralia-light': '#F8FAFC',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-soralia-light">
+    <!-- Header will be loaded by header.js -->
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-lg shadow-md p-8 mb-8 flex items-center space-x-6">
+            <img id="residentAvatar" src="https://placehold.co/150x150/4F46E5/FFFFFF/png?text=JS" alt="Resident Name" class="w-32 h-32 rounded-full border-4 border-soralia-primary object-cover">
+            <div>
+                <h1 id="residentName" class="text-4xl font-bold text-gray-900">John Smith</h1>
+                <p id="residentAddress" class="text-xl text-gray-600">123 Pagoda Rd, Unit 4B</p>
+                <p id="residentMemberSince" class="text-gray-500 mt-2">Member since 2018</p>
+            </div>
+        </div>
+
+        <!-- My Interests -->
+        <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">My Interests</h2>
+            <div id="residentInterests" class="flex flex-wrap gap-4">
+                <span class="bg-green-500 text-white text-lg px-4 py-2 rounded-full">Gardening</span>
+                <span class="bg-purple-500 text-white text-lg px-4 py-2 rounded-full">Book Club</span>
+                <span class="bg-gray-500 text-white text-lg px-4 py-2 rounded-full">HOA Board</span>
+            </div>
+        </div>
+
+        <!-- My Bookshelf -->
+        <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">My Bookshelf</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Book Card -->
+                <div class="bg-gray-50 rounded-lg p-4 text-center">
+                    <img src="https://placehold.co/150x220/E5E7EB/1F2937/png?text=Book+Cover" alt="Book Cover" class="w-full h-auto rounded-md shadow-md mb-4">
+                    <h3 class="font-semibold">The Midnight Library</h3>
+                    <p class="text-gray-600 text-sm">Matt Haig</p>
+                </div>
+                <!-- Book Card -->
+                <div class="bg-gray-50 rounded-lg p-4 text-center">
+                    <img src="https://placehold.co/150x220/E5E7EB/1F2937/png?text=Book+Cover" alt="Book Cover" class="w-full h-auto rounded-md shadow-md mb-4">
+                    <h3 class="font-semibold">Project Hail Mary</h3>
+                    <p class="text-gray-600 text-sm">Andy Weir</p>
+                </div>
+                <!-- Book Card -->
+                <div class="bg-gray-50 rounded-lg p-4 text-center">
+                    <img src="https://placehold.co/150x220/E5E7EB/1F2937/png?text=Book+Cover" alt="Book Cover" class="w-full h-auto rounded-md shadow-md mb-4">
+                    <h3 class="font-semibold">Klara and the Sun</h3>
+                    <p class="text-gray-600 text-sm">Kazuo Ishiguro</p>
+                </div>
+                <!-- Book Card -->
+                <div class="bg-gray-50 rounded-lg p-4 text-center">
+                    <img src="https://placehold.co/150x220/E5E7EB/1F2937/png?text=Book+Cover" alt="Book Cover" class="w-full h-auto rounded-md shadow-md mb-4">
+                    <h3 class="font-semibold">The Four Winds</h3>
+                    <p class="text-gray-600 text-sm">Kristin Hannah</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Photo Album -->
+        <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">My Photo Album</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <img src="https://picsum.photos/300/300?random=1" alt="Photo 1" class="w-full h-auto rounded-lg shadow-md">
+                <img src="https://picsum.photos/300/300?random=2" alt="Photo 2" class="w-full h-auto rounded-lg shadow-md">
+                <img src="https://picsum.photos/300/300?random=3" alt="Photo 3" class="w-full h-auto rounded-lg shadow-md">
+                <img src="https://picsum.photos/300/300?random=4" alt="Photo 4" class="w-full h-auto rounded-lg shadow-md">
+                <img src="https://picsum.photos/300/300?random=5" alt="Photo 5" class="w-full h-auto rounded-lg shadow-md">
+                <img src="https://picsum.photos/300/300?random=6" alt="Photo 6" class="w-full h-auto rounded-lg shadow-md">
+                <img src="https://picsum.photos/300/300?random=7" alt="Photo 7" class="w-full h-auto rounded-lg shadow-md">
+                <img src="https://picsum.photos/300/300?random=8" alt="Photo 8" class="w-full h-auto rounded-lg shadow-md">
+            </div>
+        </div>
+
+        <!-- My Journal -->
+        <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">My Journal</h2>
+            <div class="space-y-6">
+                <!-- Journal Entry 1 -->
+                <div class="border-l-4 border-soralia-primary pl-4 py-2">
+                    <h3 class="font-semibold text-gray-900 text-lg mb-1">A Productive Week in the Garden!</h3>
+                    <p class="text-gray-600 text-sm mb-2">March 22, 2024</p>
+                    <p class="text-gray-700">
+                        Spent most of the week tending to my vegetable patch. The tomatoes are finally starting to ripen, and the herbs are flourishing!
+                        It's so rewarding to see the progress. Also, attended the monthly plant swap at the Community Garden – picked up some lovely
+                        succulents and shared a few of my homegrown basil plants. Great way to connect with fellow gardeners!
+                    </p>
+                    <p class="text-gray-500 text-xs mt-2">
+                        <i class="fas fa-tags mr-1"></i>Gardening, Community, Nature
+                    </p>
+                </div>
+
+                <!-- Journal Entry 2 -->
+                <div class="border-l-4 border-soralia-secondary pl-4 py-2">
+                    <h3 class="font-semibold text-gray-900 text-lg mb-1">Excited for the Next Book Club Meeting!</h3>
+                    <p class="text-gray-600 text-sm mb-2">March 18, 2024</p>
+                    <p class="text-gray-700">
+                        Just finished "The Midnight Library" for our book club. What a thought-provoking read! I'm really looking forward to our discussion
+                        next week. It's always fascinating to hear everyone's different interpretations and insights.
+                        Thinking about suggesting "Project Hail Mary" for our next pick – anyone else read it?
+                    </p>
+                    <p class="text-gray-500 text-xs mt-2">
+                        <i class="fas fa-tags mr-1"></i>Book Club, Reading, Community
+                    </p>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-blue-800 text-sm">
+                        In a real application, these journal entries would be dynamically supplied from a Content Management System (CMS)
+                        like **WordPress**, **Sanity.io**, or **Contentful**. Each entry could have a date, title, and rich text content,
+                        allowing residents to share their thoughts, experiences, or community updates in a personalized blog format.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer will be loaded by footer.js -->
+    <script src="js/header.js"></script>
+    <script src="js/footer.js"></script>
+    <script>
+const residents = [
+    {
+        id: 1,
+        name: "John & Sarah Smith",
+        address: "123 Pagoda Rd, Unit 4B",
+        phone: "+27 21 555-0123",
+        email: "smith.family@email.com",
+        role: "board",
+        interests: ["gardening", "book-club"],
+        moveInDate: "2019-03-15",
+        type: "owner",
+        avatar: "https://placehold.co/150x150/4F46E5/FFFFFF/png?text=JS"
+    },
+    {
+        id: 2,
+        name: "Maria Rodriguez",
+        address: "45 Wild Almond Rd, Unit 2A",
+        phone: "+27 21 555-0124",
+        email: "maria.rodriguez@email.com",
+        role: "committee",
+        interests: ["fitness", "cooking"],
+        moveInDate: "2020-07-22",
+        type: "owner",
+        avatar: "https://placehold.co/150x150/7C3AED/FFFFFF/png?text=MR"
+    },
+    {
+        id: 3,
+        name: "David Chen",
+        address: "78 Silkypuff Street, Unit 1C",
+        phone: "+27 21 555-0125",
+        email: "david.chen@email.com",
+        role: "resident",
+        interests: ["photography", "volunteering"],
+        moveInDate: "2021-01-10",
+        type: "tenant",
+        avatar: "https://placehold.co/150x150/F59E0B/FFFFFF/png?text=DC"
+    },
+    {
+        id: 4,
+        name: "Emma Thompson",
+        address: "92 Beechwood Rd, Unit 3A",
+        phone: "+27 21 555-0126",
+        email: "emma.thompson@email.com",
+        role: "board",
+        interests: ["gardening", "book-club"],
+        moveInDate: "2018-11-05",
+        type: "owner",
+        avatar: "https://placehold.co/150x150/10B981/FFFFFF/png?text=ET" 
+    },
+    {
+        id: 5,
+        name: "Michael Johnson",
+        address: "156 Sugarbrush Rd, Unit 5B",
+        phone: "+27 21 555-0127",
+        email: "michael.johnson@email.com",
+        role: "committee",
+        interests: ["fitness", "photography"],
+        moveInDate: "2020-09-18",
+        type: "owner",
+        avatar: "https://placehold.co/150x150/EF4444/FFFFFF/png?text=MJ"
+    },
+    {
+        id: 6,
+        name: "Lisa Park",
+        address: "234 Conebrush Rd, Unit 6A",
+        phone: "+27 21 555-0128",
+        email: "lisa.park@email.com",
+        role: "resident",
+        interests: ["cooking", "volunteering"],
+        moveInDate: "2021-05-12",
+        type: "tenant",
+        avatar: "https://placehold.co/150x150/8B5CF6/FFFFFF/png?text=LP"
+    },
+    {
+        id: 7,
+        name: "Robert Wilson",
+        address: "67 Pagoda Rd, Unit 7C",
+        phone: "+27 21 555-0129",
+        email: "robert.wilson@email.com",
+        role: "resident",
+        interests: ["gardening", "fitness"],
+        moveInDate: "2019-12-03",
+        type: "owner",
+        avatar: "https://placehold.co/150x150/F97316/FFFFFF/png?text=RW"
+    },
+    {
+        id: 8,
+        name: "Amanda Davis",
+        address: "189 Wild Almond Rd, Unit 8B",
+        phone: "+27 21 555-0130",
+        email: "amanda.davis@email.com",
+        role: "committee",
+        interests: ["book-club", "photography"],
+        moveInDate: "2020-02-28",
+        type: "owner",
+        avatar: "https://placehold.co/150x150/06B6D4/FFFFFF/png?text=AD"
+    }
+];
+
+const interestColors = {
+    gardening: 'bg-green-500',
+    fitness: 'bg-blue-500',
+    'book-club': 'bg-purple-500',
+    cooking: 'bg-red-500',
+    photography: 'bg-indigo-500',
+    volunteering: 'bg-yellow-500',
+    'hoa-board': 'bg-gray-500',
+    pets: 'bg-pink-500',
+    'community-events': 'bg-teal-500',
+    sustainability: 'bg-cyan-500',
+    landscaping: 'bg-lime-500'
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const residentId = parseInt(urlParams.get('id'));
+
+    const resident = residents.find(r => r.id === residentId);
+
+    if (resident) {
+        document.getElementById('residentName').textContent = resident.name;
+        document.getElementById('residentAddress').textContent = resident.address;
+        document.getElementById('residentMemberSince').textContent = `Member since ${new Date(resident.moveInDate).getFullYear()}`;
+        document.getElementById('residentAvatar').src = resident.avatar;
+
+        const interestsContainer = document.getElementById('residentInterests');
+        interestsContainer.innerHTML = resident.interests.map(interest => `
+            <a href="interest.html?interest=${encodeURIComponent(interest)}" class="inline-block ${interestColors[interest] || 'bg-soralia-accent'} text-white text-lg px-4 py-2 rounded-full hover:underline">
+                ${interest.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+            </a>
+        `).join('');
+
+        // Placeholder for dynamic bookshelf and photo album
+        // In a real app, this would fetch data from a CMS
+    } else {
+        // Handle case where resident is not found
+        document.getElementById('residentName').textContent = "Resident Not Found";
+        document.getElementById('residentAddress').textContent = "N/A";
+        document.getElementById('residentMemberSince').textContent = "N/A";
+        document.getElementById('residentAvatar').src = "https://placehold.co/150x150/CCCCCC/FFFFFF/png?text=N/A";
+        document.getElementById('residentInterests').innerHTML = "";
+    }
+});
+    </script>
+</body>
+</html>

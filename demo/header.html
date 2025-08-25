@@ -1,0 +1,28 @@
+<!-- Reusable Header Component -->
+<header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <img src="logo.png" alt="Soralia Village Logo" class="w-16 h-16 rounded-full bg-white p-2 border-2 border-white shadow-lg object-cover">
+            <div>
+                <h1 class="text-2xl font-bold">Soralia Village</h1>
+                <p class="text-xs opacity-75">Conscious Community Living</p>
+            </div>
+        </div>
+        <nav class="hidden md:flex space-x-6">
+            <a href="index.html" class="hover:text-soralia-accent font-medium" data-page="home">Home</a>
+            <a href="directory.html" class="hover:text-soralia-accent font-medium" data-page="directory">Directory</a>
+            <a href="services.html" class="hover:text-soralia-accent font-medium" data-page="services">Services</a>
+            <a href="resources.html" class="hover:text-soralia-accent font-medium" data-page="resources">Resources</a>
+            <a href="conservation.html" class="hover:text-soralia-accent font-medium" data-page="conservation">Conservation</a>
+            <a href="conservation.html" class="hover:text-soralia-accent font-medium" data-page="dashboard">Conservation</a>
+        </nav>
+        <div class="flex items-center space-x-4">
+            <button id="authButton" onclick="toggleAuthModal()" class="bg-white text-soralia-primary py-2 px-4 rounded-md hover:bg-gray-100 transition">
+                Sign In
+            </button>
+            <button class="md:hidden text-white">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </div>
+</header>
