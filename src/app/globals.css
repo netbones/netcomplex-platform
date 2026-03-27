@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --soralia-primary: #4f46e5;
+  --soralia-secondary: #10b981;
+  --soralia-accent: #f59e0b;
+  --soralia-dark: #1f2937;
+  --soralia-light: #f3f4f6;
+}
+
+body {
+  @apply bg-soralia-light text-soralia-dark;
+}
