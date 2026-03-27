@@ -7,12 +7,209 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model residents {
-  id            Int    @id @default(autoincrement())
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
   name          String
-  address       String
-  phone         String
-  email         String
-  resident_type String
-  interests     String
+  role          Role      @default(RESIDENT)
+  street        String?
+  unit          String?
+  phone         String?
+  interests     String[]
+  avatar        String?
+  isPublic      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  requests      MaintenanceRequest[]
+  bookings      Booking[]
+  notifications Notification[]
+  conversations Conversation[]
+  messages      Message[]
+}
+
+enum Role {
+  RESIDENT
+  BOARD
+  ADMIN
+}
+
+model MaintenanceRequest {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    String
+  priority    Priority
+  description String
+  status      RequestStatus @default(SUBMITTED)
+  images      String[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  EMERGENCY
+}
+
+enum RequestStatus {
+  SUBMITTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  facility    String
+  date        DateTime
+  startTime   String
+  endTime     String
+  purpose     String?
+  status      BookingStatus @default(CONFIRMED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  date        DateTime
+  location    String
+  organizer   String
+  image       String?
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  author    String
+  priority  String   @default("normal")
+  createdAt DateTime @default(now())
+  expiresAt DateTime?
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
+model Conversation {
+  id           String    @id @default(cuid())
+  name         String?
+  type         ConversationType @default(DIRECT)
+  participants User[]
+  messages     Message[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+enum ConversationType {
+  DIRECT
+  GROUP
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+  content        String
+  type           MessageType  @default(TEXT)
+  createdAt      DateTime     @default(now())
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  SYSTEM
+}
+
+model Survey {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  type        SurveyType @default(INTERNAL)
+  status      SurveyStatus @default(DRAFT)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum SurveyType {
+  INTERNAL
+  EXTERNAL
+}
+
+enum SurveyStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+model Question {
+  id         String   @id @default(cuid())
+  surveyId   String
+  text       String
+  type       QuestionType
+  options    String[]
+  required   Boolean  @default(false)
+  order      Int      @default(0)
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TEXT
+  RATING
+  YES_NO
+}
+
+model Response {
+  id        String   @id @default(cuid())
+  surveyId  String
+  userId    String?
+  answers   Json
+  createdAt DateTime @default(now())
+}
+
+model ExternalSurvey {
+  id          String   @id @default(cuid())
+  name        String
+  provider    String
+  externalId  String
+  embedUrl    String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
