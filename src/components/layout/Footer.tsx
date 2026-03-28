@@ -221,19 +221,19 @@ export function Footer() {
             </div>
             <div className="flex flex-wrap justify-center md:justify-end space-x-6">
               <Link
-                href="#"
+                href="/privacy"
                 className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
               >
                 Privacy Policy
               </Link>
               <Link
-                href="#"
+                href="/terms"
                 className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
               >
                 Terms of Service
               </Link>
               <Link
-                href="#"
+                href="/guidelines"
                 className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
               >
                 Community Guidelines
