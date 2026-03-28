@@ -31,14 +31,13 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const body = await request.json();
 
-  // Get user from auth - for now using a placeholder
   const userId = body.userId || 'demo-user-id';
 
   const maintenanceRequest = await prisma.maintenanceRequest.create({
     data: {
       userId,
-      category: body.category,
-      priority: body.priority,
+      category: body.category || body.serviceType || 'general',
+      priority: body.priority || 'LOW',
       description: body.description,
       images: body.images || [],
     },

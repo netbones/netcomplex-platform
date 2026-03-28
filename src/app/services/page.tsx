@@ -128,14 +128,31 @@ export default function ServicesPage() {
     preferredTime: '',
   });
 
-  const handleServiceRequest = (serviceId: string, serviceTitle: string) => {
+  const handleServiceRequest = async (serviceId: string, serviceTitle: string) => {
     setSelectedService(serviceTitle);
     setFormData(prev => ({ ...prev, serviceType: serviceId }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Service request:', formData);
+    try {
+      const res = await fetch('/api/maintenance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category: formData.serviceType,
+          priority: formData.priority.toUpperCase(),
+          description: formData.description,
+          preferredDate: formData.preferredDate,
+          preferredTime: formData.preferredTime,
+        }),
+      });
+      if (res.ok) {
+        alert('Service request submitted successfully!');
+      }
+    } catch (error) {
+      console.error('Failed to submit request:', error);
+    }
     setSelectedService(null);
     setFormData({
       serviceType: '',
