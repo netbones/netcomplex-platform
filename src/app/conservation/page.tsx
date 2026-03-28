@@ -99,7 +99,11 @@ export default function ConservationPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="relative bg-gradient-to-r from-green-600 to-emerald-700 rounded-lg shadow-lg p-8 mb-8 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+        <img
+          src="/conservation.webp"
+          alt="Soralia Village Conservation Area"
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
+        />
         <div className="relative z-10">
           <div className="text-center mb-6">
             <h1 className="text-4xl font-bold mb-4">Soralia Nature Reserve</h1>
