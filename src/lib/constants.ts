@@ -19,6 +19,8 @@ export const CONTENT_CATEGORIES = {
 
 export const ROLES = {
   RESIDENT: 'RESIDENT',
+  GROUP_ADMIN: 'GROUP_ADMIN',
+  COMMITTEE: 'COMMITTEE',
   BOARD: 'BOARD',
   ADMIN: 'ADMIN',
 } as const;

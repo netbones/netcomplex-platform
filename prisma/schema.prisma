@@ -35,9 +35,11 @@ model User {
 }
 
 enum Role {
-  RESIDENT
-  BOARD
-  ADMIN
+  RESIDENT      // Default user
+  GROUP_ADMIN  // Manages only their own group
+  COMMITTEE   // Committee member
+  BOARD       // HOA Board member
+  ADMIN       // SuperAdmin - full platform access
 }
 
 enum ResidentType {

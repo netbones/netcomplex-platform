@@ -67,11 +67,13 @@ Transform Soralia Village from a static demo into a fully functional SPA with:
 
 ## User Personas
 
-| Persona      | Role         | Needs                                                                                  |
-| ------------ | ------------ | -------------------------------------------------------------------------------------- |
-| Resident     | Default user | View directory, submit requests, book facilities, join interest groups, create content |
-| Board Member | Management   | Approve requests, post announcements, manage content, moderate groups                  |
-| Admin        | Full control | User management, system configuration, analytics, content management, group admin      |
+| Persona      | Role        | Access Level                                                                           |
+| ------------ | ----------- | -------------------------------------------------------------------------------------- |
+| Resident     | RESIDENT    | View directory, submit requests, book facilities, join interest groups, create content |
+| Group Admin  | GROUP_ADMIN | Manage own group: add/remove members, delete own group content                         |
+| Committee    | COMMITTEE   | Committee duties, group admin + platform reporting access                              |
+| Board Member | BOARD       | HOA Board: oversight, platform management                                              |
+| Admin        | ADMIN       | SuperAdmin: user management, content moderation, suspend users, full platform access   |
 
 ---
 
