@@ -9,8 +9,9 @@ interface User {
   email: string;
   street: string | null;
   unit: string | null;
-  residentType: 'OWNER' | 'RENTER' | null;
+  residentType: 'OWNER' | 'RENTER' | 'SUSPENDED' | null;
   role: string | null;
+  isActive: boolean;
 }
 
 interface Invitation {
@@ -24,7 +25,8 @@ interface Invitation {
 }
 
 const roleOptions = ['RESIDENT', 'BOARD', 'ADMIN', 'COMMITTEE'];
-const residentTypeOptions = ['OWNER', 'RENTER'];
+const residentTypeOptions = ['OWNER', 'RENTER', 'SUSPENDED'];
+const activeOptions = ['active', 'suspended'];
 
 export default function AdminUsersPage() {
   const { showToast } = useToast();
@@ -205,7 +207,7 @@ export default function AdminUsersPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                {['Name', 'Email', 'Address', 'Type', 'Role', ''].map(h => (
+                {['Name', 'Email', 'Address', 'Type', 'Role', 'Status', ''].map(h => (
                   <th
                     key={h}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
@@ -247,6 +249,14 @@ export default function AdminUsersPage() {
                         </option>
                       ))}
                     </select>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => updateUser(u.id, { isActive: (!u.isActive).toString() })}
+                      className={`px-2 py-1 rounded text-sm ${u.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                    >
+                      {u.isActive ? 'Active' : 'Suspended'}
+                    </button>
                   </td>
                   <td className="px-6 py-4">
                     <button

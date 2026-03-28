@@ -10,12 +10,13 @@ datasource db {
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
-  name          String
+  name         String
   role          Role      @default(RESIDENT)
   residentType  ResidentType @default(OWNER)
+  isActive      Boolean   @default(true)
   street        String?
   unit          String?
-  phone         String?
+  phone        String?
   interests     String[]
   avatar        String?
   profileImage  String?
@@ -42,6 +43,7 @@ enum Role {
 enum ResidentType {
   OWNER
   RENTER
+  SUSPENDED
 }
 
 model MaintenanceRequest {
