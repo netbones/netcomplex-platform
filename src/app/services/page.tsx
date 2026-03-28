@@ -119,6 +119,7 @@ const emergencyContacts = [
 ];
 
 export default function ServicesPage() {
+  const [selectedService, setSelectedService] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     serviceType: '',
     priority: 'low',
@@ -127,9 +128,22 @@ export default function ServicesPage() {
     preferredTime: '',
   });
 
+  const handleServiceRequest = (serviceId: string, serviceTitle: string) => {
+    setSelectedService(serviceTitle);
+    setFormData(prev => ({ ...prev, serviceType: serviceId }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Service request:', formData);
+    setSelectedService(null);
+    setFormData({
+      serviceType: '',
+      priority: 'low',
+      description: '',
+      preferredDate: '',
+      preferredTime: '',
+    });
   };
 
   return (
@@ -166,7 +180,10 @@ export default function ServicesPage() {
                   </li>
                 ))}
               </ul>
-              <button className="w-full mt-6 bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+              <button
+                onClick={() => handleServiceRequest(service.id, service.title)}
+                className="w-full mt-6 bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+              >
                 Request Service
               </button>
             </div>
@@ -321,6 +338,112 @@ export default function ServicesPage() {
           </div>
         </form>
       </div>
+
+      {selectedService && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Request {selectedService} Service
+                </h2>
+                <button
+                  onClick={() => setSelectedService(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <i className="fas fa-times text-xl"></i>
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Service Type
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedService}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100"
+                    readOnly
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                  <select
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                    value={formData.priority}
+                    onChange={e => setFormData({ ...formData, priority: e.target.value })}
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="emergency">Emergency</option>
+                  </select>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    rows={4}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                    placeholder="Please describe your service request in detail..."
+                    value={formData.description}
+                    onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Preferred Date
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                      value={formData.preferredDate}
+                      onChange={e => setFormData({ ...formData, preferredDate: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Preferred Time
+                    </label>
+                    <select
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                      value={formData.preferredTime}
+                      onChange={e => setFormData({ ...formData, preferredTime: e.target.value })}
+                    >
+                      <option value="">Any time</option>
+                      <option value="morning">Morning (8AM-12PM)</option>
+                      <option value="afternoon">Afternoon (12PM-5PM)</option>
+                      <option value="evening">Evening (5PM-8PM)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedService(null)}
+                    className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+                  >
+                    <i className="fas fa-paper-plane mr-2"></i>Submit
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
