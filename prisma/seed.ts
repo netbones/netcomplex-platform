@@ -261,6 +261,32 @@ async function main() {
     }),
   ]);
 
+  // Create settings
+  const settings = await Promise.all([
+    prisma.setting.upsert({
+      where: { key: 'contact.emergency' },
+      update: {},
+      create: { key: 'contact.emergency', value: '+27 21 555-HELP' },
+    }),
+    prisma.setting.upsert({
+      where: { key: 'contact.security' },
+      update: {},
+      create: { key: 'contact.security', value: '+27 21 555-SAFE' },
+    }),
+    prisma.setting.upsert({
+      where: { key: 'contact.maintenance' },
+      update: {},
+      create: { key: 'contact.maintenance', value: '+27 21 555-FIXIT' },
+    }),
+    prisma.setting.upsert({
+      where: { key: 'contact.office' },
+      update: {},
+      create: { key: 'contact.office', value: '+27 21 555-0000' },
+    }),
+  ]);
+
+  console.log(`Created ${settings.length} settings`);
+
   console.log('Seeding complete!');
 }
 

@@ -2,9 +2,13 @@
 
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
+import { useContactSettings } from '@/lib/useContactSettings';
 
 export function Footer() {
   const { t } = useTranslation('common');
+  const { contacts, loading } = useContactSettings();
+
+  const formatPhone = (phone: string | undefined) => phone?.replace(/\D/g, '') || '';
 
   return (
     <footer className="bg-gray-900 text-white mt-auto">
@@ -186,29 +190,42 @@ export function Footer() {
 
         <div className="border-t border-gray-600 pt-8 mb-8">
           <h4 className="text-lg font-semibold mb-4 text-center">Emergency Contacts</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-red-600 rounded-lg p-4 text-center">
-              <i className="fas fa-exclamation-triangle text-2xl mb-2" aria-hidden="true"></i>
-              <h5 className="font-semibold">Emergency</h5>
-              <a href="tel:+27215554357" className="text-sm hover:underline">
-                +27 21 555-HELP
-              </a>
+          {loading ? (
+            <div className="text-center text-gray-400">Loading contacts...</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-red-600 rounded-lg p-4 text-center">
+                <i className="fas fa-exclamation-triangle text-2xl mb-2" aria-hidden="true"></i>
+                <h5 className="font-semibold">Emergency</h5>
+                <a
+                  href={`tel:${formatPhone(contacts.emergency)}`}
+                  className="text-sm hover:underline"
+                >
+                  {contacts.emergency}
+                </a>
+              </div>
+              <div className="bg-orange-600 rounded-lg p-4 text-center">
+                <i className="fas fa-shield-alt text-2xl mb-2" aria-hidden="true"></i>
+                <h5 className="font-semibold">Security</h5>
+                <a
+                  href={`tel:${formatPhone(contacts.security)}`}
+                  className="text-sm hover:underline"
+                >
+                  {contacts.security}
+                </a>
+              </div>
+              <div className="bg-green-600 rounded-lg p-4 text-center">
+                <i className="fas fa-tools text-2xl mb-2" aria-hidden="true"></i>
+                <h5 className="font-semibold">Maintenance</h5>
+                <a
+                  href={`tel:${formatPhone(contacts.maintenance)}`}
+                  className="text-sm hover:underline"
+                >
+                  {contacts.maintenance}
+                </a>
+              </div>
             </div>
-            <div className="bg-orange-600 rounded-lg p-4 text-center">
-              <i className="fas fa-shield-alt text-2xl mb-2" aria-hidden="true"></i>
-              <h5 className="font-semibold">Security</h5>
-              <a href="tel:+27215557233" className="text-sm hover:underline">
-                +27 21 555-SAFE
-              </a>
-            </div>
-            <div className="bg-green-600 rounded-lg p-4 text-center">
-              <i className="fas fa-tools text-2xl mb-2" aria-hidden="true"></i>
-              <h5 className="font-semibold">Maintenance</h5>
-              <a href="tel:+27215534948" className="text-sm hover:underline">
-                +27 21 555-FIXIT
-              </a>
-            </div>
-          </div>
+          )}
         </div>
 
         <div className="border-t border-gray-600 pt-8">
