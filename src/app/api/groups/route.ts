@@ -32,7 +32,9 @@ export async function GET(request: Request) {
   }
 
   const canView =
-    hasPermission(authData.role, 'groups') || hasPermission(authData.role, 'groupsOwn');
+    hasPermission(authData.role, 'groups') ||
+    hasPermission(authData.role, 'groupsOwn') ||
+    authData.role === 'RESIDENT';
   if (!canView) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
