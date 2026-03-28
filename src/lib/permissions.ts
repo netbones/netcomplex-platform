@@ -37,7 +37,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     users: false,
     requests: false,
     content: false,
-    groups: true,
+    groups: false,
     groupsOwn: true,
     contentOwn: true,
     events: true,

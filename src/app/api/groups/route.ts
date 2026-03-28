@@ -1,4 +1,5 @@
-import { requirePermission } from '@/lib/auth-utils';
+import { requirePermission, requireOwnPermission, getSessionAndRole } from '@/lib/auth-utils';
+import { hasPermission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
@@ -18,8 +19,16 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const authError = await requirePermission('groups');
-  if (authError) return authError;
+  const authData = await getSessionAndRole();
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const canCreateGroup =
+    hasPermission(authData.role, 'groups') || hasPermission(authData.role, 'groupsOwn');
+  if (!canCreateGroup) {
+    return NextResponse.json({ error: 'Forbidden - Insufficient permissions' }, { status: 403 });
+  }
 
   const body = await request.json();
 
@@ -30,7 +39,7 @@ export async function POST(request: Request) {
       category: body.category,
       image: body.image,
       isPublic: body.isPublic ?? true,
-      ownerId: body.ownerId,
+      ownerId: body.ownerId || authData.userId,
     },
   });
 

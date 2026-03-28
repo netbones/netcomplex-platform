@@ -53,13 +53,26 @@ export async function proxy(request: Request): Promise<NextResponse> {
     { path: '/bookings', permission: 'bookings' },
     { path: '/events', permission: 'events' },
     { path: '/groups', permission: 'groups' },
-    { path: '/interest', permission: 'groups' },
+    { path: '/interest', permission: 'groupsOwn' },
     { path: '/directory', permission: 'directory' },
     { path: '/services', permission: 'bookings' },
     { path: '/resources', permission: 'content' },
     { path: '/messages', permission: 'messages' },
     { path: '/settings', permission: 'settings' },
   ];
+
+  const authOnlyPaths = ['/groups', '/interest'];
+
+  const isAuthOnlyPath =
+    authOnlyPaths.some(p => pathname.startsWith(p)) &&
+    !protectedPaths.some(p => pathname.startsWith(p.path));
+
+  if (isAuthOnlyPath) {
+    if (!session) {
+      return NextResponse.redirect(new URL('/sign-in', request.url));
+    }
+    return NextResponse.next();
+  }
 
   for (const { path, permission } of protectedPaths) {
     if (pathname.startsWith(path) && !hasPermission(userRole, permission)) {
