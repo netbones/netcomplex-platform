@@ -2,6 +2,7 @@
 
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 
 const interestGroups: Record<
   string,
@@ -155,6 +156,7 @@ function InterestContent() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Interests' }]} />
       <div className="bg-white rounded-lg shadow-md p-8 mb-8">
         <h1 className="text-4xl font-bold text-gray-900">{group.title}</h1>
         <p className="text-xl text-gray-600">{group.tagline}</p>
