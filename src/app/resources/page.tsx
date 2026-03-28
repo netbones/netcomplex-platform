@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { CARD_ANIMATIONS } from '@/lib/constants';
 
 const quickLinks = [
   {
@@ -145,7 +146,7 @@ export default function ResourcesPage() {
           <a
             key={link.title}
             href={link.href}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow text-center"
+            className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg hover:scale-[1.02] ${CARD_ANIMATIONS.transition} text-center`}
           >
             <i className={`fas ${link.icon} text-4xl ${link.color} mb-4`}></i>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">{link.title}</h3>
@@ -154,21 +155,29 @@ export default function ResourcesPage() {
         ))}
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-8 mb-8 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-6">Community Campaigns</h2>
-        <p className="text-gray-700 mb-6">
-          Explore our ongoing initiatives and discover how we're building a stronger, more vibrant
-          Soralia Village together.
-        </p>
-        <a
-          href="/proudly-soralia"
-          className="inline-block bg-indigo-600 text-white py-3 px-8 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
-        >
-          <i className="fas fa-heart mr-2"></i>Proudly Soralia Campaign
-        </a>
+      <div className="relative bg-white rounded-lg shadow-md p-8 mb-8 text-center overflow-hidden group">
+        <div className="absolute inset-0 opacity-90 group-hover:opacity-100 transition-opacity duration-300">
+          <img src="/soralia.jpg" alt="" className="w-full h-full object-cover" />
+        </div>
+        <div className="relative bg-black/40 p-8 rounded-lg">
+          <h2 className="text-3xl font-bold text-white mb-6">Community Campaigns</h2>
+          <p className="text-white/90 mb-6">
+            Explore our ongoing initiatives and discover how we're building a stronger, more vibrant
+            Soralia Village together.
+          </p>
+          <a
+            href="/proudly-soralia"
+            className="inline-block bg-indigo-600 text-white py-3 px-8 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+          >
+            <i className="fas fa-heart mr-2"></i>Proudly Soralia Campaign
+          </a>
+        </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-8 mb-12" id="documents">
+      <div
+        className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
+        id="documents"
+      >
         <h2 className="text-3xl font-bold text-gray-900 mb-6">
           <i className="fas fa-file-alt text-blue-600 mr-3"></i>
           Important Documents
@@ -177,7 +186,7 @@ export default function ResourcesPage() {
           {documents.map(doc => (
             <div
               key={doc.title}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+              className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
             >
               <div className="flex items-center mb-4">
                 <i className={`fas ${doc.icon} text-blue-600 text-2xl mr-3`}></i>
@@ -197,7 +206,10 @@ export default function ResourcesPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-8 mb-12" id="events">
+      <div
+        className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
+        id="events"
+      >
         <h2 className="text-3xl font-bold text-gray-900 mb-6">
           <i className="fas fa-calendar-alt text-green-600 mr-3"></i>
           Community Events & Meetings
@@ -206,7 +218,7 @@ export default function ResourcesPage() {
           {events.map(event => (
             <div
               key={event.title}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+              className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
             >
               <div className="flex items-center mb-4">
                 <i className={`fas ${event.icon} text-green-600 text-2xl mr-3`}></i>
@@ -219,7 +231,10 @@ export default function ResourcesPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-8 mb-12" id="guidelines">
+      <div
+        className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
+        id="guidelines"
+      >
         <h2 className="text-3xl font-bold text-gray-900 mb-6">
           <i className="fas fa-book text-purple-600 mr-3"></i>
           Community Guidelines
@@ -228,7 +243,7 @@ export default function ResourcesPage() {
           {guidelines.map(guideline => (
             <div
               key={guideline.title}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+              className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
             >
               <div className="flex items-center mb-4">
                 <i className={`fas ${guideline.icon} text-purple-600 text-2xl mr-3`}></i>
@@ -243,7 +258,10 @@ export default function ResourcesPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-8" id="contacts">
+      <div
+        className={`bg-white rounded-lg shadow-lg p-8 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
+        id="contacts"
+      >
         <h2 className="text-3xl font-bold text-gray-900 mb-6">
           <i className="fas fa-phone text-red-600 mr-3"></i>
           Important Contacts
@@ -252,7 +270,7 @@ export default function ResourcesPage() {
           {contacts.map(contact => (
             <div
               key={contact.title}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+              className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
             >
               <div className="flex items-center mb-4">
                 <i className={`fas ${contact.icon} text-red-600 text-2xl mr-3`}></i>
