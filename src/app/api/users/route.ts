@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -27,7 +28,7 @@ export async function GET(request: Request) {
   }
 
   if (residentType) {
-    where.residentType = residentType;
+    where.residentType = residentType as 'OWNER' | 'RENTER';
   }
 
   if (role) {
