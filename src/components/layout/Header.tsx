@@ -1,15 +1,24 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Suspense } from 'react';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { NAV_LINKS } from '@/lib/constants';
+import { authClient } from '@/lib/auth-client';
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const { t } = useTranslation('common');
+  const { data: session, isPending } = authClient.useSession();
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    router.push('/');
+    router.refresh();
+  };
 
   return (
     <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md">
@@ -42,12 +51,28 @@ export function Header() {
           <Suspense fallback={<div className="w-16 h-6 bg-white/20 rounded" />}>
             <LanguageSwitcher />
           </Suspense>
-          <Link
-            href="/sign-in"
-            className="bg-white text-soralia-primary py-2 px-4 rounded-md hover:bg-gray-100 transition"
-          >
-            {t('nav.login')}
-          </Link>
+          {isPending ? (
+            <div className="w-20 h-8 bg-white/20 rounded animate-pulse" />
+          ) : session ? (
+            <div className="flex items-center space-x-3">
+              <Link
+                href="/dashboard"
+                className="bg-white/20 py-2 px-4 rounded-md hover:bg-white/30 transition"
+              >
+                {session.user.name || session.user.email}
+              </Link>
+              <button onClick={handleSignOut} className="text-sm hover:underline">
+                {t('nav.logout')}
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/sign-in"
+              className="bg-white text-soralia-primary py-2 px-4 rounded-md hover:bg-gray-100 transition"
+            >
+              {t('nav.login')}
+            </Link>
+          )}
         </div>
       </div>
     </header>
