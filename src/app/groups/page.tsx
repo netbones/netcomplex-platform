@@ -1,0 +1,111 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+
+interface Group {
+  id: string;
+  name: string;
+  description: string | null;
+  category: string;
+  owner: { name: string | null };
+  _count: { members: number };
+}
+
+export default function GroupsHubPage() {
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  useEffect(() => {
+    fetch('/api/groups')
+      .then(res => res.json())
+      .then(data => {
+        setGroups(data);
+        setLoading(false);
+      });
+  }, []);
+
+  const categories = [
+    'all',
+    'gardening',
+    'fitness',
+    'book-club',
+    'cooking',
+    'photography',
+    'volunteering',
+  ];
+
+  const filteredGroups =
+    selectedCategory === 'all' ? groups : groups.filter(g => g.category === selectedCategory);
+
+  if (loading) {
+    return <div className="p-8 text-center">Loading...</div>;
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Interest Groups</h1>
+        <p className="text-gray-600">Connect with neighbors who share your interests</p>
+      </div>
+
+      <div className="flex flex-wrap justify-center gap-2 mb-8">
+        {categories.map(cat => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-4 py-2 rounded-full capitalize ${
+              selectedCategory === cat
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {cat === 'all' ? 'All Groups' : cat.replace('-', ' ')}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredGroups.map(group => (
+          <div
+            key={group.id}
+            className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="px-3 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full capitalize">
+                {group.category.replace('-', ' ')}
+              </span>
+              <span className="text-sm text-gray-500">
+                <i className="fas fa-users mr-1"></i>
+                {group._count.members}
+              </span>
+            </div>
+
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{group.name}</h3>
+            <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+              {group.description || 'No description yet'}
+            </p>
+
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500">Led by {group.owner.name}</span>
+              <Link
+                href={`/groups/${group.id}`}
+                className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700"
+              >
+                View Group
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {filteredGroups.length === 0 && (
+        <div className="text-center py-12 text-gray-500">
+          <i className="fas fa-users text-4xl mb-4"></i>
+          <p>No groups found in this category</p>
+        </div>
+      )}
+    </div>
+  );
+}
