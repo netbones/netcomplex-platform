@@ -14,13 +14,72 @@ interface Resident {
 
 interface DirectoryGridProps {
   residents: Resident[];
+  viewMode?: 'grid' | 'list';
 }
 
-export function DirectoryGrid({ residents }: DirectoryGridProps) {
+export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridProps) {
   if (residents.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500">No residents found matching your criteria.</p>
+      </div>
+    );
+  }
+
+  if (viewMode === 'list') {
+    return (
+      <div className="space-y-4">
+        {residents.map(resident => (
+          <div
+            key={resident.id}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex items-center"
+          >
+            <div className="flex items-center space-x-4 w-1/3">
+              {resident.avatar ? (
+                <img
+                  src={resident.avatar}
+                  alt={resident.name}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-soralia-primary flex items-center justify-center text-white text-lg font-bold">
+                  {resident.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div>
+                <h3 className="font-semibold text-lg">{resident.name}</h3>
+                {resident.street && (
+                  <p className="text-sm text-gray-600">
+                    {resident.street}
+                    {resident.unit && `, ${resident.unit}`}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex-1 flex justify-between items-center border-l pl-4">
+              <div>
+                {resident.isPublic && (
+                  <div>
+                    {resident.phone && <p className="text-sm text-gray-600">{resident.phone}</p>}
+                    <p className="text-sm text-gray-600">{resident.email}</p>
+                  </div>
+                )}
+              </div>
+              {resident.interests && resident.interests.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {resident.interests.map(interest => (
+                    <span
+                      key={interest}
+                      className="text-xs bg-soralia-light text-soralia-dark px-2 py-1 rounded"
+                    >
+                      {interest}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
