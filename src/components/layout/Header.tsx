@@ -91,7 +91,8 @@ export function Header() {
           {session && (
             <button
               onClick={() => setIsDrawerOpen(true)}
-              className="md:hidden p-2 rounded-md hover:bg-white/20"
+              className="p-2 rounded-md hover:bg-white/20"
+              aria-label="Open menu"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
