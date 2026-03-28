@@ -635,11 +635,31 @@ const validate = (data: FormData): boolean => {
 
 ### Directory Components
 
-- `ResidentCard` - Grid/list item for resident
+- `ResidentCard` - Grid/list item for resident (external - public view)
+- `ResidentCardInternal` - Grid/list item for resident (internal - with chat/messaging)
 - `ResidentGrid` - Grid view of directory
 - `ResidentTable` - Table view of directory
 - `SearchFilters` - Filter sidebar
 - `StreetMap` - Leaflet map with markers
+
+### Card Specifications
+
+**External Cards (Homepage `/` & Directory `/directory` - Public)**
+
+- Read-only view of resident information
+- Shows: Name, address, avatar, role badge (Owner/Renter), interests
+- Color-coded header (cycles through theme colors)
+- Contact info shown if `isPublic: true`
+- No interactive features beyond filtering/search
+
+**Internal Cards (Dashboard `/dashboard/directory` - Authenticated)**
+
+- All external card features PLUS:
+- Chat/Messaging button to start conversation
+- Quick action menu (view profile, send message)
+- Online status indicator
+- Last active timestamp
+- Requires authentication to view
 
 ### Dashboard Components
 

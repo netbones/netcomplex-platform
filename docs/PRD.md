@@ -93,6 +93,8 @@ Transform Soralia Village from a static demo into a fully functional SPA with:
 - Privacy controls (show/hide contact info)
 - Street/unit filtering
 - Grid/List view toggle
+- **External Cards**: Public view (homepage, /directory) - read-only
+- **Internal Cards**: Authenticated view (/dashboard/directory) - with chat/messaging
 
 ### 3. Resident Dashboard
 

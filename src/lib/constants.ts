@@ -72,6 +72,76 @@ export const INTEREST_CATEGORIES = [
   'arts',
 ] as const;
 
+export const INTERESTS_DISPLAY: Record<string, string> = {
+  gardening: 'Gardening',
+  fitness: 'Fitness',
+  'book-club': 'Book Club',
+  cooking: 'Cooking',
+  photography: 'Photography',
+  volunteering: 'Volunteering',
+  conservation: 'Conservation',
+  pets: 'Pets',
+  sports: 'Sports',
+  music: 'Music',
+  arts: 'Arts',
+};
+
+export const INTEREST_COLORS: Record<string, string> = {
+  gardening: 'bg-green-500',
+  conservation: 'bg-green-600',
+  tennis: 'bg-blue-500',
+  swimming: 'bg-blue-600',
+  'book-club': 'bg-purple-500',
+  fitness: 'bg-cyan-700',
+  photography: 'bg-pink-500',
+  yoga: 'bg-indigo-600',
+  cooking: 'bg-orange-500',
+  chess: 'bg-indigo-500',
+  arts: 'bg-pink-500',
+  music: 'bg-purple-500',
+  volunteering: 'bg-orange-500',
+  pets: 'bg-amber-500',
+  sports: 'bg-blue-500',
+  Gardening: 'bg-green-500',
+  Conservation: 'bg-green-600',
+  Tennis: 'bg-blue-500',
+  Swimming: 'bg-blue-600',
+  'Book Club': 'bg-purple-500',
+  Fitness: 'bg-cyan-700',
+  Photography: 'bg-pink-500',
+  Yoga: 'bg-indigo-600',
+  Cooking: 'bg-orange-500',
+  Chess: 'bg-indigo-500',
+  Arts: 'bg-pink-500',
+  Music: 'bg-purple-500',
+  Volunteering: 'bg-orange-500',
+  Pets: 'bg-amber-500',
+  Sports: 'bg-blue-500',
+};
+
+export const CARD_HEADER_COLORS = [
+  'bg-soralia-primary',
+  'bg-blue-500',
+  'bg-green-500',
+  'bg-purple-500',
+  'bg-orange-500',
+] as const;
+
+export const CARD_ANIMATIONS = {
+  hover: 'hover:scale-[1.02] hover:shadow-xl',
+  transition: 'transition-all duration-300 ease-in-out',
+  fadeIn: 'animate-fade-in',
+  slideUp: 'animate-slide-up',
+  headerGradient: 'bg-gradient-to-br',
+  transform: 'transform',
+} as const;
+
+export const RESIDENT_TYPES = {
+  OWNER: 'OWNER',
+  RENTER: 'RENTER',
+} as const;
+export type ResidentType = keyof typeof RESIDENT_TYPES;
+
 export const STREETS = [
   'Pagoda Rd',
   'Wild Almond Rd',

@@ -36,6 +36,8 @@ export async function GET(request: Request) {
       interests: true,
       avatar: true,
       isPublic: true,
+      residentType: true,
+      role: true,
     },
     orderBy: { name: 'asc' },
   });

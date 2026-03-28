@@ -1,9 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { STREETS, INTEREST_CATEGORIES } from '@/lib/constants';
+import {
+  STREETS,
+  CARD_HEADER_COLORS,
+  CARD_ANIMATIONS,
+  INTEREST_COLORS,
+  RESIDENT_TYPES,
+} from '@/lib/constants';
+import type { ResidentType } from '@/lib/constants';
 
 const CommunityMap = dynamic(
   () => import('@/components/ui/CommunityMap').then(mod => mod.CommunityMap),
@@ -14,88 +21,59 @@ const CommunityMap = dynamic(
 );
 
 interface Resident {
-  id: number;
+  id: string;
   name: string;
-  address: string;
-  phone: string;
   email: string;
-  resident_type: string;
-  interests: string;
-  residentType?: 'OWNER' | 'RENTER';
+  street: string | null;
+  unit: string | null;
+  phone: string | null;
+  interests: string[];
+  avatar: string | null;
+  isPublic: boolean;
+  residentType?: ResidentType;
+  role?: string;
 }
 
-const residents: Resident[] = [
-  {
-    id: 1,
-    name: 'John Smith',
-    address: '12 Pagoda Rd, Unit 1',
-    phone: '+27 82 123 4567',
-    email: 'john@example.com',
-    resident_type: 'Owner',
-    interests: 'Gardening, Tennis',
-  },
-  {
-    id: 2,
-    name: 'Sarah Johnson',
-    address: '15 Wild Almond Rd',
-    phone: '+27 82 234 5678',
-    email: 'sarah@example.com',
-    resident_type: 'Owner',
-    interests: 'Book Club, Swimming',
-  },
-  {
-    id: 3,
-    name: 'Mike Williams',
-    address: '8 Silkypuff Street',
-    phone: '+27 82 345 6789',
-    email: 'mike@example.com',
-    resident_type: 'Board',
-    interests: 'Conservation, Hiking',
-  },
-  {
-    id: 4,
-    name: 'Emily Brown',
-    address: '22 Beechwood Rd, Unit 3',
-    phone: '+27 82 456 7890',
-    email: 'emily@example.com',
-    resident_type: 'Renter',
-    interests: 'Yoga, Photography',
-  },
-  {
-    id: 5,
-    name: 'David Lee',
-    address: '5 Sugarbrush Rd',
-    phone: '+27 82 567 8901',
-    email: 'david@example.com',
-    resident_type: 'Owner',
-    interests: 'Chess, Cooking',
-  },
-  {
-    id: 6,
-    name: 'Lisa Chen',
-    address: '18 Conebrush Rd, Unit 2',
-    phone: '+27 82 678 9012',
-    email: 'lisa@example.com',
-    resident_type: 'Committee',
-    interests: 'Art, Music',
-  },
-];
-
 export default function HomePage() {
+  const [residents, setResidents] = useState<Resident[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('All Residents');
   const [filterStreet, setFilterStreet] = useState('All Streets');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
+  useEffect(() => {
+    async function fetchResidents() {
+      try {
+        const params = new URLSearchParams();
+        if (searchQuery) params.set('search', searchQuery);
+        if (filterStreet !== 'All Streets') params.set('street', filterStreet);
+
+        const res = await fetch(`/api/users?${params}`);
+        const data = await res.json();
+        setResidents(data);
+      } catch (error) {
+        console.error('Failed to fetch residents:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    const debounce = setTimeout(fetchResidents, searchQuery ? 300 : 0);
+    return () => clearTimeout(debounce);
+  }, [searchQuery, filterStreet]);
+
   const filteredResidents = residents.filter(r => {
+    const address = [r.street, r.unit].filter(Boolean).join(', ');
+    const interestList = Array.isArray(r.interests) ? r.interests : [];
+
     const matchesSearch =
       r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.interests.toLowerCase().includes(searchQuery.toLowerCase());
+      address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      interestList.some(i => i.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesType =
-      filterType === 'All Residents' || r.resident_type === filterType.replace(' Members', '');
-    const matchesStreet = filterStreet === 'All Streets' || r.address.includes(filterStreet);
-    return matchesSearch && matchesType && matchesStreet;
+      filterType === 'All Residents' || r.residentType === filterType.replace(' Members', '');
+    return matchesSearch && matchesType;
   });
 
   return (
@@ -236,7 +214,7 @@ export default function HomePage() {
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-soralia-dark">
-            Showing {filteredResidents.length} residents
+            {loading ? 'Loading...' : `Showing ${filteredResidents.length} residents`}
           </h3>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600">View:</span>
@@ -255,102 +233,102 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div
-          className={
-            viewMode === 'grid'
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
-              : 'space-y-4'
-          }
-        >
-          {filteredResidents.map(resident => {
-            const headerColors = [
-              'bg-soralia-primary',
-              'bg-blue-500',
-              'bg-green-500',
-              'bg-purple-500',
-              'bg-orange-500',
-            ];
-            const colorIndex = resident.id % headerColors.length;
-            const headerColor = headerColors[colorIndex];
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Loading residents...</p>
+          </div>
+        ) : (
+          <div
+            className={
+              viewMode === 'grid'
+                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+                : 'space-y-4'
+            }
+          >
+            {filteredResidents.map((resident, idx) => {
+              const headerColor = CARD_HEADER_COLORS[idx % CARD_HEADER_COLORS.length];
+              const avatarUrl =
+                resident.avatar ||
+                `https://api.dicebear.com/7.x/avataaars/svg?seed=${resident.name.replace(' ', '')}`;
+              const address = [resident.street, resident.unit].filter(Boolean).join(', ');
+              const interestList = Array.isArray(resident.interests) ? resident.interests : [];
 
-            return (
-              <div
-                key={resident.id}
-                className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow ${viewMode === 'list' ? 'flex' : ''}`}
-              >
+              return (
                 <div
-                  className={`${headerColor} p-4 text-white ${viewMode === 'list' ? 'w-64 shrink-0' : ''}`}
+                  key={resident.id}
+                  className={`bg-white rounded-lg shadow-md overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer ${viewMode === 'list' ? 'flex' : ''}`}
                 >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${resident.name.replace(' ', '')}`}
-                      alt={resident.name}
-                      className="w-10 h-10 rounded-full bg-white/20"
-                    />
+                  <div
+                    className={`${headerColor} p-4 text-white ${viewMode === 'list' ? 'w-64 shrink-0' : ''}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={avatarUrl}
+                        alt={resident.name}
+                        className="w-10 h-10 rounded-full bg-white/20"
+                      />
+                      <div>
+                        <h3 className="font-bold text-lg">{resident.name}</h3>
+                        <p className="text-sm opacity-90">{address}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className={`p-4 ${viewMode === 'list' ? 'flex-1 flex items-center gap-8' : ''}`}
+                  >
                     <div>
-                      <h3 className="font-bold text-lg">{resident.name}</h3>
-                      <p className="text-sm opacity-90">{resident.address}</p>
+                      <div className="flex items-center mb-2">
+                        <i
+                          className="fas fa-home text-soralia-secondary mr-2"
+                          aria-hidden="true"
+                        ></i>
+                        <span className="text-sm text-gray-600">
+                          {resident.residentType === RESIDENT_TYPES.OWNER
+                            ? 'Owner'
+                            : resident.residentType === RESIDENT_TYPES.RENTER
+                              ? 'Renter'
+                              : resident.role || 'Resident'}
+                        </span>
+                      </div>
+                      {resident.isPublic && (
+                        <>
+                          <div className="flex items-center mb-2">
+                            <i
+                              className="fas fa-envelope text-soralia-secondary mr-2"
+                              aria-hidden="true"
+                            ></i>
+                            <span className="text-sm text-gray-600">{resident.email}</span>
+                          </div>
+                          {resident.phone && (
+                            <div className="flex items-center mb-2">
+                              <i
+                                className="fas fa-phone text-soralia-secondary mr-2"
+                                aria-hidden="true"
+                              ></i>
+                              <span className="text-sm text-gray-600">{resident.phone}</span>
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
+                    {interestList.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {interestList.map((interest, i) => (
+                          <span
+                            key={i}
+                            className={`text-xs text-white px-2 py-1 rounded-full ${INTEREST_COLORS[interest] || 'bg-gray-500'}`}
+                          >
+                            {interest}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div
-                  className={`p-4 ${viewMode === 'list' ? 'flex-1 flex items-center gap-8' : ''}`}
-                >
-                  <div>
-                    <div className="flex items-center mb-2">
-                      <i className="fas fa-home text-soralia-secondary mr-2"></i>
-                      <span className="text-sm text-gray-600">
-                        {resident.residentType === 'OWNER'
-                          ? 'Owner'
-                          : resident.residentType === 'RENTER'
-                            ? 'Renter'
-                            : resident.resident_type}
-                      </span>
-                    </div>
-                    <div className="flex items-center mb-2">
-                      <i className="fas fa-envelope text-soralia-secondary mr-2"></i>
-                      <span className="text-sm text-gray-600">{resident.email}</span>
-                    </div>
-                    <div className="flex items-center mb-2">
-                      <i className="fas fa-home text-soralia-secondary mr-2"></i>
-                      <span className="text-sm text-gray-600">
-                        {resident.resident_type === 'Board'
-                          ? 'HOA Board'
-                          : resident.resident_type === 'Committee'
-                            ? 'Committee'
-                            : resident.resident_type === 'Owner'
-                              ? 'Owner'
-                              : 'Renter'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {resident.interests.split(', ').map((interest, idx) => (
-                      <span
-                        key={idx}
-                        className={`text-xs text-white px-2 py-1 rounded-full ${
-                          interest === 'Gardening'
-                            ? 'bg-green-500'
-                            : interest === 'Conservation'
-                              ? 'bg-green-600'
-                              : interest === 'Tennis'
-                                ? 'bg-blue-500'
-                                : interest === 'Swimming'
-                                  ? 'bg-blue-600'
-                                  : interest === 'Book Club'
-                                    ? 'bg-purple-500'
-                                    : 'bg-gray-500'
-                        }`}
-                      >
-                        {interest}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
