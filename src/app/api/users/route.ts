@@ -6,6 +6,8 @@ export async function GET(request: Request) {
   const search = searchParams.get('search') || '';
   const street = searchParams.get('street') || '';
   const interest = searchParams.get('interest') || '';
+  const residentType = searchParams.get('residentType') || '';
+  const role = searchParams.get('role') || '';
 
   const where: Record<string, unknown> = {};
 
@@ -22,6 +24,14 @@ export async function GET(request: Request) {
 
   if (interest) {
     where.interests = { has: interest };
+  }
+
+  if (residentType) {
+    where.residentType = residentType;
+  }
+
+  if (role) {
+    where.role = role;
   }
 
   const users = await prisma.user.findMany({

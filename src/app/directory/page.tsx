@@ -33,6 +33,15 @@ export default function DirectoryPage() {
         if (search) params.set('search', search);
         if (filterStreet !== 'All Streets') params.set('street', filterStreet);
 
+        if (filterType !== 'All Residents') {
+          const filterValue = filterType.replace(' Members', '').replace('s', '');
+          if (filterValue === 'Board' || filterValue === 'Committee') {
+            params.set('role', filterValue);
+          } else if (filterValue === 'Owner' || filterValue === 'Renter') {
+            params.set('residentType', filterValue);
+          }
+        }
+
         const res = await fetch(`/api/users?${params}`);
         const data = await res.json();
         setResidents(data);
