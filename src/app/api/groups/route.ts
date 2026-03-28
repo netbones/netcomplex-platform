@@ -1,11 +1,41 @@
-import { requirePermission, requireOwnPermission, getSessionAndRole } from '@/lib/auth-utils';
-import { hasPermission } from '@/lib/permissions';
+import { auth } from '@/lib/auth';
+import { hasPermission, Permission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
-export async function GET() {
-  const authError = await requirePermission('groups');
-  if (authError) return authError;
+async function getSessionAndRole(request: Request) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  if (!session?.user?.id) {
+    return null;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true },
+  });
+
+  return {
+    session,
+    userId: session.user.id,
+    role: user?.role || 'RESIDENT',
+  };
+}
+
+export async function GET(request: Request) {
+  const authData = await getSessionAndRole(request);
+
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const canView =
+    hasPermission(authData.role, 'groups') || hasPermission(authData.role, 'groupsOwn');
+  if (!canView) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
 
   const groups = await prisma.group.findMany({
     orderBy: { name: 'asc' },
@@ -19,7 +49,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const authData = await getSessionAndRole();
+  const authData = await getSessionAndRole(request);
   if (!authData) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
