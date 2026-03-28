@@ -284,3 +284,24 @@ model UserGroup {
 
   @@unique([userId, groupId])
 }
+
+model Invitation {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  name        String
+  street      String?
+  unit        String?
+  residentType ResidentType  @default(OWNER)
+  role        Role         @default(RESIDENT)
+  token       String        @unique @default(cuid())
+  status      InvitationStatus @default(PENDING)
+  expiresAt   DateTime      @default(now())
+  createdAt   DateTime      @default(now())
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { RESIDENT_TYPES } from '@/lib/constants';
 
 interface User {
   id: string;
@@ -9,187 +8,316 @@ interface User {
   email: string;
   street: string | null;
   unit: string | null;
-  phone: string | null;
-  isPublic: boolean;
   residentType: 'OWNER' | 'RENTER' | null;
   role: string | null;
+}
+
+interface Invitation {
+  id: string;
+  email: string;
+  name: string;
+  street: string | null;
+  unit: string | null;
+  residentType: string;
+  status: string;
 }
 
 const roleOptions = ['RESIDENT', 'BOARD', 'ADMIN', 'COMMITTEE'];
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterRole, setFilterRole] = useState('all');
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    async function fetchUsers() {
-      try {
-        const params = new URLSearchParams();
-        if (search) params.set('search', search);
-
-        const res = await fetch(`/api/users?${params}`);
-        const data = await res.json();
-        setUsers(data);
-      } catch (error) {
-        console.error('Failed to fetch users:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    const debounce = setTimeout(fetchUsers, search ? 300 : 0);
-    return () => clearTimeout(debounce);
-  }, [search]);
-
-  const handleRoleChange = async (userId: string, newRole: string) => {
-    try {
-      await fetch(`/api/users/${userId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: newRole }),
-      });
-      setUsers(users.map(u => (u.id === userId ? { ...u, role: newRole } : u)));
-    } catch (error) {
-      console.error('Failed to update role:', error);
-    }
-  };
-
-  const handleResidentTypeChange = async (userId: string, newType: string) => {
-    try {
-      await fetch(`/api/users/${userId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ residentType: newType }),
-      });
-      setUsers(
-        users.map(u =>
-          u.id === userId ? { ...u, residentType: newType as 'OWNER' | 'RENTER' } : u
-        )
-      );
-    } catch (error) {
-      console.error('Failed to update type:', error);
-    }
-  };
-
-  const filteredUsers = users.filter(u => {
-    if (filterRole === 'all') return true;
-    return u.role === filterRole;
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteForm, setInviteForm] = useState({
+    email: '',
+    name: '',
+    street: '',
+    unit: '',
+    residentType: 'OWNER',
+    role: 'RESIDENT',
   });
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+  useEffect(() => {
+    Promise.all([fetch('/api/users'), fetch('/api/invitations')])
+      .then(([u, i]) => Promise.all([u.json(), i.json()]))
+      .then(([usersData, invitesData]) => {
+        setUsers(usersData);
+        setInvitations(invitesData);
+        setLoading(false);
+      })
+      .catch(console.error);
+  }, []);
 
-        <div className="flex gap-4">
-          <input
-            type="text"
-            placeholder="Search users..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
-          />
-          <select
-            value={filterRole}
-            onChange={e => setFilterRole(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
-          >
-            <option value="all">All Roles</option>
-            {roleOptions.map(role => (
-              <option key={role} value={role}>
-                {role}
-              </option>
+  useEffect(() => {
+    if (!search) {
+      setLoading(false);
+      return;
+    }
+    const t = setTimeout(
+      () =>
+        fetch(`/api/users?search=${search}`)
+          .then(r => r.json())
+          .then(d => {
+            setUsers(d);
+            setLoading(false);
+          }),
+      300
+    );
+    return () => clearTimeout(t);
+  }, [search]);
+
+  const handleInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const r = await fetch('/api/invitations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(inviteForm),
+    });
+    if (r.ok) setInvitations([await r.json(), ...invitations]);
+    setShowInvite(false);
+    setInviteForm({
+      email: '',
+      name: '',
+      street: '',
+      unit: '',
+      residentType: 'OWNER',
+      role: 'RESIDENT',
+    });
+  };
+
+  const handleRevoke = async (id: string) => {
+    await fetch(`/api/invitations/${id}`, { method: 'DELETE' });
+    setInvitations(invitations.filter(i => i.id !== id));
+  };
+
+  const updateUser = async (id: string, data: Record<string, string>) => {
+    await fetch(`/api/users/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    setUsers(users.map(u => (u.id === id ? { ...u, ...data } : u)));
+  };
+
+  const pendingInvites = invitations.filter(i => i.status === 'PENDING');
+  const filteredUsers = filterRole === 'all' ? users : users.filter(u => u.role === filterRole);
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">User Management</h1>
+        <button
+          onClick={() => setShowInvite(true)}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+        >
+          <i className="fas fa-user-plus mr-2"></i>Invite User
+        </button>
+      </div>
+
+      {pendingInvites.length > 0 && (
+        <div className="mb-8 bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+          <h2 className="text-lg font-semibold mb-4">Pending Invitations</h2>
+          <div className="space-y-3">
+            {pendingInvites.map(inv => (
+              <div
+                key={inv.id}
+                className="flex justify-between items-center bg-white p-4 rounded-lg"
+              >
+                <div>
+                  <p className="font-medium">{inv.name}</p>
+                  <p className="text-sm text-gray-500">
+                    {inv.email} • {inv.street}
+                    {inv.unit && `, ${inv.unit}`}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleRevoke(inv.id)}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  <i className="fas fa-times mr-1"></i>Revoke
+                </button>
+              </div>
             ))}
-          </select>
+          </div>
         </div>
+      )}
+
+      <div className="flex gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Search..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-600"
+        />
+        <select
+          value={filterRole}
+          onChange={e => setFilterRole(e.target.value)}
+          className="border rounded-lg px-4 py-2"
+        >
+          <option value="all">All Roles</option>
+          {roleOptions.map(r => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
       </div>
 
       {loading ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">Loading users...</p>
-        </div>
-      ) : filteredUsers.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No users found.</p>
-        </div>
+        <p className="text-center py-12 text-gray-500">Loading...</p>
       ) : (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Address
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                {['Name', 'Email', 'Address', 'Type', 'Role'].map(h => (
+                  <th
+                    key={h}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map(user => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{user.name}</div>
+            <tbody className="divide-y divide-gray-200">
+              {filteredUsers.map(u => (
+                <tr key={u.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">{u.name}</td>
+                  <td className="px-6 py-4 text-gray-500">{u.email}</td>
+                  <td className="px-6 py-4 text-gray-500">
+                    {u.street}
+                    {u.unit && `, ${u.unit}`}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{user.email}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">
-                      {user.street}
-                      {user.unit && `, ${user.unit}`}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4">
                     <select
-                      value={user.residentType || ''}
-                      onChange={e => handleResidentTypeChange(user.id, e.target.value)}
-                      className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                      value={u.residentType || ''}
+                      onChange={e => updateUser(u.id, { residentType: e.target.value })}
+                      className="text-sm border rounded px-2 py-1"
                     >
                       <option value="">None</option>
                       <option value="OWNER">Owner</option>
                       <option value="RENTER">Renter</option>
                     </select>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4">
                     <select
-                      value={user.role || 'RESIDENT'}
-                      onChange={e => handleRoleChange(user.id, e.target.value)}
-                      className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                      value={u.role || 'RESIDENT'}
+                      onChange={e => updateUser(u.id, { role: e.target.value })}
+                      className="text-sm border rounded px-2 py-1"
                     >
-                      {roleOptions.map(role => (
-                        <option key={role} value={role}>
-                          {role}
+                      {roleOptions.map(r => (
+                        <option key={r} value={r}>
+                          {r}
                         </option>
                       ))}
                     </select>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <button
-                      onClick={() => setEditingUser(user)}
-                      className="text-indigo-600 hover:text-indigo-800 mr-4"
-                    >
-                      Edit
-                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {showInvite && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold">Invite New Resident</h2>
+              <button onClick={() => setShowInvite(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <form onSubmit={handleInvite} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Name</label>
+                <input
+                  type="text"
+                  required
+                  value={inviteForm.name}
+                  onChange={e => setInviteForm({ ...inviteForm, name: e.target.value })}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <input
+                  type="email"
+                  required
+                  value={inviteForm.email}
+                  onChange={e => setInviteForm({ ...inviteForm, email: e.target.value })}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Street</label>
+                  <input
+                    type="text"
+                    value={inviteForm.street}
+                    onChange={e => setInviteForm({ ...inviteForm, street: e.target.value })}
+                    className="w-full border rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Unit</label>
+                  <input
+                    type="text"
+                    value={inviteForm.unit}
+                    onChange={e => setInviteForm({ ...inviteForm, unit: e.target.value })}
+                    className="w-full border rounded-lg px-3 py-2"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Resident Type</label>
+                  <select
+                    value={inviteForm.residentType}
+                    onChange={e => setInviteForm({ ...inviteForm, residentType: e.target.value })}
+                    className="w-full border rounded-lg px-3 py-2"
+                  >
+                    <option value="OWNER">Owner</option>
+                    <option value="RENTER">Renter</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Role</label>
+                  <select
+                    value={inviteForm.role}
+                    onChange={e => setInviteForm({ ...inviteForm, role: e.target.value })}
+                    className="w-full border rounded-lg px-3 py-2"
+                  >
+                    {roleOptions.map(r => (
+                      <option key={r} value={r}>
+                        {r}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-4 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowInvite(false)}
+                  className="flex-1 bg-gray-200 py-2 rounded-lg hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700"
+                >
+                  Send Invitation
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
