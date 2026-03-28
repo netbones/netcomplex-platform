@@ -33,6 +33,8 @@ export default function AdminUsersPage() {
   const [filterRole, setFilterRole] = useState('all');
   const [filterType, setFilterType] = useState('all');
   const [showInvite, setShowInvite] = useState(false);
+  const [deleteUser, setDeleteUser] = useState<User | null>(null);
+  const [confirmText, setConfirmText] = useState('');
   const [inviteForm, setInviteForm] = useState({
     email: '',
     name: '',
@@ -102,6 +104,14 @@ export default function AdminUsersPage() {
       body: JSON.stringify(data),
     });
     setUsers(users.map(u => (u.id === id ? { ...u, ...data } : u)));
+  };
+
+  const handleDelete = async () => {
+    if (confirmText !== `remove ${deleteUser?.name}`) return;
+    await fetch(`/api/users/${deleteUser?.id}`, { method: 'DELETE' });
+    setUsers(users.filter(u => u.id !== deleteUser?.id));
+    setDeleteUser(null);
+    setConfirmText('');
   };
 
   return (
@@ -185,7 +195,7 @@ export default function AdminUsersPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                {['Name', 'Email', 'Address', 'Type', 'Role'].map(h => (
+                {['Name', 'Email', 'Address', 'Type', 'Role', ''].map(h => (
                   <th
                     key={h}
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
@@ -227,6 +237,14 @@ export default function AdminUsersPage() {
                         </option>
                       ))}
                     </select>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => setDeleteUser(u)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <i className="fas fa-trash-alt"></i>
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -328,6 +346,56 @@ export default function AdminUsersPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {deleteUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-red-600">Remove User</h2>
+              <button
+                onClick={() => {
+                  setDeleteUser(null);
+                  setConfirmText('');
+                }}
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <p className="mb-4">
+              Are you sure you want to remove <strong>{deleteUser.name}</strong>? This action cannot
+              be undone.
+            </p>
+            <p className="text-sm text-gray-600 mb-4">
+              Type <code className="bg-gray-100 px-1">remove {deleteUser.name}</code> to confirm
+            </p>
+            <input
+              type="text"
+              value={confirmText}
+              onChange={e => setConfirmText(e.target.value)}
+              placeholder={`remove ${deleteUser.name}`}
+              className="w-full border rounded-lg px-3 py-2 mb-4"
+            />
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setDeleteUser(null);
+                  setConfirmText('');
+                }}
+                className="flex-1 bg-gray-200 py-2 rounded-lg hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={confirmText !== `remove ${deleteUser.name}`}
+                className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Remove User
+              </button>
+            </div>
           </div>
         </div>
       )}
