@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { DirectoryGrid } from '@/components/directory/DirectoryGrid';
+import { STREETS } from '@/lib/constants';
 
 interface Resident {
   id: string;
@@ -13,12 +14,16 @@ interface Resident {
   interests: string[];
   avatar: string | null;
   isPublic: boolean;
+  residentType?: 'OWNER' | 'RENTER';
+  role?: string;
 }
 
 export default function DirectoryPage() {
   const [residents, setResidents] = useState<Resident[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState('All Residents');
+  const [filterStreet, setFilterStreet] = useState('All Streets');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
@@ -26,6 +31,7 @@ export default function DirectoryPage() {
       try {
         const params = new URLSearchParams();
         if (search) params.set('search', search);
+        if (filterStreet !== 'All Streets') params.set('street', filterStreet);
 
         const res = await fetch(`/api/users?${params}`);
         const data = await res.json();
@@ -39,7 +45,29 @@ export default function DirectoryPage() {
 
     const debounce = setTimeout(fetchResidents, search ? 300 : 0);
     return () => clearTimeout(debounce);
-  }, [search]);
+  }, [search, filterStreet]);
+
+  const filteredResidents = residents.filter(r => {
+    const matchesSearch =
+      !search ||
+      r.name.toLowerCase().includes(search.toLowerCase()) ||
+      r.email.toLowerCase().includes(search.toLowerCase());
+
+    let matchesType = true;
+    if (filterType !== 'All Residents') {
+      const filterValue = filterType.replace(' Members', '').replace('s', '');
+      if (filterValue === 'Board') {
+        matchesType = r.role === 'BOARD';
+      } else if (filterValue === 'Committee') {
+        matchesType = r.role === 'COMMITTEE';
+      } else if (filterValue === 'Owner') {
+        matchesType = r.residentType === 'OWNER';
+      } else if (filterValue === 'Renter') {
+        matchesType = r.residentType === 'RENTER';
+      }
+    }
+    return matchesSearch && matchesType;
+  });
 
   return (
     <main className="min-h-screen bg-soralia-light">
@@ -55,30 +83,55 @@ export default function DirectoryPage() {
             className="w-full md:w-80 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
           />
 
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">View:</span>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-md ${
-                viewMode === 'grid'
-                  ? 'bg-soralia-primary text-white'
-                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-              }`}
-              aria-label="Grid view"
+          <div className="flex flex-wrap items-center gap-4">
+            <select
+              value={filterType}
+              onChange={e => setFilterType(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-soralia-primary"
             >
-              <i className="fas fa-th-large" aria-hidden="true"></i>
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-2 rounded-md ${
-                viewMode === 'list'
-                  ? 'bg-soralia-primary text-white'
-                  : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-              }`}
-              aria-label="List view"
+              <option>All Residents</option>
+              <option>Board Members</option>
+              <option>Committee Members</option>
+              <option>Renters</option>
+              <option>Owners</option>
+            </select>
+
+            <select
+              value={filterStreet}
+              onChange={e => setFilterStreet(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-soralia-primary"
             >
-              <i className="fas fa-list" aria-hidden="true"></i>
-            </button>
+              <option>All Streets</option>
+              {STREETS.map(street => (
+                <option key={street}>{street}</option>
+              ))}
+            </select>
+
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-600">View:</span>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-md ${
+                  viewMode === 'grid'
+                    ? 'bg-soralia-primary text-white'
+                    : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                }`}
+                aria-label="Grid view"
+              >
+                <i className="fas fa-th-large" aria-hidden="true"></i>
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-md ${
+                  viewMode === 'list'
+                    ? 'bg-soralia-primary text-white'
+                    : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                }`}
+                aria-label="List view"
+              >
+                <i className="fas fa-list" aria-hidden="true"></i>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -87,7 +140,7 @@ export default function DirectoryPage() {
             <p className="text-gray-500">Loading residents...</p>
           </div>
         ) : (
-          <DirectoryGrid residents={residents} viewMode={viewMode} />
+          <DirectoryGrid residents={filteredResidents} viewMode={viewMode} />
         )}
       </div>
     </main>
