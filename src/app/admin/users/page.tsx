@@ -23,6 +23,7 @@ interface Invitation {
 }
 
 const roleOptions = ['RESIDENT', 'BOARD', 'ADMIN', 'COMMITTEE'];
+const residentTypeOptions = ['OWNER', 'RENTER'];
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -30,6 +31,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterRole, setFilterRole] = useState('all');
+  const [filterType, setFilterType] = useState('all');
   const [showInvite, setShowInvite] = useState(false);
   const [inviteForm, setInviteForm] = useState({
     email: '',
@@ -52,22 +54,22 @@ export default function AdminUsersPage() {
   }, []);
 
   useEffect(() => {
-    if (!search) {
-      setLoading(false);
-      return;
-    }
-    const t = setTimeout(
-      () =>
-        fetch(`/api/users?search=${search}`)
-          .then(r => r.json())
-          .then(d => {
-            setUsers(d);
-            setLoading(false);
-          }),
-      300
-    );
-    return () => clearTimeout(t);
-  }, [search]);
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (filterType !== 'all') params.set('residentType', filterType);
+
+    fetch(`/api/users?${params}`)
+      .then(r => r.json())
+      .then(d => {
+        setUsers(d);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [search, filterType]);
+
+  const pendingInvites = invitations.filter(i => i.status === 'PENDING');
+  const filteredUsers = filterRole === 'all' ? users : users.filter(u => u.role === filterRole);
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,9 +103,6 @@ export default function AdminUsersPage() {
     });
     setUsers(users.map(u => (u.id === id ? { ...u, ...data } : u)));
   };
-
-  const pendingInvites = invitations.filter(i => i.status === 'PENDING');
-  const filteredUsers = filterRole === 'all' ? users : users.filter(u => u.role === filterRole);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -162,6 +161,18 @@ export default function AdminUsersPage() {
           {roleOptions.map(r => (
             <option key={r} value={r}>
               {r}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filterType}
+          onChange={e => setFilterType(e.target.value)}
+          className="border rounded-lg px-4 py-2"
+        >
+          <option value="all">All Types</option>
+          {residentTypeOptions.map(t => (
+            <option key={t} value={t}>
+              {t}
             </option>
           ))}
         </select>
