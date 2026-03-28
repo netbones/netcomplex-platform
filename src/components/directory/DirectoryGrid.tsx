@@ -57,7 +57,7 @@ export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridPro
           return (
             <div
               key={resident.id}
-              className="bg-white rounded-lg shadow-md overflow-hidden flex hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer"
+              className={`bg-white rounded-lg shadow-md overflow-hidden flex hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer ${CARD_ANIMATIONS.transition}`}
             >
               <div className={`${headerColor} p-4 text-white w-64 shrink-0`}>
                 <div className="flex items-center gap-3">
@@ -136,7 +136,7 @@ export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridPro
         return (
           <div
             key={resident.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer"
+            className={`bg-white rounded-lg shadow-md overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer ${CARD_ANIMATIONS.transition}`}
           >
             <div className={`${headerColor} p-4 text-white`}>
               <div className="flex items-center gap-3">
