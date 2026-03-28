@@ -58,6 +58,13 @@ export const NAV_LINKS = [
   { href: '/services', page: 'services' },
   { href: '/resources', page: 'resources' },
   { href: '/conservation', page: 'conservation' },
+  { href: '/groups', page: 'groups' },
+  { href: '/interest', page: 'interest' },
+] as const;
+
+export const PUBLIC_NAV_LINKS = [
+  { href: '/', page: 'home' },
+  { href: '/conservation', page: 'conservation' },
 ] as const;
 
 export const ADMIN_LINKS = [

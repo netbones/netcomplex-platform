@@ -10,10 +10,22 @@
     "resources": "Resources",
     "conservation": "Conservation",
     "groups": "Interest Groups",
+    "interest": "My Interests",
+    "maintenance": "Maintenance",
+    "bookings": "Bookings",
+    "messages": "Messages",
+    "dashboard": "Dashboard",
     "login": "Log In",
     "logout": "Log Out",
     "profile": "My Profile",
     "admin": "Admin"
+  },
+  "admin": {
+    "overview": "Overview",
+    "users": "Users",
+    "groups": "Groups",
+    "content": "Content",
+    "requests": "Requests"
   },
   "common": {
     "search": "Search...",

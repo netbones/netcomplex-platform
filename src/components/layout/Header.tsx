@@ -1,18 +1,26 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Suspense } from 'react';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
-import { NAV_LINKS } from '@/lib/constants';
+import { SideDrawer } from '@/components/ui/SideDrawer';
+import { PUBLIC_NAV_LINKS } from '@/lib/constants';
 import { authClient } from '@/lib/auth-client';
+import { hasPermission, canManageGroups } from '@/lib/permissions';
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { t } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
+
+  const userRole = session?.user?.role as string | undefined;
+  const isAdmin = userRole && hasPermission(userRole, 'admin');
+  const isBoard = userRole && hasPermission(userRole, 'users');
 
   const handleSignOut = async () => {
     await authClient.signOut();
@@ -36,7 +44,7 @@ export function Header() {
         </div>
 
         <nav className="hidden md:flex space-x-6">
-          {NAV_LINKS.map(link => (
+          {PUBLIC_NAV_LINKS.map(link => (
             <Link
               key={link.href}
               href={link.href}
@@ -45,9 +53,56 @@ export function Header() {
               {t(`nav.${link.page}`)}
             </Link>
           ))}
+          {session && (
+            <>
+              <Link
+                href="/directory"
+                className={`hover:text-soralia-accent font-medium ${pathname.startsWith('/directory') ? 'text-soralia-accent' : ''}`}
+              >
+                {t('nav.directory')}
+              </Link>
+              <Link
+                href="/services"
+                className={`hover:text-soralia-accent font-medium ${pathname.startsWith('/services') ? 'text-soralia-accent' : ''}`}
+              >
+                {t('nav.services')}
+              </Link>
+              <Link
+                href="/resources"
+                className={`hover:text-soralia-accent font-medium ${pathname.startsWith('/resources') ? 'text-soralia-accent' : ''}`}
+              >
+                {t('nav.resources')}
+              </Link>
+              {(isAdmin || isBoard) && (
+                <>
+                  <Link
+                    href="/admin"
+                    className={`hover:text-soralia-accent font-medium ${pathname.startsWith('/admin') ? 'text-soralia-accent' : ''}`}
+                  >
+                    {t('nav.admin')}
+                  </Link>
+                </>
+              )}
+            </>
+          )}
         </nav>
 
         <div className="flex items-center space-x-4">
+          {session && (
+            <button
+              onClick={() => setIsDrawerOpen(true)}
+              className="md:hidden p-2 rounded-md hover:bg-white/20"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          )}
           <Suspense fallback={<div className="w-16 h-6 bg-white/20 rounded" />}>
             <LanguageSwitcher />
           </Suspense>
@@ -74,6 +129,8 @@ export function Header() {
             </Link>
           )}
         </div>
+
+        <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
       </div>
     </header>
   );

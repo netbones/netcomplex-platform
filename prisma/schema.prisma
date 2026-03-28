@@ -43,6 +43,7 @@ model User {
   invitations      Invitation[]
   passkeys         Passkey[]
   suspensions      PlatformSuspension[]
+  membershipRequests GroupMembershipRequest[]
 
   @@map("user")
 }
@@ -115,6 +116,24 @@ enum RequestStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+enum MembershipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum GroupAccess {
+  OPEN        // Anyone can join
+  INVITE_ONLY // Requires invitation from group admin
+  APPLICATION // Requires application approval
+}
+
+enum ResidentFilter {
+  ALL         // All residents can join
+  OWNERS_ONLY // Homeowners only
+  RENTERS_ONLY // Renters only
 }
 
 model Booking {
@@ -298,19 +317,26 @@ model ExternalSurvey {
 }
 
 model Group {
-  id          String   @id @default(cuid())
+  id          String       @id @default(cuid())
   name        String
   description String?
   category    String
   image       String?
-  isPublic    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isPublic    Boolean      @default(true)
+  accessType  GroupAccess  @default(OPEN)
+  residentType ResidentFilter @default(ALL)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   ownerId  String
   owner    User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   members  UserGroup[]
   contents Content[]
+  membershipRequests GroupMembershipRequest[]
+
+  @@index([isActive])
+  @@index([accessType])
 }
 
 enum GroupRole {
@@ -329,6 +355,21 @@ model UserGroup {
   joinedAt DateTime  @default(now())
 
   @@unique([userId, groupId])
+}
+
+model GroupMembershipRequest {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupId     String
+  group       Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  status      MembershipStatus @default(PENDING)
+  message     String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([userId, groupId])
+  @@index([groupId, status])
 }
 
 model Invitation {

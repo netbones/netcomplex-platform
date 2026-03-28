@@ -1,11 +1,39 @@
-import { requirePermission } from '@/lib/auth-utils';
+import { auth } from '@/lib/auth';
+import { hasPermission, Permission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
-import { Prisma } from '@prisma/client';
+
+async function getSessionAndRole(request: Request) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  if (!session?.user?.id) {
+    return null;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true },
+  });
+
+  return {
+    session,
+    userId: session.user.id,
+    role: user?.role || 'RESIDENT',
+  };
+}
 
 export async function GET(request: Request) {
-  const authError = await requirePermission('users');
-  if (authError) return authError;
+  const authData = await getSessionAndRole(request);
+
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (!hasPermission(authData.role, 'directory')) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
 
   const { searchParams } = new URL(request.url);
   const search = searchParams.get('search') || '';
@@ -62,8 +90,15 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const authError = await requirePermission('users');
-  if (authError) return authError;
+  const authData = await getSessionAndRole(request);
+
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (!hasPermission(authData.role, 'users')) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
 
   const body = await request.json();
 
