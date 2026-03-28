@@ -1,37 +1,282 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 
-export default function HomePage() {
-  return (
-    <main className="min-h-screen bg-soralia-light">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-soralia-primary mb-4">Welcome to Soralia Village</h1>
+interface Resident {
+  id: number;
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+  resident_type: string;
+  interests: string;
+}
 
-        <div className="bg-white p-6 rounded-lg shadow mb-6">
-          <p className="text-lg mb-4">Community Portal for Soralia Village Residents</p>
-          <div className="space-y-2">
-            <Link href="/directory" className="block text-soralia-primary hover:underline">
-              Resident Directory
-            </Link>
-            <Link href="/dashboard" className="block text-soralia-primary hover:underline">
-              Dashboard
-            </Link>
-            <Link href="/maintenance" className="block text-soralia-primary hover:underline">
-              Maintenance Requests
-            </Link>
-            <Link href="/bookings" className="block text-soralia-primary hover:underline">
-              Facility Bookings
-            </Link>
-            <Link href="/messages" className="block text-soralia-primary hover:underline">
-              Messages
-            </Link>
-            <Link href="/auth-handler" className="block text-soralia-primary hover:underline">
-              Sign In
-            </Link>
+const residents: Resident[] = [
+  {
+    id: 1,
+    name: 'John Smith',
+    address: '12 Pagoda Rd, Unit 1',
+    phone: '+27 82 123 4567',
+    email: 'john@example.com',
+    resident_type: 'Owner',
+    interests: 'Gardening, Tennis',
+  },
+  {
+    id: 2,
+    name: 'Sarah Johnson',
+    address: '15 Wild Almond Rd',
+    phone: '+27 82 234 5678',
+    email: 'sarah@example.com',
+    resident_type: 'Owner',
+    interests: 'Book Club, Swimming',
+  },
+  {
+    id: 3,
+    name: 'Mike Williams',
+    address: '8 Silkypuff Street',
+    phone: '+27 82 345 6789',
+    email: 'mike@example.com',
+    resident_type: 'Board',
+    interests: 'Conservation, Hiking',
+  },
+  {
+    id: 4,
+    name: 'Emily Brown',
+    address: '22 Beechwood Rd, Unit 3',
+    phone: '+27 82 456 7890',
+    email: 'emily@example.com',
+    resident_type: 'Renter',
+    interests: 'Yoga, Photography',
+  },
+  {
+    id: 5,
+    name: 'David Lee',
+    address: '5 Sugarbrush Rd',
+    phone: '+27 82 567 8901',
+    email: 'david@example.com',
+    resident_type: 'Owner',
+    interests: 'Chess, Cooking',
+  },
+  {
+    id: 6,
+    name: 'Lisa Chen',
+    address: '18 Conebrush Rd, Unit 2',
+    phone: '+27 82 678 9012',
+    email: 'lisa@example.com',
+    resident_type: 'Committee',
+    interests: 'Art, Music',
+  },
+];
+
+export default function HomePage() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState('All Residents');
+  const [filterStreet, setFilterStreet] = useState('All Streets');
+
+  const filteredResidents = residents.filter(r => {
+    const matchesSearch =
+      r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.interests.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType =
+      filterType === 'All Residents' || r.resident_type === filterType.replace(' Members', '');
+    const matchesStreet = filterStreet === 'All Streets' || r.address.includes(filterStreet);
+    return matchesSearch && matchesType && matchesStreet;
+  });
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Community Map */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 className="text-2xl font-bold text-soralia-dark mb-6">Our Community</h2>
+        <div
+          id="communityMap"
+          className="h-96 w-full bg-gray-100 rounded-lg mb-4 flex items-center justify-center"
+        >
+          <p className="text-gray-500">Interactive map loading...</p>
+        </div>
+        <div className="mt-4 text-sm text-gray-600">
+          <p>Explore our beautiful neighborhood. Click on streets to see residents.</p>
+          <p className="mt-2">
+            Map data ©{' '}
+            <a
+              href="https://www.openstreetmap.org/copyright"
+              target="_blank"
+              className="text-soralia-primary hover:underline"
+            >
+              OpenStreetMap
+            </a>{' '}
+            contributors
+          </p>
+        </div>
+      </div>
+
+      {/* Dashboard Promo */}
+      <div className="bg-gradient-to-r from-soralia-primary to-soralia-secondary rounded-lg shadow-md p-8 mb-8 text-white">
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-bold mb-2">Resident Dashboard</h2>
+          <p className="text-lg opacity-90">Experience our comprehensive resident portal</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="text-center">
+            <div className="bg-white bg-opacity-20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <i className="fas fa-tachometer-alt text-2xl" aria-hidden="true"></i>
+            </div>
+            <h3 className="font-semibold mb-2">Real-time Updates</h3>
+            <p className="text-sm opacity-90">
+              Get instant notifications about community events, maintenance, and announcements
+            </p>
+          </div>
+          <div className="text-center">
+            <div className="bg-white bg-opacity-20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <i className="fas fa-tools text-2xl" aria-hidden="true"></i>
+            </div>
+            <h3 className="font-semibold mb-2">Maintenance Requests</h3>
+            <p className="text-sm opacity-90">
+              Submit and track maintenance requests with photo uploads and status updates
+            </p>
+          </div>
+          <div className="text-center">
+            <div className="bg-white bg-opacity-20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <i className="fas fa-calendar-check text-2xl" aria-hidden="true"></i>
+            </div>
+            <h3 className="font-semibold mb-2">Facility Booking</h3>
+            <p className="text-sm opacity-90">
+              Reserve community spaces, view availability, and manage your bookings
+            </p>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <Link
+            href="/dashboard"
+            className="inline-block bg-white text-soralia-primary font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
+          >
+            <i className="fas fa-external-link-alt mr-2" aria-hidden="true"></i>
+            View Demo Dashboard
+          </Link>
+          <p className="text-sm opacity-75 mt-3">No login required for demo</p>
+        </div>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 className="text-2xl font-bold text-soralia-dark mb-6">Community Directory</h2>
+
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="relative flex-grow">
+            <input
+              type="text"
+              placeholder="Search by name, address, or interests..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-soralia-primary"
+            />
+            <i className="fas fa-search absolute left-3 top-3 text-gray-400" aria-hidden="true"></i>
+          </div>
+          <button className="bg-soralia-primary text-white py-2 px-6 rounded-md hover:bg-indigo-700 transition">
+            Search
+          </button>
+        </div>
+
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center">
+            <label className="mr-2 text-sm text-gray-700">Filter:</label>
+            <select
+              value={filterType}
+              onChange={e => setFilterType(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-soralia-primary"
+            >
+              <option>All Residents</option>
+              <option>Board Members</option>
+              <option>Committee Members</option>
+              <option>Renters</option>
+              <option>Owners</option>
+            </select>
+          </div>
+
+          <div className="flex items-center">
+            <label className="mr-2 text-sm text-gray-700">Street:</label>
+            <select
+              value={filterStreet}
+              onChange={e => setFilterStreet(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-soralia-primary"
+            >
+              <option>All Streets</option>
+              <option>Pagoda Rd</option>
+              <option>Wild Almond Rd</option>
+              <option>Silkypuff Street</option>
+              <option>Beechwood Rd</option>
+              <option>Sugarbrush Rd</option>
+              <option>Conebrush Rd</option>
+            </select>
+          </div>
+
+          <div className="flex items-center">
+            <label className="mr-2 text-sm text-gray-700">Sort by:</label>
+            <select className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-soralia-primary">
+              <option>Name (A-Z)</option>
+              <option>Name (Z-A)</option>
+              <option>Street</option>
+              <option>Unit Number</option>
+            </select>
           </div>
         </div>
       </div>
-    </main>
+
+      {/* Directory Results */}
+      <div className="mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-soralia-dark">
+            Showing {filteredResidents.length} residents
+          </h3>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">View:</span>
+            <button className="p-2 bg-soralia-primary text-white rounded-md">
+              <i className="fas fa-th-large" aria-hidden="true"></i>
+            </button>
+            <button className="p-2 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300">
+              <i className="fas fa-list" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredResidents.map(resident => (
+            <div
+              key={resident.id}
+              className="directory-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
+            >
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="w-12 h-12 rounded-full bg-soralia-primary flex items-center justify-center text-white text-lg font-bold">
+                  {resident.name.charAt(0)}
+                </div>
+                <div>
+                  <h4 className="font-semibold text-soralia-dark">{resident.name}</h4>
+                  <p className="text-sm text-gray-600">{resident.address}</p>
+                </div>
+              </div>
+              <div className="border-t pt-4">
+                <p className="text-sm text-gray-600 mb-2">{resident.phone}</p>
+                <p className="text-sm text-gray-600 mb-2">{resident.email}</p>
+                <span className="inline-block bg-soralia-light text-soralia-dark text-xs px-2 py-1 rounded">
+                  {resident.resident_type}
+                </span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-1">
+                {resident.interests.split(', ').map((interest, idx) => (
+                  <span key={idx} className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                    {interest}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
