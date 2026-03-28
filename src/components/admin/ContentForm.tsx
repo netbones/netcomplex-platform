@@ -11,9 +11,11 @@ interface ContentFormProps {
     content: string;
     excerpt?: string;
     category: string;
+    groupId?: string;
     featured: boolean;
     published: boolean;
   };
+  groups?: { id: string; name: string }[];
 }
 
 const categories = [
@@ -23,14 +25,15 @@ const categories = [
   { value: 'BLOG', label: 'Blog' },
 ];
 
-export function ContentForm({ initialData }: ContentFormProps) {
+export function ContentForm({ initialData, groups = [] }: ContentFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     content: initialData?.content || '',
     excerpt: initialData?.excerpt || '',
-    category: initialData?.category || 'NEWS',
+    category: initialData?.category || 'BLOG',
+    groupId: initialData?.groupId || '',
     featured: initialData?.featured || false,
     published: initialData?.published || false,
   });
@@ -88,6 +91,26 @@ export function ContentForm({ initialData }: ContentFormProps) {
             ))}
           </select>
         </div>
+
+        {groups.length > 0 && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Interest Group (optional)
+            </label>
+            <select
+              value={formData.groupId}
+              onChange={e => setFormData({ ...formData, groupId: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">None (General)</option>
+              {groups.map(group => (
+                <option key={group.id} value={group.id}>
+                  {group.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="flex items-center space-x-6 pt-6">
           <label className="flex items-center">

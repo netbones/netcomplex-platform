@@ -27,6 +27,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     content: body.content,
     excerpt: body.excerpt,
     category: body.category,
+    groupId: body.groupId || null,
     featured: body.featured,
     published: body.published,
   };

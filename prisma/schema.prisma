@@ -106,6 +106,8 @@ model Content {
   category    ContentCategory
   authorId    String?
   author      User?       @relation(fields: [authorId], references: [id])
+  groupId     String?
+  group       Group?      @relation(fields: [groupId], references: [id])
   published   Boolean    @default(false)
   featured    Boolean    @default(false)
   priority    String     @default("normal")
@@ -255,6 +257,7 @@ model Group {
   ownerId     String
   owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   members     UserGroup[]
+  contents   Content[]
 }
 
 enum GroupRole {
