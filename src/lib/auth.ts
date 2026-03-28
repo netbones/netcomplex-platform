@@ -10,24 +10,11 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
+    requireEmailVerification: false,
   },
-  emailMagicLink: {
-    enabled: true,
-  },
-  plugins: [
-    twoFactor({
-      issuer: 'Soralia Village',
-    }),
-    organization(),
-    admin(),
-    bearer(),
-    passkey(),
-  ],
+  plugins: [twoFactor({ issuer: 'Soralia Village' }), organization(), bearer(), passkey()],
   advanced: {
     cookiePrefix: 'soralia',
   },
   trustedOrigins: [process.env.BETTER_AUTH_URL || 'http://localhost:3000'],
 });
-
-export type Session = typeof auth.$Infer.Session;

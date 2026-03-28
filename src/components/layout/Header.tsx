@@ -43,7 +43,7 @@ export function Header() {
             <LanguageSwitcher />
           </Suspense>
           <Link
-            href="/auth-handler"
+            href="/sign-in"
             className="bg-white text-soralia-primary py-2 px-4 rounded-md hover:bg-gray-100 transition"
           >
             {t('nav.login')}

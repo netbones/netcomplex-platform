@@ -19,24 +19,24 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      const { data, error: authError } = await authClient.signUp.email(
-        {
-          email,
-          password,
-          name,
-        },
-        {
-          onSuccess: () => {
-            router.push('/dashboard');
-          },
-        }
-      );
+      const { data, error } = await authClient.signUp.email({
+        email,
+        password,
+        name,
+      });
 
-      if (authError) {
-        setError(authError.message || 'Failed to sign up');
+      console.log('Signup result:', { data, error }, JSON.stringify(error, null, 2));
+      console.dir(error, { depth: null });
+
+      if (error) {
+        setError(error.message || 'Failed to sign up');
+      } else {
+        router.push('/sign-in?registered=true');
       }
-    } catch (err) {
-      setError('An unexpected error occurred');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setError(message);
+      console.error('Signup error:', err);
     } finally {
       setLoading(false);
     }

@@ -36,16 +36,15 @@ model User {
   emailVerified    Boolean              @default(false)
   image            String?
   twoFactorEnabled Boolean?             @default(false)
+  banned           Boolean?             @default(false)
+  banReason        String?
+  banExpires       DateTime?
   sessions         Session[]
   accounts         Account[]
   twofactors       TwoFactor[]
   members          Member[]
   invitations      Invitation[]
   passkeys         Passkey[]
-
-  banned     Boolean?  @default(false)
-  banReason  String?
-  banExpires DateTime?
 
   @@map("user")
 }
