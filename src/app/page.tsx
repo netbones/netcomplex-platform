@@ -71,8 +71,18 @@ export default function HomePage() {
       r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       address.toLowerCase().includes(searchQuery.toLowerCase()) ||
       interestList.some(i => i.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesType =
-      filterType === 'All Residents' || r.residentType === filterType.replace(' Members', '');
+
+    let matchesType = true;
+    if (filterType !== 'All Residents') {
+      const filterValue = filterType.replace(' Members', '');
+      if (filterValue === 'Board' || filterValue === 'Committee') {
+        matchesType = r.role === filterValue;
+      } else if (filterValue === 'Owner') {
+        matchesType = r.residentType === 'OWNER';
+      } else if (filterValue === 'Renter') {
+        matchesType = r.residentType === 'RENTER';
+      }
+    }
     return matchesSearch && matchesType;
   });
 
