@@ -58,6 +58,12 @@ export const NAV_LINKS = [
   { href: '/conservation', page: 'conservation' },
 ] as const;
 
+export const ADMIN_LINKS = [
+  { href: '/admin/content', page: 'Content' },
+  { href: '/admin/groups', page: 'Groups' },
+  { href: '/admin/requests', page: 'Requests' },
+] as const;
+
 export const INTEREST_CATEGORIES = [
   'gardening',
   'fitness',
