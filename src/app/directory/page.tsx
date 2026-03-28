@@ -45,29 +45,7 @@ export default function DirectoryPage() {
 
     const debounce = setTimeout(fetchResidents, search ? 300 : 0);
     return () => clearTimeout(debounce);
-  }, [search, filterStreet]);
-
-  const filteredResidents = residents.filter(r => {
-    const matchesSearch =
-      !search ||
-      r.name.toLowerCase().includes(search.toLowerCase()) ||
-      r.email.toLowerCase().includes(search.toLowerCase());
-
-    let matchesType = true;
-    if (filterType !== 'All Residents') {
-      const filterValue = filterType.replace(' Members', '').replace('s', '');
-      if (filterValue === 'Board') {
-        matchesType = r.role === 'BOARD';
-      } else if (filterValue === 'Committee') {
-        matchesType = r.role === 'COMMITTEE';
-      } else if (filterValue === 'Owner') {
-        matchesType = r.residentType === 'OWNER';
-      } else if (filterValue === 'Renter') {
-        matchesType = r.residentType === 'RENTER';
-      }
-    }
-    return matchesSearch && matchesType;
-  });
+  }, [search, filterStreet, filterType]);
 
   return (
     <main className="min-h-screen bg-soralia-light">
@@ -140,7 +118,7 @@ export default function DirectoryPage() {
             <p className="text-gray-500">Loading residents...</p>
           </div>
         ) : (
-          <DirectoryGrid residents={filteredResidents} viewMode={viewMode} />
+          <DirectoryGrid residents={residents} viewMode={viewMode} />
         )}
       </div>
     </main>
