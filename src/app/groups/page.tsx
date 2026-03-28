@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { INTEREST_CATEGORIES } from '@/lib/constants';
 
 interface Group {
@@ -36,6 +37,7 @@ export default function GroupsHubPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Groups' }]} />
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Interest Groups</h1>
         <p className="text-gray-600">Connect with neighbors who share your interests</p>

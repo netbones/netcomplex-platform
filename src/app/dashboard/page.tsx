@@ -1,8 +1,9 @@
 'use client';
 
 import { Suspense } from 'react';
-import { authClient } from '@/lib/auth-client';
 import Link from 'next/link';
+import { authClient } from '@/lib/auth-client';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 
 interface StatCardProps {
   title: string;
@@ -36,6 +37,7 @@ function DashboardContent() {
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="container mx-auto px-4 py-8">
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Dashboard' }]} />
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-indigo-600 mb-2">
             Welcome back{session?.user?.name ? `, ${session.user.name}` : ''}!

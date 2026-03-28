@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { MaintenanceForm } from '@/components/maintenance/MaintenanceForm';
 
 interface MaintenanceRequest {
@@ -35,6 +36,7 @@ export default function MaintenancePage() {
   return (
     <main className="min-h-screen bg-soralia-light">
       <div className="container mx-auto px-4 py-8">
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Maintenance' }]} />
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-soralia-primary">Maintenance Requests</h1>
           <button

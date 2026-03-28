@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 
 interface Conversation {
@@ -35,6 +36,7 @@ export default function MessagesPage() {
   return (
     <main className="min-h-screen bg-soralia-light">
       <div className="container mx-auto px-4 py-8">
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Messages' }]} />
         <h1 className="text-4xl font-bold text-soralia-primary mb-8">Messages</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

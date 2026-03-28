@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { CARD_ANIMATIONS } from '@/lib/constants';
 
 const serviceCategories = [
@@ -165,6 +166,7 @@ export default function ServicesPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Services' }]} />
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Community Services</h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">

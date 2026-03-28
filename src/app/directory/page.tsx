@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { DirectoryGrid } from '@/components/directory/DirectoryGrid';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { STREETS } from '@/lib/constants';
 
 interface Resident {
@@ -63,6 +64,7 @@ export default function DirectoryPage() {
   return (
     <main className="min-h-screen bg-soralia-light">
       <div className="container mx-auto px-4 py-8">
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Directory' }]} />
         <h1 className="text-4xl font-bold text-soralia-primary mb-8">Community Directory</h1>
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">

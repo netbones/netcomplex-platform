@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { BookingForm } from '@/components/booking/BookingForm';
 
 interface Booking {
@@ -46,6 +47,7 @@ export default function BookingsPage() {
   return (
     <main className="min-h-screen bg-soralia-light">
       <div className="container mx-auto px-4 py-8">
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Bookings' }]} />
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-soralia-primary">Facility Bookings</h1>
           <button
