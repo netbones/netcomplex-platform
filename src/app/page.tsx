@@ -154,12 +154,11 @@ export default function HomePage() {
         <div className="text-center">
           <Link
             href="/dashboard"
-            className="inline-block bg-white text-soralia-primary font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
+            className="inline-block bg-white text-indigo-600 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
           >
             <i className="fas fa-external-link-alt mr-2" aria-hidden="true"></i>
-            View Demo Dashboard
+            View Dashboard
           </Link>
-          <p className="text-sm opacity-75 mt-3">No login required for demo</p>
         </div>
       </div>
 
