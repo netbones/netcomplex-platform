@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 
 interface Content {
   id: string;
@@ -43,6 +44,7 @@ export default function ContentListPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Content Management' }]} />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Content Management</h1>
         <Link

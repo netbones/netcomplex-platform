@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 
 interface Group {
   id: string;
@@ -17,30 +18,15 @@ export default function GroupsPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch('/api/groups')
-      .then(res => res.json())
-      .then(data => {
-        setGroups(data);
-        setLoading(false);
-      });
-  }, []);
-
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this group?')) return;
-
-    const res = await fetch(`/api/groups/${id}`, { method: 'DELETE' });
-    if (res.ok) {
-      setGroups(groups.filter(g => g.id !== id));
-    }
+    await fetch(`/api/groups/${id}`, { method: 'DELETE' });
+    setGroups(groups.filter(g => g.id !== id));
   };
 
-  if (loading) {
-    return <div className="p-8 text-center">Loading...</div>;
-  }
-
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Interest Groups' }]} />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Interest Groups</h1>
         <Link
