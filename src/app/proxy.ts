@@ -1,0 +1,76 @@
+import { auth } from '@/lib/auth';
+import { hasPermission, Permission } from '@/lib/permissions';
+import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server';
+
+export async function proxy(request: Request): Promise<NextResponse> {
+  const { pathname } = new URL(request.url);
+
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  const userRole = session?.user?.id
+    ? (
+        await prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: { role: true },
+        })
+      )?.role || 'RESIDENT'
+    : 'RESIDENT';
+
+  const publicPaths = [
+    '/',
+    '/sign-in',
+    '/sign-up',
+    '/forgot-password',
+    '/api/auth',
+    '/directory',
+    '/services',
+    '/resources',
+    '/conservation',
+  ];
+
+  const isPublicPath = publicPaths.some(path => pathname === path || pathname.startsWith(path));
+
+  if (isPublicPath) {
+    return NextResponse.next();
+  }
+
+  if (!session) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    return NextResponse.redirect(new URL('/sign-in', request.url));
+  }
+
+  const protectedPaths: Array<{ path: string; permission: keyof Permission }> = [
+    { path: '/dashboard', permission: 'admin' },
+    { path: '/admin', permission: 'users' },
+    { path: '/maintenance', permission: 'requests' },
+    { path: '/bookings', permission: 'bookings' },
+    { path: '/events', permission: 'events' },
+    { path: '/groups', permission: 'groups' },
+    { path: '/directory', permission: 'directory' },
+    { path: '/messages', permission: 'messages' },
+    { path: '/settings', permission: 'settings' },
+  ];
+
+  for (const { path, permission } of protectedPaths) {
+    if (pathname.startsWith(path) && !hasPermission(userRole, permission)) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json(
+          { error: 'Forbidden - Insufficient permissions' },
+          { status: 403 }
+        );
+      }
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'],
+};
