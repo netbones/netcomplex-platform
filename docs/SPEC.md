@@ -505,9 +505,93 @@ DATABASE_URL="postgresql://..."
 - `POST /api/conversations/[id]/messages` - Send message
 - `PATCH /api/messages/[id]/read` - Mark message as read
 
+### Interest Groups
+
+- `GET /api/groups` - List all groups
+- `POST /api/groups` - Create new group (admin)
+- `GET /api/groups/[id]` - Get group with members and content
+- `PATCH /api/groups/[id]` - Update group
+- `DELETE /api/groups/[id]` - Delete group (admin)
+- `POST /api/groups/members` - Join group
+- `DELETE /api/groups/members` - Leave group
+
+### Content (CMS)
+
+- `GET /api/content` - List content (with filters: category, published, groupId)
+- `POST /api/content` - Create content
+- `GET /api/content/[id]` - Get content
+- `PATCH /api/content/[id]` - Update content
+- `DELETE /api/content/[id]` - Delete content
+
 ---
 
-## 7. Component Specifications
+## 7. Form Validation & Schemas
+
+### Technology
+
+- **React Hook Form**: Uncontrolled components for optimal performance
+- **Zod v3**: Schema validation with TypeScript inference
+
+### Schema Library (`src/lib/schemas.ts`)
+
+```typescript
+import { z } from 'zod';
+
+export const contentSchema = z.object({
+  title: z.string().min(1).max(200),
+  content: z.string().min(1),
+  excerpt: z.string().max(500).optional(),
+  category: z.enum(['NEWS', 'ANNOUNCEMENT', 'EVENT', 'BLOG']),
+  groupId: z.string().optional(),
+  featured: z.boolean(),
+  published: z.boolean(),
+});
+
+export const groupSchema = z.object({
+  name: z.string().min(1).max(100),
+  description: z.string().max(1000).optional(),
+  category: z.string().min(1),
+  isPublic: z.boolean(),
+});
+
+export const maintenanceRequestSchema = z.object({
+  category: z.enum(['PLUMBING', 'ELECTRICAL', 'APPLIANCE', 'STRUCTURAL', 'OTHER']),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'EMERGENCY']),
+  description: z.string().min(10).max(2000),
+  preferredDate: z.string().optional(),
+  preferredTime: z.string().optional(),
+});
+
+export const bookingSchema = z.object({
+  facility: z.enum(['POOL', 'GYM', 'COMMUNITY_CENTER', 'TENNIS', 'BBQ_AREA']),
+  date: z.string().min(1),
+  startTime: z.string().min(1),
+  endTime: z.string().min(1),
+  purpose: z.string().max(500).optional(),
+});
+```
+
+### Form Components Pattern
+
+```typescript
+// Use manual validation (simpler than RHF + Zod conflicts)
+// Future: migrate to RHF + ZodResolver when types align
+
+interface FormErrors {
+  fieldName?: string;
+}
+
+const validate = (data: FormData): boolean => {
+  const errors: FormErrors = {};
+  // Validation logic
+  setErrors(errors);
+  return Object.keys(errors).length === 0;
+};
+```
+
+---
+
+## 8. Component Specifications
 
 ### Auth Components
 
@@ -559,7 +643,7 @@ DATABASE_URL="postgresql://..."
 
 ---
 
-## 8. Environment Variables
+## 10. Environment Variables
 
 ```env
 # Stack Auth (Authentication only)
@@ -582,7 +666,7 @@ CLOUDINARY_API_SECRET=""
 
 ---
 
-## 9. Security Requirements
+## 11. Security Requirements
 
 1. **Password Handling:** Stack Auth manages securely
 2. **Session:** Stack Auth HTTP-only cookies
@@ -595,7 +679,7 @@ CLOUDINARY_API_SECRET=""
 
 ---
 
-## 10. Supabase Realtime Configuration
+## 12. Supabase Realtime Configuration
 
 ### Setup
 

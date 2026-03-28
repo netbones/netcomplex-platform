@@ -51,7 +51,7 @@ export default function EditGroupPage() {
         initialData={{
           id: params.id as string,
           name: group.name,
-          description: group.description || undefined,
+          description: group.description || '',
           category: group.category,
           isPublic: group.isPublic,
         }}

@@ -41,6 +41,7 @@
     "typescript-eslint": "^8.57.2"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@stackframe/react": "^2.8.78",
     "@stackframe/stack": "^2.8.78",
     "@supabase/supabase-js": "^2.100.1",
@@ -55,6 +56,6 @@
     "react-hook-form": "^7.72.0",
     "react-leaflet": "^5.0.0",
     "tailwindcss": "^3.4.19",
-    "zod": "^4.3.6"
+    "zod": "^3.25.76"
   }
 }

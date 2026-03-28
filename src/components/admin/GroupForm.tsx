@@ -15,28 +15,51 @@ const categories = [
   { value: 'other', label: 'Other' },
 ];
 
-export function GroupForm({
-  initialData,
-}: {
-  initialData?: {
-    id?: string;
-    name: string;
-    description?: string;
-    category: string;
-    isPublic: boolean;
-  };
-}) {
+interface GroupFormData {
+  name: string;
+  description: string;
+  category: string;
+  isPublic: boolean;
+}
+
+interface GroupFormProps {
+  initialData?: Partial<GroupFormData> & { id?: string };
+}
+
+interface FormErrors {
+  name?: string;
+}
+
+export function GroupForm({ initialData }: GroupFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  const [formData, setFormData] = useState<GroupFormData>({
     name: initialData?.name || '',
     description: initialData?.description || '',
     category: initialData?.category || 'other',
     isPublic: initialData?.isPublic ?? true,
   });
 
+  const validate = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Group name is required';
+    } else if (formData.name.length > 100) {
+      newErrors.name = 'Name too long';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validate()) return;
+
     setIsSubmitting(true);
 
     try {
@@ -69,8 +92,8 @@ export function GroupForm({
           value={formData.name}
           onChange={e => setFormData({ ...formData, name: e.target.value })}
           className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500"
-          required
         />
+        {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
       </div>
 
       <div>

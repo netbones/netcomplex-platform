@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@hookform/resolvers':
+        specifier: ^5.2.2
+        version: 5.2.2(react-hook-form@7.72.0(react@19.2.4))
       '@stackframe/react':
         specifier: ^2.8.78
         version: 2.8.78(@aws-sdk/credential-provider-web-identity@3.972.26)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@3.4.19(tsx@4.21.0)(yaml@2.8.3))
@@ -51,8 +54,8 @@ importers:
         specifier: ^3.4.19
         version: 3.4.19(tsx@4.21.0)(yaml@2.8.3)
       zod:
-        specifier: ^4.3.6
-        version: 4.3.6
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@prisma/client':
         specifier: ^5.22.0
@@ -4351,9 +4354,6 @@ packages:
 
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
-
-  zod@4.3.6:
-    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
 snapshots:
 
@@ -9024,5 +9024,3 @@ snapshots:
       zod: 3.25.76
 
   zod@3.25.76: {}
-
-  zod@4.3.6: {}

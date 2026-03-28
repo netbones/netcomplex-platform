@@ -4,18 +4,24 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 
+interface ContentFormData {
+  title: string;
+  content: string;
+  excerpt: string;
+  category: 'NEWS' | 'ANNOUNCEMENT' | 'EVENT' | 'BLOG';
+  groupId: string;
+  featured: boolean;
+  published: boolean;
+}
+
 interface ContentFormProps {
-  initialData?: {
-    id?: string;
-    title: string;
-    content: string;
-    excerpt?: string;
-    category: string;
-    groupId?: string;
-    featured: boolean;
-    published: boolean;
-  };
+  initialData?: Partial<ContentFormData> & { id?: string };
   groups?: { id: string; name: string }[];
+}
+
+interface FormErrors {
+  title?: string;
+  content?: string;
 }
 
 const categories = [
@@ -28,7 +34,9 @@ const categories = [
 export function ContentForm({ initialData, groups = [] }: ContentFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  const [formData, setFormData] = useState<ContentFormData>({
     title: initialData?.title || '',
     content: initialData?.content || '',
     excerpt: initialData?.excerpt || '',
@@ -38,8 +46,28 @@ export function ContentForm({ initialData, groups = [] }: ContentFormProps) {
     published: initialData?.published || false,
   });
 
+  const validate = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    if (!formData.title.trim()) {
+      newErrors.title = 'Title is required';
+    } else if (formData.title.length > 200) {
+      newErrors.title = 'Title too long';
+    }
+
+    if (!formData.content.trim()) {
+      newErrors.content = 'Content is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validate()) return;
+
     setIsSubmitting(true);
 
     try {
@@ -72,8 +100,8 @@ export function ContentForm({ initialData, groups = [] }: ContentFormProps) {
           value={formData.title}
           onChange={e => setFormData({ ...formData, title: e.target.value })}
           className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          required
         />
+        {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -81,7 +109,9 @@ export function ContentForm({ initialData, groups = [] }: ContentFormProps) {
           <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
           <select
             value={formData.category}
-            onChange={e => setFormData({ ...formData, category: e.target.value })}
+            onChange={e =>
+              setFormData({ ...formData, category: e.target.value as ContentFormData['category'] })
+            }
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             {categories.map(cat => (
@@ -111,8 +141,10 @@ export function ContentForm({ initialData, groups = [] }: ContentFormProps) {
             </select>
           </div>
         )}
+      </div>
 
-        <div className="flex items-center space-x-6 pt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex items-center space-x-6">
           <label className="flex items-center">
             <input
               type="checkbox"
@@ -122,7 +154,9 @@ export function ContentForm({ initialData, groups = [] }: ContentFormProps) {
             />
             <span className="ml-2 text-sm text-gray-700">Featured</span>
           </label>
+        </div>
 
+        <div className="flex items-center space-x-6">
           <label className="flex items-center">
             <input
               type="checkbox"
@@ -152,6 +186,7 @@ export function ContentForm({ initialData, groups = [] }: ContentFormProps) {
           content={formData.content}
           onChange={html => setFormData({ ...formData, content: html })}
         />
+        {errors.content && <p className="mt-1 text-sm text-red-600">{errors.content}</p>}
       </div>
 
       <div className="flex justify-end space-x-4">

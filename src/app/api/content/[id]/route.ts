@@ -8,6 +8,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     where: { id },
     include: {
       author: { select: { id: true, name: true } },
+      group: { select: { id: true, name: true } },
     },
   });
 

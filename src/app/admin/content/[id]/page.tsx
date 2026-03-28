@@ -10,6 +10,7 @@ interface Content {
   content: string;
   excerpt: string | null;
   category: string;
+  groupId: string | null;
   featured: boolean;
   published: boolean;
 }
@@ -47,7 +48,8 @@ export default function EditContentPage() {
     title: content.title,
     content: content.content,
     excerpt: content.excerpt || undefined,
-    category: content.category,
+    category: content.category as 'NEWS' | 'ANNOUNCEMENT' | 'EVENT' | 'BLOG',
+    groupId: content.groupId || '',
     featured: content.featured,
     published: content.published,
   };
