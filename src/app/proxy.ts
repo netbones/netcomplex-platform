@@ -25,10 +25,12 @@ export async function proxy(request: Request): Promise<NextResponse> {
     '/sign-up',
     '/forgot-password',
     '/api/auth',
-    '/directory',
-    '/services',
-    '/resources',
     '/conservation',
+    '/terms',
+    '/privacy',
+    '/guidelines',
+    '/competition',
+    '/proudly-soralia',
   ];
 
   const isPublicPath = publicPaths.some(path => pathname === path || pathname.startsWith(path));
@@ -45,13 +47,16 @@ export async function proxy(request: Request): Promise<NextResponse> {
   }
 
   const protectedPaths: Array<{ path: string; permission: keyof Permission }> = [
-    { path: '/dashboard', permission: 'admin' },
+    { path: '/dashboard', permission: 'directory' },
     { path: '/admin', permission: 'users' },
     { path: '/maintenance', permission: 'requests' },
     { path: '/bookings', permission: 'bookings' },
     { path: '/events', permission: 'events' },
     { path: '/groups', permission: 'groups' },
+    { path: '/interest', permission: 'groups' },
     { path: '/directory', permission: 'directory' },
+    { path: '/services', permission: 'bookings' },
+    { path: '/resources', permission: 'content' },
     { path: '/messages', permission: 'messages' },
     { path: '/settings', permission: 'settings' },
   ];
