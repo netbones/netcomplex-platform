@@ -1,0 +1,43 @@
+{
+  "app": {
+    "name": "Soralia Village",
+    "tagline": "Umphakathi wabamelwane"
+  },
+  "nav": {
+    "home": "Ikaya",
+    "directory": "Uhlu",
+    "services": "Amasevisi",
+    "resources": "Izinsiza",
+    "conservation": "Ukugcinwa",
+    "groups": "Amagrupha anempela",
+    "login": "Ngena",
+    "logout": "Phuma",
+    "profile": "Iprofaile yami",
+    "admin": "Admin"
+  },
+  "common": {
+    "search": "Sesha...",
+    "submit": "Thumela",
+    "cancel": "Khansela",
+    "save": "Londoloza",
+    "delete": "Sula",
+    "edit": "Hlela",
+    "create": "Dala",
+    "view": "Buka",
+    "loading": "Ilodwa...",
+    "noResults": "Ayikho imiphumela",
+    "error": "Kwenzeke iphutha",
+    "success": "Impumelelo",
+    "confirm": "Qinisekisa",
+    "back": "Emuva",
+    "next": "Okulandelayo",
+    "previous": "Okwangaphambilini"
+  },
+  "language": {
+    "select": "Khetha ulimi",
+    "en": "i-English",
+    "af": "i-Afrikaans",
+    "xh": "i-Xhosa",
+    "zu": "i-Zulu"
+  }
+}

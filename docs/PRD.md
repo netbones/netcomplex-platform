@@ -3,15 +3,15 @@
 ## Project Overview
 
 **Project Name:** Soralia Village Community Portal
-**Type:** Single Page Application (SPA) with Prisma Backend
-**Core Functionality:** A community management platform for residents of Soralia Village, enabling directory access, maintenance requests, facility booking, event management, and communication.
+**Type:** Full-stack SPA with Next.js 14 and Supabase
+**Core Functionality:** A community management platform for residents of Soralia Village, enabling directory access, maintenance requests, facility booking, interest groups, content management, and real-time communication.
 **Target Users:** Soralia Village residents, HOA board members, property managers, and administrators.
 
 ---
 
 ## Current State Analysis
 
-### Existing Application (CommonJS)
+### Existing Application (Legacy)
 
 - **Stack:** Static HTML/CSS/JS with Tailwind CSS CDN
 - **Pages:** 10+ static HTML files (index, dashboard, directory, services, resources, conservation, resident, interest, proudly-soralia)
@@ -20,16 +20,34 @@
 - **Map:** Leaflet.js with OpenStreetMap
 - **Limitations:** No real authentication, no database, no CRUD operations, no real-time features
 
-### Problems Identified
+### Current Implementation (Completed)
 
-1. No persistent user authentication
-2. No database - data is hardcoded
-3. No admin functionality for managing residents
-4. No real-time notifications or updates
-5. No facility booking system
-6. No maintenance request tracking
-7. Duplicate code across HTML files
-8. No API for integrations
+- **Stack:** Next.js 14 (App Router) with React + Turbopack
+- **Auth:** Stack Auth integrated (with SSR handling)
+- **Database:** Supabase PostgreSQL with Prisma ORM
+- **Real-time:** Supabase Realtime prepared for messaging
+- **Forms:** React Hook Form + Zod v3 validation
+- **Rich Text:** Tiptap WYSIWYG editor
+- **Package Manager:** pnpm
+- **Styling:** Tailwind CSS
+
+### Completed Work
+
+- **Migrated Pages:** Home, Directory, Services, Resources, Conservation, Interest Groups, Proudly Soralia, Resident Profile
+- **CMS Implementation:** Admin pages at /admin/content, /admin/groups with Tiptap rich text editor
+- **Interest Groups:** Public hub at /groups, /groups/[id], join/leave functionality via API
+- **Content API:** Full CRUD for Content model with categories (ANNOUNCEMENT, NEWS, EVENT, BLOG)
+- **Database Models:** User, Group, Content, UserGroup with proper relations
+- **Zod Schemas:** Validation schemas in src/lib/schemas.ts for content and group forms
+- **i18n:** Added i18next with inline resources for 4 languages (en, af, xh, zu) to avoid async loading issues
+
+### Technical Discoveries & Fixes
+
+1. **Database URL Conflict:** `.env.local` had wrong Supabase URL that overrode `.env` - fixed by updating to pooler URL
+2. **Stack Auth SSR Issues:** Had to use dynamic imports for StackHandler, wrap useSearchParams in Suspense
+3. **Zod v4 + RHF Type Conflicts:** Upgraded to Zod v3, removed explicit generics from useForm to fix type inference issues
+4. **Interest Groups Workflow:** Users join groups → create content (BLOG category) → posts appear on group pages
+5. **Internationalization:** Added i18next with inline resources for 4 languages (en, af, xh, zu), LanguageSwitcher component
 
 ---
 
@@ -40,18 +58,20 @@ Transform Soralia Village from a static demo into a fully functional SPA with:
 - **Stack Auth** for secure user authentication
 - **Prisma + Supabase PostgreSQL** for data persistence
 - **Supabase Realtime** for real-time messaging
-- **Modern SPA architecture** with Preact/Next.js
+- **Next.js 16 SPA architecture** with React
 - **Role-based access** for residents, board members, and admins
+- **Interest Groups** - Residents can join groups and create content
+- **CMS** - Admins and group members can publish content
 
 ---
 
 ## User Personas
 
-| Persona      | Role         | Needs                                                         |
-| ------------ | ------------ | ------------------------------------------------------------- |
-| Resident     | Default user | View directory, submit requests, book facilities, view events |
-| Board Member | Management   | Approve requests, post announcements, manage residents        |
-| Admin        | Full control | User management, system configuration, analytics              |
+| Persona      | Role         | Needs                                                                                  |
+| ------------ | ------------ | -------------------------------------------------------------------------------------- |
+| Resident     | Default user | View directory, submit requests, book facilities, join interest groups, create content |
+| Board Member | Management   | Approve requests, post announcements, manage content, moderate groups                  |
+| Admin        | Full control | User management, system configuration, analytics, content management, group admin      |
 
 ---
 
@@ -72,6 +92,7 @@ Transform Soralia Village from a static demo into a fully functional SPA with:
 - Interest-based filtering
 - Privacy controls (show/hide contact info)
 - Street/unit filtering
+- Grid/List view toggle
 
 ### 3. Resident Dashboard
 
@@ -92,63 +113,89 @@ Transform Soralia Village from a static demo into a fully functional SPA with:
 ### 5. Facility Booking
 
 - Community center reservations
-- Garden plot bookings
+- Pool, gym, tennis court bookings
 - Calendar view of availability
-- Booking confirmation emails
+- Booking confirmation
 - Cancellation/modification
 
-### 6. Events & Announcements
+### 6. Interest Groups
+
+- Browse groups by category
+- Join/leave groups
+- Group pages with member list
+- Group content/feed
+- Create posts (BLOG category)
+- Group owner/moderator management
+
+### 7. Content Management (CMS)
+
+- Rich text editor (Tiptap) for content creation
+- Categories: News, Announcement, Event, Blog
+- Associate content with interest groups
+- Featured/published flags
+- Author attribution
+
+### 8. Events & Announcements
 
 - Community event calendar
 - Announcement board
 - RSVP functionality
 - Event reminders
 
-### 7. Admin Panel
+### 9. Admin Panel
 
 - Resident management (CRUD)
 - Maintenance request management
 - Booking management
-- Content management for pages
+- Content management for pages (CMS)
+- Interest group management
 - Analytics dashboard
 
 ---
 
 ## Technical Architecture
 
-### Stack Recommendation
+### Stack Implementation
 
-| Layer      | Technology              | Justification                                             |
-| ---------- | ----------------------- | --------------------------------------------------------- |
-| Frontend   | Preact + Next.js        | SSR/SSG, routing, smaller bundle                          |
-| Styling    | Tailwind CSS            | Already in use, efficient                                 |
-| Auth       | Stack Auth              | Full auth solution, pre-built UI components               |
-| Database   | PostgreSQL via Supabase | Serverless Postgres + real-time, excellent Prisma support |
-| ORM        | Prisma                  | Type-safe, excellent Supabase integration                 |
-| Real-time  | Supabase Realtime       | Chat/messaging, notifications                             |
-| Maps       | Leaflet + Mapbox        | Continue existing implementation                          |
-| Deployment | Vercel                  | Native Next.js support, zero-config                       |
+| Layer     | Technology              | Justification                                   |
+| --------- | ----------------------- | ----------------------------------------------- |
+| Frontend  | Next.js 14 + React      | App Router, SSR/SSG, Turbopack for fast builds  |
+| Styling   | Tailwind CSS v3         | Already in use, efficient                       |
+| Auth      | Stack Auth              | Full auth solution, pre-built UI components     |
+| Database  | PostgreSQL via Supabase | Serverless Postgres + real-time, Prisma support |
+| ORM       | Prisma 5                | Type-safe, excellent Supabase integration       |
+| Real-time | Supabase Realtime       | Chat/messaging, notifications                   |
+| Forms     | React Hook Form + Zod   | Validation with TypeScript inference            |
+| Editor    | Tiptap                  | WYSIWYG rich text editing                       |
+| Maps      | Leaflet + OpenStreetMap | Continue existing implementation                |
+| Deploy    | Vercel                  | Native Next.js support, zero-config             |
+| Package   | pnpm                    | Disk space efficient                            |
 
 ### Database Schema (Prisma)
 
 ```prisma
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  password      String
+  id            String    @id @default(cuid())
+  email         String    @unique
   name          String
-  role          Role     @default(RESIDENT)
-  address       String?
+  role          Role      @default(RESIDENT)
+  street        String?
   unit          String?
   phone         String?
   interests     String[]
   avatar        String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  isPublic      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   requests      MaintenanceRequest[]
   bookings      Booking[]
   notifications Notification[]
+  conversations Conversation[]
+  messages      Message[]
+  groupMemberships UserGroup[]
+  ownedGroups   Group[]
+  contents     Content[]
 }
 
 enum Role {
@@ -158,33 +205,36 @@ enum Role {
 }
 
 model MaintenanceRequest {
-  id          String   @id @default(cuid())
+  id          String        @id @default(cuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   category    String
   priority    Priority
   description String
   status      RequestStatus @default(SUBMITTED)
   images      String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
 
 enum Priority { LOW, MEDIUM, HIGH, EMERGENCY }
-enum RequestStatus { SUBMITTED, IN_PROGRESS, COMPLETED }
+enum RequestStatus { SUBMITTED, IN_PROGRESS, COMPLETED, CANCELLED }
 
 model Booking {
-  id          String   @id @default(cuid())
+  id          String        @id @default(cuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   facility    String
   date        DateTime
-  time        String
+  startTime   String
+  endTime     String
+  purpose     String?
   status      BookingStatus @default(CONFIRMED)
-  createdAt   DateTime @default(now())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
 
-enum BookingStatus { CONFIRMED, CANCELLED }
+enum BookingStatus { CONFIRMED, CANCELLED, COMPLETED }
 
 model Event {
   id          String   @id @default(cuid())
@@ -193,18 +243,109 @@ model Event {
   date        DateTime
   location    String
   organizer   String
+  image       String?
+  isPublic    Boolean  @default(true)
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Content {
+  id          String         @id @default(cuid())
+  title       String
+  content     String         @db.Text
+  excerpt     String?
+  image       String?
+  category    ContentCategory
+  authorId    String?
+  author      User?          @relation(fields: [authorId], references: [id])
+  groupId     String?
+  group       Group?         @relation(fields: [groupId], references: [id])
+  published   Boolean        @default(false)
+  featured    Boolean        @default(false)
+  priority    String         @default("normal")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  publishedAt DateTime?
+  expiresAt   DateTime?
+}
+
+enum ContentCategory {
+  ANNOUNCEMENT
+  NEWS
+  EVENT
+  BLOG
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  image       String?
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members     UserGroup[]
+  contents    Content[]
+}
+
+enum GroupRole {
+  MEMBER
+  MODERATOR
+  ADMIN
+}
+
+model UserGroup {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupId   String
+  group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  role      GroupRole @default(MEMBER)
+  joinedAt  DateTime  @default(now())
+
+  @@unique([userId, groupId])
 }
 
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title     String
   message   String
+  type      String
+  link      String?
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
 }
+
+model Conversation {
+  id           String    @id @default(cuid())
+  name         String?
+  type         ConversationType @default(DIRECT)
+  participants User[]
+  messages     Message[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+enum ConversationType { DIRECT, GROUP }
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+  content        String
+  type           MessageType  @default(TEXT)
+  createdAt      DateTime     @default(now())
+}
+
+enum MessageType { TEXT, IMAGE, SYSTEM }
 ```
 
 ---
@@ -273,12 +414,14 @@ model Notification {
 
 ## Acceptance Criteria
 
-- [ ] Users can register and log in securely
-- [ ] Residents can view and search the directory
+- [x] Users can register and log in securely (Stack Auth)
+- [x] Residents can view and search the directory
+- [x] Interest groups with join/leave functionality
+- [x] CMS with Tiptap rich text editor (admin content management)
+- [x] Admins can manage content and groups via admin panel
 - [ ] Users can submit and track maintenance requests
 - [ ] Users can book community facilities
-- [ ] Admins can manage all data via admin panel
-- [ ] Real-time notifications work
+- [ ] Real-time messaging/notifications
 - [ ] Application is responsive and accessible
 - [ ] Deployment pipeline is automated
 

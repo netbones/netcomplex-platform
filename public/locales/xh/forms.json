@@ -1,0 +1,9 @@
+{
+  "required": "Le thuba lilelodwa",
+  "email": "Nceda fake i- email en_validi",
+  "minLength": "Kufuneka ibe ngamacandelo {{count}} ngaphezulu",
+  "maxLength": "Kufuneka ingabi ngaphezulu {{count}} macandelo",
+  "invalidEmail": "I- email engavumelekanga",
+  "passwordMismatch": "Amaphasiwedi ayihambelani",
+  "selectOption": "Nceda khetha ukhetho"
+}

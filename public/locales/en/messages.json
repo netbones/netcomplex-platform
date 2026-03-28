@@ -1,0 +1,14 @@
+{
+  "welcome": "Welcome to Soralia Village",
+  "welcomeBack": "Welcome back, {{name}}!",
+  "loginRequired": "Please log in to continue",
+  "loginSuccess": "You have been logged in successfully",
+  "logoutSuccess": "You have been logged out",
+  "profileUpdated": "Profile updated successfully",
+  "contentSaved": "Content saved successfully",
+  "groupJoined": "You have joined the group",
+  "groupLeft": "You have left the group",
+  "requestSubmitted": "Your request has been submitted",
+  "bookingConfirmed": "Your booking has been confirmed",
+  "error": "An error occurred. Please try again."
+}

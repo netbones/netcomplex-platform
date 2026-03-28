@@ -1,0 +1,14 @@
+{
+  "welcome": "Welkom by Soralia Village",
+  "welcomeBack": "Welkom terug, {{name}}!",
+  "loginRequired": "Teken asseblief aan om voort te gaan",
+  "loginSuccess": "U is suksesvol aangeteken",
+  "logoutSuccess": "U is suksesvol afgeteken",
+  "profileUpdated": "Profiel suksesvol opgedateer",
+  "contentSaved": "Inhoud suksesvol gestoor",
+  "groupJoined": "U het by die groep aangesluit",
+  "groupLeft": "U het die groep verlaat",
+  "requestSubmitted": "U versoek is ingedien",
+  "bookingConfirmed": "U bespreking is bevestig",
+  "error": "'n Fout het plaasgevind. Probeer asseblief weer."
+}

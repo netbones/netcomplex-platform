@@ -1,0 +1,14 @@
+{
+  "welcome": "Wamkelekile ku Soralia Village",
+  "welcomeBack": "Wamkelekile ubuya, {{name}}!",
+  "loginRequired": "Nceda ufake ukungena ukuqhubeka",
+  "loginSuccess": "Ungena ngempumelelo",
+  "logoutSuccess": "Upume ngempumelelo",
+  "profileUpdated": "Iprofayile ihleliwe ngempumelelo",
+  "contentSaved": "Umxholo ugcinwe ngempumelelo",
+  "groupJoined": "Uye wamkela kwigrupha",
+  "groupLeft": "Uye waphuma kwigrupha",
+  "requestSubmitted": "Isicelo sakho sithunyelwe",
+  "bookingConfirmed": "Indlela yokubhukha iqinisekisiwe",
+  "error": "Kwenzeke impazamo. Nceda uzama kwakhona."
+}

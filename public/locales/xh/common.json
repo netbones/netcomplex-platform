@@ -1,0 +1,43 @@
+{
+  "app": {
+    "name": "Soralia Village",
+    "tagline": "Uluhlu lwabamelwane"
+  },
+  "nav": {
+    "home": "Ikaya",
+    "directory": "Uluhlu",
+    "services": "Iinkonzo",
+    "resources": "Izibonelelo",
+    "conservation": "Ulondolozo",
+    "groups": "Amagrupha enomdla",
+    "login": "Ngena",
+    "logout": "Phuma",
+    "profile": "Iprofayile yam",
+    "admin": "Admin"
+  },
+  "common": {
+    "search": "Sesiza...",
+    "submit": "Thumela",
+    "cancel": "Rhoxisa",
+    "save": "Gcina",
+    "delete": "Cima",
+    "edit": "Hlela",
+    "create": "Yenza",
+    "view": "Jonga",
+    "loading": "Ilayisha...",
+    "noResults": "Akukho zipho",
+    "error": "Kwenzeke impazamo",
+    "success": "Impumelelo",
+    "confirm": "Qinisekisa",
+    "back": "Emva",
+    "next": "Okulandelayo",
+    "previous": "Okwangoku"
+  },
+  "language": {
+    "select": "Khetha ulwimi",
+    "en": "IsiNgesi",
+    "af": "IsiBhulu",
+    "xh": "IsiXhosa",
+    "zu": "IsiZulu"
+  }
+}

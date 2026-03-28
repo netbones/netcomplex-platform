@@ -1,0 +1,43 @@
+{
+  "app": {
+    "name": "Soralia Village",
+    "tagline": "A Community of Neighbors"
+  },
+  "nav": {
+    "home": "Home",
+    "directory": "Directory",
+    "services": "Services",
+    "resources": "Resources",
+    "conservation": "Conservation",
+    "groups": "Interest Groups",
+    "login": "Log In",
+    "logout": "Log Out",
+    "profile": "My Profile",
+    "admin": "Admin"
+  },
+  "common": {
+    "search": "Search...",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "view": "View",
+    "loading": "Loading...",
+    "noResults": "No results found",
+    "error": "An error occurred",
+    "success": "Success",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous"
+  },
+  "language": {
+    "select": "Select Language",
+    "en": "English",
+    "af": "Afrikaans",
+    "xh": "Xhosa",
+    "zu": "Zulu"
+  }
+}

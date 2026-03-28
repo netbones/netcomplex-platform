@@ -1,0 +1,43 @@
+{
+  "app": {
+    "name": "Soralia Village",
+    "tagline": " 'n Gemeenskap van bure"
+  },
+  "nav": {
+    "home": "Tuis",
+    "directory": "Gids",
+    "services": "Dienste",
+    "resources": "Hulpbronne",
+    "conservation": "Bewaring",
+    "groups": "Belangstellingsgroepe",
+    "login": "Teken aan",
+    "logout": "Teken uit",
+    "profile": "My Profiel",
+    "admin": "Admin"
+  },
+  "common": {
+    "search": "Soek...",
+    "submit": "Dien in",
+    "cancel": "Kanselleer",
+    "save": "Stoor",
+    "delete": "Verwyder",
+    "edit": "Wysig",
+    "create": "Skep",
+    "view": "Bekyk",
+    "loading": "Laai...",
+    "noResults": "Geen resultate nie",
+    "error": "'n Fout het plaasgevind",
+    "success": "Sukses",
+    "confirm": "Bevestig",
+    "back": "Terug",
+    "next": "Volgende",
+    "previous": "Vorige"
+  },
+  "language": {
+    "select": "Kies Taal",
+    "en": "Engels",
+    "af": "Afrikaans",
+    "xh": "Xhosa",
+    "zu": "Zoeloe"
+  }
+}

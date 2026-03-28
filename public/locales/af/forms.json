@@ -1,0 +1,9 @@
+{
+  "required": "Hierdie veld is verpligtend",
+  "email": "Tik asseblief 'n geldige e-posadres",
+  "minLength": "Moet ten minste {{count}} karakters wees",
+  "maxLength": "Moet nie meer as {{count}} karakters wees nie",
+  "invalidEmail": "Ongeldige e-posadres",
+  "passwordMismatch": "Woorde stem nie ooreen nie",
+  "selectOption": "Kies asseblief 'n opsie"
+}

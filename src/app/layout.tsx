@@ -2,6 +2,7 @@ import './globals.css';
 import { Providers } from './providers';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -20,9 +21,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-soralia-light min-h-screen flex flex-col">
         <Providers>
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
+          <Suspense fallback={null}>
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </Suspense>
         </Providers>
       </body>
     </html>

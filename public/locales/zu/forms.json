@@ -1,0 +1,9 @@
+{
+  "required": "Leli fieldi lifanele",
+  "email": "Sicela ufake i-email evumelekile",
+  "minLength": "Kufanele ibe nge-{{count}} ugugu ubuncwane",
+  "maxLength": "Kufanele ingabi ngaphezulu {{count}} ugugu",
+  "invalidEmail": "I-email engavumelekile",
+  "passwordMismatch": "Amaphasiwedi awahambelani",
+  "selectOption": "Sicela ukhethe inkhetho"
+}

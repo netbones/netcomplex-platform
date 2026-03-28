@@ -2,17 +2,21 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
+import { Suspense } from 'react';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 
 const navLinks = [
-  { href: '/', label: 'Home', page: 'home' },
-  { href: '/directory', label: 'Directory', page: 'directory' },
-  { href: '/services', label: 'Services', page: 'services' },
-  { href: '/resources', label: 'Resources', page: 'resources' },
-  { href: '/conservation', label: 'Conservation', page: 'conservation' },
+  { href: '/', page: 'home' },
+  { href: '/directory', page: 'directory' },
+  { href: '/services', page: 'services' },
+  { href: '/resources', page: 'resources' },
+  { href: '/conservation', page: 'conservation' },
 ];
 
 export function Header() {
   const pathname = usePathname();
+  const { t } = useTranslation('common');
 
   return (
     <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md">
@@ -24,8 +28,8 @@ export function Header() {
             className="w-16 h-16 rounded-full bg-white p-2 border-2 border-white shadow-lg object-cover"
           />
           <div>
-            <h1 className="text-2xl font-bold">Soralia Village</h1>
-            <p className="text-xs opacity-75">Conscious Community Living</p>
+            <h1 className="text-2xl font-bold">{t('app.name')}</h1>
+            <p className="text-xs opacity-75">{t('app.tagline')}</p>
           </div>
         </div>
 
@@ -36,17 +40,20 @@ export function Header() {
               href={link.href}
               className={`hover:text-soralia-accent font-medium ${pathname === link.href ? 'text-soralia-accent' : ''}`}
             >
-              {link.label}
+              {t(`nav.${link.page}`)}
             </Link>
           ))}
         </nav>
 
         <div className="flex items-center space-x-4">
+          <Suspense fallback={<div className="w-16 h-6 bg-white/20 rounded" />}>
+            <LanguageSwitcher />
+          </Suspense>
           <Link
             href="/auth-handler"
             className="bg-white text-soralia-primary py-2 px-4 rounded-md hover:bg-gray-100 transition"
           >
-            Sign In
+            {t('nav.login')}
           </Link>
         </div>
       </div>

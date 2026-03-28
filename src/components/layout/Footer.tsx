@@ -1,6 +1,11 @@
+'use client';
+
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 export function Footer() {
+  const { t } = useTranslation('common');
+
   return (
     <footer className="bg-gray-900 text-white mt-auto">
       <div className="container mx-auto px-4 py-12">
@@ -13,8 +18,8 @@ export function Footer() {
                 className="w-12 h-12 rounded-full bg-white p-1 shadow-md object-cover"
               />
               <div>
-                <h3 className="text-xl font-bold">Soralia Village</h3>
-                <p className="text-sm text-gray-300">Community Living</p>
+                <h3 className="text-xl font-bold">{t('app.name')}</h3>
+                <p className="text-sm text-gray-300">{t('app.tagline')}</p>
               </div>
             </div>
             <p className="text-gray-300 text-sm mb-4">
@@ -45,7 +50,7 @@ export function Footer() {
                   href="/"
                   className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
                 >
-                  Home
+                  {t('nav.home')}
                 </Link>
               </li>
               <li>
@@ -53,7 +58,7 @@ export function Footer() {
                   href="/directory"
                   className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
                 >
-                  Directory
+                  {t('nav.directory')}
                 </Link>
               </li>
               <li>
@@ -61,7 +66,7 @@ export function Footer() {
                   href="/services"
                   className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
                 >
-                  Services
+                  {t('nav.services')}
                 </Link>
               </li>
               <li>
@@ -69,7 +74,7 @@ export function Footer() {
                   href="/resources"
                   className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
                 >
-                  Resources
+                  {t('nav.resources')}
                 </Link>
               </li>
               <li>
@@ -77,7 +82,7 @@ export function Footer() {
                   href="/conservation"
                   className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
                 >
-                  Conservation
+                  {t('nav.conservation')}
                 </Link>
               </li>
               <li>
@@ -146,7 +151,7 @@ export function Footer() {
                   aria-hidden="true"
                 ></i>
                 <div>
-                  <p className="text-gray-300 text-sm">Soralia Village</p>
+                  <p className="text-gray-300 text-sm">{t('app.name')}</p>
                   <p className="text-gray-300 text-sm">Cape Town, South Africa</p>
                 </div>
               </div>
