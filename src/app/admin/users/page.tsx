@@ -177,13 +177,23 @@ export default function AdminUsersPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="mb-6">
+        <nav className="text-sm">
+          <ol className="flex items-center space-x-2">
+            <li>
+              <a href="/admin" className="text-indigo-600 hover:text-indigo-800">
+                Admin
+              </a>
+            </li>
+            <li>
+              <i className="fas fa-chevron-right text-gray-400 text-xs"></i>
+            </li>
+            <li className="text-gray-900 font-medium">User Management</li>
+          </ol>
+        </nav>
+      </div>
       <div className="flex justify-between items-center mb-8">
-        <div className="flex items-center gap-4">
-          <a href="/admin" className="text-gray-600 hover:text-gray-900">
-            <i className="fas fa-arrow-left mr-2"></i>Back
-          </a>
-          <h1 className="text-3xl font-bold">User Management</h1>
-        </div>
+        <h1 className="text-3xl font-bold">User Management</h1>
         <button
           onClick={() => setShowInvite(true)}
           className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
