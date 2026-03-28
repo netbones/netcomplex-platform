@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { groupSchema, type GroupFormData } from '@/lib/schemas';
 
 const categories = [
   { value: 'gardening', label: 'Gardening' },
@@ -15,53 +17,28 @@ const categories = [
   { value: 'other', label: 'Other' },
 ];
 
-interface GroupFormData {
-  name: string;
-  description: string;
-  category: string;
-  isPublic: boolean;
-}
-
 interface GroupFormProps {
   initialData?: Partial<GroupFormData> & { id?: string };
 }
 
-interface FormErrors {
-  name?: string;
-}
-
 export function GroupForm({ initialData }: GroupFormProps) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
 
-  const [formData, setFormData] = useState<GroupFormData>({
-    name: initialData?.name || '',
-    description: initialData?.description || '',
-    category: initialData?.category || 'other',
-    isPublic: initialData?.isPublic ?? true,
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(groupSchema),
+    defaultValues: {
+      name: initialData?.name || '',
+      description: initialData?.description || '',
+      category: initialData?.category || 'other',
+      isPublic: initialData?.isPublic ?? true,
+    },
   });
 
-  const validate = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Group name is required';
-    } else if (formData.name.length > 100) {
-      newErrors.name = 'Name too long';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validate()) return;
-
-    setIsSubmitting(true);
-
+  const onSubmit = async (data: GroupFormData) => {
     try {
       const method = initialData?.id ? 'PATCH' : 'POST';
       const url = initialData?.id ? `/api/groups/${initialData.id}` : '/api/groups';
@@ -69,7 +46,7 @@ export function GroupForm({ initialData }: GroupFormProps) {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(data),
       });
 
       if (res.ok) {
@@ -78,41 +55,39 @@ export function GroupForm({ initialData }: GroupFormProps) {
       }
     } catch (error) {
       console.error('Error saving group:', error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Group Name</label>
         <input
           type="text"
-          value={formData.name}
-          onChange={e => setFormData({ ...formData, name: e.target.value })}
+          {...register('name')}
           className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500"
         />
-        {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+        {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
         <textarea
-          value={formData.description}
-          onChange={e => setFormData({ ...formData, description: e.target.value })}
+          {...register('description')}
           rows={4}
           className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500"
           placeholder="What is this group about?"
         />
+        {errors.description && (
+          <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
           <select
-            value={formData.category}
-            onChange={e => setFormData({ ...formData, category: e.target.value })}
+            {...register('category')}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500"
           >
             {categories.map(cat => (
@@ -127,8 +102,7 @@ export function GroupForm({ initialData }: GroupFormProps) {
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={formData.isPublic}
-              onChange={e => setFormData({ ...formData, isPublic: e.target.checked })}
+              {...register('isPublic')}
               className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
             />
             <span className="ml-2 text-sm text-gray-700">
