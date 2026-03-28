@@ -74,7 +74,7 @@ export default function HomePage() {
 
     let matchesType = true;
     if (filterType !== 'All Residents') {
-      const filterValue = filterType.replace(' Members', '');
+      const filterValue = filterType.replace(' Members', '').replace('s', '');
       if (filterValue === 'Board') {
         matchesType = r.role === 'BOARD';
       } else if (filterValue === 'Committee') {
