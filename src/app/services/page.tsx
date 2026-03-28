@@ -1,0 +1,314 @@
+'use client';
+
+import { useState } from 'react';
+
+const serviceCategories = [
+  {
+    id: 'maintenance',
+    title: 'Maintenance',
+    subtitle: 'Professional repair & upkeep',
+    icon: 'fa-tools',
+    gradient: 'from-blue-500 to-blue-600',
+    items: [
+      '24/7 Emergency Repairs',
+      'Plumbing & Electrical',
+      'Solar Maintenance',
+      'Appliance Repair',
+      'Preventive Maintenance',
+    ],
+  },
+  {
+    id: 'security',
+    title: 'Security',
+    subtitle: 'Safety & peace of mind',
+    icon: 'fa-shield-alt',
+    gradient: 'from-orange-500 to-orange-600',
+    items: [
+      '24/7 Security Patrol',
+      'Access Control System',
+      'CCTV Monitoring',
+      'Emergency Response',
+      'Visitor Management',
+    ],
+  },
+  {
+    id: 'landscaping',
+    title: 'Landscaping',
+    subtitle: 'Beautiful outdoor spaces',
+    icon: 'fa-leaf',
+    gradient: 'from-green-500 to-green-600',
+    items: [
+      'Garden Maintenance',
+      'Lawn Care Services',
+      'Tree & Shrub Care',
+      'Irrigation Systems',
+      'Seasonal Planting',
+    ],
+  },
+];
+
+const additionalServices = [
+  {
+    icon: 'fa-car',
+    title: 'Parking Management',
+    desc: 'Assigned parking spaces, remotes and visitor access',
+    id: 'parking',
+  },
+  {
+    icon: 'fa-wifi',
+    title: 'Internet & Cable',
+    desc: 'High-speed internet and Satellite services',
+    id: 'internet',
+  },
+  {
+    icon: 'fa-recycle',
+    title: 'Waste Management',
+    desc: 'Recycling and waste collection services',
+    id: 'waste',
+  },
+  {
+    icon: 'fa-swimming-pool',
+    title: 'Amenity Access',
+    desc: 'Pool, gym, and community center access',
+    id: 'amenities',
+  },
+];
+
+const serviceHours = [
+  { service: 'Management Office', hours: 'Mon-Fri: 8AM-5PM' },
+  { service: 'Maintenance', hours: 'Mon-Sat: 7AM-6PM' },
+  { service: 'Emergency Services', hours: '24/7 Available', highlight: true },
+  { service: 'Security', hours: '24/7 On-Site', highlight: true },
+  { service: 'Amenities', hours: 'Daily: 6AM-10PM' },
+];
+
+const emergencyContacts = [
+  {
+    icon: 'fa-phone-alt',
+    label: 'Emergency Line',
+    phone: '+27 21 555-HELP (4357)',
+    bg: 'bg-red-50',
+    text: 'text-red-800',
+    iconColor: 'text-red-600',
+  },
+  {
+    icon: 'fa-shield-alt',
+    label: 'Security',
+    phone: '+27 21 555-SAFE (7233)',
+    bg: 'bg-blue-50',
+    text: 'text-blue-800',
+    iconColor: 'text-blue-600',
+  },
+  {
+    icon: 'fa-tools',
+    label: 'Maintenance',
+    phone: '+27 21 555-FIXIT (34948)',
+    bg: 'bg-green-50',
+    text: 'text-green-800',
+    iconColor: 'text-green-600',
+  },
+  {
+    icon: 'fa-building',
+    label: 'Management Office',
+    phone: '+27 21 555-MGMT (6468)',
+    bg: 'bg-purple-50',
+    text: 'text-purple-800',
+    iconColor: 'text-purple-600',
+  },
+];
+
+export default function ServicesPage() {
+  const [formData, setFormData] = useState({
+    serviceType: '',
+    priority: 'low',
+    description: '',
+    preferredDate: '',
+    preferredTime: '',
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Service request:', formData);
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Community Services</h1>
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          Comprehensive services designed to enhance your living experience and maintain our
+          beautiful community
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        {serviceCategories.map(service => (
+          <div key={service.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className={`bg-gradient-to-r ${service.gradient} p-6 text-white`}>
+              <div className="flex items-center">
+                <i className={`fas ${service.icon} text-3xl mr-4`}></i>
+                <div>
+                  <h2 className="text-2xl font-bold">{service.title}</h2>
+                  <p className="opacity-90">{service.subtitle}</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6">
+              <ul className="space-y-3">
+                {service.items.map((item, idx) => (
+                  <li key={idx} className="flex items-center">
+                    <i className="fas fa-check-circle text-green-500 mr-3"></i>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <button className="w-full mt-6 bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+                Request Service
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-white rounded-lg shadow-lg p-8 mb-12">
+        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Additional Services</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {additionalServices.map(service => (
+            <div
+              key={service.id}
+              className="text-center p-6 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+            >
+              <i className={`fas ${service.icon} text-4xl text-indigo-600 mb-4`}></i>
+              <h3 className="text-lg font-semibold mb-2">{service.title}</h3>
+              <p className="text-gray-600 text-sm mb-4">{service.desc}</p>
+              <button className="text-indigo-600 hover:text-indigo-800 font-medium">
+                Learn More →
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Service Hours</h2>
+          <div className="space-y-4">
+            {serviceHours.map(item => (
+              <div
+                key={item.service}
+                className="flex justify-between items-center py-2 border-b border-gray-200"
+              >
+                <span className="font-medium">{item.service}</span>
+                <span className={item.highlight ? 'text-green-600 font-medium' : 'text-gray-600'}>
+                  {item.hours}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Emergency Contacts</h2>
+          <div className="space-y-4">
+            {emergencyContacts.map(contact => (
+              <div
+                key={contact.label}
+                className={`flex items-center space-x-4 p-4 ${contact.bg} rounded-lg`}
+              >
+                <i className={`fas ${contact.icon} ${contact.iconColor} text-xl`}></i>
+                <div>
+                  <p className={`font-semibold ${contact.text}`}>{contact.label}</p>
+                  <p className={contact.iconColor.replace('text-', 'text-')}>{contact.phone}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-lg p-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Request a Service</h2>
+        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Service Type</label>
+              <select
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                value={formData.serviceType}
+                onChange={e => setFormData({ ...formData, serviceType: e.target.value })}
+              >
+                <option value="">Select a service</option>
+                <option value="maintenance">Maintenance</option>
+                <option value="security">Security</option>
+                <option value="landscaping">Landscaping</option>
+                <option value="parking">Parking</option>
+                <option value="internet">Internet/Cable</option>
+                <option value="waste">Waste Management</option>
+                <option value="amenities">Amenities</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+              <select
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                value={formData.priority}
+                onChange={e => setFormData({ ...formData, priority: e.target.value })}
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="emergency">Emergency</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea
+              rows={4}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              placeholder="Please describe your service request in detail..."
+              value={formData.description}
+              onChange={e => setFormData({ ...formData, description: e.target.value })}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Date</label>
+              <input
+                type="date"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                value={formData.preferredDate}
+                onChange={e => setFormData({ ...formData, preferredDate: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Time</label>
+              <select
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                value={formData.preferredTime}
+                onChange={e => setFormData({ ...formData, preferredTime: e.target.value })}
+              >
+                <option value="">Any time</option>
+                <option value="morning">Morning (8AM-12PM)</option>
+                <option value="afternoon">Afternoon (12PM-5PM)</option>
+                <option value="evening">Evening (5PM-8PM)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <button
+              type="submit"
+              className="bg-indigo-600 text-white py-3 px-8 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+            >
+              <i className="fas fa-paper-plane mr-2"></i>Submit Request
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

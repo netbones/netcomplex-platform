@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useUser } from '@stackframe/stack';
 import Link from 'next/link';
 
@@ -16,7 +17,7 @@ function StatCard({ title, value, icon, href }: StatCardProps) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-soralia-dark">{value}</p>
+          <p className="text-2xl font-bold text-gray-800">{value}</p>
         </div>
         <span className="text-2xl">{icon}</span>
       </div>
@@ -29,14 +30,14 @@ function StatCard({ title, value, icon, href }: StatCardProps) {
   return content;
 }
 
-export default function DashboardPage() {
+function DashboardContent() {
   const user = useUser({ or: 'return-null' });
 
   return (
-    <main className="min-h-screen bg-soralia-light">
+    <main className="min-h-screen bg-slate-50">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-soralia-primary mb-2">
+          <h1 className="text-4xl font-bold text-indigo-600 mb-2">
             Welcome back{user?.displayName ? `, ${user.displayName}` : ''}!
           </h1>
           <p className="text-gray-600">Here's what's happening in your community.</p>
@@ -54,26 +55,26 @@ export default function DashboardPage() {
             <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
             <div className="space-y-3">
               <Link
-                href="/maintenance/new"
-                className="block p-3 bg-soralia-light rounded hover:bg-gray-200 transition"
+                href="/maintenance"
+                className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
               >
                 Submit Maintenance Request
               </Link>
               <Link
-                href="/bookings/new"
-                className="block p-3 bg-soralia-light rounded hover:bg-gray-200 transition"
+                href="/bookings"
+                className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
               >
                 Book Community Facility
               </Link>
               <Link
                 href="/directory"
-                className="block p-3 bg-soralia-light rounded hover:bg-gray-200 transition"
+                className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
               >
                 View Resident Directory
               </Link>
               <Link
                 href="/messages"
-                className="block p-3 bg-soralia-light rounded hover:bg-gray-200 transition"
+                className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
               >
                 Start New Conversation
               </Link>
@@ -93,12 +94,20 @@ export default function DashboardPage() {
           <h2 className="text-xl font-semibold mb-4">Community Events</h2>
           <div className="text-center py-8 text-gray-500">
             <p>No upcoming events</p>
-            <Link href="/events" className="text-soralia-primary hover:underline">
+            <Link href="/resources" className="text-indigo-600 hover:underline">
               View all events
             </Link>
           </div>
         </div>
       </div>
     </main>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center">Loading dashboard...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
