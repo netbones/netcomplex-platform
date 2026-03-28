@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { CARD_ANIMATIONS } from '@/lib/constants';
 
 const serviceCategories = [
   {
@@ -143,7 +144,10 @@ export default function ServicesPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
         {serviceCategories.map(service => (
-          <div key={service.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div
+            key={service.id}
+            className={`bg-white rounded-lg shadow-lg overflow-hidden hover:scale-[1.02] hover:shadow-xl ${CARD_ANIMATIONS.transition}`}
+          >
             <div className={`bg-gradient-to-r ${service.gradient} p-6 text-white`}>
               <div className="flex items-center">
                 <i className={`fas ${service.icon} text-3xl mr-4`}></i>
@@ -170,13 +174,15 @@ export default function ServicesPage() {
         ))}
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-8 mb-12">
+      <div
+        className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:scale-[1.01] hover:shadow-xl ${CARD_ANIMATIONS.transition}`}
+      >
         <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Additional Services</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {additionalServices.map(service => (
             <div
               key={service.id}
-              className="text-center p-6 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+              className={`text-center p-6 border border-gray-200 rounded-lg hover:shadow-md ${CARD_ANIMATIONS.hover} ${CARD_ANIMATIONS.transition}`}
             >
               <i className={`fas ${service.icon} text-4xl text-indigo-600 mb-4`}></i>
               <h3 className="text-lg font-semibold mb-2">{service.title}</h3>
@@ -190,7 +196,9 @@ export default function ServicesPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div
+          className={`bg-white rounded-lg shadow-lg p-8 hover:scale-[1.01] hover:shadow-xl ${CARD_ANIMATIONS.transition}`}
+        >
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Service Hours</h2>
           <div className="space-y-4">
             {serviceHours.map(item => (
@@ -207,7 +215,9 @@ export default function ServicesPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div
+          className={`bg-white rounded-lg shadow-lg p-8 hover:scale-[1.01] hover:shadow-xl ${CARD_ANIMATIONS.transition}`}
+        >
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Emergency Contacts</h2>
           <div className="space-y-4">
             {emergencyContacts.map(contact => (
@@ -226,7 +236,9 @@ export default function ServicesPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-8">
+      <div
+        className={`bg-white rounded-lg shadow-lg p-8 hover:scale-[1.01] hover:shadow-xl ${CARD_ANIMATIONS.transition}`}
+      >
         <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Request a Service</h2>
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
