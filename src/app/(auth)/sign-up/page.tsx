@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useToast } from '@/components/ui/Toast';
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -25,18 +27,15 @@ export default function SignUpPage() {
         name,
       });
 
-      console.log('Signup result:', { data, error }, JSON.stringify(error, null, 2));
-      console.dir(error, { depth: null });
-
       if (error) {
         setError(error.message || 'Failed to sign up');
       } else {
+        showToast('Account created successfully! Please sign in.', 'success');
         router.push('/sign-in?registered=true');
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'An unexpected error occurred';
       setError(message);
-      console.error('Signup error:', err);
     } finally {
       setLoading(false);
     }
