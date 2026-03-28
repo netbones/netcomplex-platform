@@ -3,6 +3,7 @@ export const APP_TAGLINE = 'A Community of Neighbors';
 
 export const DEFAULT_LANGUAGE = 'en';
 export const SUPPORTED_LANGUAGES = ['en', 'af', 'xh', 'zu'] as const;
+export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 export const MAP_CENTER: [number, number] = [-34.09165, 18.483269];
 export const MAP_ZOOM = 16;
@@ -21,6 +22,7 @@ export const ROLES = {
   BOARD: 'BOARD',
   ADMIN: 'ADMIN',
 } as const;
+export type Role = keyof typeof ROLES;
 
 export const GROUP_ROLES = {
   MEMBER: 'MEMBER',
@@ -47,3 +49,34 @@ export const BOOKING_STATUSES = {
   CANCELLED: 'CANCELLED',
   COMPLETED: 'COMPLETED',
 } as const;
+
+export const NAV_LINKS = [
+  { href: '/', page: 'home' },
+  { href: '/directory', page: 'directory' },
+  { href: '/services', page: 'services' },
+  { href: '/resources', page: 'resources' },
+  { href: '/conservation', page: 'conservation' },
+] as const;
+
+export const INTEREST_CATEGORIES = [
+  'gardening',
+  'fitness',
+  'book-club',
+  'cooking',
+  'photography',
+  'volunteering',
+  'conservation',
+  'pets',
+  'sports',
+  'music',
+  'arts',
+] as const;
+
+export const STREETS = [
+  'Pagoda Rd',
+  'Wild Almond Rd',
+  'Silkypuff Street',
+  'Beechwood Rd',
+  'Sugarbrush Rd',
+  'Conebrush Rd',
+] as const;

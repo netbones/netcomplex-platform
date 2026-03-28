@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { INTEREST_CATEGORIES } from '@/lib/constants';
 
 interface Group {
   id: string;
@@ -26,16 +27,6 @@ export default function GroupsHubPage() {
       });
   }, []);
 
-  const categories = [
-    'all',
-    'gardening',
-    'fitness',
-    'book-club',
-    'cooking',
-    'photography',
-    'volunteering',
-  ];
-
   const filteredGroups =
     selectedCategory === 'all' ? groups : groups.filter(g => g.category === selectedCategory);
 
@@ -51,7 +42,17 @@ export default function GroupsHubPage() {
       </div>
 
       <div className="flex flex-wrap justify-center gap-2 mb-8">
-        {categories.map(cat => (
+        <button
+          onClick={() => setSelectedCategory('all')}
+          className={`px-4 py-2 rounded-full ${
+            selectedCategory === 'all'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          All Groups
+        </button>
+        {INTEREST_CATEGORIES.map(cat => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
@@ -61,7 +62,7 @@ export default function GroupsHubPage() {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            {cat === 'all' ? 'All Groups' : cat.replace('-', ' ')}
+            {cat.replace('-', ' ')}
           </button>
         ))}
       </div>

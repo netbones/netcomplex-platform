@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { STREETS, INTEREST_CATEGORIES } from '@/lib/constants';
 
 const CommunityMap = dynamic(
   () => import('@/components/ui/CommunityMap').then(mod => mod.CommunityMap),
@@ -212,12 +213,9 @@ export default function HomePage() {
               className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-soralia-primary"
             >
               <option>All Streets</option>
-              <option>Pagoda Rd</option>
-              <option>Wild Almond Rd</option>
-              <option>Silkypuff Street</option>
-              <option>Beechwood Rd</option>
-              <option>Sugarbrush Rd</option>
-              <option>Conebrush Rd</option>
+              {STREETS.map(street => (
+                <option key={street}>{street}</option>
+              ))}
             </select>
           </div>
 
@@ -263,42 +261,79 @@ export default function HomePage() {
               : 'space-y-4'
           }
         >
-          {filteredResidents.map(resident => (
-            <div
-              key={resident.id}
-              className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer ${viewMode === 'list' ? 'flex items-center' : ''}`}
-            >
+          {filteredResidents.map(resident => {
+            const headerColors = [
+              'bg-soralia-primary',
+              'bg-blue-500',
+              'bg-green-500',
+              'bg-purple-500',
+              'bg-orange-500',
+            ];
+            const colorIndex = resident.id % headerColors.length;
+            const headerColor = headerColors[colorIndex];
+
+            return (
               <div
-                className={`flex items-center space-x-4 mb-4 ${viewMode === 'list' ? 'mb-0 w-1/3' : ''}`}
+                key={resident.id}
+                className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow ${viewMode === 'list' ? 'flex' : ''}`}
               >
-                <div className="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center text-white text-lg font-bold">
-                  {resident.name.charAt(0)}
+                <div
+                  className={`${headerColor} p-4 text-white ${viewMode === 'list' ? 'w-64 shrink-0' : ''}`}
+                >
+                  <h3 className="font-bold text-lg">{resident.name}</h3>
+                  <p className="text-sm opacity-90">{resident.address}</p>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900">{resident.name}</h4>
-                  <p className="text-sm text-gray-600">{resident.address}</p>
+                <div
+                  className={`p-4 ${viewMode === 'list' ? 'flex-1 flex items-center gap-8' : ''}`}
+                >
+                  <div>
+                    <div className="flex items-center mb-2">
+                      <i className="fas fa-phone text-soralia-secondary mr-2"></i>
+                      <span className="text-sm text-gray-600">{resident.phone}</span>
+                    </div>
+                    <div className="flex items-center mb-2">
+                      <i className="fas fa-envelope text-soralia-secondary mr-2"></i>
+                      <span className="text-sm text-gray-600">{resident.email}</span>
+                    </div>
+                    <div className="flex items-center mb-2">
+                      <i className="fas fa-home text-soralia-secondary mr-2"></i>
+                      <span className="text-sm text-gray-600">
+                        {resident.resident_type === 'Board'
+                          ? 'HOA Board'
+                          : resident.resident_type === 'Committee'
+                            ? 'Committee'
+                            : resident.resident_type === 'Owner'
+                              ? 'Owner'
+                              : 'Renter'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {resident.interests.split(', ').map((interest, idx) => (
+                      <span
+                        key={idx}
+                        className={`text-xs text-white px-2 py-1 rounded-full ${
+                          interest === 'Gardening'
+                            ? 'bg-green-500'
+                            : interest === 'Conservation'
+                              ? 'bg-green-600'
+                              : interest === 'Tennis'
+                                ? 'bg-blue-500'
+                                : interest === 'Swimming'
+                                  ? 'bg-blue-600'
+                                  : interest === 'Book Club'
+                                    ? 'bg-purple-500'
+                                    : 'bg-gray-500'
+                        }`}
+                      >
+                        {interest}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div
-                className={`border-t pt-4 ${viewMode === 'list' ? 'border-t-0 pt-0 pl-4 w-2/3 flex justify-between items-center' : ''}`}
-              >
-                <div>
-                  <p className="text-sm text-gray-600 mb-2">{resident.phone}</p>
-                  <p className="text-sm text-gray-600 mb-2">{resident.email}</p>
-                  <span className="inline-block bg-slate-100 text-gray-700 text-xs px-2 py-1 rounded">
-                    {resident.resident_type}
-                  </span>
-                </div>
-                <div className={`mt-3 flex flex-wrap gap-1 ${viewMode === 'list' ? 'mt-0' : ''}`}>
-                  {resident.interests.split(', ').map((interest, idx) => (
-                    <span key={idx} className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                      {interest}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

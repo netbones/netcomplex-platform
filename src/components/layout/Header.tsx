@@ -5,14 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Suspense } from 'react';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
-
-const navLinks = [
-  { href: '/', page: 'home' },
-  { href: '/directory', page: 'directory' },
-  { href: '/services', page: 'services' },
-  { href: '/resources', page: 'resources' },
-  { href: '/conservation', page: 'conservation' },
-];
+import { NAV_LINKS } from '@/lib/constants';
 
 export function Header() {
   const pathname = usePathname();
@@ -34,7 +27,7 @@ export function Header() {
         </div>
 
         <nav className="hidden md:flex space-x-6">
-          {navLinks.map(link => (
+          {NAV_LINKS.map(link => (
             <Link
               key={link.href}
               href={link.href}
