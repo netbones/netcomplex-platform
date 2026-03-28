@@ -9,8 +9,6 @@ const navLinks = [
   { href: '/services', label: 'Services', page: 'services' },
   { href: '/resources', label: 'Resources', page: 'resources' },
   { href: '/conservation', label: 'Conservation', page: 'conservation' },
-  { href: '/interest', label: 'Interest Groups', page: 'interest' },
-  { href: '/proudly-soralia', label: 'Proudly Soralia', page: 'proudly' },
 ];
 
 export function Header() {

@@ -74,6 +74,7 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('All Residents');
   const [filterStreet, setFilterStreet] = useState('All Streets');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   const filteredResidents = residents.filter(r => {
     const matchesSearch =
@@ -235,43 +236,61 @@ export default function HomePage() {
           </h3>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600">View:</span>
-            <button className="p-2 bg-soralia-primary text-white rounded-md">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+            >
               <i className="fas fa-th-large" aria-hidden="true"></i>
             </button>
-            <button className="p-2 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+            >
               <i className="fas fa-list" aria-hidden="true"></i>
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          className={
+            viewMode === 'grid'
+              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+              : 'space-y-4'
+          }
+        >
           {filteredResidents.map(resident => (
             <div
               key={resident.id}
-              className="directory-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
+              className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer ${viewMode === 'list' ? 'flex items-center' : ''}`}
             >
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="w-12 h-12 rounded-full bg-soralia-primary flex items-center justify-center text-white text-lg font-bold">
+              <div
+                className={`flex items-center space-x-4 mb-4 ${viewMode === 'list' ? 'mb-0 w-1/3' : ''}`}
+              >
+                <div className="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center text-white text-lg font-bold">
                   {resident.name.charAt(0)}
                 </div>
                 <div>
-                  <h4 className="font-semibold text-soralia-dark">{resident.name}</h4>
+                  <h4 className="font-semibold text-gray-900">{resident.name}</h4>
                   <p className="text-sm text-gray-600">{resident.address}</p>
                 </div>
               </div>
-              <div className="border-t pt-4">
-                <p className="text-sm text-gray-600 mb-2">{resident.phone}</p>
-                <p className="text-sm text-gray-600 mb-2">{resident.email}</p>
-                <span className="inline-block bg-soralia-light text-soralia-dark text-xs px-2 py-1 rounded">
-                  {resident.resident_type}
-                </span>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-1">
-                {resident.interests.split(', ').map((interest, idx) => (
-                  <span key={idx} className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                    {interest}
+              <div
+                className={`border-t pt-4 ${viewMode === 'list' ? 'border-t-0 pt-0 pl-4 w-2/3 flex justify-between items-center' : ''}`}
+              >
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">{resident.phone}</p>
+                  <p className="text-sm text-gray-600 mb-2">{resident.email}</p>
+                  <span className="inline-block bg-slate-100 text-gray-700 text-xs px-2 py-1 rounded">
+                    {resident.resident_type}
                   </span>
-                ))}
+                </div>
+                <div className={`mt-3 flex flex-wrap gap-1 ${viewMode === 'list' ? 'mt-0' : ''}`}>
+                  {resident.interests.split(', ').map((interest, idx) => (
+                    <span key={idx} className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                      {interest}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           ))}
