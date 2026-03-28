@@ -12,6 +12,7 @@ model User {
   email         String    @unique
   name          String
   role          Role      @default(RESIDENT)
+  residentType  ResidentType @default(OWNER)
   street        String?
   unit          String?
   phone         String?
@@ -36,6 +37,11 @@ enum Role {
   RESIDENT
   BOARD
   ADMIN
+}
+
+enum ResidentType {
+  OWNER
+  RENTER
 }
 
 model MaintenanceRequest {

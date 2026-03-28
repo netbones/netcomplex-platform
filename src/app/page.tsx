@@ -21,6 +21,7 @@ interface Resident {
   email: string;
   resident_type: string;
   interests: string;
+  residentType?: 'OWNER' | 'RENTER';
 }
 
 const residents: Resident[] = [
@@ -297,8 +298,14 @@ export default function HomePage() {
                 >
                   <div>
                     <div className="flex items-center mb-2">
-                      <i className="fas fa-phone text-soralia-secondary mr-2"></i>
-                      <span className="text-sm text-gray-600">{resident.phone}</span>
+                      <i className="fas fa-home text-soralia-secondary mr-2"></i>
+                      <span className="text-sm text-gray-600">
+                        {resident.residentType === 'OWNER'
+                          ? 'Owner'
+                          : resident.residentType === 'RENTER'
+                            ? 'Renter'
+                            : resident.resident_type}
+                      </span>
                     </div>
                     <div className="flex items-center mb-2">
                       <i className="fas fa-envelope text-soralia-secondary mr-2"></i>
