@@ -2,6 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
+
+const CommunityMap = dynamic(
+  () => import('@/components/ui/CommunityMap').then(mod => mod.CommunityMap),
+  {
+    ssr: false,
+    loading: () => <div className="h-96 w-full bg-gray-100 rounded-lg animate-pulse" />,
+  }
+);
 
 interface Resident {
   id: number;
@@ -92,11 +101,8 @@ export default function HomePage() {
       {/* Community Map */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <h2 className="text-2xl font-bold text-soralia-dark mb-6">Our Community</h2>
-        <div
-          id="communityMap"
-          className="h-96 w-full bg-gray-100 rounded-lg mb-4 flex items-center justify-center"
-        >
-          <p className="text-gray-500">Interactive map loading...</p>
+        <div className="h-96 w-full bg-gray-100 rounded-lg mb-4">
+          <CommunityMap />
         </div>
         <div className="mt-4 text-sm text-gray-600">
           <p>Explore our beautiful neighborhood. Click on streets to see residents.</p>
