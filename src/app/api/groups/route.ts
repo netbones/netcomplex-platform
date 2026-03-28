@@ -1,7 +1,11 @@
+import { requirePermission } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
+  const authError = await requirePermission('groups');
+  if (authError) return authError;
+
   const groups = await prisma.group.findMany({
     orderBy: { name: 'asc' },
     include: {
@@ -14,6 +18,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const authError = await requirePermission('groups');
+  if (authError) return authError;
+
   const body = await request.json();
 
   const group = await prisma.group.create({

@@ -1,7 +1,11 @@
+import { requirePermission } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
+  const authError = await requirePermission('requests');
+  if (authError) return authError;
+
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status');
 

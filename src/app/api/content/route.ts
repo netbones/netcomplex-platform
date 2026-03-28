@@ -1,7 +1,11 @@
+import { requirePermission } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
+  const authError = await requirePermission('content');
+  if (authError) return authError;
+
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
   const published = searchParams.get('published');

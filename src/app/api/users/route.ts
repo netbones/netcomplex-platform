@@ -1,8 +1,12 @@
+import { requirePermission } from '@/lib/auth-utils';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 
 export async function GET(request: Request) {
+  const authError = await requirePermission('users');
+  if (authError) return authError;
+
   const { searchParams } = new URL(request.url);
   const search = searchParams.get('search') || '';
   const street = searchParams.get('street') || '';
@@ -58,6 +62,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const authError = await requirePermission('users');
+  if (authError) return authError;
+
   const body = await request.json();
 
   const user = await prisma.user.create({
