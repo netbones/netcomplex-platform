@@ -98,6 +98,19 @@ export default function ProudlySoraliaPage() {
         </div>
       </div>
 
+      <div className="bg-white rounded-lg shadow-md p-8 mb-8 text-center">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">Aloe in Wonderland</h2>
+        <p className="text-gray-600 mb-6">
+          Annual Photography Competition celebrating our indigenous flora
+        </p>
+        <a
+          href="/competition"
+          className="inline-block bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+        >
+          <i className="fas fa-camera mr-2"></i>View Competition
+        </a>
+      </div>
+
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-8 text-white text-center">
         <h2 className="text-3xl font-bold mb-4">Join Our Community</h2>
         <p className="text-xl opacity-90 mb-6">
