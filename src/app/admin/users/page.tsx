@@ -151,7 +151,8 @@ export default function AdminUsersPage() {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        residentType: user.residentType === 'SUSPENDED' ? 'OWNER' : user.residentType,
+        residentType:
+          user.residentType === 'SUSPENDED' || !user.residentType ? 'OWNER' : user.residentType,
         isActive: 'true',
       }),
     });
@@ -161,7 +162,10 @@ export default function AdminUsersPage() {
           u.id === user.id
             ? {
                 ...u,
-                residentType: user.residentType === 'SUSPENDED' ? 'OWNER' : user.residentType,
+                residentType:
+                  user.residentType === 'SUSPENDED' || !user.residentType
+                    ? 'OWNER'
+                    : user.residentType,
                 isActive: true,
               }
             : u
@@ -298,10 +302,12 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="px-6 py-4">
                     <button
-                      onClick={() => setSuspendUser(u)}
-                      className={`px-2 py-1 rounded text-sm ${u.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                      onClick={
+                        u.isActive === false ? () => handleActivate(u) : () => setSuspendUser(u)
+                      }
+                      className={`px-2 py-1 rounded text-sm ${u.isActive === false || u.isActive === null ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
                     >
-                      {u.isActive ? 'Active' : 'Suspended'}
+                      {u.isActive === false || u.isActive === null ? 'Active' : 'Suspended'}
                     </button>
                   </td>
                   <td className="px-6 py-4">
