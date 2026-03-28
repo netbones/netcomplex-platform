@@ -51,9 +51,14 @@ export default function HomePage() {
 
         const res = await fetch(`/api/users?${params}`);
         const data = await res.json();
-        setResidents(data);
+        if (Array.isArray(data)) {
+          setResidents(data);
+        } else {
+          setResidents([]);
+        }
       } catch (error) {
         console.error('Failed to fetch residents:', error);
+        setResidents([]);
       } finally {
         setLoading(false);
       }
