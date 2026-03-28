@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useToast } from '@/components/ui/Toast';
 
 interface User {
   id: string;
@@ -26,6 +27,7 @@ const roleOptions = ['RESIDENT', 'BOARD', 'ADMIN', 'COMMITTEE'];
 const residentTypeOptions = ['OWNER', 'RENTER'];
 
 export default function AdminUsersPage() {
+  const { showToast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,7 +82,12 @@ export default function AdminUsersPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(inviteForm),
     });
-    if (r.ok) setInvitations([await r.json(), ...invitations]);
+    if (r.ok) {
+      setInvitations([await r.json(), ...invitations]);
+      showToast('Invitation sent successfully');
+    } else {
+      showToast('Failed to send invitation', 'error');
+    }
     setShowInvite(false);
     setInviteForm({
       email: '',
@@ -95,6 +102,7 @@ export default function AdminUsersPage() {
   const handleRevoke = async (id: string) => {
     await fetch(`/api/invitations/${id}`, { method: 'DELETE' });
     setInvitations(invitations.filter(i => i.id !== id));
+    showToast('Invitation revoked');
   };
 
   const updateUser = async (id: string, data: Record<string, string>) => {
@@ -104,6 +112,7 @@ export default function AdminUsersPage() {
       body: JSON.stringify(data),
     });
     setUsers(users.map(u => (u.id === id ? { ...u, ...data } : u)));
+    showToast('User updated successfully');
   };
 
   const handleDelete = async () => {
@@ -112,6 +121,7 @@ export default function AdminUsersPage() {
     setUsers(users.filter(u => u.id !== deleteUser?.id));
     setDeleteUser(null);
     setConfirmText('');
+    showToast('User removed successfully');
   };
 
   return (
