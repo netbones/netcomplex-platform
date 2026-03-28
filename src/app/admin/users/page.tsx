@@ -303,11 +303,11 @@ export default function AdminUsersPage() {
                   <td className="px-6 py-4">
                     <button
                       onClick={
-                        u.isActive === false ? () => handleActivate(u) : () => setSuspendUser(u)
+                        u.isActive === true ? () => setSuspendUser(u) : () => handleActivate(u)
                       }
-                      className={`px-2 py-1 rounded text-sm ${u.isActive === false || u.isActive === null ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                      className={`px-2 py-1 rounded text-sm ${u.isActive === true ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
                     >
-                      {u.isActive === false || u.isActive === null ? 'Active' : 'Suspended'}
+                      {u.isActive === true ? 'Active' : 'Suspended'}
                     </button>
                   </td>
                   <td className="px-6 py-4">
