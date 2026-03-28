@@ -4,118 +4,90 @@
 
 ### Frontend
 
-- **Framework:** Next.js 14 (App Router) with Preact
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS (existing)
-- **State Management:** Zustand
+- **Framework:** Next.js 16 (App Router) with Turbopack
+- **Language:** TypeScript 6
+- **Styling:** Tailwind CSS v3
+- **State Management:** TanStack Query (React Query)
 - **Forms:** React Hook Form + Zod
+- **Rich Text Editor:** Tiptap
 - **Maps:** Leaflet + react-leaflet
 
 ### Backend
 
 - **Runtime:** Next.js API Routes (Serverless)
-- **Database:** PostgreSQL (Supabase - includes real-time)
-- **ORM:** Prisma
-- **Authentication:** Stack Auth (managed auth with SDK)
+- **Database:** PostgreSQL (Supabase)
+- **ORM:** Prisma 5
+- **Authentication:** Stack Auth
 - **Real-time:** Supabase Realtime (for chat/messaging)
 
 ### DevOps
 
 - **Version Control:** Git
 - **CI/CD:** GitHub Actions
-- **Hosting:** Vercel (Frontend + Serverless Functions)
+- **Hosting:** Vercel
+- **Package Manager:** pnpm
 - **Database Hosting:** Supabase (PostgreSQL + Realtime)
 
 ---
 
-## 2. Preact vs React Decision
+## 2. Framework Decision
 
-### Rationale for Preact
-
-| Factor                   | React (~40KB)     | Preact (~3KB)     | Verdict             |
-| ------------------------ | ----------------- | ----------------- | ------------------- |
-| Bundle Size              | ~40KB gzipped     | ~3KB gzipped      | **Preact wins**     |
-| Initial Load (3G)        | ~2-3s extra       | Baseline          | **Preact wins**     |
-| Android Performance      | Slower on low-end | 10x faster        | **Preact wins**     |
-| Ecosystem Compatibility  | Full              | 95%+ compatible   | React wins slightly |
-| Next.js Support          | Native            | Requires config   | React wins          |
-| Stack Auth Compatibility | Native            | Requires aliasing | React wins slightly |
-
-### Decision: **Preact with aliasing to React**
+### React (Default with Next.js 16)
 
 **Why:**
 
-1. **Performance gains** - 22x smaller bundle, faster on mobile devices
-2. **Community compatibility** - Preact provides `preact/compat` alias to React
-3. **Stack Auth works** - SDK works with aliasing via Next.js config
-4. **Same developer experience** - Identical API, same hooks
-
-**Configuration:**
-
-```javascript
-// next.config.js
-module.exports = {
-  resolve: {
-    alias: {
-      react: 'preact/compat',
-      'react-dom/test-utils': 'preact/test-utils',
-      'react-dom': 'preact/compat',
-    },
-  },
-};
-```
-
-**Trade-offs:**
-
-- Some React-only features (Concurrent Mode, Suspense improvements) don't work
-- Some third-party React components may have edge cases
-- Stack Auth UI components may need minor adjustments
+1. **Next.js 16 native** - Works out of the box with Turbopack
+2. **Stack Auth compatibility** - No aliasing needed
+3. **Full ecosystem** - All third-party components work
+4. **Turbopack** - Fast dev builds and optimized production builds
 
 ---
 
 ## 3. Project Structure
 
 ```
+
 soralia-village/
 ├── prisma/
-│   └── schema.prisma
+│ └── schema.prisma
 ├── src/
-│   ├── app/
-│   │   ├── (auth)/
-│   │   │   ├── login/page.tsx
-│   │   │   └── register/page.tsx
-│   │   ├── (dashboard)/
-│   │   │   ├── layout.tsx
-│   │   │   ├── page.tsx
-│   │   │   └── directory/page.tsx
-│   │   ├── (public)/
-│   │   │   ├── page.tsx
-│   │   │   └── services/page.tsx
-│   │   ├── api/
-│   │   │   ├── auth/route.ts
-│   │   │   ├── users/route.ts
-│   │   │   ├── requests/route.ts
-│   │   │   ├── bookings/route.ts
-│   │   │   └── events/route.ts
-│   │   ├── layout.tsx
-│   │   └── globals.css
-│   ├── components/
-│   │   ├── ui/
-│   │   ├── auth/
-│   │   ├── directory/
-│   │   ├── dashboard/
-│   │   └── layout/
-│   ├── lib/
-│   │   ├── prisma.ts
-│   │   └── utils.ts
-│   └── types/
-│       └── index.ts
+│ ├── app/
+│ │ ├── (auth)/
+│ │ │ ├── login/page.tsx
+│ │ │ └── register/page.tsx
+│ │ ├── (dashboard)/
+│ │ │ ├── layout.tsx
+│ │ │ ├── page.tsx
+│ │ │ └── directory/page.tsx
+│ │ ├── (public)/
+│ │ │ ├── page.tsx
+│ │ │ └── services/page.tsx
+│ │ ├── api/
+│ │ │ ├── auth/route.ts
+│ │ │ ├── users/route.ts
+│ │ │ ├── requests/route.ts
+│ │ │ ├── bookings/route.ts
+│ │ │ └── events/route.ts
+│ │ ├── layout.tsx
+│ │ └── globals.css
+│ ├── components/
+│ │ ├── ui/
+│ │ ├── auth/
+│ │ ├── directory/
+│ │ ├── dashboard/
+│ │ └── layout/
+│ ├── lib/
+│ │ ├── prisma.ts
+│ │ └── utils.ts
+│ └── types/
+│ └── index.ts
 ├── public/
-│   └── assets/
+│ └── assets/
 ├── tailwind.config.ts
 ├── next.config.js
 ├── package.json
 └── tsconfig.json
+
 ```
 
 ---
@@ -227,6 +199,67 @@ model Announcement {
   priority  String   @default("normal")
   createdAt DateTime @default(now())
   expiresAt DateTime?
+}
+
+model Content {
+  id          String         @id @default(cuid())
+  title       String
+  content     String         @db.Text
+  excerpt     String?
+  image       String?
+  category    ContentCategory
+  authorId    String?
+  author      User?          @relation(fields: [authorId], references: [id])
+  groupId     String?
+  group       Group?         @relation(fields: [groupId], references: [id])
+  published   Boolean        @default(false)
+  featured    Boolean        @default(false)
+  priority    String         @default("normal")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  publishedAt DateTime?
+  expiresAt   DateTime?
+}
+
+enum ContentCategory {
+  ANNOUNCEMENT
+  NEWS
+  EVENT
+  BLOG
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  image       String?
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members     UserGroup[]
+  contents    Content[]
+}
+
+enum GroupRole {
+  MEMBER
+  MODERATOR
+  ADMIN
+}
+
+model UserGroup {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupId   String
+  group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  role      GroupRole @default(MEMBER)
+  joinedAt  DateTime  @default(now())
+
+  @@unique([userId, groupId])
 }
 
 model Notification {
@@ -621,6 +654,11 @@ const validate = (data: FormData): boolean => {
 - `UserTable` - Manage users
 - `RequestQueue` - Maintenance queue
 - `Analytics` - Dashboard charts
+- `ContentList` - List/manage news/articles (CMS)
+- `ContentForm` - Create/edit content with Tiptap editor
+- `GroupList` - List/manage interest groups
+- `GroupForm` - Create/edit interest groups
+- `RichTextEditor` - Tiptap-based WYSIWYG editor
 
 ### Survey Components
 
@@ -643,7 +681,7 @@ const validate = (data: FormData): boolean => {
 
 ---
 
-## 10. Environment Variables
+## 9. Environment Variables
 
 ```env
 # Stack Auth (Authentication only)
@@ -666,7 +704,7 @@ CLOUDINARY_API_SECRET=""
 
 ---
 
-## 11. Security Requirements
+## 10. Security Requirements
 
 1. **Password Handling:** Stack Auth manages securely
 2. **Session:** Stack Auth HTTP-only cookies
@@ -679,7 +717,7 @@ CLOUDINARY_API_SECRET=""
 
 ---
 
-## 12. Supabase Realtime Configuration
+## 11. Supabase Realtime Configuration
 
 ### Setup
 
