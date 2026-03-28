@@ -42,10 +42,7 @@ model User {
   members          Member[]
   invitations      Invitation[]
   passkeys         Passkey[]
-
-  banned     Boolean?  @default(false)
-  banReason  String?
-  banExpires DateTime?
+  suspensions      PlatformSuspension[]
 
   @@map("user")
 }
@@ -62,6 +59,35 @@ enum ResidentType {
   OWNER
   RENTER
   SUSPENDED
+}
+
+model PlatformSuspension {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  suspensionType SuspensionType
+  reason      String
+  description String?
+  startDate   DateTime          @default(now())
+  endDate     DateTime?
+  isPermanent Boolean           @default(false)
+  isActive    Boolean           @default(true)
+  createdById String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([isActive])
+  @@map("platformSuspension")
+}
+
+enum SuspensionType {
+  NON_PAYMENT // Non-payment of HOA fees
+  VIOLATION   // Community rule violation
+  NOISE       // Noise complaints
+  PROPERTY    // Property maintenance violations
+  BEHAVIOR    // Unacceptable behavior
+  OTHER       // Other reasons
 }
 
 model MaintenanceRequest {
