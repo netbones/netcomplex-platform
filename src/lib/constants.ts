@@ -59,6 +59,7 @@ export const NAV_LINKS = [
 ] as const;
 
 export const ADMIN_LINKS = [
+  { href: '/admin/users', page: 'Users' },
   { href: '/admin/content', page: 'Content' },
   { href: '/admin/groups', page: 'Groups' },
   { href: '/admin/requests', page: 'Requests' },
