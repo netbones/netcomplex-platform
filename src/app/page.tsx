@@ -75,8 +75,10 @@ export default function HomePage() {
     let matchesType = true;
     if (filterType !== 'All Residents') {
       const filterValue = filterType.replace(' Members', '');
-      if (filterValue === 'Board' || filterValue === 'Committee') {
-        matchesType = r.role === filterValue;
+      if (filterValue === 'Board') {
+        matchesType = r.role === 'BOARD';
+      } else if (filterValue === 'Committee') {
+        matchesType = r.role === 'COMMITTEE';
       } else if (filterValue === 'Owner') {
         matchesType = r.residentType === 'OWNER';
       } else if (filterValue === 'Renter') {
