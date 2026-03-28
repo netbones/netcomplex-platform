@@ -98,29 +98,30 @@ export default function ConservationPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="relative bg-gradient-to-r from-green-600 to-emerald-700 rounded-lg shadow-lg p-8 mb-8 text-white overflow-hidden">
+      <div className="relative rounded-lg shadow-lg mb-8 overflow-hidden">
         <img
           src="/conservation.webp"
           alt="Soralia Village Conservation Area"
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
+          className="w-full h-64 object-cover"
         />
-        <div className="relative z-10">
-          <div className="text-center mb-6">
+        <div className="absolute inset-0 bg-gradient-to-r from-green-900/70 to-emerald-900/70 flex items-center justify-center">
+          <div className="text-center text-white px-4">
             <h1 className="text-4xl font-bold mb-4">Soralia Nature Reserve</h1>
             <p className="text-xl opacity-90">
               Preserving our unique South African Strandveld Wetland heritage for future generations
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            {conservationStats.map(stat => (
-              <div key={stat.title} className="bg-white bg-opacity-20 rounded-lg p-4">
-                <i className={`fas ${stat.icon} text-3xl mb-2`}></i>
-                <h3 className="font-semibold mb-1">{stat.title}</h3>
-                <p className="text-sm opacity-90">{stat.desc}</p>
-              </div>
-            ))}
-          </div>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-8">
+        {conservationStats.map(stat => (
+          <div key={stat.title} className="bg-white rounded-lg shadow p-4">
+            <i className={`fas ${stat.icon} text-3xl text-green-600 mb-2`}></i>
+            <h3 className="font-semibold mb-1">{stat.title}</h3>
+            <p className="text-sm text-gray-600">{stat.desc}</p>
+          </div>
+        ))}
       </div>
 
       <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
