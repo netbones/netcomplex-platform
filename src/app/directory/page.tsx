@@ -37,8 +37,10 @@ export default function DirectoryPage() {
           const filterValue = filterType.replace(' Members', '').replace('s', '');
           if (filterValue === 'Board' || filterValue === 'Committee') {
             params.set('role', filterValue);
-          } else if (filterValue === 'Owner' || filterValue === 'Renter') {
-            params.set('residentType', filterValue);
+          } else if (filterValue === 'Owner') {
+            params.set('residentType', 'OWNER');
+          } else if (filterValue === 'Renter') {
+            params.set('residentType', 'RENTER');
           }
         }
 
