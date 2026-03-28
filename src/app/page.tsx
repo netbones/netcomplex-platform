@@ -41,6 +41,9 @@ export default function HomePage() {
   const [filterType, setFilterType] = useState('All Residents');
   const [filterStreet, setFilterStreet] = useState('All Streets');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const limit = 6;
 
   useEffect(() => {
     async function fetchResidents() {
@@ -48,11 +51,17 @@ export default function HomePage() {
         const params = new URLSearchParams();
         if (searchQuery) params.set('search', searchQuery);
         if (filterStreet !== 'All Streets') params.set('street', filterStreet);
+        params.set('page', String(page));
+        params.set('limit', String(limit));
 
         const res = await fetch(`/api/users?${params}`);
         const data = await res.json();
-        if (Array.isArray(data)) {
+        if (data.users) {
+          setResidents(data.users || []);
+          setTotal(data.total || 0);
+        } else if (Array.isArray(data)) {
           setResidents(data);
+          setTotal(data.length);
         } else {
           setResidents([]);
         }
@@ -66,7 +75,7 @@ export default function HomePage() {
 
     const debounce = setTimeout(fetchResidents, searchQuery ? 300 : 0);
     return () => clearTimeout(debounce);
-  }, [searchQuery, filterStreet]);
+  }, [searchQuery, filterStreet, page]);
 
   const filteredResidents = residents.filter(r => {
     const address = [r.street, r.unit].filter(Boolean).join(', ');
@@ -344,6 +353,28 @@ export default function HomePage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {total > limit && (
+          <div className="flex justify-center items-center gap-4 mt-6">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <span className="text-sm text-gray-600">
+              Page {page} of {Math.ceil(total / limit)}
+            </span>
+            <button
+              onClick={() => setPage(p => p + 1)}
+              disabled={page >= Math.ceil(total / limit)}
+              className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
           </div>
         )}
       </div>

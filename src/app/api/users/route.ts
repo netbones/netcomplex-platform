@@ -35,6 +35,9 @@ export async function GET(request: Request) {
   const interest = searchParams.get('interest') || '';
   const residentType = searchParams.get('residentType') || '';
   const role = searchParams.get('role') || '';
+  const page = parseInt(searchParams.get('page') || '1');
+  const limit = Math.min(parseInt(searchParams.get('limit') || '6'), 50);
+  const skip = (page - 1) * limit;
 
   const where: Record<string, unknown> = canViewAll ? {} : { isPublic: true };
 
@@ -61,26 +64,31 @@ export async function GET(request: Request) {
     where.role = role;
   }
 
-  const users = await prisma.user.findMany({
-    where,
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      street: true,
-      unit: true,
-      phone: true,
-      interests: true,
-      avatar: true,
-      isPublic: true,
-      isActive: true,
-      residentType: true,
-      role: true,
-    },
-    orderBy: { name: 'asc' },
-  });
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        street: true,
+        unit: true,
+        phone: true,
+        interests: true,
+        avatar: true,
+        isPublic: true,
+        isActive: true,
+        residentType: true,
+        role: true,
+      },
+      orderBy: { name: 'asc' },
+      skip,
+      take: limit,
+    }),
+    prisma.user.count({ where }),
+  ]);
 
-  return NextResponse.json(users);
+  return NextResponse.json({ users, total, page, limit });
 }
 
 export async function POST(request: Request) {
