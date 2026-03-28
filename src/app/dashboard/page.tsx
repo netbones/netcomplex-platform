@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
-import { useUser } from '@stackframe/stack';
+import { authClient } from '@/lib/auth-client';
 import Link from 'next/link';
 
 interface StatCardProps {
@@ -31,14 +31,14 @@ function StatCard({ title, value, icon, href }: StatCardProps) {
 }
 
 function DashboardContent() {
-  const user = useUser({ or: 'return-null' });
+  const { data: session } = authClient.useSession();
 
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-indigo-600 mb-2">
-            Welcome back{user?.displayName ? `, ${user.displayName}` : ''}!
+            Welcome back{session?.user?.name ? `, ${session.user.name}` : ''}!
           </h1>
           <p className="text-gray-600">Here's what's happening in your community.</p>
         </div>

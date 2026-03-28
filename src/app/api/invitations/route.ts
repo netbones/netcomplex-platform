@@ -11,6 +11,10 @@ export async function GET() {
 export async function POST(request: Request) {
   const body = await request.json();
 
+  // For now, use a placeholder - in production this would come from the authenticated user
+  const inviterId = body.inviterId || 'placeholder-user-id';
+  const organizationId = body.organizationId || 'placeholder-org-id';
+
   const invitation = await prisma.invitation.create({
     data: {
       email: body.email,
@@ -19,6 +23,8 @@ export async function POST(request: Request) {
       unit: body.unit || null,
       residentType: body.residentType || 'OWNER',
       role: body.role || 'RESIDENT',
+      inviterId,
+      organizationId,
     },
   });
 

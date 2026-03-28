@@ -25,6 +25,7 @@
     ]
   },
   "devDependencies": {
+    "@better-auth/cli": "^1.4.21",
     "@prisma/client": "^5.22.0",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^25.5.0",
@@ -33,21 +34,22 @@
     "@typescript-eslint/eslint-plugin": "^8.57.2",
     "@typescript-eslint/parser": "^8.57.2",
     "autoprefixer": "^10.4.27",
+    "better-auth": "^1.5.6",
     "eslint": "^9.39.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "postcss": "^8.5.8",
     "prettier": "^3.8.1",
-    "prisma": "^5.22.0",
+    "prisma": "5.22.0",
     "shadcn": "^4.1.1",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.57.2"
   },
   "dependencies": {
+    "@better-auth/passkey": "^1.5.6",
+    "@better-auth/prisma-adapter": "^1.5.6",
     "@hookform/resolvers": "^5.2.2",
-    "@stackframe/react": "^2.8.78",
-    "@stackframe/stack": "^2.8.78",
     "@supabase/supabase-js": "^2.100.1",
     "@tanstack/react-query": "^5.95.2",
     "@tiptap/pm": "^3.21.0",

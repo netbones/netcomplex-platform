@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,38 +9,52 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
+  id           String       @id @default(cuid())
+  email        String       @unique
   name         String
-  role          Role      @default(RESIDENT)
-  residentType  ResidentType @default(OWNER)
-  isActive      Boolean   @default(true)
-  street        String?
-  unit          String?
+  role         Role         @default(RESIDENT)
+  residentType ResidentType @default(OWNER)
+  isActive     Boolean      @default(true)
+  street       String?
+  unit         String?
   phone        String?
-  interests     String[]
-  avatar        String?
-  profileImage  String?
-  isPublic      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  interests    String[]
+  avatar       String?
+  profileImage String?
+  isPublic     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
-  requests      MaintenanceRequest[]
-  bookings      Booking[]
-  notifications Notification[]
-  conversations Conversation[]
-  messages      Message[]
+  requests         MaintenanceRequest[]
+  bookings         Booking[]
+  notifications    Notification[]
+  conversations    Conversation[]
+  messages         Message[]
   groupMemberships UserGroup[]
-  ownedGroups   Group[]
-  contents     Content[]
+  ownedGroups      Group[]
+  contents         Content[]
+  emailVerified    Boolean              @default(false)
+  image            String?
+  twoFactorEnabled Boolean?             @default(false)
+  banned           Boolean?             @default(false)
+  banReason        String?
+  banExpires       DateTime?
+  sessions         Session[]
+  accounts         Account[]
+  twofactors       TwoFactor[]
+  members          Member[]
+  invitations      Invitation[]
+  passkeys         Passkey[]
+
+  @@map("user")
 }
 
 enum Role {
-  RESIDENT      // Default user
-  GROUP_ADMIN  // Manages only their own group
-  COMMITTEE   // Committee member
-  BOARD       // HOA Board member
-  ADMIN       // SuperAdmin - full platform access
+  RESIDENT // Default user
+  GROUP_ADMIN // Manages only their own group
+  COMMITTEE // Committee member
+  BOARD // HOA Board member
+  ADMIN // SuperAdmin - full platform access
 }
 
 enum ResidentType {
@@ -76,17 +91,17 @@ enum RequestStatus {
 }
 
 model Booking {
-  id          String        @id @default(cuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  facility    String
-  date        DateTime
-  startTime   String
-  endTime     String
-  purpose     String?
-  status      BookingStatus @default(CONFIRMED)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  facility  String
+  date      DateTime
+  startTime String
+  endTime   String
+  purpose   String?
+  status    BookingStatus @default(CONFIRMED)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 }
 
 enum BookingStatus {
@@ -109,21 +124,21 @@ model Event {
 }
 
 model Content {
-  id          String      @id @default(cuid())
+  id          String          @id @default(cuid())
   title       String
-  content     String      @db.Text
+  content     String          @db.Text
   excerpt     String?
   image       String?
   category    ContentCategory
   authorId    String?
-  author      User?       @relation(fields: [authorId], references: [id])
+  author      User?           @relation(fields: [authorId], references: [id])
   groupId     String?
-  group       Group?      @relation(fields: [groupId], references: [id])
-  published   Boolean    @default(false)
-  featured    Boolean    @default(false)
-  priority    String     @default("normal")
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  group       Group?          @relation(fields: [groupId], references: [id])
+  published   Boolean         @default(false)
+  featured    Boolean         @default(false)
+  priority    String          @default("normal")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
   publishedAt DateTime?
   expiresAt   DateTime?
 }
@@ -136,12 +151,12 @@ enum ContentCategory {
 }
 
 model Announcement {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   title     String
   content   String
   author    String
-  priority  String   @default("normal")
-  createdAt DateTime @default(now())
+  priority  String    @default("normal")
+  createdAt DateTime  @default(now())
   expiresAt DateTime?
 }
 
@@ -164,13 +179,13 @@ model Setting {
 }
 
 model Conversation {
-  id           String    @id @default(cuid())
+  id           String           @id @default(cuid())
   name         String?
   type         ConversationType @default(DIRECT)
   participants User[]
   messages     Message[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 }
 
 enum ConversationType {
@@ -196,15 +211,15 @@ enum MessageType {
 }
 
 model Survey {
-  id          String     @id @default(cuid())
+  id          String       @id @default(cuid())
   title       String
   description String?
-  type        SurveyType @default(INTERNAL)
+  type        SurveyType   @default(INTERNAL)
   status      SurveyStatus @default(DRAFT)
   startDate   DateTime?
   endDate     DateTime?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
 
 enum SurveyType {
@@ -219,13 +234,13 @@ enum SurveyStatus {
 }
 
 model Question {
-  id         String   @id @default(cuid())
-  surveyId   String
-  text       String
-  type       QuestionType
-  options    String[]
-  required   Boolean  @default(false)
-  order      Int      @default(0)
+  id       String       @id @default(cuid())
+  surveyId String
+  text     String
+  type     QuestionType
+  options  String[]
+  required Boolean      @default(false)
+  order    Int          @default(0)
 }
 
 enum QuestionType {
@@ -245,14 +260,14 @@ model Response {
 }
 
 model ExternalSurvey {
-  id          String   @id @default(cuid())
-  name        String
-  provider    String
-  externalId  String
-  embedUrl    String
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  name       String
+  provider   String
+  externalId String
+  embedUrl   String
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Group {
@@ -265,10 +280,10 @@ model Group {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  members     UserGroup[]
-  contents   Content[]
+  ownerId  String
+  owner    User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members  UserGroup[]
+  contents Content[]
 }
 
 enum GroupRole {
@@ -278,29 +293,37 @@ enum GroupRole {
 }
 
 model UserGroup {
-  id        String    @id @default(cuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  groupId   String
-  group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  role      GroupRole @default(MEMBER)
-  joinedAt  DateTime  @default(now())
+  id       String    @id @default(cuid())
+  userId   String
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groupId  String
+  group    Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  role     GroupRole @default(MEMBER)
+  joinedAt DateTime  @default(now())
 
   @@unique([userId, groupId])
 }
 
 model Invitation {
-  id           String         @id @default(cuid())
-  email        String         @unique
-  name        String
-  street      String?
-  unit        String?
-  residentType ResidentType  @default(OWNER)
-  role        Role         @default(RESIDENT)
-  token       String        @unique @default(cuid())
-  status      InvitationStatus @default(PENDING)
-  expiresAt   DateTime      @default(now())
-  createdAt   DateTime      @default(now())
+  id             String           @id @default(cuid())
+  email          String           @unique
+  name           String
+  street         String?
+  unit           String?
+  residentType   ResidentType     @default(OWNER)
+  role           Role             @default(RESIDENT)
+  token          String           @unique @default(cuid())
+  status         InvitationStatus @default(PENDING)
+  expiresAt      DateTime         @default(now())
+  createdAt      DateTime         @default(now())
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  inviterId      String
+  user           User             @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([email])
+  @@map("invitation")
 }
 
 enum InvitationStatus {
@@ -308,4 +331,113 @@ enum InvitationStatus {
   ACCEPTED
   EXPIRED
   REVOKED
+}
+
+model Session {
+  id                   String   @id
+  expiresAt            DateTime
+  token                String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  ipAddress            String?
+  userAgent            String?
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activeOrganizationId String?
+  impersonatedBy       String?
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model TwoFactor {
+  id          String @id
+  secret      String
+  backupCodes String
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([secret])
+  @@index([userId])
+  @@map("twoFactor")
+}
+
+model Organization {
+  id          String       @id
+  name        String
+  slug        String
+  logo        String?
+  createdAt   DateTime
+  metadata    String?
+  members     Member[]
+  invitations Invitation[]
+
+  @@unique([slug])
+  @@map("organization")
+}
+
+model Member {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String       @default("member")
+  createdAt      DateTime
+
+  @@index([organizationId])
+  @@index([userId])
+  @@map("member")
+}
+
+model Passkey {
+  id           String    @id
+  name         String?
+  publicKey    String
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentialID String
+  counter      Int
+  deviceType   String
+  backedUp     Boolean
+  transports   String?
+  createdAt    DateTime?
+  aaguid       String?
+
+  @@index([userId])
+  @@index([credentialID])
+  @@map("passkey")
 }
