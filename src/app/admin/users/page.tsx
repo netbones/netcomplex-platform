@@ -38,6 +38,7 @@ export default function AdminUsersPage() {
   const [filterType, setFilterType] = useState('all');
   const [showInvite, setShowInvite] = useState(false);
   const [deleteUser, setDeleteUser] = useState<User | null>(null);
+  const [suspendUser, setSuspendUser] = useState<User | null>(null);
   const [confirmText, setConfirmText] = useState('');
   const [inviteForm, setInviteForm] = useState({
     email: '',
@@ -124,6 +125,50 @@ export default function AdminUsersPage() {
     setDeleteUser(null);
     setConfirmText('');
     showToast('User removed successfully');
+  };
+
+  const handleSuspend = async () => {
+    if (confirmText !== `suspend ${suspendUser?.name}`) return;
+    const res = await fetch(`/api/users/${suspendUser?.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ residentType: 'SUSPENDED', isActive: 'false' }),
+    });
+    if (res.ok) {
+      setUsers(
+        users.map(u =>
+          u.id === suspendUser?.id ? { ...u, residentType: 'SUSPENDED', isActive: false } : u
+        )
+      );
+      showToast('User suspended successfully');
+    }
+    setSuspendUser(null);
+    setConfirmText('');
+  };
+
+  const handleActivate = async (user: User) => {
+    const res = await fetch(`/api/users/${user.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        residentType: user.residentType === 'SUSPENDED' ? 'OWNER' : user.residentType,
+        isActive: 'true',
+      }),
+    });
+    if (res.ok) {
+      setUsers(
+        users.map(u =>
+          u.id === user.id
+            ? {
+                ...u,
+                residentType: user.residentType === 'SUSPENDED' ? 'OWNER' : user.residentType,
+                isActive: true,
+              }
+            : u
+        )
+      );
+      showToast('User activated successfully');
+    }
   };
 
   return (
@@ -235,6 +280,7 @@ export default function AdminUsersPage() {
                       <option value="">None</option>
                       <option value="OWNER">Owner</option>
                       <option value="RENTER">Renter</option>
+                      <option value="SUSPENDED">Suspended</option>
                     </select>
                   </td>
                   <td className="px-6 py-4">
@@ -252,7 +298,7 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="px-6 py-4">
                     <button
-                      onClick={() => updateUser(u.id, { isActive: (!u.isActive).toString() })}
+                      onClick={() => setSuspendUser(u)}
                       className={`px-2 py-1 rounded text-sm ${u.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
                     >
                       {u.isActive ? 'Active' : 'Suspended'}
@@ -414,6 +460,56 @@ export default function AdminUsersPage() {
                 className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Remove User
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {suspendUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-red-600">Suspend User</h2>
+              <button
+                onClick={() => {
+                  setSuspendUser(null);
+                  setConfirmText('');
+                }}
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <p className="mb-4">
+              Are you sure you want to suspend <strong>{suspendUser.name}</strong>? They will lose
+              access to the platform.
+            </p>
+            <p className="text-sm text-gray-600 mb-4">
+              Type <code className="bg-gray-100 px-1">suspend {suspendUser.name}</code> to confirm
+            </p>
+            <input
+              type="text"
+              value={confirmText}
+              onChange={e => setConfirmText(e.target.value)}
+              placeholder={`suspend ${suspendUser.name}`}
+              className="w-full border rounded-lg px-3 py-2 mb-4"
+            />
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setSuspendUser(null);
+                  setConfirmText('');
+                }}
+                className="flex-1 bg-gray-200 py-2 rounded-lg hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSuspend}
+                disabled={confirmText !== `suspend ${suspendUser.name}`}
+                className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Suspend User
               </button>
             </div>
           </div>
