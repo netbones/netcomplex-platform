@@ -24,6 +24,7 @@ const resources = {
       'nav.resources': 'Resources',
       'nav.conservation': 'Conservation',
       'nav.login': 'Sign In',
+      'nav.logout': 'Sign Out',
     },
   },
   af: {
@@ -36,6 +37,7 @@ const resources = {
       'nav.resources': 'Hulpbronne',
       'nav.conservation': 'Bewaring',
       'nav.login': 'Teken aan',
+      'nav.logout': 'Teken uit',
     },
   },
   xh: {
@@ -48,6 +50,7 @@ const resources = {
       'nav.resources': 'Izibonelelo',
       'nav.conservation': 'Ulondolozo',
       'nav.login': 'Ngena',
+      'nav.logout': 'Phuma',
     },
   },
   zu: {
@@ -60,6 +63,7 @@ const resources = {
       'nav.resources': 'Izinsiza',
       'nav.conservation': 'Ukugcinwa',
       'nav.login': 'Ngena',
+      'nav.logout': 'Phuma',
     },
   },
 };
