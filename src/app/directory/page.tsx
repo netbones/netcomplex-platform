@@ -35,8 +35,10 @@ export default function DirectoryPage() {
 
         if (filterType !== 'All Residents') {
           const filterValue = filterType.replace(' Members', '').replace('s', '');
-          if (filterValue === 'Board' || filterValue === 'Committee') {
-            params.set('role', filterValue);
+          if (filterValue === 'Board') {
+            params.set('role', 'BOARD');
+          } else if (filterValue === 'Committee') {
+            params.set('role', 'COMMITTEE');
           } else if (filterValue === 'Owner') {
             params.set('residentType', 'OWNER');
           } else if (filterValue === 'Renter') {
