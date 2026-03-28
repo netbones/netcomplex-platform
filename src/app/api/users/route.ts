@@ -26,14 +26,8 @@ async function getSessionAndRole(request: Request) {
 
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  if (!hasPermission(authData.role, 'directory')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
+  const isAuthenticated = authData !== null;
+  const canViewAll = isAuthenticated && hasPermission(authData.role, 'directory');
 
   const { searchParams } = new URL(request.url);
   const search = searchParams.get('search') || '';
@@ -42,7 +36,7 @@ export async function GET(request: Request) {
   const residentType = searchParams.get('residentType') || '';
   const role = searchParams.get('role') || '';
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = canViewAll ? {} : { isPublic: true };
 
   if (search) {
     where.OR = [
