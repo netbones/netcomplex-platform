@@ -280,8 +280,17 @@ export default function HomePage() {
                 <div
                   className={`${headerColor} p-4 text-white ${viewMode === 'list' ? 'w-64 shrink-0' : ''}`}
                 >
-                  <h3 className="font-bold text-lg">{resident.name}</h3>
-                  <p className="text-sm opacity-90">{resident.address}</p>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${resident.name.replace(' ', '')}`}
+                      alt={resident.name}
+                      className="w-10 h-10 rounded-full bg-white/20"
+                    />
+                    <div>
+                      <h3 className="font-bold text-lg">{resident.name}</h3>
+                      <p className="text-sm opacity-90">{resident.address}</p>
+                    </div>
+                  </div>
                 </div>
                 <div
                   className={`p-4 ${viewMode === 'list' ? 'flex-1 flex items-center gap-8' : ''}`}
