@@ -1,100 +1,90 @@
-'use client';
+import { prisma } from '@/lib/prisma';
 
-import { useState } from 'react';
+async function getContent() {
+  const content = await prisma.content.findMany({
+    where: {
+      category: 'NEWS',
+      published: true,
+    },
+    orderBy: { publishedAt: 'desc' },
+    include: {
+      author: {
+        select: { name: true },
+      },
+    },
+  });
+  return content;
+}
 
-const conservationStats = [
-  { icon: 'fa-leaf', title: 'Endemic Flora', desc: 'Over 150 indigenous plant species' },
-  { icon: 'fa-water', title: 'Wetland Ecosystem', desc: 'Critical habitat for local wildlife' },
-  {
-    icon: 'fa-shield-alt',
-    title: 'Protected Status',
-    desc: 'Officially designated conservation area',
-  },
-];
+export default async function ConservationPage() {
+  const content = await getContent();
 
-const newsArticles = [
-  {
-    featured: true,
-    date: 'March 15, 2024',
-    title: 'Successful Alien Plant Removal Initiative',
-    desc: 'Our community volunteers removed over 500 invasive alien plants from the wetland area this month, including Port Jackson willows and Australian acacias.',
-    volunteers: 25,
-  },
-  {
-    featured: false,
-    date: 'February 28, 2024',
-    title: 'New Bird Species Spotted in Reserve',
-    desc: 'A rare African palm swift has been spotted in our conservation area, marking the 47th bird species recorded in Soralia Nature Reserve.',
-    volunteers: 0,
-  },
-  {
-    featured: false,
-    date: 'February 10, 2024',
-    title: 'Water Quality Monitoring Results',
-    desc: 'Latest water quality tests show significant improvement in wetland health following our drainage restoration project.',
-    volunteers: 0,
-  },
-];
+  const conservationStats = [
+    { icon: 'fa-leaf', title: 'Endemic Flora', desc: 'Over 150 indigenous plant species' },
+    { icon: 'fa-water', title: 'Wetland Ecosystem', desc: 'Critical habitat for local wildlife' },
+    {
+      icon: 'fa-shield-alt',
+      title: 'Protected Status',
+      desc: 'Officially designated conservation area',
+    },
+  ];
 
-const initiatives = [
-  {
-    icon: 'fa-seedling',
-    title: 'Invasive Species Removal',
-    desc: 'Regular removal of alien plant species to protect native biodiversity',
-  },
-  {
-    icon: 'fa-tint',
-    title: 'Wetland Restoration',
-    desc: 'Ongoing efforts to restore natural water flow and habitat',
-  },
-  {
-    icon: 'fa-binoculars',
-    title: 'Wildlife Monitoring',
-    desc: 'Citizen science programs tracking local wildlife populations',
-  },
-  {
-    icon: 'fa-graduation-cap',
-    title: 'Education & Outreach',
-    desc: 'Community workshops on conservation and environmental stewardship',
-  },
-];
+  const initiatives = [
+    {
+      icon: 'fa-seedling',
+      title: 'Invasive Species Removal',
+      desc: 'Regular removal of alien plant species to protect native biodiversity',
+    },
+    {
+      icon: 'fa-tint',
+      title: 'Wetland Restoration',
+      desc: 'Ongoing efforts to restore natural water flow and habitat',
+    },
+    {
+      icon: 'fa-binoculars',
+      title: 'Wildlife Monitoring',
+      desc: 'Citizen science programs tracking local wildlife populations',
+    },
+    {
+      icon: 'fa-graduation-cap',
+      title: 'Education & Outreach',
+      desc: 'Community workshops on conservation and environmental stewardship',
+    },
+  ];
 
-const flora = [
-  'Silver Cachepis (CaCHEpis sericea)',
-  'Fynbos Conebush (Leucadendron spp.)',
-  'Scented Pelargonium (Pelargonium capitatum)',
-  'Strandveld Pumpkin (Cucumis humilis)',
-  'Blushing Bride (Serruria florida)',
-];
+  const flora = [
+    'Silver Cachepis (CaCHEpis sericea)',
+    'Fynbos Conebush (Leucadendron spp.)',
+    'Scented Pelargonium (Pelargonium capitatum)',
+    'Strandveld Pumpkin (Cucumis humilis)',
+    'Blushing Bride (Serruria florida)',
+  ];
 
-const wildlife = [
-  'Cape ghost frog (Endangered)',
-  'African palm swift',
-  'Southern purpleunted sunbird',
-  'Common padloper tortoise',
-  'Leopard toad (Endangered)',
-];
+  const wildlife = [
+    'Cape ghost frog (Endangered)',
+    'African palm swift',
+    'Southern purpleunted sunbird',
+    'Common padloper tortoise',
+    'Leopard toad (Endangered)',
+  ];
 
-const volunteerOpportunities = [
-  {
-    title: 'Monthly Workdays',
-    desc: 'Join us every first Saturday for conservation activities',
-    time: '9:00 AM - 12:00 PM',
-  },
-  {
-    title: 'Bird Watching Tours',
-    desc: 'Guided tours through the reserve with expert ornithologists',
-    time: 'Every Sunday',
-  },
-  {
-    title: 'Junior Rangers',
-    desc: 'Educational program for children ages 8-14',
-    time: 'School holidays',
-  },
-];
-
-export default function ConservationPage() {
-  const [activeTab, setActiveTab] = useState('news');
+  const volunteerOpportunities = [
+    {
+      title: 'Monthly Workdays',
+      desc: 'Join us every first Saturday for conservation activities',
+      time: '9:00 AM - 12:00 PM',
+    },
+    {
+      title: 'Bird Watching Tours',
+      desc: 'Guided tours through the reserve with expert ornithologists',
+      time: 'Every Sunday',
+    },
+    {
+      title: 'Junior Rangers',
+      desc: 'Educational program for children ages 8-14',
+      time: 'School holidays',
+    },
+  ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -128,9 +118,9 @@ export default function ConservationPage() {
           Conservation News & Updates
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {newsArticles.map(article => (
+          {content.map(article => (
             <div
-              key={article.title}
+              key={article.id}
               className={`rounded-lg p-6 border ${article.featured ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200' : 'border-gray-200'}`}
             >
               <div className="flex items-center mb-4">
@@ -139,16 +129,22 @@ export default function ConservationPage() {
                     FEATURED
                   </span>
                 )}
-                <span className="text-sm text-gray-500">{article.date}</span>
+                <span className="text-sm text-gray-500">
+                  {article.publishedAt
+                    ? new Date(article.publishedAt).toLocaleDateString('en-ZA', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })
+                    : ''}
+                </span>
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">{article.title}</h3>
-              <p className="text-gray-700 mb-4">{article.desc}</p>
-              {article.volunteers > 0 && (
-                <div className="flex items-center text-green-600 font-medium">
-                  <i className="fas fa-users mr-2"></i>
-                  <span>{article.volunteers} volunteers participated</span>
-                </div>
-              )}
+              <p className="text-gray-700 mb-4">{article.content}</p>
+              <div className="flex items-center text-green-600 font-medium">
+                <i className="fas fa-user mr-2"></i>
+                <span>{article.author?.name}</span>
+              </div>
             </div>
           ))}
         </div>

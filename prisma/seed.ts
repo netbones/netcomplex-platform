@@ -1,4 +1,4 @@
-import { PrismaClient, Role, GroupRole, Group, UserGroup } from '@prisma/client';
+import { PrismaClient, Role, GroupRole, Group, UserGroup, ContentCategory } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -209,6 +209,54 @@ async function main() {
         date: new Date('2026-04-03T07:00:00+02:00'),
         location: 'Community Pool Area',
         organizer: 'Michael Chen',
+      },
+    }),
+  ]);
+
+  // Create content (news/articles)
+  await Promise.all([
+    prisma.content.upsert({
+      where: { id: 'news-alien-plants' },
+      update: {},
+      create: {
+        id: 'news-alien-plants',
+        title: 'Successful Alien Plant Removal Initiative',
+        content:
+          'Our community volunteers removed over 500 invasive alien plants from the wetland area this month, including Port Jackson willows and Australian acacias. This effort has significantly improved the habitat for our endemic fynbos species.',
+        excerpt: '500+ invasive plants removed by volunteers',
+        category: 'NEWS',
+        authorId: users[4].id,
+        published: true,
+        featured: true,
+        publishedAt: new Date('2026-03-15'),
+      },
+    }),
+    prisma.content.upsert({
+      where: { id: 'news-bird-species' },
+      update: {},
+      create: {
+        id: 'news-bird-species',
+        title: 'New Bird Species Spotted in Reserve',
+        content:
+          'A rare African palm swift has been spotted in our conservation area, marking the 47th bird species recorded in Soralia Nature Reserve.',
+        category: 'NEWS',
+        authorId: users[4].id,
+        published: true,
+        publishedAt: new Date('2026-02-28'),
+      },
+    }),
+    prisma.content.upsert({
+      where: { id: 'news-water-quality' },
+      update: {},
+      create: {
+        id: 'news-water-quality',
+        title: 'Water Quality Monitoring Results',
+        content:
+          'Latest water quality tests show significant improvement in wetland health following our drainage restoration project.',
+        category: 'NEWS',
+        authorId: users[4].id,
+        published: true,
+        publishedAt: new Date('2026-02-10'),
       },
     }),
   ]);
