@@ -23,7 +23,7 @@ export function CommunityMap() {
 
     fixLeafletIcons();
 
-    const map = L.map(mapRef.current).setView([-33.9875, 18.4711], 16);
+    const map = L.map(mapRef.current).setView([-34.09165, 18.483269], 16);
     mapInstanceRef.current = map;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -32,10 +32,12 @@ export function CommunityMap() {
     }).addTo(map);
 
     const streets: { name: string; coords: [number, number] }[] = [
-      { name: 'Pagoda Rd', coords: [-33.9875, 18.4711] },
-      { name: 'Wild Almond Rd', coords: [-33.9885, 18.4721] },
-      { name: 'Silkypuff Street', coords: [-33.9865, 18.4701] },
-      { name: 'Beechwood Rd', coords: [-33.9895, 18.4731] },
+      { name: 'Pagoda Rd', coords: [-34.09165, 18.483269] },
+      { name: 'Wild Almond Rd', coords: [-34.09025, 18.483569] },
+      { name: 'Silkypuff Street', coords: [-34.0907, 18.483869] },
+      { name: 'Beechwood Rd', coords: [-34.09131, 18.483569] },
+      { name: 'Sugarbrush Rd', coords: [-34.09164, 18.483369] },
+      { name: 'Conebrush Rd', coords: [-34.09101, 18.483769] },
     ];
 
     streets.forEach(street => {
