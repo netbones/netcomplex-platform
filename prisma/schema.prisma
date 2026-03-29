@@ -21,6 +21,7 @@ model User {
   interests    String[]
   avatar       String?
   profileImage String?
+  homeImage    String?
   isPublic     Boolean      @default(true)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt

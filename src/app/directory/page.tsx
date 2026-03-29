@@ -15,6 +15,7 @@ interface Resident {
   phone: string | null;
   interests: string[];
   avatar: string | null;
+  homeImage: string | null;
   isPublic: boolean;
   residentType?: 'OWNER' | 'RENTER';
   role?: string;
