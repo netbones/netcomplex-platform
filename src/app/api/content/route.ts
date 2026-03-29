@@ -36,9 +36,15 @@ async function getSessionAndRole(request: Request) {
  * @query published - Filter by published status (true/false)
  * @query featured - Filter by featured (true/false)
  * @query groupId - Filter by group ID
- * @query authorId - Filter by author ID
+ * @query authorId - Filter by author ID (for user's own content)
  */
 export async function GET(request: Request) {
+  const authData = await getSessionAndRole(request);
+
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
   const published = searchParams.get('published');
@@ -47,13 +53,21 @@ export async function GET(request: Request) {
   const authorId = searchParams.get('authorId');
 
   const where: Record<string, unknown> = {};
+
   if (category && category in ContentCategoryEnum) {
     where.category = ContentCategoryEnum[category as ContentCategory];
   }
   if (published !== null) where.published = published === 'true';
   if (featured === 'true') where.featured = true;
   if (groupId) where.groupId = groupId;
-  if (authorId) where.authorId = authorId;
+
+  // Users can only see their own content unless they have content permission
+  const canViewAll = hasPermission(authData.role, 'content');
+  if (authorId) {
+    where.authorId = authorId;
+  } else if (!canViewAll) {
+    where.authorId = authData.userId;
+  }
 
   const content = await prisma.content.findMany({
     where,

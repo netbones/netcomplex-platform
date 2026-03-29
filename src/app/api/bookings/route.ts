@@ -1,17 +1,49 @@
+import { auth } from '@/lib/auth';
+import { hasPermission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+async function getSessionAndRole(request: Request) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  if (!session?.user?.id) {
+    return null;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true },
+  });
+
+  return {
+    session,
+    userId: session.user.id,
+    role: user?.role || 'RESIDENT',
+  };
+}
+
 /**
  * GET /api/bookings - List facility bookings
+ * Residents see only their own, admins see all
  * @query facility - Filter by POOL, GYM, COMMUNITY_CENTER, TENNIS, BBQ_AREA
  * @query date - Filter bookings from this date onwards
  */
 export async function GET(request: Request) {
+  const authData = await getSessionAndRole(request);
+
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const canViewAll = hasPermission(authData.role, 'bookings');
+
   const { searchParams } = new URL(request.url);
   const facility = searchParams.get('facility');
   const date = searchParams.get('date');
 
-  const where: Record<string, unknown> = {};
+  const where: Record<string, unknown> = canViewAll ? {} : { userId: authData.userId };
   if (facility) where.facility = facility;
   if (date) where.date = { gte: new Date(date) };
 
@@ -19,7 +51,7 @@ export async function GET(request: Request) {
     where,
     include: {
       user: {
-        select: { name: true, unit: true },
+        select: { id: true, name: true, unit: true },
       },
     },
     orderBy: { date: 'asc' },
