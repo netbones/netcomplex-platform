@@ -118,15 +118,12 @@ export function Header() {
         </div>
 
         <nav className="hidden md:flex space-x-6">
-          {PUBLIC_NAV_LINKS.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`hover:text-soralia-accent font-medium ${pathname === link.href ? 'text-soralia-accent' : ''}`}
-            >
-              {t(`nav.${link.page}`)}
-            </Link>
-          ))}
+          <Link
+            href="/"
+            className={`hover:text-soralia-accent font-medium ${pathname === '/' ? 'text-soralia-accent' : ''}`}
+          >
+            {t('nav.home')}
+          </Link>
           <TeaserLink
             href="/directory"
             label={t('nav.directory')}
@@ -145,6 +142,12 @@ export function Header() {
             pathname={pathname}
             authenticated={!!session}
           />
+          <Link
+            href="/conservation"
+            className={`hover:text-soralia-accent font-medium ${pathname === '/conservation' ? 'text-soralia-accent' : ''}`}
+          >
+            {t('nav.conservation')}
+          </Link>
           {session && (isAdmin || isBoard) && (
             <Link
               href="/admin"
