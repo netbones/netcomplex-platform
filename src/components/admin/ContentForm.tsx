@@ -3,13 +3,15 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { contentSchema, type ContentFormData } from '@/lib/schemas';
+import { authClient } from '@/lib/auth-client';
 
 interface ContentFormProps {
   initialData?: Partial<ContentFormData> & { id?: string };
   groups?: { id: string; name: string }[];
+  baseRedirect?: string;
 }
 
 const categories = [
@@ -19,8 +21,14 @@ const categories = [
   { value: 'BLOG', label: 'Blog' },
 ];
 
-export function ContentForm({ initialData, groups = [] }: ContentFormProps) {
+export function ContentForm({ initialData, groups = [], baseRedirect }: ContentFormProps) {
   const router = useRouter();
+  const { data: session } = authClient.useSession();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const {
     register,
@@ -53,7 +61,9 @@ export function ContentForm({ initialData, groups = [] }: ContentFormProps) {
       });
 
       if (res.ok) {
-        router.push('/admin/content');
+        const redirectTo =
+          baseRedirect || (session?.user?.id ? `/resident/${session.user.id}` : '/dashboard');
+        router.push(redirectTo);
         router.refresh();
       }
     } catch (error) {
