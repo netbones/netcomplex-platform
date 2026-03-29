@@ -17,7 +17,7 @@
 - **Runtime:** Next.js API Routes (Serverless)
 - **Database:** PostgreSQL (Supabase)
 - **ORM:** Prisma 5
-- **Authentication:** Stack Auth
+- **Authentication:** Better Auth
 - **Real-time:** Supabase Realtime (for chat/messaging)
 
 ### DevOps
@@ -229,19 +229,35 @@ enum ContentCategory {
 }
 
 model Group {
-  id          String   @id @default(cuid())
+  id          String       @id @default(cuid())
   name        String
   description String?
   category    String
   image       String?
-  isPublic    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isPublic    Boolean      @default(true)
+  accessType  GroupAccess  @default(OPEN)
+  residentFilter ResidentFilter @default(ALL)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  members     UserGroup[]
-  contents    Content[]
+  owner      User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members    UserGroup[]
+  contents   Content[]
+  membershipRequests GroupMembershipRequest[]
+}
+
+enum GroupAccess {
+  OPEN        // Anyone can join
+  INVITE_ONLY // Requires invitation from group admin
+  APPLICATION // Requires application approval
+}
+
+enum ResidentFilter {
+  ALL         // All residents can join
+  OWNERS_ONLY // Homeowners only
+  RENTERS_ONLY // Renters only
 }
 
 enum GroupRole {
@@ -400,83 +416,82 @@ model MessageRead {
 
 ---
 
-## 5. Authentication Specification (Stack Auth)
+## 5. Authentication Specification (Better Auth)
 
-### Stack Auth Setup
+### Better Auth Setup
 
 ```bash
-npm install @stackframe/stack-server @stackframe/stack-client
+npm install better-auth prisma-adapter
 ```
 
-### Stack Auth Configuration
+### Better Auth Configuration
 
 ```typescript
-// src/lib/stack.ts
-import { Stackserver } from '@stackframe/stack-server';
+// src/lib/auth.ts
+import { betterAuth } from 'better-auth';
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { prisma } from '@/lib/prisma';
 
-export const stackServer = new Stackserver({
-  publishableKey: process.env.STACK_PUBLISHABLE_KEY || '',
-  projectId: process.env.STACK_PROJECT_ID || '',
-  apiKey: process.env.STACK_API_KEY || '',
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: 'postgresql',
+  }),
+  emailAndPassword: {
+    enabled: true,
+  },
+  passkey: {
+    enabled: true,
+  },
+  emailVerification: {
+    enabled: true,
+  },
 });
 ```
 
-### Middleware for Auth Protection
+### Route Protection (Next.js 16 proxy.ts)
 
 ```typescript
-// src/middleware.ts
-import { NextRequest, NextResponse } from 'next/server';
+// src/app/proxy.ts
+import { auth } from '@/lib/auth';
+import { hasPermission } from '@/lib/permissions';
 
-export function middleware(request: NextRequest) {
-  const token = request.cookies.get('stack-session-token');
+export async function proxy(request: Request) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
 
-  // Protected routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') && !token) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-
-  // Admin-only routes
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    // Check for admin role via Stack API
-    // Redirect if not admin
-  }
-
-  return NextResponse.next();
+  // Protected routes check permissions
+  // Redirect to /sign-in if unauthorized
 }
 ```
 
-### Auth Components (Stack Auth UI)
+### Auth Components (Better Auth UI)
 
 ```typescript
 // src/components/auth/SignIn.tsx
 "use client";
-import { useStack } from "@stackframe/stack-client";
+import { useAuth } from 'better-auth/react';
 
 export function SignIn() {
-  const { signInWithOAuth, signInWithPassword } = useStack();
+  const { signIn } = useAuth();
 
   return (
-    <div>
-      {/* Stack Auth provides pre-built components */}
-      <stack-auth-sign-in />
-    </div>
+    <button onClick={() => signIn.email({ email, password })}>
+      Sign In
+    </button>
   );
 }
 ```
 
-### Stack Auth Environment Variables
+### Better Auth Environment Variables
 
 ```env
-# Stack Auth
-STACK_PUBLISHABLE_KEY="pk_live_..."
-STACK_PROJECT_ID="proj_..."
-STACK_API_KEY="sk_..."
+# Better Auth
+BETTER_AUTH_SECRET="secret-key..."
+BETTER_AUTH_TRUSTED_ORIGINS="https://soralia-village.vercel.app"
 
-# Database (if using external)
+# Database (PostgreSQL via Supabase)
 DATABASE_URL="postgresql://..."
-
-# Optional: Use Stack's built-in database (no Prisma needed)
-# STACK_DATABASE_URL will be provided by Stack Auth
 ```
 
 ---
@@ -538,15 +553,30 @@ DATABASE_URL="postgresql://..."
 - `POST /api/conversations/[id]/messages` - Send message
 - `PATCH /api/messages/[id]/read` - Mark message as read
 
-### Interest Groups
+### Interest Groups & User Dashboard
 
-- `GET /api/groups` - List all groups
-- `POST /api/groups` - Create new group (admin)
+**Groups Hub (`/groups`)**
+
+- `GET /api/groups` - List all groups with pagination
+- `POST /api/groups` - Create new group (GROUP_ADMIN, COMMITTEE, BOARD, ADMIN)
 - `GET /api/groups/[id]` - Get group with members and content
-- `PATCH /api/groups/[id]` - Update group
-- `DELETE /api/groups/[id]` - Delete group (admin)
+- `PATCH /api/groups/[id]` - Update group (owner/admin)
+- `DELETE /api/groups/[id]` - Delete group (owner/admin)
 - `POST /api/groups/members` - Join group
 - `DELETE /api/groups/members` - Leave group
+
+**User Dashboard (`/dashboard`)**
+
+- `PATCH /api/users/profile` - Update user profile
+- `PATCH /api/users/interests` - Update user interests
+- `GET /api/groups/my-groups` - Get user's group memberships
+- `POST /api/content` - Create content (blog post)
+- `GET /api/notifications` - Get user notifications
+
+**Interests Visualization (`/interest`)**
+
+- React Flow network graph
+- `GET /api/users/network` - Get interest connections
 
 ### Content (CMS)
 

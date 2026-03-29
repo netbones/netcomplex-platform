@@ -70,6 +70,8 @@ Transform Soralia Village from a static demo into a fully functional SPA with:
 | Persona      | Role        | Access Level                                                                           |
 | ------------ | ----------- | -------------------------------------------------------------------------------------- |
 | Resident     | RESIDENT    | View directory, submit requests, book facilities, join interest groups, create content |
+| Owner        | OWNER       | Homeowner - full resident access + property-specific privileges                        |
+| Renter       | RENTER      | Tenant - may have restricted access to certain groups/content                          |
 | Group Admin  | GROUP_ADMIN | Manage own group: add/remove members, delete own group content                         |
 | Committee    | COMMITTEE   | Committee duties, group admin + platform reporting access                              |
 | Board Member | BOARD       | HOA Board: oversight, platform management                                              |
@@ -122,14 +124,34 @@ Transform Soralia Village from a static demo into a fully functional SPA with:
 - Booking confirmation
 - Cancellation/modification
 
-### 6. Interest Groups
+### 6. Interest Groups & User Dashboard
 
-- Browse groups by category
-- Join/leave groups
+**Groups Hub (`/groups`)**
+
+- Search/browse groups by category (fitness, gardening, sports, etc.)
+- Filter by access type (open to join, invite-only, application required)
+- Filter by resident type (owners only, renters only, all)
+- Join/leave groups directly from hub
 - Group pages with member list
-- Group content/feed
-- Create posts (BLOG category)
-- Group owner/moderator management
+
+**User Dashboard (`/dashboard`)**
+
+- Personalized breadcrumbs navigation
+- Quick access to:
+  - My Profile: Edit name, phone, address, avatar
+  - My Interests: Select interests (gardening, fitness, sports, etc.)
+  - My Groups: Manage group memberships
+  - Notifications: Activity alerts
+  - My Requests: Maintenance request history
+  - Messages: Conversation center
+  - Create Content: Blog posts for public/village access
+
+**Interests Visualization (`/interest`)**
+
+- React Flow network graph showing connections between residents
+- Nodes = residents, Edges = shared interests
+- Interactive exploration of community connections
+- Click resident to view profile card
 
 ### 7. Content Management (CMS)
 
