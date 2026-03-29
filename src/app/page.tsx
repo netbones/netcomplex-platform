@@ -144,48 +144,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Dashboard Promo */}
-      <div className="bg-gradient-to-r from-soralia-primary to-soralia-secondary rounded-lg shadow-md p-8 mb-8 text-white">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold mb-2">{t('home.residentDashboard')}</h2>
-          <p className="text-lg opacity-90">{t('home.dashboardSubtitle')}</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="text-center">
-            <div className="bg-white bg-opacity-20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <i className="fas fa-tachometer-alt text-2xl" aria-hidden="true"></i>
-            </div>
-            <h3 className="font-semibold mb-2">{t('home.realTimeUpdates')}</h3>
-            <p className="text-sm opacity-90">{t('home.realTimeUpdatesDesc')}</p>
-          </div>
-          <div className="text-center">
-            <div className="bg-white bg-opacity-20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <i className="fas fa-tools text-2xl" aria-hidden="true"></i>
-            </div>
-            <h3 className="font-semibold mb-2">{t('home.maintenanceRequests')}</h3>
-            <p className="text-sm opacity-90">{t('home.maintenanceRequestsDesc')}</p>
-          </div>
-          <div className="text-center">
-            <div className="bg-white bg-opacity-20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <i className="fas fa-calendar-check text-2xl" aria-hidden="true"></i>
-            </div>
-            <h3 className="font-semibold mb-2">{t('home.facilityBooking')}</h3>
-            <p className="text-sm opacity-90">{t('home.facilityBookingDesc')}</p>
-          </div>
-        </div>
-
-        <div className="text-center">
-          <Link
-            href="/dashboard"
-            className="inline-block bg-white text-indigo-600 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
-          >
-            <i className="fas fa-external-link-alt mr-2" aria-hidden="true"></i>
-            {t('home.viewDashboard')}
-          </Link>
-        </div>
-      </div>
-
       {/* Search and Filters */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <h2 className="text-2xl font-bold text-soralia-dark mb-6">
