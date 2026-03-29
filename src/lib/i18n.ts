@@ -26,8 +26,9 @@ i18n
     },
     lng: defaultLanguage,
     fallbackLng: defaultLanguage,
-    ns: ['common'],
+    ns: ['common', 'dashboard', 'services', 'messages', 'forms'],
     defaultNS: 'common',
+    preload: ['en'],
     interpolation: {
       escapeValue: false,
     },
