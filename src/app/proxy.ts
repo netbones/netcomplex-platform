@@ -61,6 +61,9 @@ export async function proxy(request: Request): Promise<NextResponse> {
     { path: '/settings', permission: 'settings' },
   ];
 
+  const groupsPermissionCheck = (role: string) =>
+    hasPermission(role, 'groups') || hasPermission(role, 'groupsOwn');
+
   const authOnlyPaths = ['/groups', '/interest'];
 
   const isAuthOnlyPath =
@@ -75,7 +78,10 @@ export async function proxy(request: Request): Promise<NextResponse> {
   }
 
   for (const { path, permission } of protectedPaths) {
-    if (pathname.startsWith(path) && !hasPermission(userRole, permission)) {
+    const hasAccess =
+      path === '/groups' ? groupsPermissionCheck(userRole) : hasPermission(userRole, permission);
+
+    if (pathname.startsWith(path) && !hasAccess) {
       if (pathname.startsWith('/api/')) {
         return NextResponse.json(
           { error: 'Forbidden - Insufficient permissions' },
