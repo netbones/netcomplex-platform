@@ -201,93 +201,17 @@ function ProfileContent() {
 
 export default function ResidentProfilePage() {
   return (
-    <>
-      <style jsx global>{`
-        .content-body pre {
-          background: #1f2937;
-          color: #e5e7eb;
-          padding: 1rem;
-          border-radius: 0.5rem;
-          font-family: 'Fira Code', 'Consolas', monospace;
-          font-size: 0.875rem;
-          overflow-x: auto;
-          margin: 1rem 0;
-        }
-        .content-body pre code {
-          background: transparent;
-          padding: 0;
-          color: inherit;
-        }
-        .content-body code {
-          background: #e5e7eb;
-          padding: 0.125rem 0.25rem;
-          border-radius: 0.25rem;
-          font-family: 'Fira Code', 'Consolas', monospace;
-          font-size: 0.875rem;
-          color: #dc2626;
-        }
-        .content-body blockquote {
-          border-left: 4px solid #9ca3af;
-          padding-left: 1rem;
-          font-style: italic;
-          color: #4b5563;
-          margin: 1rem 0;
-        }
-        .content-body ul,
-        .content-body ol {
-          padding-left: 1.5rem;
-          margin: 0.5rem 0;
-        }
-        .content-body ul {
-          list-style-type: disc;
-        }
-        .content-body ol {
-          list-style-type: decimal;
-        }
-        /* Syntax highlighting */
-        .content-body .hljs-keyword,
-        .content-body .hljs-selector-tag {
-          color: #c084fc;
-        }
-        .content-body .hljs-string,
-        .content-body .hljs-attr {
-          color: #86efac;
-        }
-        .content-body .hljs-number,
-        .content-body .hljs-literal {
-          color: #fb923c;
-        }
-        .content-body .hljs-comment {
-          color: #6b7280;
-          font-style: italic;
-        }
-        .content-body .hljs-function,
-        .content-body .hljs-title {
-          color: #60a5fa;
-        }
-        .content-body .hljs-variable,
-        .content-body .hljs-name {
-          color: #f472b6;
-        }
-        .content-body .hljs-built_in {
-          color: #34d399;
-        }
-        .content-body .hljs-type {
-          color: #fbbf24;
-        }
-      `}</style>
-      <Suspense
-        fallback={
-          <div className="max-w-4xl mx-auto px-4 py-8">
-            <div className="animate-pulse space-y-4">
-              <div className="h-4 bg-gray-200 rounded w-32"></div>
-              <div className="h-8 bg-gray-200 rounded w-64"></div>
-            </div>
+    <Suspense
+      fallback={
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-32"></div>
+            <div className="h-8 bg-gray-200 rounded w-64"></div>
           </div>
-        }
-      >
-        <ProfileContent />
-      </Suspense>
-    </>
+        </div>
+      }
+    >
+      <ProfileContent />
+    </Suspense>
   );
 }

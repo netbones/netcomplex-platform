@@ -13,3 +13,114 @@
 body {
   @apply bg-soralia-light text-soralia-dark;
 }
+
+/* Content body styles for rich text rendering */
+.content-body pre {
+  background: #1f2937;
+  color: #e5e7eb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.875rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.content-body pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.content-body code {
+  background: #e5e7eb;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.875rem;
+  color: #dc2626;
+}
+
+.content-body blockquote {
+  border-left: 4px solid #9ca3af;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #4b5563;
+  margin: 1rem 0;
+}
+
+.content-body ul,
+.content-body ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.content-body ul {
+  list-style-type: disc;
+}
+
+.content-body ol {
+  list-style-type: decimal;
+}
+
+.content-body li {
+  margin-bottom: 0.25rem;
+}
+
+/* Syntax highlighting - must be scoped to pre to work properly */
+.content-body pre .hljs-keyword,
+.content-body pre .hljs-selector-tag {
+  color: #c084fc;
+}
+
+.content-body pre .hljs-string,
+.content-body pre .hljs-attr {
+  color: #86efac;
+}
+
+.content-body pre .hljs-number,
+.content-body pre .hljs-literal {
+  color: #fb923c;
+}
+
+.content-body pre .hljs-comment {
+  color: #6b7280;
+  font-style: italic;
+}
+
+.content-body pre .hljs-function,
+.content-body pre .hljs-title {
+  color: #60a5fa;
+}
+
+.content-body pre .hljs-variable,
+.content-body pre .hljs-name {
+  color: #f472b6;
+}
+
+.content-body pre .hljs-built_in {
+  color: #34d399;
+}
+
+.content-body pre .hljs-type {
+  color: #fbbf24;
+}
+
+.content-body pre .hljs-attribute {
+  color: #fbbf24;
+}
+
+.content-body pre .hljs-symbol,
+.content-body pre .hljs-bullet {
+  color: #34d399;
+}
+
+.content-body pre .hljs-addition {
+  color: #86efac;
+  background: #14532d;
+}
+
+.content-body pre .hljs-deletion {
+  color: #fca5a5;
+  background: #7f1d1d;
+}
