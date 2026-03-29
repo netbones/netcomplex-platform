@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -38,8 +38,17 @@ interface SideDrawerProps {
 
 export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
   const pathname = usePathname();
-  const { t } = useTranslation('common');
+  const [mounted, setMounted] = useState(false);
+  const { t, ready } = useTranslation('common');
   const { data: session } = authClient.useSession();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !ready) {
+    return null;
+  }
 
   const userRole = session?.user?.role as string | undefined;
   const canManageUsers = userRole && hasPermission(userRole, 'users');

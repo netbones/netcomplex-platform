@@ -26,8 +26,15 @@ const defaultContacts: ContactSettings = {
 export function useContactSettings() {
   const [contacts, setContacts] = useState<ContactSettings>(defaultContacts);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     fetch('/api/settings/contact')
       .then(res => res.json())
       .then(data => {
@@ -37,7 +44,7 @@ export function useContactSettings() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  }, [mounted]);
 
   return { contacts, loading };
 }

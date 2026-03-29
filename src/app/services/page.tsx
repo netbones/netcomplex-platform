@@ -21,20 +21,6 @@ const defaultServiceCategories = [
     ],
   },
   {
-    id: 'maintenance',
-    title: 'Maintenance',
-    subtitle: 'Professional repair & upkeep',
-    icon: 'fa-tools',
-    gradient: 'from-blue-500 to-blue-600',
-    items: [
-      '24/7 Emergency Repairs',
-      'Plumbing & Electrical',
-      'Solar Maintenance',
-      'Appliance Repair',
-      'Preventive Maintenance',
-    ],
-  },
-  {
     id: 'security',
     title: 'Security',
     subtitle: 'Safety & peace of mind',
@@ -135,7 +121,8 @@ const emergencyContacts = [
 ];
 
 export default function ServicesPage() {
-  const { t } = useTranslation('services');
+  const [mounted, setMounted] = useState(false);
+  const { t, ready } = useTranslation('services');
   const [serviceCategories, setServiceCategories] = useState(defaultServiceCategories);
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -146,6 +133,22 @@ export default function ServicesPage() {
     preferredDate: '',
     preferredTime: '',
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !ready) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="animate-pulse">
+          <div className="h-4 bg-gray-200 rounded w-32 mb-6"></div>
+          <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-96 mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
 
   const handleServiceRequest = async (serviceId: string, serviceTitle: string) => {
     setSelectedService(serviceTitle);

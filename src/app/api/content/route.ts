@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { ContentCategoryEnum, type ContentCategory } from '@/types/enums';
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -44,7 +45,9 @@ export async function GET(request: Request) {
   const groupId = searchParams.get('groupId');
 
   const where: Record<string, unknown> = {};
-  if (category) where.category = category;
+  if (category && category in ContentCategoryEnum) {
+    where.category = ContentCategoryEnum[category as ContentCategory];
+  }
   if (published !== null) where.published = published === 'true';
   if (featured === 'true') where.featured = true;
   if (groupId) where.groupId = groupId;

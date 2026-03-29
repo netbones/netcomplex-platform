@@ -2,11 +2,27 @@
 
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
 import { useContactSettings } from '@/lib/useContactSettings';
 
 export function Footer() {
-  const { t } = useTranslation('common');
+  const [mounted, setMounted] = useState(false);
+  const { t, ready } = useTranslation('common');
   const { contacts, loading } = useContactSettings();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !ready) {
+    return (
+      <footer className="bg-gray-900 text-white mt-auto">
+        <div className="container mx-auto px-4 py-12">
+          <p className="text-gray-300 text-sm">Loading...</p>
+        </div>
+      </footer>
+    );
+  }
 
   const formatPhone = (phone: string | undefined) => phone?.replace(/\D/g, '') || '';
 

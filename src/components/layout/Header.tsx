@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -64,8 +64,33 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const { t } = useTranslation('common');
+  const [mounted, setMounted] = useState(false);
+  const { t, ready } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !ready) {
+    return (
+      <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+            <img
+              src="/logo.png"
+              alt="Soralia Village Logo"
+              className="w-16 h-16 rounded-full bg-white p-2 border-2 border-white shadow-lg object-cover"
+            />
+            <div>
+              <h1 className="text-2xl font-bold">Soralia Village</h1>
+              <p className="text-xs opacity-75">A Community of Neighbors</p>
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   const userRole = session?.user?.role as string | undefined;
   const isAdmin = userRole && hasPermission(userRole, 'admin');

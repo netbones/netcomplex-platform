@@ -1,14 +1,23 @@
 'use client';
 
 import { useTranslation } from 'react-i18next';
+import { useState, useEffect } from 'react';
 import { supportedLanguages, languageNames, type SupportedLanguage } from '@/lib/i18n';
 
 export function LanguageSwitcher() {
   const { i18n, ready } = useTranslation();
+  const [mounted, setMounted] = useState(false);
 
-  if (!ready) {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !ready) {
     return (
-      <select className="bg-transparent text-sm text-white border border-white/30 rounded px-2 py-1">
+      <select
+        className="bg-transparent text-sm text-white border border-white/30 rounded px-2 py-1"
+        disabled
+      >
         <option value="en">Loading...</option>
       </select>
     );
