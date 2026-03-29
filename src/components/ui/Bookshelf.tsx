@@ -98,12 +98,12 @@ export function Bookshelf({ userId, editable = false }: BookshelfProps) {
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-900">{t('bookshelf', 'Bookshelf')}</h2>
-        {editable && !isEditing && books.length > 0 && (
+        {editable && !isEditing && (
           <button
             onClick={() => setIsEditing(true)}
             className="text-sm text-indigo-600 hover:text-indigo-800"
           >
-            {t('edit', 'Edit')}
+            {books.length > 0 ? t('edit', 'Edit') : t('addBook', 'Add Books')}
           </button>
         )}
       </div>
@@ -159,8 +159,18 @@ export function Bookshelf({ userId, editable = false }: BookshelfProps) {
         </div>
       )}
 
-      {books.length === 0 && !isEditing ? (
-        <p className="text-gray-500 text-sm">{t('noBooks', 'No books on the shelf yet.')}</p>
+      {books.length === 0 ? (
+        <div className="text-center py-4">
+          <p className="text-gray-500 text-sm mb-4">{t('noBooks', 'No books on the shelf yet.')}</p>
+          {editable && !isEditing && (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700"
+            >
+              {t('addFirstBook', 'Add Your First Book')}
+            </button>
+          )}
+        </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {books.map(book => (
