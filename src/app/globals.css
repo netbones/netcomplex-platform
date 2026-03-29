@@ -67,60 +67,72 @@ body {
   margin-bottom: 0.25rem;
 }
 
-/* Syntax highlighting - must be scoped to pre to work properly */
-.content-body pre .hljs-keyword,
-.content-body pre .hljs-selector-tag {
-  color: #c084fc;
+/* Syntax highlighting */
+.hljs-keyword,
+.hljs-selector-tag {
+  color: #c084fc !important;
 }
-
-.content-body pre .hljs-string,
-.content-body pre .hljs-attr {
-  color: #86efac;
+.hljs-string,
+.hljs-attr {
+  color: #86efac !important;
 }
-
-.content-body pre .hljs-number,
-.content-body pre .hljs-literal {
-  color: #fb923c;
+.hljs-number,
+.hljs-literal {
+  color: #fb923c !important;
 }
-
-.content-body pre .hljs-comment {
-  color: #6b7280;
+.hljs-comment {
+  color: #6b7280 !important;
   font-style: italic;
 }
-
-.content-body pre .hljs-function,
-.content-body pre .hljs-title {
-  color: #60a5fa;
+.hljs-function,
+.hljs-title {
+  color: #60a5fa !important;
 }
-
-.content-body pre .hljs-variable,
-.content-body pre .hljs-name {
-  color: #f472b6;
+.hljs-variable,
+.hljs-name {
+  color: #f472b6 !important;
 }
-
-.content-body pre .hljs-built_in {
-  color: #34d399;
+.hljs-built_in {
+  color: #34d399 !important;
 }
-
-.content-body pre .hljs-type {
-  color: #fbbf24;
+.hljs-type {
+  color: #fbbf24 !important;
 }
-
-.content-body pre .hljs-attribute {
-  color: #fbbf24;
+.hljs-attribute {
+  color: #fbbf24 !important;
 }
-
-.content-body pre .hljs-symbol,
-.content-body pre .hljs-bullet {
-  color: #34d399;
+.hljs-symbol,
+.hljs-bullet {
+  color: #34d399 !important;
 }
-
-.content-body pre .hljs-addition {
-  color: #86efac;
+.hljs-addition {
+  color: #86efac !important;
   background: #14532d;
 }
-
-.content-body pre .hljs-deletion {
-  color: #fca5a5;
+.hljs-deletion {
+  color: #fca5a5 !important;
   background: #7f1d1d;
+}
+.hljs-meta {
+  color: #f59e0b !important;
+}
+.hljs-section {
+  color: #60a5fa !important;
+  font-weight: bold;
+}
+.hljs-selector-id,
+.hljs-selector-class {
+  color: #34d399 !important;
+}
+.hljs-tag {
+  color: #f472b6 !important;
+}
+.hljs-literal {
+  color: #fb923c !important;
+}
+.hljs-params {
+  color: #fbbf24 !important;
+}
+.hljs-regexp {
+  color: #86efac !important;
 }
