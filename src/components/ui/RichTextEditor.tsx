@@ -4,8 +4,10 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import Image from '@tiptap/extension-image';
 import { common, createLowlight } from 'lowlight';
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
+import { toast } from 'sonner';
 
 const lowlight = createLowlight(common);
 
@@ -23,6 +25,8 @@ export function RichTextEditor({
   onDraftSave,
 }: RichTextEditorProps) {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -50,6 +54,10 @@ export function RichTextEditor({
       CodeBlockLowlight.configure({
         lowlight,
       }),
+      Image.configure({
+        inline: false,
+        allowBase64: false,
+      }),
       Placeholder.configure({
         placeholder: placeholder || 'Start writing...',
       }),
@@ -66,6 +74,56 @@ export function RichTextEditor({
       },
     },
   });
+
+  const handleImageUpload = async (file: File) => {
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image too large. Maximum size is 2MB.');
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid file type. Allowed: JPEG, PNG, GIF, WebP');
+      return;
+    }
+
+    setUploading(true);
+    const loadingToast = toast.loading('Uploading image...');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        editor?.chain().focus().setImage({ src: data.url }).run();
+        toast.success('Image uploaded!');
+      } else {
+        const error = await res.json();
+        toast.error(error.error || 'Failed to upload image');
+      }
+    } catch (e) {
+      toast.error('Failed to upload image');
+    } finally {
+      setUploading(false);
+      toast.dismiss(loadingToast);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleImageUpload(file);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleDraftSave = useCallback(() => {
     if (editor && onDraftSave) {
@@ -146,6 +204,19 @@ export function RichTextEditor({
           title="Code Block"
         >
           <i className="fas fa-code"></i>
+        </button>
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className={`p-2 rounded hover:bg-gray-200 ${uploading ? 'opacity-50' : ''}`}
+          title="Insert Image"
+        >
+          {uploading ? (
+            <i className="fas fa-spinner fa-spin"></i>
+          ) : (
+            <i className="fas fa-image"></i>
+          )}
         </button>
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
         <button
@@ -264,7 +335,20 @@ export function RichTextEditor({
         .hljs-type {
           color: #fbbf24;
         }
+        .ProseMirror img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 0.5rem;
+          margin: 1rem 0;
+        }
       `}</style>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        className="hidden"
+        onChange={handleFileSelect}
+      />
     </div>
   );
 }

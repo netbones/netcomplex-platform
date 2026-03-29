@@ -136,3 +136,12 @@ body {
 .hljs-regexp {
   color: #86efac !important;
 }
+
+/* Image styles in content */
+.content-body img,
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
