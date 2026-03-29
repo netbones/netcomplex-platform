@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
+import toast from 'sonner';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { contentSchema, type ContentFormData } from '@/lib/schemas';
 import { authClient } from '@/lib/auth-client';

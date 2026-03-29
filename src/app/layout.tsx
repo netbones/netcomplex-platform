@@ -4,7 +4,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: 'Soralia Village Community Directory',
