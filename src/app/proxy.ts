@@ -60,6 +60,7 @@ export async function proxy(request: Request): Promise<NextResponse> {
     { path: '/services', permission: 'bookings' },
     { path: '/resources', permission: 'content' },
     { path: '/messages', permission: 'messages' },
+    { path: '/notifications', permission: 'messages' },
     { path: '/settings', permission: 'settings' },
   ];
 

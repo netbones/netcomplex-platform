@@ -17,6 +17,7 @@ const DASHBOARD_LINKS = [
   { href: '/maintenance', label: 'maintenance', icon: 'tool' },
   { href: '/bookings', label: 'bookings', icon: 'calendar' },
   { href: '/messages', label: 'messages', icon: 'mail' },
+  { href: '/notifications', label: 'notifications', icon: 'bell' },
 ];
 
 const ADMIN_LINKS = [
