@@ -2,24 +2,57 @@
 
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { useEffect } from 'react';
+import Placeholder from '@tiptap/extension-placeholder';
+import { useEffect, useCallback, useState } from 'react';
 
 interface RichTextEditorProps {
   content: string;
   onChange: (html: string) => void;
   placeholder?: string;
+  onDraftSave?: (html: string) => void;
 }
 
-export function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
+export function RichTextEditor({
+  content,
+  onChange,
+  placeholder,
+  onDraftSave,
+}: RichTextEditorProps) {
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: {
           levels: [1, 2, 3],
         },
+        bulletList: {
+          HTMLAttributes: {
+            class: 'list-disc pl-6',
+          },
+        },
+        orderedList: {
+          HTMLAttributes: {
+            class: 'list-decimal pl-6',
+          },
+        },
+        blockquote: {
+          HTMLAttributes: {
+            class: 'border-l-4 border-gray-400 pl-4 italic text-gray-600 my-4',
+          },
+        },
+        codeBlock: {
+          HTMLAttributes: {
+            class: 'bg-gray-900 text-green-400 p-4 rounded font-mono text-sm overflow-x-auto',
+          },
+        },
+      }),
+      Placeholder.configure({
+        placeholder: placeholder || 'Start writing...',
       }),
     ],
     content,
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
@@ -30,6 +63,13 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
       },
     },
   });
+
+  const handleDraftSave = useCallback(() => {
+    if (editor && onDraftSave) {
+      onDraftSave(editor.getHTML());
+      setLastSaved(new Date());
+    }
+  }, [editor, onDraftSave]);
 
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
@@ -45,7 +85,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
 
   return (
     <div className="border border-gray-300 rounded-lg overflow-hidden">
-      <div className="bg-gray-50 border-b border-gray-300 px-2 py-1 flex flex-wrap gap-1">
+      <div className="bg-gray-50 border-b border-gray-300 px-2 py-1 flex flex-wrap gap-1 items-center">
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -70,6 +110,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         >
           <i className="fas fa-heading"></i>
         </button>
+        <span className="w-px h-6 bg-gray-300 mx-1"></span>
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -86,6 +127,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         >
           <i className="fas fa-list-ol"></i>
         </button>
+        <span className="w-px h-6 bg-gray-300 mx-1"></span>
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
@@ -94,6 +136,15 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         >
           <i className="fas fa-quote-right"></i>
         </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+          className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('codeBlock') ? 'bg-gray-200' : ''}`}
+          title="Code Block"
+        >
+          <i className="fas fa-code"></i>
+        </button>
+        <span className="w-px h-6 bg-gray-300 mx-1"></span>
         <button
           type="button"
           onClick={() => editor.chain().focus().undo().run()}
@@ -112,8 +163,71 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         >
           <i className="fas fa-redo"></i>
         </button>
+        {onDraftSave && (
+          <>
+            <span className="w-px h-6 bg-gray-300 mx-1"></span>
+            <button
+              type="button"
+              onClick={handleDraftSave}
+              className="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200"
+              title="Save Draft"
+            >
+              Save Draft
+            </button>
+          </>
+        )}
+        {lastSaved && (
+          <span className="ml-2 text-xs text-gray-500">Saved {lastSaved.toLocaleTimeString()}</span>
+        )}
       </div>
       <EditorContent editor={editor} />
+      <style jsx global>{`
+        .ProseMirror ul {
+          list-style-type: disc;
+          padding-left: 1.5rem;
+        }
+        .ProseMirror ol {
+          list-style-type: decimal;
+          padding-left: 1.5rem;
+        }
+        .ProseMirror li {
+          margin-bottom: 0.25rem;
+        }
+        .ProseMirror blockquote {
+          border-left: 4px solid #9ca3af;
+          padding-left: 1rem;
+          font-style: italic;
+          color: #4b5563;
+          margin: 1rem 0;
+        }
+        .ProseMirror pre {
+          background: #1f2937;
+          color: #4ade80;
+          padding: 1rem;
+          border-radius: 0.5rem;
+          font-family: monospace;
+          font-size: 0.875rem;
+          overflow-x: auto;
+        }
+        .ProseMirror code {
+          background: #e5e7eb;
+          padding: 0.125rem 0.25rem;
+          border-radius: 0.25rem;
+          font-family: monospace;
+          font-size: 0.875rem;
+        }
+        .ProseMirror pre code {
+          background: transparent;
+          padding: 0;
+        }
+        .ProseMirror p.is-editor-empty:first-child::before {
+          content: attr(data-placeholder);
+          color: #9ca3af;
+          pointer-events: none;
+          float: left;
+          height: 0;
+        }
+      `}</style>
     </div>
   );
 }
