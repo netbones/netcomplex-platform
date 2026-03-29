@@ -989,3 +989,104 @@ module.exports = {
 4. **Data** - Create Prisma schema and seed data
 5. **API** - Build serverless API routes
 6. **Deploy** - Push to Vercel with environment vars
+
+---
+
+## 16. External Service Integrations
+
+### OpenAPI Standard
+
+All external integrations will follow OpenAPI 3.0 specification for:
+
+- Consistent REST API documentation
+- Client SDK generation for service partners
+- Version control and deprecation strategies
+- Rate limiting and API key management
+
+### Core Service Integrations
+
+#### Healthcare & Pharmaceuticals
+
+- Direct medication ordering from verified pharmacies
+- Prescription management and delivery coordination
+- Health service provider integration (physiotherapy, home nursing)
+- Emergency medical information access for authorized personnel
+
+#### Vendor Services
+
+- Pre-vetted contractor booking system
+- Service history and rating integration
+- Payment processing with community fee structures
+- Warranty and follow-up service tracking
+
+#### Third-Party Payments
+
+- Utility bill management and group purchasing
+- Service provider payments with dispute resolution
+- Group buying coordination for bulk purchases (Solar Panels, Bulk Energy, Internet)
+- Community levy payments with transparent tracking (depends on API interface with existing Residentia site)
+
+#### Lifestyle Services
+
+- Gym and fitness facility partnerships
+- Local business loyalty programs
+- Event booking and community space management
+- Transportation coordination (ride-sharing, delivery services)
+
+#### Education Services
+
+- College & University Digital Campus integration
+- Tutoring and ExtraCurricular instruction
+- Access to Textbooks & Learner Resources
+- Bursary & Grant portal access
+
+### Integration Architecture
+
+```typescript
+// Service integration pattern
+interface ExternalService {
+  id: string;
+  name: string;
+  apiBase: string;
+  authType: 'api-key' | 'oauth2' | 'jwt';
+  capabilities: ServiceCapability[];
+}
+
+interface ServiceCapability {
+  endpoint: string;
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  rateLimit: number; // requests per minute
+}
+```
+
+### Configuration
+
+```env
+# Service Integrations
+INTEGRATION_ENABLED=true
+INTEGRATION_API_KEY=...
+
+# Healthcare
+PHARMACY_API_URL=
+HEALTH_PROVIDER_API_URL=
+
+# Vendors
+CONTRACTOR_API_URL=
+SERVICE_MARKETPLACE_API_URL=
+
+# Payments
+UTILITY_BILL_API_URL=
+LEVY_API_URL=
+
+# Lifestyle
+GYME_API_URL=
+TRANSPORT_API_URL=
+```
+
+### Security Requirements
+
+1. **API Key Management** - Rotate keys quarterly
+2. **OAuth2 Flows** - For services requiring user consent
+3. **Data Encryption** - TLS 1.3 for all external traffic
+4. **Audit Logging** - Track all service API calls
+5. **Rate Limiting** - Per-service limits to prevent abuse
