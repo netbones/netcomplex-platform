@@ -31,7 +31,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       description: body.description,
       category: body.category,
       image: body.image,
+      color: body.color,
       isPublic: body.isPublic,
+      accessType: body.accessType,
+      residentFilter: body.residentFilter,
     },
   });
 

@@ -13,6 +13,7 @@ interface Group {
   category: string;
   accessType: 'OPEN' | 'INVITE_ONLY' | 'APPLICATION';
   residentFilter: 'ALL' | 'OWNERS_ONLY' | 'RENTERS_ONLY';
+  color: string;
   owner: { name: string | null };
   _count: { members: number };
 }
@@ -151,9 +152,15 @@ export default function GroupsHubPage() {
             className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6"
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="px-3 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full capitalize">
-                {group.category.replace('-', ' ')}
-              </span>
+              <div className="flex items-center gap-2">
+                <span
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: group.color || '#4F46E5' }}
+                ></span>
+                <span className="px-3 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full capitalize">
+                  {group.category.replace('-', ' ')}
+                </span>
+              </div>
               <div className="flex gap-2">
                 <span
                   className={`px-2 py-1 text-xs rounded-full ${
