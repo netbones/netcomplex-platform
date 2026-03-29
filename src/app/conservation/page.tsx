@@ -1,3 +1,8 @@
+'use client';
+
+import { useState, useEffect, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { prisma } from '@/lib/prisma';
 
 async function getContent() {
@@ -17,8 +22,27 @@ async function getContent() {
   return content;
 }
 
-export default async function ConservationPage() {
-  const content = await getContent();
+export default function ConservationPage() {
+  const { t: tCommon, ready } = useTranslation('common');
+  const [content, setContent] = useState<Awaited<ReturnType<typeof getContent>>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getContent().then(data => {
+      setContent(data);
+      setLoading(false);
+    });
+  }, []);
+
+  if (!ready) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="animate-pulse">
+          <div className="h-4 bg-gray-200 rounded w-32 mb-6"></div>
+        </div>
+      </div>
+    );
+  }
 
   const conservationStats = [
     { icon: 'fa-leaf', title: 'Endemic Flora', desc: 'Over 150 indigenous plant species' },
@@ -89,6 +113,9 @@ export default async function ConservationPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Breadcrumbs
+        items={[{ label: tCommon('nav.home'), href: '/' }, { label: tCommon('nav.conservation') }]}
+      />
       <div className="rounded-lg shadow-lg mb-8 overflow-hidden">
         <img
           src="/conservation.webp"
