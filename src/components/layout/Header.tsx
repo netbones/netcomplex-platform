@@ -11,6 +11,55 @@ import { PUBLIC_NAV_LINKS } from '@/lib/constants';
 import { authClient } from '@/lib/auth-client';
 import { hasPermission, canManageGroups } from '@/lib/permissions';
 
+function TeaserLink({
+  href,
+  label,
+  pathname,
+  authenticated,
+}: {
+  href: string;
+  label: string;
+  pathname: string;
+  authenticated: boolean;
+}) {
+  const [showToast, setShowToast] = useState(false);
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (!authenticated) {
+      e.preventDefault();
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    }
+  };
+
+  if (!authenticated) {
+    return (
+      <div className="relative">
+        <button
+          onClick={handleClick}
+          className="hover:text-soralia-accent font-medium cursor-pointer"
+        >
+          {label}
+        </button>
+        {showToast && (
+          <div className="absolute top-full left-0 mt-2 w-64 bg-red-600 text-white text-sm px-4 py-2 rounded-md shadow-lg z-50">
+            This feature is available to residents only. Please sign in to access.
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      className={`hover:text-soralia-accent font-medium ${pathname.startsWith(href) ? 'text-soralia-accent' : ''}`}
+    >
+      {label}
+    </Link>
+  );
+}
+
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
@@ -53,37 +102,31 @@ export function Header() {
               {t(`nav.${link.page}`)}
             </Link>
           ))}
-          {session && (
-            <>
-              <Link
-                href="/directory"
-                className={`hover:text-soralia-accent font-medium ${pathname.startsWith('/directory') ? 'text-soralia-accent' : ''}`}
-              >
-                {t('nav.directory')}
-              </Link>
-              <Link
-                href="/services"
-                className={`hover:text-soralia-accent font-medium ${pathname.startsWith('/services') ? 'text-soralia-accent' : ''}`}
-              >
-                {t('nav.services')}
-              </Link>
-              <Link
-                href="/resources"
-                className={`hover:text-soralia-accent font-medium ${pathname.startsWith('/resources') ? 'text-soralia-accent' : ''}`}
-              >
-                {t('nav.resources')}
-              </Link>
-              {(isAdmin || isBoard) && (
-                <>
-                  <Link
-                    href="/admin"
-                    className={`hover:text-soralia-accent font-medium ${pathname.startsWith('/admin') ? 'text-soralia-accent' : ''}`}
-                  >
-                    {t('nav.admin')}
-                  </Link>
-                </>
-              )}
-            </>
+          <TeaserLink
+            href="/directory"
+            label={t('nav.directory')}
+            pathname={pathname}
+            authenticated={!!session}
+          />
+          <TeaserLink
+            href="/services"
+            label={t('nav.services')}
+            pathname={pathname}
+            authenticated={!!session}
+          />
+          <TeaserLink
+            href="/resources"
+            label={t('nav.resources')}
+            pathname={pathname}
+            authenticated={!!session}
+          />
+          {session && (isAdmin || isBoard) && (
+            <Link
+              href="/admin"
+              className={`hover:text-soralia-accent font-medium ${pathname.startsWith('/admin') ? 'text-soralia-accent' : ''}`}
+            >
+              {t('nav.admin')}
+            </Link>
           )}
         </nav>
 
