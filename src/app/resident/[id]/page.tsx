@@ -40,6 +40,8 @@ function ProfileContent() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const contentsPerPage = 3;
 
   const isOwnProfile = session?.user?.id === id;
 
@@ -166,30 +168,55 @@ function ProfileContent() {
           <div className="p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Published Content</h2>
             <div className="space-y-6">
-              {user.contents.map(content => (
-                <div
-                  key={content.id}
-                  className="border-b border-gray-200 pb-6 last:border-0 last:pb-0"
-                >
-                  <h3 className="font-semibold text-gray-900 text-lg">{content.title}</h3>
-                  {content.excerpt && (
-                    <p className="text-gray-600 text-sm mt-1 mb-3">{content.excerpt}</p>
-                  )}
+              {user.contents
+                .slice((page - 1) * contentsPerPage, page * contentsPerPage)
+                .map(content => (
                   <div
-                    className="prose prose-sm max-w-none content-body"
-                    dangerouslySetInnerHTML={{ __html: content.content || '' }}
-                  />
-                  <div className="flex items-center gap-3 mt-4 pt-3 border-t border-gray-100">
-                    <span className="text-xs text-gray-500">
-                      {new Date(content.publishedAt).toLocaleDateString()}
-                    </span>
-                    <span className="text-xs bg-soralia-secondary text-white px-2 py-0.5 rounded">
-                      {content.category}
-                    </span>
+                    key={content.id}
+                    className="border-b border-gray-200 pb-6 last:border-0 last:pb-0"
+                  >
+                    <h3 className="font-semibold text-gray-900 text-lg">{content.title}</h3>
+                    {content.excerpt && (
+                      <p className="text-gray-600 text-sm mt-1 mb-3">{content.excerpt}</p>
+                    )}
+                    <div
+                      className="prose prose-sm max-w-none content-body"
+                      dangerouslySetInnerHTML={{ __html: content.content || '' }}
+                    />
+                    <div className="flex items-center gap-3 mt-4 pt-3 border-t border-gray-100">
+                      <span className="text-xs text-gray-500">
+                        {new Date(content.publishedAt).toLocaleDateString()}
+                      </span>
+                      <span className="text-xs bg-soralia-secondary text-white px-2 py-0.5 rounded">
+                        {content.category}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
+            {Math.ceil(user.contents.length / contentsPerPage) > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-6 pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 hover:bg-gray-50"
+                >
+                  ← Prev
+                </button>
+                <span className="text-sm text-gray-500">
+                  Page {page} of {Math.ceil(user.contents.length / contentsPerPage)}
+                </span>
+                <button
+                  onClick={() =>
+                    setPage(p => Math.min(Math.ceil(user.contents.length / contentsPerPage), p + 1))
+                  }
+                  disabled={page >= Math.ceil(user.contents.length / contentsPerPage)}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 hover:bg-gray-50"
+                >
+                  Next →
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
