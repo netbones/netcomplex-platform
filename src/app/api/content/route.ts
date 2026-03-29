@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  if (!hasPermission(authData.role, 'content')) {
+  if (!hasPermission(authData.role, 'content') && !hasPermission(authData.role, 'contentOwn')) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
       content: body.content,
       excerpt: body.excerpt,
       category: body.category,
-      authorId: body.authorId,
+      authorId: authData.userId,
       groupId: body.groupId || null,
       featured: body.featured || false,
       published: body.published || false,
