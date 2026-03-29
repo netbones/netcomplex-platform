@@ -4,6 +4,11 @@ import { useTranslation as useI18nextTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { defaultLanguage } from '@/lib/i18n';
 
+/**
+ * Custom hook that wraps react-i18next's useTranslation.
+ * Provides translation function, language switching, and initialization state.
+ * @returns Translation utilities including t function, i18n instance, current language, and changeLanguage function
+ */
 export function useTranslation() {
   const { t, i18n } = useI18nextTranslation();
   const [isReady, setIsReady] = useState(false);
@@ -29,6 +34,11 @@ export function useTranslation() {
   };
 }
 
+/**
+ * Custom hook for accessing and changing the current language.
+ * Lighter version of useTranslation for components that only need language operations.
+ * @returns Current language, initialization state, and changeLanguage function
+ */
 export function useLanguage() {
   const { i18n } = useI18nextTranslation();
   const [isReady, setIsReady] = useState(false);

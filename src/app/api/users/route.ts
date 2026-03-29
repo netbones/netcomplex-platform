@@ -3,6 +3,11 @@ import { hasPermission, Permission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+/**
+ * Retrieves session and role from the request for API routes.
+ * @param request - Incoming HTTP request
+ * @returns Session data with user ID and role, or null if not authenticated
+ */
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,
@@ -24,6 +29,16 @@ async function getSessionAndRole(request: Request) {
   };
 }
 
+/**
+ * GET /api/users - List users with optional filters
+ * @query search - Search by name or email
+ * @query street - Filter by street
+ * @query interest - Filter by interest
+ * @query residentType - Filter by OWNER or RENTER
+ * @query role - Filter by role
+ * @query page - Page number (default 1)
+ * @query limit - Items per page (max 50)
+ */
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
   const isAuthenticated = authData !== null;
@@ -91,6 +106,16 @@ export async function GET(request: Request) {
   return NextResponse.json({ users, total, page, limit });
 }
 
+/**
+ * POST /api/users - Create a new user (admin only)
+ * @body email - User email
+ * @body name - User name
+ * @body street - Street address
+ * @body unit - Unit number
+ * @body phone - Phone number
+ * @body interests - Array of interests
+ * @body isPublic - Whether profile is public
+ */
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 

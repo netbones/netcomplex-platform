@@ -1,15 +1,28 @@
+/**
+ * Application constants for Soralia Village Community Portal.
+ * Centralized configuration for app metadata, map settings, roles, and UI constants.
+ */
+
+/** Application name */
 export const APP_NAME = 'Soralia Village';
+/** Application tagline */
 export const APP_TAGLINE = 'A Community of Neighbors';
 
+/** Default language code */
 export const DEFAULT_LANGUAGE = 'en';
+/** Supported language codes for i18n */
 export const SUPPORTED_LANGUAGES = ['en', 'af', 'xh', 'zu'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
+/** Leaflet map center coordinates [lat, lng] */
 export const MAP_CENTER: [number, number] = [-34.09165, 18.483269];
+/** Leaflet map default zoom level */
 export const MAP_ZOOM = 16;
 
+/** Default pagination page size */
 export const PAGINATION_DEFAULT_PAGE_SIZE = 20;
 
+/** Content category types */
 export const CONTENT_CATEGORIES = {
   ANNOUNCEMENT: 'ANNOUNCEMENT',
   NEWS: 'NEWS',
@@ -17,6 +30,7 @@ export const CONTENT_CATEGORIES = {
   BLOG: 'BLOG',
 } as const;
 
+/** User role definitions */
 export const ROLES = {
   RESIDENT: 'RESIDENT',
   GROUP_ADMIN: 'GROUP_ADMIN',
@@ -26,12 +40,14 @@ export const ROLES = {
 } as const;
 export type Role = keyof typeof ROLES;
 
+/** Group member role types */
 export const GROUP_ROLES = {
   MEMBER: 'MEMBER',
   MODERATOR: 'MODERATOR',
   ADMIN: 'ADMIN',
 } as const;
 
+/** Maintenance request priority levels */
 export const MAINTENANCE_PRIORITIES = {
   LOW: 'LOW',
   MEDIUM: 'MEDIUM',
@@ -39,6 +55,7 @@ export const MAINTENANCE_PRIORITIES = {
   EMERGENCY: 'EMERGENCY',
 } as const;
 
+/** Maintenance request status values */
 export const MAINTENANCE_STATUSES = {
   SUBMITTED: 'SUBMITTED',
   IN_PROGRESS: 'IN_PROGRESS',
@@ -46,12 +63,14 @@ export const MAINTENANCE_STATUSES = {
   CANCELLED: 'CANCELLED',
 } as const;
 
+/** Facility booking status values */
 export const BOOKING_STATUSES = {
   CONFIRMED: 'CONFIRMED',
   CANCELLED: 'CANCELLED',
   COMPLETED: 'COMPLETED',
 } as const;
 
+/** Main navigation links for authenticated users */
 export const NAV_LINKS = [
   { href: '/', page: 'home' },
   { href: '/directory', page: 'directory' },
@@ -62,11 +81,13 @@ export const NAV_LINKS = [
   { href: '/interest', page: 'interest' },
 ] as const;
 
+/** Public navigation links for unauthenticated users */
 export const PUBLIC_NAV_LINKS = [
   { href: '/', page: 'home' },
   { href: '/conservation', page: 'conservation' },
 ] as const;
 
+/** Admin panel navigation links */
 export const ADMIN_LINKS = [
   { href: '/admin/users', page: 'Users' },
   { href: '/admin/content', page: 'Content' },
@@ -74,6 +95,7 @@ export const ADMIN_LINKS = [
   { href: '/admin/requests', page: 'Requests' },
 ] as const;
 
+/** Available interest categories for user profiles */
 export const INTEREST_CATEGORIES = [
   'gardening',
   'fitness',
@@ -88,6 +110,7 @@ export const INTEREST_CATEGORIES = [
   'arts',
 ] as const;
 
+/** Display names for interest categories */
 export const INTERESTS_DISPLAY: Record<string, string> = {
   gardening: 'Gardening',
   fitness: 'Fitness',
@@ -102,6 +125,7 @@ export const INTERESTS_DISPLAY: Record<string, string> = {
   arts: 'Arts',
 };
 
+/** Tailwind CSS color classes for interest categories */
 export const INTEREST_COLORS: Record<string, string> = {
   gardening: 'bg-green-500',
   conservation: 'bg-green-600',
@@ -135,6 +159,7 @@ export const INTEREST_COLORS: Record<string, string> = {
   Sports: 'bg-blue-500',
 };
 
+/** Available card header background colors */
 export const CARD_HEADER_COLORS = [
   'bg-soralia-primary',
   'bg-blue-500',
@@ -143,6 +168,7 @@ export const CARD_HEADER_COLORS = [
   'bg-orange-500',
 ] as const;
 
+/** Tailwind CSS animation classes for cards */
 export const CARD_ANIMATIONS = {
   hover: 'hover:scale-[1.02] hover:shadow-xl',
   transition: 'transition-all duration-300 ease-in-out',
@@ -152,12 +178,14 @@ export const CARD_ANIMATIONS = {
   transform: 'transform',
 } as const;
 
+/** Resident type classifications */
 export const RESIDENT_TYPES = {
   OWNER: 'OWNER',
   RENTER: 'RENTER',
 } as const;
 export type ResidentType = keyof typeof RESIDENT_TYPES;
 
+/** Streets in Soralia Village */
 export const STREETS = [
   'Pagoda Rd',
   'Wild Almond Rd',

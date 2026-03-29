@@ -3,6 +3,11 @@ import { hasPermission, Permission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+/**
+ * Retrieves session and role from the request for API routes.
+ * @param request - Incoming HTTP request
+ * @returns Session data with user ID and role, or null if not authenticated
+ */
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,
@@ -24,6 +29,10 @@ async function getSessionAndRole(request: Request) {
   };
 }
 
+/**
+ * GET /api/groups - List all active community groups
+ * Requires authentication. Residents can view groups, admins can manage.
+ */
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
 
@@ -51,6 +60,16 @@ export async function GET(request: Request) {
   return NextResponse.json(groups);
 }
 
+/**
+ * POST /api/groups - Create a new community group
+ * Requires groups or groupsOwn permission
+ * @body name - Group name
+ * @body description - Group description
+ * @body category - Group category
+ * @body image - Optional image URL
+ * @body isPublic - Whether group is publicly visible
+ * @body ownerId - Optional owner ID (defaults to authenticated user)
+ */
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
   if (!authData) {

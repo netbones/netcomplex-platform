@@ -3,6 +3,11 @@ import { hasPermission, canManageOwnGroupOnly, Permission } from '@/lib/permissi
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+/**
+ * Retrieves the current user session and role from Better Auth.
+ * @returns {Promise<{session: Session, userId: string, role: string} | null>}
+ *   Session data with user ID and role, or null if not authenticated
+ */
 export async function getSessionAndRole() {
   const session = await auth.api.getSession({
     headers: new Headers(),
@@ -24,6 +29,11 @@ export async function getSessionAndRole() {
   };
 }
 
+/**
+ * Requires the authenticated user to have a specific permission.
+ * @param permission - The permission to check
+ * @returns {NextResponse | null} - Error response if unauthorized, null if authorized
+ */
 export async function requirePermission(
   permission: keyof Permission
 ): Promise<NextResponse | null> {
@@ -40,6 +50,12 @@ export async function requirePermission(
   return null;
 }
 
+/**
+ * Requires the authenticated user to have a specific permission OR be a group admin.
+ * Allows group admins to manage their own group's content.
+ * @param permission - The permission to check
+ * @returns {NextResponse | null} - Error response if unauthorized, null if authorized
+ */
 export async function requireOwnPermission(
   permission: keyof Permission
 ): Promise<NextResponse | null> {
@@ -59,6 +75,11 @@ export async function requireOwnPermission(
   return null;
 }
 
+/**
+ * Requires the authenticated user to have at least one of the specified permissions.
+ * @param permissions - Array of permissions where any match grants access
+ * @returns {NextResponse | null} - Error response if unauthorized, null if authorized
+ */
 export async function requireAnyPermission(
   permissions: Array<keyof Permission>
 ): Promise<NextResponse | null> {

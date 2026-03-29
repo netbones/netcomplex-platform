@@ -4,6 +4,10 @@ import { twoFactor, organization, admin, bearer } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
 import { prisma } from './prisma';
 
+/**
+ * Better Auth configuration for Soralia Village.
+ * Configured with Prisma adapter, two-factor auth, organization support, and passkey.
+ */
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: 'postgresql',

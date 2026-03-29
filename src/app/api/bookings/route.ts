@@ -1,6 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+/**
+ * GET /api/bookings - List facility bookings
+ * @query facility - Filter by POOL, GYM, COMMUNITY_CENTER, TENNIS, BBQ_AREA
+ * @query date - Filter bookings from this date onwards
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const facility = searchParams.get('facility');
@@ -23,6 +28,15 @@ export async function GET(request: Request) {
   return NextResponse.json(bookings);
 }
 
+/**
+ * POST /api/bookings - Create a new facility booking
+ * @body userId - User ID (defaults to demo-user-id)
+ * @body facility - Facility to book
+ * @body date - Booking date
+ * @body startTime - Start time
+ * @body endTime - End time
+ * @body purpose - Purpose of booking
+ */
 export async function POST(request: Request) {
   const body = await request.json();
 

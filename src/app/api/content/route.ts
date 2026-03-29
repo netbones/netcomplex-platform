@@ -3,6 +3,11 @@ import { hasPermission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+/**
+ * Retrieves session and role from the request for API routes.
+ * @param request - Incoming HTTP request
+ * @returns Session data with user ID and role, or null if not authenticated
+ */
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,
@@ -24,6 +29,13 @@ async function getSessionAndRole(request: Request) {
   };
 }
 
+/**
+ * GET /api/content - List content/announcements
+ * @query category - Filter by NEWS, ANNOUNCEMENT, EVENT, or BLOG
+ * @query published - Filter by published status (true/false)
+ * @query featured - Filter by featured (true/false)
+ * @query groupId - Filter by group ID
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
@@ -49,6 +61,17 @@ export async function GET(request: Request) {
   return NextResponse.json(content);
 }
 
+/**
+ * POST /api/content - Create new content (requires content permission)
+ * @body title - Content title
+ * @body content - Content body
+ * @body excerpt - Optional excerpt
+ * @body category - Content category
+ * @body authorId - Author user ID
+ * @body groupId - Optional group ID
+ * @body featured - Whether featured
+ * @body published - Whether published
+ */
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
