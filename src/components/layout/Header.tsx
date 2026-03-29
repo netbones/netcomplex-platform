@@ -189,9 +189,22 @@ export function Header() {
             <div className="flex items-center space-x-3">
               <Link
                 href="/dashboard"
-                className="bg-white/20 py-2 px-4 rounded-md hover:bg-white/30 transition"
+                className="flex items-center space-x-2 bg-white/20 py-1.5 px-3 rounded-md hover:bg-white/30 transition"
               >
-                {session.user.name || session.user.email}
+                {session.user.image ? (
+                  <img
+                    src={session.user.image}
+                    alt=""
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-xs font-medium">
+                    {(session.user.name || session.user.email || '?').charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <span className="text-sm font-medium hidden sm:inline">
+                  {session.user.name || session.user.email?.split('@')[0]}
+                </span>
               </Link>
               <button
                 onClick={handleSignOut}
