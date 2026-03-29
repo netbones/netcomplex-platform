@@ -174,8 +174,93 @@ function DashboardContent() {
             <Bookshelf userId={session.user.id} editable={true} />
           </div>
         )}
+
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">My Content</h2>
+            <Link
+              href="/admin/content/new"
+              className="text-sm text-indigo-600 hover:text-indigo-800"
+            >
+              + Create New
+            </Link>
+          </div>
+          <UserContentList />
+        </div>
       </div>
     </main>
+  );
+}
+
+function UserContentList() {
+  const { data: session } = authClient.useSession();
+  const [content, setContent] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    fetch(`/api/content?authorId=${session.user.id}`)
+      .then(res => res.json())
+      .then(data => {
+        setContent(Array.isArray(data) ? data : []);
+      })
+      .catch(() => setContent([]))
+      .finally(() => setLoading(false));
+  }, [session?.user?.id]);
+
+  if (loading) {
+    return <div className="animate-pulse h-20 bg-gray-100 rounded"></div>;
+  }
+
+  if (content.length === 0) {
+    return (
+      <p className="text-gray-500 text-sm text-center py-4">
+        No content yet.{' '}
+        <Link href="/admin/content/new" className="text-indigo-600 hover:underline">
+          Create your first post!
+        </Link>
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {content.map(item => (
+        <div
+          key={item.id}
+          className="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-slate-100 transition"
+        >
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-gray-900 truncate">{item.title}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span
+                className={`text-xs px-2 py-0.5 rounded ${
+                  item.published ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                }`}
+              >
+                {item.published ? 'Published' : 'Draft'}
+              </span>
+              <span className="text-xs text-gray-500">{item.category}</span>
+              {item.publishedAt && (
+                <span className="text-xs text-gray-400">
+                  {new Date(item.publishedAt).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 ml-4">
+            <Link
+              href={`/admin/content/${item.id}`}
+              className="p-2 text-gray-500 hover:text-indigo-600"
+              title="Edit"
+            >
+              <i className="fas fa-edit"></i>
+            </Link>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 

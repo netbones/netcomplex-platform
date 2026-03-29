@@ -36,6 +36,7 @@ async function getSessionAndRole(request: Request) {
  * @query published - Filter by published status (true/false)
  * @query featured - Filter by featured (true/false)
  * @query groupId - Filter by group ID
+ * @query authorId - Filter by author ID
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -43,6 +44,7 @@ export async function GET(request: Request) {
   const published = searchParams.get('published');
   const featured = searchParams.get('featured');
   const groupId = searchParams.get('groupId');
+  const authorId = searchParams.get('authorId');
 
   const where: Record<string, unknown> = {};
   if (category && category in ContentCategoryEnum) {
@@ -51,10 +53,11 @@ export async function GET(request: Request) {
   if (published !== null) where.published = published === 'true';
   if (featured === 'true') where.featured = true;
   if (groupId) where.groupId = groupId;
+  if (authorId) where.authorId = authorId;
 
   const content = await prisma.content.findMany({
     where,
-    orderBy: { publishedAt: 'desc' },
+    orderBy: { createdAt: 'desc' },
     include: {
       author: { select: { id: true, name: true } },
       group: { select: { id: true, name: true } },
