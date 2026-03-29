@@ -179,53 +179,49 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2 md:gap-4">
+          {session && (
+            <button
+              onClick={() => setIsDrawerOpen(true)}
+              className="p-2 rounded-md hover:bg-white/20 ml-auto"
+              aria-label="Open menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          )}
+
           <Suspense fallback={<div className="w-16 h-6 bg-white/20 rounded" />}>
             <LanguageSwitcher />
           </Suspense>
 
-          <div className="md:hidden">
-            {session && (
-              <button
-                onClick={() => setIsDrawerOpen(true)}
-                className="p-2 rounded-md hover:bg-white/20"
-                aria-label="Open menu"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              </button>
-            )}
-          </div>
-
-          <div className="hidden md:block">
-            {isPending ? (
-              <div className="w-20 h-8 bg-white/20 rounded animate-pulse" />
-            ) : session ? (
-              <div className="flex items-center space-x-3">
-                <Link
-                  href="/dashboard"
-                  className="bg-white/20 py-2 px-4 rounded-md hover:bg-white/30 transition"
-                >
-                  {session.user.name || session.user.email}
-                </Link>
-                <button onClick={handleSignOut} className="text-sm hover:underline">
-                  {t('nav.logout')}
-                </button>
-              </div>
-            ) : (
+          {isPending ? (
+            <div className="w-20 h-8 bg-white/20 rounded animate-pulse" />
+          ) : session ? (
+            <div className="flex items-center space-x-3">
               <Link
-                href="/sign-in"
-                className="bg-white text-soralia-primary py-2 px-4 rounded-md hover:bg-gray-100 transition"
+                href="/dashboard"
+                className="bg-white/20 py-2 px-4 rounded-md hover:bg-white/30 transition"
               >
-                {t('nav.login')}
+                {session.user.name || session.user.email}
               </Link>
-            )}
-          </div>
+              <button onClick={handleSignOut} className="text-sm hover:underline">
+                {t('nav.logout')}
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/sign-in"
+              className="bg-white text-soralia-primary py-2 px-4 rounded-md hover:bg-gray-100 transition"
+            >
+              {t('nav.login')}
+            </Link>
+          )}
         </div>
 
         <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
