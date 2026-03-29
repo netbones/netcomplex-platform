@@ -32,6 +32,7 @@ interface Resident {
   phone: string | null;
   interests: string[];
   avatar: string | null;
+  homeImage: string | null;
   isPublic: boolean;
   residentType?: ResidentType;
   role?: string;
@@ -132,14 +133,14 @@ export default function HomePage() {
               id: '1',
               image: '/carousel/1.jpg',
               title: 'For Sale',
-              subtitle: '4 Bedroom Family Home',
+              subtitle: '2 Bedroom Family Home',
               link: '#',
             },
             {
               id: '2',
               image: '/carousel/2.jpg',
               title: 'To Let',
-              subtitle: 'Modern Apartment',
+              subtitle: 'Modern Lifestyle',
               link: '#',
             },
             {
@@ -314,7 +315,7 @@ export default function HomePage() {
                   <div
                     className={`p-4 ${viewMode === 'list' ? 'flex-1 flex items-center gap-8' : ''}`}
                   >
-                    <div>
+                    <div className={resident.homeImage && viewMode === 'grid' ? 'flex-1' : ''}>
                       <div className="flex items-center mb-2">
                         <i
                           className="fas fa-home text-soralia-secondary mr-2"
@@ -348,17 +349,26 @@ export default function HomePage() {
                           )}
                         </>
                       )}
+                      {interestList.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {interestList.map((interest, i) => (
+                            <span
+                              key={i}
+                              className={`text-xs text-white px-2 py-1 rounded-full ${INTEREST_COLORS[interest] || 'bg-gray-500'}`}
+                            >
+                              {interest}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    {interestList.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {interestList.map((interest, i) => (
-                          <span
-                            key={i}
-                            className={`text-xs text-white px-2 py-1 rounded-full ${INTEREST_COLORS[interest] || 'bg-gray-500'}`}
-                          >
-                            {interest}
-                          </span>
-                        ))}
+                    {resident.homeImage && viewMode === 'grid' && (
+                      <div className="w-20 h-20 flex-shrink-0">
+                        <img
+                          src={resident.homeImage}
+                          alt={`${resident.name}'s home`}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
                       </div>
                     )}
                   </div>
