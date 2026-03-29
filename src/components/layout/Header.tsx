@@ -125,7 +125,7 @@ export function Header() {
         />
       </svg>
       <div className="container mx-auto px-4 py-4 flex justify-between items-center relative z-10">
-        <div className="flex items-center space-x-3">
+        <Link href="/" className="flex items-center space-x-3">
           <img
             src="/logo.png"
             alt="Soralia Village Logo"
@@ -135,7 +135,7 @@ export function Header() {
             <h1 className="text-2xl font-bold">{t('app.name')}</h1>
             <p className="text-xs opacity-75">{t('app.tagline')}</p>
           </div>
-        </div>
+        </Link>
 
         <nav className="hidden md:flex space-x-6">
           <Link
