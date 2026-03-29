@@ -25,6 +25,7 @@ const ADMIN_LINKS = [
   { href: '/admin/groups', label: 'groups', icon: 'users' },
   { href: '/admin/content', label: 'content', icon: 'file' },
   { href: '/admin/requests', label: 'requests', icon: 'tool' },
+  { href: '/admin/surveys', label: 'surveys', icon: 'chart' },
 ];
 
 interface SideDrawerProps {

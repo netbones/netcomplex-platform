@@ -25,7 +25,8 @@
     "users": "Users",
     "groups": "Groups",
     "content": "Content",
-    "requests": "Requests"
+    "requests": "Requests",
+    "surveys": "Surveys"
   },
   "common": {
     "search": "Search...",

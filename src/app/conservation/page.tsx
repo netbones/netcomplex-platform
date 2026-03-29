@@ -7,6 +7,7 @@ async function getContent() {
       published: true,
     },
     orderBy: { publishedAt: 'desc' },
+    take: 3,
     include: {
       author: {
         select: { name: true },

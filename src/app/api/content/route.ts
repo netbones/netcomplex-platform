@@ -1,11 +1,30 @@
-import { requirePermission } from '@/lib/auth-utils';
+import { auth } from '@/lib/auth';
+import { hasPermission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
-export async function GET(request: Request) {
-  const authError = await requirePermission('content');
-  if (authError) return authError;
+async function getSessionAndRole(request: Request) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
 
+  if (!session?.user?.id) {
+    return null;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true },
+  });
+
+  return {
+    session,
+    userId: session.user.id,
+    role: user?.role || 'RESIDENT',
+  };
+}
+
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
   const published = searchParams.get('published');
@@ -31,6 +50,16 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const authData = await getSessionAndRole(request);
+
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (!hasPermission(authData.role, 'content')) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const body = await request.json();
 
   const content = await prisma.content.create({
