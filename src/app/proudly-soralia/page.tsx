@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 const values = [
   {
     icon: 'fa-handshake',
@@ -21,11 +23,11 @@ const values = [
   },
 ];
 
-const stats = [
-  { value: '180', label: 'Homes' },
-  { value: '15+', label: 'Years of Community' },
-  { value: '47', label: 'Bird Species' },
-  { value: '150+', label: 'Native Plants' },
+const defaultStats = [
+  { key: 'homes', value: '180', label: 'Homes' },
+  { key: 'years', value: '15+', label: 'Years of Community' },
+  { key: 'birdSpecies', value: '47', label: 'Bird Species' },
+  { key: 'nativePlants', value: '150+', label: 'Native Plants' },
 ];
 
 const testimonials = [
@@ -47,6 +49,35 @@ const testimonials = [
 ];
 
 export default function ProudlySoraliaPage() {
+  const [stats, setStats] = useState(defaultStats);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/stats');
+        if (res.ok) {
+          const data = await res.json();
+          setStats([
+            { key: 'homes', value: String(data.homes || 180), label: 'Homes' },
+            { key: 'years', value: String(data.years || '15+'), label: 'Years of Community' },
+            { key: 'birdSpecies', value: String(data.birdSpecies || 47), label: 'Bird Species' },
+            {
+              key: 'nativePlants',
+              value: String(data.nativePlants || '150+'),
+              label: 'Native Plants',
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="bg-gradient-to-r from-indigo-600 to-green-600 rounded-lg shadow-lg p-8 mb-8 text-white text-center">
@@ -75,60 +106,26 @@ export default function ProudlySoraliaPage() {
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map(stat => (
-            <div key={stat.label} className="text-center">
-              <div className="text-4xl font-bold text-indigo-600 mb-2">{stat.value}</div>
+            <div key={stat.key} className="text-center">
+              <div className="text-4xl font-bold text-indigo-600 mb-2">
+                {loading ? '...' : stat.value}
+              </div>
               <div className="text-gray-600">{stat.label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
-          What Our Residents Say
-        </h2>
+      <div className="bg-white rounded-lg shadow-md p-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Resident Stories</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map(testimonial => (
-            <div key={testimonial.name} className="bg-gray-50 rounded-lg p-6">
-              <i className={`fas ${testimonial.icon} text-2xl text-indigo-600 mb-4`}></i>
-              <p className="text-gray-700 mb-4 italic">&ldquo;{testimonial.text}&rdquo;</p>
-              <p className="font-semibold text-gray-900">- {testimonial.name}</p>
+          {testimonials.map(t => (
+            <div key={t.name} className="text-center p-4">
+              <i className={`fas ${t.icon} text-4xl text-indigo-600 mb-4`}></i>
+              <p className="text-gray-700 mb-4 italic">"{t.text}"</p>
+              <p className="font-semibold text-gray-900">- {t.name}</p>
             </div>
           ))}
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md p-8 mb-8 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Aloe in Wonderland</h2>
-        <p className="text-gray-600 mb-6">
-          Annual Photography Competition celebrating our indigenous flora
-        </p>
-        <a
-          href="/competition"
-          className="inline-block bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors font-semibold"
-        >
-          <i className="fas fa-camera mr-2"></i>View Competition
-        </a>
-      </div>
-
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-8 text-white text-center">
-        <h2 className="text-3xl font-bold mb-4">Join Our Community</h2>
-        <p className="text-xl opacity-90 mb-6">
-          Become part of something special. Experience the Soralia Village lifestyle today.
-        </p>
-        <div className="flex justify-center gap-4">
-          <a
-            href="/directory"
-            className="bg-white text-indigo-600 py-3 px-6 rounded-lg hover:bg-gray-100 transition-colors font-semibold"
-          >
-            <i className="fas fa-users mr-2"></i>Meet Your Neighbors
-          </a>
-          <a
-            href="/contact"
-            className="bg-transparent border-2 border-white text-white py-3 px-6 rounded-lg hover:bg-white hover:text-indigo-600 transition-colors font-semibold"
-          >
-            <i className="fas fa-envelope mr-2"></i>Contact Us
-          </a>
         </div>
       </div>
     </div>
