@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
-import { supportedLanguages, languageNames, type SupportedLanguage } from '@/lib/i18n';
+import { supportedLanguages, type SupportedLanguage } from '@/lib/i18n';
 
 export function LanguageSwitcher() {
   const { i18n, ready } = useTranslation();
@@ -34,12 +34,12 @@ export function LanguageSwitcher() {
       >
         {supportedLanguages.map(lang => (
           <option key={lang} value={lang} className="bg-indigo-600 text-white">
-            {lang.toUpperCase()} - {languageNames[lang]}
+            {lang.toUpperCase()}
           </option>
         ))}
       </select>
-      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-        {languageNames[currentLang]}
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-amber-500 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+        {currentLang.toUpperCase()}
       </div>
     </div>
   );
