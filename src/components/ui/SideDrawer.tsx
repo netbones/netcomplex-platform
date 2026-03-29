@@ -65,10 +65,10 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 transition-opacity" onClick={onClose} />
+        <div className="fixed inset-0 bg-black/50 z-[90] transition-opacity" onClick={onClose} />
       )}
       <aside
-        className={`fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg z-50 transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg z-[100] transform transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
