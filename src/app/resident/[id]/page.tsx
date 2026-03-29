@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Bookshelf } from '@/components/ui/Bookshelf';
+import { Pagination } from '@/components/ui/Pagination';
 
 interface UserProfile {
   id: string;
@@ -195,27 +196,12 @@ function ProfileContent() {
                 ))}
             </div>
             {Math.ceil(user.contents.length / contentsPerPage) > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-6 pt-4 border-t border-gray-200">
-                <button
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                  className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 hover:bg-gray-50"
-                >
-                  ← Prev
-                </button>
-                <span className="text-sm text-gray-500">
-                  Page {page} of {Math.ceil(user.contents.length / contentsPerPage)}
-                </span>
-                <button
-                  onClick={() =>
-                    setPage(p => Math.min(Math.ceil(user.contents.length / contentsPerPage), p + 1))
-                  }
-                  disabled={page >= Math.ceil(user.contents.length / contentsPerPage)}
-                  className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 hover:bg-gray-50"
-                >
-                  Next →
-                </button>
-              </div>
+              <Pagination
+                currentPage={page}
+                totalPages={Math.ceil(user.contents.length / contentsPerPage)}
+                onPageChange={setPage}
+                className="mt-6 pt-4 border-t border-gray-200"
+              />
             )}
           </div>
         </div>

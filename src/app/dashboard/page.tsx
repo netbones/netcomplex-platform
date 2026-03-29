@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Bookshelf } from '@/components/ui/Bookshelf';
+import { Pagination } from '@/components/ui/Pagination';
 
 interface StatCardProps {
   title: string;
@@ -293,25 +294,12 @@ function UserContentList() {
       ))}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-4">
-          <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 hover:bg-gray-50"
-          >
-            ← Prev
-          </button>
-          <span className="text-sm text-gray-500">
-            Page {page} of {totalPages}
-          </span>
-          <button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 hover:bg-gray-50"
-          >
-            Next →
-          </button>
-        </div>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          className="mt-4"
+        />
       )}
     </div>
   );
