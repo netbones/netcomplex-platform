@@ -17,7 +17,11 @@ const DASHBOARD_LINKS = [
   { href: '/maintenance', label: 'maintenance', icon: 'tool' },
   { href: '/bookings', label: 'bookings', icon: 'calendar' },
   { href: '/messages', label: 'messages', icon: 'mail' },
+];
+
+const SETTINGS_LINKS = [
   { href: '/notifications', label: 'notifications', icon: 'bell' },
+  { href: '/settings', label: 'settings', icon: 'cog' },
 ];
 
 const ADMIN_LINKS = [
@@ -105,9 +109,31 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
             </Link>
           ))}
 
+          <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+
+          <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+            Settings
+          </div>
+          {SETTINGS_LINKS.map(link => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={onClose}
+              className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
+                isActive(link.href)
+                  ? 'bg-soralia-primary text-white'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
+            >
+              <NavIcon name={link.icon} />
+              <span>{t(`nav.${link.label}`)}</span>
+            </Link>
+          ))}
+
           {(canManageUsers || canManageContent || canManageGroups || canManageRequests) && (
             <>
-              <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-6 mb-2">
+              <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+              <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
                 Admin
               </div>
               {ADMIN_LINKS.map(link => {
