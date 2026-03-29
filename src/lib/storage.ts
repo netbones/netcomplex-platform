@@ -1,14 +1,14 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
 
 const s3Client = new S3Client({
   endpoint: process.env.STORAGE_ENDPOINT,
-  region: 'auto',
+  region: process.env.STORAGE_REGION || 'auto',
   credentials: {
     accessKeyId: process.env.ACCESS_KEY_ID!,
     secretAccessKey: process.env.SECRET_ACCESS_KEY!,
   },
+  forcePathStyle: true,
 });
 
 const BUCKET_NAME = process.env.STORAGE_BUCKET || 'content-images';
@@ -34,25 +34,21 @@ export async function uploadImage(file: File): Promise<UploadResult> {
   }
 
   try {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
     const ext = file.name.split('.').pop() || 'jpg';
     const key = `uploads/${uuidv4()}.${ext}`;
 
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
+      Body: buffer,
       ContentType: file.type,
       ACL: 'public-read' as const,
     });
 
-    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 });
-
-    await fetch(signedUrl, {
-      method: 'PUT',
-      body: file,
-      headers: {
-        'Content-Type': file.type,
-      },
-    });
+    await s3Client.send(command);
 
     const publicUrl = `${process.env.STORAGE_ENDPOINT}/${BUCKET_NAME}/${key}`;
     return { url: publicUrl };
