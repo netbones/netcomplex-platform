@@ -37,7 +37,7 @@
 **Why:**
 
 1. **Next.js 16 native** - Works out of the box with Turbopack
-2. **Stack Auth compatibility** - No aliasing needed
+2. **Better Auth compatibility** - No aliasing needed
 3. **Full ecosystem** - All third-party components work
 4. **Turbopack** - Fast dev builds and optimized production builds
 
@@ -498,11 +498,11 @@ DATABASE_URL="postgresql://..."
 
 ## 6. API Endpoints
 
-### Authentication (Stack Auth)
+### Authentication (Better Auth)
 
-- Handled by Stack Auth SDK (no custom API needed)
-- `POST /api/auth/sign-in` - Stack Auth handles
-- `POST /api/auth/sign-up` - Stack Auth handles
+- Handled by Better Auth SDK (no custom API needed)
+- `POST /api/auth/sign-in` - Better Auth handles
+- `POST /api/auth/sign-up` - Better Auth handles
 
 ### Users
 
@@ -658,10 +658,10 @@ const validate = (data: FormData): boolean => {
 
 ### Auth Components
 
-- `<SignIn />` - Stack Auth built-in sign-in
-- `<SignUp />` - Stack Auth built-in sign-up
-- `<PasswordReset />` - Stack Auth built-in
-- `<UserButton />` - Stack Auth user menu
+- `<SignIn />` - Better Auth built-in sign-in
+- `<SignUp />` - Better Auth built-in sign-up
+- `<PasswordReset />` - Better Auth built-in
+- `<UserButton />` - Better Auth user menu
 
 ### Directory Components
 
@@ -734,10 +734,9 @@ const validate = (data: FormData): boolean => {
 ## 9. Environment Variables
 
 ```env
-# Stack Auth (Authentication only)
-STACK_PUBLISHABLE_KEY="pk_live_..."
-STACK_PROJECT_ID="proj_..."
-STACK_API_KEY="sk_..."
+# Better Auth (Authentication only)
+BETTER_AUTH_URL="https://your-domain.com"
+BETTER_AUTH_SECRET="your-secret-key"
 
 # Supabase (Database + Real-time)
 DATABASE_URL="postgresql://postgres:password@db.xxx.supabase.co:5432/postgres"
@@ -756,8 +755,8 @@ CLOUDINARY_API_SECRET=""
 
 ## 10. Security Requirements
 
-1. **Password Handling:** Stack Auth manages securely
-2. **Session:** Stack Auth HTTP-only cookies
+1. **Password Handling:** Better Auth manages securely
+2. **Session:** Better Auth HTTP-only cookies
 3. **CSRF:** Built-in Next.js protection
 4. **Rate Limiting:** Vercel Edge or Upstash Redis
 5. **Input Validation:** Zod schemas on all forms
@@ -903,9 +902,8 @@ export async function POST() {
   "framework": "nextjs",
   "regions": ["cpt1"],
   "env": {
-    "STACK_PUBLISHABLE_KEY": "@soralia-stack-publishable",
-    "STACK_PROJECT_ID": "@soralia-stack-project",
-    "STACK_API_KEY": "@solar ia-stack-api"
+    "BETTER_AUTH_URL": "@soralia-better-auth-url",
+    "BETTER_AUTH_SECRET": "@soralia-better-auth-secret"
   }
 }
 ```
@@ -924,7 +922,7 @@ module.exports = {
     },
   },
   webpack: config => {
-    // Preact aliasing for Stack Auth
+    // Preact aliasing for Better Auth
     Object.keys(config.resolve.alias).forEach(alias => {
       if (alias.startsWith('react')) {
         delete config.resolve.alias[alias];
@@ -948,7 +946,7 @@ module.exports = {
 
 ### Critical Test Flows
 
-1. User registration and login (Stack Auth)
+1. User registration and login (Better Auth)
 2. Directory search and filtering
 3. Maintenance request submission
 4. Facility booking flow
@@ -984,7 +982,7 @@ module.exports = {
 ## 15. Migration Path from Current Demo
 
 1. **Setup** - Initialize Next.js with Preact aliasing
-2. **Auth** - Integrate Stack Auth SDK
+2. **Auth** - Integrate Better Auth SDK
 3. **Components** - Port current HTML pages to React components
 4. **Data** - Create Prisma schema and seed data
 5. **API** - Build serverless API routes

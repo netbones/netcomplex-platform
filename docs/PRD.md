@@ -23,7 +23,7 @@
 ### Current Implementation (Completed)
 
 - **Stack:** Next.js 14 (App Router) with React + Turbopack
-- **Auth:** Stack Auth integrated (with SSR handling)
+- **Auth:** Better Auth integrated (with SSR handling)
 - **Database:** Supabase PostgreSQL with Prisma ORM
 - **Real-time:** Supabase Realtime prepared for messaging
 - **Forms:** React Hook Form + Zod v3 validation
@@ -55,7 +55,7 @@
 
 Transform Soralia Village from a static demo into a fully functional SPA with:
 
-- **Stack Auth** for secure user authentication
+- **Better Auth** for secure user authentication
 - **Prisma + Supabase PostgreSQL** for data persistence
 - **Supabase Realtime** for real-time messaging
 - **Next.js 16 SPA architecture** with React
@@ -81,7 +81,7 @@ Transform Soralia Village from a static demo into a fully functional SPA with:
 
 ## Functional Requirements
 
-### 1. Authentication (Stack Auth)
+### 1. Authentication (Better Auth)
 
 - Email/password registration and login
 - Social login (Google, Apple)
@@ -187,7 +187,7 @@ Transform Soralia Village from a static demo into a fully functional SPA with:
 | --------- | ----------------------- | ----------------------------------------------- |
 | Frontend  | Next.js 14 + React      | App Router, SSR/SSG, Turbopack for fast builds  |
 | Styling   | Tailwind CSS v3         | Already in use, efficient                       |
-| Auth      | Stack Auth              | Full auth solution, pre-built UI components     |
+| Auth      | Better Auth             | Full auth solution, pre-built UI components     |
 | Database  | PostgreSQL via Supabase | Serverless Postgres + real-time, Prisma support |
 | ORM       | Prisma 5                | Type-safe, excellent Supabase integration       |
 | Real-time | Supabase Realtime       | Chat/messaging, notifications                   |
@@ -383,7 +383,7 @@ enum MessageType { TEXT, IMAGE, SYSTEM }
 - Next.js project setup with Preact
 - Supabase PostgreSQL database
 - Prisma schema implementation
-- Stack Auth integration
+- Better Auth integration
 - Basic auth pages (login/register)
 
 ### Phase 2: Core Features (Weeks 3-4)
@@ -419,13 +419,13 @@ enum MessageType { TEXT, IMAGE, SYSTEM }
 
 ## Feasibility Assessment
 
-| Factor         | Assessment                                             |
-| -------------- | ------------------------------------------------------ |
-| Complexity     | Medium - Standard SPA with auth                        |
-| Dependencies   | Well-supported (Next.js, Prisma, Supabase, Stack Auth) |
-| Data Migration | Static demo data → JSON seed → Database                |
-| Timeline       | 8-10 weeks for full implementation                     |
-| Risk           | Low - Proven stack, extensive documentation            |
+| Factor         | Assessment                                              |
+| -------------- | ------------------------------------------------------- |
+| Complexity     | Medium - Standard SPA with auth                         |
+| Dependencies   | Well-supported (Next.js, Prisma, Supabase, Better Auth) |
+| Data Migration | Static demo data → JSON seed → Database                 |
+| Timeline       | 8-10 weeks for full implementation                      |
+| Risk           | Low - Proven stack, extensive documentation             |
 
 ### Risks & Mitigations
 
@@ -440,7 +440,7 @@ enum MessageType { TEXT, IMAGE, SYSTEM }
 
 ## Acceptance Criteria
 
-- [x] Users can register and log in securely (Stack Auth)
+- [x] Users can register and log in securely (Better Auth)
 - [x] Residents can view and search the directory
 - [x] Interest groups with join/leave functionality
 - [x] CMS with Tiptap rich text editor (admin content management)
