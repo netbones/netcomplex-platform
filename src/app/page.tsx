@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { useTranslation } from 'react-i18next';
 import {
   STREETS,
   CARD_HEADER_COLORS,
@@ -35,6 +36,7 @@ interface Resident {
 }
 
 export default function HomePage() {
+  const { t } = useTranslation('common');
   const [residents, setResidents] = useState<Resident[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -106,14 +108,14 @@ export default function HomePage() {
     <div className="container mx-auto px-4 py-8">
       {/* Community Map */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-2xl font-bold text-soralia-dark mb-6">Our Community</h2>
+        <h2 className="text-2xl font-bold text-soralia-dark mb-6">{t('home.ourCommunity')}</h2>
         <div className="h-96 w-full bg-gray-100 rounded-lg mb-4">
           <CommunityMap />
         </div>
         <div className="mt-4 text-sm text-gray-600">
-          <p>Explore our beautiful neighborhood. Click on streets to see residents.</p>
+          <p>{t('home.exploreMap')}</p>
           <p className="mt-2">
-            Map data ©{' '}
+            {t('home.mapData')}{' '}
             <a
               href="https://www.openstreetmap.org/copyright"
               target="_blank"
@@ -121,7 +123,7 @@ export default function HomePage() {
             >
               OpenStreetMap
             </a>{' '}
-            contributors
+            {t('home.mapContributors')}
           </p>
         </div>
       </div>
@@ -129,8 +131,8 @@ export default function HomePage() {
       {/* Dashboard Promo */}
       <div className="bg-gradient-to-r from-soralia-primary to-soralia-secondary rounded-lg shadow-md p-8 mb-8 text-white">
         <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold mb-2">Resident Dashboard</h2>
-          <p className="text-lg opacity-90">Experience our comprehensive resident portal</p>
+          <h2 className="text-3xl font-bold mb-2">{t('home.residentDashboard')}</h2>
+          <p className="text-lg opacity-90">{t('home.dashboardSubtitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -138,28 +140,22 @@ export default function HomePage() {
             <div className="bg-white bg-opacity-20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <i className="fas fa-tachometer-alt text-2xl" aria-hidden="true"></i>
             </div>
-            <h3 className="font-semibold mb-2">Real-time Updates</h3>
-            <p className="text-sm opacity-90">
-              Get instant notifications about community events, maintenance, and announcements
-            </p>
+            <h3 className="font-semibold mb-2">{t('home.realTimeUpdates')}</h3>
+            <p className="text-sm opacity-90">{t('home.realTimeUpdatesDesc')}</p>
           </div>
           <div className="text-center">
             <div className="bg-white bg-opacity-20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <i className="fas fa-tools text-2xl" aria-hidden="true"></i>
             </div>
-            <h3 className="font-semibold mb-2">Maintenance Requests</h3>
-            <p className="text-sm opacity-90">
-              Submit and track maintenance requests with photo uploads and status updates
-            </p>
+            <h3 className="font-semibold mb-2">{t('home.maintenanceRequests')}</h3>
+            <p className="text-sm opacity-90">{t('home.maintenanceRequestsDesc')}</p>
           </div>
           <div className="text-center">
             <div className="bg-white bg-opacity-20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <i className="fas fa-calendar-check text-2xl" aria-hidden="true"></i>
             </div>
-            <h3 className="font-semibold mb-2">Facility Booking</h3>
-            <p className="text-sm opacity-90">
-              Reserve community spaces, view availability, and manage your bookings
-            </p>
+            <h3 className="font-semibold mb-2">{t('home.facilityBooking')}</h3>
+            <p className="text-sm opacity-90">{t('home.facilityBookingDesc')}</p>
           </div>
         </div>
 
@@ -169,20 +165,22 @@ export default function HomePage() {
             className="inline-block bg-white text-indigo-600 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors shadow-lg"
           >
             <i className="fas fa-external-link-alt mr-2" aria-hidden="true"></i>
-            View Dashboard
+            {t('home.viewDashboard')}
           </Link>
         </div>
       </div>
 
       {/* Search and Filters */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-2xl font-bold text-soralia-dark mb-6">Community Directory</h2>
+        <h2 className="text-2xl font-bold text-soralia-dark mb-6">
+          {t('home.communityDirectory')}
+        </h2>
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-grow">
             <input
               type="text"
-              placeholder="Search by name, address, or interests..."
+              placeholder={t('home.searchPlaceholder')}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-soralia-primary"
@@ -190,34 +188,34 @@ export default function HomePage() {
             <i className="fas fa-search absolute left-3 top-3 text-gray-400" aria-hidden="true"></i>
           </div>
           <button className="bg-soralia-primary text-white py-2 px-6 rounded-md hover:bg-indigo-700 transition">
-            Search
+            {t('home.search')}
           </button>
         </div>
 
         <div className="flex flex-wrap gap-4">
           <div className="flex items-center">
-            <label className="mr-2 text-sm text-gray-700">Filter:</label>
+            <label className="mr-2 text-sm text-gray-700">{t('home.filter')}:</label>
             <select
               value={filterType}
               onChange={e => setFilterType(e.target.value)}
               className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-soralia-primary"
             >
-              <option>All Residents</option>
-              <option>Board Members</option>
-              <option>Committee Members</option>
-              <option>Renters</option>
-              <option>Owners</option>
+              <option>{t('home.allResidents')}</option>
+              <option>{t('home.boardMembers')}</option>
+              <option>{t('home.committeeMembers')}</option>
+              <option>{t('home.renters')}</option>
+              <option>{t('home.owners')}</option>
             </select>
           </div>
 
           <div className="flex items-center">
-            <label className="mr-2 text-sm text-gray-700">Street:</label>
+            <label className="mr-2 text-sm text-gray-700">{t('home.street')}:</label>
             <select
               value={filterStreet}
               onChange={e => setFilterStreet(e.target.value)}
               className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-soralia-primary"
             >
-              <option>All Streets</option>
+              <option>{t('home.allStreets')}</option>
               {STREETS.map(street => (
                 <option key={street}>{street}</option>
               ))}
@@ -225,11 +223,11 @@ export default function HomePage() {
           </div>
 
           <div className="flex items-center">
-            <label className="mr-2 text-sm text-gray-700">Sort by:</label>
+            <label className="mr-2 text-sm text-gray-700">{t('home.sortBy')}:</label>
             <select className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-soralia-primary">
-              <option>Name (A-Z)</option>
-              <option>Name (Z-A)</option>
-              <option>Street</option>
+              <option>{t('home.nameAZ')}</option>
+              <option>{t('home.nameZA')}</option>
+              <option>{t('home.street')}</option>
               <option>Unit Number</option>
             </select>
           </div>
@@ -240,10 +238,12 @@ export default function HomePage() {
       <div className="mb-8">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-soralia-dark">
-            {loading ? 'Loading...' : `Showing ${filteredResidents.length} residents`}
+            {loading
+              ? t('home.loading')
+              : t('home.showingResidents', { count: filteredResidents.length })}
           </h3>
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">View:</span>
+            <span className="text-sm text-gray-600">{t('home.view')}:</span>
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
@@ -261,7 +261,7 @@ export default function HomePage() {
 
         {loading ? (
           <div className="text-center py-12">
-            <p className="text-gray-500">Loading residents...</p>
+            <p className="text-gray-500">{t('home.loading')}</p>
           </div>
         ) : (
           <div
@@ -310,10 +310,10 @@ export default function HomePage() {
                         ></i>
                         <span className="text-sm text-gray-600">
                           {resident.residentType === RESIDENT_TYPES.OWNER
-                            ? 'Owner'
+                            ? t('home.owner')
                             : resident.residentType === RESIDENT_TYPES.RENTER
-                              ? 'Renter'
-                              : resident.role || 'Resident'}
+                              ? t('home.renter')
+                              : resident.role || t('home.resident')}
                         </span>
                       </div>
                       {resident.isPublic && (
@@ -363,17 +363,17 @@ export default function HomePage() {
               disabled={page === 1}
               className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Previous
+              {t('home.previous')}
             </button>
             <span className="text-sm text-gray-600">
-              Page {page} of {Math.ceil(total / limit)}
+              {t('home.page', { current: page, total: Math.ceil(total / limit) })}
             </span>
             <button
               onClick={() => setPage(p => p + 1)}
               disabled={page >= Math.ceil(total / limit)}
               className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Next
+              {t('home.next')}
             </button>
           </div>
         )}
