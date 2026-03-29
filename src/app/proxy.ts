@@ -50,6 +50,7 @@ export async function proxy(request: Request): Promise<NextResponse> {
     { path: '/dashboard', permission: 'directory' },
     { path: '/admin', permission: 'users' },
     { path: '/admin/surveys', permission: 'content' },
+    { path: '/admin/categories', permission: 'settings' },
     { path: '/maintenance', permission: 'requests' },
     { path: '/bookings', permission: 'bookings' },
     { path: '/events', permission: 'events' },
