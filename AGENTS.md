@@ -16,7 +16,7 @@ Check PRD.md and SPEC.md for details.
 | Frontend   | Next.js 14 (App Router) + Preact |
 | Language   | TypeScript                       |
 | Styling    | Tailwind CSS                     |
-| Auth       | Stack Auth                       |
+| Auth       | Better Auth                      |
 | Database   | PostgreSQL via Supabase          |
 | ORM        | Prisma                           |
 | Real-time  | Supabase Realtime (chat)         |
@@ -112,7 +112,7 @@ DELETE /api/[resource]/[id]    # Delete
 
 ### Authentication
 
-- Protected routes check Stack Auth session
+- Protected routes check Better Auth session
 - User ID available from session in API routes
 - Role-based access (resident, board, admin)
 
@@ -166,10 +166,9 @@ soralia-village/
 ## Environment Variables
 
 ```env
-# Stack Auth
-STACK_PUBLISHABLE_KEY=""
-STACK_PROJECT_ID=""
-STACK_API_KEY=""
+# Better Auth
+BETTER_AUTH_URL=""
+BETTER_AUTH_SECRET=""
 
 # Supabase
 DATABASE_URL=""
@@ -255,8 +254,8 @@ npm install
 
 Key packages:
 
-- `@stackframe/stack-server` - Stack Auth
-- `@stackframe/stack-client` - Stack Auth client
+- `@better-auth/expo` - Better Auth
+- `@better-auth/expo` - Better Auth client
 - `@supabase/supabase-js` - Supabase client
 - `@prisma/client` - Prisma client
 - `@tanstack/react-query` - Data fetching
