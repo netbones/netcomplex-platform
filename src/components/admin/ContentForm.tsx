@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { contentSchema, type ContentFormData } from '@/lib/schemas';
 import { authClient } from '@/lib/auth-client';
@@ -50,9 +51,12 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
   });
 
   const onSubmit = async (data: ContentFormData) => {
+    const isEditing = !!initialData?.id;
+    const loadingToast = toast.loading(isEditing ? 'Updating...' : 'Creating...');
+
     try {
-      const method = initialData?.id ? 'PATCH' : 'POST';
-      const url = initialData?.id ? `/api/content/${initialData.id}` : '/api/content';
+      const method = isEditing ? 'PATCH' : 'POST';
+      const url = isEditing ? `/api/content/${initialData.id}` : '/api/content';
 
       const res = await fetch(url, {
         method,
@@ -61,13 +65,20 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
       });
 
       if (res.ok) {
+        toast.success(isEditing ? 'Content updated!' : 'Content created!');
         const redirectTo =
           baseRedirect || (session?.user?.id ? `/resident/${session.user.id}` : '/dashboard');
         router.push(redirectTo);
         router.refresh();
+      } else {
+        const error = await res.json();
+        toast.error(error.error || 'Failed to save content');
       }
     } catch (error) {
       console.error('Error saving content:', error);
+      toast.error('Something went wrong');
+    } finally {
+      toast.dismiss(loadingToast);
     }
   };
 
