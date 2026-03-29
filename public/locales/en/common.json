@@ -12,12 +12,21 @@
     "conservation": "Conservation",
     "groups": "Groups",
     "interest": "Interests",
+    "interestMy": "My Interests",
     "maintenance": "Maintenance",
+    "maintenanceRequests": "Maintenance Requests",
     "bookings": "Bookings",
     "messages": "Messages",
     "notifications": "Notifications",
     "login": "Sign In",
-    "logout": "Sign Out"
+    "logout": "Sign Out",
+    "admin": "Admin",
+    "adminGroups": "Interest Groups",
+    "adminContent": "Content Management",
+    "adminSurveys": "Surveys",
+    "adminSurveysNew": "New Survey",
+    "adminExternal": "External Surveys",
+    "adminCategories": "Categories"
   },
   "footer": {
     "description": "A premier residential community in Cape Town, offering modern living with exceptional amenities and services.",

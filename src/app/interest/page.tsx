@@ -1,8 +1,9 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { authClient } from '@/lib/auth-client';
 
@@ -153,6 +154,7 @@ export default function InterestPage() {
 }
 
 function InterestContent() {
+  const { t } = useTranslation('common');
   const searchParams = useSearchParams();
   const groupId = searchParams.get('group') || 'gardening';
   const group = interestGroups[groupId] || interestGroups.gardening;
@@ -177,7 +179,7 @@ function InterestContent() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Interests' }]} />
+      <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.interestMy') }]} />
 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Interest Groups</h1>

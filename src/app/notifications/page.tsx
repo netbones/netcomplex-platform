@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 
 interface Notification {
@@ -15,6 +16,7 @@ interface Notification {
 }
 
 export default function NotificationsPage() {
+  const { t } = useTranslation('common');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
@@ -52,7 +54,9 @@ export default function NotificationsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Notifications' }]} />
+      <Breadcrumbs
+        items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.notifications') }]}
+      />
 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>

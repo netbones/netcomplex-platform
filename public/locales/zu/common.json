@@ -12,12 +12,21 @@
     "conservation": "Ukugcinwa",
     "groups": "Amagatsha",
     "interest": "Izinto Ozinothando",
+    "interestMy": "Izinto zami Ezinothando",
     "maintenance": "Ukunakekelwa",
+    "maintenanceRequests": "Izicelo zokunakekelwa",
     "bookings": "Amabhenebhuki",
     "messages": "Umlando",
     "notifications": "Izaziso",
     "login": "Ngena",
-    "logout": "Phuma"
+    "logout": "Phuma",
+    "admin": "Admin",
+    "adminGroups": "Amagatsha anempela",
+    "adminContent": "Ulawulo lwesiqu",
+    "adminSurveys": "Izilingo",
+    "adminSurveysNew": "Isilingo esitsha",
+    "adminExternal": "Izilingo zangaphandle",
+    "adminCategories": "Iindidi"
   },
   "footer": {
     "description": "Umphakathi wokuhlala eTheku, onikezela ngobomi bokuhlala kwanamasevisi anokuhlanganiswa.",

@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { authClient } from '@/lib/auth-client';
 import { INTEREST_CATEGORIES } from '@/lib/constants';
@@ -19,6 +20,7 @@ interface Group {
 }
 
 export default function GroupsHubPage() {
+  const { t } = useTranslation('common');
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -69,7 +71,7 @@ export default function GroupsHubPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Groups' }]} />
+      <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.groups') }]} />
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Interest Groups</h1>
         <p className="text-gray-600">Connect with neighbors who share your interests</p>

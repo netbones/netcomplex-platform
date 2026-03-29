@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { CARD_ANIMATIONS } from '@/lib/constants';
 
@@ -141,6 +142,7 @@ const contacts = [
 ];
 
 export default function ResourcesPage() {
+  const { t } = useTranslation('common');
   const [quickLinks, setQuickLinks] = useState(defaultQuickLinks);
   const [documents, setDocuments] = useState<ResourceItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -175,7 +177,7 @@ export default function ResourcesPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Resources' }]} />
+      <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.resources') }]} />
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Community Resources</h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">

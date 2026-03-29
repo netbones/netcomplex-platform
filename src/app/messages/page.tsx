@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 
@@ -14,6 +15,7 @@ interface Conversation {
 const currentUserId = 'demo-user-id';
 
 export default function MessagesPage() {
+  const { t } = useTranslation('common');
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,7 +38,7 @@ export default function MessagesPage() {
   return (
     <main className="min-h-screen bg-soralia-light">
       <div className="container mx-auto px-4 py-8">
-        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Messages' }]} />
+        <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.messages') }]} />
         <h1 className="text-4xl font-bold text-soralia-primary mb-8">Messages</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

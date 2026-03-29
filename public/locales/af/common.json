@@ -12,12 +12,21 @@
     "conservation": "Bewaring",
     "groups": "Groepe",
     "interest": "Belange",
+    "interestMy": "My Belange",
     "maintenance": "Instandhouding",
+    "maintenanceRequests": "Instandhouding Versoeke",
     "bookings": "Besprekings",
     "messages": "Boodskappe",
     "notifications": "Kennisgewings",
     "login": "Teken aan",
-    "logout": "Teken uit"
+    "logout": "Teken uit",
+    "admin": "Admin",
+    "adminGroups": "Belange Groepe",
+    "adminContent": "Inhoud Bestuur",
+    "adminSurveys": "Opnames",
+    "adminSurveysNew": "Nuwe Opname",
+    "adminExternal": "Eksterne Opnames",
+    "adminCategories": "Kategorieë"
   },
   "footer": {
     "description": "'n Eerste residensiële gemeenskap in Kaapstad, wat moderne lewe bied met uitsonderlike geriewe en dienste.",

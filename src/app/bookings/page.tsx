@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { BookingForm } from '@/components/booking/BookingForm';
 
@@ -25,6 +26,7 @@ const facilityLabels: Record<string, string> = {
 };
 
 export default function BookingsPage() {
+  const { t } = useTranslation('common');
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -47,7 +49,7 @@ export default function BookingsPage() {
   return (
     <main className="min-h-screen bg-soralia-light">
       <div className="container mx-auto px-4 py-8">
-        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Bookings' }]} />
+        <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.bookings') }]} />
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-soralia-primary">Facility Bookings</h1>
           <button

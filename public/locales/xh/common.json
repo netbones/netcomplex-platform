@@ -12,12 +12,21 @@
     "conservation": "Ulondolozo",
     "groups": "Amagqitho",
     "interest": "Iimfuno",
+    "interestMy": "Iimfuno zam",
     "maintenance": "Ukugcinwa",
+    "maintenanceRequests": "Iimfuno zokugcinwa",
     "bookings": "Amabhengezo",
     "messages": "Imiyalezo",
     "notifications": "Iimpazamo",
     "login": "Ngena",
-    "logout": "Phuma"
+    "logout": "Phuma",
+    "admin": "Admin",
+    "adminGroups": "Amagqitho anomdla",
+    "adminContent": "Ulawulo lwexwebhu",
+    "adminSurveys": "Izilingo",
+    "adminSurveysNew": "Isilingo esitsha",
+    "adminExternal": "Izilingo zasemaphandleni",
+    "adminCategories": "Iindidi"
   },
   "footer": {
     "description": "Umphakathi wokuhlala eKapa, onikezela ngobomi bokuhlala kwanamagosa anobulungisa.",
