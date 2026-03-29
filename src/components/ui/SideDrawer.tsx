@@ -72,7 +72,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{t('app.name')}</h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
