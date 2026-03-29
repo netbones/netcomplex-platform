@@ -22,7 +22,8 @@ interface Resident {
 }
 
 export default function DirectoryPage() {
-  const { t } = useTranslation('common');
+  const [mounted, setMounted] = useState(false);
+  const { t, ready } = useTranslation('common');
   const [residents, setResidents] = useState<Resident[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -32,6 +33,10 @@ export default function DirectoryPage() {
   const [filterType, setFilterType] = useState('All Residents');
   const [filterStreet, setFilterStreet] = useState('All Streets');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     async function fetchResidents() {
@@ -76,6 +81,19 @@ export default function DirectoryPage() {
     const debounce = setTimeout(fetchResidents, search ? 300 : 0);
     return () => clearTimeout(debounce);
   }, [search, filterStreet, filterType, page]);
+
+  if (!mounted || !ready) {
+    return (
+      <main className="min-h-screen bg-soralia-light">
+        <div className="container mx-auto px-4 py-8">
+          <div className="animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-32 mb-6"></div>
+            <div className="h-8 bg-gray-200 rounded w-64 mb-8"></div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-soralia-light">
