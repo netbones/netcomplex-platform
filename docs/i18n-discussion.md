@@ -41,9 +41,38 @@ Currently there is no way for non-technical team members to:
 - No separation of concerns between UI code and translations
 - Risk of merge conflicts when multiple people work on translations
 
+### 4. Database Content Localization (CRITICAL)
+
+Our Content table uses Tiptap editor for rich text content. The current schema stores content in a single language (usually English), but pages like:
+
+- `/services` - Fetches from Content table (category: SERVICES)
+- `/resources` - Fetches from Content table (category: RESOURCES)
+- `/conservation` - Fetches from Content table (category: CONSERVATION)
+
+These pages pull from the database but ignore the user's language preference. Even if the user selects Afrikaans, they still see English content from the database.
+
+**Root Cause:** No locale field on Content model, no i18n strategy for Tiptap content.
+
+**Solution Options:**
+
+| Strategy                   | Description                                            | Best For              |
+| -------------------------- | ------------------------------------------------------ | --------------------- |
+| Column per locale          | Add title_en, title_af, content_en, content_af columns | Fixed languages (2-4) |
+| Separate translation table | Normalize into ContentTranslation table                | Many languages        |
+| JSON column                | Store as JSONB: `{ "en": "...", "af": "..." }`         | PostgreSQL, flexible  |
+
+**Recommended:** JSON column approach - add `title: JSONB` and `content: JSONB` to Content model, with fallback logic to default language.
+
+**Tiptap Integration:**
+
+- Tiptap doesn't have native i18n plugin for editor UI
+- Store Tiptap JSON output in database per locale
+- Render Tiptap content based on user's selected language
+- Editor shows language selector to create/edit per-locale content
+
 ## Proposed Solution
 
-### Option A: Wire Up JSON Files (Recommended)
+### Option A: Wire Up JSON Files (Recommended for UI)
 
 1. **Install backend**: `npm install i18next-http-backend`
 2. **Configure i18n**: Update `src/lib/i18n.ts` to load from `public/locales/`
@@ -70,12 +99,41 @@ Benefits:
 
 Keep inline translations for development speed, but set up TMS for production with professional human translation.
 
+### Option D: Database i18n (Content)
+
+For Tiptap-generated content:
+
+1. Modify Content model schema:
+
+   ```prisma
+   model Content {
+     id        String  @id @default(cuid())
+     category  String
+     title     Json    // { "en": "...", "af": "..." }
+     content   Json    // Tiptap JSON per locale
+     excerpt   Json?
+     published Boolean @default(false)
+     // ...
+   }
+   ```
+
+2. Add fallback logic in API:
+
+   ```typescript
+   function getLocalizedContent(content: any, locale: string) {
+     return content[locale] || content['en'] || Object.values(content)[0];
+   }
+   ```
+
+3. Add language selector to admin editor for multi-locale content creation
+
 ## Recommended Next Steps
 
-1. **Wire up existing JSON files** (Option A) - Low effort, immediate improvement
-2. **Create style guide** - Define terminology standards for each language
-3. **Native speaker review** - Get Afrikaans/Xhosa/Zulu speakers to review key strings
-4. **Consider professional translation** - For critical user-facing content (legal, safety)
+1. **Wire up existing JSON files** (Option A) - Low effort, immediate improvement ✓ DONE
+2. **Add locale field to Content model** (Option D) - For database content
+3. **Create style guide** - Define terminology standards for each language
+4. **Native speaker review** - Get Afrikaans/Xhosa/Zulu speakers to review key strings
+5. **Consider professional translation** - For critical user-facing content (legal, safety)
 
 ## Files of Interest
 
@@ -84,7 +142,9 @@ Keep inline translations for development speed, but set up TMS for production wi
 - `public/locales/af/common.json` - Afrikaans (partial)
 - `public/locales/xh/common.json` - Xhosa (partial)
 - `public/locales/zu/common.json` - Zulu (partial)
+- `prisma/schema.prisma` - Content model (needs locale support)
 
 ## Related Issues
 
 - soralia-village-8iy: Setup proper i18n workflow with external translation files
+- soralia-village-l23: Epic: i18n for all pages (database content localization needed)
