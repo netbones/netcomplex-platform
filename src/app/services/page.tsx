@@ -138,23 +138,6 @@ export default function ServicesPage() {
     setMounted(true);
   }, []);
 
-  if (!mounted || !ready) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-32 mb-6"></div>
-          <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-96 mx-auto"></div>
-        </div>
-      </div>
-    );
-  }
-
-  const handleServiceRequest = async (serviceId: string, serviceTitle: string) => {
-    setSelectedService(serviceTitle);
-    setFormData(prev => ({ ...prev, serviceType: serviceId }));
-  };
-
   useEffect(() => {
     async function fetchContent() {
       try {
@@ -182,6 +165,23 @@ export default function ServicesPage() {
     }
     fetchContent();
   }, []);
+
+  const handleServiceRequest = async (serviceId: string, serviceTitle: string) => {
+    setSelectedService(serviceTitle);
+    setFormData(prev => ({ ...prev, serviceType: serviceId }));
+  };
+
+  if (!mounted || !ready) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="animate-pulse">
+          <div className="h-4 bg-gray-200 rounded w-32 mb-6"></div>
+          <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-96 mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
