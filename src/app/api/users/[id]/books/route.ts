@@ -6,12 +6,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const user = await prisma.user.findUnique({
     where: { id },
-    select: { id: true },
+    select: { books: true },
   });
 
   if (!user) {
     return NextResponse.json({ books: [] }, { status: 404 });
   }
 
-  return NextResponse.json({ books: [] });
+  const books = Array.isArray(user.books) ? user.books : [];
+  return NextResponse.json({ books });
 }
