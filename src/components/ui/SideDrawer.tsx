@@ -27,6 +27,7 @@ const ADMIN_LINKS = [
   { href: '/admin/content', label: 'content', icon: 'file' },
   { href: '/admin/requests', label: 'requests', icon: 'tool' },
   { href: '/admin/surveys', label: 'surveys', icon: 'chart' },
+  { href: '/admin/external-surveys', label: 'external', icon: 'external-link-alt' },
   { href: '/admin/categories', label: 'categories', icon: 'tags' },
 ];
 
