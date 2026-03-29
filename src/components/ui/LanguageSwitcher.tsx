@@ -18,7 +18,7 @@ export function LanguageSwitcher() {
         className="bg-transparent text-sm text-white border border-white/30 rounded px-2 py-1"
         disabled
       >
-        <option value="en">Loading...</option>
+        <option value="en">en</option>
       </select>
     );
   }
@@ -31,12 +31,13 @@ export function LanguageSwitcher() {
       onChange={e => {
         i18n.changeLanguage(e.target.value);
       }}
-      className="bg-transparent text-sm text-white border border-white/30 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-white/50"
+      className="bg-transparent text-sm text-white border border-white/30 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-white/50 cursor-pointer"
       aria-label="Select language"
+      title={languageNames[currentLang]}
     >
       {supportedLanguages.map(lang => (
         <option key={lang} value={lang} className="text-gray-800">
-          {languageNames[lang]}
+          {lang}
         </option>
       ))}
     </select>
