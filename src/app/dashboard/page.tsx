@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Bookshelf } from '@/components/ui/Bookshelf';
 
 interface StatCardProps {
   title: string;
@@ -158,7 +159,7 @@ function DashboardContent() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">{t('communityEvents')}</h2>
           <div className="text-center py-8 text-gray-500">
             <p>{t('noEvents')}</p>
@@ -167,6 +168,12 @@ function DashboardContent() {
             </Link>
           </div>
         </div>
+
+        {session?.user?.id && (
+          <div className="mb-8">
+            <Bookshelf userId={session.user.id} editable={true} />
+          </div>
+        )}
       </div>
     </main>
   );
