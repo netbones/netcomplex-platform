@@ -193,7 +193,10 @@ export function Header() {
               >
                 {session.user.name || session.user.email}
               </Link>
-              <button onClick={handleSignOut} className="text-sm hover:underline">
+              <button
+                onClick={handleSignOut}
+                className="bg-white/20 text-white py-2 px-4 rounded-md hover:bg-white/30 transition text-sm"
+              >
                 {t('nav.logout')}
               </button>
             </div>
