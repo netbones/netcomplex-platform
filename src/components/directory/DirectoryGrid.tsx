@@ -8,6 +8,7 @@ import type { ResidentType } from '@/lib/constants';
 import { authClient } from '@/lib/auth-client';
 import { useState } from 'react';
 import { ChatModal } from './DirectoryChatModal';
+import Link from 'next/link';
 
 interface Resident {
   id: string;
@@ -55,8 +56,9 @@ function ResidentCard({
   canChat: boolean;
 }) {
   return (
-    <div
-      className={`bg-white rounded-lg shadow-md overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out ${CARD_ANIMATIONS.transition}`}
+    <Link
+      href={`/resident/${resident.id}`}
+      className={`block bg-white rounded-lg shadow-md overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out ${CARD_ANIMATIONS.transition}`}
     >
       <div className={`${headerColor} p-4 text-white`}>
         <div className="flex items-center gap-3">
@@ -168,7 +170,7 @@ function ResidentCard({
           </>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
 
