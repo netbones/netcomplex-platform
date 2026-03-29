@@ -50,7 +50,7 @@ export async function uploadImage(file: File): Promise<UploadResult> {
 
     await s3Client.send(command);
 
-    const publicUrl = `${process.env.STORAGE_ENDPOINT}/${BUCKET_NAME}/${key}`;
+    const publicUrl = `${process.env.STORAGE_ENDPOINT}/object/public/${BUCKET_NAME}/${key}`;
     return { url: publicUrl };
   } catch (error) {
     console.error('Upload error:', error);
