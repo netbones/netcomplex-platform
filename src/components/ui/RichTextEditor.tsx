@@ -27,6 +27,9 @@ export function RichTextEditor({
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [showMediaLib, setShowMediaLib] = useState(false);
+  const [mediaImages, setMediaImages] = useState<any[]>([]);
+  const [loadingMedia, setLoadingMedia] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -125,6 +128,24 @@ export function RichTextEditor({
     }
   };
 
+  const openMediaLibrary = () => {
+    setLoadingMedia(true);
+    setShowMediaLib(true);
+    fetch('/api/media')
+      .then(res => res.json())
+      .then(data => {
+        setMediaImages(data.images || []);
+      })
+      .catch(() => toast.error('Failed to load media'))
+      .finally(() => setLoadingMedia(false));
+  };
+
+  const insertFromMediaLib = (url: string) => {
+    editor?.chain().focus().setImage({ src: url }).run();
+    setShowMediaLib(false);
+    toast.success('Image inserted!');
+  };
+
   const handleDraftSave = useCallback(() => {
     if (editor && onDraftSave) {
       onDraftSave(editor.getHTML());
@@ -210,13 +231,21 @@ export function RichTextEditor({
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
           className={`p-2 rounded hover:bg-gray-200 ${uploading ? 'opacity-50' : ''}`}
-          title="Insert Image"
+          title="Upload Image"
         >
           {uploading ? (
             <i className="fas fa-spinner fa-spin"></i>
           ) : (
-            <i className="fas fa-image"></i>
+            <i className="fas fa-upload"></i>
           )}
+        </button>
+        <button
+          type="button"
+          onClick={openMediaLibrary}
+          className="p-2 rounded hover:bg-gray-200"
+          title="Media Library"
+        >
+          <i className="fas fa-photo-video"></i>
         </button>
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
         <button
@@ -262,6 +291,43 @@ export function RichTextEditor({
         className="hidden"
         onChange={handleFileSelect}
       />
+
+      {showMediaLib && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b flex items-center justify-between">
+              <h3 className="font-semibold">Media Library</h3>
+              <button
+                onClick={() => setShowMediaLib(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto max-h-[60vh]">
+              {loadingMedia ? (
+                <div className="text-center py-8">Loading...</div>
+              ) : mediaImages.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">
+                  No images in your library. Upload some first!
+                </p>
+              ) : (
+                <div className="grid grid-cols-4 gap-2">
+                  {mediaImages.map(img => (
+                    <button
+                      key={img.key}
+                      onClick={() => insertFromMediaLib(img.url)}
+                      className="aspect-square rounded overflow-hidden border-2 border-transparent hover:border-indigo-500 transition-colors"
+                    >
+                      <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
