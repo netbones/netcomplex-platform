@@ -313,9 +313,11 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div
-                    className={`p-4 ${viewMode === 'list' ? 'flex-1 flex items-center gap-8' : ''}`}
+                    className={`p-4 flex gap-4 ${viewMode === 'list' ? 'flex-1 items-center' : 'items-start'}`}
                   >
-                    <div className={resident.homeImage && viewMode === 'grid' ? 'flex-1' : ''}>
+                    <div
+                      className={resident.homeImage && viewMode === 'grid' ? 'flex-1' : 'flex-1'}
+                    >
                       <div className="flex items-center mb-2">
                         <i
                           className="fas fa-home text-soralia-secondary mr-2"
