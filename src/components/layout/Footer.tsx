@@ -26,10 +26,7 @@ export function Footer() {
                 <p className="text-sm text-gray-300">{t('app.tagline')}</p>
               </div>
             </div>
-            <p className="text-gray-300 text-sm mb-4">
-              A premier residential community in Cape Town, offering modern living with exceptional
-              amenities and services.
-            </p>
+            <p className="text-gray-300 text-sm mb-4">{t('footer.description')}</p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-300 hover:text-soralia-accent transition-colors">
                 <i className="fab fa-facebook text-xl" aria-hidden="true"></i>
@@ -47,7 +44,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+            <h4 className="text-lg font-semibold mb-4">{t('footer.quickLinks')}</h4>
             <ul className="space-y-2">
               <li>
                 <Link
@@ -94,21 +91,21 @@ export function Footer() {
                   href="/dashboard"
                   className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
                 >
-                  Dashboard
+                  {t('nav.dashboard')}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-4">Services</h4>
+            <h4 className="text-lg font-semibold mb-4">{t('footer.services')}</h4>
             <ul className="space-y-2">
               <li>
                 <Link
                   href="/services#maintenance"
                   className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
                 >
-                  Maintenance
+                  {t('footer.maintenance')}
                 </Link>
               </li>
               <li>
@@ -116,7 +113,7 @@ export function Footer() {
                   href="/services#security"
                   className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
                 >
-                  Security
+                  {t('footer.security')}
                 </Link>
               </li>
               <li>
@@ -124,7 +121,7 @@ export function Footer() {
                   href="/services#landscaping"
                   className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
                 >
-                  Landscaping
+                  {t('footer.landscaping')}
                 </Link>
               </li>
               <li>
@@ -132,7 +129,7 @@ export function Footer() {
                   href="/services#amenities"
                   className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
                 >
-                  Amenities
+                  {t('footer.amenities')}
                 </Link>
               </li>
               <li>
@@ -140,14 +137,14 @@ export function Footer() {
                   href="/resources#events"
                   className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
                 >
-                  Events
+                  {t('footer.events')}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-4">Contact Us</h4>
+            <h4 className="text-lg font-semibold mb-4">{t('footer.contactUs')}</h4>
             <div className="space-y-3">
               <div className="flex items-start space-x-3">
                 <i
@@ -180,8 +177,8 @@ export function Footer() {
               <div className="flex items-center space-x-3">
                 <i className="fas fa-clock text-soralia-accent" aria-hidden="true"></i>
                 <div>
-                  <p className="text-gray-300 text-sm">Office Hours:</p>
-                  <p className="text-gray-300 text-sm">Mon-Fri: 8AM-5PM</p>
+                  <p className="text-gray-300 text-sm">{t('footer.officeHours')}:</p>
+                  <p className="text-gray-300 text-sm">{t('footer.officeHoursValue')}</p>
                 </div>
               </div>
             </div>
@@ -189,14 +186,16 @@ export function Footer() {
         </div>
 
         <div className="border-t border-gray-600 pt-8 mb-8">
-          <h4 className="text-lg font-semibold mb-4 text-center">Emergency Contacts</h4>
+          <h4 className="text-lg font-semibold mb-4 text-center">
+            {t('footer.emergencyContacts')}
+          </h4>
           {loading ? (
             <div className="text-center text-gray-400">Loading contacts...</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-red-600 rounded-lg p-4 text-center">
                 <i className="fas fa-exclamation-triangle text-2xl mb-2" aria-hidden="true"></i>
-                <h5 className="font-semibold">Emergency</h5>
+                <h5 className="font-semibold">{t('footer.emergency')}</h5>
                 <a
                   href={`tel:${formatPhone(contacts.emergency)}`}
                   className="text-sm hover:underline"
@@ -206,7 +205,7 @@ export function Footer() {
               </div>
               <div className="bg-orange-600 rounded-lg p-4 text-center">
                 <i className="fas fa-shield-alt text-2xl mb-2" aria-hidden="true"></i>
-                <h5 className="font-semibold">Security</h5>
+                <h5 className="font-semibold">{t('footer.security')}</h5>
                 <a
                   href={`tel:${formatPhone(contacts.security)}`}
                   className="text-sm hover:underline"
@@ -216,7 +215,7 @@ export function Footer() {
               </div>
               <div className="bg-green-600 rounded-lg p-4 text-center">
                 <i className="fas fa-tools text-2xl mb-2" aria-hidden="true"></i>
-                <h5 className="font-semibold">Maintenance</h5>
+                <h5 className="font-semibold">{t('footer.maintenance')}</h5>
                 <a
                   href={`tel:${formatPhone(contacts.maintenance)}`}
                   className="text-sm hover:underline"
@@ -232,8 +231,7 @@ export function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-center md:text-left mb-4 md:mb-0">
               <p className="text-gray-300 text-sm">
-                &copy; {new Date().getFullYear()} Soralia Village Homeowners Association. All rights
-                reserved.
+                &copy; {new Date().getFullYear()} {t('footer.copyright')}
               </p>
             </div>
             <div className="flex flex-wrap justify-center md:justify-end space-x-6">
@@ -241,25 +239,25 @@ export function Footer() {
                 href="/privacy"
                 className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
               >
-                Privacy Policy
+                {t('footer.privacy')}
               </Link>
               <Link
                 href="/terms"
                 className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
               >
-                Terms of Service
+                {t('footer.terms')}
               </Link>
               <Link
                 href="/guidelines"
                 className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
               >
-                Community Guidelines
+                {t('footer.guidelines')}
               </Link>
               <Link
                 href="/resources#contacts"
                 className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
               >
-                Contact
+                {t('footer.contact')}
               </Link>
             </div>
           </div>
