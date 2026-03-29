@@ -21,6 +21,8 @@ const CommunityMap = dynamic(
   }
 );
 
+import { Carousel } from '@/components/ui/Carousel';
+
 interface Resident {
   id: string;
   name: string;
@@ -142,6 +144,38 @@ export default function HomePage() {
             {t('home.mapContributors')}
           </p>
         </div>
+      </div>
+
+      {/* Carousel for For Sale / To Let / etc */}
+      <div className="mb-8">
+        <Carousel
+          items={[
+            {
+              id: 'for-sale',
+              image:
+                'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=400&fit=crop',
+              title: 'For Sale',
+              subtitle: '4 Bedroom Family Home - R2,450,000',
+              link: '#',
+            },
+            {
+              id: 'to-let',
+              image:
+                'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=400&fit=crop',
+              title: 'To Let',
+              subtitle: '2 Bedroom Apartment - R12,500/month',
+              link: '#',
+            },
+            {
+              id: 'community',
+              image:
+                'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=400&fit=crop',
+              title: 'Community Events',
+              subtitle: 'Join us for the annual street party!',
+              link: '#',
+            },
+          ]}
+        />
       </div>
 
       {/* Search and Filters */}
