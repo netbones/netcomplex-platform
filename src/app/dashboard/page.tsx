@@ -196,6 +196,9 @@ function UserContentList() {
   const { data: session } = authClient.useSession();
   const [content, setContent] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -224,42 +227,92 @@ function UserContentList() {
     );
   }
 
+  const totalPages = Math.ceil(content.length / itemsPerPage);
+  const paginatedContent = content.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
   return (
     <div className="space-y-2">
-      {content.map(item => (
-        <div
-          key={item.id}
-          className="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-slate-100 transition"
-        >
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-gray-900 truncate">{item.title}</p>
-            <div className="flex items-center gap-2 mt-1">
-              <span
-                className={`text-xs px-2 py-0.5 rounded ${
-                  item.published ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                }`}
-              >
-                {item.published ? 'Published' : 'Draft'}
-              </span>
-              <span className="text-xs text-gray-500">{item.category}</span>
-              {item.publishedAt && (
-                <span className="text-xs text-gray-400">
-                  {new Date(item.publishedAt).toLocaleDateString()}
+      {paginatedContent.map(item => (
+        <div key={item.id} className="border border-gray-200 rounded-lg overflow-hidden">
+          <div
+            className="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 transition cursor-pointer"
+            onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
+          >
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-gray-900">{item.title}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <span
+                  className={`text-xs px-2 py-0.5 rounded ${
+                    item.published ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                  }`}
+                >
+                  {item.published ? 'Published' : 'Draft'}
                 </span>
-              )}
+                <span className="text-xs text-gray-500">{item.category}</span>
+                {item.publishedAt && (
+                  <span className="text-xs text-gray-400">
+                    {new Date(item.publishedAt).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 ml-4">
+              <Link
+                href={`/admin/content/${item.id}`}
+                className="p-2 text-gray-500 hover:text-indigo-600"
+                title="Edit"
+                onClick={e => e.stopPropagation()}
+              >
+                <i className="fas fa-edit"></i>
+              </Link>
+              <i
+                className={`fas fa-chevron-down transition-transform ${
+                  expandedId === item.id ? 'rotate-180' : ''
+                }`}
+              ></i>
             </div>
           </div>
-          <div className="flex items-center gap-2 ml-4">
-            <Link
-              href={`/admin/content/${item.id}`}
-              className="p-2 text-gray-500 hover:text-indigo-600"
-              title="Edit"
-            >
-              <i className="fas fa-edit"></i>
-            </Link>
-          </div>
+          {expandedId === item.id && (
+            <div className="p-4 border-t border-gray-200 bg-white">
+              {item.excerpt && <p className="text-gray-600 text-sm mb-3">{item.excerpt}</p>}
+              <div
+                className="prose prose-sm max-w-none text-gray-700 line-clamp-3"
+                dangerouslySetInnerHTML={{ __html: item.content || '' }}
+              />
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <Link
+                  href={`/admin/content/${item.id}`}
+                  className="text-sm text-indigo-600 hover:underline"
+                >
+                  Continue reading →
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       ))}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-4">
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 hover:bg-gray-50"
+          >
+            ← Prev
+          </button>
+          <span className="text-sm text-gray-500">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="px-3 py-1 text-sm border border-gray-300 rounded disabled:opacity-50 hover:bg-gray-50"
+          >
+            Next →
+          </button>
+        </div>
+      )}
     </div>
   );
 }
