@@ -3,7 +3,11 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { common, createLowlight } from 'lowlight';
 import { useEffect, useCallback, useState } from 'react';
+
+const lowlight = createLowlight(common);
 
 interface RichTextEditorProps {
   content: string;
@@ -41,11 +45,10 @@ export function RichTextEditor({
             class: 'border-l-4 border-gray-400 pl-4 italic text-gray-600 my-4',
           },
         },
-        codeBlock: {
-          HTMLAttributes: {
-            class: 'bg-gray-900 text-green-400 p-4 rounded font-mono text-sm overflow-x-auto',
-          },
-        },
+        codeBlock: false,
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
       }),
       Placeholder.configure({
         placeholder: placeholder || 'Start writing...',
@@ -202,23 +205,26 @@ export function RichTextEditor({
         }
         .ProseMirror pre {
           background: #1f2937;
-          color: #4ade80;
+          color: #e5e7eb;
           padding: 1rem;
           border-radius: 0.5rem;
-          font-family: monospace;
+          font-family: 'Fira Code', 'Consolas', monospace;
           font-size: 0.875rem;
           overflow-x: auto;
+          margin: 1rem 0;
+        }
+        .ProseMirror pre code {
+          background: transparent;
+          padding: 0;
+          color: inherit;
         }
         .ProseMirror code {
           background: #e5e7eb;
           padding: 0.125rem 0.25rem;
           border-radius: 0.25rem;
-          font-family: monospace;
+          font-family: 'Fira Code', 'Consolas', monospace;
           font-size: 0.875rem;
-        }
-        .ProseMirror pre code {
-          background: transparent;
-          padding: 0;
+          color: #dc2626;
         }
         .ProseMirror p.is-editor-empty:first-child::before {
           content: attr(data-placeholder);
@@ -226,6 +232,37 @@ export function RichTextEditor({
           pointer-events: none;
           float: left;
           height: 0;
+        }
+        /* Syntax highlighting theme */
+        .hljs-keyword,
+        .hljs-selector-tag {
+          color: #c084fc;
+        }
+        .hljs-string,
+        .hljs-attr {
+          color: #86efac;
+        }
+        .hljs-number,
+        .hljs-literal {
+          color: #fb923c;
+        }
+        .hljs-comment {
+          color: #6b7280;
+          font-style: italic;
+        }
+        .hljs-function,
+        .hljs-title {
+          color: #60a5fa;
+        }
+        .hljs-variable,
+        .hljs-name {
+          color: #f472b6;
+        }
+        .hljs-built_in {
+          color: #34d399;
+        }
+        .hljs-type {
+          color: #fbbf24;
         }
       `}</style>
     </div>
