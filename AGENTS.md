@@ -1,12 +1,13 @@
 # Agent Instructions
 
-This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
+This project uses **pnpm** package manager and **bd** (beads) for issue tracking. Run `bd onboard` to get started.
 
 ---
 
 ## Project Overview
 
 **Soralia Village Community Portal** - A full-stack SPA for a residential community with 180 homes.
+Check PRD.md and SPEC.md for details.
 
 ### Tech Stack
 
