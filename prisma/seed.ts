@@ -6,6 +6,7 @@ import {
   UserGroup,
   ContentCategory,
   ResidentType,
+  ResidentFilter,
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -128,10 +129,82 @@ async function main() {
       update: {},
       create: {
         id: 'group-gardening',
-        name: 'Gardening Club',
-        description: 'Share tips, exchange plants, and grow beautiful gardens together.',
+        name: 'Gardening Group',
+        description: 'Share tips, seeds, and plants with fellow gardening enthusiasts.',
         category: 'gardening',
+        color: '#22c55e',
         isPublic: true,
+        residentFilter: ResidentFilter.ALL,
+        ownerId: users[0].id, // John
+      },
+    }),
+    prisma.group.upsert({
+      where: { id: 'group-fitness' },
+      update: {},
+      create: {
+        id: 'group-fitness',
+        name: 'Fitness Group',
+        description: 'Stay active with morning walks, yoga, and group workouts.',
+        category: 'fitness',
+        color: '#f59e0b',
+        isPublic: true,
+        residentFilter: ResidentFilter.ALL,
+        ownerId: users[2].id, // Michael
+      },
+    }),
+    prisma.group.upsert({
+      where: { id: 'group-book-club' },
+      update: {},
+      create: {
+        id: 'group-book-club',
+        name: 'Book Club',
+        description: 'Monthly book discussions and author visits.',
+        category: 'book-club',
+        color: '#8b5cf6',
+        isPublic: true,
+        residentFilter: ResidentFilter.ALL,
+        ownerId: users[3].id, // Emma
+      },
+    }),
+    prisma.group.upsert({
+      where: { id: 'group-cooking' },
+      update: {},
+      create: {
+        id: 'group-cooking',
+        name: 'Cooking Club',
+        description: 'Share recipes, potlucks, and cooking demonstrations.',
+        category: 'cooking',
+        color: '#ef4444',
+        isPublic: true,
+        residentFilter: ResidentFilter.ALL,
+        ownerId: users[3].id, // Emma
+      },
+    }),
+    prisma.group.upsert({
+      where: { id: 'group-photography' },
+      update: {},
+      create: {
+        id: 'group-photography',
+        name: 'Photography Club',
+        description: 'Capture beautiful moments in Soralia Village.',
+        category: 'photography',
+        color: '#06b6d4',
+        isPublic: true,
+        residentFilter: ResidentFilter.ALL,
+        ownerId: users[2].id, // Michael
+      },
+    }),
+    prisma.group.upsert({
+      where: { id: 'group-volunteering' },
+      update: {},
+      create: {
+        id: 'group-volunteering',
+        name: 'Volunteering Group',
+        description: 'Make a difference in our community through service.',
+        category: 'volunteering',
+        color: '#ec4899',
+        isPublic: true,
+        residentFilter: ResidentFilter.ALL,
         ownerId: users[1].id, // Sarah
       },
     }),
