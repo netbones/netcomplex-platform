@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Bookshelf } from '@/components/ui/Bookshelf';
 
 interface UserProfile {
   id: string;
@@ -180,6 +181,8 @@ function ProfileContent() {
           </div>
         </div>
       )}
+
+      <Bookshelf userId={user.id} />
     </div>
   );
 }
