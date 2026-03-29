@@ -124,28 +124,6 @@ export default function HomePage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Community Map */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-2xl font-bold text-soralia-dark mb-6">{t('home.ourCommunity')}</h2>
-        <div className="h-96 w-full bg-gray-100 rounded-lg mb-4">
-          <CommunityMap />
-        </div>
-        <div className="mt-4 text-sm text-gray-600">
-          <p>{t('home.exploreMap')}</p>
-          <p className="mt-2">
-            {t('home.mapData')}{' '}
-            <a
-              href="https://www.openstreetmap.org/copyright"
-              target="_blank"
-              className="text-soralia-primary hover:underline"
-            >
-              OpenStreetMap
-            </a>{' '}
-            {t('home.mapContributors')}
-          </p>
-        </div>
-      </div>
-
       {/* Carousel for For Sale / To Let / etc */}
       <div className="mb-8">
         <Carousel
@@ -180,6 +158,28 @@ export default function HomePage() {
             },
           ]}
         />
+      </div>
+
+      {/* Community Map */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 className="text-2xl font-bold text-soralia-dark mb-6">{t('home.ourCommunity')}</h2>
+        <div className="h-96 w-full bg-gray-100 rounded-lg mb-4">
+          <CommunityMap />
+        </div>
+        <div className="mt-4 text-sm text-gray-600">
+          <p>{t('home.exploreMap')}</p>
+          <p className="mt-2">
+            {t('home.mapData')}{' '}
+            <a
+              href="https://www.openstreetmap.org/copyright"
+              target="_blank"
+              className="text-soralia-primary hover:underline"
+            >
+              OpenStreetMap
+            </a>{' '}
+            {t('home.mapContributors')}
+          </p>
+        </div>
       </div>
 
       {/* Search and Filters */}
