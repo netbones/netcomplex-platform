@@ -20,6 +20,13 @@ interface UserProfile {
   residentType: string;
   role: string | null;
   createdAt: Date;
+  contents: {
+    id: string;
+    title: string;
+    excerpt: string | null;
+    category: string;
+    publishedAt: Date;
+  }[];
 }
 
 function ProfileContent() {
@@ -147,6 +154,32 @@ function ProfileContent() {
           )}
         </div>
       </div>
+
+      {user.contents && user.contents.length > 0 && (
+        <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Published Content</h2>
+            <div className="space-y-4">
+              {user.contents.map(content => (
+                <div key={content.id} className="border-b border-gray-200 pb-4 last:border-0">
+                  <h3 className="font-semibold text-gray-900">{content.title}</h3>
+                  {content.excerpt && (
+                    <p className="text-gray-600 text-sm mt-1">{content.excerpt}</p>
+                  )}
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="text-xs text-gray-500">
+                      {new Date(content.publishedAt).toLocaleDateString()}
+                    </span>
+                    <span className="text-xs bg-soralia-secondary text-white px-2 py-0.5 rounded">
+                      {content.category}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

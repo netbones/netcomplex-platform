@@ -21,6 +21,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       residentType: true,
       role: true,
       createdAt: true,
+      contents: {
+        where: { published: true },
+        select: {
+          id: true,
+          title: true,
+          excerpt: true,
+          category: true,
+          publishedAt: true,
+        },
+        orderBy: { publishedAt: 'desc' },
+        take: 10,
+      },
     },
   });
 
