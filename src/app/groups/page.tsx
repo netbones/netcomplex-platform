@@ -10,6 +10,8 @@ interface Group {
   name: string;
   description: string | null;
   category: string;
+  accessType: 'OPEN' | 'INVITE_ONLY' | 'APPLICATION';
+  residentFilter: 'ALL' | 'OWNERS_ONLY' | 'RENTERS_ONLY';
   owner: { name: string | null };
   _count: { members: number };
 }
@@ -18,6 +20,7 @@ export default function GroupsHubPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedAccess, setSelectedAccess] = useState('all');
 
   useEffect(() => {
     fetch('/api/groups')
@@ -28,8 +31,25 @@ export default function GroupsHubPage() {
       });
   }, []);
 
-  const filteredGroups =
-    selectedCategory === 'all' ? groups : groups.filter(g => g.category === selectedCategory);
+  const filteredGroups = groups.filter(g => {
+    const matchesCategory = selectedCategory === 'all' || g.category === selectedCategory;
+    const matchesAccess = selectedAccess === 'all' || g.accessType === selectedAccess;
+    return matchesCategory && matchesAccess;
+  });
+
+  const accessTypeLabel = (type: string) => {
+    if (type === 'OPEN') return 'Open';
+    if (type === 'INVITE_ONLY') return 'Invite Only';
+    if (type === 'APPLICATION') return 'Apply';
+    return type;
+  };
+
+  const residentFilterLabel = (filter: string) => {
+    if (filter === 'ALL') return 'All';
+    if (filter === 'OWNERS_ONLY') return 'Owners';
+    if (filter === 'RENTERS_ONLY') return 'Renters';
+    return filter;
+  };
 
   if (loading) {
     return <div className="p-8 text-center">Loading...</div>;
@@ -43,7 +63,7 @@ export default function GroupsHubPage() {
         <p className="text-gray-600">Connect with neighbors who share your interests</p>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-2 mb-8">
+      <div className="flex flex-wrap justify-center gap-2 mb-4">
         <button
           onClick={() => setSelectedCategory('all')}
           className={`px-4 py-2 rounded-full ${
@@ -69,6 +89,50 @@ export default function GroupsHubPage() {
         ))}
       </div>
 
+      <div className="flex flex-wrap justify-center gap-2 mb-8">
+        <span className="text-sm text-gray-600 py-2">Access:</span>
+        <button
+          onClick={() => setSelectedAccess('all')}
+          className={`px-3 py-1 rounded-full text-sm ${
+            selectedAccess === 'all'
+              ? 'bg-green-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          All
+        </button>
+        <button
+          onClick={() => setSelectedAccess('OPEN')}
+          className={`px-3 py-1 rounded-full text-sm ${
+            selectedAccess === 'OPEN'
+              ? 'bg-green-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Open
+        </button>
+        <button
+          onClick={() => setSelectedAccess('INVITE_ONLY')}
+          className={`px-3 py-1 rounded-full text-sm ${
+            selectedAccess === 'INVITE_ONLY'
+              ? 'bg-amber-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Invite Only
+        </button>
+        <button
+          onClick={() => setSelectedAccess('APPLICATION')}
+          className={`px-3 py-1 rounded-full text-sm ${
+            selectedAccess === 'APPLICATION'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Apply
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredGroups.map(group => (
           <div
@@ -79,10 +143,23 @@ export default function GroupsHubPage() {
               <span className="px-3 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-full capitalize">
                 {group.category.replace('-', ' ')}
               </span>
-              <span className="text-sm text-gray-500">
-                <i className="fas fa-users mr-1"></i>
-                {group._count.members}
-              </span>
+              <div className="flex gap-2">
+                <span
+                  className={`px-2 py-1 text-xs rounded-full ${
+                    group.accessType === 'OPEN'
+                      ? 'bg-green-100 text-green-800'
+                      : group.accessType === 'INVITE_ONLY'
+                        ? 'bg-amber-100 text-amber-800'
+                        : 'bg-blue-100 text-blue-800'
+                  }`}
+                >
+                  {accessTypeLabel(group.accessType)}
+                </span>
+                <span className="text-xs text-gray-500 flex items-center">
+                  <i className="fas fa-users mr-1"></i>
+                  {group._count.members}
+                </span>
+              </div>
             </div>
 
             <h3 className="text-lg font-semibold text-gray-900 mb-2">{group.name}</h3>

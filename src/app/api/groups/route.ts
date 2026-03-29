@@ -40,6 +40,7 @@ export async function GET(request: Request) {
   }
 
   const groups = await prisma.group.findMany({
+    where: { isActive: true },
     orderBy: { name: 'asc' },
     include: {
       owner: { select: { id: true, name: true } },
