@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 async function getContent() {
   const content = await prisma.content.findMany({
     where: {
-      category: 'NEWS',
+      category: 'CONSERVATION',
       published: true,
     },
     orderBy: { publishedAt: 'desc' },
