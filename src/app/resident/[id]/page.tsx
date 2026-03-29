@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
+import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Bookshelf } from '@/components/ui/Bookshelf';
 
@@ -34,9 +35,12 @@ function ProfileContent() {
   const params = useParams();
   const id = params?.id as string | undefined;
   const { t: tCommon } = useTranslation('common');
+  const { data: session } = authClient.useSession();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const isOwnProfile = session?.user?.id === id;
 
   useEffect(() => {
     if (!id) {
@@ -182,7 +186,7 @@ function ProfileContent() {
         </div>
       )}
 
-      <Bookshelf userId={user.id} />
+      <Bookshelf userId={user.id} editable={isOwnProfile} />
     </div>
   );
 }

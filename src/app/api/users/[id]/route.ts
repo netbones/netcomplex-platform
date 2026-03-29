@@ -17,6 +17,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       interests: true,
       avatar: true,
       homeImage: true,
+      books: true,
       isPublic: true,
       residentType: true,
       role: true,
