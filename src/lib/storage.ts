@@ -1,12 +1,17 @@
-import { createClient } from '@supabase/supabase-js';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_SECRET!
-);
+const s3Client = new S3Client({
+  endpoint: process.env.STORAGE_ENDPOINT,
+  region: 'eu-west-3',
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY_ID!,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY!,
+  },
+  forcePathStyle: true,
+});
 
-const BUCKET_NAME = 'content-images';
+const BUCKET_NAME = process.env.STORAGE_BUCKET || 'content-image';
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
@@ -29,26 +34,24 @@ export async function uploadImage(file: File): Promise<UploadResult> {
   }
 
   try {
-    const ext = file.name.split('.').pop() || 'jpg';
-    const fileName = `${uuidv4()}.${ext}`;
-    const path = `uploads/${fileName}`;
-
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const { data, error } = await supabase.storage.from(BUCKET_NAME).upload(path, buffer, {
-      contentType: file.type,
-      upsert: false,
+    const ext = file.name.split('.').pop() || 'jpg';
+    const key = `uploads/${uuidv4()}.${ext}`;
+
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: buffer,
+      ContentType: file.type,
+      ACL: 'public-read' as const,
     });
 
-    if (error) {
-      console.error('Supabase upload error:', error);
-      return { url: '', error: 'Failed to upload image. Please try again.' };
-    }
+    await s3Client.send(command);
 
-    const { data: urlData } = supabase.storage.from(BUCKET_NAME).getPublicUrl(path);
-
-    return { url: urlData.publicUrl };
+    const publicUrl = `${process.env.STORAGE_ENDPOINT}/${BUCKET_NAME}/${key}`;
+    return { url: publicUrl };
   } catch (error) {
     console.error('Upload error:', error);
     return { url: '', error: 'Failed to upload image. Please try again.' };
