@@ -36,7 +36,8 @@ interface Resident {
 }
 
 export default function HomePage() {
-  const { t } = useTranslation('common');
+  const [mounted, setMounted] = useState(false);
+  const { t, ready } = useTranslation('common');
   const [residents, setResidents] = useState<Resident[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -46,6 +47,10 @@ export default function HomePage() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const limit = 6;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     async function fetchResidents() {
@@ -78,6 +83,17 @@ export default function HomePage() {
     const debounce = setTimeout(fetchResidents, searchQuery ? 300 : 0);
     return () => clearTimeout(debounce);
   }, [searchQuery, filterStreet, page]);
+
+  if (!mounted || !ready) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-64"></div>
+          <div className="h-96 bg-gray-200 rounded-lg"></div>
+        </div>
+      </div>
+    );
+  }
 
   const filteredResidents = residents.filter(r => {
     const address = [r.street, r.unit].filter(Boolean).join(', ');
