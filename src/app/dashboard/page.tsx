@@ -125,16 +125,16 @@ function DashboardContent() {
                 {t('bookFacility')}
               </Link>
               <Link
-                href="/directory"
+                href="/admin/content/new"
                 className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
               >
-                {t('viewDirectory')}
+                {t('createContent', 'Create Content')}
               </Link>
               <Link
-                href="/messages"
+                href={`/resident/${session?.user?.id}`}
                 className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
               >
-                {t('startConversation')}
+                {t('viewProfile', 'View My Profile')}
               </Link>
             </div>
           </div>
@@ -145,6 +145,16 @@ function DashboardContent() {
               <p>{t('noActivity')}</p>
               <p className="text-sm">{t('activityWillAppear')}</p>
             </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">{t('notifications', 'Notifications')}</h2>
+            <span className="text-sm text-gray-500">{stats.notifications} unread</span>
+          </div>
+          <div className="text-center py-4 text-gray-500">
+            <p className="text-sm">No new notifications</p>
           </div>
         </div>
 
