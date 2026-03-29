@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { authClient } from '@/lib/auth-client';
 import { INTEREST_CATEGORIES } from '@/lib/constants';
 
 interface Group {
@@ -21,6 +22,9 @@ export default function GroupsHubPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedAccess, setSelectedAccess] = useState('all');
+  const { data: session } = authClient.useSession();
+
+  const userResidentType = (session?.user as any)?.residentType as string | undefined;
 
   useEffect(() => {
     fetch('/api/groups')
@@ -34,7 +38,14 @@ export default function GroupsHubPage() {
   const filteredGroups = groups.filter(g => {
     const matchesCategory = selectedCategory === 'all' || g.category === selectedCategory;
     const matchesAccess = selectedAccess === 'all' || g.accessType === selectedAccess;
-    return matchesCategory && matchesAccess;
+
+    const isEligible = !userResidentType
+      ? true
+      : g.residentFilter === 'ALL' ||
+        (g.residentFilter === 'OWNERS_ONLY' && userResidentType === 'OWNER') ||
+        (g.residentFilter === 'RENTERS_ONLY' && userResidentType === 'RENTER');
+
+    return matchesCategory && matchesAccess && isEligible;
   });
 
   const accessTypeLabel = (type: string) => {
