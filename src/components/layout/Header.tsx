@@ -179,23 +179,6 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2 md:gap-4">
-          {session && (
-            <button
-              onClick={() => setIsDrawerOpen(true)}
-              className="p-2 rounded-md hover:bg-white/20 ml-auto"
-              aria-label="Open menu"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-          )}
-
           <Suspense fallback={<div className="w-16 h-6 bg-white/20 rounded" />}>
             <LanguageSwitcher />
           </Suspense>
@@ -221,6 +204,23 @@ export function Header() {
             >
               {t('nav.login')}
             </Link>
+          )}
+
+          {session && (
+            <button
+              onClick={() => setIsDrawerOpen(true)}
+              className="p-2 rounded-md hover:bg-white/20"
+              aria-label="Open menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
           )}
         </div>
 
