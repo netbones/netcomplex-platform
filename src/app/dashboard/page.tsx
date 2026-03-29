@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
@@ -33,6 +33,38 @@ function StatCard({ title, value, icon, href }: StatCardProps) {
 
 function DashboardContent() {
   const { data: session } = authClient.useSession();
+  const [stats, setStats] = useState({ requests: 0, bookings: 0, messages: 0, notifications: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const [reqRes, bookRes, msgRes, notifRes] = await Promise.all([
+          fetch('/api/maintenance'),
+          fetch('/api/bookings'),
+          fetch('/api/conversations'),
+          fetch('/api/notifications'),
+        ]);
+        const [requests, bookings, conversations, notifications] = await Promise.all([
+          reqRes.json(),
+          bookRes.json(),
+          msgRes.json(),
+          notifRes.json(),
+        ]);
+        setStats({
+          requests: Array.isArray(requests) ? requests.length : 0,
+          bookings: Array.isArray(bookings) ? bookings.length : 0,
+          messages: Array.isArray(conversations) ? conversations.length : 0,
+          notifications: Array.isArray(notifications) ? notifications.length : 0,
+        });
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -46,10 +78,25 @@ function DashboardContent() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard title="My Requests" value={0} icon="🔧" href="/maintenance" />
-          <StatCard title="My Bookings" value={0} icon="📅" href="/bookings" />
-          <StatCard title="Messages" value={0} icon="💬" href="/messages" />
-          <StatCard title="Notifications" value={0} icon="🔔" />
+          <StatCard
+            title="My Requests"
+            value={loading ? '...' : stats.requests}
+            icon="🔧"
+            href="/maintenance"
+          />
+          <StatCard
+            title="My Bookings"
+            value={loading ? '...' : stats.bookings}
+            icon="📅"
+            href="/bookings"
+          />
+          <StatCard
+            title="Messages"
+            value={loading ? '...' : stats.messages}
+            icon="💬"
+            href="/messages"
+          />
+          <StatCard title="Notifications" value={loading ? '...' : stats.notifications} icon="🔔" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
