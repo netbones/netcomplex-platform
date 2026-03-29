@@ -28,6 +28,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
           id: true,
           title: true,
           excerpt: true,
+          content: true,
           category: true,
           publishedAt: true,
         },

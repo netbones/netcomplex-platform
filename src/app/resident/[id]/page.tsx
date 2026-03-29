@@ -26,6 +26,7 @@ interface UserProfile {
     id: string;
     title: string;
     excerpt: string | null;
+    content: string | null;
     category: string;
     publishedAt: Date;
   }[];
@@ -164,14 +165,21 @@ function ProfileContent() {
         <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
           <div className="p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Published Content</h2>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {user.contents.map(content => (
-                <div key={content.id} className="border-b border-gray-200 pb-4 last:border-0">
-                  <h3 className="font-semibold text-gray-900">{content.title}</h3>
+                <div
+                  key={content.id}
+                  className="border-b border-gray-200 pb-6 last:border-0 last:pb-0"
+                >
+                  <h3 className="font-semibold text-gray-900 text-lg">{content.title}</h3>
                   {content.excerpt && (
-                    <p className="text-gray-600 text-sm mt-1">{content.excerpt}</p>
+                    <p className="text-gray-600 text-sm mt-1 mb-3">{content.excerpt}</p>
                   )}
-                  <div className="flex items-center gap-3 mt-2">
+                  <div
+                    className="prose prose-sm max-w-none content-body"
+                    dangerouslySetInnerHTML={{ __html: content.content || '' }}
+                  />
+                  <div className="flex items-center gap-3 mt-4 pt-3 border-t border-gray-100">
                     <span className="text-xs text-gray-500">
                       {new Date(content.publishedAt).toLocaleDateString()}
                     </span>
@@ -193,17 +201,93 @@ function ProfileContent() {
 
 export default function ResidentProfilePage() {
   return (
-    <Suspense
-      fallback={
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-32"></div>
-            <div className="h-8 bg-gray-200 rounded w-64"></div>
+    <>
+      <style jsx global>{`
+        .content-body pre {
+          background: #1f2937;
+          color: #e5e7eb;
+          padding: 1rem;
+          border-radius: 0.5rem;
+          font-family: 'Fira Code', 'Consolas', monospace;
+          font-size: 0.875rem;
+          overflow-x: auto;
+          margin: 1rem 0;
+        }
+        .content-body pre code {
+          background: transparent;
+          padding: 0;
+          color: inherit;
+        }
+        .content-body code {
+          background: #e5e7eb;
+          padding: 0.125rem 0.25rem;
+          border-radius: 0.25rem;
+          font-family: 'Fira Code', 'Consolas', monospace;
+          font-size: 0.875rem;
+          color: #dc2626;
+        }
+        .content-body blockquote {
+          border-left: 4px solid #9ca3af;
+          padding-left: 1rem;
+          font-style: italic;
+          color: #4b5563;
+          margin: 1rem 0;
+        }
+        .content-body ul,
+        .content-body ol {
+          padding-left: 1.5rem;
+          margin: 0.5rem 0;
+        }
+        .content-body ul {
+          list-style-type: disc;
+        }
+        .content-body ol {
+          list-style-type: decimal;
+        }
+        /* Syntax highlighting */
+        .content-body .hljs-keyword,
+        .content-body .hljs-selector-tag {
+          color: #c084fc;
+        }
+        .content-body .hljs-string,
+        .content-body .hljs-attr {
+          color: #86efac;
+        }
+        .content-body .hljs-number,
+        .content-body .hljs-literal {
+          color: #fb923c;
+        }
+        .content-body .hljs-comment {
+          color: #6b7280;
+          font-style: italic;
+        }
+        .content-body .hljs-function,
+        .content-body .hljs-title {
+          color: #60a5fa;
+        }
+        .content-body .hljs-variable,
+        .content-body .hljs-name {
+          color: #f472b6;
+        }
+        .content-body .hljs-built_in {
+          color: #34d399;
+        }
+        .content-body .hljs-type {
+          color: #fbbf24;
+        }
+      `}</style>
+      <Suspense
+        fallback={
+          <div className="max-w-4xl mx-auto px-4 py-8">
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-gray-200 rounded w-32"></div>
+              <div className="h-8 bg-gray-200 rounded w-64"></div>
+            </div>
           </div>
-        </div>
-      }
-    >
-      <ProfileContent />
-    </Suspense>
+        }
+      >
+        <ProfileContent />
+      </Suspense>
+    </>
   );
 }
