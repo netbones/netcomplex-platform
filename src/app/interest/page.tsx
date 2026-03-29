@@ -1,8 +1,12 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { authClient } from '@/lib/auth-client';
+
+type ViewMode = 'detail' | 'matching';
 
 const interestGroups: Record<
   string,
@@ -153,64 +157,130 @@ function InterestContent() {
   const groupId = searchParams.get('group') || 'gardening';
   const group = interestGroups[groupId] || interestGroups.gardening;
   const colorClass = colorClasses[group.color];
+  const [viewMode, setViewMode] = useState<ViewMode>('detail');
+  const { data: session } = authClient.useSession();
+  const [residents, setResidents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (viewMode === 'matching' && session) {
+      setLoading(true);
+      fetch(`/api/users?interest=${groupId}`)
+        .then(res => res.json())
+        .then(data => {
+          setResidents(data.users || data || []);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    }
+  }, [viewMode, groupId, session]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Interests' }]} />
-      <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-        <h1 className="text-4xl font-bold text-gray-900">{group.title}</h1>
-        <p className="text-xl text-gray-600">{group.tagline}</p>
+
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Interest Groups</h1>
+        {session && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => setViewMode('detail')}
+              className={`px-4 py-2 rounded-lg ${viewMode === 'detail' ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}
+            >
+              Details
+            </button>
+            <button
+              onClick={() => setViewMode('matching')}
+              className={`px-4 py-2 rounded-lg ${viewMode === 'matching' ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}
+            >
+              Find Neighbors
+            </button>
+          </div>
+        )}
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">About the {group.title}</h2>
-        <p className="text-gray-700">{group.about}</p>
-      </div>
+      {viewMode === 'detail' ? (
+        <>
+          <div className="bg-white rounded-lg shadow-md p-8 mb-8">
+            <h1 className="text-4xl font-bold text-gray-900">{group.title}</h1>
+            <p className="text-xl text-gray-600">{group.tagline}</p>
+          </div>
 
-      <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Upcoming Events</h2>
-        <div className="space-y-4">
-          {group.events.map(event => (
-            <div key={event.title} className={`border-l-4 border-${group.color}-500 pl-4 py-2`}>
-              <h3 className="font-semibold text-gray-900">{event.title}</h3>
-              <p className="text-gray-600 text-sm">
-                {event.date} - {event.location}
-              </p>
+          <div className="bg-white rounded-lg shadow-md p-8 mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">About the {group.title}</h2>
+            <p className="text-gray-700">{group.about}</p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md p-8 mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Upcoming Events</h2>
+            <div className="space-y-4">
+              {group.events.map(event => (
+                <div key={event.title} className={`border-l-4 border-${group.color}-500 pl-4 py-2`}>
+                  <h3 className="font-semibold text-gray-900">{event.title}</h3>
+                  <p className="text-gray-600 text-sm">
+                    {event.date} - {event.location}
+                  </p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Group Leaders</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {group.leaders.map(leader => (
-            <div key={leader.name} className="flex items-center p-4 bg-gray-50 rounded-lg">
-              <div
-                className={`w-12 h-12 rounded-full bg-gradient-to-r ${colorClass} flex items-center justify-center text-white mr-4`}
-              >
-                <i className={`fas ${group.icon}`}></i>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900">{leader.name}</p>
-                <p className="text-sm text-gray-600">{leader.role}</p>
-              </div>
+          <div className="bg-white rounded-lg shadow-md p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Join the Conversation</h2>
+            <p className="text-gray-700 mb-6">
+              Connect with other members, share photos, and stay updated on group activities.
+            </p>
+            <button
+              className={`bg-gradient-to-r ${colorClass} text-white py-3 px-6 rounded-lg hover:opacity-90 transition-opacity font-semibold`}
+            >
+              <i className="fas fa-comments mr-2"></i>Join Group Chat
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="bg-white rounded-lg shadow-md p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            Neighbors who share your interest in {group.title}
+          </h2>
+
+          {loading ? (
+            <p className="text-gray-500">Finding neighbors...</p>
+          ) : residents.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500 mb-4">No neighbors found with this interest yet.</p>
+              <Link href="/groups" className="text-indigo-600 hover:underline">
+                Browse groups to join
+              </Link>
             </div>
-          ))}
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {residents.map((resident, idx) => (
+                <div
+                  key={resident.id || idx}
+                  className="border rounded-lg p-4 hover:shadow-md transition"
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={
+                        resident.avatar ||
+                        `https://api.dicebear.com/7.x/avataaars/svg?seed=${resident.name}`
+                      }
+                      alt={resident.name}
+                      className="w-12 h-12 rounded-full"
+                    />
+                    <div>
+                      <h3 className="font-semibold">{resident.name}</h3>
+                      {resident.street && (
+                        <p className="text-sm text-gray-500">{resident.street}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Join the Conversation</h2>
-        <p className="text-gray-700 mb-6">
-          Connect with other members, share photos, and stay updated on group activities.
-        </p>
-        <button
-          className={`bg-gradient-to-r ${colorClass} text-white py-3 px-6 rounded-lg hover:opacity-90 transition-opacity font-semibold`}
-        >
-          <i className="fas fa-comments mr-2"></i>Join Group Chat
-        </button>
-      </div>
+      )}
     </div>
   );
 }
