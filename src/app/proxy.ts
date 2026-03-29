@@ -49,6 +49,7 @@ export async function proxy(request: Request): Promise<NextResponse> {
   const protectedPaths: Array<{ path: string; permission: keyof Permission }> = [
     { path: '/dashboard', permission: 'directory' },
     { path: '/admin', permission: 'users' },
+    { path: '/admin/surveys', permission: 'content' },
     { path: '/maintenance', permission: 'requests' },
     { path: '/bookings', permission: 'bookings' },
     { path: '/events', permission: 'events' },
