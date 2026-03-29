@@ -1,10 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { CARD_ANIMATIONS } from '@/lib/constants';
 
-const quickLinks = [
+interface ResourceItem {
+  id: string;
+  title: string;
+  content: string;
+  excerpt: string | null;
+  icon?: string;
+  desc?: string;
+  color?: string;
+  href?: string;
+}
+
+const defaultQuickLinks = [
   {
     icon: 'fa-file-alt',
     title: 'Documents',
@@ -130,7 +141,37 @@ const contacts = [
 ];
 
 export default function ResourcesPage() {
-  const [activeTab, setActiveTab] = useState('documents');
+  const [quickLinks, setQuickLinks] = useState(defaultQuickLinks);
+  const [documents, setDocuments] = useState<ResourceItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchContent() {
+      try {
+        const res = await fetch('/api/content?category=RESOURCES&published=true');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setDocuments(data);
+            setQuickLinks(
+              data.slice(0, 4).map((item: any) => ({
+                icon: 'fa-file-alt',
+                title: item.title,
+                desc: item.excerpt || item.content.substring(0, 80) + '...',
+                color: 'text-blue-600',
+                href: `#${item.id}`,
+              }))
+            );
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch resources:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchContent();
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

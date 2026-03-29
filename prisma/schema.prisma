@@ -196,6 +196,7 @@ enum ContentCategory {
   BLOG
   CONSERVATION
   SERVICES
+  RESOURCES
 }
 
 model Announcement {
