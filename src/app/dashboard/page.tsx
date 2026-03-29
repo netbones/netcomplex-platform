@@ -7,6 +7,7 @@ import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Bookshelf } from '@/components/ui/Bookshelf';
 import { Pagination } from '@/components/ui/Pagination';
+import { MediaLibrary } from '@/components/ui/MediaLibrary';
 
 interface StatCardProps {
   title: string;
@@ -175,6 +176,13 @@ function DashboardContent() {
             <Bookshelf userId={session.user.id} editable={true} />
           </div>
         )}
+
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Media Library</h2>
+          </div>
+          <MediaLibrary />
+        </div>
 
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
