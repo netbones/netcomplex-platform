@@ -1,0 +1,20 @@
+{
+  "welcome": "Siyakwemukela{{name}}!",
+  "subtitle": "Nantsi into eyenzekayo emphakathini wakho.",
+  "myRequests": "Izicelo zami",
+  "myBookings": "Amabhenebhuki ami",
+  "messages": "Umlando",
+  "notifications": "Izaziso",
+  "quickActions": "Izinto ezenziwa ngokushesha",
+  "submitRequest": "Thumela isicelo sokunakekelwa",
+  "bookFacility": "Bhengeza izakhiwo zomphakathi",
+  "viewDirectory": "Bona uhlu lwabahlali",
+  "startConversation": "Qala incwadi entsha",
+  "recentActivity": "Imisebenzi yakamuva",
+  "noActivity": "Akukho msebenzi owenziwe",
+  "activityWillAppear": "Imisebenzi yakho izoba lapha",
+  "communityEvents": "Izicelo zomphakathi",
+  "noEvents": "Ayikho izicelo",
+  "viewAllEvents": "Bona zonke izicelo",
+  "loading": "Ilayisha i-Dashboard..."
+}

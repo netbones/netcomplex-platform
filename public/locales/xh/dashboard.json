@@ -1,0 +1,20 @@
+{
+  "welcome": "Wamkelekile{{name}}!",
+  "subtitle": "Nantsi into eyenzekayo kuluntu lwakho.",
+  "myRequests": "Iimfuno zam",
+  "myBookings": "Amabhengezo am",
+  "messages": "Imiyalezo",
+  "notifications": "Iimpazamo",
+  "quickActions": "Izenzo ezikhawulezayo",
+  "submitRequest": "Thumela isicelo sokugcinwa",
+  "bookFacility": "Bhengeza indawo yoluntu",
+  "viewDirectory": "Jonga uluhlu lwabahlali",
+  "startConversation": "Qala incoko entsha",
+  "recentActivity": "Umsebenzi owenziwe ngokutyeka",
+  "noActivity": "Akukho msebenzi owenziwe ngokutyeka",
+  "activityWillAppear": "Umsebenzi wakho uya kuvela apha",
+  "communityEvents": "Iziganeko zoluntu",
+  "noEvents": "Akukho ziganeko ziza kuye",
+  "viewAllEvents": "Jonga zonke iziganeko",
+  "loading": "Ilayisha i-Deshibhodi..."
+}

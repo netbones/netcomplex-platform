@@ -1,0 +1,20 @@
+{
+  "welcome": "Welcome back{{name}}!",
+  "subtitle": "Here's what's happening in your community.",
+  "myRequests": "My Requests",
+  "myBookings": "My Bookings",
+  "messages": "Messages",
+  "notifications": "Notifications",
+  "quickActions": "Quick Actions",
+  "submitRequest": "Submit Maintenance Request",
+  "bookFacility": "Book Community Facility",
+  "viewDirectory": "View Resident Directory",
+  "startConversation": "Start New Conversation",
+  "recentActivity": "Recent Activity",
+  "noActivity": "No recent activity",
+  "activityWillAppear": "Your activity will appear here",
+  "communityEvents": "Community Events",
+  "noEvents": "No upcoming events",
+  "viewAllEvents": "View all events",
+  "loading": "Loading dashboard..."
+}

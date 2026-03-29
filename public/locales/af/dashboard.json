@@ -1,0 +1,20 @@
+{
+  "welcome": "Welkom terug{{name}}!",
+  "subtitle": "Hier is wat in jou gemeenskap gebeur.",
+  "myRequests": "My Versoeke",
+  "myBookings": "My Besprekings",
+  "messages": "Boodskappe",
+  "notifications": "Kennisgewings",
+  "quickActions": "Vinnige Aksies",
+  "submitRequest": "Dien Instandhouding Versoek In",
+  "bookFacility": "Boek Gemeenskap Gerief",
+  "viewDirectory": "Bekyk Bewoner Gids",
+  "startConversation": "Begin Nuwe Gesprek",
+  "recentActivity": "Onlangse Aktiwiteit",
+  "noActivity": "Geen onlangse aktiwiteit",
+  "activityWillAppear": "Jou aktiwiteit sal hier verskyn",
+  "communityEvents": "Gemeenskaps Geleenthede",
+  "noEvents": "Geen opkomende geleenthede",
+  "viewAllEvents": "Bekyk alle geleenthede",
+  "loading": "Laai dashbord..."
+}
