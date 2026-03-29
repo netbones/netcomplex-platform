@@ -91,6 +91,7 @@ export async function GET(request: Request) {
         phone: true,
         interests: true,
         avatar: true,
+        homeImage: true,
         isPublic: true,
         isActive: true,
         residentType: true,
