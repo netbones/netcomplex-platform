@@ -151,27 +151,31 @@ export default function HomePage() {
         <Carousel
           items={[
             {
-              id: 'for-sale',
-              image:
-                'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=400&fit=crop',
+              id: '1',
+              image: '/carousel/1.jpg',
               title: 'For Sale',
-              subtitle: '4 Bedroom Family Home - R2,450,000',
+              subtitle: '4 Bedroom Family Home',
               link: '#',
             },
             {
-              id: 'to-let',
-              image:
-                'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&h=400&fit=crop',
+              id: '2',
+              image: '/carousel/2.jpg',
               title: 'To Let',
-              subtitle: '2 Bedroom Apartment - R12,500/month',
+              subtitle: 'Modern Apartment',
               link: '#',
             },
             {
-              id: 'community',
-              image:
-                'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=400&fit=crop',
-              title: 'Community Events',
-              subtitle: 'Join us for the annual street party!',
+              id: '3',
+              image: '/carousel/3.jpg',
+              title: 'Community',
+              subtitle: 'Soralia Village Living',
+              link: '#',
+            },
+            {
+              id: '4',
+              image: '/carousel/4.jpg',
+              title: 'Events',
+              subtitle: 'Join Our Community',
               link: '#',
             },
           ]}
