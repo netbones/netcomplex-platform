@@ -103,8 +103,28 @@ export function Header() {
   };
 
   return (
-    <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+    <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md relative overflow-hidden">
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none opacity-10"
+        viewBox="0 0 1440 120"
+        preserveAspectRatio="none"
+      >
+        <path
+          fill="currentColor"
+          d="M0,32 C120,64 240,0 360,32 C480,64 600,96 720,64 C840,32 960,0 1080,32 C1200,64 1320,96 1440,64 L1440,120 L0,120 Z"
+        />
+        <path
+          fill="currentColor"
+          d="M0,48 C180,96 360,32 540,64 C720,96 900,64 1080,32 C1260,0 1350,0 1440,32 L1440,120 L0,120 Z"
+          opacity="0.5"
+        />
+        <path
+          fill="currentColor"
+          d="M0,80 C240,48 480,96 720,64 C960,32 1200,0 1440,48 L1440,120 L0,120 Z"
+          opacity="0.3"
+        />
+      </svg>
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center relative z-10">
         <div className="flex items-center space-x-3">
           <img
             src="/logo.png"
