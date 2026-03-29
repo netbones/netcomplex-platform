@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { CARD_ANIMATIONS } from '@/lib/constants';
 
@@ -134,6 +135,7 @@ const emergencyContacts = [
 ];
 
 export default function ServicesPage() {
+  const { t } = useTranslation('services');
   const [serviceCategories, setServiceCategories] = useState(defaultServiceCategories);
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -210,13 +212,10 @@ export default function ServicesPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Services' }]} />
+      <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.services') }]} />
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Community Services</h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Comprehensive services designed to enhance your living experience and maintain our
-          beautiful community
-        </p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('title')}</h1>
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto">{t('subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
@@ -247,7 +246,7 @@ export default function ServicesPage() {
                 onClick={() => handleServiceRequest(service.id, service.title)}
                 className="w-full mt-6 bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors"
               >
-                Request Service
+                {t('requestService')}
               </button>
             </div>
           </div>
@@ -257,7 +256,9 @@ export default function ServicesPage() {
       <div
         className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:scale-[1.01] hover:shadow-xl ${CARD_ANIMATIONS.transition}`}
       >
-        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Additional Services</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+          {t('additionalServices')}
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {additionalServices.map(service => (
             <div
@@ -268,7 +269,7 @@ export default function ServicesPage() {
               <h3 className="text-lg font-semibold mb-2">{service.title}</h3>
               <p className="text-gray-600 text-sm mb-4">{service.desc}</p>
               <button className="text-indigo-600 hover:text-indigo-800 font-medium">
-                Learn More →
+                {t('learnMore')}
               </button>
             </div>
           ))}
@@ -279,7 +280,7 @@ export default function ServicesPage() {
         <div
           className={`bg-white rounded-lg shadow-lg p-8 hover:scale-[1.01] hover:shadow-xl ${CARD_ANIMATIONS.transition}`}
         >
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Service Hours</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('serviceHours')}</h2>
           <div className="space-y-4">
             {serviceHours.map(item => (
               <div
@@ -298,7 +299,7 @@ export default function ServicesPage() {
         <div
           className={`bg-white rounded-lg shadow-lg p-8 hover:scale-[1.01] hover:shadow-xl ${CARD_ANIMATIONS.transition}`}
         >
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Emergency Contacts</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('emergencyContacts')}</h2>
           <div className="space-y-4">
             {emergencyContacts.map(contact => (
               <div
@@ -319,48 +320,56 @@ export default function ServicesPage() {
       <div
         className={`bg-white rounded-lg shadow-lg p-8 hover:scale-[1.01] hover:shadow-xl ${CARD_ANIMATIONS.transition}`}
       >
-        <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">Request a Service</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-6 text-center">
+          {t('requestServiceForm')}
+        </h2>
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Service Type</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('serviceType')}
+              </label>
               <select
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 value={formData.serviceType}
                 onChange={e => setFormData({ ...formData, serviceType: e.target.value })}
               >
-                <option value="">Select a service</option>
-                <option value="maintenance">Maintenance</option>
-                <option value="security">Security</option>
-                <option value="landscaping">Landscaping</option>
-                <option value="parking">Parking</option>
-                <option value="internet">Internet/Cable</option>
-                <option value="waste">Waste Management</option>
-                <option value="amenities">Amenities</option>
-                <option value="other">Other</option>
+                <option value="">{t('selectService')}</option>
+                <option value="maintenance">{t('maintenance')}</option>
+                <option value="security">{t('security')}</option>
+                <option value="landscaping">{t('landscaping')}</option>
+                <option value="parking">{t('parking')}</option>
+                <option value="internet">{t('internet')}</option>
+                <option value="waste">{t('waste')}</option>
+                <option value="amenities">{t('amenities')}</option>
+                <option value="other">{t('other')}</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('priority')}
+              </label>
               <select
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 value={formData.priority}
                 onChange={e => setFormData({ ...formData, priority: e.target.value })}
               >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="emergency">Emergency</option>
+                <option value="low">{t('low')}</option>
+                <option value="medium">{t('medium')}</option>
+                <option value="high">{t('high')}</option>
+                <option value="emergency">{t('emergency')}</option>
               </select>
             </div>
           </div>
 
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {t('description')}
+            </label>
             <textarea
               rows={4}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
-              placeholder="Please describe your service request in detail..."
+              placeholder={t('descriptionPlaceholder')}
               value={formData.description}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
             />
@@ -368,7 +377,9 @@ export default function ServicesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('preferredDate')}
+              </label>
               <input
                 type="date"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
@@ -377,16 +388,18 @@ export default function ServicesPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Time</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('preferredTime')}
+              </label>
               <select
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 value={formData.preferredTime}
                 onChange={e => setFormData({ ...formData, preferredTime: e.target.value })}
               >
-                <option value="">Any time</option>
-                <option value="morning">Morning (8AM-12PM)</option>
-                <option value="afternoon">Afternoon (12PM-5PM)</option>
-                <option value="evening">Evening (5PM-8PM)</option>
+                <option value="">{t('anyTime')}</option>
+                <option value="morning">{t('morning')}</option>
+                <option value="afternoon">{t('afternoon')}</option>
+                <option value="evening">{t('evening')}</option>
               </select>
             </div>
           </div>
@@ -396,7 +409,8 @@ export default function ServicesPage() {
               type="submit"
               className="bg-indigo-600 text-white py-3 px-8 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
             >
-              <i className="fas fa-paper-plane mr-2"></i>Submit Request
+              <i className="fas fa-paper-plane mr-2"></i>
+              {t('submitRequest')}
             </button>
           </div>
         </form>
@@ -408,7 +422,7 @@ export default function ServicesPage() {
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  Request {selectedService} Service
+                  {t('requestServiceTitle', { service: selectedService })}
                 </h2>
                 <button
                   onClick={() => setSelectedService(null)}
@@ -421,7 +435,7 @@ export default function ServicesPage() {
               <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Service Type
+                    {t('serviceType')}
                   </label>
                   <input
                     type="text"
@@ -432,27 +446,29 @@ export default function ServicesPage() {
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {t('priority')}
+                  </label>
                   <select
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                     value={formData.priority}
                     onChange={e => setFormData({ ...formData, priority: e.target.value })}
                   >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="emergency">Emergency</option>
+                    <option value="low">{t('low')}</option>
+                    <option value="medium">{t('medium')}</option>
+                    <option value="high">{t('high')}</option>
+                    <option value="emergency">{t('emergency')}</option>
                   </select>
                 </div>
 
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description
+                    {t('description')}
                   </label>
                   <textarea
                     rows={4}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                    placeholder="Please describe your service request in detail..."
+                    placeholder={t('descriptionPlaceholder')}
                     value={formData.description}
                     onChange={e => setFormData({ ...formData, description: e.target.value })}
                   />
@@ -461,7 +477,7 @@ export default function ServicesPage() {
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Preferred Date
+                      {t('preferredDate')}
                     </label>
                     <input
                       type="date"
@@ -472,17 +488,17 @@ export default function ServicesPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Preferred Time
+                      {t('preferredTime')}
                     </label>
                     <select
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                       value={formData.preferredTime}
                       onChange={e => setFormData({ ...formData, preferredTime: e.target.value })}
                     >
-                      <option value="">Any time</option>
-                      <option value="morning">Morning (8AM-12PM)</option>
-                      <option value="afternoon">Afternoon (12PM-5PM)</option>
-                      <option value="evening">Evening (5PM-8PM)</option>
+                      <option value="">{t('anyTime')}</option>
+                      <option value="morning">{t('morning')}</option>
+                      <option value="afternoon">{t('afternoon')}</option>
+                      <option value="evening">{t('evening')}</option>
                     </select>
                   </div>
                 </div>
@@ -493,13 +509,14 @@ export default function ServicesPage() {
                     onClick={() => setSelectedService(null)}
                     className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
                   >
-                    Cancel
+                    {t('cancel')}
                   </button>
                   <button
                     type="submit"
                     className="flex-1 bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
                   >
-                    <i className="fas fa-paper-plane mr-2"></i>Submit
+                    <i className="fas fa-paper-plane mr-2"></i>
+                    {t('submit')}
                   </button>
                 </div>
               </form>
