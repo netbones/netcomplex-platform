@@ -1,10 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { CARD_ANIMATIONS } from '@/lib/constants';
 
-const serviceCategories = [
+const defaultServiceCategories = [
+  {
+    id: 'maintenance',
+    title: 'Maintenance',
+    subtitle: 'Professional repair & upkeep',
+    icon: 'fa-tools',
+    gradient: 'from-blue-500 to-blue-600',
+    items: [
+      '24/7 Emergency Repairs',
+      'Plumbing & Electrical',
+      'Solar Maintenance',
+      'Appliance Repair',
+      'Preventive Maintenance',
+    ],
+  },
   {
     id: 'maintenance',
     title: 'Maintenance',
@@ -120,7 +134,9 @@ const emergencyContacts = [
 ];
 
 export default function ServicesPage() {
+  const [serviceCategories, setServiceCategories] = useState(defaultServiceCategories);
   const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     serviceType: '',
     priority: 'low',
@@ -133,6 +149,34 @@ export default function ServicesPage() {
     setSelectedService(serviceTitle);
     setFormData(prev => ({ ...prev, serviceType: serviceId }));
   };
+
+  useEffect(() => {
+    async function fetchContent() {
+      try {
+        const res = await fetch('/api/content?category=SERVICES&published=true');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setServiceCategories(
+              data.map((item: any) => ({
+                id: String(item.id),
+                title: item.title,
+                subtitle: item.excerpt || '',
+                icon: 'fa-concierge-bell',
+                gradient: 'from-blue-500 to-blue-600',
+                items: [item.content.substring(0, 200) + '...'],
+              }))
+            );
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch services:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchContent();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

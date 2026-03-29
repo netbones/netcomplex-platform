@@ -195,6 +195,7 @@ enum ContentCategory {
   EVENT
   BLOG
   CONSERVATION
+  SERVICES
 }
 
 model Announcement {
