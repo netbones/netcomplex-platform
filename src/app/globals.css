@@ -27,7 +27,8 @@ body {
 }
 
 /* TipTap Editor heading styles */
-.ProseMirror h1 {
+.ProseMirror h1,
+.content-body h1 {
   font-size: 2rem;
   font-weight: 700;
   line-height: 1.2;
@@ -35,7 +36,8 @@ body {
   color: #111827;
 }
 
-.ProseMirror h2 {
+.ProseMirror h2,
+.content-body h2 {
   font-size: 1.5rem;
   font-weight: 600;
   line-height: 1.3;
@@ -43,7 +45,8 @@ body {
   color: #1f2937;
 }
 
-.ProseMirror h3 {
+.ProseMirror h3,
+.content-body h3 {
   font-size: 1.25rem;
   font-weight: 600;
   line-height: 1.4;
@@ -51,12 +54,14 @@ body {
   color: #374151;
 }
 
-.ProseMirror p {
+.ProseMirror p,
+.content-body p {
   margin: 0.75rem 0;
   line-height: 1.6;
 }
 
-.ProseMirror p:first-child {
+.ProseMirror p:first-child,
+.content-body p:first-child {
   margin-top: 0;
 }
 
@@ -64,6 +69,18 @@ body {
   background: transparent;
   padding: 0;
   color: inherit;
+}
+
+/* Text color styles from TipTap */
+.content-body span[style*='color'],
+.content-body p[style*='color'] {
+  /* Inline colors are applied directly via style attribute */
+}
+
+/* Font family styles from TipTap */
+.content-body span[style*='font-family'],
+.content-body p[style*='font-family'] {
+  /* Inline font-family is applied directly via style attribute */
 }
 
 .content-body code {
