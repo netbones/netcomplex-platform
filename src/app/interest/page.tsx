@@ -154,7 +154,7 @@ export default function InterestPage() {
 }
 
 function InterestContent() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['common', 'interest']);
   const searchParams = useSearchParams();
   const groupId = searchParams.get('group') || 'gardening';
   const group = interestGroups[groupId] || interestGroups.gardening;
@@ -182,7 +182,7 @@ function InterestContent() {
       <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.interestMy') }]} />
 
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Interest Groups</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('interest:title')}</h1>
         {session && (
           <div className="flex gap-2">
             <button

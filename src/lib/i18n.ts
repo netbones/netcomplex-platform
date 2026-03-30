@@ -28,6 +28,7 @@ export const namespaces = [
   'resources',
   'conservation',
   'groups',
+  'interest',
 ];
 
 i18n
