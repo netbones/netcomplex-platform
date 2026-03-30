@@ -32,6 +32,7 @@ export const namespaces = [
   'maintenance',
   'bookings',
   'notifications',
+  'directory',
 ];
 
 i18n
