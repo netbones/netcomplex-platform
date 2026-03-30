@@ -15,7 +15,7 @@ interface MaintenanceRequest {
 }
 
 export default function MaintenancePage() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['common', 'maintenance']);
   const [requests, setRequests] = useState<MaintenanceRequest[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -42,19 +42,19 @@ export default function MaintenancePage() {
           items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.maintenance') }]}
         />
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-soralia-primary">Maintenance Requests</h1>
+          <h1 className="text-4xl font-bold text-soralia-primary">{t('maintenance:title')}</h1>
           <button
             onClick={() => setShowForm(!showForm)}
             className="bg-soralia-primary text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
           >
-            {showForm ? 'View My Requests' : 'New Request'}
+            {showForm ? t('maintenance:viewMyRequests') : t('maintenance:newRequest')}
           </button>
         </div>
 
         {showForm ? (
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-6">Submit New Request</h2>
+              <h2 className="text-xl font-semibold mb-6">{t('maintenance:submitNewRequest')}</h2>
               <MaintenanceForm onSubmit={async () => setShowForm(false)} />
             </div>
           </div>
@@ -71,7 +71,7 @@ export default function MaintenancePage() {
                   onClick={() => setShowForm(true)}
                   className="text-soralia-primary hover:underline"
                 >
-                  Submit your first request
+                  {t('maintenance:submitFirst')}
                 </button>
               </div>
             ) : (
