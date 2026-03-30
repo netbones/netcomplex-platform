@@ -133,8 +133,7 @@ export function RichTextEditor({
     },
     editorProps: {
       attributes: {
-        class:
-          'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none min-h-[200px] px-4 py-3',
+        class: 'focus:outline-none min-h-[200px] px-4 py-3',
       },
     },
   });
