@@ -299,6 +299,17 @@ export default function HomePage() {
                   href={`/resident/${resident.id}`}
                   className={`block bg-white rounded-lg shadow-md overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer ${CARD_ANIMATIONS.transition} ${viewMode === 'list' ? 'flex' : ''}`}
                 >
+                  {viewMode === 'grid' && resident.homeImage && (
+                    <div className="h-32 w-full relative">
+                      <Image
+                        src={resident.homeImage}
+                        alt={`${resident.name}'s home`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
                   <div
                     className={`${headerColor} p-4 text-white ${viewMode === 'list' ? 'w-64 shrink-0' : ''}`}
                   >
@@ -370,17 +381,6 @@ export default function HomePage() {
                         </div>
                       )}
                     </div>
-                    {resident.homeImage && viewMode === 'grid' && (
-                      <div className="w-20 h-20 flex-shrink-0 relative">
-                        <Image
-                          src={resident.homeImage}
-                          alt={`${resident.name}'s home`}
-                          fill
-                          sizes="80px"
-                          className="object-cover rounded-lg"
-                        />
-                      </div>
-                    )}
                   </div>
                 </Link>
               );
