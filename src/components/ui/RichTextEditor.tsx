@@ -13,6 +13,7 @@ import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
 import Underline from '@tiptap/extension-underline';
 import { FontSize } from '@tiptap/extension-font-size';
+import { FontFamily } from './FontFamily';
 import { common, createLowlight } from 'lowlight';
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { toast } from 'sonner';
@@ -35,6 +36,13 @@ const FONT_FAMILIES = [
   { label: 'Georgia', value: 'Georgia, serif' },
   { label: 'Times New Roman', value: '"Times New Roman", serif' },
   { label: 'Courier', value: '"Courier New", monospace' },
+];
+
+const HEADINGS = [
+  { label: 'Paragraph', level: 0 },
+  { label: 'Heading 1', level: 1 },
+  { label: 'Heading 2', level: 2 },
+  { label: 'Heading 3', level: 3 },
 ];
 const COLORS = [
   '#000000',
@@ -66,9 +74,11 @@ export function RichTextEditor({
   const [showFontSize, setShowFontSize] = useState(false);
   const [showColor, setShowColor] = useState(false);
   const [showFontFamily, setShowFontFamily] = useState(false);
+  const [showHeading, setShowHeading] = useState(false);
   const fontSizeRef = useRef<HTMLDivElement>(null);
   const colorRef = useRef<HTMLDivElement>(null);
   const fontFamilyRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -114,6 +124,7 @@ export function RichTextEditor({
       }),
       Underline,
       FontSize,
+      FontFamily,
     ],
     content,
     immediatelyRender: false,
@@ -216,6 +227,28 @@ export function RichTextEditor({
   const setFontFamily = (font: string) => {
     editor?.chain().focus().setFontFamily(font).run();
     setShowFontFamily(false);
+  };
+
+  const setHeading = (level: number) => {
+    if (!editor) return;
+    if (level === 0) {
+      editor.chain().focus().setParagraph().run();
+    } else {
+      editor
+        .chain()
+        .focus()
+        .setHeading({ level: level as 1 | 2 | 3 })
+        .run();
+    }
+    setShowHeading(false);
+  };
+
+  const getCurrentHeading = () => {
+    if (!editor) return 'P';
+    if (editor.isActive('heading', { level: 1 })) return 'H1';
+    if (editor.isActive('heading', { level: 2 })) return 'H2';
+    if (editor.isActive('heading', { level: 3 })) return 'H3';
+    return 'P';
   };
 
   useEffect(() => {
@@ -419,31 +452,40 @@ export function RichTextEditor({
 
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
 
-        {/* Headings */}
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('heading', { level: 1 }) ? 'bg-gray-200' : ''}`}
-          title="Heading 1"
-        >
-          <span className="text-xs font-bold">H1</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('heading', { level: 2 }) ? 'bg-gray-200' : ''}`}
-          title="Heading 2"
-        >
-          <span className="text-xs font-bold">H2</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('heading', { level: 3 }) ? 'bg-gray-200' : ''}`}
-          title="Heading 3"
-        >
-          <span className="text-xs font-bold">H3</span>
-        </button>
+        {/* Heading dropdown */}
+        <div className="relative" ref={headingRef}>
+          <button
+            type="button"
+            onClick={() => {
+              setShowHeading(!showHeading);
+              setShowFontFamily(false);
+              setShowFontSize(false);
+              setShowColor(false);
+            }}
+            className="p-2 rounded hover:bg-gray-200 text-xs font-bold"
+            title="Heading"
+          >
+            {getCurrentHeading()}
+          </button>
+          {showHeading && (
+            <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-1 min-w-[120px]">
+              {HEADINGS.map(h => (
+                <button
+                  key={h.level}
+                  onClick={() => setHeading(h.level)}
+                  className={`w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 ${
+                    (h.level === 0 && !editor.isActive('heading')) ||
+                    (h.level > 0 && editor.isActive('heading', { level: h.level }))
+                      ? 'bg-indigo-100 text-indigo-700'
+                      : ''
+                  }`}
+                >
+                  {h.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
 
