@@ -7,6 +7,11 @@ import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import Image from '@tiptap/extension-image';
 import { ResizableImage } from 'tiptap-extension-resizable-image';
 import 'tiptap-extension-resizable-image/styles.css';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
+import TextAlign from '@tiptap/extension-text-align';
+import Highlight from '@tiptap/extension-highlight';
+import Underline from '@tiptap/extension-underline';
 import { common, createLowlight } from 'lowlight';
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { toast } from 'sonner';
@@ -20,6 +25,22 @@ interface RichTextEditorProps {
   onDraftSave?: (html: string) => void;
 }
 
+const FONT_SIZES = ['12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px'];
+const COLORS = [
+  '#000000',
+  '#333333',
+  '#666666',
+  '#999999',
+  '#cccccc',
+  '#4F46E5',
+  '#0891B2',
+  '#059669',
+  '#D97706',
+  '#DC2626',
+  '#7C3AED',
+  '#DB2777',
+];
+
 export function RichTextEditor({
   content,
   onChange,
@@ -32,6 +53,10 @@ export function RichTextEditor({
   const [showMediaLib, setShowMediaLib] = useState(false);
   const [mediaImages, setMediaImages] = useState<any[]>([]);
   const [loadingMedia, setLoadingMedia] = useState(false);
+  const [showFontSize, setShowFontSize] = useState(false);
+  const [showColor, setShowColor] = useState(false);
+  const fontSizeRef = useRef<HTMLDivElement>(null);
+  const colorRef = useRef<HTMLDivElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -67,6 +92,15 @@ export function RichTextEditor({
       Placeholder.configure({
         placeholder: placeholder || 'Start writing...',
       }),
+      TextStyle,
+      Color,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      Highlight.configure({
+        multicolor: true,
+      }),
+      Underline,
     ],
     content,
     immediatelyRender: false,
@@ -156,11 +190,34 @@ export function RichTextEditor({
     }
   }, [editor, onDraftSave]);
 
+  const setFontSize = (size: string) => {
+    editor?.chain().focus().setFontSize(size).run();
+    setShowFontSize(false);
+  };
+
+  const setColor = (color: string) => {
+    editor?.chain().focus().setColor(color).run();
+    setShowColor(false);
+  };
+
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content);
     }
   }, [content, editor]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (fontSizeRef.current && !fontSizeRef.current.contains(e.target as Node)) {
+        setShowFontSize(false);
+      }
+      if (colorRef.current && !colorRef.current.contains(e.target as Node)) {
+        setShowColor(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   if (!editor) {
     return (
@@ -171,11 +228,12 @@ export function RichTextEditor({
   return (
     <div className="border border-gray-300 rounded-lg overflow-hidden">
       <div className="bg-gray-50 border-b border-gray-300 px-2 py-1 flex flex-wrap gap-1 items-center">
+        {/* Text formatting */}
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('bold') ? 'bg-gray-200' : ''}`}
-          title="Bold"
+          title="Bold (Ctrl+B)"
         >
           <i className="fas fa-bold"></i>
         </button>
@@ -183,19 +241,156 @@ export function RichTextEditor({
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('italic') ? 'bg-gray-200' : ''}`}
-          title="Italic"
+          title="Italic (Ctrl+I)"
         >
           <i className="fas fa-italic"></i>
         </button>
         <button
           type="button"
+          onClick={() => editor.chain().focus().toggleUnderline().run()}
+          className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('underline') ? 'bg-gray-200' : ''}`}
+          title="Underline (Ctrl+U)"
+        >
+          <i className="fas fa-underline"></i>
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('strike') ? 'bg-gray-200' : ''}`}
+          title="Strikethrough"
+        >
+          <i className="fas fa-strikethrough"></i>
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleHighlight().run()}
+          className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('highlight') ? 'bg-yellow-200' : ''}`}
+          title="Highlight"
+        >
+          <i className="fas fa-highlighter"></i>
+        </button>
+
+        <span className="w-px h-6 bg-gray-300 mx-1"></span>
+
+        {/* Font size */}
+        <div className="relative" ref={fontSizeRef}>
+          <button
+            type="button"
+            onClick={() => {
+              setShowFontSize(!showFontSize);
+              setShowColor(false);
+            }}
+            className="p-2 rounded hover:bg-gray-200 text-sm font-medium"
+            title="Font Size"
+          >
+            <i className="fas fa-text-height"></i>
+          </button>
+          {showFontSize && (
+            <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-2 grid grid-cols-2 gap-1 min-w-[120px]">
+              {FONT_SIZES.map(size => (
+                <button
+                  key={size}
+                  onClick={() => setFontSize(size)}
+                  className={`px-3 py-1 text-sm rounded hover:bg-gray-100 ${
+                    editor.isActive('textStyle', { fontSize: size })
+                      ? 'bg-indigo-100 text-indigo-700'
+                      : ''
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Color */}
+        <div className="relative" ref={colorRef}>
+          <button
+            type="button"
+            onClick={() => {
+              setShowColor(!showColor);
+              setShowFontSize(false);
+            }}
+            className="p-2 rounded hover:bg-gray-200"
+            title="Text Color"
+          >
+            <i className="fas fa-palette"></i>
+          </button>
+          {showColor && (
+            <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-2 grid grid-cols-6 gap-1">
+              {COLORS.map(color => (
+                <button
+                  key={color}
+                  onClick={() => setColor(color)}
+                  className="w-6 h-6 rounded border hover:scale-110 transition-transform"
+                  style={{ backgroundColor: color }}
+                  title={color}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <span className="w-px h-6 bg-gray-300 mx-1"></span>
+
+        {/* Alignment */}
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setTextAlign('left').run()}
+          className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'left' }) ? 'bg-gray-200' : ''}`}
+          title="Align Left"
+        >
+          <i className="fas fa-align-left"></i>
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setTextAlign('center').run()}
+          className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'center' }) ? 'bg-gray-200' : ''}`}
+          title="Align Center"
+        >
+          <i className="fas fa-align-center"></i>
+        </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setTextAlign('right').run()}
+          className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'right' }) ? 'bg-gray-200' : ''}`}
+          title="Align Right"
+        >
+          <i className="fas fa-align-right"></i>
+        </button>
+
+        <span className="w-px h-6 bg-gray-300 mx-1"></span>
+
+        {/* Headings */}
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('heading', { level: 1 }) ? 'bg-gray-200' : ''}`}
+          title="Heading 1"
+        >
+          <span className="text-xs font-bold">H1</span>
+        </button>
+        <button
+          type="button"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('heading', { level: 2 }) ? 'bg-gray-200' : ''}`}
-          title="Heading"
+          title="Heading 2"
         >
-          <i className="fas fa-heading"></i>
+          <span className="text-xs font-bold">H2</span>
         </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('heading', { level: 3 }) ? 'bg-gray-200' : ''}`}
+          title="Heading 3"
+        >
+          <span className="text-xs font-bold">H3</span>
+        </button>
+
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
+
+        {/* Lists */}
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -212,7 +407,10 @@ export function RichTextEditor({
         >
           <i className="fas fa-list-ol"></i>
         </button>
+
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
+
+        {/* Blocks */}
         <button
           type="button"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
@@ -229,6 +427,10 @@ export function RichTextEditor({
         >
           <i className="fas fa-code"></i>
         </button>
+
+        <span className="w-px h-6 bg-gray-300 mx-1"></span>
+
+        {/* Images */}
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -250,13 +452,16 @@ export function RichTextEditor({
         >
           <i className="fas fa-images"></i>
         </button>
+
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
+
+        {/* Undo/Redo */}
         <button
           type="button"
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo()}
           className="p-2 rounded hover:bg-gray-200 disabled:opacity-50"
-          title="Undo"
+          title="Undo (Ctrl+Z)"
         >
           <i className="fas fa-undo"></i>
         </button>
@@ -265,10 +470,11 @@ export function RichTextEditor({
           onClick={() => editor.chain().focus().redo().run()}
           disabled={!editor.can().redo()}
           className="p-2 rounded hover:bg-gray-200 disabled:opacity-50"
-          title="Redo"
+          title="Redo (Ctrl+Shift+Z)"
         >
           <i className="fas fa-redo"></i>
         </button>
+
         {onDraftSave && (
           <>
             <span className="w-px h-6 bg-gray-300 mx-1"></span>
