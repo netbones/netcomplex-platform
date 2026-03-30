@@ -300,7 +300,7 @@ export default function HomePage() {
                   className={`block bg-white rounded-lg shadow-md overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer ${CARD_ANIMATIONS.transition} ${viewMode === 'list' ? 'relative' : ''}`}
                 >
                   {viewMode === 'grid' && resident.homeImage && (
-                    <div className="h-24 w-full relative">
+                    <div className="h-32 w-full relative">
                       <Image
                         src={resident.homeImage}
                         alt={`${resident.name}'s home`}
