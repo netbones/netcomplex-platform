@@ -16,5 +16,9 @@
   "communityEvents": "Community Events",
   "noEvents": "No upcoming events",
   "viewAllEvents": "View all events",
-  "loading": "Loading dashboard..."
+  "loading": "Loading dashboard...",
+  "addWidget": "Add Widget",
+  "removeWidget": "Remove",
+  "createContent": "Create Content",
+  "viewProfile": "View My Profile"
 }

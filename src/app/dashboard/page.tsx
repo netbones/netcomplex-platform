@@ -3,11 +3,28 @@
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
 import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Bookshelf } from '@/components/ui/Bookshelf';
-import { Pagination } from '@/components/ui/Pagination';
 import { MediaLibrary } from '@/components/ui/MediaLibrary';
+import { Pagination } from '@/components/ui/Pagination';
+import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
+import { DashboardTabs, AddWidgetModal, DashboardTab } from '@/components/dashboard/DashboardTabs';
 
 interface StatCardProps {
   title: string;
@@ -35,12 +52,62 @@ function StatCard({ title, value, icon, href }: StatCardProps) {
   return content;
 }
 
+interface DashboardWidget {
+  id: string;
+  type: string;
+  title: string;
+  icon: string;
+}
+
+const ALL_WIDGETS: DashboardWidget[] = [
+  { id: 'stats', type: 'stats', title: 'Statistics', icon: 'fa-chart-bar' },
+  { id: 'quick-actions', type: 'quick-actions', title: 'Quick Actions', icon: 'fa-bolt' },
+  { id: 'recent-activity', type: 'recent-activity', title: 'Recent Activity', icon: 'fa-clock' },
+  { id: 'notifications', type: 'notifications', title: 'Notifications', icon: 'fa-bell' },
+  { id: 'events', type: 'events', title: 'Community Events', icon: 'fa-calendar' },
+  { id: 'bookshelf', type: 'bookshelf', title: 'My Bookshelf', icon: 'fa-book' },
+  { id: 'media', type: 'media', title: 'Media Library', icon: 'fa-photo-video' },
+  { id: 'my-content', type: 'my-content', title: 'My Content', icon: 'fa-file-alt' },
+];
+
+const DEFAULT_TABS: DashboardTab[] = [
+  {
+    id: 'overview',
+    label: 'Overview',
+    icon: 'fa-th-large',
+    defaultWidgets: ['stats', 'quick-actions', 'recent-activity', 'notifications'],
+  },
+  {
+    id: 'content',
+    label: 'Content',
+    icon: 'fa-file-alt',
+    defaultWidgets: ['my-content', 'bookshelf', 'media'],
+  },
+  {
+    id: 'activity',
+    label: 'Activity',
+    icon: 'fa-calendar',
+    defaultWidgets: ['events', 'recent-activity', 'notifications'],
+  },
+];
+
 function DashboardContent() {
   const { t } = useTranslation('dashboard');
   const { t: tCommon } = useTranslation('common');
   const { data: session } = authClient.useSession();
   const [stats, setStats] = useState({ requests: 0, bookings: 0, messages: 0, notifications: 0 });
   const [loading, setLoading] = useState(true);
+  const [tabs, setTabs] = useState<DashboardTab[]>(DEFAULT_TABS);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [activeWidgets, setActiveWidgets] = useState<string[]>(DEFAULT_TABS[0].defaultWidgets);
+  const [showAddWidget, setShowAddWidget] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     async function fetchStats() {
@@ -72,6 +139,152 @@ function DashboardContent() {
     fetchStats();
   }, []);
 
+  useEffect(() => {
+    const currentTab = tabs.find(tab => tab.id === activeTab);
+    if (currentTab) {
+      setActiveWidgets(currentTab.defaultWidgets);
+    }
+  }, [activeTab, tabs]);
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setActiveWidgets(items => {
+        const oldIndex = items.indexOf(active.id as string);
+        const newIndex = items.indexOf(over.id as string);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }
+
+  function handleAddWidget(widgetId: string) {
+    if (!activeWidgets.includes(widgetId)) {
+      setActiveWidgets([...activeWidgets, widgetId]);
+      setTabs(prev =>
+        prev.map(tab =>
+          tab.id === activeTab ? { ...tab, defaultWidgets: [...tab.defaultWidgets, widgetId] } : tab
+        )
+      );
+    }
+  }
+
+  function handleRemoveWidget(widgetId: string) {
+    setActiveWidgets(activeWidgets.filter(id => id !== widgetId));
+    setTabs(prev =>
+      prev.map(tab =>
+        tab.id === activeTab
+          ? { ...tab, defaultWidgets: tab.defaultWidgets.filter(id => id !== widgetId) }
+          : tab
+      )
+    );
+  }
+
+  function getAvailableWidgets() {
+    return ALL_WIDGETS.filter(w => !activeWidgets.includes(w.id));
+  }
+
+  const renderWidgetContent = (widgetId: string) => {
+    switch (widgetId) {
+      case 'stats':
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard
+              title={t('myRequests')}
+              value={loading ? '...' : stats.requests}
+              icon="🔧"
+              href="/maintenance"
+            />
+            <StatCard
+              title={t('myBookings')}
+              value={loading ? '...' : stats.bookings}
+              icon="📅"
+              href="/bookings"
+            />
+            <StatCard
+              title={t('messages')}
+              value={loading ? '...' : stats.messages}
+              icon="💬"
+              href="/messages"
+            />
+            <StatCard
+              title={t('notifications')}
+              value={loading ? '...' : stats.notifications}
+              icon="🔔"
+            />
+          </div>
+        );
+      case 'quick-actions':
+        return (
+          <div className="space-y-3">
+            <Link
+              href="/maintenance"
+              className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
+            >
+              {t('submitRequest')}
+            </Link>
+            <Link
+              href="/bookings"
+              className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
+            >
+              {t('bookFacility')}
+            </Link>
+            <Link
+              href="/admin/content/new"
+              className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
+            >
+              {t('createContent', 'Create Content')}
+            </Link>
+            <Link
+              href={`/resident/${session?.user?.id}`}
+              className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
+            >
+              {t('viewProfile', 'View My Profile')}
+            </Link>
+          </div>
+        );
+      case 'recent-activity':
+        return (
+          <div className="text-center py-8 text-gray-500">
+            <p>{t('noActivity')}</p>
+            <p className="text-sm">{t('activityWillAppear')}</p>
+          </div>
+        );
+      case 'notifications':
+        return (
+          <div className="text-center py-4 text-gray-500">
+            <p className="text-sm">No new notifications</p>
+          </div>
+        );
+      case 'events':
+        return (
+          <div className="text-center py-8 text-gray-500">
+            <p>{t('noEvents')}</p>
+            <Link href="/resources" className="text-indigo-600 hover:underline">
+              {t('viewAllEvents')}
+            </Link>
+          </div>
+        );
+      case 'bookshelf':
+        return session?.user?.id ? <Bookshelf userId={session.user.id} editable={true} /> : null;
+      case 'media':
+        return <MediaLibrary />;
+      case 'my-content':
+        return <UserContentList />;
+      default:
+        return null;
+    }
+  };
+
+  const getWidgetTitle = (widgetId: string) => {
+    const widget = ALL_WIDGETS.find(w => w.id === widgetId);
+    return widget?.title || widgetId;
+  };
+
+  const getWidgetIcon = (widgetId: string) => {
+    const widget = ALL_WIDGETS.find(w => w.id === widgetId);
+    return widget?.icon || 'fa-widget';
+  };
+
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="container mx-auto px-4 py-8">
@@ -85,118 +298,55 @@ function DashboardContent() {
           <p className="text-gray-600">{t('subtitle')}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            title={t('myRequests')}
-            value={loading ? '...' : stats.requests}
-            icon="🔧"
-            href="/maintenance"
-          />
-          <StatCard
-            title={t('myBookings')}
-            value={loading ? '...' : stats.bookings}
-            icon="📅"
-            href="/bookings"
-          />
-          <StatCard
-            title={t('messages')}
-            value={loading ? '...' : stats.messages}
-            icon="💬"
-            href="/messages"
-          />
-          <StatCard
-            title={t('notifications')}
-            value={loading ? '...' : stats.notifications}
-            icon="🔔"
-          />
-        </div>
+        <DashboardTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onAddWidget={() => setShowAddWidget(true)}
+        />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">{t('quickActions')}</h2>
-            <div className="space-y-3">
-              <Link
-                href="/maintenance"
-                className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
-              >
-                {t('submitRequest')}
-              </Link>
-              <Link
-                href="/bookings"
-                className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
-              >
-                {t('bookFacility')}
-              </Link>
-              <Link
-                href="/admin/content/new"
-                className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
-              >
-                {t('createContent', 'Create Content')}
-              </Link>
-              <Link
-                href={`/resident/${session?.user?.id}`}
-                className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
-              >
-                {t('viewProfile', 'View My Profile')}
-              </Link>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={activeWidgets} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {activeWidgets.map(widgetId => (
+                <DraggableWidget
+                  key={widgetId}
+                  id={widgetId}
+                  title={getWidgetTitle(widgetId)}
+                  icon={getWidgetIcon(widgetId)}
+                  removable={true}
+                  onRemove={() => handleRemoveWidget(widgetId)}
+                >
+                  {renderWidgetContent(widgetId)}
+                </DraggableWidget>
+              ))}
             </div>
-          </div>
+          </SortableContext>
+        </DndContext>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">{t('recentActivity')}</h2>
-            <div className="text-center py-8 text-gray-500">
-              <p>{t('noActivity')}</p>
-              <p className="text-sm">{t('activityWillAppear')}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">{t('notifications', 'Notifications')}</h2>
-            <span className="text-sm text-gray-500">{stats.notifications} unread</span>
-          </div>
-          <div className="text-center py-4 text-gray-500">
-            <p className="text-sm">No new notifications</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">{t('communityEvents')}</h2>
-          <div className="text-center py-8 text-gray-500">
-            <p>{t('noEvents')}</p>
-            <Link href="/resources" className="text-indigo-600 hover:underline">
-              {t('viewAllEvents')}
-            </Link>
-          </div>
-        </div>
-
-        {session?.user?.id && (
-          <div className="mb-8">
-            <Bookshelf userId={session.user.id} editable={true} />
+        {activeWidgets.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            <p className="mb-4">No widgets in this tab</p>
+            <button
+              onClick={() => setShowAddWidget(true)}
+              className="text-indigo-600 hover:underline"
+            >
+              Add a widget
+            </button>
           </div>
         )}
-
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Media Library</h2>
-          </div>
-          <MediaLibrary />
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">My Content</h2>
-            <Link
-              href="/admin/content/new"
-              className="text-sm text-indigo-600 hover:text-indigo-800"
-            >
-              + Create New
-            </Link>
-          </div>
-          <UserContentList />
-        </div>
       </div>
+
+      <AddWidgetModal
+        isOpen={showAddWidget}
+        onClose={() => setShowAddWidget(false)}
+        availableWidgets={getAvailableWidgets().map(w => ({
+          id: w.id,
+          label: w.title,
+          icon: w.icon,
+        }))}
+        onSelect={handleAddWidget}
+      />
     </main>
   );
 }
