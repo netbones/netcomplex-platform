@@ -33,6 +33,7 @@ export const namespaces = [
   'bookings',
   'notifications',
   'directory',
+  'admin',
 ];
 
 i18n

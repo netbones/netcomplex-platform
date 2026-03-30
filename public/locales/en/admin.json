@@ -1,0 +1,15 @@
+{
+  "dashboard": "Admin Dashboard",
+  "users": "User Management",
+  "groups": "Interest Groups",
+  "groupsNew": "Create New Interest Group",
+  "groupsEdit": "Edit Interest Group",
+  "content": "Content Management",
+  "contentNew": "Create New Content",
+  "contentEdit": "Edit Content",
+  "requests": "Maintenance Requests",
+  "surveys": "Surveys & Polls",
+  "surveysNew": "Create New Survey",
+  "categories": "Interest Group Categories",
+  "externalSurveys": "External Surveys"
+}

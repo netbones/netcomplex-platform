@@ -1,0 +1,15 @@
+{
+  "dashboard": "Admin Dashboard",
+  "users": "Gebruikersbestuur",
+  "groups": "Belangengroepe",
+  "groupsNew": "Skep Nuwe Belangengroep",
+  "groupsEdit": "Wysig Belangengroep",
+  "content": "Inhoudbestuur",
+  "contentNew": "Skep Nuwe Inhoud",
+  "contentEdit": "Wysig Inhoud",
+  "requests": "Instandhouding Versoeke",
+  "surveys": "Opnames en Meningspeilings",
+  "surveysNew": "Skep Nuwe Opname",
+  "categories": "Belangengroep Kategorieë",
+  "externalSurveys": "Eksterne Opnames"
+}

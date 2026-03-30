@@ -1,0 +1,15 @@
+{
+  "dashboard": "I-Dashboard yoMphathi",
+  "users": "Ukuhlela abasebenzisi",
+  "groups": "Amaqembu",
+  "groupsNew": "Dala iqembu elisha",
+  "groupsEdit": "Lungisa iqembu",
+  "content": "Ukuhlela okuqukethwe",
+  "contentNew": "Dala okuqukethwe okusha",
+  "contentEdit": "Lungisa okuqukethwe",
+  "requests": "Izicelo zoThatha",
+  "surveys": "Amaswihlome",
+  "surveysNew": "Dala iswihlome esisha",
+  "categories": "amaCategory eMaqembu",
+  "externalSurveys": "Amaswihlome angaphandle"
+}

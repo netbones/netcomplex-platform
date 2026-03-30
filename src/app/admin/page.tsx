@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import { ADMIN_LINKS } from '@/lib/constants';
 
 interface Stats {
@@ -12,6 +13,7 @@ interface Stats {
 }
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation('admin');
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
     activeRequests: 0,
@@ -84,7 +86,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Admin Dashboard</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('dashboard')}</h1>
 
       {loading ? (
         <div className="text-center py-12">
