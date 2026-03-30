@@ -27,6 +27,15 @@ interface RichTextEditorProps {
 }
 
 const FONT_SIZES = ['12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px'];
+const FONT_FAMILIES = [
+  { label: 'Sans Serif', value: 'sans-serif' },
+  { label: 'Serif', value: 'serif' },
+  { label: 'Mono', value: 'monospace' },
+  { label: 'Arial', value: 'Arial, sans-serif' },
+  { label: 'Georgia', value: 'Georgia, serif' },
+  { label: 'Times New Roman', value: '"Times New Roman", serif' },
+  { label: 'Courier', value: '"Courier New", monospace' },
+];
 const COLORS = [
   '#000000',
   '#333333',
@@ -56,8 +65,10 @@ export function RichTextEditor({
   const [loadingMedia, setLoadingMedia] = useState(false);
   const [showFontSize, setShowFontSize] = useState(false);
   const [showColor, setShowColor] = useState(false);
+  const [showFontFamily, setShowFontFamily] = useState(false);
   const fontSizeRef = useRef<HTMLDivElement>(null);
   const colorRef = useRef<HTMLDivElement>(null);
+  const fontFamilyRef = useRef<HTMLDivElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -202,6 +213,11 @@ export function RichTextEditor({
     setShowColor(false);
   };
 
+  const setFontFamily = (font: string) => {
+    editor?.chain().focus().setFontFamily(font).run();
+    setShowFontFamily(false);
+  };
+
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content);
@@ -215,6 +231,9 @@ export function RichTextEditor({
       }
       if (colorRef.current && !colorRef.current.contains(e.target as Node)) {
         setShowColor(false);
+      }
+      if (fontFamilyRef.current && !fontFamilyRef.current.contains(e.target as Node)) {
+        setShowFontFamily(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -272,6 +291,40 @@ export function RichTextEditor({
           <i className="fas fa-highlighter"></i>
         </button>
 
+        {/* Font Family */}
+        <div className="relative" ref={fontFamilyRef}>
+          <button
+            type="button"
+            onClick={() => {
+              setShowFontFamily(!showFontFamily);
+              setShowFontSize(false);
+              setShowColor(false);
+            }}
+            className="p-2 rounded hover:bg-gray-200 text-sm font-medium"
+            title="Font Family"
+          >
+            <i className="fas fa-font"></i>
+          </button>
+          {showFontFamily && (
+            <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-2 min-w-[150px]">
+              {FONT_FAMILIES.map(font => (
+                <button
+                  key={font.value}
+                  onClick={() => setFontFamily(font.value)}
+                  className={`w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 ${
+                    editor.isActive('textStyle', { fontFamily: font.value })
+                      ? 'bg-indigo-100 text-indigo-700'
+                      : ''
+                  }`}
+                  style={{ fontFamily: font.value }}
+                >
+                  {font.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
 
         {/* Font size */}
@@ -281,6 +334,7 @@ export function RichTextEditor({
             onClick={() => {
               setShowFontSize(!showFontSize);
               setShowColor(false);
+              setShowFontFamily(false);
             }}
             className="p-2 rounded hover:bg-gray-200 text-sm font-medium"
             title="Font Size"
@@ -313,6 +367,7 @@ export function RichTextEditor({
             onClick={() => {
               setShowColor(!showColor);
               setShowFontSize(false);
+              setShowFontFamily(false);
             }}
             className="p-2 rounded hover:bg-gray-200"
             title="Text Color"
