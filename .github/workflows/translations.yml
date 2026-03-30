@@ -1,0 +1,22 @@
+name: Sync Translations
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - 'public/locales/**/*.json'
+
+jobs:
+  notify-translations:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify about translation changes
+        run: |
+          echo "Translations have been updated"
+          echo "Files changed:"
+          git diff --name-only
+
+          # Create a simple PR label comment for translators
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "::notice::Translation files updated. Please review changes and submit corrections via PR."
+          fi
