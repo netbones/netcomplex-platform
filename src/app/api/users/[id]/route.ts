@@ -18,6 +18,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       avatar: true,
       homeImage: true,
       books: true,
+      dashboardLayout: true,
       isPublic: true,
       showEmail: true,
       showPhone: true,
@@ -69,6 +70,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
   if (body.showPhone !== undefined) {
     updateData.showPhone = body.showPhone === 'true' || body.showPhone === true;
+  }
+  if (body.dashboardLayout !== undefined) {
+    updateData.dashboardLayout = body.dashboardLayout;
   }
 
   const user = await prisma.user.update({

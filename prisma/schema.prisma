@@ -23,6 +23,7 @@ model User {
   profileImage String?
   homeImage    String?
   books        Json?        @default("[]")
+  dashboardLayout Json?      @default("null")
   isPublic     Boolean      @default(true)
   showEmail    Boolean      @default(true)
   showPhone    Boolean      @default(true)

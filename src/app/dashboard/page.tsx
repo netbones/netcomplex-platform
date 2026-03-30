@@ -96,6 +96,32 @@ interface StoredLayout {
   activeTab: string;
 }
 
+async function loadLayoutFromDb(userId: string): Promise<StoredLayout | null> {
+  try {
+    const res = await fetch(`/api/users/${userId}`);
+    if (!res.ok) return null;
+    const user = await res.json();
+    if (user.dashboardLayout) {
+      return JSON.parse(user.dashboardLayout);
+    }
+  } catch (e) {
+    console.error('Failed to load layout from DB:', e);
+  }
+  return null;
+}
+
+async function saveLayoutToDb(userId: string, tabs: DashboardTab[], activeTab: string) {
+  try {
+    await fetch(`/api/users/${userId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dashboardLayout: JSON.stringify({ tabs, activeTab }) }),
+    });
+  } catch (e) {
+    console.error('Failed to save layout to DB:', e);
+  }
+}
+
 function loadLayout(): StoredLayout | null {
   if (typeof window === 'undefined') return null;
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -127,23 +153,40 @@ function DashboardContent() {
   const [showAddWidget, setShowAddWidget] = useState(false);
 
   useEffect(() => {
-    const saved = loadLayout();
-    if (saved) {
-      setTabs(saved.tabs);
-      setActiveTab(saved.activeTab);
-      const tab = saved.tabs.find(t => t.id === saved.activeTab);
-      if (tab) {
-        setActiveWidgets(tab.defaultWidgets);
+    async function loadInitialLayout() {
+      let saved: StoredLayout | null = null;
+
+      if (session?.user?.id) {
+        saved = await loadLayoutFromDb(session.user.id);
       }
+
+      if (!saved) {
+        saved = loadLayout();
+      }
+
+      if (saved) {
+        setTabs(saved.tabs);
+        setActiveTab(saved.activeTab);
+        const tab = saved.tabs.find(t => t.id === saved!.activeTab);
+        if (tab) {
+          setActiveWidgets(tab.defaultWidgets);
+        }
+      }
+      setInitialized(true);
     }
-    setInitialized(true);
-  }, []);
+
+    loadInitialLayout();
+  }, [session?.user?.id]);
 
   useEffect(() => {
-    if (initialized) {
-      saveLayout(tabs, activeTab);
+    if (!initialized) return;
+
+    saveLayout(tabs, activeTab);
+
+    if (session?.user?.id) {
+      saveLayoutToDb(session.user.id, tabs, activeTab);
     }
-  }, [tabs, activeTab, initialized]);
+  }, [tabs, activeTab, initialized, session?.user?.id]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
