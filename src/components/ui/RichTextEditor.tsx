@@ -12,6 +12,7 @@ import { Color } from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
 import Underline from '@tiptap/extension-underline';
+import { FontSize } from '@tiptap/extension-font-size';
 import { common, createLowlight } from 'lowlight';
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { toast } from 'sonner';
@@ -101,6 +102,7 @@ export function RichTextEditor({
         multicolor: true,
       }),
       Underline,
+      FontSize,
     ],
     content,
     immediatelyRender: false,
