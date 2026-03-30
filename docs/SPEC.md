@@ -46,10 +46,13 @@
 ## 3. Project Structure
 
 ```
-
 soralia-village/
+├── docs/
+│   ├── IDENTITY_MODEL.md      # Identity & routing structure
+│   ├── SPEC.md
+│   └── PRD.md
 ├── prisma/
-│ └── schema.prisma
+│   └── schema.prisma
 ├── src/
 │ ├── app/
 │ │ ├── (auth)/
@@ -93,6 +96,9 @@ soralia-village/
 ---
 
 ## 4. Database Schema (Prisma)
+
+> **Note:** Identity and seat types are defined in [IDENTITY_MODEL.md](./IDENTITY_MODEL.md).
+> See Section 4.1 for the Household/Seat/Alias schema extension.
 
 ### Full Schema
 
@@ -681,73 +687,58 @@ const validate = (data: FormData): boolean => {
 
 ### Directory Components
 
-- `ResidentCard` - Grid/list item for resident (external - public view)
-- `ResidentCardInternal` - Grid/list item for resident (internal - with chat/messaging)
-- `ResidentGrid` - Grid view of directory
-- `ResidentTable` - Table view of directory
-- `SearchFilters` - Filter sidebar
-- `StreetMap` - Leaflet map with markers
+**Route Structure (per IDENTITY_MODEL.md)**
 
-### Public Profile (`/resident/[id]`)
+| Route                         | Type      | Description                                       |
+| ----------------------------- | --------- | ------------------------------------------------- |
+| `/unit/{id}`                  | Household | Standard Seat (1 per household, required)         |
+| `/unit/{id}/member/{aliasId}` | Alias     | Address Alias sub-profile (up to 5 per household) |
+| `/resident/{id}`              | Premium   | Premium Seat for residents (owner or tenant)      |
+| `/member/{id}`                | Premium   | Premium Seat for non-resident HOA members         |
 
-- Shows resident name, address, avatar, home photo
-- Shows email (mailto link) if `showEmail: true`
-- Shows phone (tel link) if `showPhone: true`
-- Shows interests as colored badges
-- Shows published content with pagination
-- Shows bookshelf with user's book collection
+**Card Types**
 
-### Card Specifications
+- **Household Card** (`/unit/{id}`): Shows household head + alias avatar stack
+- **Alias Card** (`/unit/{id}/member/{aliasId}`): Individual alias profile
+- **Resident Card** (`/resident/{id}`): Premium seat holder who lives in community
+- **Member Card** (`/member/{id}`): Premium seat holder (non-resident, board/committee)
 
-#### Grid View Card Structure
+#### Directory Card Layouts
 
-```
-┌────────────────────────────┐
-│       Home Image           │  ← Banner (h-32), full width, object-cover
-│       (optional)           │
-├────────────────────────────┤
-│ [●] John Smith             │  ← Hero Section, colored background
-│     123 Main St, Unit A     │     - Avatar circle (40px)
-│                             │     - Name (bold, text-lg)
-│                             │     - Address (text-sm, opacity-90)
-├────────────────────────────┤
-│ 🏠 Owner                    │  ← Footer Section, white background
-│ 📧 email@example.com        │     - Resident type badge
-│ 📱 +1 555-1234             │     - Email/phone if isPublic
-│ [Interest] [Interest]      │     - Interest badges (colored)
-└────────────────────────────┘
-```
+**Grid View (Homepage `/`)**
 
-**Grid View Features:**
+- HomeImage banner at top (h-32)
+- Colored header with avatar + name + address
+- White body with contact info, interests
+- No interactive features beyond filtering/search
 
-- Rounded corners (rounded-lg)
-- Shadow on hover (hover:shadow-xl)
-- Scale animation on hover (scale-[1.02])
-- Color-coded hero section cycles through CARD_HEADER_COLORS
-- Avatar uses Dicebear fallback if no avatar set
-- Interest badges show only if user has interests
+**List View (Homepage `/`)**
 
-#### List View Card Structure
-
-```
-┌────────────────────────────────────────────────────────┐
-│ [●] John Smith         │ 🏠 Owner  │   Home Image      │
-│     123 Main St        │ 📧 email  │   (full height)  │
-│     Unit A             │ 📱 phone  │                   │
-│                        │ [Interests] │                  │
-└────────────────────────────────────────────────────────┘
-```
-
-**List View Features:**
-
-- Flex layout with colored header left (w-64)
-- Content center (flex-1) with pr-48 for image space
-- Image absolute positioned on right (w-48, full height)
+- Colored section left (w-64) with avatar + name + address
+- Content center (flex-1) with contact info + interests
+- HomeImage absolute positioned right (w-48, full height)
 - HomeImage only visible if user.homeImage exists
+
+**External Cards (Homepage `/` & Directory `/directory` - Public)**
+
+- Read-only view of resident information
+- Shows: Name, address, avatar, role badge (Owner/Renter), interests
+- Color-coded header (cycles through theme colors)
+- Contact info shown if `isPublic: true`
+- No interactive features beyond filtering/search
+
+**Internal Cards (Dashboard `/dashboard/directory` - Authenticated)**
+
+- All external card features PLUS:
+- Chat/Messaging button to start conversation
+- Quick action menu (view profile, send message)
+- Online status indicator
+- Last active timestamp
+- Requires authentication to view
 
 #### Common Features
 
-- **Link**: Entire card is clickable to `/resident/[id]`
+- **Link**: Entire card is clickable based on seat type (`/unit/{id}`, `/resident/{id}`, or `/member/{id}`)
 - **Hover**: Scale up + shadow increase
 - **Colors**: HEADER_COLORS = ['bg-indigo-600', 'bg-emerald-600', 'bg-amber-600', 'bg-rose-600']
 - **Interests**: INTEREST_COLORS maps interest names to badge colors
