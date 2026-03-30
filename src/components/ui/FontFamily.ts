@@ -1,15 +1,7 @@
-import { Mark } from '@tiptap/core';
+import '@tiptap/extension-text-style';
+import { Extension } from '@tiptap/core';
 
-declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
-    fontFamily: {
-      setFontFamily: (fontFamily: string) => ReturnType;
-      unsetFontFamily: () => ReturnType;
-    };
-  }
-}
-
-export const FontFamily = Mark.create({
+export const FontFamily = Extension.create({
   name: 'fontFamily',
 
   addOptions() {
@@ -18,34 +10,40 @@ export const FontFamily = Mark.create({
     };
   },
 
-  parseHTML() {
+  addGlobalAttributes() {
     return [
       {
-        tag: 'span',
-        getAttrs: element => {
-          const style = (element as HTMLElement).style.fontFamily;
-          return style ? { fontFamily: style.replace(/["']/g, '') } : null;
+        types: this.options.types,
+        attributes: {
+          fontFamily: {
+            default: null,
+            parseHTML: element => element.style.fontFamily,
+            renderHTML: attributes => {
+              if (!attributes.fontFamily) {
+                return {};
+              }
+              return {
+                style: `font-family: ${attributes.fontFamily}`,
+              };
+            },
+          },
         },
       },
     ];
   },
 
-  renderHTML({ HTMLAttributes }) {
-    return ['span', { style: `font-family: ${HTMLAttributes.fontFamily}` }, 0];
-  },
-
   addCommands() {
     return {
-      setFontFamily: (fontFamily: string) => {
-        return ({ commands }) => {
-          return commands.updateAttributes('textStyle', { fontFamily });
-        };
-      },
-      unsetFontFamily: () => {
-        return ({ commands }) => {
-          return commands.updateAttributes('textStyle', { fontFamily: null });
-        };
-      },
+      setFontFamily:
+        (fontFamily: string) =>
+        ({ chain }) => {
+          return chain().setMark('textStyle', { fontFamily }).run();
+        },
+      unsetFontFamily:
+        () =>
+        ({ chain }) => {
+          return chain().setMark('textStyle', { fontFamily: null }).removeEmptyTextStyle().run();
+        },
     };
   },
 });
