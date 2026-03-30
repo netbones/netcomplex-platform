@@ -26,7 +26,7 @@ const facilityLabels: Record<string, string> = {
 };
 
 export default function BookingsPage() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['common', 'bookings']);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -51,7 +51,7 @@ export default function BookingsPage() {
       <div className="container mx-auto px-4 py-8">
         <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.bookings') }]} />
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-soralia-primary">Facility Bookings</h1>
+          <h1 className="text-4xl font-bold text-soralia-primary">{t('bookings:title')}</h1>
           <button
             onClick={() => setShowForm(!showForm)}
             className="bg-soralia-primary text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
