@@ -699,6 +699,59 @@ const validate = (data: FormData): boolean => {
 
 ### Card Specifications
 
+#### Grid View Card Structure
+
+```
+┌────────────────────────────┐
+│       Home Image           │  ← Banner (h-32), full width, object-cover
+│       (optional)           │
+├────────────────────────────┤
+│ [●] John Smith             │  ← Hero Section, colored background
+│     123 Main St, Unit A     │     - Avatar circle (40px)
+│                             │     - Name (bold, text-lg)
+│                             │     - Address (text-sm, opacity-90)
+├────────────────────────────┤
+│ 🏠 Owner                    │  ← Footer Section, white background
+│ 📧 email@example.com        │     - Resident type badge
+│ 📱 +1 555-1234             │     - Email/phone if isPublic
+│ [Interest] [Interest]      │     - Interest badges (colored)
+└────────────────────────────┘
+```
+
+**Grid View Features:**
+
+- Rounded corners (rounded-lg)
+- Shadow on hover (hover:shadow-xl)
+- Scale animation on hover (scale-[1.02])
+- Color-coded hero section cycles through CARD_HEADER_COLORS
+- Avatar uses Dicebear fallback if no avatar set
+- Interest badges show only if user has interests
+
+#### List View Card Structure
+
+```
+┌────────────────────────────────────────────────────────┐
+│ [●] John Smith         │ 🏠 Owner  │   Home Image      │
+│     123 Main St        │ 📧 email  │   (full height)  │
+│     Unit A             │ 📱 phone  │                   │
+│                        │ [Interests] │                  │
+└────────────────────────────────────────────────────────┘
+```
+
+**List View Features:**
+
+- Flex layout with colored header left (w-64)
+- Content center (flex-1) with pr-48 for image space
+- Image absolute positioned on right (w-48, full height)
+- HomeImage only visible if user.homeImage exists
+
+#### Common Features
+
+- **Link**: Entire card is clickable to `/resident/[id]`
+- **Hover**: Scale up + shadow increase
+- **Colors**: HEADER_COLORS = ['bg-indigo-600', 'bg-emerald-600', 'bg-amber-600', 'bg-rose-600']
+- **Interests**: INTEREST_COLORS maps interest names to badge colors
+
 **External Cards (Homepage `/` & Directory `/directory` - Public)**
 
 - Read-only view of resident information
