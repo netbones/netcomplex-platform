@@ -25,6 +25,7 @@ import { MediaLibrary } from '@/components/ui/MediaLibrary';
 import { Pagination } from '@/components/ui/Pagination';
 import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
 import { DashboardTabs, AddWidgetModal, DashboardTab } from '@/components/dashboard/DashboardTabs';
+import { MessagesWidget } from '@/components/dashboard/MessagesWidget';
 
 interface StatCardProps {
   title: string;
@@ -68,6 +69,7 @@ const ALL_WIDGETS: DashboardWidget[] = [
   { id: 'bookshelf', type: 'bookshelf', title: 'My Bookshelf', icon: 'fa-book' },
   { id: 'media', type: 'media', title: 'Media Library', icon: 'fa-photo-video' },
   { id: 'my-content', type: 'my-content', title: 'My Content', icon: 'fa-file-alt' },
+  { id: 'messages', type: 'messages', title: 'Messages', icon: 'fa-comments' },
 ];
 
 const DEFAULT_TABS: DashboardTab[] = [
@@ -88,6 +90,12 @@ const DEFAULT_TABS: DashboardTab[] = [
     label: 'Activity',
     icon: 'fa-calendar',
     defaultWidgets: ['events', 'recent-activity', 'notifications'],
+  },
+  {
+    id: 'messages',
+    label: 'Messages',
+    icon: 'fa-comments',
+    defaultWidgets: ['messages'],
   },
 ];
 
@@ -270,6 +278,8 @@ function DashboardContent() {
         return <MediaLibrary />;
       case 'my-content':
         return <UserContentList />;
+      case 'messages':
+        return <MessagesWidget />;
       default:
         return null;
     }
