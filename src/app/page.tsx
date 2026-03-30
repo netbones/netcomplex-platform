@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import {
@@ -294,6 +295,7 @@ export default function HomePage() {
 
               return (
                 <Link
+                  key={resident.id}
                   href={`/resident/${resident.id}`}
                   className={`block bg-white rounded-lg shadow-md overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer ${CARD_ANIMATIONS.transition} ${viewMode === 'list' ? 'flex' : ''}`}
                 >
@@ -301,11 +303,15 @@ export default function HomePage() {
                     className={`${headerColor} p-4 text-white ${viewMode === 'list' ? 'w-64 shrink-0' : ''}`}
                   >
                     <div className="flex items-center gap-3">
-                      <img
-                        src={avatarUrl}
-                        alt={resident.name}
-                        className="w-10 h-10 rounded-full bg-white/20"
-                      />
+                      <div className="w-10 h-10 relative">
+                        <Image
+                          src={avatarUrl}
+                          alt={resident.name}
+                          fill
+                          sizes="40px"
+                          className="rounded-full bg-white/20"
+                        />
+                      </div>
                       <div>
                         <h3 className="font-bold text-lg">{resident.name}</h3>
                         <p className="text-sm opacity-90">{address}</p>
@@ -365,11 +371,13 @@ export default function HomePage() {
                       )}
                     </div>
                     {resident.homeImage && viewMode === 'grid' && (
-                      <div className="w-20 h-20 flex-shrink-0">
-                        <img
+                      <div className="w-20 h-20 flex-shrink-0 relative">
+                        <Image
                           src={resident.homeImage}
                           alt={`${resident.name}'s home`}
-                          className="w-full h-full object-cover rounded-lg"
+                          fill
+                          sizes="80px"
+                          className="object-cover rounded-lg"
                         />
                       </div>
                     )}
