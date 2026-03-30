@@ -151,13 +151,20 @@ function DashboardContent() {
   const [activeTab, setActiveTab] = useState('overview');
   const [activeWidgets, setActiveWidgets] = useState<string[]>(DEFAULT_TABS[0].defaultWidgets);
   const [showAddWidget, setShowAddWidget] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      setUserId(session.user.id);
+    }
+  }, [session?.user?.id]);
 
   useEffect(() => {
     async function loadInitialLayout() {
       let saved: StoredLayout | null = null;
 
-      if (session?.user?.id) {
-        saved = await loadLayoutFromDb(session.user.id);
+      if (userId) {
+        saved = await loadLayoutFromDb(userId);
       }
 
       if (!saved) {
@@ -176,17 +183,17 @@ function DashboardContent() {
     }
 
     loadInitialLayout();
-  }, [session?.user?.id]);
+  }, [userId]);
 
   useEffect(() => {
     if (!initialized) return;
 
     saveLayout(tabs, activeTab);
 
-    if (session?.user?.id) {
-      saveLayoutToDb(session.user.id, tabs, activeTab);
+    if (userId) {
+      saveLayoutToDb(userId, tabs, activeTab);
     }
-  }, [tabs, activeTab, initialized, session?.user?.id]);
+  }, [tabs, activeTab, initialized, userId]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
