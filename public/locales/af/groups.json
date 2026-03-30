@@ -1,0 +1,29 @@
+{
+  "title": "Belange Groepe",
+  "subtitle": "Verbind met bure wat u belangstellings deel",
+  "allGroups": "Alle Groepe",
+  "access": "Toegang:",
+  "members": "lede",
+  "join": "Sluit aan",
+  "apply": "Ans",
+  "inviteOnly": "Slegs uitnodiging",
+  "open": "Oop",
+  "createGroup": "Skep Groep",
+  "myGroups": "My Groepe",
+  "noGroups": "Geen groepe gevind nie",
+  "filter": {
+    "all": "Almal",
+    "owners": "Eienaars",
+    "renters": "Huurders"
+  },
+  "accessType": {
+    "OPEN": "Oop",
+    "INVITE_ONLY": "Slegs uitnodiging",
+    "APPLICATION": "Ans"
+  },
+  "residentFilter": {
+    "ALL": "Almal",
+    "OWNERS_ONLY": "Eienaars",
+    "RENTERS_ONLY": "Huurders"
+  }
+}

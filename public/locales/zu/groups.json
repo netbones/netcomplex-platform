@@ -1,0 +1,29 @@
+{
+  "title": "Amaqembu",
+  "subtitle": "Xhushanisa nabantu abakulega ababelana ngemininingwane yakho",
+  "allGroups": "Wonke amaqembu",
+  "access": "Ukufinyelela:",
+  "members": "amalungu",
+  "join": "Join",
+  "apply": "Faka isicelo",
+  "inviteOnly": "Ngokumenywa",
+  "open": "Vulekile",
+  "createGroup": "Dala iqembu",
+  "myGroups": "Amaqembu ami",
+  "noGroups": "Amaqembu angekho",
+  "filter": {
+    "all": "Wonke",
+    "owners": "Abakhi",
+    "renters": "Abahleli"
+  },
+  "accessType": {
+    "OPEN": "Vulekile",
+    "INVITE_ONLY": "Ngokumenywa",
+    "APPLICATION": "Faka isicelo"
+  },
+  "residentFilter": {
+    "ALL": "Wonke",
+    "OWNERS_ONLY": "Abakhi",
+    "RENTERS_ONLY": "Abahleli"
+  }
+}

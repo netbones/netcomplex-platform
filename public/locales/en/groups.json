@@ -1,0 +1,29 @@
+{
+  "title": "Interest Groups",
+  "subtitle": "Connect with neighbors who share your interests",
+  "allGroups": "All Groups",
+  "access": "Access:",
+  "members": "members",
+  "join": "Join",
+  "apply": "Apply",
+  "inviteOnly": "Invite Only",
+  "open": "Open",
+  "createGroup": "Create Group",
+  "myGroups": "My Groups",
+  "noGroups": "No groups found",
+  "filter": {
+    "all": "All",
+    "owners": "Owners",
+    "renters": "Renters"
+  },
+  "accessType": {
+    "OPEN": "Open",
+    "INVITE_ONLY": "Invite Only",
+    "APPLICATION": "Apply"
+  },
+  "residentFilter": {
+    "ALL": "All",
+    "OWNERS_ONLY": "Owners",
+    "RENTERS_ONLY": "Renters"
+  }
+}

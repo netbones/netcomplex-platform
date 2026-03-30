@@ -27,6 +27,7 @@ export const namespaces = [
   'forms',
   'resources',
   'conservation',
+  'groups',
 ];
 
 i18n

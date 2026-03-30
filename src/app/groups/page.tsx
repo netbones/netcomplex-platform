@@ -20,7 +20,7 @@ interface Group {
 }
 
 export default function GroupsHubPage() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['common', 'groups']);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -52,16 +52,16 @@ export default function GroupsHubPage() {
   });
 
   const accessTypeLabel = (type: string) => {
-    if (type === 'OPEN') return 'Open';
-    if (type === 'INVITE_ONLY') return 'Invite Only';
-    if (type === 'APPLICATION') return 'Apply';
+    if (type === 'OPEN') return t('groups:accessType.OPEN');
+    if (type === 'INVITE_ONLY') return t('groups:accessType.INVITE_ONLY');
+    if (type === 'APPLICATION') return t('groups:accessType.APPLICATION');
     return type;
   };
 
   const residentFilterLabel = (filter: string) => {
-    if (filter === 'ALL') return 'All';
-    if (filter === 'OWNERS_ONLY') return 'Owners';
-    if (filter === 'RENTERS_ONLY') return 'Renters';
+    if (filter === 'ALL') return t('groups:filter.all');
+    if (filter === 'OWNERS_ONLY') return t('groups:filter.owners');
+    if (filter === 'RENTERS_ONLY') return t('groups:filter.renters');
     return filter;
   };
 
@@ -73,8 +73,8 @@ export default function GroupsHubPage() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.groups') }]} />
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Interest Groups</h1>
-        <p className="text-gray-600">Connect with neighbors who share your interests</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('groups:title')}</h1>
+        <p className="text-gray-600">{t('groups:subtitle')}</p>
       </div>
 
       <div className="flex flex-wrap justify-center gap-2 mb-4">
@@ -86,7 +86,7 @@ export default function GroupsHubPage() {
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          All Groups
+          {t('groups:allGroups')}
         </button>
         {INTEREST_CATEGORIES.map(cat => (
           <button
@@ -104,7 +104,7 @@ export default function GroupsHubPage() {
       </div>
 
       <div className="flex flex-wrap justify-center gap-2 mb-8">
-        <span className="text-sm text-gray-600 py-2">Access:</span>
+        <span className="text-sm text-gray-600 py-2">{t('groups:access')}</span>
         <button
           onClick={() => setSelectedAccess('all')}
           className={`px-3 py-1 rounded-full text-sm ${

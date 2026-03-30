@@ -1,0 +1,29 @@
+{
+  "title": "Amagqabantshintshi",
+  "subtitle": "Nxa nabantu abakufutshane ababelana ngeemvumelwano zakho",
+  "allGroups": "Amagqabantshintshi onke",
+  "access": "Ukufikelela:",
+  "members": "amalungu",
+  "join": "Nquma",
+  "apply": "Faka isicelo",
+  "inviteOnly": "Ngcino lwedwa",
+  "open": "Vulekile",
+  "createGroup": "Yenza igqabantshintshi",
+  "myGroups": "Amagqabantshintshi am",
+  "noGroups": "Akukho magqabantshintshi afunyenwe",
+  "filter": {
+    "all": "Onke",
+    "owners": "Abanini",
+    "renters": "Abahlali"
+  },
+  "accessType": {
+    "OPEN": "Vulekile",
+    "INVITE_ONLY": "Ngcino lwedwa",
+    "APPLICATION": "Faka isicelo"
+  },
+  "residentFilter": {
+    "ALL": "Onke",
+    "OWNERS_ONLY": "Abanini",
+    "RENTERS_ONLY": "Abahlali"
+  }
+}
