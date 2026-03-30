@@ -5,8 +5,8 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import Image from '@tiptap/extension-image';
-import ResizeImage from 'tiptap-extension-resize-image';
-import 'tiptap-extension-resize-image/styles.css';
+import { ResizableImage } from 'tiptap-extension-resizable-image';
+import 'tiptap-extension-resizable-image/styles.css';
 import { common, createLowlight } from 'lowlight';
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { toast } from 'sonner';
@@ -63,7 +63,7 @@ export function RichTextEditor({
         inline: false,
         allowBase64: false,
       }),
-      ResizeImage,
+      ResizableImage,
       Placeholder.configure({
         placeholder: placeholder || 'Start writing...',
       }),
