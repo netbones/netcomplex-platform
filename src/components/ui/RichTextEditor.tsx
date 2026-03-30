@@ -241,6 +241,7 @@ export function RichTextEditor({
 
   const getCurrentHeading = () => {
     if (!editor) return 'H';
+    if (editor.isActive('paragraph')) return 'P';
     if (editor.isActive('heading', { level: 1 })) return 'H1';
     if (editor.isActive('heading', { level: 2 })) return 'H2';
     if (editor.isActive('heading', { level: 3 })) return 'H3';
