@@ -23,24 +23,33 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Bookshelf } from '@/components/ui/Bookshelf';
 import { MediaLibrary } from '@/components/ui/MediaLibrary';
 import { Pagination } from '@/components/ui/Pagination';
-import {
-  DraggableWidget,
-  DashboardTabs,
-  AddWidgetModal,
-  MessagesWidget,
-  StatsWidget,
-  QuickActionsWidget,
-  RecentActivityWidget,
-  EventsWidget,
-  NotificationsWidget,
-} from '@/components/dashboard';
-import type { DashboardTab } from '@/components/dashboard';
+import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
+import { DashboardTabs, AddWidgetModal, DashboardTab } from '@/components/dashboard/DashboardTabs';
 
-interface DashboardWidget {
-  id: string;
-  type: string;
+interface StatCardProps {
   title: string;
+  value: string | number;
   icon: string;
+  href?: string;
+}
+
+function StatCard({ title, value, icon, href }: StatCardProps) {
+  const content = (
+    <div className="bg-white rounded-lg shadow p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-600">{title}</p>
+          <p className="text-2xl font-bold text-gray-800">{value}</p>
+        </div>
+        <span className="text-2xl">{icon}</span>
+      </div>
+    </div>
+  );
+
+  if (href) {
+    return <Link href={href}>{content}</Link>;
+  }
+  return content;
 }
 
 interface DashboardWidget {
@@ -59,7 +68,6 @@ const ALL_WIDGETS: DashboardWidget[] = [
   { id: 'bookshelf', type: 'bookshelf', title: 'My Bookshelf', icon: 'fa-book' },
   { id: 'media', type: 'media', title: 'Media Library', icon: 'fa-photo-video' },
   { id: 'my-content', type: 'my-content', title: 'My Content', icon: 'fa-file-alt' },
-  { id: 'messages', type: 'messages', title: 'Messages', icon: 'fa-comments' },
 ];
 
 const DEFAULT_TABS: DashboardTab[] = [
@@ -81,64 +89,7 @@ const DEFAULT_TABS: DashboardTab[] = [
     icon: 'fa-calendar',
     defaultWidgets: ['events', 'recent-activity', 'notifications'],
   },
-  {
-    id: 'messages',
-    label: 'Messages',
-    icon: 'fa-comments',
-    defaultWidgets: ['messages'],
-  },
 ];
-
-const STORAGE_KEY = 'dashboard-layout';
-
-interface StoredLayout {
-  tabs: DashboardTab[];
-  activeTab: string;
-}
-
-async function loadLayoutFromDb(userId: string): Promise<StoredLayout | null> {
-  try {
-    const res = await fetch(`/api/users/${userId}`);
-    if (!res.ok) return null;
-    const user = await res.json();
-    if (user.dashboardLayout) {
-      return JSON.parse(user.dashboardLayout);
-    }
-  } catch (e) {
-    console.error('Failed to load layout from DB:', e);
-  }
-  return null;
-}
-
-async function saveLayoutToDb(userId: string, tabs: DashboardTab[], activeTab: string) {
-  try {
-    await fetch(`/api/users/${userId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dashboardLayout: JSON.stringify({ tabs, activeTab }) }),
-    });
-  } catch (e) {
-    console.error('Failed to save layout to DB:', e);
-  }
-}
-
-function loadLayout(): StoredLayout | null {
-  if (typeof window === 'undefined') return null;
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    try {
-      return JSON.parse(stored);
-    } catch {
-      return null;
-    }
-  }
-  return null;
-}
-
-function saveLayout(tabs: DashboardTab[], activeTab: string) {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ tabs, activeTab }));
-}
 
 function DashboardContent() {
   const { t } = useTranslation('dashboard');
@@ -146,54 +97,10 @@ function DashboardContent() {
   const { data: session } = authClient.useSession();
   const [stats, setStats] = useState({ requests: 0, bookings: 0, messages: 0, notifications: 0 });
   const [loading, setLoading] = useState(true);
-  const [initialized, setInitialized] = useState(false);
   const [tabs, setTabs] = useState<DashboardTab[]>(DEFAULT_TABS);
   const [activeTab, setActiveTab] = useState('overview');
   const [activeWidgets, setActiveWidgets] = useState<string[]>(DEFAULT_TABS[0].defaultWidgets);
   const [showAddWidget, setShowAddWidget] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (session?.user?.id) {
-      setUserId(session.user.id);
-    }
-  }, [session?.user?.id]);
-
-  useEffect(() => {
-    async function loadInitialLayout() {
-      let saved: StoredLayout | null = null;
-
-      if (userId) {
-        saved = await loadLayoutFromDb(userId);
-      }
-
-      if (!saved) {
-        saved = loadLayout();
-      }
-
-      if (saved) {
-        setTabs(saved.tabs);
-        setActiveTab(saved.activeTab);
-        const tab = saved.tabs.find(t => t.id === saved!.activeTab);
-        if (tab) {
-          setActiveWidgets(tab.defaultWidgets);
-        }
-      }
-      setInitialized(true);
-    }
-
-    loadInitialLayout();
-  }, [userId]);
-
-  useEffect(() => {
-    if (!initialized) return;
-
-    saveLayout(tabs, activeTab);
-
-    if (userId) {
-      saveLayoutToDb(userId, tabs, activeTab);
-    }
-  }, [tabs, activeTab, initialized, userId]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -233,35 +140,20 @@ function DashboardContent() {
   }, []);
 
   useEffect(() => {
-    if (!initialized) return;
     const currentTab = tabs.find(tab => tab.id === activeTab);
     if (currentTab) {
       setActiveWidgets(currentTab.defaultWidgets);
     }
-  }, [activeTab, tabs, initialized]);
-
-  useEffect(() => {
-    if (!initialized) return;
-    const currentTab = tabs.find(tab => tab.id === activeTab);
-    if (currentTab && currentTab.defaultWidgets.join(',') !== activeWidgets.join(',')) {
-      setTabs(prev =>
-        prev.map(tab => (tab.id === activeTab ? { ...tab, defaultWidgets: activeWidgets } : tab))
-      );
-    }
-  }, [activeWidgets, activeTab, tabs, initialized]);
+  }, [activeTab, tabs]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      const newWidgets = (() => {
-        const oldIndex = activeWidgets.indexOf(active.id as string);
-        const newIndex = activeWidgets.indexOf(over.id as string);
-        return arrayMove(activeWidgets, oldIndex, newIndex);
-      })();
-      setActiveWidgets(newWidgets);
-      setTabs(prev =>
-        prev.map(tab => (tab.id === activeTab ? { ...tab, defaultWidgets: newWidgets } : tab))
-      );
+      setActiveWidgets(items => {
+        const oldIndex = items.indexOf(active.id as string);
+        const newIndex = items.indexOf(over.id as string);
+        return arrayMove(items, oldIndex, newIndex);
+      });
     }
   }
 
@@ -294,23 +186,90 @@ function DashboardContent() {
   const renderWidgetContent = (widgetId: string) => {
     switch (widgetId) {
       case 'stats':
-        return <StatsWidget stats={stats} loading={loading} />;
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <StatCard
+              title={t('myRequests')}
+              value={loading ? '...' : stats.requests}
+              icon="🔧"
+              href="/maintenance"
+            />
+            <StatCard
+              title={t('myBookings')}
+              value={loading ? '...' : stats.bookings}
+              icon="📅"
+              href="/bookings"
+            />
+            <StatCard
+              title={t('messages')}
+              value={loading ? '...' : stats.messages}
+              icon="💬"
+              href="/messages"
+            />
+            <StatCard
+              title={t('notifications')}
+              value={loading ? '...' : stats.notifications}
+              icon="🔔"
+            />
+          </div>
+        );
       case 'quick-actions':
-        return <QuickActionsWidget userId={session?.user?.id} />;
+        return (
+          <div className="space-y-3">
+            <Link
+              href="/maintenance"
+              className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
+            >
+              {t('submitRequest')}
+            </Link>
+            <Link
+              href="/bookings"
+              className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
+            >
+              {t('bookFacility')}
+            </Link>
+            <Link
+              href="/admin/content/new"
+              className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
+            >
+              {t('createContent', 'Create Content')}
+            </Link>
+            <Link
+              href={`/resident/${session?.user?.id}`}
+              className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
+            >
+              {t('viewProfile', 'View My Profile')}
+            </Link>
+          </div>
+        );
       case 'recent-activity':
-        return <RecentActivityWidget />;
+        return (
+          <div className="text-center py-8 text-gray-500">
+            <p>{t('noActivity')}</p>
+            <p className="text-sm">{t('activityWillAppear')}</p>
+          </div>
+        );
       case 'notifications':
-        return <NotificationsWidget count={stats.notifications} />;
+        return (
+          <div className="text-center py-4 text-gray-500">
+            <p className="text-sm">No new notifications</p>
+          </div>
+        );
       case 'events':
-        return <EventsWidget />;
+        return (
+          <div className="text-center py-8 text-gray-500">
+            <p>{t('noEvents')}</p>
+            <Link href="/resources" className="text-indigo-600 hover:underline">
+              {t('viewAllEvents')}
+            </Link>
+          </div>
+        );
       case 'bookshelf':
         return session?.user?.id ? <Bookshelf userId={session.user.id} editable={true} /> : null;
       case 'media':
         return <MediaLibrary />;
       case 'my-content':
         return <UserContentList />;
-      case 'messages':
-        return <MessagesWidget />;
       default:
         return null;
     }

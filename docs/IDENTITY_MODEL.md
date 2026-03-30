@@ -4,17 +4,23 @@
 
 This document defines the identity and routing structure for the Soralia Village Directory Platform, based on the SaaS License Agreement (Section 1, Definitions).
 
+> **⚠️ Terminology Note**: To avoid confusion between platform multi-tenancy and HOA residency:
+>
+> - **Organization** = the HOA entity (multi-tenant "tenant")
+> - **Occupant** = person living in a property (renter/tenant)
+> - **Household** = a property unit with its occupants
+
 ---
 
 ## Key Concepts
 
-### Member vs Resident vs Tenant
+### Member vs Occupant vs Resident
 
-| Concept      | Definition                    | Has Property | Lives Here |
-| ------------ | ----------------------------- | ------------ | ---------- |
-| **Member**   | Property owner (HOA member)   | ✅ Yes       | Maybe      |
-| **Resident** | Person who lives in community | —            | ✅ Yes     |
-| **Tenant**   | Non-owner resident            | ❌ No        | ✅ Yes     |
+| Concept      | Definition                         | Has Property | Lives Here |
+| ------------ | ---------------------------------- | ------------ | ---------- |
+| **Member**   | Property owner (HOA member)        | ✅ Yes       | Maybe      |
+| **Occupant** | Person who lives in community      | —            | ✅ Yes     |
+| **Resident** | Premium Seat holder who lives here | ✅ Yes       | ✅ Yes     |
 
 **Important**: A Member always has a property/homeImage associated with their seat. The platform is primarily for Residents, managed by the HOA (Members).
 
@@ -29,15 +35,15 @@ This document defines the identity and routing structure for the Soralia Village
 | Route     | `/unit/{id}`                         |
 | Seat Type | Standard (1 per household, required) |
 | HomeImage | ✅ Yes                               |
-| Aliases   | Up to 5 (typically tenants)          |
+| Profiles  | Up to 5 (typically occupants)        |
 
 A Member is a property owner in Soralia Village. Every household with a Member has:
 
 - One authenticated Standard Seat login
 - One household-level Platform Address (e.g., `unit042@sorialia.org`)
-- Up to five Address Aliases for household members (tenants, family)
+- Up to five Address Profiles for household members (occupants, family)
 
-### 2. Tenant (Address Alias)
+### 2. Occupant (Address Alias)
 
 | Property  | Value                          |
 | --------- | ------------------------------ |
@@ -46,9 +52,9 @@ A Member is a property owner in Soralia Village. Every household with a Member h
 | HomeImage | ❌ No (uses member's property) |
 | Login     | No (managed by Member)         |
 
-A Tenant is a non-owner resident who lives in the community. They begin their journey as an **Address Alias** attached to the Member's Standard Seat.
+A Occupant is a non-owner resident who lives in the community. They begin their journey as an **Address Alias** attached to the Member's Standard Seat.
 
-**Tenant Journey:**
+**Occupant Journey:**
 
 1. Starts as Alias → Can participate in groups, messaging
 2. After 1 year tenure → Eligible to upgrade to Premium Seat
@@ -61,9 +67,9 @@ A Tenant is a non-owner resident who lives in the community. They begin their jo
 | Route     | `/resident/{id}`   |
 | Seat Type | Premium (optional) |
 | HomeImage | ✅ Yes             |
-| Aliases   | N/A                |
+| Profiles  | N/A                |
 
-A Resident is a Premium Seat holder who physically lives in the community (owner-occupier or upgraded tenant). Premium Seats are independent of the household unit.
+A Resident is a Premium Seat holder who physically lives in the community (owner-occupier or upgraded occupant). Premium Seats are independent of the household unit.
 
 ### 4. Member (Premium Seat - Non-Resident)
 
@@ -72,15 +78,15 @@ A Resident is a Premium Seat holder who physically lives in the community (owner
 | Route     | `/member/{id}`          |
 | Seat Type | Premium (optional)      |
 | HomeImage | ✅ Yes (property owner) |
-| Aliases   | N/A                     |
+| Profiles  | N/A                     |
 
 A non-resident Member is a property owner who doesn't live in the community but maintains HOA involvement (board member, committee representative).
 
 ---
 
-## Address Aliases
+## Address Profiles
 
-Address Aliases are sub-identities attached to a Standard Seat (Member's household). They represent tenants, family members, or minors who participate in the platform.
+Address Profiles are sub-identities attached to a Standard Seat (Member's household). They represent occupants, family members, or minors who participate in the platform.
 
 | Property          | Value                                |
 | ----------------- | ------------------------------------ |
@@ -92,13 +98,13 @@ Address Aliases are sub-identities attached to a Standard Seat (Member's househo
 
 ### Alias Types
 
-All aliases are flat under the Member's Standard Seat (no nesting):
+All profiles are flat under the Member's Standard Seat (no nesting):
 
-| Alias Type    | Example                     | Notes                                      |
-| ------------- | --------------------------- | ------------------------------------------ |
-| Adult Tenant  | `john.unit042@soralia.org`  | Non-owner resident, may upgrade later      |
-| Minor Child   | `sarah.unit042@soralia.org` | No independent login, managed by Member    |
-| Family Member | `mary.unit042@soralia.org`  | Non-owner family, same structure as tenant |
+| Alias Type     | Example                     | Notes                                        |
+| -------------- | --------------------------- | -------------------------------------------- |
+| Adult Occupant | `john.unit042@soralia.org`  | Non-owner resident, may upgrade later        |
+| Minor Child    | `sarah.unit042@soralia.org` | No independent login, managed by Member      |
+| Family Member  | `mary.unit042@soralia.org`  | Non-owner family, same structure as occupant |
 
 ### Alias Capabilities
 
@@ -109,37 +115,37 @@ All aliases are flat under the Member's Standard Seat (no nesting):
 
 ### Minor Handling
 
-- Minors start as aliases (direct children of Member, no nesting)
+- Minors start as profiles (direct children of Member, no nesting)
 - No independent login capability
 - Managed entirely by Member (Standard Seat holder)
-- When minor turns 18: eligible for Premium Seat upgrade (after 1 year tenure as alias)
+- When minor turns 18: eligible for Premium Seat upgrade (after 1 year tenure as profile)
 - No special routing or data model distinction needed
 
 ### Alias Management
 
-The Standard Seat holder (Member) manages ALL aliases via their household dashboard:
+The Standard Seat holder (Member) manages ALL profiles via their household dashboard:
 
-- Create/remove aliases (tenants, family, minors)
+- Create/remove profiles (occupants, family, minors)
 - Assign display names
 - Set avatar
 - Control visibility (public/private)
-- No nesting - all aliases at same level
+- No nesting - all profiles at same level
 
 ### Alias Login Model
 
-Each household member (Standard Seat holder and Aliases) has their **own personal email** for authentication, but shares the household's **platform address** for internal messaging:
+Each household member (Standard Seat holder and Profiles) has their **own personal email** for authentication, but shares the household's **platform address** for internal messaging:
 
 | Entity                 | Login Email (Auth)            | Platform Address (Messaging) |
 | ---------------------- | ----------------------------- | ---------------------------- |
 | Member (Standard Seat) | `member@email.com` (personal) | `unit042@soralia.org`        |
-| Alias 1 (Tenant)       | `john@gmail.com` (personal)   | `john.unit042@soralia.org`   |
+| Alias 1 (Occupant)     | `john@gmail.com` (personal)   | `john.unit042@soralia.org`   |
 | Alias 2 (Minor)        | `sarah@gmail.com` (personal)  | `sarah.unit042@soralia.org`  |
 
 **Login Flow:**
 
 1. User enters their personal email + password
 2. System authenticates and loads their profile
-3. Alias users see alias profile, Member sees Member profile
+3. Profile users see their profile, Member sees Member profile
 4. Messages addressed to platform address (`john.unit042@`)
 
 **Benefits:**
@@ -148,7 +154,7 @@ Each household member (Standard Seat holder and Aliases) has their **own persona
 - No shared credentials
 - Clear identity per user
 - Better Auth compatible (standard email/pass)
-- Aliases can have different emails (personal or household-subaddressed)
+- Profiles can have different emails (personal or household-subaddressed)
 
 ### Alternative: Magic Link + Alias Selection
 
@@ -162,13 +168,13 @@ If password management is a concern, consider magic link authentication:
 ```
 
 **Pros:** No passwords to reset
-**Cons:** Requires email per alias anyway, extra login step
+**Cons:** Requires email per profile anyway, extra login step
 
 ### Design Decision Pending
 
 We need to decide between:
 
-1. **Per-alias personal email** (recommended) - each user has own email for auth
+1. **Per-profile personal email** (recommended) - each user has own email for auth
 2. **Magic link system** - single household email, identity selection on login
 
 This affects Better Auth configuration and onboarding flow.
@@ -179,7 +185,7 @@ This affects Better Auth configuration and onboarding flow.
 
 ```
 /unit/{id}                 → Member (Standard Seat - property owner)
-/unit/{id}/member/{alias} → Tenant (Address Alias - non-owner resident)
+/unit/{id}/member/{alias} → Occupant (Address Profile - non-owner resident)
 /resident/{id}             → Resident (Premium Seat - lives here, has own seat)
 /member/{id}               → Member (Premium Seat - doesn't live here, HOA role)
 ```
@@ -187,9 +193,61 @@ This affects Better Auth configuration and onboarding flow.
 ### Route Priority
 
 1. `/unit/{id}` - Always exists for Member households
-2. `/unit/{id}/member/{aliasId}` - Aliases attached to Member's seat
-3. `/resident/{id}` - Premium Seat (resident, owns or upgraded tenant)
+2. `/unit/{id}/member/{aliasId}` - Profiles attached to Member's seat
+3. `/resident/{id}` - Premium Seat (resident, owns or upgraded occupant)
 4. `/member/{id}` - Premium Seat (non-resident owner or HOA role)
+
+---
+
+## Organization Model (Multi-Tenant)
+
+This section defines how the platform supports multiple HOAs (future multi-tenancy).
+
+### Key Terminology
+
+| Term             | Platform Context                            | HOA Context                  |
+| ---------------- | ------------------------------------------- | ---------------------------- |
+| **Organization** | A separate instance (HOA) on the platform   | The HOA itself               |
+| **Member**       | User belonging to an Organization           | Property owner               |
+| **Seat**         | Authentication identity within Organization | Standard/Premium seat in HOA |
+| **Profile**      | Persona under a Seat (profile)              | Occupant under household     |
+
+### Organization Hierarchy
+
+```
+Platform
+└── Organization (HOA)
+    └── Household (Property Unit)
+        ├── Standard Seat (Member account)
+        └── Profiles (up to 5: Occupants, family, minors)
+    └── Premium Seats (Independent, may exist outside household)
+```
+
+### Multi-Tenant Data Isolation
+
+- Every data record includes `organizationId`
+- Row-Level Security (RLS) in PostgreSQL enforces isolation
+- Subdomain routing: `{community}.soralia.app` for each HOA
+
+### Netflix Model for Household Login
+
+**Recommendation**: Each household shares ONE login credentials, with profile selection at session start.
+
+**Flow**:
+
+1. User enters household credentials (email/password)
+2. System shows profile selector: "Who is using?"
+3. User selects their persona (Member or Occupant)
+4. Session scoped to selected profile
+
+**Benefits**:
+
+- Simpler authentication (Better Auth standard config)
+- No credential sharing required
+- Clear identity per profile
+- Works with existing per-profile email approach
+
+**Alternative**: Per-profile credentials (more complex, requires Better Auth Organization/Teams)
 
 ---
 
@@ -204,10 +262,10 @@ This affects Better Auth configuration and onboarding flow.
     │    │  ┌───────────────────────────────────────────────┐ │   │
     │    │  │ Member (Standard Seat /unit/{id})             │ │   │
     │    │  │                                               │ │   │
-    │    │  │  Aliases (flat, up to 5):                      │ │   │
+    │    │  │  Profiles (flat, up to 5):                      │ │   │
     │    │  │  ┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐     │ │   │
     │    │  │  │Adult  │ │Adult  │ │Minor  │ │Family │     │ │   │
-    │    │  │  │Tenant │ │Tenant │ │Child  │ │Member │     │ │   │
+    │    │  │  │Occupant │ │Occupant │ │Child  │ │Member │     │ │   │
     │    │  │  └───────┘ └───────┘ └───────┘ └───────┘     │ │   │
     │    │  │                                               │ │   │
     │    │  │  Premium Seats (if upgraded):                  │ │   │
@@ -222,33 +280,33 @@ This affects Better Auth configuration and onboarding flow.
     │    │              STANDALONE PREMIUM SEATS                │   │
     │    │  ┌─────────┐  ┌─────────┐  ┌─────────┐             │   │
     │    │  │Resident │  │Resident │  │  Board  │             │   │
-    │    │  │(Owner)  │  │(Tenant) │  │ Member  │             │   │
+    │    │  │(Owner)  │  │(Occupant) │  │ Member  │             │   │
     │    │  └─────────┘  └─────────┘  └─────────┘             │   │
     │    └───────────────────────────────────────────────────┘   │
     │                                                             │
-    │  ALL ALIASES (Tenants, Minors, Family) = flat under Member  │
+    │  ALL ALIASES (Occupants, Minors, Family) = flat under Member  │
     │  MINORS = No independent login, managed by Member           │
     │  UPGRADE PATH: Alias → Premium Seat (after 1 year tenure)   │
     └─────────────────────────────────────────────────────────────┘
 
     Standard Seat:  /unit/{id}       (required, Member = property owner)
-    Aliases:        /unit/{id}/member/{aliasId}  (up to 5, all flat)
+    Profiles:        /unit/{id}/member/{aliasId}  (up to 5, all flat)
     Premium:        /resident/{id}  (resident with own seat)
                     /member/{id}    (non-resident Member)
 ```
 
 ---
 
-## Tenant Upgrade Path
+## Occupant Upgrade Path
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                     TENANT JOURNEY                                │
+│                     OCCUPANT JOURNEY                                │
 ├──────────────────────────────────────────────────────────────────┤
 │                                                                   │
 │  START                      UPGRADE ELIGIBLE                      │
 │  ┌─────────┐               ┌─────────────┐                      │
-│  │ Tenant  │ ─────────────►│ Tenant w/   │                      │
+│  │ Occupant  │ ─────────────►│ Occupant w/   │                      │
 │  │ Alias   │  1 year       │ 1 Year      │                      │
 │  │         │  tenure        │ Tenure      │                      │
 │  └─────────┘               └─────────────┘                      │
@@ -289,18 +347,18 @@ This affects Better Auth configuration and onboarding flow.
 ### `/unit/{id}` (Member - Standard Seat)
 
 - HomeImage banner
-- Member avatar + tenant alias avatar stack
+- Member avatar + occupant profile avatar stack
 - Bookshelf widget (collective)
 - Published content (collective)
 - Groups widget (collective)
-- Tenant management panel
+- Occupant management panel
 - Contact info
 
-### `/unit/{id}/member/{aliasId}` (Tenant - Alias)
+### `/unit/{id}/member/{aliasId}` (Occupant - Profile)
 
 - Avatar + display name (no homeImage)
-- Groups (joined as alias)
-- Content (published as alias)
+- Groups (joined as profile)
+- Content (published as profile)
 - Back to household link
 
 ### `/resident/{id}` (Premium - Resident)
@@ -332,7 +390,7 @@ This affects Better Auth configuration and onboarding flow.
 | Has HomeImage       | ✅ Yes              | ❌ No                       | ✅ Yes (resident) / ❌ No          |
 | Independent Login   | Yes                 | ❌ No                       | Yes                                |
 | Travels with Person | ❌ No               | N/A                         | ✅ Yes                             |
-| Can Have Aliases    | ✅ Yes              | ❌ No                       | ❌ No                              |
+| Can Have Profiles   | ✅ Yes              | ❌ No                       | ❌ No                              |
 | Price               | Included            | Included                    | 1.5x Standard                      |
 
 ---
@@ -354,47 +412,47 @@ Five Premium Seats provided at no charge for HOA board members and committee rep
 User
   ├── StandardSeat?      (1:1) - Member household login
   ├── PremiumSeat?        (1:1) - Personal login (resident or member)
-  └── AddressAliases[]    (1:n) - up to 5 per StandardSeat (flat, no nesting)
+  └── AddressProfiles[]    (1:n) - up to 5 per StandardSeat (flat, no nesting)
 
 StandardSeat (Member - Property Owner)
   ├── householdId
   ├── platformAddress    (unitNNN@domain)
   ├── memberId           (User FK - property owner)
-  └── AddressAliases[]   (adult tenant, minor child, family member - all flat)
+  └── AddressProfiles[]   (adult occupant, minor child, family member - all flat)
 
 PremiumSeat
   ├── userId
   ├── platformAddress    (name@domain)
   └── isComplimentary    (boolean)
 
-AddressAlias (Tenant/Family/Minor - All same type)
+AddressProfile (Occupant/Family/Minor - All same type)
   ├── standardSeatId
-  ├── alias              (name.unitNNN)
+  ├── profile              (name.unitNNN)
   ├── displayName
   ├── avatar
   ├── isPublic
-  └── tenantSince        (Date - for upgrade eligibility tracking)
+  └── occupantSince        (Date - for upgrade eligibility tracking)
 ```
 
 User
 ├── StandardSeat? (1:1) - Member household login
 ├── PremiumSeat? (1:1) - Personal login (resident or member)
-└── AddressAliases[] (1:n) - up to 5 per StandardSeat
+└── AddressProfiles[] (1:n) - up to 5 per StandardSeat
 
 StandardSeat (Member)
 ├── householdId
 ├── platformAddress (unitNNN@domain)
 ├── memberId (User FK - property owner)
-└── AddressAliases[] (tenants, family)
+└── AddressProfiles[] (occupants, family)
 
 PremiumSeat
 ├── userId
 ├── platformAddress (name@domain)
 └── isComplimentary (boolean)
 
-AddressAlias (Tenant)
+AddressProfile (Occupant)
 ├── standardSeatId
-├── alias (name.unitNNN)
+├── profile (name.unitNNN)
 ├── displayName
 ├── avatar
 └── isPublic
@@ -406,9 +464,9 @@ AddressAlias (Tenant)
 ## Implementation Notes
 
 1. **Backward Compatibility**: Existing `/resident/{id}` routes remain for current users
-2. **Tenant Flow**: Tenants start as aliases, upgrade to Premium after 1 year
+2. **Occupant Flow**: Occupants start as profiles, upgrade to Premium after 1 year
 3. **Member Always Has Property**: All Standard Seats (Members) have homeImage
-4. **Alias Isolation**: Aliases cannot access household admin functions
+4. **Alias Isolation**: Profiles cannot access household admin functions
 5. **Deprecation**: When household moves out, Standard Seat archived per Section 6.7
 6. **Portability**: Premium Seat holders can export data during Portability Window
 

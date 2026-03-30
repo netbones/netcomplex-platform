@@ -53,7 +53,7 @@ export default function AdminUsersPage() {
     Promise.all([fetch('/api/users'), fetch('/api/invitations')])
       .then(([u, i]) => Promise.all([u.json(), i.json()]))
       .then(([usersData, invitesData]) => {
-        setUsers(usersData);
+        setUsers(usersData.users || []);
         setInvitations(invitesData);
         setLoading(false);
       })
@@ -69,7 +69,7 @@ export default function AdminUsersPage() {
     fetch(`/api/users?${params}`)
       .then(r => r.json())
       .then(d => {
-        setUsers(d);
+        setUsers(d.users || []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
