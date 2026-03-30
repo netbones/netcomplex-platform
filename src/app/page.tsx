@@ -381,6 +381,17 @@ export default function HomePage() {
                         </div>
                       )}
                     </div>
+                    {resident.homeImage && viewMode === 'list' && (
+                      <div className="w-24 h-24 flex-shrink-0 relative ml-4">
+                        <Image
+                          src={resident.homeImage}
+                          alt={`${resident.name}'s home`}
+                          fill
+                          sizes="96px"
+                          className="object-cover rounded-lg"
+                        />
+                      </div>
+                    )}
                   </div>
                 </Link>
               );
