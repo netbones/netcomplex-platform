@@ -45,18 +45,24 @@ const HEADINGS = [
   { label: 'Heading 3', level: 3 },
 ];
 const COLORS = [
-  '#000000',
-  '#333333',
-  '#666666',
-  '#999999',
-  '#cccccc',
-  '#4F46E5',
-  '#0891B2',
-  '#059669',
-  '#D97706',
-  '#DC2626',
-  '#7C3AED',
-  '#DB2777',
+  { label: 'Black', value: '#000000' },
+  { label: 'Dark Gray', value: '#374151' },
+  { label: 'Gray', value: '#6b7280' },
+  { label: 'Light Gray', value: '#9ca3af' },
+  { label: 'White', value: '#ffffff' },
+  { label: 'Indigo', value: '#4f46e5' },
+  { label: 'Blue', value: '#3b82f6' },
+  { label: 'Cyan', value: '#06b6d4' },
+  { label: 'Teal', value: '#14b8a6' },
+  { label: 'Green', value: '#22c55e' },
+  { label: 'Lime', value: '#84cc16' },
+  { label: 'Yellow', value: '#eab308' },
+  { label: 'Amber', value: '#f59e0b' },
+  { label: 'Orange', value: '#f97316' },
+  { label: 'Red', value: '#ef4444' },
+  { label: 'Pink', value: '#ec4899' },
+  { label: 'Purple', value: '#a855f7' },
+  { label: 'Violet', value: '#8b5cf6' },
 ];
 
 export function RichTextEditor({
@@ -405,16 +411,19 @@ export function RichTextEditor({
             <i className="fas fa-palette"></i>
           </button>
           {showColor && (
-            <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-2 grid grid-cols-6 gap-1">
-              {COLORS.map(color => (
-                <button
-                  key={color}
-                  onClick={() => setColor(color)}
-                  className="w-6 h-6 rounded border hover:scale-110 transition-transform"
-                  style={{ backgroundColor: color }}
-                  title={color}
-                />
-              ))}
+            <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-3 min-w-[200px]">
+              <p className="text-xs text-gray-500 mb-2">Text Color</p>
+              <div className="grid grid-cols-6 gap-2">
+                {COLORS.map(color => (
+                  <button
+                    key={color.value}
+                    onClick={() => setColor(color.value)}
+                    className="w-8 h-8 rounded-lg border-2 hover:scale-110 transition-transform shadow-sm"
+                    style={{ backgroundColor: color.value }}
+                    title={color.label}
+                  />
+                ))}
+              </div>
             </div>
           )}
         </div>
