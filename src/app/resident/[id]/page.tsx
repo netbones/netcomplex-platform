@@ -20,6 +20,8 @@ interface UserProfile {
   avatar: string | null;
   homeImage: string | null;
   isPublic: boolean;
+  showEmail: boolean;
+  showPhone: boolean;
   residentType: string;
   role: string | null;
   createdAt: Date;
@@ -143,6 +145,26 @@ function ProfileContent() {
               <p className="text-sm text-gray-500 mt-1">
                 Resident since {new Date(user.createdAt).getFullYear()}
               </p>
+              <div className="flex flex-col sm:flex-row sm:gap-4 mt-3">
+                {user.showEmail && (
+                  <a
+                    href={`mailto:${user.email}`}
+                    className="flex items-center gap-2 text-soralia-primary hover:underline"
+                  >
+                    <i className="fas fa-envelope" aria-hidden="true"></i>
+                    <span>{user.email}</span>
+                  </a>
+                )}
+                {user.showPhone && user.phone && (
+                  <a
+                    href={`tel:${user.phone}`}
+                    className="flex items-center gap-2 text-soralia-primary hover:underline"
+                  >
+                    <i className="fas fa-phone" aria-hidden="true"></i>
+                    <span>{user.phone}</span>
+                  </a>
+                )}
+              </div>
             </div>
           </div>
 

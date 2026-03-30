@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useToast } from '@/components/ui/Toast';
+import { Honeypot } from '@/components/ui/Honeypot';
+import { TurnstileWidget } from '@/components/ui/Turnstile';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -14,6 +16,11 @@ export default function SignUpPage() {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [turnstileSiteKey, setTurnstileSiteKey] = useState<string>('');
+
+  useEffect(() => {
+    setTurnstileSiteKey(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '');
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,6 +99,8 @@ export default function SignUpPage() {
             />
           </div>
 
+          {turnstileSiteKey && <TurnstileWidget siteKey={turnstileSiteKey} theme="auto" />}
+
           <button
             type="submit"
             disabled={loading}
@@ -99,6 +108,8 @@ export default function SignUpPage() {
           >
             {loading ? 'Creating account...' : 'Sign Up'}
           </button>
+
+          <Honeypot />
         </form>
 
         <div className="mt-4 text-center text-sm text-gray-600">

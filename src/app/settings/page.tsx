@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { authClient } from '@/lib/auth-client';
 import { supportedLanguages, languageNames, type SupportedLanguage } from '@/lib/i18n';
@@ -13,12 +14,25 @@ export default function SettingsPage() {
   const [language, setLanguage] = useState<string>('en');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [showEmail, setShowEmail] = useState(true);
+  const [showPhone, setShowPhone] = useState(true);
 
   useEffect(() => {
     if (i18n.language) {
       setLanguage(i18n.language);
     }
   }, [i18n.language]);
+
+  useEffect(() => {
+    async function fetchUserSettings() {
+      if (!session?.user?.id) return;
+      const res = await fetch(`/api/users/${session.user.id}`);
+      const data = await res.json();
+      if (data.showEmail !== undefined) setShowEmail(data.showEmail);
+      if (data.showPhone !== undefined) setShowPhone(data.showPhone);
+    }
+    fetchUserSettings();
+  }, [session?.user?.id]);
 
   const handleLanguageChange = async (newLang: string) => {
     setSaving(true);
@@ -103,6 +117,59 @@ export default function SettingsPage() {
             </p>
           </div>
         </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Privacy</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          Control what information is visible on your public profile.
+        </p>
+        <div className="space-y-4">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showEmail}
+              onChange={e => setShowEmail(e.target.checked)}
+              className="w-4 h-4 text-soralia-primary border-gray-300 rounded focus:ring-soralia-primary"
+            />
+            <span className="text-gray-700">Show email on public profile</span>
+          </label>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showPhone}
+              onChange={e => setShowPhone(e.target.checked)}
+              className="w-4 h-4 text-soralia-primary border-gray-300 rounded focus:ring-soralia-primary"
+            />
+            <span className="text-gray-700">Show phone number on public profile</span>
+          </label>
+        </div>
+        <button
+          onClick={async () => {
+            if (!session?.user?.id) return;
+            setSaving(true);
+            try {
+              const res = await fetch(`/api/users/${session.user.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ showEmail, showPhone }),
+              });
+              if (res.ok) {
+                toast.success('Privacy settings saved');
+              } else {
+                toast.error('Failed to save settings');
+              }
+            } catch {
+              toast.error('Failed to save settings');
+            } finally {
+              setSaving(false);
+            }
+          }}
+          disabled={saving}
+          className="mt-4 px-4 py-2 bg-soralia-primary text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+        >
+          {saving ? 'Saving...' : 'Save Privacy Settings'}
+        </button>
       </div>
     </div>
   );

@@ -19,6 +19,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       homeImage: true,
       books: true,
       isPublic: true,
+      showEmail: true,
+      showPhone: true,
       residentType: true,
       role: true,
       createdAt: true,
@@ -61,6 +63,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
   if (body.isActive !== undefined) {
     updateData.isActive = body.isActive === 'true' || body.isActive === true;
+  }
+  if (body.showEmail !== undefined) {
+    updateData.showEmail = body.showEmail === 'true' || body.showEmail === true;
+  }
+  if (body.showPhone !== undefined) {
+    updateData.showPhone = body.showPhone === 'true' || body.showPhone === true;
   }
 
   const user = await prisma.user.update({

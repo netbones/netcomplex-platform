@@ -353,9 +353,9 @@ export default function HomePage() {
                       )}
                       {interestList.length > 0 && (
                         <div className="flex flex-wrap gap-1">
-                          {interestList.map((interest, i) => (
+                          {interestList.map((interest, interestIdx) => (
                             <span
-                              key={i}
+                              key={`${idx}-${interestIdx}`}
                               className={`text-xs text-white px-2 py-1 rounded-full ${INTEREST_COLORS[interest] || 'bg-gray-500'}`}
                             >
                               {interest}
