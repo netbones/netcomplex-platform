@@ -236,7 +236,7 @@ export function RichTextEditor({
           {uploading ? (
             <i className="fas fa-spinner fa-spin"></i>
           ) : (
-            <i className="fas fa-upload"></i>
+            <i className="fas fa-image"></i>
           )}
         </button>
         <button
@@ -245,7 +245,7 @@ export function RichTextEditor({
           className="p-2 rounded hover:bg-gray-200"
           title="Media Library"
         >
-          <i className="fas fa-photo-video"></i>
+          <i className="fas fa-images"></i>
         </button>
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
         <button
