@@ -23,55 +23,24 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { Bookshelf } from '@/components/ui/Bookshelf';
 import { MediaLibrary } from '@/components/ui/MediaLibrary';
 import { Pagination } from '@/components/ui/Pagination';
-import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
-import { DashboardTabs, AddWidgetModal, DashboardTab } from '@/components/dashboard/DashboardTabs';
-import { MessagesWidget } from '@/components/dashboard/MessagesWidget';
+import {
+  DraggableWidget,
+  DashboardTabs,
+  AddWidgetModal,
+  MessagesWidget,
+  StatsWidget,
+  QuickActionsWidget,
+  RecentActivityWidget,
+  EventsWidget,
+  NotificationsWidget,
+} from '@/components/dashboard';
+import type { DashboardTab } from '@/components/dashboard';
 
-interface StatCardProps {
+interface DashboardWidget {
+  id: string;
+  type: string;
   title: string;
-  value: string | number;
   icon: string;
-  href?: string;
-  color?: string;
-}
-
-const STAT_COLORS: Record<string, string> = {
-  requests: 'bg-orange-100 text-orange-600',
-  bookings: 'bg-blue-100 text-blue-600',
-  messages: 'bg-purple-100 text-purple-600',
-  notifications: 'bg-yellow-100 text-yellow-600',
-};
-
-function StatCard({
-  title,
-  value,
-  icon,
-  href,
-  color = 'bg-gray-100 text-gray-600',
-}: StatCardProps) {
-  const content = (
-    <div className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-lg hover:border-indigo-200 transition-all duration-200 group">
-      <div className="flex items-center gap-4">
-        <div
-          className={`w-12 h-12 rounded-xl flex items-center justify-center ${color} group-hover:scale-110 transition-transform`}
-        >
-          <i className={`fas ${icon} text-lg`}></i>
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-500 truncate">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
-        </div>
-        {href && (
-          <i className="fas fa-chevron-right text-gray-300 group-hover:text-indigo-500 transition-colors"></i>
-        )}
-      </div>
-    </div>
-  );
-
-  if (href) {
-    return <Link href={href}>{content}</Link>;
-  }
-  return content;
 }
 
 interface DashboardWidget {
@@ -215,88 +184,15 @@ function DashboardContent() {
   const renderWidgetContent = (widgetId: string) => {
     switch (widgetId) {
       case 'stats':
-        return (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <StatCard
-              title={t('myRequests')}
-              value={loading ? '...' : stats.requests}
-              icon="fa-wrench"
-              color={STAT_COLORS.requests}
-              href="/maintenance"
-            />
-            <StatCard
-              title={t('myBookings')}
-              value={loading ? '...' : stats.bookings}
-              icon="fa-calendar-check"
-              color={STAT_COLORS.bookings}
-              href="/bookings"
-            />
-            <StatCard
-              title={t('messages')}
-              value={loading ? '...' : stats.messages}
-              icon="fa-comments"
-              color={STAT_COLORS.messages}
-              href="/messages"
-            />
-            <StatCard
-              title={t('notifications')}
-              value={loading ? '...' : stats.notifications}
-              icon="fa-bell"
-              color={STAT_COLORS.notifications}
-            />
-          </div>
-        );
+        return <StatsWidget stats={stats} loading={loading} />;
       case 'quick-actions':
-        return (
-          <div className="space-y-3">
-            <Link
-              href="/maintenance"
-              className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
-            >
-              {t('submitRequest')}
-            </Link>
-            <Link
-              href="/bookings"
-              className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
-            >
-              {t('bookFacility')}
-            </Link>
-            <Link
-              href="/admin/content/new"
-              className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
-            >
-              {t('createContent', 'Create Content')}
-            </Link>
-            <Link
-              href={`/resident/${session?.user?.id}`}
-              className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
-            >
-              {t('viewProfile', 'View My Profile')}
-            </Link>
-          </div>
-        );
+        return <QuickActionsWidget userId={session?.user?.id} />;
       case 'recent-activity':
-        return (
-          <div className="text-center py-8 text-gray-500">
-            <p>{t('noActivity')}</p>
-            <p className="text-sm">{t('activityWillAppear')}</p>
-          </div>
-        );
+        return <RecentActivityWidget />;
       case 'notifications':
-        return (
-          <div className="text-center py-4 text-gray-500">
-            <p className="text-sm">No new notifications</p>
-          </div>
-        );
+        return <NotificationsWidget count={stats.notifications} />;
       case 'events':
-        return (
-          <div className="text-center py-8 text-gray-500">
-            <p>{t('noEvents')}</p>
-            <Link href="/resources" className="text-indigo-600 hover:underline">
-              {t('viewAllEvents')}
-            </Link>
-          </div>
-        );
+        return <EventsWidget />;
       case 'bookshelf':
         return session?.user?.id ? <Bookshelf userId={session.user.id} editable={true} /> : null;
       case 'media':

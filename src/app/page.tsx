@@ -297,10 +297,10 @@ export default function HomePage() {
                 <Link
                   key={resident.id}
                   href={`/resident/${resident.id}`}
-                  className={`block bg-white rounded-lg shadow-md overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer ${CARD_ANIMATIONS.transition} ${viewMode === 'list' ? 'flex' : ''}`}
+                  className={`block bg-white rounded-lg shadow-md hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer ${CARD_ANIMATIONS.transition} ${viewMode === 'list' ? 'flex relative overflow-hidden min-h-32' : 'overflow-hidden'}`}
                 >
                   {viewMode === 'grid' && resident.homeImage && (
-                    <div className="h-24 w-full relative">
+                    <div className="h-32 w-full relative">
                       <Image
                         src={resident.homeImage}
                         alt={`${resident.name}'s home`}
@@ -311,7 +311,7 @@ export default function HomePage() {
                     </div>
                   )}
                   <div
-                    className={`${headerColor} p-4 text-white ${viewMode === 'list' ? 'w-64 shrink-0' : ''}`}
+                    className={`${headerColor} p-4 text-white ${viewMode === 'list' ? 'w-64 shrink-0 z-10' : ''}`}
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 relative">
@@ -330,7 +330,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div
-                    className={`p-4 flex gap-4 ${viewMode === 'list' ? 'flex-1 items-center' : 'items-start'}`}
+                    className={`p-4 flex gap-4 ${viewMode === 'list' ? 'flex-1 items-center z-10' : 'items-start'}`}
                   >
                     <div
                       className={resident.homeImage && viewMode === 'grid' ? 'flex-1' : 'flex-1'}
@@ -381,18 +381,18 @@ export default function HomePage() {
                         </div>
                       )}
                     </div>
-                    {resident.homeImage && viewMode === 'list' && (
-                      <div className="w-64 h-full flex-shrink-0 relative ml-4">
-                        <Image
-                          src={resident.homeImage}
-                          alt={`${resident.name}'s home`}
-                          fill
-                          sizes="256px"
-                          className="object-cover rounded-lg"
-                        />
-                      </div>
-                    )}
                   </div>
+                  {resident.homeImage && viewMode === 'list' && (
+                    <div className="absolute inset-y-0 right-0 w-48">
+                      <Image
+                        src={resident.homeImage}
+                        alt={`${resident.name}'s home`}
+                        fill
+                        sizes="192px"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
                 </Link>
               );
             })}
