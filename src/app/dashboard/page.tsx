@@ -89,16 +89,61 @@ const DEFAULT_TABS: DashboardTab[] = [
   },
 ];
 
+const STORAGE_KEY = 'dashboard-layout';
+
+interface StoredLayout {
+  tabs: DashboardTab[];
+  activeTab: string;
+}
+
+function loadLayout(): StoredLayout | null {
+  if (typeof window === 'undefined') return null;
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+function saveLayout(tabs: DashboardTab[], activeTab: string) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ tabs, activeTab }));
+}
+
 function DashboardContent() {
   const { t } = useTranslation('dashboard');
   const { t: tCommon } = useTranslation('common');
   const { data: session } = authClient.useSession();
   const [stats, setStats] = useState({ requests: 0, bookings: 0, messages: 0, notifications: 0 });
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
   const [tabs, setTabs] = useState<DashboardTab[]>(DEFAULT_TABS);
   const [activeTab, setActiveTab] = useState('overview');
   const [activeWidgets, setActiveWidgets] = useState<string[]>(DEFAULT_TABS[0].defaultWidgets);
   const [showAddWidget, setShowAddWidget] = useState(false);
+
+  useEffect(() => {
+    const saved = loadLayout();
+    if (saved) {
+      setTabs(saved.tabs);
+      setActiveTab(saved.activeTab);
+      const tab = saved.tabs.find(t => t.id === saved.activeTab);
+      if (tab) {
+        setActiveWidgets(tab.defaultWidgets);
+      }
+    }
+    setInitialized(true);
+  }, []);
+
+  useEffect(() => {
+    if (initialized) {
+      saveLayout(tabs, activeTab);
+    }
+  }, [tabs, activeTab, initialized]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -138,20 +183,35 @@ function DashboardContent() {
   }, []);
 
   useEffect(() => {
+    if (!initialized) return;
     const currentTab = tabs.find(tab => tab.id === activeTab);
     if (currentTab) {
       setActiveWidgets(currentTab.defaultWidgets);
     }
-  }, [activeTab, tabs]);
+  }, [activeTab, tabs, initialized]);
+
+  useEffect(() => {
+    if (!initialized) return;
+    const currentTab = tabs.find(tab => tab.id === activeTab);
+    if (currentTab && currentTab.defaultWidgets.join(',') !== activeWidgets.join(',')) {
+      setTabs(prev =>
+        prev.map(tab => (tab.id === activeTab ? { ...tab, defaultWidgets: activeWidgets } : tab))
+      );
+    }
+  }, [activeWidgets, activeTab, tabs, initialized]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      setActiveWidgets(items => {
-        const oldIndex = items.indexOf(active.id as string);
-        const newIndex = items.indexOf(over.id as string);
-        return arrayMove(items, oldIndex, newIndex);
-      });
+      const newWidgets = (() => {
+        const oldIndex = activeWidgets.indexOf(active.id as string);
+        const newIndex = activeWidgets.indexOf(over.id as string);
+        return arrayMove(activeWidgets, oldIndex, newIndex);
+      })();
+      setActiveWidgets(newWidgets);
+      setTabs(prev =>
+        prev.map(tab => (tab.id === activeTab ? { ...tab, defaultWidgets: newWidgets } : tab))
+      );
     }
   }
 
