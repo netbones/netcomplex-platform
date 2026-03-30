@@ -111,24 +111,40 @@ model User {
   email         String    @unique
   name          String
   role          Role      @default(RESIDENT)
+  residentType  ResidentType @default(OWNER)
   street        String?
   unit          String?
   phone         String?
   interests     String[]
   avatar        String?
+  homeImage     String?
+  books         Json?     @default("[]")
   isPublic      Boolean   @default(true)
+  showEmail     Boolean   @default(true)
+  showPhone     Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   requests      MaintenanceRequest[]
   bookings      Booking[]
   notifications Notification[]
+  conversations  Conversation[]
+  messages       Message[]
+  contents       Content[]
 }
 
 enum Role {
   RESIDENT
-  BOARD
-  ADMIN
+  GROUP_ADMIN // Manages only their own group
+  COMMITTEE   // Committee member
+  BOARD       // HOA Board member
+  ADMIN       // SuperAdmin - full platform access
+}
+
+enum ResidentType {
+  OWNER
+  RENTER
+  SUSPENDED
 }
 
 model MaintenanceRequest {
@@ -672,6 +688,15 @@ const validate = (data: FormData): boolean => {
 - `SearchFilters` - Filter sidebar
 - `StreetMap` - Leaflet map with markers
 
+### Public Profile (`/resident/[id]`)
+
+- Shows resident name, address, avatar, home photo
+- Shows email (mailto link) if `showEmail: true`
+- Shows phone (tel link) if `showPhone: true`
+- Shows interests as colored badges
+- Shows published content with pagination
+- Shows bookshelf with user's book collection
+
 ### Card Specifications
 
 **External Cards (Homepage `/` & Directory `/directory` - Public)**
@@ -763,6 +788,8 @@ CLOUDINARY_API_SECRET=""
 6. **SQL Injection:** Prisma parameterized queries (if using external DB)
 7. **XSS:** Preact auto-escaping
 8. **Environment:** Secrets in environment variables, never committed
+9. **Bot Protection:** Honeypot fields + Cloudflare Turnstile CAPTCHA
+10. **User Privacy:** showEmail/showPhone settings for profile visibility
 
 ---
 
@@ -990,7 +1017,62 @@ module.exports = {
 
 ---
 
-## 16. External Service Integrations
+## 16. Bot Protection & Security
+
+### Honeypot Fields
+
+Hidden form fields that bots fill but humans don't see. Reusable across all forms.
+
+```typescript
+// src/components/ui/Honeypot.tsx
+export function Honeypot({ name = 'website' }: HoneypotProps) {
+  return (
+    <div className="absolute -left-[9999px]" aria-hidden="true">
+      <input type="text" name={name} defaultValue="" tabIndex={-1} autoComplete="off" />
+    </div>
+  );
+}
+
+export function checkHoneypot(formData: FormData, fieldName = 'website'): boolean {
+  const value = formData.get(fieldName);
+  return Boolean(value && typeof value === 'string' && value.length > 0);
+}
+```
+
+### Cloudflare Turnstile CAPTCHA
+
+Privacy-friendly, free CAPTCHA for registration and key forms.
+
+```typescript
+// src/components/ui/Turnstile.tsx
+export function TurnstileWidget({ siteKey, theme = 'auto', size = 'normal' }) { ... }
+export function verifyTurnstile(token: string): Promise<boolean> { ... }
+```
+
+### User Privacy Settings
+
+Users can control visibility of their contact information on public profiles.
+
+```prisma
+model User {
+  // ... existing fields
+  isPublic    Boolean @default(true)  // Profile visibility
+  showEmail   Boolean @default(true)  // Show email on public profile
+  showPhone   Boolean @default(true)  // Show phone on public profile
+}
+```
+
+### Environment Variables
+
+```env
+# Cloudflare Turnstile (bot protection)
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+TURNSTILE_SECRET_KEY=
+```
+
+---
+
+## 17. External Service Integrations
 
 ### OpenAPI Standard
 
