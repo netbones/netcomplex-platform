@@ -1,0 +1,48 @@
+{
+  "title": "INdawo yokugcina iSoralia",
+  "subtitle": "Kugcinwa ilifa lethu elibalulekile leStrandveld Wetland yaseNingizimu Afrika ngabantu basethunjini",
+  "stats": {
+    "endemicFlora": "uhlobo lwezitshalo ezihlala lapha",
+    "endemicFloraDesc": "Izitshalo ezingama-150 ezindayo",
+    "wetlandEcosystem": "i-Wetland Ecosystem",
+    "wetlandEcosystemDesc": "Indawo ebalulekile yezilwanyana",
+    "protectedStatus": "Isimo sokuvikeleka",
+    "protectedStatusDesc": "Indawo esemthethweni eyisikhwama sokugcina"
+  },
+  "initiatives": {
+    "title": "Imigomo yethu",
+    "invasiveRemoval": "Ukususwa kwezitshalo ezingenakhaya",
+    "invasiveRemovalDesc": "Ukususwa njalo kwezitshalo ezingezona zendawo ukuze kuvikelwe i-biodiversity",
+    "wetlandRestoration": "Ukubuyisela i-Wetland",
+    "wetlandRestorationDesc": "Imizamo yokubuyisela ukuhamba kwamanzi nendawo yezilwanyana",
+    "wildlifeMonitoring": "Ukuhlambela izilwanyana",
+    "wildlifeMonitoringDesc": "Amaphrogramu e-science oluntu awalandela izilwanyana zendawo",
+    "education": "Imfundo nokuthuthukisa",
+    "educationDesc": "Amashidi oluntu ngokugcina nokusinga ngemvelo"
+  },
+  "flora": {
+    "title": "Izitshalo zendawo"
+  },
+  "wildlife": {
+    "title": "Izilwanyana"
+  },
+  "volunteer": {
+    "title": "Amathuba osizo",
+    "monthlyWorkdays": "Imisebenzi yenyanga",
+    "monthlyWorkdaysDesc": "Sondela kuthi ngeSaturday yokuqala yonke iminyaka emisebenzini yokugcina",
+    "birdWatching": "Ukubona izinja",
+    "birdWatchingDesc": "Amahambo akhonza ngokuhlambela izinja nofunda bezilwanyana",
+    "juniorRangers": "Abasemsizi abancane",
+    "juniorRangersDesc": "Inkqubo yemfundo yabantwana abasha abangama-8-14"
+  },
+  "sightings": {
+    "title": "Bika umbono",
+    "placeholder": "Chaza owabonayo",
+    "submit": "Thumela"
+  },
+  "join": {
+    "title": "Sama ngemfundo yokugcina",
+    "desc": "Ngena ekugcineni kwebiodiversity yethu",
+    "button": "Bhalisa namhlanje"
+  }
+}

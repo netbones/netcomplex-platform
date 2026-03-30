@@ -1,0 +1,48 @@
+{
+  "title": "Soralia Nature Reserve",
+  "subtitle": "Preserving our unique South African Strandveld Wetland heritage for future generations",
+  "stats": {
+    "endemicFlora": "Endemic Flora",
+    "endemicFloraDesc": "Over 150 indigenous plant species",
+    "wetlandEcosystem": "Wetland Ecosystem",
+    "wetlandEcosystemDesc": "Critical habitat for local wildlife",
+    "protectedStatus": "Protected Status",
+    "protectedStatusDesc": "Officially designated conservation area"
+  },
+  "initiatives": {
+    "title": "Our Initiatives",
+    "invasiveRemoval": "Invasive Species Removal",
+    "invasiveRemovalDesc": "Regular removal of alien plant species to protect native biodiversity",
+    "wetlandRestoration": "Wetland Restoration",
+    "wetlandRestorationDesc": "Ongoing efforts to restore natural water flow and habitat",
+    "wildlifeMonitoring": "Wildlife Monitoring",
+    "wildlifeMonitoringDesc": "Citizen science programs tracking local wildlife populations",
+    "education": "Education & Outreach",
+    "educationDesc": "Community workshops on conservation and environmental stewardship"
+  },
+  "flora": {
+    "title": "Indigenous Flora"
+  },
+  "wildlife": {
+    "title": "Wildlife"
+  },
+  "volunteer": {
+    "title": "Volunteer Opportunities",
+    "monthlyWorkdays": "Monthly Workdays",
+    "monthlyWorkdaysDesc": "Join us every first Saturday for conservation activities",
+    "birdWatching": "Bird Watching Tours",
+    "birdWatchingDesc": "Guided tours through the reserve with expert ornithologists",
+    "juniorRangers": "Junior Rangers",
+    "juniorRangersDesc": "Educational program for children ages 8-14"
+  },
+  "sightings": {
+    "title": "Report a Sighting",
+    "placeholder": "Describe what you saw...",
+    "submit": "Submit Report"
+  },
+  "join": {
+    "title": "Join Our Conservation Efforts",
+    "desc": "Get involved in protecting our unique biodiversity",
+    "button": "Sign Up Today"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "title": "iNdawo yoKugcina iSoralia",
+  "subtitle": "Ukugcina ilifa lethu elikhulu leStrandveld Wetland yaseMzantsi Afrika kwixesha elizayo",
+  "stats": {
+    "endemicFlora": "iFlora endiyileyo",
+    "endemicFloraDesc": "Amashishini ali-150 aphambili",
+    "wetlandEcosystem": "i-Ecosystem ye-Wetland",
+    "wetlandEcosystemDesc": "Indawo ebalulekileyo yezilwanyana",
+    "protectedStatus": "Isikhwama soKhuseleko",
+    "protectedStatusDesc": "Indawo esemthethweni echazwe njengesikhwama sokugcina"
+  },
+  "initiatives": {
+    "title": "I-Initatives zethu",
+    "invasiveRemoval": "Ukususa iintyatyambo ezingekho",
+    "invasiveRemovalDesc": "Ukususa rhoqo kwezityalo ezingezizo zendawo ukukhusela i-biodiversity",
+    "wetlandRestoration": "Ukubuyisela i-Wetland",
+    "wetlandRestorationDesc": "Iim Zwenzakalo zokubuyisela umngci wamanzi",
+    "wildlifeMonitoring": "Ukuhlambela izilwanyana",
+    "wildlifeMonitoringDesc": "Iinkqubo ze-science zoluntu ezilandela izilwanyana",
+    "education": "Imfundo & Ukus_extenda",
+    "imfundoDesc": "IWorkshop zoluntu ngokugcina nokusinga"
+  },
+  "flora": {
+    "title": "iFlora yendawo"
+  },
+  "wildlife": {
+    "title": "Izilwanyana"
+  },
+  "volunteer": {
+    "title": "Amathuba oV volunteer",
+    "monthlyWorkdays": "Iintsomi zenyanga",
+    "monthlyWorkdaysDesc": "Sondela kuthi ngqwama wesibini weveki yonke kwimisebenzi yokugcina",
+    "birdWatching": "Ukubona iintaka",
+    "birdWatchingDesc": "Iintambo ezikhokelwe ngabafundisi beenkukuh",
+    "juniorRangers": "iiJunior Rangers",
+    "juniorRangersDesc": "Inkqubo yemfundo yabantwana abangama-8-14"
+  },
+  "sightings": {
+    "title": "Xela ubonakalo",
+    "placeholder": "Chaza owabonayo...",
+    "submit": "Thumela ingxelo"
+  },
+  "join": {
+    "title": "Joyina iMfundo yethu yoKugcina",
+    "desc": "Ngena ekugcineni kwebiodiversity yethu",
+    "button": "Bhalisa namhlanje"
+  }
+}

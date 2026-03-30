@@ -24,6 +24,7 @@ async function getContent() {
 
 export default function ConservationPage() {
   const { t: tCommon, ready } = useTranslation('common');
+  const { t } = useTranslation('conservation');
   const [content, setContent] = useState<Awaited<ReturnType<typeof getContent>>>([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,35 +46,35 @@ export default function ConservationPage() {
   }
 
   const conservationStats = [
-    { icon: 'fa-leaf', title: 'Endemic Flora', desc: 'Over 150 indigenous plant species' },
-    { icon: 'fa-water', title: 'Wetland Ecosystem', desc: 'Critical habitat for local wildlife' },
+    { icon: 'fa-leaf', title: t('stats.endemicFlora'), desc: t('stats.endemicFloraDesc') },
+    { icon: 'fa-water', title: t('stats.wetlandEcosystem'), desc: t('stats.wetlandEcosystemDesc') },
     {
       icon: 'fa-shield-alt',
-      title: 'Protected Status',
-      desc: 'Officially designated conservation area',
+      title: t('stats.protectedStatus'),
+      desc: t('stats.protectedStatusDesc'),
     },
   ];
 
   const initiatives = [
     {
       icon: 'fa-seedling',
-      title: 'Invasive Species Removal',
-      desc: 'Regular removal of alien plant species to protect native biodiversity',
+      title: t('initiatives.invasiveRemoval'),
+      desc: t('initiatives.invasiveRemovalDesc'),
     },
     {
       icon: 'fa-tint',
-      title: 'Wetland Restoration',
-      desc: 'Ongoing efforts to restore natural water flow and habitat',
+      title: t('initiatives.wetlandRestoration'),
+      desc: t('initiatives.wetlandRestorationDesc'),
     },
     {
       icon: 'fa-binoculars',
-      title: 'Wildlife Monitoring',
-      desc: 'Citizen science programs tracking local wildlife populations',
+      title: t('initiatives.wildlifeMonitoring'),
+      desc: t('initiatives.wildlifeMonitoringDesc'),
     },
     {
       icon: 'fa-graduation-cap',
-      title: 'Education & Outreach',
-      desc: 'Community workshops on conservation and environmental stewardship',
+      title: t('initiatives.education'),
+      desc: t('initiatives.educationDesc'),
     },
   ];
 
@@ -95,18 +96,18 @@ export default function ConservationPage() {
 
   const volunteerOpportunities = [
     {
-      title: 'Monthly Workdays',
-      desc: 'Join us every first Saturday for conservation activities',
+      title: t('volunteer.monthlyWorkdays'),
+      desc: t('volunteer.monthlyWorkdaysDesc'),
       time: '9:00 AM - 12:00 PM',
     },
     {
-      title: 'Bird Watching Tours',
-      desc: 'Guided tours through the reserve with expert ornithologists',
+      title: t('volunteer.birdWatching'),
+      desc: t('volunteer.birdWatchingDesc'),
       time: 'Every Sunday',
     },
     {
-      title: 'Junior Rangers',
-      desc: 'Educational program for children ages 8-14',
+      title: t('volunteer.juniorRangers'),
+      desc: t('volunteer.juniorRangersDesc'),
       time: 'School holidays',
     },
   ];
@@ -125,10 +126,8 @@ export default function ConservationPage() {
       </div>
 
       <div className="bg-gradient-to-r from-green-600 to-emerald-700 rounded-lg shadow-lg p-8 mb-8 text-white text-center">
-        <h1 className="text-4xl font-bold mb-4">Soralia Nature Reserve</h1>
-        <p className="text-xl opacity-90 mb-6">
-          Preserving our unique South African Strandveld Wetland heritage for future generations
-        </p>
+        <h1 className="text-4xl font-bold mb-4">{t('title')}</h1>
+        <p className="text-xl opacity-90 mb-6">{t('subtitle')}</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {conservationStats.map(stat => (
             <div key={stat.title} className="bg-white/20 rounded-lg p-4">
@@ -142,8 +141,8 @@ export default function ConservationPage() {
 
       <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
         <h2 className="text-3xl font-bold text-gray-900 mb-6">
-          <i className="fas fa-newspaper text-green-600 mr-3"></i>
-          Conservation News & Updates
+          <i className="fas fa-seedling text-green-600 mr-3"></i>
+          {t('initiatives.title')}
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {content.map(article => (
@@ -181,7 +180,7 @@ export default function ConservationPage() {
       <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
         <h2 className="text-3xl font-bold text-gray-900 mb-6">
           <i className="fas fa-hands-helping text-green-600 mr-3"></i>
-          Conservation Initiatives
+          {t('volunteer.title')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {initiatives.map(initiative => (
@@ -201,7 +200,7 @@ export default function ConservationPage() {
         <div className="bg-white rounded-lg shadow-lg p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             <i className="fas fa-leaf text-green-600 mr-3"></i>
-            Native Flora
+            {t('flora.title')}
           </h2>
           <ul className="space-y-3">
             {flora.map(item => (
@@ -216,7 +215,7 @@ export default function ConservationPage() {
         <div className="bg-white rounded-lg shadow-lg p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">
             <i className="fas fa-paw text-green-600 mr-3"></i>
-            Wildlife
+            {t('wildlife.title')}
           </h2>
           <ul className="space-y-3">
             {wildlife.map(item => (

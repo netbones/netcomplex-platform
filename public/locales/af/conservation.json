@@ -1,0 +1,48 @@
+{
+  "title": "Soralia Natuurreservaat",
+  "subtitle": "Bewaar我们的 unieke Suid-Afrikaanse Strandveld Wetland-erfenis vir toekomstige generasies",
+  "stats": {
+    "endemicFlora": "Endemiese Flora",
+    "endemicFloraDesc": "Meer as 150 inheemse plantspesies",
+    "wetlandEcosystem": "Vleilande-ekosisteem",
+    "wetlandEcosystemDesc": "Kritieke habitat vir plaaslike wildlewe",
+    "protectedStatus": "Beskermde Status",
+    "protectedStatusDesc": "Amptelik aangewys asbewaringsgebied"
+  },
+  "initiatives": {
+    "title": "Ons Inisiatiewe",
+    "invasiveRemoval": "Invalierende Spesies Verwydering",
+    "invasiveRemovalDesc": " gereelde verwydering van nie-inheemse plantspesies",
+    "wetlandRestoration": "Vleiland Herstel",
+    "wetlandRestorationDesc": "Voortdurende pogings om natuurlike watervloei te herstel",
+    "wildlifeMonitoring": "Wildlewemonitering",
+    "wildlifeMonitoringDesc": "Burgerswetenskapprogramme wat plaaslike wildlewepopulasies volg",
+    "education": "Opvoeding & Uitreik",
+    "educationDesc": "Gemeenskapswerkwinkels oor bewaring en omgewingsbestuur"
+  },
+  "flora": {
+    "title": "Inheemse Flora"
+  },
+  "wildlife": {
+    "title": "Wildlewe"
+  },
+  "volunteer": {
+    "title": "Vrywilliger geleenthede",
+    "monthlyWorkdays": "Maandelikse Werkdae",
+    "monthlyWorkdaysDesc": "Sluit ons elke eerste Saterdag by bewaringaktiwiteite aan",
+    "birdWatching": "Voëlkyk Toere",
+    "birdWatchingDesc": "Geleide toere deur die reservaat met kundigeornitoloë",
+    "juniorRangers": "Junior Wagte",
+    "juniorRangersDesc": "Opvoedkundige program vir kinders 8-14"
+  },
+  "sightings": {
+    "title": "Rapporteer 'n Sigting",
+    "placeholder": "Beskryf wat u gesien het...",
+    "submit": "Dien Verslag In"
+  },
+  "join": {
+    "title": "Sluit aan by ons Bewaringspogings",
+    "desc": "Raak betrokke in die beskerming van ons unieke biodiversiteit",
+    "button": "Teken Vandag Aan"
+  }
+}
