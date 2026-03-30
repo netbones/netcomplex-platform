@@ -235,7 +235,7 @@ export function RichTextEditor({
     if (level === 0) {
       chain.setParagraph().run();
     } else {
-      chain.setHeading({ level: level as 1 | 2 | 3 }).run();
+      chain.toggleHeading({ level: level as 1 | 2 | 3 }).run();
     }
     setShowHeading(false);
   };
