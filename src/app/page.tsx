@@ -297,7 +297,7 @@ export default function HomePage() {
                 <Link
                   key={resident.id}
                   href={`/resident/${resident.id}`}
-                  className={`block bg-white rounded-lg shadow-md overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer ${CARD_ANIMATIONS.transition} ${viewMode === 'list' ? 'flex' : ''}`}
+                  className={`block bg-white rounded-lg shadow-md overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer ${CARD_ANIMATIONS.transition} ${viewMode === 'list' ? 'relative' : ''}`}
                 >
                   {viewMode === 'grid' && resident.homeImage && (
                     <div className="h-24 w-full relative">
@@ -310,88 +310,90 @@ export default function HomePage() {
                       />
                     </div>
                   )}
-                  <div
-                    className={`${headerColor} p-4 text-white ${viewMode === 'list' ? 'w-64 shrink-0' : ''}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 relative">
-                        <Image
-                          src={avatarUrl}
-                          alt={resident.name}
-                          fill
-                          sizes="40px"
-                          className="rounded-full bg-white/20"
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg">{resident.name}</h3>
-                        <p className="text-sm opacity-90">{address}</p>
+                  {viewMode === 'list' && resident.homeImage && (
+                    <div className="absolute right-0 top-0 bottom-0 w-48">
+                      <Image
+                        src={resident.homeImage}
+                        alt={`${resident.name}'s home`}
+                        fill
+                        sizes="192px"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className={`flex ${viewMode === 'list' ? 'pr-48' : ''}`}>
+                    <div
+                      className={`${headerColor} p-4 text-white ${viewMode === 'list' ? 'w-64 shrink-0' : ''}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 relative">
+                          <Image
+                            src={avatarUrl}
+                            alt={resident.name}
+                            fill
+                            sizes="40px"
+                            className="rounded-full bg-white/20"
+                          />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-lg">{resident.name}</h3>
+                          <p className="text-sm opacity-90">{address}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div
-                    className={`p-4 flex gap-4 ${viewMode === 'list' ? 'flex-1 items-center' : 'items-start'}`}
-                  >
                     <div
-                      className={resident.homeImage && viewMode === 'grid' ? 'flex-1' : 'flex-1'}
+                      className={`p-4 flex gap-4 ${viewMode === 'list' ? 'flex-1 items-center' : 'items-start'}`}
                     >
-                      <div className="flex items-center mb-2">
-                        <i
-                          className="fas fa-home text-soralia-secondary mr-2"
-                          aria-hidden="true"
-                        ></i>
-                        <span className="text-sm text-gray-600">
-                          {resident.residentType === RESIDENT_TYPES.OWNER
-                            ? t('home.owner')
-                            : resident.residentType === RESIDENT_TYPES.RENTER
-                              ? t('home.renter')
-                              : resident.role || t('home.resident')}
-                        </span>
-                      </div>
-                      {resident.isPublic && (
-                        <>
-                          <div className="flex items-center mb-2">
-                            <i
-                              className="fas fa-envelope text-soralia-secondary mr-2"
-                              aria-hidden="true"
-                            ></i>
-                            <span className="text-sm text-gray-600">{resident.email}</span>
-                          </div>
-                          {resident.phone && (
+                      <div
+                        className={resident.homeImage && viewMode === 'grid' ? 'flex-1' : 'flex-1'}
+                      >
+                        <div className="flex items-center mb-2">
+                          <i
+                            className="fas fa-home text-soralia-secondary mr-2"
+                            aria-hidden="true"
+                          ></i>
+                          <span className="text-sm text-gray-600">
+                            {resident.residentType === RESIDENT_TYPES.OWNER
+                              ? t('home.owner')
+                              : resident.residentType === RESIDENT_TYPES.RENTER
+                                ? t('home.renter')
+                                : resident.role || t('home.resident')}
+                          </span>
+                        </div>
+                        {resident.isPublic && (
+                          <>
                             <div className="flex items-center mb-2">
                               <i
-                                className="fas fa-phone text-soralia-secondary mr-2"
+                                className="fas fa-envelope text-soralia-secondary mr-2"
                                 aria-hidden="true"
                               ></i>
-                              <span className="text-sm text-gray-600">{resident.phone}</span>
+                              <span className="text-sm text-gray-600">{resident.email}</span>
                             </div>
-                          )}
-                        </>
-                      )}
-                      {interestList.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {interestList.map((interest, interestIdx) => (
-                            <span
-                              key={`${idx}-${interestIdx}`}
-                              className={`text-xs text-white px-2 py-1 rounded-full ${INTEREST_COLORS[interest] || 'bg-gray-500'}`}
-                            >
-                              {interest}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    {resident.homeImage && viewMode === 'list' && (
-                      <div className="w-64 h-full flex-shrink-0 relative ml-4">
-                        <Image
-                          src={resident.homeImage}
-                          alt={`${resident.name}'s home`}
-                          fill
-                          sizes="256px"
-                          className="object-cover rounded-lg"
-                        />
+                            {resident.phone && (
+                              <div className="flex items-center mb-2">
+                                <i
+                                  className="fas fa-phone text-soralia-secondary mr-2"
+                                  aria-hidden="true"
+                                ></i>
+                                <span className="text-sm text-gray-600">{resident.phone}</span>
+                              </div>
+                            )}
+                          </>
+                        )}
+                        {interestList.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {interestList.map((interest, interestIdx) => (
+                              <span
+                                key={`${idx}-${interestIdx}`}
+                                className={`text-xs text-white px-2 py-1 rounded-full ${INTEREST_COLORS[interest] || 'bg-gray-500'}`}
+                              >
+                                {interest}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
                 </Link>
               );
