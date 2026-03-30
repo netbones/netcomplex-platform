@@ -16,7 +16,7 @@ interface Notification {
 }
 
 export default function NotificationsPage() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['common', 'notifications']);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
@@ -59,7 +59,7 @@ export default function NotificationsPage() {
       />
 
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('notifications:title')}</h1>
         {unreadCount > 0 && (
           <button onClick={markAllRead} className="text-indigo-600 hover:underline">
             Mark all as read
@@ -86,7 +86,7 @@ export default function NotificationsPage() {
         <p className="text-gray-500">Loading...</p>
       ) : notifications.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500">No notifications</p>
+          <p className="text-gray-500">{t('notifications:noNotifications')}</p>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow divide-y divide-gray-200">

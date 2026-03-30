@@ -31,6 +31,7 @@ export const namespaces = [
   'interest',
   'maintenance',
   'bookings',
+  'notifications',
 ];
 
 i18n
