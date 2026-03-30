@@ -231,24 +231,21 @@ export function RichTextEditor({
 
   const setHeading = (level: number) => {
     if (!editor) return;
+    const chain = editor.chain().focus();
     if (level === 0) {
-      editor.chain().focus().setParagraph().run();
+      chain.setParagraph().run();
     } else {
-      editor
-        .chain()
-        .focus()
-        .setHeading({ level: level as 1 | 2 | 3 })
-        .run();
+      chain.setHeading({ level: level as 1 | 2 | 3 }).run();
     }
     setShowHeading(false);
   };
 
   const getCurrentHeading = () => {
-    if (!editor) return 'P';
+    if (!editor) return 'H';
     if (editor.isActive('heading', { level: 1 })) return 'H1';
     if (editor.isActive('heading', { level: 2 })) return 'H2';
     if (editor.isActive('heading', { level: 3 })) return 'H3';
-    return 'P';
+    return 'H';
   };
 
   useEffect(() => {
