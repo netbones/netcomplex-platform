@@ -142,7 +142,7 @@ const contacts = [
 ];
 
 export default function ResourcesPage() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation(['common', 'resources']);
   const [quickLinks, setQuickLinks] = useState(defaultQuickLinks);
   const [documents, setDocuments] = useState<ResourceItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -179,11 +179,8 @@ export default function ResourcesPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.resources') }]} />
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Community Resources</h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Essential information, documents, and resources to help you make the most of community
-          living
-        </p>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('resources:title')}</h1>
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto">{t('resources:subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -225,7 +222,7 @@ export default function ResourcesPage() {
       >
         <h2 className="text-3xl font-bold text-gray-900 mb-6">
           <i className="fas fa-file-alt text-blue-600 mr-3"></i>
-          Important Documents
+          {t('resources:documents.title')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {documents.map(doc => (
@@ -257,7 +254,7 @@ export default function ResourcesPage() {
       >
         <h2 className="text-3xl font-bold text-gray-900 mb-6">
           <i className="fas fa-calendar-alt text-green-600 mr-3"></i>
-          Community Events & Meetings
+          {t('resources:events.title')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {events.map(event => (
@@ -282,7 +279,7 @@ export default function ResourcesPage() {
       >
         <h2 className="text-3xl font-bold text-gray-900 mb-6">
           <i className="fas fa-book text-purple-600 mr-3"></i>
-          Community Guidelines
+          {t('resources:guidelines.title')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {guidelines.map(guideline => (
@@ -309,7 +306,7 @@ export default function ResourcesPage() {
       >
         <h2 className="text-3xl font-bold text-gray-900 mb-6">
           <i className="fas fa-phone text-red-600 mr-3"></i>
-          Important Contacts
+          {t('resources:contacts.title')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {contacts.map(contact => (

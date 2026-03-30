@@ -1,0 +1,62 @@
+{
+  "title": "Resources",
+  "subtitle": "Important documents, events, and guidelines for our community.",
+  "quickLinks": {
+    "title": "Quick Links",
+    "documents": "Documents",
+    "documentsDesc": "HOA bylaws, forms, and official documents",
+    "events": "Events",
+    "eventsDesc": "Community events and meeting schedules",
+    "guidelines": "Guidelines",
+    "guidelinesDesc": "Community rules and living guidelines",
+    "contacts": "Contacts",
+    "contactsDesc": "Important phone numbers and contacts"
+  },
+  "documents": {
+    "title": "Documents",
+    "hoaBylaws": "HOA Bylaws",
+    "hoaBylawsDesc": "Official community bylaws and regulations",
+    "ccrs": "CC&Rs",
+    "ccrsDesc": "Covenants, Conditions & Restrictions",
+    "governingDocs": "Governing Docs",
+    "governingDocsDesc": "All community governing documents",
+    "financialReports": "Financial Reports",
+    "financialReportsDesc": "Annual budgets and financial statements",
+    "architecturalGuidelines": "Architectural Guidelines",
+    "architecturalGuidelinesDesc": "Home improvement and renovation rules",
+    "privacyPolicy": "Privacy Policy",
+    "privacyPolicyDesc": "Community privacy policies and procedures"
+  },
+  "events": {
+    "title": "Events",
+    "monthlyBoardMeeting": "Monthly Board Meeting",
+    "monthlyBoardMeetingDate": "First Tuesday of each month",
+    "annualGeneralMeeting": "Annual General Meeting",
+    "annualGeneralMeetingDate": "Once per year",
+    "communityCleanupDay": "Community Cleanup Day",
+    "landscapingDay": "Landscaping Day"
+  },
+  "guidelines": {
+    "title": "Guidelines",
+    "exteriorAppearance": "Exterior Appearance",
+    "exteriorAppearanceDesc": "Guidelines for home exteriors, paint colors, and landscaping",
+    "petPolicy": "Pet Policy",
+    "petPolicyDesc": "Rules and regulations regarding pets in the community",
+    "parkingGuidelines": "Parking Guidelines",
+    "parkingGuidelinesDesc": "Parking rules, visitor parking, and vehicle restrictions",
+    "noisePolicy": "Noise Policy",
+    "noisePolicyDesc": "Quiet hours and noise guidelines",
+    "amenityRules": "Amenity Rules",
+    "amenityRulesDesc": "Pool, gym, and common area usage rules",
+    "wasteAndRecycling": "Waste & Recycling",
+    "wasteAndRecyclingDesc": "Waste disposal and recycling guidelines"
+  },
+  "contacts": {
+    "title": "Contacts",
+    "managementOffice": "Management Office",
+    "security": "Security",
+    "maintenance": "Maintenance",
+    "emergency": "Emergency"
+  },
+  "time": "Time"
+}

@@ -1,0 +1,62 @@
+{
+  "title": "Izinsiza",
+  "subtitle": "Amadokumenti, izikhwama, nemigomo eqhubekayo y comuni yetu.",
+  "quickLinks": {
+    "title": "Izinhlungo Ezikhulu",
+    "documents": "Amadokumenti",
+    "documentsDesc": "Imigomo ye-HOA, ifomu, namadokumenti as official",
+    "events": "Izikhwama",
+    "eventsDesc": "Izikhwama zomphakathi nezinhlelwa zokuhlala",
+    "guidelines": "Imigomo",
+    "imigomoDesc": "Imigomo yomphakathi nemigomo yokuphila",
+    "contacts": "Izincontact",
+    "contactsDesc": "Imininingwane yefoni namakheli abalulekile"
+  },
+  "documents": {
+    "title": "Amadokumenti",
+    "hoaBylaws": "Imigomo ye-HOA",
+    "hoaBylawsDesc": "Imigomo esemthethweni yomphakathi nemigomo",
+    "ccrs": "I-CC&Rs",
+    "ccrsDesc": "Amabhende, Imeko & Ukuhlelwa",
+    "governingDocs": "Amadokumenti olawulo",
+    "governingDocsDesc": "Wonke amadokumenti omphakathi",
+    "financialReports": "Izinhlelo zeMali",
+    "financialReportsDesc": "Izabelo zemali zonyaka nezinhlelo zezimali",
+    "architecturalGuidelines": "Imigomo yokwakha",
+    "architecturalGuidelinesDesc": "Imigomo yokuthuthukiswa nokuhlela ikhaya",
+    "privacyPolicy": "Inqubomgomo yokuvikela",
+    "privacyPolicyDesc": "Inqubomgomo yomphakathi nezinhlelo"
+  },
+  "events": {
+    "title": "Izikhwama",
+    "monthlyBoardMeeting": "Inhlanganiso yebhodi yenyanga",
+    "monthlyBoardMeetingDate": "Uqale uLwesibili lwanoma ngubani",
+    "annualGeneralMeeting": "Inhlanganiso jikelele yonyaka",
+    "annualGeneralMeetingDate": "Kanye ngonyaka",
+    "communityCleanupDay": "Usuku lokuhlambela umphakathi",
+    "landscapingDay": "Usuku lokuhlambela indawo"
+  },
+  "guidelines": {
+    "title": "Imigomo",
+    "exteriorAppearance": "Ukubonakala kwangaphandle",
+    "exteriorAppearanceDesc": "Imigomo yezakhiwo zangaphandle, umbala, nokuhlambela",
+    "petPolicy": "Inqubomgomo yezilwanyana",
+    "petPolicyDesc": "Imigomo malunga nezilwanyana emphakathini",
+    "parkingGuidelines": "Imigomo yokupaka",
+    "parkingGuidelinesDesc": "Imigomo yokupaka, ukupaka kwabavakashi, nemigomo yezimoto",
+    "noisePolicy": "Inqubomgomo yesigogi",
+    "noisePolicyDesc": "Ihora lokuzola nemigomo yesigogi",
+    "amenityRules": "Imigomo yezinto",
+    "amenityRulesDesc": "Imigomo yokusebenzisa iphuli, i-gym, neendawo zomphakathi",
+    "wasteAndRecycling": "Iinkukuma nokuhlambela",
+    "wasteAndRecyclingDesc": "Imigomo yokususa inkukuma nokuhlambela"
+  },
+  "contacts": {
+    "title": "Izincontact",
+    "managementOffice": "Iofisi yolawulo",
+    "security": "Ukuvikeleka",
+    "maintenance": "Ukugcinwa",
+    "emergency": "Ingozi"
+  },
+  "time": "Isikhathi"
+}

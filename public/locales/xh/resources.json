@@ -1,0 +1,62 @@
+{
+  "title": "Izibonelelo",
+  "subtitle": "Amaxwebho abalulekileyo, iziganeko, nemigqobela yoluntu lwethu.",
+  "quickLinks": {
+    "title": "Iinkshokhono Ezikhawulezayo",
+    "documents": "Amaxwebho",
+    "documentsDesc": "Imigaqo ye-HOA, iifom, namaxwebho asemthethweni",
+    "events": "Iziganeko",
+    "eventsDesc": "Iziganeko zoluntu neeshedyuli zokuhlala",
+    "guidelines": "Imigqobela",
+    "guidelinesDesc": "Imigaqo yoluntu nemigqobela yokuphila",
+    "contacts": "Iinxcontact",
+    "contactsDesc": "Iinombolo zefoni ezibalulekileyo neengxolelo"
+  },
+  "documents": {
+    "title": "Amaxwebho",
+    "hoaBylaws": "Imigaqo ye-HOA",
+    "hoaBylawsDesc": "Imigaqo esemthethweni yoluntu nezibonelelo",
+    "ccrs": "I-CC&Rs",
+    "ccrsDesc": "Amabhethe, Iimeko & Ukusikelwa",
+    "governingDocs": "Amaxwebho oLawulo",
+    "governingDocsDesc": "Bonke amaxwebho oluntu abhalelwe",
+    "financialReports": "Iingxelo zeMali",
+    "financialReportsDesc": "Uhlahlo lwemali lweminyaka neenkcukacha zezemali",
+    "architecturalGuidelines": "Imigqobela ye-Architectural",
+    "architecturalGuidelinesDesc": "Imigaqo yokulungiswa nokwakhiwa kwakhaya",
+    "privacyPolicy": "Umgaqo-nkqubo wokuFihla",
+    "privacyPolicyDesc": "Imigaqo-nkqubo yoluntu nenkqubo"
+  },
+  "events": {
+    "title": "Iziganeko",
+    "monthlyBoardMeeting": "Intlanganiso yoMgangatho woLulo",
+    "monthlyBoardMeetingDate": "UweCwe lokuqala lwenyanga nganye",
+    "annualGeneralMeeting": "Intlanganiso jikelele yoMgangatho",
+    "annualGeneralMeetingDate": "Ngamaxolo angama-1 ngonyaka",
+    "communityCleanupDay": "Usuku lokususa ulwahlulo lwangasese",
+    "landscapingDay": "Usuku lokuhlambela"
+  },
+  "guidelines": {
+    "title": "Imigqobela",
+    "exteriorAppearance": "Ukubonakala kwangaphandle",
+    "exteriorAppearanceDesc": "Imigqobela yezakhiwo zangaphandle, imibala yokuntyulula, nokuhlambela",
+    "petPolicy": "Umgaqo w ezilwanyana",
+    "petPolicyDesc": "Imigaqo nemigaqo malunga nezilwanyana kuluntu",
+    "parkingGuidelines": "Imigqobela yePaki",
+    "parkingGuidelinesDesc": "Imigaqo yepaki, ipaki yabavakashi, nemiqathango yezithuthi",
+    "noisePolicy": "Umgaqo weSandi",
+    "noisePolicyDesc": "Iiyure zokuzola nemigqobela yesandi",
+    "amenityRules": "Imigaqo yeZinto eziCwangcisiweyo",
+    "amenityRulesDesc": "Imigaqo yokusebenzisa ipuli, i-gym, neendawo zoluntu",
+    "wasteAndRecycling": "Iinkunkuma nokuhlambela",
+    "wasteAndRecyclingDesc": "Imigqobela yokulahlwa kweenkunkuma nokuhlambela"
+  },
+  "contacts": {
+    "title": "Iinxcontact",
+    "managementOffice": "IOfisi yolawulo",
+    "security": "Ukhuseleko",
+    "maintenance": "Ukugcinwa",
+    "emergency": "I-Mncinci"
+  },
+  "time": "Ixesha"
+}

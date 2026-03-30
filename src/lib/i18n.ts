@@ -19,7 +19,7 @@ export const languageNames: Record<SupportedLanguage, string> = {
 export const defaultLanguage = 'en';
 
 /** All available namespaces */
-export const namespaces = ['common', 'dashboard', 'services', 'messages', 'forms'];
+export const namespaces = ['common', 'dashboard', 'services', 'messages', 'forms', 'resources'];
 
 i18n
   .use(HttpBackend)

@@ -1,0 +1,62 @@
+{
+  "title": "Hulpbronne",
+  "subtitle": "Belangrike dokumente, geleenthede en riglyne vir ons gemeenskap.",
+  "quickLinks": {
+    "title": "Snelskakels",
+    "documents": "Dokumente",
+    "documentsDesc": "VVA-reëls, vorms en amptelike dokumente",
+    "events": "Geleenthede",
+    "eventsDesc": "Gemeenskapsgeleenthede en vergaderingskedules",
+    "guidelines": "Riglyne",
+    "guidelinesDesc": "Gemeenskapsreëls en lewensriglyne",
+    "contacts": "Kontakte",
+    "contactsDesc": "Belangrike telefoonnommers en kontakte"
+  },
+  "documents": {
+    "title": "Dokumente",
+    "hoaBylaws": "VVA Reëls",
+    "hoaBylawsDesc": "Amptelike gemeenskapsbylaws en regulasies",
+    "ccrs": "CC&Rs",
+    "ccrsDesc": "Kovenasies, Voorwaardes & Beperkings",
+    "governingDocs": "Beheerdokumente",
+    "governingDocsDesc": "Alle gemeenskapsbeheerdokumente",
+    "financialReports": "Finansiële Verslae",
+    "financialReportsDesc": "Jaarlikse begrotings en finansiële state",
+    "architecturalGuidelines": "Argitektuur Riglyne",
+    "architecturalGuidelinesDesc": "Verbeterings- en renovasiereëls",
+    "privacyPolicy": "Privaatheidsbeleid",
+    "privacyPolicyDesc": "Gemeenskapsprivaatheidsbeleid en prosedures"
+  },
+  "events": {
+    "title": "Geleenthede",
+    "monthlyBoardMeeting": "Maandelikse Bestuursvergadering",
+    "monthlyBoardMeetingDate": "Eerste Dinsdag van elke maand",
+    "annualGeneralMeeting": "Algemene Jaarvergadering",
+    "annualGeneralMeetingDate": "Een keer per jaar",
+    "communityCleanupDay": "GemeenskapsSkoonmaakdag",
+    "landscapingDay": "Tuinboudag"
+  },
+  "guidelines": {
+    "title": "Riglyne",
+    "exteriorAppearance": "Buite Voorkoms",
+    "exteriorAppearanceDesc": "Riglyne vir huisbuite, verfkleur en tuinmaak",
+    "petPolicy": "Troetelbeleid",
+    "petPolicyDesc": "Reëls en regulasies vir troeteldiere in die gemeenskap",
+    "parkingGuidelines": "Parkeer Riglyne",
+    "parkingGuidelinesDesc": "Parkeerreëls, besoekerparkering en motorvoertuigbeperkings",
+    "noisePolicy": "Geluidsbeleid",
+    "noisePolicyDesc": "Stilte-ure en geraasriglyne",
+    "amenityRules": "Geriefreëls",
+    "amenityRulesDesc": "Swembad, gim en gemeenskaplike gebied gebruiksreëls",
+    "wasteAndRecycling": "Afval & Herwinning",
+    "wasteAndRecyclingDesc": "Afvalverwydering en herwinningriglyne"
+  },
+  "contacts": {
+    "title": "Kontakte",
+    "managementOffice": "Kantoor",
+    "security": "Sekuriteit",
+    "maintenance": "Instandhouding",
+    "emergency": "Noodgeval"
+  },
+  "time": "Tyd"
+}
