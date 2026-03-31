@@ -58,17 +58,40 @@ export default function Breadcrumbs({ items }) {
 }
 ```
 
-**Option 3: Static Generation with Translations**
+**Option 3: Client Components with Loading Check**
 
 ```tsx
-// ✅ Pre-rendered with translations
-export async function generateStaticParams() {
-  const locales = ['en', 'af', 'xh', 'zu'];
-  // Generate pages for each locale
-}
+'use client';
 
-export default function Page({ params: { lang } }) {
-  // Use lang to determine translations at build time
+export function Header() {
+  const { t, ready } = useTranslation('common');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // ✅ Show loading state until translations are ready
+  if (!mounted || !ready) {
+    return (
+      <header>
+        <nav>
+          <a href="/">Home</a> {/* Hardcoded fallback */}
+          <a href="/about">About</a>
+        </nav>
+      </header>
+    );
+  }
+
+  // ✅ Safe to use translations now
+  return (
+    <header>
+      <nav>
+        <a href="/">{t('nav.home')}</a>
+        <a href="/about">{t('nav.about')}</a>
+      </nav>
+    </header>
+  );
 }
 ```
 
@@ -76,22 +99,23 @@ export default function Page({ params: { lang } }) {
 
 ### 🟢 Server Components (No i18n)
 
-- Layout components (`Header`, `Footer`, `Breadcrumbs`)
-- Navigation elements
-- Static content
+- Layout components that are **server-rendered** (`Breadcrumbs`)
+- Navigation elements in server components
+- Static content without client wrapper
 - Error boundaries
 - Loading states
 
-**Rule**: If it renders on the server and affects initial page layout, avoid i18n.
+**Rule**: If it's a **pure server component** that renders on initial page load, avoid i18n.
 
-### 🟡 Client Components (i18n OK)
+### 🟡 Client Components (i18n OK with Pattern)
 
+- `'use client'` components (`Header`, `Footer`)
 - Interactive elements (`buttons`, `forms`, `modals`)
 - Dynamic content
 - User-generated content
 - Real-time updates
 
-**Rule**: Components that load after hydration can safely use i18n.
+**Rule**: Client components can use i18n if they check `mounted && ready` before rendering translations.
 
 ### 🔴 Mixed Components (Careful!)
 
@@ -171,14 +195,69 @@ export function WelcomeMessage({ user }) {
 ### ❌ Navigation in Server Components
 
 ```tsx
-// WRONG
+// WRONG - Server component can't use i18n
+export function Breadcrumbs({ items }) {
+  const { t } = useTranslation('common'); // ❌ t is undefined on server
+  return (
+    <nav>
+      {items.map(item => (
+        <a href={item.href}>{t(`nav.${item.key}`)}</a>
+      ))}
+    </nav>
+  );
+}
+
+// ✅ Correct - Server component with hardcoded strings
+export function Breadcrumbs({ items }) {
+  return (
+    <nav>
+      {items.map(item => (
+        <a href={item.href}>{item.label}</a> // ✅ Pass translated labels as props
+      ))}
+    </nav>
+  );
+}
+```
+
+### ❌ Client Components Without Loading Check
+
+```tsx
+'use client';
+
+// WRONG - No loading check
 export function Header() {
   const { t } = useTranslation('common');
   return (
     <nav>
-      <a href="/">{t('nav.home')}</a>
+      <a href="/">{t('nav.home')}</a> // ❌ May show "nav.home" briefly
     </nav>
-  ); // Hydration mismatch
+  );
+}
+
+// ✅ Correct - With loading check
+('use client');
+
+export function Header() {
+  const { t, ready } = useTranslation('common');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !ready) {
+    return (
+      <nav>
+        <a href="/">Home</a> {/* ✅ Hardcoded fallback */}
+      </nav>
+    );
+  }
+
+  return (
+    <nav>
+      <a href="/">{t('nav.home')}</a> {/* ✅ Safe to use translations */}
+    </nav>
+  );
 }
 ```
 
@@ -377,14 +456,15 @@ const renderWithI18n = component => {
 
 ## Quick Reference
 
-| Component Type    | i18n Allowed | Solution           |
-| ----------------- | ------------ | ------------------ |
-| Server Components | ❌           | Hardcoded strings  |
-| Client Components | ✅           | `useTranslation`   |
-| Layout/Navigation | ❌           | Props from client  |
-| Forms/Buttons     | ✅           | Direct translation |
-| Static Content    | ❌           | Hardcoded or props |
-| Dynamic Content   | ✅           | Client-side only   |
+| Component Type             | i18n Allowed | Solution                            |
+| -------------------------- | ------------ | ----------------------------------- |
+| Server Components          | ❌           | Hardcoded strings                   |
+| Client Components          | ✅           | `useTranslation` with loading check |
+| Layout/Navigation (Server) | ❌           | Props from client or hardcoded      |
+| Layout/Navigation (Client) | ✅           | Loading check pattern               |
+| Forms/Buttons              | ✅           | Direct translation                  |
+| Static Content             | ❌           | Hardcoded or props                  |
+| Dynamic Content            | ✅           | Client-side only                    |
 
 **Remember**: When in doubt, avoid i18n in server-rendered components. It's easier to add i18n later than fix hydration bugs.</content>
 <parameter name="filePath">/home/ubuntupunk/Projects/soralia-village/docs/i18nGUIDE.md
