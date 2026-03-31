@@ -65,7 +65,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   },
   BOARD: {
     admin: false,
-    users: false,
+    users: true, // BOARD can access household/user data (aligned with router behaviour)
     requests: true,
     content: true,
     groups: true,
@@ -90,6 +90,20 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     directory: true,
     messages: true,
     settings: true,
+  },
+  AGENT: {
+    admin: false,
+    users: false,
+    requests: false, // agents can't manage maintenance globally
+    content: false,
+    groups: false,
+    groupsOwn: false,
+    contentOwn: false,
+    events: false,
+    bookings: false, // agents manage via AgentAccess, not RBAC
+    directory: false,
+    messages: false,
+    settings: false,
   },
 };
 
@@ -198,12 +212,28 @@ export function canManageSettings(role: string | null | undefined): boolean {
   return hasPermission(role, 'settings');
 }
 
+/** Zero-permission set used as a safe fallback for unknown or missing roles */
+const ZERO_PERMISSIONS: Permission = {
+  admin: false,
+  users: false,
+  requests: false,
+  content: false,
+  groups: false,
+  groupsOwn: false,
+  contentOwn: false,
+  events: false,
+  bookings: false,
+  directory: false,
+  messages: false,
+  settings: false,
+};
+
 /**
  * Gets the full permission object for a role.
  * @param role - The user role
- * @returns Permission object for the role, defaults to RESIDENT if role not found
+ * @returns Permission object for the role, defaults to zero permissions if role not found
  */
 export function getPermissions(role: string | null | undefined): Permission {
-  if (!role) return ROLE_PERMISSIONS.RESIDENT;
-  return ROLE_PERMISSIONS[role as Role] || ROLE_PERMISSIONS.RESIDENT;
+  if (!role) return ZERO_PERMISSIONS;
+  return ROLE_PERMISSIONS[role as Role] ?? ZERO_PERMISSIONS;
 }

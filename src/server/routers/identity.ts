@@ -104,7 +104,10 @@ export const identityRouter = router({
     .input(z.object({ unit: z.string(), street: z.string().optional() }))
     .query(async ({ input, ctx }) => {
       const household = await ctx.prisma.household.findFirst({
-        where: { unit: input.unit },
+        where: {
+          unit: input.unit,
+          ...(input.street ? { street: input.street } : {}),
+        },
         select: {
           id: true,
           street: true,
@@ -197,10 +200,11 @@ export const identityRouter = router({
   /**
    * Create Standard Seat (property owner link)
    */
-  createStandardSeat: protectedProcedure
+  createStandardSeat: adminProcedure
     .input(
       z.object({
         householdId: z.string(),
+        userId: z.string(),
         isPrimaryOwner: z.boolean().default(true),
       })
     )
@@ -217,19 +221,22 @@ export const identityRouter = router({
 
       // Check if already has a seat
       const existingSeat = await ctx.prisma.standardSeat.findUnique({
-        where: { userId_householdId: { userId: ctx.userId, householdId: input.householdId } },
+        where: { userId_householdId: { userId: input.userId, householdId: input.householdId } },
       });
       if (existingSeat) {
         throw new TRPCError({ code: 'CONFLICT', message: 'Already linked to this household' });
       }
 
       // Generate platform address: name.unitNNN@soralia.org
-      const user = await ctx.prisma.user.findUnique({ where: { id: ctx.userId } });
-      const platformAddress = `${user?.name.toLowerCase().replace(/\s+/g, '.')}.${household.unit}@soralia.org`;
+      const user = await ctx.prisma.user.findUnique({ where: { id: input.userId } });
+      if (!user) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+      }
+      const platformAddress = `${user.name.toLowerCase().replace(/\s+/g, '.')}.${household.unit}@soralia.org`;
 
       return ctx.prisma.standardSeat.create({
         data: {
-          userId: ctx.userId,
+          userId: input.userId,
           householdId: input.householdId,
           isPrimaryOwner: input.isPrimaryOwner && household.standardSeats.length === 0,
           platformAddress,
@@ -400,7 +407,12 @@ export const identityRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot remove this profile' });
       }
 
-      const status = input.reason === 'EVICTED' ? 'EVICTED' : 'REMOVED';
+      const status =
+        input.reason === 'EVICTED'
+          ? 'EVICTED'
+          : input.reason === 'LEASE_ENDED'
+            ? 'LEASE_ENDED'
+            : 'REMOVED';
 
       return ctx.prisma.profile.update({
         where: { id: input.id },
@@ -424,13 +436,27 @@ export const identityRouter = router({
       return null;
     }
 
-    return profile;
+    if (!profile.isPublic) {
+      return null;
+    }
+
+    return {
+      ...profile,
+      user: profile.user
+        ? {
+            id: profile.user.id,
+            name: profile.user.name,
+            email: profile.showEmail ? profile.user.email : undefined,
+            avatar: profile.user.avatar,
+          }
+        : null,
+    };
   }),
 
   /**
-   * Upgrade profile to Premium Seat
+   * Upgrade profile to Solo Seat
    */
-  upgradeToPremium: protectedProcedure
+  upgradeToSolo: protectedProcedure
     .input(
       z.object({
         profileId: z.string(),
@@ -444,6 +470,14 @@ export const identityRouter = router({
 
       if (!profile) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Profile not found' });
+      }
+
+      // Verify caller owns the profile
+      if (profile.userId !== ctx.userId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Cannot upgrade a profile you do not own',
+        });
       }
 
       // Check tenure (1 year)
@@ -465,12 +499,15 @@ export const identityRouter = router({
         where: { userId: ctx.userId },
       });
       if (existingSeat) {
-        throw new TRPCError({ code: 'CONFLICT', message: 'Already has a Premium Seat' });
+        throw new TRPCError({ code: 'CONFLICT', message: 'Already has a Solo Seat' });
       }
 
       // Create solo seat
       const user = await ctx.prisma.user.findUnique({ where: { id: ctx.userId } });
-      const platformAddress = `${user?.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`;
+      if (!user) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+      }
+      const platformAddress = `${user.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`;
 
       return ctx.prisma.$transaction([
         ctx.prisma.profile.update({
@@ -526,7 +563,18 @@ export const identityRouter = router({
       },
     });
 
-    return seat;
+    if (!seat) return null;
+    if (!seat.user?.isPublic) return null;
+
+    return {
+      ...seat,
+      user: seat.user
+        ? {
+            ...seat.user,
+            email: seat.user.showEmail ? seat.user.email : undefined,
+          }
+        : null,
+    };
   }),
 
   /**
@@ -557,7 +605,7 @@ export const identityRouter = router({
       });
 
       if (SoloSeat) {
-        return { type: 'SoloSeat', data: SoloSeat };
+        return { type: 'soloSeat', data: SoloSeat };
       }
 
       // Then check Profile
@@ -633,13 +681,14 @@ export const identityRouter = router({
         throw new TRPCError({ code: 'CONFLICT', message: 'Access already exists' });
       }
 
-      // For now, auto-approve (or could create a pending request for owner approval)
+      // Create pending request — owner must approve via grantAgentAccess
       return ctx.prisma.agentAccess.create({
         data: {
           agentId: ctx.userId,
           householdId: input.householdId,
-          grantedById: ctx.userId, // Self-granted for demo
+          grantedById: ctx.userId,
           reason: input.reason,
+          isActive: false, // Pending owner approval
           expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
         },
       });
@@ -653,7 +702,7 @@ export const identityRouter = router({
       z.object({
         agentUserId: z.string(),
         householdId: z.string(),
-        expiresAt: z.date(),
+        expiresAt: z.date().min(new Date(), { message: 'Expiry must be in the future' }),
         reason: z.string().min(1),
       })
     )

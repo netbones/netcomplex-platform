@@ -644,10 +644,11 @@ enum OccupantType {
 }
 
 enum ProfileStatus {
-  ACTIVE      // Currently living there
-  UPGRADED    // Upgraded to Solo Seat
-  REMOVED     // Moved out
-  EVICTED     // Removed due to eviction
+  ACTIVE       // Currently living there
+  UPGRADED     // Upgraded to Solo Seat
+  REMOVED      // Moved out (generic)
+  EVICTED      // Removed due to eviction
+  LEASE_ENDED  // Lease term completed
 }
 
 // Solo Seat - independent identity (resident or member)
