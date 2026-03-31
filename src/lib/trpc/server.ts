@@ -10,6 +10,8 @@ export interface Context {
   prisma: typeof prisma;
   userId: string | null;
   role: Role | null;
+  /** Organization ID for multi-tenancy / RLS scoping. Null in single-tenant mode. */
+  organizationId: string | null;
 }
 
 export async function createContext(opts: { headers: Headers }): Promise<Context> {
@@ -26,11 +28,19 @@ export async function createContext(opts: { headers: Headers }): Promise<Context
     role = user?.role || null;
   }
 
+  // organizationId: resolved from session metadata or env in multi-tenant mode.
+  // Currently null (single-tenant). Populate from session.user.organizationId when
+  // multi-tenancy is enabled.
+  const organizationId: string | null =
+    ((session?.user as Record<string, unknown> | undefined)?.organizationId as string | null) ??
+    null;
+
   return {
     session,
     prisma,
     userId: session?.user?.id || null,
     role,
+    organizationId,
   };
 }
 

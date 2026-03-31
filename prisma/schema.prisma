@@ -13,14 +13,18 @@ model User {
   email        String       @unique
   name         String
   role         Role         @default(RESIDENT)
+  /// @deprecated Use StandardSeat.household.residentType or SoloSeat.seatType instead
   residentType ResidentType @default(OWNER)
   isActive     Boolean      @default(true)
+  /// @deprecated Use StandardSeat.household.street or SoloSeat.household.street instead
   street       String?
+  /// @deprecated Use StandardSeat.household.unit or SoloSeat.household.unit instead
   unit         String?
   phone        String?
   interests    String[]
   avatar       String?
   profileImage String?
+  /// @deprecated Use StandardSeat.household.homeImage or SoloSeat.household.homeImage instead
   homeImage    String?
   books        Json?        @default("[]")
   dashboardLayout Json?      @default("null")
@@ -535,6 +539,9 @@ model Passkey {
 model Household {
   id              String    @id @default(cuid())
   
+  // Multi-tenancy
+  organizationId  String?
+  
   // Property reference
   street          String
   unit            String    // Unit number, e.g., "042"
@@ -561,6 +568,7 @@ model Household {
 
   @@unique([street, unit])
   @@index([platformAddress])
+  @@index([organizationId])
   @@map("household")
 }
 
@@ -587,12 +595,16 @@ model StandardSeat {
   // Platform address (e.g., jack.unit042@soralia.org)
   platformAddress String    @unique
   
+  // Multi-tenancy
+  organizationId  String?
+  
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
   @@unique([userId, householdId])
   @@index([userId])
   @@index([householdId])
+  @@index([organizationId])
   @@map("standardSeat")
 }
 
@@ -628,12 +640,16 @@ model Profile {
   
   status          ProfileStatus @default(ACTIVE)
   
+  // Multi-tenancy
+  organizationId  String?
+  
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
   @@unique([householdId, profileAddress])
   @@index([householdId])
   @@index([userId])
+  @@index([organizationId])
   @@map("profile")
 }
 
@@ -675,10 +691,14 @@ model SoloSeat {
   // For upgraded occupants - link back to original household
   linkedFromProfileId String?
   
+  // Multi-tenancy
+  organizationId  String?
+  
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
   @@index([householdId])
+  @@index([organizationId])
   @@map("soloSeat")
 }
 
@@ -713,11 +733,15 @@ model AgentAccess {
   // Reason
   reason          String?
   
+  // Multi-tenancy
+  organizationId  String?
+  
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
   @@index([agentId])
   @@index([householdId])
+  @@index([organizationId])
   @@index([expiresAt])
   @@map("agentAccess")
 }

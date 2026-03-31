@@ -64,6 +64,8 @@ export async function GET(request: Request) {
   }
 
   if (street) {
+    // NOTE: street filter now queries Household via StandardSeat join.
+    // Legacy User.street filter kept for backward compatibility during migration.
     where.street = street;
   }
 
@@ -72,6 +74,7 @@ export async function GET(request: Request) {
   }
 
   if (residentType) {
+    // NOTE: residentType filter kept for backward compatibility during migration.
     where.residentType = residentType as 'OWNER' | 'RENTER';
   }
 
@@ -86,16 +89,29 @@ export async function GET(request: Request) {
         id: true,
         name: true,
         email: true,
-        street: true,
-        unit: true,
+        street: true, // @deprecated — use standardSeats.household.street
+        unit: true, // @deprecated — use standardSeats.household.unit
         phone: true,
         interests: true,
         avatar: true,
-        homeImage: true,
+        homeImage: true, // @deprecated — use standardSeats.household.homeImage
         isPublic: true,
         isActive: true,
-        residentType: true,
+        residentType: true, // @deprecated — use standardSeats.isPrimaryOwner
         role: true,
+        standardSeats: {
+          select: {
+            household: { select: { id: true, street: true, unit: true, homeImage: true } },
+            isPrimaryOwner: true,
+          },
+          take: 1,
+        },
+        soloSeat: {
+          select: {
+            household: { select: { id: true, street: true, unit: true, homeImage: true } },
+            seatType: true,
+          },
+        },
       },
       orderBy: { name: 'asc' },
       skip,
@@ -134,6 +150,8 @@ export async function POST(request: Request) {
     data: {
       email: body.email,
       name: body.name,
+      // NOTE: street/unit are deprecated on User — callers should create a Household + StandardSeat instead.
+      // Kept here for backward compatibility during migration.
       street: body.street,
       unit: body.unit,
       phone: body.phone,

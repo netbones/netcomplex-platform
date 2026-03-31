@@ -82,7 +82,7 @@ async function migrateIdentityData() {
   });
 
   for (const boardMember of boardMembers) {
-    const existingSeat = await prisma.SoloSeat.findUnique({
+    const existingSeat = await prisma.soloSeat.findUnique({
       where: { userId: boardMember.id },
     });
 
@@ -96,7 +96,7 @@ async function migrateIdentityData() {
     const seatType = boardMember.street && boardMember.unit ? 'RESIDENT' : 'MEMBER';
     const platformAddress = `${boardMember.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`;
 
-    await prisma.SoloSeat.create({
+    await prisma.soloSeat.create({
       data: {
         userId: boardMember.id,
         platformAddress,
@@ -166,18 +166,55 @@ async function migrateIdentityData() {
     console.log(`  - Created Profile for ${renter.name} at ${household.street} ${household.unit}`);
   }
 
+  // ============ BACKFILL: Copy User.homeImage → Household.homeImage ============
+  console.log('\n4. Backfilling Household.homeImage from User.homeImage...');
+
+  const usersWithHomeImage = await prisma.user.findMany({
+    where: { homeImage: { not: null } },
+    select: { id: true, name: true, homeImage: true, street: true, unit: true },
+  });
+
+  for (const user of usersWithHomeImage) {
+    if (!user.street || !user.unit) continue;
+
+    const household = await prisma.household.findUnique({
+      where: { street_unit: { street: user.street, unit: user.unit } },
+    });
+
+    if (!household) {
+      console.log(
+        `  - No household found for ${user.name} (${user.street} ${user.unit}), skipping`
+      );
+      continue;
+    }
+
+    if (household.homeImage) {
+      console.log(
+        `  - Household ${household.street} ${household.unit} already has homeImage, skipping`
+      );
+      continue;
+    }
+
+    await prisma.household.update({
+      where: { id: household.id },
+      data: { homeImage: user.homeImage },
+    });
+
+    console.log(`  - Backfilled homeImage for ${household.street} ${household.unit}`);
+  }
+
   console.log('\n✅ Migration complete!');
 
   // Summary
   const householdCount = await prisma.household.count();
   const seatCount = await prisma.standardSeat.count();
-  const premiumCount = await prisma.SoloSeat.count();
+  const soloSeatCount = await prisma.soloSeat.count();
   const profileCount = await prisma.profile.count();
 
   console.log('\n--- Summary ---');
   console.log(`Households: ${householdCount}`);
   console.log(`StandardSeats: ${seatCount}`);
-  console.log(`SoloSeats: ${premiumCount}`);
+  console.log(`SoloSeats: ${soloSeatCount}`);
   console.log(`Profiles: ${profileCount}`);
 }
 
