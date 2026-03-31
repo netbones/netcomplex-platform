@@ -7,6 +7,7 @@ export type Role = keyof typeof ROLES;
 export interface Permission {
   admin: boolean;
   users: boolean;
+  households: boolean;
   requests: boolean;
   content: boolean;
   groups: boolean;
@@ -24,6 +25,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   RESIDENT: {
     admin: false,
     users: false,
+    households: false,
     requests: false,
     content: false,
     contentOwn: true,
@@ -38,6 +40,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   GROUP_ADMIN: {
     admin: false,
     users: false,
+    households: false,
     requests: false,
     content: false,
     groups: false,
@@ -52,6 +55,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   COMMITTEE: {
     admin: false,
     users: false,
+    households: false,
     requests: true,
     content: true,
     groups: true,
@@ -65,7 +69,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   },
   BOARD: {
     admin: false,
-    users: true, // BOARD can access household/user data (aligned with router behaviour)
+    users: false, // BOARD cannot manage user accounts
+    households: true, // BOARD can access household data
     requests: true,
     content: true,
     groups: true,
@@ -80,6 +85,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   ADMIN: {
     admin: true,
     users: true,
+    households: true,
     requests: true,
     content: true,
     groups: true,
@@ -94,6 +100,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
   AGENT: {
     admin: false,
     users: false,
+    households: false, // agents manage via AgentAccess, not RBAC
     requests: false, // agents can't manage maintenance globally
     content: false,
     groups: false,
@@ -212,10 +219,20 @@ export function canManageSettings(role: string | null | undefined): boolean {
   return hasPermission(role, 'settings');
 }
 
+/**
+ * Checks if the role can access household data.
+ * @param role - The user role to check
+ * @returns True if role has households permission
+ */
+export function canAccessHouseholds(role: string | null | undefined): boolean {
+  return hasPermission(role, 'households');
+}
+
 /** Zero-permission set used as a safe fallback for unknown or missing roles */
 const ZERO_PERMISSIONS: Permission = {
   admin: false,
   users: false,
+  households: false,
   requests: false,
   content: false,
   groups: false,

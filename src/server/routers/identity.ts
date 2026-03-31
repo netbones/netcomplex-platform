@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { router, publicProcedure, protectedProcedure, adminProcedure } from '@/lib/trpc/server';
 import { TRPCError } from '@trpc/server';
+import { hasPermission } from '@/lib/permissions';
 
 export const identityRouter = router({
   // ============ HOUSEHOLDS ============
@@ -90,7 +91,7 @@ export const identityRouter = router({
         },
       });
 
-      if (!isOwner && !isAgent && ctx.role !== 'ADMIN' && ctx.role !== 'BOARD') {
+      if (!isOwner && !isAgent && !hasPermission(ctx.role, 'households')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
       }
 
@@ -180,9 +181,9 @@ export const identityRouter = router({
       const isOwner = household.standardSeats.some(
         s => s.userId === ctx.userId && s.isPrimaryOwner
       );
-      const isAdmin = ctx.role === 'ADMIN' || ctx.role === 'BOARD';
+      const canAccessHouseholds = hasPermission(ctx.role, 'households');
 
-      if (!isOwner && !isAdmin) {
+      if (!isOwner && !canAccessHouseholds) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'Only primary owner can update household',
@@ -296,7 +297,7 @@ export const identityRouter = router({
         where: { agentId: ctx.userId, householdId, isActive: true, expiresAt: { gt: new Date() } },
       });
 
-      if (!isOwner && !isAgent && ctx.role !== 'ADMIN' && ctx.role !== 'BOARD') {
+      if (!isOwner && !isAgent && !hasPermission(ctx.role, 'households')) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'Cannot add profiles to this household',
@@ -405,7 +406,7 @@ export const identityRouter = router({
         },
       });
 
-      if (!isHouseholdOwner && !isAgent && ctx.role !== 'ADMIN') {
+      if (!isHouseholdOwner && !isAgent && !hasPermission(ctx.role, 'households')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot remove this profile' });
       }
 
@@ -724,7 +725,7 @@ export const identityRouter = router({
       const isOwner = household.standardSeats.some(
         s => s.userId === ctx.userId && s.isPrimaryOwner
       );
-      if (!isOwner && ctx.role !== 'ADMIN') {
+      if (!isOwner && !hasPermission(ctx.role, 'households')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Only primary owner can grant access' });
       }
 
@@ -756,7 +757,7 @@ export const identityRouter = router({
 
       // Only owner or admin can revoke
       const isOwner = access.grantedById === ctx.userId;
-      if (!isOwner && ctx.role !== 'ADMIN') {
+      if (!isOwner && !hasPermission(ctx.role, 'households')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot revoke this access' });
       }
 

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useParams } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { trpc } from '@/lib/trpc/client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
@@ -10,7 +9,6 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 function MemberContent() {
   const params = useParams();
   const id = params?.id as string | undefined;
-  const { t: tCommon } = useTranslation('common');
 
   const {
     data: SoloSeat,
@@ -32,7 +30,7 @@ function MemberContent() {
   if (error || !SoloSeat) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <Breadcrumbs items={[{ label: tCommon('nav.home'), href: '/' }, { label: 'Member' }]} />
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Member' }]} />
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
             {error?.message || 'Member not found'}
@@ -51,6 +49,23 @@ function MemberContent() {
   const { user, household } = SoloSeat;
   const isBoardMember = SoloSeat.seatType === 'MEMBER';
 
+  if (!user) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Member' }]} />
+        <div className="bg-white rounded-lg shadow-md p-8 text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">User not found</h1>
+          <p className="text-gray-600 mb-6">
+            The user associated with this member seat is not available.
+          </p>
+          <Link href="/directory" className="text-soralia-primary hover:underline">
+            Return to directory
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const avatarUrl =
     user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name.replace(' ', '')}`;
 
@@ -58,8 +73,8 @@ function MemberContent() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <Breadcrumbs
         items={[
-          { label: tCommon('nav.home'), href: '/' },
-          { label: tCommon('nav.directory'), href: '/directory' },
+          { label: 'Home', href: '/' },
+          { label: 'Directory', href: '/directory' },
           { label: user.name },
         ]}
       />
