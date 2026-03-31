@@ -319,8 +319,12 @@ function InterestContent() {
                     />
                     <div>
                       <h3 className="font-semibold">{resident.name}</h3>
-                      {resident.street && (
-                        <p className="text-sm text-gray-500">{resident.street}</p>
+                      {(resident.standardSeats?.[0]?.household?.street ||
+                        resident.soloSeat?.household?.street) && (
+                        <p className="text-sm text-gray-500">
+                          {resident.standardSeats?.[0]?.household?.street ||
+                            resident.soloSeat?.household?.street}
+                        </p>
                       )}
                     </div>
                   </div>

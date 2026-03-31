@@ -19,9 +19,6 @@ export async function POST(request: Request) {
     data: {
       email: body.email,
       name: body.name,
-      street: body.street || null,
-      unit: body.unit || null,
-      residentType: body.residentType || 'OWNER',
       role: body.role || 'RESIDENT',
       inviterId,
       organizationId,

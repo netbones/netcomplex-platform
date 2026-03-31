@@ -13,19 +13,11 @@ model User {
   email        String       @unique
   name         String
   role         Role         @default(RESIDENT)
-  /// @deprecated Use StandardSeat.household.residentType or SoloSeat.seatType instead
-  residentType ResidentType @default(OWNER)
   isActive     Boolean      @default(true)
-  /// @deprecated Use StandardSeat.household.street or SoloSeat.household.street instead
-  street       String?
-  /// @deprecated Use StandardSeat.household.unit or SoloSeat.household.unit instead
-  unit         String?
   phone        String?
   interests    String[]
   avatar       String?
   profileImage String?
-  /// @deprecated Use StandardSeat.household.homeImage or SoloSeat.household.homeImage instead
-  homeImage    String?
   books        Json?        @default("[]")
   dashboardLayout Json?      @default("null")
   isPublic     Boolean      @default(true)

@@ -14,8 +14,18 @@ interface MaintenanceRequest {
   user: {
     name: string;
     email: string;
-    street: string;
-    unit: string;
+    standardSeats?: Array<{
+      household: {
+        street: string;
+        unit: string;
+      };
+    }>;
+    soloSeat?: {
+      household?: {
+        street: string;
+        unit: string;
+      };
+    };
   };
 }
 
@@ -126,8 +136,11 @@ export default function AdminRequestsPage() {
                     </span>
                   </div>
                   <p className="text-sm text-gray-500">
-                    {request.user.name} • {request.user.street}
-                    {request.user.unit && `, ${request.user.unit}`} • {request.user.email}
+                    {request.user.name} •{' '}
+                    {request.user.standardSeats?.[0]?.household?.street || 'Address not available'}
+                    {request.user.standardSeats?.[0]?.household?.unit &&
+                      `, ${request.user.standardSeats[0].household.unit}`}{' '}
+                    • {request.user.email}
                   </p>
                 </div>
                 <select

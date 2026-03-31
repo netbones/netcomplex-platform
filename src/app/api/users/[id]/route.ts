@@ -11,20 +11,29 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       id: true,
       name: true,
       email: true,
-      street: true,
-      unit: true,
       phone: true,
       interests: true,
       avatar: true,
-      homeImage: true,
       books: true,
       dashboardLayout: true,
       isPublic: true,
       showEmail: true,
       showPhone: true,
-      residentType: true,
       role: true,
       createdAt: true,
+      standardSeats: {
+        select: {
+          household: { select: { id: true, street: true, unit: true, homeImage: true } },
+          isPrimaryOwner: true,
+        },
+        take: 1,
+      },
+      soloSeat: {
+        select: {
+          seatType: true,
+          household: { select: { id: true, street: true, unit: true, homeImage: true } },
+        },
+      },
       contents: {
         where: { published: true },
         select: {
@@ -57,11 +66,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (body.role) {
     updateData.role = body.role;
   }
-  if (body.residentType) {
-    updateData.residentType = body.residentType as Prisma.EnumResidentTypeFieldRefInput<
-      'OWNER' | 'RENTER' | 'SUSPENDED'
-    >;
-  }
+  // residentType is now handled through identity relationships (StandardSeat/SoloSeat)
   if (body.isActive !== undefined) {
     updateData.isActive = body.isActive === 'true' || body.isActive === true;
   }

@@ -29,15 +29,27 @@ interface Resident {
   id: string;
   name: string;
   email: string;
-  street: string | null;
-  unit: string | null;
   phone: string | null;
   interests: string[];
   avatar: string | null;
-  homeImage: string | null;
   isPublic: boolean;
-  residentType?: ResidentType;
   role?: string;
+  standardSeats?: Array<{
+    household: {
+      street: string;
+      unit: string;
+      homeImage: string | null;
+    };
+    isPrimaryOwner: boolean;
+  }>;
+  soloSeat?: {
+    seatType: string;
+    household?: {
+      street: string;
+      unit: string;
+      homeImage: string | null;
+    };
+  };
 }
 
 export default function HomePage() {
@@ -101,7 +113,9 @@ export default function HomePage() {
   }
 
   const filteredResidents = residents.filter(r => {
-    const address = [r.street, r.unit].filter(Boolean).join(', ');
+    const street = r.standardSeats?.[0]?.household?.street || r.soloSeat?.household?.street || '';
+    const unit = r.standardSeats?.[0]?.household?.unit || r.soloSeat?.household?.unit || '';
+    const address = [street, unit].filter(Boolean).join(', ');
     const interestList = Array.isArray(r.interests) ? r.interests : [];
 
     const matchesSearch =
@@ -117,9 +131,9 @@ export default function HomePage() {
       } else if (filterValue === 'Committee') {
         matchesType = r.role === 'COMMITTEE';
       } else if (filterValue === 'Owner') {
-        matchesType = r.residentType === 'OWNER';
+        matchesType = r.standardSeats?.some(seat => seat.isPrimaryOwner) || false;
       } else if (filterValue === 'Renter') {
-        matchesType = r.residentType === 'RENTER';
+        matchesType = !r.standardSeats?.some(seat => seat.isPrimaryOwner) && !r.soloSeat;
       }
     }
     return matchesSearch && matchesType;
@@ -291,7 +305,15 @@ export default function HomePage() {
               const avatarUrl =
                 resident.avatar ||
                 `https://api.dicebear.com/7.x/avataaars/svg?seed=${resident.name.replace(' ', '')}`;
-              const address = [resident.street, resident.unit].filter(Boolean).join(', ');
+              const street =
+                resident.standardSeats?.[0]?.household?.street ||
+                resident.soloSeat?.household?.street ||
+                '';
+              const unit =
+                resident.standardSeats?.[0]?.household?.unit ||
+                resident.soloSeat?.household?.unit ||
+                '';
+              const address = [street, unit].filter(Boolean).join(', ');
               const interestList = Array.isArray(resident.interests) ? resident.interests : [];
 
               return (
@@ -300,17 +322,23 @@ export default function HomePage() {
                   href={`/resident/${resident.id}`}
                   className={`block bg-white rounded-lg shadow-md hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer ${CARD_ANIMATIONS.transition} ${viewMode === 'list' ? 'flex relative overflow-hidden min-h-32' : 'overflow-hidden'}`}
                 >
-                  {viewMode === 'grid' && resident.homeImage && (
-                    <div className="h-32 w-full relative">
-                      <Image
-                        src={resident.homeImage}
-                        alt={`${resident.name}'s home`}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover"
-                      />
-                    </div>
-                  )}
+                  {viewMode === 'grid' &&
+                    (resident.standardSeats?.[0]?.household?.homeImage ||
+                      resident.soloSeat?.household?.homeImage) && (
+                      <div className="h-32 w-full relative">
+                        <Image
+                          src={
+                            resident.standardSeats?.[0]?.household?.homeImage ||
+                            resident.soloSeat?.household?.homeImage ||
+                            ''
+                          }
+                          alt={`${resident.name}'s home`}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
                   <div
                     className={`${headerColor} p-4 text-white ${viewMode === 'list' ? 'w-64 shrink-0 z-10' : ''}`}
                   >
@@ -334,7 +362,13 @@ export default function HomePage() {
                     className={`p-4 flex gap-4 ${viewMode === 'list' ? 'flex-1 items-center z-10' : 'items-start'}`}
                   >
                     <div
-                      className={resident.homeImage && viewMode === 'grid' ? 'flex-1' : 'flex-1'}
+                      className={
+                        (resident.standardSeats?.[0]?.household?.homeImage ||
+                          resident.soloSeat?.household?.homeImage) &&
+                        viewMode === 'grid'
+                          ? 'flex-1'
+                          : 'flex-1'
+                      }
                     >
                       <div className="flex items-center mb-2">
                         <i
@@ -342,11 +376,11 @@ export default function HomePage() {
                           aria-hidden="true"
                         ></i>
                         <span className="text-sm text-gray-600">
-                          {resident.residentType === RESIDENT_TYPES.OWNER
+                          {resident.standardSeats?.[0]?.isPrimaryOwner
                             ? t('home.owner')
-                            : resident.residentType === RESIDENT_TYPES.RENTER
-                              ? t('home.renter')
-                              : resident.role || t('home.resident')}
+                            : resident.soloSeat
+                              ? 'Board Member'
+                              : t('home.renter')}
                         </span>
                       </div>
                       {resident.isPublic && (
@@ -383,17 +417,23 @@ export default function HomePage() {
                       )}
                     </div>
                   </div>
-                  {resident.homeImage && viewMode === 'list' && (
-                    <div className="absolute inset-y-0 right-0 w-48">
-                      <Image
-                        src={resident.homeImage}
-                        alt={`${resident.name}'s home`}
-                        fill
-                        sizes="192px"
-                        className="object-cover"
-                      />
-                    </div>
-                  )}
+                  {(resident.standardSeats?.[0]?.household?.homeImage ||
+                    resident.soloSeat?.household?.homeImage) &&
+                    viewMode === 'list' && (
+                      <div className="absolute inset-y-0 right-0 w-48">
+                        <Image
+                          src={
+                            resident.standardSeats?.[0]?.household?.homeImage ||
+                            resident.soloSeat?.household?.homeImage ||
+                            ''
+                          }
+                          alt={`${resident.name}'s home`}
+                          fill
+                          sizes="192px"
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
                 </Link>
               );
             })}

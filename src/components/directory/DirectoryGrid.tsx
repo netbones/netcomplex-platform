@@ -14,15 +14,27 @@ interface Resident {
   id: string;
   name: string;
   email: string;
-  street: string | null;
-  unit: string | null;
   phone: string | null;
   interests: string[];
   avatar: string | null;
-  homeImage: string | null;
   isPublic: boolean;
-  residentType?: ResidentType;
   role?: string;
+  standardSeats?: Array<{
+    household: {
+      street: string;
+      unit: string;
+      homeImage: string | null;
+    };
+    isPrimaryOwner: boolean;
+  }>;
+  soloSeat?: {
+    seatType: string;
+    household?: {
+      street: string;
+      unit: string;
+      homeImage: string | null;
+    };
+  };
 }
 
 interface DirectoryGridProps {
@@ -34,9 +46,10 @@ function getInterestColor(interest: string): string {
   return INTEREST_COLORS[interest] || 'bg-gray-500';
 }
 
-function getResidentLabel(residentType?: ResidentType, role?: string): string {
-  if (residentType === RESIDENT_TYPES.OWNER) return 'Owner';
-  if (residentType === RESIDENT_TYPES.RENTER) return 'Renter';
+function getResidentLabel(residentType?: string, role?: string): string {
+  if (residentType === 'OWNER') return 'Owner';
+  if (residentType === 'RENTER') return 'Renter';
+  if (residentType === 'BOARD') return 'Board Member';
   return role || 'Resident';
 }
 
@@ -66,21 +79,34 @@ function ResidentCard({
           <div>
             <h3 className="font-bold text-lg">{resident.name}</h3>
             <p className="text-sm opacity-90">
-              {resident.street}
-              {resident.unit && `, ${resident.unit}`}
+              {resident.standardSeats?.[0]?.household?.street ||
+                resident.soloSeat?.household?.street ||
+                'Address not available'}
+              {(resident.standardSeats?.[0]?.household?.unit ||
+                resident.soloSeat?.household?.unit) &&
+                `, ${resident.standardSeats?.[0]?.household?.unit || resident.soloSeat?.household?.unit}`}
             </p>
           </div>
         </div>
       </div>
       <div className="p-4">
-        {resident.homeImage || resident.isPublic ? (
+        {resident.standardSeats?.[0]?.household?.homeImage ||
+        resident.soloSeat?.household?.homeImage ||
+        resident.isPublic ? (
           <div className="flex gap-4">
             <div className="flex-1">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center">
                   <i className="fas fa-home text-soralia-secondary mr-2" aria-hidden="true"></i>
                   <span className="text-sm text-gray-600">
-                    {getResidentLabel(resident.residentType, resident.role)}
+                    {getResidentLabel(
+                      resident.standardSeats?.[0]?.isPrimaryOwner
+                        ? 'OWNER'
+                        : resident.soloSeat
+                          ? 'BOARD'
+                          : 'RENTER',
+                      resident.role
+                    )}
                   </span>
                 </div>
                 {canChat && (
@@ -126,10 +152,15 @@ function ResidentCard({
                 </div>
               )}
             </div>
-            {resident.homeImage && (
+            {(resident.standardSeats?.[0]?.household?.homeImage ||
+              resident.soloSeat?.household?.homeImage) && (
               <div className="w-24 h-24 flex-shrink-0">
                 <img
-                  src={resident.homeImage}
+                  src={
+                    resident.standardSeats?.[0]?.household?.homeImage ||
+                    resident.soloSeat?.household?.homeImage ||
+                    ''
+                  }
                   alt={`${resident.name}'s home`}
                   className="w-full h-full object-cover rounded-lg"
                 />
@@ -142,7 +173,14 @@ function ResidentCard({
               <div className="flex items-center">
                 <i className="fas fa-home text-soralia-secondary mr-2" aria-hidden="true"></i>
                 <span className="text-sm text-gray-600">
-                  {getResidentLabel(resident.residentType, resident.role)}
+                  {getResidentLabel(
+                    resident.standardSeats?.[0]?.isPrimaryOwner
+                      ? 'OWNER'
+                      : resident.soloSeat
+                        ? 'BOARD'
+                        : 'RENTER',
+                    resident.role
+                  )}
                 </span>
               </div>
               {canChat && (
@@ -199,8 +237,12 @@ function ResidentListItem({
           <div>
             <h3 className="font-bold text-lg">{resident.name}</h3>
             <p className="text-sm opacity-90">
-              {resident.street}
-              {resident.unit && `, ${resident.unit}`}
+              {resident.standardSeats?.[0]?.household?.street ||
+                resident.soloSeat?.household?.street ||
+                'Address not available'}
+              {(resident.standardSeats?.[0]?.household?.unit ||
+                resident.soloSeat?.household?.unit) &&
+                `, ${resident.standardSeats?.[0]?.household?.unit || resident.soloSeat?.household?.unit}`}
             </p>
           </div>
         </div>
@@ -210,7 +252,14 @@ function ResidentListItem({
           <div className="flex items-center mb-2">
             <i className="fas fa-home text-soralia-secondary mr-2" aria-hidden="true"></i>
             <span className="text-sm text-gray-600">
-              {getResidentLabel(resident.residentType, resident.role)}
+              {getResidentLabel(
+                resident.standardSeats?.[0]?.isPrimaryOwner
+                  ? 'OWNER'
+                  : resident.soloSeat
+                    ? 'BOARD'
+                    : 'RENTER',
+                resident.role
+              )}
             </span>
           </div>
           {resident.isPublic && (

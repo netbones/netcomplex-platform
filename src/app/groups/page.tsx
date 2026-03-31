@@ -36,7 +36,7 @@ export default function GroupsHubPage() {
     { additionalLoading: loading }
   );
 
-  const userResidentType = (session?.user as any)?.residentType as string | undefined;
+  // Resident type filtering removed - now handled by group access control
 
   useEffect(() => {
     fetch('/api/groups')
@@ -51,11 +51,7 @@ export default function GroupsHubPage() {
     const matchesCategory = selectedCategory === 'all' || g.category === selectedCategory;
     const matchesAccess = selectedAccess === 'all' || g.accessType === selectedAccess;
 
-    const isEligible = !userResidentType
-      ? true
-      : g.residentFilter === 'ALL' ||
-        (g.residentFilter === 'OWNERS_ONLY' && userResidentType === 'OWNER') ||
-        (g.residentFilter === 'RENTERS_ONLY' && userResidentType === 'RENTER');
+    const isEligible = g.accessType === 'OPEN';
 
     return matchesCategory && matchesAccess && isEligible;
   });

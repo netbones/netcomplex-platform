@@ -8,30 +8,46 @@ import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { sanitizeHtml } from '@/lib/utils';
 
-interface LegacyUser {
+interface ResidentUser {
   id: string;
   name: string;
   email: string;
-  street: string | null;
-  unit: string | null;
   phone: string | null;
   interests: string[];
   avatar: string | null;
-  homeImage: string | null;
+  books: any;
+  dashboardLayout: any;
   isPublic: boolean;
   showEmail: boolean;
   showPhone: boolean;
-  residentType: string;
-  role: string | null;
-  createdAt: Date;
-  contents?: {
+  role: string;
+  createdAt: string;
+  standardSeats?: Array<{
+    household: {
+      id: string;
+      street: string;
+      unit: string;
+      homeImage: string | null;
+    };
+    isPrimaryOwner: boolean;
+  }>;
+  soloSeat?: {
+    seatType: string;
+    household?: {
+      id: string;
+      street: string;
+      unit: string;
+      homeImage: string | null;
+    };
+  };
+  contents: Array<{
     id: string;
     title: string;
     excerpt: string | null;
-    content: string | null;
+    content: string;
     category: string;
-    publishedAt: Date;
-  }[];
+    publishedAt: string | null;
+  }>;
 }
 
 function ProfileContent() {
@@ -39,7 +55,7 @@ function ProfileContent() {
   const id = params?.id as string | undefined;
   const { t: tCommon } = useTranslation('common');
   const { data: session } = authClient.useSession();
-  const [user, setUser] = useState<LegacyUser | null>(null);
+  const [user, setUser] = useState<ResidentUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -123,10 +139,14 @@ function ProfileContent() {
       />
 
       <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
-        {user.homeImage && (
+        {(user.standardSeats?.[0]?.household?.homeImage || user.soloSeat?.household?.homeImage) && (
           <div className="h-48 w-full">
             <img
-              src={user.homeImage}
+              src={
+                user.standardSeats?.[0]?.household?.homeImage ||
+                user.soloSeat?.household?.homeImage ||
+                ''
+              }
               alt={`${user.name}'s home`}
               className="w-full h-full object-cover"
             />
@@ -139,8 +159,11 @@ function ProfileContent() {
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900">{user.name}</h1>
               <p className="text-gray-600 mt-1">
-                {user.street}
-                {user.unit && `, ${user.unit}`}
+                {user.standardSeats?.[0]?.household?.street ||
+                  user.soloSeat?.household?.street ||
+                  'Address not available'}
+                {(user.standardSeats?.[0]?.household?.unit || user.soloSeat?.household?.unit) &&
+                  `, ${user.standardSeats?.[0]?.household?.unit || user.soloSeat?.household?.unit}`}
               </p>
               <p className="text-sm text-gray-500 mt-1">
                 Resident since {new Date(user.createdAt).getFullYear()}
@@ -172,7 +195,7 @@ function ProfileContent() {
             <div className="mt-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-3">Interests</h2>
               <div className="flex flex-wrap gap-2">
-                {interestList.map(interest => (
+                {interestList.map((interest: string) => (
                   <span
                     key={interest}
                     className="bg-soralia-primary text-white text-sm px-3 py-1 rounded-full"

@@ -7,11 +7,18 @@ interface User {
   id: string;
   name: string;
   email: string;
-  street: string | null;
-  unit: string | null;
-  residentType: 'OWNER' | 'RENTER' | 'SUSPENDED' | null;
-  role: string | null;
+  role: string;
   isActive: boolean;
+  standardSeats?: Array<{
+    household: {
+      street: string;
+      unit: string;
+    };
+    isPrimaryOwner: boolean;
+  }>;
+  soloSeat?: {
+    seatType: string;
+  };
 }
 
 interface Invitation {
@@ -151,8 +158,6 @@ export default function AdminUsersPage() {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        residentType:
-          user.residentType === 'SUSPENDED' || !user.residentType ? 'OWNER' : user.residentType,
         isActive: 'true',
       }),
     });
@@ -162,10 +167,6 @@ export default function AdminUsersPage() {
           u.id === user.id
             ? {
                 ...u,
-                residentType:
-                  user.residentType === 'SUSPENDED' || !user.residentType
-                    ? 'OWNER'
-                    : user.residentType,
                 isActive: true,
               }
             : u
@@ -287,20 +288,20 @@ export default function AdminUsersPage() {
                   <td className="px-6 py-4">{u.name}</td>
                   <td className="px-6 py-4 text-gray-500">{u.email}</td>
                   <td className="px-6 py-4 text-gray-500">
-                    {u.street}
-                    {u.unit && `, ${u.unit}`}
+                    {u.standardSeats?.[0]?.household?.street || u.soloSeat
+                      ? 'Assigned'
+                      : 'Not assigned'}
+                    {(u.standardSeats?.[0]?.household?.unit || u.soloSeat?.seatType) &&
+                      ` (${u.standardSeats?.[0]?.household?.unit || u.soloSeat?.seatType})`}
                   </td>
                   <td className="px-6 py-4">
-                    <select
-                      value={u.residentType || ''}
-                      onChange={e => updateUser(u.id, { residentType: e.target.value })}
-                      className="text-sm border rounded px-2 py-1"
-                    >
-                      <option value="">None</option>
-                      <option value="OWNER">Owner</option>
-                      <option value="RENTER">Renter</option>
-                      <option value="SUSPENDED">Suspended</option>
-                    </select>
+                    <span className="text-sm">
+                      {u.standardSeats?.[0]?.isPrimaryOwner
+                        ? 'Owner'
+                        : u.soloSeat
+                          ? 'Board'
+                          : 'No identity'}
+                    </span>
                   </td>
                   <td className="px-6 py-4">
                     <select

@@ -59,8 +59,17 @@ export async function GET(request: Request) {
         select: {
           name: true,
           email: true,
-          street: true,
-          unit: true,
+          standardSeats: {
+            select: {
+              household: { select: { street: true, unit: true } },
+            },
+            take: 1,
+          },
+          soloSeat: {
+            select: {
+              household: { select: { street: true, unit: true } },
+            },
+          },
         },
       },
     },

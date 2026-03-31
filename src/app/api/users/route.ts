@@ -64,9 +64,8 @@ export async function GET(request: Request) {
   }
 
   if (street) {
-    // NOTE: street filter now queries Household via StandardSeat join.
-    // Legacy User.street filter kept for backward compatibility during migration.
-    where.street = street;
+    // Query Household via StandardSeat join
+    where.standardSeats = { some: { household: { street } } };
   }
 
   if (interest) {
@@ -74,8 +73,12 @@ export async function GET(request: Request) {
   }
 
   if (residentType) {
-    // NOTE: residentType filter kept for backward compatibility during migration.
-    where.residentType = residentType as 'OWNER' | 'RENTER';
+    // Use new identity structure for resident type filtering
+    if (residentType === 'OWNER') {
+      where.standardSeats = { some: { isPrimaryOwner: true } };
+    } else if (residentType === 'RENTER') {
+      where.profiles = { some: { status: 'ACTIVE' } };
+    }
   }
 
   if (role) {
@@ -89,15 +92,11 @@ export async function GET(request: Request) {
         id: true,
         name: true,
         email: true,
-        street: true, // @deprecated — use standardSeats.household.street
-        unit: true, // @deprecated — use standardSeats.household.unit
         phone: true,
         interests: true,
         avatar: true,
-        homeImage: true, // @deprecated — use standardSeats.household.homeImage
         isPublic: true,
         isActive: true,
-        residentType: true, // @deprecated — use standardSeats.isPrimaryOwner
         role: true,
         standardSeats: {
           select: {
@@ -150,10 +149,6 @@ export async function POST(request: Request) {
     data: {
       email: body.email,
       name: body.name,
-      // NOTE: street/unit are deprecated on User — callers should create a Household + StandardSeat instead.
-      // Kept here for backward compatibility during migration.
-      street: body.street,
-      unit: body.unit,
       phone: body.phone,
       interests: body.interests || [],
       isPublic: body.isPublic ?? true,
