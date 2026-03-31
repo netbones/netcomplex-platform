@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { CARD_ANIMATIONS } from '@/lib/constants';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 interface ResourceItem {
   id: string;
@@ -147,6 +148,14 @@ export default function ResourcesPage() {
   const [documents, setDocuments] = useState<ResourceItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const { isReady, LoadingComponent } = usePageLoading(
+    [
+      { label: 'Home', href: '/' },
+      { label: 'Resources', href: '/resources' },
+    ],
+    { additionalLoading: loading }
+  );
+
   useEffect(() => {
     async function fetchContent() {
       try {
@@ -174,6 +183,10 @@ export default function ResourcesPage() {
     }
     fetchContent();
   }, []);
+
+  if (!isReady) {
+    return LoadingComponent;
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

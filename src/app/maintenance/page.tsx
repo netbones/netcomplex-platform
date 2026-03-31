@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { MaintenanceForm } from '@/components/maintenance/MaintenanceForm';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 interface MaintenanceRequest {
   id: string;
@@ -20,6 +21,14 @@ export default function MaintenancePage() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const { isReady, LoadingComponent } = usePageLoading(
+    [
+      { label: 'Home', href: '/' },
+      { label: 'Maintenance', href: '/maintenance' },
+    ],
+    { additionalLoading: loading }
+  );
+
   useEffect(() => {
     async function fetchRequests() {
       try {
@@ -34,6 +43,10 @@ export default function MaintenancePage() {
     }
     fetchRequests();
   }, []);
+
+  if (!isReady) {
+    return LoadingComponent;
+  }
 
   return (
     <main className="min-h-screen bg-soralia-light">

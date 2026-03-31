@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { authClient } from '@/lib/auth-client';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 type ViewMode = 'detail' | 'matching';
 
@@ -162,7 +163,15 @@ function InterestContent() {
   const [viewMode, setViewMode] = useState<ViewMode>('detail');
   const { data: session } = authClient.useSession();
   const [residents, setResidents] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const { isReady, LoadingComponent } = usePageLoading(
+    [
+      { label: 'Home', href: '/' },
+      { label: 'Interests', href: '/interest' },
+    ],
+    { additionalLoading: loading }
+  );
 
   useEffect(() => {
     if (viewMode === 'matching' && session) {
@@ -176,6 +185,10 @@ function InterestContent() {
         .catch(() => setLoading(false));
     }
   }, [viewMode, groupId, session]);
+
+  if (!isReady) {
+    return LoadingComponent;
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

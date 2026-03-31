@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { ChatWindow } from '@/components/chat/ChatWindow';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 interface Conversation {
   id: string;
@@ -20,6 +21,14 @@ export default function MessagesPage() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const { isReady, LoadingComponent } = usePageLoading(
+    [
+      { label: 'Home', href: '/' },
+      { label: 'Messages', href: '/messages' },
+    ],
+    { additionalLoading: loading }
+  );
+
   useEffect(() => {
     async function fetchConversations() {
       try {
@@ -34,6 +43,10 @@ export default function MessagesPage() {
     }
     fetchConversations();
   }, []);
+
+  if (!isReady) {
+    return LoadingComponent;
+  }
 
   return (
     <main className="min-h-screen bg-soralia-light">

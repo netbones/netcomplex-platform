@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 interface Notification {
   id: string;
@@ -20,6 +21,14 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
+
+  const { isReady, LoadingComponent } = usePageLoading(
+    [
+      { label: 'Home', href: '/' },
+      { label: 'Notifications', href: '/notifications' },
+    ],
+    { additionalLoading: loading }
+  );
 
   useEffect(() => {
     const endpoint = filter === 'unread' ? '/api/notifications?unread=true' : '/api/notifications';
@@ -51,6 +60,10 @@ export default function NotificationsPage() {
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  if (!isReady) {
+    return LoadingComponent;
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
