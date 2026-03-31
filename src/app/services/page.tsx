@@ -6,6 +6,27 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { CARD_ANIMATIONS } from '@/lib/constants';
 import { usePageLoading } from '@/hooks/usePageLoading';
 
+interface ContentItem {
+  id: string;
+  title: string;
+  content: string;
+  excerpt?: string;
+  category: string;
+  published: boolean;
+  publishedAt?: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  author?: {
+    id: string;
+    name: string;
+  };
+  group?: {
+    id: string;
+    name: string;
+  };
+}
+
 const defaultServiceCategories = [
   {
     id: 'maintenance',
@@ -152,7 +173,7 @@ export default function ServicesPage() {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
             setServiceCategories(
-              data.map((item: any) => ({
+              data.map((item: ContentItem) => ({
                 id: String(item.id),
                 title: item.title,
                 subtitle: item.excerpt || '',

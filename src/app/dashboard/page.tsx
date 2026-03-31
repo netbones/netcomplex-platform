@@ -3,6 +3,27 @@
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
+
+interface ContentItem {
+  id: string;
+  title: string;
+  content: string;
+  excerpt?: string;
+  category: string;
+  published: boolean;
+  publishedAt?: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  author?: {
+    id: string;
+    name: string;
+  };
+  group?: {
+    id: string;
+    name: string;
+  };
+}
 import {
   DndContext,
   closestCenter,
@@ -354,7 +375,7 @@ function DashboardContent() {
 
 function UserContentList() {
   const { data: session } = authClient.useSession();
-  const [content, setContent] = useState<any[]>([]);
+  const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [page, setPage] = useState(1);

@@ -9,9 +9,9 @@ export interface IdentityState {
   isPropertyOwner: boolean;
   isSoloSeatHolder: boolean;
   effectiveRole: 'AGENT' | 'OWNER' | 'SOLO' | 'RESIDENT';
-  households: any[];
-  managedHouseholds: any[];
-  SoloSeat: any | null;
+  households: ReturnType<typeof trpc.identity.getMyHouseholds.useQuery>['data'];
+  managedHouseholds: ReturnType<typeof trpc.identity.getMyManagedHouseholds.useQuery>['data'];
+  SoloSeat: ReturnType<typeof trpc.identity.getMySoloSeat.useQuery>['data'];
   isLoading: boolean;
 }
 
@@ -36,9 +36,9 @@ export function useIdentityState(): IdentityState {
     { enabled: !!userId }
   );
 
-  const households = (householdsData || []) as any[];
-  const managedHouseholds = (managedHouseholdsData || []) as any[];
-  const SoloSeat = SoloSeatData as any;
+  const households = householdsData || [];
+  const managedHouseholds = managedHouseholdsData || [];
+  const SoloSeat = SoloSeatData || null;
 
   const isLoading = loadingHouseholds || loadingManaged || loadingSolo;
   const isAgent = !loadingManaged && managedHouseholds.length > 0;

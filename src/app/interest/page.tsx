@@ -10,6 +10,40 @@ import { usePageLoading } from '@/hooks/usePageLoading';
 
 type ViewMode = 'detail' | 'matching';
 
+interface Resident {
+  id: string;
+  name: string;
+  email: string;
+  street?: string;
+  unit?: string;
+  phone?: string;
+  interests: string[];
+  avatar?: string;
+  homeImage?: string;
+  isPublic: boolean;
+  isActive: boolean;
+  residentType?: string;
+  role: string;
+  standardSeats?: Array<{
+    household: {
+      id: string;
+      street: string;
+      unit: string;
+      homeImage?: string;
+    };
+    isPrimaryOwner: boolean;
+  }>;
+  soloSeat?: {
+    seatType: string;
+    household?: {
+      id: string;
+      street: string;
+      unit: string;
+      homeImage?: string;
+    };
+  };
+}
+
 const interestGroups: Record<
   string,
   {
@@ -162,7 +196,7 @@ function InterestContent() {
   const colorClass = colorClasses[group.color];
   const [viewMode, setViewMode] = useState<ViewMode>('detail');
   const { data: session } = authClient.useSession();
-  const [residents, setResidents] = useState<any[]>([]);
+  const [residents, setResidents] = useState<Resident[]>([]);
   const [loading, setLoading] = useState(true);
 
   const { isReady, LoadingComponent } = usePageLoading(

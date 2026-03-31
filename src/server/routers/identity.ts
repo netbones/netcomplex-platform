@@ -26,7 +26,7 @@ export const identityRouter = router({
       const { search, street, status, page, limit } = input || {};
       const skip = ((page || 1) - 1) * (limit || 20);
 
-      const where: any = {};
+      const where: Record<string, unknown> = {};
       if (search) {
         where.OR = [
           { unit: { contains: search, mode: 'insensitive' } },
