@@ -147,7 +147,7 @@ export const identityRouter = router({
       }
 
       return ctx.prisma.household.create({
-        data: input,
+        data: { ...input, organizationId: ctx.organizationId },
       });
     }),
 
@@ -240,6 +240,7 @@ export const identityRouter = router({
           householdId: input.householdId,
           isPrimaryOwner: input.isPrimaryOwner && household.standardSeats.length === 0,
           platformAddress,
+          organizationId: ctx.organizationId,
         },
       });
     }),
@@ -319,6 +320,7 @@ export const identityRouter = router({
           occupantSince: new Date(),
           leaseStartDate,
           leaseEndDate,
+          organizationId: ctx.organizationId,
         },
       });
     }),
@@ -521,6 +523,7 @@ export const identityRouter = router({
             seatType: input.seatType,
             householdId: profile.householdId,
             linkedFromProfileId: profile.id,
+            organizationId: ctx.organizationId,
           },
         }),
       ]);
@@ -690,6 +693,7 @@ export const identityRouter = router({
           reason: input.reason,
           isActive: false, // Pending owner approval
           expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+          organizationId: ctx.organizationId,
         },
       });
     }),
@@ -731,6 +735,7 @@ export const identityRouter = router({
           grantedById: ctx.userId,
           expiresAt: input.expiresAt,
           reason: input.reason,
+          organizationId: ctx.organizationId,
         },
       });
     }),
