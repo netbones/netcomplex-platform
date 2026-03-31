@@ -1,6 +1,8 @@
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import { messageSchema } from '@/lib/schemas';
 
 /** Supabase client for real-time message broadcasting */
 const supabase = createClient(
@@ -9,16 +11,51 @@ const supabase = createClient(
 );
 
 /**
+ * Retrieves session and role from the request for API routes.
+ * @param request - Incoming HTTP request
+ * @returns Session data with user ID and role, or null if not authenticated
+ */
+async function getSessionAndRole(request: Request) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  if (!session?.user?.id) {
+    return null;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true },
+  });
+
+  return {
+    session,
+    userId: session.user.id,
+    role: user?.role || 'RESIDENT',
+  };
+}
+
+/**
  * GET /api/messages - Get messages for a conversation
  * @query conversationId - Required conversation ID
+ * Requires authentication
  */
 export async function GET(request: Request) {
+  const authData = await getSessionAndRole(request);
+
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const conversationId = searchParams.get('conversationId');
 
   if (!conversationId) {
     return NextResponse.json({ error: 'Conversation ID required' }, { status: 400 });
   }
+
+  // TODO: Add conversation access control - verify user has access to this conversation
 
   const messages = await prisma.message.findMany({
     where: { conversationId },
@@ -36,33 +73,57 @@ export async function GET(request: Request) {
 /**
  * POST /api/messages - Send a message and broadcast via Supabase Realtime
  * @body conversationId - Conversation ID
- * @body senderId - Sender user ID (defaults to demo-user-id)
  * @body content - Message content
  * @body type - Message type (defaults to TEXT)
+ * Requires authentication
  */
 export async function POST(request: Request) {
-  const body = await request.json();
+  const authData = await getSessionAndRole(request);
 
-  const message = await prisma.message.create({
-    data: {
-      conversationId: body.conversationId,
-      senderId: body.senderId || 'demo-user-id',
-      content: body.content,
-      type: body.type || 'TEXT',
-    },
-    include: {
-      sender: {
-        select: { id: true, name: true, avatar: true },
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+
+    // Validate input with Zod schema
+    const validationResult = messageSchema.safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid input', details: validationResult.error.issues },
+        { status: 400 }
+      );
+    }
+
+    const { conversationId, content, type } = validationResult.data;
+
+    // TODO: Add conversation access control - verify user has access to this conversation
+
+    const message = await prisma.message.create({
+      data: {
+        conversationId,
+        senderId: authData.userId, // Use authenticated user ID instead of hardcoded value
+        content,
+        type,
       },
-    },
-  });
+      include: {
+        sender: {
+          select: { id: true, name: true, avatar: true },
+        },
+      },
+    });
 
-  // Broadcast via Supabase Realtime
-  await supabase.channel(`messages:${body.conversationId}`).send({
-    type: 'broadcast',
-    event: 'new-message',
-    payload: message,
-  });
+    // Broadcast via Supabase Realtime
+    await supabase.channel(`messages:${conversationId}`).send({
+      type: 'broadcast',
+      event: 'new-message',
+      payload: message,
+    });
 
-  return NextResponse.json(message, { status: 201 });
+    return NextResponse.json(message, { status: 201 });
+  } catch (error) {
+    console.error('Error creating message:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

@@ -55,6 +55,183 @@ bd sync               # Sync with git
 - Keep components small and focused
 - Use custom hooks for reusable logic
 
+---
+
+## React Best Practices
+
+### Component Architecture
+
+#### Component Size & Structure
+
+- **Max 200 lines per component** - Split larger components into smaller, focused pieces
+- **Single Responsibility Principle** - Each component should do one thing well
+- **Composition over inheritance** - Use composition patterns for code reuse
+- **Container/Presentational pattern** - Separate business logic from UI rendering
+
+#### Naming Conventions
+
+- **PascalCase for components** - `UserProfile`, `DashboardWidget`
+- **camelCase for instances** - `userProfile`, `dashboardWidget`
+- **Descriptive names** - `LoadingSpinner` not `Spinner`
+- **Suffix for variants** - `Button.tsx`, `IconButton.tsx`, `SubmitButton.tsx`
+
+#### File Organization
+
+```
+components/
+├── ui/              # Reusable UI components (Button, Input, Modal)
+├── forms/           # Form-related components
+├── layout/          # Layout components (Header, Sidebar, Footer)
+├── dashboard/       # Feature-specific components
+└── common/          # Shared components across features
+```
+
+### Performance Optimization
+
+#### Memoization
+
+- **React.memo** for expensive components that re-render frequently
+- **useMemo** for expensive computations
+- **useCallback** for event handlers passed to child components
+- **Avoid over-memoization** - Only memoize when necessary
+
+#### State Management
+
+- **useState** for local component state
+- **useReducer** for complex state logic
+- **TanStack Query** for server state (API data)
+- **Context** sparingly, prefer prop drilling for simple cases
+
+#### Rendering Optimization
+
+- **Keys in lists** - Always provide stable, unique keys
+- **Conditional rendering** - Use early returns to avoid unnecessary work
+- **Lazy loading** - Use `React.lazy()` for code splitting
+- **Image optimization** - Use Next.js Image component
+
+### Hooks Best Practices
+
+#### Custom Hooks
+
+- **Extract reusable logic** into custom hooks
+- **Prefix with 'use'** - `useAuth`, `useLocalStorage`
+- **Return objects, not arrays** for better destructuring
+- **Handle cleanup** in useEffect properly
+
+#### Effect Dependencies
+
+- **Include all dependencies** in useEffect dependency arrays
+- **Use ESLint rules** to catch missing dependencies
+- **Consider useMemo/useCallback** to stabilize references
+
+### Error Handling
+
+#### Error Boundaries
+
+- **Wrap major sections** with error boundaries
+- **Provide fallback UI** for better user experience
+- **Log errors** for debugging
+- **Test error scenarios** during development
+
+#### Async Operations
+
+- **Handle loading states** consistently
+- **Error states** with user-friendly messages
+- **Retry logic** for failed requests
+- **Cancellation** for component unmounting
+
+### TypeScript Integration
+
+#### Component Props
+
+- **Define interfaces** for component props
+- **Use generics** for flexible components
+- **Optional props** with `?:` syntax
+- **Discriminated unions** for variant props
+
+#### Event Handlers
+
+- **Proper typing** for form events, mouse events, etc.
+- **Generic event types** when needed
+- **Custom event types** for domain-specific events
+
+### Preact Considerations
+
+#### Preact vs React
+
+- **Preact-compatible** - Use Preact-compatible libraries
+- **Smaller bundle size** - Leverage Preact's efficiency
+- **React compatibility layer** - Use `preact/compat` when needed
+
+#### Preact-specific patterns
+
+- **Preact hooks** work the same as React hooks
+- **JSX pragma** may be needed in some setups
+- **Component refs** work with `useRef`
+
+### Server vs Client Components (Next.js 13+)
+
+#### Server Components (Default)
+
+- **Data fetching** - Perform in server components
+- **No browser APIs** - Cannot use `window`, `localStorage`
+- **No event handlers** - Cannot attach event listeners
+- **Static by default** - Better performance
+
+#### Client Components
+
+- **Mark with "use client"** - Required for interactivity
+- **Use sparingly** - Only when needed
+- **Tree shaking** - Keep client components small
+
+### Accessibility (a11y)
+
+#### Semantic HTML
+
+- **Proper heading hierarchy** - h1 → h2 → h3
+- **Semantic elements** - `button`, `nav`, `main`, `aside`
+- **ARIA labels** when needed
+- **Focus management** for modals and dropdowns
+
+#### Keyboard Navigation
+
+- **Tab order** - Logical tab sequence
+- **Keyboard shortcuts** - Document available shortcuts
+- **Focus indicators** - Visible focus states
+- **Escape handling** - Close modals with Escape key
+
+### Testing Practices
+
+#### Component Testing
+
+- **Unit tests** for utility functions and hooks
+- **Integration tests** for component interactions
+- **Visual regression** tests for UI consistency
+- **Accessibility testing** with axe-core
+
+#### Test Organization
+
+- **Colocate tests** with components (`Component.test.tsx`)
+- **Test custom hooks** in isolation
+- **Mock external dependencies** appropriately
+- **Test user interactions** thoroughly
+
+### Code Quality
+
+#### Linting & Formatting
+
+- **ESLint** for code quality rules
+- **Prettier** for consistent formatting
+- **TypeScript strict mode** enabled
+- **Pre-commit hooks** for quality gates
+
+#### Code Reviews
+
+- **Small PRs** - Easier to review and test
+- **Descriptive commit messages** - Clear what changed and why
+- **Self-review** before requesting review
+- **Automated checks** pass before review
+
 ### Next.js
 
 - Use App Router (src/app)
@@ -209,12 +386,14 @@ NEXT_PUBLIC_VERCEL_URL=""
 2. **Run quality gates** - Tests, linters, builds (if code changed)
 3. **Update issue status** - Close finished work
 4. **PUSH TO REMOTE:**
+
    ```bash
    git pull --rebase
    bd sync
    git push
    git status  # MUST show "up to date with origin"
    ```
+
 5. **Clean up** - Clear stashes, prune branches
 6. **Verify** - All changes committed AND pushed
 

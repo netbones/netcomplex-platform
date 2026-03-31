@@ -84,3 +84,17 @@ export const userProfileSchema = z.object({
 });
 
 export type UserProfileFormData = z.infer<typeof userProfileSchema>;
+
+/**
+ * Zod schema for message creation validation.
+ * @property conversationId - ID of the conversation
+ * @property content - Message content (1-2000 chars)
+ * @property type - Message type (defaults to TEXT)
+ */
+export const messageSchema = z.object({
+  conversationId: z.string().min(1, 'Conversation ID is required'),
+  content: z.string().min(1, 'Message content is required').max(2000, 'Message too long'),
+  type: z.enum(['TEXT', 'IMAGE', 'SYSTEM']).optional().default('TEXT'),
+});
+
+export type MessageFormData = z.infer<typeof messageSchema>;

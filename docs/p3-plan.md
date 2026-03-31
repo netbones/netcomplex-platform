@@ -70,11 +70,11 @@ These fields on the `User` model duplicate data now properly modelled in `Househ
 
 ### Migration Steps
 
-#### Phase 1 — Mark deprecated (this PR)
+#### Phase 1 — Mark deprecated (this PR) [X]
 
 Add `/// @deprecated` comments to `User.street`, `User.unit`, `User.homeImage`, `User.residentType` in `prisma/schema.prisma`.
 
-#### Phase 2 — Migrate read callers (this PR)
+#### Phase 2 — Migrate read callers (this PR) [X]
 
 Replace `user.street/unit/homeImage/residentType` with data joined through:
 
@@ -83,7 +83,7 @@ Replace `user.street/unit/homeImage/residentType` with data joined through:
 
 Affected: `src/app/page.tsx`, `src/app/admin/requests/page.tsx`, `src/app/admin/users/page.tsx`, `src/app/interest/page.tsx`
 
-#### Phase 3 — Migrate write callers (this PR)
+#### Phase 3 — Migrate write callers (this PR) [X]
 
 Remove `street/unit/residentType` from user create/update payloads in:
 
@@ -92,11 +92,11 @@ Remove `street/unit/residentType` from user create/update payloads in:
 
 Note: `src/app/api/invitations/route.ts` writes to the `Invitation` model (not `User`) — those fields are valid on `Invitation` and should be kept.
 
-#### Phase 4 — Data backfill script
+#### Phase 4 — Data backfill script [X]
 
 Extend `prisma/migrate-identity.ts` to copy `User.street/unit/homeImage` → `Household` for any users not yet migrated.
 
-#### Phase 5 — Remove fields (future PR, after backfill verified)
+#### Phase 5 — Remove fields (future PR, after backfill verified) [outstanding]
 
 ```bash
 pnpm prisma migrate dev --name remove_legacy_user_address_fields
