@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { authClient } from '@/lib/auth-client';
 import { INTEREST_CATEGORIES } from '@/lib/constants';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 interface Group {
   id: string;
@@ -26,6 +27,14 @@ export default function GroupsHubPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedAccess, setSelectedAccess] = useState('all');
   const { data: session } = authClient.useSession();
+
+  const { isReady, LoadingComponent } = usePageLoading(
+    [
+      { label: 'Home', href: '/' },
+      { label: 'Groups', href: '/groups' },
+    ],
+    { additionalLoading: loading }
+  );
 
   const userResidentType = (session?.user as any)?.residentType as string | undefined;
 
@@ -65,8 +74,8 @@ export default function GroupsHubPage() {
     return filter;
   };
 
-  if (loading) {
-    return <div className="p-8 text-center">Loading...</div>;
+  if (!isReady) {
+    return LoadingComponent;
   }
 
   return (

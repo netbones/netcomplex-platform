@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { BookingForm } from '@/components/booking/BookingForm';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 interface Booking {
   id: string;
@@ -31,6 +32,14 @@ export default function BookingsPage() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const { isReady, LoadingComponent } = usePageLoading(
+    [
+      { label: 'Home', href: '/' },
+      { label: 'Bookings', href: '/bookings' },
+    ],
+    { additionalLoading: loading }
+  );
+
   useEffect(() => {
     async function fetchBookings() {
       try {
@@ -45,6 +54,10 @@ export default function BookingsPage() {
     }
     fetchBookings();
   }, []);
+
+  if (!isReady) {
+    return LoadingComponent;
+  }
 
   return (
     <main className="min-h-screen bg-soralia-light">
