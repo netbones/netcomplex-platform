@@ -432,6 +432,28 @@ const renderWithI18n = component => {
 3. **Caching**: Cache translations in service worker
 4. **Lazy Loading**: Load translations for current page only
 
+## Current Implementation Status
+
+### Breadcrumb i18n Across Pages
+
+| Page              | Status   | Implementation                              |
+| ----------------- | -------- | ------------------------------------------- |
+| Header/Footer     | ✅ Safe  | Client components with mounted/ready checks |
+| directory         | ✅ Safe  | Has `!mounted \|\| !ready` check            |
+| conservation      | ✅ Safe  | Has `!ready` check                          |
+| settings          | ✅ Safe  | Has `!ready` check                          |
+| services          | ✅ Safe  | Has `!mounted \|\| !ready` check            |
+| home (page.tsx)   | ✅ Safe  | Has `!mounted \|\| !ready` check            |
+| **bookings**      | ❌ Risk  | Uses `t('nav.home')` without checks         |
+| **messages**      | ❌ Risk  | Uses `t('nav.home')` without checks         |
+| **maintenance**   | ❌ Risk  | Uses `t('nav.home')` without checks         |
+| **groups**        | ❌ Risk  | Uses `t('nav.home')` without checks         |
+| **resources**     | ❌ Risk  | Uses `t('nav.home')` without checks         |
+| **notifications** | ❌ Risk  | Uses `t('nav.home')` without checks         |
+| **interest**      | ❌ Risk  | Uses `t('nav.home')` without checks         |
+| dashboard         | ✅ Fixed | Hardcoded after hydration issues            |
+| member            | ✅ Fixed | Hardcoded after hydration issues            |
+
 ## Common Issues
 
 ### 1. Hydration Mismatch
@@ -453,6 +475,13 @@ const renderWithI18n = component => {
 
 **Symptoms**: Translations not working on initial load
 **Fix**: Ensure translations are loaded server-side
+
+### 5. Hydration Mismatches in Breadcrumbs
+
+**Symptoms**: Console hydration errors, flickering breadcrumb text
+**Affected Pages**: bookings, messages, maintenance, groups, resources, notifications, interest
+**Root Cause**: Client components using `t('nav.home')` without loading checks
+**Fix**: Add mounted/ready checks to all client components using i18n
 
 ## Quick Reference
 
