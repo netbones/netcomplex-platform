@@ -444,13 +444,13 @@ const renderWithI18n = component => {
 | settings          | ✅ Safe  | Has `!ready` check                          |
 | services          | ✅ Safe  | Has `!mounted \|\| !ready` check            |
 | home (page.tsx)   | ✅ Safe  | Has `!mounted \|\| !ready` check            |
-| **bookings**      | ✅ Fixed | Added `!mounted \|\| !ready` check          |
-| **messages**      | ✅ Fixed | Added `!mounted \|\| !ready` check          |
-| **maintenance**   | ✅ Fixed | Added `!mounted \|\| !ready` check          |
-| **groups**        | ✅ Fixed | Added `!mounted \|\| !ready` check          |
-| **resources**     | ✅ Fixed | Added `!mounted \|\| !ready` check          |
-| **notifications** | ✅ Fixed | Added `!mounted \|\| !ready` check          |
-| **interest**      | ✅ Fixed | Added `!mounted \|\| !ready` check          |
+| **bookings**      | ✅ Fixed | Using `usePageLoading` hook                 |
+| **messages**      | ✅ Fixed | Using `usePageLoading` hook                 |
+| **maintenance**   | ✅ Fixed | Using `usePageLoading` hook                 |
+| **groups**        | ✅ Fixed | Using `usePageLoading` hook                 |
+| **resources**     | ✅ Fixed | Using `usePageLoading` hook                 |
+| **notifications** | ✅ Fixed | Using `usePageLoading` hook                 |
+| **interest**      | ✅ Fixed | Using `usePageLoading` hook                 |
 | dashboard         | ✅ Fixed | Hardcoded after hydration issues            |
 | member            | ✅ Fixed | Hardcoded after hydration issues            |
 
@@ -479,9 +479,9 @@ const renderWithI18n = component => {
 ### 5. Hydration Mismatches in Breadcrumbs
 
 **Symptoms**: Console hydration errors, flickering breadcrumb text
-**Status**: ✅ **FIXED** - All risky pages now have proper loading checks
+**Status**: ✅ **FULLY RESOLVED** - All pages now use `usePageLoading` hook
 **Root Cause**: Client components using `t('nav.home')` without loading checks
-**Fix**: Add mounted/ready checks to all client components using i18n
+**Fix**: Standardized `usePageLoading` hook provides consistent loading patterns
 
 ## Quick Reference
 
