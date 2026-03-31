@@ -444,13 +444,13 @@ const renderWithI18n = component => {
 | settings          | ✅ Safe  | Has `!ready` check                          |
 | services          | ✅ Safe  | Has `!mounted \|\| !ready` check            |
 | home (page.tsx)   | ✅ Safe  | Has `!mounted \|\| !ready` check            |
-| **bookings**      | ❌ Risk  | Uses `t('nav.home')` without checks         |
-| **messages**      | ❌ Risk  | Uses `t('nav.home')` without checks         |
-| **maintenance**   | ❌ Risk  | Uses `t('nav.home')` without checks         |
-| **groups**        | ❌ Risk  | Uses `t('nav.home')` without checks         |
-| **resources**     | ❌ Risk  | Uses `t('nav.home')` without checks         |
-| **notifications** | ❌ Risk  | Uses `t('nav.home')` without checks         |
-| **interest**      | ❌ Risk  | Uses `t('nav.home')` without checks         |
+| **bookings**      | ✅ Fixed | Added `!mounted \|\| !ready` check          |
+| **messages**      | ✅ Fixed | Added `!mounted \|\| !ready` check          |
+| **maintenance**   | ✅ Fixed | Added `!mounted \|\| !ready` check          |
+| **groups**        | ✅ Fixed | Added `!mounted \|\| !ready` check          |
+| **resources**     | ✅ Fixed | Added `!mounted \|\| !ready` check          |
+| **notifications** | ✅ Fixed | Added `!mounted \|\| !ready` check          |
+| **interest**      | ✅ Fixed | Added `!mounted \|\| !ready` check          |
 | dashboard         | ✅ Fixed | Hardcoded after hydration issues            |
 | member            | ✅ Fixed | Hardcoded after hydration issues            |
 
@@ -479,7 +479,7 @@ const renderWithI18n = component => {
 ### 5. Hydration Mismatches in Breadcrumbs
 
 **Symptoms**: Console hydration errors, flickering breadcrumb text
-**Affected Pages**: bookings, messages, maintenance, groups, resources, notifications, interest
+**Status**: ✅ **FIXED** - All risky pages now have proper loading checks
 **Root Cause**: Client components using `t('nav.home')` without loading checks
 **Fix**: Add mounted/ready checks to all client components using i18n
 
