@@ -57,7 +57,7 @@ export async function GET(request: Request) {
     where,
     include: {
       user: {
-        select: { id: true, name: true, unit: true },
+        select: { id: true, name: true },
       },
     },
     orderBy: { date: 'asc' },
