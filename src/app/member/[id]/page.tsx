@@ -13,10 +13,10 @@ function MemberContent() {
   const { t: tCommon } = useTranslation('common');
 
   const {
-    data: premiumSeat,
+    data: SoloSeat,
     isLoading,
     error,
-  } = trpc.identity.getPremiumSeat.useQuery({ id: id! }, { enabled: !!id });
+  } = trpc.identity.getSoloSeat.useQuery({ id: id! }, { enabled: !!id });
 
   if (isLoading) {
     return (
@@ -29,7 +29,7 @@ function MemberContent() {
     );
   }
 
-  if (error || !premiumSeat) {
+  if (error || !SoloSeat) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
         <Breadcrumbs items={[{ label: tCommon('nav.home'), href: '/' }, { label: 'Member' }]} />
@@ -48,8 +48,8 @@ function MemberContent() {
     );
   }
 
-  const { user, household } = premiumSeat;
-  const isBoardMember = premiumSeat.seatType === 'MEMBER';
+  const { user, household } = SoloSeat;
+  const isBoardMember = SoloSeat.seatType === 'MEMBER';
 
   const avatarUrl =
     user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name.replace(' ', '')}`;
@@ -79,7 +79,7 @@ function MemberContent() {
               <p className="text-gray-600 mt-1">
                 {household ? `${household.street}, Unit ${household.unit}` : 'Soralia Village'}
               </p>
-              <p className="text-sm text-gray-500 mt-1 font-mono">{premiumSeat.platformAddress}</p>
+              <p className="text-sm text-gray-500 mt-1 font-mono">{SoloSeat.platformAddress}</p>
               <div className="flex flex-col sm:flex-row sm:gap-4 mt-3">
                 {isBoardMember && (
                   <span className="bg-soralia-primary text-white text-sm px-3 py-1 rounded-full">
@@ -87,7 +87,7 @@ function MemberContent() {
                     HOA Member
                   </span>
                 )}
-                {premiumSeat.isComplimentary && (
+                {SoloSeat.isComplimentary && (
                   <span className="bg-emerald-600 text-white text-sm px-3 py-1 rounded-full">
                     <i className="fas fa-star mr-2"></i>
                     Complimentary

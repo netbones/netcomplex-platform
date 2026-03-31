@@ -411,7 +411,7 @@ Five Premium Seats provided at no charge for HOA board members and committee rep
 ```
 User
   ├── StandardSeat?      (1:1) - Member household login
-  ├── PremiumSeat?        (1:1) - Personal login (resident or member)
+  ├── SoloSeat?        (1:1) - Personal login (resident or member)
   └── AddressProfiles[]    (1:n) - up to 5 per StandardSeat (flat, no nesting)
 
 StandardSeat (Member - Property Owner)
@@ -420,7 +420,7 @@ StandardSeat (Member - Property Owner)
   ├── memberId           (User FK - property owner)
   └── AddressProfiles[]   (adult occupant, minor child, family member - all flat)
 
-PremiumSeat
+SoloSeat
   ├── userId
   ├── platformAddress    (name@domain)
   └── isComplimentary    (boolean)
@@ -436,7 +436,7 @@ AddressProfile (Occupant/Family/Minor - All same type)
 
 User
 ├── StandardSeat? (1:1) - Member household login
-├── PremiumSeat? (1:1) - Personal login (resident or member)
+├── SoloSeat? (1:1) - Personal login (resident or member)
 └── AddressProfiles[] (1:n) - up to 5 per StandardSeat
 
 StandardSeat (Member)
@@ -445,7 +445,7 @@ StandardSeat (Member)
 ├── memberId (User FK - property owner)
 └── AddressProfiles[] (occupants, family)
 
-PremiumSeat
+SoloSeat
 ├── userId
 ├── platformAddress (name@domain)
 └── isComplimentary (boolean)

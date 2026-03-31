@@ -8,5 +8,5 @@ export { DraggableWidget } from './DraggableWidget';
 export { DashboardTabs, AddWidgetModal } from './DashboardTabs';
 export { HouseholdsWidget } from './HouseholdsWidget';
 export { AgentDashboardWidget } from './AgentDashboardWidget';
-export { PremiumSeatWidget } from './PremiumSeatWidget';
+export { SoloSeatWidget } from './SoloSeatWidget';
 export type { DashboardTab } from './DashboardTabs';

@@ -74,20 +74,20 @@ async function migrateIdentityData() {
     console.log(`  - Created StandardSeat for user ${user?.name}`);
   }
 
-  // 3. Create PremiumSeats for BOARD members (complimentary)
-  console.log('\n3. Creating PremiumSeats for BOARD members...');
+  // 3. Create SoloSeats for BOARD members (complimentary)
+  console.log('\n3. Creating SoloSeats for BOARD members...');
 
   const boardMembers = await prisma.user.findMany({
     where: { role: 'BOARD' },
   });
 
   for (const boardMember of boardMembers) {
-    const existingSeat = await prisma.premiumSeat.findUnique({
+    const existingSeat = await prisma.SoloSeat.findUnique({
       where: { userId: boardMember.id },
     });
 
     if (existingSeat) {
-      console.log(`  - PremiumSeat already exists for board member ${boardMember.name}`);
+      console.log(`  - SoloSeat already exists for board member ${boardMember.name}`);
       continue;
     }
 
@@ -96,7 +96,7 @@ async function migrateIdentityData() {
     const seatType = boardMember.street && boardMember.unit ? 'RESIDENT' : 'MEMBER';
     const platformAddress = `${boardMember.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`;
 
-    await prisma.premiumSeat.create({
+    await prisma.SoloSeat.create({
       data: {
         userId: boardMember.id,
         platformAddress,
@@ -106,7 +106,7 @@ async function migrateIdentityData() {
       },
     });
 
-    console.log(`  - Created PremiumSeat for ${boardMember.name} (${seatType}, complimentary)`);
+    console.log(`  - Created SoloSeat for ${boardMember.name} (${seatType}, complimentary)`);
   }
 
   // 4. Try to create Profiles for RENTER users
@@ -171,13 +171,13 @@ async function migrateIdentityData() {
   // Summary
   const householdCount = await prisma.household.count();
   const seatCount = await prisma.standardSeat.count();
-  const premiumCount = await prisma.premiumSeat.count();
+  const premiumCount = await prisma.SoloSeat.count();
   const profileCount = await prisma.profile.count();
 
   console.log('\n--- Summary ---');
   console.log(`Households: ${householdCount}`);
   console.log(`StandardSeats: ${seatCount}`);
-  console.log(`PremiumSeats: ${premiumCount}`);
+  console.log(`SoloSeats: ${premiumCount}`);
   console.log(`Profiles: ${profileCount}`);
 }
 

@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 
-interface PremiumSeat {
+interface SoloSeat {
   id: string;
   platformAddress: string;
   seatType: string;
@@ -14,12 +14,12 @@ interface PremiumSeat {
   } | null;
 }
 
-interface PremiumSeatWidgetProps {
-  premiumSeat: PremiumSeat | null;
+interface SoloSeatWidgetProps {
+  SoloSeat: SoloSeat | null;
   loading?: boolean;
 }
 
-export function PremiumSeatWidget({ premiumSeat, loading = false }: PremiumSeatWidgetProps) {
+export function SoloSeatWidget({ SoloSeat, loading = false }: SoloSeatWidgetProps) {
   const { t } = useTranslation('dashboard');
 
   if (loading) {
@@ -28,7 +28,7 @@ export function PremiumSeatWidget({ premiumSeat, loading = false }: PremiumSeatW
     );
   }
 
-  if (!premiumSeat) {
+  if (!SoloSeat) {
     return (
       <div className="p-4 bg-slate-50 rounded-lg">
         <div className="flex items-center gap-3 mb-3">
@@ -36,7 +36,7 @@ export function PremiumSeatWidget({ premiumSeat, loading = false }: PremiumSeatW
             <i className="fas fa-crown text-gray-400"></i>
           </div>
           <div>
-            <h3 className="font-medium text-gray-700">{t('premiumSeat', 'Premium Seat')}</h3>
+            <h3 className="font-medium text-gray-700">{t('SoloSeat', 'Premium Seat')}</h3>
             <p className="text-xs text-gray-500">
               {t('upgradeForBenefits', 'Upgrade for exclusive benefits')}
             </p>
@@ -52,8 +52,8 @@ export function PremiumSeatWidget({ premiumSeat, loading = false }: PremiumSeatW
     );
   }
 
-  const isResident = premiumSeat.seatType === 'RESIDENT';
-  const isComplimentary = premiumSeat.isComplimentary;
+  const isResident = SoloSeat.seatType === 'RESIDENT';
+  const isComplimentary = SoloSeat.isComplimentary;
 
   return (
     <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-100">
@@ -63,8 +63,8 @@ export function PremiumSeatWidget({ premiumSeat, loading = false }: PremiumSeatW
             <i className="fas fa-crown text-indigo-600"></i>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">{t('premiumSeat', 'Premium Seat')}</h3>
-            <p className="text-xs text-gray-500">{premiumSeat.platformAddress}</p>
+            <h3 className="font-semibold text-gray-900">{t('SoloSeat', 'Premium Seat')}</h3>
+            <p className="text-xs text-gray-500">{SoloSeat.platformAddress}</p>
           </div>
         </div>
         <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded-full">
@@ -79,11 +79,11 @@ export function PremiumSeatWidget({ premiumSeat, loading = false }: PremiumSeatW
         </div>
       )}
 
-      {premiumSeat.household && (
+      {SoloSeat.household && (
         <div className="text-sm text-gray-600 mb-3">
           <span className="text-gray-500">{t('linkedTo', 'Linked to')}: </span>
           <span className="font-medium">
-            {premiumSeat.household.street}, Unit {premiumSeat.household.unit}
+            {SoloSeat.household.street}, Unit {SoloSeat.household.unit}
           </span>
         </div>
       )}

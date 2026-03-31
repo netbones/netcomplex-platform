@@ -50,6 +50,13 @@ model User {
   suspensions      PlatformSuspension[]
   membershipRequests GroupMembershipRequest[]
 
+  // Identity model relations
+  standardSeats   StandardSeat[]
+  soloSeat         SoloSeat?
+  profiles         Profile[]
+  agentAccesses    AgentAccess[]     @relation("AgentAccessAgent")  // If user is an agent
+  grantedAccesses  AgentAccess[]     @relation("AgentAccessGrantedBy")  // Access grants by this user (as owner)
+
   @@map("user")
 }
 
@@ -59,6 +66,7 @@ enum Role {
   COMMITTEE // Committee member
   BOARD // HOA Board member
   ADMIN // SuperAdmin - full platform access
+  AGENT // Property agent/letting agent with delegated access
 }
 
 enum ResidentType {
@@ -90,7 +98,7 @@ model PlatformSuspension {
 enum SuspensionType {
   NON_PAYMENT // Non-payment of HOA fees
   VIOLATION   // Community rule violation
-  NOISE       // Noise complaints
+  DISRUPTION  // Disruptive behavior
   PROPERTY    // Property maintenance violations
   BEHAVIOR    // Unacceptable behavior
   OTHER       // Other reasons
@@ -181,6 +189,7 @@ model Content {
   excerpt     String?
   image       String?
   category    ContentCategory
+  tags        String[]
   authorId    String?
   author      User?           @relation(fields: [authorId], references: [id])
   groupId     String?
@@ -341,7 +350,7 @@ model Group {
   isActive    Boolean     @default(true)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-
+  deletedAt   DateTime?
   ownerId     String
   owner      User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   members    UserGroup[]
@@ -518,4 +527,196 @@ model Passkey {
   @@index([userId])
   @@index([credentialID])
   @@map("passkey")
+}
+
+// ============ IDENTITY MODEL MODELS ============
+
+// Household - represents a property unit (Standard Seat container)
+model Household {
+  id              String    @id @default(cuid())
+  
+  // Property reference
+  street          String
+  unit            String    // Unit number, e.g., "042"
+  
+  // Platform address (e.g., unit042@soralia.org)
+  platformAddress String    @unique
+  
+  // HomeImage (property photo)
+  homeImage       String?
+  
+  // Status
+  status          HouseholdStatus @default(ACTIVE)
+  moveInDate      DateTime?
+  moveOutDate     DateTime?
+  
+  // Relationships
+  standardSeats   StandardSeat[]
+  profiles        Profile[]
+  soloSeats       SoloSeat[]
+  agentAccesses   AgentAccess[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([street, unit])
+  @@index([platformAddress])
+  @@map("household")
+}
+
+enum HouseholdStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+// Standard Seat - property owner identity (one per owner per household)
+model StandardSeat {
+  id              String    @id @default(cuid())
+  
+  // User (the property owner)
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Household (the property they own)
+  householdId     String
+  household       Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  
+  // Role in household
+  isPrimaryOwner  Boolean   @default(true)
+  
+  // Platform address (e.g., jack.unit042@soralia.org)
+  platformAddress String    @unique
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([userId, householdId])
+  @@index([userId])
+  @@index([householdId])
+  @@map("standardSeat")
+}
+
+// Profile - sub-identity under household (occupants, family, minors)
+model Profile {
+  id              String    @id @default(cuid())
+  
+  // Household relationship
+  householdId     String
+  household       Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  
+  // Profile identity
+  displayName     String
+  profileAddress  String    @unique // e.g., john.unit042@soralia.org
+  
+  // User link (for upgrade to Premium - optional, null until upgrade)
+  userId          String?
+  user            User?     @relation(fields: [userId], references: [id])
+  
+  // Profile details
+  avatar          String?
+  isPublic        Boolean   @default(true)
+  showEmail       Boolean   @default(true)
+  showPhone       Boolean   @default(true)
+  
+  // Tenure tracking (for upgrade eligibility)
+  occupantSince   DateTime  @default(now())
+  occupantType    OccupantType @default(OCCUPANT)
+  
+  // Lease info for agents
+  leaseStartDate  DateTime?
+  leaseEndDate    DateTime?
+  
+  status          ProfileStatus @default(ACTIVE)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([householdId, profileAddress])
+  @@index([householdId])
+  @@index([userId])
+  @@map("profile")
+}
+
+enum OccupantType {
+  OCCUPANT    // Adult renter/tenant
+  FAMILY      // Non-owner family member
+  MINOR       // Child (managed by member)
+}
+
+enum ProfileStatus {
+  ACTIVE      // Currently living there
+  UPGRADED    // Upgraded to Solo Seat
+  REMOVED     // Moved out
+  EVICTED     // Removed due to eviction
+}
+
+// Solo Seat - independent identity (resident or member)
+model SoloSeat {
+  id              String    @id @default(cuid())
+  
+  // User relationship
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id])
+  
+  // Platform address (e.g., john@soralia.org)
+  platformAddress String    @unique
+  
+  // Property reference (if property owner)
+  householdId     String?
+  household       Household? @relation(fields: [householdId], references: [id])
+  
+  // Premium type
+  seatType        SoloSeatType
+  
+  // Complimentary (for board/committee)
+  isComplimentary Boolean  @default(false)
+  
+  // For upgraded occupants - link back to original household
+  linkedFromProfileId String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([householdId])
+  @@map("soloSeat")
+}
+
+enum SoloSeatType {
+  RESIDENT   // Lives in community
+  MEMBER     // HOA member, doesn't live here
+}
+
+// Agent Access - property agent authorization
+model AgentAccess {
+  id              String    @id @default(cuid())
+  
+  // Agent (user with AGENT role)
+  agentId         String
+  agent           User      @relation("AgentAccessAgent", fields: [agentId], references: [id])
+  
+  // Household being managed
+  householdId     String
+  household       Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  
+  // Who granted access
+  grantedById     String
+  grantedBy       User      @relation("AgentAccessGrantedBy", fields: [grantedById], references: [id])
+  
+  // Access period
+  startedAt       DateTime  @default(now())
+  expiresAt       DateTime
+  
+  // Status
+  isActive        Boolean   @default(true)
+  
+  // Reason
+  reason          String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([agentId])
+  @@index([householdId])
+  @@index([expiresAt])
+  @@map("agentAccess")
 }

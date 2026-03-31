@@ -7,11 +7,11 @@ import { trpc } from '@/lib/trpc/client';
 export interface IdentityState {
   isAgent: boolean;
   isPropertyOwner: boolean;
-  isPremiumSeatHolder: boolean;
-  effectiveRole: 'AGENT' | 'OWNER' | 'PREMIUM' | 'RESIDENT';
+  isSoloSeatHolder: boolean;
+  effectiveRole: 'AGENT' | 'OWNER' | 'SOLO' | 'RESIDENT';
   households: any[];
   managedHouseholds: any[];
-  premiumSeat: any | null;
+  SoloSeat: any | null;
   isLoading: boolean;
 }
 
@@ -31,31 +31,33 @@ export function useIdentityState(): IdentityState {
   const { data: managedHouseholdsData, isLoading: loadingManaged } =
     trpc.identity.getMyManagedHouseholds.useQuery(undefined, { enabled: !!userId });
 
-  const { data: premiumSeatData, isLoading: loadingPremium } =
-    trpc.identity.getMyPremiumSeat.useQuery(undefined, { enabled: !!userId });
+  const { data: SoloSeatData, isLoading: loadingSolo } = trpc.identity.getMySoloSeat.useQuery(
+    undefined,
+    { enabled: !!userId }
+  );
 
   const households = (householdsData || []) as any[];
   const managedHouseholds = (managedHouseholdsData || []) as any[];
-  const premiumSeat = premiumSeatData as any;
+  const SoloSeat = SoloSeatData as any;
 
-  const isLoading = loadingHouseholds || loadingManaged || loadingPremium;
+  const isLoading = loadingHouseholds || loadingManaged || loadingSolo;
   const isAgent = !loadingManaged && managedHouseholds.length > 0;
   const isPropertyOwner = !loadingHouseholds && households.length > 0;
-  const isPremiumSeatHolder = !loadingPremium && !!premiumSeat;
+  const isSoloSeatHolder = !loadingSolo && !!SoloSeat;
 
-  let effectiveRole: 'AGENT' | 'OWNER' | 'PREMIUM' | 'RESIDENT' = 'RESIDENT';
+  let effectiveRole: 'AGENT' | 'OWNER' | 'SOLO' | 'RESIDENT' = 'RESIDENT';
   if (isAgent) effectiveRole = 'AGENT';
   else if (isPropertyOwner) effectiveRole = 'OWNER';
-  else if (isPremiumSeatHolder) effectiveRole = 'PREMIUM';
+  else if (isSoloSeatHolder) effectiveRole = 'SOLO';
 
   return {
     isAgent,
     isPropertyOwner,
-    isPremiumSeatHolder,
+    isSoloSeatHolder,
     effectiveRole,
     households,
     managedHouseholds,
-    premiumSeat,
+    SoloSeat,
     isLoading,
   };
 }
@@ -70,21 +72,21 @@ export interface WidgetConfig {
 export interface WidgetPermission {
   roles?: string[];
   requiresHousehold?: boolean;
-  requiresPremium?: boolean;
+  requiresSolo?: boolean;
   requiresAgent?: boolean;
 }
 
 export const WIDGET_PERMISSIONS: Record<string, WidgetPermission> = {
   households: { requiresHousehold: true },
   'agent-dashboard': { requiresAgent: true },
-  'premium-seat': {},
+  'solo-seat': {},
 };
 
 export function getVisibleWidgets(
   widgets: WidgetConfig[],
   identity: IdentityState
 ): WidgetConfig[] {
-  const { effectiveRole, isPropertyOwner, isPremiumSeatHolder, isAgent } = identity;
+  const { effectiveRole, isPropertyOwner, isSoloSeatHolder, isAgent } = identity;
 
   return widgets.filter(widget => {
     const perms = WIDGET_PERMISSIONS[widget.id];
@@ -98,7 +100,7 @@ export function getVisibleWidgets(
       return false;
     }
 
-    if (perms.requiresPremium && !isPremiumSeatHolder) {
+    if (perms.requiresSolo && !isSoloSeatHolder) {
       return false;
     }
 

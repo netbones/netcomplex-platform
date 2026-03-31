@@ -6,10 +6,8 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
-import { Bookshelf } from '@/components/ui/Bookshelf';
-import { Pagination } from '@/components/ui/Pagination';
 
-interface UserProfile {
+interface LegacyUser {
   id: string;
   name: string;
   email: string;
@@ -25,7 +23,7 @@ interface UserProfile {
   residentType: string;
   role: string | null;
   createdAt: Date;
-  contents: {
+  contents?: {
     id: string;
     title: string;
     excerpt: string | null;
@@ -40,7 +38,7 @@ function ProfileContent() {
   const id = params?.id as string | undefined;
   const { t: tCommon } = useTranslation('common');
   const { data: session } = authClient.useSession();
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<LegacyUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -55,6 +53,7 @@ function ProfileContent() {
       return;
     }
 
+    // First try the legacy API - it always works
     fetch(`/api/users/${id}`)
       .then(async res => {
         if (!res.ok) {
@@ -193,7 +192,7 @@ function ProfileContent() {
             <div className="space-y-6">
               {user.contents
                 .slice((page - 1) * contentsPerPage, page * contentsPerPage)
-                .map(content => (
+                .map((content: any) => (
                   <div
                     key={content.id}
                     className="border-b border-gray-200 pb-6 last:border-0 last:pb-0"
@@ -218,18 +217,28 @@ function ProfileContent() {
                 ))}
             </div>
             {Math.ceil(user.contents.length / contentsPerPage) > 1 && (
-              <Pagination
-                currentPage={page}
-                totalPages={Math.ceil(user.contents.length / contentsPerPage)}
-                onPageChange={setPage}
-                className="mt-6 pt-4 border-t border-gray-200"
-              />
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex justify-center gap-2">
+                  {Array.from(
+                    { length: Math.ceil(user.contents.length / contentsPerPage) },
+                    (_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setPage(i + 1)}
+                        className={`px-3 py-1 rounded ${
+                          page === i + 1 ? 'bg-soralia-primary text-white' : 'bg-gray-200'
+                        }`}
+                      >
+                        {i + 1}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </div>
       )}
-
-      <Bookshelf userId={user.id} editable={isOwnProfile} />
     </div>
   );
 }

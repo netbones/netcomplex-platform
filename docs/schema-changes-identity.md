@@ -37,7 +37,7 @@ model User {
 
   // Identity relationships
   standardSeats    StandardSeat[] // If they own property (co-owner support)
-  premiumSeat      PremiumSeat?   // Their independent identity (if Premium)
+  SoloSeat      SoloSeat?   // Their independent identity (if Premium)
   profiles         Profile[]      // Profiles they manage (if Standard Seat holder)
 
   // Legacy fields (for backward compatibility)
@@ -80,7 +80,7 @@ model Household {
   // Relationships
   standardSeats   StandardSeat[]
   profiles        Profile[]
-  premiumSeats    PremiumSeat[]   // For upgraded occupants linked back
+  SoloSeats    SoloSeat[]   // For upgraded occupants linked back
 
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -227,10 +227,10 @@ model AgentAccess {
 
 > **Note**: AgentAccess uses soft-delete (isActive). When access expires or is revoked, set isActive=false rather than deleting, for audit trail.
 
-### 3. PremiumSeat (Independent Identity)
+### 3. SoloSeat (Independent Identity)
 
 ```prisma
-model PremiumSeat {
+model SoloSeat {
   id              String    @id @default(cuid())
 
   // User relationship (the person who owns this seat)
@@ -246,7 +246,7 @@ model PremiumSeat {
   household       Household? @relation(fields: [householdId], references: [id])
 
   // Premium type
-  seatType        PremiumSeatType
+  seatType        SoloSeatType
 
   // Complimentary (for board/committee)
   isComplimentary Boolean  @default(false)
@@ -258,10 +258,10 @@ model PremiumSeat {
   updatedAt       DateTime  @updatedAt
 
   @@index([householdId])
-  @@map("premiumSeat")
+  @@map("SoloSeat")
 }
 
-enum PremiumSeatType {
+enum SoloSeatType {
   RESIDENT   // Lives in community (owner-occupier or upgraded occupant)
   MEMBER     // HOA member, doesn't live here (board, committee)
 }
@@ -284,7 +284,7 @@ User (Authentication - Better Auth)
 │     │                            ├── Profile 1: john.unit042@soralia.org
 │     │                            └── Profile 2: mary.unit042@soralia.org
 │     │
-└── [Premium Seat] ────► PremiumSeat
+└── [Premium Seat] ────► SoloSeat
       │                     │
       │                     ├── platformAddress: john@soralia.org
       │                     ├── seatType: RESIDENT | MEMBER
@@ -293,7 +293,7 @@ User (Authentication - Better Auth)
       └── [Profile] (if Standard Seat holder manages profiles)
            └── Profile[]
                 │
-                └── can upgrade to PremiumSeat after 1 year
+                └── can upgrade to SoloSeat after 1 year
 ```
 
 ---
@@ -305,7 +305,7 @@ User (Authentication - Better Auth)
 ```prisma
 // 1. Add Household model
 // 2. Add Profile model
-// 3. Add PremiumSeat model
+// 3. Add SoloSeat model
 // 4. Add relationships to User
 ```
 
@@ -357,12 +357,12 @@ model User {
 
 ### Route Compatibility
 
-| Old Route        | New Route                       | Action                                |
-| ---------------- | ------------------------------- | ------------------------------------- |
-| `/resident/[id]` | `/resident/[id]`                | Keep, resolve via PremiumSeat or User |
-| —                | `/unit/[id]`                    | New - Household page                  |
-| —                | `/unit/[id]/member/[profileId]` | New - Profile page                    |
-| —                | `/member/[id]`                  | New - Non-resident Member page        |
+| Old Route        | New Route                       | Action                             |
+| ---------------- | ------------------------------- | ---------------------------------- |
+| `/resident/[id]` | `/resident/[id]`                | Keep, resolve via SoloSeat or User |
+| —                | `/unit/[id]`                    | New - Household page               |
+| —                | `/unit/[id]/member/[profileId]` | New - Profile page                 |
+| —                | `/member/[id]`                  | New - Non-resident Member page     |
 
 ---
 
@@ -386,7 +386,7 @@ DELETE / api / profiles / [id]; // Remove profile
 POST / api / profiles / [id] / setup; // Occupant completes setup
 POST / api / profiles / [id] / upgrade; // Request Premium upgrade
 
-// PremiumSeats
+// SoloSeats
 GET / api / premium - seats; // List (admin)
 GET / api / premium - seats / [id]; // Get
 POST / api / premium - seats; // Create (upgrade or admin)

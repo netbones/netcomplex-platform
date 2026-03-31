@@ -69,7 +69,7 @@ export const identityRouter = router({
             where: { status: { not: 'REMOVED' } },
             include: { user: { select: { id: true, name: true, email: true, avatar: true } } },
           },
-          premiumSeats: {
+          soloSeats: {
             include: { user: { select: { id: true, name: true, email: true, avatar: true } } },
           },
         },
@@ -460,15 +460,15 @@ export const identityRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Profile must be active to upgrade' });
       }
 
-      // Check if already has premium seat
-      const existingSeat = await ctx.prisma.premiumSeat.findUnique({
+      // Check if already has solo seat
+      const existingSeat = await ctx.prisma.soloSeat.findUnique({
         where: { userId: ctx.userId },
       });
       if (existingSeat) {
         throw new TRPCError({ code: 'CONFLICT', message: 'Already has a Premium Seat' });
       }
 
-      // Create premium seat
+      // Create solo seat
       const user = await ctx.prisma.user.findUnique({ where: { id: ctx.userId } });
       const platformAddress = `${user?.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`;
 
@@ -477,7 +477,7 @@ export const identityRouter = router({
           where: { id: input.profileId },
           data: { status: 'UPGRADED' },
         }),
-        ctx.prisma.premiumSeat.create({
+        ctx.prisma.soloSeat.create({
           data: {
             userId: ctx.userId,
             platformAddress,
@@ -489,13 +489,13 @@ export const identityRouter = router({
       ]);
     }),
 
-  // ============ PREMIUM SEATS ============
+  // ============ SOlO SEATS ============
 
   /**
-   * Get my premium seat (if any)
+   * Get my solo seat (if any)
    */
-  getMyPremiumSeat: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.prisma.premiumSeat.findUnique({
+  getMySoloSeat: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.prisma.soloSeat.findUnique({
       where: { userId: ctx.userId },
       include: {
         household: { select: { id: true, street: true, unit: true, homeImage: true } },
@@ -504,32 +504,30 @@ export const identityRouter = router({
   }),
 
   /**
-   * Get premium seat by ID (public)
+   * Get solo seat by ID (public)
    */
-  getPremiumSeat: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ input, ctx }) => {
-      const seat = await ctx.prisma.premiumSeat.findUnique({
-        where: { id: input.id },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              avatar: true,
-              interests: true,
-              isPublic: true,
-              showEmail: true,
-              showPhone: true,
-            },
+  getSoloSeat: publicProcedure.input(z.object({ id: z.string() })).query(async ({ input, ctx }) => {
+    const seat = await ctx.prisma.soloSeat.findUnique({
+      where: { id: input.id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+            interests: true,
+            isPublic: true,
+            showEmail: true,
+            showPhone: true,
           },
-          household: { select: { id: true, street: true, unit: true, homeImage: true } },
         },
-      });
+        household: { select: { id: true, street: true, unit: true, homeImage: true } },
+      },
+    });
 
-      return seat;
-    }),
+    return seat;
+  }),
 
   /**
    * Resolve legacy user ID to new identity model
@@ -538,8 +536,8 @@ export const identityRouter = router({
   resolveUserId: publicProcedure
     .input(z.object({ userId: z.string() }))
     .query(async ({ input, ctx }) => {
-      // First check PremiumSeat
-      const premiumSeat = await ctx.prisma.premiumSeat.findFirst({
+      // First check SoloSeat
+      const SoloSeat = await ctx.prisma.soloSeat.findFirst({
         where: { userId: input.userId },
         include: {
           user: {
@@ -558,8 +556,8 @@ export const identityRouter = router({
         },
       });
 
-      if (premiumSeat) {
-        return { type: 'premiumSeat', data: premiumSeat };
+      if (SoloSeat) {
+        return { type: 'SoloSeat', data: SoloSeat };
       }
 
       // Then check Profile

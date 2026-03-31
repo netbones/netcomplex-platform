@@ -30,7 +30,7 @@ User (flat)
 ```
 User (authentication)
 ├── StandardSeat[] - Property owner links
-├── PremiumSeat? - Independent identity
+├── SoloSeat? - Independent identity
 └── Profile[] - Occupants they manage
 
 Household
@@ -53,7 +53,7 @@ Route Mapping:
 
 **Status**: ✅ Completed
 
-- [x] Add new tables: Household, StandardSeat, Profile, PremiumSeat, AgentAccess
+- [x] Add new tables: Household, StandardSeat, Profile, SoloSeat, AgentAccess
 - [x] Add AGENT role to enum
 - [x] Set up tRPC infrastructure
 - [x] Create pages: `/unit/[id]`, `/unit/[id]/member/[profileId]`, `/member/[id]`
@@ -69,7 +69,7 @@ Route Mapping:
 - [x] Create Household records from existing OWNER users (3 created)
 - [x] Create StandardSeat links for property owners (3 created)
 - [x] Migrate homeImage from User to Household
-- [x] Create PremiumSeat for BOARD members (1 created - Sarah Mitchell, complimentary)
+- [x] Create SoloSeat for BOARD members (1 created - Sarah Mitchell, complimentary)
 - [ ] Create Profile records for existing RENTER users (0 created - no matching households)
 
 **Known Gaps**:
@@ -98,12 +98,12 @@ Route Mapping:
 
 **Data Mapping**:
 
-| Legacy Field               | New Location                                                     |
-| -------------------------- | ---------------------------------------------------------------- |
-| User.residentType = OWNER  | Household + StandardSeat                                         |
-| User.homeImage             | Household.homeImage                                              |
-| User.residentType = RENTER | Profile (under owner's household)                                |
-| User.role = BOARD          | PremiumSeat(seatType: based on residence, isComplimentary: true) |
+| Legacy Field               | New Location                                                  |
+| -------------------------- | ------------------------------------------------------------- |
+| User.residentType = OWNER  | Household + StandardSeat                                      |
+| User.homeImage             | Household.homeImage                                           |
+| User.residentType = RENTER | Profile (under owner's household)                             |
+| User.role = BOARD          | SoloSeat(seatType: based on residence, isComplimentary: true) |
 
 **Script**: Create migration script to populate new tables from existing User data
 
@@ -113,13 +113,13 @@ Route Mapping:
 
 **Status**: ✅ Done (2026-03-30)
 
-- [x] Update `/resident/[id]` to resolve via PremiumSeat → User
+- [x] Update `/resident/[id]` to resolve via SoloSeat → User
 - [x] Add resolveUserId tRPC endpoint for backward compatibility
-- [x] Updated page to handle: premiumSeat → profile → standardSeat → not found
+- [x] Updated page to handle: SoloSeat → profile → standardSeat → not found
 
 **Route Resolution Order**:
 
-1. PremiumSeat (RESIDENT or BOARD member with complimentary)
+1. SoloSeat (RESIDENT or BOARD member with complimentary)
 2. Profile (Occupant under household)
 3. StandardSeat (Property owner → redirect to Household page)
 4. Legacy User fallback (not found)
@@ -149,12 +149,12 @@ Route Mapping:
 
 ## Route Mapping Table
 
-| Old Route            | New Route                                                               | Action                    |
-| -------------------- | ----------------------------------------------------------------------- | ------------------------- |
-| `/resident/{userId}` | `/resident/{premiumSeatId}` or `/unit/{householdId}/member/{profileId}` | Resolve dynamically       |
-| —                    | `/unit/{householdId}`                                                   | NEW - Household page      |
-| —                    | `/unit/{householdId}/member/{profileId}`                                | NEW - Profile page        |
-| —                    | `/member/{premiumSeatId}`                                               | NEW - Non-resident member |
+| Old Route            | New Route                                                            | Action                    |
+| -------------------- | -------------------------------------------------------------------- | ------------------------- |
+| `/resident/{userId}` | `/resident/{SoloSeatId}` or `/unit/{householdId}/member/{profileId}` | Resolve dynamically       |
+| —                    | `/unit/{householdId}`                                                | NEW - Household page      |
+| —                    | `/unit/{householdId}/member/{profileId}`                             | NEW - Profile page        |
+| —                    | `/member/{SoloSeatId}`                                               | NEW - Non-resident member |
 
 ---
 
@@ -163,7 +163,7 @@ Route Mapping:
 | Old API               | New tRPC                                                   | Status  |
 | --------------------- | ---------------------------------------------------------- | ------- |
 | GET `/api/users`      | `identity.listHouseholds`                                  | Replace |
-| GET `/api/users/[id]` | `identity.getHousehold` + `identity.getPremiumSeat`        | Replace |
+| GET `/api/users/[id]` | `identity.getHousehold` + `identity.getSoloSeat`           | Replace |
 | POST `/api/users`     | `identity.createHousehold` + `identity.createStandardSeat` | Replace |
 
 ---

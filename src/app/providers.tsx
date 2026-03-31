@@ -2,8 +2,11 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
+import { httpBatchLink } from '@trpc/client';
+import superjson from 'superjson';
 import { authClient } from '@/lib/auth-client';
 import { ToastProvider } from '@/components/ui/Toast';
+import { trpc } from '@/lib/trpc/client';
 import '@/lib/i18n';
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -19,9 +22,28 @@ export function Providers({ children }: { children: React.ReactNode }) {
       })
   );
 
+  const [trpcClient] = useState(() =>
+    trpc.createClient({
+      links: [
+        httpBatchLink({
+          url: '/api/trpc',
+          transformer: superjson,
+          async headers() {
+            const { data } = await authClient.useSession();
+            return {
+              Authorization: data?.session ? `Bearer ${data.session.token}` : undefined,
+            };
+          },
+        }),
+      ],
+    })
+  );
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>{children}</ToastProvider>
-    </QueryClientProvider>
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>{children}</ToastProvider>
+      </QueryClientProvider>
+    </trpc.Provider>
   );
 }
