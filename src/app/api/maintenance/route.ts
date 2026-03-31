@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { maintenanceRequestSchema } from '@/lib/schemas';
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -84,18 +85,36 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await request.json();
-  const userId = body.userId || authData.userId;
+  try {
+    const body = await request.json();
 
-  const maintenanceRequest = await prisma.maintenanceRequest.create({
-    data: {
-      userId,
-      category: body.category || body.serviceType || 'general',
-      priority: body.priority || 'LOW',
-      description: body.description,
-      images: body.images || [],
-    },
-  });
+    // Validate input with Zod schema
+    const validationResult = maintenanceRequestSchema.safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid input', details: validationResult.error.issues },
+        { status: 400 }
+      );
+    }
 
-  return NextResponse.json(maintenanceRequest, { status: 201 });
+    const { category, priority, description, preferredDate, preferredTime } = validationResult.data;
+    const userId = body.userId || authData.userId;
+
+    const maintenanceRequest = await prisma.maintenanceRequest.create({
+      data: {
+        userId,
+        category,
+        priority,
+        description,
+        images: body.images || [],
+        // Note: preferredDate and preferredTime could be stored in a separate field or handled differently
+        // For now, they're captured in validation but not used in creation
+      },
+    });
+
+    return NextResponse.json(maintenanceRequest, { status: 201 });
+  } catch (error) {
+    console.error('Error creating maintenance request:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

@@ -20,6 +20,7 @@ import {
 } from '@dnd-kit/sortable';
 import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { sanitizeHtml } from '@/lib/utils';
 import { Bookshelf } from '@/components/ui/Bookshelf';
 import { MediaLibrary } from '@/components/ui/MediaLibrary';
 import { Pagination } from '@/components/ui/Pagination';
@@ -436,7 +437,7 @@ function UserContentList() {
               {item.excerpt && <p className="text-gray-600 text-sm mb-3">{item.excerpt}</p>}
               <div
                 className="prose prose-sm max-w-none text-gray-700 line-clamp-3"
-                dangerouslySetInnerHTML={{ __html: item.content || '' }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.content || '') }}
               />
               <div className="mt-3 pt-3 border-t border-gray-100">
                 <Link

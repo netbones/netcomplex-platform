@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { sanitizeHtml } from '@/lib/utils';
 
 interface LegacyUser {
   id: string;
@@ -203,7 +204,7 @@ function ProfileContent() {
                     )}
                     <div
                       className="prose prose-sm max-w-none content-body"
-                      dangerouslySetInnerHTML={{ __html: content.content || '' }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(content.content || '') }}
                     />
                     <div className="flex items-center gap-3 mt-4 pt-3 border-t border-gray-100">
                       <span className="text-xs text-gray-500">

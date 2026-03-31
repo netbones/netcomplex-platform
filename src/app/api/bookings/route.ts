@@ -2,7 +2,13 @@ import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { bookingSchema } from '@/lib/schemas';
 
+/**
+ * Retrieves session and role from the request for API routes.
+ * @param request - Incoming HTTP request
+ * @returns Session data with user ID and role, or null if not authenticated
+ */
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,
@@ -70,20 +76,41 @@ export async function GET(request: Request) {
  * @body purpose - Purpose of booking
  */
 export async function POST(request: Request) {
-  const body = await request.json();
+  const authData = await getSessionAndRole(request);
 
-  const userId = body.userId || 'demo-user-id';
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
-  const booking = await prisma.booking.create({
-    data: {
-      userId,
-      facility: body.facility,
-      date: new Date(body.date),
-      startTime: body.startTime,
-      endTime: body.endTime,
-      purpose: body.purpose,
-    },
-  });
+  try {
+    const body = await request.json();
 
-  return NextResponse.json(booking, { status: 201 });
+    // Validate input with Zod schema
+    const validationResult = bookingSchema.safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid input', details: validationResult.error.issues },
+        { status: 400 }
+      );
+    }
+
+    const { facility, date, startTime, endTime, purpose } = validationResult.data;
+    const userId = body.userId || authData.userId;
+
+    const booking = await prisma.booking.create({
+      data: {
+        userId,
+        facility,
+        date: new Date(date),
+        startTime,
+        endTime,
+        purpose,
+      },
+    });
+
+    return NextResponse.json(booking, { status: 201 });
+  } catch (error) {
+    console.error('Error creating booking:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
