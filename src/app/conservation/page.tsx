@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { prisma } from '@/lib/prisma';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 async function getContent() {
   const content = await prisma.content.findMany({
@@ -23,10 +24,18 @@ async function getContent() {
 }
 
 export default function ConservationPage() {
-  const { t: tCommon, ready } = useTranslation('common');
+  const { t: tCommon } = useTranslation('common');
   const { t } = useTranslation('conservation');
   const [content, setContent] = useState<Awaited<ReturnType<typeof getContent>>>([]);
   const [loading, setLoading] = useState(true);
+
+  const { isReady, LoadingComponent } = usePageLoading(
+    [
+      { label: 'Home', href: '/' },
+      { label: 'Conservation', href: '/conservation' },
+    ],
+    { additionalLoading: loading }
+  );
 
   useEffect(() => {
     getContent().then(data => {
@@ -35,14 +44,8 @@ export default function ConservationPage() {
     });
   }, []);
 
-  if (!ready) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-32 mb-6"></div>
-        </div>
-      </div>
-    );
+  if (!isReady) {
+    return LoadingComponent;
   }
 
   const conservationStats = [

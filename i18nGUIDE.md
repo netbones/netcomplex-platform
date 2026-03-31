@@ -439,10 +439,10 @@ const renderWithI18n = component => {
 | Page              | Status   | Implementation                              |
 | ----------------- | -------- | ------------------------------------------- |
 | Header/Footer     | ✅ Safe  | Client components with mounted/ready checks |
-| directory         | ✅ Safe  | Has `!mounted \|\| !ready` check            |
-| conservation      | ✅ Safe  | Has `!ready` check                          |
-| settings          | ✅ Safe  | Has `!ready` check                          |
-| services          | ✅ Safe  | Has `!mounted \|\| !ready` check            |
+| directory         | ✅ Fixed | Using `usePageLoading` hook                 |
+| conservation      | ✅ Fixed | Using `usePageLoading` hook                 |
+| settings          | ✅ Fixed | Using `usePageLoading` hook                 |
+| services          | ✅ Fixed | Using `usePageLoading` hook                 |
 | home (page.tsx)   | ✅ Safe  | Has `!mounted \|\| !ready` check            |
 | **bookings**      | ✅ Fixed | Using `usePageLoading` hook                 |
 | **messages**      | ✅ Fixed | Using `usePageLoading` hook                 |
@@ -482,6 +482,7 @@ const renderWithI18n = component => {
 **Status**: ✅ **FULLY RESOLVED** - All pages now use `usePageLoading` hook
 **Root Cause**: Client components using `t('nav.home')` without loading checks
 **Fix**: Standardized `usePageLoading` hook provides consistent loading patterns
+**Coverage**: Found and fixed additional instances in directory, conservation, settings, and services pages
 
 ## Quick Reference
 

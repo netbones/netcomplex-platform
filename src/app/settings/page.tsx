@@ -6,10 +6,16 @@ import { toast } from 'sonner';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { authClient } from '@/lib/auth-client';
 import { supportedLanguages, languageNames, type SupportedLanguage } from '@/lib/i18n';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 export default function SettingsPage() {
-  const { t: tCommon, t: tSettings, ready } = useTranslation(['common', 'forms']);
+  const { t: tCommon, t: tSettings } = useTranslation(['common', 'forms']);
   const { i18n } = useTranslation();
+
+  const { isReady, LoadingComponent } = usePageLoading([
+    { label: 'Home', href: '/' },
+    { label: 'Settings', href: '/settings' },
+  ]);
   const { data: session } = authClient.useSession();
   const [language, setLanguage] = useState<string>('en');
   const [saving, setSaving] = useState(false);
@@ -49,16 +55,8 @@ export default function SettingsPage() {
     }
   };
 
-  if (!ready) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-32 mb-6"></div>
-          <div className="h-8 bg-gray-200 rounded w-48 mb-8"></div>
-          <div className="h-32 bg-gray-200 rounded-lg"></div>
-        </div>
-      </div>
-    );
+  if (!isReady) {
+    return LoadingComponent;
   }
 
   return (

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { DirectoryGrid } from '@/components/directory/DirectoryGrid';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { STREETS } from '@/lib/constants';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 interface Resident {
   id: string;
@@ -22,8 +23,7 @@ interface Resident {
 }
 
 export default function DirectoryPage() {
-  const [mounted, setMounted] = useState(false);
-  const { t, ready } = useTranslation(['common', 'directory']);
+  const { t } = useTranslation(['common', 'directory']);
   const [residents, setResidents] = useState<Resident[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -34,9 +34,13 @@ export default function DirectoryPage() {
   const [filterStreet, setFilterStreet] = useState('All Streets');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { isReady, LoadingComponent } = usePageLoading(
+    [
+      { label: 'Home', href: '/' },
+      { label: 'Directory', href: '/directory' },
+    ],
+    { additionalLoading: loading }
+  );
 
   useEffect(() => {
     async function fetchResidents() {
@@ -82,17 +86,8 @@ export default function DirectoryPage() {
     return () => clearTimeout(debounce);
   }, [search, filterStreet, filterType, page]);
 
-  if (!mounted || !ready) {
-    return (
-      <main className="min-h-screen bg-soralia-light">
-        <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-32 mb-6"></div>
-            <div className="h-8 bg-gray-200 rounded w-64 mb-8"></div>
-          </div>
-        </div>
-      </main>
-    );
+  if (!isReady) {
+    return LoadingComponent;
   }
 
   return (

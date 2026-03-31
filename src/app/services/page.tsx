@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { CARD_ANIMATIONS } from '@/lib/constants';
+import { usePageLoading } from '@/hooks/usePageLoading';
 
 const defaultServiceCategories = [
   {
@@ -121,8 +122,7 @@ const emergencyContacts = [
 ];
 
 export default function ServicesPage() {
-  const [mounted, setMounted] = useState(false);
-  const { t, ready } = useTranslation('services');
+  const { t } = useTranslation('services');
   const [serviceCategories, setServiceCategories] = useState(defaultServiceCategories);
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -134,9 +134,13 @@ export default function ServicesPage() {
     preferredTime: '',
   });
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { isReady, LoadingComponent } = usePageLoading(
+    [
+      { label: 'Home', href: '/' },
+      { label: 'Services', href: '/services' },
+    ],
+    { additionalLoading: loading }
+  );
 
   const { t: tCommon } = useTranslation('common');
 
@@ -173,16 +177,8 @@ export default function ServicesPage() {
     setFormData(prev => ({ ...prev, serviceType: serviceId }));
   };
 
-  if (!mounted || !ready) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-32 mb-6"></div>
-          <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded w-96 mx-auto"></div>
-        </div>
-      </div>
-    );
+  if (!isReady) {
+    return LoadingComponent;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
