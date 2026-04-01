@@ -13,6 +13,7 @@ import { BookshelfWidget } from './BookshelfWidget';
 import { MediaWidget } from './MediaWidget';
 import { MyAlbumWidget } from './MyAlbumWidget';
 import { SidebarWidgetBox } from './SidebarWidgetBox';
+import { PremiumPortfolioWidget } from './PremiumPortfolioWidget';
 import { HouseholdsWidget } from './HouseholdsWidget';
 import { AgentDashboardWidget } from './AgentDashboardWidget';
 import { SoloSeatWidget } from './SoloSeatWidget';
@@ -45,6 +46,8 @@ export function WidgetRenderer({ widgetId }: WidgetRendererProps): ReactNode {
       return <MyAlbumWidget />;
     case 'sidebar-widgets':
       return <SidebarWidgetBox />;
+    case 'premium-portfolio':
+      return <PremiumPortfolioWidget />;
     default:
       return (
         <ErrorBoundary>

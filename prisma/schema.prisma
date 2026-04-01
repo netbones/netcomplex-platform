@@ -50,9 +50,13 @@ model User {
   // Identity model relations
   standardSeats   StandardSeat[]
   soloSeat         SoloSeat?
+  premiumSeat      PremiumSeat?
   profiles         Profile[]
-  agentAccesses    AgentAccess[]     @relation("AgentAccessAgent")  // If user is an agent
+  agentAccesses   AgentAccess[]     @relation("AgentAccessAgent")  // If user is an agent
   grantedAccesses  AgentAccess[]     @relation("AgentAccessGrantedBy")  // Access grants by this user (as owner)
+  agentProfile     AgentProfile?     // If user is a registered agent
+  ownedListings    PropertyListing[] // Properties listed by this user
+  assignedListings PropertyListing[] @relation("PropertyListingAgent") // Properties assigned to this agent
 
   @@map("user")
 }
@@ -554,6 +558,8 @@ model Household {
   standardSeats   StandardSeat[]
   profiles        Profile[]
   soloSeats       SoloSeat[]
+  premiumSeats    PremiumSeat[] @relation("PremiumSeatPortfolio") // Premium portfolio management
+  propertyListings PropertyListing[] // Property listings for this household
   agentAccesses   AgentAccess[]
   
   createdAt       DateTime  @default(now())
@@ -647,9 +653,39 @@ model Profile {
 }
 
 enum OccupantType {
-  OCCUPANT    // Adult renter/tenant
-  FAMILY      // Non-owner family member
-  MINOR       // Child (managed by member)
+  OCCUPANT   // Adult resident
+  MINOR      // Child/minor under adult supervision
+  FAMILY     // Extended family member
+}
+
+enum AgentAccessLevel {
+  VIEW_ONLY     // Can view property details
+  MANAGEMENT    // Can manage occupancy and basic updates
+  FULL_ACCESS   // Can make significant changes and list property
+}
+
+enum AgentPermission {
+  VIEW_LISTING
+  EDIT_LISTING
+  MANAGE_OCCUPANCY
+  VIEW_FINANCIALS
+  CONTACT_OCCUPANTS
+  MARKET_PROPERTY
+}
+
+enum ListingType {
+  SALE
+  RENT
+  LEASE
+}
+
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  PENDING
+  SOLD
+  RENTED
+  WITHDRAWN
 }
 
 enum ProfileStatus {
@@ -677,7 +713,7 @@ model SoloSeat {
   
   // Premium type
   seatType        SoloSeatType
-  
+
   // Complimentary (for board/committee)
   isComplimentary Boolean  @default(false)
   
@@ -700,35 +736,73 @@ enum SoloSeatType {
   MEMBER     // HOA member, doesn't live here
 }
 
+// Premium Seat - Multi-property investment portfolio consolidation
+model PremiumSeat {
+  id              String    @id @default(cuid())
+
+  // User relationship (property investor)
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // PORTFOLIO MANAGEMENT - Links multiple households for unified management
+  linkedHouseholds Household[] @relation("PremiumSeatPortfolio")
+
+  // Premium features
+  isActive        Boolean   @default(true)
+  portfolioName   String?   // Optional custom portfolio name
+
+  // Pricing and billing
+  subscriptionTier String   @default("basic") // basic, pro, enterprise
+  maxProperties   Int       @default(5)      // Property limit based on tier
+
+  // Platform address (e.g., investor@soralia.org)
+  platformAddress String    @unique
+
+  // Multi-tenancy
+  organizationId  String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([organizationId])
+  @@map("premiumSeat")
+}
+
 // Agent Access - property agent authorization
 model AgentAccess {
   id              String    @id @default(cuid())
-  
+
   // Agent (user with AGENT role)
   agentId         String
   agent           User      @relation("AgentAccessAgent", fields: [agentId], references: [id])
-  
+
   // Household being managed
   householdId     String
   household       Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
-  
+
   // Who granted access
   grantedById     String
   grantedBy       User      @relation("AgentAccessGrantedBy", fields: [grantedById], references: [id])
-  
+
+  // Access level and permissions
+  accessLevel     AgentAccessLevel @default(MANAGEMENT)
+  permissions     AgentPermission[]
+
   // Access period
   startedAt       DateTime  @default(now())
   expiresAt       DateTime
-  
+
   // Status
   isActive        Boolean   @default(true)
-  
-  // Reason
-  reason          String?
-  
+
+  // Commission and business terms
+  commissionRate  Float?    // Percentage for sales/rentals
+  contractTerms   String?   // Legal terms and conditions
+
   // Multi-tenancy
   organizationId  String?
-  
+
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -737,6 +811,111 @@ model AgentAccess {
   @@index([organizationId])
   @@index([expiresAt])
   @@map("agentAccess")
+}
+
+// Property Listings - Premium Seat marketplace feature
+model PropertyListing {
+  id              String    @id @default(cuid())
+
+  // Property being listed
+  householdId     String
+  household       Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  // Listing owner (Premium Seat holder)
+  ownerId         String
+  owner           User      @relation(fields: [ownerId], references: [id])
+
+  // Listing details
+  listingType     ListingType  // SALE, RENT, LEASE
+  title           String
+  description     String?
+  price           Float?
+  currency        String      @default("ZAR")
+
+  // Property details
+  bedrooms        Int?
+  bathrooms       Int?
+  parkingSpaces   Int?
+  gardenSize      Float?      // Square meters
+  petFriendly     Boolean     @default(false)
+
+  // Status and visibility
+  status          ListingStatus @default(DRAFT)
+  isPublished     Boolean       @default(false)
+  isFeatured      Boolean       @default(false)
+
+  // Agent management (optional)
+  assignedAgentId String?
+  assignedAgent   User?         @relation("PropertyListingAgent", fields: [assignedAgentId], references: [id])
+
+  // Marketing
+  marketingBudget Float?        // Monthly marketing spend
+  featuredUntil   DateTime?
+
+  // Multi-tenancy
+  organizationId  String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([householdId])
+  @@index([ownerId])
+  @@index([listingType])
+  @@index([status])
+  @@index([isPublished])
+  @@index([assignedAgentId])
+  @@index([organizationId])
+  @@map("propertyListing")
+}
+
+// Agent Profiles - Enhanced agent marketplace
+model AgentProfile {
+  id              String    @id @default(cuid())
+
+  // Agent user
+  agentId         String    @unique
+  agent           User      @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  // Business details
+  agencyName      String?
+  licenseNumber   String?
+  experienceYears Int       @default(0)
+
+  // Specializations
+  specializations String[]  // SALE, RENT, COMMERCIAL, RESIDENTIAL, etc.
+
+  // Service areas
+  serviceAreas    String[]  // Neighborhood names
+
+  // Performance metrics
+  totalListings   Int       @default(0)
+  activeListings  Int       @default(0)
+  salesCompleted  Int       @default(0)
+  avgSalePrice    Float?
+
+  // Ratings and reviews
+  rating          Float     @default(0) // 1-5 stars
+  reviewCount     Int       @default(0)
+
+  // Business settings
+  commissionRate  Float     @default(5.0) // Default commission percentage
+  responseTime    Int       @default(24)  // Hours to respond
+
+  // Verification status
+  isVerified      Boolean   @default(false)
+  verificationDate DateTime?
+
+  // Multi-tenancy
+  organizationId  String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([agentId])
+  @@index([isVerified])
+  @@index([rating])
+  @@index([organizationId])
+  @@map("agentProfile")
 }
 
 // User Albums for Media Gallery organization

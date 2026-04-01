@@ -117,26 +117,28 @@ model User {
   email         String    @unique
   name          String
   role          Role      @default(RESIDENT)
-  residentType  ResidentType @default(OWNER)
-  street        String?
-  unit          String?
   phone         String?
   interests     String[]
   avatar        String?
-  homeImage     String?
-  books         Json?     @default("[]")
   isPublic      Boolean   @default(true)
   showEmail     Boolean   @default(true)
   showPhone     Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Seat relationships (mutually exclusive)
+  standardSeat  StandardSeat?
+  soloSeat      SoloSeat?
+  premiumSeat   PremiumSeat?
+
+  // Profile relationships
+  addressProfiles Profile[]
+
   requests      MaintenanceRequest[]
   bookings      Booking[]
   notifications Notification[]
-  conversations  Conversation[]
-  messages       Message[]
-  contents       Content[]
+  conversations Conversation[]
+  contents      Content[]
 }
 
 enum Role {
@@ -147,10 +149,16 @@ enum Role {
   ADMIN       // SuperAdmin - full platform access
 }
 
-enum ResidentType {
-  OWNER
-  RENTER
-  SUSPENDED
+enum SeatType {
+  STANDARD   // Property owner household management
+  SOLO       // Liberation - independent occupant identity
+  PREMIUM    // Portfolio - multi-property investor management
+}
+
+enum OccupantType {
+  OCCUPANT   // Adult resident
+  MINOR      // Child/minor under adult supervision
+  FAMILY     // Extended family member
 }
 
 model MaintenanceRequest {

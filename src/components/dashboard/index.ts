@@ -15,6 +15,7 @@ export { BookshelfWidget } from './BookshelfWidget';
 export { MediaWidget } from './MediaWidget';
 export { MyAlbumWidget } from './MyAlbumWidget';
 export { SidebarWidgetBox } from './SidebarWidgetBox';
+export { PremiumPortfolioWidget } from './PremiumPortfolioWidget';
 export { DashboardStats } from './DashboardStats';
 export { TagCloud } from '../ui/TagCloud';
 export type { DashboardTab } from './DashboardTabs';

@@ -67,15 +67,16 @@ Transform Soralia Village from a static demo into a fully functional SPA with:
 
 ## User Personas
 
-| Persona      | Role        | Access Level                                                                           |
-| ------------ | ----------- | -------------------------------------------------------------------------------------- |
-| Resident     | RESIDENT    | View directory, submit requests, book facilities, join interest groups, create content |
-| Owner        | OWNER       | Homeowner - full resident access + property-specific privileges                        |
-| Renter       | RENTER      | Tenant - may have restricted access to certain groups/content                          |
-| Group Admin  | GROUP_ADMIN | Manage own group: add/remove members, delete own group content                         |
-| Committee    | COMMITTEE   | Committee duties, group admin + platform reporting access                              |
-| Board Member | BOARD       | HOA Board: oversight, platform management                                              |
-| Admin        | ADMIN       | SuperAdmin: user management, content moderation, suspend users, full platform access   |
+| Persona              | Seat Type | Access Level                                                           |
+| -------------------- | --------- | ---------------------------------------------------------------------- |
+| Property Owner       | Standard  | Manage household, occupants, content aggregation, facility booking     |
+| Household Occupant   | Profile   | Participate in groups, messaging, limited content creation             |
+| Independent Resident | Solo      | Full platform access, personal identity, independent from household    |
+| Property Investor    | Premium   | Multi-property portfolio management, unified dashboard, volume pricing |
+| Group Admin          | Standard  | Manage own group: add/remove members, delete own group content         |
+| Committee Member     | Solo      | Committee duties, group admin + platform reporting access              |
+| Board Member         | Solo      | HOA Board: oversight, platform management                              |
+| Admin                | Admin     | SuperAdmin: user management, content moderation, suspend users         |
 
 ---
 

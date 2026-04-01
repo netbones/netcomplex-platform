@@ -40,7 +40,7 @@ This document defines the identity and routing structure for the Soralia Village
 A Member is a property owner in Soralia Village. Every household with a Member has:
 
 - One authenticated Standard Seat login
-- One household-level Platform Address (e.g., `unit042@sorialia.org`)
+- One household-level Platform Address (e.g., `unit042@soralia.org`)
 - Up to five Address Profiles for household members (occupants, family)
 
 ### 2. Occupant (Address Alias)
@@ -57,30 +57,41 @@ A Occupant is a non-owner resident who lives in the community. They begin their 
 **Occupant Journey:**
 
 1. Starts as Alias → Can participate in groups, messaging
-2. After 1 year tenure → Eligible to upgrade to Premium Seat
-3. Premium Seat → Own independent login, can be resident or not
+2. After tenure → Eligible to upgrade to Solo Seat (liberation)
+3. Solo Seat → Own independent login for personal identity
 
-### 3. Resident (Premium Seat - Living in Community)
+### 3. Resident (Solo Seat - Liberation Model)
 
-| Property  | Value              |
-| --------- | ------------------ |
-| Route     | `/resident/{id}`   |
-| Seat Type | Premium (optional) |
-| HomeImage | ✅ Yes             |
-| Profiles  | N/A                |
+| Property  | Value             |
+| --------- | ----------------- |
+| Route     | `/resident/{id}`  |
+| Seat Type | Solo (liberation) |
+| HomeImage | ✅ Yes (optional) |
+| Profiles  | N/A               |
 
-A Resident is a Premium Seat holder who physically lives in the community (owner-occupier or upgraded occupant). Premium Seats are independent of the household unit.
+A Resident with a Solo Seat has achieved **liberation** from household constraints. This allows:
 
-### 4. Member (Premium Seat - Non-Resident)
+- Teenagers getting independent identities
+- Adult occupants wanting separate profiles
+- Leaseholders wanting independent platform presence
+- Family members establishing personal digital identities
 
-| Property  | Value                   |
-| --------- | ----------------------- |
-| Route     | `/member/{id}`          |
-| Seat Type | Premium (optional)      |
-| HomeImage | ✅ Yes (property owner) |
-| Profiles  | N/A                     |
+### 4. Property Investor (Premium Seat - Portfolio Consolidation)
 
-A non-resident Member is a property owner who doesn't live in the community but maintains HOA involvement (board member, committee representative).
+| Property  | Value                                |
+| --------- | ------------------------------------ |
+| Route     | `/investor/{id}` (premium dashboard) |
+| Seat Type | Premium (portfolio management)       |
+| HomeImage | ✅ Yes (per property)                |
+| Profiles  | Multi-household management           |
+
+A Premium Seat holder is a **property investor** who owns multiple properties and needs unified management:
+
+- Single login managing multiple Standard Seats
+- Consolidated dashboard across all properties
+- Cross-property analytics and insights
+- Unified leaseholder/occupant management
+- Volume pricing for multi-property portfolios
 
 ---
 
@@ -251,94 +262,90 @@ Platform
 
 ---
 
-## Venn Diagram: User Categories
+## Upgrade Paths
 
-```
-                          ALL PLATFORM USERS
-    ┌─────────────────────────────────────────────────────────────┐
-    │                                                             │
-    │    ┌───────────────────────────────────────────────────┐   │
-    │    │              HOA MEMBERS (Property Owners)           │   │
-    │    │  ┌───────────────────────────────────────────────┐ │   │
-    │    │  │ Member (Standard Seat /unit/{id})             │ │   │
-    │    │  │                                               │ │   │
-    │    │  │  Profiles (flat, up to 5):                      │ │   │
-    │    │  │  ┌───────┐ ┌───────┐ ┌───────┐ ┌───────┐     │ │   │
-    │    │  │  │Adult  │ │Adult  │ │Minor  │ │Family │     │ │   │
-    │    │  │  │Occupant │ │Occupant │ │Child  │ │Member │     │ │   │
-    │    │  │  └───────┘ └───────┘ └───────┘ └───────┘     │ │   │
-    │    │  │                                               │ │   │
-    │    │  │  Premium Seats (if upgraded):                  │ │   │
-    │    │  │  ┌─────────┐  ┌─────────┐                     │ │   │
-    │    │  │  │Resident │  │Non-Res. │                     │ │   │
-    │    │  │  │Member   │  │Member   │                     │ │   │
-    │    │  │  └─────────┘  └─────────┘                     │ │   │
-    │    │  └───────────────────────────────────────────────┘ │   │
-    │    └───────────────────────────────────────────────────┘   │
-    │                                                             │
-    │    ┌───────────────────────────────────────────────────┐   │
-    │    │              STANDALONE PREMIUM SEATS                │   │
-    │    │  ┌─────────┐  ┌─────────┐  ┌─────────┐             │   │
-    │    │  │Resident │  │Resident │  │  Board  │             │   │
-    │    │  │(Owner)  │  │(Occupant) │  │ Member  │             │   │
-    │    │  └─────────┘  └─────────┘  └─────────┘             │   │
-    │    └───────────────────────────────────────────────────┘   │
-    │                                                             │
-    │  ALL ALIASES (Occupants, Minors, Family) = flat under Member  │
-    │  MINORS = No independent login, managed by Member           │
-    │  UPGRADE PATH: Alias → Premium Seat (after 1 year tenure)   │
-    └─────────────────────────────────────────────────────────────┘
-
-    Standard Seat:  /unit/{id}       (required, Member = property owner)
-    Profiles:        /unit/{id}/member/{aliasId}  (up to 5, all flat)
-    Premium:        /resident/{id}  (resident with own seat)
-                    /member/{id}    (non-resident Member)
-```
-
----
-
-## Occupant Upgrade Path
+### 1. Occupant Liberation Path (Alias → Solo Seat)
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                     OCCUPANT JOURNEY                                │
+│                     OCCUPANT LIBERATION                              │
 ├──────────────────────────────────────────────────────────────────┤
 │                                                                   │
-│  START                      UPGRADE ELIGIBLE                      │
+│  START                      LIBERATION ELIGIBLE                   │
 │  ┌─────────┐               ┌─────────────┐                      │
 │  │ Occupant  │ ─────────────►│ Occupant w/   │                      │
-│  │ Alias   │  1 year       │ 1 Year      │                      │
-│  │         │  tenure        │ Tenure      │                      │
+│  │ Alias   │  Tenure        │ Tenure       │                      │
+│  │         │  Complete      │ Complete     │                      │
 │  └─────────┘               └─────────────┘                      │
 │       │                          │                               │
-│       │                          │ (pay premium)                  │
+│       │                          │ (pay liberation fee)           │
 │       │                          ▼                               │
 │       │                 ┌─────────────┐                         │
-│       └────────────────►│  Premium    │                         │
-│         (member's      │  Seat       │                         │
-│          household)   │             │                         │
-│                       │/resident/{id}│                         │
-│                       │ or /member/ │                         │
-│                       └─────────────┘                         │
+│       │                 │  Solo Seat  │                         │
+│       │                 │  (Liberation)│                         │
+│       │                 │             │                         │
+│       │                 │/resident/{id}│                         │
+│       │                 └─────────────┘                         │
 │                              │                                   │
 │                              │ Own independent identity          │
 │                              ▼                                   │
 │                       ┌─────────────┐                           │
-│                       │ Can leave   │                           │
-│                       │ household   │                           │
+│                       │ Independent │                           │
+│                       │ Platform    │                           │
+│                       │ Presence    │                           │
 │                       └─────────────┘                           │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-### Upgrade Criteria
+**Liberation Triggers:**
 
-- **Minimum tenure**: 1 year as Address Alias
-- **Approval**: HOA Administrator review
-- **Cost**: Premium Seat rate (1.5x Standard Seat)
-- **Benefits**:
-  - Independent login
-  - Own profile page (`/resident/{id}`)
-  - Can maintain or detach from household
+- Teenager becoming independent
+- Adult occupant wanting separate profile
+- Leaseholder wanting independent identity
+- Family member establishing personal presence
+
+### 2. Property Investor Path (Multiple Standard Seats → Premium Seat)
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                     PROPERTY INVESTOR UPGRADE                        │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  START                      MULTI-PROPERTY OWNER                  │
+│  ┌─────────┐               ┌─────────────┐                      │
+│  │ 1 Std   │ ─────────────►│ 2+ Standard │                      │
+│  │ Seat    │  Acquire      │ Seats        │                      │
+│  │         │  Properties   │ (Separate)   │                      │
+│  └─────────┘               └─────────────┘                      │
+│       │                          │                               │
+│       │                          │ (consolidation upgrade)        │
+│       │                          ▼                               │
+│       │                 ┌─────────────┐                         │
+│       │                 │ Premium     │                         │
+│       │                 │ Seat        │                         │
+│       │                 │ (Portfolio) │                         │
+│       │                 │             │                         │
+│       │                 │/investor/{id}│                         │
+│       │                 └─────────────┘                         │
+│                              │                                   │
+│                              │ Unified portfolio management      │
+│                              ▼                                   │
+│                       ┌─────────────┐                           │
+│                       │ Single      │                           │
+│                       │ Dashboard   │                           │
+│                       │ for All     │                           │
+│                       │ Properties  │                           │
+│                       └─────────────┘                           │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Portfolio Benefits:**
+
+- Single login for all properties
+- Unified dashboard and analytics
+- Cross-property leaseholder management
+- Volume pricing discounts
+- Streamlined property operations
 
 ---
 
@@ -346,52 +353,60 @@ Platform
 
 ### `/unit/{id}` (Member - Standard Seat)
 
-- HomeImage banner
+- HomeImage banner (property photo)
 - Member avatar + occupant profile avatar stack
-- Bookshelf widget (collective)
-- Published content (collective)
-- Groups widget (collective)
+- Bookshelf widget (collective household reading)
+- Published content (aggregated from all household members)
+- Groups widget (collective household interests)
 - Occupant management panel
-- Contact info
+- Contact info (primary owner)
+- Household tag cloud (from all content)
 
 ### `/unit/{id}/member/{aliasId}` (Occupant - Profile)
 
 - Avatar + display name (no homeImage)
 - Groups (joined as profile)
 - Content (published as profile)
-- Back to household link
+- Household link (back to main unit page)
+- Personal interests and activities
 
-### `/resident/{id}` (Premium - Resident)
+### `/resident/{id}` (Solo Seat - Liberation)
 
-- HomeImage banner
-- Personal avatar
-- Bookshelf widget
-- Published content
-- Groups widget
-- Contact info
+- HomeImage banner (optional, personal residence)
+- Personal avatar (independent identity)
+- Bookshelf widget (personal reading)
+- Published content (individual authorship)
+- Groups widget (personal memberships)
+- Contact info (personal, privacy controlled)
+- Independent social features
 
-### `/member/{id}` (Premium - Non-Resident Member)
+### `/investor/{id}` (Premium Seat - Portfolio)
 
-- Personal avatar + property homeImage (owner)
-- Published content
-- Groups widget
-- HOA role display (board/committee)
+- Portfolio dashboard (multiple properties)
+- Property cards with homeImages
+- Cross-property analytics
+- Unified leaseholder management
+- Multi-property calendar
+- Investment performance metrics
+- Consolidated notifications
 
 ---
 
 ## Seat Comparison Matrix
 
-| Feature             | Standard Seat       | Address Alias               | Premium Seat                       |
-| ------------------- | ------------------- | --------------------------- | ---------------------------------- |
-| Route               | `/unit/{id}`        | `/unit/{id}/member/{alias}` | `/resident/{id}` or `/member/{id}` |
-| Required            | Yes (per household) | No                          | No (optional)                      |
-| Platform Address    | `unitNNN@domain`    | `name.unitNNN@domain`       | `name@domain`                      |
-| Max per Household   | 1                   | 5                           | Unlimited                          |
-| Has HomeImage       | ✅ Yes              | ❌ No                       | ✅ Yes (resident) / ❌ No          |
-| Independent Login   | Yes                 | ❌ No                       | Yes                                |
-| Travels with Person | ❌ No               | N/A                         | ✅ Yes                             |
-| Can Have Profiles   | ✅ Yes              | ❌ No                       | ❌ No                              |
-| Price               | Included            | Included                    | 1.5x Standard                      |
+| Feature             | Standard Seat       | Address Alias               | Solo Seat (Liberation)    | Premium Seat (Portfolio)     |
+| ------------------- | ------------------- | --------------------------- | ------------------------- | ---------------------------- |
+| Route               | `/unit/{id}`        | `/unit/{id}/member/{alias}` | `/resident/{id}`          | `/investor/{id}`             |
+| Required            | Yes (per household) | No                          | No (optional upgrade)     | No (optional consolidation)  |
+| Platform Address    | `unitNNN@domain`    | `name.unitNNN@domain`       | `name@domain`             | `investor@domain`            |
+| Max per Household   | 1                   | 5                           | N/A (per person)          | Unlimited households         |
+| Has HomeImage       | ✅ Yes              | ❌ No                       | ✅ Yes (optional)         | ✅ Yes (per property)        |
+| Independent Login   | Yes                 | ❌ No                       | ✅ Yes                    | ✅ Yes                       |
+| Travels with Person | ❌ No               | N/A                         | ✅ Yes                    | ❌ No (portfolio management) |
+| Can Have Profiles   | ✅ Yes              | ❌ No                       | ❌ No                     | ❌ No                        |
+| Manages Households  | 1 household         | N/A                         | 0-1 household             | Multiple households          |
+| Price               | Included            | Included                    | $Y/month (liberation fee) | $Z/month (volume pricing)    |
+| Target User         | Property Owner      | Household Occupant          | Independent Occupant      | Property Investor            |
 
 ---
 
@@ -409,29 +424,41 @@ Five Premium Seats provided at no charge for HOA board members and committee rep
 ## Data Model Summary
 
 ```
+
 User
-  ├── StandardSeat?      (1:1) - Member household login
-  ├── SoloSeat?        (1:1) - Personal login (resident or member)
-  └── AddressProfiles[]    (1:n) - up to 5 per StandardSeat (flat, no nesting)
+├── StandardSeat? (0:1) - Property owner household management
+├── SoloSeat? (0:1) - Personal liberation identity
+├── PremiumSeat? (0:1) - Multi-property portfolio management
+└── AddressProfiles[] (0:n) - Household occupants (up to 5 per StandardSeat)
 
-StandardSeat (Member - Property Owner)
-  ├── householdId
-  ├── platformAddress    (unitNNN@domain)
-  ├── memberId           (User FK - property owner)
-  └── AddressProfiles[]   (adult occupant, minor child, family member - all flat)
+StandardSeat (Property Owner - Household Management)
+├── householdId (links to managed household)
+├── platformAddress (unitNNN@domain)
+├── userId (property owner)
+└── AddressProfiles[] (occupants, family, minors - all flat)
 
-SoloSeat
-  ├── userId
-  ├── platformAddress    (name@domain)
-  └── isComplimentary    (boolean)
+SoloSeat (Liberation - Independent Identity)
+├── userId (liberated occupant)
+├── platformAddress (name@domain - independent)
+├── householdId (optional - current residence)
+└── isComplimentary (board/committee members)
 
-AddressProfile (Occupant/Family/Minor - All same type)
-  ├── standardSeatId
-  ├── profile              (name.unitNNN)
-  ├── displayName
-  ├── avatar
-  ├── isPublic
-  └── occupantSince        (Date - for upgrade eligibility tracking)
+PremiumSeat (Portfolio - Multi-Property Management)
+├── userId (property investor)
+├── platformAddress (investor@domain)
+├── linkedHouseholds[] (portfolio of managed properties)
+├── subscriptionTier (pricing tier)
+└── maxProperties (tier limits)
+
+AddressProfile (Household Occupant - Flat under StandardSeat)
+├── standardSeatId (parent household)
+├── profileAddress (name.unitNNN@domain)
+├── displayName
+├── avatar
+├── isPublic
+├── occupantType (OCCUPANT, MINOR, FAMILY)
+└── occupantSince (tenure tracking)
+
 ```
 
 User
@@ -463,15 +490,22 @@ AddressProfile (Occupant)
 
 ## Implementation Notes
 
-1. **Backward Compatibility**: Existing `/resident/{id}` routes remain for current users
-2. **Occupant Flow**: Occupants start as profiles, upgrade to Premium after 1 year
-3. **Member Always Has Property**: All Standard Seats (Members) have homeImage
-4. **Alias Isolation**: Profiles cannot access household admin functions
-5. **Deprecation**: When household moves out, Standard Seat archived per Section 6.7
-6. **Portability**: Premium Seat holders can export data during Portability Window
+1. **Three Distinct Seat Types**: Standard (household), Solo (liberation), Premium (portfolio)
+2. **Liberation Model**: Solo Seats enable occupant independence from household constraints
+3. **Portfolio Model**: Premium Seats consolidate multiple Standard Seats for investors
+4. **Household Integrity**: Standard Seats always tied to specific properties
+5. **Upgrade Paths**: Clear progression from profiles → liberation → portfolio management
+6. **Business Model**: Tiered pricing reflecting value (Standard < Solo < Premium)
+7. **Route Structure**: `/unit/{id}`, `/resident/{id}`, `/investor/{id}` for three seat types
+8. **Address Profiles**: Flat structure under Standard Seats (max 5 per household)
 
 ---
 
 _Last Updated: 2026-03-30_
 _Based on: SaaS License Agreement v4_
+
+```
+
+```
+
 ```

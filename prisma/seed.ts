@@ -5,7 +5,10 @@ import {
   Group,
   UserGroup,
   ContentCategory,
+  ResidentType,
   ResidentFilter,
+  HouseholdStatus,
+  OccupantType,
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -96,6 +99,50 @@ async function main() {
         interests: ['yoga', 'photography'],
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa',
         profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa',
+        isPublic: true,
+      },
+    }),
+    // New HOA member who owns property but doesn't live there
+    prisma.user.upsert({
+      where: { email: 'robert.wilson@soralia.org' },
+      update: {},
+      create: {
+        email: 'robert.wilson@soralia.org',
+        name: 'Robert Wilson',
+        role: Role.COMMITTEE, // HOA committee member
+        phone: '+27 82 789 0123',
+        interests: ['governance', 'finance', 'community'],
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Robert',
+        profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Robert',
+        isPublic: true,
+      },
+    }),
+    // Leaseholders living in Robert's unit
+    prisma.user.upsert({
+      where: { email: 'anna.patel@soralia.org' },
+      update: {},
+      create: {
+        email: 'anna.patel@soralia.org',
+        name: 'Anna Patel',
+        role: Role.RESIDENT,
+        phone: '+27 82 890 1234',
+        interests: ['cooking', 'gardening', 'book-club'],
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Anna',
+        profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Anna',
+        isPublic: true,
+      },
+    }),
+    prisma.user.upsert({
+      where: { email: 'marcus.johnson@soralia.org' },
+      update: {},
+      create: {
+        email: 'marcus.johnson@soralia.org',
+        name: 'Marcus Johnson',
+        role: Role.RESIDENT,
+        phone: '+27 82 901 2345',
+        interests: ['fitness', 'music', 'volunteering'],
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus',
+        profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus',
         isPublic: true,
       },
     }),
@@ -469,6 +516,55 @@ async function main() {
         publishedAt: new Date('2026-03-05'),
       },
     }),
+    // Content from leaseholders in Robert Wilson's unit
+    prisma.content.upsert({
+      where: { id: 'blog-cooking-adventures' },
+      update: {},
+      create: {
+        id: 'blog-cooking-adventures',
+        title: 'Fusion Cooking: Indian-South African Fusion',
+        content:
+          'Living in Soralia Village has inspired me to experiment with fusion cooking. Combining traditional Indian spices with local South African ingredients has created some amazing dishes. My latest creation: bobotie with garam masala!',
+        excerpt: 'Exploring culinary fusion in our diverse community',
+        category: 'BLOG',
+        tags: ['cooking', 'fusion', 'indian', 'south-african', 'recipes', 'community'],
+        authorId: users[7].id, // Anna Patel (leaseholder)
+        published: true,
+        publishedAt: new Date('2026-03-08'),
+      },
+    }),
+    prisma.content.upsert({
+      where: { id: 'blog-community-music' },
+      update: {},
+      create: {
+        id: 'blog-community-music',
+        title: 'Starting a Community Music Group',
+        content:
+          "As someone who loves music and wants to give back to the community, I'm organizing a casual music jam session. No auditions required - just bring your instrument and passion for music. Let's create some harmony in Soralia Village!",
+        excerpt: 'Bringing music lovers together in our community',
+        category: 'BLOG',
+        tags: ['music', 'community', 'jam-session', 'harmony', 'volunteering', 'social'],
+        authorId: users[8].id, // Marcus Johnson (leaseholder)
+        published: true,
+        publishedAt: new Date('2026-03-12'),
+      },
+    }),
+    prisma.content.upsert({
+      where: { id: 'blog-leaseholder-perspective' },
+      update: {},
+      create: {
+        id: 'blog-leaseholder-perspective',
+        title: 'Life as a Leaseholder in Soralia Village',
+        content:
+          'Being a leaseholder in Soralia Village has been an incredible experience. The community is so welcoming, and I love being able to participate in all the activities. The platform makes it easy to connect with neighbors and stay informed about community events.',
+        excerpt: "A leaseholder's perspective on community living",
+        category: 'BLOG',
+        tags: ['leaseholder', 'community', 'experience', 'welcoming', 'participation', 'platform'],
+        authorId: users[7].id, // Anna Patel (leaseholder)
+        published: true,
+        publishedAt: new Date('2026-02-25'),
+      },
+    }),
   ]);
 
   // Create settings
@@ -496,6 +592,260 @@ async function main() {
   ]);
 
   console.log(`Created ${settings.length} settings`);
+
+  // Create households with occupants (using only streets from constants)
+  const households = await Promise.all([
+    // Household 1: John Smith family (Pagoda Rd 12)
+    prisma.household.upsert({
+      where: { platformAddress: 'unit012@soralia.org' },
+      update: {
+        homeImage:
+          'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=400&fit=crop',
+        moveInDate: new Date('2023-01-15'),
+      },
+      create: {
+        street: 'Pagoda Rd',
+        unit: '12',
+        platformAddress: 'unit012@soralia.org',
+        homeImage:
+          'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=400&fit=crop',
+        status: 'ACTIVE',
+        moveInDate: new Date('2023-01-15'),
+      },
+    }),
+    // Household 2: Sarah Mitchell (Wild Almond Rd 8)
+    prisma.household.upsert({
+      where: { platformAddress: 'unit008@soralia.org' },
+      update: {
+        homeImage:
+          'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&h=400&fit=crop',
+        moveInDate: new Date('2022-08-20'),
+      },
+      create: {
+        street: 'Wild Almond Rd',
+        unit: '8',
+        platformAddress: 'unit008@soralia.org',
+        homeImage:
+          'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&h=400&fit=crop',
+        status: 'ACTIVE',
+        moveInDate: new Date('2022-08-20'),
+      },
+    }),
+    // Household 3: Michael Chen (Silkypuff Street 3)
+    prisma.household.upsert({
+      where: { platformAddress: 'unit003@soralia.org' },
+      update: {
+        homeImage:
+          'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=400&fit=crop',
+        moveInDate: new Date('2024-03-10'),
+      },
+      create: {
+        street: 'Silkypuff Street',
+        unit: '3',
+        platformAddress: 'unit003@soralia.org',
+        homeImage:
+          'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=400&fit=crop',
+        status: 'ACTIVE',
+        moveInDate: new Date('2024-03-10'),
+      },
+    }),
+    // Household 4: Robert Wilson owns but doesn't live in (Conebrush Rd 5)
+    prisma.household.upsert({
+      where: { platformAddress: 'unit005@soralia.org' },
+      update: {
+        homeImage:
+          'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&h=400&fit=crop',
+        moveInDate: new Date('2020-01-01'),
+      },
+      create: {
+        street: 'Conebrush Rd',
+        unit: '5',
+        platformAddress: 'unit005@soralia.org',
+        homeImage:
+          'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&h=400&fit=crop',
+        status: 'ACTIVE',
+        moveInDate: new Date('2020-01-01'),
+      },
+    }),
+  ]);
+
+  console.log(`Created ${households.length} households`);
+
+  // Create standard seats (property owners)
+  const standardSeats = await Promise.all([
+    // John Smith owns Pagoda Rd 12
+    prisma.standardSeat.upsert({
+      where: { userId_householdId: { userId: users[0].id, householdId: households[0].id } },
+      update: {},
+      create: {
+        userId: users[0].id,
+        householdId: households[0].id,
+        isPrimaryOwner: true,
+        platformAddress: 'john.unit012@soralia.org',
+      },
+    }),
+    // Sarah Mitchell owns Wild Almond Rd 8
+    prisma.standardSeat.upsert({
+      where: { userId_householdId: { userId: users[1].id, householdId: households[1].id } },
+      update: {},
+      create: {
+        userId: users[1].id,
+        householdId: households[1].id,
+        isPrimaryOwner: true,
+        platformAddress: 'sarah.unit008@soralia.org',
+      },
+    }),
+    // Michael Chen owns Silkypuff Street 3
+    prisma.standardSeat.upsert({
+      where: { userId_householdId: { userId: users[2].id, householdId: households[2].id } },
+      update: {},
+      create: {
+        userId: users[2].id,
+        householdId: households[2].id,
+        isPrimaryOwner: true,
+        platformAddress: 'michael.unit003@soralia.org',
+      },
+    }),
+    // Robert Wilson owns Conebrush Rd 5 but doesn't live there
+    prisma.standardSeat.upsert({
+      where: { userId_householdId: { userId: users[6].id, householdId: households[3].id } },
+      update: {},
+      create: {
+        userId: users[6].id, // Robert Wilson
+        householdId: households[3].id,
+        isPrimaryOwner: true,
+        platformAddress: 'robert.unit005@soralia.org',
+      },
+    }),
+    // Sarah Mitchell owns Oak Street 14
+    prisma.standardSeat.upsert({
+      where: { userId_householdId: { userId: users[1].id, householdId: households[1].id } },
+      update: {},
+      create: {
+        userId: users[1].id,
+        householdId: households[1].id,
+        isPrimaryOwner: true,
+        platformAddress: 'sarah.unit014@soralia.org',
+      },
+    }),
+    // Michael Chen owns Pine Road 7
+    prisma.standardSeat.upsert({
+      where: { userId_householdId: { userId: users[2].id, householdId: households[2].id } },
+      update: {},
+      create: {
+        userId: users[2].id,
+        householdId: households[2].id,
+        isPrimaryOwner: true,
+        platformAddress: 'michael.unit007@soralia.org',
+      },
+    }),
+    // Robert Wilson owns Cedar Lane 9 but doesn't live there
+    prisma.standardSeat.upsert({
+      where: { userId_householdId: { userId: users[6].id, householdId: households[3].id } },
+      update: {},
+      create: {
+        userId: users[6].id, // Robert Wilson
+        householdId: households[3].id,
+        isPrimaryOwner: true,
+        platformAddress: 'robert.unit009@soralia.org',
+      },
+    }),
+  ]);
+
+  console.log(`Created ${standardSeats.length} standard seats`);
+
+  // Create address profiles (occupants/family members)
+  const profiles = await Promise.all([
+    // Emma Williams lives with John Smith (wife)
+    prisma.profile.upsert({
+      where: { profileAddress: 'emma.unit012@soralia.org' },
+      update: {},
+      create: {
+        householdId: households[0].id,
+        displayName: 'Emma Smith',
+        profileAddress: 'emma.unit012@soralia.org',
+        userId: users[3].id, // Emma has a user account (can create content)
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=EmmaSmith',
+        isPublic: true,
+        occupantSince: new Date('2023-01-15'),
+        occupantType: 'OCCUPANT',
+      },
+    }),
+    // Lisa Chen lives with Michael Chen (roommate)
+    prisma.profile.upsert({
+      where: { profileAddress: 'lisa.unit003@soralia.org' },
+      update: {},
+      create: {
+        householdId: households[2].id,
+        displayName: 'Lisa Chen',
+        profileAddress: 'lisa.unit003@soralia.org',
+        userId: users[5].id, // Lisa has a user account
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=LisaChen',
+        isPublic: true,
+        occupantSince: new Date('2024-03-10'),
+        occupantType: 'OCCUPANT',
+      },
+    }),
+    // David's son (minor, no user account)
+    prisma.profile.upsert({
+      where: { profileAddress: 'alex.unit008@soralia.org' },
+      update: {},
+      create: {
+        householdId: households[1].id,
+        displayName: 'Alex Mitchell',
+        profileAddress: 'alex.unit008@soralia.org',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AlexMitchell',
+        isPublic: true,
+        occupantSince: new Date('2022-08-20'),
+        occupantType: 'MINOR',
+      },
+    }),
+    // John's daughter (teen, no user account yet)
+    prisma.profile.upsert({
+      where: { profileAddress: 'sophia.unit012@soralia.org' },
+      update: {},
+      create: {
+        householdId: households[0].id,
+        displayName: 'Sophia Smith',
+        profileAddress: 'sophia.unit012@soralia.org',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=SophiaSmith',
+        isPublic: true,
+        occupantSince: new Date('2023-01-15'),
+        occupantType: 'MINOR',
+      },
+    }),
+    // Leaseholders in Robert Wilson's unit (Conebrush Rd 5)
+    prisma.profile.upsert({
+      where: { profileAddress: 'anna.unit005@soralia.org' },
+      update: {},
+      create: {
+        householdId: households[3].id,
+        displayName: 'Anna Patel',
+        profileAddress: 'anna.unit005@soralia.org',
+        userId: users[7].id, // Anna has a user account (leaseholder)
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=AnnaPatel',
+        isPublic: true,
+        occupantSince: new Date('2025-06-01'),
+        occupantType: 'OCCUPANT',
+      },
+    }),
+    prisma.profile.upsert({
+      where: { profileAddress: 'marcus.unit005@soralia.org' },
+      update: {},
+      create: {
+        householdId: households[3].id,
+        displayName: 'Marcus Johnson',
+        profileAddress: 'marcus.unit005@soralia.org',
+        userId: users[8].id, // Marcus has a user account (leaseholder)
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MarcusJohnson',
+        isPublic: true,
+        occupantSince: new Date('2025-09-15'),
+        occupantType: 'OCCUPANT',
+      },
+    }),
+  ]);
+
+  console.log(`Created ${profiles.length} address profiles`);
 
   console.log('Seeding complete!');
 }

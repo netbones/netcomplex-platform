@@ -84,6 +84,13 @@ const ALL_WIDGETS: DashboardWidget[] = [
     icon: 'fa-columns',
     label: 'Sidebar Widgets',
   },
+  {
+    id: 'premium-portfolio',
+    type: 'premium-portfolio',
+    title: 'Premium Portfolio',
+    icon: 'fa-building',
+    label: 'Premium Portfolio',
+  },
 ];
 
 const DEFAULT_TABS: DashboardTab[] = [
