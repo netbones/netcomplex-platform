@@ -58,6 +58,11 @@ model User {
   ownedListings    PropertyListing[] // Properties listed by this user
   assignedListings PropertyListing[] @relation("PropertyListingAgent") // Properties assigned to this agent
 
+  // Community Services Marketplace relations
+  serviceListings  CommunityServiceListing[] // Service listings by this provider
+  serviceReviews   CommunityServiceReview[]  // Reviews written by this user
+  serviceInquiries CommunityServiceInquiry[] // Service inquiries by this user
+
   @@map("user")
 }
 
@@ -933,4 +938,175 @@ model Album {
   @@index([userId])
   @@index([isPublic])
   @@map("album")
+}
+
+// Community Services Marketplace
+model CommunityServiceListing {
+  id              String    @id @default(cuid())
+
+  // Provider information
+  providerId      String
+  provider        User      @relation(fields: [providerId], references: [id])
+
+  // Service details
+  title           String
+  description     String?
+  category        ServiceCategory
+  subcategory     String?
+
+  // Pricing and availability
+  priceType       PriceType // FIXED, HOURLY, QUOTE, FREE
+  price           Float?    // Base price, null for QUOTE or FREE
+  currency        String    @default("ZAR")
+
+  // Service area and availability
+  serviceAreas    String[]  // Neighborhood names or "All Areas"
+  availability    Json?     // Hours, days available
+
+  // Provider credentials and verification
+  licenseNumber   String?
+  insuranceExpiry DateTime?
+  verified        Boolean   @default(false)
+  verificationDate DateTime?
+
+  // Contact and response
+  responseTime    Int       @default(24) // Hours to respond
+  contactMethods  String[]  // EMAIL, PHONE, PLATFORM_MESSAGE
+
+  // Media
+  images          String[]  // URLs to service photos
+  portfolio       String[]  // Additional portfolio images
+
+  // Status and moderation
+  status          ListingStatus @default(DRAFT)
+  isPublished     Boolean       @default(false)
+  isFeatured      Boolean       @default(false)
+  moderatedBy     String?       // Admin user ID who last moderated
+  moderatedAt     DateTime?
+  moderationNotes String?
+
+  // Ratings and reviews
+  rating          Float     @default(0)
+  reviewCount     Int       @default(0)
+
+  // Business terms
+  termsAndConditions String?
+  cancellationPolicy String?
+
+  // Multi-tenancy
+  organizationId  String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  reviews   CommunityServiceReview[]
+  inquiries CommunityServiceInquiry[]
+
+  @@index([providerId])
+  @@index([category])
+  @@index([status])
+  @@index([isPublished])
+  @@index([verified])
+  @@index([organizationId])
+  @@map("communityServiceListing")
+}
+
+// Community Service Reviews
+model CommunityServiceReview {
+  id              String    @id @default(cuid())
+
+  // Review relationship
+  listingId       String
+  listing         CommunityServiceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  // Reviewer
+  reviewerId      String
+  reviewer        User      @relation(fields: [reviewerId], references: [id])
+
+  // Review content
+  rating          Int       // 1-5 stars
+  title           String?
+  comment         String?
+
+  // Service details
+  serviceDate     DateTime?
+  responseQuality Int?      // 1-5 scale
+
+  // Moderation
+  isPublished     Boolean   @default(true)
+  moderatedBy     String?
+  moderatedAt     DateTime?
+
+  createdAt       DateTime  @default(now())
+
+  @@index([listingId])
+  @@index([reviewerId])
+  @@index([rating])
+  @@map("communityServiceReview")
+}
+
+// Service Inquiry/Booking
+model CommunityServiceInquiry {
+  id              String    @id @default(cuid())
+
+  // Inquiry relationship
+  listingId       String
+  listing         CommunityServiceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  // Parties
+  inquirerId      String
+  inquirer        User      @relation(fields: [inquirerId], references: [id])
+
+  // Inquiry details
+  serviceType     String?   // Specific service requested
+  preferredDate   DateTime?
+  preferredTime   String?   // Time preference
+  location        String?   // Service location details
+  description     String    // Service requirements
+
+  // Contact preferences
+  contactMethod   String    @default("PLATFORM_MESSAGE")
+
+  // Status
+  status          InquiryStatus @default(PENDING)
+  providerResponse String?
+  respondedAt     DateTime?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([listingId])
+  @@index([inquirerId])
+  @@index([status])
+  @@map("communityServiceInquiry")
+}
+
+// Enums for Community Services
+enum ServiceCategory {
+  GARDENING
+  MAINTENANCE
+  PLUMBING
+  ELECTRICAL
+  CLEANING
+  SECURITY
+  PEST_CONTROL
+  APPLIANCE_REPAIR
+  OTHER
+}
+
+enum PriceType {
+  FIXED
+  HOURLY
+  QUOTE
+  FREE
+}
+
+enum InquiryStatus {
+  PENDING
+  RESPONDED
+  ACCEPTED
+  DECLINED
+  COMPLETED
+  CANCELLED
 }
