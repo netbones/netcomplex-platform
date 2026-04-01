@@ -19,31 +19,62 @@ import {
 } from '@dnd-kit/sortable';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
+import { DashboardTabs, AddWidgetModal } from '@/components/dashboard/DashboardTabs';
 import { AdminWidgetRenderer } from '@/components/admin/AdminWidgetRenderer';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
-interface AdminWidget {
+interface AdminTab {
   id: string;
-  title: string;
+  label: string;
   icon: string;
-  size?: 'small' | 'medium' | 'large';
+  defaultWidgets: string[];
 }
 
-const ADMIN_WIDGETS: AdminWidget[] = [
-  { id: 'admin-stats', title: 'System Statistics', icon: 'fa-chart-bar', size: 'large' },
-  { id: 'admin-quick-links', title: 'Quick Actions', icon: 'fa-bolt', size: 'medium' },
-  { id: 'admin-activity', title: 'Recent Activity', icon: 'fa-clock', size: 'large' },
+const ADMIN_TABS: AdminTab[] = [
+  {
+    id: 'overview',
+    label: 'Overview',
+    icon: 'fa-th-large',
+    defaultWidgets: ['admin-stats', 'admin-quick-links', 'admin-activity'],
+  },
+  {
+    id: 'users',
+    label: 'User Management',
+    icon: 'fa-users',
+    defaultWidgets: ['admin-users', 'admin-stats', 'admin-activity'],
+  },
+  {
+    id: 'content',
+    label: 'Content Management',
+    icon: 'fa-file-alt',
+    defaultWidgets: ['admin-content', 'admin-stats', 'admin-quick-links'],
+  },
+  {
+    id: 'system',
+    label: 'System',
+    icon: 'fa-cog',
+    defaultWidgets: ['admin-system', 'admin-activity', 'admin-quick-links'],
+  },
+];
+
+const ALL_ADMIN_WIDGETS = [
+  { id: 'admin-stats', label: 'System Statistics', icon: 'fa-chart-bar' },
+  { id: 'admin-quick-links', label: 'Quick Actions', icon: 'fa-bolt' },
+  { id: 'admin-activity', label: 'Recent Activity', icon: 'fa-clock' },
+  { id: 'admin-users', label: 'User Overview', icon: 'fa-users' },
+  { id: 'admin-content', label: 'Content Overview', icon: 'fa-file-alt' },
+  { id: 'admin-system', label: 'System Status', icon: 'fa-cog' },
 ];
 
 export default function AdminDashboardPage() {
   const { t } = useTranslation('admin');
   const { t: tCommon } = useTranslation('common');
 
-  const [activeWidgets, setActiveWidgets] = useState<string[]>([
-    'admin-stats',
-    'admin-quick-links',
-    'admin-activity',
-  ]);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [activeWidgets, setActiveWidgets] = useState<string[]>(
+    ADMIN_TABS.find(tab => tab.id === 'overview')?.defaultWidgets || []
+  );
+  const [showAddWidget, setShowAddWidget] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -51,6 +82,25 @@ export default function AdminDashboardPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    const currentTab = ADMIN_TABS.find(tab => tab.id === tabId);
+    if (currentTab) {
+      setActiveWidgets(currentTab.defaultWidgets);
+    }
+  };
+
+  const handleAddWidget = (widgetId: string) => {
+    if (!activeWidgets.includes(widgetId)) {
+      setActiveWidgets([...activeWidgets, widgetId]);
+    }
+    setShowAddWidget(false);
+  };
+
+  const getAvailableWidgets = () => {
+    return ALL_ADMIN_WIDGETS.filter(widget => !activeWidgets.includes(widget.id));
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -64,18 +114,42 @@ export default function AdminDashboardPage() {
   };
 
   const getWidgetTitle = (widgetId: string) => {
-    const widget = ADMIN_WIDGETS.find(w => w.id === widgetId);
-    return widget?.title || widgetId;
+    switch (widgetId) {
+      case 'admin-stats':
+        return 'System Statistics';
+      case 'admin-quick-links':
+        return 'Quick Actions';
+      case 'admin-activity':
+        return 'Recent Activity';
+      default:
+        return widgetId;
+    }
   };
 
   const getWidgetIcon = (widgetId: string) => {
-    const widget = ADMIN_WIDGETS.find(w => w.id === widgetId);
-    return widget?.icon || 'fa-widget';
+    switch (widgetId) {
+      case 'admin-stats':
+        return 'fa-chart-bar';
+      case 'admin-quick-links':
+        return 'fa-bolt';
+      case 'admin-activity':
+        return 'fa-clock';
+      default:
+        return 'fa-widget';
+    }
   };
 
   const getWidgetSize = (widgetId: string) => {
-    const widget = ADMIN_WIDGETS.find(w => w.id === widgetId);
-    return widget?.size || 'medium';
+    switch (widgetId) {
+      case 'admin-stats':
+        return 'large';
+      case 'admin-quick-links':
+        return 'medium';
+      case 'admin-activity':
+        return 'large';
+      default:
+        return 'medium';
+    }
   };
 
   return (
@@ -90,6 +164,41 @@ export default function AdminDashboardPage() {
             {t('dashboard', 'Admin Dashboard')}
           </h1>
           <p className="text-gray-600">Monitor and manage your community platform</p>
+        </div>
+
+        {/* Admin Tabs */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2">
+            {ADMIN_TABS.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => handleTabChange(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                }`}
+              >
+                <i className={`fas ${tab.icon}`}></i>
+                <span>{tab.label}</span>
+              </button>
+            ))}
+            <button
+              onClick={() => setShowAddWidget(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-gray-600 hover:bg-gray-100 border-2 border-dashed border-gray-300 hover:border-indigo-400 transition-all"
+            >
+              <i className="fas fa-plus"></i>
+              <span>Add Widget</span>
+            </button>
+          </div>
+
+          {/* Tab Description */}
+          <div className="mt-3 text-sm text-gray-600">
+            {activeTab === 'overview' && 'System overview and key metrics'}
+            {activeTab === 'users' && 'User management and account statistics'}
+            {activeTab === 'content' && 'Content creation and management tools'}
+            {activeTab === 'system' && 'System maintenance and configuration'}
+          </div>
         </div>
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -122,6 +231,15 @@ export default function AdminDashboardPage() {
             <h3 className="text-lg font-medium mb-2">No widgets configured</h3>
             <p>This shouldn't happen - please refresh the page</p>
           </div>
+        )}
+
+        {showAddWidget && (
+          <AddWidgetModal
+            isOpen={showAddWidget}
+            onClose={() => setShowAddWidget(false)}
+            availableWidgets={getAvailableWidgets()}
+            onSelect={handleAddWidget}
+          />
         )}
       </div>
     </ErrorBoundary>

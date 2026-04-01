@@ -1,6 +1,9 @@
 export { AdminStatsWidget } from './AdminStatsWidget';
 export { AdminQuickLinksWidget } from './AdminQuickLinksWidget';
 export { AdminActivityWidget } from './AdminActivityWidget';
+export { AdminUserWidget } from './AdminUserWidget';
+export { AdminContentWidget } from './AdminContentWidget';
+export { AdminSystemWidget } from './AdminSystemWidget';
 export { AdminWidgetRenderer } from './AdminWidgetRenderer';
 export { ContentForm } from './ContentForm';
 export { GroupForm } from './GroupForm';
