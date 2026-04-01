@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { TagCloud } from '@/components/ui/TagCloud';
 import { sanitizeHtml } from '@/lib/utils';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
@@ -230,6 +231,11 @@ function ProfileContent() {
                       className="prose prose-sm max-w-none content-body"
                       dangerouslySetInnerHTML={{ __html: sanitizeHtml(content.content || '') }}
                     />
+                    {content.tags && content.tags.length > 0 && (
+                      <div className="mt-3">
+                        <TagCloud tags={content.tags} maxDisplay={5} size="small" />
+                      </div>
+                    )}
                     <div className="flex items-center gap-3 mt-4 pt-3 border-t border-gray-100">
                       <span className="text-xs text-gray-500">
                         {new Date(content.publishedAt).toLocaleDateString()}

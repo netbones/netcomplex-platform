@@ -7,6 +7,7 @@ export const contentSchema = z.object({
   excerpt: z.string().max(500, 'Excerpt too long').optional().default(''),
   category: z.enum(['NEWS', 'ANNOUNCEMENT', 'EVENT', 'BLOG']),
   groupId: z.string().optional().default(''),
+  tags: z.array(z.string()).optional().default([]),
   featured: z.boolean(),
   published: z.boolean(),
 });

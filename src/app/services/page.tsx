@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { TagCloud } from '@/components/ui/TagCloud';
 import { CARD_ANIMATIONS } from '@/lib/constants';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';

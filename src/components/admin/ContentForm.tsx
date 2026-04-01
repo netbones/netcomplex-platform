@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import { TagInput } from '@/components/ui/TagInput';
 import { contentSchema, type ContentFormData } from '@/lib/schemas';
 import { authClient } from '@/lib/auth-client';
 
@@ -45,6 +46,7 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
       excerpt: initialData?.excerpt || '',
       category: initialData?.category || 'BLOG',
       groupId: initialData?.groupId || '',
+      tags: initialData?.tags || [],
       featured: initialData?.featured || false,
       published: initialData?.published || false,
     },
@@ -83,6 +85,7 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
   };
 
   const content = watch('content');
+  const tags = watch('tags');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl">
@@ -164,6 +167,17 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
           placeholder="Short summary for cards..."
         />
         {errors.excerpt && <p className="mt-1 text-sm text-red-600">{errors.excerpt.message}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+        <TagInput
+          tags={tags || []}
+          onChange={newTags => setValue('tags', newTags, { shouldValidate: true })}
+          placeholder="Add tags for SEO and categorization..."
+          maxTags={10}
+        />
+        {errors.tags && <p className="mt-1 text-sm text-red-600">{errors.tags.message}</p>}
       </div>
 
       <div>

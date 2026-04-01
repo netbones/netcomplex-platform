@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { TagCloud } from '@/components/ui/TagCloud';
 import { CARD_ANIMATIONS } from '@/lib/constants';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
@@ -12,6 +13,7 @@ interface ResourceItem {
   title: string;
   content: string;
   excerpt: string | null;
+  tags?: string[];
   icon?: string;
   desc?: string;
   color?: string;
@@ -250,6 +252,11 @@ export default function ResourcesPage() {
                   <h3 className="text-lg font-semibold">{doc.title}</h3>
                 </div>
                 <p className="text-gray-600 text-sm mb-4">{doc.desc}</p>
+                {doc.tags && doc.tags.length > 0 && (
+                  <div className="mb-4">
+                    <TagCloud tags={doc.tags} maxDisplay={3} size="small" />
+                  </div>
+                )}
                 <div className="flex space-x-2">
                   <button className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700 transition-colors">
                     <i className="fas fa-download mr-1"></i>Download

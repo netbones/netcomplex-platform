@@ -11,6 +11,7 @@ interface Content {
   excerpt: string | null;
   category: string;
   groupId: string | null;
+  tags: string[];
   featured: boolean;
   published: boolean;
 }
@@ -50,6 +51,7 @@ export default function EditContentPage() {
     excerpt: content.excerpt || undefined,
     category: content.category as 'NEWS' | 'ANNOUNCEMENT' | 'EVENT' | 'BLOG',
     groupId: content.groupId || '',
+    tags: content.tags || [],
     featured: content.featured,
     published: content.published,
   };
