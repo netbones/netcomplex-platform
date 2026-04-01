@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Rnd } from 'react-rnd';
 import { useTranslation } from 'react-i18next';
 import { useWidgetStore } from '@/lib/stores/widget-store';
@@ -29,10 +29,22 @@ export function DraggableWidget({
   const { t } = useTranslation('dashboard');
   const { updateWidgetLayout, toggleWidgetCollapsed } = useWidgetStore();
 
+  // Stable default layout to prevent infinite re-renders
+  const defaultLayout = useMemo(
+    () => ({
+      x: 0,
+      y: 0,
+      width: 320,
+      height: 200,
+      isCollapsed: false,
+    }),
+    []
+  );
+
   // Subscribe to the specific widget layout
   const layout = useWidgetStore(state => {
     const tabLayouts = state.layouts[tabId];
-    return tabLayouts?.[id] || { x: 0, y: 0, width: 320, height: 200, isCollapsed: false };
+    return tabLayouts?.[id] || defaultLayout;
   });
 
   // Local state for immediate updates (position/size)

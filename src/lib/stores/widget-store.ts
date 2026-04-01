@@ -35,13 +35,14 @@ interface WidgetStore {
   resetAllLayouts: () => void;
 }
 
-const defaultWidgetLayout: WidgetLayout = {
+// Stable default layout to prevent infinite re-renders
+const defaultWidgetLayout: WidgetLayout = Object.freeze({
   x: 0,
   y: 0,
   width: 320,
   height: 200,
   isCollapsed: false,
-};
+});
 
 export const useWidgetStore = create<WidgetStore>()(
   persist(
@@ -60,7 +61,7 @@ export const useWidgetStore = create<WidgetStore>()(
       ) => {
         set(state => {
           const tabLayouts = state.layouts[tabId] || {};
-          const currentLayout = tabLayouts[widgetId] || { ...defaultWidgetLayout };
+          const currentLayout = tabLayouts[widgetId] || defaultWidgetLayout;
 
           return {
             layouts: {
@@ -80,7 +81,7 @@ export const useWidgetStore = create<WidgetStore>()(
       toggleWidgetCollapsed: (tabId: string, widgetId: string) => {
         set(state => {
           const tabLayouts = state.layouts[tabId];
-          const currentLayout = tabLayouts?.[widgetId] || { ...defaultWidgetLayout };
+          const currentLayout = tabLayouts?.[widgetId] || defaultWidgetLayout;
           const isCollapsing = !currentLayout.isCollapsed;
 
           return {
