@@ -69,6 +69,10 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleRemoveWidget = (widgetId: string) => {
+    setActiveWidgets(activeWidgets.filter(id => id !== widgetId));
+  };
+
   const handleAddWidget = (widgetId: string) => {
     if (!activeWidgets.includes(widgetId)) {
       setActiveWidgets([...activeWidgets, widgetId]);
@@ -108,9 +112,7 @@ export default function AdminDashboardPage() {
   return (
     <ErrorBoundary>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Breadcrumbs
-          items={[{ label: tCommon('nav.home'), href: '/' }, { label: 'Admin Dashboard' }]}
-        />
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin Dashboard' }]} />
 
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
@@ -161,7 +163,8 @@ export default function AdminDashboardPage() {
               id={widgetId}
               title={getWidgetTitle(widgetId)}
               icon={getWidgetIcon(widgetId)}
-              removable={false} // Admin widgets are always visible
+              removable={true}
+              onRemove={() => handleRemoveWidget(widgetId)}
               tabId={activeTab}
             >
               <AdminWidgetRenderer widgetId={widgetId} />
