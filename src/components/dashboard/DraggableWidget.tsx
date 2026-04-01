@@ -45,41 +45,58 @@ export function DraggableWidget({
       style={style}
       className="bg-white rounded-lg shadow-md overflow-hidden relative group"
     >
-      <div
-        {...attributes}
-        {...listeners}
-        className="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-500 to-purple-600 cursor-grab active:cursor-grabbing"
-      >
-        <div className="flex items-center gap-3">
-          <i className={`fas fa-grip-vertical text-white/50 mr-2`}></i>
-          <i className={`fas ${icon} text-white text-lg`}></i>
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
-        </div>
-        <div className="flex items-center gap-2">
-          {collapsible && (
-            <button
-              onClick={e => {
-                e.stopPropagation();
-                setIsCollapsed(!isCollapsed);
-              }}
-              className="p-1 hover:bg-white/20 rounded transition-colors"
-              title={isCollapsed ? t('expandWidget', 'Expand') : t('collapseWidget', 'Collapse')}
-            >
-              <i className={`fas fa-chevron-${isCollapsed ? 'down' : 'up'} text-white text-sm`}></i>
-            </button>
-          )}
-          {removable && onRemove && (
-            <button
-              onClick={e => {
-                e.stopPropagation();
-                onRemove();
-              }}
-              className="p-1 hover:bg-white/20 rounded transition-colors"
-              title={t('removeWidget', 'Remove')}
-            >
-              <i className="fas fa-times text-white text-sm"></i>
-            </button>
-          )}
+      {/* Header with drag functionality only on the left side */}
+      <div className="relative">
+        {/* Drag area - only the left portion */}
+        <div
+          {...attributes}
+          {...listeners}
+          className="absolute inset-0 w-3/4 cursor-grab active:cursor-grabbing"
+          style={{ zIndex: 1 }}
+        />
+
+        {/* Header content */}
+        <div
+          className="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-500 to-purple-600 relative"
+          style={{ zIndex: 2 }}
+        >
+          <div className="flex items-center gap-3">
+            <i className={`fas fa-grip-vertical text-white/50 mr-2`}></i>
+            <i className={`fas ${icon} text-white text-lg`}></i>
+            <h3 className="text-lg font-semibold text-white">{title}</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            {collapsible && (
+              <button
+                onClick={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsCollapsed(!isCollapsed);
+                }}
+                onPointerDown={e => e.stopPropagation()}
+                className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto"
+                title={isCollapsed ? t('expandWidget', 'Expand') : t('collapseWidget', 'Collapse')}
+              >
+                <i
+                  className={`fas fa-chevron-${isCollapsed ? 'down' : 'up'} text-white text-sm`}
+                ></i>
+              </button>
+            )}
+            {removable && onRemove && (
+              <button
+                onClick={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onRemove();
+                }}
+                onPointerDown={e => e.stopPropagation()}
+                className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto"
+                title={t('removeWidget', 'Remove')}
+              >
+                <i className="fas fa-times text-white text-sm"></i>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
