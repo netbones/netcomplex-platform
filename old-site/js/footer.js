@@ -2,85 +2,86 @@
 
 // Load footer into page
 async function loadFooter() {
-    try {
-        const response = await fetch('footer.html');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const footerHTML = await response.text();
-        
-        // Insert footer at the end of body or in a specific container
-        const footerContainer = document.getElementById('footer-container') || document.body;
-        footerContainer.insertAdjacentHTML('beforeend', footerHTML);
-        
-        // Update current year
-        updateCurrentYear();
-        
-        // Setup footer interactions
-        setupFooterInteractions();
-        
-        console.log('Footer loaded successfully');
-        
-    } catch (error) {
-        console.error('Error loading footer:', error);
-        console.log('Using fallback footer');
-        // Fallback: create basic footer
-        createFallbackFooter();
+  try {
+    const response = await fetch('footer.html');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    const footerHTML = await response.text();
+
+    // Insert footer at the end of body or in a specific container
+    const footerContainer = document.getElementById('footer-container') || document.body;
+    footerContainer.insertAdjacentHTML('beforeend', footerHTML);
+
+    // Update current year
+    updateCurrentYear();
+
+    // Setup footer interactions
+    setupFooterInteractions();
+
+    console.log('Footer loaded successfully');
+  } catch (error) {
+    console.error('Error loading footer:', error);
+    console.log('Using fallback footer');
+    // Fallback: create basic footer
+    createFallbackFooter();
+  }
 }
 
 // Update current year in footer
 function updateCurrentYear() {
-    const yearElement = document.getElementById('currentYear');
-    if (yearElement) {
-        yearElement.textContent = new Date().getFullYear();
-    }
+  const yearElement = document.getElementById('currentYear');
+  if (yearElement) {
+    yearElement.textContent = new Date().getFullYear();
+  }
 }
 
 // Setup footer interactions
 function setupFooterInteractions() {
-    // Add smooth scrolling for anchor links in footer
-    const footerLinks = document.querySelectorAll('footer a[href^="#"]');
-    footerLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
+  // Add smooth scrolling for anchor links in footer
+  const footerLinks = document.querySelectorAll('footer a[href^="#"]');
+  footerLinks.forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
         });
+      }
+    });
+  });
+
+  // Add click tracking for social media links (for analytics)
+  const socialLinks = document.querySelectorAll('footer .fab');
+  socialLinks.forEach(link => {
+    link.closest('a').addEventListener('click', function (e) {
+      const platform = this.querySelector('i').classList[1].replace('fa-', '');
+      console.log(`Social media click: ${platform}`);
+      // In a real app, this would send analytics data
+    });
+  });
+
+  // Add hover effects to emergency contact cards
+  const emergencyCards = document.querySelectorAll(
+    'footer .bg-red-600, footer .bg-blue-600, footer .bg-green-600'
+  );
+  emergencyCards.forEach(card => {
+    card.addEventListener('mouseenter', function () {
+      this.style.transform = 'translateY(-2px)';
+      this.style.transition = 'transform 0.2s ease';
     });
 
-    // Add click tracking for social media links (for analytics)
-    const socialLinks = document.querySelectorAll('footer .fab');
-    socialLinks.forEach(link => {
-        link.closest('a').addEventListener('click', function(e) {
-            const platform = this.querySelector('i').classList[1].replace('fa-', '');
-            console.log(`Social media click: ${platform}`);
-            // In a real app, this would send analytics data
-        });
+    card.addEventListener('mouseleave', function () {
+      this.style.transform = 'translateY(0)';
     });
-
-    // Add hover effects to emergency contact cards
-    const emergencyCards = document.querySelectorAll('footer .bg-red-600, footer .bg-blue-600, footer .bg-green-600');
-    emergencyCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-2px)';
-            this.style.transition = 'transform 0.2s ease';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-        });
-    });
+  });
 }
 
 // Fallback footer creation - now includes full footer content
 function createFallbackFooter() {
-    const fallbackFooterHTML = `
+  const fallbackFooterHTML = `
         <footer class="bg-gray-900 text-white mt-auto">
             <div class="container mx-auto px-4 py-12">
                 <!-- Main Footer Content -->
@@ -190,26 +191,26 @@ function createFallbackFooter() {
             </div>
         </footer>
     `;
-    
-    document.body.insertAdjacentHTML('beforeend', fallbackFooterHTML);
+
+  document.body.insertAdjacentHTML('beforeend', fallbackFooterHTML);
 }
 
 // Utility function to check if page needs footer
 function shouldLoadFooter() {
-    // Don't load footer if it already exists
-    return !document.querySelector('footer');
+  // Don't load footer if it already exists
+  return !document.querySelector('footer');
 }
 
 // Initialize footer when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    if (shouldLoadFooter()) {
-        loadFooter();
-    }
+document.addEventListener('DOMContentLoaded', function () {
+  if (shouldLoadFooter()) {
+    loadFooter();
+  }
 });
 
 // Export functions for use in other scripts
 window.FooterUtils = {
-    loadFooter,
-    updateCurrentYear,
-    setupFooterInteractions
+  loadFooter,
+  updateCurrentYear,
+  setupFooterInteractions,
 };

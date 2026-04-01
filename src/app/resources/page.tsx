@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { CARD_ANIMATIONS } from '@/lib/constants';
 import { usePageLoading } from '@/hooks/usePageLoading';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 interface ResourceItem {
   id: string;
@@ -189,154 +190,156 @@ export default function ResourcesPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.resources') }]} />
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('resources:title')}</h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">{t('resources:subtitle')}</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {quickLinks.map(link => (
-          <a
-            key={link.title}
-            href={link.href}
-            className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg hover:scale-[1.02] ${CARD_ANIMATIONS.transition} text-center`}
-          >
-            <i className={`fas ${link.icon} text-4xl ${link.color} mb-4`}></i>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{link.title}</h3>
-            <p className="text-gray-600 text-sm">{link.desc}</p>
-          </a>
-        ))}
-      </div>
-
-      <div className="relative bg-white rounded-lg shadow-md p-8 mb-8 text-center overflow-hidden group">
-        <div className="absolute inset-0 opacity-90 group-hover:opacity-100 transition-opacity duration-300">
-          <img src="/soralia.jpg" alt="" className="w-full h-full object-cover" />
+    <ErrorBoundary>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.resources') }]} />
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('resources:title')}</h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">{t('resources:subtitle')}</p>
         </div>
-        <div className="relative bg-black/40 p-8 rounded-lg">
-          <h2 className="text-3xl font-bold text-white mb-6">Community Campaigns</h2>
-          <p className="text-white/90 mb-6">
-            Explore our ongoing initiatives and discover how we're building a stronger, more vibrant
-            Soralia Village together.
-          </p>
-          <a
-            href="/proudly-soralia"
-            className="inline-block bg-indigo-600 text-white py-3 px-8 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
-          >
-            <i className="fas fa-heart mr-2"></i>Proudly Soralia Campaign
-          </a>
-        </div>
-      </div>
 
-      <div
-        className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
-        id="documents"
-      >
-        <h2 className="text-3xl font-bold text-gray-900 mb-6">
-          <i className="fas fa-file-alt text-blue-600 mr-3"></i>
-          {t('resources:documents.title')}
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {documents.map(doc => (
-            <div
-              key={doc.title}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {quickLinks.map(link => (
+            <a
+              key={link.title}
+              href={link.href}
+              className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg hover:scale-[1.02] ${CARD_ANIMATIONS.transition} text-center`}
             >
-              <div className="flex items-center mb-4">
-                <i className={`fas ${doc.icon} text-blue-600 text-2xl mr-3`}></i>
-                <h3 className="text-lg font-semibold">{doc.title}</h3>
+              <i className={`fas ${link.icon} text-4xl ${link.color} mb-4`}></i>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{link.title}</h3>
+              <p className="text-gray-600 text-sm">{link.desc}</p>
+            </a>
+          ))}
+        </div>
+
+        <div className="relative bg-white rounded-lg shadow-md p-8 mb-8 text-center overflow-hidden group">
+          <div className="absolute inset-0 opacity-90 group-hover:opacity-100 transition-opacity duration-300">
+            <img src="/soralia.jpg" alt="" className="w-full h-full object-cover" />
+          </div>
+          <div className="relative bg-black/40 p-8 rounded-lg">
+            <h2 className="text-3xl font-bold text-white mb-6">Community Campaigns</h2>
+            <p className="text-white/90 mb-6">
+              Explore our ongoing initiatives and discover how we're building a stronger, more
+              vibrant Soralia Village together.
+            </p>
+            <a
+              href="/proudly-soralia"
+              className="inline-block bg-indigo-600 text-white py-3 px-8 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
+            >
+              <i className="fas fa-heart mr-2"></i>Proudly Soralia Campaign
+            </a>
+          </div>
+        </div>
+
+        <div
+          className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
+          id="documents"
+        >
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            <i className="fas fa-file-alt text-blue-600 mr-3"></i>
+            {t('resources:documents.title')}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {documents.map(doc => (
+              <div
+                key={doc.title}
+                className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
+              >
+                <div className="flex items-center mb-4">
+                  <i className={`fas ${doc.icon} text-blue-600 text-2xl mr-3`}></i>
+                  <h3 className="text-lg font-semibold">{doc.title}</h3>
+                </div>
+                <p className="text-gray-600 text-sm mb-4">{doc.desc}</p>
+                <div className="flex space-x-2">
+                  <button className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700 transition-colors">
+                    <i className="fas fa-download mr-1"></i>Download
+                  </button>
+                  <button className="flex-1 bg-gray-200 text-gray-700 py-2 px-3 rounded text-sm hover:bg-gray-300 transition-colors">
+                    <i className="fas fa-eye mr-1"></i>View
+                  </button>
+                </div>
               </div>
-              <p className="text-gray-600 text-sm mb-4">{doc.desc}</p>
-              <div className="flex space-x-2">
-                <button className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700 transition-colors">
-                  <i className="fas fa-download mr-1"></i>Download
+            ))}
+          </div>
+        </div>
+
+        <div
+          className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
+          id="events"
+        >
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            <i className="fas fa-calendar-alt text-green-600 mr-3"></i>
+            {t('resources:events.title')}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {events.map(event => (
+              <div
+                key={event.title}
+                className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
+              >
+                <div className="flex items-center mb-4">
+                  <i className={`fas ${event.icon} text-green-600 text-2xl mr-3`}></i>
+                  <h3 className="text-lg font-semibold">{event.title}</h3>
+                </div>
+                <p className="text-gray-600 text-sm">{event.date}</p>
+                <p className="text-gray-500 text-sm">{event.time}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div
+          className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
+          id="guidelines"
+        >
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            <i className="fas fa-book text-purple-600 mr-3"></i>
+            {t('resources:guidelines.title')}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {guidelines.map(guideline => (
+              <div
+                key={guideline.title}
+                className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
+              >
+                <div className="flex items-center mb-4">
+                  <i className={`fas ${guideline.icon} text-purple-600 text-2xl mr-3`}></i>
+                  <h3 className="text-lg font-semibold">{guideline.title}</h3>
+                </div>
+                <p className="text-gray-600 text-sm">{guideline.desc}</p>
+                <button className="text-indigo-600 hover:text-indigo-800 font-medium text-sm mt-2">
+                  Read More →
                 </button>
-                <button className="flex-1 bg-gray-200 text-gray-700 py-2 px-3 rounded text-sm hover:bg-gray-300 transition-colors">
-                  <i className="fas fa-eye mr-1"></i>View
-                </button>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div
-        className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
-        id="events"
-      >
-        <h2 className="text-3xl font-bold text-gray-900 mb-6">
-          <i className="fas fa-calendar-alt text-green-600 mr-3"></i>
-          {t('resources:events.title')}
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {events.map(event => (
-            <div
-              key={event.title}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
-            >
-              <div className="flex items-center mb-4">
-                <i className={`fas ${event.icon} text-green-600 text-2xl mr-3`}></i>
-                <h3 className="text-lg font-semibold">{event.title}</h3>
+        <div
+          className={`bg-white rounded-lg shadow-lg p-8 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
+          id="contacts"
+        >
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            <i className="fas fa-phone text-red-600 mr-3"></i>
+            {t('resources:contacts.title')}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {contacts.map(contact => (
+              <div
+                key={contact.title}
+                className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
+              >
+                <div className="flex items-center mb-4">
+                  <i className={`fas ${contact.icon} text-red-600 text-2xl mr-3`}></i>
+                  <h3 className="text-lg font-semibold">{contact.title}</h3>
+                </div>
+                <p className="text-gray-600 text-sm mb-1">{contact.phone}</p>
+                <p className="text-gray-500 text-sm">{contact.email}</p>
               </div>
-              <p className="text-gray-600 text-sm">{event.date}</p>
-              <p className="text-gray-500 text-sm">{event.time}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-
-      <div
-        className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
-        id="guidelines"
-      >
-        <h2 className="text-3xl font-bold text-gray-900 mb-6">
-          <i className="fas fa-book text-purple-600 mr-3"></i>
-          {t('resources:guidelines.title')}
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {guidelines.map(guideline => (
-            <div
-              key={guideline.title}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
-            >
-              <div className="flex items-center mb-4">
-                <i className={`fas ${guideline.icon} text-purple-600 text-2xl mr-3`}></i>
-                <h3 className="text-lg font-semibold">{guideline.title}</h3>
-              </div>
-              <p className="text-gray-600 text-sm">{guideline.desc}</p>
-              <button className="text-indigo-600 hover:text-indigo-800 font-medium text-sm mt-2">
-                Read More →
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div
-        className={`bg-white rounded-lg shadow-lg p-8 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
-        id="contacts"
-      >
-        <h2 className="text-3xl font-bold text-gray-900 mb-6">
-          <i className="fas fa-phone text-red-600 mr-3"></i>
-          {t('resources:contacts.title')}
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {contacts.map(contact => (
-            <div
-              key={contact.title}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
-            >
-              <div className="flex items-center mb-4">
-                <i className={`fas ${contact.icon} text-red-600 text-2xl mr-3`}></i>
-                <h3 className="text-lg font-semibold">{contact.title}</h3>
-              </div>
-              <p className="text-gray-600 text-sm mb-1">{contact.phone}</p>
-              <p className="text-gray-500 text-sm">{contact.email}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+    </ErrorBoundary>
   );
 }

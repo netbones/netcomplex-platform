@@ -97,12 +97,12 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
   - [x] Maintenance page (forms, API calls, workflows)
   - [x] Bookings page (calendar, API calls, reservations)
   - [x] Admin pages (users, requests - complex admin logic)
-- [ ] Add error boundaries to medium-priority pages:
-  - [ ] Groups page (group management, API calls)
-  - [ ] Notifications page (real-time updates)
-  - [ ] Settings page (forms, preferences)
-  - [ ] Resident profile pages (complex data display)
-  - [ ] Services/Resources/Interest/Conservation pages
+- [x] Add error boundaries to medium-priority pages:
+  - [x] Groups page (group management, API calls)
+  - [x] Notifications page (real-time updates)
+  - [x] Settings page (forms, preferences)
+  - [x] Resident profile pages (complex data display)
+  - [x] Services/Resources/Interest/Conservation pages
 - [ ] Skip error boundaries for static pages (Terms, Privacy, Guidelines)
 
 **Success Criteria:**
