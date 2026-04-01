@@ -37,19 +37,51 @@ interface PremiumPortfolio {
   linkedHouseholds: PortfolioHousehold[];
 }
 
+interface PropertyListing {
+  id: string;
+  householdId: string;
+  title: string;
+  listingType: string;
+  price?: number;
+  status: string;
+  isPublished: boolean;
+  isFeatured: boolean;
+  createdAt: string;
+  household: {
+    street: string;
+    unit: string;
+  };
+  assignedAgent?: {
+    name: string;
+  };
+}
+
 export function PremiumPortfolioWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
   const [portfolio, setPortfolio] = useState<PremiumPortfolio | null>(null);
+  const [listings, setListings] = useState<PropertyListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(false);
   const [activeTab, setActiveTab] = useState<'portfolio' | 'agents' | 'listings'>('portfolio');
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   useEffect(() => {
     if (session?.user?.id) {
       fetchPortfolio();
+      fetchListings();
     }
   }, [session?.user?.id]);
+
+  const fetchListings = async () => {
+    try {
+      const response = await fetch('/api/premium/listings');
+      const data = await response.json();
+      setListings(data.listings || []);
+    } catch (error) {
+      console.error('Failed to fetch listings');
+    }
+  };
 
   const fetchPortfolio = async () => {
     try {
@@ -103,6 +135,15 @@ export function PremiumPortfolioWidget() {
     } finally {
       setUpgrading(false);
     }
+  };
+
+  const handleListingCreated = () => {
+    fetchListings(); // Refresh listings after creation
+  };
+
+  const handleListProperty = (householdId: string) => {
+    setShowCreateForm(true);
+    // The form will fetch available households, but we could pass the householdId to pre-select it
   };
 
   if (loading) {
@@ -287,7 +328,10 @@ export function PremiumPortfolioWidget() {
                       >
                         Manage Property →
                       </Link>
-                      <button className="text-xs text-green-600 hover:text-green-800">
+                      <button
+                        onClick={() => handleListProperty(household.id)}
+                        className="text-xs text-green-600 hover:text-green-800"
+                      >
                         List for Sale
                       </button>
                     </div>
@@ -311,21 +355,106 @@ export function PremiumPortfolioWidget() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="text-lg font-semibold text-gray-900">Your Property Listings</h4>
-              <button className="px-4 py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">
+              <button
+                onClick={() => setShowCreateForm(true)}
+                className="px-4 py-2 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700"
+              >
+                <i className="fas fa-plus mr-2"></i>
                 Create Listing
               </button>
             </div>
 
-            {/* This will be populated by the AgentWidget's listings functionality */}
-            <div className="text-center py-8 text-gray-500">
-              <i className="fas fa-list text-4xl mb-4"></i>
-              <p className="mb-4">No listings yet</p>
-              <p className="text-sm mb-4">Create your first property listing to get started</p>
-              <button className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-                Create Your First Listing
-              </button>
-            </div>
+            {listings.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <i className="fas fa-list text-4xl mb-4"></i>
+                <p className="mb-4">No listings yet</p>
+                <p className="text-sm mb-4">Create your first property listing to get started</p>
+                <button
+                  onClick={() => setShowCreateForm(true)}
+                  className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                >
+                  Create Your First Listing
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {listings.map(listing => (
+                  <div
+                    key={listing.id}
+                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <h5 className="font-medium text-gray-900">{listing.title}</h5>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`px-2 py-1 text-xs rounded ${
+                            listing.status === 'ACTIVE' && listing.isPublished
+                              ? 'bg-green-100 text-green-800'
+                              : listing.status === 'DRAFT'
+                                ? 'bg-gray-100 text-gray-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
+                          {listing.isPublished ? 'Published' : 'Draft'}
+                        </span>
+                        {listing.isFeatured && (
+                          <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded">
+                            Featured
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                      <span className="capitalize">{listing.listingType.toLowerCase()}</span>
+                      {listing.price && (
+                        <span className="font-medium text-green-600">
+                          R{listing.price.toLocaleString()}
+                        </span>
+                      )}
+                      <span>
+                        {listing.household.street} {listing.household.unit}
+                      </span>
+                    </div>
+
+                    {listing.assignedAgent && (
+                      <div className="text-sm text-gray-600 mb-3">
+                        <i className="fas fa-user-tie mr-1"></i>
+                        Agent: {listing.assignedAgent.name}
+                      </div>
+                    )}
+
+                    <div className="flex gap-2">
+                      <Link
+                        href={`/listings/${listing.id}`}
+                        className="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700"
+                      >
+                        Manage
+                      </Link>
+                      <Link
+                        href={`/listings/${listing.id}/edit`}
+                        className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300"
+                      >
+                        Edit
+                      </Link>
+                      {!listing.isPublished && (
+                        <button className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                          Publish
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+        )}
+
+        {showCreateForm && (
+          <CreateListingForm
+            onClose={() => setShowCreateForm(false)}
+            onSuccess={handleListingCreated}
+          />
         )}
       </div>
     </ErrorBoundary>
