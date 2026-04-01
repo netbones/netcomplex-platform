@@ -42,6 +42,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
           excerpt: true,
           content: true,
           category: true,
+          tags: true,
           publishedAt: true,
         },
         orderBy: { publishedAt: 'desc' },

@@ -5,7 +5,6 @@ import {
   Group,
   UserGroup,
   ContentCategory,
-  ResidentType,
   ResidentFilter,
 } from '@prisma/client';
 
@@ -23,13 +22,10 @@ async function main() {
         email: 'john.smith@soralia.org',
         name: 'John Smith',
         role: Role.RESIDENT,
-        street: 'Pagoda Rd',
-        unit: '12',
         phone: '+27 82 123 4567',
         interests: ['gardening', 'tennis'],
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
         profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-        residentType: ResidentType.OWNER,
         isPublic: true,
       },
     }),
@@ -40,13 +36,10 @@ async function main() {
         email: 'sarah.mitchell@soralia.org',
         name: 'Sarah Mitchell',
         role: Role.BOARD,
-        street: 'Wild Almond Rd',
-        unit: '8',
         phone: '+27 82 234 5678',
         interests: ['gardening', 'book-club'],
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
         profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-        residentType: ResidentType.OWNER,
         isPublic: true,
       },
     }),
@@ -57,9 +50,6 @@ async function main() {
         email: 'michael.chen@soralia.org',
         name: 'Michael Chen',
         role: Role.RESIDENT,
-        residentType: ResidentType.RENTER,
-        street: 'Silkypuff Street',
-        unit: '3',
         phone: '+27 82 345 6789',
         interests: ['fitness', 'photography'],
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael',
@@ -74,9 +64,6 @@ async function main() {
         email: 'emma.williams@soralia.org',
         name: 'Emma Williams',
         role: Role.RESIDENT,
-        residentType: ResidentType.RENTER,
-        street: 'Beechwood Rd',
-        unit: '15',
         phone: '+27 82 456 7890',
         interests: ['book-club', 'cooking'],
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emma',
@@ -91,9 +78,6 @@ async function main() {
         email: 'david.van.der.merwe@soralia.org',
         name: 'David van der Merwe',
         role: Role.ADMIN,
-        residentType: ResidentType.OWNER,
-        street: 'Sugarbrush Rd',
-        unit: '1',
         phone: '+27 82 567 8901',
         interests: ['volunteering', 'conservation'],
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=David',
@@ -108,9 +92,6 @@ async function main() {
         email: 'lisa.chen@soralia.org',
         name: 'Lisa Chen',
         role: Role.RESIDENT,
-        residentType: ResidentType.RENTER,
-        street: 'Conebrush Rd',
-        unit: '8',
         phone: '+27 82 678 9012',
         interests: ['yoga', 'photography'],
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa',
@@ -326,7 +307,7 @@ async function main() {
     }),
   ]);
 
-  // Create content (news/articles)
+  // Create content (news/articles) with tags
   await Promise.all([
     prisma.content.upsert({
       where: { id: 'news-alien-plants' },
@@ -338,6 +319,7 @@ async function main() {
           'Our community volunteers removed over 500 invasive alien plants from the wetland area this month, including Port Jackson willows and Australian acacias. This effort has significantly improved the habitat for our endemic fynbos species.',
         excerpt: '500+ invasive plants removed by volunteers',
         category: 'NEWS',
+        tags: ['conservation', 'volunteering', 'environment', 'wetlands', 'fynbos'],
         authorId: users[4].id,
         published: true,
         featured: true,
@@ -353,6 +335,7 @@ async function main() {
         content:
           'A rare African palm swift has been spotted in our conservation area, marking the 47th bird species recorded in Soralia Nature Reserve.',
         category: 'NEWS',
+        tags: ['conservation', 'birds', 'wildlife', 'nature', 'reserve'],
         authorId: users[4].id,
         published: true,
         publishedAt: new Date('2026-02-28'),
@@ -367,9 +350,123 @@ async function main() {
         content:
           'Latest water quality tests show significant improvement in wetland health following our drainage restoration project.',
         category: 'NEWS',
+        tags: ['environment', 'water', 'conservation', 'wetlands', 'restoration'],
         authorId: users[4].id,
         published: true,
         publishedAt: new Date('2026-02-10'),
+      },
+    }),
+    // Add more content with varied tags for different users
+    prisma.content.upsert({
+      where: { id: 'blog-gardening-tips' },
+      update: {},
+      create: {
+        id: 'blog-gardening-tips',
+        title: 'Spring Gardening Tips for Soralia Residents',
+        content:
+          'As spring arrives in our beautiful community, here are some tips for maintaining your garden. Remember to use drought-resistant plants native to our fynbos region to help conserve water and support local wildlife.',
+        excerpt: 'Essential tips for spring gardening in our climate',
+        category: 'BLOG',
+        tags: ['gardening', 'spring', 'tips', 'fynbos', 'water-conservation', 'wildlife'],
+        authorId: users[0].id, // John Smith
+        published: true,
+        publishedAt: new Date('2026-03-01'),
+      },
+    }),
+    prisma.content.upsert({
+      where: { id: 'blog-fitness-routine' },
+      update: {},
+      create: {
+        id: 'blog-fitness-routine',
+        title: 'Morning Walks Around the Village',
+        content:
+          "Starting my day with a peaceful walk around our beautiful village paths. The morning light on the mountains is spectacular, and it's a great way to stay active while enjoying nature.",
+        excerpt: 'Discover the scenic walking routes in our community',
+        category: 'BLOG',
+        tags: ['fitness', 'walking', 'nature', 'morning', 'health', 'community'],
+        authorId: users[2].id, // Michael Chen
+        published: true,
+        publishedAt: new Date('2026-02-20'),
+      },
+    }),
+    prisma.content.upsert({
+      where: { id: 'blog-book-review' },
+      update: {},
+      create: {
+        id: 'blog-book-review',
+        title: 'Book Club Pick: The Old Man and the Sea',
+        content:
+          'Our February book club selection was Hemingway\'s classic "The Old Man and the Sea". We had a fascinating discussion about perseverance, nature, and the human spirit. Join us next month for our March selection!',
+        excerpt: 'Discussion highlights from our latest book club meeting',
+        category: 'BLOG',
+        tags: ['book-club', 'hemingway', 'literature', 'discussion', 'community', 'reading'],
+        authorId: users[3].id, // Emma Williams
+        published: true,
+        publishedAt: new Date('2026-02-15'),
+      },
+    }),
+    prisma.content.upsert({
+      where: { id: 'blog-photography-tips' },
+      update: {},
+      create: {
+        id: 'blog-photography-tips',
+        title: 'Photographing the Fynbos in Golden Hour',
+        content:
+          'The golden hour light transforms our local fynbos vegetation into something magical. Here are my tips for capturing the beauty of our unique ecosystem with your camera.',
+        excerpt: 'Capture the magic of our local flora at golden hour',
+        category: 'BLOG',
+        tags: ['photography', 'fynbos', 'nature', 'golden-hour', 'tips', 'landscape'],
+        authorId: users[2].id, // Michael Chen
+        published: true,
+        publishedAt: new Date('2026-02-05'),
+      },
+    }),
+    prisma.content.upsert({
+      where: { id: 'announcement-pool-maintenance' },
+      update: {},
+      create: {
+        id: 'announcement-pool-maintenance',
+        title: 'Pool Maintenance Schedule Update',
+        content:
+          "Due to increased usage this summer, we'll be performing weekly maintenance on the community pool every Tuesday from 8-10 AM. The pool will be closed during this time. We apologize for any inconvenience.",
+        excerpt: 'Updated pool maintenance schedule for summer',
+        category: 'ANNOUNCEMENT',
+        tags: ['pool', 'maintenance', 'schedule', 'summer', 'community', 'facilities'],
+        authorId: users[1].id, // Sarah Mitchell
+        published: true,
+        publishedAt: new Date('2026-03-10'),
+      },
+    }),
+    prisma.content.upsert({
+      where: { id: 'blog-yoga-benefits' },
+      update: {},
+      create: {
+        id: 'blog-yoga-benefits',
+        title: 'Yoga for Stress Relief and Wellness',
+        content:
+          'In our busy community life, finding moments of peace is essential. Yoga has been transformative for me - both physically and mentally. Here are some poses I recommend for beginners.',
+        excerpt: 'How yoga helps maintain wellness in community living',
+        category: 'BLOG',
+        tags: ['yoga', 'wellness', 'stress-relief', 'health', 'mindfulness', 'fitness'],
+        authorId: users[5].id, // Lisa Chen
+        published: true,
+        publishedAt: new Date('2026-01-28'),
+      },
+    }),
+    prisma.content.upsert({
+      where: { id: 'event-gardening-workshop' },
+      update: {},
+      create: {
+        id: 'event-gardening-workshop',
+        title: 'Sustainable Gardening Workshop',
+        content:
+          'Join us for a hands-on workshop on sustainable gardening practices. Learn about water-wise landscaping, companion planting, and creating wildlife-friendly gardens in our Mediterranean climate.',
+        excerpt: 'Learn sustainable gardening techniques for our climate',
+        category: 'EVENT',
+        tags: ['gardening', 'workshop', 'sustainable', 'water-wise', 'wildlife', 'education'],
+        authorId: users[0].id, // John Smith
+        published: true,
+        publishedAt: new Date('2026-03-05'),
       },
     }),
   ]);
