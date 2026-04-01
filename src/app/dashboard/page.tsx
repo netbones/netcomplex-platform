@@ -151,9 +151,7 @@ function DashboardContent() {
     <ErrorBoundary>
       <main className="min-h-screen bg-slate-50">
         <div className="container mx-auto px-4 py-8">
-          <Breadcrumbs
-            items={[{ label: tCommon('nav.home'), href: '/' }, { label: tCommon('nav.dashboard') }]}
-          />
+          <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Dashboard' }]} />
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-indigo-600 mb-2">
               {t('welcome', { name: session?.user?.name ? `, ${session.user.name}` : '' })}
