@@ -393,8 +393,10 @@ This plan integrates with the project's beads (bd) issue tracking system:
 - [x] Add revalidation calls to key API routes (maintenance, bookings, messages, content)
 - [x] Add maxDuration limits to heavy API routes (maintenance, bookings, stats)
 - [x] Create streaming dashboard components with static shell + dynamic holes
+- [x] Audit library Edge Runtime compatibility (completed - not compatible)
+- [x] Created Edge-compatible health check route for testing
 - [ ] Verify Supabase region matches Vercel deployment region
-- [ ] Migrate lightweight API routes to Edge Runtime
+- [ ] Migrate lightweight API routes to Edge Runtime (blocked by dependencies)
 - [ ] Monitor and optimize memory allocation in Vercel dashboard
 - [ ] Set up spend management alerts (50%/75%/100%)
 - [ ] Implement automatic scaling limits to prevent overruns
