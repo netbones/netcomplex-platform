@@ -114,39 +114,25 @@ export default function AdminDashboardPage() {
   };
 
   const getWidgetTitle = (widgetId: string) => {
-    switch (widgetId) {
-      case 'admin-stats':
-        return 'System Statistics';
-      case 'admin-quick-links':
-        return 'Quick Actions';
-      case 'admin-activity':
-        return 'Recent Activity';
-      default:
-        return widgetId;
-    }
+    const widget = ALL_ADMIN_WIDGETS.find(w => w.id === widgetId);
+    return widget?.label || widgetId;
   };
 
   const getWidgetIcon = (widgetId: string) => {
-    switch (widgetId) {
-      case 'admin-stats':
-        return 'fa-chart-bar';
-      case 'admin-quick-links':
-        return 'fa-bolt';
-      case 'admin-activity':
-        return 'fa-clock';
-      default:
-        return 'fa-widget';
-    }
+    const widget = ALL_ADMIN_WIDGETS.find(w => w.id === widgetId);
+    return widget?.icon || 'fa-widget';
   };
 
   const getWidgetSize = (widgetId: string) => {
     switch (widgetId) {
       case 'admin-stats':
+      case 'admin-activity':
+      case 'admin-users':
+      case 'admin-content':
+      case 'admin-system':
         return 'large';
       case 'admin-quick-links':
         return 'medium';
-      case 'admin-activity':
-        return 'large';
       default:
         return 'medium';
     }
