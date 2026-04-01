@@ -7,7 +7,7 @@ export interface WidgetLayout {
   width: number;
   height: number;
   isCollapsed: boolean;
-  expandedHeight?: number; // Store the height when expanded, so we can restore it when collapsing/expanding
+  lastHeight?: number; // Store the height before collapsing, so we can restore it when expanding
 }
 
 export interface WidgetLayouts {
@@ -78,22 +78,26 @@ export const useWidgetStore = create<WidgetStore>()(
       },
 
       toggleWidgetCollapsed: (tabId: string, widgetId: string) => {
-        const currentLayout = get().getWidgetLayout(tabId, widgetId);
-        if (currentLayout) {
-          const newCollapsedState = !currentLayout.isCollapsed;
-          const updates: Partial<WidgetLayout> = { isCollapsed: newCollapsedState };
+        set(state => {
+          const tabLayouts = state.layouts[tabId];
+          const currentLayout = tabLayouts?.[widgetId] || { ...defaultWidgetLayout };
+          const isCollapsing = !currentLayout.isCollapsed;
 
-          if (newCollapsedState) {
-            // When collapsing, store the current height as expandedHeight
-            updates.expandedHeight = currentLayout.height;
-            updates.height = 60; // Set to collapsed height
-          } else {
-            // When expanding, restore the stored expandedHeight or use default
-            updates.height = currentLayout.expandedHeight || 200;
-          }
-
-          get().updateWidgetLayout(tabId, widgetId, updates);
-        }
+          return {
+            layouts: {
+              ...state.layouts,
+              [tabId]: {
+                ...tabLayouts,
+                [widgetId]: {
+                  ...currentLayout,
+                  isCollapsed: isCollapsing,
+                  height: isCollapsing ? 60 : currentLayout.lastHeight || currentLayout.height, // 60px is header height
+                  lastHeight: isCollapsing ? currentLayout.height : currentLayout.lastHeight,
+                },
+              },
+            },
+          };
+        });
       },
 
       resetTabLayout: (tabId: string) => {

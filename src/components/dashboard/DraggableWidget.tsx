@@ -66,7 +66,7 @@ export function DraggableWidget({
       y: position.y,
       width: newWidth,
       height: newHeight,
-      ...(!layout.isCollapsed ? { expandedHeight: newHeight } : {}), // Update expandedHeight if not collapsed
+      ...(!layout.isCollapsed ? { lastHeight: newHeight } : {}), // Update lastHeight if not collapsed
     });
   };
 
@@ -82,22 +82,26 @@ export function DraggableWidget({
       onDragStop={handleDragStop}
       onResizeStop={handleResizeStop}
       minWidth={280}
-      minHeight={60} // Allow collapsing to header-only size
+      minHeight={60} // Match header height to prevent resizing below collapsed state
       maxWidth={800}
       maxHeight={600}
       bounds="parent"
       className="bg-white rounded-lg shadow-md overflow-hidden group"
       dragHandleClassName="drag-handle"
-      enableResizing={{
-        top: false,
-        right: true,
-        bottom: true,
-        left: false,
-        topRight: false,
-        bottomRight: true,
-        bottomLeft: false,
-        topLeft: false,
-      }}
+      enableResizing={
+        layout.isCollapsed
+          ? {}
+          : {
+              top: false,
+              right: true,
+              bottom: true,
+              left: false,
+              topRight: false,
+              bottomRight: true,
+              bottomLeft: false,
+              topLeft: false,
+            }
+      }
     >
       {/* Header */}
       <div className="drag-handle flex items-center justify-between p-4 bg-gradient-to-r from-indigo-500 to-purple-600 cursor-move">
