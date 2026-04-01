@@ -29,15 +29,17 @@ export function DraggableWidget({
   const { t } = useTranslation('dashboard');
   const { getWidgetLayout, updateWidgetLayout } = useWidgetStore();
 
-  // Get layout from store
-  const layout = getWidgetLayout(tabId, id);
+  // Get layout from store (with fallback to defaults)
+  const storedLayout = getWidgetLayout(tabId, id);
+  const defaultLayout = { x: 0, y: 0, width: 320, height: 200, isCollapsed: false };
+  const layout = storedLayout || defaultLayout;
   const [position, setPosition] = useState({ x: layout.x, y: layout.y });
   const [size, setSize] = useState({ width: layout.width, height: layout.height });
   const [isCollapsed, setIsCollapsed] = useState(layout.isCollapsed);
 
   // Update local state when store changes (e.g., when switching tabs)
   useEffect(() => {
-    const newLayout = getWidgetLayout(tabId, id);
+    const newLayout = getWidgetLayout(tabId, id) || defaultLayout;
     setPosition({ x: newLayout.x, y: newLayout.y });
     setSize({ width: newLayout.width, height: newLayout.height });
     setIsCollapsed(newLayout.isCollapsed);
@@ -70,7 +72,18 @@ export function DraggableWidget({
   const handleToggleCollapsed = () => {
     const newCollapsedState = !isCollapsed;
     setIsCollapsed(newCollapsedState);
-    updateWidgetLayout(tabId, id, { isCollapsed: newCollapsedState });
+
+    // When collapsing, reduce the height to just the header height
+    // When expanding, restore the previous height
+    if (newCollapsedState) {
+      setSize(prev => ({ ...prev, height: 64 })); // Header height
+      updateWidgetLayout(tabId, id, { isCollapsed: true, height: 64 });
+    } else {
+      const storedLayout = getWidgetLayout(tabId, id) || defaultLayout;
+      const restoredHeight = storedLayout.height > 64 ? storedLayout.height : 200;
+      setSize(prev => ({ ...prev, height: restoredHeight }));
+      updateWidgetLayout(tabId, id, { isCollapsed: false, height: restoredHeight });
+    }
   };
 
   return (
@@ -126,19 +139,19 @@ export function DraggableWidget({
         </div>
       </div>
 
-      {/* Content */}
-      <div
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          isCollapsed ? 'max-h-0 opacity-0' : 'max-h-screen opacity-100'
-        }`}
-      >
-        <div className="p-4">{children}</div>
-      </div>
+      {/* Content - only render when not collapsed */}
+      {!isCollapsed && (
+        <div className="transition-all duration-300 ease-in-out overflow-hidden max-h-screen opacity-100">
+          <div className="p-4">{children}</div>
+        </div>
+      )}
 
-      {/* Resize handle */}
-      <div className="absolute bottom-0 right-0 w-5 h-5 bg-indigo-500 rounded-tl cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b border-white"></div>
-      </div>
+      {/* Resize handle - hide when collapsed */}
+      {!isCollapsed && (
+        <div className="absolute bottom-0 right-0 w-5 h-5 bg-indigo-500 rounded-tl cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b border-white"></div>
+        </div>
+      )}
     </Rnd>
   );
 }
