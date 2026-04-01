@@ -1,75 +1,123 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
-import { getUserContent } from '@/lib/data-fetching';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { Bookshelf } from '@/components/ui/Bookshelf';
+import { MediaLibrary } from '@/components/ui/MediaLibrary';
 
-export function DashboardWidgets() {
+export function QuickActionsWidget() {
+  const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
-  const [content, setContent] = useState([]);
-
-  useEffect(() => {
-    if (session?.user?.id) {
-      getUserContent(session.user.id).then(setContent);
-    }
-  }, [session?.user?.id]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-      {/* Recent Content Widget */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Recent Content</h3>
-        {content.length > 0 ? (
-          <div className="space-y-3">
-            {content.slice(0, 3).map((item: any) => (
-              <div key={item.id} className="border-l-4 border-indigo-500 pl-4">
-                <h4 className="font-medium text-gray-900">{item.title}</h4>
-                <p className="text-sm text-gray-600 truncate">{item.excerpt}</p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500 text-sm">No content yet. Start sharing!</p>
+    <ErrorBoundary>
+      <div className="space-y-3">
+        <Link
+          href="/maintenance"
+          className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
+        >
+          {t('submitRequest', 'Submit Maintenance Request')}
+        </Link>
+        <Link
+          href="/bookings"
+          className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
+        >
+          {t('bookFacility', 'Book a Facility')}
+        </Link>
+        <Link
+          href="/admin/content/new"
+          className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
+        >
+          {t('createContent', 'Create Content')}
+        </Link>
+        {session?.user?.id && (
+          <Link
+            href={`/resident/${session.user.id}`}
+            className="block p-3 bg-slate-50 rounded hover:bg-gray-200 transition"
+          >
+            {t('viewProfile', 'View My Profile')}
+          </Link>
         )}
       </div>
+    </ErrorBoundary>
+  );
+}
 
-      {/* Community Activity Widget */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Community Activity</h3>
-        <div className="space-y-3">
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-green-500 rounded-full mr-3" />
-            <span className="text-sm text-gray-600">New conservation article published</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
-            <span className="text-sm text-gray-600">Facility booking confirmed</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-purple-500 rounded-full mr-3" />
-            <span className="text-sm text-gray-600">New resident joined</span>
-          </div>
-        </div>
-      </div>
+export function RecentActivityWidget() {
+  const { t } = useTranslation('dashboard');
 
-      {/* Quick Actions Widget */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-        <div className="space-y-2">
-          <button className="w-full text-left p-2 hover:bg-gray-50 rounded text-sm">
-            Submit Maintenance Request
-          </button>
-          <button className="w-full text-left p-2 hover:bg-gray-50 rounded text-sm">
-            Book a Facility
-          </button>
-          <button className="w-full text-left p-2 hover:bg-gray-50 rounded text-sm">
-            Start a Conversation
-          </button>
-          <button className="w-full text-left p-2 hover:bg-gray-50 rounded text-sm">
-            Create Content
-          </button>
-        </div>
+  return (
+    <ErrorBoundary>
+      <div className="text-center py-8 text-gray-500">
+        <p>{t('noActivity', 'No recent activity')}</p>
+        <p className="text-sm">{t('activityWillAppear', 'Recent activity will appear here')}</p>
       </div>
-    </div>
+    </ErrorBoundary>
+  );
+}
+
+export function NotificationsWidget() {
+  return (
+    <ErrorBoundary>
+      <div className="text-center py-4 text-gray-500">
+        <p className="text-sm">No new notifications</p>
+      </div>
+    </ErrorBoundary>
+  );
+}
+
+export function EventsWidget() {
+  const { t } = useTranslation('dashboard');
+
+  return (
+    <ErrorBoundary>
+      <div className="text-center py-8 text-gray-500">
+        <p>{t('noEvents', 'No upcoming events')}</p>
+        <Link href="/resources" className="text-indigo-600 hover:underline">
+          {t('viewAllEvents', 'View all events')}
+        </Link>
+      </div>
+    </ErrorBoundary>
+  );
+}
+
+export function BookshelfWidget() {
+  const { data: session } = authClient.useSession();
+
+  if (!session?.user?.id) {
+    return (
+      <ErrorBoundary>
+        <div className="text-center py-4 text-gray-500">
+          <p>Please log in to view your bookshelf</p>
+        </div>
+      </ErrorBoundary>
+    );
+  }
+
+  return (
+    <ErrorBoundary>
+      <Bookshelf userId={session.user.id} editable={true} />
+    </ErrorBoundary>
+  );
+}
+
+export function MediaWidget() {
+  return (
+    <ErrorBoundary>
+      <MediaLibrary />
+    </ErrorBoundary>
+  );
+}
+
+// This will be implemented separately
+export function MyContentWidget() {
+  return (
+    <ErrorBoundary>
+      <div className="text-center py-4 text-gray-500">
+        <p>My content widget - coming soon</p>
+      </div>
+    </ErrorBoundary>
   );
 }

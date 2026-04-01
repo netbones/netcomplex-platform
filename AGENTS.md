@@ -280,7 +280,7 @@ components/
 - Show validation errors inline
 - Handle loading/submitting states
 
-### ISR & Caching (Vercel Cost Optimization)
+### ISR & Caching
 
 #### Core Principles
 
@@ -344,6 +344,7 @@ components/
   ```
 
 - **Use Cache-Control headers** for additional caching:
+
   ```typescript
   // In API routes
   headers: {
@@ -385,22 +386,6 @@ components/
   - `LoadingSkeleton` - For content placeholders
   - `LoadingCard` - For card-specific loading
   - `LoadingButton` - For button loading states
-
-#### Vercel Cost Monitoring
-
-- **Monitor usage dashboard** regularly for cost spikes
-- **Set spend alerts** at 50%, 75%, and 100% of budget
-- **Check function execution times** - target <5 seconds average
-- **Optimize memory allocation** based on actual usage
-
-#### Performance Budget
-
-- **Serverless invocations**: <50% of requests should hit functions
-- **Cache hit rate**: >80% for frequently accessed data
-- **Build time**: <30 seconds per page
-- **Bundle size**: <500KB initial load
-
----
 
 ## API Design
 
@@ -566,17 +551,6 @@ Before implementing new features, ensure:
 - [ ] **Loading states use `usePageLoading`** or `LoadingSkeleton` components
 - [ ] **Static content uses ISR** (not SSR) for better performance
 - [ ] **Cache-Control headers** added to API routes for additional optimization
-
-### Vercel Cost Monitoring
-
-- **Monitor usage dashboard** weekly for cost trends
-- **Alert thresholds**: 50%, 75%, 100% of monthly budget
-- **Performance targets**:
-  - Function execution: <5 seconds average
-  - Cache hit rate: >80%
-  - Serverless invocations: <50% of total requests
-
----
 
 ## Dependencies
 

@@ -9,4 +9,7 @@ export { DashboardTabs, AddWidgetModal } from './DashboardTabs';
 export { HouseholdsWidget } from './HouseholdsWidget';
 export { AgentDashboardWidget } from './AgentDashboardWidget';
 export { SoloSeatWidget } from './SoloSeatWidget';
+export { WidgetRenderer } from './WidgetRenderer';
+export { UserContentWidget } from './UserContentWidget';
+export { DashboardStats } from './DashboardStats';
 export type { DashboardTab } from './DashboardTabs';
