@@ -3,10 +3,8 @@ const nextConfig = {
   reactStrictMode: true,
   turbopack: {},
 
-  // Enable Partial Prerendering for better performance and cost efficiency
-  experimental: {
-    ppr: 'incremental',
-  },
+  // Enable Partial Prerendering for better performance
+  cacheComponents: true,
 
   // Optimize images
   images: {
@@ -26,14 +24,6 @@ const nextConfig = {
       },
     ],
   },
-
-  // Set resource limits to prevent cost overruns
-  serverRuntimeConfig: {
-    maxDuration: 10, // Default 10s limit for API routes
-  },
-
-  // Optimize for edge runtime where possible
-  serverComponentsExternalPackages: [],
 
   // Configure headers for better caching
   async headers() {
