@@ -50,8 +50,8 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 #### 2. Build Performance Crisis
 
-**Status:** 🚨 **OPEN**  
-**Priority:** P0  
+**Status:** 🚨 **OPEN**
+**Priority:** P0
 **Timeline:** Complete within 1 week
 
 **Issues Identified:**
@@ -65,14 +65,52 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 - [ ] Convert dashboard page to server components
 - [ ] Convert directory page to server components
 - [ ] Convert groups page to server components
-- [ ] Implement proper loading states
-- [ ] Add error boundaries
 
 **Success Criteria:**
 
 - Build time < 30 seconds per page
 - All pages build successfully
 - No runtime hydration errors
+
+#### 2.1 Loading States & Error Boundaries
+
+**Status:** ✅ **COMPLETED**
+**Priority:** P0
+**Timeline:** Complete within 1 week
+
+**Issues Identified:**
+
+- Missing loading states during data fetching
+- No error boundaries to catch runtime errors
+- Poor user experience during loading/failures
+
+**Action Items:**
+
+- [x] Implement proper loading states for all async operations (existing usePageLoading hook is comprehensive)
+- [x] Create reusable ErrorBoundary component with fallback UI
+- [x] Create reusable Loading components (LoadingSpinner, LoadingSkeleton, LoadingCard, LoadingButton)
+- [x] Add cn utility function for consistent className merging
+- [x] Add error boundaries to high-priority pages:
+  - [x] Dashboard page (drag/drop, multiple API calls)
+  - [x] Directory page (API calls, filtering, pagination)
+  - [x] Messages page (real-time chat, complex state)
+  - [x] Maintenance page (forms, API calls, workflows)
+  - [x] Bookings page (calendar, API calls, reservations)
+  - [x] Admin pages (users, requests - complex admin logic)
+- [ ] Add error boundaries to medium-priority pages:
+  - [ ] Groups page (group management, API calls)
+  - [ ] Notifications page (real-time updates)
+  - [ ] Settings page (forms, preferences)
+  - [ ] Resident profile pages (complex data display)
+  - [ ] Services/Resources/Interest/Conservation pages
+- [ ] Skip error boundaries for static pages (Terms, Privacy, Guidelines)
+
+**Success Criteria:**
+
+- All async operations show appropriate loading states ✅
+- Error boundaries prevent full page crashes ✅ (component created)
+- Consistent error handling across the application ✅ (reusable components)
+- Improved user experience during loading/failures ✅ (enhanced loading system)
 
 ### 🔧 HIGH PRIORITY (Address Next)
 

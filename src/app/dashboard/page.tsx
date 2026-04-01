@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 interface ContentItem {
   id: string;
@@ -487,14 +488,16 @@ function UserContentList() {
 
 export default function DashboardPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="p-8 text-center">
-          <div className="animate-pulse">Loading...</div>
-        </div>
-      }
-    >
-      <DashboardContent />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense
+        fallback={
+          <div className="p-8 text-center">
+            <div className="animate-pulse">Loading...</div>
+          </div>
+        }
+      >
+        <DashboardContent />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
