@@ -19,9 +19,12 @@ export function AdminUserWidget() {
       try {
         const response = await fetch('/api/users');
         if (response.ok) {
-          const users = await response.json();
-          const total = users.length;
-          const active = users.filter((u: any) => u.isActive).length;
+          const data = await response.json();
+          const users = data.users || [];
+          const total = data.total || users.length || 0;
+
+          // Ensure users is an array before calling filter
+          const active = Array.isArray(users) ? users.filter((u: any) => u.isActive).length : 0;
           const pending = total - active;
 
           // Mock recent signups (last 30 days)
