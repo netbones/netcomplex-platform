@@ -239,6 +239,20 @@ components/
 - API routes in src/app/api
 - Environment variables for all secrets
 
+#### Rendering Strategy Decision Tree
+
+- **Static/ISR**: Use for content that changes infrequently (articles, directory, static pages)
+- **Server Components**: Use for personalized content with caching (dashboard, user profiles)
+- **Client Components**: Only for interactive features (forms, real-time updates)
+- **Edge Runtime**: Consider for global APIs with low latency requirements
+
+#### Data Fetching Patterns
+
+- **unstable_cache**: Use for expensive operations with ISR tags
+- **React cache()**: Use for client-side data with short lifecycles
+- **TanStack Query**: Use for client-side state management and mutations
+- **Server Actions**: Use for form submissions and data mutations
+
 ### Prisma
 
 - Define all models in prisma/schema.prisma
@@ -265,6 +279,126 @@ components/
 - Use `useForm` hook with Zod resolver
 - Show validation errors inline
 - Handle loading/submitting states
+
+### ISR & Caching (Vercel Cost Optimization)
+
+#### Core Principles
+
+- **Maximize static content**: Prefer ISR over SSR to reduce serverless invocations
+- **Aggressive caching**: Use `unstable_cache` with tags for intelligent cache invalidation
+- **On-demand revalidation**: Immediately update caches when data changes
+- **Streaming responses**: Use Suspense for progressive loading
+
+#### ISR Implementation Rules
+
+- **Use `unstable_cache`** for data fetching with cache tags:
+
+  ```typescript
+  import { unstable_cache } from 'next/cache';
+
+  export const getData = unstable_cache(async () => fetch('/api/data'), ['data-key'], {
+    revalidate: 300, // 5 minutes
+    tags: ['data-tag'],
+  });
+  ```
+
+- **Set appropriate revalidation times**:
+  - Static data (rarely changes): 10 minutes (600s)
+  - User-specific data: 2-5 minutes (120-300s)
+  - Real-time data: 30-60 seconds (30-60s)
+
+- **Always use ISR tags** for cache invalidation:
+
+  ```typescript
+  import { revalidatePath } from 'next/cache';
+
+  // In API routes after data changes
+  revalidatePath('/dashboard'); // Invalidate dashboard cache
+  ```
+
+#### On-Demand Revalidation Rules
+
+- **Import revalidation utilities**: Always use `src/lib/revalidation.ts`
+- **Call revalidation after mutations**:
+
+  ```typescript
+  import { revalidateDashboard } from '@/lib/revalidation';
+
+  // After creating data
+  await prisma.item.create({...});
+  revalidateDashboard(); // Immediately invalidate relevant caches
+  ```
+
+- **Use specific revalidation functions**:
+  - `revalidateDashboard()` - For stats, maintenance, bookings
+  - `revalidateContent()` - For articles, resources
+  - `revalidateConversations()` - For messages, chat
+  - `revalidateAdminChanges()` - For comprehensive admin updates
+
+#### API Route Optimization
+
+- **Add `maxDuration`** to prevent runaway functions:
+
+  ```typescript
+  export const maxDuration = 8; // Max 8 seconds execution
+  ```
+
+- **Use Cache-Control headers** for additional caching:
+  ```typescript
+  // In API routes
+  headers: {
+    'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
+  }
+  ```
+
+#### Component Patterns
+
+- **Use Suspense for streaming**:
+
+  ```tsx
+  <Suspense fallback={<Skeleton />}>
+    <DynamicContent />
+  </Suspense>
+  ```
+
+- **Implement proper loading states** with `usePageLoading` hook
+- **Add error boundaries** to all major components for resilience
+
+#### Error Boundaries
+
+- **Wrap all major page components** with `ErrorBoundary`:
+
+  ```tsx
+  import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+
+  export default function Page() {
+    return (
+      <ErrorBoundary>
+        <PageContent />
+      </ErrorBoundary>
+    );
+  }
+  ```
+
+- **Use existing components**:
+  - `LoadingSpinner` - For inline loading states
+  - `LoadingSkeleton` - For content placeholders
+  - `LoadingCard` - For card-specific loading
+  - `LoadingButton` - For button loading states
+
+#### Vercel Cost Monitoring
+
+- **Monitor usage dashboard** regularly for cost spikes
+- **Set spend alerts** at 50%, 75%, and 100% of budget
+- **Check function execution times** - target <5 seconds average
+- **Optimize memory allocation** based on actual usage
+
+#### Performance Budget
+
+- **Serverless invocations**: <50% of requests should hit functions
+- **Cache hit rate**: >80% for frequently accessed data
+- **Build time**: <30 seconds per page
+- **Bundle size**: <500KB initial load
 
 ---
 
@@ -420,6 +554,27 @@ npm run lint
 # Build (catches build errors)
 npm run build
 ```
+
+### ISR & Performance Checklist
+
+Before implementing new features, ensure:
+
+- [ ] **Data fetching uses `unstable_cache`** with appropriate tags for ISR
+- [ ] **API routes include `maxDuration`** limits (3-8 seconds)
+- [ ] **Mutations trigger `revalidatePath`** or use revalidation utilities
+- [ ] **Components wrapped with `ErrorBoundary`** for error resilience
+- [ ] **Loading states use `usePageLoading`** or `LoadingSkeleton` components
+- [ ] **Static content uses ISR** (not SSR) for better performance
+- [ ] **Cache-Control headers** added to API routes for additional optimization
+
+### Vercel Cost Monitoring
+
+- **Monitor usage dashboard** weekly for cost trends
+- **Alert thresholds**: 50%, 75%, 100% of monthly budget
+- **Performance targets**:
+  - Function execution: <5 seconds average
+  - Cache hit rate: >80%
+  - Serverless invocations: <50% of total requests
 
 ---
 
