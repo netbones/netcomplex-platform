@@ -3,6 +3,7 @@ import { hasPermission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { ContentCategoryEnum, type ContentCategory } from '@/types/enums';
+import { revalidateContent } from '@/lib/revalidation';
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -118,6 +119,9 @@ export async function POST(request: Request) {
       publishedAt: body.published ? new Date() : null,
     },
   });
+
+  // Revalidate content caches immediately when new content is created
+  revalidateContent();
 
   return NextResponse.json(content, { status: 201 });
 }

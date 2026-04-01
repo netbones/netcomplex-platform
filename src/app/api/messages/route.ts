@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { messageSchema } from '@/lib/schemas';
+import { revalidateConversations } from '@/lib/revalidation';
 
 /** Supabase client for real-time message broadcasting */
 const supabase = createClient(
@@ -113,6 +114,9 @@ export async function POST(request: Request) {
         },
       },
     });
+
+    // Revalidate conversation caches immediately when new message is sent
+    revalidateConversations();
 
     // Broadcast via Supabase Realtime
     await supabase.channel(`messages:${conversationId}`).send({

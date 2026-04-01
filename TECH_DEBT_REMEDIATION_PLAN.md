@@ -389,6 +389,8 @@ This plan integrates with the project's beads (bd) issue tracking system:
 - [x] Enable Partial Prerendering (PPR) in next.config.mjs
 - [x] Add aggressive caching to API routes (Cache-Control headers)
 - [x] Implement React cache() utilities in src/lib/data-fetching.ts
+- [x] Add On-Demand Revalidation with cache tags and revalidation utilities
+- [x] Add revalidation calls to key API routes (maintenance, bookings, messages, content)
 - [x] Add maxDuration limits to heavy API routes (maintenance, bookings, stats)
 - [x] Create streaming dashboard components with static shell + dynamic holes
 - [ ] Verify Supabase region matches Vercel deployment region

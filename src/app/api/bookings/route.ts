@@ -3,6 +3,7 @@ import { hasPermission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { bookingSchema } from '@/lib/schemas';
+import { revalidateDashboard } from '@/lib/revalidation';
 
 // Limit execution time to 8 seconds for booking operations
 export const maxDuration = 8;
@@ -110,6 +111,9 @@ export async function POST(request: Request) {
         purpose,
       },
     });
+
+    // Revalidate dashboard caches immediately when new booking is created
+    revalidateDashboard();
 
     return NextResponse.json(booking, { status: 201 });
   } catch (error) {

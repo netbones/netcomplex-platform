@@ -3,6 +3,7 @@ import { hasPermission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { maintenanceRequestSchema } from '@/lib/schemas';
+import { revalidateDashboard } from '@/lib/revalidation';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;
@@ -123,6 +124,9 @@ export async function POST(request: Request) {
         // For now, they're captured in validation but not used in creation
       },
     });
+
+    // Revalidate dashboard caches immediately when new request is created
+    revalidateDashboard();
 
     return NextResponse.json(maintenanceRequest, { status: 201 });
   } catch (error) {
