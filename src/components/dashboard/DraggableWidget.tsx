@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Rnd } from 'react-rnd';
 import { useTranslation } from 'react-i18next';
 import { useWidgetStore } from '@/lib/stores/widget-store';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface DraggableWidgetProps {
   id: string;
@@ -137,13 +138,22 @@ export function DraggableWidget({
             </button>
           )}
           {removable && onRemove && (
-            <button
-              onClick={onRemove}
-              className="p-1 hover:bg-red-500/20 rounded transition-colors pointer-events-auto group"
-              title={t('removeWidget', 'Remove widget')}
-            >
-              <i className="fas fa-times text-white/70 group-hover:text-red-400 text-sm transition-colors"></i>
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onRemove}
+                  className="p-1 rounded transition-colors pointer-events-auto"
+                >
+                  <i className="fas fa-times text-white/70 hover:text-red-400 text-sm transition-colors"></i>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent
+                side="top"
+                className="bg-yellow-100 text-yellow-800 border-yellow-200"
+              >
+                {t('removeWidget', 'Remove widget')}
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
       </div>
