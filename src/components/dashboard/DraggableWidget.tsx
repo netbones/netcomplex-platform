@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +12,8 @@ interface DraggableWidgetProps {
   children: React.ReactNode;
   removable?: boolean;
   onRemove?: () => void;
+  collapsible?: boolean;
+  defaultCollapsed?: boolean;
 }
 
 export function DraggableWidget({
@@ -20,8 +23,12 @@ export function DraggableWidget({
   children,
   removable = false,
   onRemove,
+  collapsible = true,
+  defaultCollapsed = false,
 }: DraggableWidgetProps) {
   const { t } = useTranslation('dashboard');
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
   });
@@ -48,21 +55,41 @@ export function DraggableWidget({
           <i className={`fas ${icon} text-white text-lg`}></i>
           <h3 className="text-lg font-semibold text-white">{title}</h3>
         </div>
-        <div className="flex items-center gap-2"></div>
+        <div className="flex items-center gap-2">
+          {collapsible && (
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                setIsCollapsed(!isCollapsed);
+              }}
+              className="p-1 hover:bg-white/20 rounded transition-colors"
+              title={isCollapsed ? t('expandWidget', 'Expand') : t('collapseWidget', 'Collapse')}
+            >
+              <i className={`fas fa-chevron-${isCollapsed ? 'down' : 'up'} text-white text-sm`}></i>
+            </button>
+          )}
+          {removable && onRemove && (
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                onRemove();
+              }}
+              className="p-1 hover:bg-white/20 rounded transition-colors"
+              title={t('removeWidget', 'Remove')}
+            >
+              <i className="fas fa-times text-white text-sm"></i>
+            </button>
+          )}
+        </div>
       </div>
-      {removable && onRemove && (
-        <button
-          onClick={e => {
-            e.stopPropagation();
-            onRemove();
-          }}
-          className="absolute top-2 right-2 z-10 p-2 bg-white/20 hover:bg-white/40 text-white rounded-full shadow transition"
-          title={t('removeWidget', 'Remove')}
-        >
-          <i className="fas fa-times"></i>
-        </button>
-      )}
-      <div className="p-4">{children}</div>
+
+      <div
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          isCollapsed ? 'max-h-0 opacity-0' : 'max-h-screen opacity-100'
+        }`}
+      >
+        <div className="p-4">{children}</div>
+      </div>
     </div>
   );
 }

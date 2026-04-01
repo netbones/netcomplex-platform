@@ -160,6 +160,29 @@ Follow the established design patterns:
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 ```
 
+## Widget Features
+
+### Concertina/Collapse Functionality
+
+All widgets support collapse/expand functionality for better space management:
+
+- **Toggle Button**: Click the chevron icon (⬆️/⬇️) in the widget header
+- **Smooth Animation**: Content collapses/expands with CSS transitions
+- **Drag & Drop**: Collapse state is preserved during widget rearrangement
+- **Space Saving**: Focus on important widgets while keeping others accessible
+
+### Drag & Drop
+
+- **Rearrange Widgets**: Drag any widget by its header to reorder
+- **Visual Feedback**: Widgets become semi-transparent while dragging
+- **Drop Zones**: Clear visual indicators for drop positions
+
+### Widget Management
+
+- **Add Widgets**: Click the "Add Widget" button to add new widgets
+- **Remove Widgets**: Click the × button to remove unwanted widgets
+- **Persistent Layout**: Your widget arrangement is maintained per tab
+
 ## Widget Categories
 
 ### Core Widgets (Always Available)
