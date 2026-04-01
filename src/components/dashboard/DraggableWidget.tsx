@@ -139,10 +139,10 @@ export function DraggableWidget({
           {removable && onRemove && (
             <button
               onClick={onRemove}
-              className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto opacity-70 hover:opacity-100"
+              className="p-2 hover:bg-red-500/30 rounded-full transition-colors pointer-events-auto bg-red-500/10 hover:bg-red-500/20 border border-red-400/30 hover:border-red-400/60"
               title={t('removeWidget', 'Remove')}
             >
-              <i className="fas fa-times text-white text-sm"></i>
+              <i className="fas fa-times text-red-500 hover:text-red-600 text-xs"></i>
             </button>
           )}
         </div>
