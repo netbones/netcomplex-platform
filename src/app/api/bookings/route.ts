@@ -4,6 +4,9 @@ import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { bookingSchema } from '@/lib/schemas';
 
+// Limit execution time to 8 seconds for booking operations
+export const maxDuration = 8;
+
 /**
  * Retrieves session and role from the request for API routes.
  * @param request - Incoming HTTP request

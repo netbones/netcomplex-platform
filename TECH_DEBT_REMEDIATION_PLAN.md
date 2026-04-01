@@ -370,10 +370,45 @@ This plan integrates with the project's beads (bd) issue tracking system:
 - Track progress with `bd update <id> --status <status>`
 - Use `bd close <id>` for completed items
 
+## 9. Vercel Cost Optimization
+
+**Status:** ✅ **IN PROGRESS**
+**Priority:** P0 (Cost Critical)
+**Timeline:** Complete within 2 weeks
+
+**Issues Identified:**
+
+- High Vercel compute costs (92% dynamic pages)
+- No caching strategy implemented
+- No function execution limits
+- Database latency issues
+- No spend management
+
+**Action Items:**
+
+- [x] Enable Partial Prerendering (PPR) in next.config.mjs
+- [x] Add aggressive caching to API routes (Cache-Control headers)
+- [x] Implement React cache() utilities in src/lib/data-fetching.ts
+- [x] Add maxDuration limits to heavy API routes (maintenance, bookings, stats)
+- [x] Create streaming dashboard components with static shell + dynamic holes
+- [ ] Verify Supabase region matches Vercel deployment region
+- [ ] Migrate lightweight API routes to Edge Runtime
+- [ ] Monitor and optimize memory allocation in Vercel dashboard
+- [ ] Set up spend management alerts (50%/75%/100%)
+- [ ] Implement automatic scaling limits to prevent overruns
+
+**Success Criteria:**
+
+- 70-85% reduction in Vercel compute costs
+- Function execution time < 5 seconds average
+- < 50% of requests hitting serverless functions (via caching)
+- No cost overruns or budget surprises
+- Real-time monitoring of usage patterns
+
 ## Contact & Escalation
 
-**Technical Lead:** [Assign team member]  
-**Security Officer:** [Assign team member]  
+**Technical Lead:** [Assign team member]
+**Security Officer:** [Assign team member]
 **Timeline Owner:** [Assign team member]
 
 **Escalation Path:**

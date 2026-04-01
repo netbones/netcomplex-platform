@@ -1,6 +1,9 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
+// Fast stats endpoint - limit to 3 seconds
+export const maxDuration = 3;
+
 export async function GET() {
   const [userCount, groupCount, contentCount] = await Promise.all([
     prisma.user.count({ where: { isActive: true } }),
