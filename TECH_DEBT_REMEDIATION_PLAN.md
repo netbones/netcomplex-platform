@@ -395,6 +395,8 @@ This plan integrates with the project's beads (bd) issue tracking system:
 - [x] Create streaming dashboard components with static shell + dynamic holes
 - [x] Audit library Edge Runtime compatibility (completed - not compatible)
 - [x] Created Edge-compatible health check route for testing
+- [x] Created comprehensive dependency analysis document (docs/dependency-analysis-recommendations.md)
+- [x] Added migration examples for Drizzle ORM, Clerk Auth, and Vercel Blob
 - [ ] Verify Supabase region matches Vercel deployment region
 - [ ] Migrate lightweight API routes to Edge Runtime (blocked by dependencies)
 - [ ] Monitor and optimize memory allocation in Vercel dashboard
