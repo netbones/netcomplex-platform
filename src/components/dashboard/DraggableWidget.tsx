@@ -76,11 +76,11 @@ export function DraggableWidget({
     // When collapsing, reduce the height to just the header height
     // When expanding, restore the previous height
     if (newCollapsedState) {
-      setSize(prev => ({ ...prev, height: 64 })); // Header height
-      updateWidgetLayout(tabId, id, { isCollapsed: true, height: 64 });
+      setSize(prev => ({ ...prev, height: 60 })); // Header height
+      updateWidgetLayout(tabId, id, { isCollapsed: true, height: 60 });
     } else {
       const storedLayout = getWidgetLayout(tabId, id) || defaultLayout;
-      const restoredHeight = storedLayout.height > 64 ? storedLayout.height : 200;
+      const restoredHeight = storedLayout.height > 60 ? storedLayout.height : 200;
       setSize(prev => ({ ...prev, height: restoredHeight }));
       updateWidgetLayout(tabId, id, { isCollapsed: false, height: restoredHeight });
     }
@@ -93,7 +93,7 @@ export function DraggableWidget({
       onDragStop={handleDragStop}
       onResizeStop={handleResizeStop}
       minWidth={280}
-      minHeight={150}
+      minHeight={60} // Allow collapsing to header-only size
       maxWidth={800}
       maxHeight={600}
       bounds="parent"
@@ -130,7 +130,7 @@ export function DraggableWidget({
           {removable && onRemove && (
             <button
               onClick={onRemove}
-              className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto"
+              className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto opacity-70 hover:opacity-100"
               title={t('removeWidget', 'Remove')}
             >
               <i className="fas fa-times text-white text-sm"></i>
