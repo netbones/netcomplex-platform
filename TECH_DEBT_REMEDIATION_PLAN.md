@@ -169,8 +169,8 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 #### 5. Code Quality & Architecture
 
-**Status:** ✅ **COMPLETED**
-**Priority:** P2
+**Status:** 🚨 **OPEN**  
+**Priority:** P2  
 **Timeline:** Complete within 3-4 weeks
 
 **Issues Identified:**
@@ -181,16 +181,16 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 **Action Items:**
 
-- [x] Split dashboard component into smaller pieces (from 503 lines to ~150 lines)
-- [x] Add error boundaries to all components (WidgetRenderer + individual widgets)
-- [x] Implement consistent error handling patterns (ErrorBoundary wrapper)
-- [ ] Add React.memo and useMemo optimizations (pending)
+- [ ] Split dashboard component into smaller pieces
+- [ ] Add error boundaries to all components
+- [ ] Implement consistent error handling patterns
+- [ ] Add React.memo and useMemo optimizations
 
 **Success Criteria:**
 
-- ✅ Components < 200 lines each (main dashboard now 150 lines, widgets 50-100 lines each)
-- ✅ Error boundaries on all major components (all widgets wrapped)
-- ✅ Consistent error handling across app (ErrorBoundary pattern)
+- Components < 200 lines each
+- Error boundaries on all major components
+- Consistent error handling across app
 
 #### 6. Configuration & Tooling
 
@@ -395,8 +395,6 @@ This plan integrates with the project's beads (bd) issue tracking system:
 - [x] Create streaming dashboard components with static shell + dynamic holes
 - [x] Audit library Edge Runtime compatibility (completed - not compatible)
 - [x] Created Edge-compatible health check route for testing
-- [x] Created comprehensive dependency analysis document (docs/dependency-analysis-recommendations.md)
-- [x] Added migration examples for Drizzle ORM, Clerk Auth, and Vercel Blob
 - [ ] Verify Supabase region matches Vercel deployment region
 - [ ] Migrate lightweight API routes to Edge Runtime (blocked by dependencies)
 - [ ] Monitor and optimize memory allocation in Vercel dashboard
@@ -428,5 +426,4 @@ This plan integrates with the project's beads (bd) issue tracking system:
 
 **Document Version:** 1.0  
 **Last Updated:** March 31, 2026  
-**Next Review:** April 7, 2026</content>
-<parameter name="filePath">TECH_DEBT_REMEDIATION_PLAN.md
+**Next Review:** April 7, 2026
