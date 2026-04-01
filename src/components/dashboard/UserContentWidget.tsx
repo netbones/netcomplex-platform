@@ -5,9 +5,8 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import { sanitizeHtml } from '@/lib/utils';
-import { Bookshelf } from '@/components/ui/Bookshelf';
-import { MediaLibrary } from '@/components/ui/MediaLibrary';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { TagCloud } from '@/components/ui/TagCloud';
 
 interface ContentItem {
   id: string;
@@ -68,7 +67,13 @@ export function UserContentWidget() {
 
   return (
     <ErrorBoundary>
-      <div className="space-y-4">
+      <div
+        className="space-y-4 max-h-96 overflow-y-auto"
+        style={{
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#6366f1 #f3f4f6',
+        }}
+      >
         {content.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <p>{t('noContent', 'No content yet')}</p>
@@ -91,9 +96,14 @@ export function UserContentWidget() {
                       {new Date(item.createdAt).toLocaleDateString()}
                     </span>
                   </div>
+                  {item.tags && item.tags.length > 0 && (
+                    <div className="mt-2">
+                      <TagCloud tags={item.tags} maxDisplay={3} size="small" />
+                    </div>
+                  )}
                 </div>
                 <Link
-                  href={`/admin/content/${item.id}/edit`}
+                  href={`/admin/content/${item.id}`}
                   className="text-indigo-600 hover:underline text-sm"
                 >
                   Edit
@@ -103,34 +113,6 @@ export function UserContentWidget() {
           ))
         )}
       </div>
-    </ErrorBoundary>
-  );
-}
-
-export function BookshelfWidget() {
-  const { data: session } = authClient.useSession();
-
-  if (!session?.user?.id) {
-    return (
-      <ErrorBoundary>
-        <div className="text-center py-4 text-gray-500">
-          <p>Please log in to view your bookshelf</p>
-        </div>
-      </ErrorBoundary>
-    );
-  }
-
-  return (
-    <ErrorBoundary>
-      <Bookshelf userId={session.user.id} editable={true} />
-    </ErrorBoundary>
-  );
-}
-
-export function MediaWidget() {
-  return (
-    <ErrorBoundary>
-      <MediaLibrary />
     </ErrorBoundary>
   );
 }

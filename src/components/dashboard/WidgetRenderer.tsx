@@ -9,6 +9,10 @@ import { EventsWidget } from './EventsWidget';
 import { NotificationsWidget } from './NotificationsWidget';
 import { MessagesWidget } from './MessagesWidget';
 import { UserContentWidget } from './UserContentWidget';
+import { BookshelfWidget } from './BookshelfWidget';
+import { MediaWidget } from './MediaWidget';
+import { MyAlbumWidget } from './MyAlbumWidget';
+import { SidebarWidgetBox } from './SidebarWidgetBox';
 import { HouseholdsWidget } from './HouseholdsWidget';
 import { AgentDashboardWidget } from './AgentDashboardWidget';
 import { SoloSeatWidget } from './SoloSeatWidget';
@@ -33,6 +37,14 @@ export function WidgetRenderer({ widgetId }: WidgetRendererProps): ReactNode {
       return <MessagesWidget />;
     case 'my-content':
       return <UserContentWidget />;
+    case 'bookshelf':
+      return <BookshelfWidget />;
+    case 'media':
+      return <MediaWidget />;
+    case 'my-album':
+      return <MyAlbumWidget />;
+    case 'sidebar-widgets':
+      return <SidebarWidgetBox />;
     default:
       return (
         <ErrorBoundary>

@@ -56,6 +56,34 @@ const ALL_WIDGETS: DashboardWidget[] = [
     icon: 'fa-file-alt',
     label: 'My Content',
   },
+  {
+    id: 'bookshelf',
+    type: 'bookshelf',
+    title: 'My Bookshelf',
+    icon: 'fa-book',
+    label: 'My Bookshelf',
+  },
+  {
+    id: 'media',
+    type: 'media',
+    title: 'Media Gallery',
+    icon: 'fa-images',
+    label: 'Media Gallery',
+  },
+  {
+    id: 'my-album',
+    type: 'my-album',
+    title: 'My Albums',
+    icon: 'fa-photo-video',
+    label: 'My Albums',
+  },
+  {
+    id: 'sidebar-widgets',
+    type: 'sidebar-widgets',
+    title: 'Sidebar Widgets',
+    icon: 'fa-columns',
+    label: 'Sidebar Widgets',
+  },
 ];
 
 const DEFAULT_TABS: DashboardTab[] = [

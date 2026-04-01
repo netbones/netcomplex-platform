@@ -45,6 +45,7 @@ model User {
   passkeys         Passkey[]
   suspensions      PlatformSuspension[]
   membershipRequests GroupMembershipRequest[]
+  albums             Album[]
 
   // Identity model relations
   standardSeats   StandardSeat[]
@@ -736,4 +737,21 @@ model AgentAccess {
   @@index([organizationId])
   @@index([expiresAt])
   @@map("agentAccess")
+}
+
+// User Albums for Media Gallery organization
+model Album {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  isPublic    Boolean  @default(false)
+  mediaIds    String[] // Array of media keys from storage
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([isPublic])
+  @@map("album")
 }
