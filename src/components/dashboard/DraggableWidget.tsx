@@ -27,23 +27,23 @@ export function DraggableWidget({
   tabId,
 }: DraggableWidgetProps) {
   const { t } = useTranslation('dashboard');
-  const { getWidgetLayout, updateWidgetLayout, toggleWidgetCollapsed } = useWidgetStore();
+  const { updateWidgetLayout, toggleWidgetCollapsed } = useWidgetStore();
 
-  // Get layout from store (with fallback to defaults)
-  const storedLayout = getWidgetLayout(tabId, id);
-  const defaultLayout = { x: 0, y: 0, width: 320, height: 200, isCollapsed: false };
-  const layout = storedLayout || defaultLayout;
+  // Subscribe to the specific widget layout
+  const layout = useWidgetStore(state => {
+    const tabLayouts = state.layouts[tabId];
+    return tabLayouts?.[id] || { x: 0, y: 0, width: 320, height: 200, isCollapsed: false };
+  });
+
+  // Local state for immediate updates (position/size)
   const [position, setPosition] = useState({ x: layout.x, y: layout.y });
   const [size, setSize] = useState({ width: layout.width, height: layout.height });
-  const [isCollapsed, setIsCollapsed] = useState(layout.isCollapsed);
 
-  // Update local state when store changes (e.g., when switching tabs)
+  // Sync local state with store changes
   useEffect(() => {
-    const newLayout = getWidgetLayout(tabId, id) || defaultLayout;
-    setPosition({ x: newLayout.x, y: newLayout.y });
-    setSize({ width: newLayout.width, height: newLayout.height });
-    setIsCollapsed(newLayout.isCollapsed);
-  }, [tabId, id, getWidgetLayout]);
+    setPosition({ x: layout.x, y: layout.y });
+    setSize({ width: layout.width, height: layout.height });
+  }, [layout.x, layout.y, layout.width, layout.height]);
 
   const handleDragStop = (_e: any, d: { x: number; y: number }) => {
     setPosition(d);
@@ -66,7 +66,7 @@ export function DraggableWidget({
       y: position.y,
       width: newWidth,
       height: newHeight,
-      ...(isCollapsed ? {} : { expandedHeight: newHeight }), // Update expandedHeight if not collapsed
+      ...(!layout.isCollapsed ? { expandedHeight: newHeight } : {}), // Update expandedHeight if not collapsed
     });
   };
 
@@ -111,9 +111,13 @@ export function DraggableWidget({
             <button
               onClick={handleToggleCollapsed}
               className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto"
-              title={isCollapsed ? t('expandWidget', 'Expand') : t('collapseWidget', 'Collapse')}
+              title={
+                layout.isCollapsed ? t('expandWidget', 'Expand') : t('collapseWidget', 'Collapse')
+              }
             >
-              <i className={`fas fa-chevron-${isCollapsed ? 'down' : 'up'} text-white text-sm`}></i>
+              <i
+                className={`fas fa-chevron-${layout.isCollapsed ? 'down' : 'up'} text-white text-sm`}
+              ></i>
             </button>
           )}
           {removable && onRemove && (
@@ -129,14 +133,14 @@ export function DraggableWidget({
       </div>
 
       {/* Content - only render when not collapsed */}
-      {!isCollapsed && (
+      {!layout.isCollapsed && (
         <div className="transition-all duration-300 ease-in-out overflow-hidden max-h-screen opacity-100">
           <div className="p-4">{children}</div>
         </div>
       )}
 
       {/* Resize handle - hide when collapsed */}
-      {!isCollapsed && (
+      {!layout.isCollapsed && (
         <div className="absolute bottom-0 right-0 w-5 h-5 bg-indigo-500 rounded-tl cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity">
           <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b border-white"></div>
         </div>
