@@ -3,31 +3,37 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
-import { prisma } from '@/lib/prisma';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 async function getContent() {
-  const content = await prisma.content.findMany({
-    where: {
-      category: 'CONSERVATION',
-      published: true,
-    },
-    orderBy: { publishedAt: 'desc' },
-    take: 3,
-    include: {
-      author: {
-        select: { name: true },
-      },
-    },
-  });
-  return content;
+  const response = await fetch('/api/conservation');
+  if (!response.ok) {
+    throw new Error('Failed to fetch conservation content');
+  }
+  return response.json();
 }
+
+type ContentItem = {
+  id: string;
+  title: string;
+  content: string;
+  excerpt?: string;
+  image?: string;
+  category: string;
+  tags: string[];
+  published: boolean;
+  featured: boolean;
+  publishedAt?: string;
+  author?: {
+    name: string;
+  };
+};
 
 export default function ConservationPage() {
   const { t: tCommon } = useTranslation('common');
   const { t } = useTranslation('conservation');
-  const [content, setContent] = useState<Awaited<ReturnType<typeof getContent>>>([]);
+  const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const { isReady, LoadingComponent } = usePageLoading(
