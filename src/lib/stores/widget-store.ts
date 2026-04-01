@@ -7,6 +7,7 @@ export interface WidgetLayout {
   width: number;
   height: number;
   isCollapsed: boolean;
+  expandedHeight?: number; // Store the height when expanded, so we can restore it when collapsing/expanding
 }
 
 export interface WidgetLayouts {
@@ -79,9 +80,19 @@ export const useWidgetStore = create<WidgetStore>()(
       toggleWidgetCollapsed: (tabId: string, widgetId: string) => {
         const currentLayout = get().getWidgetLayout(tabId, widgetId);
         if (currentLayout) {
-          get().updateWidgetLayout(tabId, widgetId, {
-            isCollapsed: !currentLayout.isCollapsed,
-          });
+          const newCollapsedState = !currentLayout.isCollapsed;
+          const updates: Partial<WidgetLayout> = { isCollapsed: newCollapsedState };
+
+          if (newCollapsedState) {
+            // When collapsing, store the current height as expandedHeight
+            updates.expandedHeight = currentLayout.height;
+            updates.height = 60; // Set to collapsed height
+          } else {
+            // When expanding, restore the stored expandedHeight or use default
+            updates.height = currentLayout.expandedHeight || 200;
+          }
+
+          get().updateWidgetLayout(tabId, widgetId, updates);
         }
       },
 

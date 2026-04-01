@@ -27,7 +27,7 @@ export function DraggableWidget({
   tabId,
 }: DraggableWidgetProps) {
   const { t } = useTranslation('dashboard');
-  const { getWidgetLayout, updateWidgetLayout } = useWidgetStore();
+  const { getWidgetLayout, updateWidgetLayout, toggleWidgetCollapsed } = useWidgetStore();
 
   // Get layout from store (with fallback to defaults)
   const storedLayout = getWidgetLayout(tabId, id);
@@ -66,24 +66,13 @@ export function DraggableWidget({
       y: position.y,
       width: newWidth,
       height: newHeight,
+      ...(isCollapsed ? {} : { expandedHeight: newHeight }), // Update expandedHeight if not collapsed
     });
   };
 
   const handleToggleCollapsed = () => {
-    const newCollapsedState = !isCollapsed;
-    setIsCollapsed(newCollapsedState);
-
-    // When collapsing, reduce the height to just the header height
-    // When expanding, restore the previous height
-    if (newCollapsedState) {
-      setSize(prev => ({ ...prev, height: 60 })); // Header height
-      updateWidgetLayout(tabId, id, { isCollapsed: true, height: 60 });
-    } else {
-      const storedLayout = getWidgetLayout(tabId, id) || defaultLayout;
-      const restoredHeight = storedLayout.height > 60 ? storedLayout.height : 200;
-      setSize(prev => ({ ...prev, height: restoredHeight }));
-      updateWidgetLayout(tabId, id, { isCollapsed: false, height: restoredHeight });
-    }
+    // Use the store method which properly handles height transitions
+    toggleWidgetCollapsed(tabId, id);
   };
 
   return (
