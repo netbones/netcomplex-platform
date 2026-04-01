@@ -1,145 +1,129 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ADMIN_LINKS } from '@/lib/constants';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
+import { AdminWidgetRenderer } from '@/components/admin/AdminWidgetRenderer';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
-interface Stats {
-  totalUsers: number;
-  activeRequests: number;
-  totalGroups: number;
-  totalContent: number;
+interface AdminWidget {
+  id: string;
+  title: string;
+  icon: string;
+  size?: 'small' | 'medium' | 'large';
 }
+
+const ADMIN_WIDGETS: AdminWidget[] = [
+  { id: 'admin-stats', title: 'System Statistics', icon: 'fa-chart-bar', size: 'large' },
+  { id: 'admin-quick-links', title: 'Quick Actions', icon: 'fa-bolt', size: 'medium' },
+  { id: 'admin-activity', title: 'Recent Activity', icon: 'fa-clock', size: 'large' },
+];
 
 export default function AdminDashboardPage() {
   const { t } = useTranslation('admin');
-  const [stats, setStats] = useState<Stats>({
-    totalUsers: 0,
-    activeRequests: 0,
-    totalGroups: 0,
-    totalContent: 0,
-  });
-  const [loading, setLoading] = useState(true);
+  const { t: tCommon } = useTranslation('common');
 
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const [usersRes, requestsRes, groupsRes, contentRes] = await Promise.all([
-          fetch('/api/users'),
-          fetch('/api/maintenance'),
-          fetch('/api/groups'),
-          fetch('/api/content'),
-        ]);
-        const [users, requests, groups, content] = await Promise.all([
-          usersRes.json(),
-          requestsRes.json(),
-          groupsRes.json(),
-          contentRes.json(),
-        ]);
-        setStats({
-          totalUsers: users.length,
-          activeRequests: requests.filter((r: { status: string }) => r.status !== 'COMPLETED')
-            .length,
-          totalGroups: groups.length,
-          totalContent: content.length,
-        });
-      } catch (error) {
-        console.error('Failed to fetch stats:', error);
-      } finally {
-        setLoading(false);
-      }
+  const [activeWidgets, setActiveWidgets] = useState<string[]>([
+    'admin-stats',
+    'admin-quick-links',
+    'admin-activity',
+  ]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setActiveWidgets(items => {
+        const oldIndex = items.indexOf(active.id as string);
+        const newIndex = items.indexOf(over.id as string);
+        return arrayMove(items, oldIndex, newIndex);
+      });
     }
-    fetchStats();
-  }, []);
+  };
 
-  const statCards = [
-    {
-      label: 'Total Users',
-      value: stats.totalUsers,
-      href: '/admin/users',
-      icon: 'fa-users',
-      color: 'bg-blue-500',
-    },
-    {
-      label: 'Active Requests',
-      value: stats.activeRequests,
-      href: '/admin/requests',
-      icon: 'fa-tools',
-      color: 'bg-orange-500',
-    },
-    {
-      label: 'Interest Groups',
-      value: stats.totalGroups,
-      href: '/admin/groups',
-      icon: 'fa-people-roof',
-      color: 'bg-green-500',
-    },
-    {
-      label: 'Content Items',
-      value: stats.totalContent,
-      href: '/admin/content',
-      icon: 'fa-file-alt',
-      color: 'bg-purple-500',
-    },
-  ];
+  const getWidgetTitle = (widgetId: string) => {
+    const widget = ADMIN_WIDGETS.find(w => w.id === widgetId);
+    return widget?.title || widgetId;
+  };
+
+  const getWidgetIcon = (widgetId: string) => {
+    const widget = ADMIN_WIDGETS.find(w => w.id === widgetId);
+    return widget?.icon || 'fa-widget';
+  };
+
+  const getWidgetSize = (widgetId: string) => {
+    const widget = ADMIN_WIDGETS.find(w => w.id === widgetId);
+    return widget?.size || 'medium';
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('dashboard')}</h1>
+    <ErrorBoundary>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Breadcrumbs
+          items={[{ label: tCommon('nav.home'), href: '/' }, { label: 'Admin Dashboard' }]}
+        />
 
-      {loading ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500">Loading stats...</p>
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            {t('dashboard', 'Admin Dashboard')}
+          </h1>
+          <p className="text-gray-600">Monitor and manage your community platform</p>
         </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {statCards.map(card => (
-              <Link
-                key={card.label}
-                href={card.href}
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-              >
-                <div className="flex items-center">
-                  <div
-                    className={`${card.color} w-12 h-12 rounded-lg flex items-center justify-center mr-4`}
-                  >
-                    <i className={`fas ${card.icon} text-xl text-white`}></i>
-                  </div>
-                  <div>
-                    <p className="text-3xl font-bold text-gray-900">{card.value}</p>
-                    <p className="text-sm text-gray-600">{card.label}</p>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Links</h2>
-              <div className="space-y-3">
-                {ADMIN_LINKS.map(link => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <span className="font-medium text-gray-700">{link.page}</span>
-                    <i className="fas fa-chevron-right text-gray-400"></i>
-                  </Link>
-                ))}
-              </div>
-            </div>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={activeWidgets} strategy={rectSortingStrategy}>
+            <div className="space-y-6">
+              {activeWidgets.map(widgetId => {
+                const size = getWidgetSize(widgetId);
+                const gridCols = size === 'large' ? 'col-span-1 lg:col-span-2' : 'col-span-1';
 
-            <div className="bg-white rounded-lg shadow-md p-6 col-span-2">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Activity</h2>
-              <p className="text-gray-500 text-center py-8">Activity feed coming soon...</p>
+                return (
+                  <div key={widgetId} className={`${gridCols}`}>
+                    <DraggableWidget
+                      id={widgetId}
+                      title={getWidgetTitle(widgetId)}
+                      icon={getWidgetIcon(widgetId)}
+                      removable={false} // Admin widgets are always visible
+                    >
+                      <AdminWidgetRenderer widgetId={widgetId} />
+                    </DraggableWidget>
+                  </div>
+                );
+              })}
             </div>
+          </SortableContext>
+        </DndContext>
+
+        {activeWidgets.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            <i className="fas fa-cog text-4xl mb-4"></i>
+            <h3 className="text-lg font-medium mb-2">No widgets configured</h3>
+            <p>This shouldn't happen - please refresh the page</p>
           </div>
-        </>
-      )}
-    </div>
+        )}
+      </div>
+    </ErrorBoundary>
   );
 }
