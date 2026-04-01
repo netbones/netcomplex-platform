@@ -2,21 +2,6 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  rectSortingStrategy,
-} from '@dnd-kit/sortable';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
 import { DashboardTabs, AddWidgetModal } from '@/components/dashboard/DashboardTabs';
@@ -76,13 +61,6 @@ export default function AdminDashboardPage() {
   );
   const [showAddWidget, setShowAddWidget] = useState(false);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
     const currentTab = ADMIN_TABS.find(tab => tab.id === tabId);
@@ -100,17 +78,6 @@ export default function AdminDashboardPage() {
 
   const getAvailableWidgets = () => {
     return ALL_ADMIN_WIDGETS.filter(widget => !activeWidgets.includes(widget.id));
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      setActiveWidgets(items => {
-        const oldIndex = items.indexOf(active.id as string);
-        const newIndex = items.indexOf(over.id as string);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
   };
 
   const getWidgetTitle = (widgetId: string) => {
@@ -187,29 +154,20 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={activeWidgets} strategy={rectSortingStrategy}>
-            <div className="space-y-6">
-              {activeWidgets.map(widgetId => {
-                const size = getWidgetSize(widgetId);
-                const gridCols = size === 'large' ? 'col-span-1 lg:col-span-2' : 'col-span-1';
-
-                return (
-                  <div key={widgetId} className={`${gridCols}`}>
-                    <DraggableWidget
-                      id={widgetId}
-                      title={getWidgetTitle(widgetId)}
-                      icon={getWidgetIcon(widgetId)}
-                      removable={false} // Admin widgets are always visible
-                    >
-                      <AdminWidgetRenderer widgetId={widgetId} />
-                    </DraggableWidget>
-                  </div>
-                );
-              })}
-            </div>
-          </SortableContext>
-        </DndContext>
+        <div className="relative min-h-screen">
+          {activeWidgets.map(widgetId => (
+            <DraggableWidget
+              key={widgetId}
+              id={widgetId}
+              title={getWidgetTitle(widgetId)}
+              icon={getWidgetIcon(widgetId)}
+              removable={false} // Admin widgets are always visible
+              tabId={activeTab}
+            >
+              <AdminWidgetRenderer widgetId={widgetId} />
+            </DraggableWidget>
+          ))}
+        </div>
 
         {activeWidgets.length === 0 && (
           <div className="text-center py-12 text-gray-500">

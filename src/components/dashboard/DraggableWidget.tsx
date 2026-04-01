@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { useState, useEffect } from 'react';
+import { Rnd } from 'react-rnd';
 import { useTranslation } from 'react-i18next';
+import { useWidgetStore } from '@/lib/stores/widget-store';
 
 interface DraggableWidgetProps {
   id: string;
@@ -13,7 +13,7 @@ interface DraggableWidgetProps {
   removable?: boolean;
   onRemove?: () => void;
   collapsible?: boolean;
-  defaultCollapsed?: boolean;
+  tabId: string; // Required for state management
 }
 
 export function DraggableWidget({
@@ -24,82 +24,109 @@ export function DraggableWidget({
   removable = false,
   onRemove,
   collapsible = true,
-  defaultCollapsed = false,
+  tabId,
 }: DraggableWidgetProps) {
   const { t } = useTranslation('dashboard');
-  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+  const { getWidgetLayout, updateWidgetLayout } = useWidgetStore();
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id,
-  });
+  // Get layout from store
+  const layout = getWidgetLayout(tabId, id);
+  const [position, setPosition] = useState({ x: layout.x, y: layout.y });
+  const [size, setSize] = useState({ width: layout.width, height: layout.height });
+  const [isCollapsed, setIsCollapsed] = useState(layout.isCollapsed);
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
+  // Update local state when store changes (e.g., when switching tabs)
+  useEffect(() => {
+    const newLayout = getWidgetLayout(tabId, id);
+    setPosition({ x: newLayout.x, y: newLayout.y });
+    setSize({ width: newLayout.width, height: newLayout.height });
+    setIsCollapsed(newLayout.isCollapsed);
+  }, [tabId, id, getWidgetLayout]);
+
+  const handleDragStop = (_e: any, d: { x: number; y: number }) => {
+    setPosition(d);
+    updateWidgetLayout(tabId, id, { x: d.x, y: d.y });
+  };
+
+  const handleResizeStop = (
+    _e: any,
+    _direction: any,
+    ref: HTMLElement,
+    _delta: any,
+    position: { x: number; y: number }
+  ) => {
+    const newWidth = ref.offsetWidth;
+    const newHeight = ref.offsetHeight;
+    setSize({ width: newWidth, height: newHeight });
+    setPosition(position);
+    updateWidgetLayout(tabId, id, {
+      x: position.x,
+      y: position.y,
+      width: newWidth,
+      height: newHeight,
+    });
+  };
+
+  const handleToggleCollapsed = () => {
+    const newCollapsedState = !isCollapsed;
+    setIsCollapsed(newCollapsedState);
+    updateWidgetLayout(tabId, id, { isCollapsed: newCollapsedState });
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="bg-white rounded-lg shadow-md overflow-hidden relative group"
+    <Rnd
+      size={size}
+      position={position}
+      onDragStop={handleDragStop}
+      onResizeStop={handleResizeStop}
+      minWidth={280}
+      minHeight={150}
+      maxWidth={800}
+      maxHeight={600}
+      bounds="parent"
+      className="bg-white rounded-lg shadow-md overflow-hidden group"
+      dragHandleClassName="drag-handle"
+      enableResizing={{
+        top: false,
+        right: true,
+        bottom: true,
+        left: false,
+        topRight: false,
+        bottomRight: true,
+        bottomLeft: false,
+        topLeft: false,
+      }}
     >
-      {/* Header with drag functionality only on the left side */}
-      <div className="relative">
-        {/* Drag area - only the left portion */}
-        <div
-          {...attributes}
-          {...listeners}
-          className="absolute inset-0 w-3/4 cursor-grab active:cursor-grabbing"
-          style={{ zIndex: 1 }}
-        />
-
-        {/* Header content */}
-        <div
-          className="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-500 to-purple-600 relative"
-          style={{ zIndex: 2 }}
-        >
-          <div className="flex items-center gap-3">
-            <i className={`fas fa-grip-vertical text-white/50 mr-2`}></i>
-            <i className={`fas ${icon} text-white text-lg`}></i>
-            <h3 className="text-lg font-semibold text-white">{title}</h3>
-          </div>
-          <div className="flex items-center gap-2">
-            {collapsible && (
-              <button
-                onClick={e => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsCollapsed(!isCollapsed);
-                }}
-                onPointerDown={e => e.stopPropagation()}
-                className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto"
-                title={isCollapsed ? t('expandWidget', 'Expand') : t('collapseWidget', 'Collapse')}
-              >
-                <i
-                  className={`fas fa-chevron-${isCollapsed ? 'down' : 'up'} text-white text-sm`}
-                ></i>
-              </button>
-            )}
-            {removable && onRemove && (
-              <button
-                onClick={e => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onRemove();
-                }}
-                onPointerDown={e => e.stopPropagation()}
-                className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto"
-                title={t('removeWidget', 'Remove')}
-              >
-                <i className="fas fa-times text-white text-sm"></i>
-              </button>
-            )}
-          </div>
+      {/* Header */}
+      <div className="drag-handle flex items-center justify-between p-4 bg-gradient-to-r from-indigo-500 to-purple-600 cursor-move">
+        <div className="flex items-center gap-3">
+          <i className="fas fa-grip-vertical text-white/50 mr-2"></i>
+          <i className={`fas ${icon} text-white text-lg`}></i>
+          <h3 className="text-lg font-semibold text-white">{title}</h3>
+        </div>
+        <div className="flex items-center gap-2">
+          {collapsible && (
+            <button
+              onClick={handleToggleCollapsed}
+              className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto"
+              title={isCollapsed ? t('expandWidget', 'Expand') : t('collapseWidget', 'Collapse')}
+            >
+              <i className={`fas fa-chevron-${isCollapsed ? 'down' : 'up'} text-white text-sm`}></i>
+            </button>
+          )}
+          {removable && onRemove && (
+            <button
+              onClick={onRemove}
+              className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto"
+              title={t('removeWidget', 'Remove')}
+            >
+              <i className="fas fa-times text-white text-sm"></i>
+            </button>
+          )}
         </div>
       </div>
 
+      {/* Content */}
       <div
         className={`transition-all duration-300 ease-in-out overflow-hidden ${
           isCollapsed ? 'max-h-0 opacity-0' : 'max-h-screen opacity-100'
@@ -107,6 +134,11 @@ export function DraggableWidget({
       >
         <div className="p-4">{children}</div>
       </div>
-    </div>
+
+      {/* Resize handle */}
+      <div className="absolute bottom-0 right-0 w-5 h-5 bg-indigo-500 rounded-tl cursor-se-resize opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute bottom-1 right-1 w-2 h-2 border-r border-b border-white"></div>
+      </div>
+    </Rnd>
   );
 }

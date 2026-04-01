@@ -2,21 +2,6 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  rectSortingStrategy,
-} from '@dnd-kit/sortable';
 import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
@@ -103,30 +88,12 @@ function DashboardContent() {
   const [activeWidgets, setActiveWidgets] = useState<string[]>(DEFAULT_TABS[0].defaultWidgets);
   const [showAddWidget, setShowAddWidget] = useState(false);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
   // Update active widgets when tab changes
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
     const currentTab = tabs.find(tab => tab.id === tabId);
     if (currentTab) {
       setActiveWidgets(currentTab.defaultWidgets);
-    }
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      setActiveWidgets(items => {
-        const oldIndex = items.indexOf(active.id as string);
-        const newIndex = items.indexOf(over.id as string);
-        return arrayMove(items, oldIndex, newIndex);
-      });
     }
   };
 
@@ -188,28 +155,21 @@ function DashboardContent() {
             onAddWidget={() => setShowAddWidget(true)}
           />
 
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext items={activeWidgets} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {activeWidgets.map(widgetId => (
-                  <DraggableWidget
-                    key={widgetId}
-                    id={widgetId}
-                    title={getWidgetTitle(widgetId)}
-                    icon={getWidgetIcon(widgetId)}
-                    removable={true}
-                    onRemove={() => handleRemoveWidget(widgetId)}
-                  >
-                    <WidgetRenderer widgetId={widgetId} />
-                  </DraggableWidget>
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
+          <div className="relative min-h-screen">
+            {activeWidgets.map(widgetId => (
+              <DraggableWidget
+                key={widgetId}
+                id={widgetId}
+                title={getWidgetTitle(widgetId)}
+                icon={getWidgetIcon(widgetId)}
+                removable={true}
+                onRemove={() => handleRemoveWidget(widgetId)}
+                tabId={activeTab}
+              >
+                <WidgetRenderer widgetId={widgetId} />
+              </DraggableWidget>
+            ))}
+          </div>
 
           {activeWidgets.length === 0 && (
             <div className="text-center py-12 text-gray-500">
