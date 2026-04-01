@@ -12,9 +12,16 @@ interface DashboardTabsProps {
   activeTab: string;
   onTabChange: (tabId: string) => void;
   onAddWidget?: (tabId: string) => void;
+  onResetLayout?: (tabId: string) => void;
 }
 
-export function DashboardTabs({ tabs, activeTab, onTabChange, onAddWidget }: DashboardTabsProps) {
+export function DashboardTabs({
+  tabs,
+  activeTab,
+  onTabChange,
+  onAddWidget,
+  onResetLayout,
+}: DashboardTabsProps) {
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 overflow-x-auto pb-2">
@@ -39,6 +46,16 @@ export function DashboardTabs({ tabs, activeTab, onTabChange, onAddWidget }: Das
           >
             <i className="fas fa-plus"></i>
             <span>Add Widget</span>
+          </button>
+        )}
+        {onResetLayout && (
+          <button
+            onClick={() => onResetLayout(activeTab)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-gray-600 hover:bg-red-50 hover:text-red-600 border border-gray-300 hover:border-red-300 transition-all"
+            title="Reset dashboard layout to default"
+          >
+            <i className="fas fa-undo"></i>
+            <span>Reset Layout</span>
           </button>
         )}
       </div>

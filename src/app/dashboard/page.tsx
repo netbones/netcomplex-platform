@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
+import { useWidgetStore } from '@/lib/stores/widget-store';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
 import { DashboardTabs, AddWidgetModal, DashboardTab } from '@/components/dashboard/DashboardTabs';
@@ -120,6 +121,18 @@ function DashboardContent() {
     );
   };
 
+  const handleResetLayout = (tabId: string) => {
+    // Reset the widget layout in the store
+    const { resetTabLayout } = useWidgetStore.getState();
+    resetTabLayout(tabId);
+
+    // Reset active widgets to the tab's default
+    const tab = tabs.find(t => t.id === tabId);
+    if (tab) {
+      setActiveWidgets(tab.defaultWidgets);
+    }
+  };
+
   const getAvailableWidgets = () => {
     return ALL_WIDGETS.filter(w => !activeWidgets.includes(w.id));
   };
@@ -153,6 +166,7 @@ function DashboardContent() {
             activeTab={activeTab}
             onTabChange={handleTabChange}
             onAddWidget={() => setShowAddWidget(true)}
+            onResetLayout={handleResetLayout}
           />
 
           <div className="relative min-h-screen">
