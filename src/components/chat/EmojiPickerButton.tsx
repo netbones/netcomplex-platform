@@ -1,25 +1,34 @@
 'use client';
 
-import { useState } from 'react';
-import { EmojiPicker } from 'frimousse';
+import { useState, useEffect } from 'react';
+import { EmojiPicker, useSkinTone } from 'frimousse';
 
 interface EmojiPickerButtonProps {
   onEmojiSelect: (emoji: string) => void;
 }
 
-const CATEGORIES = [
-  { id: 'face', label: '😀', name: 'Smileys' },
-  { id: 'people', label: '👋', name: 'People' },
-  { id: 'nature', label: '🌸', name: 'Nature' },
-  { id: 'food', label: '🍔', name: 'Food' },
-  { id: 'activities', label: '⚽', name: 'Activities' },
-  { id: 'travel', label: '🚗', name: 'Travel' },
-  { id: 'objects', label: '💡', name: 'Objects' },
-  { id: 'symbols', label: '❤️', name: 'Symbols' },
-];
-
 export function EmojiPickerButton({ onEmojiSelect }: EmojiPickerButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [skinTone, setSkinTone] = useState<
+    'none' | 'light' | 'medium-light' | 'medium' | 'medium-dark' | 'dark'
+  >('none');
+
+  // Load saved skin tone preference
+  useEffect(() => {
+    const saved = localStorage.getItem('emojiSkinTone');
+    if (
+      saved &&
+      ['none', 'light', 'medium-light', 'medium', 'medium-dark', 'dark'].includes(saved)
+    ) {
+      setSkinTone(saved as typeof skinTone);
+    }
+  }, []);
+
+  // Save skin tone when changed
+  const handleSkinToneChange = (newTone: string) => {
+    setSkinTone(newTone as typeof skinTone);
+    localStorage.setItem('emojiSkinTone', newTone);
+  };
 
   return (
     <div className="relative">
@@ -42,14 +51,15 @@ export function EmojiPickerButton({ onEmojiSelect }: EmojiPickerButtonProps) {
         <div className="absolute bottom-full mb-2 left-0 z-50">
           <div
             className="bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden"
-            style={{ width: '320px' }}
+            style={{ width: '320px', maxHeight: '400px' }}
           >
             <EmojiPicker.Root
               onEmojiSelect={({ emoji }) => {
                 onEmojiSelect(emoji);
                 setIsOpen(false);
               }}
-              className="h-[340px]"
+              skinTone={skinTone}
+              className="h-[360px]"
               sticky
             >
               <EmojiPicker.Search
@@ -57,10 +67,24 @@ export function EmojiPickerButton({ onEmojiSelect }: EmojiPickerButtonProps) {
                 placeholder="Search emoji..."
               />
 
-              <EmojiPicker.SkinToneSelector
-                className="m-2 ml-auto text-xs px-2 py-1 border rounded hover:bg-gray-50"
-                emoji="👍"
-              />
+              <div className="flex items-center gap-2 mx-2 mb-1">
+                <EmojiPicker.SkinToneSelector
+                  className="text-xs px-2 py-1 border rounded hover:bg-gray-50"
+                  emoji="👍"
+                />
+                <select
+                  value={skinTone}
+                  onChange={e => handleSkinToneChange(e.target.value)}
+                  className="text-xs px-2 py-1 border rounded bg-white"
+                >
+                  <option value="none">Default</option>
+                  <option value="light">Light</option>
+                  <option value="medium-light">Medium-Light</option>
+                  <option value="medium">Medium</option>
+                  <option value="medium-dark">Medium-Dark</option>
+                  <option value="dark">Dark</option>
+                </select>
+              </div>
 
               <EmojiPicker.ActiveEmoji>
                 {({ emoji }) => (
@@ -70,7 +94,10 @@ export function EmojiPickerButton({ onEmojiSelect }: EmojiPickerButtonProps) {
                 )}
               </EmojiPicker.ActiveEmoji>
 
-              <EmojiPicker.Viewport className="px-2 pb-2 outline-none">
+              <EmojiPicker.Viewport
+                className="px-2 pb-2 outline-none overflow-y-auto"
+                style={{ maxHeight: '240px' }}
+              >
                 <EmojiPicker.List
                   className="space-y-0.5"
                   components={{
