@@ -11,7 +11,10 @@ interface Conversation {
   id: string;
   name: string | null;
   type: string;
-  participants: { id: string; name: string; avatar: string | null }[];
+  participants: Array<{
+    user: { id: string; name: string; avatar: string | null };
+  }>;
+  messages: Array<{ content: string; createdAt: string }>;
 }
 
 const currentUserId = 'demo-user-id';
@@ -86,12 +89,33 @@ export default function MessagesPage() {
                     >
                       <p className="font-medium">
                         {conv.name ||
-                          conv.participants.find(p => p.id !== currentUserId)?.name ||
+                          conv.participants.find(p => p.user.id !== currentUserId)?.user.name ||
                           'New Conversation'}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {conv.participants.length} participants
+                        {conv.participants.length} participant
+                        {conv.participants.length !== 1 ? 's' : ''}
                       </p>
+                      <div className="flex -space-x-2 mt-1">
+                        {conv.participants.slice(0, 3).map((p, i) => (
+                          <div
+                            key={p.user.id}
+                            className="w-6 h-6 rounded-full bg-soralia-primary/20 flex items-center justify-center border-2 border-white"
+                            title={p.user.name}
+                          >
+                            <span className="text-xs text-soralia-primary font-medium">
+                              {p.user.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        ))}
+                        {conv.participants.length > 3 && (
+                          <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center border-2 border-white">
+                            <span className="text-xs text-gray-600">
+                              +{conv.participants.length - 3}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </button>
                   ))}
                 </div>
