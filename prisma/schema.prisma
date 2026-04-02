@@ -29,7 +29,7 @@ model User {
   requests         MaintenanceRequest[]
   bookings         Booking[]
   notifications    Notification[]
-  conversations    Conversation[]
+  conversationParticipants ConversationParticipant[]
   messages         Message[]
   groupMemberships UserGroup[]
   ownedGroups      Group[]
@@ -248,13 +248,28 @@ model Setting {
 }
 
 model Conversation {
-  id           String           @id @default(cuid())
+  id           String                  @id @default(cuid())
   name         String?
-  type         ConversationType @default(DIRECT)
-  participants User[]
+  type         ConversationType        @default(DIRECT)
+  participants ConversationParticipant[]
   messages     Message[]
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+}
+
+model ConversationParticipant {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt       DateTime     @default(now())
+  lastReadAt     DateTime?    // When user last read this conversation
+  lastReadMessageId String?   // ID of last message user read
+
+  @@unique([conversationId, userId])
+  @@index([conversationId])
+  @@index([userId])
 }
 
 enum ConversationType {

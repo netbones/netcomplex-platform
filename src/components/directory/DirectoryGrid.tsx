@@ -1,6 +1,6 @@
 import { CARD_HEADER_COLORS } from '@/lib/constants';
 import { authClient } from '@/lib/auth-client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChatModal } from './DirectoryChatModal';
 import { UnifiedResidentCard, type Resident } from '../shared/UnifiedResidentCard';
 
@@ -12,8 +12,28 @@ interface DirectoryGridProps {
 export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridProps) {
   const { data: session } = authClient.useSession();
   const [chatUser, setChatUser] = useState<{ id: string; name: string } | null>(null);
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
   const currentUserId = session?.user?.id || '';
   const currentUserName = session?.user?.name || '';
+
+  // Fetch unread message counts
+  useEffect(() => {
+    if (currentUserId) {
+      const fetchUnreadCounts = async () => {
+        try {
+          const response = await fetch('/api/messages/unread');
+          if (response.ok) {
+            const data = await response.json();
+            setUnreadCounts(data.unreadCounts || {});
+          }
+        } catch (error) {
+          console.error('Failed to fetch unread counts:', error);
+        }
+      };
+
+      fetchUnreadCounts();
+    }
+  }, [currentUserId]);
 
   const openChat = (user: { id: string; name: string }) => {
     setChatUser(user);
@@ -22,14 +42,6 @@ export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridPro
   const closeChat = () => {
     setChatUser(null);
   };
-
-  if (residents.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">No residents found matching your criteria.</p>
-      </div>
-    );
-  }
 
   const canChat = Boolean(currentUserId);
 
@@ -46,6 +58,12 @@ export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridPro
             resident.avatar ||
             `https://api.dicebear.com/7.x/avataaars/svg?seed=${resident.name.replace(' ', '')}`;
 
+          const isCurrentUser = currentUserId === resident.id;
+          // For current user, show total unread messages from all conversations
+          // For other users, show unread count specific to that conversation
+          const totalUnread = Object.values(unreadCounts).reduce((sum, count) => sum + count, 0);
+          const unreadCount = isCurrentUser ? totalUnread : unreadCounts[resident.id] || 0;
+
           return (
             <UnifiedResidentCard
               key={resident.id}
@@ -53,9 +71,11 @@ export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridPro
               viewMode={viewMode}
               headerColor={headerColor}
               avatarUrl={avatarUrl}
-              isChatVisible={canChat && currentUserId !== resident.id}
+              isChatVisible={canChat && !isCurrentUser}
               onChat={() => openChat({ id: resident.id, name: resident.name })}
               index={idx}
+              unreadCount={unreadCount}
+              isCurrentUser={isCurrentUser}
             />
           );
         })}
