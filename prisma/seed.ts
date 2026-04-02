@@ -9,6 +9,9 @@ import {
   ResidentFilter,
   HouseholdStatus,
   OccupantType,
+  ServiceCategory,
+  PriceType,
+  ListingStatus,
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -846,6 +849,369 @@ async function main() {
   ]);
 
   console.log(`Created ${profiles.length} address profiles`);
+
+  // Seed Community Services Marketplace
+  console.log('Seeding community services...');
+
+  // Get existing users for service providers
+  const serviceProviders = await Promise.all([
+    prisma.user.upsert({
+      where: { email: 'gardener.mike@soralia.org' },
+      update: {},
+      create: {
+        email: 'gardener.mike@soralia.org',
+        name: 'Mike Johnson',
+        role: Role.RESIDENT,
+        phone: '+27 82 345 6789',
+        interests: ['gardening', 'landscaping'],
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike',
+        isPublic: true,
+      },
+    }),
+    prisma.user.upsert({
+      where: { email: 'plumber.susan@soralia.org' },
+      update: {},
+      create: {
+        email: 'plumber.susan@soralia.org',
+        name: 'Susan van der Merwe',
+        role: Role.RESIDENT,
+        phone: '+27 82 456 7890',
+        interests: ['home-improvement', 'diy'],
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Susan',
+        isPublic: true,
+      },
+    }),
+    prisma.user.upsert({
+      where: { email: 'electrician.peter@soralia.org' },
+      update: {},
+      create: {
+        email: 'electrician.peter@soralia.org',
+        name: 'Peter Nkosi',
+        role: Role.RESIDENT,
+        phone: '+27 82 567 8901',
+        interests: ['electronics', 'home-improvement'],
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Peter',
+        isPublic: true,
+      },
+    }),
+    prisma.user.upsert({
+      where: { email: 'cleaner.linda@soralia.org' },
+      update: {},
+      create: {
+        email: 'cleaner.linda@soralia.org',
+        name: 'Linda Fourie',
+        role: Role.RESIDENT,
+        phone: '+27 82 678 9012',
+        interests: ['cleaning', 'organization'],
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Linda',
+        isPublic: true,
+      },
+    }),
+    prisma.user.upsert({
+      where: { email: 'hoa.services@soralia.org' },
+      update: {},
+      create: {
+        email: 'hoa.services@soralia.org',
+        name: 'Soralia HOA Services',
+        role: Role.ADMIN,
+        phone: '+27 21 123 4567',
+        interests: ['community', 'maintenance'],
+        avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=SHS',
+        isPublic: true,
+      },
+    }),
+    prisma.user.upsert({
+      where: { email: 'trusted.plumbing@soralia.org' },
+      update: {},
+      create: {
+        email: 'trusted.plumbing@soralia.org',
+        name: 'Cape Plumbing Solutions',
+        role: Role.AGENT,
+        phone: '+27 21 987 6543',
+        interests: ['plumbing', 'emergency-services'],
+        avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=CPS',
+        isPublic: true,
+      },
+    }),
+  ]);
+
+  // Seed Community Service Listings
+  const serviceListings = await Promise.all([
+    // Gardening Services (Member)
+    prisma.communityServiceListing.create({
+      data: {
+        providerId: serviceProviders[0].id, // Mike Johnson
+        title: 'Garden Maintenance & Landscaping',
+        description:
+          'Professional garden maintenance including lawn mowing, trimming, weeding, and seasonal planting. 15 years experience in Cape Town gardens. References available.',
+        category: ServiceCategory.GARDENING,
+        priceType: PriceType.HOURLY,
+        price: 180,
+        serviceAreas: ['Soralia Village', 'Muizenberg', 'St James'],
+        availability: { weekdays: true, weekends: true, evenings: false },
+        images: [
+          'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400',
+          'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400',
+        ],
+        verified: true,
+        rating: 4.8,
+        reviewCount: 12,
+        status: ListingStatus.ACTIVE,
+        isPublished: true,
+        termsAndConditions:
+          'Payment due within 7 days. Materials extra. 24hr cancellation notice required.',
+        cancellationPolicy:
+          'Free cancellation up to 24 hours before service. 50% charge for same-day cancellation.',
+      },
+    }),
+
+    // Plumbing Services (Trusted Third Party)
+    prisma.communityServiceListing.create({
+      data: {
+        providerId: serviceProviders[5].id, // Cape Plumbing Solutions
+        title: 'Emergency & Residential Plumbing',
+        description:
+          'Licensed plumbing services for all residential needs. 24/7 emergency callouts available. Fully insured with 5-year workmanship guarantee.',
+        category: ServiceCategory.PLUMBING,
+        priceType: PriceType.HOURLY,
+        price: 350,
+        serviceAreas: ['Soralia Village', 'Muizenberg', 'Cape Town Southern Suburbs'],
+        availability: { emergency: true, weekdays: true, weekends: true, evenings: true },
+        licenseNumber: 'PL-2023-0456',
+        insuranceExpiry: new Date('2027-12-31'),
+        images: [
+          'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400',
+          'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',
+        ],
+        verified: true,
+        rating: 4.9,
+        reviewCount: 28,
+        status: ListingStatus.ACTIVE,
+        isPublished: true,
+        termsAndConditions:
+          'Quote provided before work begins. Materials charged at cost plus 15%. All work guaranteed.',
+        cancellationPolicy:
+          'Emergency calls: 2hr cancellation notice. Scheduled work: 24hr notice required.',
+      },
+    }),
+
+    // Electrical Services (Member)
+    prisma.communityServiceListing.create({
+      data: {
+        providerId: serviceProviders[2].id, // Peter Nkosi
+        title: 'Residential Electrical Repairs',
+        description:
+          'Qualified electrician specializing in residential electrical work. COC certificates available. Safe, reliable service with competitive rates.',
+        category: ServiceCategory.ELECTRICAL,
+        priceType: PriceType.HOURLY,
+        price: 280,
+        serviceAreas: ['Soralia Village', 'Muizenberg'],
+        availability: { weekdays: true, weekends: false, evenings: false },
+        licenseNumber: 'ELE-2022-0789',
+        insuranceExpiry: new Date('2026-08-15'),
+        images: [
+          'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=400',
+          'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400',
+        ],
+        verified: true,
+        rating: 4.7,
+        reviewCount: 8,
+        status: ListingStatus.ACTIVE,
+        isPublished: true,
+        termsAndConditions:
+          'All work complies with SANS 10142. COC certificates provided. 6-month workmanship guarantee.',
+        cancellationPolicy:
+          '24hr notice required for cancellation. Emergency work cannot be cancelled.',
+      },
+    }),
+
+    // Cleaning Services (Member)
+    prisma.communityServiceListing.create({
+      data: {
+        providerId: serviceProviders[3].id, // Linda Fourie
+        title: 'Deep Cleaning & Housekeeping',
+        description:
+          'Thorough cleaning services for homes and apartments. Eco-friendly products used. Regular and one-time cleans available.',
+        category: ServiceCategory.CLEANING,
+        priceType: PriceType.HOURLY,
+        price: 120,
+        serviceAreas: ['Soralia Village', 'Muizenberg', 'St James'],
+        availability: { weekdays: true, weekends: true, evenings: false },
+        images: [
+          'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400',
+          'https://images.unsplash.com/photo-1556912173-3bb406ef7e77?w=400',
+        ],
+        verified: false,
+        rating: 4.5,
+        reviewCount: 15,
+        status: ListingStatus.ACTIVE,
+        isPublished: true,
+        termsAndConditions:
+          'Eco-friendly products only. Keys handled securely. Satisfaction guarantee.',
+        cancellationPolicy: '48hr notice required. Late cancellations may incur 50% charge.',
+      },
+    }),
+
+    // HOA Community Services (Community)
+    prisma.communityServiceListing.create({
+      data: {
+        providerId: serviceProviders[4].id, // Soralia HOA Services
+        title: 'HOA Community Maintenance Services',
+        description:
+          'Official HOA maintenance services including pool cleaning, common area upkeep, and emergency repairs. Services provided by certified HOA contractors.',
+        category: ServiceCategory.MAINTENANCE,
+        priceType: PriceType.FREE,
+        serviceAreas: ['Soralia Village'],
+        availability: { weekdays: true, weekends: false, evenings: false },
+        images: [
+          'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400',
+          'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400',
+        ],
+        verified: true,
+        rating: 4.2,
+        reviewCount: 45,
+        status: ListingStatus.ACTIVE,
+        isPublished: true,
+        termsAndConditions:
+          'Services provided as part of HOA membership. Emergency services prioritized.',
+        cancellationPolicy: 'Non-emergency services require 48hr notice.',
+      },
+    }),
+
+    // Appliance Repair (Member - Draft)
+    prisma.communityServiceListing.create({
+      data: {
+        providerId: serviceProviders[0].id, // Mike Johnson (also does appliances)
+        title: 'Appliance Repair Services',
+        description:
+          'Repair and maintenance of household appliances including washing machines, dishwashers, ovens, and refrigerators.',
+        category: ServiceCategory.APPLIANCE_REPAIR,
+        priceType: PriceType.QUOTE,
+        serviceAreas: ['Soralia Village', 'Muizenberg'],
+        availability: { weekdays: true, weekends: true, evenings: false },
+        images: ['https://images.unsplash.com/photo-1621905252478-2f1d6c0a6b2f?w=400'],
+        verified: false,
+        rating: 0,
+        reviewCount: 0,
+        status: ListingStatus.DRAFT,
+        isPublished: false,
+        termsAndConditions: 'Parts charged at cost plus 20%. 3-month workmanship guarantee.',
+        cancellationPolicy: 'Callout fee applies for no-show appointments.',
+      },
+    }),
+
+    // Pest Control (Trusted Third Party)
+    prisma.communityServiceListing.create({
+      data: {
+        providerId: serviceProviders[5].id, // Cape Plumbing (also does pest control)
+        title: 'Pest Control & Prevention',
+        description:
+          'Professional pest control services using environmentally friendly methods. Ants, cockroaches, rodents, and other common pests.',
+        category: ServiceCategory.PEST_CONTROL,
+        priceType: PriceType.FIXED,
+        price: 850,
+        serviceAreas: ['Soralia Village', 'Muizenberg', 'St James'],
+        availability: { weekdays: true, weekends: false, evenings: false },
+        licenseNumber: 'PEST-2024-0123',
+        insuranceExpiry: new Date('2026-06-30'),
+        images: ['https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400'],
+        verified: true,
+        rating: 4.6,
+        reviewCount: 9,
+        status: ListingStatus.ACTIVE,
+        isPublished: true,
+        termsAndConditions:
+          'Eco-friendly treatments only. 90-day guarantee. Follow-up inspections included.',
+        cancellationPolicy: '24hr notice required. Late cancellations charged at 50%.',
+      },
+    }),
+
+    // Security Services (Community)
+    prisma.communityServiceListing.create({
+      data: {
+        providerId: serviceProviders[4].id, // Soralia HOA Services
+        title: 'Security System Installation & Maintenance',
+        description:
+          'HOA-approved security services including alarm systems, CCTV installation, and access control systems. Competitive rates for community members.',
+        category: ServiceCategory.SECURITY,
+        priceType: PriceType.QUOTE,
+        serviceAreas: ['Soralia Village'],
+        availability: { weekdays: true, weekends: false, evenings: false },
+        images: [
+          'https://images.unsplash.com/photo-1558002038-1055907df827?w=400',
+          'https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=400',
+        ],
+        verified: true,
+        rating: 4.4,
+        reviewCount: 7,
+        status: ListingStatus.ACTIVE,
+        isPublished: true,
+        termsAndConditions:
+          'HOA-approved equipment only. Professional installation guaranteed. 2-year warranty.',
+        cancellationPolicy: 'Standard cancellation terms apply. Deposit may be non-refundable.',
+      },
+    }),
+  ]);
+
+  console.log(`Created ${serviceListings.length} community service listings`);
+
+  // Seed some sample reviews
+  const reviews = await Promise.all([
+    prisma.communityServiceReview.create({
+      data: {
+        listingId: serviceListings[0].id, // Gardening
+        reviewerId: users[0].id, // John Smith
+        rating: 5,
+        title: 'Excellent service!',
+        comment:
+          'Mike did a fantastic job on our garden. Very professional and the results are amazing. Highly recommended!',
+        serviceDate: new Date('2026-03-15'),
+        responseQuality: 5,
+        isPublished: true,
+      },
+    }),
+    prisma.communityServiceReview.create({
+      data: {
+        listingId: serviceListings[1].id, // Plumbing
+        reviewerId: users[1].id, // Sarah Mitchell
+        rating: 5,
+        title: 'Emergency plumbing heroes!',
+        comment:
+          'Called them at 2am for a burst pipe. They arrived within an hour and fixed everything perfectly. Lifesavers!',
+        serviceDate: new Date('2026-03-20'),
+        responseQuality: 5,
+        isPublished: true,
+      },
+    }),
+    prisma.communityServiceReview.create({
+      data: {
+        listingId: serviceListings[2].id, // Electrical
+        rating: 4,
+        reviewerId: users[2].id, // Michael Chen
+        title: 'Good work, fair price',
+        comment:
+          'Peter replaced our faulty outlets. Work was done well and he explained everything clearly. Would use again.',
+        serviceDate: new Date('2026-03-10'),
+        responseQuality: 4,
+        isPublished: true,
+      },
+    }),
+    prisma.communityServiceReview.create({
+      data: {
+        listingId: serviceListings[3].id, // Cleaning
+        reviewerId: users[0].id, // John Smith
+        rating: 5,
+        title: 'Spotless results!',
+        comment:
+          'Linda did a deep clean of our home before we put it on the market. Absolutely spotless and very thorough.',
+        serviceDate: new Date('2026-03-05'),
+        responseQuality: 5,
+        isPublished: true,
+      },
+    }),
+  ]);
+
+  console.log(`Created ${reviews.length} sample reviews`);
 
   console.log('Seeding complete!');
 }
