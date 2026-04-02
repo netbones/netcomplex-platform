@@ -129,23 +129,25 @@ export function UnifiedResidentCard({
 
       {/* Content */}
       <div
-        className={`p-4 flex gap-4 ${
-          viewMode === 'list' ? 'flex-1 items-center z-10' : 'items-start'
+        className={`p-4 ${
+          viewMode === 'list'
+            ? 'flex-1 flex items-center justify-between z-10'
+            : 'flex gap-4 items-start'
         }`}
       >
-        <div className="flex-1">
+        <div className={`${viewMode === 'list' ? 'flex-1' : 'flex-1'}`}>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center">
               <i className="fas fa-home text-soralia-secondary mr-2" aria-hidden="true"></i>
               <span className="text-sm text-gray-600">{getResidentLabel()}</span>
             </div>
-            {isChatVisible && onChat && (
+            {viewMode === 'grid' && isChatVisible && onChat && (
               <button
                 onClick={e => {
                   e.preventDefault();
                   onChat();
                 }}
-                className="text-soralia-primary hover:text-indigo-700 transition-colors"
+                className="text-soralia-primary hover:text-indigo-700 transition-colors flex-shrink-0"
                 title="Start chat"
               >
                 <i className="fas fa-comment text-xl" aria-hidden="true"></i>
@@ -181,6 +183,20 @@ export function UnifiedResidentCard({
             </div>
           )}
         </div>
+
+        {/* Chat button for list view */}
+        {viewMode === 'list' && isChatVisible && onChat && (
+          <button
+            onClick={e => {
+              e.preventDefault();
+              onChat();
+            }}
+            className="text-soralia-primary hover:text-indigo-700 transition-colors flex-shrink-0 ml-4"
+            title="Start chat"
+          >
+            <i className="fas fa-comment text-xl" aria-hidden="true"></i>
+          </button>
+        )}
       </div>
 
       {/* Home Image - List view only (absolute positioning) */}
