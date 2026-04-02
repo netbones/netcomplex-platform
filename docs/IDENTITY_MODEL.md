@@ -45,14 +45,14 @@ A Member is a property owner in Soralia Village. Every household with a Member h
 
 ### 2. Occupant (Address Alias)
 
-| Property  | Value                          |
-| --------- | ------------------------------ |
-| Route     | `/unit/{id}/member/{aliasId}`  |
-| Seat Type | Alias (not independent)        |
-| HomeImage | ❌ No (uses member's property) |
-| Login     | No (managed by Member)         |
+| Property  | Value                                     |
+| --------- | ----------------------------------------- |
+| Route     | `/unit/{id}/member/{aliasId}`             |
+| Seat Type | Alias (not independent)                   |
+| HomeImage | ❌ No (uses rentalImage or occupantImage) |
+| Login     | No (managed by Member)                    |
 
-A Occupant is a non-owner resident who lives in the community. They begin their journey as an **Address Alias** attached to the Member's Standard Seat.
+A Occupant is a non-owner resident who lives in the community. They begin their journey as an **Address Alias** attached to the Member's Standard Seat. A rentalImage is an image of the property that is displayed on the occupant's profile if they choose to use it. An occupantImage is an image of the occupant that is displayed on the occupant's profile if they choose to use it.
 
 **Occupant Journey:**
 
@@ -364,7 +364,7 @@ Platform
 
 ### `/unit/{id}/member/{aliasId}` (Occupant - Profile)
 
-- Avatar + display name (no homeImage)
+- Avatar + display name (uses rentalImage or occupantImage)
 - Groups (joined as profile)
 - Content (published as profile)
 - Household link (back to main unit page)

@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
           select: {
             street: true,
             unit: true,
+            homeImage: true,
           },
         },
         assignedAgent: {
