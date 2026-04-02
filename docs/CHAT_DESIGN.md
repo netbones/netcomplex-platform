@@ -144,35 +144,143 @@ POST /api/messages/mark-read
 
 #### Supabase Realtime Integration
 
-**Broadcast Channels:**
+**Postgres Changes (Database Trigger):**
+
+The system uses PostgreSQL triggers for reliable real-time message delivery:
+
+```sql
+-- Database trigger for message inserts
+CREATE OR REPLACE FUNCTION notify_message_insert()
+RETURNS trigger
+SECURITY DEFINER SET search_path = ''
+AS $$
+BEGIN
+  PERFORM pg_notify('new_message', row_to_json(NEW)::text);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER on_message_insert
+AFTER INSERT ON "Message"
+FOR EACH ROW
+EXECUTE FUNCTION notify_message_insert();
+```
+
+**Client subscription:**
 
 ```typescript
-// Message broadcasting (server)
-await supabase.channel(`chat:${conversationId}`).send({
-  type: 'broadcast',
-  event: 'new-message',
-  payload: message,
-});
-
-// Client subscription
+// Using postgres_changes for database-driven realtime
 const channel = supabase
-  .channel(`chat:${conversationId}`)
-  .on('broadcast', { event: 'new-message' }, payload => {
-    setMessages(prev => [...prev, payload.payload as Message]);
-  })
+  .channel(`messages:${conversationId}`)
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'Message',
+      filter: `conversationId=eq.${conversationId}`,
+    },
+    payload => {
+      setMessages(prev => [...prev, payload.new as Message]);
+    }
+  )
   .subscribe();
 ```
 
-**Important:** Channel name must match between server and client (`chat:${conversationId}` not `messages:${conversationId}`)
-
 **Benefits:**
 
-- Real-time message delivery without WebSocket server
-- Automatic reconnection handling
-- Cross-tab synchronization
-- Scalable with Supabase infrastructure
+- More reliable than broadcast (database as source of truth)
+- Filtered subscriptions reduce unnecessary updates
+- Works with RLS policies for security
+- Automatic handling of database changes
+
+#### Presence (Online Status)
+
+Users can see who's currently online in a conversation:
+
+```typescript
+const presenceChannel = supabase.channel(`presence:${conversationId}`, {
+  config: { presence: { key: currentUserId } },
+});
+
+presenceChannel
+  .on('presence', { event: 'sync' }, () => {
+    const state = presenceChannel.presenceState();
+    setOnlineCount(Object.keys(state).length);
+  })
+  .subscribe(async status => {
+    if (status === 'SUBSCRIBED') {
+      await presenceChannel.track({
+        user: { id: currentUserId, name: currentUserName, avatar: null },
+        online_at: new Date().toISOString(),
+      });
+    }
+  });
+```
+
+#### Typing Indicators
+
+Broadcast typing status to other participants:
+
+```typescript
+const typingChannel = supabase.channel(`typing:${conversationId}`);
+
+typingChannel
+  .on('broadcast', { event: 'typing' }, payload => {
+    const { userId, isTyping } = payload.payload;
+    // Update typing state
+  })
+  .subscribe();
+
+// Send typing indicator
+await typingChannel.send({
+  type: 'broadcast',
+  event: 'typing',
+  payload: { userId, userName, isTyping: true },
+});
+```
+
+**RLS Policies (Security):**
+
+```sql
+-- Enable RLS
+ALTER TABLE "Message" ENABLE ROW LEVEL SECURITY;
+
+-- Users can only view messages in their conversations
+CREATE POLICY "Users can view messages in their conversations"
+ON "Message" FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM "ConversationParticipant"
+    WHERE "conversationId" = "Message"."conversationId"
+    AND "userId" = auth.uid()::text
+  )
+);
+```
 
 ### 4. Frontend Components
+
+#### Shared Chat Hook (`useChat`)
+
+All chat components use the unified `useChat` hook for shared functionality:
+
+```typescript
+// src/components/chat/useChat.ts
+export function useChat({ conversationId, currentUserId, currentUserName }: UseChatOptions) {
+  // Returns: { messages, loading, onlineCount, typingUsers, messagesEndRef,
+  //            sendMessage, handleInputChange, sendTypingIndicator, formatTypingUsers }
+}
+```
+
+**Shared Features:**
+
+- Real-time message subscriptions (postgres_changes)
+- Presence tracking (online count)
+- Typing indicator management
+- Message sending
+- Auto-scroll to bottom
+- Input change handler with typing debounce
 
 #### Chat Entry Points
 
@@ -193,39 +301,82 @@ const channel = supabase
 ```
 DirectoryGrid
 ├── UnifiedResidentCard (with chat icon)
-└── DirectoryChatModal (popup chat)
+└── DirectoryChatModal (popup chat) → uses useChat
 
-ChatWindow (full page)
-├── MessageList
-├── MessageInput
-└── Real-time updates
+/messages page
+├── ConversationList (left panel)
+└── ChatWindow (right panel) → uses useChat
 ```
 
-#### Chat Modal (`DirectoryChatModal`)
+#### Two Chat Patterns
+
+| Aspect                 | /messages Page                | Directory Chat Modal           |
+| ---------------------- | ----------------------------- | ------------------------------ |
+| **Purpose**            | Full messaging hub            | Quick 1-on-1 chat              |
+| **Layout**             | 2-panel: list + chat          | Modal overlay                  |
+| **Conversation**       | Multi-conversation management | Auto-creates/finds direct chat |
+| **Access**             | Via `/messages` route         | Triggered from resident card   |
+| **Shared via useChat** | Presence, typing, realtime    | Same                           |
+
+#### ChatWindow (Multi-Conversation)
+
+**Features:**
+
+- Conversation list in left panel
+- Chat area in right panel
+- Online user count indicator
+- Typing indicators
+- Image upload
+- Emoji picker
+
+**Implementation:**
+
+```typescript
+export function ChatWindow({ conversationId, currentUserId, currentUserName }) {
+  const {
+    messages,
+    loading,
+    onlineCount,
+    messagesEndRef,
+    sendMessage,
+    handleInputChange,
+    formatTypingUsers,
+  } = useChat({ conversationId, currentUserId, currentUserName });
+
+  // ... UI with image upload, emoji picker, presence indicators
+}
+```
+
+#### ChatModal (Direct Chat)
 
 **Features:**
 
 - Popup modal for quick conversations
-- Real-time message sync via Supabase
+- Real-time message sync via useChat
 - Auto-scroll to latest messages
 - Enter-to-send functionality
+- Online/offline status indicator
+- Typing indicators
+- Image upload
+- Emoji picker
 - Loading states and error handling
 
 **Implementation:**
 
 ```typescript
-// Conversation initialization
-const res = await fetch('/api/conversations/find', {
-  method: 'POST',
-  body: JSON.stringify({ participantIds: [currentUserId, recipientId] }),
-});
+export function ChatModal({ recipientId, recipientName, currentUserId, currentUserName, onClose }) {
+  // Initialize direct conversation
+  const [conversationId, setConversationId] = useState(null);
 
-// Real-time subscription
-const channel = supabase
-  .channel(`chat:${conversationId}`)
-  .on('broadcast', { event: 'new-message' }, handleNewMessage)
-  .subscribe();
-```
+  // Use chat hook with conversation
+  const { messages, onlineCount, sendMessage, ... } = useChat({
+    conversationId: conversationId || '',
+    currentUserId,
+    currentUserName,
+  });
+
+  // ... Modal UI with same features as ChatWindow
+}
 
 ### 5. Unread Message System
 
@@ -245,10 +396,12 @@ const channel = supabase
 #### Data Flow
 
 ```
+
 1. Page Load → DirectoryGrid fetches unread counts
 2. API Query → Count messages newer than lastReadAt
 3. UI Update → Display badges on current user card
 4. Click → Open chat modal, auto-mark as read
+
 ```
 
 #### Performance Considerations
@@ -346,11 +499,14 @@ Messages are automatically expired based on user's Premium tier:
 **Creating Groups:**
 
 ```
+
 POST /api/conversations
+
 - Body: { name, type: 'GROUP', participantIds: [...] }
 - Creates conversation with multiple participants
 - Returns: Created conversation object
-```
+
+````
 
 **Group Features:**
 
@@ -381,14 +537,20 @@ POST /api/conversations
 
 ### 9. Future Enhancements
 
+#### Implemented (v1.0)
+
+- ✅ **Typing Indicators**: Show when other users are typing
+- ✅ **Presence**: Online status tracking in conversations
+
 #### Planned Features
 
-- **Typing Indicators**: Show when other users are typing
 - **Message Reactions**: Like, reply, emoji reactions
-- **File Attachments**: Image and document sharing
+- **File Attachments**: Image and document sharing (images done)
 - **Voice Messages**: Audio message support
 - **Message Search**: Search within conversations
 - **Push Notifications**: Browser push for new messages
+- **Read Receipts**: Mark messages as read with timestamps
+- **Group Management**: Add/remove participants, admin controls
 
 #### Advanced Chat Features
 
@@ -442,7 +604,7 @@ POST /api/conversations
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
+````
 
 #### Database Migration
 
@@ -473,10 +635,10 @@ The Soralia Village chat architecture provides a robust, scalable messaging syst
 
 **Technology Stack:**
 
-- **Frontend**: React/Next.js with TypeScript
-- **Real-time**: Supabase Realtime
+- **Frontend**: React/Next.js with TypeScript, Tailwind CSS
+- **Real-time**: Supabase Realtime (postgres_changes + Presence)
 - **Database**: PostgreSQL with Prisma ORM
 - **Authentication**: Better Auth
-- **Styling**: Tailwind CSS
+- **State**: React hooks (useState, useEffect) + TanStack Query
 
 The architecture supports both immediate community needs and future growth, providing a solid foundation for enhanced communication features.
