@@ -92,129 +92,76 @@ export function ResidentCard({
           </div>
         </div>
       </div>
+
+      {/* Home Image - Below header in grid view */}
+      {(resident.standardSeats?.[0]?.household?.homeImage ||
+        resident.soloSeat?.household?.homeImage) && (
+        <div className="w-full h-32 overflow-hidden">
+          <img
+            src={
+              resident.standardSeats?.[0]?.household?.homeImage ||
+              resident.soloSeat?.household?.homeImage ||
+              ''
+            }
+            alt={`${resident.name}'s home`}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
       <div className="p-4">
-        {resident.standardSeats?.[0]?.household?.homeImage ||
-        resident.soloSeat?.household?.homeImage ||
-        resident.isPublic ? (
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center">
-                  <i className="fas fa-home text-soralia-secondary mr-2" aria-hidden="true"></i>
-                  <span className="text-sm text-gray-600">
-                    {getResidentLabel(
-                      resident.standardSeats?.[0]?.isPrimaryOwner
-                        ? 'OWNER'
-                        : resident.soloSeat
-                          ? 'BOARD'
-                          : 'RENTER',
-                      resident.role
-                    )}
-                  </span>
-                </div>
-                {showChatButton && canChat && onChat && (
-                  <button
-                    onClick={e => {
-                      e.preventDefault();
-                      onChat();
-                    }}
-                    className="text-soralia-primary hover:text-indigo-700 transition-colors"
-                    title="Start chat"
-                  >
-                    <i className="fas fa-comment" aria-hidden="true"></i>
-                  </button>
-                )}
-              </div>
-              {resident.isPublic && (
-                <>
-                  <div className="flex items-center mb-2">
-                    <i
-                      className="fas fa-envelope text-soralia-secondary mr-2"
-                      aria-hidden="true"
-                    ></i>
-                    <span className="text-sm text-gray-600">{resident.email}</span>
-                  </div>
-                  {resident.phone && (
-                    <div className="flex items-center mb-2">
-                      <i
-                        className="fas fa-phone text-soralia-secondary mr-2"
-                        aria-hidden="true"
-                      ></i>
-                      <span className="text-sm text-gray-600">{resident.phone}</span>
-                    </div>
-                  )}
-                </>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center">
+            <i className="fas fa-home text-soralia-secondary mr-2" aria-hidden="true"></i>
+            <span className="text-sm text-gray-600">
+              {getResidentLabel(
+                resident.standardSeats?.[0]?.isPrimaryOwner
+                  ? 'OWNER'
+                  : resident.soloSeat
+                    ? 'BOARD'
+                    : 'RENTER',
+                resident.role
               )}
-              {finalInterestList.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-3">
-                  {finalInterestList.map((interest, i) => (
-                    <span
-                      key={i}
-                      className={`text-xs text-white px-2 py-1 rounded-full ${getInterestColor(interest)}`}
-                    >
-                      {interest}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-            {(resident.standardSeats?.[0]?.household?.homeImage ||
-              resident.soloSeat?.household?.homeImage) && (
-              <div className="w-24 h-24 flex-shrink-0">
-                <img
-                  src={
-                    resident.standardSeats?.[0]?.household?.homeImage ||
-                    resident.soloSeat?.household?.homeImage ||
-                    ''
-                  }
-                  alt={`${resident.name}'s home`}
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              </div>
-            )}
+            </span>
           </div>
-        ) : (
+          {showChatButton && canChat && onChat && (
+            <button
+              onClick={e => {
+                e.preventDefault();
+                onChat();
+              }}
+              className="text-soralia-primary hover:text-indigo-700 transition-colors"
+              title="Start chat"
+            >
+              <i className="fas fa-comment" aria-hidden="true"></i>
+            </button>
+          )}
+        </div>
+        {resident.isPublic && (
           <>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center">
-                <i className="fas fa-home text-soralia-secondary mr-2" aria-hidden="true"></i>
-                <span className="text-sm text-gray-600">
-                  {getResidentLabel(
-                    resident.standardSeats?.[0]?.isPrimaryOwner
-                      ? 'OWNER'
-                      : resident.soloSeat
-                        ? 'BOARD'
-                        : 'RENTER',
-                    resident.role
-                  )}
-                </span>
-              </div>
-              {showChatButton && canChat && onChat && (
-                <button
-                  onClick={e => {
-                    e.preventDefault();
-                    onChat();
-                  }}
-                  className="text-soralia-primary hover:text-indigo-700 transition-colors"
-                  title="Start chat"
-                >
-                  <i className="fas fa-comment" aria-hidden="true"></i>
-                </button>
-              )}
+            <div className="flex items-center mb-2">
+              <i className="fas fa-envelope text-soralia-secondary mr-2" aria-hidden="true"></i>
+              <span className="text-sm text-gray-600">{resident.email}</span>
             </div>
-            {finalInterestList.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-3">
-                {finalInterestList.map((interest, i) => (
-                  <span
-                    key={i}
-                    className={`text-xs text-white px-2 py-1 rounded-full ${getInterestColor(interest)}`}
-                  >
-                    {interest}
-                  </span>
-                ))}
+            {resident.phone && (
+              <div className="flex items-center mb-2">
+                <i className="fas fa-phone text-soralia-secondary mr-2" aria-hidden="true"></i>
+                <span className="text-sm text-gray-600">{resident.phone}</span>
               </div>
             )}
           </>
+        )}
+        {finalInterestList.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-3">
+            {finalInterestList.map((interest, i) => (
+              <span
+                key={i}
+                className={`text-xs text-white px-2 py-1 rounded-full ${getInterestColor(interest)}`}
+              >
+                {interest}
+              </span>
+            ))}
+          </div>
         )}
       </div>
     </Link>
@@ -272,7 +219,7 @@ export function ResidentListItem({
         </div>
       </div>
       <div className="flex-1 p-4 flex items-center justify-between">
-        <div>
+        <div className="flex-1">
           <div className="flex items-center mb-2">
             <i className="fas fa-home text-soralia-secondary mr-2" aria-hidden="true"></i>
             <span className="text-sm text-gray-600">
@@ -300,6 +247,23 @@ export function ResidentListItem({
               )}
             </>
           )}
+          {finalInterestList.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {finalInterestList.slice(0, 3).map((interest, i) => (
+                <span
+                  key={i}
+                  className={`text-xs text-white px-2 py-1 rounded-full ${getInterestColor(interest)}`}
+                >
+                  {interest}
+                </span>
+              ))}
+              {finalInterestList.length > 3 && (
+                <span className="text-xs text-gray-500 px-2 py-1">
+                  +{finalInterestList.length - 3} more
+                </span>
+              )}
+            </div>
+          )}
         </div>
         {showChatButton && canChat && onChat && (
           <button
@@ -307,13 +271,29 @@ export function ResidentListItem({
               e.preventDefault();
               onChat();
             }}
-            className="text-soralia-primary hover:text-indigo-700 transition-colors ml-4"
+            className="text-soralia-primary hover:text-indigo-700 transition-colors ml-4 flex-shrink-0"
             title="Start chat"
           >
-            <i className="fas fa-comment" aria-hidden="true"></i>
+            <i className="fas fa-comment text-xl" aria-hidden="true"></i>
           </button>
         )}
       </div>
+
+      {/* Home Image - Right side in list view */}
+      {(resident.standardSeats?.[0]?.household?.homeImage ||
+        resident.soloSeat?.household?.homeImage) && (
+        <div className="w-32 h-full flex-shrink-0">
+          <img
+            src={
+              resident.standardSeats?.[0]?.household?.homeImage ||
+              resident.soloSeat?.household?.homeImage ||
+              ''
+            }
+            alt={`${resident.name}'s home`}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
     </div>
   );
 }
