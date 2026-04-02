@@ -9,9 +9,10 @@ interface Conversation {
   id: string;
   name: string | null;
   type: string;
-  participants: { id: string; name: string; avatar: string | null }[];
-  lastMessage?: { content: string; createdAt: string };
-  unreadCount?: number;
+  participants: Array<{
+    user: { id: string; name: string; avatar: string | null };
+  }>;
+  messages: Array<{ content: string; createdAt: string }>;
 }
 
 export function MessagesWidget() {
@@ -46,7 +47,7 @@ export function MessagesWidget() {
     return (
       <div className="text-center py-8 text-gray-500">
         <p className="mb-4">No conversations yet</p>
-        <Link href="/messages" className="text-indigo-600 hover:underline">
+        <Link href="/messages" className="text-soralia-primary hover:underline">
           Start a new conversation
         </Link>
       </div>
@@ -56,44 +57,67 @@ export function MessagesWidget() {
   return (
     <div className="space-y-2 max-h-64 overflow-y-auto">
       {conversations.slice(0, 5).map(conv => {
-        const otherParticipant = conv.participants.find(p => p.id !== session?.user?.id);
+        const otherParticipants = conv.participants
+          .filter(p => p.user.id !== session?.user?.id)
+          .map(p => p.user);
+
+        const displayName =
+          conv.name || otherParticipants.map(p => p.name).join(', ') || 'New Conversation';
+        const lastMessage = conv.messages?.[0];
+
         return (
           <Link
             key={conv.id}
             href={`/messages?conversation=${conv.id}`}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition"
           >
-            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-              {otherParticipant?.avatar ? (
-                <img
-                  src={otherParticipant.avatar}
-                  alt={otherParticipant.name || ''}
-                  className="w-10 h-10 rounded-full"
-                />
-              ) : (
-                <i className="fas fa-user text-indigo-600"></i>
+            <div className="flex -space-x-2">
+              {otherParticipants.slice(0, 2).map((participant, i) => (
+                <div
+                  key={participant.id}
+                  className="w-8 h-8 rounded-full bg-soralia-primary/20 flex items-center justify-center border-2 border-white"
+                >
+                  {participant.avatar ? (
+                    <img
+                      src={participant.avatar}
+                      alt={participant.name || ''}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-xs text-soralia-primary font-medium">
+                      {participant.name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+              ))}
+              {otherParticipants.length > 2 && (
+                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center border-2 border-white">
+                  <span className="text-xs text-gray-600">+{otherParticipants.length - 2}</span>
+                </div>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 truncate">
-                {conv.name || otherParticipant?.name || 'New Conversation'}
-              </p>
-              {conv.lastMessage && (
-                <p className="text-sm text-gray-500 truncate">{conv.lastMessage.content}</p>
+              <p className="font-medium text-gray-900 truncate">{displayName}</p>
+              {lastMessage && (
+                <p className="text-sm text-gray-500 truncate">{lastMessage.content}</p>
               )}
             </div>
-            {conv.unreadCount && conv.unreadCount > 0 && (
-              <span className="bg-indigo-600 text-white text-xs px-2 py-1 rounded-full">
-                {conv.unreadCount}
-              </span>
-            )}
+            <span
+              className={`text-xs px-2 py-1 rounded-full ${
+                conv.type === 'GROUP'
+                  ? 'bg-purple-100 text-purple-600'
+                  : 'bg-soralia-primary/10 text-soralia-primary'
+              }`}
+            >
+              {conv.type === 'GROUP' ? 'Group' : 'Direct'}
+            </span>
           </Link>
         );
       })}
       {conversations.length > 5 && (
         <Link
           href="/messages"
-          className="block text-center text-sm text-indigo-600 hover:underline py-2"
+          className="block text-center text-sm text-soralia-primary hover:underline py-2"
         >
           View all {conversations.length} conversations
         </Link>
