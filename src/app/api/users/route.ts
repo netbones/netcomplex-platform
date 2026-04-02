@@ -68,7 +68,6 @@ export async function GET(request: Request) {
     ];
   } else if (residentType === 'RENTER') {
     // Renters: have profiles with residencyType='RENTER'
-    // Note: A user can be both owner and renter - show renter profiles regardless
     where.profiles = { some: { status: 'ACTIVE', residencyType: 'RENTER' } };
   } else {
     // Default: show all actual residents
@@ -77,38 +76,6 @@ export async function GET(request: Request) {
       { soloSeat: { isNot: null } },
       { profiles: { some: { status: 'ACTIVE' } } },
     ];
-  }
-
-  if (search) {
-    // Handle search with different filter types
-    if (where.AND && Array.isArray(where.AND)) {
-      // For specific resident types (OWNER/RENTER) with AND conditions
-      where.AND.push({
-        OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { email: { contains: search, mode: 'insensitive' } },
-        ],
-      });
-    } else {
-      // For default case with OR conditions
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-      ];
-    }
-  }
-
-  if (street) {
-    // Query Household via StandardSeat join
-    where.standardSeats = { some: { household: { street } } };
-  }
-
-  if (interest) {
-    where.interests = { has: interest };
-  }
-
-  if (role) {
-    where.role = role;
   }
 
   const [users, total] = await Promise.all([
