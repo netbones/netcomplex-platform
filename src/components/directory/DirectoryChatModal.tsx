@@ -70,10 +70,30 @@ export function ChatModal({
   useEffect(() => {
     if (!conversationId) return;
     const channel = supabase
-      .channel(`chat:${conversationId}`)
-      .on('broadcast', { event: 'new-message' }, payload => {
-        setMessages(prev => [...prev, payload.payload as Message]);
-      })
+      .channel(`messages:${conversationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'Message',
+          filter: `conversationId=eq.${conversationId}`,
+        },
+        payload => {
+          const newMessage = payload.new;
+          setMessages(prev => [
+            ...prev,
+            {
+              id: newMessage.id,
+              content: newMessage.content,
+              type: newMessage.type,
+              mediaUrl: newMessage.mediaUrl,
+              createdAt: newMessage.createdAt,
+              sender: { id: newMessage.senderId, name: '', avatar: null },
+            },
+          ]);
+        }
+      )
       .subscribe();
 
     return () => {

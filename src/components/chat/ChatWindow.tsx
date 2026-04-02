@@ -43,12 +43,32 @@ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
     }
     fetchMessages();
 
-    // Subscribe to real-time messages
+    // Subscribe to real-time messages via postgres_changes (database trigger)
     const channel = supabase
-      .channel(`chat:${conversationId}`)
-      .on('broadcast', { event: 'new-message' }, payload => {
-        setMessages(prev => [...prev, payload.payload as Message]);
-      })
+      .channel(`messages:${conversationId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'Message',
+          filter: `conversationId=eq.${conversationId}`,
+        },
+        payload => {
+          // Fetch full message with sender info
+          const newMessage = payload.new;
+          setMessages(prev => [
+            ...prev,
+            {
+              id: newMessage.id,
+              content: newMessage.content,
+              type: newMessage.type,
+              createdAt: newMessage.createdAt,
+              sender: { id: newMessage.senderId, name: '', avatar: null },
+            },
+          ]);
+        }
+      )
       .subscribe();
 
     return () => {
