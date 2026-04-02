@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useChat } from './useChat';
+import { EmojiPickerButton } from './EmojiPickerButton';
 
 interface ChatWindowProps {
   conversationId: string;
@@ -9,11 +10,8 @@ interface ChatWindowProps {
   currentUserName: string;
 }
 
-const commonEmojis = ['😀', '😂', '❤️', '👍', '🎉', '🔥', '💯', '👏', '🙏', '😊'];
-
 export function ChatWindow({ conversationId, currentUserId, currentUserName }: ChatWindowProps) {
   const [newMessage, setNewMessage] = useState('');
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const {
@@ -45,7 +43,6 @@ export function ChatWindow({ conversationId, currentUserId, currentUserName }: C
 
   function insertEmoji(emoji: string) {
     setNewMessage(prev => prev + emoji);
-    setShowEmojiPicker(false);
   }
 
   async function handleSend() {
@@ -142,34 +139,7 @@ export function ChatWindow({ conversationId, currentUserId, currentUserName }: C
             </svg>
           </label>
 
-          <div className="relative">
-            <button
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="p-2 text-gray-500 hover:text-soralia-primary"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
-                />
-              </svg>
-            </button>
-            {showEmojiPicker && (
-              <div className="absolute bottom-full mb-1 left-0 bg-white border rounded-lg shadow-lg p-2 flex gap-1">
-                {commonEmojis.map(emoji => (
-                  <button
-                    key={emoji}
-                    onClick={() => insertEmoji(emoji)}
-                    className="p-1 hover:bg-gray-100 rounded"
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <EmojiPickerButton onEmojiSelect={insertEmoji} />
 
           <input
             type="text"
