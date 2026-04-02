@@ -30,8 +30,8 @@ interface User {
   email: string;
 }
 
-const currentUserId = 'demo-user-id';
-const currentUserName = 'Demo User';
+const currentUserId = 'cmnh16oye0000pwluih7ojc8a'; // John Smith
+const currentUserName = 'John Smith';
 
 type FilterType = 'all' | 'direct' | 'group';
 
