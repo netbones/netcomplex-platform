@@ -12,6 +12,7 @@ import {
   ServiceCategory,
   PriceType,
   ListingStatus,
+  SoloSeatType,
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -237,66 +238,6 @@ async function main() {
         isPublic: true,
         residentFilter: ResidentFilter.ALL,
         ownerId: users[1].id, // Sarah
-      },
-    }),
-    prisma.group.upsert({
-      where: { id: 'group-fitness' },
-      update: {},
-      create: {
-        id: 'group-fitness',
-        name: 'Fitness Group',
-        description: 'Stay active with morning walks, yoga, and group workouts.',
-        category: 'fitness',
-        isPublic: true,
-        ownerId: users[2].id, // Michael
-      },
-    }),
-    prisma.group.upsert({
-      where: { id: 'group-book-club' },
-      update: {},
-      create: {
-        id: 'group-book-club',
-        name: 'Book Club',
-        description: 'Monthly book discussions and author visits.',
-        category: 'book-club',
-        isPublic: true,
-        ownerId: users[3].id, // Emma
-      },
-    }),
-    prisma.group.upsert({
-      where: { id: 'group-cooking' },
-      update: {},
-      create: {
-        id: 'group-cooking',
-        name: 'Cooking Club',
-        description: 'Share recipes, potlucks, and cooking demonstrations.',
-        category: 'cooking',
-        isPublic: true,
-        ownerId: users[3].id, // Emma
-      },
-    }),
-    prisma.group.upsert({
-      where: { id: 'group-photography' },
-      update: {},
-      create: {
-        id: 'group-photography',
-        name: 'Photography Club',
-        description: 'Capture beautiful moments in Soralia Village.',
-        category: 'photography',
-        isPublic: true,
-        ownerId: users[2].id, // Michael
-      },
-    }),
-    prisma.group.upsert({
-      where: { id: 'group-volunteering' },
-      update: {},
-      create: {
-        id: 'group-volunteering',
-        name: 'Volunteering Group',
-        description: 'Make a difference in our community through service.',
-        category: 'volunteering',
-        isPublic: true,
-        ownerId: users[4].id, // David
       },
     }),
   ]);
@@ -720,39 +661,6 @@ async function main() {
         platformAddress: 'robert.unit005@soralia.org',
       },
     }),
-    // Sarah Mitchell owns Oak Street 14
-    prisma.standardSeat.upsert({
-      where: { userId_householdId: { userId: users[1].id, householdId: households[1].id } },
-      update: {},
-      create: {
-        userId: users[1].id,
-        householdId: households[1].id,
-        isPrimaryOwner: true,
-        platformAddress: 'sarah.unit014@soralia.org',
-      },
-    }),
-    // Michael Chen owns Pine Road 7
-    prisma.standardSeat.upsert({
-      where: { userId_householdId: { userId: users[2].id, householdId: households[2].id } },
-      update: {},
-      create: {
-        userId: users[2].id,
-        householdId: households[2].id,
-        isPrimaryOwner: true,
-        platformAddress: 'michael.unit007@soralia.org',
-      },
-    }),
-    // Robert Wilson owns Cedar Lane 9 but doesn't live there
-    prisma.standardSeat.upsert({
-      where: { userId_householdId: { userId: users[6].id, householdId: households[3].id } },
-      update: {},
-      create: {
-        userId: users[6].id, // Robert Wilson
-        householdId: households[3].id,
-        isPrimaryOwner: true,
-        platformAddress: 'robert.unit009@soralia.org',
-      },
-    }),
   ]);
 
   console.log(`Created ${standardSeats.length} standard seats`);
@@ -817,7 +725,7 @@ async function main() {
         occupantType: 'MINOR',
       },
     }),
-    // Leaseholders in Robert Wilson's unit (Conebrush Rd 5)
+    // Leaseholders in Robert Wilson's unit (Conebrush Rd 5) - TRUE RENTERS
     prisma.profile.upsert({
       where: { profileAddress: 'anna.unit005@soralia.org' },
       update: {},
@@ -830,6 +738,7 @@ async function main() {
         isPublic: true,
         occupantSince: new Date('2025-06-01'),
         occupantType: 'OCCUPANT',
+        residencyType: 'RENTER', // Tenant renting from owner
       },
     }),
     prisma.profile.upsert({
@@ -844,6 +753,7 @@ async function main() {
         isPublic: true,
         occupantSince: new Date('2025-09-15'),
         occupantType: 'OCCUPANT',
+        residencyType: 'RENTER', // Tenant renting from owner
       },
     }),
   ]);
@@ -1212,6 +1122,74 @@ async function main() {
   ]);
 
   console.log(`Created ${reviews.length} sample reviews`);
+
+  // Seed Solo Seats (Premium individual identities)
+  console.log('Seeding solo seats...');
+
+  const soloSeats = await Promise.all([
+    // Robert Wilson - Committee member who owns property but doesn't live there
+    prisma.soloSeat.upsert({
+      where: { userId: users[6].id }, // Robert Wilson
+      update: {},
+      create: {
+        userId: users[6].id,
+        platformAddress: 'robert@soralia.org',
+        seatType: 'MEMBER', // HOA member, doesn't live here
+        isComplimentary: true, // Complimentary for board/committee
+      },
+    }),
+    // Sarah Mitchell - Board member
+    prisma.soloSeat.upsert({
+      where: { userId: users[1].id }, // Sarah Mitchell
+      update: {},
+      create: {
+        userId: users[1].id,
+        platformAddress: 'sarah@soralia.org',
+        seatType: 'RESIDENT', // Lives in community
+        isComplimentary: true, // Complimentary for board
+        householdId: households[1].id, // Links to her property
+      },
+    }),
+    // David van der Merwe - Admin
+    prisma.soloSeat.upsert({
+      where: { userId: users[4].id }, // David van der Merwe
+      update: {},
+      create: {
+        userId: users[4].id,
+        platformAddress: 'david@soralia.org',
+        seatType: 'RESIDENT',
+        isComplimentary: false, // Not complimentary
+        householdId: households[1].id, // Could link to a property if he owns one
+      },
+    }),
+  ]);
+
+  console.log(`Created ${soloSeats.length} solo seats`);
+
+  // Seed Premium Seats (Multi-property portfolios)
+  console.log('Seeding premium seats...');
+
+  const premiumSeats = await Promise.all([
+    // Robert Wilson as property investor (owns multiple properties)
+    prisma.premiumSeat.upsert({
+      where: { userId: users[6].id }, // Robert Wilson
+      update: {},
+      create: {
+        userId: users[6].id,
+        platformAddress: 'investor@soralia.org',
+        linkedHouseholds: {
+          connect: [
+            { id: households[3].id }, // Conebrush Rd 5
+            // Could add more properties if we create them
+          ],
+        },
+        subscriptionTier: 'basic',
+        maxProperties: 5,
+      },
+    }),
+  ]);
+
+  console.log(`Created ${premiumSeats.length} premium seats`);
 
   console.log('Seeding complete!');
 }
