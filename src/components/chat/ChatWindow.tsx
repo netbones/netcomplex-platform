@@ -1,29 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import { usePresence, useTypingIndicator } from './useChatPresence';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
-
-interface Message {
-  id: string;
-  content: string;
-  type: string;
-  createdAt: string;
-  sender: { id: string; name: string; avatar: string | null };
-}
-
-interface Conversation {
-  id: string;
-  name: string | null;
-  type: string;
-  participants: { id: string; name: string; avatar: string | null }[];
-  messages: { content: string; createdAt: string }[];
-}
+import { useState } from 'react';
+import { useChat } from './useChat';
 
 interface ChatWindowProps {
   conversationId: string;
@@ -31,108 +9,56 @@ interface ChatWindowProps {
   currentUserName: string;
 }
 
+const commonEmojis = ['😀', '😂', '❤️', '👍', '🎉', '🔥', '💯', '👏', '🙏', '😊'];
+
 export function ChatWindow({ conversationId, currentUserId, currentUserName }: ChatWindowProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [loading, setLoading] = useState(true);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const { onlineUsers, userCount } = usePresence({
-    channelId: conversationId,
-    user: { id: currentUserId, name: currentUserName, avatar: null },
-  });
-
-  const { typingUsers, sendTypingIndicator } = useTypingIndicator(
+  const {
+    messages,
+    loading,
+    onlineCount,
+    messagesEndRef,
+    sendMessage,
+    handleInputChange,
+    formatTypingUsers,
+  } = useChat({
     conversationId,
     currentUserId,
-    currentUserName
-  );
+    currentUserName,
+  });
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  useEffect(() => {
-    async function fetchMessages() {
-      const res = await fetch(`/api/messages?conversationId=${conversationId}`);
-      const data = await res.json();
-      setMessages(data);
-      setLoading(false);
-    }
-    fetchMessages();
-
-    const channel = supabase
-      .channel(`messages:${conversationId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'Message',
-          filter: `conversationId=eq.${conversationId}`,
-        },
-        payload => {
-          const newMessage = payload.new;
-          setMessages(prev => [
-            ...prev,
-            {
-              id: newMessage.id,
-              content: newMessage.content,
-              type: newMessage.type,
-              createdAt: newMessage.createdAt,
-              sender: { id: newMessage.senderId, name: '', avatar: null },
-            },
-          ]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [conversationId]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewMessage(e.target.value);
-
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-
-    sendTypingIndicator(true);
-
-    typingTimeoutRef.current = setTimeout(() => {
-      sendTypingIndicator(false);
-    }, 2000);
+  const handleInputChangeWrapper = (value: string) => {
+    handleInputChange(value, setNewMessage);
   };
 
-  const handleSend = async () => {
-    if (!newMessage.trim()) return;
-
-    sendTypingIndicator(false);
-
-    const res = await fetch('/api/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        conversationId,
-        senderId: currentUserId,
-        content: newMessage,
-      }),
-    });
-
-    if (res.ok) {
-      setNewMessage('');
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setSelectedImage(reader.result as string);
+      reader.readAsDataURL(file);
     }
-  };
+  }
 
-  const formatTypingUsers = () => {
-    if (typingUsers.length === 0) return null;
-    if (typingUsers.length === 1) return 'Someone is typing...';
-    if (typingUsers.length === 2) return 'Two people are typing...';
-    return 'Several people are typing...';
-  };
+  function insertEmoji(emoji: string) {
+    setNewMessage(prev => prev + emoji);
+    setShowEmojiPicker(false);
+  }
+
+  async function handleSend() {
+    if ((!newMessage.trim() && !selectedImage) || !conversationId) return;
+
+    const messageData = selectedImage
+      ? { content: 'Image', type: 'IMAGE' as const, mediaUrl: selectedImage }
+      : { content: newMessage, type: 'TEXT' as const };
+
+    await sendMessage(messageData.content, messageData.type, messageData.mediaUrl);
+    setNewMessage('');
+    setSelectedImage(null);
+  }
 
   return (
     <div className="flex flex-col h-[500px] bg-white rounded-lg shadow">
@@ -142,14 +68,10 @@ export function ChatWindow({ conversationId, currentUserId, currentUserName }: C
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
           </span>
-          <span className="text-sm text-gray-600">{userCount} online</span>
+          <span className="text-sm text-gray-600">{onlineCount} online</span>
         </div>
-        <span className="text-xs text-gray-400">
-          {Object.keys(onlineUsers)
-            .filter(id => id !== currentUserId)
-            .join(', ') || 'No others online'}
-        </span>
       </div>
+
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {loading ? (
           <p className="text-center text-gray-500">Loading messages...</p>
@@ -162,14 +84,24 @@ export function ChatWindow({ conversationId, currentUserId, currentUserName }: C
               className={`flex ${msg.sender.id === currentUserId ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-xs px-4 py-2 rounded-lg ${
+                className={`max-w-[80%] px-4 py-2 rounded-2xl ${
                   msg.sender.id === currentUserId
                     ? 'bg-soralia-primary text-white'
                     : 'bg-gray-100 text-gray-800'
                 }`}
               >
-                <p className="text-sm font-medium mb-1">{msg.sender.name}</p>
-                <p>{msg.content}</p>
+                <p className="text-sm font-medium mb-1">
+                  {msg.sender.id === currentUserId ? 'You' : msg.sender.name}
+                </p>
+                {msg.type === 'IMAGE' && msg.mediaUrl ? (
+                  <img
+                    src={msg.mediaUrl}
+                    alt="Shared"
+                    className="rounded-lg max-w-full h-auto mt-1"
+                  />
+                ) : (
+                  <p className="text-sm">{msg.content}</p>
+                )}
                 <p className="text-xs opacity-70 mt-1">
                   {new Date(msg.createdAt).toLocaleTimeString()}
                 </p>
@@ -184,21 +116,84 @@ export function ChatWindow({ conversationId, currentUserId, currentUserName }: C
         <div className="px-4 py-1 text-xs text-gray-500 italic">{formatTypingUsers()}</div>
       )}
 
-      <div className="border-t p-4 flex gap-2">
-        <input
-          type="text"
-          value={newMessage}
-          onChange={handleInputChange}
-          onKeyPress={e => e.key === 'Enter' && handleSend()}
-          placeholder="Type a message..."
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
-        />
-        <button
-          onClick={handleSend}
-          className="bg-soralia-primary text-white px-6 py-2 rounded-lg hover:bg-indigo-700"
-        >
-          Send
-        </button>
+      <div className="border-t p-4 flex flex-col gap-2">
+        {selectedImage && (
+          <div className="relative">
+            <img src={selectedImage} alt="Preview" className="h-20 rounded-lg object-cover" />
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        <div className="flex gap-2">
+          <label className="cursor-pointer p-2 text-gray-500 hover:text-soralia-primary">
+            <input type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+          </label>
+
+          <div className="relative">
+            <button
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className="p-2 text-gray-500 hover:text-soralia-primary"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                />
+              </svg>
+            </button>
+            {showEmojiPicker && (
+              <div className="absolute bottom-full mb-1 left-0 bg-white border rounded-lg shadow-lg p-2 flex gap-1">
+                {commonEmojis.map(emoji => (
+                  <button
+                    key={emoji}
+                    onClick={() => insertEmoji(emoji)}
+                    className="p-1 hover:bg-gray-100 rounded"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <input
+            type="text"
+            value={newMessage}
+            onChange={e => handleInputChangeWrapper(e.target.value)}
+            onKeyPress={e => e.key === 'Enter' && handleSend()}
+            placeholder="Type a message..."
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
+          />
+          <button
+            onClick={handleSend}
+            disabled={!newMessage.trim() && !selectedImage}
+            className="bg-soralia-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );

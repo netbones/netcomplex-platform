@@ -1,21 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
-
-interface Message {
-  id: string;
-  content: string;
-  type: string;
-  mediaUrl?: string;
-  createdAt: string;
-  sender: { id: string; name: string; avatar: string | null };
-}
+import { useState, useEffect } from 'react';
+import { useChat, Message } from '../chat/useChat';
 
 interface ChatModalProps {
   recipientId: string;
@@ -25,6 +11,8 @@ interface ChatModalProps {
   onClose: () => void;
 }
 
+const commonEmojis = ['😀', '😂', '❤️', '👍', '🎉', '🔥', '💯', '👏', '🙏', '😊'];
+
 export function ChatModal({
   recipientId,
   recipientName,
@@ -32,16 +20,12 @@ export function ChatModal({
   currentUserName,
   onClose,
 }: ChatModalProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [loading, setLoading] = useState(true);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const commonEmojis = ['😀', '😂', '❤️', '👍', '🎉', '🔥', '💯', '👏', '🙏', '😊'];
-
+  // Initialize conversation
   useEffect(() => {
     async function initChat() {
       const res = await fetch('/api/conversations/find', {
@@ -54,71 +38,30 @@ export function ChatModal({
       const data = await res.json();
       if (data.conversation) {
         setConversationId(data.conversation.id);
-        const msgRes = await fetch(`/api/messages?conversationId=${data.conversation.id}`);
-        const msgData = await msgRes.json();
-        setMessages(msgData);
       }
       setLoading(false);
     }
     initChat();
   }, [currentUserId, recipientId]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  const {
+    messages,
+    onlineCount,
+    messagesEndRef,
+    sendMessage,
+    handleInputChange,
+    formatTypingUsers,
+  } = useChat({
+    conversationId: conversationId || '',
+    currentUserId,
+    currentUserName,
+  });
 
-  useEffect(() => {
-    if (!conversationId) return;
-    const channel = supabase
-      .channel(`messages:${conversationId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'Message',
-          filter: `conversationId=eq.${conversationId}`,
-        },
-        payload => {
-          const newMessage = payload.new;
-          setMessages(prev => [
-            ...prev,
-            {
-              id: newMessage.id,
-              content: newMessage.content,
-              type: newMessage.type,
-              mediaUrl: newMessage.mediaUrl,
-              createdAt: newMessage.createdAt,
-              sender: { id: newMessage.senderId, name: '', avatar: null },
-            },
-          ]);
-        }
-      )
-      .subscribe();
+  const [newMessage, setNewMessage] = useState('');
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [conversationId]);
-
-  async function handleSend() {
-    if ((!newMessage.trim() && !selectedImage) || !conversationId) return;
-
-    const messageData = selectedImage
-      ? { conversationId, content: 'Image', type: 'IMAGE', mediaUrl: selectedImage }
-      : { conversationId, content: newMessage, type: 'TEXT' };
-
-    const res = await fetch('/api/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(messageData),
-    });
-
-    if (res.ok) {
-      setNewMessage('');
-      setSelectedImage(null);
-    }
-  }
+  const handleInputChangeWrapper = (value: string) => {
+    handleInputChange(value, setNewMessage);
+  };
 
   function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -132,6 +75,28 @@ export function ChatModal({
   function insertEmoji(emoji: string) {
     setNewMessage(prev => prev + emoji);
     setShowEmojiPicker(false);
+  }
+
+  async function handleSend() {
+    if ((!newMessage.trim() && !selectedImage) || !conversationId) return;
+
+    const messageData = selectedImage
+      ? { content: 'Image', type: 'IMAGE' as const, mediaUrl: selectedImage }
+      : { content: newMessage, type: 'TEXT' as const };
+
+    await sendMessage(messageData.content, messageData.type, messageData.mediaUrl);
+    setNewMessage('');
+    setSelectedImage(null);
+  }
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-2xl p-8">
+          <p className="text-gray-500">Loading chat...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -152,7 +117,13 @@ export function ChatModal({
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">Chat with {recipientName}</h3>
-              <p className="text-xs text-gray-500">Direct message</p>
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                {onlineCount > 0 ? `${onlineCount} online` : 'Offline'}
+              </div>
             </div>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
@@ -168,9 +139,7 @@ export function ChatModal({
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[300px] max-h-[400px]">
-          {loading ? (
-            <p className="text-center text-gray-500">Loading messages...</p>
-          ) : messages.length === 0 ? (
+          {messages.length === 0 ? (
             <p className="text-center text-gray-500">No messages yet. Start the conversation!</p>
           ) : (
             <>
@@ -208,6 +177,10 @@ export function ChatModal({
             </>
           )}
         </div>
+
+        {formatTypingUsers() && (
+          <div className="px-4 py-1 text-xs text-gray-500 italic">{formatTypingUsers()}</div>
+        )}
 
         <div className="border-t p-4 flex flex-col gap-2">
           {selectedImage && (
@@ -264,7 +237,7 @@ export function ChatModal({
             <input
               type="text"
               value={newMessage}
-              onChange={e => setNewMessage(e.target.value)}
+              onChange={e => handleInputChangeWrapper(e.target.value)}
               onKeyPress={e => e.key === 'Enter' && handleSend()}
               placeholder="Type a message..."
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
