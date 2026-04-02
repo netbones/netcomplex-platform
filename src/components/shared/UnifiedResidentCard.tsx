@@ -145,32 +145,35 @@ export function UnifiedResidentCard({
               <i className="fas fa-home text-soralia-secondary mr-2" aria-hidden="true"></i>
               <span className="text-sm text-gray-600">{getResidentLabel()}</span>
             </div>
-            {viewMode === 'grid' &&
-              ((isChatVisible && onChat) || (isCurrentUser && unreadCount > 0)) && (
-                <button
-                  onClick={e => {
-                    e.preventDefault();
-                    if (onChat) onChat();
-                  }}
-                  className={`flex-shrink-0 z-10 relative ${
-                    isCurrentUser && unreadCount > 0
-                      ? 'text-green-600 hover:text-green-700'
-                      : 'text-soralia-primary hover:text-indigo-700'
-                  } transition-colors`}
-                  title={
-                    isCurrentUser && unreadCount > 0
+            {viewMode === 'grid' && ((isChatVisible && onChat) || isCurrentUser) && (
+              <button
+                onClick={e => {
+                  e.preventDefault();
+                  if (onChat) onChat();
+                }}
+                className={`flex-shrink-0 z-10 relative ${
+                  isCurrentUser
+                    ? unreadCount > 0
+                      ? 'text-red-600 hover:text-red-700'
+                      : 'text-green-600 hover:text-green-700'
+                    : 'text-soralia-primary hover:text-indigo-700'
+                } transition-colors`}
+                title={
+                  isCurrentUser
+                    ? unreadCount > 0
                       ? `You have ${unreadCount} unread message${unreadCount > 1 ? 's' : ''}`
-                      : 'Start chat'
-                  }
-                >
-                  <i className="fas fa-comment text-xl" aria-hidden="true"></i>
-                  {isCurrentUser && unreadCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </button>
-              )}
+                      : 'Ready to receive communication'
+                    : 'Start chat'
+                }
+              >
+                <i className="fas fa-comment text-xl" aria-hidden="true"></i>
+                {isCurrentUser && unreadCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+            )}
           </div>
           {resident.isPublic && (
             <>
@@ -203,32 +206,35 @@ export function UnifiedResidentCard({
         </div>
 
         {/* Chat button for list view */}
-        {viewMode === 'list' &&
-          ((isChatVisible && onChat) || (isCurrentUser && unreadCount > 0)) && (
-            <button
-              onClick={e => {
-                e.preventDefault();
-                if (onChat) onChat();
-              }}
-              className={`flex-shrink-0 ml-4 z-20 relative ${
-                isCurrentUser && unreadCount > 0
-                  ? 'text-green-600 hover:text-green-700'
-                  : 'text-soralia-primary hover:text-indigo-700'
-              } transition-colors`}
-              title={
-                isCurrentUser && unreadCount > 0
+        {viewMode === 'list' && ((isChatVisible && onChat) || isCurrentUser) && (
+          <button
+            onClick={e => {
+              e.preventDefault();
+              if (onChat) onChat();
+            }}
+            className={`flex-shrink-0 ml-4 z-20 relative ${
+              isCurrentUser
+                ? unreadCount > 0
+                  ? 'text-red-600 hover:text-red-700'
+                  : 'text-green-600 hover:text-green-700'
+                : 'text-soralia-primary hover:text-indigo-700'
+            } transition-colors`}
+            title={
+              isCurrentUser
+                ? unreadCount > 0
                   ? `You have ${unreadCount} unread message${unreadCount > 1 ? 's' : ''}`
-                  : 'Start chat'
-              }
-            >
-              <i className="fas fa-comment text-xl" aria-hidden="true"></i>
-              {isCurrentUser && unreadCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </button>
-          )}
+                  : 'Ready to receive communication'
+                : 'Start chat'
+            }
+          >
+            <i className="fas fa-comment text-xl" aria-hidden="true"></i>
+            {isCurrentUser && unreadCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+        )}
       </div>
 
       {/* Home Image - List view only (absolute positioning) */}
