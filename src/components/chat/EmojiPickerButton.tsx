@@ -7,6 +7,17 @@ interface EmojiPickerButtonProps {
   onEmojiSelect: (emoji: string) => void;
 }
 
+const CATEGORIES = [
+  { id: 'face', label: '😀', name: 'Smileys' },
+  { id: 'people', label: '👋', name: 'People' },
+  { id: 'nature', label: '🌸', name: 'Nature' },
+  { id: 'food', label: '🍔', name: 'Food' },
+  { id: 'activities', label: '⚽', name: 'Activities' },
+  { id: 'travel', label: '🚗', name: 'Travel' },
+  { id: 'objects', label: '💡', name: 'Objects' },
+  { id: 'symbols', label: '❤️', name: 'Symbols' },
+];
+
 export function EmojiPickerButton({ onEmojiSelect }: EmojiPickerButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -50,6 +61,14 @@ export function EmojiPickerButton({ onEmojiSelect }: EmojiPickerButtonProps) {
                 className="m-2 ml-auto text-xs px-2 py-1 border rounded hover:bg-gray-50"
                 emoji="👍"
               />
+
+              <EmojiPicker.ActiveEmoji>
+                {({ emoji }) => (
+                  <div className="mx-2 mb-1 px-2 py-1 text-xs bg-gray-50 rounded text-center">
+                    {emoji ? `${emoji.emoji} ${emoji.label}` : 'Select an emoji'}
+                  </div>
+                )}
+              </EmojiPicker.ActiveEmoji>
 
               <EmojiPicker.Viewport className="px-2 pb-2 outline-none">
                 <EmojiPicker.List
