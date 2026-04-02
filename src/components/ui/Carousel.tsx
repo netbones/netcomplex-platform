@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface CarouselItem {
   id: string;
@@ -57,10 +58,22 @@ export function Carousel({ items, autoPlay = true, interval = 5000 }: CarouselPr
           >
             {item.link ? (
               <a href={item.link} className="block w-full h-full">
-                <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  fill
+                  className="object-cover"
+                  priority={index === 0}
+                />
               </a>
             ) : (
-              <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+              <Image
+                src={item.image}
+                alt={item.title}
+                fill
+                className="object-cover"
+                priority={index === 0}
+              />
             )}
             {(item.title || item.subtitle) && (
               <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 to-transparent">
