@@ -206,11 +206,9 @@ export function UnifiedResidentCard({
           </div>
           <div className="flex-1">
             <h3 className="font-bold text-lg">{resident.name}</h3>
-            {viewMode !== 'list' && (
-              <div className="flex items-center gap-2">
-                <p className="text-sm opacity-90">{address}</p>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <p className="text-sm opacity-90">{address}</p>
+            </div>
           </div>
           {/* Chat button in header for list view */}
           {viewMode === 'list' && ((isChatVisible && onChat) || isCurrentUser) && (
