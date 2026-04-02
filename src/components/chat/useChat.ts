@@ -130,7 +130,7 @@ export function useChat({ conversationId, currentUserId, currentUserName }: UseC
     };
   }, [conversationId, currentUserId]);
 
-  // Send message
+  // Send message with manual addition after API call
   const sendMessage = useCallback(
     async (content: string, type: string = 'TEXT', mediaUrl?: string) => {
       sendTypingIndicator(false);
@@ -141,9 +141,24 @@ export function useChat({ conversationId, currentUserId, currentUserName }: UseC
         body: JSON.stringify({ conversationId, content, type, mediaUrl }),
       });
 
-      return res.ok;
+      if (!res.ok) {
+        return false;
+      }
+
+      // Add our own message to the list (since realtime might not catch our own messages)
+      const newMessage: Message = {
+        id: `sent-${Date.now()}`,
+        content,
+        type,
+        mediaUrl,
+        createdAt: new Date().toISOString(),
+        sender: { id: currentUserId, name: currentUserName, avatar: null },
+      };
+      setMessages(prev => [...prev, newMessage]);
+
+      return true;
     },
-    [conversationId]
+    [conversationId, currentUserId, currentUserName]
   );
 
   // Send typing indicator
