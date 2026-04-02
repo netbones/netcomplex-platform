@@ -56,11 +56,49 @@ export async function GET(request: Request) {
 
   const where: Record<string, unknown> = canViewAll ? {} : { isPublic: true };
 
-  if (search) {
+  // Apply resident type filtering with explicit identity model
+  // Logic: A user can have multiple identities (owner + renter)
+  // - OWNER: has StandardSeat with isPrimaryOwner OR SoloSeat
+  // - RENTER: has Profile with residencyType='RENTER'
+  if (residentType === 'OWNER') {
+    // Owners: have standardSeats with isPrimaryOwner OR soloSeat
     where.OR = [
-      { name: { contains: search, mode: 'insensitive' } },
-      { email: { contains: search, mode: 'insensitive' } },
+      { standardSeats: { some: { isPrimaryOwner: true } } },
+      { soloSeat: { isNot: null } },
     ];
+  } else if (residentType === 'RENTER') {
+    // Renters: have profiles with residencyType='RENTER'
+    // Exclude users who are owners (have primary standard seats)
+    where.AND = [
+      { profiles: { some: { status: 'ACTIVE', residencyType: 'RENTER' } } },
+      { NOT: { standardSeats: { some: { isPrimaryOwner: true } } } },
+    ];
+  } else {
+    // Default: show all actual residents
+    where.OR = [
+      { standardSeats: { some: {} } },
+      { soloSeat: { isNot: null } },
+      { profiles: { some: { status: 'ACTIVE' } } },
+    ];
+  }
+
+  if (search) {
+    // Handle search with different filter types
+    if (where.AND && Array.isArray(where.AND)) {
+      // For specific resident types (OWNER/RENTER) with AND conditions
+      where.AND.push({
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+        ],
+      });
+    } else {
+      // For default case with OR conditions
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+      ];
+    }
   }
 
   if (street) {
@@ -70,15 +108,6 @@ export async function GET(request: Request) {
 
   if (interest) {
     where.interests = { has: interest };
-  }
-
-  if (residentType) {
-    // Use new identity structure for resident type filtering
-    if (residentType === 'OWNER') {
-      where.standardSeats = { some: { isPrimaryOwner: true } };
-    } else if (residentType === 'RENTER') {
-      where.profiles = { some: { status: 'ACTIVE' } };
-    }
   }
 
   if (role) {
@@ -110,6 +139,31 @@ export async function GET(request: Request) {
             household: { select: { id: true, street: true, unit: true, homeImage: true } },
             seatType: true,
           },
+        },
+        profiles: {
+          where: { status: 'ACTIVE' },
+          select: {
+            household: {
+              select: {
+                id: true,
+                street: true,
+                unit: true,
+                homeImage: true,
+              },
+            },
+            occupantType: true,
+            residencyType: true,
+            rentalImage: true,
+            occupantImage: true,
+            landlord: {
+              select: {
+                id: true,
+                name: true,
+                avatar: true,
+              },
+            },
+          },
+          take: 1,
         },
       },
       orderBy: { name: 'asc' },
