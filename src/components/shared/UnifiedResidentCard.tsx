@@ -212,6 +212,36 @@ export function UnifiedResidentCard({
               </div>
             )}
           </div>
+          {/* Chat button in header for list view */}
+          {viewMode === 'list' && ((isChatVisible && onChat) || isCurrentUser) && (
+            <button
+              onClick={e => {
+                e.preventDefault();
+                if (onChat) onChat();
+              }}
+              className={`flex-shrink-0 ${
+                isCurrentUser
+                  ? unreadCount > 0
+                    ? 'text-red-600 hover:text-red-700'
+                    : 'text-green-600 hover:text-green-700'
+                  : 'text-white/80 hover:text-white'
+              } transition-colors`}
+              title={
+                isCurrentUser
+                  ? unreadCount > 0
+                    ? `You have ${unreadCount} unread message${unreadCount > 1 ? 's' : ''}`
+                    : 'Ready to receive communication'
+                  : 'Start chat'
+              }
+            >
+              <i className="fas fa-comment text-xl" aria-hidden="true"></i>
+              {isCurrentUser && unreadCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
@@ -219,7 +249,7 @@ export function UnifiedResidentCard({
       <div
         className={`p-4 ${
           viewMode === 'list'
-            ? 'flex-1 flex items-center justify-between z-10'
+            ? 'flex-1 flex items-center justify-between z-10 mr-48'
             : 'flex gap-4 items-start'
         }`}
       >
@@ -288,37 +318,6 @@ export function UnifiedResidentCard({
             </div>
           )}
         </div>
-
-        {/* Chat button for list view */}
-        {viewMode === 'list' && ((isChatVisible && onChat) || isCurrentUser) && (
-          <button
-            onClick={e => {
-              e.preventDefault();
-              if (onChat) onChat();
-            }}
-            className={`flex-shrink-0 ml-4 z-20 relative ${
-              isCurrentUser
-                ? unreadCount > 0
-                  ? 'text-red-600 hover:text-red-700'
-                  : 'text-green-600 hover:text-green-700'
-                : 'text-soralia-primary hover:text-indigo-700'
-            } transition-colors`}
-            title={
-              isCurrentUser
-                ? unreadCount > 0
-                  ? `You have ${unreadCount} unread message${unreadCount > 1 ? 's' : ''}`
-                  : 'Ready to receive communication'
-                : 'Start chat'
-            }
-          >
-            <i className="fas fa-comment text-xl" aria-hidden="true"></i>
-            {isCurrentUser && unreadCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </button>
-        )}
       </div>
 
       {/* Property Image - List view only */}
