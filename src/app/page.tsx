@@ -44,6 +44,20 @@ export default function HomePage() {
         params.set('page', String(page));
         params.set('limit', String(limit));
 
+        // Pass role filter to API for BOARD/COMMITTEE
+        if (filterType !== 'All Residents') {
+          const filterValue = filterType.replace(' Members', '').replace('s', '');
+          if (filterValue === 'Board') {
+            params.set('role', 'BOARD');
+          } else if (filterValue === 'Committee') {
+            params.set('role', 'COMMITTEE');
+          } else if (filterValue === 'Owner') {
+            params.set('residentType', 'OWNER');
+          } else if (filterValue === 'Renter') {
+            params.set('residentType', 'RENTER');
+          }
+        }
+
         const res = await fetch(`/api/users?${params}`);
         const data = await res.json();
         if (data.users) {
