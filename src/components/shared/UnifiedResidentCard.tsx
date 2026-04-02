@@ -259,6 +259,7 @@ export function UnifiedResidentCard({
               <i className="fas fa-home text-soralia-secondary mr-2" aria-hidden="true"></i>
               <span className="text-sm text-gray-600">{getResidentLabel()}</span>
             </div>
+            {/* Chat button in content for grid view */}
             {viewMode === 'grid' && ((isChatVisible && onChat) || isCurrentUser) && (
               <button
                 onClick={e => {
