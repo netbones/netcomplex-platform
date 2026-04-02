@@ -28,6 +28,22 @@ export interface Resident {
       homeImage: string | null;
     };
   };
+  profiles?: Array<{
+    household: {
+      street: string;
+      unit: string;
+      homeImage: string | null;
+    };
+    occupantType: string;
+    residencyType: string;
+    rentalImage: string | null;
+    occupantImage: string | null;
+    landlord?: {
+      id: string;
+      name: string;
+      avatar: string | null;
+    };
+  }>;
 }
 
 interface UnifiedResidentCardProps {
@@ -63,15 +79,25 @@ export function UnifiedResidentCard({
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${resident.name.replace(' ', '')}`;
 
   const street =
-    resident.standardSeats?.[0]?.household?.street || resident.soloSeat?.household?.street || '';
+    resident.standardSeats?.[0]?.household?.street ||
+    resident.soloSeat?.household?.street ||
+    resident.profiles?.[0]?.household?.street ||
+    '';
   const unit =
-    resident.standardSeats?.[0]?.household?.unit || resident.soloSeat?.household?.unit || '';
+    resident.standardSeats?.[0]?.household?.unit ||
+    resident.soloSeat?.household?.unit ||
+    resident.profiles?.[0]?.household?.unit ||
+    '';
   const address = [street, unit].filter(Boolean).join(', ');
 
   const interestList = Array.isArray(resident.interests) ? resident.interests : [];
 
   const hasHomeImage = !!(
-    resident.standardSeats?.[0]?.household?.homeImage || resident.soloSeat?.household?.homeImage
+    resident.standardSeats?.[0]?.household?.homeImage ||
+    resident.soloSeat?.household?.homeImage ||
+    resident.profiles?.[0]?.household?.homeImage ||
+    resident.profiles?.[0]?.rentalImage ||
+    resident.profiles?.[0]?.occupantImage
   );
 
   const getResidentLabel = () => {
@@ -84,6 +110,14 @@ export function UnifiedResidentCard({
     return t ? t('home.renter', { defaultValue: 'Renter' }) : 'Renter';
   };
 
+  const isRenter = () => {
+    return (
+      !resident.standardSeats?.[0]?.isPrimaryOwner &&
+      !resident.soloSeat &&
+      !!resident.profiles?.length
+    );
+  };
+
   return (
     <Link
       href={`/resident/${resident.id}`}
@@ -91,20 +125,64 @@ export function UnifiedResidentCard({
         viewMode === 'list' ? 'flex relative overflow-hidden min-h-32' : 'overflow-hidden'
       }`}
     >
-      {/* Home Image - Grid view only (above header) */}
-      {viewMode === 'grid' && hasHomeImage && (
-        <div className="h-32 w-full relative">
-          <Image
-            src={
-              resident.standardSeats?.[0]?.household?.homeImage ||
-              resident.soloSeat?.household?.homeImage ||
-              ''
-            }
-            alt={`${resident.name}'s home`}
-            fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover"
-          />
+      {/* Property Image - Grid view only (above header) */}
+      {viewMode === 'grid' && (
+        <div className="h-32 w-full flex relative">
+          {/* Owner card: full width image */}
+          {!isRenter() && hasHomeImage && (
+            <div className="w-full h-full relative">
+              <Image
+                src={
+                  resident.standardSeats?.[0]?.household?.homeImage ||
+                  resident.soloSeat?.household?.homeImage ||
+                  resident.profiles?.[0]?.household?.homeImage ||
+                  ''
+                }
+                alt={`${resident.name}'s home`}
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover"
+              />
+            </div>
+          )}
+
+          {/* Renter card: half-width image from left */}
+          {isRenter() && hasHomeImage && (
+            <div className="w-1/2 h-full relative">
+              <Image
+                src={
+                  resident.profiles?.[0]?.rentalImage ||
+                  resident.profiles?.[0]?.occupantImage ||
+                  resident.profiles?.[0]?.household?.homeImage ||
+                  ''
+                }
+                alt="Property"
+                fill
+                sizes="(max-width: 768px) 50vw, 16vw"
+                className="object-cover"
+              />
+            </div>
+          )}
+
+          {/* Renter card: rental label on right half */}
+          {isRenter() && (
+            <div className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center pl-4">
+              <div className="flex items-center gap-2 text-white">
+                <i className="fas fa-home text-lg"></i>
+                <span className="text-sm font-medium">Rental Property</span>
+              </div>
+            </div>
+          )}
+
+          {/* No image case: just gradient for renters */}
+          {isRenter() && !hasHomeImage && (
+            <div className="w-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+              <div className="flex items-center gap-2 text-white px-4">
+                <i className="fas fa-home text-lg"></i>
+                <span className="text-sm font-medium">Rental Property</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -124,9 +202,11 @@ export function UnifiedResidentCard({
               className="rounded-full bg-white/20"
             />
           </div>
-          <div>
+          <div className="flex-1">
             <h3 className="font-bold text-lg">{resident.name}</h3>
-            <p className="text-sm opacity-90">{address}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm opacity-90">{address}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -237,20 +317,56 @@ export function UnifiedResidentCard({
         )}
       </div>
 
-      {/* Home Image - List view only (absolute positioning) */}
-      {viewMode === 'list' && hasHomeImage && (
+      {/* Property Image - List view only (absolute positioning) */}
+      {viewMode === 'list' && (
         <div className="absolute inset-y-0 right-0 w-48 z-0">
-          <Image
-            src={
-              resident.standardSeats?.[0]?.household?.homeImage ||
-              resident.soloSeat?.household?.homeImage ||
-              ''
-            }
-            alt={`${resident.name}'s home`}
-            fill
-            sizes="192px"
-            className="object-cover"
-          />
+          {hasHomeImage && !isRenter() ? (
+            <Image
+              src={
+                resident.standardSeats?.[0]?.household?.homeImage ||
+                resident.soloSeat?.household?.homeImage ||
+                resident.profiles?.[0]?.household?.homeImage ||
+                ''
+              }
+              alt={`${resident.name}'s home`}
+              fill
+              sizes="192px"
+              className="object-cover"
+            />
+          ) : isRenter() ? (
+            <div className="h-full bg-gradient-to-r from-blue-400 to-blue-600 flex flex-col items-center justify-center relative overflow-hidden p-2">
+              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="relative z-10 flex items-center justify-center gap-2 text-white mb-1">
+                {(resident.profiles?.[0]?.rentalImage ||
+                  resident.profiles?.[0]?.occupantImage ||
+                  hasHomeImage) && (
+                  <div className="w-12 h-12 rounded overflow-hidden border-2 border-white/30 flex-shrink-0">
+                    <Image
+                      src={
+                        resident.profiles?.[0]?.rentalImage ||
+                        resident.profiles?.[0]?.occupantImage ||
+                        resident.standardSeats?.[0]?.household?.homeImage ||
+                        resident.soloSeat?.household?.homeImage ||
+                        resident.profiles?.[0]?.household?.homeImage ||
+                        ''
+                      }
+                      alt="Profile image"
+                      width={48}
+                      height={48}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="flex items-center gap-1">
+                  <i className="fas fa-home text-sm"></i>
+                  <span className="text-xs font-medium">Rental Property</span>
+                </div>
+              </div>
+              <div className="relative z-10 text-white text-center">
+                <p className="text-xs opacity-90">{address}</p>
+              </div>
+            </div>
+          ) : null}
         </div>
       )}
     </Link>
