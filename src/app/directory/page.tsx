@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DirectoryGrid } from '@/components/directory/DirectoryGrid';
-import { ServicesGrid } from '@/components/services/ServicesGrid';
+import { DirectoryGrid } from '@/components/directory';
+import { ServicesGrid } from '@/components/services';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { STREETS } from '@/lib/constants';
 import { usePageLoading } from '@/hooks/usePageLoading';
