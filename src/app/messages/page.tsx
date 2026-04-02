@@ -17,6 +17,12 @@ interface Conversation {
   messages: Array<{ content: string; createdAt: string }>;
 }
 
+interface User {
+  id: string;
+  name: string;
+  avatar: string | null;
+}
+
 const currentUserId = 'demo-user-id';
 const currentUserName = 'Demo User';
 
@@ -29,6 +35,11 @@ export default function MessagesPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
+  const [showNewChat, setShowNewChat] = useState(false);
+  const [newChatName, setNewChatName] = useState('');
+  const [newChatType, setNewChatType] = useState<'DIRECT' | 'GROUP'>('DIRECT');
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [creating, setCreating] = useState(false);
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
@@ -73,6 +84,44 @@ export default function MessagesPage() {
     });
   }, [conversations, searchQuery, filter]);
 
+  async function handleCreateConversation() {
+    if (selectedUsers.length === 0) return;
+
+    setCreating(true);
+    try {
+      const res = await fetch('/api/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newChatType === 'GROUP' ? newChatName : null,
+          type: newChatType,
+          participantIds: [currentUserId, ...selectedUsers],
+        }),
+      });
+
+      if (res.ok) {
+        const newConv = await res.json();
+        setConversations([newConv, ...conversations]);
+        setSelectedConversation(newConv.id);
+        setShowNewChat(false);
+        setNewChatName('');
+        setSelectedUsers([]);
+      }
+    } catch (error) {
+      console.error('Failed to create conversation:', error);
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  function toggleUser(userId: string) {
+    if (selectedUsers.includes(userId)) {
+      setSelectedUsers(selectedUsers.filter(id => id !== userId));
+    } else {
+      setSelectedUsers([...selectedUsers, userId]);
+    }
+  }
+
   if (!isReady) {
     return LoadingComponent;
   }
@@ -88,7 +137,23 @@ export default function MessagesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg shadow p-4 flex flex-col max-h-[600px]">
-              <h2 className="text-lg font-semibold mb-4">Conversations</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">Conversations</h2>
+                <button
+                  onClick={() => setShowNewChat(true)}
+                  className="text-soralia-primary hover:text-indigo-700"
+                  title="New conversation"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                </button>
+              </div>
 
               <div className="mb-3 space-y-2">
                 <input
@@ -124,7 +189,10 @@ export default function MessagesPage() {
                       {searchQuery ? 'No matching conversations' : 'No conversations yet'}
                     </p>
                     {!searchQuery && (
-                      <button className="text-soralia-primary hover:underline">
+                      <button
+                        onClick={() => setShowNewChat(true)}
+                        className="text-soralia-primary hover:underline"
+                      >
                         Start a new conversation
                       </button>
                     )}
@@ -204,6 +272,117 @@ export default function MessagesPage() {
             </div>
           </div>
         </div>
+
+        {showNewChat && (
+          <div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowNewChat(false)}
+          >
+            <div
+              className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6"
+              onClick={e => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold mb-4">New Conversation</h3>
+
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setNewChatType('DIRECT');
+                      setNewChatName('');
+                    }}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${
+                      newChatType === 'DIRECT'
+                        ? 'bg-soralia-primary text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Direct Message
+                  </button>
+                  <button
+                    onClick={() => setNewChatType('GROUP')}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${
+                      newChatType === 'GROUP'
+                        ? 'bg-soralia-primary text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Group Chat
+                  </button>
+                </div>
+
+                {newChatType === 'GROUP' && (
+                  <input
+                    type="text"
+                    placeholder="Group name"
+                    value={newChatName}
+                    onChange={e => setNewChatName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
+                  />
+                )}
+
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    {newChatType === 'DIRECT' ? 'Select person:' : 'Select participants:'}
+                  </p>
+                  <div className="max-h-48 overflow-y-auto border rounded-lg p-2 space-y-1">
+                    {['user-1', 'user-2', 'user-3', 'user-4'].map(userId => (
+                      <button
+                        key={userId}
+                        onClick={() => toggleUser(userId)}
+                        className={`w-full flex items-center gap-2 p-2 rounded-lg text-left ${
+                          selectedUsers.includes(userId)
+                            ? 'bg-soralia-light border border-soralia-primary'
+                            : 'hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-soralia-primary/20 flex items-center justify-center">
+                          <span className="text-sm text-soralia-primary font-medium">
+                            {userId.charAt(4)}
+                          </span>
+                        </div>
+                        <span className="text-sm">User {userId}</span>
+                        {selectedUsers.includes(userId) && (
+                          <svg
+                            className="w-4 h-4 text-soralia-primary ml-auto"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-6">
+                <button
+                  onClick={() => setShowNewChat(false)}
+                  className="flex-1 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateConversation}
+                  disabled={
+                    selectedUsers.length === 0 ||
+                    (newChatType === 'GROUP' && !newChatName) ||
+                    creating
+                  }
+                  className="flex-1 py-2 bg-soralia-primary text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {creating ? 'Creating...' : 'Create'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </ErrorBoundary>
   );
