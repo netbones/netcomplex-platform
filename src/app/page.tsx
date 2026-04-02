@@ -113,7 +113,8 @@ export default function HomePage() {
       } else if (filterValue === 'Owner') {
         matchesType = r.standardSeats?.some(seat => seat.isPrimaryOwner) || false;
       } else if (filterValue === 'Renter') {
-        matchesType = !r.standardSeats?.some(seat => seat.isPrimaryOwner) && !r.soloSeat;
+        // Use residencyType from profiles to identify renters
+        matchesType = r.profiles?.some(p => p.residencyType === 'RENTER') || false;
       }
     }
     return matchesSearch && matchesType;
