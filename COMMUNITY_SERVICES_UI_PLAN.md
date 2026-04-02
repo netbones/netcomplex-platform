@@ -10,9 +10,11 @@ The Community Services Marketplace introduces a new service discovery and bookin
 
 - **Location**: `/directory` - Add "Services" tab alongside existing Resident Directory tabs
 - **Tab Structure**:
+
   ```
   [ Residents ] [ Services ] [ Events ] [ Facilities ]
   ```
+
 - **Default View**: Service listings grid with filtering sidebar
 
 ### Service Directory Cards
@@ -269,10 +271,10 @@ src/
 
 ### Phase 1: Core Directory Integration
 
-1. Add Services tab to directory page
-2. Implement ServiceCard component
-3. Create basic service listing display
-4. Add service type filtering
+1. Add Services tab to directory page [x]
+2. Implement ServiceCard component [x]
+3. Create basic service listing display [x]
+4. Add service type filtering []
 
 ### Phase 2: Service Detail Pages
 
