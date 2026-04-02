@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { authClient } from '@/lib/auth-client';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { usePageLoading } from '@/hooks/usePageLoading';
@@ -21,22 +22,14 @@ interface User {
   id: string;
   name: string;
   avatar: string | null;
-}
-
-interface User {
-  id: string;
-  name: string;
-  avatar: string | null;
   email: string;
 }
-
-const currentUserId = 'cmnh16oye0000pwluih7ojc8a'; // John Smith
-const currentUserName = 'John Smith';
 
 type FilterType = 'all' | 'direct' | 'group';
 
 export default function MessagesPage() {
   const { t } = useTranslation('common');
+  const { data: session, isPending: sessionLoading } = authClient.useSession();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
@@ -49,15 +42,20 @@ export default function MessagesPage() {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
 
+  const currentUserId = session?.user?.id || '';
+  const currentUserName = session?.user?.name || session?.user?.email || 'User';
+
   const { isReady, LoadingComponent } = usePageLoading(
     [
       { label: 'Home', href: '/' },
       { label: 'Messages', href: '/messages' },
     ],
-    { additionalLoading: loading }
+    { additionalLoading: loading || sessionLoading }
   );
 
   useEffect(() => {
+    if (!currentUserId) return;
+
     async function fetchData() {
       try {
         const [convRes, usersRes] = await Promise.all([
@@ -75,7 +73,7 @@ export default function MessagesPage() {
       }
     }
     fetchData();
-  }, []);
+  }, [currentUserId]);
 
   const filteredConversations = useMemo(() => {
     return conversations.filter(conv => {
@@ -137,6 +135,19 @@ export default function MessagesPage() {
 
   if (!isReady) {
     return LoadingComponent;
+  }
+
+  if (!currentUserId) {
+    return (
+      <main className="min-h-screen bg-soralia-light flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Please sign in to view messages</p>
+          <a href="/sign-in" className="text-soralia-primary hover:underline">
+            Sign In
+          </a>
+        </div>
+      </main>
+    );
   }
 
   return (
