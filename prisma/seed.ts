@@ -1191,6 +1191,143 @@ async function main() {
 
   console.log(`Created ${premiumSeats.length} premium seats`);
 
+  // Seed Conversations and Messages
+  console.log('Seeding conversations and messages...');
+
+  // Create direct conversations between users
+  const conversations = await Promise.all([
+    // John Smith <-> Sarah Mitchell (HOA discussion)
+    prisma.conversation.create({
+      data: {
+        type: 'DIRECT',
+        participants: {
+          create: [
+            { userId: users[0].id }, // John Smith
+            { userId: users[1].id }, // Sarah Mitchell (BOARD)
+          ],
+        },
+      },
+    }),
+    // Emma Williams <-> John Smith (neighbor chat)
+    prisma.conversation.create({
+      data: {
+        type: 'DIRECT',
+        participants: {
+          create: [
+            { userId: users[3].id }, // Emma Williams
+            { userId: users[0].id }, // John Smith
+          ],
+        },
+      },
+    }),
+    // Michael Chen <-> Lisa Chen (roommates)
+    prisma.conversation.create({
+      data: {
+        type: 'DIRECT',
+        participants: {
+          create: [
+            { userId: users[2].id }, // Michael Chen
+            { userId: users[5].id }, // Lisa Chen
+          ],
+        },
+      },
+    }),
+    // Robert Wilson <-> Anna Patel (landlord/tenant)
+    prisma.conversation.create({
+      data: {
+        type: 'DIRECT',
+        participants: {
+          create: [
+            { userId: users[6].id }, // Robert Wilson (owner)
+            { userId: users[7].id }, // Anna Patel (renter)
+          ],
+        },
+      },
+    }),
+  ]);
+
+  // Create messages
+  const messages = await Promise.all([
+    // John <-> Sarah conversation
+    prisma.message.create({
+      data: {
+        conversationId: conversations[0].id,
+        senderId: users[1].id, // Sarah (BOARD)
+        content:
+          'Hi John, just wanted to let you know the HOA meeting is scheduled for next Tuesday at 7pm.',
+        type: 'TEXT',
+      },
+    }),
+    prisma.message.create({
+      data: {
+        conversationId: conversations[0].id,
+        senderId: users[0].id, // John
+        content: 'Thanks Sarah! I will be there. Is there an agenda we can review beforehand?',
+        type: 'TEXT',
+      },
+    }),
+    prisma.message.create({
+      data: {
+        conversationId: conversations[0].id,
+        senderId: users[1].id, // Sarah
+        content:
+          'Yes, I will send it out tomorrow. We have some important items about the pool maintenance.',
+        type: 'TEXT',
+      },
+    }),
+    // Emma <-> John conversation
+    prisma.message.create({
+      data: {
+        conversationId: conversations[1].id,
+        senderId: users[3].id, // Emma
+        content:
+          'Hi John, just a quick note - the delivery person left a package at my unit by mistake. Can you collect it when you are free?',
+        type: 'TEXT',
+      },
+    }),
+    // Michael <-> Lisa conversation
+    prisma.message.create({
+      data: {
+        conversationId: conversations[2].id,
+        senderId: users[5].id, // Lisa
+        content: 'Hey Michael, do you have the WiFi password? Mine seems to not be working.',
+        type: 'TEXT',
+      },
+    }),
+    // Robert <-> Anna conversation
+    prisma.message.create({
+      data: {
+        conversationId: conversations[3].id,
+        senderId: users[7].id, // Anna (renter)
+        content:
+          'Hi Robert, just wanted to confirm the leaking tap repair is scheduled for tomorrow.',
+        type: 'TEXT',
+      },
+    }),
+    prisma.message.create({
+      data: {
+        conversationId: conversations[3].id,
+        senderId: users[6].id, // Robert (owner)
+        content: 'Yes, the plumber is coming between 9am-12pm. Please make sure someone is home.',
+        type: 'TEXT',
+      },
+    }),
+  ]);
+
+  // Mark some messages as read (simulate)
+  await prisma.conversationParticipant.updateMany({
+    where: {
+      conversationId: conversations[0].id,
+      userId: users[0].id,
+    },
+    data: {
+      lastReadAt: new Date('2026-04-02T17:00:00Z'),
+      lastReadMessageId: messages[1].id, // John's response to Sarah
+    },
+  });
+
+  console.log(`Created ${conversations.length} conversations and ${messages.length} messages`);
+
   console.log('Seeding complete!');
 }
 
