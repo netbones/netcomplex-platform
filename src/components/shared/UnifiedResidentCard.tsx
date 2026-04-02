@@ -147,7 +147,7 @@ export function UnifiedResidentCard({
                   e.preventDefault();
                   onChat();
                 }}
-                className="text-soralia-primary hover:text-indigo-700 transition-colors flex-shrink-0"
+                className="text-soralia-primary hover:text-indigo-700 transition-colors flex-shrink-0 z-10 relative"
                 title="Start chat"
               >
                 <i className="fas fa-comment text-xl" aria-hidden="true"></i>
@@ -191,7 +191,7 @@ export function UnifiedResidentCard({
               e.preventDefault();
               onChat();
             }}
-            className="text-soralia-primary hover:text-indigo-700 transition-colors flex-shrink-0 ml-4"
+            className="text-soralia-primary hover:text-indigo-700 transition-colors flex-shrink-0 ml-4 z-20 relative"
             title="Start chat"
           >
             <i className="fas fa-comment text-xl" aria-hidden="true"></i>
@@ -201,7 +201,7 @@ export function UnifiedResidentCard({
 
       {/* Home Image - List view only (absolute positioning) */}
       {viewMode === 'list' && hasHomeImage && (
-        <div className="absolute inset-y-0 right-0 w-48">
+        <div className="absolute inset-y-0 right-0 w-48 z-0">
           <Image
             src={
               resident.standardSeats?.[0]?.household?.homeImage ||
