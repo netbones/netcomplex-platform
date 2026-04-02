@@ -4,26 +4,12 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DirectoryGrid } from '@/components/directory';
 import { ServicesGrid } from '@/components/services';
+import { type Resident } from '@/components/shared';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { STREETS } from '@/lib/constants';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { ServiceListing } from '@/components/services/ServiceCard';
-
-interface Resident {
-  id: string;
-  name: string;
-  email: string;
-  street: string | null;
-  unit: string | null;
-  phone: string | null;
-  interests: string[];
-  avatar: string | null;
-  homeImage: string | null;
-  isPublic: boolean;
-  residentType?: 'OWNER' | 'RENTER';
-  role?: string;
-}
 
 export default function DirectoryPage() {
   const { t } = useTranslation(['common', 'directory']);

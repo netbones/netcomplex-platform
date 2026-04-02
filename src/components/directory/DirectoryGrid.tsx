@@ -1,8 +1,8 @@
-import { CARD_HEADER_COLORS, CARD_ANIMATIONS } from '@/lib/constants';
+import { CARD_HEADER_COLORS } from '@/lib/constants';
 import { authClient } from '@/lib/auth-client';
 import { useState } from 'react';
 import { ChatModal } from './DirectoryChatModal';
-import { ResidentCard, ResidentListItem, type Resident } from './ResidentCard';
+import { UnifiedResidentCard, type Resident } from '../shared/UnifiedResidentCard';
 
 interface DirectoryGridProps {
   residents: Resident[];
@@ -35,53 +35,31 @@ export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridPro
 
   return (
     <>
-      {viewMode === 'list' ? (
-        <div className="space-y-4">
-          {residents.map((resident, idx) => {
-            const headerColor = CARD_HEADER_COLORS[idx % CARD_HEADER_COLORS.length];
-            const avatarUrl =
-              resident.avatar ||
-              `https://api.dicebear.com/7.x/avataaars/svg?seed=${resident.name.replace(' ', '')}`;
-            const interestList = Array.isArray(resident.interests) ? resident.interests : [];
+      <div
+        className={
+          viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'
+        }
+      >
+        {residents.map((resident, idx) => {
+          const headerColor = CARD_HEADER_COLORS[idx % CARD_HEADER_COLORS.length];
+          const avatarUrl =
+            resident.avatar ||
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${resident.name.replace(' ', '')}`;
 
-            return (
-              <ResidentListItem
-                key={resident.id}
-                resident={resident}
-                headerColor={headerColor}
-                avatarUrl={avatarUrl}
-                interestList={interestList}
-                onChat={() => openChat({ id: resident.id, name: resident.name })}
-                canChat={canChat && currentUserId !== resident.id}
-                showChatButton={true}
-              />
-            );
-          })}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {residents.map((resident, idx) => {
-            const headerColor = CARD_HEADER_COLORS[idx % CARD_HEADER_COLORS.length];
-            const avatarUrl =
-              resident.avatar ||
-              `https://api.dicebear.com/7.x/avataaars/svg?seed=${resident.name.replace(' ', '')}`;
-            const interestList = Array.isArray(resident.interests) ? resident.interests : [];
-
-            return (
-              <ResidentCard
-                key={resident.id}
-                resident={resident}
-                headerColor={headerColor}
-                avatarUrl={avatarUrl}
-                interestList={interestList}
-                onChat={() => openChat({ id: resident.id, name: resident.name })}
-                canChat={canChat && currentUserId !== resident.id}
-                showChatButton={true}
-              />
-            );
-          })}
-        </div>
-      )}
+          return (
+            <UnifiedResidentCard
+              key={resident.id}
+              resident={resident}
+              viewMode={viewMode}
+              headerColor={headerColor}
+              avatarUrl={avatarUrl}
+              isChatVisible={canChat && currentUserId !== resident.id}
+              onChat={() => openChat({ id: resident.id, name: resident.name })}
+              index={idx}
+            />
+          );
+        })}
+      </div>
 
       {chatUser && currentUserId && (
         <ChatModal
