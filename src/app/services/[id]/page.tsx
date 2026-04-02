@@ -46,7 +46,8 @@ export default function ServiceDetailPage() {
         const res = await fetch(`/api/community-services/listings?id=${serviceId}`);
         if (!res.ok) throw new Error('Service not found');
         const data = await res.json();
-        setService(data.listing || data);
+        const listing = data.listing || data;
+        setService(listing);
       } catch (err) {
         setError('Failed to load service');
       } finally {
@@ -192,31 +193,37 @@ export default function ServiceDetailPage() {
               {/* Provider Card */}
               <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="font-semibold text-gray-900 mb-4">Service Provider</h3>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-soralia-primary/20 flex items-center justify-center">
-                    {service.provider.avatar ? (
-                      <Image
-                        src={service.provider.avatar}
-                        alt={service.provider.name}
-                        width={48}
-                        height={48}
-                        className="rounded-full"
-                      />
-                    ) : (
-                      <span className="text-soralia-primary font-semibold">
-                        {service.provider.name.charAt(0).toUpperCase()}
-                      </span>
-                    )}
+                {service.provider ? (
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-soralia-primary/20 flex items-center justify-center">
+                      {service.provider.avatar ? (
+                        <Image
+                          src={service.provider.avatar}
+                          alt={service.provider.name || 'Provider'}
+                          width={48}
+                          height={48}
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <span className="text-soralia-primary font-semibold">
+                          {(service.provider.name || 'P').charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {service.provider.name || 'Provider'}
+                      </p>
+                      {service.verified && (
+                        <span className="text-xs text-green-600 flex items-center gap-1">
+                          <i className="fas fa-check-circle"></i> Verified Provider
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{service.provider.name}</p>
-                    {service.verified && (
-                      <span className="text-xs text-green-600 flex items-center gap-1">
-                        <i className="fas fa-check-circle"></i> Verified Provider
-                      </span>
-                    )}
-                  </div>
-                </div>
+                ) : (
+                  <p className="text-gray-500">Provider information not available</p>
+                )}
               </div>
 
               {/* Inquiry Form */}

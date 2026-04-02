@@ -22,10 +22,10 @@ export interface ServiceListing {
   verified: boolean;
   rating: number;
   reviewCount: number;
-  provider: {
-    id: string;
-    name: string;
-    email: string;
+  provider?: {
+    id?: string;
+    name?: string;
+    email?: string;
     avatar?: string;
   };
   isPublished: boolean;
@@ -41,12 +41,11 @@ export function ServiceCard({ service, onInquiry }: ServiceCardProps) {
   const [imageError, setImageError] = useState(false);
 
   const getServiceType = () => {
-    // This would be determined by provider type or listing metadata
-    // For now, using a simple heuristic
-    if (service.provider.email.includes('hoa') || service.provider.email.includes('admin')) {
+    const email = service.provider?.email || '';
+    if (email.includes('hoa') || email.includes('admin')) {
       return 'COMMUNITY';
     }
-    if (service.verified && service.provider.email.includes('@')) {
+    if (service.verified && email.includes('@')) {
       return 'THIRD_PARTY';
     }
     return 'MEMBER';
@@ -122,22 +121,24 @@ export function ServiceCard({ service, onInquiry }: ServiceCardProps) {
         {/* Provider Info */}
         <div className="flex items-center gap-2 mb-3">
           <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
-            {service.provider.avatar ? (
+            {service.provider?.avatar ? (
               <Image
                 src={service.provider.avatar}
-                alt={service.provider.name}
+                alt={service.provider.name || 'Provider'}
                 width={32}
                 height={32}
                 className="w-8 h-8 rounded-full object-cover"
               />
             ) : (
               <span className="text-sm font-medium text-indigo-600">
-                {service.provider.name.charAt(0).toUpperCase()}
+                {(service.provider?.name || 'P').charAt(0).toUpperCase()}
               </span>
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">{service.provider.name}</p>
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {service.provider?.name || 'Provider'}
+            </p>
             <p className="text-xs text-gray-500 truncate">
               {service.serviceAreas?.[0] || 'Local Area'}
             </p>
