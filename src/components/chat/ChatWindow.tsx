@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { usePresence, useTypingIndicator } from './useChatPresence';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',
@@ -27,12 +28,30 @@ interface Conversation {
 interface ChatWindowProps {
   conversationId: string;
   currentUserId: string;
+  currentUserName: string;
 }
 
-export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
+export function ChatWindow({ conversationId, currentUserId, currentUserName }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const { onlineUsers, userCount } = usePresence({
+    channelId: conversationId,
+    user: { id: currentUserId, name: currentUserName, avatar: null },
+  });
+
+  const { typingUsers, sendTypingIndicator } = useTypingIndicator(
+    conversationId,
+    currentUserId,
+    currentUserName
+  );
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   useEffect(() => {
     async function fetchMessages() {
@@ -43,7 +62,6 @@ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
     }
     fetchMessages();
 
-    // Subscribe to real-time messages via postgres_changes (database trigger)
     const channel = supabase
       .channel(`messages:${conversationId}`)
       .on(
@@ -55,7 +73,6 @@ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
           filter: `conversationId=eq.${conversationId}`,
         },
         payload => {
-          // Fetch full message with sender info
           const newMessage = payload.new;
           setMessages(prev => [
             ...prev,
@@ -76,8 +93,24 @@ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
     };
   }, [conversationId]);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    sendTypingIndicator(true);
+
+    typingTimeoutRef.current = setTimeout(() => {
+      sendTypingIndicator(false);
+    }, 2000);
+  };
+
   const handleSend = async () => {
     if (!newMessage.trim()) return;
+
+    sendTypingIndicator(false);
 
     const res = await fetch('/api/messages', {
       method: 'POST',
@@ -94,8 +127,29 @@ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
     }
   };
 
+  const formatTypingUsers = () => {
+    if (typingUsers.length === 0) return null;
+    if (typingUsers.length === 1) return 'Someone is typing...';
+    if (typingUsers.length === 2) return 'Two people are typing...';
+    return 'Several people are typing...';
+  };
+
   return (
     <div className="flex flex-col h-[500px] bg-white rounded-lg shadow">
+      <div className="border-b px-4 py-2 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+          </span>
+          <span className="text-sm text-gray-600">{userCount} online</span>
+        </div>
+        <span className="text-xs text-gray-400">
+          {Object.keys(onlineUsers)
+            .filter(id => id !== currentUserId)
+            .join(', ') || 'No others online'}
+        </span>
+      </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {loading ? (
           <p className="text-center text-gray-500">Loading messages...</p>
@@ -123,13 +177,18 @@ export function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
             </div>
           ))
         )}
+        <div ref={messagesEndRef} />
       </div>
+
+      {formatTypingUsers() && (
+        <div className="px-4 py-1 text-xs text-gray-500 italic">{formatTypingUsers()}</div>
+      )}
 
       <div className="border-t p-4 flex gap-2">
         <input
           type="text"
           value={newMessage}
-          onChange={e => setNewMessage(e.target.value)}
+          onChange={handleInputChange}
           onKeyPress={e => e.key === 'Enter' && handleSend()}
           placeholder="Type a message..."
           className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"

@@ -15,6 +15,7 @@ interface Conversation {
 }
 
 const currentUserId = 'demo-user-id';
+const currentUserName = 'Demo User';
 
 export default function MessagesPage() {
   const { t } = useTranslation('common');
@@ -99,7 +100,11 @@ export default function MessagesPage() {
 
             <div className="md:col-span-2">
               {selectedConversation ? (
-                <ChatWindow conversationId={selectedConversation} currentUserId={currentUserId} />
+                <ChatWindow
+                  conversationId={selectedConversation}
+                  currentUserId={currentUserId}
+                  currentUserName={currentUserName}
+                />
               ) : (
                 <div className="bg-white rounded-lg shadow p-8 text-center">
                   <p className="text-gray-500">Select a conversation to start messaging</p>
