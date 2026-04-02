@@ -100,12 +100,22 @@ export default function MessagesPage() {
                         {conv.participants.slice(0, 3).map((p, i) => (
                           <div
                             key={p.user.id}
-                            className="w-6 h-6 rounded-full bg-soralia-primary/20 flex items-center justify-center border-2 border-white"
+                            className="w-6 h-6 rounded-full border-2 border-white overflow-hidden"
                             title={p.user.name}
                           >
-                            <span className="text-xs text-soralia-primary font-medium">
-                              {p.user.name.charAt(0).toUpperCase()}
-                            </span>
+                            {p.user.avatar ? (
+                              <img
+                                src={p.user.avatar}
+                                alt={p.user.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-soralia-primary/20 flex items-center justify-center">
+                                <span className="text-xs text-soralia-primary font-medium">
+                                  {p.user.name.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         ))}
                         {conv.participants.length > 3 && (
