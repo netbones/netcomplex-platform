@@ -76,6 +76,29 @@ export function ResidentCard({
       href={`/resident/${resident.id}`}
       className={`block bg-white rounded-lg shadow-md overflow-hidden hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out ${CARD_ANIMATIONS.transition}`}
     >
+      {/* Home Image - Above header in grid view (matching front page) */}
+      {(resident.standardSeats?.[0]?.household?.homeImage ||
+        resident.soloSeat?.household?.homeImage) && (
+        <div className="w-full h-32 relative">
+          <img
+            src={
+              resident.standardSeats?.[0]?.household?.homeImage ||
+              resident.soloSeat?.household?.homeImage ||
+              ''
+            }
+            alt={`${resident.name}'s home`}
+            className="w-full h-full object-cover"
+            onError={e => {
+              console.log(`Failed to load home image for ${resident.name}:`, e);
+              // Hide the image on error and show a placeholder
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentElement!.innerHTML =
+                '<div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 text-sm">Image not available</div>';
+            }}
+          />
+        </div>
+      )}
+
       <div className={`${finalHeaderColor} p-4 text-white`}>
         <div className="flex items-center gap-3">
           <img
@@ -96,29 +119,6 @@ export function ResidentCard({
           </div>
         </div>
       </div>
-
-      {/* Home Image - Below header in grid view */}
-      {resident.standardSeats?.[0]?.household?.homeImage ||
-      resident.soloSeat?.household?.homeImage ? (
-        <div className="w-full h-32 overflow-hidden bg-gray-100 border-t border-gray-200">
-          <img
-            src={
-              resident.standardSeats?.[0]?.household?.homeImage ||
-              resident.soloSeat?.household?.homeImage ||
-              ''
-            }
-            alt={`${resident.name}'s home`}
-            className="w-full h-full object-cover"
-            onError={e => {
-              console.log(`Failed to load home image for ${resident.name}:`, e);
-              // Hide the image on error and show a placeholder
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.parentElement!.innerHTML =
-                '<div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 text-sm">Image not available</div>';
-            }}
-          />
-        </div>
-      ) : null}
 
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
@@ -206,8 +206,9 @@ export function ResidentListItem({
   const finalInterestList = Array.isArray(resident.interests) ? resident.interests : interestList;
 
   return (
-    <div
-      className={`bg-white rounded-lg shadow-md hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer relative overflow-hidden min-h-32 ${CARD_ANIMATIONS.transition}`}
+    <Link
+      href={`/resident/${resident.id}`}
+      className={`block bg-white rounded-lg shadow-md hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer relative overflow-hidden min-h-32 ${CARD_ANIMATIONS.transition}`}
     >
       <div className={`${finalHeaderColor} p-4 text-white w-64 shrink-0 z-10`}>
         <div className="flex items-center gap-3">
@@ -307,6 +308,6 @@ export function ResidentListItem({
           />
         </div>
       )}
-    </div>
+    </Link>
   );
 }
