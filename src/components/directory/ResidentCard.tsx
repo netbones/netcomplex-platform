@@ -67,6 +67,10 @@ export function ResidentCard({
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${resident.name.replace(' ', '')}`;
   const finalInterestList = Array.isArray(resident.interests) ? resident.interests : interestList;
 
+  const hasHomeImage = !!(
+    resident.standardSeats?.[0]?.household?.homeImage || resident.soloSeat?.household?.homeImage
+  );
+
   return (
     <Link
       href={`/resident/${resident.id}`}
@@ -80,7 +84,9 @@ export function ResidentCard({
             className="w-10 h-10 rounded-full bg-white/20"
           />
           <div>
-            <h3 className="font-bold text-lg">{resident.name}</h3>
+            <h3 className="font-bold text-lg">
+              {resident.name} {hasHomeImage && '🏠'}
+            </h3>
             <p className="text-sm opacity-90">
               {resident.standardSeats?.[0]?.household?.street ||
                 resident.soloSeat?.household?.street ||
@@ -94,9 +100,9 @@ export function ResidentCard({
       </div>
 
       {/* Home Image - Below header in grid view */}
-      {(resident.standardSeats?.[0]?.household?.homeImage ||
-        resident.soloSeat?.household?.homeImage) && (
-        <div className="w-full h-32 overflow-hidden">
+      {resident.standardSeats?.[0]?.household?.homeImage ||
+      resident.soloSeat?.household?.homeImage ? (
+        <div className="w-full h-32 overflow-hidden bg-gray-100 border-t border-gray-200">
           <img
             src={
               resident.standardSeats?.[0]?.household?.homeImage ||
@@ -105,9 +111,16 @@ export function ResidentCard({
             }
             alt={`${resident.name}'s home`}
             className="w-full h-full object-cover"
+            onError={e => {
+              console.log(`Failed to load home image for ${resident.name}:`, e);
+              // Hide the image on error and show a placeholder
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentElement!.innerHTML =
+                '<div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 text-sm">Image not available</div>';
+            }}
           />
         </div>
-      )}
+      ) : null}
 
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
