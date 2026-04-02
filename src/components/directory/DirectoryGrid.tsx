@@ -31,9 +31,7 @@ export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridPro
     );
   }
 
-  // For demo purposes, allow chat functionality
-  // In production, this should be: Boolean(currentUserId)
-  const canChat = true;
+  const canChat = Boolean(currentUserId);
 
   return (
     <>
@@ -55,7 +53,7 @@ export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridPro
               viewMode={viewMode}
               headerColor={headerColor}
               avatarUrl={avatarUrl}
-              isChatVisible={canChat && (!currentUserId || currentUserId !== resident.id)}
+              isChatVisible={canChat && currentUserId !== resident.id}
               onChat={() => openChat({ id: resident.id, name: resident.name })}
               index={idx}
             />
