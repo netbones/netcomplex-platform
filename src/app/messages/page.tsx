@@ -89,7 +89,10 @@ export default function MessagesPage() {
                     >
                       <p className="font-medium">
                         {conv.name ||
-                          conv.participants.find(p => p.user.id !== currentUserId)?.user.name ||
+                          conv.participants
+                            .filter(p => p.user.id !== currentUserId)
+                            .map(p => p.user.name)
+                            .join(', ') ||
                           'New Conversation'}
                       </p>
                       <p className="text-sm text-gray-500">
