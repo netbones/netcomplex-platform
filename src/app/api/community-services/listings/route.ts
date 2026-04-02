@@ -8,6 +8,7 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
     const category = searchParams.get('category');
     const search = searchParams.get('search');
     const verified = searchParams.get('verified') === 'true';
@@ -15,6 +16,33 @@ export async function GET(request: NextRequest) {
     const providerId = searchParams.get('providerId');
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
+
+    // If id is provided, return single listing
+    if (id) {
+      const listing = await prisma.communityServiceListing.findUnique({
+        where: { id },
+        include: {
+          provider: {
+            select: {
+              name: true,
+              email: true,
+              avatar: true,
+            },
+          },
+          _count: {
+            select: {
+              reviews: true,
+            },
+          },
+        },
+      });
+
+      if (!listing) {
+        return NextResponse.json({ error: 'Service not found' }, { status: 404 });
+      }
+
+      return NextResponse.json({ listing });
+    }
 
     const where: any = {
       isPublished: true,
