@@ -92,10 +92,31 @@ export type UserProfileFormData = z.infer<typeof userProfileSchema>;
  * @property content - Message content (1-2000 chars)
  * @property type - Message type (defaults to TEXT)
  */
-export const messageSchema = z.object({
-  conversationId: z.string().min(1, 'Conversation ID is required'),
-  content: z.string().min(1, 'Message content is required').max(2000, 'Message too long'),
-  type: z.enum(['TEXT', 'IMAGE', 'SYSTEM']).optional().default('TEXT'),
-});
+export const messageSchema = z
+  .object({
+    conversationId: z.string().min(1, 'Conversation ID is required'),
+    content: z.string().min(1, 'Message content is required').max(2000, 'Message too long'),
+    type: z.enum(['TEXT', 'IMAGE', 'SYSTEM']).optional().default('TEXT'),
+    mediaUrl: z.string().url().optional(),
+  })
+  .refine(
+    data => {
+      if (data.type === 'IMAGE') {
+        return !!data.mediaUrl;
+      }
+      return true;
+    },
+    {
+      message: 'Image URL is required for IMAGE messages',
+    }
+  );
 
 export type MessageFormData = z.infer<typeof messageSchema>;
+
+export const conversationSchema = z.object({
+  name: z.string().min(1, 'Group name is required').max(100, 'Name too long'),
+  type: z.enum(['DIRECT', 'GROUP']).optional().default('DIRECT'),
+  participantIds: z.array(z.string()).min(2, 'At least 2 participants required'),
+});
+
+export type ConversationFormData = z.infer<typeof conversationSchema>;

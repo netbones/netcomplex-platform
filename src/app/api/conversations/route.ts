@@ -14,12 +14,14 @@ export async function GET(request: Request) {
   const conversations = await prisma.conversation.findMany({
     where: {
       participants: {
-        some: { id: session.user.id },
+        some: { userId: session.user.id },
       },
     },
     include: {
       participants: {
-        select: { id: true, name: true, avatar: true },
+        include: {
+          user: { select: { id: true, name: true, avatar: true } },
+        },
       },
       messages: {
         orderBy: { createdAt: 'desc' },
@@ -48,11 +50,15 @@ export async function POST(request: Request) {
       name: body.name,
       type: body.type || 'DIRECT',
       participants: {
-        connect: body.participantIds.map((id: string) => ({ id })),
+        create: body.participantIds.map((id: string) => ({ userId: id })),
       },
     },
     include: {
-      participants: true,
+      participants: {
+        include: {
+          user: { select: { id: true, name: true, avatar: true } },
+        },
+      },
     },
   });
 

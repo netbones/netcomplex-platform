@@ -299,7 +299,11 @@ model PremiumSeat {
   linkedHouseholds Household[] @relation("PremiumSeatPortfolio")
 
   // Premium features
-  isActive      Boolean @default(true)
+  isActive Boolean @default(true)
+
+  // Premium tier
+  tier      String @default("standard") // standard, premium, enterprise
+  messageRetentionDays Int @default(30) // Message retention period
   portfolioName String? // Optional custom portfolio name
 
   // Pricing and billing
@@ -627,7 +631,13 @@ model Message {
   sender         User         @relation(fields: [senderId], references: [id])
   content        String
   type           MessageType  @default(TEXT)
-  createdAt      DateTime     @default(now())
+  mediaUrl       String?      // URL for IMAGE type messages
+  expiresAt      DateTime?
+  isDeleted      Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+
+  @@index([conversationId, createdAt])
+  @@index([expiresAt])
 }
 
 enum MessageType {

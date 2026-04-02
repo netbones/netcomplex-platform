@@ -9,25 +9,30 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Two participant IDs required' }, { status: 400 });
   }
 
-  // Check if direct conversation already exists
+  // Check if direct conversation already exists with exactly these two participants
   const existing = await prisma.conversation.findFirst({
     where: {
       type: 'DIRECT',
       participants: {
         every: {
-          id: { in: participantIds },
+          userId: { in: participantIds },
         },
       },
     },
     include: {
       participants: {
-        select: { id: true, name: true, avatar: true },
+        include: {
+          user: { select: { id: true, name: true, avatar: true } },
+        },
       },
     },
   });
 
-  if (existing) {
-    return NextResponse.json({ conversation: existing });
+  // Filter to ensure exactly 2 participants (not more, not less)
+  const validConversation = existing?.participants.length === 2 ? existing : null;
+
+  if (validConversation) {
+    return NextResponse.json({ conversation: validConversation });
   }
 
   // Create new direct conversation
@@ -36,12 +41,14 @@ export async function POST(request: Request) {
       name: null,
       type: 'DIRECT',
       participants: {
-        connect: participantIds.map((id: string) => ({ id })),
+        create: participantIds.map((id: string) => ({ userId: id })),
       },
     },
     include: {
       participants: {
-        select: { id: true, name: true, avatar: true },
+        include: {
+          user: { select: { id: true, name: true, avatar: true } },
+        },
       },
     },
   });

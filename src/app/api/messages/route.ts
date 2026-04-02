@@ -59,7 +59,11 @@ export async function GET(request: Request) {
   // TODO: Add conversation access control - verify user has access to this conversation
 
   const messages = await prisma.message.findMany({
-    where: { conversationId },
+    where: {
+      conversationId,
+      isDeleted: false,
+      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+    },
     include: {
       sender: {
         select: { id: true, name: true, avatar: true },
@@ -97,16 +101,28 @@ export async function POST(request: Request) {
       );
     }
 
-    const { conversationId, content, type } = validationResult.data;
+    const { conversationId, content, type, mediaUrl } = validationResult.data;
 
     // TODO: Add conversation access control - verify user has access to this conversation
+
+    // Check for PremiumSeat to determine retention period
+    const premiumSeat = await prisma.premiumSeat.findUnique({
+      where: { userId: authData.userId },
+      select: { messageRetentionDays: true },
+    });
+
+    const retentionDays = premiumSeat?.messageRetentionDays ?? 30;
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + retentionDays);
 
     const message = await prisma.message.create({
       data: {
         conversationId,
-        senderId: authData.userId, // Use authenticated user ID instead of hardcoded value
+        senderId: authData.userId,
         content,
         type,
+        mediaUrl,
+        expiresAt,
       },
       include: {
         sender: {
@@ -128,6 +144,37 @@ export async function POST(request: Request) {
     return NextResponse.json(message, { status: 201 });
   } catch (error) {
     console.error('Error creating message:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/**
+ * DELETE /api/messages - Prune expired messages (can be called by cron job)
+ * Requires authentication
+ */
+export async function DELETE(request: Request) {
+  const authData = await getSessionAndRole(request);
+
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (authData.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  try {
+    const result = await prisma.message.deleteMany({
+      where: {
+        OR: [{ expiresAt: { lt: new Date() } }, { isDeleted: true }],
+      },
+    });
+
+    revalidateConversations();
+
+    return NextResponse.json({ deleted: result.count });
+  } catch (error) {
+    console.error('Error pruning messages:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

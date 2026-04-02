@@ -44,7 +44,13 @@ model Message {
   sender         User         @relation(fields: [senderId], references: [id])
   content        String
   type           MessageType  @default(TEXT)
+  mediaUrl       String?      // URL for IMAGE type messages
+  expiresAt      DateTime?     // Auto-expires based on Premium tier
+  isDeleted      Boolean      @default(false)
   createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+  @@index([expiresAt])
 }
 
 enum ConversationType {
@@ -56,6 +62,13 @@ enum MessageType {
   TEXT
   IMAGE
   SYSTEM
+}
+
+model PremiumSeat {
+  id String @id @default(cuid())
+  userId String @unique
+  tier String @default("standard") // standard, premium, enterprise
+  messageRetentionDays Int @default(30) // Message retention period
 }
 ```
 
@@ -73,10 +86,17 @@ enum MessageType {
 ##### Conversations
 
 ```
+GET /api/conversations
+- Lists all conversations for current user
+- Filters by userId through ConversationParticipant
+- Uses userId NOT id (participant's primary key)
+- Returns: Array of conversations with participants and last message
+
 POST /api/conversations/find
 - Creates or finds existing direct conversation between participants
 - Body: { participantIds: [userId1, userId2] }
 - Returns: { conversation: { id, participants, ... } }
+- Validates exactly 2 participants to ensure unique conversations
 ```
 
 ##### Messages
@@ -84,14 +104,21 @@ POST /api/conversations/find
 ```
 GET /api/messages?conversationId=<id>
 - Retrieves all messages for a conversation
+- Filters: isDeleted=false, expiresAt>now() OR expiresAt=null
 - Requires authentication
 - Returns: Array of messages with sender details
 
 POST /api/messages
-- Sends a new message
-- Body: { conversationId, content, type }
+- Sends a new message (TEXT or IMAGE)
+- Body: { conversationId, content, type, mediaUrl? }
 - Broadcasts via Supabase Realtime
+- Sets expiresAt based on Premium tier (30/90/365 days)
 - Returns: Created message object
+
+DELETE /api/messages
+- Prunes expired/deleted messages (admin only)
+- Called by cron job for cleanup
+- Returns: { deleted: count }
 ```
 
 ##### Unread Messages
@@ -120,8 +147,8 @@ POST /api/messages/mark-read
 **Broadcast Channels:**
 
 ```typescript
-// Message broadcasting
-await supabase.channel(`messages:${conversationId}`).send({
+// Message broadcasting (server)
+await supabase.channel(`chat:${conversationId}`).send({
   type: 'broadcast',
   event: 'new-message',
   payload: message,
@@ -135,6 +162,8 @@ const channel = supabase
   })
   .subscribe();
 ```
+
+**Important:** Channel name must match between server and client (`chat:${conversationId}` not `messages:${conversationId}`)
 
 **Benefits:**
 
@@ -267,6 +296,68 @@ const channel = supabase
 - **No Public Messages**: All chats are private to participants
 - **Read Receipts**: Optional read status tracking
 - **Message History**: Retained for conversation continuity
+
+#### Message Retention & Expiry
+
+Messages are automatically expired based on user's Premium tier:
+
+| Tier       | Retention | Description                   |
+| ---------- | --------- | ----------------------------- |
+| Standard   | 30 days   | Default for regular residents |
+| Premium    | 90 days   | Extended for premium users    |
+| Enterprise | 365 days  | Long-term for business users  |
+
+**Expiry Implementation:**
+
+- `expiresAt` field set on message creation (sender's retention period)
+- GET /api/messages filters: `isDeleted: false AND (expiresAt IS NULL OR expiresAt > now())`
+- DELETE /api/messages (admin) prunes expired/deleleted messages
+- Cron job calls DELETE daily to clean up old messages
+
+**Soft Delete:**
+
+- `isDeleted` field for manual message removal
+- Deleted messages filtered from API responses
+- Pruning removes permanently from database
+
+#### Emoji & Image Support
+
+**Message Types:**
+
+- `TEXT` - Standard text messages (default)
+- `IMAGE` - Images with mediaUrl
+- `SYSTEM` - System notifications
+
+**Image Messages:**
+
+- Client uploads image via file input
+- Image converted to data URL (base64)
+- Sent as IMAGE type with mediaUrl
+- Rendered as img element in chat UI
+
+**Emoji Picker:**
+
+- Quick emoji selection bar
+- Common emojis: 😀😂❤️👍🎉🔥💯👏🙏😊
+- Click inserts emoji into message input
+
+#### Group Chat
+
+**Creating Groups:**
+
+```
+POST /api/conversations
+- Body: { name, type: 'GROUP', participantIds: [...] }
+- Creates conversation with multiple participants
+- Returns: Created conversation object
+```
+
+**Group Features:**
+
+- Name for group conversation
+- Multiple participants (3+)
+- Real-time updates for all members
+- Uses same message expiry system
 
 ### 8. Scalability Considerations
 

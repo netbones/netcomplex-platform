@@ -12,6 +12,7 @@ interface Message {
   id: string;
   content: string;
   type: string;
+  mediaUrl?: string;
   createdAt: string;
   sender: { id: string; name: string; avatar: string | null };
 }
@@ -35,7 +36,11 @@ export function ChatModal({
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const commonEmojis = ['😀', '😂', '❤️', '👍', '🎉', '🔥', '💯', '👏', '🙏', '😊'];
 
   useEffect(() => {
     async function initChat() {
@@ -77,21 +82,36 @@ export function ChatModal({
   }, [conversationId]);
 
   async function handleSend() {
-    if (!newMessage.trim() || !conversationId) return;
+    if ((!newMessage.trim() && !selectedImage) || !conversationId) return;
+
+    const messageData = selectedImage
+      ? { conversationId, content: 'Image', type: 'IMAGE', mediaUrl: selectedImage }
+      : { conversationId, content: newMessage, type: 'TEXT' };
 
     const res = await fetch('/api/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        conversationId,
-        senderId: currentUserId,
-        content: newMessage,
-      }),
+      body: JSON.stringify(messageData),
     });
 
     if (res.ok) {
       setNewMessage('');
+      setSelectedImage(null);
     }
+  }
+
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setSelectedImage(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function insertEmoji(emoji: string) {
+    setNewMessage(prev => prev + emoji);
+    setShowEmojiPicker(false);
   }
 
   return (
@@ -149,7 +169,15 @@ export function ChatModal({
                     <p className="text-sm font-medium mb-1">
                       {msg.sender.id === currentUserId ? 'You' : msg.sender.name}
                     </p>
-                    <p className="text-sm">{msg.content}</p>
+                    {msg.type === 'IMAGE' && msg.mediaUrl ? (
+                      <img
+                        src={msg.mediaUrl}
+                        alt="Shared"
+                        className="rounded-lg max-w-full h-auto mt-1"
+                      />
+                    ) : (
+                      <p className="text-sm">{msg.content}</p>
+                    )}
                     <p className="text-xs opacity-70 mt-1">
                       {new Date(msg.createdAt).toLocaleTimeString()}
                     </p>
@@ -161,29 +189,81 @@ export function ChatModal({
           )}
         </div>
 
-        <div className="border-t p-4 flex gap-2">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={e => setNewMessage(e.target.value)}
-            onKeyPress={e => e.key === 'Enter' && handleSend()}
-            placeholder="Type a message..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
-          />
-          <button
-            onClick={handleSend}
-            disabled={!newMessage.trim()}
-            className="bg-soralia-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-              />
-            </svg>
-          </button>
+        <div className="border-t p-4 flex flex-col gap-2">
+          {selectedImage && (
+            <div className="relative">
+              <img src={selectedImage} alt="Preview" className="h-20 rounded-lg object-cover" />
+              <button
+                onClick={() => setSelectedImage(null)}
+                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs"
+              >
+                ×
+              </button>
+            </div>
+          )}
+          <div className="flex gap-2">
+            <label className="cursor-pointer p-2 text-gray-500 hover:text-soralia-primary">
+              <input type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+            </label>
+            <div className="relative">
+              <button
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="p-2 text-gray-500 hover:text-soralia-primary"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                  />
+                </svg>
+              </button>
+              {showEmojiPicker && (
+                <div className="absolute bottom-full mb-1 left-0 bg-white border rounded-lg shadow-lg p-2 flex gap-1">
+                  {commonEmojis.map(emoji => (
+                    <button
+                      key={emoji}
+                      onClick={() => insertEmoji(emoji)}
+                      className="p-1 hover:bg-gray-100 rounded"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <input
+              type="text"
+              value={newMessage}
+              onChange={e => setNewMessage(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && handleSend()}
+              placeholder="Type a message..."
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
+            />
+            <button
+              onClick={handleSend}
+              disabled={!newMessage.trim() && !selectedImage}
+              className="bg-soralia-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
