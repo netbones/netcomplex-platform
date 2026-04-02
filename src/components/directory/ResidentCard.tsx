@@ -84,9 +84,7 @@ export function ResidentCard({
             className="w-10 h-10 rounded-full bg-white/20"
           />
           <div>
-            <h3 className="font-bold text-lg">
-              {resident.name} {hasHomeImage && '🏠'}
-            </h3>
+            <h3 className="font-bold text-lg">{resident.name}</h3>
             <p className="text-sm opacity-90">
               {resident.standardSeats?.[0]?.household?.street ||
                 resident.soloSeat?.household?.street ||
