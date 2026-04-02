@@ -141,7 +141,8 @@ export function UnifiedResidentCard({
                 alt={`${resident.name}'s home`}
                 fill
                 sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover"
+                className="object-cover bg-gray-200"
+                unoptimized
               />
             </div>
           )}
@@ -159,7 +160,8 @@ export function UnifiedResidentCard({
                 alt="Property"
                 fill
                 sizes="(max-width: 768px) 50vw, 16vw"
-                className="object-cover"
+                className="object-cover bg-gray-200"
+                unoptimized
               />
             </div>
           )}
@@ -353,7 +355,8 @@ export function UnifiedResidentCard({
                 alt="Property"
                 fill
                 sizes="96px"
-                className="object-cover"
+                className="object-cover bg-gray-200"
+                unoptimized
               />
             </div>
           )}
