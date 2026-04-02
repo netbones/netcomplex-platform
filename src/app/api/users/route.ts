@@ -58,8 +58,8 @@ export async function GET(request: Request) {
 
   // Apply resident type filtering with explicit identity model
   // Logic: A user can have multiple identities (owner + renter)
-  // - OWNER: has StandardSeat with isPrimaryOwner OR SoloSeat
-  // - RENTER: has Profile with residencyType='RENTER'
+  // - OWNER: has StandardSeat with isPrimaryOwner=true OR SoloSeat
+  // - RENTER: has Profile with residencyType='RENTER' (regardless of ownership elsewhere)
   if (residentType === 'OWNER') {
     // Owners: have standardSeats with isPrimaryOwner OR soloSeat
     where.OR = [
@@ -68,11 +68,8 @@ export async function GET(request: Request) {
     ];
   } else if (residentType === 'RENTER') {
     // Renters: have profiles with residencyType='RENTER'
-    // Exclude users who are owners (have primary standard seats)
-    where.AND = [
-      { profiles: { some: { status: 'ACTIVE', residencyType: 'RENTER' } } },
-      { NOT: { standardSeats: { some: { isPrimaryOwner: true } } } },
-    ];
+    // Note: A user can be both owner and renter - show renter profiles regardless
+    where.profiles = { some: { status: 'ACTIVE', residencyType: 'RENTER' } };
   } else {
     // Default: show all actual residents
     where.OR = [
