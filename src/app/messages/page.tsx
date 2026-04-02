@@ -23,6 +23,13 @@ interface User {
   avatar: string | null;
 }
 
+interface User {
+  id: string;
+  name: string;
+  avatar: string | null;
+  email: string;
+}
+
 const currentUserId = 'demo-user-id';
 const currentUserName = 'Demo User';
 
@@ -31,6 +38,7 @@ type FilterType = 'all' | 'direct' | 'group';
 export default function MessagesPage() {
   const { t } = useTranslation('common');
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,18 +58,23 @@ export default function MessagesPage() {
   );
 
   useEffect(() => {
-    async function fetchConversations() {
+    async function fetchData() {
       try {
-        const res = await fetch(`/api/conversations?userId=${currentUserId}`);
-        const data = await res.json();
-        setConversations(data);
+        const [convRes, usersRes] = await Promise.all([
+          fetch(`/api/conversations?userId=${currentUserId}`),
+          fetch('/api/users?limit=50'),
+        ]);
+        const convData = await convRes.json();
+        const usersData = await usersRes.json();
+        setConversations(convData);
+        setUsers(usersData.users || usersData);
       } catch (error) {
-        console.error('Failed to fetch conversations:', error);
+        console.error('Failed to fetch data:', error);
       } finally {
         setLoading(false);
       }
     }
-    fetchConversations();
+    fetchData();
   }, []);
 
   const filteredConversations = useMemo(() => {
@@ -326,37 +339,57 @@ export default function MessagesPage() {
                     {newChatType === 'DIRECT' ? 'Select person:' : 'Select participants:'}
                   </p>
                   <div className="max-h-48 overflow-y-auto border rounded-lg p-2 space-y-1">
-                    {['user-1', 'user-2', 'user-3', 'user-4'].map(userId => (
-                      <button
-                        key={userId}
-                        onClick={() => toggleUser(userId)}
-                        className={`w-full flex items-center gap-2 p-2 rounded-lg text-left ${
-                          selectedUsers.includes(userId)
-                            ? 'bg-soralia-light border border-soralia-primary'
-                            : 'hover:bg-gray-50'
-                        }`}
-                      >
-                        <div className="w-8 h-8 rounded-full bg-soralia-primary/20 flex items-center justify-center">
-                          <span className="text-sm text-soralia-primary font-medium">
-                            {userId.charAt(4)}
-                          </span>
-                        </div>
-                        <span className="text-sm">User {userId}</span>
-                        {selectedUsers.includes(userId) && (
-                          <svg
-                            className="w-4 h-4 text-soralia-primary ml-auto"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        )}
-                      </button>
-                    ))}
+                    {users
+                      .filter(u => u.id !== currentUserId)
+                      .map(user => (
+                        <button
+                          key={user.id}
+                          onClick={() => toggleUser(user.id)}
+                          disabled={
+                            newChatType === 'DIRECT' &&
+                            selectedUsers.length > 0 &&
+                            !selectedUsers.includes(user.id)
+                          }
+                          className={`w-full flex items-center gap-2 p-2 rounded-lg text-left ${
+                            selectedUsers.includes(user.id)
+                              ? 'bg-soralia-light border border-soralia-primary'
+                              : 'hover:bg-gray-50'
+                          } ${newChatType === 'DIRECT' && selectedUsers.length > 0 && !selectedUsers.includes(user.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          <div className="w-8 h-8 rounded-full overflow-hidden">
+                            {user.avatar ? (
+                              <img
+                                src={user.avatar}
+                                alt={user.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-soralia-primary/20 flex items-center justify-center">
+                                <span className="text-sm text-soralia-primary font-medium">
+                                  {user.name.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{user.name}</p>
+                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                          </div>
+                          {selectedUsers.includes(user.id) && (
+                            <svg
+                              className="w-4 h-4 text-soralia-primary flex-shrink-0"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      ))}
                   </div>
                 </div>
               </div>
