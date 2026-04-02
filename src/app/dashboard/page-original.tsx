@@ -339,6 +339,7 @@ function DashboardContent() {
                   icon={getWidgetIcon(widgetId)}
                   removable={true}
                   onRemove={() => handleRemoveWidget(widgetId)}
+                  tabId={activeTab}
                 >
                   {renderWidgetContent(widgetId)}
                 </DraggableWidget>
