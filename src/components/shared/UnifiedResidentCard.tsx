@@ -204,9 +204,11 @@ export function UnifiedResidentCard({
           </div>
           <div className="flex-1">
             <h3 className="font-bold text-lg">{resident.name}</h3>
-            <div className="flex items-center gap-2">
-              <p className="text-sm opacity-90">{address}</p>
-            </div>
+            {viewMode !== 'list' && (
+              <div className="flex items-center gap-2">
+                <p className="text-sm opacity-90">{address}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -317,56 +319,64 @@ export function UnifiedResidentCard({
         )}
       </div>
 
-      {/* Property Image - List view only (absolute positioning) */}
+      {/* Property Image - List view only */}
       {viewMode === 'list' && (
-        <div className="absolute inset-y-0 right-0 w-48 z-0">
-          {hasHomeImage && !isRenter() ? (
-            <Image
-              src={
-                resident.standardSeats?.[0]?.household?.homeImage ||
-                resident.soloSeat?.household?.homeImage ||
-                resident.profiles?.[0]?.household?.homeImage ||
-                ''
-              }
-              alt={`${resident.name}'s home`}
-              fill
-              sizes="192px"
-              className="object-cover"
-            />
-          ) : isRenter() ? (
-            <div className="h-full bg-gradient-to-r from-blue-400 to-blue-600 flex flex-col items-center justify-center relative overflow-hidden p-2">
-              <div className="absolute inset-0 bg-black/20"></div>
-              <div className="relative z-10 flex items-center justify-center gap-2 text-white mb-1">
-                {(resident.profiles?.[0]?.rentalImage ||
+        <div className="absolute inset-y-0 right-0 w-48 flex z-0">
+          {/* Owner card: full width image */}
+          {!isRenter() && hasHomeImage && (
+            <div className="w-full h-full relative">
+              <Image
+                src={
+                  resident.standardSeats?.[0]?.household?.homeImage ||
+                  resident.soloSeat?.household?.homeImage ||
+                  resident.profiles?.[0]?.household?.homeImage ||
+                  ''
+                }
+                alt={`${resident.name}'s home`}
+                fill
+                sizes="192px"
+                className="object-cover"
+              />
+            </div>
+          )}
+
+          {/* Renter card: half-width image from left */}
+          {isRenter() && hasHomeImage && (
+            <div className="w-1/2 h-full relative">
+              <Image
+                src={
+                  resident.profiles?.[0]?.rentalImage ||
                   resident.profiles?.[0]?.occupantImage ||
-                  hasHomeImage) && (
-                  <div className="w-12 h-12 rounded overflow-hidden border-2 border-white/30 flex-shrink-0">
-                    <Image
-                      src={
-                        resident.profiles?.[0]?.rentalImage ||
-                        resident.profiles?.[0]?.occupantImage ||
-                        resident.standardSeats?.[0]?.household?.homeImage ||
-                        resident.soloSeat?.household?.homeImage ||
-                        resident.profiles?.[0]?.household?.homeImage ||
-                        ''
-                      }
-                      alt="Profile image"
-                      width={48}
-                      height={48}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                <div className="flex items-center gap-1">
-                  <i className="fas fa-home text-sm"></i>
-                  <span className="text-xs font-medium">Rental Property</span>
-                </div>
-              </div>
-              <div className="relative z-10 text-white text-center">
-                <p className="text-xs opacity-90">{address}</p>
+                  resident.profiles?.[0]?.household?.homeImage ||
+                  ''
+                }
+                alt="Property"
+                fill
+                sizes="96px"
+                className="object-cover"
+              />
+            </div>
+          )}
+
+          {/* Renter card: rental label on right half */}
+          {isRenter() && (
+            <div className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
+              <div className="flex items-center gap-2 text-white px-2">
+                <i className="fas fa-home text-sm"></i>
+                <span className="text-xs font-medium">Rental</span>
               </div>
             </div>
-          ) : null}
+          )}
+
+          {/* No image case: just gradient for renters */}
+          {isRenter() && !hasHomeImage && (
+            <div className="w-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+              <div className="flex items-center gap-2 text-white px-2">
+                <i className="fas fa-home text-sm"></i>
+                <span className="text-xs font-medium">Rental</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </Link>
