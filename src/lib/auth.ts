@@ -1,16 +1,16 @@
 import { betterAuth } from 'better-auth';
-import { prismaAdapter } from '@better-auth/prisma-adapter';
+import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { twoFactor, organization, admin, bearer } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
-import { prisma } from './prisma';
+import { db } from './db';
 
 /**
  * Better Auth configuration for Soralia Village.
- * Configured with Prisma adapter, two-factor auth, organization support, and passkey.
+ * Configured with Drizzle adapter, two-factor auth, organization support, and passkey.
  */
 export const auth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: 'postgresql',
+  database: drizzleAdapter(db, {
+    provider: 'pg',
   }),
   emailAndPassword: {
     enabled: true,
