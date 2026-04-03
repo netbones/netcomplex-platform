@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { Prisma, ServiceCategory } from '@prisma/client';
 
 /**
  * GET /api/community-services/listings - Get community service listings
@@ -44,13 +45,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ listing });
     }
 
-    const where: any = {
+    const where: Prisma.CommunityServiceListingWhereInput = {
       isPublished: true,
       status: 'ACTIVE',
     };
 
     if (category && category !== 'ALL') {
-      where.category = category;
+      // Prisma enum filter - using cast to handle the enum type properly
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      where.category = category as any;
     }
 
     if (verified) {

@@ -58,16 +58,16 @@ export function DraggableWidget({
     setSize({ width: layout.width, height: layout.height });
   }, [layout.x, layout.y, layout.width, layout.height]);
 
-  const handleDragStop = (_e: any, d: { x: number; y: number }) => {
+  const handleDragStop = (_e: unknown, d: { x: number; y: number }) => {
     setPosition(d);
     updateWidgetLayout(tabId, id, { x: d.x, y: d.y });
   };
 
   const handleResizeStop = (
-    _e: any,
-    _direction: any,
+    _e: unknown,
+    dir: string,
     ref: HTMLElement,
-    _delta: any,
+    _delta: { width: number; height: number },
     position: { x: number; y: number }
   ) => {
     const newWidth = ref.offsetWidth;
