@@ -9,89 +9,11 @@ import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
 import { DashboardTabs, AddWidgetModal, DashboardTab } from '@/components/dashboard/DashboardTabs';
 import { WidgetRenderer } from '@/components/dashboard/WidgetRenderer';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-
-interface DashboardWidget {
-  id: string;
-  type: string;
-  title: string;
-  icon: string;
-  label: string; // Required label for compatibility with DashboardTab
-}
-
-const ALL_WIDGETS: DashboardWidget[] = [
-  { id: 'stats', type: 'stats', title: 'Statistics', icon: 'fa-chart-bar', label: 'Statistics' },
-  {
-    id: 'quick-actions',
-    type: 'quick-actions',
-    title: 'Quick Actions',
-    icon: 'fa-bolt',
-    label: 'Quick Actions',
-  },
-  {
-    id: 'recent-activity',
-    type: 'recent-activity',
-    title: 'Recent Activity',
-    icon: 'fa-clock',
-    label: 'Recent Activity',
-  },
-  {
-    id: 'notifications',
-    type: 'notifications',
-    title: 'Notifications',
-    icon: 'fa-bell',
-    label: 'Notifications',
-  },
-  {
-    id: 'events',
-    type: 'events',
-    title: 'Community Events',
-    icon: 'fa-calendar',
-    label: 'Community Events',
-  },
-  { id: 'messages', type: 'messages', title: 'Messages', icon: 'fa-envelope', label: 'Messages' },
-  {
-    id: 'my-content',
-    type: 'my-content',
-    title: 'My Content',
-    icon: 'fa-file-alt',
-    label: 'My Content',
-  },
-  {
-    id: 'bookshelf',
-    type: 'bookshelf',
-    title: 'My Bookshelf',
-    icon: 'fa-book',
-    label: 'My Bookshelf',
-  },
-  {
-    id: 'media',
-    type: 'media',
-    title: 'Media Gallery',
-    icon: 'fa-images',
-    label: 'Media Gallery',
-  },
-  {
-    id: 'my-album',
-    type: 'my-album',
-    title: 'My Albums',
-    icon: 'fa-photo-video',
-    label: 'My Albums',
-  },
-  {
-    id: 'sidebar-widgets',
-    type: 'sidebar-widgets',
-    title: 'Sidebar Widgets',
-    icon: 'fa-columns',
-    label: 'Sidebar Widgets',
-  },
-  {
-    id: 'premium-portfolio',
-    type: 'premium-portfolio',
-    title: 'Premium Portfolio',
-    icon: 'fa-building',
-    label: 'Premium Portfolio',
-  },
-];
+import {
+  getWidgetTitle,
+  getWidgetIcon,
+  getAvailableWidgets as getAvailableWidgetsFromConfig,
+} from '@/lib/dashboard-config';
 
 const DEFAULT_TABS: DashboardTab[] = [
   {
@@ -116,7 +38,6 @@ const DEFAULT_TABS: DashboardTab[] = [
 
 function DashboardContent() {
   const { t } = useTranslation('dashboard');
-  const { t: tCommon } = useTranslation('common');
   const { data: session } = authClient.useSession();
 
   const [tabs, setTabs] = useState<DashboardTab[]>(DEFAULT_TABS);
@@ -157,11 +78,8 @@ function DashboardContent() {
   };
 
   const handleResetLayout = (tabId: string) => {
-    // Reset the widget layout in the store
     const { resetTabLayout } = useWidgetStore.getState();
     resetTabLayout(tabId);
-
-    // Reset active widgets to the tab's default
     const tab = tabs.find(t => t.id === tabId);
     if (tab) {
       setActiveWidgets(tab.defaultWidgets);
@@ -169,17 +87,7 @@ function DashboardContent() {
   };
 
   const getAvailableWidgets = () => {
-    return ALL_WIDGETS.filter(w => !activeWidgets.includes(w.id));
-  };
-
-  const getWidgetTitle = (widgetId: string) => {
-    const widget = ALL_WIDGETS.find(w => w.id === widgetId);
-    return widget?.title || widgetId;
-  };
-
-  const getWidgetIcon = (widgetId: string) => {
-    const widget = ALL_WIDGETS.find(w => w.id === widgetId);
-    return widget?.icon || 'fa-widget';
+    return getAvailableWidgetsFromConfig(activeWidgets);
   };
 
   return (
