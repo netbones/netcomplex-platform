@@ -37,9 +37,15 @@ import { twoFactors } from '../../prisma/drizzle/two-factors';
 import { members } from '../../prisma/drizzle/members';
 import { organizations } from '../../prisma/drizzle/organizations';
 
+const envUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
+const connectionString = envUrl ? envUrl.replace('sslmode=require', 'sslmode=no-verify') : '';
+
+if (!connectionString) {
+  throw new Error('DATABASE_URL or DIRECT_URL is not set');
+}
+
 const pool = new Pool({
-  connectionString: process.env.DIRECT_URL || process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  connectionString,
 });
 
 export const db = drizzle(pool, {
