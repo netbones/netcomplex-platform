@@ -50,7 +50,7 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 #### 2. Build Performance Crisis
 
-**Status:** 🚨 **OPEN**
+**Status:** 🚨 **OPEN - BD Issues Created**
 **Priority:** P0
 **Timeline:** Complete within 1 week
 
@@ -62,9 +62,9 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 **Action Items:**
 
-- [ ] Convert dashboard page to server components
-- [ ] Convert directory page to server components
-- [ ] Convert groups page to server components
+- [x] BD issue: soralia-village-fso - Convert dashboard page to server components
+- [x] BD issue: soralia-village-7jp - Convert directory page to server components
+- [x] BD issue: soralia-village-87g - Convert groups page to server components
 
 **Success Criteria:**
 
@@ -103,7 +103,7 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
   - [x] Settings page (forms, preferences)
   - [x] Resident profile pages (complex data display)
   - [x] Services/Resources/Interest/Conservation pages
-- [ ] Skip error boundaries for static pages (Terms, Privacy, Guidelines)
+- [x] BD issue: soralia-village-38y - Skip error boundaries for static pages (Terms, Privacy, Guidelines)
 
 **Success Criteria:**
 
@@ -116,7 +116,7 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 #### 3. Type Safety Violations
 
-**Status:** 🚨 **OPEN**  
+**Status:** 🚨 **OPEN - BD Issues Created**  
 **Priority:** P1  
 **Timeline:** Complete within 2 weeks
 
@@ -133,6 +133,7 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 - [x] Fix type issues in dashboard components
 - [x] Add proper generics where needed
 - [x] Remove remaining `any` types in TRPC routers
+- [x] BD issue: soralia-village-7zm - Fix remaining any types in codebase
 
 **Success Criteria:**
 
@@ -169,7 +170,7 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 #### 5. Code Quality & Architecture
 
-**Status:** 🚨 **OPEN**  
+**Status:** 🚨 **OPEN - BD Issues Created**  
 **Priority:** P2  
 **Timeline:** Complete within 3-4 weeks
 
@@ -181,10 +182,10 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 **Action Items:**
 
-- [ ] Split dashboard component into smaller pieces
-- [ ] Add error boundaries to all components
-- [ ] Implement consistent error handling patterns
-- [ ] Add React.memo and useMemo optimizations
+- [x] BD issue: soralia-village-5ke - Split dashboard component into smaller pieces
+- [x] BD issue: soralia-village-wyg - Add error boundaries to all components
+- [x] BD issue: soralia-village-70l - Implement consistent error handling patterns
+- [ ] Implement React.memo and useMemo optimizations
 
 **Success Criteria:**
 
@@ -194,7 +195,7 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 #### 6. Configuration & Tooling
 
-**Status:** 🚨 **OPEN**  
+**Status:** 🚨 **OPEN - BD Issues Created**  
 **Priority:** P2  
 **Timeline:** Complete within 3-4 weeks
 
@@ -206,8 +207,8 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 **Action Items:**
 
-- [ ] Enhance ESLint with comprehensive rules
-- [ ] Add TypeScript-specific linting
+- [x] BD issue: soralia-village-46n - Enhance ESLint with comprehensive rules
+- [x] BD issue: soralia-village-gqd - Add TypeScript-specific linting
 - [ ] Implement accessibility rules
 - [ ] Add Prettier integration
 
@@ -221,7 +222,7 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 #### 7. Code Cleanup
 
-**Status:** 🚨 **OPEN**  
+**Status:** 🚨 **OPEN - BD Issues Created**  
 **Priority:** P3  
 **Timeline:** Ongoing
 
@@ -233,9 +234,7 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 **Action Items:**
 
-- [ ] Remove unused variables and functions
-- [ ] Clean up console.log statements
-- [ ] Remove dead code
+- [x] BD issue: soralia-village-ke4 - Remove unused variables and functions, clean up console.log statements, remove dead code
 - [ ] Implement proper logging framework
 
 **Success Criteria:**
@@ -246,7 +245,7 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 #### 8. Monitoring & Performance
 
-**Status:** 🚨 **OPEN**  
+**Status:** 🚨 **OPEN - BD Issues Created**  
 **Priority:** P3  
 **Timeline:** Ongoing
 
@@ -258,8 +257,8 @@ A comprehensive codebase review identified critical security vulnerabilities, pe
 
 **Action Items:**
 
-- [ ] Implement performance monitoring
-- [ ] Add error tracking (Sentry/LogRocket)
+- [x] BD issue: soralia-village-12v - Implement performance monitoring
+- [x] BD issue: soralia-village-v3x - Add error tracking (Sentry/LogRocket)
 - [ ] Set up Core Web Vitals tracking
 - [ ] Add performance budgets
 
@@ -372,7 +371,7 @@ This plan integrates with the project's beads (bd) issue tracking system:
 
 ## 9. Vercel Cost Optimization
 
-**Status:** ✅ **IN PROGRESS**
+**Status:** 🚨 **OPEN - BD Issues Created**
 **Priority:** P0 (Cost Critical)
 **Timeline:** Complete within 2 weeks
 
@@ -395,11 +394,11 @@ This plan integrates with the project's beads (bd) issue tracking system:
 - [x] Create streaming dashboard components with static shell + dynamic holes
 - [x] Audit library Edge Runtime compatibility (completed - not compatible)
 - [x] Created Edge-compatible health check route for testing
-- [ ] Verify Supabase region matches Vercel deployment region
+- [x] BD issue: soralia-village-w5f - Verify Supabase region matches Vercel deployment region
 - [ ] Migrate lightweight API routes to Edge Runtime (blocked by dependencies)
 - [ ] Monitor and optimize memory allocation in Vercel dashboard
-- [ ] Set up spend management alerts (50%/75%/100%)
-- [ ] Implement automatic scaling limits to prevent overruns
+- [x] BD issue: soralia-village-6fv - Set up spend management alerts (50%/75%/100%)
+- [x] BD issue: soralia-village-piq - Implement automatic scaling limits to prevent overruns
 
 **Success Criteria:**
 
