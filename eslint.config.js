@@ -1,16 +1,14 @@
+import tseslint from 'typescript-eslint';
+
 export default [
-  {
-    languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: 'module',
-    },
-    rules: {
-      'no-unused-vars': 'warn',
-      'no-var': 'error',
-      'prefer-const': 'error',
-    },
-  },
+  ...tseslint.configs.recommended,
   {
     ignores: ['node_modules/', 'dist/', 'build/', '.next/', 'src/**/*.html'],
+  },
+  {
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'prefer-const': 'error',
+    },
   },
 ];
