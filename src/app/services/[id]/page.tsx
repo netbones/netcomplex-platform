@@ -8,6 +8,7 @@ import { CategoryBadge } from '@/components/services/CategoryBadge';
 import { ReviewStars } from '@/components/services/ReviewStars';
 import { PricingDisplay } from '@/components/services/PricingDisplay';
 import { ServiceListing } from '@/components/services/ServiceCard';
+import { RelatedServices } from '@/components/services/RelatedServices';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
@@ -281,6 +282,8 @@ export default function ServiceDetailPage() {
                 )}
               </div>
             </div>
+
+            <RelatedServices serviceId={serviceId} />
           </div>
         </div>
       </main>
