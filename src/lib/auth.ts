@@ -20,5 +20,14 @@ export const auth = betterAuth({
   advanced: {
     cookiePrefix: 'soralia',
   },
+  baseURL: {
+    allowedHosts: [
+      'soralia-village.com',
+      'www.soralia-village.com',
+      '*.vercel.app',
+      'localhost:3000',
+      'localhost:3001',
+    ],
+  },
   trustedOrigins: [process.env.BETTER_AUTH_URL || 'http://localhost:3000'],
 });
