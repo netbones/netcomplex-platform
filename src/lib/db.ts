@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 
 import { messages } from '../../prisma/drizzle/messages';
 import { conversations } from '../../prisma/drizzle/conversations';
