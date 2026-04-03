@@ -1,7 +1,8 @@
 import { auth } from '@/lib/auth';
 import { hasPermission, Permission } from '@/lib/permissions';
-import { prisma } from '@/lib/prisma';
+import { db, users } from '@/lib/db';
 import { NextResponse } from 'next/server';
+import { eq } from 'drizzle-orm';
 
 export async function proxy(request: Request): Promise<NextResponse> {
   const { pathname } = new URL(request.url);
@@ -11,12 +12,8 @@ export async function proxy(request: Request): Promise<NextResponse> {
   });
 
   const userRole = session?.user?.id
-    ? (
-        await prisma.user.findUnique({
-          where: { id: session.user.id },
-          select: { role: true },
-        })
-      )?.role || 'RESIDENT'
+    ? (await db.select({ role: users.role }).from(users).where(eq(users.id, session.user.id)))[0]
+        ?.role || 'RESIDENT'
     : 'RESIDENT';
 
   const publicPaths = [
