@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
-import { drizzle } from 'drizzle-orm/postgres-js';
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/pg';
 
 import { messages } from '../../prisma/drizzle/messages';
 import { conversations } from '../../prisma/drizzle/conversations';
@@ -37,12 +37,12 @@ import { twoFactors } from '../../prisma/drizzle/two-factors';
 import { members } from '../../prisma/drizzle/members';
 import { organizations } from '../../prisma/drizzle/organizations';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const pool = new Pool({
+  connectionString: process.env.DIRECT_URL || process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
 
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-export const db = drizzle(supabase, {
+export const db = drizzle(pool, {
   schema: {
     messages,
     conversations,
