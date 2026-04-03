@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { Prisma, ServiceCategory } from '@prisma/client';
+import { apiLogger } from '@/lib/logger';
 
 /**
  * GET /api/community-services/listings - Get community service listings
@@ -110,7 +111,10 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Community services listings fetch error:', error);
+    apiLogger.error(
+      { err: error, path: '/api/community-services/listings' },
+      'Listings fetch error'
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -178,7 +182,10 @@ export async function POST(request: NextRequest) {
       listing,
     });
   } catch (error) {
-    console.error('Community service listing creation error:', error);
+    apiLogger.error(
+      { err: error, path: '/api/community-services/listings' },
+      'Listing creation error'
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

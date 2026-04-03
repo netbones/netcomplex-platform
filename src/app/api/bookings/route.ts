@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { bookingSchema } from '@/lib/schemas';
 import { revalidateDashboard } from '@/lib/revalidation';
+import { apiLogger } from '@/lib/logger';
 
 // Limit execution time to 8 seconds for booking operations
 export const maxDuration = 8;
@@ -117,7 +118,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(booking, { status: 201 });
   } catch (error) {
-    console.error('Error creating booking:', error);
+    apiLogger.error({ err: error, path: '/api/bookings' }, 'Booking creation error');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

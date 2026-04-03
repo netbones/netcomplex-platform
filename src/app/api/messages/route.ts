@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { messageSchema } from '@/lib/schemas';
 import { revalidateConversations } from '@/lib/revalidation';
+import { apiLogger } from '@/lib/logger';
 
 /** Supabase client for real-time message broadcasting */
 const supabase = createClient(
@@ -143,7 +144,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(message, { status: 201 });
   } catch (error) {
-    console.error('Error creating message:', error);
+    apiLogger.error({ err: error, path: '/api/messages' }, 'Message creation error');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -174,7 +175,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ deleted: result.count });
   } catch (error) {
-    console.error('Error pruning messages:', error);
+    apiLogger.error({ err: error, path: '/api/messages' }, 'Message pruning error');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

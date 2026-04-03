@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { maintenanceRequestSchema } from '@/lib/schemas';
 import { revalidateDashboard } from '@/lib/revalidation';
+import { apiLogger } from '@/lib/logger';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;
@@ -130,7 +131,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(maintenanceRequest, { status: 201 });
   } catch (error) {
-    console.error('Error creating maintenance request:', error);
+    apiLogger.error({ err: error, path: '/api/maintenance' }, 'Maintenance request creation error');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
