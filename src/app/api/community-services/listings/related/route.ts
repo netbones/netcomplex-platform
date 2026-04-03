@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
+
+// Drizzle imports
+import { db, communityServiceListings, users } from '@/lib/db';
+import { eq, desc, and, or, sql } from 'drizzle-orm';
+import { communityServiceReviews } from '@/lib/db';
 
 export const maxDuration = 5;
 
@@ -13,43 +18,75 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'serviceId is required' }, { status: 400 });
     }
 
-    const currentService = await prisma.communityServiceListing.findUnique({
-      where: { id: serviceId },
-      select: { category: true, title: true, description: true },
-    });
+    // Get current service details using Drizzle
+    const [currentService] = await db
+      .select({
+        category: communityServiceListings.category,
+        title: communityServiceListings.title,
+        description: communityServiceListings.description,
+      })
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.id, serviceId))
+      .limit(1);
 
     if (!currentService) {
       return NextResponse.json({ error: 'Service not found' }, { status: 404 });
     }
 
-    const relatedServices = await prisma.communityServiceListing.findMany({
-      where: {
-        id: { not: serviceId },
-        isPublished: true,
-        status: 'ACTIVE',
-        OR: [
-          { category: currentService.category },
-          { title: { contains: currentService.title.split(' ')[0], mode: 'insensitive' } },
-        ],
-      },
-      include: {
-        provider: {
-          select: {
-            name: true,
-            avatar: true,
-          },
-        },
-        _count: {
-          select: {
-            reviews: true,
-          },
-        },
-      },
-      orderBy: [{ rating: 'desc' }, { _count: { reviews: 'desc' } }],
-      take: limit,
-    });
+    // Build search term from first word of title
+    const searchTerm = currentService.title?.split(' ')[0] || '';
+    const searchPattern = `%${searchTerm.toLowerCase()}%`;
 
-    return NextResponse.json({ relatedServices });
+    // Get related services using Drizzle
+    const relatedServices = await db
+      .select({
+        id: communityServiceListings.id,
+        title: communityServiceListings.title,
+        description: communityServiceListings.description,
+        category: communityServiceListings.category,
+        subcategory: communityServiceListings.subcategory,
+        priceType: communityServiceListings.priceType,
+        price: communityServiceListings.price,
+        rating: communityServiceListings.rating,
+        reviewCount: communityServiceListings.reviewCount,
+        images: communityServiceListings.images,
+        verified: communityServiceListings.verified,
+        isFeatured: communityServiceListings.isFeatured,
+        createdAt: communityServiceListings.createdAt,
+        provider: {
+          id: users.id,
+          name: users.name,
+          avatar: users.avatar,
+        },
+      })
+      .from(communityServiceListings)
+      .leftJoin(users, eq(communityServiceListings.providerId, users.id))
+      .where(
+        and(
+          eq(communityServiceListings.isPublished, true),
+          eq(communityServiceListings.status, 'ACTIVE' as any),
+          sql`${communityServiceListings.id} != ${serviceId}`,
+          or(
+            eq(communityServiceListings.category, currentService.category as any),
+            sql`lower(${communityServiceListings.title}) like ${searchPattern}`
+          )
+        )
+      )
+      .orderBy(desc(communityServiceListings.rating), desc(communityServiceListings.reviewCount))
+      .limit(limit);
+
+    // Get review counts for each listing
+    const relatedWithCounts = await Promise.all(
+      relatedServices.map(async service => {
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(communityServiceReviews)
+          .where(eq(communityServiceReviews.listingId, service.id));
+        return { ...service, _count: { reviews: countResult?.count || 0 } };
+      })
+    );
+
+    return NextResponse.json({ relatedServices: relatedWithCounts });
   } catch (error) {
     console.error('Related services fetch error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

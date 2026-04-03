@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
+
+// Drizzle imports - use individual exports from db.ts
+import { db, messages, conversations, conversationParticipants, users } from '@/lib/db';
+import { eq, and, gt, desc, sql } from 'drizzle-orm';
 
 /**
  * GET /api/messages/unread - Get unread message counts for current user
@@ -15,58 +19,71 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get all conversations where user is a participant
-    const userConversations = await prisma.conversationParticipant.findMany({
-      where: { userId: session.user.id },
-      include: {
-        conversation: {
-          include: {
-            messages: {
-              orderBy: { createdAt: 'desc' },
-              take: 1, // Get latest message
-            },
-            participants: {
-              include: {
-                user: {
-                  select: { id: true, name: true },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
+    // Get all conversations where user is a participant (Drizzle)
+    const userConversationsData = await db
+      .select({
+        participantId: conversationParticipants.id,
+        lastReadAt: conversationParticipants.lastReadAt,
+        conversationId: conversationParticipants.conversationId,
+        conversationType: conversations.type,
+        conversationUpdatedAt: conversations.updatedAt,
+      })
+      .from(conversationParticipants)
+      .leftJoin(conversations, eq(conversationParticipants.conversationId, conversations.id))
+      .where(eq(conversationParticipants.userId, session.user.id));
 
     const unreadCounts: Record<string, number> = {};
     let totalUnread = 0;
 
-    for (const participant of userConversations) {
-      const conversation = participant.conversation;
-      const latestMessage = conversation.messages[0];
+    for (const participant of userConversationsData) {
+      const conversationId = participant.conversationId;
+      const conversationType = participant.conversationType;
+
+      // Get latest message in this conversation (Drizzle)
+      const [latestMessage] = await db
+        .select({
+          id: messages.id,
+          senderId: messages.senderId,
+          createdAt: messages.createdAt,
+        })
+        .from(messages)
+        .where(eq(messages.conversationId, conversationId))
+        .orderBy(desc(messages.createdAt))
+        .limit(1);
 
       if (!latestMessage) continue;
 
-      // Count messages after last read
-      const unreadCount = await prisma.message.count({
-        where: {
-          conversationId: conversation.id,
-          senderId: { not: session.user.id }, // Messages from others
-          createdAt: participant.lastReadAt ? { gt: participant.lastReadAt } : { gt: new Date(0) }, // All messages if never read
-        },
-      });
+      // Count unread messages - messages from others created after lastReadAt
+      const unreadResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(messages)
+        .where(
+          and(
+            eq(messages.conversationId, conversationId),
+            eq(messages.senderId, session.user.id),
+            participant.lastReadAt ? gt(messages.createdAt, participant.lastReadAt) : undefined
+          )
+        );
+
+      const unreadCount = Number(unreadResult[0]?.count || 0);
 
       if (unreadCount > 0) {
-        // For direct conversations, use the other participant's ID as key
-        if (conversation.type === 'DIRECT') {
-          const otherParticipant = conversation.participants.find(
-            p => p.userId !== session.user.id
-          );
+        // Get participants for this conversation (for DIRECT conversations)
+        if (conversationType === 'DIRECT') {
+          const allParticipants = await db
+            .select({
+              userId: conversationParticipants.userId,
+            })
+            .from(conversationParticipants)
+            .where(eq(conversationParticipants.conversationId, conversationId));
+
+          const otherParticipant = allParticipants.find(p => p.userId !== session.user.id);
           if (otherParticipant) {
             unreadCounts[otherParticipant.userId] = unreadCount;
           }
         } else {
           // For group conversations, use conversation ID
-          unreadCounts[conversation.id] = unreadCount;
+          unreadCounts[conversationId] = unreadCount;
         }
         totalUnread += unreadCount;
       }
@@ -83,7 +100,7 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * POST /api/messages/mark-read - Mark conversation as read
+ * POST /api/messages/unread - Mark conversation as read
  */
 export async function POST(request: NextRequest) {
   try {
@@ -101,17 +118,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Conversation ID required' }, { status: 400 });
     }
 
-    // Update participant's last read info
-    await prisma.conversationParticipant.updateMany({
-      where: {
-        conversationId,
-        userId: session.user.id,
-      },
-      data: {
+    // Drizzle update for participant's last read info
+    await db
+      .update(conversationParticipants)
+      .set({
         lastReadAt: new Date(),
         lastReadMessageId: messageId || null,
-      },
-    });
+      })
+      .where(
+        and(
+          eq(conversationParticipants.conversationId, conversationId),
+          eq(conversationParticipants.userId, session.user.id)
+        )
+      );
 
     return NextResponse.json({ success: true });
   } catch (error) {

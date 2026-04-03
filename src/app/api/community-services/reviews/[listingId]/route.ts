@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
+
+// Drizzle imports
+import { db, communityServiceListings, communityServiceReviews, users } from '@/lib/db';
+import { eq, desc, and, sql } from 'drizzle-orm';
 
 /**
  * GET /api/community-services/reviews/[listingId] - Get reviews for a listing
@@ -15,50 +19,71 @@ export async function GET(
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    const reviews = await prisma.communityServiceReview.findMany({
-      where: {
-        listingId,
-        isPublished: true,
-      },
-      include: {
+    // Get reviews using Drizzle
+    const reviews = await db
+      .select({
+        id: communityServiceReviews.id,
+        listingId: communityServiceReviews.listingId,
+        reviewerId: communityServiceReviews.reviewerId,
+        rating: communityServiceReviews.rating,
+        title: communityServiceReviews.title,
+        comment: communityServiceReviews.comment,
+        serviceDate: communityServiceReviews.serviceDate,
+        responseQuality: communityServiceReviews.responseQuality,
+        isPublished: communityServiceReviews.isPublished,
+        createdAt: communityServiceReviews.createdAt,
         reviewer: {
-          select: {
-            name: true,
-            avatar: true,
-          },
+          id: users.id,
+          name: users.name,
+          avatar: users.avatar,
         },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      skip: offset,
-    });
+      })
+      .from(communityServiceReviews)
+      .leftJoin(users, eq(communityServiceReviews.reviewerId, users.id))
+      .where(
+        and(
+          eq(communityServiceReviews.listingId, listingId),
+          eq(communityServiceReviews.isPublished, true)
+        )
+      )
+      .orderBy(desc(communityServiceReviews.createdAt))
+      .limit(limit)
+      .offset(offset);
 
-    const total = await prisma.communityServiceReview.count({
-      where: {
-        listingId,
-        isPublished: true,
-      },
-    });
+    // Get total count
+    const [totalResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(communityServiceReviews)
+      .where(
+        and(
+          eq(communityServiceReviews.listingId, listingId),
+          eq(communityServiceReviews.isPublished, true)
+        )
+      );
 
-    // Calculate average rating
-    const ratingStats = await prisma.communityServiceReview.aggregate({
-      where: {
-        listingId,
-        isPublished: true,
-      },
-      _avg: {
-        rating: true,
-        responseQuality: true,
-      },
-      _count: true,
-    });
+    const total = totalResult?.count || 0;
+
+    // Calculate average rating using Drizzle
+    const [ratingStats] = await db
+      .select({
+        avgRating: sql<number>`avg(${communityServiceReviews.rating})`,
+        avgResponse: sql<number>`avg(${communityServiceReviews.responseQuality})`,
+        count: sql<number>`count(*)`,
+      })
+      .from(communityServiceReviews)
+      .where(
+        and(
+          eq(communityServiceReviews.listingId, listingId),
+          eq(communityServiceReviews.isPublished, true)
+        )
+      );
 
     return NextResponse.json({
       reviews,
       stats: {
-        averageRating: ratingStats._avg.rating || 0,
-        averageResponse: ratingStats._avg.responseQuality || 0,
-        totalReviews: ratingStats._count,
+        averageRating: ratingStats?.avgRating || 0,
+        averageResponse: ratingStats?.avgResponse || 0,
+        totalReviews: ratingStats?.count || 0,
       },
       pagination: {
         total,
@@ -98,11 +123,16 @@ export async function POST(
       return NextResponse.json({ error: 'Rating must be between 1 and 5' }, { status: 400 });
     }
 
-    // Check if listing exists and is published
-    const listing = await prisma.communityServiceListing.findUnique({
-      where: { id: listingId },
-      select: { id: true, isPublished: true, providerId: true },
-    });
+    // Check if listing exists and is published using Drizzle
+    const [listing] = await db
+      .select({
+        id: communityServiceListings.id,
+        isPublished: communityServiceListings.isPublished,
+        providerId: communityServiceListings.providerId,
+      })
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.id, listingId))
+      .limit(1);
 
     if (!listing || !listing.isPublished) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
@@ -113,13 +143,17 @@ export async function POST(
       return NextResponse.json({ error: 'Cannot review your own service' }, { status: 400 });
     }
 
-    // Check if user already reviewed this listing
-    const existingReview = await prisma.communityServiceReview.findFirst({
-      where: {
-        listingId,
-        reviewerId: session.user.id,
-      },
-    });
+    // Check if user already reviewed this listing using Drizzle
+    const [existingReview] = await db
+      .select({ id: communityServiceReviews.id })
+      .from(communityServiceReviews)
+      .where(
+        and(
+          eq(communityServiceReviews.listingId, listingId),
+          eq(communityServiceReviews.reviewerId, session.user.id)
+        )
+      )
+      .limit(1);
 
     if (existingReview) {
       return NextResponse.json(
@@ -128,29 +162,49 @@ export async function POST(
       );
     }
 
-    // Create review
-    const review = await prisma.communityServiceReview.create({
-      data: {
-        listingId,
-        reviewerId: session.user.id,
-        rating,
-        title,
-        comment,
-        serviceDate: serviceDate ? new Date(serviceDate) : null,
-        responseQuality,
-      },
-      include: {
-        reviewer: {
-          select: {
-            name: true,
-            avatar: true,
-          },
-        },
-      },
+    // Create review with Drizzle
+    const reviewId = crypto.randomUUID();
+    const now = new Date();
+
+    await db.insert(communityServiceReviews).values({
+      id: reviewId,
+      listingId,
+      reviewerId: session.user.id,
+      rating,
+      title,
+      comment,
+      serviceDate: serviceDate ? new Date(serviceDate) : null,
+      responseQuality,
+      isPublished: true,
+      createdAt: now,
     });
 
     // Update listing rating
     await updateListingRating(listingId);
+
+    // Fetch created review
+    const [review] = await db
+      .select({
+        id: communityServiceReviews.id,
+        listingId: communityServiceReviews.listingId,
+        reviewerId: communityServiceReviews.reviewerId,
+        rating: communityServiceReviews.rating,
+        title: communityServiceReviews.title,
+        comment: communityServiceReviews.comment,
+        serviceDate: communityServiceReviews.serviceDate,
+        responseQuality: communityServiceReviews.responseQuality,
+        isPublished: communityServiceReviews.isPublished,
+        createdAt: communityServiceReviews.createdAt,
+        reviewer: {
+          id: users.id,
+          name: users.name,
+          avatar: users.avatar,
+        },
+      })
+      .from(communityServiceReviews)
+      .leftJoin(users, eq(communityServiceReviews.reviewerId, users.id))
+      .where(eq(communityServiceReviews.id, reviewId))
+      .limit(1);
 
     return NextResponse.json({
       success: true,
@@ -166,22 +220,25 @@ export async function POST(
  * Helper function to update listing rating
  */
 async function updateListingRating(listingId: string) {
-  const ratingStats = await prisma.communityServiceReview.aggregate({
-    where: {
-      listingId,
-      isPublished: true,
-    },
-    _avg: {
-      rating: true,
-    },
-    _count: true,
-  });
+  const [ratingStats] = await db
+    .select({
+      avgRating: sql<number>`avg(${communityServiceReviews.rating})`,
+      count: sql<number>`count(*)`,
+    })
+    .from(communityServiceReviews)
+    .where(
+      and(
+        eq(communityServiceReviews.listingId, listingId),
+        eq(communityServiceReviews.isPublished, true)
+      )
+    );
 
-  await prisma.communityServiceListing.update({
-    where: { id: listingId },
-    data: {
-      rating: ratingStats._avg.rating || 0,
-      reviewCount: ratingStats._count,
-    },
-  });
+  await db
+    .update(communityServiceListings)
+    .set({
+      rating: Number(ratingStats?.avgRating) || 0,
+      reviewCount: ratingStats?.count || 0,
+      updatedAt: new Date(),
+    })
+    .where(eq(communityServiceListings.id, listingId));
 }

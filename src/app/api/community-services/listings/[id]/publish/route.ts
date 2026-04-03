@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
+
+// Drizzle imports
+import { db, communityServiceListings } from '@/lib/db';
+import { eq } from 'drizzle-orm';
 
 /**
  * POST /api/community-services/listings/[id]/publish - Publish or unpublish a listing
@@ -18,10 +22,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const { publish } = await request.json();
 
-    // Check ownership
-    const existingListing = await prisma.communityServiceListing.findUnique({
-      where: { id },
-    });
+    // Check ownership using Drizzle
+    const [existingListing] = await db
+      .select({ providerId: communityServiceListings.providerId })
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.id, id))
+      .limit(1);
 
     if (!existingListing) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
@@ -31,14 +37,22 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
-    // Update publish status
-    const listing = await prisma.communityServiceListing.update({
-      where: { id },
-      data: {
+    // Update publish status with Drizzle
+    await db
+      .update(communityServiceListings)
+      .set({
         isPublished: publish,
         status: publish ? 'ACTIVE' : 'DRAFT',
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(communityServiceListings.id, id));
+
+    // Fetch updated listing
+    const [listing] = await db
+      .select()
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.id, id))
+      .limit(1);
 
     return NextResponse.json({
       success: true,

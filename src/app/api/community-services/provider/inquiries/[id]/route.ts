@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
+
+// Drizzle imports
+import { db, communityServiceInquiries, communityServiceListings, users } from '@/lib/db';
+import { eq, and, sql, inArray, desc } from 'drizzle-orm';
 
 /**
  * GET /api/community-services/provider/inquiries - Get inquiries for provider's listings
@@ -20,11 +24,11 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Get all listing IDs for this provider
-    const providerListings = await prisma.communityServiceListing.findMany({
-      where: { providerId: session.user.id },
-      select: { id: true },
-    });
+    // Get all listing IDs for this provider using Drizzle
+    const providerListings = await db
+      .select({ id: communityServiceListings.id })
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.providerId, session.user.id));
 
     const listingIds = providerListings.map(l => l.id);
 
@@ -35,41 +39,59 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {
-      listingId: { in: listingIds },
-    };
+    // Build conditions
+    const conditions = [inArray(communityServiceInquiries.listingId, listingIds)];
 
     if (status && status !== 'ALL') {
-      where.status = status;
+      conditions.push(eq(communityServiceInquiries.status, status as any));
     }
 
-    const inquiries = await prisma.communityServiceInquiry.findMany({
-      where,
-      include: {
+    // Get inquiries using Drizzle
+    const inquiries = await db
+      .select({
+        id: communityServiceInquiries.id,
+        listingId: communityServiceInquiries.listingId,
+        inquirerId: communityServiceInquiries.inquirerId,
+        serviceType: communityServiceInquiries.serviceType,
+        preferredDate: communityServiceInquiries.preferredDate,
+        preferredTime: communityServiceInquiries.preferredTime,
+        location: communityServiceInquiries.location,
+        description: communityServiceInquiries.description,
+        contactMethod: communityServiceInquiries.contactMethod,
+        status: communityServiceInquiries.status,
+        providerResponse: communityServiceInquiries.providerResponse,
+        respondedAt: communityServiceInquiries.respondedAt,
+        createdAt: communityServiceInquiries.createdAt,
         listing: {
-          select: {
-            title: true,
-            category: true,
-          },
+          id: communityServiceListings.id,
+          title: communityServiceListings.title,
+          category: communityServiceListings.category,
         },
         inquirer: {
-          select: {
-            name: true,
-            email: true,
-            phone: true,
-          },
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          phone: users.phone,
         },
-      },
-      orderBy: [
-        { status: 'asc' }, // PENDING first
-        { createdAt: 'desc' },
-      ],
-      take: limit,
-      skip: offset,
-    });
+      })
+      .from(communityServiceInquiries)
+      .leftJoin(
+        communityServiceListings,
+        eq(communityServiceInquiries.listingId, communityServiceListings.id)
+      )
+      .leftJoin(users, eq(communityServiceInquiries.inquirerId, users.id))
+      .where(and(...conditions))
+      .orderBy(desc(communityServiceInquiries.createdAt))
+      .limit(limit)
+      .offset(offset);
 
-    const total = await prisma.communityServiceInquiry.count({ where });
+    // Get total count
+    const [totalResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(communityServiceInquiries)
+      .where(and(...conditions));
+
+    const total = totalResult?.count || 0;
 
     return NextResponse.json({
       inquiries,
@@ -102,46 +124,76 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const { response, status } = await request.json();
 
-    // Check if inquiry exists and belongs to provider's listing
-    const inquiry = await prisma.communityServiceInquiry.findUnique({
-      where: { id },
-      include: {
-        listing: {
-          select: { providerId: true },
-        },
-      },
-    });
+    // Check if inquiry exists and belongs to provider's listing using Drizzle
+    const [inquiry] = await db
+      .select({
+        id: communityServiceInquiries.id,
+        listingId: communityServiceInquiries.listingId,
+      })
+      .from(communityServiceInquiries)
+      .where(eq(communityServiceInquiries.id, id))
+      .limit(1);
 
     if (!inquiry) {
       return NextResponse.json({ error: 'Inquiry not found' }, { status: 404 });
     }
 
-    if (inquiry.listing.providerId !== session.user.id) {
+    // Get listing to check ownership
+    const [listing] = await db
+      .select({ providerId: communityServiceListings.providerId })
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.id, inquiry.listingId))
+      .limit(1);
+
+    if (!listing || listing.providerId !== session.user.id) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
-    // Update inquiry
-    const updatedInquiry = await prisma.communityServiceInquiry.update({
-      where: { id },
-      data: {
+    // Update inquiry with Drizzle
+    await db
+      .update(communityServiceInquiries)
+      .set({
         providerResponse: response,
         status: status || 'RESPONDED',
         respondedAt: new Date(),
-      },
-      include: {
+        updatedAt: new Date(),
+      })
+      .where(eq(communityServiceInquiries.id, id));
+
+    // Fetch updated inquiry
+    const [updatedInquiry] = await db
+      .select({
+        id: communityServiceInquiries.id,
+        listingId: communityServiceInquiries.listingId,
+        inquirerId: communityServiceInquiries.inquirerId,
+        serviceType: communityServiceInquiries.serviceType,
+        preferredDate: communityServiceInquiries.preferredDate,
+        preferredTime: communityServiceInquiries.preferredTime,
+        location: communityServiceInquiries.location,
+        description: communityServiceInquiries.description,
+        contactMethod: communityServiceInquiries.contactMethod,
+        status: communityServiceInquiries.status,
+        providerResponse: communityServiceInquiries.providerResponse,
+        respondedAt: communityServiceInquiries.respondedAt,
+        createdAt: communityServiceInquiries.createdAt,
         listing: {
-          select: {
-            title: true,
-          },
+          id: communityServiceListings.id,
+          title: communityServiceListings.title,
         },
         inquirer: {
-          select: {
-            name: true,
-            email: true,
-          },
+          id: users.id,
+          name: users.name,
+          email: users.email,
         },
-      },
-    });
+      })
+      .from(communityServiceInquiries)
+      .leftJoin(
+        communityServiceListings,
+        eq(communityServiceInquiries.listingId, communityServiceListings.id)
+      )
+      .leftJoin(users, eq(communityServiceInquiries.inquirerId, users.id))
+      .where(eq(communityServiceInquiries.id, id))
+      .limit(1);
 
     return NextResponse.json({
       success: true,

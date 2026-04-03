@@ -1,10 +1,14 @@
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { bookingSchema } from '@/lib/schemas';
 import { revalidateDashboard } from '@/lib/revalidation';
 import { apiLogger } from '@/lib/logger';
+// Import directly from drizzle schema files
+import { bookings } from '../../../../prisma/drizzle/bookings';
+import { users } from '../../../../prisma/drizzle/users';
+import { eq, asc, gte, and, sql } from 'drizzle-orm';
 
 // Limit execution time to 8 seconds for booking operations
 export const maxDuration = 8;
@@ -23,15 +27,13 @@ async function getSessionAndRole(request: Request) {
     return null;
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
+  // Use Drizzle instead of Prisma
+  const userResult = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
 
   return {
     session,
     userId: session.user.id,
-    role: user?.role || 'RESIDENT',
+    role: userResult[0]?.role || 'RESIDENT',
   };
 }
 
@@ -54,26 +56,64 @@ export async function GET(request: Request) {
   const facility = searchParams.get('facility');
   const date = searchParams.get('date');
 
-  const where: Record<string, unknown> = canViewAll ? {} : { userId: authData.userId };
-  if (facility) where.facility = facility;
-  if (date) where.date = { gte: new Date(date) };
+  // Build query conditions
+  const queryConditions = [];
 
-  const bookings = await prisma.booking.findMany({
-    where,
-    include: {
-      user: {
-        select: { id: true, name: true },
-      },
-    },
-    orderBy: { date: 'asc' },
+  // Filter by user if not admin
+  if (!canViewAll) {
+    queryConditions.push(eq(bookings.userId, authData.userId));
+  }
+
+  // Filter by facility if provided
+  if (facility) {
+    queryConditions.push(eq(bookings.facility, facility as any));
+  }
+
+  // Filter by date if provided
+  if (date) {
+    queryConditions.push(gte(bookings.date, new Date(date)));
+  }
+
+  const whereClause = queryConditions.length > 0 ? and(...queryConditions) : undefined;
+
+  // Execute query with left join to get user info
+  const bookingResults = await db
+    .select()
+    .from(bookings)
+    .leftJoin(users, eq(bookings.userId, users.id))
+    .where(whereClause)
+    .orderBy(asc(bookings.date));
+
+  // Transform results
+  const transformed = bookingResults.map(row => {
+    const b = row.Booking;
+    const u = row.user;
+    return {
+      id: b.id,
+      userId: b.userId,
+      facility: b.facility,
+      date: b.date,
+      startTime: b.startTime,
+      endTime: b.endTime,
+      purpose: b.purpose,
+      status: b.status,
+      createdAt: b.createdAt,
+      updatedAt: b.updatedAt,
+      user: u
+        ? {
+            id: u.id,
+            name: u.name,
+          }
+        : null,
+    };
   });
 
-  return NextResponse.json(bookings);
+  return NextResponse.json(transformed);
 }
 
 /**
  * POST /api/bookings - Create a new facility booking
- * @body userId - User ID (defaults to demo-user-id)
+ * @body userId - User ID (defaults to authenticated user)
  * @body facility - Facility to book
  * @body date - Booking date
  * @body startTime - Start time
@@ -102,16 +142,24 @@ export async function POST(request: Request) {
     const { facility, date, startTime, endTime, purpose } = validationResult.data;
     const userId = body.userId || authData.userId;
 
-    const booking = await prisma.booking.create({
-      data: {
-        userId,
-        facility,
-        date: new Date(date),
-        startTime,
-        endTime,
-        purpose,
-      },
-    });
+    // Use Drizzle insert
+    const now = new Date();
+    const insertValues = {
+      id: sql`gen_random_uuid()`,
+      userId,
+      facility,
+      date: new Date(date),
+      startTime,
+      endTime,
+      purpose,
+      status: 'CONFIRMED',
+      createdAt: now,
+      updatedAt: sql`null`,
+    };
+    const [booking] = await db
+      .insert(bookings)
+      .values(insertValues as any)
+      .returning();
 
     // Revalidate dashboard caches immediately when new booking is created
     revalidateDashboard();

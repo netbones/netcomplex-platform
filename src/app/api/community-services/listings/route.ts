@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { Prisma, ServiceCategory } from '@prisma/client';
+import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
 import { apiLogger } from '@/lib/logger';
+
+// Drizzle imports
+import { db, communityServiceListings, users } from '@/lib/db';
+import { eq, desc, and, or, sql } from 'drizzle-orm';
+import { communityServiceReviews } from '@/lib/db';
+
+// Types for enums
+type ListingStatus = 'DRAFT' | 'ACTIVE' | 'WITHDRAWN' | 'SUSPENDED';
 
 /**
  * GET /api/community-services/listings - Get community service listings
@@ -21,88 +28,154 @@ export async function GET(request: NextRequest) {
 
     // If id is provided, return single listing
     if (id) {
-      const listing = await prisma.communityServiceListing.findUnique({
-        where: { id },
-        include: {
+      // Drizzle query
+      const [listing] = await db
+        .select({
+          id: communityServiceListings.id,
+          providerId: communityServiceListings.providerId,
+          title: communityServiceListings.title,
+          description: communityServiceListings.description,
+          category: communityServiceListings.category,
+          subcategory: communityServiceListings.subcategory,
+          priceType: communityServiceListings.priceType,
+          price: communityServiceListings.price,
+          currency: communityServiceListings.currency,
+          serviceAreas: communityServiceListings.serviceAreas,
+          availability: communityServiceListings.availability,
+          licenseNumber: communityServiceListings.licenseNumber,
+          insuranceExpiry: communityServiceListings.insuranceExpiry,
+          verified: communityServiceListings.verified,
+          verificationDate: communityServiceListings.verificationDate,
+          responseTime: communityServiceListings.responseTime,
+          contactMethods: communityServiceListings.contactMethods,
+          images: communityServiceListings.images,
+          portfolio: communityServiceListings.portfolio,
+          status: communityServiceListings.status,
+          isPublished: communityServiceListings.isPublished,
+          isFeatured: communityServiceListings.isFeatured,
+          rating: communityServiceListings.rating,
+          reviewCount: communityServiceListings.reviewCount,
+          termsAndConditions: communityServiceListings.termsAndConditions,
+          cancellationPolicy: communityServiceListings.cancellationPolicy,
+          createdAt: communityServiceListings.createdAt,
+          updatedAt: communityServiceListings.updatedAt,
           provider: {
-            select: {
-              name: true,
-              email: true,
-              avatar: true,
-            },
+            id: users.id,
+            name: users.name,
+            email: users.email,
+            avatar: users.avatar,
           },
-          _count: {
-            select: {
-              reviews: true,
-            },
-          },
-        },
-      });
+        })
+        .from(communityServiceListings)
+        .leftJoin(users, eq(communityServiceListings.providerId, users.id))
+        .where(eq(communityServiceListings.id, id))
+        .limit(1);
 
       if (!listing) {
         return NextResponse.json({ error: 'Service not found' }, { status: 404 });
       }
 
-      return NextResponse.json({ listing });
+      // Get review count separately (Drizzle doesn't support count in select for relates)
+      const [reviewCountResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(communityServiceReviews)
+        .where(eq(communityServiceReviews.listingId, id));
+
+      return NextResponse.json({
+        listing: { ...listing, _count: { reviews: reviewCountResult?.count || 0 } },
+      });
     }
 
-    const where: Prisma.CommunityServiceListingWhereInput = {
-      isPublished: true,
-      status: 'ACTIVE',
-    };
+    // Build where conditions for list query
+    const conditions = [
+      eq(communityServiceListings.isPublished, true),
+      eq(communityServiceListings.status, 'ACTIVE' as any),
+    ];
 
     if (category && category !== 'ALL') {
-      // Prisma enum filter - using cast to handle the enum type properly
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      where.category = category as any;
+      conditions.push(eq(communityServiceListings.category, category as any));
     }
 
     if (verified) {
-      where.verified = true;
+      conditions.push(eq(communityServiceListings.verified, true));
     }
 
     if (featured) {
-      where.isFeatured = true;
+      conditions.push(eq(communityServiceListings.isFeatured, true));
     }
 
     if (providerId) {
-      where.providerId = providerId;
+      conditions.push(eq(communityServiceListings.providerId, providerId));
     }
 
     if (search) {
-      where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { provider: { name: { contains: search, mode: 'insensitive' } } },
-      ];
+      const searchLower = `%${search.toLowerCase()}%`;
+      conditions.push(
+        or(
+          sql`lower(${communityServiceListings.title}) like ${searchLower}`,
+          sql`lower(${communityServiceListings.description}) like ${searchLower}`
+        ) as any
+      );
     }
 
-    const listings = await prisma.communityServiceListing.findMany({
-      where,
-      include: {
+    // Get listings with pagination
+    const listings = await db
+      .select({
+        id: communityServiceListings.id,
+        providerId: communityServiceListings.providerId,
+        title: communityServiceListings.title,
+        description: communityServiceListings.description,
+        category: communityServiceListings.category,
+        subcategory: communityServiceListings.subcategory,
+        priceType: communityServiceListings.priceType,
+        price: communityServiceListings.price,
+        currency: communityServiceListings.currency,
+        serviceAreas: communityServiceListings.serviceAreas,
+        verified: communityServiceListings.verified,
+        rating: communityServiceListings.rating,
+        reviewCount: communityServiceListings.reviewCount,
+        isFeatured: communityServiceListings.isFeatured,
+        images: communityServiceListings.images,
+        createdAt: communityServiceListings.createdAt,
         provider: {
-          select: {
-            name: true,
-            email: true,
-            avatar: true,
-          },
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          avatar: users.avatar,
         },
-        _count: {
-          select: {
-            reviews: true,
-          },
-        },
-      },
-      orderBy: [{ isFeatured: 'desc' }, { rating: 'desc' }, { createdAt: 'desc' }],
-      take: limit,
-      skip: offset,
-    });
+      })
+      .from(communityServiceListings)
+      .leftJoin(users, eq(communityServiceListings.providerId, users.id))
+      .where(and(...conditions))
+      .orderBy(
+        desc(communityServiceListings.isFeatured),
+        desc(communityServiceListings.rating),
+        desc(communityServiceListings.createdAt)
+      )
+      .limit(limit)
+      .offset(offset);
 
-    // Get total count for pagination
-    const total = await prisma.communityServiceListing.count({ where });
+    // Get total count
+    const [totalResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(communityServiceListings)
+      .where(and(...conditions));
+
+    const total = totalResult?.count || 0;
+
+    // Get review counts for each listing
+    const listingsWithCounts = await Promise.all(
+      listings.map(async listing => {
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(communityServiceReviews)
+          .where(eq(communityServiceReviews.listingId, listing.id));
+        return { ...listing, _count: { reviews: countResult?.count || 0 } };
+      })
+    );
 
     return NextResponse.json({
-      listings,
+      listings: listingsWithCounts,
       pagination: {
         total,
         limit,
@@ -152,30 +225,43 @@ export async function POST(request: NextRequest) {
       cancellationPolicy,
     } = body;
 
-    // Create listing
-    const listing = await prisma.communityServiceListing.create({
-      data: {
-        providerId: session.user.id,
-        title,
-        description,
-        category,
-        subcategory,
-        priceType,
-        price: price ? parseFloat(price) : null,
-        serviceAreas: serviceAreas || [],
-        availability,
-        licenseNumber,
-        insuranceExpiry: insuranceExpiry ? new Date(insuranceExpiry) : null,
-        responseTime: responseTime || 24,
-        contactMethods: contactMethods || ['PLATFORM_MESSAGE'],
-        images: images || [],
-        portfolio: portfolio || [],
-        termsAndConditions,
-        cancellationPolicy,
-        status: 'DRAFT',
-        isPublished: false,
-      },
+    // Create listing with Drizzle
+    const listingId = crypto.randomUUID();
+    const now = new Date();
+
+    await db.insert(communityServiceListings).values({
+      id: listingId,
+      providerId: session.user.id,
+      title,
+      description,
+      category,
+      subcategory,
+      priceType,
+      price: price ? String(price) : null,
+      serviceAreas: serviceAreas || [],
+      availability,
+      licenseNumber,
+      insuranceExpiry: insuranceExpiry ? new Date(insuranceExpiry) : null,
+      responseTime: responseTime || 24,
+      contactMethods: contactMethods || ['PLATFORM_MESSAGE'],
+      images: images || [],
+      portfolio: portfolio || [],
+      termsAndConditions,
+      cancellationPolicy,
+      status: 'DRAFT',
+      isPublished: false,
+      rating: 0,
+      reviewCount: 0,
+      createdAt: now,
+      updatedAt: now,
     });
+
+    // Fetch the created listing
+    const [listing] = await db
+      .select()
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.id, listingId))
+      .limit(1);
 
     return NextResponse.json({
       success: true,

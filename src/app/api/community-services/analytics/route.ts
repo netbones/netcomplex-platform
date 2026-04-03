@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
+
+// Drizzle imports
+import {
+  db,
+  communityServiceListings,
+  communityServiceReviews,
+  communityServiceInquiries,
+  users,
+} from '@/lib/db';
+import { eq, desc, and, sql } from 'drizzle-orm';
 
 /**
  * GET /api/community-services/analytics - Get marketplace analytics
@@ -15,11 +25,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
+    // Check if user is admin using Drizzle
+    const [user] = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
 
     if (!user || !['ADMIN', 'BOARD', 'COMMITTEE'].includes(user.role)) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
@@ -46,81 +57,94 @@ export async function GET(request: NextRequest) {
         startDate = new Date('2020-01-01'); // All time
     }
 
-    // Basic marketplace statistics
-    const [
-      totalListings,
-      activeListings,
-      totalProviders,
-      totalReviews,
-      totalInquiries,
-      categoryStats,
-      recentActivity,
-    ] = await Promise.all([
-      // Total listings
-      prisma.communityServiceListing.count(),
+    // Get counts using Drizzle
+    const [totalListingsResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(communityServiceListings);
 
-      // Active published listings
-      prisma.communityServiceListing.count({
-        where: { isPublished: true, status: 'ACTIVE' },
-      }),
+    const [activeListingsResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(communityServiceListings)
+      .where(
+        and(
+          eq(communityServiceListings.isPublished, true),
+          eq(communityServiceListings.status, 'ACTIVE' as any)
+        )
+      );
 
-      // Total providers
-      prisma.communityServiceListing
-        .findMany({
-          select: { providerId: true },
-          distinct: ['providerId'],
-        })
-        .then(results => results.length),
+    // Get distinct providers
+    const providerListings = await db
+      .select({ providerId: communityServiceListings.providerId })
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.isPublished, true));
 
-      // Total reviews
-      prisma.communityServiceReview.count({
-        where: { createdAt: { gte: startDate } },
-      }),
+    const uniqueProviders = new Set(providerListings.map(l => l.providerId));
+    const totalProviders = uniqueProviders.size;
 
-      // Total inquiries
-      prisma.communityServiceInquiry.count({
-        where: { createdAt: { gte: startDate } },
-      }),
+    // Get reviews count
+    const [totalReviewsResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(communityServiceReviews)
+      .where(sql`${communityServiceReviews.createdAt} >= ${startDate}`);
 
-      // Category breakdown
-      prisma.communityServiceListing.groupBy({
-        by: ['category'],
-        where: { isPublished: true, status: 'ACTIVE' },
-        _count: true,
-      }),
+    // Get inquiries count
+    const [totalInquiriesResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(communityServiceInquiries)
+      .where(sql`${communityServiceInquiries.createdAt} >= ${startDate}`);
 
-      // Recent activity (last 30 days)
-      prisma.communityServiceListing.findMany({
-        where: { createdAt: { gte: startDate } },
-        select: {
-          id: true,
-          title: true,
-          category: true,
-          createdAt: true,
-          provider: { select: { name: true } },
+    // Get category breakdown
+    const categoryStats = await db
+      .select({
+        category: communityServiceListings.category,
+        count: sql<number>`count(*)`,
+      })
+      .from(communityServiceListings)
+      .where(
+        and(
+          eq(communityServiceListings.isPublished, true),
+          eq(communityServiceListings.status, 'ACTIVE' as any)
+        )
+      )
+      .groupBy(communityServiceListings.category);
+
+    // Get recent activity
+    const recentActivity = await db
+      .select({
+        id: communityServiceListings.id,
+        title: communityServiceListings.title,
+        category: communityServiceListings.category,
+        createdAt: communityServiceListings.createdAt,
+        provider: {
+          id: users.id,
+          name: users.name,
         },
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-      }),
-    ]);
+      })
+      .from(communityServiceListings)
+      .leftJoin(users, eq(communityServiceListings.providerId, users.id))
+      .where(sql`${communityServiceListings.createdAt} >= ${startDate}`)
+      .orderBy(desc(communityServiceListings.createdAt))
+      .limit(10);
 
-    // Average rating
-    const ratingStats = await prisma.communityServiceReview.aggregate({
-      _avg: { rating: true },
-      _count: true,
-    });
+    // Get average rating
+    const [ratingStats] = await db
+      .select({
+        avgRating: sql<number>`avg(${communityServiceReviews.rating})`,
+        count: sql<number>`count(*)`,
+      })
+      .from(communityServiceReviews);
 
     return NextResponse.json({
       overview: {
-        totalListings,
-        activeListings,
+        totalListings: totalListingsResult?.count || 0,
+        activeListings: activeListingsResult?.count || 0,
         totalProviders,
-        totalReviews,
-        totalInquiries,
-        averageRating: ratingStats._avg.rating || 0,
-        totalRatingCount: ratingStats._count,
+        totalReviews: totalReviewsResult?.count || 0,
+        totalInquiries: totalInquiriesResult?.count || 0,
+        averageRating: ratingStats?.avgRating || 0,
+        totalRatingCount: ratingStats?.count || 0,
       },
-      categories: categoryStats,
+      categories: categoryStats.map(c => ({ category: c.category, _count: c.count })),
       recentActivity,
       period,
       generatedAt: new Date().toISOString(),

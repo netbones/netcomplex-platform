@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
+
+// Drizzle imports
+import { db, communityServiceInquiries, communityServiceListings, users } from '@/lib/db';
+import { eq, desc, and, sql } from 'drizzle-orm';
 
 /**
  * GET /api/community-services/inquiries - Get user's inquiries (as inquirer)
@@ -20,37 +24,84 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    const where: any = {
-      inquirerId: session.user.id,
-    };
+    // Build conditions
+    const conditions = [eq(communityServiceInquiries.inquirerId, session.user.id)];
 
     if (status && status !== 'ALL') {
-      where.status = status;
+      conditions.push(sql`${communityServiceInquiries.status} = ${status}` as any);
     }
 
-    const inquiries = await prisma.communityServiceInquiry.findMany({
-      where,
-      include: {
-        listing: {
-          include: {
-            provider: {
-              select: {
-                name: true,
-                email: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      skip: offset,
-    });
+    // Get inquiries using Drizzle
+    const inquiries = await db
+      .select({
+        id: communityServiceInquiries.id,
+        listingId: communityServiceInquiries.listingId,
+        inquirerId: communityServiceInquiries.inquirerId,
+        serviceType: communityServiceInquiries.serviceType,
+        preferredDate: communityServiceInquiries.preferredDate,
+        preferredTime: communityServiceInquiries.preferredTime,
+        location: communityServiceInquiries.location,
+        description: communityServiceInquiries.description,
+        contactMethod: communityServiceInquiries.contactMethod,
+        status: communityServiceInquiries.status,
+        providerResponse: communityServiceInquiries.providerResponse,
+        respondedAt: communityServiceInquiries.respondedAt,
+        createdAt: communityServiceInquiries.createdAt,
+      })
+      .from(communityServiceInquiries)
+      .where(and(...conditions))
+      .orderBy(desc(communityServiceInquiries.createdAt))
+      .limit(limit)
+      .offset(offset);
 
-    const total = await prisma.communityServiceInquiry.count({ where });
+    // Get listing and provider info separately
+    const inquiriesWithDetails = await Promise.all(
+      inquiries.map(async inquiry => {
+        const [listing] = await db
+          .select({
+            id: communityServiceListings.id,
+            title: communityServiceListings.title,
+            category: communityServiceListings.category,
+            providerId: communityServiceListings.providerId,
+          })
+          .from(communityServiceListings)
+          .where(eq(communityServiceListings.id, inquiry.listingId))
+          .limit(1);
+
+        let providerInfo = null;
+        if (listing?.providerId) {
+          const [provider] = await db
+            .select({
+              id: users.id,
+              name: users.name,
+              email: users.email,
+            })
+            .from(users)
+            .where(eq(users.id, listing.providerId))
+            .limit(1);
+          providerInfo = provider;
+        }
+
+        return {
+          ...inquiry,
+          listing: listing
+            ? { id: listing.id, title: listing.title, category: listing.category }
+            : null,
+          provider: providerInfo,
+        };
+      })
+    );
+
+    // Get total count
+    const [totalResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(communityServiceInquiries)
+      .where(and(...conditions));
+
+    const total = totalResult?.count || 0;
 
     return NextResponse.json({
-      inquiries,
+      inquiries: inquiriesWithDetails,
       pagination: {
         total,
         limit,
@@ -96,11 +147,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if listing exists and is published
-    const listing = await prisma.communityServiceListing.findUnique({
-      where: { id: listingId },
-      select: { id: true, isPublished: true, providerId: true },
-    });
+    // Check if listing exists and is published using Drizzle
+    const [listing] = await db
+      .select({
+        id: communityServiceListings.id,
+        isPublished: communityServiceListings.isPublished,
+        providerId: communityServiceListings.providerId,
+      })
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.id, listingId))
+      .limit(1);
 
     if (!listing || !listing.isPublished) {
       return NextResponse.json({ error: 'Service listing not found' }, { status: 404 });
@@ -111,42 +167,84 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Cannot inquire about your own service' }, { status: 400 });
     }
 
-    // Create inquiry
-    const inquiry = await prisma.communityServiceInquiry.create({
-      data: {
-        listingId,
-        inquirerId: session.user.id,
-        serviceType,
-        preferredDate: preferredDate ? new Date(preferredDate) : null,
-        preferredTime,
-        location,
-        description,
-        contactMethod: contactMethod || 'PLATFORM_MESSAGE',
-        status: 'PENDING',
-      },
-      include: {
-        listing: {
-          include: {
-            provider: {
-              select: {
-                name: true,
-                email: true,
-              },
-            },
-          },
-        },
-        inquirer: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
+    // Create inquiry with Drizzle
+    const inquiryId = crypto.randomUUID();
+    const now = new Date();
+
+    await db.insert(communityServiceInquiries).values({
+      id: inquiryId,
+      listingId,
+      inquirerId: session.user.id,
+      serviceType,
+      preferredDate: preferredDate ? new Date(preferredDate) : null,
+      preferredTime,
+      location,
+      description,
+      contactMethod: contactMethod || 'PLATFORM_MESSAGE',
+      status: 'PENDING',
+      createdAt: now,
+      updatedAt: now,
     });
+
+    // Fetch created inquiry
+    const [inquiry] = await db
+      .select()
+      .from(communityServiceInquiries)
+      .where(eq(communityServiceInquiries.id, inquiryId))
+      .limit(1);
+
+    // Get listing details
+    const [listingDetails] = await db
+      .select({
+        id: communityServiceListings.id,
+        title: communityServiceListings.title,
+        category: communityServiceListings.category,
+        providerId: communityServiceListings.providerId,
+      })
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.id, listingId))
+      .limit(1);
+
+    // Get provider info
+    let providerInfo = null;
+    if (listingDetails?.providerId) {
+      const [provider] = await db
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+        })
+        .from(users)
+        .where(eq(users.id, listingDetails.providerId))
+        .limit(1);
+      providerInfo = provider;
+    }
+
+    // Get inquirer info
+    const [inquirer] = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+      })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
 
     return NextResponse.json({
       success: true,
-      inquiry,
+      inquiry: {
+        ...inquiry,
+        listing: listingDetails
+          ? {
+              id: listingDetails.id,
+              title: listingDetails.title,
+              category: listingDetails.category,
+            }
+          : null,
+        provider: providerInfo,
+        inquirer: inquirer,
+      },
     });
   } catch (error) {
     console.error('Community service inquiry creation error:', error);

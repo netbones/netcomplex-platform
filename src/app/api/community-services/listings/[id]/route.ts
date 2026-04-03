@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
+
+// Drizzle imports
+import {
+  db,
+  communityServiceListings,
+  users,
+  communityServiceReviews,
+  communityServiceInquiries,
+} from '@/lib/db';
+import { eq, desc, and, sql } from 'drizzle-orm';
 
 /**
  * GET /api/community-services/listings/[id] - Get a specific service listing
@@ -8,41 +18,95 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const listing = await prisma.communityServiceListing.findUnique({
-      where: { id },
-      include: {
+
+    // Drizzle query - get listing with provider details
+    const [listing] = await db
+      .select({
+        id: communityServiceListings.id,
+        providerId: communityServiceListings.providerId,
+        title: communityServiceListings.title,
+        description: communityServiceListings.description,
+        category: communityServiceListings.category,
+        subcategory: communityServiceListings.subcategory,
+        priceType: communityServiceListings.priceType,
+        price: communityServiceListings.price,
+        currency: communityServiceListings.currency,
+        serviceAreas: communityServiceListings.serviceAreas,
+        availability: communityServiceListings.availability,
+        licenseNumber: communityServiceListings.licenseNumber,
+        insuranceExpiry: communityServiceListings.insuranceExpiry,
+        verified: communityServiceListings.verified,
+        verificationDate: communityServiceListings.verificationDate,
+        responseTime: communityServiceListings.responseTime,
+        contactMethods: communityServiceListings.contactMethods,
+        images: communityServiceListings.images,
+        portfolio: communityServiceListings.portfolio,
+        status: communityServiceListings.status,
+        isPublished: communityServiceListings.isPublished,
+        isFeatured: communityServiceListings.isFeatured,
+        rating: communityServiceListings.rating,
+        reviewCount: communityServiceListings.reviewCount,
+        termsAndConditions: communityServiceListings.termsAndConditions,
+        cancellationPolicy: communityServiceListings.cancellationPolicy,
+        createdAt: communityServiceListings.createdAt,
+        updatedAt: communityServiceListings.updatedAt,
         provider: {
-          select: {
-            name: true,
-            email: true,
-            avatar: true,
-            phone: true,
-          },
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          avatar: users.avatar,
+          phone: users.phone,
         },
-        CommunityServiceReview: {
-          include: {
-            reviewer: {
-              select: {
-                name: true,
-                avatar: true,
-              },
-            },
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-        },
-        _count: {
-          select: {
-            reviews: true,
-            inquiries: true,
-          },
-        },
-      },
-    });
+      })
+      .from(communityServiceListings)
+      .leftJoin(users, eq(communityServiceListings.providerId, users.id))
+      .where(eq(communityServiceListings.id, id))
+      .limit(1);
 
     if (!listing) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
+
+    // Get reviews
+    const reviews = await db
+      .select({
+        id: communityServiceReviews.id,
+        listingId: communityServiceReviews.listingId,
+        reviewerId: communityServiceReviews.reviewerId,
+        rating: communityServiceReviews.rating,
+        title: communityServiceReviews.title,
+        comment: communityServiceReviews.comment,
+        serviceDate: communityServiceReviews.serviceDate,
+        responseQuality: communityServiceReviews.responseQuality,
+        isPublished: communityServiceReviews.isPublished,
+        createdAt: communityServiceReviews.createdAt,
+        reviewer: {
+          id: users.id,
+          name: users.name,
+          avatar: users.avatar,
+        },
+      })
+      .from(communityServiceReviews)
+      .leftJoin(users, eq(communityServiceReviews.reviewerId, users.id))
+      .where(
+        and(
+          eq(communityServiceReviews.listingId, id),
+          eq(communityServiceReviews.isPublished, true)
+        )
+      )
+      .orderBy(desc(communityServiceReviews.createdAt))
+      .limit(10);
+
+    // Get counts
+    const [reviewCountResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(communityServiceReviews)
+      .where(eq(communityServiceReviews.listingId, id));
+
+    const [inquiryCountResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(communityServiceInquiries)
+      .where(eq(communityServiceInquiries.listingId, id));
 
     // Check if user can view this listing
     const session = await auth.api.getSession({
@@ -54,7 +118,16 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ listing });
+    return NextResponse.json({
+      listing: {
+        ...listing,
+        CommunityServiceReview: reviews,
+        _count: {
+          reviews: reviewCountResult?.count || 0,
+          inquiries: inquiryCountResult?.count || 0,
+        },
+      },
+    });
   } catch (error) {
     console.error('Community service listing fetch error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -75,10 +148,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check ownership
-    const existingListing = await prisma.communityServiceListing.findUnique({
-      where: { id },
-    });
+    // Check ownership using Drizzle
+    const [existingListing] = await db
+      .select({ providerId: communityServiceListings.providerId })
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.id, id))
+      .limit(1);
 
     if (!existingListing) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
@@ -89,7 +164,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const body = await request.json();
-    const updateData: any = {};
+    const updateData: Record<string, any> = {
+      updatedAt: new Date(),
+    };
 
     // Only allow updating certain fields
     const allowedFields = [
@@ -113,7 +190,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     allowedFields.forEach(field => {
       if (body[field] !== undefined) {
         if (field === 'price' && body[field] !== null) {
-          updateData[field] = parseFloat(body[field]);
+          updateData[field] = String(parseFloat(body[field]));
         } else if (field === 'insuranceExpiry' && body[field]) {
           updateData[field] = new Date(body[field]);
         } else {
@@ -122,10 +199,18 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       }
     });
 
-    const listing = await prisma.communityServiceListing.update({
-      where: { id },
-      data: updateData,
-    });
+    // Update listing with Drizzle
+    await db
+      .update(communityServiceListings)
+      .set(updateData)
+      .where(eq(communityServiceListings.id, id));
+
+    // Fetch updated listing
+    const [listing] = await db
+      .select()
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.id, id))
+      .limit(1);
 
     return NextResponse.json({
       success: true,
@@ -154,10 +239,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check ownership
-    const existingListing = await prisma.communityServiceListing.findUnique({
-      where: { id },
-    });
+    // Check ownership using Drizzle
+    const [existingListing] = await db
+      .select({ providerId: communityServiceListings.providerId })
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.id, id))
+      .limit(1);
 
     if (!existingListing) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
@@ -167,9 +254,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
-    await prisma.communityServiceListing.delete({
-      where: { id },
-    });
+    // Delete with Drizzle
+    await db.delete(communityServiceListings).where(eq(communityServiceListings.id, id));
 
     return NextResponse.json({
       success: true,

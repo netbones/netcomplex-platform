@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
+
+// Drizzle imports
+import { db, communityServiceListings, users } from '@/lib/db';
+import { eq, desc, and, sql } from 'drizzle-orm';
 
 /**
  * GET /api/community-services/moderation/listings - Get listings requiring moderation
@@ -15,11 +19,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
+    // Check if user is admin using Drizzle
+    const [user] = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
 
     if (!user || !['ADMIN', 'BOARD', 'COMMITTEE'].includes(user.role)) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
@@ -30,28 +35,51 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    const where: any = {};
+    // Build conditions
+    const conditions = [];
 
     if (status !== 'ALL') {
-      where.status = status;
+      conditions.push(eq(communityServiceListings.status, status as any));
     }
 
-    const listings = await prisma.communityServiceListing.findMany({
-      where,
-      include: {
+    // Get listings using Drizzle
+    const listings = await db
+      .select({
+        id: communityServiceListings.id,
+        providerId: communityServiceListings.providerId,
+        title: communityServiceListings.title,
+        description: communityServiceListings.description,
+        category: communityServiceListings.category,
+        subcategory: communityServiceListings.subcategory,
+        priceType: communityServiceListings.priceType,
+        price: communityServiceListings.price,
+        status: communityServiceListings.status,
+        isPublished: communityServiceListings.isPublished,
+        rating: communityServiceListings.rating,
+        reviewCount: communityServiceListings.reviewCount,
+        verified: communityServiceListings.verified,
+        createdAt: communityServiceListings.createdAt,
+        updatedAt: communityServiceListings.updatedAt,
         provider: {
-          select: {
-            name: true,
-            email: true,
-          },
+          id: users.id,
+          name: users.name,
+          email: users.email,
         },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      skip: offset,
-    });
+      })
+      .from(communityServiceListings)
+      .leftJoin(users, eq(communityServiceListings.providerId, users.id))
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(communityServiceListings.createdAt))
+      .limit(limit)
+      .offset(offset);
 
-    const total = await prisma.communityServiceListing.count({ where });
+    // Get total count
+    const [totalResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(communityServiceListings)
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+    const total = totalResult?.count || 0;
 
     return NextResponse.json({
       listings,
@@ -82,11 +110,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
+    // Check if user is admin using Drizzle
+    const [user] = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
 
     if (!user || !['ADMIN', 'BOARD', 'COMMITTEE'].includes(user.role)) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
@@ -94,16 +123,25 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const { notes } = await request.json();
 
-    const listing = await prisma.communityServiceListing.update({
-      where: { id },
-      data: {
+    // Update listing with Drizzle
+    await db
+      .update(communityServiceListings)
+      .set({
         status: 'ACTIVE',
         isPublished: true,
         moderatedBy: session.user.id,
         moderatedAt: new Date(),
         moderationNotes: notes,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(communityServiceListings.id, id));
+
+    // Fetch updated listing
+    const [listing] = await db
+      .select()
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.id, id))
+      .limit(1);
 
     return NextResponse.json({
       success: true,
@@ -130,11 +168,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
+    // Check if user is admin using Drizzle
+    const [user] = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
 
     if (!user || !['ADMIN', 'BOARD', 'COMMITTEE'].includes(user.role)) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
@@ -142,16 +181,25 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const { reason, notes } = await request.json();
 
-    const listing = await prisma.communityServiceListing.update({
-      where: { id },
-      data: {
+    // Update listing with Drizzle
+    await db
+      .update(communityServiceListings)
+      .set({
         status: 'WITHDRAWN',
         isPublished: false,
         moderatedBy: session.user.id,
         moderatedAt: new Date(),
         moderationNotes: `${reason}: ${notes}`,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(communityServiceListings.id, id));
+
+    // Fetch updated listing
+    const [listing] = await db
+      .select()
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.id, id))
+      .limit(1);
 
     return NextResponse.json({
       success: true,
@@ -181,11 +229,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
+    // Check if user is admin using Drizzle
+    const [user] = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
 
     if (!user || !['ADMIN', 'BOARD'].includes(user.role)) {
       return NextResponse.json({ error: 'Board/Admin access required' }, { status: 403 });
@@ -193,17 +242,18 @@ export async function DELETE(
 
     const { reason } = await request.json();
 
-    // Log the removal reason
-    await prisma.communityServiceListing.update({
-      where: { id },
-      data: {
+    // Update listing with Drizzle (soft delete)
+    await db
+      .update(communityServiceListings)
+      .set({
         status: 'WITHDRAWN',
         isPublished: false,
         moderatedBy: session.user.id,
         moderatedAt: new Date(),
         moderationNotes: `REMOVED: ${reason}`,
-      },
-    });
+        updatedAt: new Date(),
+      })
+      .where(eq(communityServiceListings.id, id));
 
     return NextResponse.json({
       success: true,

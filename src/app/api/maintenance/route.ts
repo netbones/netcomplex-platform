@@ -1,10 +1,14 @@
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { maintenanceRequestSchema } from '@/lib/schemas';
 import { revalidateDashboard } from '@/lib/revalidation';
 import { apiLogger } from '@/lib/logger';
+// Import directly from drizzle schema files
+import { maintenanceRequests } from '../../../../prisma/drizzle/maintenance-requests';
+import { users } from '../../../../prisma/drizzle/users';
+import { eq, desc, and, sql } from 'drizzle-orm';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;
@@ -23,15 +27,13 @@ async function getSessionAndRole(request: Request) {
     return null;
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
+  // Use Drizzle instead of Prisma
+  const userResult = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
 
   return {
     session,
     userId: session.user.id,
-    role: user?.role || 'RESIDENT',
+    role: userResult[0]?.role || 'RESIDENT',
   };
 }
 
@@ -52,36 +54,53 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status');
 
-  const where: Record<string, unknown> = canViewAll ? {} : { userId: authData.userId };
-  if (status) {
-    where.status = status;
+  // Build query conditions - use sql to compare enums
+  const queryConditions = [];
+
+  // Filter by user if not admin
+  if (!canViewAll) {
+    queryConditions.push(eq(maintenanceRequests.userId, authData.userId));
   }
 
-  const requests = await prisma.maintenanceRequest.findMany({
-    where,
-    include: {
-      user: {
-        select: {
-          name: true,
-          email: true,
-          standardSeats: {
-            select: {
-              household: { select: { street: true, unit: true } },
-            },
-            take: 1,
-          },
-          soloSeat: {
-            select: {
-              household: { select: { street: true, unit: true } },
-            },
-          },
-        },
-      },
-    },
-    orderBy: { createdAt: 'desc' },
+  // Filter by status if provided - cast to the enum type
+  if (status) {
+    queryConditions.push(eq(maintenanceRequests.status, status as any));
+  }
+
+  const whereClause = queryConditions.length > 0 ? and(...queryConditions) : undefined;
+
+  // Execute query with left join to get user info
+  const requests = await db
+    .select()
+    .from(maintenanceRequests)
+    .leftJoin(users, eq(maintenanceRequests.userId, users.id))
+    .where(whereClause)
+    .orderBy(desc(maintenanceRequests.createdAt));
+
+  // Transform results - Drizzle joins use the table name as key (PascalCase)
+  const transformed = requests.map(row => {
+    const mr = row.MaintenanceRequest;
+    const u = row.user;
+    return {
+      id: mr.id,
+      userId: mr.userId,
+      category: mr.category,
+      priority: mr.priority,
+      description: mr.description,
+      status: mr.status,
+      images: mr.images,
+      createdAt: mr.createdAt,
+      updatedAt: mr.updatedAt,
+      user: u
+        ? {
+            name: u.name,
+            email: u.email,
+          }
+        : null,
+    };
   });
 
-  return NextResponse.json(requests);
+  return NextResponse.json(transformed);
 }
 
 /**
@@ -111,20 +130,28 @@ export async function POST(request: Request) {
       );
     }
 
-    const { category, priority, description, preferredDate, preferredTime } = validationResult.data;
+    const { category, priority, description } = validationResult.data;
     const userId = body.userId || authData.userId;
 
-    const maintenanceRequest = await prisma.maintenanceRequest.create({
-      data: {
-        userId,
-        category,
-        priority,
-        description,
-        images: body.images || [],
-        // Note: preferredDate and preferredTime could be stored in a separate field or handled differently
-        // For now, they're captured in validation but not used in creation
-      },
-    });
+    // Use Drizzle insert - use raw SQL to generate ID
+    const now = new Date();
+    const insertValues = {
+      id: sql`gen_random_uuid()`,
+      userId,
+      category,
+      priority,
+      description,
+      images: body.images || [],
+      status: 'SUBMITTED',
+      createdAt: now,
+      updatedAt: sql`null`,
+    };
+    const insertResult = await db
+      .insert(maintenanceRequests)
+      .values(insertValues as any)
+      .returning();
+
+    const maintenanceRequest = insertResult[0];
 
     // Revalidate dashboard caches immediately when new request is created
     revalidateDashboard();

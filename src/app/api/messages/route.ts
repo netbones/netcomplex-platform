@@ -1,10 +1,14 @@
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { messageSchema } from '@/lib/schemas';
 import { revalidateConversations } from '@/lib/revalidation';
 import { apiLogger } from '@/lib/logger';
+
+// Drizzle imports - use db.ts exports
+import { db, messages, users, premiumSeats } from '@/lib/db';
+import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
 
 /** Supabase client for real-time message broadcasting */
 const supabase = createClient(
@@ -26,6 +30,7 @@ async function getSessionAndRole(request: Request) {
     return null;
   }
 
+  // Using Prisma for user role lookup (can be migrated later)
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: { role: true },
@@ -59,21 +64,36 @@ export async function GET(request: Request) {
 
   // TODO: Add conversation access control - verify user has access to this conversation
 
-  const messages = await prisma.message.findMany({
-    where: {
-      conversationId,
-      isDeleted: false,
-      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-    },
-    include: {
+  // Drizzle query with relation join for sender
+  const result = await db
+    .select({
+      id: messages.id,
+      conversationId: messages.conversationId,
+      senderId: messages.senderId,
+      content: messages.content,
+      type: messages.type,
+      mediaUrl: messages.mediaUrl,
+      createdAt: messages.createdAt,
+      expiresAt: messages.expiresAt,
+      isDeleted: messages.isDeleted,
       sender: {
-        select: { id: true, name: true, avatar: true },
+        id: users.id,
+        name: users.name,
+        avatar: users.avatar,
       },
-    },
-    orderBy: { createdAt: 'asc' },
-  });
+    })
+    .from(messages)
+    .leftJoin(users, eq(messages.senderId, users.id))
+    .where(
+      and(
+        eq(messages.conversationId, conversationId),
+        eq(messages.isDeleted, false),
+        or(isNull(messages.expiresAt), gt(messages.expiresAt, new Date()))
+      )
+    )
+    .orderBy(asc(messages.createdAt));
 
-  return NextResponse.json(messages);
+  return NextResponse.json(result);
 }
 
 /**
@@ -106,7 +126,7 @@ export async function POST(request: Request) {
 
     // TODO: Add conversation access control - verify user has access to this conversation
 
-    // Check for PremiumSeat to determine retention period
+    // Check for PremiumSeat to determine retention period (using Prisma for now)
     const premiumSeat = await prisma.premiumSeat.findUnique({
       where: { userId: authData.userId },
       select: { messageRetentionDays: true },
@@ -116,21 +136,34 @@ export async function POST(request: Request) {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + retentionDays);
 
-    const message = await prisma.message.create({
-      data: {
+    // Drizzle insert for new message (generate ID manually since Drizzle doesn't auto-generate)
+    const [newMessage] = await db
+      .insert(messages)
+      .values({
+        id: crypto.randomUUID(),
         conversationId,
         senderId: authData.userId,
         content,
-        type,
+        type: type || 'TEXT',
         mediaUrl,
         expiresAt,
-      },
-      include: {
-        sender: {
-          select: { id: true, name: true, avatar: true },
-        },
-      },
-    });
+      })
+      .returning();
+
+    // Fetch sender info for response
+    const [senderInfo] = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        avatar: users.avatar,
+      })
+      .from(users)
+      .where(eq(users.id, authData.userId));
+
+    const message = {
+      ...newMessage,
+      sender: senderInfo,
+    };
 
     // Revalidate conversation caches immediately when new message is sent
     revalidateConversations();
@@ -165,15 +198,15 @@ export async function DELETE(request: Request) {
   }
 
   try {
-    const result = await prisma.message.deleteMany({
-      where: {
-        OR: [{ expiresAt: { lt: new Date() } }, { isDeleted: true }],
-      },
-    });
+    // Drizzle delete for expired messages
+    const expiredMessages = await db
+      .delete(messages)
+      .where(or(lt(messages.expiresAt, new Date()), eq(messages.isDeleted, true)))
+      .returning({ id: messages.id });
 
     revalidateConversations();
 
-    return NextResponse.json({ deleted: result.count });
+    return NextResponse.json({ deleted: expiredMessages.length });
   } catch (error) {
     apiLogger.error({ err: error, path: '/api/messages' }, 'Message pruning error');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
