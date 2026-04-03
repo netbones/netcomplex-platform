@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
+
 
 // Drizzle imports - use individual exports from db.ts
 import { db, messages, conversations, conversationParticipants, users } from '@/lib/db';

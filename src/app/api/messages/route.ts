@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
+
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { messageSchema } from '@/lib/schemas';

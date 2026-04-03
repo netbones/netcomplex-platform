@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
+
 
 // Drizzle imports
 import { db, communityServiceListings, users } from '@/lib/db';

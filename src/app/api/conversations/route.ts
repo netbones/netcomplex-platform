@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma'; // Fallback - keeping for now
+
 import { NextResponse } from 'next/server';
 
 // Drizzle imports - use db.ts exports
