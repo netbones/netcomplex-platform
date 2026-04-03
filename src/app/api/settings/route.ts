@@ -1,7 +1,8 @@
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { prisma } from '@/lib/prisma';
+import { db, users, settings } from '@/lib/db';
 import { NextResponse } from 'next/server';
+import { eq, like } from 'drizzle-orm';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -12,15 +13,16 @@ async function getSessionAndRole(request: Request) {
     return null;
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
+  const userResult = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
 
   return {
     session,
     userId: session.user.id,
-    role: user?.role || 'RESIDENT',
+    role: userResult[0]?.role || 'RESIDENT',
   };
 }
 
@@ -35,15 +37,13 @@ export async function GET(request: Request) {
   const key = searchParams.get('key');
 
   if (!key) {
-    const settings = await prisma.setting.findMany();
-    return NextResponse.json(settings);
+    const allSettings = await db.select().from(settings);
+    return NextResponse.json(allSettings);
   }
 
-  const setting = await prisma.setting.findUnique({
-    where: { key },
-  });
+  const settingResult = await db.select().from(settings).where(eq(settings.key, key)).limit(1);
 
-  return NextResponse.json(setting || { key, value: null });
+  return NextResponse.json(settingResult[0] || { key, value: null });
 }
 
 export async function POST(request: Request) {
@@ -55,11 +55,23 @@ export async function POST(request: Request) {
 
   const body = await request.json();
 
-  const setting = await prisma.setting.upsert({
-    where: { key: body.key },
-    update: { value: body.value },
-    create: { key: body.key, value: body.value },
-  });
+  // Try to update first, then insert if not found
+  const existing = await db.select().from(settings).where(eq(settings.key, body.key)).limit(1);
 
-  return NextResponse.json(setting);
+  if (existing[0]) {
+    const updated = await db
+      .update(settings)
+      .set({ value: body.value })
+      .where(eq(settings.key, body.key))
+      .returning();
+    return NextResponse.json(updated[0]);
+  } else {
+    // Generate ID for new setting
+    const newId = body.key.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    const created = await db
+      .insert(settings)
+      .values({ id: newId, key: body.key, value: body.value })
+      .returning();
+    return NextResponse.json(created[0]);
+  }
 }

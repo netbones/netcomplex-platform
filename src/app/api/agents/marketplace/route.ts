@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { db, agentProfiles, users, premiumSeats } from '@/lib/db';
+import { eq, desc } from 'drizzle-orm';
 
 /**
  * GET /api/agents/marketplace - Get available agents for property investors
@@ -15,23 +16,34 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const agents = await prisma.agentProfile.findMany({
-      where: {
-        isVerified: true,
-      },
-      include: {
+    const agentList = await db
+      .select({
+        id: agentProfiles.id,
+        agencyName: agentProfiles.agencyName,
+        licenseNumber: agentProfiles.licenseNumber,
+        experienceYears: agentProfiles.experienceYears,
+        specializations: agentProfiles.specializations,
+        serviceAreas: agentProfiles.serviceAreas,
+        totalListings: agentProfiles.totalListings,
+        activeListings: agentProfiles.activeListings,
+        salesCompleted: agentProfiles.salesCompleted,
+        rating: agentProfiles.rating,
+        reviewCount: agentProfiles.reviewCount,
+        isVerified: agentProfiles.isVerified,
+        verificationDate: agentProfiles.verificationDate,
         agent: {
-          select: {
-            name: true,
-            email: true,
-          },
+          id: users.id,
+          name: users.name,
+          email: users.email,
         },
-      },
-      orderBy: [{ rating: 'desc' }, { reviewCount: 'desc' }],
-      take: 20,
-    });
+      })
+      .from(agentProfiles)
+      .leftJoin(users, eq(agentProfiles.agentId, users.id))
+      .where(eq(agentProfiles.isVerified, true))
+      .orderBy(desc(agentProfiles.rating), desc(agentProfiles.reviewCount))
+      .limit(20);
 
-    return NextResponse.json({ agents });
+    return NextResponse.json({ agents: agentList });
   } catch (error) {
     console.error('Agent marketplace fetch error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -54,11 +66,13 @@ export async function POST(request: NextRequest) {
     const { agentId } = await request.json();
 
     // Check if user has Premium Seat
-    const premiumSeat = await prisma.premiumSeat.findUnique({
-      where: { userId: session.user.id },
-    });
+    const seat = await db
+      .select()
+      .from(premiumSeats)
+      .where(eq(premiumSeats.userId, session.user.id))
+      .limit(1);
 
-    if (!premiumSeat) {
+    if (!seat[0]) {
       return NextResponse.json(
         {
           error: 'Premium Seat required to connect with agents',

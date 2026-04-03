@@ -1,5 +1,14 @@
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import {
+  db,
+  users,
+  maintenanceRequests,
+  bookings,
+  conversations,
+  conversationParticipants,
+  notifications,
+} from '@/lib/db';
+import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 export const maxDuration = 5;
@@ -25,24 +34,39 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const [requests, bookings, conversations, notifications] = await Promise.all([
-    prisma.maintenanceRequest.count({ where: { userId } }),
-    prisma.booking.count({
-      where: {
-        OR: [{ userId }, { residents: { some: { userId } } }],
-      },
-    }),
-    prisma.conversation.count({
-      where: { participants: { some: { userId } } },
-    }),
-    prisma.notification.count({ where: { userId } }),
-  ]);
+  // Count maintenance requests for user
+  const userRequests = await db
+    .select({ id: maintenanceRequests.id })
+    .from(maintenanceRequests)
+    .where(eq(maintenanceRequests.userId, userId));
+  const requests = userRequests.length;
+
+  // Count bookings where user is owner or participant
+  const userBookings = await db
+    .select({ id: bookings.id })
+    .from(bookings)
+    .where(eq(bookings.userId, userId));
+  const bookingsCount = userBookings.length;
+
+  // Count conversations user participates in
+  const userConversations = await db
+    .select({ id: conversationParticipants.id })
+    .from(conversationParticipants)
+    .where(eq(conversationParticipants.userId, userId));
+  const conversationsCount = userConversations.length;
+
+  // Count notifications for user
+  const userNotifications = await db
+    .select({ id: notifications.id })
+    .from(notifications)
+    .where(eq(notifications.userId, userId));
+  const notificationsCount = userNotifications.length;
 
   const stats: DashboardStats = {
     requests,
-    bookings,
-    messages: conversations,
-    notifications,
+    bookings: bookingsCount,
+    messages: conversationsCount,
+    notifications: notificationsCount,
   };
 
   return NextResponse.json(stats);

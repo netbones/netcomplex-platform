@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { prisma } from '@/lib/prisma';
+import { db, contents, users, groups } from '@/lib/db';
+import { eq, and, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { ContentCategoryEnum, type ContentCategory } from '@/types/enums';
 import { revalidateContent } from '@/lib/revalidation';
@@ -19,10 +20,11 @@ async function getSessionAndRole(request: Request) {
     return null;
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
+  const [user] = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
 
   return {
     session,
@@ -53,33 +55,55 @@ export async function GET(request: Request) {
   const groupId = searchParams.get('groupId');
   const authorId = searchParams.get('authorId');
 
-  const where: Record<string, unknown> = {};
+  // Build where conditions
+  const whereConditions = [];
 
   if (category && category in ContentCategoryEnum) {
-    where.category = ContentCategoryEnum[category as ContentCategory];
+    whereConditions.push(eq(contents.category, category as ContentCategory));
   }
-  if (published !== null) where.published = published === 'true';
-  if (featured === 'true') where.featured = true;
-  if (groupId) where.groupId = groupId;
+  if (published !== null) {
+    whereConditions.push(eq(contents.published, published === 'true'));
+  }
+  if (featured === 'true') {
+    whereConditions.push(eq(contents.featured, true));
+  }
+  if (groupId) {
+    whereConditions.push(eq(contents.groupId, groupId));
+  }
 
   // Users can only see their own content unless they have content permission
   const canViewAll = hasPermission(authData.role, 'content');
   if (authorId) {
-    where.authorId = authorId;
+    whereConditions.push(eq(contents.authorId, authorId));
   } else if (!canViewAll) {
-    where.authorId = authData.userId;
+    whereConditions.push(eq(contents.authorId, authData.userId));
   }
 
-  const content = await prisma.content.findMany({
-    where,
-    orderBy: { createdAt: 'desc' },
-    include: {
-      author: { select: { id: true, name: true } },
-      group: { select: { id: true, name: true } },
-    },
-  });
+  const contentItems = await db
+    .select({
+      id: contents.id,
+      title: contents.title,
+      content: contents.content,
+      excerpt: contents.excerpt,
+      category: contents.category,
+      tags: contents.tags,
+      authorId: contents.authorId,
+      groupId: contents.groupId,
+      published: contents.published,
+      featured: contents.featured,
+      priority: contents.priority,
+      createdAt: contents.createdAt,
+      updatedAt: contents.updatedAt,
+      publishedAt: contents.publishedAt,
+      expiresAt: contents.expiresAt,
+    })
+    .from(contents)
+    .leftJoin(users, eq(contents.authorId, users.id))
+    .leftJoin(groups, eq(contents.groupId, groups.id))
+    .where(and(...whereConditions))
+    .orderBy(desc(contents.createdAt));
 
-  return NextResponse.json(content);
+  return NextResponse.json(contentItems);
 }
 
 /**
@@ -106,8 +130,11 @@ export async function POST(request: Request) {
 
   const body = await request.json();
 
-  const content = await prisma.content.create({
-    data: {
+  const now = new Date();
+  const [content] = await db
+    .insert(contents)
+    .values({
+      id: crypto.randomUUID(),
       title: body.title,
       content: body.content,
       excerpt: body.excerpt,
@@ -116,9 +143,13 @@ export async function POST(request: Request) {
       groupId: body.groupId || null,
       featured: body.featured || false,
       published: body.published || false,
-      publishedAt: body.published ? new Date() : null,
-    },
-  });
+      publishedAt: body.published ? now : null,
+      tags: [],
+      priority: 'normal',
+      updatedAt: now,
+      createdAt: now,
+    })
+    .returning();
 
   // Revalidate content caches immediately when new content is created
   revalidateContent();

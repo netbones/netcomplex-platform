@@ -1,21 +1,32 @@
-import { prisma } from '@/lib/prisma';
+import { db, userGroups } from '@/lib/db';
+import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   const body = await request.json();
   const { userId, groupId, role = 'MEMBER' } = body;
 
-  const existing = await prisma.userGroup.findUnique({
-    where: { userId_groupId: { userId, groupId } },
-  });
+  // Check for existing membership
+  const [existing] = await db
+    .select({ id: userGroups.id })
+    .from(userGroups)
+    .where(and(eq(userGroups.userId, userId), eq(userGroups.groupId, groupId)))
+    .limit(1);
 
   if (existing) {
     return NextResponse.json({ error: 'Already a member' }, { status: 400 });
   }
 
-  const membership = await prisma.userGroup.create({
-    data: { userId, groupId, role },
-  });
+  const [membership] = await db
+    .insert(userGroups)
+    .values({
+      id: crypto.randomUUID(),
+      userId,
+      groupId,
+      role,
+      joinedAt: new Date(),
+    })
+    .returning();
 
   return NextResponse.json(membership, { status: 201 });
 }
@@ -29,9 +40,9 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'Missing userId or groupId' }, { status: 400 });
   }
 
-  await prisma.userGroup.delete({
-    where: { userId_groupId: { userId, groupId } },
-  });
+  await db
+    .delete(userGroups)
+    .where(and(eq(userGroups.userId, userId), eq(userGroups.groupId, groupId)));
 
   return NextResponse.json({ success: true });
 }

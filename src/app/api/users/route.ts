@@ -1,7 +1,8 @@
 import { auth } from '@/lib/auth';
 import { hasPermission, Permission } from '@/lib/permissions';
-import { prisma } from '@/lib/prisma';
+import { db, users, profiles, standardSeats, soloSeats, households } from '@/lib/db';
 import { NextResponse } from 'next/server';
+import { eq, and, or, asc, desc, like, ilike, sql, count } from 'drizzle-orm';
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -17,15 +18,16 @@ async function getSessionAndRole(request: Request) {
     return null;
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
+  const userResult = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
 
   return {
     session,
     userId: session.user.id,
-    role: user?.role || 'RESIDENT',
+    role: userResult[0]?.role || 'RESIDENT',
   };
 }
 
@@ -47,97 +49,198 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get('search') || '';
   const street = searchParams.get('street') || '';
-  const interest = searchParams.get('interest') || '';
   const residentType = searchParams.get('residentType') || '';
   const role = searchParams.get('role') || '';
   const page = parseInt(searchParams.get('page') || '1');
   const limit = Math.min(parseInt(searchParams.get('limit') || '6'), 50);
   const skip = (page - 1) * limit;
 
-  const where: Record<string, unknown> = canViewAll ? {} : { isPublic: true };
+  // Build base conditions
+  const conditions: any[] = [];
 
-  // Apply resident type filtering with explicit identity model
-  // Logic: A user can have multiple identities (owner + renter)
-  // - OWNER: has StandardSeat with isPrimaryOwner=true OR SoloSeat
-  // - RENTER: has Profile with residencyType='RENTER' (regardless of ownership elsewhere)
+  if (!canViewAll) {
+    conditions.push(eq(users.isPublic, true));
+  }
+
+  if (search) {
+    conditions.push(or(ilike(users.name, `%${search}%`), ilike(users.email, `%${search}%`)));
+  }
+
+  if (role) {
+    conditions.push(eq(users.role, role as any));
+  }
+
+  // Apply resident type filtering
+  // This requires a more complex query with joins
+  let userIds: string[] = [];
+
   if (residentType === 'OWNER') {
     // Owners: have standardSeats with isPrimaryOwner OR soloSeat
-    where.OR = [
-      { standardSeats: { some: { isPrimaryOwner: true } } },
-      { soloSeat: { isNot: null } },
+    const ownerResults = await db
+      .select({ userId: standardSeats.userId })
+      .from(standardSeats)
+      .where(eq(standardSeats.isPrimaryOwner, true));
+
+    const soloSeatResults = await db
+      .select({ userId: soloSeats.userId })
+      .from(soloSeats)
+      .where(sql`${soloSeats.userId} IS NOT NULL`);
+
+    userIds = [
+      ...new Set([
+        ...ownerResults.map(r => r.userId).filter((id): id is string => id !== null),
+        ...soloSeatResults.map(r => r.userId).filter((id): id is string => id !== null),
+      ]),
     ];
   } else if (residentType === 'RENTER') {
     // Renters: have profiles with residencyType='RENTER'
-    where.profiles = { some: { status: 'ACTIVE', residencyType: 'RENTER' } };
+    const renterResults = await db
+      .select({ userId: profiles.userId })
+      .from(profiles)
+      .where(
+        and(eq(profiles.status, 'ACTIVE' as any), eq(profiles.residencyType, 'RENTER' as any))
+      );
+    userIds = renterResults.map(r => r.userId).filter((id): id is string => id !== null);
   } else {
     // Default: show all actual residents
-    where.OR = [
-      { standardSeats: { some: {} } },
-      { soloSeat: { isNot: null } },
-      { profiles: { some: { status: 'ACTIVE' } } },
+    const ownerResults = await db.select({ userId: standardSeats.userId }).from(standardSeats);
+
+    const soloSeatResults = await db
+      .select({ userId: soloSeats.userId })
+      .from(soloSeats)
+      .where(sql`${soloSeats.userId} IS NOT NULL`);
+
+    const activeProfileResults = await db
+      .select({ userId: profiles.userId })
+      .from(profiles)
+      .where(eq(profiles.status, 'ACTIVE' as any));
+
+    userIds = [
+      ...new Set([
+        ...ownerResults.map(r => r.userId).filter((id): id is string => id !== null),
+        ...soloSeatResults.map(r => r.userId).filter((id): id is string => id !== null),
+        ...activeProfileResults.map(r => r.userId).filter((id): id is string => id !== null),
+      ]),
     ];
   }
 
-  const [users, total] = await Promise.all([
-    prisma.user.findMany({
-      where,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        interests: true,
-        avatar: true,
-        isPublic: true,
-        isActive: true,
-        role: true,
-        standardSeats: {
-          select: {
-            household: { select: { id: true, street: true, unit: true, homeImage: true } },
-            isPrimaryOwner: true,
-          },
-          take: 1,
-        },
-        soloSeat: {
-          select: {
-            household: { select: { id: true, street: true, unit: true, homeImage: true } },
-            seatType: true,
-          },
-        },
-        profiles: {
-          where: { status: 'ACTIVE' },
-          select: {
-            household: {
-              select: {
-                id: true,
-                street: true,
-                unit: true,
-                homeImage: true,
-              },
-            },
-            occupantType: true,
-            residencyType: true,
-            rentalImage: true,
-            occupantImage: true,
-            landlord: {
-              select: {
-                id: true,
-                name: true,
-                avatar: true,
-              },
-            },
-          },
-          take: 1,
-        },
-      },
-      orderBy: { name: 'asc' },
-      skip,
-      take: limit,
-    }),
-    prisma.user.count({ where }),
-  ]);
+  if (userIds.length > 0) {
+    conditions.push(
+      sql`${users.id} IN (${sql.join(
+        userIds.map(id => sql`${id}`),
+        sql`, `
+      )})`
+    );
+  }
 
-  return NextResponse.json({ users, total, page, limit });
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  // Get users with pagination
+  const userResults = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      phone: users.phone,
+      interests: users.interests,
+      avatar: users.avatar,
+      isPublic: users.isPublic,
+      isActive: users.isActive,
+      role: users.role,
+    })
+    .from(users)
+    .where(whereClause)
+    .orderBy(asc(users.name))
+    .limit(limit)
+    .offset(skip);
+
+  // Get total count
+  const totalResult = await db.select({ total: count() }).from(users).where(whereClause);
+
+  const total = totalResult[0]?.total || 0;
+
+  // Now fetch related data for each user
+  const usersWithRelations = await Promise.all(
+    userResults.map(async user => {
+      // Get standardSeats with household
+      const seats = await db
+        .select({
+          household: {
+            id: households.id,
+            street: households.street,
+            unit: households.unit,
+            homeImage: households.homeImage,
+          },
+          isPrimaryOwner: standardSeats.isPrimaryOwner,
+        })
+        .from(standardSeats)
+        .innerJoin(households, eq(standardSeats.householdId, households.id))
+        .where(eq(standardSeats.userId, user.id))
+        .limit(1);
+
+      // Get soloSeat with household
+      const soloSeat = await db
+        .select({
+          household: {
+            id: households.id,
+            street: households.street,
+            unit: households.unit,
+            homeImage: households.homeImage,
+          },
+          seatType: soloSeats.seatType,
+        })
+        .from(soloSeats)
+        .leftJoin(households, eq(soloSeats.householdId, households.id))
+        .where(eq(soloSeats.userId, user.id))
+        .limit(1);
+
+      // Get active profiles with household and landlord
+      const userProfiles = await db
+        .select({
+          household: {
+            id: households.id,
+            street: households.street,
+            unit: households.unit,
+            homeImage: households.homeImage,
+          },
+          occupantType: profiles.occupantType,
+          residencyType: profiles.residencyType,
+          rentalImage: profiles.rentalImage,
+          occupantImage: profiles.occupantImage,
+          landlord: {
+            id: users.id,
+            name: users.name,
+            avatar: users.avatar,
+          },
+        })
+        .from(profiles)
+        .leftJoin(households, eq(profiles.householdId, households.id))
+        .leftJoin(users, eq(profiles.landlordId, users.id))
+        .where(and(eq(profiles.userId, user.id), eq(profiles.status, 'ACTIVE' as any)))
+        .limit(1);
+
+      return {
+        ...user,
+        standardSeats: seats,
+        soloSeat: soloSeat[0] || null,
+        profiles: userProfiles,
+      };
+    })
+  );
+
+  // Apply street filter if specified
+  let filteredUsers = usersWithRelations;
+  if (street) {
+    filteredUsers = usersWithRelations.filter(user => {
+      const hasStreet =
+        user.standardSeats.some(s => s.household?.street === street) ||
+        user.soloSeat?.household?.street === street ||
+        user.profiles.some(p => p.household?.street === street);
+      return hasStreet;
+    });
+  }
+
+  return NextResponse.json({ users: filteredUsers, total, page, limit });
 }
 
 /**
@@ -162,16 +265,28 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
+  const now = new Date();
 
-  const user = await prisma.user.create({
-    data: {
+  const newUser = await db
+    .insert(users)
+    .values({
+      id: crypto.randomUUID(),
       email: body.email,
       name: body.name,
-      phone: body.phone,
+      phone: body.phone || null,
       interests: body.interests || [],
       isPublic: body.isPublic ?? true,
-    },
-  });
+      role: 'RESIDENT',
+      isActive: true,
+      showEmail: true,
+      showPhone: true,
+      emailVerified: false,
+      twoFactorEnabled: false,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning()
+    .then(rows => rows[0]);
 
-  return NextResponse.json(user, { status: 201 });
+  return NextResponse.json(newUser, { status: 201 });
 }

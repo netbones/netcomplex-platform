@@ -1,15 +1,28 @@
-import { prisma } from '@/lib/prisma';
+import { db, users, groups, contents } from '@/lib/db';
+import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 // Fast stats endpoint - limit to 3 seconds
 export const maxDuration = 3;
 
 export async function GET() {
-  const [userCount, groupCount, contentCount] = await Promise.all([
-    prisma.user.count({ where: { isActive: true } }),
-    prisma.group.count({ where: { isActive: true } }),
-    prisma.content.count({ where: { category: 'CONSERVATION', published: true } }),
-  ]);
+  // Count active users
+  const activeUsers = await db.select({ id: users.id }).from(users).where(eq(users.isActive, true));
+  const userCount = activeUsers.length;
+
+  // Count active groups
+  const activeGroups = await db
+    .select({ id: groups.id })
+    .from(groups)
+    .where(eq(groups.isActive, true));
+  const groupCount = activeGroups.length;
+
+  // Count conservation content (using raw category value)
+  const conservationContent = await db
+    .select({ id: contents.id })
+    .from(contents)
+    .where(eq(contents.category, 'CONSERVATION'));
+  const contentCount = conservationContent.length;
 
   const stats = {
     homes: 180,

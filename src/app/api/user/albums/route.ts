@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { db, albums } from '@/lib/db';
+import { eq, desc, and } from 'drizzle-orm';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,70 +14,73 @@ export async function POST(request: NextRequest) {
 
     const { action, album, albumId } = await request.json();
     const userId = session.user.id;
+    const now = new Date();
 
     switch (action) {
       case 'create': {
         // Check album limit (max 3 per user)
-        const existingAlbums = await prisma.album.count({
-          where: { userId },
-        });
+        const existingAlbums = await db
+          .select({ id: albums.id })
+          .from(albums)
+          .where(eq(albums.userId, userId));
 
-        if (existingAlbums >= 3) {
+        if (existingAlbums.length >= 3) {
           return NextResponse.json({ error: 'Maximum 3 albums allowed' }, { status: 400 });
         }
 
-        const newAlbum = await prisma.album.create({
-          data: {
+        const newAlbum = await db
+          .insert(albums)
+          .values({
+            id: crypto.randomUUID(),
             userId,
             title: album.title,
             description: album.description || null,
             isPublic: album.isPublic || false,
             mediaIds: album.mediaIds || [],
-          },
-        });
+            createdAt: now,
+            updatedAt: now,
+          })
+          .returning();
 
-        const allAlbums = await prisma.album.findMany({
-          where: { userId },
-          orderBy: { createdAt: 'desc' },
-        });
+        const allAlbums = await db
+          .select()
+          .from(albums)
+          .where(eq(albums.userId, userId))
+          .orderBy(desc(albums.createdAt));
 
         return NextResponse.json({ albums: allAlbums });
       }
 
       case 'update': {
-        const updatedAlbum = await prisma.album.update({
-          where: {
-            id: album.id,
-            userId, // Ensure user owns the album
-          },
-          data: {
+        const updatedAlbum = await db
+          .update(albums)
+          .set({
             title: album.title,
             description: album.description || null,
             isPublic: album.isPublic,
             mediaIds: album.mediaIds || [],
-          },
-        });
+            updatedAt: now,
+          })
+          .where(and(eq(albums.id, album.id), eq(albums.userId, userId)))
+          .returning();
 
-        const allAlbums = await prisma.album.findMany({
-          where: { userId },
-          orderBy: { createdAt: 'desc' },
-        });
+        const allAlbums = await db
+          .select()
+          .from(albums)
+          .where(eq(albums.userId, userId))
+          .orderBy(desc(albums.createdAt));
 
         return NextResponse.json({ albums: allAlbums });
       }
 
       case 'delete': {
-        await prisma.album.delete({
-          where: {
-            id: albumId,
-            userId, // Ensure user owns the album
-          },
-        });
+        await db.delete(albums).where(and(eq(albums.id, albumId), eq(albums.userId, userId)));
 
-        const allAlbums = await prisma.album.findMany({
-          where: { userId },
-          orderBy: { createdAt: 'desc' },
-        });
+        const allAlbums = await db
+          .select()
+          .from(albums)
+          .where(eq(albums.userId, userId))
+          .orderBy(desc(albums.createdAt));
 
         return NextResponse.json({ albums: allAlbums });
       }
@@ -99,12 +103,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const albums = await prisma.album.findMany({
-      where: { userId: session.user.id },
-      orderBy: { createdAt: 'desc' },
-    });
+    const userAlbums = await db
+      .select()
+      .from(albums)
+      .where(eq(albums.userId, session.user.id))
+      .orderBy(desc(albums.createdAt));
 
-    return NextResponse.json({ albums });
+    return NextResponse.json({ albums: userAlbums });
   } catch (error) {
     console.error('Get albums error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

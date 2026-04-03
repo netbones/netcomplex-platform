@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { prisma } from '@/lib/prisma';
+import { db, externalSurveys, users } from '@/lib/db';
+import { eq, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 async function getSessionAndRole(request: Request) {
@@ -12,15 +13,16 @@ async function getSessionAndRole(request: Request) {
     return null;
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
+  const user = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
 
   return {
     session,
     userId: session.user.id,
-    role: user?.role || 'RESIDENT',
+    role: user[0]?.role || 'RESIDENT',
   };
 }
 
@@ -31,11 +33,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const surveys = await prisma.externalSurvey.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
+  const surveyList = await db
+    .select()
+    .from(externalSurveys)
+    .orderBy(desc(externalSurveys.createdAt));
 
-  return NextResponse.json(surveys);
+  return NextResponse.json(surveyList);
 }
 
 export async function POST(request: Request) {
@@ -46,16 +49,21 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
+  const now = new Date();
 
-  const survey = await prisma.externalSurvey.create({
-    data: {
+  const [survey] = await db
+    .insert(externalSurveys)
+    .values({
+      id: crypto.randomUUID(),
       name: body.name,
       provider: body.provider, // 'bitlabs', 'cpx-research', etc.
       externalId: body.externalId,
       embedUrl: body.embedUrl,
       isActive: body.isActive ?? true,
-    },
-  });
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning();
 
   return NextResponse.json(survey, { status: 201 });
 }
@@ -69,13 +77,15 @@ export async function PATCH(request: Request) {
 
   const body = await request.json();
 
-  const survey = await prisma.externalSurvey.update({
-    where: { id: body.id },
-    data: {
+  const [survey] = await db
+    .update(externalSurveys)
+    .set({
       name: body.name,
       isActive: body.isActive,
-    },
-  });
+      updatedAt: new Date(),
+    })
+    .where(eq(externalSurveys.id, body.id))
+    .returning();
 
   return NextResponse.json(survey);
 }
@@ -94,9 +104,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'ID required' }, { status: 400 });
   }
 
-  await prisma.externalSurvey.delete({
-    where: { id },
-  });
+  await db.delete(externalSurveys).where(eq(externalSurveys.id, id));
 
   return NextResponse.json({ success: true });
 }

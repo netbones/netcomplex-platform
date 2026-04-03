@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { prisma } from '@/lib/prisma';
+import { db, surveys, users } from '@/lib/db';
+import { eq, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 async function getSessionAndRole(request: Request) {
@@ -12,15 +13,16 @@ async function getSessionAndRole(request: Request) {
     return null;
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
+  const user = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
 
   return {
     session,
     userId: session.user.id,
-    role: user?.role || 'RESIDENT',
+    role: user[0]?.role || 'RESIDENT',
   };
 }
 
@@ -34,20 +36,15 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status');
 
-  const where: Record<string, unknown> = {};
-  if (status) {
-    where.status = status;
-  }
+  const surveyList = status
+    ? await db
+        .select()
+        .from(surveys)
+        .where(eq(surveys.status, status as 'DRAFT' | 'ACTIVE' | 'CLOSED'))
+        .orderBy(desc(surveys.createdAt))
+    : await db.select().from(surveys).orderBy(desc(surveys.createdAt));
 
-  const surveys = await prisma.survey.findMany({
-    where,
-    include: {
-      _count: { select: { questions: true, responses: true } },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  return NextResponse.json(surveys);
+  return NextResponse.json(surveyList);
 }
 
 export async function POST(request: Request) {
@@ -62,17 +59,22 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
+  const now = new Date();
 
-  const survey = await prisma.survey.create({
-    data: {
+  const [survey] = await db
+    .insert(surveys)
+    .values({
+      id: crypto.randomUUID(),
       title: body.title,
-      description: body.description,
-      type: body.type || 'INTERNAL',
-      status: body.status || 'DRAFT',
+      description: body.description ?? null,
+      type: body.type ?? 'INTERNAL',
+      status: body.status ?? 'DRAFT',
       startDate: body.startDate ? new Date(body.startDate) : null,
       endDate: body.endDate ? new Date(body.endDate) : null,
-    },
-  });
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning();
 
   return NextResponse.json(survey, { status: 201 });
 }

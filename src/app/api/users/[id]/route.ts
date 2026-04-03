@@ -1,61 +1,91 @@
-import { prisma } from '@/lib/prisma';
+import { db, users, standardSeats, soloSeats, households, contents } from '@/lib/db';
 import { NextResponse } from 'next/server';
-import { Prisma } from '@prisma/client';
+import { eq, and, desc } from 'drizzle-orm';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  const user = await prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      interests: true,
-      avatar: true,
-      books: true,
-      dashboardLayout: true,
-      isPublic: true,
-      showEmail: true,
-      showPhone: true,
-      role: true,
-      createdAt: true,
-      standardSeats: {
-        select: {
-          household: { select: { id: true, street: true, unit: true, homeImage: true } },
-          isPrimaryOwner: true,
-        },
-        take: 1,
-      },
-      soloSeat: {
-        select: {
-          seatType: true,
-          household: { select: { id: true, street: true, unit: true, homeImage: true } },
-        },
-      },
-      contents: {
-        where: { published: true },
-        select: {
-          id: true,
-          title: true,
-          excerpt: true,
-          content: true,
-          category: true,
-          tags: true,
-          publishedAt: true,
-        },
-        orderBy: { publishedAt: 'desc' },
-        take: 10,
-      },
-    },
-  });
+  // Get user data
+  const userResult = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      phone: users.phone,
+      interests: users.interests,
+      avatar: users.avatar,
+      books: users.books,
+      dashboardLayout: users.dashboardLayout,
+      isPublic: users.isPublic,
+      showEmail: users.showEmail,
+      showPhone: users.showPhone,
+      role: users.role,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .where(eq(users.id, id))
+    .limit(1);
 
-  if (!user) {
+  if (!userResult[0]) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  return NextResponse.json(user);
+  const user = userResult[0];
+
+  // Get standardSeats with household
+  const seats = await db
+    .select({
+      household: {
+        id: households.id,
+        street: households.street,
+        unit: households.unit,
+        homeImage: households.homeImage,
+      },
+      isPrimaryOwner: standardSeats.isPrimaryOwner,
+    })
+    .from(standardSeats)
+    .innerJoin(households, eq(standardSeats.householdId, households.id))
+    .where(eq(standardSeats.userId, id))
+    .limit(1);
+
+  // Get soloSeat with household
+  const soloSeat = await db
+    .select({
+      seatType: soloSeats.seatType,
+      household: {
+        id: households.id,
+        street: households.street,
+        unit: households.unit,
+        homeImage: households.homeImage,
+      },
+    })
+    .from(soloSeats)
+    .leftJoin(households, eq(soloSeats.householdId, households.id))
+    .where(eq(soloSeats.userId, id))
+    .limit(1);
+
+  // Get published contents
+  const userContents = await db
+    .select({
+      id: contents.id,
+      title: contents.title,
+      excerpt: contents.excerpt,
+      content: contents.content,
+      category: contents.category,
+      tags: contents.tags,
+      publishedAt: contents.publishedAt,
+    })
+    .from(contents)
+    .where(and(eq(contents.authorId, id), eq(contents.published, true)))
+    .orderBy(desc(contents.publishedAt))
+    .limit(10);
+
+  return NextResponse.json({
+    ...user,
+    standardSeats: seats,
+    soloSeat: soloSeat[0] || null,
+    contents: userContents,
+  });
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -67,7 +97,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (body.role) {
     updateData.role = body.role;
   }
-  // residentType is now handled through identity relationships (StandardSeat/SoloSeat)
   if (body.isActive !== undefined) {
     updateData.isActive = body.isActive === 'true' || body.isActive === true;
   }
@@ -81,16 +110,32 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     updateData.dashboardLayout = body.dashboardLayout;
   }
 
-  const user = await prisma.user.update({
-    where: { id },
-    data: updateData,
-  });
+  const updatedUser = await db
+    .update(users)
+    .set(updateData)
+    .where(eq(users.id, id))
+    .returning()
+    .then(rows => rows[0]);
 
-  return NextResponse.json(user);
+  if (!updatedUser) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  return NextResponse.json(updatedUser);
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  await prisma.user.delete({ where: { id } });
+
+  const deleted = await db
+    .delete(users)
+    .where(eq(users.id, id))
+    .returning()
+    .then(rows => rows[0]);
+
+  if (!deleted) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
   return NextResponse.json({ success: true });
 }

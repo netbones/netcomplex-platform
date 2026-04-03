@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { db, households, standardSeats, profiles, contents, users } from '@/lib/db';
+import { eq, asc, desc } from 'drizzle-orm';
 
 /**
  * GET /api/households/[id] - Get household profile with occupants and aggregated content
@@ -8,123 +9,132 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const { id: householdId } = await params;
 
-    // Fetch household with all occupants and their content
-    const household = await prisma.household.findUnique({
-      where: { id: householdId },
-      select: {
-        id: true,
-        street: true,
-        unit: true,
-        homeImage: true,
-        platformAddress: true,
-        status: true,
-        createdAt: true,
-        standardSeats: {
-          select: {
-            id: true,
-            isPrimaryOwner: true,
-            platformAddress: true,
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                phone: true,
-                avatar: true,
-                isPublic: true,
-                showEmail: true,
-                showPhone: true,
-                contents: {
-                  where: { published: true },
-                  select: {
-                    id: true,
-                    title: true,
-                    excerpt: true,
-                    content: true,
-                    category: true,
-                    tags: true,
-                    publishedAt: true,
-                    createdAt: true,
-                  },
-                  orderBy: { publishedAt: 'desc' },
-                },
-              },
-            },
-          },
-        },
-        profiles: {
-          select: {
-            id: true,
-            displayName: true,
-            profileAddress: true,
-            avatar: true,
-            isPublic: true,
-            occupantSince: true,
-            occupantType: true,
-            user: {
-              select: {
-                id: true,
-                contents: {
-                  where: { published: true },
-                  select: {
-                    id: true,
-                    title: true,
-                    excerpt: true,
-                    content: true,
-                    category: true,
-                    tags: true,
-                    publishedAt: true,
-                    createdAt: true,
-                  },
-                  orderBy: { publishedAt: 'desc' },
-                },
-              },
-            },
-          },
-          orderBy: { occupantSince: 'asc' },
-        },
-      },
-    });
+    // Fetch household
+    const [household] = await db
+      .select({
+        id: households.id,
+        street: households.street,
+        unit: households.unit,
+        homeImage: households.homeImage,
+        platformAddress: households.platformAddress,
+        status: households.status,
+        createdAt: households.createdAt,
+      })
+      .from(households)
+      .where(eq(households.id, householdId))
+      .limit(1);
 
     if (!household) {
       return NextResponse.json({ error: 'Household not found' }, { status: 404 });
+    }
+
+    // Get standard seats (members) with user data and content
+    const seats = await db
+      .select({
+        id: standardSeats.id,
+        userId: standardSeats.userId,
+        isPrimaryOwner: standardSeats.isPrimaryOwner,
+        platformAddress: standardSeats.platformAddress,
+        householdId: standardSeats.householdId,
+        userId_ref: users.id,
+        name: users.name,
+        email: users.email,
+        phone: users.phone,
+        avatar: users.avatar,
+        isPublic: users.isPublic,
+        showEmail: users.showEmail,
+        showPhone: users.showPhone,
+      })
+      .from(standardSeats)
+      .leftJoin(users, eq(standardSeats.userId, users.id))
+      .where(eq(standardSeats.householdId, householdId));
+
+    // Get profiles with user data
+    const profileList = await db
+      .select({
+        id: profiles.id,
+        householdId: profiles.householdId,
+        displayName: profiles.displayName,
+        profileAddress: profiles.profileAddress,
+        avatar: profiles.avatar,
+        isPublic: profiles.isPublic,
+        occupantSince: profiles.occupantSince,
+        occupantType: profiles.occupantType,
+        userId: profiles.userId,
+      })
+      .from(profiles)
+      .where(eq(profiles.householdId, householdId))
+      .orderBy(asc(profiles.occupantSince));
+
+    // Get user IDs from seats and profiles
+    const userIds = [
+      ...seats.map(s => s.userId).filter(Boolean),
+      ...profileList.map(p => p.userId).filter(Boolean),
+    ];
+
+    // Fetch contents for these users
+    const userContentsMap: Record<string, any[]> = {};
+
+    if (userIds.length > 0) {
+      const allContents = await db
+        .select({
+          id: contents.id,
+          title: contents.title,
+          excerpt: contents.excerpt,
+          content: contents.content,
+          category: contents.category,
+          tags: contents.tags,
+          publishedAt: contents.publishedAt,
+          createdAt: contents.createdAt,
+          authorId: contents.authorId,
+        })
+        .from(contents)
+        .where(eq(contents.published, true));
+
+      // Group contents by author
+      for (const content of allContents) {
+        if (content.authorId) {
+          if (!userContentsMap[content.authorId]) {
+            userContentsMap[content.authorId] = [];
+          }
+          userContentsMap[content.authorId].push(content);
+        }
+      }
     }
 
     // Aggregate all content from household members
     const allContent: any[] = [];
 
     // Add content from Standard Seat holders
-    household.standardSeats.forEach(seat => {
-      if (seat.user.contents) {
-        seat.user.contents.forEach(content => {
-          allContent.push({
-            ...content,
-            author: {
-              id: seat.user.id,
-              name: seat.user.name,
-              type: 'member',
-              isPrimaryOwner: seat.isPrimaryOwner,
-            },
-          });
+    seats.forEach(seat => {
+      const contentsForUser = userContentsMap[seat.userId] || [];
+      contentsForUser.forEach(content => {
+        allContent.push({
+          ...content,
+          author: {
+            id: seat.userId,
+            name: seat.name || '',
+            type: 'member',
+            isPrimaryOwner: seat.isPrimaryOwner,
+          },
         });
-      }
+      });
     });
 
     // Add content from Address Profile users
-    household.profiles.forEach(profile => {
-      if (profile.user?.contents) {
-        profile.user.contents.forEach(content => {
-          allContent.push({
-            ...content,
-            author: {
-              id: profile.user!.id,
-              name: profile.displayName,
-              type: 'occupant',
-              profileId: profile.id,
-            },
-          });
+    profileList.forEach(profile => {
+      const contentsForUser = userContentsMap[profile.userId || ''] || [];
+      contentsForUser.forEach(content => {
+        allContent.push({
+          ...content,
+          author: {
+            id: profile.userId || profile.id,
+            name: profile.displayName,
+            type: 'occupant',
+            profileId: profile.id,
+          },
         });
-      }
+      });
     });
 
     // Sort all content by published date (most recent first)
@@ -147,6 +157,41 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .sort((a, b) => b.count - a.count)
       .slice(0, 20); // Top 20 tags
 
+    // Build occupants array
+    const occupants = [
+      // Standard Seat holders
+      ...seats.map(seat => ({
+        id: seat.userId,
+        name: seat.name || '',
+        email: seat.email || null,
+        phone: seat.phone || null,
+        avatar: seat.avatar || null,
+        isPublic: seat.isPublic || false,
+        showEmail: seat.showEmail || false,
+        showPhone: seat.showPhone || false,
+        type: 'member',
+        isPrimaryOwner: seat.isPrimaryOwner,
+        platformAddress: seat.platformAddress,
+        occupantSince: household.createdAt, // Household creation date
+      })),
+      // Address Profiles
+      ...profileList.map(profile => ({
+        id: profile.userId || profile.id,
+        name: profile.displayName,
+        email: null, // Profiles don't expose email
+        phone: null, // Profiles don't expose phone
+        avatar: profile.avatar || null,
+        isPublic: profile.isPublic || false,
+        showEmail: false,
+        showPhone: false,
+        type: 'occupant',
+        profileId: profile.id,
+        platformAddress: profile.profileAddress,
+        occupantSince: profile.occupantSince,
+        occupantType: profile.occupantType,
+      })),
+    ];
+
     const response = {
       household: {
         id: household.id,
@@ -157,43 +202,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         status: household.status,
         createdAt: household.createdAt,
       },
-      occupants: [
-        // Standard Seat holders
-        ...household.standardSeats.map(seat => ({
-          id: seat.user.id,
-          name: seat.user.name,
-          email: seat.user.email,
-          phone: seat.user.phone,
-          avatar: seat.user.avatar,
-          isPublic: seat.user.isPublic,
-          showEmail: seat.user.showEmail,
-          showPhone: seat.user.showPhone,
-          type: 'member',
-          isPrimaryOwner: seat.isPrimaryOwner,
-          platformAddress: seat.platformAddress,
-          occupantSince: household.createdAt, // Household creation date
-        })),
-        // Address Profiles
-        ...household.profiles.map(profile => ({
-          id: profile.user?.id || profile.id,
-          name: profile.displayName,
-          email: null, // Profiles don't expose email
-          phone: null, // Profiles don't expose phone
-          avatar: profile.avatar,
-          isPublic: profile.isPublic,
-          showEmail: false,
-          showPhone: false,
-          type: 'occupant',
-          profileId: profile.id,
-          platformAddress: profile.profileAddress,
-          occupantSince: profile.occupantSince,
-          occupantType: profile.occupantType,
-        })),
-      ],
+      occupants,
       content: allContent.slice(0, 20), // Limit to 20 most recent posts
       tags: householdTags,
       stats: {
-        totalOccupants: household.standardSeats.length + household.profiles.length,
+        totalOccupants: seats.length + profileList.length,
         totalContent: allContent.length,
         uniqueTags: householdTags.length,
       },

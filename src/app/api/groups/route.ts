@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import { hasPermission, Permission } from '@/lib/permissions';
-import { prisma } from '@/lib/prisma';
+import { db, groups, users, userGroups } from '@/lib/db';
+import { eq, asc, sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 /**
@@ -17,10 +18,11 @@ async function getSessionAndRole(request: Request) {
     return null;
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
+  const [user] = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
 
   return {
     session,
@@ -48,16 +50,43 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const groups = await prisma.group.findMany({
-    where: { isActive: true },
-    orderBy: { name: 'asc' },
-    include: {
-      owner: { select: { id: true, name: true } },
-      _count: { select: { members: true } },
-    },
-  });
+  const groupList = await db
+    .select({
+      id: groups.id,
+      name: groups.name,
+      description: groups.description,
+      category: groups.category,
+      image: groups.image,
+      color: groups.color,
+      isPublic: groups.isPublic,
+      accessType: groups.accessType,
+      residentFilter: groups.residentFilter,
+      isActive: groups.isActive,
+      createdAt: groups.createdAt,
+      updatedAt: groups.updatedAt,
+      ownerId: groups.ownerId,
+    })
+    .from(groups)
+    .where(eq(groups.isActive, true))
+    .orderBy(asc(groups.name));
 
-  return NextResponse.json(groups);
+  // Get member counts for each group
+  const groupsWithCounts = await Promise.all(
+    groupList.map(async group => {
+      const members = await db
+        .select({ id: userGroups.id })
+        .from(userGroups)
+        .where(eq(userGroups.groupId, group.id));
+
+      return {
+        ...group,
+        owner: { id: group.ownerId, name: '' },
+        _count: { members: members.length },
+      };
+    })
+  );
+
+  return NextResponse.json(groupsWithCounts);
 }
 
 /**
@@ -83,17 +112,26 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
+  const now = new Date();
 
-  const group = await prisma.group.create({
-    data: {
+  const [group] = await db
+    .insert(groups)
+    .values({
+      id: crypto.randomUUID(),
       name: body.name,
       description: body.description,
       category: body.category,
       image: body.image,
       isPublic: body.isPublic ?? true,
       ownerId: body.ownerId || authData.userId,
-    },
-  });
+      color: '#4F46E5',
+      accessType: 'OPEN',
+      residentFilter: 'ALL',
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning();
 
   return NextResponse.json(group, { status: 201 });
 }
