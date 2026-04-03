@@ -2,7 +2,18 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { twoFactor, organization, admin, bearer } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
-import { db } from './db';
+import {
+  db,
+  users,
+  sessions,
+  accounts,
+  verifications,
+  passkeys,
+  twoFactors,
+  members,
+  invitations,
+  organizations,
+} from './db';
 
 /**
  * Better Auth configuration for Soralia Village.
@@ -11,6 +22,17 @@ import { db } from './db';
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'pg',
+    schema: {
+      user: users,
+      session: sessions,
+      account: accounts,
+      verification: verifications,
+      passkey: passkeys,
+      twoFactor: twoFactors,
+      member: members,
+      invitation: invitations,
+      organization: organizations,
+    },
   }),
   emailAndPassword: {
     enabled: true,
