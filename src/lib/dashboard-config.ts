@@ -79,6 +79,20 @@ export const ALL_WIDGETS: DashboardWidget[] = [
     icon: 'fa-building',
     label: 'Premium Portfolio',
   },
+  {
+    id: 'my-services',
+    type: 'my-services',
+    title: 'My Services',
+    icon: 'fa-briefcase',
+    label: 'My Services',
+  },
+  {
+    id: 'service-inquiries',
+    type: 'service-inquiries',
+    title: 'Service Inquiries',
+    icon: 'fa-envelope-open-text',
+    label: 'Service Inquiries',
+  },
 ];
 
 export function getWidgetById(id: string): DashboardWidget | undefined {

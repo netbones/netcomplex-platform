@@ -17,6 +17,8 @@ import { PremiumPortfolioWidget } from './PremiumPortfolioWidget';
 import { HouseholdsWidget } from './HouseholdsWidget';
 import { AgentDashboardWidget } from './AgentDashboardWidget';
 import { SoloSeatWidget } from './SoloSeatWidget';
+import { MyServicesWidget } from './MyServicesWidget';
+import { ServiceInquiriesWidget } from './ServiceInquiriesWidget';
 
 interface WidgetRendererProps {
   widgetId: string;
@@ -48,6 +50,10 @@ export function WidgetRenderer({ widgetId }: WidgetRendererProps): ReactNode {
       return <SidebarWidgetBox />;
     case 'premium-portfolio':
       return <PremiumPortfolioWidget />;
+    case 'my-services':
+      return <MyServicesWidget />;
+    case 'service-inquiries':
+      return <ServiceInquiriesWidget />;
     default:
       return (
         <ErrorBoundary>
