@@ -1,0 +1,32 @@
+import {
+  pgTable,
+  text,
+  integer,
+  decimal,
+  doublePrecision,
+  boolean,
+  timestamp,
+} from 'drizzle-orm/pg-core';
+
+export const agentProfiles = pgTable('agentProfile', {
+  id: text('id').primaryKey(),
+  agentId: text('agentId').notNull(),
+  agencyName: text('agencyName'),
+  licenseNumber: text('licenseNumber'),
+  experienceYears: integer('experienceYears').default(0).notNull(),
+  specializations: text('specializations').array().notNull(),
+  serviceAreas: text('serviceAreas').array().notNull(),
+  totalListings: integer('totalListings').default(0).notNull(),
+  activeListings: integer('activeListings').default(0).notNull(),
+  salesCompleted: integer('salesCompleted').default(0).notNull(),
+  avgSalePrice: decimal('avgSalePrice', { precision: 65, scale: 30 }),
+  rating: doublePrecision('rating').default(0).notNull(),
+  reviewCount: integer('reviewCount').default(0).notNull(),
+  commissionRate: decimal('commissionRate', { precision: 65, scale: 30 }),
+  responseTime: integer('responseTime').default(24).notNull(),
+  isVerified: boolean('isVerified').default(false).notNull(),
+  verificationDate: timestamp('verificationDate', { mode: 'date', precision: 3 }),
+  organizationId: text('organizationId'),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
+});

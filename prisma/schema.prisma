@@ -1,10 +1,9 @@
-// =============================================================================
-// SORALIA VILLAGE DATABASE SCHEMA
-// Organized by domain hierarchy: Multi-tenancy → Core Identity → Activities → etc.
-// =============================================================================
-
 generator client {
   provider = "prisma-client-js"
+}
+
+generator drizzle {
+  provider = "prisma-generator-drizzle"
 }
 
 datasource db {
@@ -12,342 +11,750 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// =============================================================================
-// 1. MULTI-TENANCY (Foundation)
-// =============================================================================
-
-model Organization {
-  id        String   @id
-  name      String
-  slug      String   @unique
-  logo      String?
-  createdAt DateTime
-  metadata  String?
-
-  members     Member[]
-  invitations Invitation[]
-
-  @@map("organization")
+model Announcement {
+  id        String    @id
+  title     String
+  content   String
+  author    String
+  priority  String    @default("normal")
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
 }
 
-// =============================================================================
-// 2. CORE IDENTITY (Base)
-// =============================================================================
-
-model User {
-  id               String   @id @default(cuid())
-  email            String   @unique
-  name             String
-  role             Role     @default(RESIDENT)
-  isActive         Boolean  @default(true)
-  phone            String?
-  interests        String[]
-  avatar           String?
-  profileImage     String?
-  books            Json?    @default("[]")
-  dashboardLayout  Json?    @default("null")
-  isPublic         Boolean  @default(true)
-  showEmail        Boolean  @default(true)
-  showPhone        Boolean  @default(true)
-  emailVerified    Boolean  @default(false)
-  image            String?
-  twoFactorEnabled Boolean? @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  // --- Identity Model Relations ---
-  standardSeats StandardSeat[]
-  soloSeat      SoloSeat?
-  premiumSeat   PremiumSeat[]
-  profiles      Profile[]
-
-  // --- Landlord relationship (users who rent to tenants) ---
-  tenantProfiles  Profile[]     @relation("LandlordTenant")
-  agentAccesses   AgentAccess[] @relation("AgentAccessAgent")
-  grantedAccesses AgentAccess[] @relation("AgentAccessGrantedBy")
-  agentProfile    AgentProfile?
-
-  // --- User Activities ---
-  requests                 MaintenanceRequest[]
-  bookings                 Booking[]
-  notifications            Notification[]
-  conversationParticipants ConversationParticipant[]
-  messages                 Message[]
-  groupMemberships         UserGroup[]
-  ownedGroups              Group[]
-  contents                 Content[]
-  suspensions              PlatformSuspension[]
-  membershipRequests       GroupMembershipRequest[]
-  albums                   Album[]
-
-  // --- Property & Marketplace ---
-  ownedListings    PropertyListing[]
-  assignedListings PropertyListing[] @relation("PropertyListingAgent")
-
-  // --- Community Services ---
-  serviceListings  CommunityServiceListing[]
-  serviceReviews   CommunityServiceReview[]
-  serviceInquiries CommunityServiceInquiry[]
-
-  // --- Auth & Security ---
-  sessions    Session[]
-  accounts    Account[]
-  twofactors  TwoFactor[]
-  invitations Invitation[]
-  passkeys    Passkey[]
-  members     Member[]
-
-  @@map("user")
+model Booking {
+  id        String        @id
+  userId    String
+  facility  String
+  date      DateTime
+  startTime String
+  endTime   String
+  purpose   String?
+  status    BookingStatus @default(CONFIRMED)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime
+  user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// =============================================================================
-// 3. IDENTITY HIERARCHY (Property → Person → Extended)
-// =============================================================================
-
-// --- Household (Property Unit) ---
-model Household {
-  id             String  @id @default(cuid())
-  organizationId String?
-
-  // Property reference
-  street          String
-  unit            String // Unit number, e.g., "042"
-  platformAddress String  @unique // e.g., unit042@soralia.org
-  homeImage       String?
-
-  // Status
-  status      HouseholdStatus @default(ACTIVE)
-  moveInDate  DateTime?
-  moveOutDate DateTime?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  standardSeats    StandardSeat[]
-  profiles         Profile[]
-  soloSeats        SoloSeat[]
-  premiumSeats     PremiumSeat[]     @relation("PremiumSeatPortfolio")
-  propertyListings PropertyListing[]
-  agentAccesses    AgentAccess[]
-
-  @@unique([street, unit])
-  @@index([platformAddress])
-  @@index([organizationId])
-  @@map("household")
-}
-
-enum HouseholdStatus {
-  ACTIVE
-  ARCHIVED
-}
-
-// --- Standard Seat (Property Owner Identity) ---
-model StandardSeat {
-  id String @id @default(cuid())
-
-  // User (the property owner)
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Household (the property they own)
-  householdId String
-  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
-
-  // Role in household
-  isPrimaryOwner Boolean @default(true)
-
-  // Platform address (e.g., jack.unit042@soralia.org)
-  platformAddress String @unique
-
-  // Multi-tenancy
-  organizationId String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, householdId])
-  @@index([userId])
-  @@index([householdId])
-  @@index([organizationId])
-  @@map("standardSeat")
-}
-
-// --- Profile (Occupant/Sub-identity) ---
-model Profile {
-  id String @id @default(cuid())
-
-  // Household relationship
-  householdId String
-  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
-
-  // Profile identity
-  displayName    String
-  profileAddress String @unique // e.g., john.unit042@soralia.org
-
-  // User link (for upgrade to Premium - optional)
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id])
-
-  // Profile details
-  avatar        String?
-  rentalImage   String? // Property photo for rental display
-  occupantImage String? // Personal photo for occupant display
-  isPublic      Boolean @default(true)
-  showEmail     Boolean @default(true)
-  showPhone     Boolean @default(true)
-
-  // Explicit Renter Relationship
-  landlordId String?
-  landlord   User?   @relation("LandlordTenant", fields: [landlordId], references: [id])
-
-  // Classification
-  residencyType ResidencyType @default(FAMILY) // FAMILY, RENTER, OWNER_RESIDENT
-  occupantType  OccupantType  @default(OCCUPANT)
-
-  // Tenure tracking
-  occupantSince  DateTime  @default(now())
-  leaseStartDate DateTime?
-  leaseEndDate   DateTime?
-
-  status ProfileStatus @default(ACTIVE)
-
-  // Multi-tenancy
-  organizationId String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([householdId, profileAddress])
-  @@index([householdId])
-  @@index([userId])
-  @@index([landlordId])
-  @@index([organizationId])
-  @@map("profile")
-}
-
-enum OccupantType {
-  OCCUPANT // Adult resident
-  MINOR // Child/minor under adult supervision
-  FAMILY // Extended family member
-}
-
-enum ResidencyType {
-  FAMILY // Family member living with owner
-  RENTER // Tenant renting the property
-  OWNER_RESIDENT // Owner who lives in the property
-}
-
-enum ProfileStatus {
-  ACTIVE // Currently living there
-  UPGRADED // Upgraded to Solo Seat
-  REMOVED // Moved out (generic)
-  EVICTED // Removed due to eviction
-  LEASE_ENDED // Lease term completed
-}
-
-// --- Solo Seat (Independent Identity) ---
-model SoloSeat {
-  id String @id @default(cuid())
-
-  // User relationship
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id])
-
-  // Platform address (e.g., john@soralia.org)
-  platformAddress String @unique
-
-  // Property reference (if property owner)
-  householdId String?
-  household   Household? @relation(fields: [householdId], references: [id])
-
-  // Type
-  seatType SoloSeatType
-
-  // Complimentary (for board/committee)
-  isComplimentary Boolean @default(false)
-
-  // For upgraded occupants - link back to original household
-  linkedFromProfileId String?
-
-  // Multi-tenancy
-  organizationId String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([householdId])
-  @@index([organizationId])
-  @@map("soloSeat")
-}
-
-enum SoloSeatType {
-  RESIDENT // Lives in community
-  MEMBER // HOA member, doesn't live here
-}
-
-// --- Premium Seat (Multi-property Portfolio) ---
-model PremiumSeat {
-  id String @id @default(cuid())
-
-  // User relationship (property investor)
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Portfolio Management - Links multiple households
-  linkedHouseholds Household[] @relation("PremiumSeatPortfolio")
-
-  // Premium features
-  isActive Boolean @default(true)
-
-  // Premium tier
-  tier      String @default("standard") // standard, premium, enterprise
-  messageRetentionDays Int @default(30) // Message retention period
-  portfolioName String? // Optional custom portfolio name
-
-  // Pricing and billing
-  subscriptionTier String @default("basic") // basic, pro, enterprise
-  maxProperties    Int    @default(5)
-
-  // Platform address (e.g., investor@soralia.org)
-  platformAddress String @unique
-
-  // Multi-tenancy
-  organizationId String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@index([organizationId])
-  @@map("premiumSeat")
-}
-
-// =============================================================================
-// 4. USER ACTIVITIES
-// =============================================================================
-
-// --- Content ---
 model Content {
-  id          String          @id @default(cuid())
+  id          String          @id
   title       String
-  content     String          @db.Text
+  content     String
   excerpt     String?
   image       String?
   category    ContentCategory
   tags        String[]
   authorId    String?
-  author      User?           @relation(fields: [authorId], references: [id])
   groupId     String?
-  group       Group?          @relation(fields: [groupId], references: [id])
   published   Boolean         @default(false)
   featured    Boolean         @default(false)
   priority    String          @default("normal")
   createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  updatedAt   DateTime
   publishedAt DateTime?
   expiresAt   DateTime?
+  user        user?           @relation(fields: [authorId], references: [id])
+  Group       Group?          @relation(fields: [groupId], references: [id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Conversation {
+  id                      String                    @id
+  name                    String?
+  type                    ConversationType          @default(DIRECT)
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime
+  ConversationParticipant ConversationParticipant[]
+  Message                 Message[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model ConversationParticipant {
+  id                String       @id
+  conversationId    String
+  userId            String
+  joinedAt          DateTime     @default(now())
+  lastReadAt        DateTime?
+  lastReadMessageId String?
+  Conversation      Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user              user         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([conversationId])
+  @@index([userId])
+}
+
+model Event {
+  id          String   @id
+  title       String
+  description String
+  date        DateTime
+  location    String
+  organizer   String
+  image       String?
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+}
+
+model ExternalSurvey {
+  id         String   @id
+  name       String
+  provider   String
+  externalId String
+  embedUrl   String
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+}
+
+model Group {
+  id                     String                   @id
+  name                   String
+  description            String?
+  category               String
+  image                  String?
+  color                  String                   @default("#4F46E5")
+  isPublic               Boolean                  @default(true)
+  accessType             GroupAccess              @default(OPEN)
+  residentFilter         ResidentFilter           @default(ALL)
+  isActive               Boolean                  @default(true)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime
+  deletedAt              DateTime?
+  ownerId                String
+  Content                Content[]
+  user                   user                     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  GroupMembershipRequest GroupMembershipRequest[]
+  UserGroup              UserGroup[]
+}
+
+model GroupMembershipRequest {
+  id        String           @id
+  userId    String
+  groupId   String
+  status    MembershipStatus @default(PENDING)
+  message   String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime
+  Group     Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      user             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+  @@index([groupId, status])
+}
+
+model MaintenanceRequest {
+  id          String        @id
+  userId      String
+  category    String
+  priority    Priority
+  description String
+  status      RequestStatus @default(SUBMITTED)
+  images      String[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  user        user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Message {
+  id             String       @id
+  conversationId String
+  senderId       String
+  content        String
+  type           MessageType  @default(TEXT)
+  createdAt      DateTime     @default(now())
+  expiresAt      DateTime?
+  isDeleted      Boolean      @default(false)
+  mediaUrl       String?
+  Conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           user         @relation(fields: [senderId], references: [id])
+
+  @@index([conversationId, createdAt])
+  @@index([expiresAt])
+}
+
+model Notification {
+  id        String   @id
+  userId    String
+  title     String
+  message   String
+  type      String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Question {
+  id       String       @id
+  surveyId String
+  text     String
+  type     QuestionType
+  options  String[]
+  required Boolean      @default(false)
+  order    Int          @default(0)
+  Survey   Survey       @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+}
+
+model Response {
+  id        String   @id
+  surveyId  String
+  userId    String?
+  answers   Json
+  createdAt DateTime @default(now())
+  Survey    Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+}
+
+model Setting {
+  id    String @id
+  key   String @unique
+  value String
+}
+
+model Survey {
+  id          String       @id
+  title       String
+  description String?
+  type        SurveyType   @default(INTERNAL)
+  status      SurveyStatus @default(DRAFT)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime
+  Question    Question[]
+  Response    Response[]
+}
+
+model UserGroup {
+  id       String    @id
+  userId   String
+  groupId  String
+  role     GroupRole @default(MEMBER)
+  joinedAt DateTime  @default(now())
+  Group    Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user     user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+}
+
+model account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime
+  user                  user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model agentAccess {
+  id                                 String            @id
+  agentId                            String
+  householdId                        String
+  grantedById                        String
+  accessLevel                        AgentAccessLevel  @default(MANAGEMENT)
+  permissions                        AgentPermission[]
+  startedAt                          DateTime          @default(now())
+  expiresAt                          DateTime
+  isActive                           Boolean           @default(true)
+  commissionRate                     Decimal?          @db.Decimal(5, 2)
+  contractTerms                      String?
+  organizationId                     String?
+  createdAt                          DateTime          @default(now())
+  updatedAt                          DateTime
+  user_agentAccess_agentIdTouser     user              @relation("agentAccess_agentIdTouser", fields: [agentId], references: [id])
+  user_agentAccess_grantedByIdTouser user              @relation("agentAccess_grantedByIdTouser", fields: [grantedById], references: [id])
+  household                          household         @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@index([agentId])
+  @@index([expiresAt])
+  @@index([householdId])
+  @@index([organizationId])
+}
+
+model agentProfile {
+  id               String    @id
+  agentId          String    @unique
+  agencyName       String?
+  licenseNumber    String?
+  experienceYears  Int       @default(0)
+  specializations  String[]
+  serviceAreas     String[]
+  totalListings    Int       @default(0)
+  activeListings   Int       @default(0)
+  salesCompleted   Int       @default(0)
+  avgSalePrice     Decimal?  @db.Decimal(12, 2)
+  rating           Float     @default(0)
+  reviewCount      Int       @default(0)
+  commissionRate   Decimal?  @db.Decimal(5, 2)
+  responseTime     Int       @default(24)
+  isVerified       Boolean   @default(false)
+  verificationDate DateTime?
+  organizationId   String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime
+  user             user      @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@index([agentId])
+  @@index([isVerified])
+  @@index([organizationId])
+  @@index([rating])
+}
+
+model album {
+  id          String   @id
+  userId      String
+  title       String
+  description String?
+  isPublic    Boolean  @default(false)
+  mediaIds    String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  user        user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([isPublic])
+  @@index([userId])
+}
+
+model communityServiceInquiry {
+  id                      String                  @id
+  listingId               String
+  inquirerId              String
+  serviceType             String?
+  preferredDate           DateTime?
+  preferredTime           String?
+  location                String?
+  description             String
+  contactMethod           String                  @default("PLATFORM_MESSAGE")
+  status                  InquiryStatus           @default(PENDING)
+  providerResponse        String?
+  respondedAt             DateTime?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime
+  user                    user                    @relation(fields: [inquirerId], references: [id])
+  communityServiceListing communityServiceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([inquirerId])
+  @@index([listingId])
+  @@index([status])
+}
+
+model communityServiceListing {
+  id                      String                    @id
+  providerId              String
+  title                   String
+  description             String?
+  category                ServiceCategory
+  subcategory             String?
+  priceType               PriceType
+  price                   Decimal?                  @db.Decimal(10, 2)
+  currency                String                    @default("ZAR")
+  serviceAreas            String[]
+  availability            Json?
+  licenseNumber           String?
+  insuranceExpiry         DateTime?
+  verified                Boolean                   @default(false)
+  verificationDate        DateTime?
+  responseTime            Int                       @default(24)
+  contactMethods          String[]
+  images                  String[]
+  portfolio               String[]
+  status                  ListingStatus             @default(DRAFT)
+  isPublished             Boolean                   @default(false)
+  isFeatured              Boolean                   @default(false)
+  moderatedBy             String?
+  moderatedAt             DateTime?
+  moderationNotes         String?
+  rating                  Float                     @default(0)
+  reviewCount             Int                       @default(0)
+  termsAndConditions      String?
+  cancellationPolicy      String?
+  organizationId          String?
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime
+  communityServiceInquiry communityServiceInquiry[]
+  user                    user                      @relation(fields: [providerId], references: [id])
+  communityServiceReview  communityServiceReview[]
+
+  @@index([category])
+  @@index([isPublished])
+  @@index([organizationId])
+  @@index([providerId])
+  @@index([status])
+  @@index([verified])
+}
+
+model communityServiceReview {
+  id                      String                  @id
+  listingId               String
+  reviewerId              String
+  rating                  Int
+  title                   String?
+  comment                 String?
+  serviceDate             DateTime?
+  responseQuality         Int?
+  isPublished             Boolean                 @default(true)
+  moderatedBy             String?
+  moderatedAt             DateTime?
+  createdAt               DateTime                @default(now())
+  communityServiceListing communityServiceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user                    user                    @relation(fields: [reviewerId], references: [id])
+
+  @@index([listingId])
+  @@index([rating])
+  @@index([reviewerId])
+}
+
+model household {
+  id              String            @id
+  organizationId  String?
+  street          String
+  unit            String
+  platformAddress String            @unique
+  homeImage       String?
+  status          HouseholdStatus   @default(ACTIVE)
+  moveInDate      DateTime?
+  moveOutDate     DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime
+  agentAccess     agentAccess[]
+  profile         profile[]
+  propertyListing propertyListing[]
+  soloSeat        soloSeat[]
+  standardSeat    standardSeat[]
+  premiumSeat     premiumSeat[]     @relation("PremiumSeatPortfolio")
+
+  @@unique([street, unit])
+  @@index([organizationId])
+  @@index([platformAddress])
+}
+
+model invitation {
+  id             String           @id
+  email          String           @unique
+  name           String
+  street         String?
+  unit           String?
+  residentType   ResidentType     @default(OWNER)
+  role           Role             @default(RESIDENT)
+  token          String           @unique
+  status         InvitationStatus @default(PENDING)
+  expiresAt      DateTime         @default(now())
+  createdAt      DateTime         @default(now())
+  organizationId String
+  inviterId      String
+  user           user             @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+  organization   organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([organizationId])
+}
+
+model member {
+  id             String       @id
+  organizationId String
+  userId         String
+  role           String       @default("member")
+  createdAt      DateTime
+  organization   organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           user         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model organization {
+  id         String       @id
+  name       String
+  slug       String       @unique
+  logo       String?
+  createdAt  DateTime
+  metadata   String?
+  invitation invitation[]
+  member     member[]
+}
+
+model passkey {
+  id           String    @id
+  name         String?
+  publicKey    String
+  userId       String
+  credentialID String
+  counter      Int
+  deviceType   String
+  backedUp     Boolean
+  transports   String?
+  createdAt    DateTime?
+  aaguid       String?
+  user         user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([credentialID])
+  @@index([userId])
+}
+
+model platformSuspension {
+  id             String         @id
+  userId         String
+  suspensionType SuspensionType
+  reason         String
+  description    String?
+  startDate      DateTime       @default(now())
+  endDate        DateTime?
+  isPermanent    Boolean        @default(false)
+  isActive       Boolean        @default(true)
+  createdById    String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime
+  user           user           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([isActive])
+  @@index([userId])
+}
+
+model premiumSeat {
+  id                   String      @id
+  userId               String      @unique
+  isActive             Boolean     @default(true)
+  portfolioName        String?
+  subscriptionTier     String      @default("basic")
+  maxProperties        Int         @default(5)
+  platformAddress      String      @unique
+  organizationId       String?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime
+  messageRetentionDays Int         @default(30)
+  tier                 String      @default("standard")
+  user                 user        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  household            household[] @relation("PremiumSeatPortfolio")
+
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model profile {
+  id                            String        @id
+  householdId                   String
+  displayName                   String
+  profileAddress                String        @unique
+  userId                        String?
+  avatar                        String?
+  isPublic                      Boolean       @default(true)
+  showEmail                     Boolean       @default(true)
+  showPhone                     Boolean       @default(true)
+  occupantSince                 DateTime      @default(now())
+  occupantType                  OccupantType  @default(OCCUPANT)
+  leaseStartDate                DateTime?
+  leaseEndDate                  DateTime?
+  status                        ProfileStatus @default(ACTIVE)
+  organizationId                String?
+  createdAt                     DateTime      @default(now())
+  updatedAt                     DateTime
+  occupantImage                 String?
+  rentalImage                   String?
+  landlordId                    String?
+  residencyType                 ResidencyType @default(FAMILY)
+  household                     household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user_profile_landlordIdTouser user?         @relation("profile_landlordIdTouser", fields: [landlordId], references: [id])
+  user_profile_userIdTouser     user?         @relation("profile_userIdTouser", fields: [userId], references: [id])
+
+  @@unique([householdId, profileAddress])
+  @@index([householdId])
+  @@index([landlordId])
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model propertyListing {
+  id                                         String        @id
+  householdId                                String
+  ownerId                                    String
+  listingType                                ListingType
+  title                                      String
+  description                                String?
+  price                                      Decimal?      @db.Decimal(10, 2)
+  currency                                   String        @default("ZAR")
+  bedrooms                                   Int?
+  bathrooms                                  Int?
+  parkingSpaces                              Int?
+  gardenSize                                 Float?
+  petFriendly                                Boolean       @default(false)
+  status                                     ListingStatus @default(DRAFT)
+  isPublished                                Boolean       @default(false)
+  isFeatured                                 Boolean       @default(false)
+  assignedAgentId                            String?
+  marketingBudget                            Decimal?      @db.Decimal(10, 2)
+  featuredUntil                              DateTime?
+  organizationId                             String?
+  createdAt                                  DateTime      @default(now())
+  updatedAt                                  DateTime
+  user_propertyListing_assignedAgentIdTouser user?         @relation("propertyListing_assignedAgentIdTouser", fields: [assignedAgentId], references: [id])
+  household                                  household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user_propertyListing_ownerIdTouser         user          @relation("propertyListing_ownerIdTouser", fields: [ownerId], references: [id])
+
+  @@index([assignedAgentId])
+  @@index([householdId])
+  @@index([isPublished])
+  @@index([listingType])
+  @@index([organizationId])
+  @@index([ownerId])
+  @@index([status])
+}
+
+model session {
+  id                   String   @id
+  expiresAt            DateTime
+  token                String   @unique
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime
+  ipAddress            String?
+  userAgent            String?
+  userId               String
+  activeOrganizationId String?
+  impersonatedBy       String?
+  user                 user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model soloSeat {
+  id                  String       @id
+  userId              String       @unique
+  platformAddress     String       @unique
+  householdId         String?
+  seatType            SoloSeatType
+  isComplimentary     Boolean      @default(false)
+  linkedFromProfileId String?
+  organizationId      String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime
+  household           household?   @relation(fields: [householdId], references: [id])
+  user                user         @relation(fields: [userId], references: [id])
+
+  @@index([householdId])
+  @@index([organizationId])
+}
+
+model standardSeat {
+  id              String    @id
+  userId          String
+  householdId     String
+  isPrimaryOwner  Boolean   @default(true)
+  platformAddress String    @unique
+  organizationId  String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime
+  household       household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user            user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, householdId])
+  @@index([householdId])
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model twoFactor {
+  id          String @id
+  secret      String
+  backupCodes String
+  userId      String
+  user        user   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([secret])
+  @@index([userId])
+}
+
+model user {
+  id                                                    String                    @id
+  email                                                 String                    @unique
+  name                                                  String
+  role                                                  Role                      @default(RESIDENT)
+  isActive                                              Boolean                   @default(true)
+  phone                                                 String?
+  interests                                             String[]
+  avatar                                                String?
+  profileImage                                          String?
+  books                                                 Json?                     @default("[]")
+  dashboardLayout                                       Json?                     @default("null")
+  isPublic                                              Boolean                   @default(true)
+  showEmail                                             Boolean                   @default(true)
+  showPhone                                             Boolean                   @default(true)
+  createdAt                                             DateTime                  @default(now())
+  updatedAt                                             DateTime
+  emailVerified                                         Boolean                   @default(false)
+  image                                                 String?
+  twoFactorEnabled                                      Boolean?                  @default(false)
+  Booking                                               Booking[]
+  Content                                               Content[]
+  ConversationParticipant                               ConversationParticipant[]
+  Group                                                 Group[]
+  GroupMembershipRequest                                GroupMembershipRequest[]
+  MaintenanceRequest                                    MaintenanceRequest[]
+  Message                                               Message[]
+  Notification                                          Notification[]
+  UserGroup                                             UserGroup[]
+  account                                               account[]
+  agentAccess_agentAccess_agentIdTouser                 agentAccess[]             @relation("agentAccess_agentIdTouser")
+  agentAccess_agentAccess_grantedByIdTouser             agentAccess[]             @relation("agentAccess_grantedByIdTouser")
+  agentProfile                                          agentProfile?
+  album                                                 album[]
+  communityServiceInquiry                               communityServiceInquiry[]
+  communityServiceListing                               communityServiceListing[]
+  communityServiceReview                                communityServiceReview[]
+  invitation                                            invitation[]
+  member                                                member[]
+  passkey                                               passkey[]
+  platformSuspension                                    platformSuspension[]
+  premiumSeat                                           premiumSeat?
+  profile_profile_landlordIdTouser                      profile[]                 @relation("profile_landlordIdTouser")
+  profile_profile_userIdTouser                          profile[]                 @relation("profile_userIdTouser")
+  propertyListing_propertyListing_assignedAgentIdTouser propertyListing[]         @relation("propertyListing_assignedAgentIdTouser")
+  propertyListing_propertyListing_ownerIdTouser         propertyListing[]         @relation("propertyListing_ownerIdTouser")
+  session                                               session[]
+  soloSeat                                              soloSeat?
+  standardSeat                                          standardSeat[]
+  twoFactor                                             twoFactor[]
+}
+
+model verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+
+  @@index([identifier])
+}
+
+enum AgentAccessLevel {
+  VIEW_ONLY
+  MANAGEMENT
+  FULL_ACCESS
+}
+
+enum AgentPermission {
+  VIEW_LISTING
+  EDIT_LISTING
+  MANAGE_OCCUPANCY
+  VIEW_FINANCIALS
+  CONTACT_OCCUPANTS
+  MARKET_PROPERTY
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
 }
 
 enum ContentCategory {
@@ -360,62 +767,15 @@ enum ContentCategory {
   RESOURCES
 }
 
-model Announcement {
-  id        String    @id @default(cuid())
-  title     String
-  content   String
-  author    String
-  priority  String    @default("normal")
-  createdAt DateTime  @default(now())
-  expiresAt DateTime?
-}
-
-model Event {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  date        DateTime
-  location    String
-  organizer   String
-  image       String?
-  isPublic    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-// --- Groups ---
-model Group {
-  id             String         @id @default(cuid())
-  name           String
-  description    String?
-  category       String
-  image          String?
-  color          String         @default("#4F46E5")
-  isPublic       Boolean        @default(true)
-  accessType     GroupAccess    @default(OPEN)
-  residentFilter ResidentFilter @default(ALL)
-  isActive       Boolean        @default(true)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  deletedAt      DateTime?
-  ownerId        String
-  owner          User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-
-  members            UserGroup[]
-  contents           Content[]
-  membershipRequests GroupMembershipRequest[]
+enum ConversationType {
+  DIRECT
+  GROUP
 }
 
 enum GroupAccess {
-  OPEN // Anyone can join
-  INVITE_ONLY // Requires invitation from group admin
-  APPLICATION // Requires application approval
-}
-
-enum ResidentFilter {
-  ALL // All residents can join
-  OWNERS_ONLY // Homeowners only
-  RENTERS_ONLY // Renters only
+  OPEN
+  INVITE_ONLY
+  APPLICATION
 }
 
 enum GroupRole {
@@ -424,418 +784,25 @@ enum GroupRole {
   ADMIN
 }
 
-model UserGroup {
-  id       String    @id @default(cuid())
-  userId   String
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  groupId  String
-  group    Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  role     GroupRole @default(MEMBER)
-  joinedAt DateTime  @default(now())
-
-  @@unique([userId, groupId])
-}
-
-enum MembershipStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-model GroupMembershipRequest {
-  id        String           @id @default(cuid())
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  groupId   String
-  group     Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  status    MembershipStatus @default(PENDING)
-  message   String?
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-
-  @@unique([userId, groupId])
-  @@index([groupId, status])
-}
-
-// --- Surveys ---
-model Survey {
-  id          String       @id @default(cuid())
-  title       String
-  description String?
-  type        SurveyType   @default(INTERNAL)
-  status      SurveyStatus @default(DRAFT)
-  startDate   DateTime?
-  endDate     DateTime?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  questions Question[]
-  responses Response[]
-}
-
-enum SurveyType {
-  INTERNAL
-  EXTERNAL
-}
-
-enum SurveyStatus {
-  DRAFT
+enum HouseholdStatus {
   ACTIVE
-  CLOSED
+  ARCHIVED
 }
 
-model Question {
-  id       String       @id @default(cuid())
-  surveyId String
-  survey   Survey       @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  text     String
-  type     QuestionType
-  options  String[]
-  required Boolean      @default(false)
-  order    Int          @default(0)
-}
-
-enum QuestionType {
-  SINGLE_CHOICE
-  MULTIPLE_CHOICE
-  TEXT
-  RATING
-  YES_NO
-}
-
-model Response {
-  id        String   @id @default(cuid())
-  surveyId  String
-  survey    Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  userId    String?
-  answers   Json
-  createdAt DateTime @default(now())
-}
-
-model ExternalSurvey {
-  id         String   @id @default(cuid())
-  name       String
-  provider   String
-  externalId String
-  embedUrl   String
-  isActive   Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-// --- Maintenance ---
-model MaintenanceRequest {
-  id          String        @id @default(cuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category    String
-  priority    Priority
-  description String
-  status      RequestStatus @default(SUBMITTED)
-  images      String[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-}
-
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-  EMERGENCY
-}
-
-enum RequestStatus {
-  SUBMITTED
-  IN_PROGRESS
+enum InquiryStatus {
+  PENDING
+  RESPONDED
+  ACCEPTED
+  DECLINED
   COMPLETED
   CANCELLED
 }
 
-// --- Bookings ---
-model Booking {
-  id        String        @id @default(cuid())
-  userId    String
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  facility  String
-  date      DateTime
-  startTime String
-  endTime   String
-  purpose   String?
-  status    BookingStatus @default(CONFIRMED)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-}
-
-enum BookingStatus {
-  CONFIRMED
-  CANCELLED
-  COMPLETED
-}
-
-// --- Media ---
-model Album {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title       String
-  description String?
-  isPublic    Boolean  @default(false)
-  mediaIds    String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([userId])
-  @@index([isPublic])
-  @@map("album")
-}
-
-// =============================================================================
-// 5. COMMUNICATION
-// =============================================================================
-
-model Conversation {
-  id           String                    @id @default(cuid())
-  name         String?
-  type         ConversationType          @default(DIRECT)
-  participants ConversationParticipant[]
-  messages     Message[]
-  createdAt    DateTime                  @default(now())
-  updatedAt    DateTime                  @updatedAt
-}
-
-enum ConversationType {
-  DIRECT
-  GROUP
-}
-
-model ConversationParticipant {
-  id                String       @id @default(cuid())
-  conversationId    String
-  conversation      Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  userId            String
-  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  joinedAt          DateTime     @default(now())
-  lastReadAt        DateTime?
-  lastReadMessageId String?
-
-  @@unique([conversationId, userId])
-  @@index([conversationId])
-  @@index([userId])
-}
-
-model Message {
-  id             String       @id @default(cuid())
-  conversationId String
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  senderId       String
-  sender         User         @relation(fields: [senderId], references: [id])
-  content        String
-  type           MessageType  @default(TEXT)
-  mediaUrl       String?      // URL for IMAGE type messages
-  expiresAt      DateTime?
-  isDeleted      Boolean     @default(false)
-  createdAt      DateTime    @default(now())
-
-  @@index([conversationId, createdAt])
-  @@index([expiresAt])
-}
-
-enum MessageType {
-  TEXT
-  IMAGE
-  SYSTEM
-}
-
-model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title     String
-  message   String
-  type      String
-  link      String?
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
-
-// =============================================================================
-// 6. SETTINGS & PREFERENCES
-// =============================================================================
-
-model Setting {
-  id    String @id @default(cuid())
-  key   String @unique
-  value String
-}
-
-// =============================================================================
-// 7. AGENT & THIRD-PARTY
-// =============================================================================
-
-model AgentAccess {
-  id String @id @default(cuid())
-
-  // Agent (user with AGENT role)
-  agentId String
-  agent   User   @relation("AgentAccessAgent", fields: [agentId], references: [id])
-
-  // Household being managed
-  householdId String
-  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
-
-  // Who granted access
-  grantedById String
-  grantedBy   User   @relation("AgentAccessGrantedBy", fields: [grantedById], references: [id])
-
-  // Access level and permissions
-  accessLevel AgentAccessLevel  @default(MANAGEMENT)
-  permissions AgentPermission[]
-
-  // Access period
-  startedAt DateTime @default(now())
-  expiresAt DateTime
-
-  // Status
-  isActive Boolean @default(true)
-
-  // Commission and business terms
-  commissionRate Decimal? @db.Decimal(5, 2)
-  contractTerms  String?
-
-  // Multi-tenancy
-  organizationId String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([agentId])
-  @@index([householdId])
-  @@index([organizationId])
-  @@index([expiresAt])
-  @@map("agentAccess")
-}
-
-enum AgentAccessLevel {
-  VIEW_ONLY // Can view property details
-  MANAGEMENT // Can manage occupancy and basic updates
-  FULL_ACCESS // Can make significant changes and list property
-}
-
-enum AgentPermission {
-  VIEW_LISTING
-  EDIT_LISTING
-  MANAGE_OCCUPANCY
-  VIEW_FINANCIALS
-  CONTACT_OCCUPANTS
-  MARKET_PROPERTY
-}
-
-model AgentProfile {
-  id String @id @default(cuid())
-
-  // Agent user
-  agentId String @unique
-  agent   User   @relation(fields: [agentId], references: [id], onDelete: Cascade)
-
-  // Business details
-  agencyName      String?
-  licenseNumber   String?
-  experienceYears Int     @default(0)
-
-  // Specializations
-  specializations String[] // SALE, RENT, COMMERCIAL, RESIDENTIAL, etc.
-  serviceAreas    String[] // Neighborhood names
-
-  // Performance metrics
-  totalListings  Int      @default(0)
-  activeListings Int      @default(0)
-  salesCompleted Int      @default(0)
-  avgSalePrice   Decimal? @db.Decimal(12, 2)
-
-  // Ratings and reviews
-  rating      Float @default(0) // 1-5 stars
-  reviewCount Int   @default(0)
-
-  // Business settings
-  commissionRate Decimal? @db.Decimal(5, 2)
-  responseTime   Int      @default(24)
-
-  // Verification status
-  isVerified       Boolean   @default(false)
-  verificationDate DateTime?
-
-  // Multi-tenancy
-  organizationId String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([agentId])
-  @@index([isVerified])
-  @@index([rating])
-  @@index([organizationId])
-  @@map("agentProfile")
-}
-
-// --- Property Listings ---
-model PropertyListing {
-  id String @id @default(cuid())
-
-  // Property being listed
-  householdId String
-  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
-
-  // Listing owner (Premium Seat holder)
-  ownerId String
-  owner   User   @relation(fields: [ownerId], references: [id])
-
-  // Listing details
-  listingType ListingType
-  title       String
-  description String?
-  price       Decimal?    @db.Decimal(10, 2)
-  currency    String      @default("ZAR")
-
-  // Property details
-  bedrooms      Int?
-  bathrooms     Int?
-  parkingSpaces Int?
-  gardenSize    Float? // Square meters
-  petFriendly   Boolean @default(false)
-
-  // Status and visibility
-  status      ListingStatus @default(DRAFT)
-  isPublished Boolean       @default(false)
-  isFeatured  Boolean       @default(false)
-
-  // Agent management
-  assignedAgentId String?
-  assignedAgent   User?   @relation("PropertyListingAgent", fields: [assignedAgentId], references: [id])
-
-  // Marketing
-  marketingBudget Decimal?  @db.Decimal(10, 2)
-  featuredUntil   DateTime?
-
-  // Multi-tenancy
-  organizationId String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([householdId])
-  @@index([ownerId])
-  @@index([listingType])
-  @@index([status])
-  @@index([isPublished])
-  @@index([assignedAgentId])
-  @@index([organizationId])
-  @@map("propertyListing")
-}
-
-enum ListingType {
-  SALE
-  RENT
-  LEASE
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
 }
 
 enum ListingStatus {
@@ -847,79 +814,92 @@ enum ListingStatus {
   WITHDRAWN
 }
 
-// =============================================================================
-// 8. COMMUNITY SERVICES MARKETPLACE
-// =============================================================================
+enum ListingType {
+  SALE
+  RENT
+  LEASE
+}
 
-model CommunityServiceListing {
-  id String @id @default(cuid())
+enum MembershipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
 
-  // Provider information
-  providerId String
-  provider   User   @relation(fields: [providerId], references: [id])
+enum MessageType {
+  TEXT
+  IMAGE
+  SYSTEM
+}
 
-  // Service details
-  title       String
-  description String?
-  category    ServiceCategory
-  subcategory String?
+enum OccupantType {
+  OCCUPANT
+  MINOR
+  FAMILY
+}
 
-  // Pricing and availability
-  priceType PriceType // FIXED, HOURLY, QUOTE, FREE
-  price     Decimal?  @db.Decimal(10, 2)
-  currency  String    @default("ZAR")
+enum PriceType {
+  FIXED
+  HOURLY
+  QUOTE
+  FREE
+}
 
-  // Service area and availability
-  serviceAreas String[]
-  availability Json?
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  EMERGENCY
+}
 
-  // Provider credentials
-  licenseNumber    String?
-  insuranceExpiry  DateTime?
-  verified         Boolean   @default(false)
-  verificationDate DateTime?
+enum ProfileStatus {
+  ACTIVE
+  UPGRADED
+  REMOVED
+  EVICTED
+  LEASE_ENDED
+}
 
-  // Contact
-  responseTime   Int      @default(24)
-  contactMethods String[]
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TEXT
+  RATING
+  YES_NO
+}
 
-  // Media
-  images    String[]
-  portfolio String[]
+enum RequestStatus {
+  SUBMITTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
 
-  // Status and moderation
-  status          ListingStatus @default(DRAFT)
-  isPublished     Boolean       @default(false)
-  isFeatured      Boolean       @default(false)
-  moderatedBy     String?
-  moderatedAt     DateTime?
-  moderationNotes String?
+enum ResidencyType {
+  FAMILY
+  RENTER
+  OWNER_RESIDENT
+}
 
-  // Ratings
-  rating      Float @default(0)
-  reviewCount Int   @default(0)
+enum ResidentFilter {
+  ALL
+  OWNERS_ONLY
+  RENTERS_ONLY
+}
 
-  // Business terms
-  termsAndConditions String?
-  cancellationPolicy String?
+enum ResidentType {
+  OWNER
+  RENTER
+  SUSPENDED
+}
 
-  // Multi-tenancy
-  organizationId String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  reviews   CommunityServiceReview[]
-  inquiries CommunityServiceInquiry[]
-
-  @@index([providerId])
-  @@index([category])
-  @@index([status])
-  @@index([isPublished])
-  @@index([verified])
-  @@index([organizationId])
-  @@map("communityServiceListing")
+enum Role {
+  RESIDENT
+  GROUP_ADMIN
+  COMMITTEE
+  BOARD
+  ADMIN
+  AGENT
 }
 
 enum ServiceCategory {
@@ -934,266 +914,27 @@ enum ServiceCategory {
   OTHER
 }
 
-enum PriceType {
-  FIXED
-  HOURLY
-  QUOTE
-  FREE
+enum SoloSeatType {
+  RESIDENT
+  MEMBER
 }
 
-model CommunityServiceReview {
-  id String @id @default(cuid())
-
-  // Review relationship
-  listingId String
-  listing   CommunityServiceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
-
-  // Reviewer
-  reviewerId String
-  reviewer   User   @relation(fields: [reviewerId], references: [id])
-
-  // Review content
-  rating  Int // 1-5 stars
-  title   String?
-  comment String?
-
-  // Service details
-  serviceDate     DateTime?
-  responseQuality Int? // 1-5 scale
-
-  // Moderation
-  isPublished Boolean   @default(true)
-  moderatedBy String?
-  moderatedAt DateTime?
-
-  createdAt DateTime @default(now())
-
-  @@index([listingId])
-  @@index([reviewerId])
-  @@index([rating])
-  @@map("communityServiceReview")
+enum SurveyStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
 }
 
-model CommunityServiceInquiry {
-  id String @id @default(cuid())
-
-  // Inquiry relationship
-  listingId String
-  listing   CommunityServiceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
-
-  // Parties
-  inquirerId String
-  inquirer   User   @relation(fields: [inquirerId], references: [id])
-
-  // Inquiry details
-  serviceType   String?
-  preferredDate DateTime?
-  preferredTime String?
-  location      String?
-  description   String
-
-  // Contact preferences
-  contactMethod String @default("PLATFORM_MESSAGE")
-
-  // Status
-  status           InquiryStatus @default(PENDING)
-  providerResponse String?
-  respondedAt      DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([listingId])
-  @@index([inquirerId])
-  @@index([status])
-  @@map("communityServiceInquiry")
-}
-
-enum InquiryStatus {
-  PENDING
-  RESPONDED
-  ACCEPTED
-  DECLINED
-  COMPLETED
-  CANCELLED
-}
-
-// =============================================================================
-// 9. AUTH & SECURITY (Infrastructure)
-// =============================================================================
-
-model Session {
-  id                   String   @id
-  expiresAt            DateTime
-  token                String
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  ipAddress            String?
-  userAgent            String?
-  userId               String
-  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  activeOrganizationId String?
-  impersonatedBy       String?
-
-  @@unique([token])
-  @@index([userId])
-  @@map("session")
-}
-
-model Account {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-
-  @@index([userId])
-  @@map("account")
-}
-
-model TwoFactor {
-  id          String @id
-  secret      String
-  backupCodes String
-  userId      String
-  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([secret])
-  @@index([userId])
-  @@map("twoFactor")
-}
-
-model Passkey {
-  id           String    @id
-  name         String?
-  publicKey    String
-  userId       String
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  credentialID String
-  counter      Int
-  deviceType   String
-  backedUp     Boolean
-  transports   String?
-  createdAt    DateTime?
-  aaguid       String?
-
-  @@index([userId])
-  @@index([credentialID])
-  @@map("passkey")
-}
-
-model Verification {
-  id         String   @id
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@index([identifier])
-  @@map("verification")
-}
-
-// =============================================================================
-// 10. PLATFORM GOVERNANCE
-// =============================================================================
-
-model Invitation {
-  id             String           @id @default(cuid())
-  email          String           @unique
-  name           String
-  street         String?
-  unit           String?
-  residentType   ResidentType     @default(OWNER)
-  role           Role             @default(RESIDENT)
-  token          String           @unique @default(cuid())
-  status         InvitationStatus @default(PENDING)
-  expiresAt      DateTime         @default(now())
-  createdAt      DateTime         @default(now())
-  organizationId String
-  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  inviterId      String
-  user           User             @relation(fields: [inviterId], references: [id], onDelete: Cascade)
-
-  @@index([organizationId])
-  @@index([email])
-  @@map("invitation")
-}
-
-enum InvitationStatus {
-  PENDING
-  ACCEPTED
-  EXPIRED
-  REVOKED
-}
-
-model Member {
-  id             String       @id
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  userId         String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role           String       @default("member")
-  createdAt      DateTime
-
-  @@index([organizationId])
-  @@index([userId])
-  @@map("member")
-}
-
-model PlatformSuspension {
-  id             String         @id @default(cuid())
-  userId         String
-  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  suspensionType SuspensionType
-  reason         String
-  description    String?
-  startDate      DateTime       @default(now())
-  endDate        DateTime?
-  isPermanent    Boolean        @default(false)
-  isActive       Boolean        @default(true)
-  createdById    String
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-
-  @@index([userId])
-  @@index([isActive])
-  @@map("platformSuspension")
+enum SurveyType {
+  INTERNAL
+  EXTERNAL
 }
 
 enum SuspensionType {
-  NON_PAYMENT // Non-payment of HOA fees
-  VIOLATION // Community rule violation
-  DISRUPTION // Disruptive behavior
-  PROPERTY // Property maintenance violations
-  BEHAVIOR // Unacceptable behavior
-  OTHER // Other reasons
-}
-
-// =============================================================================
-// ENUMS (Global)
-// =============================================================================
-
-enum Role {
-  RESIDENT // Default user
-  GROUP_ADMIN // Manages only their own group
-  COMMITTEE // Committee member
-  BOARD // HOA Board member
-  ADMIN // SuperAdmin - full platform access
-  AGENT // Property agent/letting agent
-}
-
-enum ResidentType {
-  OWNER
-  RENTER
-  SUSPENDED
+  NON_PAYMENT
+  VIOLATION
+  DISRUPTION
+  PROPERTY
+  BEHAVIOR
+  OTHER
 }
