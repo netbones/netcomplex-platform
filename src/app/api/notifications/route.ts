@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { db, notifications } from '@/lib/db';
 import { NextResponse } from 'next/server';
+import { eq, desc } from 'drizzle-orm';
 
 async function getSessionAndUserId(request: Request) {
   const session = await auth.api.getSession({
@@ -24,18 +25,18 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const unread = searchParams.get('unread');
 
-  const where: Record<string, unknown> = { userId };
-  if (unread === 'true') {
-    where.read = false;
-  }
+  const unreadOnly = unread === 'true';
 
-  const notifications = await prisma.notification.findMany({
-    where,
-    orderBy: { createdAt: 'desc' },
-    take: 50,
-  });
+  const results = await db
+    .select()
+    .from(notifications)
+    .where(unreadOnly ? eq(notifications.userId, userId) : undefined)
+    .orderBy(desc(notifications.createdAt))
+    .limit(50);
 
-  return NextResponse.json(notifications);
+  const filtered = unreadOnly ? results.filter(n => !n.read) : results;
+
+  return NextResponse.json(filtered);
 }
 
 export async function POST(request: Request) {
@@ -47,17 +48,20 @@ export async function POST(request: Request) {
 
   const body = await request.json();
 
-  const notification = await prisma.notification.create({
-    data: {
+  const newNotification = await db
+    .insert(notifications)
+    .values({
+      id: crypto.randomUUID() as any,
       userId: body.userId || userId,
       title: body.title,
       message: body.message,
       type: body.type || 'info',
-      link: body.link,
-    },
-  });
+      link: body.link || '',
+      read: false,
+    } as any)
+    .returning();
 
-  return NextResponse.json(notification, { status: 201 });
+  return NextResponse.json(newNotification[0], { status: 201 });
 }
 
 export async function PATCH(request: Request) {
@@ -70,15 +74,9 @@ export async function PATCH(request: Request) {
   const body = await request.json();
 
   if (body.all) {
-    await prisma.notification.updateMany({
-      where: { userId, read: false },
-      data: { read: true },
-    });
+    await db.update(notifications).set({ read: true }).where(eq(notifications.userId, userId));
   } else if (body.id) {
-    await prisma.notification.update({
-      where: { id: body.id, userId },
-      data: { read: true },
-    });
+    await db.update(notifications).set({ read: true }).where(eq(notifications.id, body.id));
   }
 
   return NextResponse.json({ success: true });

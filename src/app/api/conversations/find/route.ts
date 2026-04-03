@@ -1,5 +1,6 @@
-import { prisma } from '@/lib/prisma';
+import { db, conversations, conversationParticipants, users } from '@/lib/db';
 import { NextResponse } from 'next/server';
+import { eq, sql } from 'drizzle-orm';
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -10,48 +11,64 @@ export async function POST(request: Request) {
   }
 
   // Check if direct conversation already exists with exactly these two participants
-  const existing = await prisma.conversation.findFirst({
-    where: {
-      type: 'DIRECT',
-      participants: {
-        every: {
-          userId: { in: participantIds },
-        },
-      },
-    },
-    include: {
-      participants: {
-        include: {
-          user: { select: { id: true, name: true, avatar: true } },
-        },
-      },
-    },
-  });
+  const existing = (await db.execute(sql`
+    SELECT c.*,
+      json_agg(
+        json_build_object(
+          'id', cp.id,
+          'userId', cp."userId",
+          'user', json_build_object('id', u.id, 'name', u.name, 'avatar', u.image)
+        )
+      ) FILTER (WHERE cp.id IS NOT NULL) as participants
+    FROM "conversation" c
+    JOIN "conversationParticipant" cp ON cp."conversationId" = c.id
+    JOIN "user" u ON u.id = cp."userId"
+    WHERE c.type = 'DIRECT'
+    AND cp."userId" IN ${sql`${participantIds}`}
+    GROUP BY c.id
+    HAVING COUNT(DISTINCT cp."userId") = 2
+  `)) as any;
 
-  // Filter to ensure exactly 2 participants (not more, not less)
-  const validConversation = existing?.participants.length === 2 ? existing : null;
+  // Filter to ensure exactly 2 participants
+  const validConversation = (existing.rows?.length || 0) > 0 ? existing.rows[0] : null;
 
   if (validConversation) {
     return NextResponse.json({ conversation: validConversation });
   }
 
   // Create new direct conversation
-  const conversation = await prisma.conversation.create({
-    data: {
-      name: null,
-      type: 'DIRECT',
-      participants: {
-        create: participantIds.map((id: string) => ({ userId: id })),
-      },
-    },
-    include: {
-      participants: {
-        include: {
-          user: { select: { id: true, name: true, avatar: true } },
-        },
-      },
-    },
-  });
+  const newConversation = (await db.execute(sql`
+    INSERT INTO "conversation" (name, type)
+    VALUES (NULL, 'DIRECT')
+    RETURNING *
+  `)) as any;
 
-  return NextResponse.json({ conversation }, { status: 201 });
+  const conversationId = newConversation.rows?.[0]?.id;
+
+  // Create participants
+  for (const userId of participantIds) {
+    await db.execute(sql`
+      INSERT INTO "conversationParticipant" ("conversationId", "userId")
+      VALUES (${conversationId}, ${userId})
+    `);
+  }
+
+  // Get the conversation with participants
+  const result = (await db.execute(sql`
+    SELECT c.*,
+      json_agg(
+        json_build_object(
+          'id', cp.id,
+          'userId', cp."userId",
+          'user', json_build_object('id', u.id, 'name', u.name, 'avatar', u.image)
+        )
+      ) FILTER (WHERE cp.id IS NOT NULL) as participants
+    FROM "conversation" c
+    JOIN "conversationParticipant" cp ON cp."conversationId" = c.id
+    JOIN "user" u ON u.id = cp."userId"
+    WHERE c.id = ${conversationId}
+    GROUP BY c.id
+  `)) as any;
+
+  return NextResponse.json({ conversation: result.rows?.[0] }, { status: 201 });
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { db, premiumSeats } from '@/lib/db';
+import { eq, sql } from 'drizzle-orm';
 
 /**
  * POST /api/premium/upgrade-portfolio - Upgrade to Premium Seat with multi-property portfolio
@@ -20,108 +21,121 @@ export async function POST(request: NextRequest) {
 
     if (!Array.isArray(householdIds) || householdIds.length < 2) {
       return NextResponse.json(
-        {
-          error: 'At least 2 household IDs required for portfolio upgrade',
-        },
+        { error: 'At least 2 household IDs required for portfolio upgrade' },
         { status: 400 }
       );
     }
 
     const userId = session.user.id;
 
-    // Verify user owns all specified households
-    const households = await prisma.household.findMany({
-      where: {
-        id: { in: householdIds },
-        standardSeats: {
-          some: {
-            userId,
-            isPrimaryOwner: true,
-          },
-        },
-      },
-      include: {
-        standardSeats: {
-          where: { userId, isPrimaryOwner: true },
-        },
-      },
-    });
+    // Verify user owns all specified households via raw SQL
+    const householdsResult = (await db.execute(sql`
+      SELECT h.* 
+      FROM "household" h
+      JOIN "standardSeat" ss ON ss."householdId" = h.id
+      WHERE h.id IN ${sql`${householdIds}`}
+      AND ss."userId" = ${userId}
+      AND ss."isPrimaryOwner" = true
+    `)) as any;
 
-    if (households.length !== householdIds.length) {
+    if ((householdsResult.rows?.length || 0) !== householdIds.length) {
       return NextResponse.json(
-        {
-          error: 'You do not own all specified households',
-        },
+        { error: 'You do not own all specified households' },
         { status: 403 }
       );
     }
 
     // Check if user already has a Premium Seat
-    const existingPremiumSeat = await prisma.premiumSeat.findUnique({
-      where: { userId },
-    });
+    const existingPremiumSeat = await db
+      .select({ id: premiumSeats.id })
+      .from(premiumSeats)
+      .where(eq(premiumSeats.userId, userId))
+      .limit(1);
 
-    if (existingPremiumSeat) {
+    if (existingPremiumSeat.length > 0) {
       // Update existing Premium Seat to include new households
-      await prisma.premiumSeat.update({
-        where: { userId },
-        data: {
-          linkedHouseholds: {
-            connect: householdIds.map(id => ({ id })),
-          },
-        },
-      });
+      for (const householdId of householdIds) {
+        await db.execute(sql`
+          INSERT INTO "_PremiumSeatPortfolio" ("A", "B")
+          VALUES (${existingPremiumSeat[0].id}, ${householdId})
+          ON CONFLICT DO NOTHING
+        `);
+      }
     } else {
-      // Create new Premium Seat with portfolio
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { email: true, name: true },
-      });
+      // Get user info
+      const userResult = (await db.execute(sql`
+        SELECT email, name FROM "user" WHERE id = ${userId}
+      `)) as any;
 
-      if (!user) {
+      if (!userResult.rows?.length) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
       }
 
-      // Generate platform address from user's name
-      const platformAddress = `${user.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`;
+      const user = userResult.rows[0];
+      const platformAddress = `${(user.name || '').toLowerCase().replace(/\s+/g, '.')}@sorialia.org`;
 
-      await prisma.premiumSeat.create({
-        data: {
-          userId,
-          platformAddress,
-          linkedHouseholds: {
-            connect: householdIds.map(id => ({ id })),
-          },
-        },
-      });
+      // Create new Premium Seat
+      const newPremiumSeat = (await db.execute(sql`
+        INSERT INTO "premiumSeat" ("userId", "platformAddress")
+        VALUES (${userId}, ${platformAddress})
+        RETURNING id
+      `)) as any;
+
+      // Link households
+      for (const householdId of householdIds) {
+        await db.execute(sql`
+          INSERT INTO "_PremiumSeatPortfolio" ("A", "B")
+          VALUES (${newPremiumSeat.rows?.[0]?.id}, ${householdId})
+          ON CONFLICT DO NOTHING
+        `);
+      }
     }
 
-    // Get updated portfolio data
-    const portfolio = await prisma.premiumSeat.findUnique({
-      where: { userId },
-      include: {
-        linkedHouseholds: {
-          include: {
-            standardSeats: {
-              where: { userId, isPrimaryOwner: true },
-              include: {
-                user: { select: { name: true } },
-              },
-            },
-            profiles: {
-              include: {
-                user: { select: { name: true } },
-              },
-            },
-          },
-        },
-      },
-    });
+    // Get updated portfolio data via raw SQL
+    const portfolioResult = (await db.execute(sql`
+      SELECT 
+        ps.*,
+        json_agg(
+          json_build_object(
+            'id', h.id,
+            'street', h.street,
+            'unit', h.unit,
+            'homeImage', h."homeImage",
+            'standardSeats', (
+              SELECT json_agg(
+                json_build_object(
+                  'id', ss.id,
+                  'user', json_build_object('id', u.id, 'name', u.name, 'email', u.email)
+                )
+              )
+              FROM "standardSeat" ss
+              JOIN "user" u ON u.id = ss."userId"
+              WHERE ss."householdId" = h.id AND ss."userId" = ${userId} AND ss."isPrimaryOwner" = true
+            ),
+            'profiles', (
+              SELECT json_agg(
+                json_build_object(
+                  'id', p.id,
+                  'user', json_build_object('id', u.id, 'name', u.name)
+                )
+              )
+              FROM "profile" p
+              JOIN "user" u ON u.id = p."userId"
+              WHERE p."householdId" = h.id
+            )
+          )
+        ) FILTER (WHERE h.id IS NOT NULL) as "linkedHouseholds"
+      FROM "premiumSeat" ps
+      JOIN "_PremiumSeatPortfolio" htl ON htl.A = ps.id
+      JOIN "household" h ON h.id = htl.B
+      WHERE ps."userId" = ${userId}
+      GROUP BY ps.id
+    `)) as any;
 
     return NextResponse.json({
       success: true,
       message: 'Successfully upgraded to Premium Seat with property portfolio',
-      portfolio,
+      portfolio: portfolioResult.rows?.[0],
     });
   } catch (error) {
     console.error('Premium upgrade error:', error);
@@ -142,27 +156,47 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const portfolio = await prisma.premiumSeat.findUnique({
-      where: { userId: session.user.id },
-      include: {
-        linkedHouseholds: {
-          include: {
-            standardSeats: {
-              include: {
-                user: { select: { name: true, email: true } },
-              },
-            },
-            profiles: {
-              include: {
-                user: { select: { name: true } },
-              },
-            },
-          },
-        },
-      },
-    });
+    const portfolioResult = (await db.execute(sql`
+      SELECT 
+        ps.*,
+        json_agg(
+          json_build_object(
+            'id', h.id,
+            'street', h.street,
+            'unit', h.unit,
+            'homeImage', h."homeImage",
+            'standardSeats', (
+              SELECT json_agg(
+                json_build_object(
+                  'id', ss.id,
+                  'user', json_build_object('id', u.id, 'name', u.name, 'email', u.email)
+                )
+              )
+              FROM "standardSeat" ss
+              JOIN "user" u ON u.id = ss."userId"
+              WHERE ss."householdId" = h.id
+            ),
+            'profiles', (
+              SELECT json_agg(
+                json_build_object(
+                  'id', p.id,
+                  'user', json_build_object('id', u.id, 'name', u.name)
+                )
+              )
+              FROM "profile" p
+              JOIN "user" u ON u.id = p."userId"
+              WHERE p."householdId" = h.id
+            )
+          )
+        ) FILTER (WHERE h.id IS NOT NULL) as "linkedHouseholds"
+      FROM "premiumSeat" ps
+      JOIN "_PremiumSeatPortfolio" htl ON htl.A = ps.id
+      JOIN "household" h ON h.id = htl.B
+      WHERE ps."userId" = ${session.user.id}
+      GROUP BY ps.id
+    `)) as any;
 
-    if (!portfolio) {
+    if (!portfolioResult.rows?.length) {
       return NextResponse.json({
         hasPortfolio: false,
         message: 'No Premium Seat portfolio found',
@@ -171,7 +205,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       hasPortfolio: true,
-      portfolio,
+      portfolio: portfolioResult.rows[0],
     });
   } catch (error) {
     console.error('Portfolio fetch error:', error);

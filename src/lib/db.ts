@@ -14,6 +14,7 @@ import { soloSeats } from '../../prisma/drizzle/solo-seats';
 import { households } from '../../prisma/drizzle/households';
 import { premiumSeats } from '../../prisma/drizzle/premium-seats';
 import { contents } from '../../prisma/drizzle/contents';
+import { propertyListings } from '../../prisma/drizzle/property-listings';
 // Community service tables
 import { communityServiceListings } from '../../prisma/drizzle/community-service-listings';
 import { communityServiceReviews } from '../../prisma/drizzle/community-service-reviews';
@@ -35,6 +36,8 @@ import { maintenanceRequests } from '../../prisma/drizzle/maintenance-requests';
 import { notifications } from '../../prisma/drizzle/notifications';
 // Agent profiles
 import { agentProfiles } from '../../prisma/drizzle/agent-profiles';
+// Junction tables
+import { householdsTopremiumSeats } from '../../prisma/drizzle/households-topremium-seats';
 
 /**
  * Drizzle ORM client using Neon serverless driver.
@@ -55,6 +58,7 @@ const schema = {
   soloSeats,
   households,
   premiumSeats,
+  propertyListings,
   contents,
   communityServiceListings,
   communityServiceReviews,
@@ -70,6 +74,7 @@ const schema = {
   maintenanceRequests,
   notifications,
   agentProfiles,
+  householdsTopremiumSeats,
 };
 
 export const db = drizzle(sql, { schema });
@@ -87,6 +92,7 @@ export {
   soloSeats,
   households,
   premiumSeats,
+  propertyListings,
   contents,
   communityServiceListings,
   communityServiceReviews,
@@ -102,4 +108,5 @@ export {
   maintenanceRequests,
   notifications,
   agentProfiles,
+  householdsTopremiumSeats,
 };
