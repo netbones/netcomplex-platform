@@ -2,14 +2,14 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import type { Role } from '@prisma/client';
+import { db, users } from '@/lib/db';
+import { eq } from 'drizzle-orm';
 
 export interface Context {
   session: Awaited<ReturnType<typeof auth.api.getSession>>;
-  prisma: typeof prisma;
+  db: typeof db;
   userId: string | null;
-  role: Role | null;
+  role: string | null;
   /** Organization ID for multi-tenancy / RLS scoping. Null in single-tenant mode. */
   organizationId: string | null;
 }
@@ -19,25 +19,22 @@ export async function createContext(opts: { headers: Headers }): Promise<Context
     headers: opts.headers,
   });
 
-  let role: Role | null = null;
+  let role: string | null = null;
   if (session?.user?.id) {
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
+    const [user] = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.id, session.user.id));
     role = user?.role || null;
   }
 
-  // organizationId: resolved from session metadata or env in multi-tenant mode.
-  // Currently null (single-tenant). Populate from session.user.organizationId when
-  // multi-tenancy is enabled.
   const organizationId: string | null =
     ((session?.user as Record<string, unknown> | undefined)?.organizationId as string | null) ??
     null;
 
   return {
     session,
-    prisma,
+    db,
     userId: session?.user?.id || null,
     role,
     organizationId,
@@ -69,7 +66,7 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
       ...ctx,
       session: ctx.session,
       userId: ctx.session.user.id,
-      role: ctx.role,
+      role: ctx.role as string,
     },
   });
 });

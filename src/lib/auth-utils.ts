@@ -1,7 +1,8 @@
 import { auth } from '@/lib/auth';
 import { hasPermission, canManageOwnGroupOnly, Permission } from '@/lib/permissions';
-import { prisma } from '@/lib/prisma';
+import { db, users } from '@/lib/db';
 import { NextResponse } from 'next/server';
+import { eq } from 'drizzle-orm';
 
 /**
  * Retrieves the current user session and role from Better Auth.
@@ -17,10 +18,10 @@ export async function getSessionAndRole() {
     return null;
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
+  const [user] = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, session.user.id));
 
   return {
     session,
