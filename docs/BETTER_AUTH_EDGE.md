@@ -2,7 +2,7 @@
 
 ## Summary
 
-**Better Auth CAN run in Edge runtime with limitations.** Core session/cookie management works, but database operations require Node.js.
+**Better Auth CAN run in Edge runtime with limitations.** Core session/cookie management works, but database operations require Node.js **unless using Drizzle**.
 
 ## Key Findings
 
@@ -12,13 +12,22 @@
 - Session cookie caching (Web Standard APIs only)
 - OAuth flow redirects
 - Dynamic base URL resolution with `allowedHosts`
+- **Drizzle ORM** - Fully supports Edge runtime with Vercel Edge Functions
 
 ### ❌ What Requires Node.js Runtime
 
-- Database operations (Prisma/Drizzle adapters)
+- **Prisma** - Requires Node.js (doesn't support Edge)
 - `validateUser` function
 - Signed cookies
 - Session validation (full auth checks)
+
+### 🟡 Drizzle is Edge-Ready
+
+If we migrate to Drizzle ORM, the entire stack could run on Edge:
+
+- Drizzle supports Vercel Edge Functions natively
+- Better Auth can use Drizzle adapter
+- Faster cold starts, lower costs
 
 ## Configuration for Vercel
 
