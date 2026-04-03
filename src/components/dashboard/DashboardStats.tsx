@@ -74,33 +74,19 @@ export function DashboardStats() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [reqRes, bookRes, msgRes, notifRes] = await Promise.all([
-          fetch('/api/maintenance'),
-          fetch('/api/bookings'),
-          fetch('/api/conversations'),
-          fetch('/api/notifications'),
-        ]);
-
-        if (!reqRes.ok || !bookRes.ok || !msgRes.ok || !notifRes.ok) {
+        const res = await fetch('/api/dashboard/stats');
+        if (!res.ok) {
           throw new Error('Failed to fetch stats');
         }
-
-        const [requests, bookings, conversations, notifications] = await Promise.all([
-          reqRes.json(),
-          bookRes.json(),
-          msgRes.json(),
-          notifRes.json(),
-        ]);
-
+        const data = await res.json();
         setStats({
-          requests: Array.isArray(requests) ? requests.length : 0,
-          bookings: Array.isArray(bookings) ? bookings.length : 0,
-          messages: Array.isArray(conversations) ? conversations.length : 0,
-          notifications: Array.isArray(notifications) ? notifications.length : 0,
+          requests: data.requests ?? 0,
+          bookings: data.bookings ?? 0,
+          messages: data.messages ?? 0,
+          notifications: data.notifications ?? 0,
         });
       } catch (error) {
         console.error('Failed to fetch dashboard stats:', error);
-        // Keep default values on error
       } finally {
         setLoading(false);
       }
