@@ -7,56 +7,15 @@ import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
 import { DashboardTabs, AddWidgetModal } from '@/components/dashboard/DashboardTabs';
 import { AdminWidgetRenderer } from '@/components/admin/AdminWidgetRenderer';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-
-interface AdminTab {
-  id: string;
-  label: string;
-  icon: string;
-  defaultWidgets: string[];
-}
-
-const ADMIN_TABS: AdminTab[] = [
-  {
-    id: 'overview',
-    label: 'Overview',
-    icon: 'fa-th-large',
-    defaultWidgets: ['admin-stats', 'admin-quick-links', 'admin-activity'],
-  },
-  {
-    id: 'users',
-    label: 'User Management',
-    icon: 'fa-users',
-    defaultWidgets: ['admin-users', 'admin-stats', 'admin-activity'],
-  },
-  {
-    id: 'content',
-    label: 'Content Management',
-    icon: 'fa-file-alt',
-    defaultWidgets: ['admin-content', 'admin-stats', 'admin-quick-links'],
-  },
-  {
-    id: 'system',
-    label: 'System',
-    icon: 'fa-cog',
-    defaultWidgets: ['admin-system', 'admin-activity', 'admin-quick-links'],
-  },
-];
-
-const ALL_ADMIN_WIDGETS = [
-  { id: 'admin-stats', label: 'System Statistics', icon: 'fa-chart-bar' },
-  { id: 'admin-quick-links', label: 'Quick Actions', icon: 'fa-bolt' },
-  { id: 'admin-activity', label: 'Recent Activity', icon: 'fa-clock' },
-  { id: 'admin-users', label: 'User Overview', icon: 'fa-users' },
-  { id: 'admin-content', label: 'Content Overview', icon: 'fa-file-alt' },
-  { id: 'admin-system', label: 'System Status', icon: 'fa-cog' },
-  { id: 'moderation-queue', label: 'Moderation Queue', icon: 'fa-shield-alt' },
-  { id: 'marketplace-analytics', label: 'Marketplace Analytics', icon: 'fa-store' },
-  { id: 'service-quality', label: 'Service Quality', icon: 'fa-star' },
-];
+import {
+  ADMIN_TABS,
+  getWidgetTitle,
+  getWidgetIcon,
+  getAvailableAdminWidgets,
+} from '@/lib/admin-config';
 
 export default function AdminDashboardPage() {
   const { t } = useTranslation('admin');
-  const { t: tCommon } = useTranslation('common');
 
   const [activeTab, setActiveTab] = useState('overview');
   const [activeWidgets, setActiveWidgets] = useState<string[]>(
@@ -84,32 +43,7 @@ export default function AdminDashboardPage() {
   };
 
   const getAvailableWidgets = () => {
-    return ALL_ADMIN_WIDGETS.filter(widget => !activeWidgets.includes(widget.id));
-  };
-
-  const getWidgetTitle = (widgetId: string) => {
-    const widget = ALL_ADMIN_WIDGETS.find(w => w.id === widgetId);
-    return widget?.label || widgetId;
-  };
-
-  const getWidgetIcon = (widgetId: string) => {
-    const widget = ALL_ADMIN_WIDGETS.find(w => w.id === widgetId);
-    return widget?.icon || 'fa-widget';
-  };
-
-  const getWidgetSize = (widgetId: string) => {
-    switch (widgetId) {
-      case 'admin-stats':
-      case 'admin-activity':
-      case 'admin-users':
-      case 'admin-content':
-      case 'admin-system':
-        return 'large';
-      case 'admin-quick-links':
-        return 'medium';
-      default:
-        return 'medium';
-    }
+    return getAvailableAdminWidgets(activeWidgets);
   };
 
   return (
