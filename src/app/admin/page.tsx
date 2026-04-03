@@ -49,6 +49,9 @@ const ALL_ADMIN_WIDGETS = [
   { id: 'admin-users', label: 'User Overview', icon: 'fa-users' },
   { id: 'admin-content', label: 'Content Overview', icon: 'fa-file-alt' },
   { id: 'admin-system', label: 'System Status', icon: 'fa-cog' },
+  { id: 'moderation-queue', label: 'Moderation Queue', icon: 'fa-shield-alt' },
+  { id: 'marketplace-analytics', label: 'Marketplace Analytics', icon: 'fa-store' },
+  { id: 'service-quality', label: 'Service Quality', icon: 'fa-star' },
 ];
 
 export default function AdminDashboardPage() {

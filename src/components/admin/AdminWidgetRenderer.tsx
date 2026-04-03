@@ -8,6 +8,9 @@ import { AdminActivityWidget } from './AdminActivityWidget';
 import { AdminUserWidget } from './AdminUserWidget';
 import { AdminContentWidget } from './AdminContentWidget';
 import { AdminSystemWidget } from './AdminSystemWidget';
+import { ModerationQueueWidget } from './ModerationQueueWidget';
+import { MarketplaceAnalyticsWidget } from './MarketplaceAnalyticsWidget';
+import { ServiceQualityWidget } from './ServiceQualityWidget';
 
 interface WidgetRendererProps {
   widgetId: string;
@@ -27,6 +30,12 @@ export function AdminWidgetRenderer({ widgetId }: WidgetRendererProps): ReactNod
       return <AdminContentWidget />;
     case 'admin-system':
       return <AdminSystemWidget />;
+    case 'moderation-queue':
+      return <ModerationQueueWidget />;
+    case 'marketplace-analytics':
+      return <MarketplaceAnalyticsWidget />;
+    case 'service-quality':
+      return <ServiceQualityWidget />;
     default:
       return (
         <ErrorBoundary>
