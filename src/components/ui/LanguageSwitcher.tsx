@@ -1,18 +1,14 @@
 'use client';
 
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
+import { useIsMounted } from 'usehooks-ts';
 import { supportedLanguages, languageNames, type SupportedLanguage } from '@/lib/i18n';
 
 export function LanguageSwitcher() {
   const { i18n, ready } = useTranslation();
-  const [mounted, setMounted] = useState(false);
+  const isMounted = useIsMounted();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted || !ready) {
+  if (!isMounted || !ready) {
     return (
       <div className="relative group">
         <div className="text-sm text-white/70 px-2 py-1">en</div>

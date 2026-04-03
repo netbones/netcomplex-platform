@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { EmojiPicker } from 'frimousse';
+import { useLocalStorage } from 'usehooks-ts';
 
 export type SkinTone = 'none' | 'light' | 'medium-light' | 'medium' | 'medium-dark' | 'dark';
 
@@ -35,20 +36,12 @@ export function FrimoussePicker({
   className = '',
   size = 'md',
 }: FrimoussePickerProps) {
-  const [skinTone, setSkinTone] = useState<SkinTone>(initialSkinTone);
+  const [skinTone, setSkinTone] = useLocalStorage<SkinTone>('emojiSkinTone', initialSkinTone);
   const [activeEmoji, setActiveEmoji] = useState<{ emoji: string; label: string } | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('emojiSkinTone');
-    if (saved && skinToneOptions.some(opt => opt.value === saved)) {
-      setSkinTone(saved as SkinTone);
-    }
-  }, []);
 
   const handleSkinToneChange = (newTone: string) => {
     const tone = newTone as SkinTone;
     setSkinTone(tone);
-    localStorage.setItem('emojiSkinTone', newTone);
     onSkinToneChange?.(tone);
   };
 

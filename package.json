@@ -109,6 +109,7 @@
     "tailwindcss": "^3.4.19",
     "tiptap-extension-resizable-image": "^2.1.0",
     "type-fest": "^5.5.0",
+    "usehooks-ts": "^3.1.1",
     "uuid": "^13.0.0",
     "zod": "^3.25.76",
     "zustand": "^5.0.12"

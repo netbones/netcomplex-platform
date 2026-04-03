@@ -111,6 +111,12 @@ components/
 
 ### Hooks Best Practices
 
+#### Use usehooks-ts
+
+- **Use usehooks-ts** for common utility hooks - installed as dependency
+- Prefer `useLocalStorage`, `useIsMounted`, `useDebounceValue`, etc. over custom implementations
+- Check available hooks at https://usehooks-ts.com
+
 #### Custom Hooks
 
 - **Extract reusable logic** into custom hooks
@@ -570,6 +576,7 @@ Key packages:
 - `react-hook-form` - Forms
 - `zod` - Validation
 - `leaflet` + `react-leaflet` - Maps
+- `usehooks-ts` - Utility React hooks
 
 ---
 

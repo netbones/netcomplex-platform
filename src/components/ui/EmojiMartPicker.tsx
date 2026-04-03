@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Picker from '@emoji-mart/react';
+import { useLocalStorage } from 'usehooks-ts';
 
 export type EmojiMartSkinTone = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -32,18 +33,13 @@ export function EmojiMartPicker({
   className = '',
   size = 'md',
 }: EmojiMartPickerProps) {
-  const [selectedSkinTone, setSelectedSkinTone] = useState<EmojiMartSkinTone>(skinTone);
-
-  useEffect(() => {
-    const saved = localStorage.getItem('emojiMartSkinTone');
-    if (saved && ['1', '2', '3', '4', '5', '6'].includes(saved)) {
-      setSelectedSkinTone(parseInt(saved) as EmojiMartSkinTone);
-    }
-  }, []);
+  const [selectedSkinTone, setSelectedSkinTone] = useLocalStorage<EmojiMartSkinTone>(
+    'emojiMartSkinTone',
+    skinTone
+  );
 
   const handleSkinToneChange = (tone: EmojiMartSkinTone) => {
     setSelectedSkinTone(tone);
-    localStorage.setItem('emojiMartSkinTone', String(tone));
     onSkinToneChange?.(tone);
   };
 

@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
+import { useIsMounted } from 'usehooks-ts';
 import { authClient } from '@/lib/auth-client';
 import { hasPermission } from '@/lib/permissions';
 
@@ -42,15 +43,11 @@ interface SideDrawerProps {
 
 export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
+  const isMounted = useIsMounted();
   const { t, ready } = useTranslation('common');
   const { data: session } = authClient.useSession();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted || !ready) {
+  if (!isMounted || !ready) {
     return null;
   }
 
