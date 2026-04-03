@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { useWidgetStore } from '@/lib/stores/widget-store';
@@ -38,12 +38,22 @@ const DEFAULT_TABS: DashboardTab[] = [
 
 function DashboardContent() {
   const { t } = useTranslation('dashboard');
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
 
   const [tabs, setTabs] = useState<DashboardTab[]>(DEFAULT_TABS);
   const [activeTab, setActiveTab] = useState('overview');
   const [activeWidgets, setActiveWidgets] = useState<string[]>(DEFAULT_TABS[0].defaultWidgets);
   const [showAddWidget, setShowAddWidget] = useState(false);
+
+  // Prevent hydration mismatch by rendering loading state until session is loaded
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
+
+  // Use consistent value on both server and client during hydration
+  const userName = hasHydrated && !isPending ? session?.user?.name : '';
 
   // Update active widgets when tab changes
   const handleTabChange = (tabId: string) => {
@@ -97,7 +107,7 @@ function DashboardContent() {
           <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Dashboard' }]} />
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-indigo-600 mb-2">
-              {t('welcome', { name: session?.user?.name ? `, ${session.user.name}` : '' })}
+              {userName ? t('welcome', { name: `, ${userName}` }) : t('welcome', { name: '' })}
             </h1>
             <p className="text-gray-600">{t('subtitle', 'Manage your community activities')}</p>
           </div>
