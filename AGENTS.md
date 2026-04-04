@@ -18,7 +18,7 @@ Check PRD.md and SPEC.md for details.
 | Styling    | Tailwind CSS                     |
 | Auth       | Better Auth                      |
 | Database   | PostgreSQL via Supabase          |
-| ORM        | Prisma                           |
+| ORM        | Prisma + Drizzle                 |
 | Real-time  | Supabase Realtime (chat)         |
 | State      | TanStack Query                   |
 | Forms      | React Hook Form + Zod            |
@@ -265,12 +265,13 @@ In order to minimise the tendency new page creation for a feature, follow these 
 - **TanStack Query**: Use for client-side state management and mutations
 - **Server Actions**: Use for form submissions and data mutations
 
-### Prisma
+### Prisma + Drizzle
 
-- Define all models in prisma/schema.prisma
+- Define all models in `prisma/schema.prisma`
 - Use enums for fixed values
 - Add relations with @relation
-- Run `prisma generate` after schema changes
+- Run `npx prisma generate` after schema changes (generates Drizzle schema)
+- **Query layer**: Use Drizzle via `src/lib/db.ts` for all database queries (edge-compatible)
 
 ### Supabase
 

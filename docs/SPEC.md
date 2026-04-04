@@ -16,7 +16,8 @@
 
 - **Runtime:** Next.js API Routes (Serverless)
 - **Database:** PostgreSQL (Supabase)
-- **ORM:** Prisma 5
+- **Schema Management:** Prisma 5 (source of truth, migrations)
+- **Query Layer:** Drizzle ORM (edge-compatible queries)
 - **Authentication:** Better Auth
 - **Real-time:** Supabase Realtime (for chat/messaging)
 
@@ -95,9 +96,34 @@ soralia-village/
 
 ---
 
-## 4. Database Schema (Prisma)
+## 4. Database Schema (Prisma + Drizzle)
 
 > **Note:** Identity and seat types are defined in [IDENTITY_MODEL.md](./IDENTITY_MODEL.md).
+
+### Dual ORM Architecture
+
+This project uses **Prisma for schema management** and **Drizzle for queries**:
+
+```
+prisma/schema.prisma ──prisma generate──► prisma/drizzle/*.ts
+       │                                              │
+       │  Edit models here                            │  Used in code
+       ▼                                              ▼
+prisma migrate / db push                    src/lib/db.ts
+       │                                              │
+       ▼                                              ▼
+  PostgreSQL                              Drizzle queries
+```
+
+**Why this setup?**
+
+- Prisma: Schema definition, migrations, type safety during development
+- Drizzle: Edge-compatible queries for serverless/edge functions
+
+### Database Tables
+
+All tables include `tenantId` for multi-tenant data isolation (NetComplex platform).
+
 > See Section 4.1 for the Household/Seat/Alias schema extension.
 
 ### Full Schema
