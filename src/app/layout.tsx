@@ -5,6 +5,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { Toaster } from 'sonner';
+import { TenantProvider } from '@/components/ui/TenantProvider';
 
 export const metadata: Metadata = {
   title: 'Soralia Village Community Directory',
@@ -22,12 +23,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-soralia-light min-h-screen flex flex-col">
         <Providers>
-          <Toaster position="top-right" />
-          <Suspense fallback={null}>
-            <Header />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-          </Suspense>
+          <TenantProvider>
+            <Toaster position="top-right" />
+            <Suspense fallback={null}>
+              <Header />
+              <main className="flex-grow">{children}</main>
+              <Footer />
+            </Suspense>
+          </TenantProvider>
         </Providers>
       </body>
     </html>
