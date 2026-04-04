@@ -24,6 +24,19 @@ interface MaintenanceRequest {
   };
 }
 
+interface HistoryEntry {
+  id: string;
+  field: string;
+  oldValue: string | null;
+  newValue: string;
+  comment: string | null;
+  createdAt: string;
+  user: {
+    id: string;
+    name: string;
+  } | null;
+}
+
 const statusOptions = [
   'SUBMITTED',
   'ASSIGNED',
@@ -93,6 +106,8 @@ export default function AdminRequestsPage() {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedRequest, setSelectedRequest] = useState<MaintenanceRequest | null>(null);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
@@ -113,12 +128,31 @@ export default function AdminRequestsPage() {
     }
   }, [statusFilter, priorityFilter, categoryFilter, search]);
 
+  const fetchHistory = useCallback(async (requestId: string) => {
+    setLoadingHistory(true);
+    try {
+      const res = await fetch(`/api/maintenance/${requestId}/history`);
+      const data = await res.json();
+      setHistory(data);
+    } catch (error) {
+      console.error('Failed to fetch history:', error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, []);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchRequests();
     }, 300);
     return () => clearTimeout(timer);
   }, [fetchRequests]);
+
+  useEffect(() => {
+    if (selectedRequest) {
+      fetchHistory(selectedRequest.id);
+    }
+  }, [selectedRequest, fetchHistory]);
 
   const handleStatusChange = async (requestId: string, newStatus: string) => {
     try {
@@ -131,8 +165,26 @@ export default function AdminRequestsPage() {
       if (selectedRequest?.id === requestId) {
         setSelectedRequest({ ...selectedRequest, status: newStatus });
       }
+      fetchHistory(requestId);
     } catch (error) {
       console.error('Failed to update status:', error);
+    }
+  };
+
+  const handlePriorityChange = async (requestId: string, newPriority: string) => {
+    try {
+      await fetch(`/api/maintenance/${requestId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priority: newPriority }),
+      });
+      setRequests(requests.map(r => (r.id === requestId ? { ...r, priority: newPriority } : r)));
+      if (selectedRequest?.id === requestId) {
+        setSelectedRequest({ ...selectedRequest, priority: newPriority });
+      }
+      fetchHistory(requestId);
+    } catch (error) {
+      console.error('Failed to update priority:', error);
     }
   };
 
@@ -349,20 +401,38 @@ export default function AdminRequestsPage() {
                       {selectedRequest.status.replace('_', ' ')}
                     </span>
                   </div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Update Status
-                  </label>
-                  <select
-                    value={selectedRequest.status}
-                    onChange={e => handleStatusChange(selectedRequest.id, e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                  >
-                    {statusOptions.map(status => (
-                      <option key={status} value={status}>
-                        {status.replace('_', ' ')}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Priority
+                      </label>
+                      <select
+                        value={selectedRequest.priority}
+                        onChange={e => handlePriorityChange(selectedRequest.id, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                      >
+                        {priorityOptions.map(p => (
+                          <option key={p} value={p}>
+                            {p}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                      <select
+                        value={selectedRequest.status}
+                        onChange={e => handleStatusChange(selectedRequest.id, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                      >
+                        {statusOptions.map(status => (
+                          <option key={status} value={status}>
+                            {status.replace('_', ' ')}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Resident Info */}
@@ -423,12 +493,49 @@ export default function AdminRequestsPage() {
                 )}
 
                 {/* Timestamps */}
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 mb-6">
                   <p>Created: {formatDateTime(selectedRequest.createdAt)}</p>
                   <p>
                     Updated:{' '}
                     {formatDateTime(selectedRequest.updatedAt || selectedRequest.createdAt)}
                   </p>
+                </div>
+
+                {/* History */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">History</h3>
+                  {loadingHistory ? (
+                    <p className="text-gray-500 text-sm">Loading history...</p>
+                  ) : history.length === 0 ? (
+                    <p className="text-gray-500 text-sm">No history yet.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {history.map(entry => (
+                        <div key={entry.id} className="bg-gray-50 rounded-lg p-3 text-sm">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-gray-900 capitalize">
+                              {entry.field}
+                            </span>
+                            {entry.oldValue && (
+                              <>
+                                <span className="text-gray-400">→</span>
+                                <span className="text-gray-600">{entry.newValue}</span>
+                              </>
+                            )}
+                            {!entry.oldValue && (
+                              <span className="text-gray-600">set to {entry.newValue}</span>
+                            )}
+                          </div>
+                          <div className="text-gray-500 text-xs">
+                            {entry.user?.name || 'Unknown'} • {formatDateTime(entry.createdAt)}
+                            {entry.comment && (
+                              <p className="text-gray-600 mt-1 italic">"{entry.comment}"</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

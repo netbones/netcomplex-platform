@@ -2,12 +2,13 @@ import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-// Import directly from drizzle schema files
 import { maintenanceRequests } from '../../../../../prisma/drizzle/maintenance-requests';
 import { users } from '../../../../../prisma/drizzle/users';
 import { standardSeats } from '../../../../../prisma/drizzle/standard-seats';
 import { households } from '../../../../../prisma/drizzle/households';
-import { eq } from 'drizzle-orm';
+import { requestHistories } from '../../../../../prisma/drizzle/request-notes';
+import { eq, and } from 'drizzle-orm';
+import { revalidateDashboard } from '@/lib/revalidation';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -106,18 +107,75 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
  */
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+
+  const authData = await getSessionAndRole(request);
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const canViewAll = hasPermission(authData.role, 'requests');
+  if (!canViewAll) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const body = await request.json();
 
-  // Use Drizzle to update
+  // Get current request to compare values
+  const [existing] = await db
+    .select()
+    .from(maintenanceRequests)
+    .where(eq(maintenanceRequests.id, id))
+    .limit(1);
+
+  if (!existing) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const now = new Date();
+  const updates: Record<string, unknown> = {
+    updatedAt: now,
+  };
+
+  // Track changes for history
+  if (body.status && body.status !== existing.status) {
+    updates.status = body.status;
+    // Record status change in history
+    await db.insert(requestHistories).values({
+      id: crypto.randomUUID(),
+      requestId: id,
+      userId: authData.userId,
+      field: 'status',
+      oldValue: existing.status,
+      newValue: body.status,
+      comment: body.comment || null,
+    });
+  }
+
+  if (body.priority && body.priority !== existing.priority) {
+    updates.priority = body.priority;
+    // Record priority change in history
+    await db.insert(requestHistories).values({
+      id: crypto.randomUUID(),
+      requestId: id,
+      userId: authData.userId,
+      field: 'priority',
+      oldValue: existing.priority,
+      newValue: body.priority,
+      comment: body.comment || null,
+    });
+  }
+
+  if (body.description && body.description !== existing.description) {
+    updates.description = body.description;
+  }
+
   const [maintenanceRequest] = await db
     .update(maintenanceRequests)
-    .set({
-      status: body.status,
-      updatedAt: now,
-    })
+    .set(updates)
     .where(eq(maintenanceRequests.id, id))
     .returning();
+
+  revalidateDashboard();
 
   return NextResponse.json(maintenanceRequest);
 }
