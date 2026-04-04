@@ -18,12 +18,19 @@ model Tenant {
   customDomain    String?   @unique
   logoUrl         String?
   faviconUrl      String?
-  primaryColor    String    @default("#4F46E5")
+  primaryColor   String    @default("#4F46E5")
   accentColor     String?
   secondaryColor  String?
   fontFamily      String?
   customCss       String?
   active          Boolean   @default(true)
+  
+  // Subscription
+  subscriptionTier String   @default("sprout") // sprout, grove, forest
+  maxPages          Int      @default(5)
+  pageCount         Int      @default(0)
+  featureFlags      Json     @default("{}")
+  
   createdAt       DateTime  @default(now())
   updatedAt       DateTime?
 }
