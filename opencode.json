@@ -6,14 +6,24 @@
       "url": "https://mcp.inkeep.com/better-auth/mcp",
       "enabled": true
     },
-    "shadcn": {
-      "type": "local",
-      "command": ["npx", "shadcn@latest", "mcp"],
+    "cloudflare-api": {
+      "type": "remote",
+      "url": "https://mcp.cloudflare.com/mcp",
+      "enabled": true
+    },
+    "figma": {
+      "type": "remote",
+      "url": "https://mcp.figma.com/mcp",
       "enabled": true
     },
     "firefox devtools": {
       "type": "local",
       "command": ["npx", "@padenot/firefox-devtools-mcp", "mcp"],
+      "enabled": true
+    },
+    "shadcn": {
+      "type": "local",
+      "command": ["npx", "shadcn@latest", "mcp"],
       "enabled": true
     },
     "supabase": {

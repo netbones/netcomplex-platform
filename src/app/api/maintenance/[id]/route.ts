@@ -1,9 +1,31 @@
 import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { hasPermission } from '@/lib/permissions';
 // Import directly from drizzle schema files
 import { maintenanceRequests } from '../../../../../prisma/drizzle/maintenance-requests';
 import { users } from '../../../../../prisma/drizzle/users';
+import { standardSeats } from '../../../../../prisma/drizzle/standard-seats';
+import { households } from '../../../../../prisma/drizzle/households';
 import { eq } from 'drizzle-orm';
+
+async function getSessionAndRole(request: Request) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  if (!session?.user?.id) {
+    return null;
+  }
+
+  const [userResult] = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
+
+  return {
+    session,
+    userId: session.user.id,
+    role: userResult?.role || 'RESIDENT',
+  };
+}
 
 /**
  * GET /api/maintenance/[id] - Get a single maintenance request by ID
@@ -11,35 +33,69 @@ import { eq } from 'drizzle-orm';
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  // Use Drizzle to get by ID
-  const [maintenanceRequest] = await db
+  const authData = await getSessionAndRole(request);
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const canViewAll = hasPermission(authData.role, 'requests');
+
+  // Get the request first to check ownership
+  const [mrRow] = await db
     .select()
     .from(maintenanceRequests)
-    .leftJoin(users, eq(maintenanceRequests.userId, users.id))
     .where(eq(maintenanceRequests.id, id))
     .limit(1);
 
-  if (!maintenanceRequest) {
+  if (!mrRow) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const mr = maintenanceRequest.MaintenanceRequest;
-  const u = maintenanceRequest.user;
+  // Check if user can view this request
+  if (!canViewAll && mrRow.userId !== authData.userId) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  // Get user info and address
+  const [uRow] = await db.select().from(users).where(eq(users.id, mrRow.userId)).limit(1);
+
+  let address = null;
+  if (canViewAll && uRow) {
+    // Get household address through standardSeats
+    const [ssRow] = await db
+      .select()
+      .from(standardSeats)
+      .where(eq(standardSeats.userId, mrRow.userId))
+      .limit(1);
+
+    if (ssRow?.householdId) {
+      const [hhRow] = await db
+        .select()
+        .from(households)
+        .where(eq(households.id, ssRow.householdId))
+        .limit(1);
+
+      if (hhRow) {
+        address = { street: hhRow.street, unit: hhRow.unit };
+      }
+    }
+  }
 
   return NextResponse.json({
-    id: mr.id,
-    userId: mr.userId,
-    category: mr.category,
-    priority: mr.priority,
-    description: mr.description,
-    status: mr.status,
-    images: mr.images,
-    createdAt: mr.createdAt,
-    updatedAt: mr.updatedAt,
-    user: u
+    id: mrRow.id,
+    userId: mrRow.userId,
+    category: mrRow.category,
+    priority: mrRow.priority,
+    description: mrRow.description,
+    status: mrRow.status,
+    images: mrRow.images,
+    createdAt: mrRow.createdAt,
+    updatedAt: mrRow.updatedAt,
+    user: uRow
       ? {
-          name: u.name,
-          email: u.email,
+          name: uRow.name,
+          email: uRow.email,
+          address: address,
         }
       : null,
   });

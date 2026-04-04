@@ -8,6 +8,8 @@ import { apiLogger } from '@/lib/logger';
 // Import directly from drizzle schema files
 import { maintenanceRequests } from '../../../../prisma/drizzle/maintenance-requests';
 import { users } from '../../../../prisma/drizzle/users';
+import { standardSeats } from '../../../../prisma/drizzle/standard-seats';
+import { households } from '../../../../prisma/drizzle/households';
 import { eq, desc, and, sql } from 'drizzle-orm';
 
 // Limit execution time to 8 seconds to control costs
@@ -53,34 +55,100 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status');
+  const priority = searchParams.get('priority');
+  const category = searchParams.get('category');
+  const search = searchParams.get('search');
+  const dateFrom = searchParams.get('dateFrom');
+  const dateTo = searchParams.get('dateTo');
 
-  // Build query conditions - use sql to compare enums
-  const queryConditions = [];
+  // Build query conditions
+  const conditions: (ReturnType<typeof eq> | ReturnType<typeof sql>)[] = [];
 
   // Filter by user if not admin
   if (!canViewAll) {
-    queryConditions.push(eq(maintenanceRequests.userId, authData.userId));
+    conditions.push(eq(maintenanceRequests.userId, authData.userId));
   }
 
-  // Filter by status if provided - cast to the enum type
-  if (status) {
-    queryConditions.push(eq(maintenanceRequests.status, status as any));
+  // Filter by status if provided
+  if (status && status !== 'all') {
+    conditions.push(
+      eq(
+        maintenanceRequests.status,
+        status as (typeof maintenanceRequests.status.enumValues)[number]
+      )
+    );
   }
 
-  const whereClause = queryConditions.length > 0 ? and(...queryConditions) : undefined;
+  // Filter by priority if provided
+  if (priority && priority !== 'all') {
+    conditions.push(
+      eq(
+        maintenanceRequests.priority,
+        priority as (typeof maintenanceRequests.priority.enumValues)[number]
+      )
+    );
+  }
 
-  // Execute query with left join to get user info
-  const requests = await db
-    .select()
-    .from(maintenanceRequests)
-    .leftJoin(users, eq(maintenanceRequests.userId, users.id))
-    .where(whereClause)
-    .orderBy(desc(maintenanceRequests.createdAt));
+  // Filter by category if provided
+  if (category && category !== 'all') {
+    conditions.push(eq(maintenanceRequests.category, category));
+  }
 
-  // Transform results - Drizzle joins use the table name as key (PascalCase)
+  // Filter by date range
+  if (dateFrom) {
+    conditions.push(sql`${maintenanceRequests.createdAt} >= ${new Date(dateFrom)}`);
+  }
+  if (dateTo) {
+    conditions.push(sql`${maintenanceRequests.createdAt} <= ${new Date(dateTo)}`);
+  }
+
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  // Execute query with left joins to get user info and household address
+  interface QueryResult {
+    MaintenanceRequest: typeof maintenanceRequests.$inferSelect;
+    user: typeof users.$inferSelect | null;
+    standardSeat: typeof standardSeats.$inferSelect | null;
+    household: typeof households.$inferSelect | null;
+  }
+  let requests: QueryResult[];
+  if (canViewAll) {
+    // Admin view: join through standardSeats to get household address
+    requests = await db
+      .select({
+        MaintenanceRequest: maintenanceRequests,
+        user: users,
+        standardSeat: standardSeats,
+        household: households,
+      })
+      .from(maintenanceRequests)
+      .leftJoin(users, eq(maintenanceRequests.userId, users.id))
+      .leftJoin(standardSeats, eq(maintenanceRequests.userId, standardSeats.userId))
+      .leftJoin(households, eq(standardSeats.householdId, households.id))
+      .where(whereClause)
+      .orderBy(desc(maintenanceRequests.createdAt));
+  } else {
+    // Resident view: simple join
+    requests = await db
+      .select({
+        MaintenanceRequest: maintenanceRequests,
+        user: users,
+      })
+      .from(maintenanceRequests)
+      .leftJoin(users, eq(maintenanceRequests.userId, users.id))
+      .where(whereClause)
+      .orderBy(desc(maintenanceRequests.createdAt));
+  }
+
+  // Transform results
   const transformed = requests.map(row => {
     const mr = row.MaintenanceRequest;
     const u = row.user;
+    const hh = row.household;
+
+    // Get household address from standardSeats
+    const address = hh ? { street: hh.street, unit: hh.unit } : null;
+
     return {
       id: mr.id,
       userId: mr.userId,
@@ -95,12 +163,28 @@ export async function GET(request: Request) {
         ? {
             name: u.name,
             email: u.email,
+            address: address,
           }
         : null,
     };
   });
 
-  return NextResponse.json(transformed);
+  // Apply search filter in memory (for description search)
+  let filteredResults = transformed;
+  if (search && canViewAll) {
+    const searchLower = search.toLowerCase();
+    filteredResults = transformed.filter(
+      r =>
+        r.description?.toLowerCase().includes(searchLower) ||
+        r.user?.name?.toLowerCase().includes(searchLower) ||
+        r.user?.email?.toLowerCase().includes(searchLower) ||
+        r.user?.address?.street?.toLowerCase().includes(searchLower) ||
+        r.user?.address?.unit?.toLowerCase().includes(searchLower) ||
+        r.category?.toLowerCase().includes(searchLower)
+    );
+  }
+
+  return NextResponse.json(filteredResults);
 }
 
 /**
@@ -135,8 +219,8 @@ export async function POST(request: Request) {
 
     // Use Drizzle insert - use raw SQL to generate ID
     const now = new Date();
-    const insertValues = {
-      id: sql`gen_random_uuid()`,
+    const insertValues: typeof maintenanceRequests.$inferInsert = {
+      id: crypto.randomUUID(),
       userId,
       category,
       priority,
@@ -144,12 +228,9 @@ export async function POST(request: Request) {
       images: body.images || [],
       status: 'SUBMITTED',
       createdAt: now,
-      updatedAt: sql`null`,
+      updatedAt: null,
     };
-    const insertResult = await db
-      .insert(maintenanceRequests)
-      .values(insertValues as any)
-      .returning();
+    const insertResult = await db.insert(maintenanceRequests).values(insertValues).returning();
 
     const maintenanceRequest = insertResult[0];
 
