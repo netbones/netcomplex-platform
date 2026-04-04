@@ -41,7 +41,6 @@ import { events } from '../../prisma/drizzle/events';
 import { announcements } from '../../prisma/drizzle/announcements';
 import { agentAccesses } from '../../prisma/drizzle/agent-accesses';
 import { platformSuspensions } from '../../prisma/drizzle/platform-suspensions';
-import { requestNotes } from '../../prisma/drizzle/request-notes';
 import { groupMembershipRequests } from '../../prisma/drizzle/group-membership-requests';
 
 const envUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
@@ -97,7 +96,6 @@ export const db = drizzle(pool, {
     announcements,
     agentAccesses,
     platformSuspensions,
-    requestNotes,
     groupMembershipRequests,
   },
 });
@@ -143,6 +141,5 @@ export {
   announcements,
   agentAccesses,
   platformSuspensions,
-  requestNotes,
   groupMembershipRequests,
 };

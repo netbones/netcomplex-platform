@@ -12,6 +12,18 @@ export const metadata: Metadata = {
   description: 'A premier residential community in Cape Town',
 };
 
+const defaultTenant = {
+  id: '',
+  name: 'Soralia Village',
+  slug: 'soralia',
+  primaryColor: '#4F46E5',
+  accentColor: '#F59E0B',
+  secondaryColor: '#10B981',
+  logoUrl: '',
+  faviconUrl: '',
+  fontFamily: 'Inter',
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -23,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-soralia-light min-h-screen flex flex-col">
         <Providers>
-          <TenantProvider>
+          <TenantProvider tenant={defaultTenant}>
             <Toaster position="top-right" />
             <Suspense fallback={null}>
               <Header />

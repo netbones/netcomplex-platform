@@ -1,4 +1,5 @@
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
+import type { TierLevel } from './features/registry';
 import {
   db,
   tenants,
@@ -26,7 +27,6 @@ import {
   settings,
   platformSuspensions,
   externalSurveys,
-  requestNotes,
   standardSeats,
   premiumSeats,
   soloSeats,
@@ -51,23 +51,51 @@ export interface Tenant {
   fontFamily: string | null;
   customCss: string | null;
   active: boolean;
+  subscriptionTier: TierLevel;
+  maxPages: number;
+  pageCount: number;
+  featureFlags: Record<string, boolean>;
   createdAt: Date;
   updatedAt: Date | null;
 }
 
+// Type helper to convert Drizzle result to Tenant
+function toTenant(row: Record<string, unknown>): Tenant {
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    slug: row.slug as string,
+    customDomain: row.customDomain as string | null,
+    logoUrl: row.logoUrl as string | null,
+    faviconUrl: row.faviconUrl as string | null,
+    primaryColor: row.primaryColor as string,
+    accentColor: row.accentColor as string | null,
+    secondaryColor: row.secondaryColor as string | null,
+    fontFamily: row.fontFamily as string | null,
+    customCss: row.customCss as string | null,
+    active: row.active as boolean,
+    subscriptionTier: row.subscriptionTier as string as TierLevel,
+    maxPages: row.maxPages as number,
+    pageCount: row.pageCount as number,
+    featureFlags: row.featureFlags as Record<string, boolean>,
+    createdAt: new Date(row.createdAt as string),
+    updatedAt: row.updatedAt ? new Date(row.updatedAt as string) : null,
+  };
+}
+
 export async function getTenantById(id: string): Promise<Tenant | undefined> {
   const result = await db.select().from(tenants).where(eq(tenants.id, id)).limit(1);
-  return result[0];
+  return result[0] ? toTenant(result[0]) : undefined;
 }
 
 export async function getTenantBySlug(slug: string): Promise<Tenant | undefined> {
   const result = await db.select().from(tenants).where(eq(tenants.slug, slug)).limit(1);
-  return result[0];
+  return result[0] ? toTenant(result[0]) : undefined;
 }
 
 export async function getTenantByDomain(domain: string): Promise<Tenant | undefined> {
   const result = await db.select().from(tenants).where(eq(tenants.customDomain, domain)).limit(1);
-  return result[0];
+  return result[0] ? toTenant(result[0]) : undefined;
 }
 
 export async function getTenantByUserId(userId: string): Promise<Tenant | undefined> {
@@ -77,12 +105,13 @@ export async function getTenantByUserId(userId: string): Promise<Tenant | undefi
 }
 
 export async function listTenants(): Promise<Tenant[]> {
-  return db.select().from(tenants);
+  const result = await db.select().from(tenants);
+  return result.map(toTenant);
 }
 
 export async function createTenant(data: Omit<Tenant, 'createdAt' | 'updatedAt'>): Promise<Tenant> {
   const result = await db.insert(tenants).values(data).returning();
-  return result[0];
+  return toTenant(result[0]);
 }
 
 export async function updateTenant(
@@ -94,7 +123,7 @@ export async function updateTenant(
     .set({ ...data, updatedAt: new Date() })
     .where(eq(tenants.id, id))
     .returning();
-  return result[0];
+  return toTenant(result[0]);
 }
 
 export async function deleteTenant(id: string): Promise<void> {
@@ -130,7 +159,6 @@ export const tenantQueries = {
   settings: (tenantId: string) => eq(settings.tenantId, tenantId),
   platformSuspensions: (tenantId: string) => eq(platformSuspensions.tenantId, tenantId),
   externalSurveys: (tenantId: string) => eq(externalSurveys.tenantId, tenantId),
-  requestNotes: (tenantId: string) => eq(requestNotes.tenantId, tenantId),
   standardSeats: (tenantId: string) => eq(standardSeats.tenantId, tenantId),
   premiumSeats: (tenantId: string) => eq(premiumSeats.tenantId, tenantId),
   soloSeats: (tenantId: string) => eq(soloSeats.tenantId, tenantId),
