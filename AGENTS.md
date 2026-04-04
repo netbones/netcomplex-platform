@@ -77,14 +77,20 @@ bd sync               # Sync with git
 
 #### File Organization
 
-```
+````
 components/
 ├── ui/              # Reusable UI components (Button, Input, Modal)
 ├── forms/           # Form-related components
 ├── layout/          # Layout components (Header, Sidebar, Footer)
 ├── dashboard/       # Feature-specific components
 └── common/          # Shared components across features
-```
+
+#### Pages vs Widgets
+In order to minimise the tendency new page creation for a feature, follow these protocols:
+- Prefer widgets that can be imported to dashboards than new pages
+- Refer to the WIDGETS framework in docs/
+- Only create a page if it is truly necessary to unify elements such as widgets or components.
+
 
 ### Performance Optimization
 
@@ -306,7 +312,7 @@ components/
     revalidate: 300, // 5 minutes
     tags: ['data-tag'],
   });
-  ```
+````
 
 - **Set appropriate revalidation times**:
   - Static data (rarely changes): 10 minutes (600s)

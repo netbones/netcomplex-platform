@@ -14,6 +14,12 @@ export const ADMIN_TABS: DashboardTab[] = [
     defaultWidgets: ['admin-stats', 'admin-quick-links', 'admin-activity'],
   },
   {
+    id: 'maintenance',
+    label: 'Maintenance',
+    icon: 'fa-tools',
+    defaultWidgets: ['maintenance-requests', 'maintenance-analytics'],
+  },
+  {
     id: 'users',
     label: 'User Management',
     icon: 'fa-users',
@@ -43,6 +49,8 @@ export const ALL_ADMIN_WIDGETS: AdminWidget[] = [
   { id: 'moderation-queue', label: 'Moderation Queue', icon: 'fa-shield-alt' },
   { id: 'marketplace-analytics', label: 'Marketplace Analytics', icon: 'fa-store' },
   { id: 'service-quality', label: 'Service Quality', icon: 'fa-star' },
+  { id: 'maintenance-requests', label: 'Maintenance Requests', icon: 'fa-tools' },
+  { id: 'maintenance-analytics', label: 'Maintenance Analytics', icon: 'fa-chart-line' },
 ];
 
 export function getWidgetTitle(widgetId: string): string {
@@ -62,8 +70,10 @@ export function getAdminWidgetSize(widgetId: string): 'small' | 'medium' | 'larg
     case 'admin-users':
     case 'admin-content':
     case 'admin-system':
+    case 'maintenance-analytics':
       return 'large';
     case 'admin-quick-links':
+    case 'maintenance-requests':
       return 'medium';
     default:
       return 'medium';

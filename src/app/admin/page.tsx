@@ -87,6 +87,7 @@ export default function AdminDashboardPage() {
           {/* Tab Description */}
           <div className="mt-3 text-sm text-gray-600">
             {activeTab === 'overview' && 'System overview and key metrics'}
+            {activeTab === 'maintenance' && 'Maintenance requests, scheduling, and analytics'}
             {activeTab === 'users' && 'User management and account statistics'}
             {activeTab === 'content' && 'Content creation and management tools'}
             {activeTab === 'system' && 'System maintenance and configuration'}

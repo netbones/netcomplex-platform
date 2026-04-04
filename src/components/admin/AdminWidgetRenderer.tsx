@@ -11,6 +11,8 @@ import { AdminSystemWidget } from './AdminSystemWidget';
 import { ModerationQueueWidget } from './ModerationQueueWidget';
 import { MarketplaceAnalyticsWidget } from './MarketplaceAnalyticsWidget';
 import { ServiceQualityWidget } from './ServiceQualityWidget';
+import { MaintenanceRequestsWidget } from './MaintenanceRequestsWidget';
+import { MaintenanceAnalyticsWidget } from './MaintenanceAnalyticsWidget';
 
 interface WidgetRendererProps {
   widgetId: string;
@@ -36,6 +38,10 @@ export function AdminWidgetRenderer({ widgetId }: WidgetRendererProps): ReactNod
       return <MarketplaceAnalyticsWidget />;
     case 'service-quality':
       return <ServiceQualityWidget />;
+    case 'maintenance-requests':
+      return <MaintenanceRequestsWidget />;
+    case 'maintenance-analytics':
+      return <MaintenanceAnalyticsWidget />;
     default:
       return (
         <ErrorBoundary>
