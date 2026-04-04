@@ -51,6 +51,18 @@ interface HistoryEntry {
   } | null;
 }
 
+interface NoteEntry {
+  id: string;
+  requestId: string;
+  content: string;
+  isInternal: boolean;
+  createdAt: string;
+  user: {
+    id: string;
+    name: string;
+  } | null;
+}
+
 const statusOptions = [
   'SUBMITTED',
   'ASSIGNED',
@@ -121,8 +133,11 @@ export default function AdminRequestsPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedRequest, setSelectedRequest] = useState<MaintenanceRequest | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [notes, setNotes] = useState<NoteEntry[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [loadingNotes, setLoadingNotes] = useState(false);
   const [boardMembers, setBoardMembers] = useState<BoardMember[]>([]);
+  const [newNote, setNewNote] = useState('');
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
@@ -156,6 +171,19 @@ export default function AdminRequestsPage() {
     }
   }, []);
 
+  const fetchNotes = useCallback(async (requestId: string) => {
+    setLoadingNotes(true);
+    try {
+      const res = await fetch(`/api/maintenance/${requestId}/notes`);
+      const data = await res.json();
+      setNotes(data);
+    } catch (error) {
+      console.error('Failed to fetch notes:', error);
+    } finally {
+      setLoadingNotes(false);
+    }
+  }, []);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchRequests();
@@ -166,8 +194,9 @@ export default function AdminRequestsPage() {
   useEffect(() => {
     if (selectedRequest) {
       fetchHistory(selectedRequest.id);
+      fetchNotes(selectedRequest.id);
     }
-  }, [selectedRequest, fetchHistory]);
+  }, [selectedRequest, fetchHistory, fetchNotes]);
 
   useEffect(() => {
     async function fetchBoardMembers() {
@@ -286,6 +315,32 @@ export default function AdminRequestsPage() {
       }
     } catch (error) {
       console.error(`Failed to update ${field}:`, error);
+    }
+  };
+
+  const handleAddNote = async (requestId: string) => {
+    if (!newNote.trim()) return;
+    try {
+      await fetch(`/api/maintenance/${requestId}/notes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newNote, isInternal: true }),
+      });
+      setNewNote('');
+      fetchNotes(requestId);
+    } catch (error) {
+      console.error('Failed to add note:', error);
+    }
+  };
+
+  const handleDeleteNote = async (requestId: string, noteId: string) => {
+    try {
+      await fetch(`/api/maintenance/${requestId}/notes?noteId=${noteId}`, {
+        method: 'DELETE',
+      });
+      fetchNotes(requestId);
+    } catch (error) {
+      console.error('Failed to delete note:', error);
     }
   };
 
@@ -731,6 +786,56 @@ export default function AdminRequestsPage() {
                       ))}
                     </div>
                   )}
+                </div>
+
+                {/* Internal Notes */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
+                    Internal Notes
+                  </h3>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex gap-2 mb-4">
+                      <input
+                        type="text"
+                        value={newNote}
+                        onChange={e => setNewNote(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && handleAddNote(selectedRequest.id)}
+                        placeholder="Add internal note..."
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                      />
+                      <button
+                        onClick={() => handleAddNote(selectedRequest.id)}
+                        disabled={!newNote.trim()}
+                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {loadingNotes ? (
+                      <p className="text-gray-500 text-sm">Loading notes...</p>
+                    ) : notes.length === 0 ? (
+                      <p className="text-gray-500 text-sm">No notes yet.</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {notes.map(note => (
+                          <div key={note.id} className="bg-white rounded-lg p-3 text-sm">
+                            <div className="flex justify-between items-start">
+                              <p className="text-gray-700">{note.content}</p>
+                              <button
+                                onClick={() => handleDeleteNote(selectedRequest.id, note.id)}
+                                className="text-gray-400 hover:text-red-500 text-xs"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                            <div className="text-gray-500 text-xs mt-1">
+                              {note.user?.name || 'Unknown'} • {formatDateTime(note.createdAt)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
