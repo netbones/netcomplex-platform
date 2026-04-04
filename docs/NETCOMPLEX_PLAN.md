@@ -102,17 +102,27 @@ Tables requiring `tenantId` column:
 | 🟢 Low      | `groups`              | Community groups     |
 | 🟢 Low      | `albums`              | Photo albums         |
 
-#### 1.3 Query Helper
+#### 1.3 Query Helper ✅ COMPLETE
+
+Created `src/lib/tenant.ts` with tenant query builders:
 
 ```typescript
 // lib/tenant.ts
-export function withTenant(tenantId: string) {
-  return and(
-    eq(users.tenantId, tenantId)
-    // ... other conditions
-  );
-}
+import { tenantQueries } from '@/lib/tenant';
+
+// Usage in queries
+const users = await db.select().from(users).where(tenantQueries.users(tenantId));
+
+const bookings = await db.select().from(bookings).where(tenantQueries.bookings(tenantId));
 ```
+
+Available query builders:
+
+- `tenantQueries.users(tenantId)`
+- `tenantQueries.households(tenantId)`
+- `tenantQueries.bookings(tenantId)`
+- `tenantQueries.maintenanceRequests(tenantId)`
+- ... (all 30+ tables)
 
 **Estimated**: 4-6 hours
 

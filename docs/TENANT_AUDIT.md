@@ -198,13 +198,14 @@ As of April 2026, all tables now have tenantId column:
 
 ---
 
-## Remaining Work
+## Completed Work
 
-1. ⬜ Create tenants table relations (verify relations exist)
-2. ⬜ Generate database migration for tenantId columns
-3. ⬜ Create `lib/tenant.ts` with query helpers
-4. ⬜ Add tenant resolution middleware
-5. ⬜ Implement dynamic branding with CSS variables
+1. ✅ Create tenants table (branding config)
+2. ✅ Generate database migration for tenantId columns
+3. ✅ Create `src/lib/tenant.ts` with query helpers
+4. ✅ Add tenant resolution middleware (`src/middleware.ts`)
+5. ✅ Implement dynamic branding with CSS variables (`TenantStyles.tsx`, `TenantProvider.tsx`)
+6. ✅ Create super admin dashboard (`/admin/platform`)
 
 ---
 
