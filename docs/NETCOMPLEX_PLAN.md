@@ -2,6 +2,7 @@
 
 **Platform Domain**: `netcomplex.netbones.co.za`
 **Current Project**: Soralia Village (first tenant)
+**Status**: ✅ Phase 4 (Schema) Complete - Adding tenantId to remaining tables IN PROGRESS
 
 ---
 

@@ -1,3 +1,4 @@
+import * as tenants from './tenants';
 import * as announcements from './announcements';
 import * as bookings from './bookings';
 import * as contents from './contents';
@@ -73,9 +74,9 @@ import * as twoFactorsRelations from './two-factors-relations';
 import * as usersRelations from './users-relations';
 import * as householdsTopremiumSeats from './households-topremium-seats';
 import * as householdsTopremiumSeatsRelations from './households-topremium-seats-relations';
-import * as requestNotes from './request-notes';
 
 export const schema = {
+  ...tenants,
   ...announcements,
   ...bookings,
   ...contents,
@@ -151,5 +152,4 @@ export const schema = {
   ...usersRelations,
   ...householdsTopremiumSeats,
   ...householdsTopremiumSeatsRelations,
-  ...requestNotes,
 };

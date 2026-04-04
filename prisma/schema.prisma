@@ -11,8 +11,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Tenant {
+  id              String    @id
+  name            String
+  slug            String    @unique
+  customDomain    String?   @unique
+  logoUrl         String?
+  faviconUrl      String?
+  primaryColor    String    @default("#4F46E5")
+  accentColor     String?
+  secondaryColor  String?
+  fontFamily      String?
+  customCss       String?
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime?
+}
+
 model Announcement {
   id        String    @id
+  tenantId  String
   title     String
   content   String
   author    String
@@ -23,6 +41,7 @@ model Announcement {
 
 model Booking {
   id        String        @id
+  tenantId  String
   userId    String
   facility  String
   date      DateTime
@@ -37,6 +56,7 @@ model Booking {
 
 model Content {
   id          String          @id
+  tenantId  String
   title       String
   content     String
   excerpt     String?
@@ -59,6 +79,7 @@ model Content {
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Conversation {
   id                      String                    @id
+  tenantId  String
   name                    String?
   type                    ConversationType          @default(DIRECT)
   createdAt               DateTime                  @default(now())
@@ -70,6 +91,7 @@ model Conversation {
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model ConversationParticipant {
   id                String       @id
+  tenantId  String
   conversationId    String
   userId            String
   joinedAt          DateTime     @default(now())
@@ -85,6 +107,7 @@ model ConversationParticipant {
 
 model Event {
   id          String   @id
+  tenantId  String
   title       String
   description String
   date        DateTime
@@ -98,6 +121,7 @@ model Event {
 
 model ExternalSurvey {
   id         String   @id
+  tenantId  String
   name       String
   provider   String
   externalId String
@@ -109,6 +133,7 @@ model ExternalSurvey {
 
 model Group {
   id                     String                   @id
+  tenantId  String
   name                   String
   description            String?
   category               String
@@ -130,6 +155,7 @@ model Group {
 
 model GroupMembershipRequest {
   id        String           @id
+  tenantId  String
   userId    String
   groupId   String
   status    MembershipStatus @default(PENDING)
@@ -145,6 +171,7 @@ model GroupMembershipRequest {
 
 model MaintenanceRequest {
   id          String        @id
+  tenantId  String
   userId      String
   category    String
   priority    Priority
@@ -159,6 +186,7 @@ model MaintenanceRequest {
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Message {
   id             String       @id
+  tenantId  String
   conversationId String
   senderId       String
   content        String
@@ -176,6 +204,7 @@ model Message {
 
 model Notification {
   id        String   @id
+  tenantId  String
   userId    String
   title     String
   message   String
@@ -188,6 +217,7 @@ model Notification {
 
 model Question {
   id       String       @id
+  tenantId  String
   surveyId String
   text     String
   type     QuestionType
@@ -199,6 +229,7 @@ model Question {
 
 model Response {
   id        String   @id
+  tenantId  String
   surveyId  String
   userId    String?
   answers   Json
@@ -208,12 +239,14 @@ model Response {
 
 model Setting {
   id    String @id
+  tenantId  String
   key   String @unique
   value String
 }
 
 model Survey {
   id          String       @id
+  tenantId  String
   title       String
   description String?
   type        SurveyType   @default(INTERNAL)
@@ -228,6 +261,7 @@ model Survey {
 
 model UserGroup {
   id       String    @id
+  tenantId  String
   userId   String
   groupId  String
   role     GroupRole @default(MEMBER)
@@ -240,6 +274,7 @@ model UserGroup {
 
 model account {
   id                    String    @id
+  tenantId  String
   accountId             String
   providerId            String
   userId                String
@@ -259,6 +294,7 @@ model account {
 
 model agentAccess {
   id                                 String            @id
+  tenantId  String
   agentId                            String
   householdId                        String
   grantedById                        String
@@ -284,6 +320,7 @@ model agentAccess {
 
 model agentProfile {
   id               String    @id
+  tenantId  String
   agentId          String    @unique
   agencyName       String?
   licenseNumber    String?
@@ -313,6 +350,7 @@ model agentProfile {
 
 model album {
   id          String   @id
+  tenantId  String
   userId      String
   title       String
   description String?
@@ -328,6 +366,7 @@ model album {
 
 model communityServiceInquiry {
   id                      String                  @id
+  tenantId  String
   listingId               String
   inquirerId              String
   serviceType             String?
@@ -351,6 +390,7 @@ model communityServiceInquiry {
 
 model communityServiceListing {
   id                      String                    @id
+  tenantId  String
   providerId              String
   title                   String
   description             String?
@@ -396,6 +436,7 @@ model communityServiceListing {
 
 model communityServiceReview {
   id                      String                  @id
+  tenantId  String
   listingId               String
   reviewerId              String
   rating                  Int
@@ -417,6 +458,7 @@ model communityServiceReview {
 
 model household {
   id              String            @id
+  tenantId  String
   organizationId  String?
   street          String
   unit            String
@@ -441,6 +483,7 @@ model household {
 
 model invitation {
   id             String           @id
+  tenantId  String
   email          String           @unique
   name           String
   street         String?
@@ -462,6 +505,7 @@ model invitation {
 
 model member {
   id             String       @id
+  tenantId  String
   organizationId String
   userId         String
   role           String       @default("member")
@@ -475,6 +519,7 @@ model member {
 
 model organization {
   id         String       @id
+  tenantId  String
   name       String
   slug       String       @unique
   logo       String?
@@ -486,6 +531,7 @@ model organization {
 
 model passkey {
   id           String    @id
+  tenantId  String
   name         String?
   publicKey    String
   userId       String
@@ -504,6 +550,7 @@ model passkey {
 
 model platformSuspension {
   id             String         @id
+  tenantId  String
   userId         String
   suspensionType SuspensionType
   reason         String
@@ -523,6 +570,7 @@ model platformSuspension {
 
 model premiumSeat {
   id                   String      @id
+  tenantId  String
   userId               String      @unique
   isActive             Boolean     @default(true)
   portfolioName        String?
@@ -543,6 +591,7 @@ model premiumSeat {
 
 model profile {
   id                            String        @id
+  tenantId  String
   householdId                   String
   displayName                   String
   profileAddress                String        @unique
@@ -576,6 +625,7 @@ model profile {
 
 model propertyListing {
   id                                         String        @id
+  tenantId  String
   householdId                                String
   ownerId                                    String
   listingType                                ListingType
@@ -612,6 +662,7 @@ model propertyListing {
 
 model session {
   id                   String   @id
+  tenantId  String
   expiresAt            DateTime
   token                String   @unique
   createdAt            DateTime @default(now())
@@ -628,6 +679,7 @@ model session {
 
 model soloSeat {
   id                  String       @id
+  tenantId  String
   userId              String       @unique
   platformAddress     String       @unique
   householdId         String?
@@ -646,6 +698,7 @@ model soloSeat {
 
 model standardSeat {
   id              String    @id
+  tenantId  String
   userId          String
   householdId     String
   isPrimaryOwner  Boolean   @default(true)
@@ -664,6 +717,7 @@ model standardSeat {
 
 model twoFactor {
   id          String @id
+  tenantId  String
   secret      String
   backupCodes String
   userId      String
@@ -675,6 +729,7 @@ model twoFactor {
 
 model user {
   id                                                    String                    @id
+  tenantId  String
   email                                                 String                    @unique
   name                                                  String
   role                                                  Role                      @default(RESIDENT)
@@ -727,6 +782,7 @@ model user {
 
 model verification {
   id         String   @id
+  tenantId  String
   identifier String
   value      String
   expiresAt  DateTime

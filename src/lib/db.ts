@@ -36,6 +36,13 @@ import { passkeys } from '../../prisma/drizzle/passkeys';
 import { twoFactors } from '../../prisma/drizzle/two-factors';
 import { members } from '../../prisma/drizzle/members';
 import { organizations } from '../../prisma/drizzle/organizations';
+import { tenants } from '../../prisma/drizzle/tenants';
+import { events } from '../../prisma/drizzle/events';
+import { announcements } from '../../prisma/drizzle/announcements';
+import { agentAccesses } from '../../prisma/drizzle/agent-accesses';
+import { platformSuspensions } from '../../prisma/drizzle/platform-suspensions';
+import { requestNotes } from '../../prisma/drizzle/request-notes';
+import { groupMembershipRequests } from '../../prisma/drizzle/group-membership-requests';
 
 const envUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
 const connectionString = envUrl ? envUrl.replace('sslmode=require', 'sslmode=no-verify') : '';
@@ -85,6 +92,13 @@ export const db = drizzle(pool, {
     twoFactors,
     members,
     organizations,
+    tenants,
+    events,
+    announcements,
+    agentAccesses,
+    platformSuspensions,
+    requestNotes,
+    groupMembershipRequests,
   },
 });
 
@@ -124,4 +138,11 @@ export {
   twoFactors,
   members,
   organizations,
+  tenants,
+  events,
+  announcements,
+  agentAccesses,
+  platformSuspensions,
+  requestNotes,
+  groupMembershipRequests,
 };

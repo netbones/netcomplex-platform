@@ -2,6 +2,7 @@ import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 
 export const requestNotes = pgTable('RequestNote', {
   id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
   requestId: text('requestId').notNull(),
   userId: text('userId').notNull(),
   content: text('content').notNull(),
@@ -11,6 +12,7 @@ export const requestNotes = pgTable('RequestNote', {
 
 export const requestHistories = pgTable('RequestHistory', {
   id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
   requestId: text('requestId').notNull(),
   userId: text('userId').notNull(),
   field: text('field').notNull(),

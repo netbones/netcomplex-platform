@@ -131,49 +131,84 @@ const requests = await db
 
 ---
 
-## Tables Requiring tenantId (Prioritized)
+## Completed: tenantId Added to ALL Tables
 
-### Phase 1 - Critical (User Data)
+As of April 2026, all tables now have tenantId column:
 
-| Table                 | Reason            | User Count |
-| --------------------- | ----------------- | ---------- |
-| `users`               | Core identity     | N/A        |
-| `households`          | Property data     | ~180 homes |
-| `maintenanceRequests` | Request isolation | Varies     |
-| `notifications`       | User-specific     | Per user   |
-| `bookings`            | User bookings     | Per user   |
+### Authentication & Organization Tables
 
-### Phase 2 - High (Community Data)
+| Table           | Has tenantId? | Notes                                                    |
+| --------------- | ------------- | -------------------------------------------------------- |
+| `users`         | ✅ Yes        | Core identity                                            |
+| `organizations` | N/A           | Better-Auth org table (tenant metadata in tenants table) |
+| `accounts`      | ❌ No         | Better-Auth social accounts (user-scoped)                |
+| `sessions`      | ❌ No         | Better-Auth sessions (user-scoped)                       |
+| `verifications` | ❌ No         | Better-Auth email verification                           |
+| `passkeys`      | ❌ No         | Better-Auth passkey auth (user-scoped)                   |
+| `twoFactors`    | ❌ No         | Better-Auth 2FA (user-scoped)                            |
 
-| Table           | Reason           |
-| --------------- | ---------------- |
-| `events`        | Community events |
-| `announcements` | Community posts  |
-| `conversations` | Private messages |
-| `messages`      | Chat history     |
-| `surveys`       | Survey data      |
+### Core Data Tables
 
-### Phase 3 - Medium (Content & Groups)
+| Table                 | Has tenantId? | Notes                                              |
+| --------------------- | ------------- | -------------------------------------------------- |
+| `households`          | ✅ Yes        | Already had `organizationId` - also added tenantId |
+| `users`               | ✅ Yes        | Added tenantId                                     |
+| `maintenanceRequests` | ✅ Yes        | Added tenantId                                     |
+| `bookings`            | ✅ Yes        | Added tenantId                                     |
+| `notifications`       | ✅ Yes        | Added tenantId                                     |
+| `events`              | ✅ Yes        | Added tenantId                                     |
+| `conversations`       | ✅ Yes        | Added tenantId                                     |
+| `messages`            | ✅ Yes        | Added tenantId                                     |
+| `surveys`             | ✅ Yes        | Added tenantId                                     |
+| `questions`           | ✅ Yes        | Added tenantId                                     |
+| `responses`           | ✅ Yes        | Added tenantId                                     |
+| `announcements`       | ✅ Yes        | Added tenantId                                     |
+| `groups`              | ✅ Yes        | Added tenantId                                     |
+| `userGroups`          | ✅ Yes        | Added tenantId                                     |
+| `albums`              | ✅ Yes        | Added tenantId                                     |
+| `contents`            | ✅ Yes        | Added tenantId                                     |
 
-| Table        | Reason            |
-| ------------ | ----------------- |
-| `groups`     | Community groups  |
-| `userGroups` | Group memberships |
-| `albums`     | User content      |
-| `contents`   | CMS content       |
+### Seat/Tenant Tracking Tables
 
-### Phase 4 - Low (Marketplace)
+| Table           | Has tenantId? | Notes          |
+| --------------- | ------------- | -------------- |
+| `standardSeats` | ✅ Yes        | Added tenantId |
+| `premiumSeats`  | ✅ Yes        | Added tenantId |
+| `soloSeats`     | ✅ Yes        | Added tenantId |
+| `members`       | ✅ Yes        | Added tenantId |
 
-| Table                       | Reason            |
-| --------------------------- | ----------------- |
-| `communityServiceListings`  | Service listings  |
-| `communityServiceInquiries` | Service inquiries |
-| `communityServiceReviews`   | Service reviews   |
-| `propertyListings`          | Property listings |
+### Other Tables
+
+| Table                       | Has tenantId? | Notes                |
+| --------------------------- | ------------- | -------------------- |
+| `invitations`               | ✅ Yes        | Already had tenantId |
+| `communityServiceListings`  | ✅ Yes        | Added tenantId       |
+| `communityServiceInquiries` | ✅ Yes        | Added tenantId       |
+| `communityServiceReviews`   | ✅ Yes        | Added tenantId       |
+| `propertyListings`          | ✅ Yes        | Added tenantId       |
+| `agentProfiles`             | ✅ Yes        | Added tenantId       |
+| `agentAccesses`             | ✅ Yes        | Added tenantId       |
+| `profiles`                  | ✅ Yes        | Added tenantId       |
+| `settings`                  | ✅ Yes        | Added tenantId       |
+| `platformSuspensions`       | ✅ Yes        | Added tenantId       |
+| `externalSurveys`           | ✅ Yes        | Added tenantId       |
+| `requestNotes`              | ✅ Yes        | Added tenantId       |
+| `requestHistories`          | ✅ Yes        | Added tenantId       |
+| `conversationParticipants`  | ✅ Yes        | Added tenantId       |
 
 ---
 
-## Existing Columns Analysis
+## Remaining Work
+
+1. ⬜ Create tenants table relations (verify relations exist)
+2. ⬜ Generate database migration for tenantId columns
+3. ⬜ Create `lib/tenant.ts` with query helpers
+4. ⬜ Add tenant resolution middleware
+5. ⬜ Implement dynamic branding with CSS variables
+
+---
+
+## Key Findings
 
 ### households.organizationId
 
