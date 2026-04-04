@@ -7,7 +7,7 @@ import { users } from '../../../../../prisma/drizzle/users';
 import { standardSeats } from '../../../../../prisma/drizzle/standard-seats';
 import { households } from '../../../../../prisma/drizzle/households';
 import { requestHistories } from '../../../../../prisma/drizzle/request-notes';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { revalidateDashboard } from '@/lib/revalidation';
 
 async function getSessionAndRole(request: Request) {
@@ -90,6 +90,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     description: mrRow.description,
     status: mrRow.status,
     images: mrRow.images,
+    assignedTo: mrRow.assignedTo,
+    vendor: mrRow.vendor,
+    scheduledDate: mrRow.scheduledDate,
+    estimatedCost: mrRow.estimatedCost,
+    actualCost: mrRow.actualCost,
+    resolution: mrRow.resolution,
+    completedAt: mrRow.completedAt,
     createdAt: mrRow.createdAt,
     updatedAt: mrRow.updatedAt,
     user: uRow
@@ -139,7 +146,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   // Track changes for history
   if (body.status && body.status !== existing.status) {
     updates.status = body.status;
-    // Record status change in history
+    if (body.status === 'COMPLETED') {
+      updates.completedAt = now;
+    }
     await db.insert(requestHistories).values({
       id: crypto.randomUUID(),
       requestId: id,
@@ -153,7 +162,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   if (body.priority && body.priority !== existing.priority) {
     updates.priority = body.priority;
-    // Record priority change in history
     await db.insert(requestHistories).values({
       id: crypto.randomUUID(),
       requestId: id,
@@ -167,6 +175,62 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   if (body.description && body.description !== existing.description) {
     updates.description = body.description;
+  }
+
+  if (body.assignedTo !== undefined && body.assignedTo !== existing.assignedTo) {
+    updates.assignedTo = body.assignedTo || null;
+    await db.insert(requestHistories).values({
+      id: crypto.randomUUID(),
+      requestId: id,
+      userId: authData.userId,
+      field: 'assignedTo',
+      oldValue: existing.assignedTo || null,
+      newValue: body.assignedTo || 'Unassigned',
+      comment: body.comment || null,
+    });
+  }
+
+  if (body.vendor !== undefined && body.vendor !== existing.vendor) {
+    updates.vendor = body.vendor || null;
+    await db.insert(requestHistories).values({
+      id: crypto.randomUUID(),
+      requestId: id,
+      userId: authData.userId,
+      field: 'vendor',
+      oldValue: existing.vendor || null,
+      newValue: body.vendor || 'None',
+      comment: body.comment || null,
+    });
+  }
+
+  if (body.scheduledDate !== undefined) {
+    const newDate = body.scheduledDate ? new Date(body.scheduledDate) : null;
+    const oldDate = existing.scheduledDate ? existing.scheduledDate.toISOString() : null;
+    const newDateStr = newDate ? newDate.toISOString() : null;
+    if (newDateStr !== oldDate) {
+      updates.scheduledDate = newDate;
+      await db.insert(requestHistories).values({
+        id: crypto.randomUUID(),
+        requestId: id,
+        userId: authData.userId,
+        field: 'scheduledDate',
+        oldValue: oldDate,
+        newValue: newDateStr,
+        comment: body.comment || null,
+      });
+    }
+  }
+
+  if (body.estimatedCost !== undefined) {
+    updates.estimatedCost = body.estimatedCost || null;
+  }
+
+  if (body.actualCost !== undefined) {
+    updates.actualCost = body.actualCost || null;
+  }
+
+  if (body.resolution !== undefined && body.resolution !== existing.resolution) {
+    updates.resolution = body.resolution || null;
   }
 
   const [maintenanceRequest] = await db

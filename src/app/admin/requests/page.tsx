@@ -12,6 +12,13 @@ interface MaintenanceRequest {
   description: string;
   status: string;
   images: string[];
+  assignedTo: string | null;
+  vendor: string | null;
+  scheduledDate: string | null;
+  estimatedCost: string | null;
+  actualCost: string | null;
+  resolution: string | null;
+  completedAt: string | null;
   createdAt: string;
   updatedAt: string;
   user: {
@@ -22,6 +29,13 @@ interface MaintenanceRequest {
       unit: string | null;
     } | null;
   };
+}
+
+interface BoardMember {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
 }
 
 interface HistoryEntry {
@@ -108,6 +122,7 @@ export default function AdminRequestsPage() {
   const [selectedRequest, setSelectedRequest] = useState<MaintenanceRequest | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [boardMembers, setBoardMembers] = useState<BoardMember[]>([]);
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
@@ -154,6 +169,19 @@ export default function AdminRequestsPage() {
     }
   }, [selectedRequest, fetchHistory]);
 
+  useEffect(() => {
+    async function fetchBoardMembers() {
+      try {
+        const res = await fetch('/api/admin/board-members');
+        const data = await res.json();
+        setBoardMembers(data);
+      } catch (error) {
+        console.error('Failed to fetch board members:', error);
+      }
+    }
+    fetchBoardMembers();
+  }, []);
+
   const handleStatusChange = async (requestId: string, newStatus: string) => {
     try {
       await fetch(`/api/maintenance/${requestId}`, {
@@ -185,6 +213,79 @@ export default function AdminRequestsPage() {
       fetchHistory(requestId);
     } catch (error) {
       console.error('Failed to update priority:', error);
+    }
+  };
+
+  const handleAssigneeChange = async (requestId: string, assignedTo: string) => {
+    try {
+      await fetch(`/api/maintenance/${requestId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assignedTo: assignedTo || null }),
+      });
+      setRequests(requests.map(r => (r.id === requestId ? { ...r, assignedTo } : r)));
+      if (selectedRequest?.id === requestId) {
+        setSelectedRequest({ ...selectedRequest, assignedTo });
+      }
+      fetchHistory(requestId);
+    } catch (error) {
+      console.error('Failed to update assignee:', error);
+    }
+  };
+
+  const handleScheduleChange = async (requestId: string, scheduledDate: string) => {
+    try {
+      const date = scheduledDate ? new Date(scheduledDate).toISOString() : null;
+      await fetch(`/api/maintenance/${requestId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scheduledDate: date }),
+      });
+      setRequests(requests.map(r => (r.id === requestId ? { ...r, scheduledDate: date } : r)));
+      if (selectedRequest?.id === requestId) {
+        setSelectedRequest({ ...selectedRequest, scheduledDate: date });
+      }
+      fetchHistory(requestId);
+    } catch (error) {
+      console.error('Failed to update schedule:', error);
+    }
+  };
+
+  const handleVendorChange = async (requestId: string, vendor: string) => {
+    try {
+      await fetch(`/api/maintenance/${requestId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vendor: vendor || null }),
+      });
+      setRequests(requests.map(r => (r.id === requestId ? { ...r, vendor } : r)));
+      if (selectedRequest?.id === requestId) {
+        setSelectedRequest({ ...selectedRequest, vendor });
+      }
+      fetchHistory(requestId);
+    } catch (error) {
+      console.error('Failed to update vendor:', error);
+    }
+  };
+
+  const handleCostChange = async (
+    requestId: string,
+    field: 'estimatedCost' | 'actualCost',
+    value: string
+  ) => {
+    try {
+      const updates = { [field]: value || null };
+      await fetch(`/api/maintenance/${requestId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      setRequests(requests.map(r => (r.id === requestId ? { ...r, [field]: value } : r)));
+      if (selectedRequest?.id === requestId) {
+        setSelectedRequest({ ...selectedRequest, [field]: value });
+      }
+    } catch (error) {
+      console.error(`Failed to update ${field}:`, error);
     }
   };
 
@@ -466,6 +567,100 @@ export default function AdminRequestsPage() {
                     <p className="text-gray-700 whitespace-pre-wrap">
                       {selectedRequest.description}
                     </p>
+                  </div>
+                </div>
+
+                {/* Assignment & Scheduling */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
+                    Assignment & Scheduling
+                  </h3>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Assigned To
+                      </label>
+                      <select
+                        value={selectedRequest.assignedTo || ''}
+                        onChange={e => handleAssigneeChange(selectedRequest.id, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                      >
+                        <option value="">Unassigned</option>
+                        {boardMembers.map(member => (
+                          <option key={member.id} value={member.id}>
+                            {member.name} ({member.role})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
+                      <input
+                        type="text"
+                        value={selectedRequest.vendor || ''}
+                        onChange={e => handleVendorChange(selectedRequest.id, e.target.value)}
+                        placeholder="Enter vendor name"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Scheduled Date
+                      </label>
+                      <input
+                        type="date"
+                        value={
+                          selectedRequest.scheduledDate
+                            ? selectedRequest.scheduledDate.split('T')[0]
+                            : ''
+                        }
+                        onChange={e => handleScheduleChange(selectedRequest.id, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cost Tracking */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
+                    Cost Tracking
+                  </h3>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Estimated Cost ($)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={selectedRequest.estimatedCost || ''}
+                          onChange={e =>
+                            handleCostChange(selectedRequest.id, 'estimatedCost', e.target.value)
+                          }
+                          placeholder="0.00"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Actual Cost ($)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={selectedRequest.actualCost || ''}
+                          onChange={e =>
+                            handleCostChange(selectedRequest.id, 'actualCost', e.target.value)
+                          }
+                          placeholder="0.00"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 

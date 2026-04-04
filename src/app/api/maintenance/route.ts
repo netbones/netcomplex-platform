@@ -157,6 +157,13 @@ export async function GET(request: Request) {
       description: mr.description,
       status: mr.status,
       images: mr.images,
+      assignedTo: mr.assignedTo,
+      vendor: mr.vendor,
+      scheduledDate: mr.scheduledDate,
+      estimatedCost: mr.estimatedCost,
+      actualCost: mr.actualCost,
+      resolution: mr.resolution,
+      completedAt: mr.completedAt,
       createdAt: mr.createdAt,
       updatedAt: mr.updatedAt,
       user: u
