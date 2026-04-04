@@ -3,10 +3,10 @@ import 'dotenv/config';
 
 export default defineConfig({
   dialect: 'postgresql',
-  schema: './src/drizzle/schema.ts',
-  out: './src/drizzle',
+  schema: './prisma/drizzle/schema.ts',
+  out: './drizzle',
   dbCredentials: {
-    url: 'postgresql://postgres:TXd*1FyKWM*!EF^NY9Es@db.dbbiluuzbapldtzjlliz.supabase.co:5432/postgres?sslmode=require&search_path=public',
+    url: process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/postgres',
   },
   verbose: true,
   strict: true,
