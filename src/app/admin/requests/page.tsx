@@ -587,6 +587,30 @@ export default function AdminRequestsPage() {
                           </option>
                         ))}
                       </select>
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await fetch(
+                              `/api/maintenance/${selectedRequest.id}/notify`,
+                              {
+                                method: 'POST',
+                              }
+                            );
+                            const data = await res.json();
+                            if (data.success) {
+                              alert(`Notification sent to ${data.recipient}`);
+                            } else {
+                              alert('Failed to send notification');
+                            }
+                          } catch (error) {
+                            console.error('Failed to send notification:', error);
+                            alert('Error sending notification');
+                          }
+                        }}
+                        className="mt-2 text-sm text-indigo-600 hover:text-indigo-800"
+                      >
+                        📧 Notify Resident
+                      </button>
                     </div>
                   </div>
                 </div>
