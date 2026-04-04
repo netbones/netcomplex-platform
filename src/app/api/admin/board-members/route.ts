@@ -6,6 +6,8 @@ import { eq, inArray } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
+const ASSIGNABLE_ROLES = ['BOARD', 'ADMIN', 'COMMITTEE', 'MANAGER', 'ASSOCIATE'] as const;
+
 export async function GET(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,
@@ -29,7 +31,7 @@ export async function GET(request: Request) {
       role: users.role,
     })
     .from(users)
-    .where(inArray(users.role, ['BOARD', 'ADMIN', 'COMMITTEE']));
+    .where(inArray(users.role, [...ASSIGNABLE_ROLES]));
 
   return NextResponse.json(boardMembers);
 }
