@@ -1,5 +1,7 @@
 import { eq } from 'drizzle-orm';
 import type { TierLevel } from './features/registry';
+import { cache } from 'react';
+import { headers } from 'next/headers';
 import {
   db,
   tenants,
@@ -58,6 +60,19 @@ export interface Tenant {
   createdAt: Date;
   updatedAt: Date | null;
 }
+
+export const getCurrentTenant = cache(async (): Promise<Tenant | undefined> => {
+  const headersList = headers();
+
+  const tenantId = headersList.get('x-tenant-id');
+  if (tenantId) return getTenantById(tenantId);
+
+  const slug = headersList.get('x-tenant-slug');
+  if (slug) return getTenantBySlug(slug);
+
+  // Fallback for development or platform domain
+  return getTenantBySlug('soralia'); // or from env
+});
 
 // Type helper to convert Drizzle result to Tenant
 function toTenant(row: Record<string, unknown>): Tenant {

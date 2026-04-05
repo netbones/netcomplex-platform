@@ -512,3 +512,17 @@ export function canUseWidget(widgetKey: string, tenantTier: TierLevel): boolean 
   const tierOrder: TierLevel[] = ['sprout', 'grove', 'forest'];
   return tierOrder.indexOf(tenantTier) >= tierOrder.indexOf(widget.tier);
 }
+
+// Add helpers
+export function getEnabledFeaturesForTenant(
+  tenant: Tenant,
+  featureFlags?: Record<string, boolean>
+): FeatureDefinition[] {
+  return Object.values(FEATURE_REGISTRY).filter(f =>
+    hasFeature(f.key, tenant.subscriptionTier, tenant.featureFlags ?? featureFlags)
+  );
+}
+
+export function isFeatureEnabled(tenant: Tenant, key: string): boolean {
+  return hasFeature(key, tenant.subscriptionTier, tenant.featureFlags);
+}

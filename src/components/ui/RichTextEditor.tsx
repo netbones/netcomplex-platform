@@ -12,7 +12,7 @@ import { Color } from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
 import Underline from '@tiptap/extension-underline';
-import { FontSize } from '@tiptap/extension-font-size';
+import { FontSize } from './FontSize';
 import { FontFamily } from './FontFamily';
 import { common, createLowlight } from 'lowlight';
 import { useEffect, useCallback, useState, useRef } from 'react';
@@ -75,7 +75,7 @@ export function RichTextEditor({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [showMediaLib, setShowMediaLib] = useState(false);
-  const [mediaImages, setMediaImages] = useState<any[]>([]);
+  const [mediaImages, setMediaImages] = useState<string[]>([]);
   const [loadingMedia, setLoadingMedia] = useState(false);
   const [showFontSize, setShowFontSize] = useState(false);
   const [showColor, setShowColor] = useState(false);
