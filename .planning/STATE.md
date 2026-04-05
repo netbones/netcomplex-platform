@@ -2,7 +2,7 @@
 
 ## Current Position
 
-- **Phase:** 01-enforcement
+- **Phase:** 02-admin-ui
 - **Plan:** 01 (Complete)
 - **Status:** In Progress
 - **Last Updated:** 2026-04-05
@@ -20,9 +20,12 @@ None - decisions resolved in plan 00-01.
 - **Hybrid feature gating:** TierGuard (tier baseline) + FeatureGate (per-tenant overrides)
 - **Super-admin route:** /admin/platform/ is canonical
 - **withTenant enforcement:** Applied to 11 tenant-scoped API routes
+- **Tenant branding UI:** Uses API routes for updates with live client-side preview
+- **Feature toggle UI:** Shows tier-allowed (green), tenant-overridden (yellow), locked (gray) states
 
 ## Notes
 
 - Phase 01 enforcement: tenant isolation enforced in API routes
 - Dynamic tenant theming wired via layout.tsx
 - FeatureGate ready for navigation integration
+- Phase 02-01 complete: Admin UI for tenant management implemented
