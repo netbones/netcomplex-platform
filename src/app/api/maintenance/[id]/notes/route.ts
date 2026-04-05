@@ -1,9 +1,7 @@
-import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { requestNotes } from '../../../../../prisma/drizzle/request-notes';
-import { users } from '../../../../../prisma/drizzle/users';
+import { db, requestNotes, users } from '@/lib/db';
 import { eq, desc, and } from 'drizzle-orm';
 import { revalidateDashboard } from '@/lib/revalidation';
 

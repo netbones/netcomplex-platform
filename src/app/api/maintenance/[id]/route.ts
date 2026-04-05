@@ -2,11 +2,14 @@ import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { maintenanceRequests } from '../../../../../prisma/drizzle/maintenance-requests';
-import { users } from '../../../../../prisma/drizzle/users';
-import { standardSeats } from '../../../../../prisma/drizzle/standard-seats';
-import { households } from '../../../../../prisma/drizzle/households';
-import { requestHistories } from '../../../../../prisma/drizzle/request-notes';
+import {
+  db,
+  maintenanceRequests,
+  users,
+  standardSeats,
+  households,
+  requestHistories,
+} from '@/lib/db';
 import { eq } from 'drizzle-orm';
 import { revalidateDashboard } from '@/lib/revalidation';
 

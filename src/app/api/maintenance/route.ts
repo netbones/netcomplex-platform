@@ -1,15 +1,10 @@
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { db } from '@/lib/db';
+import { db, maintenanceRequests, users, standardSeats, households } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { maintenanceRequestSchema } from '@/lib/schemas';
 import { revalidateDashboard } from '@/lib/revalidation';
 import { apiLogger } from '@/lib/logger';
-// Import directly from drizzle schema files
-import { maintenanceRequests } from '../../../../prisma/drizzle/maintenance-requests';
-import { users } from '../../../../prisma/drizzle/users';
-import { standardSeats } from '../../../../prisma/drizzle/standard-seats';
-import { households } from '../../../../prisma/drizzle/households';
 import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
 

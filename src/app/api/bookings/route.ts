@@ -1,13 +1,10 @@
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { bookingSchema } from '@/lib/schemas';
 import { revalidateDashboard } from '@/lib/revalidation';
 import { apiLogger } from '@/lib/logger';
-// Import directly from drizzle schema files
-import { bookings } from '../../../../prisma/drizzle/bookings';
-import { users } from '../../../../prisma/drizzle/users';
+import { db, bookings, users } from '@/lib/db';
 import { eq, asc, gte, and, sql } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
 

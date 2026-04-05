@@ -1,5 +1,30 @@
+import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
+
+// Request notes table (for maintenance request notes)
+const requestNotes = pgTable('RequestNote', {
+  id: text('id').primaryKey(),
+  requestId: text('requestId').notNull(),
+  userId: text('userId').notNull(),
+  content: text('content').notNull(),
+  isInternal: boolean('isInternal').default(false).notNull(),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+});
+
+// Request histories table (for maintenance request history/audit trail)
+const requestHistories = pgTable('RequestHistory', {
+  id: text('id').primaryKey(),
+  requestId: text('requestId').notNull(),
+  userId: text('userId').notNull(),
+  field: text('field').notNull(),
+  oldValue: text('oldValue'),
+  newValue: text('newValue').notNull(),
+  comment: text('comment'),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+});
+
+export { requestNotes, requestHistories };
 
 import { messages } from '../../prisma/drizzle/messages';
 import { conversations } from '../../prisma/drizzle/conversations';
@@ -97,6 +122,8 @@ export const db = drizzle(pool, {
     agentAccesses,
     platformSuspensions,
     groupMembershipRequests,
+    requestNotes,
+    requestHistories,
   },
 });
 
