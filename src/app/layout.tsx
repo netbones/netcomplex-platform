@@ -5,7 +5,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { Toaster } from 'sonner';
-import { TenantProvider } from '@/components/ui/TenantProvider';
+import { TenantProvider } from '@/components/tenant/TenantProvider';
 
 export const metadata: Metadata = {
   title: 'Soralia Village Community Directory',
