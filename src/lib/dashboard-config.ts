@@ -1,3 +1,6 @@
+import { Tenant } from './tenant';
+import { isFeatureEnabled, TierLevel } from './features/registry';
+
 export interface DashboardWidget {
   id: string;
   type: string;
@@ -5,6 +8,41 @@ export interface DashboardWidget {
   icon: string;
   label: string;
 }
+
+/**
+ * Maps widget IDs to feature keys for FeatureGate integration.
+ * Widgets will only render if the tenant has access to the mapped feature.
+ * Utility widgets (no feature mapping) are available to all tenants.
+ */
+export const WIDGET_FEATURE_MAP: Record<string, string> = {
+  'directory-widget': 'page.directory',
+  'events-widget': 'page.events',
+  'bookings-widget': 'page.bookings',
+  'groups-widget': 'page.groups',
+  'services-widget': 'page.marketplace',
+  'property-widget': 'page.property',
+  'maintenance-widget': 'page.maintenance',
+  'surveys-widget': 'page.surveys',
+  'chat-widget': 'page.chat',
+  'analytics-widget': 'page.analytics',
+  'news-widget': 'page.news',
+  'conservation-widget': 'page.conservation',
+  'bookshelf-widget': 'page.bookshelf',
+  'agent-widget': 'page.property',
+  // Utility widgets available to all tenants
+  stats: 'page.dashboard',
+  'quick-actions': 'page.dashboard',
+  'recent-activity': 'page.dashboard',
+  notifications: 'page.dashboard',
+  'my-content': 'page.dashboard',
+  bookshelf: 'page.bookshelf',
+  media: 'page.media',
+  'my-album': 'page.media',
+  'sidebar-widgets': 'page.dashboard',
+  'premium-portfolio': 'page.property',
+  'my-services': 'page.marketplace',
+  'service-inquiries': 'page.marketplace',
+};
 
 export const ALL_WIDGETS: DashboardWidget[] = [
   { id: 'stats', type: 'stats', title: 'Statistics', icon: 'fa-chart-bar', label: 'Statistics' },
@@ -109,6 +147,16 @@ export function getWidgetIcon(widgetId: string): string {
   return widget?.icon || 'fa-widget';
 }
 
-export function getAvailableWidgets(activeWidgetIds: string[]): DashboardWidget[] {
-  return ALL_WIDGETS.filter(w => !activeWidgetIds.includes(w.id));
+export function getAvailableWidgets(activeWidgetIds: string[], tenant?: Tenant): DashboardWidget[] {
+  return ALL_WIDGETS.filter(w => {
+    // If no tenant context, show all widgets (e.g., public pages)
+    if (!tenant) return !activeWidgetIds.includes(w.id);
+
+    // Utility widgets available to all tenants (no feature restriction)
+    const featureKey = WIDGET_FEATURE_MAP[w.id];
+    if (!featureKey) return !activeWidgetIds.includes(w.id);
+
+    // Check if tenant has access to the feature
+    return isFeatureEnabled(tenant, featureKey) && !activeWidgetIds.includes(w.id);
+  });
 }
