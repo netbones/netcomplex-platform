@@ -34,13 +34,21 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase: 02-admin-ui
+
+**Goal:** Build tenant admin UI for branding, feature toggles, and back-populate tenant records
+
+**Status:** Planned
+
+**Requirements:** MULTI-05, MULTI-06
+
+**Plans:**
+
+- [ ] 02-01-PLAN.md — Phase 2 Admin UI (3 tasks)
+
+---
+
 ## Future Phases (To Be Planned)
-
-### Phase 2: Admin UI
-
-- Build tenant management UI
-- Feature toggle interface
-- Branding upload
 
 ### Phase 3: Second Tenant
 
