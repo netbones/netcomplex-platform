@@ -9,6 +9,7 @@ import { apiLogger } from '@/lib/logger';
 import { bookings } from '../../../../prisma/drizzle/bookings';
 import { users } from '../../../../prisma/drizzle/users';
 import { eq, asc, gte, and, sql } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 // Limit execution time to 8 seconds for booking operations
 export const maxDuration = 8;
@@ -141,6 +142,9 @@ export async function POST(request: Request) {
 
     const { facility, date, startTime, endTime, purpose } = validationResult.data;
     const userId = body.userId || authData.userId;
+
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
 
     // Use Drizzle insert
     const now = new Date();

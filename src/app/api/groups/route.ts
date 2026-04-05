@@ -3,6 +3,7 @@ import { hasPermission, Permission } from '@/lib/permissions';
 import { db, groups, users, userGroups } from '@/lib/db';
 import { eq, asc, sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -114,10 +115,14 @@ export async function POST(request: Request) {
   const body = await request.json();
   const now = new Date();
 
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
   const [group] = await db
     .insert(groups)
     .values({
       id: crypto.randomUUID(),
+      tenantId,
       name: body.name,
       description: body.description,
       category: body.category,

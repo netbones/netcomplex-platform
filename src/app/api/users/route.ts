@@ -3,6 +3,7 @@ import { hasPermission, Permission } from '@/lib/permissions';
 import { db, users, profiles, standardSeats, soloSeats, households } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { eq, and, or, asc, desc, like, ilike, sql, count } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -267,10 +268,14 @@ export async function POST(request: Request) {
   const body = await request.json();
   const now = new Date();
 
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
   const newUser = await db
     .insert(users)
     .values({
       id: crypto.randomUUID(),
+      tenantId,
       email: body.email,
       name: body.name,
       phone: body.phone || null,

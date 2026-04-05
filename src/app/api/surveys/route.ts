@@ -3,6 +3,7 @@ import { hasPermission } from '@/lib/permissions';
 import { db, surveys, users } from '@/lib/db';
 import { eq, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -61,10 +62,14 @@ export async function POST(request: Request) {
   const body = await request.json();
   const now = new Date();
 
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
   const [survey] = await db
     .insert(surveys)
     .values({
       id: crypto.randomUUID(),
+      tenantId,
       title: body.title,
       description: body.description ?? null,
       type: body.type ?? 'INTERNAL',

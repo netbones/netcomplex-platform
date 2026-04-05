@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 // Drizzle imports - use db.ts exports
 import { db, conversations, conversationParticipants, messages, users } from '@/lib/db';
 import { eq, desc } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export async function GET(request: Request) {
   const session = await auth.api.getSession({
@@ -94,6 +95,9 @@ export async function POST(request: Request) {
   const body = await request.json();
   const { name, type, participantIds } = body;
 
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
   // Create conversation with Drizzle
   const conversationId = crypto.randomUUID();
   const now = new Date();
@@ -101,6 +105,7 @@ export async function POST(request: Request) {
   // Insert conversation
   await db.insert(conversations).values({
     id: conversationId,
+    tenantId,
     name: name || null,
     type: type || 'DIRECT',
     createdAt: now,
@@ -112,6 +117,7 @@ export async function POST(request: Request) {
   await db.insert(conversationParticipants).values(
     allParticipantIds.map((userId: string) => ({
       id: crypto.randomUUID(),
+      tenantId,
       conversationId,
       userId,
       joinedAt: now,

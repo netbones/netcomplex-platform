@@ -11,6 +11,7 @@ import { users } from '../../../../prisma/drizzle/users';
 import { standardSeats } from '../../../../prisma/drizzle/standard-seats';
 import { households } from '../../../../prisma/drizzle/households';
 import { eq, desc, and, sql } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;
@@ -223,6 +224,9 @@ export async function POST(request: Request) {
 
     const { category, priority, description } = validationResult.data;
     const userId = body.userId || authData.userId;
+
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
 
     // Use Drizzle insert - use raw SQL to generate ID
     const now = new Date();

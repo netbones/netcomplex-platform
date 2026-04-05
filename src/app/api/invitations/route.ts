@@ -1,6 +1,7 @@
 import { db, invitations } from '@/lib/db';
 import { eq, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export async function GET() {
   const invitationList = await db.select().from(invitations).orderBy(desc(invitations.createdAt));
@@ -10,6 +11,9 @@ export async function GET() {
 export async function POST(request: Request) {
   const body = await request.json();
 
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
   // For now, use a placeholder - in production this would come from the authenticated user
   const inviterId = body.inviterId || 'placeholder-user-id';
   const organizationId = body.organizationId || 'placeholder-org-id';
@@ -18,6 +22,7 @@ export async function POST(request: Request) {
     .insert(invitations)
     .values({
       id: crypto.randomUUID(),
+      tenantId,
       email: body.email,
       name: body.name,
       role: body.role ?? 'RESIDENT',

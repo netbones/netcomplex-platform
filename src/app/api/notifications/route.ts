@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth';
 import { db, notifications } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { eq, desc } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 async function getSessionAndUserId(request: Request) {
   const session = await auth.api.getSession({

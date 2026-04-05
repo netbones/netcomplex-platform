@@ -5,6 +5,7 @@ import { eq, and, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { ContentCategoryEnum, type ContentCategory } from '@/types/enums';
 import { revalidateContent } from '@/lib/revalidation';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -131,10 +132,15 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   const now = new Date();
+
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
   const [content] = await db
     .insert(contents)
     .values({
       id: crypto.randomUUID(),
+      tenantId,
       title: body.title,
       content: body.content,
       excerpt: body.excerpt,

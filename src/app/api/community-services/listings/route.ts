@@ -7,6 +7,7 @@ import { apiLogger } from '@/lib/logger';
 import { db, communityServiceListings, users } from '@/lib/db';
 import { eq, desc, and, or, sql } from 'drizzle-orm';
 import { communityServiceReviews } from '@/lib/db';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 // Types for enums
 type ListingStatus = 'DRAFT' | 'ACTIVE' | 'WITHDRAWN' | 'SUSPENDED';
@@ -229,8 +230,12 @@ export async function POST(request: NextRequest) {
     const listingId = crypto.randomUUID();
     const now = new Date();
 
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     await db.insert(communityServiceListings).values({
       id: listingId,
+      tenantId,
       providerId: session.user.id,
       title,
       description,

@@ -9,6 +9,7 @@ import { apiLogger } from '@/lib/logger';
 // Drizzle imports - use db.ts exports
 import { db, messages, users, premiumSeats } from '@/lib/db';
 import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /** Supabase client for real-time message broadcasting */
 const supabase = createClient(
@@ -124,6 +125,9 @@ export async function POST(request: Request) {
 
     const { conversationId, content, type, mediaUrl } = validationResult.data;
 
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     // TODO: Add conversation access control - verify user has access to this conversation
 
     // Check for PremiumSeat to determine retention period (using Prisma for now)
@@ -141,6 +145,7 @@ export async function POST(request: Request) {
       .insert(messages)
       .values({
         id: crypto.randomUUID(),
+        tenantId,
         conversationId,
         senderId: authData.userId,
         content,
