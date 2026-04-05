@@ -3,6 +3,7 @@ import { hasPermission } from '@/lib/permissions';
 import { db, externalSurveys, users } from '@/lib/db';
 import { eq, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -48,6 +49,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
   const body = await request.json();
   const now = new Date();
 
@@ -55,6 +59,7 @@ export async function POST(request: Request) {
     .insert(externalSurveys)
     .values({
       id: crypto.randomUUID(),
+      tenantId,
       name: body.name,
       provider: body.provider, // 'bitlabs', 'cpx-research', etc.
       externalId: body.externalId,

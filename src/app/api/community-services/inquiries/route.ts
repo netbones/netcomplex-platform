@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 
-
 // Drizzle imports
 import { db, communityServiceInquiries, communityServiceListings, users } from '@/lib/db';
 import { eq, desc, and, sql } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * GET /api/community-services/inquiries - Get user's inquiries (as inquirer)
@@ -167,12 +167,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Cannot inquire about your own service' }, { status: 400 });
     }
 
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     // Create inquiry with Drizzle
     const inquiryId = crypto.randomUUID();
     const now = new Date();
 
     await db.insert(communityServiceInquiries).values({
       id: inquiryId,
+      tenantId,
       listingId,
       inquirerId: session.user.id,
       serviceType,

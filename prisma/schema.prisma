@@ -185,6 +185,13 @@ model MaintenanceRequest {
   description String
   status      RequestStatus @default(SUBMITTED)
   images      String[]
+  assignedTo  String?
+  vendor      String?
+  scheduledDate DateTime?
+  estimatedCost Decimal?    @db.Decimal(10, 2)
+  actualCost   Decimal?    @db.Decimal(10, 2)
+  resolution  String?
+  completedAt  DateTime?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime
   user        user          @relation(fields: [userId], references: [id], onDelete: Cascade)

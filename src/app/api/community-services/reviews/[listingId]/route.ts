@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 
-
 // Drizzle imports
 import { db, communityServiceListings, communityServiceReviews, users } from '@/lib/db';
 import { eq, desc, and, sql } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * GET /api/community-services/reviews/[listingId] - Get reviews for a listing
@@ -166,8 +166,12 @@ export async function POST(
     const reviewId = crypto.randomUUID();
     const now = new Date();
 
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     await db.insert(communityServiceReviews).values({
       id: reviewId,
+      tenantId,
       listingId,
       reviewerId: session.user.id,
       rating,

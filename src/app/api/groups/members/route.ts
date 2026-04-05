@@ -1,6 +1,7 @@
 import { db, userGroups } from '@/lib/db';
 import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -17,10 +18,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Already a member' }, { status: 400 });
   }
 
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
   const [membership] = await db
     .insert(userGroups)
     .values({
       id: crypto.randomUUID(),
+      tenantId,
       userId,
       groupId,
       role,
