@@ -14,7 +14,6 @@ import {
   invitations,
   organizations,
 } from './db';
-import { getTenantBySlug } from './tenant';
 
 /**
  * Better Auth configuration for Soralia Village.
@@ -43,36 +42,16 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async user => {
-          // Get tenant from environment or default to soralia for development
-          const tenantSlug = process.env.LOCAL_TENANT_SLUG || 'soralia';
-          console.log('[Auth Hook] LOCAL_TENANT_SLUG env:', process.env.LOCAL_TENANT_SLUG);
-          console.log('[Auth Hook] Looking for tenant with slug:', tenantSlug);
+          // Soralia Village tenant ID - hardcoded for reliability
+          // The soralia tenant was created in Phase 00 seed data
+          const TENANT_ID = 'soralia';
 
-          const tenant = await getTenantBySlug(tenantSlug);
-          console.log('[Auth Hook] Found tenant:', tenant?.id, tenant?.name);
-
-          if (!tenant) {
-            console.error(`Tenant not found: ${tenantSlug}. Falling back to 'soralia'.`);
-            // Try fallback
-            const fallback = await getTenantBySlug('soralia');
-            if (!fallback) {
-              throw new Error(`Tenant not found: ${tenantSlug}`);
-            }
-            console.log('[Auth Hook] Using fallback tenant:', fallback.id);
-            return {
-              data: {
-                ...user,
-                tenantId: fallback.id,
-              },
-            };
-          }
-
-          console.log('[Auth Hook] Injecting tenantId:', tenant.id);
+          console.log('[Auth Hook] Injecting tenantId:', TENANT_ID);
 
           return {
             data: {
               ...user,
-              tenantId: tenant.id,
+              tenantId: TENANT_ID,
             },
           };
         },
