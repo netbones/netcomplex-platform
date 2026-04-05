@@ -1,3 +1,17 @@
+/**
+ * Tenant Resolution Library
+ *
+ * Soralia Village is the flagship tenant (#1):
+ * - slug: "soralia" (or "soralia-village" for new setups)
+ * - subscriptionTier: "forest" (flagship tenant gets all features)
+ * - primaryColor: "#4F46E5"
+ * - accentColor: "#F59E0B"
+ *
+ * All feature flags should be enabled for Soralia Village.
+ * The LOCAL_TENANT_SLUG env var allows local development to work
+ * with the multi-tenant system.
+ */
+
 import { eq } from 'drizzle-orm';
 import type { TierLevel } from './features/registry';
 import { cache } from 'react';
@@ -62,7 +76,7 @@ export interface Tenant {
 }
 
 export const getCurrentTenant = cache(async (): Promise<Tenant | undefined> => {
-  const headersList = headers();
+  const headersList = await headers();
 
   const tenantId = headersList.get('x-tenant-id');
   if (tenantId) return getTenantById(tenantId);
@@ -70,8 +84,10 @@ export const getCurrentTenant = cache(async (): Promise<Tenant | undefined> => {
   const slug = headersList.get('x-tenant-slug');
   if (slug) return getTenantBySlug(slug);
 
-  // Fallback for development or platform domain
-  return getTenantBySlug('soralia'); // or from env
+  // Fallback for development: use LOCAL_TENANT_SLUG env or default to 'soralia'
+  // This allows Soralia development to work with the multi-tenant system
+  const localTenantSlug = process.env.LOCAL_TENANT_SLUG || 'soralia';
+  return getTenantBySlug(localTenantSlug);
 });
 
 // Type helper to convert Drizzle result to Tenant
