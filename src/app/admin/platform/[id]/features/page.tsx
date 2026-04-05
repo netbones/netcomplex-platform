@@ -1,7 +1,9 @@
 import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { getTenantById, updateTenant } from '@/lib/tenant';
 import { TIERS, FEATURE_REGISTRY, WIDGET_REGISTRY, type TierLevel } from '@/lib/features/registry';
-import Link from 'next/link';
+import FeaturesForm from './components';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -11,7 +13,7 @@ async function FeatureManager({ id }: { id: string }) {
   const tenant = await getTenantById(id);
 
   if (!tenant) {
-    return <div className="p-8 text-center">Tenant not found</div>;
+    return notFound();
   }
 
   const tenantTier = (tenant.subscriptionTier || 'sprout') as TierLevel;
@@ -23,16 +25,23 @@ async function FeatureManager({ id }: { id: string }) {
   const tierOrder: TierLevel[] = ['sprout', 'grove', 'forest'];
   const currentTierIndex = tierOrder.indexOf(tenantTier);
 
-  // Group features by category
-  const pages = Object.values(FEATURE_REGISTRY).filter(f => f.category === 'page');
-  const features = Object.values(FEATURE_REGISTRY).filter(f => f.category === 'feature');
-  const widgets = Object.values(WIDGET_REGISTRY);
-
-  function getAccessLevel(featureTier: TierLevel): 'allowed' | 'upgrade' | 'locked' {
-    const featureTierIndex = tierOrder.indexOf(featureTier);
-    if (featureTierIndex <= currentTierIndex) return 'allowed';
-    return 'locked';
-  }
+  // Get all features for the form
+  const allFeatures = [
+    ...Object.values(FEATURE_REGISTRY).map(f => ({
+      key: f.key,
+      tier: f.tier,
+      category: f.category,
+      label: f.label,
+      description: f.description,
+    })),
+    ...Object.values(WIDGET_REGISTRY).map(w => ({
+      key: w.key,
+      tier: w.tier,
+      category: 'widget',
+      label: w.label,
+      description: w.description,
+    })),
+  ];
 
   async function updateTier(formData: FormData) {
     'use server';
@@ -50,11 +59,21 @@ async function FeatureManager({ id }: { id: string }) {
           </Link>
           <span>/</span>
           <span>{tenant.name}</span>
+          <span>/</span>
+          <span className="text-gray-900">Features</span>
         </div>
         <h1 className="text-2xl font-semibold text-gray-900">Feature Management</h1>
         <p className="text-gray-500 mt-1">
           Configure subscription tier and feature access for {tenant.name}
         </p>
+        <div className="mt-2 flex gap-2">
+          <Link
+            href={`/admin/platform/${id}/edit`}
+            className="text-sm text-indigo-600 hover:text-indigo-900"
+          >
+            Edit Branding
+          </Link>
+        </div>
       </div>
 
       {/* Current Tier Card */}
@@ -139,104 +158,16 @@ async function FeatureManager({ id }: { id: string }) {
         </div>
       </div>
 
-      {/* Pages */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 className="text-lg font-medium mb-4">Pages</h2>
-        <div className="space-y-2">
-          {pages.map(page => {
-            const access = getAccessLevel(page.tier);
-            return (
-              <div
-                key={page.key}
-                className={`flex items-center justify-between p-3 rounded-lg ${
-                  access === 'allowed' ? 'bg-green-50' : 'bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      access === 'allowed' ? 'bg-green-500' : 'bg-gray-300'
-                    }`}
-                  />
-                  <div>
-                    <p className="font-medium text-sm">{page.label}</p>
-                    <p className="text-xs text-gray-500">{page.description}</p>
-                  </div>
-                </div>
-                <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">
-                  {access === 'allowed' ? '✓ Available' : `${page.tier} required`}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Features */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 className="text-lg font-medium mb-4">Features</h2>
-        <div className="space-y-2">
-          {features.map(feature => {
-            const access = getAccessLevel(feature.tier);
-            return (
-              <div
-                key={feature.key}
-                className={`flex items-center justify-between p-3 rounded-lg ${
-                  access === 'allowed' ? 'bg-green-50' : 'bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      access === 'allowed' ? 'bg-green-500' : 'bg-gray-300'
-                    }`}
-                  />
-                  <div>
-                    <p className="font-medium text-sm">{feature.label}</p>
-                    <p className="text-xs text-gray-500">{feature.description}</p>
-                  </div>
-                </div>
-                <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">
-                  {access === 'allowed' ? '✓ Enabled' : `${feature.tier} required`}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Widgets */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-medium mb-4">Widgets</h2>
-        <div className="space-y-2">
-          {widgets.map(widget => {
-            const access = getAccessLevel(widget.tier);
-            return (
-              <div
-                key={widget.key}
-                className={`flex items-center justify-between p-3 rounded-lg ${
-                  access === 'allowed' ? 'bg-green-50' : 'bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      access === 'allowed' ? 'bg-green-500' : 'bg-gray-300'
-                    }`}
-                  />
-                  <div>
-                    <p className="font-medium text-sm">{widget.label}</p>
-                    <p className="text-xs text-gray-500">{widget.description}</p>
-                  </div>
-                </div>
-                <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600">
-                  {access === 'allowed' ? '✓ Available' : `${widget.tier} required`}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      {/* Feature Toggles */}
+      <FeaturesForm
+        tenant={{
+          id: tenant.id,
+          name: tenant.name,
+          subscriptionTier: tenant.subscriptionTier,
+          featureFlags: tenant.featureFlags,
+        }}
+        allFeatures={allFeatures}
+      />
     </div>
   );
 }

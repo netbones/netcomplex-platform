@@ -88,7 +88,13 @@ async function TenantsList() {
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <Link
-                  href={`/admin/platform/${tenant.id}`}
+                  href={`/admin/platform/${tenant.id}/features`}
+                  className="text-indigo-600 hover:text-indigo-900 mr-4"
+                >
+                  Features
+                </Link>
+                <Link
+                  href={`/admin/platform/${tenant.id}/edit`}
                   className="text-indigo-600 hover:text-indigo-900 mr-4"
                 >
                   Edit
