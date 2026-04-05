@@ -2,6 +2,17 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getTenantByDomain, getTenantBySlug } from '@/lib/tenant';
 
+/**
+ * Super-admin route decision (Task 6 of 00-01 plan):
+ * CANONICAL ROUTE: /admin/platform/
+ *
+ * Decision: Keep existing /admin/platform/ as the canonical route for
+ * tenant management. This is consistent with the admin section and was
+ * already scaffolded in the codebase.
+ *
+ * Alternative considered: /platform/ (rejected - requires new route setup)
+ */
+
 const PLATFORM_DOMAIN = 'app.netbones.co.za';
 const DEFAULT_TENANT_SLUG = 'soralia';
 
