@@ -1,7 +1,3 @@
-import { db } from '@/lib/db';
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { hasPermission } from '@/lib/permissions';
 import {
   db,
   maintenanceRequests,
@@ -10,6 +6,9 @@ import {
   households,
   requestHistories,
 } from '@/lib/db';
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { hasPermission } from '@/lib/permissions';
 import { eq } from 'drizzle-orm';
 import { revalidateDashboard } from '@/lib/revalidation';
 
@@ -217,8 +216,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         requestId: id,
         userId: authData.userId,
         field: 'scheduledDate',
-        oldValue: oldDate,
-        newValue: newDateStr,
+        oldValue: oldDate ?? undefined,
+        newValue: newDateStr ?? undefined,
         comment: body.comment || null,
       });
     }

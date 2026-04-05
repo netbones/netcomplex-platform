@@ -125,7 +125,7 @@ export async function GET(request: Request) {
       .orderBy(desc(maintenanceRequests.createdAt));
   } else {
     // Resident view: simple join
-    requests = await db
+    requests = (await db
       .select({
         MaintenanceRequest: maintenanceRequests,
         user: users,
@@ -133,7 +133,7 @@ export async function GET(request: Request) {
       .from(maintenanceRequests)
       .leftJoin(users, eq(maintenanceRequests.userId, users.id))
       .where(whereClause)
-      .orderBy(desc(maintenanceRequests.createdAt));
+      .orderBy(desc(maintenanceRequests.createdAt))) as any;
   }
 
   // Transform results

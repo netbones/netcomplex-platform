@@ -19,7 +19,7 @@ const requestHistories = pgTable('RequestHistory', {
   userId: text('userId').notNull(),
   field: text('field').notNull(),
   oldValue: text('oldValue'),
-  newValue: text('newValue').notNull(),
+  newValue: text('newValue'),
   comment: text('comment'),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
 });
