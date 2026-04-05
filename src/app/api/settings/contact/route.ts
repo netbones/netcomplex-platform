@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
 import { db, settings } from '@/lib/db';
 import { eq, like } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { withTenant, withTenantOptional } from '@/lib/tenant/with-tenant';
 
 export async function GET() {
-  const { tenantId } = await withTenant();
+  // Allow reading settings without tenant (for public access)
+  const { tenantId } = await withTenantOptional();
+
+  if (!tenantId) {
+    return NextResponse.json({});
+  }
+
   const contactSettings = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
 
   const settingsMap = contactSettings.reduce(
