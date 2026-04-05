@@ -14,6 +14,7 @@ import {
   invitations,
   organizations,
 } from './db';
+import { getTenantBySlug } from './tenant';
 
 /**
  * Better Auth configuration for Soralia Village.
@@ -37,6 +38,29 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async user => {
+          // Get tenant from environment or default to soralia for development
+          const tenantSlug = process.env.LOCAL_TENANT_SLUG || 'soralia';
+          const tenant = await getTenantBySlug(tenantSlug);
+
+          if (!tenant) {
+            console.error(`Tenant not found: ${tenantSlug}. Create tenant in database first.`);
+            throw new Error(`Tenant not found: ${tenantSlug}`);
+          }
+
+          return {
+            data: {
+              ...user,
+              tenantId: tenant.id,
+            },
+          };
+        },
+      },
+    },
   },
   plugins: [twoFactor({ issuer: 'Soralia Village' }), organization(), bearer(), passkey()],
   advanced: {
