@@ -3,6 +3,7 @@ import { hasPermission } from '@/lib/permissions';
 import { db, users, settings } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { eq, like } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -55,6 +56,9 @@ export async function POST(request: Request) {
 
   const body = await request.json();
 
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
   // Try to update first, then insert if not found
   const existing = await db.select().from(settings).where(eq(settings.key, body.key)).limit(1);
 
@@ -70,7 +74,7 @@ export async function POST(request: Request) {
     const newId = body.key.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
     const created = await db
       .insert(settings)
-      .values({ id: newId, key: body.key, value: body.value })
+      .values({ id: newId, tenantId, key: body.key, value: body.value })
       .returning();
     return NextResponse.json(created[0]);
   }

@@ -227,6 +227,7 @@ export async function POST(request: Request) {
     const now = new Date();
     const insertValues: typeof maintenanceRequests.$inferInsert = {
       id: crypto.randomUUID(),
+      tenantId,
       userId,
       category,
       priority,
@@ -234,7 +235,7 @@ export async function POST(request: Request) {
       images: body.images || [],
       status: 'SUBMITTED',
       createdAt: now,
-      updatedAt: null,
+      updatedAt: now, // Use current timestamp instead of null
     };
     const insertResult = await db.insert(maintenanceRequests).values(insertValues).returning();
 

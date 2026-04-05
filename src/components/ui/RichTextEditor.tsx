@@ -627,13 +627,17 @@ export function RichTextEditor({
                 </p>
               ) : (
                 <div className="grid grid-cols-4 gap-2">
-                  {mediaImages.map(img => (
+                  {mediaImages.map((url, idx) => (
                     <button
-                      key={img.key}
-                      onClick={() => insertFromMediaLib(img.url)}
+                      key={idx}
+                      onClick={() => insertFromMediaLib(url)}
                       className="aspect-square rounded overflow-hidden border-2 border-transparent hover:border-indigo-500 transition-colors"
                     >
-                      <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
+                      <img
+                        src={url}
+                        alt={`Image ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
                     </button>
                   ))}
                 </div>

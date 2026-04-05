@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import { db, settings } from '@/lib/db';
 import { eq, like } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export async function GET() {
-  const contactSettings = await db.select().from(settings).where(like(settings.key, 'contact.%'));
+  const { tenantId } = await withTenant();
+  const contactSettings = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
 
   const settingsMap = contactSettings.reduce(
     (acc, s) => {
@@ -17,6 +19,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const { tenantId } = await withTenant();
   const body = await request.json();
 
   for (const [key, value] of Object.entries(body)) {
@@ -30,7 +33,7 @@ export async function POST(request: Request) {
     } else {
       // Generate ID for new setting
       const newId = key.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-      await db.insert(settings).values({ id: newId, key, value: String(value) });
+      await db.insert(settings).values({ id: newId, tenantId, key, value: String(value) });
     }
   }
 

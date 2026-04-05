@@ -1,10 +1,13 @@
 // Sync tenant.featureFlags with registry defaults on tenant creation/update
+import type { TierLevel } from './registry';
+import { getFeaturesForTier } from './registry';
+
 export function mergeFeatureFlags(
   tenantFlags: Record<string, boolean> = {},
   tier: TierLevel
 ): Record<string, boolean> {
   const defaults = getFeaturesForTier(tier).reduce(
-    (acc, f) => {
+    (acc: Record<string, boolean>, f) => {
       acc[f.key] = true;
       return acc;
     },

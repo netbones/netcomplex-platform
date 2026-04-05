@@ -7,7 +7,11 @@
  * - Forest: Enterprise tier (unlimited pages)
  */
 
+import type { Tenant } from '@/lib/tenant';
+
 export type TierLevel = 'sprout' | 'grove' | 'forest';
+
+export { Tenant };
 
 export interface FeatureDefinition {
   key: string;

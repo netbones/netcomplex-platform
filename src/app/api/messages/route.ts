@@ -31,11 +31,12 @@ async function getSessionAndRole(request: Request) {
     return null;
   }
 
-  // Using Prisma for user role lookup (can be migrated later)
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
+  // Using Drizzle for user role lookup
+  const [user] = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
 
   return {
     session,
@@ -130,11 +131,12 @@ export async function POST(request: Request) {
 
     // TODO: Add conversation access control - verify user has access to this conversation
 
-    // Check for PremiumSeat to determine retention period (using Prisma for now)
-    const premiumSeat = await prisma.premiumSeat.findUnique({
-      where: { userId: authData.userId },
-      select: { messageRetentionDays: true },
-    });
+    // Check for PremiumSeat to determine retention period (using Drizzle)
+    const [premiumSeat] = await db
+      .select({ messageRetentionDays: premiumSeats.messageRetentionDays })
+      .from(premiumSeats)
+      .where(eq(premiumSeats.userId, authData.userId))
+      .limit(1);
 
     const retentionDays = premiumSeat?.messageRetentionDays ?? 30;
     const expiresAt = new Date();
