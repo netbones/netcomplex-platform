@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db, albums } from '@/lib/db';
 import { eq, desc, and } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,6 +12,9 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
 
     const { action, album, albumId } = await request.json();
     const userId = session.user.id;
@@ -32,6 +36,7 @@ export async function POST(request: NextRequest) {
           .insert(albums)
           .values({
             id: crypto.randomUUID(),
+            tenantId,
             userId,
             title: album.title,
             description: album.description || null,
