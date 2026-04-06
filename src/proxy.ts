@@ -21,12 +21,17 @@ const DEFAULT_TENANT_SLUG = 'soralia';
 const TENANT_DOMAINS = ['netbones.co.za', 'soralia.org', 'soralia.com', 'soralia.co.za'];
 
 function isPlatformHost(host: string): boolean {
-  // Exclude localhost from platform - treat it as tenant for development
+  // Only the actual platform domain
   return host === PLATFORM_DOMAIN;
 }
 
 function isTenantHost(host: string): boolean {
   if (isPlatformHost(host)) return false;
+
+  // Localhost is treated as a tenant for development
+  if (host.includes('localhost')) return true;
+
+  // Check if it's a tenant subdomain (e.g., soralia.netbones.co.za)
 
   // Check if it's a tenant subdomain (e.g., soralia.netbones.co.za)
   for (const domain of TENANT_DOMAINS) {
@@ -104,7 +109,7 @@ export async function proxy(request: NextRequest) {
 
   // ── 2. Platform host: allow platform routes, deny tenant routes ──
   if (isPlatform) {
-    // Redirect root to /home for platform landing
+    // Redirect root to /home for platform landing (only for platform host, not localhost)
     if (pathname === '/') {
       return NextResponse.redirect(new URL('/home', request.url));
     }
@@ -119,13 +124,34 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
-  // ── 3. Tenant host: allow tenant routes, deny platform routes ──
+  // ── 3. For localhost: treat as tenant with fallback ──
+  // Skip platform route checks for localhost - allow all routes
+  if (host.includes('localhost')) {
+    // Default tenant for localhost
+    const tenant = await getTenantBySlug(DEFAULT_TENANT_SLUG);
+    if (tenant) {
+      response.headers.set('x-plane', 'tenant');
+      response.headers.set('x-tenant-id', tenant.id);
+      response.headers.set('x-tenant-slug', tenant.slug);
+      response.headers.set('x-tenant-name', tenant.name);
+      response.headers.set('x-primary-color', tenant.primaryColor || '#4F46E5');
+      response.headers.set('x-accent-color', tenant.accentColor || '');
+      response.headers.set('x-secondary-color', tenant.secondaryColor || '');
+      response.headers.set('x-logo-url', tenant.logoUrl || '');
+      response.headers.set('x-favicon-url', tenant.faviconUrl || '');
+      response.headers.set('x-font-family', tenant.fontFamily || '');
+      response.headers.set('x-feature-flags', JSON.stringify(tenant.featureFlags || {}));
+    }
+    return response;
+  }
+
+  // ── 4. Tenant host: allow tenant routes, deny platform routes ──
   if (isPlatformRoute(pathname)) {
     // Tenant host trying to access platform routes → redirect to tenant home
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // ── 4. Tenant Resolution (for tenant hosts) ──
+  // ── 5. Tenant Resolution (for tenant hosts) ──
   let tenant = null;
 
   if (isTenantHost(host)) {
@@ -172,3 +198,6 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
   ],
 };
+
+// Log startup for debugging
+console.log('[Middleware] Loaded - Platform:', PLATFORM_DOMAIN);
