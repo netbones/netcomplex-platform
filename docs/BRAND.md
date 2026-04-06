@@ -153,36 +153,208 @@ Each subscription tier has a distinct color identity:
 
 ### Typography
 
-#### Primary Typeface — []
+#### Primary Typeface — Inter
 
-- **[]** — body text, interface labels
-- **[]** — sub-headings, UI emphasis
-- **[]** — headings, CTAs
-- **[]** — large display text, hero statements
+A clean, highly legible sans-serif typeface optimized for digital interfaces and long-form reading. Inter provides excellent readability across all screen sizes while maintaining a professional, approachable character.
 
-#### Secondary Typeface — _[]_
+- **Inter Regular (400)** — body text, interface labels, form inputs
+- **Inter Medium (500)** — sub-headings, UI emphasis, button labels
+- **Inter SemiBold (600)** — headings, CTAs, important labels
+- **Inter Bold (700)** — large display text, hero statements, section headers
 
-A serif for editorial and long-form content — community newsletters, resident stories, policy documents. [] signals that what you're reading matters and deserves to be read slowly.
+#### Secondary Typeface — _System Fonts_
 
-- **Spectral Regular** — editorial body text
-- **Spectral Italic** — pull quotes, testimonials
+Platform-native fonts are used for secondary content to ensure optimal performance and native feel across different operating systems. Falls back gracefully to system-ui and sans-serif stacks.
 
 #### Monospace — _JetBrains Mono_
 
-For technical outputs: API documentation, ticket IDs, survey results data, Web3 addresses.
+For technical outputs: API documentation, ticket IDs, survey results data, Web3 addresses, code snippets.
 
 #### Type Scale
 
-| Level      | Size    | Weight    | Typeface       |
-| ---------- | ------- | --------- | -------------- |
-| Display    | 52–72px | Light     | Söhne Leicht   |
-| H1         | 40px    | Semi-bold | Söhne Halbfett |
-| H2         | 28px    | Medium    | Söhne Kräftig  |
-| H3         | 20px    | Medium    | Söhne Kräftig  |
-| Body Large | 18px    | Book      | Söhne Buch     |
-| Body       | 16px    | Book      | Söhne Buch     |
-| Caption    | 13px    | Book      | Söhne Buch     |
-| Code / ID  | 14px    | Regular   | JetBrains Mono |
+NetComplex uses Tailwind CSS's default responsive type scale, optimized for readability and hierarchy:
+
+| Level          | Size (Mobile) | Size (Desktop) | Weight   | Usage                           |
+| -------------- | ------------- | -------------- | -------- | ------------------------------- |
+| **Display**    | 36px          | 52–72px        | Bold     | Hero headlines, major sections  |
+| **H1**         | 30px          | 36–48px        | Bold     | Page titles, section headers    |
+| **H2**         | 24px          | 30–36px        | SemiBold | Subsection headers              |
+| **H3**         | 20px          | 24–30px        | SemiBold | Component titles, CTAs          |
+| **Body Large** | 18px          | 18–20px        | Regular  | Lead paragraphs, highlights     |
+| **Body**       | 16px          | 16–18px        | Regular  | Primary content, descriptions   |
+| **Caption**    | 14px          | 14–16px        | Regular  | Metadata, secondary information |
+| **Small**      | 12–13px       | 12–14px        | Regular  | Fine print, timestamps          |
+| **Code / ID**  | 14px          | 14px           | Regular  | Technical identifiers           |
+
+#### Typography Guidelines
+
+- **Line Height**: 1.5–1.6 for body text, 1.2–1.3 for headings
+- **Letter Spacing**: -0.01em for headings, 0 for body text
+- **Color Contrast**: Minimum 4.5:1 ratio for accessibility
+- **Responsive Scaling**: Type scales up/down based on viewport width
+- **Readability**: Maximum 75 characters per line for optimal reading
+
+---
+
+## Platform Page Alignment Plan
+
+### Current State Analysis
+
+| Page        | Structure                           | Issues                                  |
+| ----------- | ----------------------------------- | --------------------------------------- |
+| **Home**    | Hero → Features → CTA → Footer      | ✅ Well structured, uses components     |
+| **Pricing** | Header → Cards → FAQ → CTA → Footer | ✅ Well structured, uses components     |
+| **Signup**  | Custom multi-step form → Footer     | ❌ Inconsistent, no reusable components |
+
+### Alignment Strategy
+
+#### 1. **Unified Page Structure**
+
+All platform pages should follow this consistent pattern:
+
+```
+┌─────────────────────────────────────┐
+│           Page Header               │ ← Branded, consistent styling
+├─────────────────────────────────────┤
+│           Page Content              │ ← Flexible sections
+├─────────────────────────────────────┤
+│           Page CTA                  │ ← Encourages next action
+├─────────────────────────────────────┤
+│           Platform Footer           │ ← Consistent across all pages
+└─────────────────────────────────────┘
+```
+
+#### 2. **Component Standardization**
+
+**Header Components:**
+
+- `PlatformHeader` - For pages needing branded headers
+- `SectionHeader` - For in-page section headers
+
+**Content Components:**
+
+- `HeroSection` - Full-width hero areas
+- `ContentSection` - Standard content blocks
+- `FormSection` - For form-heavy pages
+- `FeatureGrid` - For feature/product displays
+
+**CTA Components:**
+
+- `PrimaryCTA` - Main call-to-action buttons
+- `SecondaryCTA` - Supporting actions
+- `PageCTA` - Full-width page-level CTAs
+
+**Layout Components:**
+
+- `PageLayout` - Standard page wrapper
+- `SectionLayout` - Consistent section spacing
+- `ContainerLayout` - Max-width containers
+
+#### 3. **Design System Consistency**
+
+**Spacing Scale:**
+
+- `py-16` (64px) - Page headers
+- `py-20` (80px) - Major sections
+- `py-12` (48px) - Minor sections
+- `py-8` (32px) - Component spacing
+
+**Color Usage:**
+
+- Primary: Canopy (#4F46E5) for CTAs and links
+- Background: White (#FFFFFF) for content
+- Surface: Fieldstone (#F3F4F6) for cards/sections
+- Text: Bark (#374151) for primary text
+
+**Typography Hierarchy:**
+
+- Display/Bold: Hero headlines
+- H1/Bold: Page titles
+- H2/SemiBold: Section headers
+- H3/SemiBold: Component titles
+- Body/Regular: Content text
+- Caption/Regular: Metadata
+
+#### 4. **Page-Specific Implementation**
+
+**Home Page** (Keep Current Structure):
+
+```
+PlatformHeader (branded navigation)
+HeroSection (primary value prop)
+FeaturesSection (product benefits)
+CTASection (signup encouragement)
+PlatformFooter
+```
+
+**Pricing Page** (Keep Current Structure):
+
+```
+PricingHeader (page-specific hero)
+PricingCards (tier comparison)
+PricingFAQ (support section)
+PricingCTA (conversion focused)
+PlatformFooter
+```
+
+**Signup Page** (Refactor Needed):
+
+```
+SignupHeader (progress indicator)
+SignupForm (multi-step wizard)
+SignupCTA (completion encouragement)
+PlatformFooter
+```
+
+#### 5. **Responsive Breakpoints**
+
+**Mobile First Approach:**
+
+- `sm:` (640px+) - Small tablets, large phones
+- `md:` (768px+) - Tablets, small laptops
+- `lg:` (1024px+) - Laptops, small desktops
+- `xl:` (1280px+) - Large desktops
+
+**Grid Systems:**
+
+- Single column on mobile
+- 2-column on tablet (md:grid-cols-2)
+- 3-column on desktop (lg:grid-cols-3)
+- Max width: 7xl (1280px) for readability
+
+#### 6. **Component Migration Plan**
+
+**Phase 1: Infrastructure**
+
+- Create `PageLayout` wrapper component
+- Create `SectionLayout` spacing component
+- Create `PlatformHeader` navigation component
+
+**Phase 2: Content Components**
+
+- Refactor existing components to use new layout system
+- Create `SignupFormSection` component
+- Standardize all CTA components
+
+**Phase 3: Page Alignment**
+
+- Update signup page to use component system
+- Ensure consistent spacing and typography
+- Test responsive behavior across all pages
+
+**Phase 4: Optimization**
+
+- Performance audit for bundle sizes
+- Accessibility improvements
+- Cross-browser testing
+
+#### 7. **Success Metrics**
+
+- **Visual Consistency**: All pages follow the same design patterns
+- **Component Reusability**: 80% of UI elements are shared components
+- **Responsive Performance**: Consistent behavior across device sizes
+- **Developer Experience**: Easy to maintain and extend page layouts
+- **User Experience**: Seamless navigation between pages
 
 ---
 

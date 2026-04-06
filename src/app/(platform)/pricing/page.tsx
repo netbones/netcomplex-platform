@@ -5,15 +5,16 @@ import { PricingCards } from '@/components/platform/PricingCards';
 import { PricingFAQ } from '@/components/platform/PricingFAQ';
 import { PricingCTA } from '@/components/platform/PricingCTA';
 import { PlatformFooter } from '@/components/platform/PlatformFooter';
+import { PageLayout } from '@/components/layout/PageLayout';
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <PageLayout>
       <PricingHeader />
       <PricingCards />
       <PricingFAQ />
       <PricingCTA />
       <PlatformFooter />
-    </div>
+    </PageLayout>
   );
 }
