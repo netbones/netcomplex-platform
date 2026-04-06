@@ -65,6 +65,7 @@ function isTenantRoute(pathname: string): boolean {
 function isPlatformRoute(pathname: string): boolean {
   return (
     pathname === '/' ||
+    pathname === '/home' ||
     pathname.startsWith('/admin/platform') ||
     pathname.startsWith('/platform') ||
     pathname.startsWith('/pricing') ||
@@ -102,6 +103,10 @@ export async function proxy(request: NextRequest) {
 
   // ── 2. Platform host: allow platform routes, deny tenant routes ──
   if (isPlatform) {
+    // Redirect root to /home for platform landing
+    if (pathname === '/') {
+      return NextResponse.redirect(new URL('/home', request.url));
+    }
     if (!isPlatformRoute(pathname) && !pathname.startsWith('/admin/platform')) {
       // Platform host trying to access tenant routes → redirect to platform home
       if (isTenantRoute(pathname)) {
