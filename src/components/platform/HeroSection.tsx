@@ -9,7 +9,7 @@ export function HeroSection() {
     <SectionLayout
       size="xl"
       background="transparent"
-      className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-white via-vellum to-lapis-azure/10"
+      className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-white via-vellum to-lapis-azure/10 pb-0"
     >
       {/* Decorative background orbs */}
       <div className="absolute inset-0 overflow-hidden">
@@ -345,6 +345,11 @@ export function HeroSection() {
               View Pricing
             </PrimaryCTA>
           </div>
+        </div>
+
+        {/* City Silhouette */}
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
+          <img src="/platform/four.webp" alt="" className="w-full h-auto object-cover opacity-90" />
         </div>
       </div>
     </SectionLayout>
