@@ -320,6 +320,7 @@ export function HeroSection() {
           <h1 className="text-5xl md:text-7xl font-bold text-lapis-deep tracking-tight">
             NetComplex
           </h1>
+          <p className="text-lapis-mid text-sm md:text-base pt-2">by Netbones Africa</p>
         </div>
 
         {/* Subtext */}

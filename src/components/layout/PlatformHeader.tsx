@@ -44,13 +44,16 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 flex items-center gap-4">
             <Link href="/" className="flex flex-col">
               <span className={cn('text-2xl font-bold tracking-tight', textColor)}>NetComplex</span>
               <span className={cn('text-xs font-medium tracking-wide', subtextColor)}>
                 Your complex, connected.
               </span>
             </Link>
+            <span className={cn('text-xs font-medium tracking-wide', subtextColor)}>
+              by Netbones Africa
+            </span>
           </div>
 
           {/* Navigation */}
