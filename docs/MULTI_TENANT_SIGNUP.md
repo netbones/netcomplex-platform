@@ -257,6 +257,44 @@ For subdomain-based sign-up:
 
 ---
 
+## Better Auth `tenantId` Strategy (Current State)
+
+During the NetComplex migration we added a `tenantId` column to all Better Auth–related tables (`user`, `account`, `session`, `verification`) so we could eventually tenant-scope auth data at the database level.
+
+In practice, Better Auth’s Drizzle adapter **only knows about** `user.tenantId`, because it is configured via `user.additionalFields` in `auth.ts`. It does **not** automatically populate `tenantId` for `account`, `session`, or `verification`, which caused this failure during sign-up:
+
+```text
+SERVER_ERROR: Error: Failed query:
+insert into "account" ("id", "tenantId", "accountId", "providerId", "userId", "password", "createdAt", "updatedAt")
+values ($1, default, $2, $3, $4, $5, $6, $7)
+ERROR: null value in column "tenantId" of relation "account" violates not-null constraint
+```
+
+### Design decision
+
+- **`user.tenantId` remains required and non-null** and is the **canonical tenant anchor** for multi-tenancy.
+- **`account.tenantId`, `session.tenantId`, and `verification.tenantId` are nullable**:
+  - Prisma models use `tenantId String?`.
+  - A migration (`20260406000000_make_better_auth_tenantid_nullable`) drops the `NOT NULL` constraint on these columns.
+  - This matches Better Auth’s default behaviour and unblocks sign-up/sign-in.
+- All **tenant enforcement** in application code continues to rely on:
+  - `user.tenantId` (required),
+  - tenant-scoped domain tables (e.g. `Booking.tenantId`, `Message.tenantId`),
+  - middleware-based tenant resolution + `withTenant()` helpers.
+
+### Future hardening (optional)
+
+If we later want strict tenant IDs on the auth adapter tables too, we can:
+
+1. Re-add `NOT NULL` to `account.tenantId`, `session.tenantId`, and `verification.tenantId`.
+2. Use Better Auth `databaseHooks` (e.g. `databaseHooks.account.create.before`) to:
+   - Look up the associated `user` record, and
+   - Copy `user.tenantId` onto the new `account` / `session` / `verification` row before insert.
+
+For now, this “canonical `user.tenantId` + nullable adapter tables” setup is **intentional** and should be preserved while the multi-tenant upgrade is in progress.
+
+---
+
 ## Related Documents
 
 - [MULTI_TENANT.md](./MULTI_TENANT.md) — Full multi-tenant architecture guide

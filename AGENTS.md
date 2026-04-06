@@ -23,7 +23,12 @@ Check PRD.md and SPEC.md for details.
 | State      | TanStack Query                   |
 | Forms      | React Hook Form + Zod            |
 | Maps       | Leaflet + react-leaflet          |
+| API        | tRPC                             |
+| Commerce   | UCP & AP2                        |
+| CMS Editor | TipTap                           |
+| Logging    | Pino                             |
 | Deployment | Vercel                           |
+| Features   | Vercel Feature Flags             |
 
 ---
 
@@ -77,20 +82,22 @@ bd sync               # Sync with git
 
 #### File Organization
 
-````
+```bash
 components/
 ├── ui/              # Reusable UI components (Button, Input, Modal)
 ├── forms/           # Form-related components
 ├── layout/          # Layout components (Header, Sidebar, Footer)
 ├── dashboard/       # Feature-specific components
 └── common/          # Shared components across features
+```
 
 #### Pages vs Widgets
-In order to minimise the tendency new page creation for a feature, follow these protocols:
+
+In order to minimise new page creation for a feature, follow these protocols:
+
 - Prefer widgets that can be imported to dashboards than new pages
 - Refer to the WIDGETS framework in docs/
 - Only create a page if it is truly necessary to unify elements such as widgets or components.
-
 
 ### Performance Optimization
 
@@ -313,7 +320,7 @@ In order to minimise the tendency new page creation for a feature, follow these 
     revalidate: 300, // 5 minutes
     tags: ['data-tag'],
   });
-````
+  ```
 
 - **Set appropriate revalidation times**:
   - Static data (rarely changes): 10 minutes (600s)
@@ -404,7 +411,7 @@ In order to minimise the tendency new page creation for a feature, follow these 
 
 ### REST Endpoints Pattern
 
-```
+```sql
 GET    /api/[resource]          # List
 POST   /api/[resource]          # Create
 GET    /api/[resource]/[id]     # Read
@@ -441,7 +448,7 @@ DELETE /api/[resource]/[id]    # Delete
 
 ## File Structure
 
-```
+```bash
 soralia-village/
 ├── prisma/
 │   └── schema.prisma           # Database models
@@ -519,12 +526,12 @@ NEXT_PUBLIC_VERCEL_URL=""
 3. **Update issue status** - Close finished work
 4. **PUSH TO REMOTE:**
 
-   ```bash
+```bash
    git pull --rebase
    bd sync
    git push
    git status  # MUST show "up to date with origin"
-   ```
+```
 
 5. **Clean up** - Clear stashes, prune branches
 6. **Verify** - All changes committed AND pushed
@@ -564,26 +571,6 @@ Before implementing new features, ensure:
 - [ ] **Loading states use `usePageLoading`** or `LoadingSkeleton` components
 - [ ] **Static content uses ISR** (not SSR) for better performance
 - [ ] **Cache-Control headers** added to API routes for additional optimization
-
-## Dependencies
-
-Install with:
-
-```bash
-npm install
-```
-
-Key packages:
-
-- `@better-auth/expo` - Better Auth
-- `@better-auth/expo` - Better Auth client
-- `@supabase/supabase-js` - Supabase client
-- `@prisma/client` - Prisma client
-- `@tanstack/react-query` - Data fetching
-- `react-hook-form` - Forms
-- `zod` - Validation
-- `leaflet` + `react-leaflet` - Maps
-- `usehooks-ts` - Utility React hooks
 
 ---
 

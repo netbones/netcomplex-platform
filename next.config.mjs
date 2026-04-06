@@ -4,7 +4,8 @@ const nextConfig = {
   turbopack: {},
 
   // Enable Partial Prerendering for better performance
-  cacheComponents: true,
+  // Note: cacheComponents incompatible with dynamic = 'force-dynamic'
+  // cacheComponents: true,
 
   // Optimize images
   images: {

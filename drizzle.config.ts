@@ -6,7 +6,9 @@ export default defineConfig({
   schema: './prisma/drizzle/schema.ts',
   out: './drizzle',
   dbCredentials: {
-    url: process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/postgres',
+    url: (
+      process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/postgres'
+    ).replace('sslmode=require', 'sslmode=no-verify'),
   },
   verbose: true,
   strict: true,

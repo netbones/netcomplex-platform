@@ -31,5 +31,5 @@
     ".next/dev/types/**/*.ts",
     "prisma/drizzle/**/*.ts"
   ],
-  "exclude": ["node_modules", "src/**/*.html"]
+  "exclude": ["node_modules", "src/**/*.html", "migrate-*.ts", "prisma/seed.ts"]
 }

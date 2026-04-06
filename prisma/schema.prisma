@@ -288,7 +288,7 @@ model UserGroup {
 
 model account {
   id                    String    @id
-  tenantId  String
+  tenantId              String?
   accountId             String
   providerId            String
   userId                String
@@ -676,7 +676,7 @@ model propertyListing {
 
 model session {
   id                   String   @id
-  tenantId  String
+  tenantId             String?
   expiresAt            DateTime
   token                String   @unique
   createdAt            DateTime @default(now())
@@ -743,7 +743,7 @@ model twoFactor {
 
 model user {
   id                                                    String                    @id
-  tenantId  String
+  tenantId                                              String
   email                                                 String                    @unique
   name                                                  String
   role                                                  Role                      @default(RESIDENT)
@@ -796,7 +796,7 @@ model user {
 
 model verification {
   id         String   @id
-  tenantId  String
+  tenantId   String?
   identifier String
   value      String
   expiresAt  DateTime
