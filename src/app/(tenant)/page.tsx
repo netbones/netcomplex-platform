@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import { Pagination } from '@/components/ui/Pagination';
-import { STREETS, CARD_HEADER_COLORS, INTEREST_COLORS, RESIDENT_TYPES } from '@/lib/constants';
-import type { ResidentType } from '@/lib/constants';
+import { STREETS, CARD_HEADER_COLORS } from '@/lib/constants';
 
 const CommunityMap = dynamic(
   () => import('@/components/ui/CommunityMap').then(mod => mod.CommunityMap),

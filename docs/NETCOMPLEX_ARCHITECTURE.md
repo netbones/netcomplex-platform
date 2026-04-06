@@ -2,8 +2,8 @@
 
 This document describes how the NetComplex SaaS platform is structured across:
 
-- The **platform control plane** at `netcomplex.netbones.co.za`
-- The **tenant data plane** at `*.netbones.co.za` (and custom domains)
+- The **platform control plane** at `app.netbones.co.za`
+- The **tenant data plane** at `*.netbones.co.za` (and custom domains like `soralia.org`, `soralia.com`, `soralia.co.za`)
 - The shared database and auth layer
 
 It is a companion to `netcomplex_migration_planv1.md` and focuses on high-level architecture and URL/runtime boundaries.
@@ -16,7 +16,7 @@ It is a companion to `netcomplex_migration_planv1.md` and focuses on high-level 
 
 - **NetComplex Operator**
   - Internal team that manages the platform, tenants, plans, billing, and support.
-  - Uses the _platform_ surface at `netcomplex.netbones.co.za`.
+  - Uses the _platform_ surface at `app.netbones.co.za`.
 - **Tenant Owner / Board**
   - The person or committee that owns a specific community (e.g. an HOA).
   - Signs up their community, configures branding, adds board/admin users.
@@ -28,7 +28,7 @@ It is a companion to `netcomplex_migration_planv1.md` and focuses on high-level 
 ### 1.2 Planes
 
 - **Control Plane (Platform)**
-  - Runs at `netcomplex.netbones.co.za`.
+  - Runs at `app.netbones.co.za`.
   - Responsibilities:
     - Marketing + pricing pages.
     - “Create my community” onboarding flow.
@@ -53,21 +53,21 @@ NetComplex itself is **not “Tenant 2”**; it is the platform that owns and ma
 ### 2.1 Domain Mapping
 
 - **Platform**
-  - `netcomplex.netbones.co.za` → platform control plane.
+  - `app.netbones.co.za` → platform control plane.
 - **Tenants (shared app)**
   - `<tenant-slug>.netbones.co.za` → tenant data plane for that slug.
-  - Custom domains (future) → resolved to tenant via `Tenant.customDomain`.
+  - Custom domains (e.g., `soralia.org`, `soralia.com`, `soralia.co.za`) → resolved to tenant via `Tenant.customDomain`.
 
 ### 2.2 Next.js App Structure (Single App)
 
 The same Next.js app can serve both the platform and tenant traffic with host-based routing:
 
 - `src/app/(platform)/...`
-  - Routes only valid on `netcomplex.netbones.co.za`:
+  - Routes only valid on `app.netbones.co.za`:
     - `/` – marketing / landing page.
     - `/pricing` – plan overview.
-    - `/signup` – “Create your community” wizard.
-    - `/login` – NetComplex operator / platform login (if needed).
+    - `/signup` – "Create your community" wizard.
+    - `/login` – NetComplex operator / platform login.
     - `/admin/platform/*` – super-admin UI for managing tenants, features, and branding.
 - `src/app/(tenant)/...`
   - Routes valid on tenant hosts (`*.netbones.co.za`, custom domains):
@@ -75,11 +75,11 @@ The same Next.js app can serve both the platform and tenant traffic with host-ba
     - `/directory`, `/groups`, `/bookings`, `/maintenance`, etc.
     - `/admin` – tenant-level admin (board, HOA admin, etc.).
 
-**Middleware (`src/middleware.ts` or successor pattern)**:
+**Middleware (`src/proxy.ts`)**:
 
 - Reads the `Host` header and:
-  - If host is `netcomplex.netbones.co.za` → treat request as **platform** (no tenant resolution).
-  - Else:
+  - If host is `app.netbones.co.za` → treat request as **platform** (no tenant resolution).
+  - Else if host ends with `.netbones.co.za` or matches known tenant domains (`soralia.org`, `soralia.com`, `soralia.co.za`):
     - Resolve tenant by subdomain or custom domain.
     - Set `x-tenant-id` and `x-tenant-slug` headers for downstream use.
     - If resolution fails, return a 404 or “tenant not found” page.
@@ -175,7 +175,7 @@ Tenant admins **do not** appear here; they manage only their own tenant through 
 
 ### 5.2 Platform Request
 
-1. User visits `https://netcomplex.netbones.co.za/admin/platform/tenants`.
+1. User visits `https://app.netbones.co.za/admin/platform/tenants`.
 2. Middleware:
    - Detects host is the platform domain.
    - Skips tenant resolution (or sets a special flag that this is platform context).

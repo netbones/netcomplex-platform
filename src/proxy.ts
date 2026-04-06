@@ -63,7 +63,14 @@ function isTenantRoute(pathname: string): boolean {
 }
 
 function isPlatformRoute(pathname: string): boolean {
-  return pathname.startsWith('/admin/platform') || pathname.startsWith('/platform');
+  return (
+    pathname === '/' ||
+    pathname.startsWith('/admin/platform') ||
+    pathname.startsWith('/platform') ||
+    pathname.startsWith('/pricing') ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/signup')
+  );
 }
 
 function isAuthRoute(pathname: string): boolean {
