@@ -34,6 +34,7 @@ export const namespaces = [
   'notifications',
   'directory',
   'admin',
+  'platform',
 ];
 
 i18n

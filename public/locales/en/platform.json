@@ -1,0 +1,100 @@
+{
+  "hero": {
+    "tagline": "Community Informatics Platform",
+    "title": "NetComplex",
+    "subtitle": "Your complex, connected.",
+    "attribution": "by Netbones Africa",
+    "cta": {
+      "signup": "Sign Up",
+      "pricing": "View Pricing"
+    }
+  },
+  "mission": {
+    "title": "Mission",
+    "coreBeliefTitle": "Core belief",
+    "description": "NetComplex is not a management tool. It's a platform designed to connect neighbors, streamline community operations, and enhance the quality of life in residential complexes. We believe that a truly connected community empowers residents, simplifies administration, and creates lasting relationships.",
+    "coreBelief": "A neighbourhood is not just an address — it's a living ecosystem of people, relationships, and shared experiences. We built NetComplex to strengthen these bonds through intelligent design and seamless technology."
+  },
+  "features": {
+    "title": "Build a Connected Community",
+    "subtitle": "Powerful tools that transform residential communities from managed populations into informed, engaged, and self-expressive networks.",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "list": [
+      {
+        "title": "Residents Directory",
+        "desc": "Know who lives nearby. A trusted, public opt-in listing of your community.",
+        "details": "Create your profile with photo, contact preferences, and interests. Browse by building or section. Privacy controls ensure you share only what you want."
+      },
+      {
+        "title": "Maintenance Requests",
+        "desc": "Log it, track it, resolve it. From leaky faucets to community repairs.",
+        "details": "Submit photos and descriptions. Track status updates in real-time. Communicate directly with maintenance staff. Rate service quality and resolution time."
+      },
+      {
+        "title": "Facility Bookings",
+        "desc": "Book amenities with ease. Swimming pools, clubhouses, tennis courts.",
+        "details": "View availability in real-time. Set recurring bookings. Receive automatic reminders. Cancel or reschedule with ease. Integrated calendar sync."
+      },
+      {
+        "title": "Community Content",
+        "desc": "Your space to post updates, stories, and announcements.",
+        "details": "Rich text editor with photos and videos. Categorize content for easy discovery. Comment and react to posts. Moderate with community guidelines."
+      },
+      {
+        "title": "Surveys & Polling",
+        "desc": "Ask your community. Get real answers. Quick questions, instant sentiment.",
+        "details": "Create multiple choice, rating, and open-ended questions. Anonymous or named responses. Real-time results visualization. Export data for analysis."
+      },
+      {
+        "title": "Affinity Groups",
+        "desc": "Find your people within your complex. Connect over shared interests.",
+        "details": "Create and join groups around interests. Private or public group settings. Event scheduling within groups. Member directories and messaging."
+      },
+      {
+        "title": "Community Events",
+        "desc": "Discover and organize events that bring your community together.",
+        "details": "Create events with RSVP tracking. Send automated reminders. Sell tickets or collect fees. Photo sharing after events. Recurring event schedules."
+      },
+      {
+        "title": "Web3 Digital Identity",
+        "desc": "Build decentralized community governance and digital identities.",
+        "details": "Token-based voting systems. Community treasury management. NFT memberships. Decentralized identity verification. Smart contract automation."
+      },
+      {
+        "title": "Localization",
+        "desc": "Automate localization for your chosen language groups.",
+        "details": "Translate content, notifications, and interfaces into multiple languages automatically."
+      },
+      {
+        "title": "Agent Gateway",
+        "desc": "Connect human and machine agents to community systems.",
+        "details": "Professional contact, Managed support, AI-powered customer service. Automated maintenance triage. Smart home integration. Voice-activated assistance."
+      },
+      {
+        "title": "Marketplace",
+        "desc": "Buy and sell goods and services within your community.",
+        "details": "Local marketplace for residents. Secure payment processing. Review and rating system. Direct messaging between buyers and sellers."
+      },
+      {
+        "title": "Education",
+        "desc": "Access educational resources and learning opportunities.",
+        "details": "Bursary Portal, Online courses and tutorials. Community learning events. Resource sharing. Peer-to-peer tutoring. Educational content library."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Your Complex, Connected",
+    "description": "Join thousands of communities that are transforming how neighbors connect, communicate, and thrive. NetComplex makes it easy to build a stronger, more connected community.",
+    "primaryAction": "Start Free Trial",
+    "secondaryAction": "View Plans"
+  },
+  "header": {
+    "home": "Home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "about": "About",
+    "signIn": "Sign In",
+    "getStarted": "Get Started"
+  }
+}

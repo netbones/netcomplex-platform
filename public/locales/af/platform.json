@@ -1,0 +1,100 @@
+{
+  "hero": {
+    "tagline": "Gemeenskap Inligtingika Platform",
+    "title": "NetComplex",
+    "subtitle": "Jou kompleks, gekonnekteer.",
+    "attribution": "deur Netbones Afrika",
+    "cta": {
+      "signup": "Registreer",
+      "pricing": "Sien Pryse"
+    }
+  },
+  "mission": {
+    "title": "Sending",
+    "coreBeliefTitle": "Kernoortuiging",
+    "description": "NetComplex is nie 'n bestuurhulpmiddel nie. Dit is 'n platform ontwerp om bure te koppel, gemeenskaplike werking te stroomlyn en die lewensgehalte in residensiële komplekse te verbeter. Ons glo dat 'n werklik gekoppelde gemeenskap bewoners bemagtig, administrasie vereenvoudig en langdurige verhoudings skep.",
+    "coreBelief": "'n Buurt is nie net 'n adres nie — dit is 'n lewende ekosisteem van mense, verhoudings en gedeelde ervarings. Ons het NetComplex gebou om hierdie bande te versterk deur intelligente ontwerp en naatlose tegnologie."
+  },
+  "features": {
+    "title": "Bou 'n Gekoppelde Gemeenskap",
+    "subtitle": "Kragtige instrumente wat woonkomplekse omskep in ingeligte, betrokke en self-uitdrukkende netwerke.",
+    "showMore": "Wys meer",
+    "showLess": "Wys minder",
+    "list": [
+      {
+        "title": "Inwoners Gids",
+        "desc": "Ken jou bure met 'n omvattende gids.",
+        "details": "Skep jou profiel met foto, kontakvoorkeure en belangstellings. Blaai per gebou of seksie. Privaatheidsbeheer sorg dat jy net deel wat jy wil."
+      },
+      {
+        "title": "Onderhoud Versoeke",
+        "desc": "Log dit, dop dit, los dit op. Van lekkende krane tot gemeenskaplike herstelwerk.",
+        "details": "Dien fotos en beskrywings in. Dop statusopdaterings intyds. Kommuniseer direk met onderhoudpersoneel. Diensgehalte en oplostyd gradering."
+      },
+      {
+        "title": "Gerief Boekings",
+        "desc": "Boek geriewe met gemak. Swembaddens, clubhuise, tennisbane.",
+        "details": "Bekyk intydse beskikbaarheid. Stel herhalende boekings in. Ontvang outomatiese herinneraars. Kanselleer of herskeduleer met gemak. Geïntegrede kalendersinkronisering."
+      },
+      {
+        "title": "Gemeenskaplike Inhoud",
+        "desc": "Jou ruimte om opdaterings, stories en aankondigings te plaas.",
+        "details": "Rykte teksredigeerder met fotos en video's. Kategoriseer inhoud vir maklike ontdekking. Reageer op poste. Moderateer met gemeenskapriglyne."
+      },
+      {
+        "title": "Opnames & Peilings",
+        "desc": "Vra jou gemeenskap. Kry werklike antwoorde. Vinnige vrae, intydse sentiment.",
+        "details": "Skep veelkeuse, gradering en oop vrae. Anonieme of benoemde response. intydse resultate visualisering. Data-uitvoer vir ontleding."
+      },
+      {
+        "title": "Affiniteitsgroepe",
+        "desc": "Vind jou mense binne jou kompleks. Koppel oor gedeelde belangstellings.",
+        "details": "Skep en sluit aan by groepe rondom belangstellings. Privaat of openbare groepinstellings. geleenthede skedulering binne groepe. Lede gidse en boodskappe."
+      },
+      {
+        "title": "Gemeenskaplike geleenthede",
+        "desc": "Ontdek en reël geleenthede wat jou gemeenskap saambring.",
+        "details": "Skep geleenthede met RSVP dopping. Stuur outomatiese herinneraars. Verkoop kaartjies of heffings. Foto's na geleenthede. Herhalende geleentheid skedules."
+      },
+      {
+        "title": "Web3 Digitale Identiteit",
+        "desc": "Bou desentraliseerde gemeenskaplike bestuur en digitale identiteite.",
+        "details": "Token-gebaseerde stemstelsels. Gemeenskaplike skatkis bestuur. NFT-lidmaatskap. Desentraliseerde identiteit verifikasie. Slim kontrak automatisering."
+      },
+      {
+        "title": "Lokalisering",
+        "desc": "Outomatiseer lokalisering vir jou gekose taalgroepe.",
+        "details": "Vertaal inhoud, kennisgewings en koppelvlakke outomaties in veelvoudige tale."
+      },
+      {
+        "title": "Agent Gateway",
+        "desc": "Koppel menslike en masjien agente aan gemeenskaplike stelsels.",
+        "details": "Professionele kontak, Bestuurde ondersteuning, AI-gedrewe kliëntediens. Outomatiseerde onderhoud triase. Slim huis integrasie. Stem-geaktiveerde assistensie."
+      },
+      {
+        "title": "Markplein",
+        "desc": "Koop en verkoop goedere en dienste binne jou gemeenskap.",
+        "details": "Plaaslike markplein vir bewoners. Veilige betaling verwerking. Hersiening en gradering stelsel. Direkte boodskappe tussen kopers en verkopers."
+      },
+      {
+        "title": "Opvoeding",
+        "desc": "Toegang tot opvoedkundige bronne en geleenthede.",
+        "details": "Beurse Portaal, Aanlyn kursusse en tutoriaals. Gemeenskaplike leer geleenthede. Hulpbron deling. Peer-to-peer tutoriaal. Opvoedkundige inhoud biblioteek."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Jou Kompleks, Gekonnekteer",
+    "description": "Sluit by duisende gemeenskappe aan wat transformeer hoe bure koppel, kommunikeer en floreer. NetComplex maak dit maklik om 'n sterker, meer gekoppelde gemeenskap te bou.",
+    "primaryAction": "Begin Gratis Toets",
+    "secondaryAction": "Sien Planne"
+  },
+  "header": {
+    "home": "Tuis",
+    "features": "Funksies",
+    "pricing": "Pryse",
+    "about": "Oor",
+    "signIn": "Teken In",
+    "getStarted": "Begin"
+  }
+}

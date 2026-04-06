@@ -1,19 +1,26 @@
 'use client';
 
+import { useTranslation } from 'react-i18next';
 import { PageCTA } from '@/components/ui/PageCTA';
 
 export function CTASection() {
+  const { t, ready } = useTranslation('platform');
+
+  if (!ready) {
+    return null;
+  }
+
   return (
     <PageCTA
-      title="Your Complex, Connected"
-      description="Join communities that are transforming from managed populations into informed, engaged, and self-expressive, sustainable  networks."
+      title={t('cta.title')}
+      description={t('cta.description')}
       primaryAction={{
         href: '/signup',
-        text: 'Start Free Trial',
+        text: t('cta.primaryAction'),
       }}
       secondaryAction={{
         href: '/pricing',
-        text: 'View Plans',
+        text: t('cta.secondaryAction'),
       }}
       background="lapis"
       showAttribution={true}

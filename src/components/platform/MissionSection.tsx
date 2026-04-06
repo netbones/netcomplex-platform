@@ -1,9 +1,15 @@
 'use client';
 
+import { useTranslation } from 'react-i18next';
 import { SectionLayout } from '@/components/layout/SectionLayout';
 import { Target, Lightbulb } from 'lucide-react';
 
 export function MissionSection() {
+  const { t, ready } = useTranslation('platform');
+
+  if (!ready) {
+    return null;
+  }
   return (
     <SectionLayout size="xl" background="white" className="py-20">
       <div className="max-w-6xl mx-auto">
@@ -14,19 +20,12 @@ export function MissionSection() {
               <div className="p-3 bg-lapis-deep rounded-xl group-hover:scale-110 transition-transform duration-300">
                 <Target className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-lapis-deep">Mission</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-lapis-deep">
+                {t('mission.title')}
+              </h2>
             </div>
             <div className="space-y-4 text-base md:text-lg text-lapis-mid leading-relaxed">
-              <p>
-                NetComplex is not merely a management tool. We are an{' '}
-                <span className="font-semibold text-lapis-deep">informatics platform</span> — a
-                living network that gives homeowners associations, body corporates and their
-                residents a shared language, a common space, and the infrastructure to act together.
-              </p>
-              <p className="font-medium text-lapis-deep pt-2">
-                Where other platforms manage & administer properties, we activate & nurture
-                communities.
-              </p>
+              <p>{t('mission.description')}</p>
             </div>
           </div>
 
@@ -36,21 +35,12 @@ export function MissionSection() {
               <div className="p-3 bg-gold-vein rounded-xl group-hover:scale-110 transition-transform duration-300">
                 <Lightbulb className="w-6 h-6 text-lapis-deep" />
               </div>
-              <h3 className="text-3xl md:text-4xl font-bold text-lapis-deep">Core belief</h3>
+              <h3 className="text-3xl md:text-4xl font-bold text-lapis-deep">
+                {t('mission.coreBeliefTitle')}
+              </h3>
             </div>
             <p className="text-base md:text-lg text-lapis-mid leading-relaxed">
-              A neighbourhood is not just an address. It is a{' '}
-              <span className="font-semibold text-lapis-deep">
-                network of relationships, resources, and shared stakes
-              </span>
-              . NetComplex makes that network visible, useful, and participatory.
-            </p>
-            <p className="text-base md:text-lg text-lapis-mid leading-relaxed">
-              Providing homeowners and tenants with {''}
-              <span className="font-semibold text-lapis-deep">
-                tools to communicate, collaborate
-              </span>
-              , and build stronger communities.
+              {t('mission.coreBelief')}
             </p>
           </div>
         </div>

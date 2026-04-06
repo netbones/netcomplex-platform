@@ -1,0 +1,100 @@
+{
+  "hero": {
+    "tagline": "iPatifom Yolwazi Loluntu",
+    "title": "NetComplex",
+    "subtitle": "Ikompleks yakho, ixhunyiwe.",
+    "attribution": "ngu-Netbones Africa",
+    "cta": {
+      "signup": "Bhalisa",
+      "pricing": "Jonga Amaxabiso"
+    }
+  },
+  "mission": {
+    "title": "Umsebenzi",
+    "coreBeliefTitle": " Inkolelo ephambili",
+    "description": "I-NetComplex ayisosixhobo sokulawula. Lipatifom elenzelwe ukudibanisa abamelwane, ukulungelelanisa imisebenzi yoluntu, nokuphucula ubomi kubahlali kwiindawo zokuhlala. Sikholwa ukuba uluntu oluxhunyiwe lumemelisa abahlali, lulungiselela ulawulo, kwaye ludala ubudlelwano obuhlala iintsolongwana.",
+    "coreBelief": "Umgangatho awuso sungumaxesha nje — sisixhobo esiphilayo sabantu, ubudlelwano, namava abangelwanayo. Sakha i-NetComplex ukomeleza ezi nxibano ngoyilo lwezwi kunye neteknoloji ekwamkelekileyo."
+  },
+  "features": {
+    "title": "Akha Uluntu Oluxhunyiwe",
+    "subtitle": "Izixhobo ezinamandla eziguqula ii-komplex zokuhlala zibe uluntu olwaziwayo, olubandakanyekayo, kunye nolusenza izibhengezo.",
+    "showMore": "Bonisa ngaphezulu",
+    "showLess": "Bonisa ngaphantsi",
+    "list": [
+      {
+        "title": "Uhlahlulo Lwabahlali",
+        "desc": "Yazi abamelwane bakho kunye nohlahlulo olupheleleyo.",
+        "details": "Yenza iprofile yakho ngefoto, izinto ozithandayo, kunye neminqweno. Khangela ngesakhiwo okanye isiqendu. Izulululo zokhuseleko ziqinisekisa ukuba wabelana ngalo only iphi owufunayo."
+      },
+      {
+        "title": "Iimfuno Zokugcina",
+        "desc": "Loga, siqhubeke, silungise. Ukusuka kwi-taps ezikhubekayo ukuya kwiisebe zoluntu.",
+        "details": "Thumela iifoto kunye neenchazo. Qhubeka nokuhlaziywa kwimeko ngexesha langempela. Xhumana ngqo namafaki-nkonzo. Nika ikhodi yenkonzo kunye nexesha lokusombulula."
+      },
+      {
+        "title": "Amaqela Okubhukisha",
+        "desc": "Bhukisha iindawo ngokulula. Iipools, iiclubhouses, imevaltyu.",
+        "details": "Jonga ukhoyo ngexesha langempela. Cwangcisa amaqela aphindiweyo. Fumana izikhumbuzi ezizenzekelayo. Suswa okanye ulungise ngokulula. Ukuhlanganiswa kweekhalenda."
+      },
+      {
+        "title": "Umxholo Woluntu",
+        "desc": "indawo yakho yokuthumela uphuhliso, amabali, kunye nezaziso.",
+        "details": "Umhleli wombhalo onamandla aneefoto kunye neevidiyo. Yahlula umxholo ukuze lufunyanwe lula. Commenta uze usabele kwiintsapho. Lawula ngeengqwalasela zoluntu."
+      },
+      {
+        "title": "Upengululo & Amaphulo",
+        "desc": "Buza uluntu lwakho. Fumana iimpendulo ezisemgceni. Imibuzo ekhawulezayo, imvakalelo ekhawulezayo.",
+        "details": "Yenza iimpendulo ezininzi, ukulinganisa, kunye nemibuzo evulekileyo. Iimpendulo ezingenakwaziwa okanye ezibiziweyo. Ukubonakaliswa kwemiphumo ngexesha langempela. Khuphela idatha ukuzeuhlalutye."
+      },
+      {
+        "title": "amaqela aNhlangano",
+        "desc": "Fumana abantu bakho ngaphakathi kwekomplex yakho. Xhumana ngeenxa zokufuna.",
+        "details": "Yenza uze ujoyine amaqela angenxa zokufuna. Amaqela angasese okanye agcinweyo. Ukucwangcisa iziganekukufa ngaphakathi kwamaqela. Uhlahlulo lwamalungu kunye nemiyalezo."
+      },
+      {
+        "title": "Iziganekukufa Zoluntu",
+        "desc": "Fumana kwaye ulungele iziganekukufa ezisondeza uluntu lwakho.",
+        "details": "Yenza iziganekukufa ne-RSVP tracking. Thumela izikhumbuzi ezizenzekelayo. Thengisa amatikiti okanye collections. Ukwabelana ngeefoto emva kweziganekukufa. Amashedyuli eziganekukufa aphindiweyo."
+      },
+      {
+        "title": "i-Web3 Digital Identity",
+        "desc": "Akha ulawulo loluntu olusikelwa kwindawo yobunikazi bedijithali.",
+        "details": "Iinkqubo zokuvota ezisekelwe kwi-token. Ulawulo lwentlawulo yoluntu. Ama-NFT anomembership. Uqinisekiso lobunikazi obusikelwa kwindawo. Ukuzenzekelayo kwe-contract esmart."
+      },
+      {
+        "title": "Ukuhlaziywa Kweelwimi",
+        "desc": "Ngokuzenzekelayo ukuhlaziywa kweelwimi zeelwimi ozikhethileyo.",
+        "details": "Guqulela umxholo, izaziso, kunye ne-interface kwiilwimi ezininzi ngokuzenzekelayo."
+      },
+      {
+        "title": "i-Agent Gateway",
+        "desc": "Dibanisa abantu kunye nam agents emishini kwiinkqubo zoluntu.",
+        "details": "Xhumana, Inkxaso elawulwayo, Inkxaso ye-AI. Ukuhlaziywa kweemfuno zokugcina ngokuzenzekelayo. Ukuhlanganiswa kwekhaya le-smart. Uncedo olusekelwe ilizwi."
+      },
+      {
+        "title": "Imarketplace",
+        "desc": "Thenga kwaye uthengise ii-services kunye neempahla kuluntu lwakho.",
+        "details": "Imarketplace yendawo yabahlali. Ukul_PROCESSA payments okhuselekileyo. Inkqubo yovavanyo kunye nokunikela ikhadi. Imiyalezo lang مباشرة phakathi kwabathengi nabathengisi."
+      },
+      {
+        "title": "Imfundo",
+        "desc": "Fumana izibonelelo zemfundo kunye namathuba okufunda.",
+        "details": "I-Portal yee-Bursaries, ii-courses ze-online kunye namavidiyo. Iziganekukufa zokufunda zoluntu. Ukwabelana ngezibonelelo. Ukufunda ngabalingane. Ilayibrari yomxholo wezemfundo."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Ikompleks Yakho, Exhunyiwe",
+    "description": "Joyina amawaka eendlela eziguqula indlela abamelwane baxhumana ngayo, benxibelelana, kwaye baphumelela. I-NetComplex iyenza kube lula ukwakha uluntu olunamandla oluxhunyiweyo.",
+    "primaryAction": "Qala I-Trial Engenamali",
+    "secondaryAction": "Jonga Amacebo"
+  },
+  "header": {
+    "home": "Ekhaya",
+    "features": "Iimpawu",
+    "pricing": "Amaxabiso",
+    "about": "Ngo",
+    "signIn": "Ngena",
+    "getStarted": "Qala"
+  }
+}

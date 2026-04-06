@@ -1,10 +1,16 @@
 'use client';
 
+import { useTranslation } from 'react-i18next';
 import { PrimaryCTA } from '@/components/ui/PrimaryCTA';
 import { SectionLayout } from '@/components/layout/SectionLayout';
 import { Network } from 'lucide-react';
 
 export function HeroSection() {
+  const { t, ready } = useTranslation('platform');
+
+  if (!ready) {
+    return null;
+  }
   return (
     <SectionLayout
       size="xl"
@@ -440,18 +446,16 @@ export function HeroSection() {
         {/* Heading */}
         <div className="space-y-2">
           <p className="text-gold-vein tracking-wider text-sm md:text-base uppercase font-medium">
-            Community Informatics Platform
+            {t('hero.tagline')}
           </p>
           <h1 className="text-5xl md:text-7xl font-bold text-lapis-deep tracking-tight">
-            NetComplex
+            {t('hero.title')}
           </h1>
-          <p className="text-lapis-mid text-sm md:text-base pt-2">
-            by <b>Net</b>bones Africa
-          </p>
+          <p className="text-lapis-mid text-sm md:text-base pt-2">{t('hero.attribution')}</p>
         </div>
 
         {/* Subtext */}
-        <p className="text-2xl md:text-3xl text-lapis-mid font-light">Your complex, connected.</p>
+        <p className="text-2xl md:text-3xl text-lapis-mid font-light">{t('hero.subtitle')}</p>
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
@@ -460,7 +464,7 @@ export function HeroSection() {
             size="md"
             className="bg-gold-vein text-lapis-deep hover:bg-gold-vein/90"
           >
-            Sign Up
+            {t('hero.cta.signup')}
           </PrimaryCTA>
           <PrimaryCTA
             href="/pricing"
@@ -468,7 +472,7 @@ export function HeroSection() {
             size="md"
             className="border-2 border-gold-vein text-gold-vein hover:bg-gold-vein/10"
           >
-            View Pricing
+            {t('hero.cta.pricing')}
           </PrimaryCTA>
         </div>
       </div>

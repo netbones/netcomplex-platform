@@ -4,13 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-
-const navigation = [
-  { name: 'Home', href: '/' },
-  { name: 'Features', href: '/features' },
-  { name: 'Pricing', href: '/pricing' },
-  { name: 'About', href: '/about' },
-];
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 
 interface PlatformHeaderProps {
   className?: string;
@@ -24,16 +19,34 @@ interface PlatformHeaderProps {
 export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t, ready } = useTranslation('platform');
+
+  const textColor = variant === 'dark' ? 'text-white' : 'text-lapis-deep';
+  const subtextColor = variant === 'dark' ? 'text-lapis-azure/70' : 'text-lapis-mid';
+  const hoverColor = variant === 'dark' ? 'hover:text-gold-vein' : 'hover:text-lapis-azure';
+
+  const navItems = ready
+    ? [
+        { name: t('header.home'), href: '/' },
+        { name: t('header.features'), href: '/features' },
+        { name: t('header.pricing'), href: '/pricing' },
+        { name: t('header.about'), href: '/about' },
+      ]
+    : [
+        { name: 'Home', href: '/' },
+        { name: 'Features', href: '/features' },
+        { name: 'Pricing', href: '/pricing' },
+        { name: 'About', href: '/about' },
+      ];
+
+  const signInText = ready ? t('header.signIn') : 'Sign In';
+  const getStartedText = ready ? t('header.getStarted') : 'Get Started';
 
   const isActive = (href: string) => {
     if (href === '/' && pathname === '/') return true;
     if (href !== '/' && pathname.startsWith(href)) return true;
     return false;
   };
-
-  const textColor = variant === 'dark' ? 'text-white' : 'text-lapis-deep';
-  const subtextColor = variant === 'dark' ? 'text-lapis-azure/70' : 'text-lapis-mid';
-  const hoverColor = variant === 'dark' ? 'hover:text-gold-vein' : 'hover:text-lapis-azure';
 
   return (
     <header
@@ -62,7 +75,7 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
 
           {/* Navigation */}
           <nav className="hidden md:flex space-x-8">
-            {navigation.map(item => (
+            {navItems.map(item => (
               <Link
                 key={item.name}
                 href={item.href}
@@ -80,17 +93,18 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
+            <LanguageSwitcher variant={variant} />
             <Link
               href="/sign-in"
               className={cn('text-sm font-medium transition-colors', textColor, hoverColor)}
             >
-              Sign In
+              {signInText}
             </Link>
             <Link
               href="/signup"
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-lapis-deep bg-gold-vein hover:bg-gold-vein/90 transition-colors"
             >
-              Get Started
+              {getStartedText}
             </Link>
           </div>
 
@@ -130,7 +144,7 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-lapis-azure/20 py-4">
             <nav className="space-y-2">
-              {navigation.map(item => (
+              {navItems.map(item => (
                 <Link
                   key={item.name}
                   href={item.href}
@@ -147,6 +161,9 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
               ))}
             </nav>
             <div className="space-y-2 pt-4 border-t border-lapis-azure/20 mt-4">
+              <div className="py-2">
+                <LanguageSwitcher variant={variant} />
+              </div>
               <Link
                 href="/sign-in"
                 className={cn(
@@ -156,14 +173,14 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
                 )}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Sign In
+                {signInText}
               </Link>
               <Link
                 href="/signup"
                 className="block text-center px-4 py-2 text-sm font-medium rounded-lg text-lapis-deep bg-gold-vein hover:bg-gold-vein/90 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Get Started
+                {getStartedText}
               </Link>
             </div>
           </div>
