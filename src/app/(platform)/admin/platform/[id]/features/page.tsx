@@ -16,13 +16,13 @@ async function FeatureManager({ id }: { id: string }) {
     return notFound();
   }
 
-  const tenantTier = (tenant.subscriptionTier || 'sprout') as TierLevel;
+  const tenantTier = (tenant.subscriptionTier || 'foundation') as TierLevel;
   const tierDef = TIERS[tenantTier];
   const featureFlags = tenant.featureFlags;
   const pageCount = tenant.pageCount;
   const maxPages = tenant.maxPages;
 
-  const tierOrder: TierLevel[] = ['sprout', 'grove', 'forest'];
+  const tierOrder: TierLevel[] = ['foundation', 'depth', 'core'];
   const currentTierIndex = tierOrder.indexOf(tenantTier);
 
   // Get all features for the form
@@ -84,25 +84,25 @@ async function FeatureManager({ id }: { id: string }) {
             className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white"
             style={{ backgroundColor: tierDef.color }}
           >
-            {tenantTier === 'sprout' ? '🌱' : tenantTier === 'grove' ? '🌳' : '🌲'}
+            {tenantTier === 'foundation' ? '🏗️' : tenantTier === 'depth' ? '🌊' : '🏛️'}
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-3">
               <span className="text-xl font-semibold">{tierDef.name}</span>
               <span
                 className={`px-2 py-1 text-xs rounded-full ${
-                  tenantTier === 'forest'
+                  tenantTier === 'core'
                     ? 'bg-slate-100 text-slate-700'
-                    : tenantTier === 'grove'
+                    : tenantTier === 'depth'
                       ? 'bg-amber-100 text-amber-700'
                       : 'bg-green-100 text-green-700'
                 }`}
               >
-                {tenantTier === 'forest'
+                {tenantTier === 'core'
                   ? 'Enterprise'
-                  : tenantTier === 'grove'
+                  : tenantTier === 'depth'
                     ? 'Growth'
-                    : 'Starter'}
+                    : 'Foundation'}
               </span>
             </div>
             <p className="text-gray-500 text-sm">{tierDef.description}</p>
@@ -134,7 +134,7 @@ async function FeatureManager({ id }: { id: string }) {
       <div className="bg-white rounded-lg shadow p-6 mb-8">
         <h2 className="text-lg font-medium mb-4">Tier Comparison</h2>
         <div className="grid grid-cols-3 gap-4">
-          {(['sprout', 'grove', 'forest'] as TierLevel[]).map(t => {
+          {(['foundation', 'depth', 'core'] as TierLevel[]).map(t => {
             const tier = TIERS[t];
             const isCurrent = t === tenantTier;
             return (
@@ -144,7 +144,7 @@ async function FeatureManager({ id }: { id: string }) {
               >
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xl">
-                    {t === 'sprout' ? '🌱' : t === 'grove' ? '🌳' : '🌲'}
+                    {t === 'foundation' ? '🏗️' : t === 'depth' ? '🌊' : '🏛️'}
                   </span>
                   <span className="font-semibold">{tier.name}</span>
                 </div>

@@ -120,3 +120,39 @@ export const conversationSchema = z.object({
 });
 
 export type ConversationFormData = z.infer<typeof conversationSchema>;
+
+/**
+ * Zod schema for platform signup form validation.
+ * @property communityName - Community name (required)
+ * @property subdomain - URL subdomain (required, lowercase alphanumeric + hyphens, min 3 chars)
+ * @property firstName - Admin first name (required)
+ * @property lastName - Admin last name (required)
+ * @property email - Admin email address (required, valid email)
+ * @property phone - Admin phone number (optional)
+ * @property password - Admin password (required, min 8 chars)
+ * @property confirmPassword - Password confirmation (must match password)
+ * @property plan - Subscription tier (foundation/depth/core)
+ */
+export const signupSchema = z
+  .object({
+    communityName: z.string().min(1, 'Community name is required').max(100, 'Name too long'),
+    subdomain: z
+      .string()
+      .min(1, 'Subdomain is required')
+      .min(3, 'Subdomain must be at least 3 characters')
+      .max(50, 'Subdomain too long')
+      .regex(/^[a-z0-9-]+$/, 'Subdomain can only contain lowercase letters, numbers, and hyphens'),
+    firstName: z.string().min(1, 'First name is required').max(50, 'First name too long'),
+    lastName: z.string().min(1, 'Last name is required').max(50, 'Last name too long'),
+    email: z.string().min(1, 'Email is required').email('Invalid email address'),
+    phone: z.string().optional(),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+    plan: z.enum(['foundation', 'depth', 'core']),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
+
+export type SignupFormData = z.infer<typeof signupSchema>;

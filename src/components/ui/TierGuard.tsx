@@ -79,7 +79,7 @@ function UpgradePrompt({
   widget?: string;
   currentTier: TierLevel;
 }) {
-  const nextTier = currentTier === 'sprout' ? 'Grove' : 'Forest';
+  const nextTier = currentTier === 'foundation' ? 'DEPTH' : 'CORE';
 
   return (
     <div className="flex flex-col items-center justify-center p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">

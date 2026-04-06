@@ -1,15 +1,15 @@
 /**
  * NetComplex Feature Registry
  *
- * Nature-themed subscription tiers:
- * - Sprout: Entry tier (5 pages max)
- * - Grove: Growth tier (15 pages max)
- * - Forest: Enterprise tier (unlimited pages)
+ * Subscription tiers:
+ * - FOUNDATION: Entry tier (5 pages max)
+ * - DEPTH: Growth tier (15 pages max)
+ * - CORE: Enterprise tier (unlimited pages)
  */
 
 import type { Tenant } from '@/lib/tenant';
 
-export type TierLevel = 'sprout' | 'grove' | 'forest';
+export type TierLevel = 'foundation' | 'depth' | 'core';
 
 export { Tenant };
 
@@ -36,25 +36,25 @@ export interface TierDefinition {
 // ============================================
 
 export const TIERS: Record<TierLevel, TierDefinition> = {
-  sprout: {
-    id: 'sprout',
-    name: 'Sprout',
+  foundation: {
+    id: 'foundation',
+    name: 'FOUNDATION',
     maxPages: 5,
     description: 'Entry tier for small communities',
     color: '#22C55E', // green-500
     features: [],
   },
-  grove: {
-    id: 'grove',
-    name: 'Grove',
+  depth: {
+    id: 'depth',
+    name: 'DEPTH',
     maxPages: 15,
     description: 'Growth tier for expanding communities',
     color: '#F59E0B', // amber-500
     features: [],
   },
-  forest: {
-    id: 'forest',
-    name: 'Forest',
+  core: {
+    id: 'core',
+    name: 'CORE',
     maxPages: -1, // unlimited
     description: 'Enterprise tier for full-featured communities',
     color: '#1E293B', // slate-800
@@ -70,7 +70,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   // ----- PAGES -----
   'page.directory': {
     key: 'page.directory',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'page',
     label: 'Community Directory',
     description: 'Resident directory with search and profiles',
@@ -78,7 +78,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.news': {
     key: 'page.news',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'page',
     label: 'News & Announcements',
     description: 'Community news and announcements',
@@ -86,7 +86,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.events': {
     key: 'page.events',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'page',
     label: 'Events',
     description: 'Community events calendar',
@@ -94,7 +94,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.bookings': {
     key: 'page.bookings',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'page',
     label: 'Facility Booking',
     description: 'Book community facilities',
@@ -102,7 +102,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.conservation': {
     key: 'page.conservation',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'page',
     label: 'Conservation Area',
     description: 'Nature conservation information (optional)',
@@ -110,7 +110,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.bookshelf': {
     key: 'page.bookshelf',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'page',
     label: 'Community Library',
     description: 'Borrow and share books',
@@ -118,7 +118,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.groups': {
     key: 'page.groups',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'page',
     label: 'Groups',
     description: 'Community groups and memberships',
@@ -126,7 +126,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.marketplace': {
     key: 'page.marketplace',
-    tier: 'grove',
+    tier: 'depth',
     category: 'page',
     label: 'Services Marketplace',
     description: 'Local service providers directory',
@@ -134,7 +134,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.property': {
     key: 'page.property',
-    tier: 'grove',
+    tier: 'depth',
     category: 'page',
     label: 'Property Listings',
     description: 'Buy/rent property listings',
@@ -142,7 +142,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.maintenance': {
     key: 'page.maintenance',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'page',
     label: 'Maintenance Requests',
     description: 'Submit and track maintenance requests',
@@ -150,7 +150,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.surveys': {
     key: 'page.surveys',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'page',
     label: 'Surveys',
     description: 'Community surveys and polls',
@@ -158,7 +158,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.chat': {
     key: 'page.chat',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'page',
     label: 'Community Chat',
     description: 'Real-time community messaging',
@@ -166,7 +166,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.analytics': {
     key: 'page.analytics',
-    tier: 'forest',
+    tier: 'core',
     category: 'page',
     label: 'Analytics Dashboard',
     description: 'Advanced analytics and insights',
@@ -174,7 +174,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'page.admin': {
     key: 'page.admin',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'page',
     label: 'Admin Panel',
     description: 'Community administration',
@@ -184,7 +184,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   // ----- FEATURES -----
   'feature.customBranding': {
     key: 'feature.customBranding',
-    tier: 'grove',
+    tier: 'depth',
     category: 'feature',
     label: 'Custom Branding',
     description: 'Custom colors, logos, and CSS',
@@ -192,7 +192,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'feature.customDomain': {
     key: 'feature.customDomain',
-    tier: 'grove',
+    tier: 'depth',
     category: 'feature',
     label: 'Custom Domain',
     description: 'Use your own domain',
@@ -200,7 +200,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'feature.apiAccess': {
     key: 'feature.apiAccess',
-    tier: 'forest',
+    tier: 'core',
     category: 'feature',
     label: 'API Access',
     description: 'REST API access for integrations',
@@ -208,7 +208,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'feature.premiumSupport': {
     key: 'feature.premiumSupport',
-    tier: 'forest',
+    tier: 'core',
     category: 'feature',
     label: 'Premium Support',
     description: 'Priority support and SLA',
@@ -216,7 +216,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'feature.advancedGroups': {
     key: 'feature.advancedGroups',
-    tier: 'grove',
+    tier: 'depth',
     category: 'feature',
     label: 'Advanced Groups',
     description: 'Premium group features and analytics',
@@ -224,7 +224,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'feature.whiteLabel': {
     key: 'feature.whiteLabel',
-    tier: 'forest',
+    tier: 'core',
     category: 'feature',
     label: 'White Label',
     description: 'Full white-label with no NetComplex branding',
@@ -232,7 +232,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'feature.bookingPayments': {
     key: 'feature.bookingPayments',
-    tier: 'grove',
+    tier: 'depth',
     category: 'feature',
     label: 'Booking Payments',
     description: 'Accept payments for facility bookings',
@@ -240,7 +240,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'feature.conservation': {
     key: 'feature.conservation',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'feature',
     label: 'Conservation Module',
     description: 'Enable conservation area features',
@@ -248,7 +248,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'feature.agentDashboard': {
     key: 'feature.agentDashboard',
-    tier: 'grove',
+    tier: 'depth',
     category: 'feature',
     label: 'Agent Dashboard',
     description: 'Real estate agent management',
@@ -256,7 +256,7 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
   },
   'feature.externalSurveys': {
     key: 'feature.externalSurveys',
-    tier: 'grove',
+    tier: 'depth',
     category: 'feature',
     label: 'External Surveys',
     description: 'Integrate external survey tools',
@@ -281,7 +281,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   // Community Widgets
   'directory-widget': {
     key: 'directory-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'community',
     label: 'Resident Directory',
     description: 'Searchable resident list',
@@ -289,7 +289,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'events-widget': {
     key: 'events-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'community',
     label: 'Upcoming Events',
     description: 'Event calendar widget',
@@ -297,7 +297,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'bookings-widget': {
     key: 'bookings-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'community',
     label: 'Facility Booking',
     description: 'Book community facilities',
@@ -305,7 +305,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'groups-widget': {
     key: 'groups-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'community',
     label: 'Community Groups',
     description: 'Group membership widget',
@@ -313,7 +313,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'chat-widget': {
     key: 'chat-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'community',
     label: 'Community Chat',
     description: 'Real-time messaging',
@@ -321,7 +321,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'conservation-widget': {
     key: 'conservation-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'community',
     label: 'Conservation Info',
     description: 'Conservation area information',
@@ -329,7 +329,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'bookshelf-widget': {
     key: 'bookshelf-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'community',
     label: 'Community Library',
     description: 'Book sharing widget',
@@ -337,7 +337,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'news-widget': {
     key: 'news-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'community',
     label: 'News Feed',
     description: 'Announcements and news',
@@ -345,7 +345,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'maintenance-widget': {
     key: 'maintenance-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'community',
     label: 'Maintenance Requests',
     description: 'Submit and track requests',
@@ -353,7 +353,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'surveys-widget': {
     key: 'surveys-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'community',
     label: 'Surveys',
     description: 'Community polls',
@@ -363,7 +363,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   // Marketplace Widgets
   'services-widget': {
     key: 'services-widget',
-    tier: 'grove',
+    tier: 'depth',
     category: 'marketplace',
     label: 'Services Directory',
     description: 'Service provider listings',
@@ -371,7 +371,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'property-widget': {
     key: 'property-widget',
-    tier: 'grove',
+    tier: 'depth',
     category: 'marketplace',
     label: 'Property Listings',
     description: 'Buy/rent property listings',
@@ -379,7 +379,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'agent-widget': {
     key: 'agent-widget',
-    tier: 'grove',
+    tier: 'depth',
     category: 'marketplace',
     label: 'Agent Dashboard',
     description: 'Agent management widget',
@@ -389,7 +389,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   // Admin Widgets
   'analytics-widget': {
     key: 'analytics-widget',
-    tier: 'forest',
+    tier: 'core',
     category: 'admin',
     label: 'Analytics',
     description: 'Advanced analytics',
@@ -397,7 +397,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'stats-widget': {
     key: 'stats-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'admin',
     label: 'Dashboard Stats',
     description: 'Overview statistics',
@@ -405,7 +405,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'notifications-widget': {
     key: 'notifications-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'admin',
     label: 'Notifications',
     description: 'Notification management',
@@ -413,7 +413,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'households-widget': {
     key: 'households-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'admin',
     label: 'Households',
     description: 'Property management',
@@ -423,7 +423,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   // Utility Widgets
   'quick-actions-widget': {
     key: 'quick-actions-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'utility',
     label: 'Quick Actions',
     description: 'Common action shortcuts',
@@ -431,7 +431,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'recent-activity-widget': {
     key: 'recent-activity-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'utility',
     label: 'Recent Activity',
     description: 'Activity feed',
@@ -439,7 +439,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'my-album-widget': {
     key: 'my-album-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'utility',
     label: 'My Albums',
     description: 'Photo album widget',
@@ -447,7 +447,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
   },
   'media-widget': {
     key: 'media-widget',
-    tier: 'sprout',
+    tier: 'foundation',
     category: 'utility',
     label: 'Media Gallery',
     description: 'Shared media gallery',
@@ -460,9 +460,9 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
 // ============================================
 
 export function getTierLevel(tier: string): TierLevel {
-  if (tier === 'grove') return 'grove';
-  if (tier === 'forest') return 'forest';
-  return 'sprout';
+  if (tier === 'depth') return 'depth';
+  if (tier === 'core') return 'core';
+  return 'foundation';
 }
 
 export function hasFeature(
@@ -479,12 +479,12 @@ export function hasFeature(
   }
 
   // Otherwise check tier
-  const tierOrder: TierLevel[] = ['sprout', 'grove', 'forest'];
+  const tierOrder: TierLevel[] = ['foundation', 'depth', 'core'];
   return tierOrder.indexOf(tenantTier) >= tierOrder.indexOf(feature.tier);
 }
 
 export function getFeaturesForTier(tier: TierLevel): FeatureDefinition[] {
-  const tierOrder: TierLevel[] = ['sprout', 'grove', 'forest'];
+  const tierOrder: TierLevel[] = ['foundation', 'depth', 'core'];
   const tierIndex = tierOrder.indexOf(tier);
 
   return Object.values(FEATURE_REGISTRY).filter(f => tierOrder.indexOf(f.tier) <= tierIndex);
@@ -495,7 +495,7 @@ export function getPagesForTier(tier: TierLevel): FeatureDefinition[] {
 }
 
 export function getWidgetsForTier(tier: TierLevel): WidgetDefinition[] {
-  const tierOrder: TierLevel[] = ['sprout', 'grove', 'forest'];
+  const tierOrder: TierLevel[] = ['foundation', 'depth', 'core'];
   const tierIndex = tierOrder.indexOf(tier);
 
   return Object.values(WIDGET_REGISTRY).filter(w => tierOrder.indexOf(w.tier) <= tierIndex);
@@ -513,7 +513,7 @@ export function canUseWidget(widgetKey: string, tenantTier: TierLevel): boolean 
   const widget = WIDGET_REGISTRY[widgetKey];
   if (!widget) return true; // Allow unknown widgets
 
-  const tierOrder: TierLevel[] = ['sprout', 'grove', 'forest'];
+  const tierOrder: TierLevel[] = ['foundation', 'depth', 'core'];
   return tierOrder.indexOf(tenantTier) >= tierOrder.indexOf(widget.tier);
 }
 

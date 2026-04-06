@@ -64,3 +64,8 @@ clean:
 clean_all: clean
     rm -rf node_modules
     rm -rf .turbo
+
+# Report
+
+tree:
+    tree -I node_modules > tree.md 2>&1

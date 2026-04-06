@@ -1,111 +1,40 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-
-type Step = 1 | 2 | 3;
+import { useSignupForm } from '@/lib/hooks/useSignupForm';
+import type { PricingPlan } from '@/app/api/pricing/route';
 
 export default function SignupPage() {
-  const router = useRouter();
-  const [step, setStep] = useState<Step>(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { form, step, loading, error, handleNext, handleBack, handleSubdomainChange } =
+    useSignupForm();
 
-  const [formData, setFormData] = useState({
-    communityName: '',
-    subdomain: '',
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-    plan: 'professional',
-  });
+  const {
+    register,
+    watch,
+    formState: { errors },
+  } = form;
 
-  const updateField = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    setError('');
-  };
+  const [plans, setPlans] = useState<PricingPlan[]>([]);
+  const [plansLoading, setPlansLoading] = useState(true);
 
-  const validateStep1 = () => {
-    if (!formData.communityName.trim()) return 'Community name is required';
-    if (!formData.subdomain.trim()) return 'Subdomain is required';
-    if (!/^[a-z0-9-]+$/.test(formData.subdomain))
-      return 'Subdomain can only contain lowercase letters, numbers, and hyphens';
-    if (formData.subdomain.length < 3) return 'Subdomain must be at least 3 characters';
-    return '';
-  };
-
-  const validateStep2 = () => {
-    if (!formData.firstName.trim()) return 'First name is required';
-    if (!formData.lastName.trim()) return 'Last name is required';
-    if (!formData.email.trim()) return 'Email is required';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return 'Invalid email address';
-    return '';
-  };
-
-  const validateStep3 = () => {
-    if (!formData.password) return 'Password is required';
-    if (formData.password.length < 8) return 'Password must be at least 8 characters';
-    if (formData.password !== formData.confirmPassword) return 'Passwords do not match';
-    return '';
-  };
-
-  const handleNext = () => {
-    let validation = '';
-    if (step === 1) validation = validateStep1();
-    if (step === 2) validation = validateStep2();
-    if (step === 3) validation = validateStep3();
-
-    if (validation) {
-      setError(validation);
-      return;
-    }
-
-    if (step < 3) {
-      setStep((step + 1) as Step);
-    } else {
-      handleSubmit();
-    }
-  };
-
-  const handleSubmit = async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const res = await fetch('/api/platform/tenants', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.communityName,
-          slug: formData.subdomain,
-          plan: formData.plan,
-          admin: {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            phone: formData.phone,
-            password: formData.password,
-          },
-        }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to create community');
+  useEffect(() => {
+    async function fetchPlans() {
+      try {
+        const response = await fetch('/api/pricing');
+        if (response.ok) {
+          const data = await response.json();
+          setPlans(data.plans);
+        }
+      } catch (error) {
+        console.error('Failed to fetch pricing plans:', error);
+      } finally {
+        setPlansLoading(false);
       }
-
-      router.push('/signup/success?subdomain=' + formData.subdomain);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to create community';
-      setError(message);
-    } finally {
-      setLoading(false);
     }
-  };
+
+    fetchPlans();
+  }, []);
 
   const steps = [
     { num: 1, label: 'Community Details' },
@@ -167,24 +96,21 @@ export default function SignupPage() {
                 </label>
                 <input
                   type="text"
-                  value={formData.communityName}
-                  onChange={e => updateField('communityName', e.target.value)}
+                  {...register('communityName')}
                   placeholder="e.g. Soralia Village HOA"
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
+                {errors.communityName && (
+                  <p className="mt-1 text-sm text-red-600">{errors.communityName.message}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Subdomain</label>
                 <div className="flex items-center">
                   <input
                     type="text"
-                    value={formData.subdomain}
-                    onChange={e =>
-                      updateField(
-                        'subdomain',
-                        e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '')
-                      )
-                    }
+                    {...register('subdomain')}
+                    onChange={e => handleSubdomainChange(e.target.value)}
                     placeholder="soralia"
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 rounded-r-none"
                   />
@@ -193,37 +119,50 @@ export default function SignupPage() {
                   </span>
                 </div>
                 <p className="mt-2 text-sm text-slate-500">
-                  Your community will be at: {formData.subdomain || 'yourname'}.netbones.co.za
+                  Your community will be at: {watch('subdomain') || 'yourname'}.netbones.co.za
                 </p>
+                {errors.subdomain && (
+                  <p className="mt-1 text-sm text-red-600">{errors.subdomain.message}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Select Plan</label>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {[
-                    { id: 'starter', name: 'Starter', price: 'R299/mo' },
-                    { id: 'professional', name: 'Professional', price: 'R599/mo' },
-                  ].map(plan => (
-                    <label
-                      key={plan.id}
-                      className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
-                        formData.plan === plan.id
-                          ? 'border-indigo-600 bg-indigo-50'
-                          : 'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="plan"
-                        value={plan.id}
-                        checked={formData.plan === plan.id}
-                        onChange={e => updateField('plan', e.target.value)}
-                        className="sr-only"
-                      />
-                      <div className="font-semibold text-slate-900">{plan.name}</div>
-                      <div className="text-slate-500 text-sm">{plan.price}</div>
-                    </label>
-                  ))}
-                </div>
+                {plansLoading ? (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="border-2 rounded-lg p-4 animate-pulse">
+                        <div className="h-5 bg-slate-200 rounded mb-2"></div>
+                        <div className="h-4 bg-slate-200 rounded w-2/3"></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {plans.slice(0, 2).map(plan => (
+                      <label
+                        key={plan.id}
+                        className={`border-2 rounded-lg p-4 cursor-pointer transition-colors ${
+                          watch('plan') === plan.id
+                            ? 'border-indigo-600 bg-indigo-50'
+                            : 'border-slate-200 hover:border-slate-300'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          value={plan.id}
+                          {...register('plan')}
+                          className="sr-only"
+                        />
+                        <div className="font-semibold text-slate-900">{plan.name}</div>
+                        <div className="text-slate-500 text-sm">
+                          {plan.price === 'Custom' ? 'Custom pricing' : plan.price}
+                          {plan.period && plan.price !== 'Custom' && plan.period}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                )}
+                {errors.plan && <p className="mt-1 text-sm text-red-600">{errors.plan.message}</p>}
               </div>
             </div>
           )}
@@ -237,19 +176,23 @@ export default function SignupPage() {
                   </label>
                   <input
                     type="text"
-                    value={formData.firstName}
-                    onChange={e => updateField('firstName', e.target.value)}
+                    {...register('firstName')}
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   />
+                  {errors.firstName && (
+                    <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">Last Name</label>
                   <input
                     type="text"
-                    value={formData.lastName}
-                    onChange={e => updateField('lastName', e.target.value)}
+                    {...register('lastName')}
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   />
+                  {errors.lastName && (
+                    <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
+                  )}
                 </div>
               </div>
               <div>
@@ -258,10 +201,12 @@ export default function SignupPage() {
                 </label>
                 <input
                   type="email"
-                  value={formData.email}
-                  onChange={e => updateField('email', e.target.value)}
+                  {...register('email')}
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -269,10 +214,12 @@ export default function SignupPage() {
                 </label>
                 <input
                   type="tel"
-                  value={formData.phone}
-                  onChange={e => updateField('phone', e.target.value)}
+                  {...register('phone')}
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
+                {errors.phone && (
+                  <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
+                )}
               </div>
             </div>
           )}
@@ -283,11 +230,13 @@ export default function SignupPage() {
                 <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
                 <input
                   type="password"
-                  value={formData.password}
-                  onChange={e => updateField('password', e.target.value)}
+                  {...register('password')}
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
                 <p className="mt-2 text-sm text-slate-500">Must be at least 8 characters</p>
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -295,30 +244,32 @@ export default function SignupPage() {
                 </label>
                 <input
                   type="password"
-                  value={formData.confirmPassword}
-                  onChange={e => updateField('confirmPassword', e.target.value)}
+                  {...register('confirmPassword')}
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
+                {errors.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+                )}
               </div>
               <div className="bg-slate-50 p-4 rounded-lg">
                 <h3 className="font-medium text-slate-900 mb-2">Summary</h3>
                 <dl className="text-sm text-slate-600 space-y-1">
                   <div className="flex justify-between">
                     <dt>Community:</dt>
-                    <dd className="font-medium">{formData.communityName}</dd>
+                    <dd className="font-medium">{watch('communityName')}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt>URL:</dt>
-                    <dd className="font-medium">{formData.subdomain}.netbones.co.za</dd>
+                    <dd className="font-medium">{watch('subdomain')}.netbones.co.za</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt>Plan:</dt>
-                    <dd className="font-medium capitalize">{formData.plan}</dd>
+                    <dd className="font-medium capitalize">{watch('plan')}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt>Admin:</dt>
                     <dd className="font-medium">
-                      {formData.firstName} {formData.lastName}
+                      {watch('firstName')} {watch('lastName')}
                     </dd>
                   </div>
                 </dl>
@@ -330,7 +281,7 @@ export default function SignupPage() {
             {step > 1 && (
               <button
                 type="button"
-                onClick={() => setStep((step - 1) as Step)}
+                onClick={handleBack}
                 className="px-6 py-3 border border-slate-300 text-slate-700 font-medium rounded-lg hover:bg-slate-50"
               >
                 Back

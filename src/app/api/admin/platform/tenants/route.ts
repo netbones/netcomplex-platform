@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       fontFamily: body.fontFamily || null,
       customCss: body.customCss || null,
       active: body.active ?? true,
-      subscriptionTier: body.subscriptionTier || 'sprout',
+      subscriptionTier: body.subscriptionTier || 'foundation',
       maxPages: body.maxPages ?? 5,
       pageCount: body.pageCount ?? 0,
       featureFlags: body.featureFlags || {},

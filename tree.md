@@ -1,12 +1,7 @@
 .
-├── 1
 ├── AGENTS.md
-├── COMMUNITY_SERVICES_UI_PLAN.md
-├── DATABASE_MIGRATION_v2.1.md
 ├── LICENSE
-├── PremiumModelNote.md
 ├── README.md
-├── TECH_DEBT_REMEDIATION_PLAN.md
 ├── components.json
 ├── coverage
 │   ├── base.css
@@ -64,11 +59,92 @@
 │   ├── prettify.js
 │   ├── sort-arrow-sprite.png
 │   └── sorter.js
+├── demo-site
+│   ├── conservation.html
+│   ├── dashboard.html
+│   ├── directory.html
+│   ├── footer.html
+│   ├── header.html
+│   ├── index.html
+│   ├── interest.html
+│   ├── js
+│   │   ├── conservation.js
+│   │   ├── dashboard.js
+│   │   ├── directory.js
+│   │   ├── footer.js
+│   │   ├── header.js
+│   │   ├── resources.js
+│   │   ├── script.js
+│   │   └── services.js
+│   ├── proudly-soralia.html
+│   ├── resident.html
+│   ├── resources.html
+│   ├── services.html
+│   └── style.css
+├── docs
+│   ├── AGENT*MODEL.md
+│   ├── BETTER_AUTH_EDGE.md
+│   ├── CHAT_DESIGN.md
+│   ├── COMMUNITY_SERVICES_UI_PLAN.md
+│   ├── DATABASE_DESIGN_BEST_PRACTICE.md
+│   ├── DATABASE_MIGRATION_v2.1.md
+│   ├── ESLINT.md
+│   ├── How to Make Any Next.js Website Fully SEO-Optimized* _ by Crijan Pokhrel _ Medium.pdf
+│   ├── IDENTITY_MODEL.md
+│   ├── Implementing-roll-up-feature-with-rnd.md
+│   ├── MAINTENANCE_TICKETING_SPEC.md
+│   ├── MULTI_TENANT.md
+│   ├── MULTI_TENANT_SIGNUP.md
+│   ├── NETCOMPLEX_ARCHITECTURE.md
+│   ├── NETCOMPLEX_PLAN.md
+│   ├── Netbones Soralia Proposal.pdf
+│   ├── Netcomplex-migration-plan.docx
+│   ├── PRD.md
+│   ├── PREPARING_FOR_MULTI_TENANT.md
+│   ├── PremiumModelNote.md
+│   ├── ROUTE_MAP_PLANNING.md
+│   ├── SPEC.md
+│   ├── SaaS_License_Agreement_Soralia_v4.docx
+│   ├── SaaS_License_Agreement_Soralia_v4.md
+│   ├── SaaS_License_Agreement_Soralia_v5.docx
+│   ├── Soralia-Village-Hub-Summary.pdf
+│   ├── Sustainable_Informatics_for_Collective_Housing_Schemes.0.0.2.md
+│   ├── TECH_DEBT_REMEDIATION_PLAN.md
+│   ├── TENANT_AUDIT.md
+│   ├── TESTING_METHODS.md
+│   ├── TIPTAP_BLUEPRINT.md
+│   ├── TRANSLATIONS.md
+│   ├── Vercel_Edge_Runtime_Compatibility_Audit.md
+│   ├── WHITE_LABEL_MIGRATE.md
+│   ├── WIDGET_HELP.md
+│   ├── dependency-analysis-recommendations.md
+│   ├── domain_username_mapping.md
+│   ├── emojis.md
+│   ├── hub.md
+│   ├── i18n-discussion.md
+│   ├── i18n-research.md
+│   ├── i18nGUIDE.md
+│   ├── identity-permissions-review.md
+│   ├── migration-plan-identity.md
+│   ├── minimize_vercel_compute_costs.md
+│   ├── multi-tenant.md
+│   ├── netcomplex-migration-plan.xml
+│   ├── netcomplex-progress-review-april-6-2026.docx
+│   ├── netcomplex_migration_planV0.md
+│   ├── netcomplex_migration_planv1.md
+│   ├── notifications-research.md
+│   ├── p3-plan.md
+│   ├── prisma_migrate.md
+│   ├── schema-changes-identity.md
+│   ├── surveys.md
+│   ├── usePageLoading.md
+│   └── user-stories-john-mary.md
 ├── drizzle
 │   └── meta
 │   └── \_journal.json
 ├── drizzle.config.ts
 ├── eslint.config.js
+├── justfile
 ├── migrate-renter-relationships.ts
 ├── next-env.d.ts
 ├── next.config.mjs
@@ -190,9 +266,10 @@
 │   │   │   └── migration.sql
 │   │   ├── 20260331000000_add_organization_id_to_identity_tables
 │   │   │   └── migration.sql
+│   │   ├── 20260406000000_make_better_auth_tenantid_nullable
+│   │   │   └── migration.sql
 │   │   └── migration_lock.toml
 │   ├── schema.prisma
-│   ├── schema.prisma.bak
 │   └── seed.ts
 ├── prod-ca-2021.crt
 ├── public
@@ -273,6 +350,7 @@
 │   ├── muizenberg-single-residential-homes-soralia-village-377x288.webp
 │   └── soralia.jpg
 ├── scripts
+│   ├── backfill-tenant-records.ts
 │   └── seed-drizzle.ts
 ├── src
 │   ├── LICENSE
@@ -285,47 +363,66 @@
 │   │   │   │   └── page.tsx
 │   │   │   └── sign-up
 │   │   │   └── page.tsx
+│   │   ├── (platform)
+│   │   │   ├── admin
+│   │   │   │   └── platform
+│   │   │   │   ├── [id]
+│   │   │   │   │   ├── edit
+│   │   │   │   │   │   ├── components.tsx
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── features
+│   │   │   │   │   ├── components.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── new
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── home
+│   │   │   │   └── page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   ├── login
+│   │   │   │   └── page.tsx
+│   │   │   ├── pricing
+│   │   │   │   └── page.tsx
+│   │   │   └── signup
+│   │   │   └── page.tsx
+│   │   ├── (tenant)
+│   │   │   ├── admin
+│   │   │   │   ├── categories
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── content
+│   │   │   │   │   ├── [id]
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   ├── new
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── external-surveys
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── groups
+│   │   │   │   │   ├── [id]
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   ├── new
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── page.tsx
+│   │   │   │   ├── requests
+│   │   │   │   │   ├── analytics
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── surveys
+│   │   │   │   │   ├── new
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── users
+│   │   │   │   └── page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
 │   │   ├── [lng]
+│   │   │   ├── layout.tsx
 │   │   │   └── locales
 │   │   │   ├── af
 │   │   │   ├── en
 │   │   │   ├── xh
 │   │   │   └── zu
-│   │   ├── admin
-│   │   │   ├── categories
-│   │   │   │   └── page.tsx
-│   │   │   ├── content
-│   │   │   │   ├── [id]
-│   │   │   │   │   └── page.tsx
-│   │   │   │   ├── new
-│   │   │   │   │   └── page.tsx
-│   │   │   │   └── page.tsx
-│   │   │   ├── external-surveys
-│   │   │   │   └── page.tsx
-│   │   │   ├── groups
-│   │   │   │   ├── [id]
-│   │   │   │   │   └── page.tsx
-│   │   │   │   ├── new
-│   │   │   │   │   └── page.tsx
-│   │   │   │   └── page.tsx
-│   │   │   ├── page.tsx
-│   │   │   ├── platform
-│   │   │   │   ├── [id]
-│   │   │   │   │   └── features
-│   │   │   │   │   └── page.tsx
-│   │   │   │   ├── new
-│   │   │   │   │   └── page.tsx
-│   │   │   │   └── page.tsx
-│   │   │   ├── requests
-│   │   │   │   ├── analytics
-│   │   │   │   │   └── page.tsx
-│   │   │   │   └── page.tsx
-│   │   │   ├── surveys
-│   │   │   │   ├── new
-│   │   │   │   │   └── page.tsx
-│   │   │   │   └── page.tsx
-│   │   │   └── users
-│   │   │   └── page.tsx
 │   │   ├── api
 │   │   │   ├── admin
 │   │   │   │   ├── board-members
@@ -334,6 +431,8 @@
 │   │   │   │   │   └── route.ts
 │   │   │   │   └── platform
 │   │   │   │   └── tenants
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── route.ts
 │   │   │   │   └── route.ts
 │   │   │   ├── agents
 │   │   │   │   └── marketplace
@@ -480,7 +579,6 @@
 │   │   │   └── page.tsx
 │   │   ├── notifications
 │   │   │   └── page.tsx
-│   │   ├── page.tsx
 │   │   ├── privacy
 │   │   │   └── page.tsx
 │   │   ├── proudly-soralia
@@ -580,6 +678,10 @@
 │   │   ├── shared
 │   │   │   ├── UnifiedResidentCard.tsx
 │   │   │   └── index.ts
+│   │   ├── tenant
+│   │   │   ├── FeatureGate.tsx
+│   │   │   ├── TenantProvider.tsx
+│   │   │   └── TenantStyles.tsx
 │   │   └── ui
 │   │   ├── Bookshelf.tsx
 │   │   ├── Breadcrumbs.tsx
@@ -599,8 +701,6 @@
 │   │   ├── SideDrawer.tsx
 │   │   ├── TagCloud.tsx
 │   │   ├── TagInput.tsx
-│   │   ├── TenantProvider.tsx
-│   │   ├── TenantStyles.tsx
 │   │   ├── TierGuard.tsx
 │   │   ├── Toast.tsx
 │   │   ├── Turnstile.tsx
@@ -620,7 +720,8 @@
 │   │   ├── data-fetching.ts
 │   │   ├── db.ts
 │   │   ├── features
-│   │   │   └── registry.ts
+│   │   │   ├── registry.ts
+│   │   │   └── tenantFeatures.tsx
 │   │   ├── i18n.ts
 │   │   ├── logger.ts
 │   │   ├── permissions.ts
@@ -631,6 +732,9 @@
 │   │   ├── stores
 │   │   │   └── widget-store.ts
 │   │   ├── supabase.ts
+│   │   ├── tenant
+│   │   │   ├── context.tsx
+│   │   │   └── with-tenant.ts
 │   │   ├── tenant.ts
 │   │   ├── trpc
 │   │   │   ├── client.ts
@@ -638,7 +742,7 @@
 │   │   ├── useContactSettings.ts
 │   │   ├── useTranslation.ts
 │   │   └── utils.ts
-│   ├── middleware.ts
+│   ├── proxy.ts
 │   ├── server
 │   │   ├── index.ts
 │   │   └── routers
@@ -658,4 +762,4 @@
 ├── tsconfig.tsbuildinfo
 └── vitest.config.ts
 
-179 directories, 480 files
+194 directories, 569 files
