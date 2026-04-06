@@ -9,7 +9,7 @@ export function HeroSection() {
     <SectionLayout
       size="xl"
       background="transparent"
-      className="relative min-h-[60vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-white via-vellum to-lapis-azure/10"
+      className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-white via-vellum to-lapis-azure/10"
     >
       {/* Decorative background orbs */}
       <div className="absolute inset-0 overflow-hidden">
@@ -112,6 +112,8 @@ export function HeroSection() {
           strokeWidth="1.5"
           opacity="0.4"
         />
+
+        {/* Signal pulses */}
         <circle r="4" fill="#4A7AB5" opacity="0.8">
           <animateMotion dur="3s" repeatCount="indefinite">
             <mpath href="#path1" />
@@ -122,8 +124,39 @@ export function HeroSection() {
             <mpath href="#path2" />
           </animateMotion>
         </circle>
+
         <path id="path1" d="M 15,20 L 30,35 L 50,40" fill="none" opacity="0" />
         <path id="path2" d="M 50,40 L 70,35 L 85,20" fill="none" opacity="0" />
+
+        {/* Node 1 - 15% 20% */}
+        <circle cx="15%" cy="20%" r="8" fill="#4A7AB5">
+          <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="15%" cy="20%" r="8" fill="none" stroke="#4A7AB5" strokeWidth="1.5">
+          <animate attributeName="r" values="8;24;32" dur="2s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.6;0.3;0" dur="2s" repeatCount="indefinite" />
+        </circle>
+
+        {/* Node 2 - 30% 35% */}
+        <circle cx="30%" cy="35%" r="6" fill="#4A7AB5">
+          <animate
+            attributeName="r"
+            values="6;9;6"
+            dur="2.5s"
+            repeatCount="indefinite"
+            begin="0.3s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.7;1;0.7"
+            dur="2.5s"
+            repeatCount="indefinite"
+            begin="0.3s"
+          />
+        </circle>
+
+        {/* Node 3 - 50% 40% (center, gold) */}
         <circle cx="50%" cy="40%" r="10" fill="#C8A84B">
           <animate
             attributeName="r"
@@ -154,6 +187,128 @@ export function HeroSection() {
             dur="3s"
             repeatCount="indefinite"
             begin="0.5s"
+          />
+        </circle>
+
+        {/* Node 4 - 70% 35% */}
+        <circle cx="70%" cy="35%" r="6" fill="#C8A84B">
+          <animate
+            attributeName="r"
+            values="6;9;6"
+            dur="2.2s"
+            repeatCount="indefinite"
+            begin="0.7s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.7;1;0.7"
+            dur="2.2s"
+            repeatCount="indefinite"
+            begin="0.7s"
+          />
+        </circle>
+
+        {/* Node 5 - 85% 20% */}
+        <circle cx="85%" cy="20%" r="8" fill="#C8A84B">
+          <animate
+            attributeName="r"
+            values="8;12;8"
+            dur="2.8s"
+            repeatCount="indefinite"
+            begin="1s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.8;1;0.8"
+            dur="2.8s"
+            repeatCount="indefinite"
+            begin="1s"
+          />
+        </circle>
+        <circle cx="85%" cy="20%" r="8" fill="none" stroke="#C8A84B" strokeWidth="1.5">
+          <animate
+            attributeName="r"
+            values="8;24;32"
+            dur="2.8s"
+            repeatCount="indefinite"
+            begin="1s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.6;0.3;0"
+            dur="2.8s"
+            repeatCount="indefinite"
+            begin="1s"
+          />
+        </circle>
+
+        {/* Node 6 - 50% 60% */}
+        <circle cx="50%" cy="60%" r="7" fill="#4A7AB5">
+          <animate
+            attributeName="r"
+            values="7;10;7"
+            dur="2.4s"
+            repeatCount="indefinite"
+            begin="0.4s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.75;1;0.75"
+            dur="2.4s"
+            repeatCount="indefinite"
+            begin="0.4s"
+          />
+        </circle>
+        <circle cx="50%" cy="60%" r="7" fill="none" stroke="#4A7AB5" strokeWidth="1.5">
+          <animate
+            attributeName="r"
+            values="7;22;30"
+            dur="2.4s"
+            repeatCount="indefinite"
+            begin="0.4s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.6;0.3;0"
+            dur="2.4s"
+            repeatCount="indefinite"
+            begin="0.4s"
+          />
+        </circle>
+
+        {/* Node 7 - 15% 80% */}
+        <circle cx="15%" cy="80%" r="6" fill="#4A7AB5">
+          <animate
+            attributeName="r"
+            values="6;9;6"
+            dur="2.6s"
+            repeatCount="indefinite"
+            begin="1.2s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.7;1;0.7"
+            dur="2.6s"
+            repeatCount="indefinite"
+            begin="1.2s"
+          />
+        </circle>
+
+        {/* Node 8 - 85% 80% */}
+        <circle cx="85%" cy="80%" r="6" fill="#C8A84B">
+          <animate
+            attributeName="r"
+            values="6;9;6"
+            dur="2.9s"
+            repeatCount="indefinite"
+            begin="0.6s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.7;1;0.7"
+            dur="2.9s"
+            repeatCount="indefinite"
+            begin="0.6s"
           />
         </circle>
       </svg>
@@ -201,12 +356,8 @@ export function HeroSection() {
       </div>
 
       {/* City Silhouette */}
-      <div className="absolute bottom-0 left-0 right-0 pointer-events-none max-h-48">
-        <img
-          src="/platform/four.webp"
-          alt=""
-          className="w-full h-full object-cover object-bottom opacity-60"
-        />
+      <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
+        <img src="/platform/four.webp" alt="" className="w-full h-auto object-cover opacity-70" />
       </div>
     </SectionLayout>
   );
