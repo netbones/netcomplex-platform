@@ -346,6 +346,70 @@ export function HeroSection() {
 
         {/* Add missing connection lines */}
         <line
+          x1="15%"
+          y1="80%"
+          x2="30%"
+          y2="65%"
+          stroke="#4A7AB5"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+        <line
+          x1="70%"
+          y1="65%"
+          x2="85%"
+          y2="80%"
+          stroke="#C8A84B"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+        <line
+          x1="50%"
+          y1="40%"
+          x2="50%"
+          y2="60%"
+          stroke="#4A7AB5"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+
+        {/* Intermediate nodes at bends */}
+        <circle cx="30%" cy="65%" r="5" fill="#4A7AB5">
+          <animate
+            attributeName="r"
+            values="5;7;5"
+            dur="2.3s"
+            repeatCount="indefinite"
+            begin="0.9s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.7;1;0.7"
+            dur="2.3s"
+            repeatCount="indefinite"
+            begin="0.9s"
+          />
+        </circle>
+
+        <circle cx="70%" cy="65%" r="5" fill="#C8A84B">
+          <animate
+            attributeName="r"
+            values="5;7;5"
+            dur="2.7s"
+            repeatCount="indefinite"
+            begin="1.5s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.7;1;0.7"
+            dur="2.7s"
+            repeatCount="indefinite"
+            begin="1.5s"
+          />
+        </circle>
+
+        {/* Connection lines to center */}
+        <line
           x1="30%"
           y1="65%"
           x2="50%"
