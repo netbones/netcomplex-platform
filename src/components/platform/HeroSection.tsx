@@ -323,32 +323,32 @@ export function HeroSection() {
           <p className="text-lapis-mid text-sm md:text-base pt-2">by Netbones Africa</p>
         </div>
 
-        {/* Subtext */}
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
+          <PrimaryCTA
+            href="/signup"
+            size="lg"
+            className="bg-gold-vein text-lapis-deep hover:bg-gold-vein/90 px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl"
+          >
+            Sign Up
+          </PrimaryCTA>
+          <PrimaryCTA
+            href="/pricing"
+            variant="outline"
+            size="lg"
+            className="border-2 border-gold-vein text-gold-vein hover:bg-gold-vein/10 px-8 py-6 text-lg rounded-xl"
+          >
+            View Pricing
+          </PrimaryCTA>
+        </div>
+
+        {/* Subtext - below buttons */}
         <p className="text-2xl md:text-3xl text-lapis-mid font-light">Your complex, connected.</p>
 
         {/* City Silhouette */}
         <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
           <img src="/platform/four.webp" alt="" className="w-full h-auto object-cover opacity-90" />
         </div>
-      </div>
-
-      {/* CTA Buttons below city silhouette */}
-      <div className="relative z-10 flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
-        <PrimaryCTA
-          href="/signup"
-          size="lg"
-          className="bg-gold-vein text-lapis-deep hover:bg-gold-vein/90 px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl"
-        >
-          Sign Up
-        </PrimaryCTA>
-        <PrimaryCTA
-          href="/pricing"
-          variant="outline"
-          size="lg"
-          className="border-2 border-gold-vein text-gold-vein hover:bg-gold-vein/10 px-8 py-6 text-lg rounded-xl"
-        >
-          View Pricing
-        </PrimaryCTA>
       </div>
     </SectionLayout>
   );
