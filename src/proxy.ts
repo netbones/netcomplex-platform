@@ -21,7 +21,8 @@ const DEFAULT_TENANT_SLUG = 'soralia';
 const TENANT_DOMAINS = ['netbones.co.za', 'soralia.org', 'soralia.com', 'soralia.co.za'];
 
 function isPlatformHost(host: string): boolean {
-  return host === PLATFORM_DOMAIN || host.includes('localhost');
+  // Exclude localhost from platform - treat it as tenant for development
+  return host === PLATFORM_DOMAIN;
 }
 
 function isTenantHost(host: string): boolean {
