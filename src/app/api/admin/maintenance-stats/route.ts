@@ -1,8 +1,6 @@
-import { db } from '@/lib/db';
+import { db, users, maintenanceRequests } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { users } from '../../../../prisma/drizzle/users';
-import { maintenanceRequests } from '../../../../prisma/drizzle/maintenance-requests';
 import { eq, count, and, gte, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';

@@ -1,15 +1,14 @@
-import './globals.css';
-import { Providers } from './providers';
+import { Providers } from '../providers';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
-  title: 'Soralia Village Community Directory',
-  description: 'A premier residential community in Cape Town',
+  title: 'NetComplex Platform',
+  description: 'Multi-tenant property management platform',
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function PlatformLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
@@ -18,7 +17,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         />
       </head>
-      <body className="bg-soralia-light min-h-screen flex flex-col">
+      <body className="bg-gray-50 min-h-screen">
         <Providers>
           <Toaster position="top-right" />
           <Suspense fallback={null}>{children}</Suspense>

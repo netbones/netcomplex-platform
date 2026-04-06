@@ -55,8 +55,9 @@ export const auth = betterAuth({
   },
   baseURL: {
     allowedHosts: [
-      'soralia-village.com',
-      'www.soralia-village.com',
+      'soralia.com',
+      'www.soralia.com',
+      'soralia.org',
       '*.vercel.app',
       'localhost:3000',
       'localhost:3001',

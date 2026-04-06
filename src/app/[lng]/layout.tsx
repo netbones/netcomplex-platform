@@ -1,12 +1,15 @@
 export default async function RootLayout({
   children,
-  params: { lng },
+  params,
 }: {
   children: React.ReactNode;
-  params: { lng: string };
+  params: Promise<{ lng: string }>;
 }) {
+  const { lng: languageParam } = await params;
+  const { getCurrentTenant } = await import('@/lib/tenant');
+  const { TenantProvider } = await import('@/components/tenant/TenantProvider');
   const tenant = await getCurrentTenant();
-  const language = lng || tenant?.defaultLanguage || 'en';
+  const language = languageParam || 'en';
 
   return (
     <html
@@ -19,7 +22,23 @@ export default async function RootLayout({
       }
     >
       <body>
-        <TenantProvider tenant={tenant!}>{children}</TenantProvider>
+        <TenantProvider
+          tenant={
+            tenant as unknown as {
+              id: string;
+              name: string;
+              slug: string;
+              primaryColor: string;
+              accentColor: string;
+              secondaryColor: string;
+              logoUrl: string;
+              faviconUrl: string;
+              fontFamily: string;
+            }
+          }
+        >
+          {children}
+        </TenantProvider>
       </body>
     </html>
   );

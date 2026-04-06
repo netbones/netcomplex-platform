@@ -19,5 +19,5 @@ export const maintenanceRequests = pgTable('MaintenanceRequest', {
   resolution: text('resolution'),
   completedAt: timestamp('completedAt', { mode: 'date', precision: 3 }),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
 });

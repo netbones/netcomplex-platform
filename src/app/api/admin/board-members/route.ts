@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db, users } from '@/lib/db';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
-const ASSIGNABLE_ROLES = ['BOARD', 'ADMIN', 'COMMITTEE', 'MANAGER', 'ASSOCIATE'] as const;
+const BOARD_ROLES = ['BOARD', 'ADMIN', 'COMMITTEE'] as const;
 
 export async function GET(request: Request) {
   const session = await auth.api.getSession({
@@ -22,6 +22,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  // Build OR conditions for each board role
+  const roleConditions = BOARD_ROLES.map(role => eq(users.role, role));
+
   const boardMembers = await db
     .select({
       id: users.id,
@@ -30,7 +33,7 @@ export async function GET(request: Request) {
       role: users.role,
     })
     .from(users)
-    .where(inArray(users.role, [...ASSIGNABLE_ROLES]));
+    .where(or(...roleConditions));
 
   return NextResponse.json(boardMembers);
 }
