@@ -455,16 +455,16 @@ export function HeroSection() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
           <PrimaryCTA
             href="/signup"
-            size="lg"
-            className="bg-gold-vein text-lapis-deep hover:bg-gold-vein/90 px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl"
+            size="md"
+            className="bg-gold-vein text-lapis-deep hover:bg-gold-vein/90"
           >
             Sign Up
           </PrimaryCTA>
           <PrimaryCTA
             href="/pricing"
             variant="outline"
-            size="lg"
-            className="border-2 border-gold-vein text-gold-vein hover:bg-gold-vein/10 px-8 py-6 text-lg rounded-xl"
+            size="md"
+            className="border-2 border-gold-vein text-gold-vein hover:bg-gold-vein/10"
           >
             View Pricing
           </PrimaryCTA>
