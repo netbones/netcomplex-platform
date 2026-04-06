@@ -356,8 +356,12 @@ export function HeroSection() {
       </div>
 
       {/* City Silhouette */}
-      <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
-        <img src="/platform/four.webp" alt="" className="w-full h-auto object-cover opacity-70" />
+      <div className="absolute bottom-0 left-0 right-0 pointer-events-none flex justify-center">
+        <img
+          src="/platform/four.webp"
+          alt=""
+          className="max-w-3xl w-full h-auto object-contain opacity-70"
+        />
       </div>
     </SectionLayout>
   );
