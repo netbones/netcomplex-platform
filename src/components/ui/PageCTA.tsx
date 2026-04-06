@@ -44,7 +44,7 @@ export function PageCTA({
           {title}
           {showAttribution && (
             <span className="block text-lg font-normal text-lapis-azure/70 mt-1">
-              by Netbones Africa
+              by <b>Net</b>bones Africa
             </span>
           )}
         </h2>

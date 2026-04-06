@@ -56,7 +56,7 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
             <span
               className={cn('text-xs font-medium tracking-wide hidden lg:inline', subtextColor)}
             >
-              by Netbones Africa
+              by <b>Net</b>bones Africa
             </span>
           </div>
 

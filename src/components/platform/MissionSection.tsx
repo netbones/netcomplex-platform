@@ -18,13 +18,14 @@ export function MissionSection() {
             </div>
             <div className="space-y-4 text-base md:text-lg text-lapis-mid leading-relaxed">
               <p>
-                NetComplex is not a management tool. We are an{' '}
+                NetComplex is not merely a management tool. We are an{' '}
                 <span className="font-semibold text-lapis-deep">informatics platform</span> — a
-                living network that gives homeowners associations and their residents a shared
-                language, a common space, and the infrastructure to act together.
+                living network that gives homeowners associations, body corporates and their
+                residents a shared language, a common space, and the infrastructure to act together.
               </p>
               <p className="font-medium text-lapis-deep pt-2">
-                Where other platforms manage properties, we activate communities.
+                Where other platforms manage & administer properties, we activate & nurture
+                communities.
               </p>
             </div>
           </div>
@@ -43,6 +44,13 @@ export function MissionSection() {
                 network of relationships, resources, and shared stakes
               </span>
               . NetComplex makes that network visible, useful, and participatory.
+            </p>
+            <p className="text-base md:text-lg text-lapis-mid leading-relaxed">
+              Providing homeowners and tenants with {''}
+              <span className="font-semibold text-lapis-deep">
+                tools to communicate, collaborate
+              </span>
+              , and build stronger communities.
             </p>
           </div>
         </div>

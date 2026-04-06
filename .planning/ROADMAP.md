@@ -48,6 +48,20 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase: 03-localization
+
+**Goal:** Add internationalization support to platform landing page with language switcher and tenant-specific translation overrides
+
+**Status:** Planned
+
+**Requirements:** [To be added]
+
+**Plans:**
+
+- [ ] 03-01-PLAN.md — Phase 3 Localization (7 tasks)
+
+---
+
 ## Future Phases (To Be Planned)
 
 ### Phase 3: Second Tenant

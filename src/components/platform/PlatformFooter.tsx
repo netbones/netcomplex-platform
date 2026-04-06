@@ -8,7 +8,9 @@ export function PlatformFooter() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8 text-lapis-azure">
           <div>
-            <h3 className="text-white font-semibold mb-4">NetComplex</h3>
+            <h3 className="text-white font-semibold mb-4">
+              NetComplex by <b>Net</b>bones
+            </h3>
             <p className="text-sm">
               Community informatics platform that activates residential communities.
             </p>
@@ -70,7 +72,7 @@ export function PlatformFooter() {
           </div>
         </div>
         <div className="border-t border-lapis-azure/20 mt-8 pt-8 text-center text-sm text-lapis-azure/70">
-          © {new Date().getFullYear()} NetComplex by Netbones Africa. All rights reserved.
+          © {new Date().getFullYear()} NetComplex by <b>Net</b>bones Africa. All rights reserved.
         </div>
       </div>
     </footer>
