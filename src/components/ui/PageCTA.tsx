@@ -40,7 +40,14 @@ export function PageCTA({
   return (
     <section className={cn('py-16', backgroundClasses[background], className)}>
       <div className="max-w-4xl mx-auto px-4 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">{title}</h2>
+        <h2 className="text-3xl md:text-4xl font-bold mb-2">
+          {title}
+          {showAttribution && (
+            <span className="block text-lg font-normal text-lapis-azure/70 mt-1">
+              by Netbones Africa
+            </span>
+          )}
+        </h2>
         <p className="text-lg md:text-xl mb-8 opacity-90">{description}</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link
@@ -58,7 +65,6 @@ export function PageCTA({
             </Link>
           )}
         </div>
-        {showAttribution && <p className="text-sm text-lapis-azure/70 mt-6">by Netbones Africa</p>}
       </div>
     </section>
   );

@@ -3,6 +3,9 @@ const nextConfig = {
   reactStrictMode: true,
   turbopack: {},
 
+  // Allow cross-origin dev requests for HMR
+  allowedDevOrigins: ['app.netbones.co.za'],
+
   // Enable Partial Prerendering for better performance
   // Note: cacheComponents incompatible with dynamic = 'force-dynamic'
   // cacheComponents: true,
