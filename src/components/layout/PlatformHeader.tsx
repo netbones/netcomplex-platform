@@ -109,7 +109,8 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <LanguageSwitcher variant={variant} />
             <button
               type="button"
               className={cn(
@@ -161,9 +162,6 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
               ))}
             </nav>
             <div className="space-y-2 pt-4 border-t border-lapis-azure/20 mt-4">
-              <div className="py-2">
-                <LanguageSwitcher variant={variant} />
-              </div>
               <Link
                 href="/sign-in"
                 className={cn(
