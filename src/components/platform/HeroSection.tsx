@@ -323,8 +323,16 @@ export function HeroSection() {
           <p className="text-lapis-mid text-sm md:text-base pt-2">by Netbones Africa</p>
         </div>
 
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
+        {/* Subtext */}
+        <p className="text-2xl md:text-3xl text-lapis-mid font-light">Your complex, connected.</p>
+
+        {/* City Silhouette */}
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
+          <img src="/platform/four.webp" alt="" className="w-full h-auto object-cover opacity-90" />
+        </div>
+
+        {/* CTA Buttons - below city silhouette */}
+        <div className="relative z-10 flex flex-col sm:flex-row gap-4 justify-center items-center pt-32">
           <PrimaryCTA
             href="/signup"
             size="lg"
@@ -340,14 +348,6 @@ export function HeroSection() {
           >
             View Pricing
           </PrimaryCTA>
-        </div>
-
-        {/* Subtext - below buttons */}
-        <p className="text-2xl md:text-3xl text-lapis-mid font-light">Your complex, connected.</p>
-
-        {/* City Silhouette */}
-        <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
-          <img src="/platform/four.webp" alt="" className="w-full h-auto object-cover opacity-90" />
         </div>
       </div>
     </SectionLayout>
