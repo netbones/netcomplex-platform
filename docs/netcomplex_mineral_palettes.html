@@ -1,0 +1,116 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:transparent}
+.wrap{display:flex;flex-direction:column;gap:0}
+.mineral{border-bottom:.5px solid var(--color-border-tertiary);padding:1rem 1.25rem}
+.mineral:last-child{border-bottom:none}
+.m-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.7rem}
+.m-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.m-mood{font-size:11px;color:var(--color-text-tertiary)}
+.swatches{display:flex;gap:5px;margin-bottom:.6rem}
+.sw{height:52px;border-radius:7px;flex:1;position:relative;display:flex;align-items:flex-end;padding:4px 6px}
+.sw-name{font-size:9px;font-weight:500;line-height:1.2}
+.tiers{display:flex;gap:5px}
+.tc{flex:1;border-radius:6px;padding:.45rem .6rem;border:.5px solid transparent}
+.tc-label{font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;opacity:.7;margin-bottom:1px}
+.tc-name{font-size:12px;font-weight:500}
+</style>
+<div class="wrap">
+
+<div class="mineral">
+  <div class="m-header">
+    <span class="m-name">A — Lapis &amp; Gold Vein</span>
+    <span class="m-mood">Civic authority · permanence · value</span>
+  </div>
+  <div class="swatches">
+    <div class="sw" style="background:#0F1F4A;flex:2"><span class="sw-name" style="color:#7A9FD4">Lapis deep</span></div>
+    <div class="sw" style="background:#1E3A7A;flex:2"><span class="sw-name" style="color:#A8C4E8">Lapis mid</span></div>
+    <div class="sw" style="background:#4A7AB5;flex:1"><span class="sw-name" style="color:#EAF0FA">Azure</span></div>
+    <div class="sw" style="background:#C8A84B;flex:1"><span class="sw-name" style="color:#3A2800">Gold vein</span></div>
+    <div class="sw" style="background:#F2ECD8;border:.5px solid #D8CCA8;flex:2"><span class="sw-name" style="color:#6B5820">Vellum</span></div>
+  </div>
+  <div class="tiers">
+    <div class="tc" style="background:#EAF0FA;border-color:#A8C4E8"><div class="tc-label" style="color:#1E3A7A">Foundation</div><div class="tc-name" style="color:#0F1F4A">Azure</div></div>
+    <div class="tc" style="background:#1E3A7A;border-color:#4A7AB5"><div class="tc-label" style="color:#7A9FD4">Depth</div><div class="tc-name" style="color:#F0F5FF">Lapis</div></div>
+    <div class="tc" style="background:#0F1F4A;border-color:#C8A84B"><div class="tc-label" style="color:#C8A84B">Core</div><div class="tc-name" style="color:#F2ECD8">Gold Vein</div></div>
+  </div>
+</div>
+
+<div class="mineral">
+  <div class="m-header">
+    <span class="m-name">B — Slate &amp; Quartz</span>
+    <span class="m-mood">Architectural · urban · approachable authority</span>
+  </div>
+  <div class="swatches">
+    <div class="sw" style="background:#2C3540;flex:2"><span class="sw-name" style="color:#8FA4B8">Slate dark</span></div>
+    <div class="sw" style="background:#4A5E70;flex:2"><span class="sw-name" style="color:#C8D8E4">Slate mid</span></div>
+    <div class="sw" style="background:#8FA4B8;flex:1"><span class="sw-name" style="color:#1E2A34">Quartz blue</span></div>
+    <div class="sw" style="background:#B05030;flex:1"><span class="sw-name" style="color:#FFE8DC">Iron rust</span></div>
+    <div class="sw" style="background:#F4F2EE;border:.5px solid #D8D4CC;flex:2"><span class="sw-name" style="color:#4A5E70">Quartz white</span></div>
+  </div>
+  <div class="tiers">
+    <div class="tc" style="background:#F4F2EE;border-color:#C8D8E4"><div class="tc-label" style="color:#4A5E70">Foundation</div><div class="tc-name" style="color:#2C3540">Quartz</div></div>
+    <div class="tc" style="background:#4A5E70;border-color:#8FA4B8"><div class="tc-label" style="color:#C8D8E4">Depth</div><div class="tc-name" style="color:#F4F2EE">Slate</div></div>
+    <div class="tc" style="background:#2C3540;border-color:#B05030"><div class="tc-label" style="color:#B05030">Core</div><div class="tc-name" style="color:#F4F2EE">Iron &amp; Slate</div></div>
+  </div>
+</div>
+
+<div class="mineral">
+  <div class="m-header">
+    <span class="m-name">C — Malachite &amp; Copper</span>
+    <span class="m-mood">Distinctive · natural-chemical · editorial</span>
+  </div>
+  <div class="swatches">
+    <div class="sw" style="background:#1A3D2A;flex:2"><span class="sw-name" style="color:#5AAA7A">Malachite deep</span></div>
+    <div class="sw" style="background:#2E6B48;flex:2"><span class="sw-name" style="color:#A8D8B8">Malachite mid</span></div>
+    <div class="sw" style="background:#B87333;flex:1"><span class="sw-name" style="color:#FFE8C8">Copper</span></div>
+    <div class="sw" style="background:#7AB89A;flex:1"><span class="sw-name" style="color:#1A3D2A">Patina</span></div>
+    <div class="sw" style="background:#F5F0E8;border:.5px solid #D4C8B0;flex:2"><span class="sw-name" style="color:#4A3820">Cream</span></div>
+  </div>
+  <div class="tiers">
+    <div class="tc" style="background:#EDF5F0;border-color:#7AB89A"><div class="tc-label" style="color:#2E6B48">Foundation</div><div class="tc-name" style="color:#1A3D2A">Patina</div></div>
+    <div class="tc" style="background:#2E6B48;border-color:#5AAA7A"><div class="tc-label" style="color:#A8D8B8">Depth</div><div class="tc-name" style="color:#F5F0E8">Malachite</div></div>
+    <div class="tc" style="background:#1A3D2A;border-color:#B87333"><div class="tc-label" style="color:#B87333">Core</div><div class="tc-name" style="color:#F5F0E8">Copper vein</div></div>
+  </div>
+</div>
+
+<div class="mineral">
+  <div class="m-header">
+    <span class="m-name">D — Travertine &amp; Obsidian</span>
+    <span class="m-mood">Timeless · elegant · lets the product speak</span>
+  </div>
+  <div class="swatches">
+    <div class="sw" style="background:#1A1814;flex:2"><span class="sw-name" style="color:#6A6258">Obsidian</span></div>
+    <div class="sw" style="background:#3A3530;flex:1"><span class="sw-name" style="color:#B0A898">Volcanic</span></div>
+    <div class="sw" style="background:#C4A87A;flex:1"><span class="sw-name" style="color:#3A2800">Travertine gold</span></div>
+    <div class="sw" style="background:#E8DECE;border:.5px solid #C8B8A0;flex:2"><span class="sw-name" style="color:#5A4830">Travertine</span></div>
+    <div class="sw" style="background:#F8F4EE;border:.5px solid #D8CEBC;flex:2"><span class="sw-name" style="color:#7A6A50">Ivory</span></div>
+  </div>
+  <div class="tiers">
+    <div class="tc" style="background:#F8F4EE;border-color:#C4A87A"><div class="tc-label" style="color:#7A6A50">Foundation</div><div class="tc-name" style="color:#3A3530">Travertine</div></div>
+    <div class="tc" style="background:#3A3530;border-color:#C4A87A"><div class="tc-label" style="color:#C4A87A">Depth</div><div class="tc-name" style="color:#F8F4EE">Volcanic</div></div>
+    <div class="tc" style="background:#1A1814;border-color:#C4A87A"><div class="tc-label" style="color:#C4A87A">Core</div><div class="tc-name" style="color:#F8F4EE">Obsidian</div></div>
+  </div>
+</div>
+
+<div class="mineral">
+  <div class="m-header">
+    <span class="m-name">E — Amethyst &amp; Pyrite</span>
+    <span class="m-mood">Bold · Web3-resonant · high contrast · memorable</span>
+  </div>
+  <div class="swatches">
+    <div class="sw" style="background:#1E0F3A;flex:2"><span class="sw-name" style="color:#8A60C8">Amethyst deep</span></div>
+    <div class="sw" style="background:#4A2A8A;flex:2"><span class="sw-name" style="color:#C8A8FF">Amethyst mid</span></div>
+    <div class="sw" style="background:#8A60C8;flex:1"><span class="sw-name" style="color:#F0E8FF">Violet</span></div>
+    <div class="sw" style="background:#C8A832;flex:1"><span class="sw-name" style="color:#2A1800">Pyrite</span></div>
+    <div class="sw" style="background:#F5F0FF;border:.5px solid #D0B8F0;flex:2"><span class="sw-name" style="color:#4A2A8A">Quartz tint</span></div>
+  </div>
+  <div class="tiers">
+    <div class="tc" style="background:#F5F0FF;border-color:#C8A8FF"><div class="tc-label" style="color:#4A2A8A">Foundation</div><div class="tc-name" style="color:#1E0F3A">Violet tint</div></div>
+    <div class="tc" style="background:#4A2A8A;border-color:#8A60C8"><div class="tc-label" style="color:#C8A8FF">Depth</div><div class="tc-name" style="color:#F5F0FF">Amethyst</div></div>
+    <div class="tc" style="background:#1E0F3A;border-color:#C8A832"><div class="tc-label" style="color:#C8A832">Core</div><div class="tc-name" style="color:#F5F0FF">Pyrite edge</div></div>
+  </div>
+</div>
+
+</div>

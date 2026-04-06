@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { SectionLayout } from '@/components/layout/SectionLayout';
 import type { PricingPlan } from '@/app/api/pricing/route';
 
 export function PricingCards() {
@@ -30,112 +31,108 @@ export function PricingCards() {
 
   if (loading) {
     return (
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8">
-            {[...Array(3)].map((_, i) => (
-              <div
-                key={i}
-                className="bg-white rounded-2xl border-2 border-slate-200 p-8 animate-pulse"
-              >
-                <div className="h-8 bg-slate-200 rounded mb-4"></div>
-                <div className="h-4 bg-slate-200 rounded mb-6"></div>
-                <div className="h-12 bg-slate-200 rounded mb-6"></div>
-                <div className="space-y-3 mb-8">
-                  {[...Array(5)].map((_, j) => (
-                    <div key={j} className="h-4 bg-slate-200 rounded"></div>
-                  ))}
-                </div>
-                <div className="h-12 bg-slate-200 rounded"></div>
+      <SectionLayout size="xl">
+        <div className="grid md:grid-cols-3 gap-8">
+          {[...Array(3)].map((_, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-2xl border-2 border-slate-200 p-8 animate-pulse"
+            >
+              <div className="h-8 bg-fieldstone rounded mb-4"></div>
+              <div className="h-4 bg-fieldstone rounded mb-6"></div>
+              <div className="h-12 bg-fieldstone rounded mb-6"></div>
+              <div className="space-y-3 mb-8">
+                {[...Array(5)].map((_, j) => (
+                  <div key={j} className="h-4 bg-fieldstone rounded"></div>
+                ))}
               </div>
-            ))}
-          </div>
+              <div className="h-12 bg-fieldstone rounded"></div>
+            </div>
+          ))}
         </div>
-      </section>
+      </SectionLayout>
     );
   }
 
   if (error) {
     return (
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <SectionLayout size="xl">
+        <div className="text-center max-w-md mx-auto">
           <div className="bg-red-50 border border-red-200 rounded-lg p-8">
             <h3 className="text-lg font-medium text-red-800 mb-2">Failed to load pricing</h3>
             <p className="text-red-600">{error}</p>
           </div>
         </div>
-      </section>
+      </SectionLayout>
     );
   }
 
   return (
-    <section className="py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-3 gap-8">
-          {plans.map(plan => (
-            <div
-              key={plan.id}
-              className={`relative bg-white rounded-2xl border-2 ${
-                plan.popular
-                  ? 'border-indigo-600 shadow-xl scale-105'
-                  : 'border-slate-200 shadow-sm'
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-medium">
-                    Most Popular
-                  </span>
-                </div>
-              )}
-              <div className="p-8">
-                <h3 className="text-2xl font-bold text-slate-900 mb-2">{plan.name}</h3>
-                <p className="text-slate-600 mb-6">{plan.description}</p>
-                <div className="mb-6">
-                  {plan.price === 'Custom' ? (
-                    <span className="text-4xl font-bold text-slate-900">Custom</span>
-                  ) : (
-                    <>
-                      <span className="text-4xl font-bold text-slate-900">{plan.price}</span>
-                      <span className="text-slate-500">{plan.period}</span>
-                    </>
-                  )}
-                </div>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, fidx) => (
-                    <li key={fidx} className="flex items-center text-slate-600">
-                      <svg
-                        className="w-5 h-5 text-green-500 mr-3 flex-shrink-0"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/signup"
-                  className={`block w-full py-3 px-6 text-center font-semibold rounded-lg transition-colors ${
-                    plan.popular
-                      ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-900'
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
+    <SectionLayout size="xl">
+      <div className="grid md:grid-cols-3 gap-8">
+        {plans.map(plan => (
+          <div
+            key={plan.id}
+            className={`relative bg-white rounded-2xl border-2 ${
+              plan.popular
+                ? 'border-gold-vein shadow-xl scale-105'
+                : 'border-lapis-azure/30 shadow-sm'
+            }`}
+          >
+            {plan.popular && (
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="bg-gold-vein text-lapis-deep px-4 py-1 rounded-full text-sm font-medium">
+                  Most Popular
+                </span>
               </div>
+            )}
+            <div className="p-8">
+              <h3 className="text-2xl font-bold text-lapis-deep mb-2">{plan.name}</h3>
+              <p className="text-lapis-mid mb-6">{plan.description}</p>
+              <div className="mb-6">
+                {plan.price === 'Custom' ? (
+                  <span className="text-4xl font-bold text-lapis-deep">Custom</span>
+                ) : (
+                  <>
+                    <span className="text-4xl font-bold text-lapis-deep">{plan.price}</span>
+                    <span className="text-lapis-mid">{plan.period}</span>
+                  </>
+                )}
+              </div>
+              <ul className="space-y-3 mb-8">
+                {plan.features.map((feature, fidx) => (
+                  <li key={fidx} className="flex items-center text-lapis-mid">
+                    <svg
+                      className="w-5 h-5 text-emerald-500 mr-3 flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/signup"
+                className={`block w-full py-3 px-6 text-center font-semibold rounded-lg transition-colors ${
+                  plan.popular
+                    ? 'bg-gold-vein hover:bg-gold-vein/90 text-lapis-deep'
+                    : 'bg-vellum hover:bg-vellum-light text-lapis-deep'
+                }`}
+              >
+                {plan.cta}
+              </Link>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-    </section>
+    </SectionLayout>
   );
 }

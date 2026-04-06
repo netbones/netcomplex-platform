@@ -8,6 +8,64 @@
   --soralia-accent: #f59e0b;
   --soralia-dark: #1f2937;
   --soralia-light: #f3f4f6;
+
+  /* Lapis & Gold Vein Palette */
+  --lapis-deep: #0f1f4a;
+  --lapis-mid: #1e3a7a;
+  --lapis-azure: #4a7ab5;
+  --gold-vein: #c8a84b;
+  --vellum: #f2ecd8;
+  --vellum-light: #eaf0fa;
+}
+
+@layer utilities {
+  .bg-lapis-deep {
+    background-color: var(--lapis-deep);
+  }
+  .bg-lapis-mid {
+    background-color: var(--lapis-mid);
+  }
+  .bg-lapis-azure {
+    background-color: var(--lapis-azure);
+  }
+  .bg-gold-vein {
+    background-color: var(--gold-vein);
+  }
+  .bg-vellum {
+    background-color: var(--vellum);
+  }
+  .bg-vellum-light {
+    background-color: var(--vellum-light);
+  }
+
+  .text-lapis-deep {
+    color: var(--lapis-deep);
+  }
+  .text-lapis-mid {
+    color: var(--lapis-mid);
+  }
+  .text-lapis-azure {
+    color: var(--lapis-azure);
+  }
+  .text-gold-vein {
+    color: var(--gold-vein);
+  }
+  .text-vellum {
+    color: var(--vellum);
+  }
+
+  .border-lapis-deep {
+    border-color: var(--lapis-deep);
+  }
+  .border-lapis-mid {
+    border-color: var(--lapis-mid);
+  }
+  .border-lapis-azure {
+    border-color: var(--lapis-azure);
+  }
+  .border-gold-vein {
+    border-color: var(--gold-vein);
+  }
 }
 
 body {

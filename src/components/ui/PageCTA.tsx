@@ -13,7 +13,7 @@ interface PageCTAProps {
     text: string;
   };
   className?: string;
-  background?: 'canopy' | 'fieldstone' | 'gradient';
+  background?: 'canopy' | 'fieldstone' | 'gradient' | 'lapis';
 }
 
 /**
@@ -26,12 +26,13 @@ export function PageCTA({
   primaryAction,
   secondaryAction,
   className,
-  background = 'canopy',
+  background = 'lapis',
 }: PageCTAProps) {
   const backgroundClasses = {
     canopy: 'bg-canopy text-white',
     fieldstone: 'bg-fieldstone',
     gradient: 'bg-gradient-to-r from-canopy to-canopy-600 text-white',
+    lapis: 'bg-lapis-deep text-white',
   };
 
   return (
@@ -42,14 +43,14 @@ export function PageCTA({
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link
             href={primaryAction.href}
-            className="inline-flex items-center px-8 py-4 bg-white text-canopy font-semibold rounded-lg hover:bg-canopy-50 transition-colors"
+            className="inline-flex items-center px-8 py-4 bg-gold-vein text-lapis-deep font-semibold rounded-lg hover:bg-gold-vein/90 transition-colors"
           >
             {primaryAction.text}
           </Link>
           {secondaryAction && (
             <Link
               href={secondaryAction.href}
-              className="inline-flex items-center px-8 py-4 border border-white/30 text-white font-semibold rounded-lg hover:border-white/60 hover:bg-white/10 transition-colors"
+              className="inline-flex items-center px-8 py-4 border border-lapis-azure/40 text-white font-semibold rounded-lg hover:border-lapis-azure hover:bg-lapis-azure/10 transition-colors"
             >
               {secondaryAction.text}
             </Link>

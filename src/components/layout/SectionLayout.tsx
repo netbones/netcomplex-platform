@@ -6,7 +6,7 @@ interface SectionLayoutProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   container?: boolean;
-  background?: 'transparent' | 'fieldstone' | 'canopy' | 'white';
+  background?: 'transparent' | 'fieldstone' | 'canopy' | 'white' | 'vellum';
   padding?: 'none' | 'sm' | 'md' | 'lg';
 }
 
@@ -34,6 +34,7 @@ export function SectionLayout({
     fieldstone: 'bg-fieldstone',
     canopy: 'bg-canopy text-white',
     white: 'bg-white',
+    vellum: 'bg-vellum',
   };
 
   const paddingClasses = {

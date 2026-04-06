@@ -15,6 +15,18 @@ module.exports = {
           dark: '#1F2937',
           light: '#F3F4F6',
         },
+        lapis: {
+          deep: '#0F1F4A',
+          mid: '#1E3A7A',
+          azure: '#4A7AB5',
+        },
+        gold: {
+          vein: '#C8A84B',
+        },
+        vellum: {
+          DEFAULT: '#F2ECD8',
+          light: '#EAF0FA',
+        },
       },
       fontFamily: {
         sans: ['var(--font-family, Inter)', 'system-ui', 'sans-serif'],

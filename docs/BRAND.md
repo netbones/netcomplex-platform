@@ -112,16 +112,17 @@ The NetComplex mark is built on the idea of **nodes in a network** — points of
 
 ### Colour Palette
 
-NetComplex uses a carefully selected palette that balances professionalism with approachability. The core palette consists of four primary colors that work harmoniously across all applications.
+NetComplex uses the **Lapis & Gold Vein** mineral palette — a refined, civic palette that balances authority with warmth. This palette reflects permanence, trust, and community value.
 
-#### Primary Palette
+#### Primary Palette — Lapis & Gold Vein
 
-| Color Name     | Hex Code  | Usage                                 | Description                                                  |
-| -------------- | --------- | ------------------------------------- | ------------------------------------------------------------ |
-| **Canopy**     | `#4F46E5` | Primary brand color, CTAs, navigation | Deep indigo representing trust and technology infrastructure |
-| **Fieldstone** | `#F3F4F6` | Page backgrounds, neutral elements    | Light gray providing clean, readable surfaces                |
-| **Bark**       | `#374151` | Body text, secondary elements         | Dark gray for optimal readability on light backgrounds       |
-| **Sky**        | `#F59E0B` | Accents, highlights, secondary CTAs   | Warm amber for secondary actions and emphasis                |
+| Color Name     | Hex Code  | Usage                                 | Description                                             |
+| -------------- | --------- | ------------------------------------- | ------------------------------------------------------- |
+| **Lapis Deep** | `#0F1F4A` | Primary brand color, navigation, CTAs | Deep blue representing trust, permanence, and authority |
+| **Lapis Mid**  | `#1E3A7A` | Secondary elements, hover states      | Rich mid-tone blue for depth and hierarchy              |
+| **Azure**      | `#4A7AB5` | Accents, links, highlights            | Approachable blue for interactive elements              |
+| **Gold Vein**  | `#C8A84B` | Premium accents, rewards, CTAs        | Warm gold for emphasis and premium elements             |
+| **Vellum**     | `#F2ECD8` | Page backgrounds, neutral surfaces    | Warm off-white providing elegant, readable surfaces     |
 
 #### Tier Colors
 
@@ -129,25 +130,25 @@ Each subscription tier has a distinct color identity:
 
 | Tier           | Color Name | Hex Code  | Usage                                        |
 | -------------- | ---------- | --------- | -------------------------------------------- |
-| **FOUNDATION** | Green-500  | `#22C55E` | Entry tier indicators, progress bars         |
-| **DEPTH**      | Amber-500  | `#F59E0B` | Growth tier indicators, secondary accents    |
-| **CORE**       | Slate-800  | `#1E293B` | Enterprise tier indicators, premium elements |
+| **FOUNDATION** | Azure      | `#4A7AB5` | Entry tier indicators, progress bars         |
+| **DEPTH**      | Lapis Mid  | `#1E3A7A` | Growth tier indicators, secondary accents    |
+| **CORE**       | Gold Vein  | `#C8A84B` | Enterprise tier indicators, premium elements |
 
 #### Extended Palette
 
 | Color Name  | Hex Code  | Usage                            |
 | ----------- | --------- | -------------------------------- |
-| **Mist**    | `#F9FAFB` | Subtle backgrounds, hover states |
+| **Mist**    | `#EAF0FA` | Subtle backgrounds, hover states |
 | **Stone**   | `#6B7280` | Secondary text, muted elements   |
 | **Coral**   | `#EF4444` | Error states, warnings           |
 | **Emerald** | `#10B981` | Success states, confirmations    |
 
 #### Application Rules
 
-- **Primary UI**: Use Canopy for primary actions, Fieldstone for backgrounds, Bark for text
+- **Primary UI**: Use Lapis Deep for primary actions, Vellum for backgrounds, Bark (#374151) for text
 - **Tier Indicators**: Always use the tier's assigned color — never mix tier colors
-- **Rewards/Web3**: Use Grove Gold (Amber-500) exclusively for gamification elements
-- **Semantic Colors**: Red for errors/danger, Green for success, Amber for warnings
+- **Rewards/Web3**: Use Gold Vein exclusively for gamification elements
+- **Semantic Colors**: Red for errors/danger, Green for success, Amber (#F59E0B) for warnings
 
 ---
 

@@ -1,3 +1,5 @@
+import { SectionLayout } from '@/components/layout/SectionLayout';
+
 export function PricingFAQ() {
   const faqs = [
     {
@@ -19,20 +21,23 @@ export function PricingFAQ() {
   ];
 
   return (
-    <section className="py-20 bg-slate-50">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">
+    <SectionLayout size="xl" background="fieldstone">
+      <div className="max-w-3xl mx-auto">
+        <h2 className="text-3xl font-bold text-bark text-center mb-12">
           Frequently Asked Questions
         </h2>
         <div className="space-y-6">
           {faqs.map((faq, idx) => (
-            <div key={idx} className="bg-white p-6 rounded-xl border border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">{faq.q}</h3>
+            <div
+              key={idx}
+              className="bg-white p-6 rounded-xl border border-slate-200 hover:shadow-sm transition-shadow"
+            >
+              <h3 className="text-lg font-semibold text-bark mb-2">{faq.q}</h3>
               <p className="text-slate-600">{faq.a}</p>
             </div>
           ))}
         </div>
       </div>
-    </section>
+    </SectionLayout>
   );
 }

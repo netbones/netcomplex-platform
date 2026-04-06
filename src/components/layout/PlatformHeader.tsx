@@ -29,23 +29,27 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
     return false;
   };
 
-  const textColor = variant === 'dark' ? 'text-white' : 'text-bark';
-  const hoverColor = variant === 'dark' ? 'hover:text-canopy-300' : 'hover:text-canopy';
+  const textColor = variant === 'dark' ? 'text-white' : 'text-lapis-deep';
+  const subtextColor = variant === 'dark' ? 'text-lapis-azure/70' : 'text-lapis-mid';
+  const hoverColor = variant === 'dark' ? 'hover:text-gold-vein' : 'hover:text-lapis-azure';
 
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 w-full border-b border-slate-200/20 backdrop-blur-sm',
-        variant === 'dark' ? 'bg-slate-900/80' : 'bg-white/80',
+        'sticky top-0 z-50 w-full border-b border-lapis-azure/20 backdrop-blur-sm',
+        variant === 'dark' ? 'bg-lapis-deep/90' : 'bg-vellum/90',
         className
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center">
-              <span className={cn('text-xl font-bold', textColor)}>NetComplex</span>
+            <Link href="/" className="flex flex-col">
+              <span className={cn('text-2xl font-bold tracking-tight', textColor)}>NetComplex</span>
+              <span className={cn('text-xs font-medium tracking-wide', subtextColor)}>
+                Your complex, connected.
+              </span>
             </Link>
           </div>
 
@@ -59,7 +63,7 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
                   'text-sm font-medium transition-colors',
                   textColor,
                   hoverColor,
-                  isActive(item.href) && 'text-canopy font-semibold'
+                  isActive(item.href) && 'text-gold-vein font-semibold'
                 )}
               >
                 {item.name}
@@ -77,7 +81,7 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
             </Link>
             <Link
               href="/signup"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-canopy hover:bg-canopy-600 transition-colors"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-lapis-deep bg-gold-vein hover:bg-gold-vein/90 transition-colors"
             >
               Get Started
             </Link>

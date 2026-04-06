@@ -27,9 +27,9 @@ export function PrimaryCTA({
   };
 
   const variantClasses = {
-    primary: 'bg-canopy text-white hover:bg-canopy-600 border border-canopy',
-    secondary: 'bg-fieldstone text-bark hover:bg-fieldstone-200 border border-fieldstone',
-    outline: 'bg-transparent text-canopy border border-canopy hover:bg-canopy hover:text-white',
+    primary: 'bg-gold-vein text-lapis-deep hover:bg-gold-vein/90 border border-gold-vein',
+    secondary: 'bg-vellum text-lapis-deep hover:bg-vellum-light border border-lapis-azure/30',
+    outline: 'bg-transparent text-lapis-deep border border-lapis-azure/40 hover:bg-lapis-azure/10',
   };
 
   return (
