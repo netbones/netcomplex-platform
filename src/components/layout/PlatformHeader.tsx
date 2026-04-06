@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 const navigation = [
   { name: 'Home', href: '/' },
@@ -22,6 +23,7 @@ interface PlatformHeaderProps {
  */
 export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderProps) {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (href: string) => {
     if (href === '/' && pathname === '/') return true;
@@ -51,7 +53,9 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
                 Your complex, connected.
               </span>
             </Link>
-            <span className={cn('text-xs font-medium tracking-wide', subtextColor)}>
+            <span
+              className={cn('text-xs font-medium tracking-wide hidden lg:inline', subtextColor)}
+            >
               by Netbones Africa
             </span>
           </div>
@@ -75,7 +79,7 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
           </nav>
 
           {/* CTA Buttons */}
-          <div className="flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-4">
             <Link
               href="/sign-in"
               className={cn('text-sm font-medium transition-colors', textColor, hoverColor)}
@@ -99,7 +103,8 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
                 textColor,
                 hoverColor
               )}
-              aria-expanded="false"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-expanded={mobileMenuOpen}
             >
               <span className="sr-only">Open main menu</span>
               <svg
@@ -114,12 +119,55 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
+                  d={mobileMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
                 />
               </svg>
             </button>
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-lapis-azure/20 py-4">
+            <nav className="space-y-2">
+              {navigation.map(item => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    'block text-sm font-medium transition-colors py-2',
+                    textColor,
+                    hoverColor,
+                    isActive(item.href) && 'text-gold-vein font-semibold'
+                  )}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+            <div className="space-y-2 pt-4 border-t border-lapis-azure/20 mt-4">
+              <Link
+                href="/sign-in"
+                className={cn(
+                  'block text-sm font-medium transition-colors py-2',
+                  textColor,
+                  hoverColor
+                )}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/signup"
+                className="block text-center px-4 py-2 text-sm font-medium rounded-lg text-lapis-deep bg-gold-vein hover:bg-gold-vein/90 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
