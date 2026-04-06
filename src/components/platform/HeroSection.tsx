@@ -2,41 +2,344 @@
 
 import { PrimaryCTA } from '@/components/ui/PrimaryCTA';
 import { SectionLayout } from '@/components/layout/SectionLayout';
+import { Network } from 'lucide-react';
 
 export function HeroSection() {
   return (
     <SectionLayout
       size="xl"
       background="transparent"
-      className="relative bg-gradient-to-br from-lapis-deep via-lapis-mid to-lapis-deep text-white overflow-hidden"
+      className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-white via-vellum to-lapis-azure/10"
     >
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.03%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-50" />
+      {/* Decorative background orbs */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-20 -left-20 w-96 h-96 bg-lapis-azure rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+        <div className="absolute -top-20 -right-20 w-96 h-96 bg-lapis-azure rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-gold-vein rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse delay-500"></div>
+        <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gold-vein rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-pulse delay-700"></div>
+      </div>
 
-      <div className="relative z-10">
-        <div className="text-center max-w-4xl mx-auto">
-          <p className="text-sm font-medium tracking-wider text-gold-vein mb-4 uppercase">
+      {/* Network/Node Visualization */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none opacity-30"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <linearGradient id="signalGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#4A7AB5" stopOpacity="0" />
+            <stop offset="50%" stopColor="#4A7AB5" stopOpacity="1" />
+            <stop offset="100%" stopColor="#4A7AB5" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
+        {/* Connection Lines */}
+        <line
+          x1="15%"
+          y1="20%"
+          x2="30%"
+          y2="35%"
+          stroke="#4A7AB5"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+        <line
+          x1="30%"
+          y1="35%"
+          x2="50%"
+          y2="40%"
+          stroke="#4A7AB5"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+        <line
+          x1="50%"
+          y1="40%"
+          x2="70%"
+          y2="35%"
+          stroke="#C8A84B"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+        <line
+          x1="70%"
+          y1="35%"
+          x2="85%"
+          y2="20%"
+          stroke="#C8A84B"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+        <line
+          x1="30%"
+          y1="35%"
+          x2="50%"
+          y2="60%"
+          stroke="#4A7AB5"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+        <line
+          x1="50%"
+          y1="60%"
+          x2="70%"
+          y2="35%"
+          stroke="#C8A84B"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+        <line
+          x1="15%"
+          y1="80%"
+          x2="30%"
+          y2="65%"
+          stroke="#4A7AB5"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+        <line
+          x1="70%"
+          y1="65%"
+          x2="85%"
+          y2="80%"
+          stroke="#C8A84B"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+        <line
+          x1="50%"
+          y1="40%"
+          x2="50%"
+          y2="60%"
+          stroke="#4A7AB5"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+        <line
+          x1="30%"
+          y1="65%"
+          x2="50%"
+          y2="60%"
+          stroke="#4A7AB5"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+        <line
+          x1="50%"
+          y1="60%"
+          x2="70%"
+          y2="65%"
+          stroke="#C8A84B"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+
+        {/* Animated Signal Pulses */}
+        <circle r="4" fill="#4A7AB5" opacity="0.8">
+          <animateMotion dur="3s" repeatCount="indefinite">
+            <mpath href="#path1" />
+          </animateMotion>
+        </circle>
+        <circle r="4" fill="#C8A84B" opacity="0.8">
+          <animateMotion dur="2.5s" repeatCount="indefinite" begin="0.5s">
+            <mpath href="#path2" />
+          </animateMotion>
+        </circle>
+        <circle r="4" fill="#4A7AB5" opacity="0.8">
+          <animateMotion dur="4s" repeatCount="indefinite" begin="1s">
+            <mpath href="#path3" />
+          </animateMotion>
+        </circle>
+        <circle r="4" fill="#C8A84B" opacity="0.8">
+          <animateMotion dur="3.5s" repeatCount="indefinite" begin="1.5s">
+            <mpath href="#path4" />
+          </animateMotion>
+        </circle>
+
+        {/* Hidden paths */}
+        <path id="path1" d="M 15,20 L 30,35 L 50,40" fill="none" opacity="0" />
+        <path id="path2" d="M 50,40 L 70,35 L 85,20" fill="none" opacity="0" />
+        <path id="path3" d="M 30,35 L 50,60 L 70,65" fill="none" opacity="0" />
+        <path id="path4" d="M 85,80 L 70,65 L 70,35 L 50,40" fill="none" opacity="0" />
+
+        {/* Pulsing Nodes */}
+        <circle cx="15%" cy="20%" r="8" fill="#4A7AB5">
+          <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="15%" cy="20%" r="8" fill="none" stroke="#4A7AB5" strokeWidth="1.5">
+          <animate attributeName="r" values="8;24;32" dur="2s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.6;0.3;0" dur="2s" repeatCount="indefinite" />
+        </circle>
+
+        <circle cx="50%" cy="40%" r="10" fill="#C8A84B">
+          <animate
+            attributeName="r"
+            values="10;14;10"
+            dur="3s"
+            repeatCount="indefinite"
+            begin="0.5s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.9;1;0.9"
+            dur="3s"
+            repeatCount="indefinite"
+            begin="0.5s"
+          />
+        </circle>
+        <circle cx="50%" cy="40%" r="10" fill="none" stroke="#C8A84B" strokeWidth="1.5">
+          <animate
+            attributeName="r"
+            values="10;28;36"
+            dur="3s"
+            repeatCount="indefinite"
+            begin="0.5s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.6;0.3;0"
+            dur="3s"
+            repeatCount="indefinite"
+            begin="0.5s"
+          />
+        </circle>
+
+        <circle cx="85%" cy="20%" r="8" fill="#C8A84B">
+          <animate
+            attributeName="r"
+            values="8;12;8"
+            dur="2.8s"
+            repeatCount="indefinite"
+            begin="1s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.8;1;0.8"
+            dur="2.8s"
+            repeatCount="indefinite"
+            begin="1s"
+          />
+        </circle>
+        <circle cx="85%" cy="20%" r="8" fill="none" stroke="#C8A84B" strokeWidth="1.5">
+          <animate
+            attributeName="r"
+            values="8;24;32"
+            dur="2.8s"
+            repeatCount="indefinite"
+            begin="1s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.6;0.3;0"
+            dur="2.8s"
+            repeatCount="indefinite"
+            begin="1s"
+          />
+        </circle>
+
+        <circle cx="50%" cy="60%" r="7" fill="#4A7AB5">
+          <animate
+            attributeName="r"
+            values="7;10;7"
+            dur="2.4s"
+            repeatCount="indefinite"
+            begin="0.4s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.75;1;0.75"
+            dur="2.4s"
+            repeatCount="indefinite"
+            begin="0.4s"
+          />
+        </circle>
+        <circle cx="50%" cy="60%" r="7" fill="none" stroke="#4A7AB5" strokeWidth="1.5">
+          <animate
+            attributeName="r"
+            values="7;22;30"
+            dur="2.4s"
+            repeatCount="indefinite"
+            begin="0.4s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.6;0.3;0"
+            dur="2.4s"
+            repeatCount="indefinite"
+            begin="0.4s"
+          />
+        </circle>
+
+        <circle cx="15%" cy="80%" r="6" fill="#4A7AB5">
+          <animate
+            attributeName="r"
+            values="6;9;6"
+            dur="2.6s"
+            repeatCount="indefinite"
+            begin="1.2s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.7;1;0.7"
+            dur="2.6s"
+            repeatCount="indefinite"
+            begin="1.2s"
+          />
+        </circle>
+        <circle cx="85%" cy="80%" r="6" fill="#C8A84B">
+          <animate
+            attributeName="r"
+            values="6;9;6"
+            dur="2.9s"
+            repeatCount="indefinite"
+            begin="0.6s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.7;1;0.7"
+            dur="2.9s"
+            repeatCount="indefinite"
+            begin="0.6s"
+          />
+        </circle>
+      </svg>
+
+      <div className="relative max-w-4xl mx-auto text-center space-y-8">
+        {/* Logo/Icon */}
+        <div className="flex justify-center mb-4">
+          <div className="p-4 bg-lapis-deep rounded-2xl shadow-lg">
+            <Network className="w-12 h-12 text-white" />
+          </div>
+        </div>
+
+        {/* Supertext */}
+        <div className="space-y-2">
+          <p className="text-gold-vein tracking-wider text-sm md:text-base uppercase font-medium">
             Community Informatics Platform
           </p>
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 text-white tracking-tight">
+          <h1 className="text-5xl md:text-7xl font-bold text-lapis-deep tracking-tight">
             NetComplex
           </h1>
-          <p className="text-2xl md:text-3xl font-light text-lapis-azure mb-8">
-            Your complex, connected.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        </div>
+
+        {/* Subtext */}
+        <p className="text-2xl md:text-3xl text-lapis-mid font-light">Your complex, connected.</p>
+
+        {/* CTA Button */}
+        <div className="pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <PrimaryCTA
               href="/signup"
               size="lg"
-              className="bg-gold-vein text-lapis-deep hover:bg-gold-vein/90"
+              className="bg-gold-vein text-lapis-deep hover:bg-gold-vein/90 px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl"
             >
-              Start Free Trial
+              Sign Up
             </PrimaryCTA>
             <PrimaryCTA
               href="/pricing"
               variant="outline"
               size="lg"
-              className="border-lapis-azure/40 text-white hover:border-lapis-azure hover:text-white"
+              className="border-2 border-gold-vein text-gold-vein hover:bg-gold-vein/10 px-8 py-6 text-lg rounded-xl"
             >
               View Pricing
             </PrimaryCTA>
