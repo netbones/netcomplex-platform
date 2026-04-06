@@ -14,6 +14,7 @@ interface PageCTAProps {
   };
   className?: string;
   background?: 'canopy' | 'fieldstone' | 'gradient' | 'lapis';
+  showAttribution?: boolean;
 }
 
 /**
@@ -27,6 +28,7 @@ export function PageCTA({
   secondaryAction,
   className,
   background = 'lapis',
+  showAttribution = false,
 }: PageCTAProps) {
   const backgroundClasses = {
     canopy: 'bg-canopy text-white',
@@ -56,6 +58,7 @@ export function PageCTA({
             </Link>
           )}
         </div>
+        {showAttribution && <p className="text-sm text-lapis-azure/70 mt-6">by Netbones Africa</p>}
       </div>
     </section>
   );

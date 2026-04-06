@@ -16,6 +16,7 @@ export function CTASection() {
         text: 'View Plans',
       }}
       background="lapis"
+      showAttribution={true}
     />
   );
 }
