@@ -293,6 +293,22 @@ export function HeroSection() {
             begin="1.2s"
           />
         </circle>
+        <circle cx="15%" cy="80%" r="6" fill="none" stroke="#4A7AB5" strokeWidth="1.5">
+          <animate
+            attributeName="r"
+            values="6;20;28"
+            dur="2.6s"
+            repeatCount="indefinite"
+            begin="1.2s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.6;0.3;0"
+            dur="2.6s"
+            repeatCount="indefinite"
+            begin="1.2s"
+          />
+        </circle>
 
         {/* Node 8 - 85% 80% */}
         <circle cx="85%" cy="80%" r="6" fill="#C8A84B">
@@ -311,6 +327,42 @@ export function HeroSection() {
             begin="0.6s"
           />
         </circle>
+        <circle cx="85%" cy="80%" r="6" fill="none" stroke="#C8A84B" strokeWidth="1.5">
+          <animate
+            attributeName="r"
+            values="6;20;28"
+            dur="2.9s"
+            repeatCount="indefinite"
+            begin="0.6s"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.6;0.3;0"
+            dur="2.9s"
+            repeatCount="indefinite"
+            begin="0.6s"
+          />
+        </circle>
+
+        {/* Add missing connection lines */}
+        <line
+          x1="30%"
+          y1="65%"
+          x2="50%"
+          y2="60%"
+          stroke="#4A7AB5"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
+        <line
+          x1="50%"
+          y1="60%"
+          x2="70%"
+          y2="65%"
+          stroke="#C8A84B"
+          strokeWidth="1.5"
+          opacity="0.4"
+        />
       </svg>
 
       <div className="relative max-w-4xl mx-auto text-center space-y-6">
