@@ -38,23 +38,14 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: false,
   },
-  databaseHooks: {
-    user: {
-      create: {
-        before: async user => {
-          // Soralia Village tenant ID - hardcoded for reliability
-          // The soralia tenant was created in Phase 00 seed data
-          const TENANT_ID = 'soralia';
-
-          console.log('[Auth Hook] Injecting tenantId:', TENANT_ID);
-
-          return {
-            data: {
-              ...user,
-              tenantId: TENANT_ID,
-            },
-          };
-        },
+  // Use additionalFields to add tenantId as a managed field that Better Auth handles
+  user: {
+    additionalFields: {
+      tenantId: {
+        type: 'string',
+        required: true,
+        defaultValue: 'soralia',
+        input: false, // Users cannot set this during signup - it's auto-set
       },
     },
   },
