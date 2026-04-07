@@ -63,25 +63,27 @@ model Booking {
 }
 
 model Content {
-  id          String          @id
-  tenantId  String
-  title       String
-  content     String
-  excerpt     String?
-  image       String?
-  category    ContentCategory
-  tags        String[]
-  authorId    String?
-  groupId     String?
-  published   Boolean         @default(false)
-  featured    Boolean         @default(false)
-  priority    String          @default("normal")
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime
-  publishedAt DateTime?
-  expiresAt   DateTime?
-  user        user?           @relation(fields: [authorId], references: [id])
-  Group       Group?          @relation(fields: [groupId], references: [id])
+  id            String          @id
+  tenantId      String
+  title         Json            // { "en": "Title", "af": "Titel" }
+  content       Json            // { "en": "<p>...</p>", "af": "<p>...</p>" }
+  excerpt       Json?           // { "en": "...", "af": "..." }
+  image         String?
+  category      ContentCategory
+  tags          String[]
+  authorId      String?
+  groupId       String?
+  published     Boolean         @default(false)
+  featured      Boolean         @default(false)
+  priority      String          @default("normal")
+  defaultLocale String          @default("en")  // Fallback locale
+  contentType   String          @default("article")  // "article" or "campaign"
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime
+  publishedAt   DateTime?
+  expiresAt     DateTime?
+  user          user?           @relation(fields: [authorId], references: [id])
+  Group         Group?          @relation(fields: [groupId], references: [id])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.

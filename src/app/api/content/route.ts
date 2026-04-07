@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server';
 import { ContentCategoryEnum, type ContentCategory } from '@/types/enums';
 import { revalidateContent } from '@/lib/revalidation';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@/lib/i18n';
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -35,19 +36,58 @@ async function getSessionAndRole(request: Request) {
 }
 
 /**
+ * Transform content item to include localized fields
+ */
+function transformContentForLocale(content: Record<string, unknown>, userLocale: string) {
+  const defaultLocale = (content.defaultLocale as string) || defaultLanguage;
+
+  return {
+    id: content.id,
+    title: getLocalizedValue(content.title as Record<string, unknown>, userLocale, defaultLocale),
+    content: getLocalizedValue(
+      content.content as Record<string, unknown>,
+      userLocale,
+      defaultLocale
+    ),
+    excerpt: getLocalizedValue(
+      content.excerpt as Record<string, unknown>,
+      userLocale,
+      defaultLocale
+    ),
+    image: content.image,
+    category: content.category,
+    tags: content.tags,
+    authorId: content.authorId,
+    groupId: content.groupId,
+    published: content.published,
+    featured: content.featured,
+    priority: content.priority,
+    defaultLocale: content.defaultLocale,
+    contentType: content.contentType,
+    createdAt: content.createdAt,
+    updatedAt: content.updatedAt,
+    publishedAt: content.publishedAt,
+    expiresAt: content.expiresAt,
+    // Include raw JSON for admin editing
+    _raw: {
+      title: content.title,
+      content: content.content,
+      excerpt: content.excerpt,
+    },
+  };
+}
+
+/**
  * GET /api/content - List content/announcements
  * @query category - Filter by NEWS, ANNOUNCEMENT, EVENT, or BLOG
  * @query published - Filter by published status (true/false)
  * @query featured - Filter by featured (true/false)
  * @query groupId - Filter by group ID
  * @query authorId - Filter by author ID (for user's own content)
+ * @query locale - Content locale to fetch (default: user's browser locale or 'en')
  */
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
-
-  if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
 
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
@@ -55,6 +95,12 @@ export async function GET(request: Request) {
   const featured = searchParams.get('featured');
   const groupId = searchParams.get('groupId');
   const authorId = searchParams.get('authorId');
+  const locale = searchParams.get('locale') || defaultLanguage;
+
+  // Validate locale
+  const userLocale = supportedLanguages.includes(locale as (typeof supportedLanguages)[number])
+    ? locale
+    : defaultLanguage;
 
   // Build where conditions
   const whereConditions = [];
@@ -73,10 +119,10 @@ export async function GET(request: Request) {
   }
 
   // Users can only see their own content unless they have content permission
-  const canViewAll = hasPermission(authData.role, 'content');
+  const canViewAll = hasPermission(authData?.role || 'RESIDENT', 'content');
   if (authorId) {
     whereConditions.push(eq(contents.authorId, authorId));
-  } else if (!canViewAll) {
+  } else if (!canViewAll && authData) {
     whereConditions.push(eq(contents.authorId, authData.userId));
   }
 
@@ -86,6 +132,7 @@ export async function GET(request: Request) {
       title: contents.title,
       content: contents.content,
       excerpt: contents.excerpt,
+      image: contents.image,
       category: contents.category,
       tags: contents.tags,
       authorId: contents.authorId,
@@ -93,6 +140,8 @@ export async function GET(request: Request) {
       published: contents.published,
       featured: contents.featured,
       priority: contents.priority,
+      defaultLocale: contents.defaultLocale,
+      contentType: contents.contentType,
       createdAt: contents.createdAt,
       updatedAt: contents.updatedAt,
       publishedAt: contents.publishedAt,
@@ -104,19 +153,24 @@ export async function GET(request: Request) {
     .where(and(...whereConditions))
     .orderBy(desc(contents.createdAt));
 
-  return NextResponse.json(contentItems);
+  // Transform to localized content
+  const localizedContent = contentItems.map(item => transformContentForLocale(item, userLocale));
+
+  return NextResponse.json(localizedContent);
 }
 
 /**
  * POST /api/content - Create new content (requires content permission)
- * @body title - Content title
- * @body content - Content body
- * @body excerpt - Optional excerpt
+ * @body title - Content title (JSON: { "en": "...", "af": "..." })
+ * @body content - Content body (JSON: { "en": "...", "af": "..." })
+ * @body excerpt - Optional excerpt (JSON: { "en": "...", "af": "..." })
  * @body category - Content category
  * @body authorId - Author user ID
  * @body groupId - Optional group ID
  * @body featured - Whether featured
  * @body published - Whether published
+ * @body defaultLocale - Fallback locale (default: "en")
+ * @body contentType - "article" or "campaign"
  */
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
@@ -141,17 +195,19 @@ export async function POST(request: Request) {
     .values({
       id: crypto.randomUUID(),
       tenantId,
-      title: body.title,
-      content: body.content,
-      excerpt: body.excerpt,
+      title: body.title || { [defaultLanguage]: 'Untitled' },
+      content: body.content || { [defaultLanguage]: '' },
+      excerpt: body.excerpt || null,
       category: body.category,
       authorId: authData.userId,
       groupId: body.groupId || null,
       featured: body.featured || false,
       published: body.published || false,
       publishedAt: body.published ? now : null,
-      tags: [],
-      priority: 'normal',
+      tags: body.tags || [],
+      priority: body.priority || 'normal',
+      defaultLocale: body.defaultLocale || defaultLanguage,
+      contentType: body.contentType || 'article',
       updatedAt: now,
       createdAt: now,
     })
