@@ -596,7 +596,7 @@ model premiumSeat {
   createdAt            DateTime    @default(now())
   updatedAt            DateTime
   messageRetentionDays Int         @default(30)
-  tier                 String      @default("core")
+  tier                 String      @default("foundation")
   user                 user        @relation(fields: [userId], references: [id], onDelete: Cascade)
   household            household[] @relation("PremiumSeatPortfolio")
 

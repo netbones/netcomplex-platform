@@ -158,14 +158,32 @@ const showBookings = canAccessModule(tenant.subscriptionTier, 'bookings');
 
 ### PremiumSeat
 
-The `PremiumSeat.tier` field defaults to `'core'`:
+The `PremiumSeat.tier` field defaults to `'foundation'`:
 
 ```prisma
 model PremiumSeat {
   // ...
-  tier String @default("core")
+  tier String @default("foundation")
 }
 ```
+
+---
+
+## Open Questions
+
+### Tier Naming Convention
+
+The current tier names (Foundation, Depth, Core) may be counter-intuitive for sales and marketing purposes. Consider renaming to more intuitive names:
+
+| Current    | Alternative Options           | Notes                              |
+| ---------- | ----------------------------- | ---------------------------------- |
+| Foundation | Starter, Basic, Entry         | Entry-level tier                   |
+| Depth      | Growth, Professional, Plus    | Mid-tier for expanding communities |
+| Core       | Enterprise, Premium, Ultimate | Full-featured tier                 |
+
+**Pending Decision:** Should tier names be changed to be more sales-friendly? The current names are technically descriptive but may not resonate with non-technical stakeholders.
+
+**Default Tier Note:** Currently, new tenants default to `Foundation` tier. The PremiumSeat model uses `foundation` as the default value.
 
 ---
 
