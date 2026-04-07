@@ -291,28 +291,53 @@ export const identityRouter = router({
       .where(eq(standardSeats.userId, ctx.userId!))
       .orderBy(desc(standardSeats.createdAt));
 
-    const householdsWithRelations = await Promise.all(
-      seats.map(async seat => {
-        const [household] = await db
-          .select()
-          .from(households)
-          .where(eq(households.id, seat.householdId));
-        const profilesData = await db
-          .select()
-          .from(profiles)
-          .where(and(eq(profiles.householdId, seat.householdId), eq(profiles.status, 'ACTIVE')));
-        const seatsData = await db
-          .select()
-          .from(standardSeats)
-          .where(eq(standardSeats.householdId, seat.householdId));
-        return {
-          ...seat,
-          household: household
-            ? { ...household, profiles: profilesData, standardSeats: seatsData }
-            : null,
-        };
-      })
-    );
+    // Optimize: Batch fetch all related data to avoid N+1 queries
+    const householdIds = [...new Set(seats.map(s => s.householdId))];
+
+    // Fetch all households, profiles, and seats in parallel
+    const [allHouseholds, allProfiles, allSeats] = await Promise.all([
+      householdIds.length > 0
+        ? db
+            .select()
+            .from(households)
+            .where(and(...householdIds.map(id => eq(households.id, id))))
+        : Promise.resolve([]),
+      householdIds.length > 0
+        ? db
+            .select()
+            .from(profiles)
+            .where(
+              and(
+                eq(profiles.status, 'ACTIVE'),
+                ...householdIds.map(id => eq(profiles.householdId, id))
+              )
+            )
+        : Promise.resolve([]),
+      householdIds.length > 0
+        ? db
+            .select()
+            .from(standardSeats)
+            .where(and(...householdIds.map(id => eq(standardSeats.householdId, id))))
+        : Promise.resolve([]),
+    ]);
+
+    // Build lookup maps
+    const householdMap = new Map(allHouseholds.map(h => [h.id, h]));
+    const profilesMap = new Map(allProfiles.map(p => [p.householdId, p]));
+    const seatsMap = new Map(allSeats.map(s => [s.householdId, s]));
+
+    // Map relations
+    const householdsWithRelations = seats.map(seat => {
+      const household = householdMap.get(seat.householdId);
+      const profilesData = allProfiles.filter(p => p.householdId === seat.householdId);
+      const seatsData = allSeats.filter(s => s.householdId === seat.householdId);
+      return {
+        ...seat,
+        household: household
+          ? { ...household, profiles: profilesData, standardSeats: seatsData }
+          : null,
+      };
+    });
 
     return householdsWithRelations;
   }),
