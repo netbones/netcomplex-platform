@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 export async function GET(request: NextRequest) {
   try {
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ tags });
   } catch (error) {
-    console.error('Error fetching user tags:', error);
+    logError({ component: 'user-tags-api', operation: 'GET' }, 'Error fetching user tags', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

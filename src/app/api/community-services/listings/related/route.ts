@@ -5,6 +5,7 @@ import { db, communityServiceListings, users } from '@/lib/db';
 import { eq, desc, and, or, sql } from 'drizzle-orm';
 import { communityServiceReviews } from '@/lib/db';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 export const maxDuration = 5;
 
@@ -97,7 +98,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ relatedServices: relatedWithCounts });
   } catch (error) {
-    console.error('Related services fetch error:', error);
+    logError(
+      { component: 'related-services-api', operation: 'GET' },
+      'Related services fetch error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

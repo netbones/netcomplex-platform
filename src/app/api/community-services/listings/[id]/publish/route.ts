@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth';
 import { db, communityServiceListings } from '@/lib/db';
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 /**
  * POST /api/community-services/listings/[id]/publish - Publish or unpublish a listing
@@ -66,7 +67,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       message: publish ? 'Listing published successfully' : 'Listing unpublished',
     });
   } catch (error) {
-    console.error('Community service listing publish error:', error);
+    logError(
+      { component: 'listings-publish-api', operation: 'POST' },
+      'Community service listing publish error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

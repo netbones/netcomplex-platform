@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth';
 import { uploadImage } from '@/lib/storage';
 import { NextResponse } from 'next/server';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 export async function POST(request: Request) {
   await withTenant(); // Enforce tenant context
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: result.url, key: result.key });
   } catch (error) {
-    console.error('Upload error:', error);
+    logError({ component: 'upload-api', operation: 'POST' }, 'Upload error', error);
     return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 });
   }
 }

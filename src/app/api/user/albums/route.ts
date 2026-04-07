@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { db, albums } from '@/lib/db';
 import { eq, desc, and } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
   try {
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
   } catch (error) {
-    console.error('Album API error:', error);
+    logError({ component: 'albums-api', operation: 'POST' }, 'Album API error', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -116,7 +117,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ albums: userAlbums });
   } catch (error) {
-    console.error('Get albums error:', error);
+    logError({ component: 'albums-api', operation: 'GET' }, 'Get albums error', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

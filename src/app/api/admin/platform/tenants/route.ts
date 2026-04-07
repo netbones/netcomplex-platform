@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listTenants, createTenant, updateTenant, deleteTenant, getTenantById } from '@/lib/tenant';
+import { logError } from '@/lib/logging';
 
 export async function GET() {
   try {
     const tenants = await listTenants();
     return NextResponse.json(tenants);
   } catch (error) {
-    console.error('Failed to list tenants:', error);
+    logError({ component: 'tenants-api', operation: 'LIST' }, 'Failed to list tenants', error);
     return NextResponse.json({ error: 'Failed to list tenants' }, { status: 500 });
   }
 }
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(tenant, { status: 201 });
   } catch (error) {
-    console.error('Failed to create tenant:', error);
+    logError({ component: 'tenants-api', operation: 'CREATE' }, 'Failed to create tenant', error);
     return NextResponse.json({ error: 'Failed to create tenant' }, { status: 500 });
   }
 }

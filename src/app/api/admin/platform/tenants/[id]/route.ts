@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTenantById, updateTenant, deleteTenant } from '@/lib/tenant';
+import { logError } from '@/lib/logging';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -12,7 +13,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json(tenant);
   } catch (error) {
-    console.error('Failed to get tenant:', error);
+    logError({ component: 'tenant-api', operation: 'GET' }, 'Failed to get tenant', error);
     return NextResponse.json({ error: 'Failed to get tenant' }, { status: 500 });
   }
 }
@@ -41,7 +42,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     return NextResponse.json(tenant);
   } catch (error) {
-    console.error('Failed to update tenant:', error);
+    logError({ component: 'tenant-api', operation: 'UPDATE' }, 'Failed to update tenant', error);
     return NextResponse.json({ error: 'Failed to update tenant' }, { status: 500 });
   }
 }
@@ -55,7 +56,7 @@ export async function DELETE(
     await deleteTenant(id);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Failed to delete tenant:', error);
+    logError({ component: 'tenant-api', operation: 'DELETE' }, 'Failed to delete tenant', error);
     return NextResponse.json({ error: 'Failed to delete tenant' }, { status: 500 });
   }
 }

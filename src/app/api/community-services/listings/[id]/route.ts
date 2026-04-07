@@ -11,6 +11,7 @@ import {
 } from '@/lib/db';
 import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 /**
  * GET /api/community-services/listings/[id] - Get a specific service listing
@@ -134,7 +135,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       },
     });
   } catch (error) {
-    console.error('Community service listing fetch error:', error);
+    logError(
+      { component: 'listings-api', operation: 'GET' },
+      'Community service listing fetch error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -228,7 +233,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       listing,
     });
   } catch (error) {
-    console.error('Community service listing update error:', error);
+    logError(
+      { component: 'listings-api', operation: 'PUT' },
+      'Community service listing update error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -283,7 +292,11 @@ export async function DELETE(
       message: 'Listing deleted successfully',
     });
   } catch (error) {
-    console.error('Community service listing deletion error:', error);
+    logError(
+      { component: 'listings-api', operation: 'DELETE' },
+      'Community service listing deletion error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

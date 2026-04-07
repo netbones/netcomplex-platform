@@ -10,6 +10,7 @@ import {
 } from '@/lib/db';
 import { eq, sql, and } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 /**
  * GET /api/premium/listings - Get property listings for premium user
@@ -55,7 +56,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ listings: listings as any });
   } catch (error) {
-    console.error('Listings fetch error:', error);
+    logError(
+      { component: 'premium-listings-api', operation: 'GET' },
+      'Listings fetch error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -129,7 +134,11 @@ export async function POST(request: NextRequest) {
       listing: result.rows?.[0],
     });
   } catch (error) {
-    console.error('Listing creation error:', error);
+    logError(
+      { component: 'premium-listings-api', operation: 'CREATE' },
+      'Listing creation error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

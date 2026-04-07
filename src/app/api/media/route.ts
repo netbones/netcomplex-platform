@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth';
 import { listUserImages, deleteImage } from '@/lib/storage';
 import { NextResponse } from 'next/server';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 export async function GET(request: Request) {
   const { tenantId } = await withTenant();
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
     const images = await listUserImages(session.user.id);
     return NextResponse.json({ images });
   } catch (error) {
-    console.error('List images error:', error);
+    logError({ component: 'media-api', operation: 'LIST' }, 'List images error', error);
     return NextResponse.json({ error: 'Failed to list images' }, { status: 500 });
   }
 }
@@ -48,7 +49,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Delete image error:', error);
+    logError({ component: 'media-api', operation: 'DELETE' }, 'Delete image error', error);
     return NextResponse.json({ error: 'Failed to delete image' }, { status: 500 });
   }
 }

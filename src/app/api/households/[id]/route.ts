@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db, households, standardSeats, profiles, contents, users } from '@/lib/db';
 import { eq, asc, desc, and } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 /**
  * GET /api/households/[id] - Get household profile with occupants and aggregated content
@@ -216,7 +217,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error fetching household:', error);
+    logError({ component: 'households-api', operation: 'GET' }, 'Error fetching household', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

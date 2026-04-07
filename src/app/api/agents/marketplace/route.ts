@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { db, agentProfiles, users, premiumSeats } from '@/lib/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 /**
  * GET /api/agents/marketplace - Get available agents for property investors
@@ -47,7 +48,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ agents: agentList });
   } catch (error) {
-    console.error('Agent marketplace fetch error:', error);
+    logError(
+      { component: 'marketplace-api', operation: 'GET' },
+      'Agent marketplace fetch error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -93,7 +98,11 @@ export async function POST(request: NextRequest) {
       message: 'Connection request sent successfully',
     });
   } catch (error) {
-    console.error('Agent connection error:', error);
+    logError(
+      { component: 'marketplace-api', operation: 'CONNECT' },
+      'Agent connection error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

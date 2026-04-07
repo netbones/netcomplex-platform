@@ -11,6 +11,7 @@ import {
 } from '@/lib/db';
 import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 /**
  * GET /api/community-services/analytics - Get marketplace analytics
@@ -179,7 +180,11 @@ export async function GET(request: NextRequest) {
       generatedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Community services analytics error:', error);
+    logError(
+      { component: 'analytics-api', operation: 'GET' },
+      'Community services analytics error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

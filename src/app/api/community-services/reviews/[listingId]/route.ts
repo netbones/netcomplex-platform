@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth';
 import { db, communityServiceListings, communityServiceReviews, users } from '@/lib/db';
 import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 /**
  * GET /api/community-services/reviews/[listingId] - Get reviews for a listing
@@ -93,7 +94,11 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('Community service reviews fetch error:', error);
+    logError(
+      { component: 'reviews-api', operation: 'GET' },
+      'Community service reviews fetch error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -215,7 +220,11 @@ export async function POST(
       review,
     });
   } catch (error) {
-    console.error('Community service review creation error:', error);
+    logError(
+      { component: 'reviews-api', operation: 'CREATE' },
+      'Community service review creation error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

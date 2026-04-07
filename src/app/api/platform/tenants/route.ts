@@ -3,6 +3,7 @@ import { TIERS, type TierLevel } from '@/lib/features/registry';
 import { createTenant } from '@/lib/tenant';
 import { db, users, tenants } from '@/lib/db';
 import { eq } from 'drizzle-orm';
+import { logError } from '@/lib/logging';
 
 interface SignupRequest {
   name: string;
@@ -119,7 +120,11 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Failed to create tenant and user:', error);
+    logError(
+      { component: 'platform-tenants-api', operation: 'CREATE' },
+      'Failed to create tenant and user',
+      error
+    );
     return NextResponse.json(
       { error: 'Failed to create community. Please try again.' },
       { status: 500 }

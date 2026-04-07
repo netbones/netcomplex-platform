@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth';
 import { db, communityServiceListings, users } from '@/lib/db';
 import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 /**
  * GET /api/community-services/moderation/listings - Get listings requiring moderation
@@ -94,7 +95,11 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Community services moderation listings fetch error:', error);
+    logError(
+      { component: 'moderation-api', operation: 'GET' },
+      'Community services moderation listings fetch error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -160,7 +165,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       message: 'Listing approved and published',
     });
   } catch (error) {
-    console.error('Community service listing approval error:', error);
+    logError(
+      { component: 'moderation-api', operation: 'APPROVE' },
+      'Community service listing approval error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -226,7 +235,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       message: 'Listing rejected',
     });
   } catch (error) {
-    console.error('Community service listing rejection error:', error);
+    logError(
+      { component: 'moderation-api', operation: 'REJECT' },
+      'Community service listing rejection error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -285,7 +298,11 @@ export async function DELETE(
       message: 'Listing removed from marketplace',
     });
   } catch (error) {
-    console.error('Community service listing removal error:', error);
+    logError(
+      { component: 'moderation-api', operation: 'DELETE' },
+      'Community service listing removal error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

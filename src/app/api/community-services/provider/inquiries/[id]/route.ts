@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth';
 import { db, communityServiceInquiries, communityServiceListings, users } from '@/lib/db';
 import { eq, and, sql, inArray, desc } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 /**
  * GET /api/community-services/provider/inquiries - Get inquiries for provider's listings
@@ -111,7 +112,11 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Community service provider inquiries fetch error:', error);
+    logError(
+      { component: 'provider-inquiries-api', operation: 'GET' },
+      'Community service provider inquiries fetch error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -224,7 +229,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       inquiry: updatedInquiry,
     });
   } catch (error) {
-    console.error('Community service inquiry response error:', error);
+    logError(
+      { component: 'provider-inquiries-api', operation: 'RESPOND' },
+      'Community service inquiry response error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

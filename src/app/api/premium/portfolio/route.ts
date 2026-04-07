@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { db, premiumSeats } from '@/lib/db';
 import { eq, sql, and } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 /**
  * POST /api/premium/upgrade-portfolio - Upgrade to Premium Seat with multi-property portfolio
@@ -142,7 +143,7 @@ export async function POST(request: NextRequest) {
       portfolio: portfolioResult.rows?.[0],
     });
   } catch (error) {
-    console.error('Premium upgrade error:', error);
+    logError({ component: 'portfolio-api', operation: 'POST' }, 'Premium upgrade error', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -214,7 +215,7 @@ export async function GET(request: NextRequest) {
       portfolio: portfolioResult.rows[0],
     });
   } catch (error) {
-    console.error('Portfolio fetch error:', error);
+    logError({ component: 'portfolio-api', operation: 'GET' }, 'Portfolio fetch error', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

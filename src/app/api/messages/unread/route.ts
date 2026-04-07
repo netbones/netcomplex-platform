@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth';
 import { db, messages, conversations, conversationParticipants, users } from '@/lib/db';
 import { eq, and, gt, desc, sql } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 /**
  * GET /api/messages/unread - Get unread message counts for current user
@@ -112,7 +113,11 @@ export async function GET(request: NextRequest) {
       totalUnread,
     });
   } catch (error) {
-    console.error('Unread messages fetch error:', error);
+    logError(
+      { component: 'unread-messages-api', operation: 'GET' },
+      'Unread messages fetch error',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -154,7 +159,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Mark read error:', error);
+    logError({ component: 'unread-messages-api', operation: 'POST' }, 'Mark read error', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
