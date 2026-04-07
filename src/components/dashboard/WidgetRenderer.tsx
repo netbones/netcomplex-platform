@@ -22,6 +22,7 @@ import { AgentDashboardWidget } from './AgentDashboardWidget';
 import { SoloSeatWidget } from './SoloSeatWidget';
 import { MyServicesWidget } from './MyServicesWidget';
 import { ServiceInquiriesWidget } from './ServiceInquiriesWidget';
+import { CommunityGraphWidget } from './CommunityGraphWidget';
 
 interface WidgetRendererProps {
   widgetId: string;
@@ -92,6 +93,8 @@ export function WidgetRenderer({ widgetId }: WidgetRendererProps): ReactNode {
       return <MyServicesWidget />;
     case 'service-inquiries':
       return <ServiceInquiriesWidget />;
+    case 'community-graph-widget':
+      return <CommunityGraphWidget />;
     default:
       return (
         <ErrorBoundary>

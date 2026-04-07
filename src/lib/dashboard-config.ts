@@ -29,6 +29,7 @@ export const WIDGET_FEATURE_MAP: Record<string, string> = {
   'conservation-widget': 'page.conservation',
   'bookshelf-widget': 'page.bookshelf',
   'agent-widget': 'page.property',
+  'community-graph-widget': 'page.directory',
   // Utility widgets available to all tenants
   stats: 'page.dashboard',
   'quick-actions': 'page.dashboard',
@@ -130,6 +131,13 @@ export const ALL_WIDGETS: DashboardWidget[] = [
     title: 'Service Inquiries',
     icon: 'fa-envelope-open-text',
     label: 'Service Inquiries',
+  },
+  {
+    id: 'community-graph-widget',
+    type: 'community-graph',
+    title: 'Community Graph',
+    icon: 'fa-project-diagram',
+    label: 'Community Graph',
   },
 ];
 
