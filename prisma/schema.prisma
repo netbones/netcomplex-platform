@@ -838,6 +838,7 @@ enum ContentCategory {
   CONSERVATION
   SERVICES
   RESOURCES
+  CAMPAIGN
 }
 
 enum ConversationType {

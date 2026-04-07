@@ -5,7 +5,8 @@ export type ContentCategory =
   | 'BLOG'
   | 'CONSERVATION'
   | 'SERVICES'
-  | 'RESOURCES';
+  | 'RESOURCES'
+  | 'CAMPAIGN';
 
 export const ContentCategoryEnum: Record<ContentCategory, ContentCategory> = {
   ANNOUNCEMENT: 'ANNOUNCEMENT',
@@ -15,4 +16,5 @@ export const ContentCategoryEnum: Record<ContentCategory, ContentCategory> = {
   CONSERVATION: 'CONSERVATION',
   SERVICES: 'SERVICES',
   RESOURCES: 'RESOURCES',
+  CAMPAIGN: 'CAMPAIGN',
 };

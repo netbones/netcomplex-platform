@@ -43,7 +43,8 @@ const categories = [
   { value: 'BLOG', label: 'Blog' },
   { value: 'SERVICE', label: 'Service' },
   { value: 'RESOURCE', label: 'Resource' },
-  { value: 'CONSERVATION', label: 'Conservation Campaign' },
+  { value: 'CAMPAIGN', label: 'Campaign' },
+  { value: 'CONSERVATION', label: 'Conservation (Sub-category)' },
 ];
 
 export function ContentForm({ initialData, groups = [], baseRedirect }: ContentFormProps) {
