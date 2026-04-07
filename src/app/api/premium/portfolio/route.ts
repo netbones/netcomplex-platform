@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db, premiumSeats } from '@/lib/db';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, and } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * POST /api/premium/upgrade-portfolio - Upgrade to Premium Seat with multi-property portfolio
@@ -9,6 +10,7 @@ import { eq, sql } from 'drizzle-orm';
  */
 export async function POST(request: NextRequest) {
   try {
+    const { tenantId } = await withTenant();
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -34,6 +36,7 @@ export async function POST(request: NextRequest) {
       FROM "household" h
       JOIN "standardSeat" ss ON ss."householdId" = h.id
       WHERE h.id IN ${sql`${householdIds}`}
+      AND h."tenantId" = ${tenantId}
       AND ss."userId" = ${userId}
       AND ss."isPrimaryOwner" = true
     `)) as any;
@@ -49,7 +52,7 @@ export async function POST(request: NextRequest) {
     const existingPremiumSeat = await db
       .select({ id: premiumSeats.id })
       .from(premiumSeats)
-      .where(eq(premiumSeats.userId, userId))
+      .where(and(eq(premiumSeats.userId, userId), eq(premiumSeats.tenantId, tenantId)))
       .limit(1);
 
     if (existingPremiumSeat.length > 0) {
@@ -76,8 +79,8 @@ export async function POST(request: NextRequest) {
 
       // Create new Premium Seat
       const newPremiumSeat = (await db.execute(sql`
-        INSERT INTO "premiumSeat" ("userId", "platformAddress")
-        VALUES (${userId}, ${platformAddress})
+        INSERT INTO "premiumSeat" ("userId", "tenantId", "platformAddress")
+        VALUES (${userId}, ${tenantId}, ${platformAddress})
         RETURNING id
       `)) as any;
 
@@ -129,6 +132,7 @@ export async function POST(request: NextRequest) {
       JOIN "_PremiumSeatPortfolio" htl ON htl.A = ps.id
       JOIN "household" h ON h.id = htl.B
       WHERE ps."userId" = ${userId}
+      AND ps."tenantId" = ${tenantId}
       GROUP BY ps.id
     `)) as any;
 
@@ -148,6 +152,7 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
+    const { tenantId } = await withTenant();
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -193,6 +198,7 @@ export async function GET(request: NextRequest) {
       JOIN "_PremiumSeatPortfolio" htl ON htl.A = ps.id
       JOIN "household" h ON h.id = htl.B
       WHERE ps."userId" = ${session.user.id}
+      AND ps."tenantId" = ${tenantId}
       GROUP BY ps.id
     `)) as any;
 

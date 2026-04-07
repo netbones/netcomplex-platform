@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { db, requestHistories, users } from '@/lib/db';
-import { eq, desc } from 'drizzle-orm';
+import { db, requestHistories, users, maintenanceRequests } from '@/lib/db';
+import { eq, desc, and } from 'drizzle-orm';
 import { revalidateDashboard } from '@/lib/revalidation';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -28,6 +29,8 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
+  const { tenantId } = await withTenant();
+
   const authData = await getSessionAndRole(request);
   if (!authData) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -36,6 +39,17 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const canViewAll = hasPermission(authData.role, 'requests');
   if (!canViewAll) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  // First verify the request belongs to this tenant
+  const [mr] = await db
+    .select()
+    .from(maintenanceRequests)
+    .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)))
+    .limit(1);
+
+  if (!mr) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
   const history = await db
@@ -63,6 +77,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
+  const { tenantId } = await withTenant();
+
   const authData = await getSessionAndRole(request);
   if (!authData) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -71,6 +87,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const canViewAll = hasPermission(authData.role, 'requests');
   if (!canViewAll) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  // First verify the request belongs to this tenant
+  const [mr] = await db
+    .select()
+    .from(maintenanceRequests)
+    .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)))
+    .limit(1);
+
+  if (!mr) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
   const body = await request.json();

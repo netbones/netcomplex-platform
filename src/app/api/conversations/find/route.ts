@@ -1,8 +1,10 @@
 import { db, conversations, conversationParticipants, users } from '@/lib/db';
 import { NextResponse } from 'next/server';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, and } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export async function POST(request: Request) {
+  const { tenantId } = await withTenant();
   const body = await request.json();
   const { participantIds } = body;
 
@@ -24,6 +26,7 @@ export async function POST(request: Request) {
     JOIN "conversationParticipant" cp ON cp."conversationId" = c.id
     JOIN "user" u ON u.id = cp."userId"
     WHERE c.type = 'DIRECT'
+    AND c."tenantId" = ${tenantId}
     AND cp."userId" IN ${sql`${participantIds}`}
     GROUP BY c.id
     HAVING COUNT(DISTINCT cp."userId") = 2
@@ -38,8 +41,8 @@ export async function POST(request: Request) {
 
   // Create new direct conversation
   const newConversation = (await db.execute(sql`
-    INSERT INTO "conversation" (name, type)
-    VALUES (NULL, 'DIRECT')
+    INSERT INTO "conversation" (name, type, "tenantId")
+    VALUES (NULL, 'DIRECT', ${tenantId})
     RETURNING *
   `)) as any;
 
@@ -48,8 +51,8 @@ export async function POST(request: Request) {
   // Create participants
   for (const userId of participantIds) {
     await db.execute(sql`
-      INSERT INTO "conversationParticipant" ("conversationId", "userId")
-      VALUES (${conversationId}, ${userId})
+      INSERT INTO "conversationParticipant" ("conversationId", "userId", "tenantId")
+      VALUES (${conversationId}, ${userId}, ${tenantId})
     `);
   }
 
@@ -67,6 +70,7 @@ export async function POST(request: Request) {
     JOIN "conversationParticipant" cp ON cp."conversationId" = c.id
     JOIN "user" u ON u.id = cp."userId"
     WHERE c.id = ${conversationId}
+    AND c."tenantId" = ${tenantId}
     GROUP BY c.id
   `)) as any;
 

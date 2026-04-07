@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-
 // Drizzle imports
 import { db, communityServiceListings, users } from '@/lib/db';
 import { eq, desc, and, or, sql } from 'drizzle-orm';
 import { communityServiceReviews } from '@/lib/db';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export const maxDuration = 5;
 
 export async function GET(request: NextRequest) {
   try {
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     const { searchParams } = new URL(request.url);
     const serviceId = searchParams.get('serviceId');
     const limit = parseInt(searchParams.get('limit') || '4');
@@ -18,7 +21,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'serviceId is required' }, { status: 400 });
     }
 
-    // Get current service details using Drizzle
+    // Get current service details using Drizzle (with tenant filter)
     const [currentService] = await db
       .select({
         category: communityServiceListings.category,
@@ -26,7 +29,12 @@ export async function GET(request: NextRequest) {
         description: communityServiceListings.description,
       })
       .from(communityServiceListings)
-      .where(eq(communityServiceListings.id, serviceId))
+      .where(
+        and(
+          eq(communityServiceListings.id, serviceId),
+          eq(communityServiceListings.tenantId, tenantId)
+        )
+      )
       .limit(1);
 
     if (!currentService) {
@@ -37,7 +45,7 @@ export async function GET(request: NextRequest) {
     const searchTerm = currentService.title?.split(' ')[0] || '';
     const searchPattern = `%${searchTerm.toLowerCase()}%`;
 
-    // Get related services using Drizzle
+    // Get related services using Drizzle (with tenant filter)
     const relatedServices = await db
       .select({
         id: communityServiceListings.id,
@@ -63,6 +71,7 @@ export async function GET(request: NextRequest) {
       .leftJoin(users, eq(communityServiceListings.providerId, users.id))
       .where(
         and(
+          eq(communityServiceListings.tenantId, tenantId),
           eq(communityServiceListings.isPublished, true),
           eq(communityServiceListings.status, 'ACTIVE' as any),
           sql`${communityServiceListings.id} != ${serviceId}`,

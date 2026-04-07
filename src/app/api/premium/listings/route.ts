@@ -9,12 +9,14 @@ import {
   householdsTopremiumSeats,
 } from '@/lib/db';
 import { eq, sql, and } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * GET /api/premium/listings - Get property listings for premium user
  */
 export async function GET(request: NextRequest) {
   try {
+    const { tenantId } = await withTenant();
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -29,7 +31,7 @@ export async function GET(request: NextRequest) {
       .from(households)
       .innerJoin(householdsTopremiumSeats, eq(households.id, householdsTopremiumSeats.B))
       .innerJoin(premiumSeats, eq(premiumSeats.id, householdsTopremiumSeats.A))
-      .where(eq(premiumSeats.userId, session.user.id));
+      .where(and(eq(premiumSeats.userId, session.user.id), eq(premiumSeats.tenantId, tenantId)));
 
     if (!linkedHouseholds.length) {
       return NextResponse.json(
@@ -46,6 +48,7 @@ export async function GET(request: NextRequest) {
       FROM "propertyListing" pl
       JOIN "household" h ON pl."householdId" = h.id
       WHERE pl."ownerId" = ${session.user.id}
+      AND pl."tenantId" = ${tenantId}
       AND pl."householdId" IN ${sql`${householdIds}`}
       ORDER BY pl."createdAt" DESC
     `);
@@ -62,6 +65,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const { tenantId } = await withTenant();
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -74,7 +78,7 @@ export async function POST(request: NextRequest) {
     const premiumSeatExists = await db
       .select({ id: premiumSeats.id })
       .from(premiumSeats)
-      .where(eq(premiumSeats.userId, session.user.id))
+      .where(and(eq(premiumSeats.userId, session.user.id), eq(premiumSeats.tenantId, tenantId)))
       .limit(1);
 
     if (!premiumSeatExists.length) {
@@ -105,11 +109,11 @@ export async function POST(request: NextRequest) {
     // Create listing via raw SQL
     const result = (await db.execute(sql`
       INSERT INTO "propertyListing" (
-        "householdId", "ownerId", "listingType", "title", "description",
+        "tenantId", "householdId", "ownerId", "listingType", "title", "description",
         "price", "bedrooms", "bathrooms", "parkingSpaces", "gardenSize",
         "petFriendly", "status", "isPublished"
       ) VALUES (
-        ${householdId}, ${session.user.id}, ${listingType || 'SALE'}, ${title},
+        ${tenantId}, ${householdId}, ${session.user.id}, ${listingType || 'SALE'}, ${title},
         ${description}, ${price ? parseFloat(price) : null},
         ${bedrooms ? parseInt(bedrooms) : null},
         ${bathrooms ? parseInt(bathrooms) : null},

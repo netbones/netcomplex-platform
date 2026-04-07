@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db, agentProfiles, users, premiumSeats } from '@/lib/db';
-import { eq, desc } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * GET /api/agents/marketplace - Get available agents for property investors
  */
 export async function GET(request: NextRequest) {
   try {
+    const { tenantId } = await withTenant();
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -39,7 +41,7 @@ export async function GET(request: NextRequest) {
       })
       .from(agentProfiles)
       .leftJoin(users, eq(agentProfiles.agentId, users.id))
-      .where(eq(agentProfiles.isVerified, true))
+      .where(and(eq(agentProfiles.isVerified, true), eq(agentProfiles.tenantId, tenantId)))
       .orderBy(desc(agentProfiles.rating), desc(agentProfiles.reviewCount))
       .limit(20);
 
@@ -55,6 +57,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const { tenantId } = await withTenant();
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest) {
     const seat = await db
       .select()
       .from(premiumSeats)
-      .where(eq(premiumSeats.userId, session.user.id))
+      .where(and(eq(premiumSeats.userId, session.user.id), eq(premiumSeats.tenantId, tenantId)))
       .limit(1);
 
     if (!seat[0]) {

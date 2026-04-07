@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, households, standardSeats, profiles, contents, users } from '@/lib/db';
-import { eq, asc, desc } from 'drizzle-orm';
+import { eq, asc, desc, and } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * GET /api/households/[id] - Get household profile with occupants and aggregated content
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { tenantId } = await withTenant();
     const { id: householdId } = await params;
 
     // Fetch household
@@ -21,7 +23,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         createdAt: households.createdAt,
       })
       .from(households)
-      .where(eq(households.id, householdId))
+      .where(and(eq(households.id, householdId), eq(households.tenantId, tenantId)))
       .limit(1);
 
     if (!household) {
@@ -47,7 +49,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       })
       .from(standardSeats)
       .leftJoin(users, eq(standardSeats.userId, users.id))
-      .where(eq(standardSeats.householdId, householdId));
+      .where(and(eq(standardSeats.householdId, householdId), eq(standardSeats.tenantId, tenantId)));
 
     // Get profiles with user data
     const profileList = await db
@@ -63,7 +65,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         userId: profiles.userId,
       })
       .from(profiles)
-      .where(eq(profiles.householdId, householdId))
+      .where(and(eq(profiles.householdId, householdId), eq(profiles.tenantId, tenantId)))
       .orderBy(asc(profiles.occupantSince));
 
     // Get user IDs from seats and profiles
@@ -89,7 +91,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           authorId: contents.authorId,
         })
         .from(contents)
-        .where(eq(contents.published, true));
+        .where(and(eq(contents.published, true), eq(contents.tenantId, tenantId)));
 
       // Group contents by author
       for (const content of allContents) {

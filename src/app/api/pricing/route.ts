@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { TIERS, type TierLevel } from '@/lib/features/registry';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export interface PricingPlan {
   id: TierLevel;
@@ -78,6 +79,9 @@ const PRICING_PLANS: Record<TierLevel, Omit<PricingPlan, 'id'>> = {
 
 export async function GET() {
   try {
+    // Tenant context required but pricing is static
+    await withTenant();
+
     // In the future, this could fetch from a database
     // For now, return static data aligned with Netcomplex tiers
     const plans: PricingPlan[] = Object.entries(PRICING_PLANS).map(([tier, plan]) => ({

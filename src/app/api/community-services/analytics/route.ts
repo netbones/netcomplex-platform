@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 
-
 // Drizzle imports
 import {
   db,
@@ -11,12 +10,16 @@ import {
   users,
 } from '@/lib/db';
 import { eq, desc, and, sql } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * GET /api/community-services/analytics - Get marketplace analytics
  */
 export async function GET(request: NextRequest) {
   try {
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -57,16 +60,18 @@ export async function GET(request: NextRequest) {
         startDate = new Date('2020-01-01'); // All time
     }
 
-    // Get counts using Drizzle
+    // Get counts using Drizzle (filtered by tenant)
     const [totalListingsResult] = await db
       .select({ count: sql<number>`count(*)` })
-      .from(communityServiceListings);
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.tenantId, tenantId));
 
     const [activeListingsResult] = await db
       .select({ count: sql<number>`count(*)` })
       .from(communityServiceListings)
       .where(
         and(
+          eq(communityServiceListings.tenantId, tenantId),
           eq(communityServiceListings.isPublished, true),
           eq(communityServiceListings.status, 'ACTIVE' as any)
         )
@@ -76,7 +81,12 @@ export async function GET(request: NextRequest) {
     const providerListings = await db
       .select({ providerId: communityServiceListings.providerId })
       .from(communityServiceListings)
-      .where(eq(communityServiceListings.isPublished, true));
+      .where(
+        and(
+          eq(communityServiceListings.tenantId, tenantId),
+          eq(communityServiceListings.isPublished, true)
+        )
+      );
 
     const uniqueProviders = new Set(providerListings.map(l => l.providerId));
     const totalProviders = uniqueProviders.size;
@@ -85,13 +95,23 @@ export async function GET(request: NextRequest) {
     const [totalReviewsResult] = await db
       .select({ count: sql<number>`count(*)` })
       .from(communityServiceReviews)
-      .where(sql`${communityServiceReviews.createdAt} >= ${startDate}`);
+      .where(
+        and(
+          sql`${communityServiceReviews.createdAt} >= ${startDate}`,
+          sql`EXISTS (SELECT 1 FROM "communityServiceListings" WHERE "communityServiceListings"."id" = ${communityServiceReviews.listingId} AND "communityServiceListings"."tenantId" = ${tenantId})`
+        )
+      );
 
     // Get inquiries count
     const [totalInquiriesResult] = await db
       .select({ count: sql<number>`count(*)` })
       .from(communityServiceInquiries)
-      .where(sql`${communityServiceInquiries.createdAt} >= ${startDate}`);
+      .where(
+        and(
+          sql`${communityServiceInquiries.createdAt} >= ${startDate}`,
+          sql`EXISTS (SELECT 1 FROM "communityServiceListings" WHERE "communityServiceListings"."id" = ${communityServiceInquiries.listingId} AND "communityServiceListings"."tenantId" = ${tenantId})`
+        )
+      );
 
     // Get category breakdown
     const categoryStats = await db
@@ -102,6 +122,7 @@ export async function GET(request: NextRequest) {
       .from(communityServiceListings)
       .where(
         and(
+          eq(communityServiceListings.tenantId, tenantId),
           eq(communityServiceListings.isPublished, true),
           eq(communityServiceListings.status, 'ACTIVE' as any)
         )
@@ -122,7 +143,12 @@ export async function GET(request: NextRequest) {
       })
       .from(communityServiceListings)
       .leftJoin(users, eq(communityServiceListings.providerId, users.id))
-      .where(sql`${communityServiceListings.createdAt} >= ${startDate}`)
+      .where(
+        and(
+          eq(communityServiceListings.tenantId, tenantId),
+          sql`${communityServiceListings.createdAt} >= ${startDate}`
+        )
+      )
       .orderBy(desc(communityServiceListings.createdAt))
       .limit(10);
 
@@ -132,7 +158,10 @@ export async function GET(request: NextRequest) {
         avgRating: sql<number>`avg(${communityServiceReviews.rating})`,
         count: sql<number>`count(*)`,
       })
-      .from(communityServiceReviews);
+      .from(communityServiceReviews)
+      .where(
+        sql`EXISTS (SELECT 1 FROM "communityServiceListings" WHERE "communityServiceListings"."id" = ${communityServiceReviews.listingId} AND "communityServiceListings"."tenantId" = ${tenantId})`
+      );
 
     return NextResponse.json({
       overview: {

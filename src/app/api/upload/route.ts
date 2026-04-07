@@ -1,8 +1,10 @@
 import { auth } from '@/lib/auth';
 import { uploadImage } from '@/lib/storage';
 import { NextResponse } from 'next/server';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export async function POST(request: Request) {
+  await withTenant(); // Enforce tenant context
   const session = await auth.api.getSession({
     headers: request.headers,
   });

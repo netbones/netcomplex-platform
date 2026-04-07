@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export async function GET(request: NextRequest) {
   try {
+    await withTenant(); // Enforce tenant context
     const session = await auth.api.getSession({
       headers: request.headers,
     });

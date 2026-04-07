@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 
-
 // Drizzle imports
 import { db, communityServiceInquiries, communityServiceListings, users } from '@/lib/db';
 import { eq, and, sql, inArray, desc } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * GET /api/community-services/provider/inquiries - Get inquiries for provider's listings
  */
 export async function GET(request: NextRequest) {
   try {
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -24,11 +27,16 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Get all listing IDs for this provider using Drizzle
+    // Get all listing IDs for this provider using Drizzle (with tenant filter)
     const providerListings = await db
       .select({ id: communityServiceListings.id })
       .from(communityServiceListings)
-      .where(eq(communityServiceListings.providerId, session.user.id));
+      .where(
+        and(
+          eq(communityServiceListings.providerId, session.user.id),
+          eq(communityServiceListings.tenantId, tenantId)
+        )
+      );
 
     const listingIds = providerListings.map(l => l.id);
 
@@ -114,6 +122,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
+
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -124,13 +136,20 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const { response, status } = await request.json();
 
-    // Check if inquiry exists and belongs to provider's listing using Drizzle
+    // Check if inquiry exists and belongs to provider's listing using Drizzle (with tenant filter)
     const [inquiry] = await db
       .select({
         id: communityServiceInquiries.id,
         listingId: communityServiceInquiries.listingId,
       })
       .from(communityServiceInquiries)
+      .innerJoin(
+        communityServiceListings,
+        and(
+          eq(communityServiceInquiries.listingId, communityServiceListings.id),
+          eq(communityServiceListings.tenantId, tenantId)
+        )
+      )
       .where(eq(communityServiceInquiries.id, id))
       .limit(1);
 
@@ -138,11 +157,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: 'Inquiry not found' }, { status: 404 });
     }
 
-    // Get listing to check ownership
+    // Get listing to check ownership (with tenant filter)
     const [listing] = await db
       .select({ providerId: communityServiceListings.providerId })
       .from(communityServiceListings)
-      .where(eq(communityServiceListings.id, inquiry.listingId))
+      .where(
+        and(
+          eq(communityServiceListings.id, inquiry.listingId),
+          eq(communityServiceListings.tenantId, tenantId)
+        )
+      )
       .limit(1);
 
     if (!listing || listing.providerId !== session.user.id) {

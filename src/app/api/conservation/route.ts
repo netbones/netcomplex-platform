@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
 import { db, contents, users } from '@/lib/db';
-import { eq, desc } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export async function GET() {
   try {
+    const { tenantId } = await withTenant();
+
     const contentList = await db
       .select({
         id: contents.id,
@@ -18,7 +21,7 @@ export async function GET() {
       })
       .from(contents)
       .leftJoin(users, eq(contents.authorId, users.id))
-      .where(eq(contents.published, true))
+      .where(and(eq(contents.published, true), eq(contents.tenantId, tenantId)))
       .orderBy(desc(contents.publishedAt))
       .limit(3);
 

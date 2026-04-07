@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 
-
 // Drizzle imports
 import { db, communityServiceListings, users } from '@/lib/db';
 import { eq, desc, and, sql } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * GET /api/community-services/moderation/listings - Get listings requiring moderation
  */
 export async function GET(request: NextRequest) {
   try {
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -35,8 +38,8 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // Build conditions
-    const conditions = [];
+    // Build conditions (with tenant filter)
+    const conditions = [eq(communityServiceListings.tenantId, tenantId)];
 
     if (status !== 'ALL') {
       conditions.push(eq(communityServiceListings.status, status as any));
@@ -68,7 +71,7 @@ export async function GET(request: NextRequest) {
       })
       .from(communityServiceListings)
       .leftJoin(users, eq(communityServiceListings.providerId, users.id))
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .where(and(...conditions))
       .orderBy(desc(communityServiceListings.createdAt))
       .limit(limit)
       .offset(offset);
@@ -77,7 +80,7 @@ export async function GET(request: NextRequest) {
     const [totalResult] = await db
       .select({ count: sql<number>`count(*)` })
       .from(communityServiceListings)
-      .where(conditions.length > 0 ? and(...conditions) : undefined);
+      .where(and(...conditions));
 
     const total = totalResult?.count || 0;
 
@@ -102,6 +105,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
+
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -123,7 +130,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const { notes } = await request.json();
 
-    // Update listing with Drizzle
+    // Update listing with Drizzle (with tenant filter)
     await db
       .update(communityServiceListings)
       .set({
@@ -134,13 +141,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         moderationNotes: notes,
         updatedAt: new Date(),
       })
-      .where(eq(communityServiceListings.id, id));
+      .where(
+        and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+      );
 
     // Fetch updated listing
     const [listing] = await db
       .select()
       .from(communityServiceListings)
-      .where(eq(communityServiceListings.id, id))
+      .where(
+        and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+      )
       .limit(1);
 
     return NextResponse.json({
@@ -160,6 +171,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
+
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -181,7 +196,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const { reason, notes } = await request.json();
 
-    // Update listing with Drizzle
+    // Update listing with Drizzle (with tenant filter)
     await db
       .update(communityServiceListings)
       .set({
@@ -192,13 +207,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         moderationNotes: `${reason}: ${notes}`,
         updatedAt: new Date(),
       })
-      .where(eq(communityServiceListings.id, id));
+      .where(
+        and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+      );
 
     // Fetch updated listing
     const [listing] = await db
       .select()
       .from(communityServiceListings)
-      .where(eq(communityServiceListings.id, id))
+      .where(
+        and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+      )
       .limit(1);
 
     return NextResponse.json({
@@ -221,6 +240,10 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -242,7 +265,7 @@ export async function DELETE(
 
     const { reason } = await request.json();
 
-    // Update listing with Drizzle (soft delete)
+    // Update listing with Drizzle (soft delete with tenant filter)
     await db
       .update(communityServiceListings)
       .set({
@@ -253,7 +276,9 @@ export async function DELETE(
         moderationNotes: `REMOVED: ${reason}`,
         updatedAt: new Date(),
       })
-      .where(eq(communityServiceListings.id, id));
+      .where(
+        and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+      );
 
     return NextResponse.json({
       success: true,

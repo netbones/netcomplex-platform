@@ -1,27 +1,33 @@
 import { db, users, groups, contents } from '@/lib/db';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 // Fast stats endpoint - limit to 3 seconds
 export const maxDuration = 3;
 
 export async function GET() {
+  const { tenantId } = await withTenant();
+
   // Count active users
-  const activeUsers = await db.select({ id: users.id }).from(users).where(eq(users.isActive, true));
+  const activeUsers = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(and(eq(users.isActive, true), eq(users.tenantId, tenantId)));
   const userCount = activeUsers.length;
 
   // Count active groups
   const activeGroups = await db
     .select({ id: groups.id })
     .from(groups)
-    .where(eq(groups.isActive, true));
+    .where(and(eq(groups.isActive, true), eq(groups.tenantId, tenantId)));
   const groupCount = activeGroups.length;
 
   // Count conservation content (using raw category value)
   const conservationContent = await db
     .select({ id: contents.id })
     .from(contents)
-    .where(eq(contents.category, 'CONSERVATION'));
+    .where(and(eq(contents.category, 'CONSERVATION'), eq(contents.tenantId, tenantId)));
   const contentCount = conservationContent.length;
 
   const stats = {

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 
-
 // Drizzle imports
 import { db, communityServiceListings } from '@/lib/db';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * POST /api/community-services/listings/[id]/publish - Publish or unpublish a listing
@@ -12,6 +12,10 @@ import { eq } from 'drizzle-orm';
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
+
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -22,11 +26,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const { publish } = await request.json();
 
-    // Check ownership using Drizzle
+    // Check ownership using Drizzle (with tenant filter)
     const [existingListing] = await db
       .select({ providerId: communityServiceListings.providerId })
       .from(communityServiceListings)
-      .where(eq(communityServiceListings.id, id))
+      .where(
+        and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+      )
       .limit(1);
 
     if (!existingListing) {

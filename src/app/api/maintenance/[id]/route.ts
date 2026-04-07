@@ -9,8 +9,9 @@ import {
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/permissions';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { revalidateDashboard } from '@/lib/revalidation';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -36,6 +37,8 @@ async function getSessionAndRole(request: Request) {
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
+  const { tenantId } = await withTenant();
+
   const authData = await getSessionAndRole(request);
   if (!authData) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -43,11 +46,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const canViewAll = hasPermission(authData.role, 'requests');
 
-  // Get the request first to check ownership
+  // Get the request first to check ownership and tenant
   const [mrRow] = await db
     .select()
     .from(maintenanceRequests)
-    .where(eq(maintenanceRequests.id, id))
+    .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)))
     .limit(1);
 
   if (!mrRow) {
@@ -117,6 +120,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
+  const { tenantId } = await withTenant();
+
   const authData = await getSessionAndRole(request);
   if (!authData) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -129,11 +134,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const body = await request.json();
 
-  // Get current request to compare values
+  // Get current request to compare values (with tenant check)
   const [existing] = await db
     .select()
     .from(maintenanceRequests)
-    .where(eq(maintenanceRequests.id, id))
+    .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)))
     .limit(1);
 
   if (!existing) {
@@ -252,8 +257,22 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  // Use Drizzle to delete
-  await db.delete(maintenanceRequests).where(eq(maintenanceRequests.id, id));
+  const { tenantId } = await withTenant();
+
+  const authData = await getSessionAndRole(request);
+  if (!authData) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const canViewAll = hasPermission(authData.role, 'requests');
+  if (!canViewAll) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  // Use Drizzle to delete with tenant check
+  await db
+    .delete(maintenanceRequests)
+    .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)));
 
   return NextResponse.json({ success: true });
 }

@@ -1,11 +1,13 @@
 import { db, users, standardSeats, soloSeats, households, contents } from '@/lib/db';
 import { NextResponse } from 'next/server';
 import { eq, and, desc } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const { tenantId } = await withTenant();
 
-  // Get user data
+  // Get user data (filter by tenantId)
   const userResult = await db
     .select({
       id: users.id,
@@ -23,7 +25,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       createdAt: users.createdAt,
     })
     .from(users)
-    .where(eq(users.id, id))
+    .where(and(eq(users.id, id), eq(users.tenantId, tenantId)))
     .limit(1);
 
   if (!userResult[0]) {
@@ -90,6 +92,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const { tenantId } = await withTenant();
   const body = await request.json();
 
   const updateData: Record<string, unknown> = {};
@@ -113,7 +116,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const updatedUser = await db
     .update(users)
     .set(updateData)
-    .where(eq(users.id, id))
+    .where(and(eq(users.id, id), eq(users.tenantId, tenantId)))
     .returning()
     .then(rows => rows[0]);
 
@@ -126,10 +129,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const { tenantId } = await withTenant();
 
   const deleted = await db
     .delete(users)
-    .where(eq(users.id, id))
+    .where(and(eq(users.id, id), eq(users.tenantId, tenantId)))
     .returning()
     .then(rows => rows[0]);
 

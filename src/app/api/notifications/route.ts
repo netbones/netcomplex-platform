@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth';
 import { db, notifications } from '@/lib/db';
 import { NextResponse } from 'next/server';
-import { eq, desc } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
 
 async function getSessionAndUserId(request: Request) {
@@ -17,6 +17,7 @@ async function getSessionAndUserId(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const { tenantId } = await withTenant();
   const userId = await getSessionAndUserId(request);
 
   if (!userId) {
@@ -31,7 +32,7 @@ export async function GET(request: Request) {
   const results = await db
     .select()
     .from(notifications)
-    .where(unreadOnly ? eq(notifications.userId, userId) : undefined)
+    .where(and(eq(notifications.userId, userId), eq(notifications.tenantId, tenantId)))
     .orderBy(desc(notifications.createdAt))
     .limit(50);
 
@@ -41,6 +42,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const { tenantId } = await withTenant();
   const userId = await getSessionAndUserId(request);
 
   if (!userId) {
@@ -53,6 +55,7 @@ export async function POST(request: Request) {
     .insert(notifications)
     .values({
       id: crypto.randomUUID() as any,
+      tenantId,
       userId: body.userId || userId,
       title: body.title,
       message: body.message,
@@ -66,6 +69,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const { tenantId } = await withTenant();
   const userId = await getSessionAndUserId(request);
 
   if (!userId) {
@@ -75,9 +79,15 @@ export async function PATCH(request: Request) {
   const body = await request.json();
 
   if (body.all) {
-    await db.update(notifications).set({ read: true }).where(eq(notifications.userId, userId));
+    await db
+      .update(notifications)
+      .set({ read: true })
+      .where(and(eq(notifications.userId, userId), eq(notifications.tenantId, tenantId)));
   } else if (body.id) {
-    await db.update(notifications).set({ read: true }).where(eq(notifications.id, body.id));
+    await db
+      .update(notifications)
+      .set({ read: true })
+      .where(and(eq(notifications.id, body.id), eq(notifications.tenantId, tenantId)));
   }
 
   return NextResponse.json({ success: true });

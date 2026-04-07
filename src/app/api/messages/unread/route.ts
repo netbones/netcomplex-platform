@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 
-
 // Drizzle imports - use individual exports from db.ts
 import { db, messages, conversations, conversationParticipants, users } from '@/lib/db';
 import { eq, and, gt, desc, sql } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * GET /api/messages/unread - Get unread message counts for current user
  */
 export async function GET(request: NextRequest) {
   try {
+    const { tenantId } = await withTenant();
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -29,8 +30,19 @@ export async function GET(request: NextRequest) {
         conversationUpdatedAt: conversations.updatedAt,
       })
       .from(conversationParticipants)
-      .leftJoin(conversations, eq(conversationParticipants.conversationId, conversations.id))
-      .where(eq(conversationParticipants.userId, session.user.id));
+      .leftJoin(
+        conversations,
+        and(
+          eq(conversationParticipants.conversationId, conversations.id),
+          eq(conversations.tenantId, tenantId)
+        )
+      )
+      .where(
+        and(
+          eq(conversationParticipants.userId, session.user.id),
+          eq(conversationParticipants.tenantId, tenantId)
+        )
+      );
 
     const unreadCounts: Record<string, number> = {};
     let totalUnread = 0;
@@ -47,7 +59,7 @@ export async function GET(request: NextRequest) {
           createdAt: messages.createdAt,
         })
         .from(messages)
-        .where(eq(messages.conversationId, conversationId))
+        .where(and(eq(messages.conversationId, conversationId), eq(messages.tenantId, tenantId)))
         .orderBy(desc(messages.createdAt))
         .limit(1);
 
@@ -61,6 +73,7 @@ export async function GET(request: NextRequest) {
           and(
             eq(messages.conversationId, conversationId),
             eq(messages.senderId, session.user.id),
+            eq(messages.tenantId, tenantId),
             participant.lastReadAt ? gt(messages.createdAt, participant.lastReadAt) : undefined
           )
         );
@@ -75,7 +88,12 @@ export async function GET(request: NextRequest) {
               userId: conversationParticipants.userId,
             })
             .from(conversationParticipants)
-            .where(eq(conversationParticipants.conversationId, conversationId));
+            .where(
+              and(
+                eq(conversationParticipants.conversationId, conversationId),
+                eq(conversationParticipants.tenantId, tenantId)
+              )
+            );
 
           const otherParticipant = allParticipants.find(p => p.userId !== session.user.id);
           if (otherParticipant) {
@@ -104,6 +122,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const { tenantId } = await withTenant();
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -128,7 +147,8 @@ export async function POST(request: NextRequest) {
       .where(
         and(
           eq(conversationParticipants.conversationId, conversationId),
-          eq(conversationParticipants.userId, session.user.id)
+          eq(conversationParticipants.userId, session.user.id),
+          eq(conversationParticipants.tenantId, tenantId)
         )
       );
 

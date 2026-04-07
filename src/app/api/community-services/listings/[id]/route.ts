@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 
-
 // Drizzle imports
 import {
   db,
@@ -11,6 +10,7 @@ import {
   communityServiceInquiries,
 } from '@/lib/db';
 import { eq, desc, and, sql } from 'drizzle-orm';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * GET /api/community-services/listings/[id] - Get a specific service listing
@@ -19,7 +19,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const { id } = await params;
 
-    // Drizzle query - get listing with provider details
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
+    // Drizzle query - get listing with provider details (filtered by tenant)
     const [listing] = await db
       .select({
         id: communityServiceListings.id,
@@ -60,7 +63,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       })
       .from(communityServiceListings)
       .leftJoin(users, eq(communityServiceListings.providerId, users.id))
-      .where(eq(communityServiceListings.id, id))
+      .where(
+        and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+      )
       .limit(1);
 
     if (!listing) {
@@ -140,6 +145,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
+
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -148,11 +157,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check ownership using Drizzle
+    // Check ownership using Drizzle (with tenant filter)
     const [existingListing] = await db
       .select({ providerId: communityServiceListings.providerId })
       .from(communityServiceListings)
-      .where(eq(communityServiceListings.id, id))
+      .where(
+        and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+      )
       .limit(1);
 
     if (!existingListing) {
@@ -231,6 +242,10 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -239,11 +254,13 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check ownership using Drizzle
+    // Check ownership using Drizzle (with tenant filter)
     const [existingListing] = await db
       .select({ providerId: communityServiceListings.providerId })
       .from(communityServiceListings)
-      .where(eq(communityServiceListings.id, id))
+      .where(
+        and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+      )
       .limit(1);
 
     if (!existingListing) {
@@ -254,8 +271,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
-    // Delete with Drizzle
-    await db.delete(communityServiceListings).where(eq(communityServiceListings.id, id));
+    // Delete with Drizzle (with tenant filter)
+    await db
+      .delete(communityServiceListings)
+      .where(
+        and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+      );
 
     return NextResponse.json({
       success: true,

@@ -1,8 +1,10 @@
 import { auth } from '@/lib/auth';
 import { listUserImages, deleteImage } from '@/lib/storage';
 import { NextResponse } from 'next/server';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export async function GET(request: Request) {
+  const { tenantId } = await withTenant();
   const session = await auth.api.getSession({
     headers: request.headers,
   });
@@ -21,6 +23,7 @@ export async function GET(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  await withTenant(); // Enforce tenant context
   const session = await auth.api.getSession({
     headers: request.headers,
   });
