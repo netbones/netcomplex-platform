@@ -2,7 +2,7 @@ import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const sessions = pgTable('session', {
   id: text('id').primaryKey(),
-  tenantId: text('tenantId'),
+  tenantId: text('tenantId').notNull(),
   expiresAt: timestamp('expiresAt', { mode: 'date', precision: 3 }).notNull(),
   token: text('token').notNull(),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),

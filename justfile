@@ -74,3 +74,6 @@ tree:
 
 code:
     opencode -c
+
+apacheflush:
+    sudo systemctl stop apache2 && sudo resolvectl flush-caches

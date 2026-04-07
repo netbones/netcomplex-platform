@@ -25,7 +25,7 @@ NetComplex uses a **module-based tier system** where subscription levels determi
 | `groups`            | Groups               | Interest groups and memberships             | Foundation   |
 | `chat`              | Chat                 | Real-time community messaging               | Foundation   |
 | `resources`         | Resources            | Community library/bookshelf                 | Foundation   |
-| `conservation`      | Conservation         | Conservation area features                  | Foundation   |
+| `campaign`          | Campaign             | Campaigns like Conservation area features   | Foundation   |
 | `adminBasic`        | Admin (Basic)        | Basic community administration              | Foundation   |
 | `adminIntermediate` | Admin (Intermediate) | Expanded admin for growing communities      | Depth        |
 | `bookings`          | Bookings             | Facility booking system                     | Depth        |
@@ -37,6 +37,7 @@ NetComplex uses a **module-based tier system** where subscription levels determi
 | `agentGateway`      | Agent Gateway        | Real estate agent management                | Core         |
 | `analytics`         | Analytics            | Advanced analytics dashboard                | Core         |
 | `adminAdvanced`     | Admin (Advanced)     | Full admin with analytics                   | Core         |
+| `web3`              | Web3                 | Web3 Identity                               | Core         |
 
 ---
 
@@ -76,26 +77,27 @@ NetComplex uses a **module-based tier system** where subscription levels determi
 
 ## Module Access Matrix
 
-| Module               | Foundation | Depth | Core |
-| -------------------- | ---------- | ----- | ---- |
-| Directory            | ✅         | ✅    | ✅   |
-| News                 | ✅         | ✅    | ✅   |
-| Events               | ✅         | ✅    | ✅   |
-| Groups               | ✅         | ✅    | ✅   |
-| Chat                 | ✅         | ✅    | ✅   |
-| Resources            | ✅         | ✅    | ✅   |
-| Conservation         | ✅         | ✅    | ✅   |
-| Admin (Basic)        | ✅         | ✅    | ✅   |
-| Admin (Intermediate) | ❌         | ✅    | ✅   |
-| Bookings             | ❌         | ✅    | ✅   |
-| Surveys              | ❌         | ✅    | ✅   |
-| Marketplace          | ❌         | ✅    | ✅   |
-| External Surveys     | ❌         | ✅    | ✅   |
-| Maintenance          | ❌         | ❌    | ✅   |
-| Property             | ❌         | ❌    | ✅   |
-| Agent Gateway        | ❌         | ❌    | ✅   |
-| Analytics            | ❌         | ❌    | ✅   |
-| Admin (Advanced)     | ❌         | ❌    | ✅   |
+| Module                  | Foundation | Depth | Core |
+| ----------------------- | ---------- | ----- | ---- |
+| Directory               | ✅         | ✅    | ✅   |
+| News                    | ✅         | ✅    | ✅   |
+| Events                  | ✅         | ✅    | ✅   |
+| Groups                  | ✅         | ✅    | ✅   |
+| Chat                    | ✅         | ✅    | ✅   |
+| Resources               | ✅         | ✅    | ✅   |
+| Campaign (Conservation) | ✅         | ✅    | ✅   |
+| Admin (Basic)           | ✅         | ✅    | ✅   |
+| Maintenance             | ✅         | ✅    | ✅   |
+| Admin (Intermediate)    | ❌         | ✅    | ✅   |
+| Bookings                | ❌         | ✅    | ✅   |
+| Surveys                 | ❌         | ✅    | ✅   |
+| Marketplace             | ❌         | ✅    | ✅   |
+| External Surveys        | ❌         | ✅    | ✅   |
+| Property                | ❌         | ❌    | ✅   |
+| Agent Gateway           | ❌         | ❌    | ✅   |
+| Analytics               | ❌         | ❌    | ✅   |
+| Admin (Advanced)        | ❌         | ❌    | ✅   |
+| Web3                    | ❌         | ❌    | ✅   |
 
 ---
 
