@@ -163,7 +163,7 @@ export const identityRouter = router({
         .insert(households)
         .values({
           id: crypto.randomUUID(),
-          tenantId: 'soralia', // TODO: Get from context
+          tenantId: ctx.tenantId || 'soralia',
           street: input.street,
           unit: input.unit,
           platformAddress: input.platformAddress,
@@ -270,7 +270,7 @@ export const identityRouter = router({
         .insert(standardSeats)
         .values({
           id: crypto.randomUUID(),
-          tenantId: 'soralia', // TODO: Get from context
+          tenantId: ctx.tenantId || 'soralia',
           userId: input.userId,
           householdId: input.householdId,
           isPrimaryOwner: input.isPrimaryOwner && isFirstOwner,

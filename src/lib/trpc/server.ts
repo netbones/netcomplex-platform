@@ -2,7 +2,7 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
 import { auth } from '@/lib/auth';
-import { db, users } from '@/lib/db';
+import { db, users, tenants } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 
 export interface Context {
@@ -10,7 +10,9 @@ export interface Context {
   db: typeof db;
   userId: string | null;
   role: string | null;
-  /** Organization ID for multi-tenancy / RLS scoping. Null in single-tenant mode. */
+  /** Current tenant ID for multi-tenancy / RLS scoping. Null in single-tenant mode. */
+  tenantId: string | null;
+  tenantSlug: string | null;
   organizationId: string | null;
 }
 
@@ -19,13 +21,26 @@ export async function createContext(opts: { headers: Headers }): Promise<Context
     headers: opts.headers,
   });
 
+  const headersList = opts.headers;
+  let tenantId: string | null = headersList.get('x-tenant-id');
+  let tenantSlug: string | null = headersList.get('x-tenant-slug');
+
   let role: string | null = null;
   if (session?.user?.id) {
     const [user] = await db
-      .select({ role: users.role })
+      .select({ role: users.role, tenantId: users.tenantId })
       .from(users)
       .where(eq(users.id, session.user.id));
     role = user?.role || null;
+
+    if (!tenantId && user?.tenantId) {
+      tenantId = user.tenantId;
+      const [tenant] = await db
+        .select({ slug: tenants.slug })
+        .from(tenants)
+        .where(eq(tenants.id, tenantId));
+      tenantSlug = tenant?.slug || null;
+    }
   }
 
   const organizationId: string | null =
@@ -37,6 +52,8 @@ export async function createContext(opts: { headers: Headers }): Promise<Context
     db,
     userId: session?.user?.id || null,
     role,
+    tenantId,
+    tenantSlug,
     organizationId,
   };
 }
