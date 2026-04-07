@@ -1,11 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { TagInput } from '@/components/ui/TagInput';
-import { LocaleSelector, LocaleTabs, LocaleBadge } from '@/components/ui/LocaleSelector';
+import { LocaleSelector } from '@/components/ui/LocaleSelector';
 import { authClient } from '@/lib/auth-client';
 import {
   supportedLanguages,
@@ -13,28 +15,25 @@ import {
   defaultLanguage,
   type SupportedLanguage,
 } from '@/lib/i18n';
+import { contentSchema, type ContentFormData } from '@/lib/schemas';
 
 interface ContentFormProps {
   initialData?: {
     id?: string;
     category?: string;
-    groupId?: string;
+    groupId?: string | null;
     tags?: string[];
     featured?: boolean;
     published?: boolean;
     defaultLocale?: string;
     contentType?: string;
-    _raw?: {
-      title?: Record<string, string>;
-      content?: Record<string, string>;
-      excerpt?: Record<string, string>;
-    };
+    title?: Record<string, string>;
+    content?: Record<string, string>;
+    excerpt?: Record<string, string>;
   };
   groups?: { id: string; name: string }[];
   baseRedirect?: string;
 }
-
-type LocaleContent = Record<string, string>;
 
 const categories = [
   { value: 'NEWS', label: 'News' },
@@ -45,43 +44,45 @@ const categories = [
   { value: 'RESOURCE', label: 'Resource' },
   { value: 'CAMPAIGN', label: 'Campaign' },
   { value: 'CONSERVATION', label: 'Conservation (Sub-category)' },
-];
+] as const;
+
+function getInitialDefaultValues(initialData?: ContentFormProps['initialData']): ContentFormData {
+  return {
+    title: initialData?.title || { [defaultLanguage]: '' },
+    content: initialData?.content || { [defaultLanguage]: '' },
+    excerpt: initialData?.excerpt || {},
+    category: (initialData?.category as ContentFormData['category']) || 'BLOG',
+    groupId: initialData?.groupId || null,
+    tags: initialData?.tags || [],
+    featured: initialData?.featured || false,
+    published: initialData?.published || false,
+    defaultLocale: initialData?.defaultLocale || defaultLanguage,
+    contentType: (initialData?.contentType as ContentFormData['contentType']) || 'article',
+  };
+}
 
 export function ContentForm({ initialData, groups = [], baseRedirect }: ContentFormProps) {
   const router = useRouter();
   const { data: session } = authClient.useSession();
-  const [mounted, setMounted] = useState(false);
   const [activeLocale, setActiveLocale] = useState<SupportedLanguage>(
     defaultLanguage as SupportedLanguage
   );
-  const [isSaving, setIsSaving] = useState(false);
-  const [formData, setFormData] = useState({
-    category: initialData?.category || 'BLOG',
-    groupId: initialData?.groupId || '',
-    tags: initialData?.tags || ([] as string[]),
-    featured: initialData?.featured || false,
-    published: initialData?.published || false,
-    defaultLocale: initialData?.defaultLocale || defaultLanguage,
-    contentType: initialData?.contentType || 'article',
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<ContentFormData>({
+    resolver: zodResolver(contentSchema),
+    defaultValues: getInitialDefaultValues(initialData),
   });
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const formValues = watch();
+  const isEditing = !!initialData?.id;
 
-  const initialTitles: LocaleContent = initialData?._raw?.title || {
-    [defaultLanguage]: '',
-  };
-  const initialContent: LocaleContent = initialData?._raw?.content || {
-    [defaultLanguage]: '',
-  };
-  const initialExcerpt: LocaleContent = initialData?._raw?.excerpt || {
-    [defaultLanguage]: '',
-  };
-
-  const [titleContent, setTitleContent] = useState<LocaleContent>(initialTitles);
-  const [editorContent, setEditorContent] = useState<LocaleContent>(initialContent);
-  const [excerptContent, setExcerptContent] = useState<LocaleContent>(initialExcerpt);
+  const availableLocales = supportedLanguages as readonly SupportedLanguage[];
 
   const handleLocaleChange = useCallback((locale: SupportedLanguage) => {
     setActiveLocale(locale);
@@ -89,40 +90,35 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
 
   const handleCopyContent = useCallback(
     (targetLocale: SupportedLanguage) => {
-      const sourceTitle = titleContent[activeLocale] || '';
-      const sourceContent = editorContent[activeLocale] || '';
-      const sourceExcerpt = excerptContent[activeLocale] || '';
+      const sourceTitle = formValues.title?.[activeLocale] || '';
+      const sourceContent = formValues.content?.[activeLocale] || '';
+      const sourceExcerpt = formValues.excerpt?.[activeLocale] || '';
 
-      setTitleContent(prev => ({ ...prev, [targetLocale]: sourceTitle }));
-      setEditorContent(prev => ({ ...prev, [targetLocale]: sourceContent }));
-      setExcerptContent(prev => ({ ...prev, [targetLocale]: sourceExcerpt }));
+      setValue(
+        'title',
+        { ...formValues.title, [targetLocale]: sourceTitle },
+        { shouldValidate: false }
+      );
+      setValue(
+        'content',
+        { ...formValues.content, [targetLocale]: sourceContent },
+        { shouldValidate: false }
+      );
+      setValue(
+        'excerpt',
+        { ...formValues.excerpt, [targetLocale]: sourceExcerpt },
+        { shouldValidate: false }
+      );
 
       toast.success(
         `Copied ${languageNames[activeLocale]} content to ${languageNames[targetLocale]}`
       );
     },
-    [activeLocale, titleContent, editorContent, excerptContent]
+    [activeLocale, formValues, setValue]
   );
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-
-    const isEditing = !!initialData?.id;
+  const onSubmit = async (data: ContentFormData) => {
     const loadingToast = toast.loading(isEditing ? 'Updating...' : 'Creating...');
-
-    const payload = {
-      title: titleContent,
-      content: editorContent,
-      excerpt: excerptContent,
-      defaultLocale: formData.defaultLocale,
-      contentType: formData.contentType,
-      category: formData.category,
-      groupId: formData.groupId || null,
-      tags: formData.tags || [],
-      featured: formData.featured,
-      published: formData.published,
-    };
 
     try {
       const method = isEditing ? 'PATCH' : 'POST';
@@ -131,7 +127,7 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(data),
       });
 
       if (res.ok) {
@@ -149,17 +145,19 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
       toast.error('Something went wrong');
     } finally {
       toast.dismiss(loadingToast);
-      setIsSaving(false);
     }
   };
 
-  const availableLocales = supportedLanguages as readonly SupportedLanguage[];
+  const titleError = errors.title?.message;
+  const contentError = errors.content?.message;
+  const categoryError = errors.category?.message;
+  const tagsError = errors.tags?.message;
 
-  const hasTitle = !!titleContent[activeLocale]?.trim();
-  const hasContent = !!editorContent[activeLocale]?.trim();
+  const hasTitleForActiveLocale = !!formValues.title?.[activeLocale]?.trim();
+  const hasContentForActiveLocale = !!formValues.content?.[activeLocale]?.trim();
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6 max-w-4xl">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl">
       <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-700">Editing Language:</span>
@@ -170,22 +168,39 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
             onCopyToLocale={handleCopyContent}
           />
         </div>
-        <div className="text-xs text-gray-500">{Object.keys(titleContent).length} translations</div>
+        <div className="text-xs text-gray-500">
+          {Object.keys(formValues.title || {}).length} translations
+        </div>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Title ({languageNames[activeLocale]})
+          Title ({languageNames[activeLocale]}) <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
-          value={titleContent[activeLocale] || ''}
-          onChange={e => setTitleContent({ ...titleContent, [activeLocale]: e.target.value })}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          value={formValues.title?.[activeLocale] || ''}
+          onChange={e =>
+            setValue(
+              'title',
+              { ...formValues.title, [activeLocale]: e.target.value },
+              {
+                shouldValidate: true,
+              }
+            )
+          }
+          className={`w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+            titleError || (!hasTitleForActiveLocale && isSubmitting)
+              ? 'border-red-300'
+              : 'border-gray-300'
+          }`}
           placeholder={`Enter title in ${languageNames[activeLocale]}...`}
         />
-        {!hasTitle && (
-          <p className="mt-1 text-sm text-amber-600">
+        {typeof titleError === 'string' && (
+          <p className="mt-1 text-sm text-red-600">{titleError}</p>
+        )}
+        {!titleError && !hasTitleForActiveLocale && isSubmitting && (
+          <p className="mt-1 text-sm text-red-600">
             Title is required for {languageNames[activeLocale]}
           </p>
         )}
@@ -195,9 +210,10 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
           <select
-            value={formData.category}
-            onChange={e => setFormData({ ...formData, category: e.target.value })}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            {...register('category')}
+            className={`w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+              categoryError ? 'border-red-300' : 'border-gray-300'
+            }`}
           >
             {categories.map(cat => (
               <option key={cat.value} value={cat.value}>
@@ -205,13 +221,13 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
               </option>
             ))}
           </select>
+          {categoryError && <p className="mt-1 text-sm text-red-600">{categoryError}</p>}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Content Type</label>
           <select
-            value={formData.contentType}
-            onChange={e => setFormData({ ...formData, contentType: e.target.value })}
+            {...register('contentType')}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="article">Article</option>
@@ -226,8 +242,7 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
             Interest Group (optional)
           </label>
           <select
-            value={formData.groupId}
-            onChange={e => setFormData({ ...formData, groupId: e.target.value })}
+            {...register('groupId')}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="">None (General)</option>
@@ -245,8 +260,7 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={formData.featured}
-              onChange={e => setFormData({ ...formData, featured: e.target.checked })}
+              {...register('featured')}
               className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
             />
             <span className="ml-2 text-sm text-gray-700">Featured</span>
@@ -257,8 +271,7 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
           <label className="flex items-center">
             <input
               type="checkbox"
-              checked={formData.published}
-              onChange={e => setFormData({ ...formData, published: e.target.checked })}
+              {...register('published')}
               className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
             />
             <span className="ml-2 text-sm text-gray-700">Published</span>
@@ -268,8 +281,7 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Default Locale</label>
           <select
-            value={formData.defaultLocale}
-            onChange={e => setFormData({ ...formData, defaultLocale: e.target.value })}
+            {...register('defaultLocale')}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             {supportedLanguages.map(lang => (
@@ -287,8 +299,16 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
         </label>
         <input
           type="text"
-          value={excerptContent[activeLocale] || ''}
-          onChange={e => setExcerptContent({ ...excerptContent, [activeLocale]: e.target.value })}
+          value={formValues.excerpt?.[activeLocale] || ''}
+          onChange={e =>
+            setValue(
+              'excerpt',
+              { ...formValues.excerpt, [activeLocale]: e.target.value },
+              {
+                shouldValidate: false,
+              }
+            )
+          }
           className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           placeholder={`Short summary in ${languageNames[activeLocale]}...`}
         />
@@ -297,23 +317,35 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
         <TagInput
-          tags={formData.tags || []}
-          onChange={newTags => setFormData({ ...formData, tags: newTags })}
+          tags={formValues.tags || []}
+          onChange={newTags => setValue('tags', newTags, { shouldValidate: true })}
           placeholder="Add tags for SEO and categorization..."
           maxTags={10}
         />
+        {tagsError && <p className="mt-1 text-sm text-red-600">{tagsError}</p>}
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Content ({languageNames[activeLocale]})
+          Content ({languageNames[activeLocale]}) <span className="text-red-500">*</span>
         </label>
         <RichTextEditor
-          content={editorContent[activeLocale] || ''}
-          onChange={html => setEditorContent({ ...editorContent, [activeLocale]: html })}
+          content={formValues.content?.[activeLocale] || ''}
+          onChange={html =>
+            setValue(
+              'content',
+              { ...formValues.content, [activeLocale]: html },
+              {
+                shouldValidate: true,
+              }
+            )
+          }
         />
-        {!hasContent && (
-          <p className="mt-1 text-sm text-amber-600">
+        {typeof contentError === 'string' && (
+          <p className="mt-1 text-sm text-red-600">{contentError}</p>
+        )}
+        {!contentError && !hasContentForActiveLocale && isSubmitting && (
+          <p className="mt-1 text-sm text-red-600">
             Content is required for {languageNames[activeLocale]}
           </p>
         )}
@@ -323,8 +355,8 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
         <h3 className="text-sm font-medium text-gray-700 mb-3">Translation Status</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {supportedLanguages.map(lang => {
-            const hasLangTitle = !!titleContent[lang]?.trim();
-            const hasLangContent = !!editorContent[lang]?.trim();
+            const hasLangTitle = !!formValues.title?.[lang]?.trim();
+            const hasLangContent = !!formValues.content?.[lang]?.trim();
             return (
               <div
                 key={lang}
@@ -362,10 +394,10 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
         </button>
         <button
           type="submit"
-          disabled={isSaving || !hasTitle || !hasContent}
+          disabled={isSubmitting}
           className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
         >
-          {isSaving ? 'Saving...' : 'Save Content'}
+          {isSubmitting ? 'Saving...' : 'Save Content'}
         </button>
       </div>
     </form>
