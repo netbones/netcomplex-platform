@@ -760,6 +760,7 @@ model user {
   isPublic                                              Boolean                   @default(true)
   showEmail                                             Boolean                   @default(true)
   showPhone                                             Boolean                   @default(true)
+  profileSlug                                           String?                   // SEO-friendly public profile URL
   createdAt                                             DateTime                  @default(now())
   updatedAt                                             DateTime
   emailVerified                                         Boolean                   @default(false)
