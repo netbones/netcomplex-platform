@@ -6,9 +6,13 @@ import { isFeatureEnabled } from '@/lib/features/registry';
 /**
  * FeatureGate - Conditionally render content based on tenant feature flags
  *
- * HYBRID APPROACH (TierGuard + FeatureGate):
- * - TierGuard checks subscription tier (sprout/grove/forest) for baseline access
- * - FeatureGate allows tenant-specific enable/disable overrides
+ * SCOPE: Tenant-specific feature toggle
+ * - Checks tenant's featureFlags for granular enable/disable overrides
+ * - Use alongside TierGuard for hybrid approach:
+ *   - TierGuard provides subscription tier baseline
+ *   - FeatureGate allows tenant-specific customizations
+ *
+ * vs TierGuard: Use TierGuard for tier-based access, FeatureGate for tenant-specific flags
  *
  * Usage:
  *

@@ -17,6 +17,13 @@ interface TierGuardProps {
 /**
  * TierGuard - Conditionally render content based on tenant subscription tier
  *
+ * SCOPE: Subscription-based access control
+ * - Checks tenant's subscription tier (foundation/depth/core) for baseline access
+ * - Works with page, widget, and feature permission checks
+ * - Provides upgrade prompt UI when access is denied
+ *
+ * vs FeatureGate: Use TierGuard for tier-based access, FeatureGate for tenant-specific flags
+ *
  * Usage:
  *
  * // Feature flag check
