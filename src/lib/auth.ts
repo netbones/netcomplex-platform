@@ -14,10 +14,12 @@ import {
   invitations,
   organizations,
 } from './db';
+import { tenantConfig } from './config/tenant';
 
 /**
  * Better Auth configuration for Soralia Village.
  * Configured with Drizzle adapter, two-factor auth, organization support, and passkey.
+ * Uses tenantConfig for environment-specific settings.
  */
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -44,24 +46,17 @@ export const auth = betterAuth({
       tenantId: {
         type: 'string',
         required: true,
-        defaultValue: 'soralia',
+        defaultValue: tenantConfig.defaultSlug,
         input: false, // Users cannot set this during signup - it's auto-set
       },
     },
   },
-  plugins: [twoFactor({ issuer: 'Soralia Village' }), organization(), bearer(), passkey()],
+  plugins: [twoFactor({ issuer: tenantConfig.auth.issuer }), organization(), bearer(), passkey()],
   advanced: {
-    cookiePrefix: 'soralia',
+    cookiePrefix: tenantConfig.auth.cookiePrefix,
   },
   baseURL: {
-    allowedHosts: [
-      'soralia.com',
-      'www.soralia.com',
-      'soralia.org',
-      '*.vercel.app',
-      'localhost:3000',
-      'localhost:3001',
-    ],
+    allowedHosts: tenantConfig.auth.allowedHosts,
   },
   trustedOrigins: [process.env.BETTER_AUTH_URL || 'http://localhost:3000'],
 });
