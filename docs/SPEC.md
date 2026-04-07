@@ -126,6 +126,8 @@ All tables include `tenantId` for multi-tenant data isolation (NetComplex platfo
 
 > See Section 4.1 for the Household/Seat/Alias schema extension.
 
+> See [TIER_MODEL.md](./TIER_MODEL.md) for the module-based tier system.
+
 ### Full Schema
 
 ```prisma

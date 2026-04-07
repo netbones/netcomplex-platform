@@ -1,16 +1,22 @@
 /**
  * NetComplex Feature Registry
  *
- * Subscription tiers:
- * - FOUNDATION: Entry tier (5 pages max)
- * - DEPTH: Growth tier (15 pages max)
- * - CORE: Enterprise tier (unlimited pages)
+ * Module-based tier system - see docs/TIER_MODEL.md for full documentation.
+ * Tier and module constants are now defined in src/lib/constants/tiers.ts
  */
 
+import {
+  TIERS,
+  MODULES,
+  type TierLevel,
+  type ModuleKey,
+  hasModuleAccess,
+  getTierModules,
+} from '@/lib/constants/tiers';
 import type { Tenant } from '@/lib/tenant';
 
-export type TierLevel = 'foundation' | 'depth' | 'core';
-
+export type { TierLevel, ModuleKey };
+export { TIERS, MODULES, hasModuleAccess, getTierModules };
 export { Tenant };
 
 export interface FeatureDefinition {
@@ -30,37 +36,6 @@ export interface TierDefinition {
   color: string;
   features: string[];
 }
-
-// ============================================
-// TIER DEFINITIONS
-// ============================================
-
-export const TIERS: Record<TierLevel, TierDefinition> = {
-  foundation: {
-    id: 'foundation',
-    name: 'FOUNDATION',
-    maxPages: 5,
-    description: 'Entry tier for small communities',
-    color: '#22C55E', // green-500
-    features: [],
-  },
-  depth: {
-    id: 'depth',
-    name: 'DEPTH',
-    maxPages: 15,
-    description: 'Growth tier for expanding communities',
-    color: '#F59E0B', // amber-500
-    features: [],
-  },
-  core: {
-    id: 'core',
-    name: 'CORE',
-    maxPages: -1, // unlimited
-    description: 'Enterprise tier for full-featured communities',
-    color: '#1E293B', // slate-800
-    features: [],
-  },
-};
 
 // ============================================
 // FEATURE REGISTRY

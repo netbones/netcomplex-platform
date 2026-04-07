@@ -27,6 +27,7 @@ model Tenant {
   
   // Subscription
   subscriptionTier String   @default("sprout") // sprout, grove, forest
+  modules          Json?    // Optional custom module bundle, e.g., ["directory", "bookings", "chat"]
   maxPages          Int      @default(5)
   pageCount         Int      @default(0)
   featureFlags      Json     @default("{}")
@@ -595,7 +596,7 @@ model premiumSeat {
   createdAt            DateTime    @default(now())
   updatedAt            DateTime
   messageRetentionDays Int         @default(30)
-  tier                 String      @default("standard")
+  tier                 String      @default("core")
   user                 user        @relation(fields: [userId], references: [id], onDelete: Cascade)
   household            household[] @relation("PremiumSeatPortfolio")
 
