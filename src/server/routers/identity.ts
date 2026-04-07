@@ -823,15 +823,18 @@ export const identityRouter = router({
         .insert(agentAccesses)
         .values({
           id: crypto.randomUUID(),
+          tenantId: ctx.tenantId || 'soralia',
           agentId: ctx.userId!,
           householdId: input.householdId,
-          level: 'VIEW',
+          grantedById: ctx.userId!,
+          accessLevel: 'VIEW',
+          permissions: ['VIEW'],
           reason: input.reason,
           isActive: false,
-          status: 'PENDING',
           requestedAt: new Date(),
-          requestedBy: agentProfile?.name || 'Agent',
-        })
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as any)
         .returning();
 
       return created;
@@ -875,12 +878,12 @@ export const identityRouter = router({
         .update(agentAccesses)
         .set({
           isActive: true,
-          status: 'APPROVED',
-          level: input.level,
+          accessLevel: input.level,
           expiresAt: expiresDate,
-          approvedBy: ctx.userId!,
-          approvedAt: new Date(),
-        })
+          grantedById: ctx.userId!,
+          startedAt: new Date(),
+          updatedAt: new Date(),
+        } as any)
         .where(eq(agentAccesses.id, input.accessId))
         .returning();
 
@@ -915,7 +918,7 @@ export const identityRouter = router({
 
       const [updated] = await db
         .update(agentAccesses)
-        .set({ isActive: false, status: 'REVOKED', revokedAt: new Date() })
+        .set({ isActive: false, updatedAt: new Date() } as any)
         .where(eq(agentAccesses.id, input.accessId))
         .returning();
 
