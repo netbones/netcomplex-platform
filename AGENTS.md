@@ -491,6 +491,11 @@ DATABASE_URL=""
 NEXT_PUBLIC_SUPABASE_URL=""
 NEXT_PUBLIC_SUPABASE_ANON_KEY=""
 
+# Multi-tenant Development
+# Required for local development to resolve tenant context
+# Set to your tenant slug (e.g., 'soralia' for Soralia Village)
+LOCAL_TENANT_SLUG="soralia"
+
 # App
 NEXT_PUBLIC_VERCEL_URL=""
 ```
