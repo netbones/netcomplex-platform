@@ -2,7 +2,7 @@ import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const accounts = pgTable('account', {
   id: text('id').primaryKey(),
-  tenantId: text('tenantId').notNull(),
+  tenantId: text('tenantId'),
   accountId: text('accountId').notNull(),
   providerId: text('providerId').notNull(),
   userId: text('userId').notNull(),

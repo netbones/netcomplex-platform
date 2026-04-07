@@ -13,5 +13,5 @@ export const premiumSeats = pgTable('premiumSeat', {
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
   messageRetentionDays: integer('messageRetentionDays').default(30).notNull(),
-  tier: text('tier').default('standard').notNull(),
+  tier: text('tier').default('foundation').notNull(),
 });

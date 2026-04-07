@@ -38,6 +38,8 @@ export const ROLES = {
   BOARD: 'BOARD',
   ADMIN: 'ADMIN',
   AGENT: 'AGENT',
+  MANAGER: 'MANAGER',
+  ASSOCIATE: 'ASSOCIATE',
 } as const;
 export type Role = keyof typeof ROLES;
 

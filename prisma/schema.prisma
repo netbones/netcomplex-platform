@@ -975,6 +975,8 @@ enum Role {
   BOARD
   ADMIN
   AGENT
+  MANAGER
+  ASSOCIATE
 }
 
 enum ServiceCategory {
