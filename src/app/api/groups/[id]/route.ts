@@ -1,9 +1,13 @@
 import { db, groups, users, userGroups, contents } from '@/lib/db';
-import { eq, desc } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
 
   const [group] = await db
     .select({
@@ -22,7 +26,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       ownerId: groups.ownerId,
     })
     .from(groups)
-    .where(eq(groups.id, id))
+    .where(and(eq(groups.id, id), eq(groups.tenantId, tenantId)))
     .limit(1);
 
   if (!group) {
@@ -94,6 +98,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const { id } = await params;
   const body = await request.json();
 
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
   const [group] = await db
     .update(groups)
     .set({
@@ -107,7 +114,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       residentFilter: body.residentFilter,
       updatedAt: new Date(),
     })
-    .where(eq(groups.id, id))
+    .where(and(eq(groups.id, id), eq(groups.tenantId, tenantId)))
     .returning();
 
   return NextResponse.json(group);
@@ -116,7 +123,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  await db.delete(groups).where(eq(groups.id, id));
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
+  await db.delete(groups).where(and(eq(groups.id, id), eq(groups.tenantId, tenantId)));
 
   return NextResponse.json({ success: true });
 }

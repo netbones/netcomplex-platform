@@ -1,8 +1,9 @@
 import { db, contents, users, groups } from '@/lib/db';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@/lib/i18n';
 import { revalidateContent } from '@/lib/revalidation';
+import { withTenant } from '@/lib/tenant/with-tenant';
 
 /**
  * Transform content item to include localized fields
@@ -49,6 +50,9 @@ function transformContentForLocale(content: Record<string, unknown>, userLocale:
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
   const { searchParams } = new URL(request.url);
   const locale = searchParams.get('locale') || defaultLanguage;
   const userLocale = supportedLanguages.includes(locale as (typeof supportedLanguages)[number])
@@ -79,7 +83,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .from(contents)
     .leftJoin(users, eq(contents.authorId, users.id))
     .leftJoin(groups, eq(contents.groupId, groups.id))
-    .where(eq(contents.id, id))
+    .where(and(eq(contents.id, id), eq(contents.tenantId, tenantId)))
     .limit(1);
 
   if (!content) {
@@ -109,6 +113,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const body = await request.json();
+
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
 
   const updateData: Record<string, unknown> = {
     updatedAt: new Date(),
@@ -151,7 +158,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const [content] = await db
     .update(contents)
     .set(updateData)
-    .where(eq(contents.id, id))
+    .where(and(eq(contents.id, id), eq(contents.tenantId, tenantId)))
     .returning();
 
   // Revalidate content caches
@@ -163,7 +170,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  await db.delete(contents).where(eq(contents.id, id));
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
+  await db.delete(contents).where(and(eq(contents.id, id), eq(contents.tenantId, tenantId)));
 
   // Revalidate content caches
   revalidateContent();
