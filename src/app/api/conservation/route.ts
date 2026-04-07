@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db, contents, users } from '@/lib/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 export async function GET() {
   try {
@@ -27,7 +28,11 @@ export async function GET() {
 
     return NextResponse.json(contentList);
   } catch (error) {
-    console.error('Failed to fetch conservation content:', error);
+    logError(
+      { component: 'conservation-api', operation: 'GET' },
+      'Failed to fetch conservation content',
+      error
+    );
     return NextResponse.json({ error: 'Failed to fetch content' }, { status: 500 });
   }
 }
