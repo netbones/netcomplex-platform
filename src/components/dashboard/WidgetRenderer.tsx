@@ -2,27 +2,11 @@
 
 import { ReactNode } from 'react';
 import { useTenant } from '@/lib/tenant/context';
+import type { Tenant } from '@/lib/tenant';
 import { isFeatureEnabled } from '@/lib/features/registry';
 import { WIDGET_FEATURE_MAP } from '@/lib/dashboard-config';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { DashboardStats } from './DashboardStats';
-import { QuickActionsWidget } from './QuickActionsWidget';
-import { RecentActivityWidget } from './RecentActivityWidget';
-import { EventsWidget } from './EventsWidget';
-import { NotificationsWidget } from './NotificationsWidget';
-import { MessagesWidget } from './MessagesWidget';
-import { UserContentWidget } from './UserContentWidget';
-import { BookshelfWidget } from './BookshelfWidget';
-import { MediaWidget } from './MediaWidget';
-import { MyAlbumWidget } from './MyAlbumWidget';
-import { SidebarWidgetBox } from './SidebarWidgetBox';
-import { PremiumPortfolioWidget } from './PremiumPortfolioWidget';
-import { HouseholdsWidget } from './HouseholdsWidget';
-import { AgentDashboardWidget } from './AgentDashboardWidget';
-import { SoloSeatWidget } from './SoloSeatWidget';
-import { MyServicesWidget } from './MyServicesWidget';
-import { ServiceInquiriesWidget } from './ServiceInquiriesWidget';
-import { CommunityGraphWidget } from './CommunityGraphWidget';
+import { getWidgetComponent, getWidgetMetadata, hasWidget } from '@/components/registry';
 
 interface WidgetRendererProps {
   widgetId: string;
@@ -34,10 +18,7 @@ interface WidgetRendererProps {
  * - Returns true for utility widgets with no feature mapping
  * - Returns true if tenant has access to the widget's feature
  */
-function canRenderWidget(
-  widgetId: string,
-  tenant: { subscriptionTier: string; featureFlags?: Record<string, boolean> } | null
-): boolean {
+function canRenderWidget(widgetId: string, tenant: Tenant | null): boolean {
   // If no tenant context, show all widgets (e.g., public pages)
   if (!tenant) {
     if (process.env.NODE_ENV === 'development') {
@@ -46,7 +27,13 @@ function canRenderWidget(
     return true;
   }
 
-  // Utility widgets available to all tenants (no feature restriction)
+  // Get feature flag from registry metadata first
+  const metadata = getWidgetMetadata(widgetId);
+  if (metadata?.featureFlag) {
+    return isFeatureEnabled(tenant, metadata.featureFlag);
+  }
+
+  // Fallback to dashboard-config mapping
   const featureKey = WIDGET_FEATURE_MAP[widgetId];
   if (!featureKey) {
     return true;
@@ -54,6 +41,30 @@ function canRenderWidget(
 
   // Check if tenant has access to the feature
   return isFeatureEnabled(tenant, featureKey);
+}
+
+/**
+ * Error fallback when widget fails to render
+ */
+function WidgetErrorFallback({ widgetId }: { widgetId: string }) {
+  return (
+    <div className="text-center py-4 text-gray-500">
+      <p>Widget "{widgetId}" failed to load</p>
+    </div>
+  );
+}
+
+/**
+ * Unknown widget fallback when widget ID is not in registry
+ */
+function UnknownWidget({ widgetId }: { widgetId: string }) {
+  return (
+    <ErrorBoundary>
+      <div className="text-center py-4 text-gray-500">
+        <p>Widget "{widgetId}" not found</p>
+      </div>
+    </ErrorBoundary>
+  );
 }
 
 export function WidgetRenderer({ widgetId }: WidgetRendererProps): ReactNode {
@@ -64,44 +75,22 @@ export function WidgetRenderer({ widgetId }: WidgetRendererProps): ReactNode {
     return null;
   }
 
-  switch (widgetId) {
-    case 'stats':
-      return <DashboardStats />;
-    case 'quick-actions':
-      return <QuickActionsWidget />;
-    case 'recent-activity':
-      return <RecentActivityWidget />;
-    case 'notifications':
-      return <NotificationsWidget />;
-    case 'events':
-      return <EventsWidget />;
-    case 'messages':
-      return <MessagesWidget />;
-    case 'my-content':
-      return <UserContentWidget />;
-    case 'bookshelf':
-      return <BookshelfWidget />;
-    case 'media':
-      return <MediaWidget />;
-    case 'my-album':
-      return <MyAlbumWidget />;
-    case 'sidebar-widgets':
-      return <SidebarWidgetBox />;
-    case 'premium-portfolio':
-      return <PremiumPortfolioWidget />;
-    case 'my-services':
-      return <MyServicesWidget />;
-    case 'service-inquiries':
-      return <ServiceInquiriesWidget />;
-    case 'community-graph-widget':
-      return <CommunityGraphWidget />;
-    default:
-      return (
-        <ErrorBoundary>
-          <div className="text-center py-4 text-gray-500">
-            <p>Widget "{widgetId}" not implemented</p>
-          </div>
-        </ErrorBoundary>
-      );
+  // Check if widget exists in registry
+  if (!hasWidget(widgetId)) {
+    return <UnknownWidget widgetId={widgetId} />;
   }
+
+  // Get component from registry
+  const WidgetComponent = getWidgetComponent(widgetId);
+
+  if (!WidgetComponent) {
+    return <UnknownWidget widgetId={widgetId} />;
+  }
+
+  // Render widget with error boundary
+  return (
+    <ErrorBoundary fallback={<WidgetErrorFallback widgetId={widgetId} />}>
+      <WidgetComponent />
+    </ErrorBoundary>
+  );
 }
