@@ -49,21 +49,9 @@ export default async function TenantLayout({ children }: { children: React.React
   const tenant = await getTenant();
 
   return (
-    <html lang="en">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-        />
-      </head>
-      <body className="bg-soralia-light min-h-screen flex flex-col">
-        <Providers>
-          <TenantProvider tenant={tenant}>
-            <Toaster position="top-right" />
-            <Suspense fallback={null}>{children}</Suspense>
-          </TenantProvider>
-        </Providers>
-      </body>
-    </html>
+    <TenantProvider tenant={tenant}>
+      <Toaster position="top-right" />
+      <Suspense fallback={null}>{children}</Suspense>
+    </TenantProvider>
   );
 }
