@@ -28,6 +28,7 @@ export default function HomePage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [filterTotal, setFilterTotal] = useState(0);
   const limit = 6;
 
   useEffect(() => {
@@ -62,6 +63,12 @@ export default function HomePage() {
         if (data.users) {
           setResidents(data.users || []);
           setTotal(data.total || 0);
+          // When filtering by role/type, track filtered total separately
+          if (filterType !== 'All Residents') {
+            setFilterTotal(data.total || 0);
+          } else {
+            setFilterTotal(0);
+          }
         } else if (Array.isArray(data)) {
           setResidents(data);
           setTotal(data.length);
@@ -250,7 +257,12 @@ export default function HomePage() {
             {loading
               ? t('home.loading')
               : total > 0
-                ? t('home.showingResidents', { count: filteredResidents.length, total })
+                ? filterType !== 'All Residents' && filterTotal > 0
+                  ? t('home.showingResidents', {
+                      count: filteredResidents.length,
+                      total: filterTotal,
+                    })
+                  : t('home.showingResidents', { count: filteredResidents.length, total })
                 : t('home.noResidents', { defaultValue: 'No residents found' })}
           </h3>
           <div className="flex items-center space-x-2">
