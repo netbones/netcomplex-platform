@@ -76,7 +76,7 @@ export function Header() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [campaignConfig, setCampaignConfig] = useState<CampaignConfig['config'] | null>(null);
-  const { t, i18n } = useTranslation('common');
+  const { t, i18n, ready } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
