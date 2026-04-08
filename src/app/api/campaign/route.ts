@@ -65,7 +65,7 @@ export async function GET(request: Request) {
     // Fetch campaign content for the tenant
     // The category filter allows different tenants to have different campaign types
     // (e.g., CONSERVATION, UPLIFTMENT, FUNDRAISING, etc.)
-    const campaignCategory = campaignConfig.contentCategory;
+    const campaignCategory = campaignConfig.contentCategory as typeof contents.category;
 
     const contentList = await db
       .select({

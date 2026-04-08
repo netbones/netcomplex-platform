@@ -44,20 +44,17 @@ export function CreateListingForm({ householdId, onClose, onSuccess }: CreateLis
   });
 
   const fetchHouseholds = () => {
-    fetch(
-      fetch('/api/premium/portfolio').then(res => res.json()),
-      {
-        error: 'Failed to fetch households',
-        onSuccess: (data: {
-          hasPortfolio: boolean;
-          portfolio?: { linkedHouseholds?: Household[] };
-        }) => {
-          if (data.hasPortfolio && data.portfolio?.linkedHouseholds) {
-            setHouseholds(data.portfolio.linkedHouseholds);
-          }
-        },
-      }
-    );
+    fetch(fetch('/api/premium/portfolio').then(res => res.json()) as Promise<any>, {
+      error: 'Failed to fetch households',
+      onSuccess: (data: {
+        hasPortfolio: boolean;
+        portfolio?: { linkedHouseholds?: Household[] };
+      }) => {
+        if (data.hasPortfolio && data.portfolio?.linkedHouseholds) {
+          setHouseholds(data.portfolio.linkedHouseholds);
+        }
+      },
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -69,7 +66,7 @@ export function CreateListingForm({ householdId, onClose, onSuccess }: CreateLis
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      }).then(res => res.json()),
+      }).then(res => res.json()) as Promise<any>,
       {
         loading: 'Creating listing...',
         success: 'Listing created!',

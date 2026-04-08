@@ -46,11 +46,11 @@ export default function EditContentPage() {
 
   const initialData = {
     id: content.id,
-    title: content.title,
-    content: content.content,
-    excerpt: content.excerpt || undefined,
+    title: { en: content.title },
+    content: { en: content.content },
+    excerpt: content.excerpt ? { en: content.excerpt } : undefined,
     category: content.category as 'NEWS' | 'ANNOUNCEMENT' | 'EVENT' | 'BLOG',
-    groupId: content.groupId || '',
+    groupId: content.groupId || null,
     tags: content.tags || [],
     featured: content.featured,
     published: content.published,
