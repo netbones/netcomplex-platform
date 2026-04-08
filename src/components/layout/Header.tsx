@@ -29,7 +29,10 @@ interface CampaignConfig {
   content: unknown[];
 }
 
-function getLocalizedLabel(labelObj: Record<string, string> | null | undefined): string {
+function getLocalizedLabel(
+  labelObj: Record<string, string> | null | undefined,
+  i18n: { language: string }
+): string {
   if (!labelObj || typeof labelObj !== 'object') return '';
   return labelObj[i18n.language] || labelObj.en || '';
 }
@@ -141,7 +144,7 @@ export function Header() {
   const campaignLabel =
     pageFlags.campaign === false
       ? null
-      : getLocalizedLabel(campaignConfig?.linkLabel) || t('nav.campaign');
+      : getLocalizedLabel(campaignConfig?.linkLabel, i18n) || t('nav.campaign');
 
   if (!mounted || !ready) {
     return (
