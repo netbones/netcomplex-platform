@@ -78,7 +78,7 @@
     "allStreets": "Bonke izitrasi",
     "nameAZ": "Igama (A-Z)",
     "nameZA": "Igama (Z-A)",
-    "showingResidents": "Ibonisa {{count}} abahlali",
+    "showingResidents": "{{#total}}Ibonisa {{count}} kwizahlalo {{total}}{{/total}}{{^total}}Ibonisa {{count}} abahlali{{/total}}",
     "loading": "Ilayisha...",
     "view": "Bona",
     "previous": "Okwangaphambili",

@@ -249,7 +249,9 @@ export default function HomePage() {
           <h3 className="text-lg font-semibold text-soralia-dark">
             {loading
               ? t('home.loading')
-              : t('home.showingResidents', { count: filteredResidents.length })}
+              : total > 0
+                ? t('home.showingResidents', { count: filteredResidents.length, total })
+                : t('home.noResidents', { defaultValue: 'No residents found' })}
           </h3>
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-600">{t('home.view')}:</span>
