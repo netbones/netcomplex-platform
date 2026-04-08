@@ -25,6 +25,7 @@ export default function DirectoryPage() {
     filterStreet,
     page: residentsPage,
     total: residentsTotal,
+    limit: residentsLimit,
     viewMode,
     setSearchQuery: setResidentsSearch,
     setFilterType,
@@ -44,6 +45,7 @@ export default function DirectoryPage() {
     verifiedOnly,
     page: servicesPage,
     total: servicesTotal,
+    limit: servicesLimit,
     viewMode: servicesViewMode,
     setSearchQuery: setServicesSearch,
     setCategory: setServiceCategory,
@@ -120,7 +122,7 @@ export default function DirectoryPage() {
             <DirectoryGrid residents={residents} viewMode={viewMode} />
           )}
 
-          {residentsTotal > limit && (
+          {residentsTotal > residentsLimit && (
             <div className="flex justify-center items-center gap-4 mt-6">
               <button
                 onClick={() => setResidentsPage(p => Math.max(1, p - 1))}
@@ -210,7 +212,7 @@ export default function DirectoryPage() {
           />
         )}
 
-        {servicesTotal > limit && (
+        {servicesTotal > servicesLimit && (
           <div className="flex justify-center items-center gap-4 mt-6">
             <button
               onClick={() => setServicesPage(p => Math.max(1, p - 1))}
@@ -220,11 +222,11 @@ export default function DirectoryPage() {
               Previous
             </button>
             <span className="text-sm text-gray-600">
-              Page {servicesPage} of {Math.ceil(servicesTotal / limit)}
+              Page {servicesPage} of {Math.ceil(servicesTotal / servicesLimit)}
             </span>
             <button
               onClick={() => setServicesPage(p => p + 1)}
-              disabled={servicesPage >= Math.ceil(servicesTotal / limit)}
+              disabled={servicesPage >= Math.ceil(servicesTotal / servicesLimit)}
               className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
