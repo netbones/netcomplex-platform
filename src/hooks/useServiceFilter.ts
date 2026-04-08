@@ -9,7 +9,6 @@ export interface ServiceFilterOptions {
 }
 
 export interface UseServiceFilterReturn {
-  // State
   services: any[];
   loading: boolean;
   searchQuery: string;
@@ -20,20 +19,14 @@ export interface UseServiceFilterReturn {
   total: number;
   limit: number;
   viewMode: 'grid' | 'list';
-
-  // Setters
   setSearchQuery: (query: string) => void;
   setCategory: (category: string) => void;
   setServiceType: (type: string) => void;
   setVerifiedOnly: (verified: boolean) => void;
-  setPage: (page: number) => void;
+  setPage: (page: number | ((p: number) => number)) => void;
   setViewMode: (mode: 'grid' | 'list') => void;
-
-  // Computed
   filteredCount: number;
   totalPages: number;
-
-  // Actions
   refetch: () => void;
 }
 
@@ -47,19 +40,29 @@ export function useServiceFilter(options: ServiceFilterOptions = {}): UseService
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [category, setCategory] = useState('ALL');
   const [serviceType, setServiceType] = useState('ALL');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [page, setPage] = useState(defaultPage);
+
+  const handleSetPage = useCallback((value: number | ((p: number) => number)) => {
+    setPage(prev => (typeof value === 'function' ? value(prev) : value));
+  }, []);
   const [total, setTotal] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const limit = defaultLimit;
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const fetchServices = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (searchQuery) params.set('search', searchQuery);
+      if (debouncedSearch) params.set('search', debouncedSearch);
       if (category !== 'ALL') params.set('category', category);
       if (serviceType !== 'ALL') params.set('type', serviceType);
       if (verifiedOnly) params.set('verified', 'true');
@@ -84,11 +87,10 @@ export function useServiceFilter(options: ServiceFilterOptions = {}): UseService
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, category, serviceType, verifiedOnly, page, apiEndpoint]);
+  }, [debouncedSearch, category, serviceType, verifiedOnly, page, apiEndpoint]);
 
   useEffect(() => {
-    const debounce = setTimeout(fetchServices, searchQuery ? 300 : 0);
-    return () => clearTimeout(debounce);
+    fetchServices();
   }, [fetchServices]);
 
   const refetch = useCallback(() => {
@@ -112,7 +114,7 @@ export function useServiceFilter(options: ServiceFilterOptions = {}): UseService
     setCategory,
     setServiceType,
     setVerifiedOnly,
-    setPage,
+    setPage: handleSetPage,
     setViewMode,
     filteredCount: services.length,
     totalPages,

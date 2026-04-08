@@ -50,14 +50,14 @@ export function AgentWidget() {
   }, [session?.user?.id]);
 
   const fetchAgentData = () => {
-    fetch(fetch('/api/agents/marketplace').then(res => res.json()) as Promise<any>, {
+    fetch(fetch('/api/agents/marketplace').then(res => res.json()) as Promise<unknown>, {
       error: 'Failed to fetch agent data',
       onSuccess: (data: { agents?: AgentProfile[] }) => setAgents(data.agents || []),
     });
   };
 
   const fetchListings = () => {
-    fetch(fetch('/api/premium/listings').then(res => res.json()) as Promise<any>, {
+    fetch(fetch('/api/premium/listings').then(res => res.json()) as Promise<unknown>, {
       error: 'Failed to fetch listings',
       onSuccess: (data: { listings?: PropertyListing[] }) => setListings(data.listings || []),
       onError: () => setLoading(false),
@@ -70,7 +70,7 @@ export function AgentWidget() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ agentId }),
-      }).then(res => res.json()) as Promise<any>,
+      }).then(res => res.json()) as Promise<unknown>,
       {
         loading: 'Sending request...',
         success: 'Connection request sent!',

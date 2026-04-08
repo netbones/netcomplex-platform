@@ -44,7 +44,7 @@ export function CreateListingForm({ householdId, onClose, onSuccess }: CreateLis
   });
 
   const fetchHouseholds = () => {
-    fetch(fetch('/api/premium/portfolio').then(res => res.json()) as Promise<any>, {
+    fetch(fetch('/api/premium/portfolio').then(res => res.json()) as Promise<unknown>, {
       error: 'Failed to fetch households',
       onSuccess: (data: {
         hasPortfolio: boolean;
@@ -66,7 +66,7 @@ export function CreateListingForm({ householdId, onClose, onSuccess }: CreateLis
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      }).then(res => res.json()) as Promise<any>,
+      }).then(res => res.json()) as Promise<unknown>,
       {
         loading: 'Creating listing...',
         success: 'Listing created!',

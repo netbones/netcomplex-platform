@@ -9,7 +9,6 @@ export interface ResidentFilterOptions {
 }
 
 export interface UseResidentFilterReturn {
-  // State
   residents: any[];
   loading: boolean;
   searchQuery: string;
@@ -19,19 +18,13 @@ export interface UseResidentFilterReturn {
   total: number;
   limit: number;
   viewMode: 'grid' | 'list';
-
-  // Setters
   setSearchQuery: (query: string) => void;
   setFilterType: (type: string) => void;
   setFilterStreet: (street: string) => void;
-  setPage: (page: number) => void;
+  setPage: (page: number | ((p: number) => number)) => void;
   setViewMode: (mode: 'grid' | 'list') => void;
-
-  // Computed
   filteredCount: number;
   totalPages: number;
-
-  // Actions
   refetch: () => void;
 }
 
@@ -44,20 +37,30 @@ export function useResidentFilter(options: ResidentFilterOptions = {}): UseResid
   const [filterType, setFilterType] = useState('All Residents');
   const [filterStreet, setFilterStreet] = useState('All Streets');
   const [page, setPage] = useState(defaultPage);
+
+  const handleSetPage = useCallback((value: number | ((p: number) => number)) => {
+    setPage(prev => (typeof value === 'function' ? value(prev) : value));
+  }, []);
   const [total, setTotal] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const limit = defaultLimit;
+
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const fetchResidents = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (searchQuery) params.set('search', searchQuery);
+      if (debouncedSearch) params.set('search', debouncedSearch);
       if (filterStreet !== 'All Streets') params.set('street', filterStreet);
       params.set('page', String(page));
       params.set('limit', String(limit));
 
-      // Pass role filter to API for BOARD/COMMITTEE/OWNER/RENTER
       if (filterType !== 'All Residents') {
         const filterValue = filterType.replace(' Members', '').replace('s', '');
         if (filterValue === 'Board') {
@@ -89,11 +92,10 @@ export function useResidentFilter(options: ResidentFilterOptions = {}): UseResid
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, filterStreet, page, filterType, apiEndpoint]);
+  }, [debouncedSearch, filterStreet, page, filterType, apiEndpoint]);
 
   useEffect(() => {
-    const debounce = setTimeout(fetchResidents, searchQuery ? 300 : 0);
-    return () => clearTimeout(debounce);
+    fetchResidents();
   }, [fetchResidents]);
 
   const refetch = useCallback(() => {
@@ -116,7 +118,7 @@ export function useResidentFilter(options: ResidentFilterOptions = {}): UseResid
     setSearchQuery,
     setFilterType,
     setFilterStreet,
-    setPage,
+    setPage: handleSetPage,
     setViewMode,
     filteredCount,
     totalPages,
