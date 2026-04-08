@@ -37,6 +37,7 @@ interface CampaignData {
 export default function CampaignPage() {
   const [campaignData, setCampaignData] = useState<CampaignData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [campaignEnabled, setCampaignEnabled] = useState<boolean>(true);
   const { t, i18n } = useTranslation(['common', 'campaign']);
 
   const { isReady, LoadingComponent } = usePageLoading(
@@ -46,6 +47,21 @@ export default function CampaignPage() {
     ],
     { additionalLoading: loading }
   );
+
+  // Check if campaign is enabled
+  useEffect(() => {
+    async function checkCampaignEnabled() {
+      try {
+        const res = await fetch('/api/flags?flag=campaign');
+        const data = await res.json();
+        setCampaignEnabled(data.value !== false);
+      } catch (error) {
+        console.error('Failed to check campaign status:', error);
+        setCampaignEnabled(true);
+      }
+    }
+    checkCampaignEnabled();
+  }, []);
 
   useEffect(() => {
     async function fetchCampaignData() {
@@ -60,8 +76,12 @@ export default function CampaignPage() {
       }
     }
 
-    fetchCampaignData();
-  }, []);
+    if (campaignEnabled) {
+      fetchCampaignData();
+    } else {
+      setLoading(false);
+    }
+  }, [campaignEnabled]);
 
   // Get localized content
   const getLocalizedContent = (field: Record<string, string> | null | undefined): string => {
@@ -79,6 +99,24 @@ export default function CampaignPage() {
 
   if (!isReady) {
     return LoadingComponent;
+  }
+
+  // Show "not available" if campaign is disabled
+  if (!campaignEnabled) {
+    return (
+      <ErrorBoundary>
+        <main className="min-h-screen bg-soralia-light">
+          <div className="container mx-auto px-4 py-8">
+            <Breadcrumbs
+              items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.campaign') }]}
+            />
+            <div className="text-center py-12">
+              <p className="text-gray-500">Campaign is not available for this community.</p>
+            </div>
+          </div>
+        </main>
+      </ErrorBoundary>
+    );
   }
 
   return (

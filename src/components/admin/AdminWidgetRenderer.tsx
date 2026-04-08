@@ -13,6 +13,7 @@ import { MarketplaceAnalyticsWidget } from './MarketplaceAnalyticsWidget';
 import { ServiceQualityWidget } from './ServiceQualityWidget';
 import { MaintenanceRequestsWidget } from './MaintenanceRequestsWidget';
 import { MaintenanceAnalyticsWidget } from './MaintenanceAnalyticsWidget';
+import { PageSettingsWidget } from './PageSettingsWidget';
 
 interface WidgetRendererProps {
   widgetId: string;
@@ -42,6 +43,8 @@ export function AdminWidgetRenderer({ widgetId }: WidgetRendererProps): ReactNod
       return <MaintenanceRequestsWidget />;
     case 'maintenance-analytics':
       return <MaintenanceAnalyticsWidget />;
+    case 'page-settings':
+      return <PageSettingsWidget />;
     default:
       return (
         <ErrorBoundary>

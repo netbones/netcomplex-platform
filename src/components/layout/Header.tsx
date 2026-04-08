@@ -4,12 +4,20 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { Suspense } from 'react';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { SideDrawer } from '@/components/ui/SideDrawer';
-import { PUBLIC_NAV_LINKS } from '@/lib/constants';
 import { authClient } from '@/lib/auth-client';
-import { hasPermission, canManageGroups } from '@/lib/permissions';
+import { hasPermission } from '@/lib/permissions';
+
+interface PageFlags {
+  campaign: boolean;
+  conservation: string;
+  conservationExternalUrl: string;
+  chat: boolean;
+  news: boolean;
+  events: boolean;
+  directory: boolean;
+}
 
 interface CampaignConfig {
   config: {
@@ -19,6 +27,11 @@ interface CampaignConfig {
     contentCategory: string;
   };
   content: unknown[];
+}
+
+function getLocalizedLabel(labelObj: Record<string, string> | null | undefined): string {
+  if (!labelObj || typeof labelObj !== 'object') return '';
+  return labelObj[i18n.language] || labelObj.en || '';
 }
 
 function TeaserLink({
@@ -76,11 +89,36 @@ export function Header() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [campaignConfig, setCampaignConfig] = useState<CampaignConfig['config'] | null>(null);
+  const [pageFlags, setPageFlags] = useState<PageFlags>({
+    campaign: true,
+    conservation: 'default',
+    conservationExternalUrl: '',
+    chat: true,
+    news: true,
+    events: true,
+    directory: true,
+  });
   const { t, i18n, ready } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // Fetch page flags for dynamic nav
+  useEffect(() => {
+    async function fetchPageFlags() {
+      try {
+        const res = await fetch('/api/flags');
+        const data = await res.json();
+        if (data.flags) {
+          setPageFlags(prev => ({ ...prev, ...data.flags }));
+        }
+      } catch (error) {
+        console.error('Failed to fetch page flags:', error);
+      }
+    }
+    fetchPageFlags();
   }, []);
 
   // Fetch campaign config to get dynamic link label
@@ -99,10 +137,11 @@ export function Header() {
     fetchCampaignConfig();
   }, []);
 
-  // Get localized campaign link label
-  const campaignLabel = campaignConfig?.linkLabel
-    ? campaignConfig.linkLabel[i18n.language] || campaignConfig.linkLabel.en
-    : t('nav.campaign');
+  // Get localized campaign link label with safety check
+  const campaignLabel =
+    pageFlags.campaign === false
+      ? null
+      : getLocalizedLabel(campaignConfig?.linkLabel) || t('nav.campaign');
 
   if (!mounted || !ready) {
     return (
@@ -176,30 +215,46 @@ export function Header() {
           >
             {t('nav.home')}
           </Link>
-          <TeaserLink
-            href="/directory"
-            label={t('nav.directory')}
-            pathname={pathname}
-            authenticated={!!session}
-          />
-          <TeaserLink
-            href="/services"
-            label={t('nav.services')}
-            pathname={pathname}
-            authenticated={!!session}
-          />
-          <TeaserLink
-            href="/resources"
-            label={t('nav.resources')}
-            pathname={pathname}
-            authenticated={!!session}
-          />
-          <Link
-            href="/campaign"
-            className={`hover:text-soralia-accent font-medium ${pathname === '/campaign' ? 'text-soralia-accent' : ''}`}
-          >
-            {campaignLabel}
-          </Link>
+          {pageFlags.directory !== false && (
+            <TeaserLink
+              href="/directory"
+              label={t('nav.directory')}
+              pathname={pathname}
+              authenticated={!!session}
+            />
+          )}
+          {pageFlags.news !== false && (
+            <TeaserLink
+              href="/news"
+              label={t('nav.news')}
+              pathname={pathname}
+              authenticated={!!session}
+            />
+          )}
+          {pageFlags.events !== false && (
+            <TeaserLink
+              href="/events"
+              label={t('nav.events')}
+              pathname={pathname}
+              authenticated={!!session}
+            />
+          )}
+          {pageFlags.conservation !== 'external' && (
+            <Link
+              href="/conservation"
+              className={`hover:text-soralia-accent font-medium ${pathname === '/conservation' ? 'text-soralia-accent' : ''}`}
+            >
+              {t('nav.conservation')}
+            </Link>
+          )}
+          {pageFlags.campaign !== false && campaignLabel && (
+            <Link
+              href="/campaign"
+              className={`hover:text-soralia-accent font-medium ${pathname === '/campaign' ? 'text-soralia-accent' : ''}`}
+            >
+              {campaignLabel}
+            </Link>
+          )}
           {session && (isAdmin || isBoard) && (
             <Link
               href="/admin"
@@ -271,8 +326,6 @@ export function Header() {
             </button>
           )}
         </div>
-
-        <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
 
         <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
       </div>

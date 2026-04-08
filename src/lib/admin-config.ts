@@ -37,6 +37,12 @@ export const ADMIN_TABS: DashboardTab[] = [
     icon: 'fa-cog',
     defaultWidgets: ['admin-system', 'admin-activity', 'admin-quick-links'],
   },
+  {
+    id: 'settings',
+    label: 'Page Settings',
+    icon: 'fa-toggle-on',
+    defaultWidgets: ['page-settings'],
+  },
 ];
 
 export const ALL_ADMIN_WIDGETS: AdminWidget[] = [
@@ -51,6 +57,7 @@ export const ALL_ADMIN_WIDGETS: AdminWidget[] = [
   { id: 'service-quality', label: 'Service Quality', icon: 'fa-star' },
   { id: 'maintenance-requests', label: 'Maintenance Requests', icon: 'fa-tools' },
   { id: 'maintenance-analytics', label: 'Maintenance Analytics', icon: 'fa-chart-line' },
+  { id: 'page-settings', label: 'Page Visibility', icon: 'fa-toggle-on' },
 ];
 
 export function getWidgetTitle(widgetId: string): string {

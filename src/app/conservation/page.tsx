@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { usePageLoading } from '@/hooks/usePageLoading';
@@ -35,6 +35,10 @@ export default function ConservationPage() {
   const { t, i18n } = useTranslation('conservation');
   const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [conservationMode, setConservationMode] = useState<'default' | 'managed' | 'external'>(
+    'default'
+  );
+  const [externalUrl, setExternalUrl] = useState<string>('');
 
   const getLocalizedContent = (field: Record<string, string> | null | undefined): string => {
     if (!field) return '';
@@ -50,11 +54,62 @@ export default function ConservationPage() {
   );
 
   useEffect(() => {
-    getContent().then(data => {
-      setContent(data);
-      setLoading(false);
-    });
+    // Fetch conservation mode from flags
+    async function fetchMode() {
+      try {
+        const res = await fetch('/api/flags?flag=conservation');
+        const data = await res.json();
+        if (data.value && ['default', 'managed', 'external'].includes(data.value)) {
+          setConservationMode(data.value);
+        }
+      } catch (error) {
+        console.error('Failed to fetch conservation mode:', error);
+      }
+    }
+    fetchMode();
   }, []);
+
+  useEffect(() => {
+    // Fetch external URL
+    async function fetchExternalUrl() {
+      try {
+        const res = await fetch('/api/flags?flag=conservationExternalUrl');
+        const data = await res.json();
+        if (data.value) {
+          setExternalUrl(data.value);
+        }
+      } catch (error) {
+        console.error('Failed to fetch conservation external URL:', error);
+      }
+    }
+    fetchExternalUrl();
+  }, []);
+
+  useEffect(() => {
+    if (conservationMode === 'managed') {
+      getContent().then(data => {
+        setContent(data);
+        setLoading(false);
+      });
+    } else {
+      // For default mode, we still fetch content for the dynamic articles section
+      getContent().then(data => {
+        setContent(data);
+        setLoading(false);
+      });
+    }
+  }, [conservationMode]);
+
+  // Render based on mode
+  if (conservationMode === 'external' && externalUrl) {
+    return (
+      <ErrorBoundary>
+        <div className="w-full h-[calc(100vh-100px)]">
+          <iframe src={externalUrl} className="w-full h-full" title="Conservation Portal" />
+        </div>
+      </ErrorBoundary>
+    );
+  }
 
   if (!isReady) {
     return LoadingComponent;
