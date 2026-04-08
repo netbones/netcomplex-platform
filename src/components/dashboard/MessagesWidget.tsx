@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
-import { toast } from 'sonner';
+import { useApiToast } from '@/hooks/useApiToast';
 
 interface Conversation {
   id: string;
@@ -19,25 +19,21 @@ interface Conversation {
 export function MessagesWidget() {
   const { t } = useTranslation('common');
   const { data: session } = authClient.useSession();
+  const { fetch } = useApiToast({ component: 'MessagesWidget' });
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!session?.user?.id) return;
 
-    async function fetchConversations() {
-      if (!session?.user?.id) return;
-      try {
-        const res = await fetch(`/api/conversations?userId=${session.user.id}`);
-        const data = await res.json();
-        setConversations(Array.isArray(data) ? data : []);
-      } catch (error) {
-        toast.error('Failed to fetch conversations');
-      } finally {
-        setLoading(false);
+    fetch(
+      fetch(`/api/conversations?userId=${session.user.id}`).then(res => res.json()),
+      {
+        error: 'Failed to fetch conversations',
+        onSuccess: (data: Conversation[]) => setConversations(Array.isArray(data) ? data : []),
+        onError: () => setLoading(false),
       }
-    }
-    fetchConversations();
+    );
   }, [session?.user?.id]);
 
   if (loading) {

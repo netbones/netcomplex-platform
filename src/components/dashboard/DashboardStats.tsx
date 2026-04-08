@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { toast } from 'sonner';
+import { useApiToast } from '@/hooks/useApiToast';
 
 interface DashboardStats {
   requests: number;
@@ -64,6 +64,7 @@ function StatCard({
 
 export function DashboardStats() {
   const { t } = useTranslation('dashboard');
+  const { fetch } = useApiToast({ component: 'DashboardStats' });
   const [stats, setStats] = useState<DashboardStats>({
     requests: 0,
     bookings: 0,
@@ -73,27 +74,11 @@ export function DashboardStats() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchStats() {
-      try {
-        const res = await fetch('/api/dashboard/stats');
-        if (!res.ok) {
-          throw new Error('Failed to fetch stats');
-        }
-        const data = await res.json();
-        setStats({
-          requests: data.requests ?? 0,
-          bookings: data.bookings ?? 0,
-          messages: data.messages ?? 0,
-          notifications: data.notifications ?? 0,
-        });
-      } catch (error) {
-        toast.error('Failed to fetch dashboard stats');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchStats();
+    fetch(fetch('/api/dashboard/stats'), {
+      error: 'Failed to fetch dashboard stats',
+      onSuccess: (data: DashboardStats) => setStats(data),
+      onError: () => setLoading(false),
+    });
   }, []);
 
   return (

@@ -27,17 +27,18 @@ Avoid "toast spam" when multiple errors occur, such as in bulk uploads or chaine
     Batching: If multiple errors occur at once, aggregate them into a single toast (e.g., "10 files uploaded — 2 failed") rather than showing 10 separate toasts.
     Contextual use: Only use toasts for passive warnings or updates. If an error requires a major user decision or blocks the entire workflow, consider using an inline alert or a dialog instead.
 
-Summary Table: Sonner Error Patterns
-Feature Best Practice Benefit
-Promise State Use toast.promise() Reduces boilerplate code
-Interaction Add action or cancel buttons Encourages user recovery
-Styling Use toast.error() specifically Visual clarity of failure
-Information Use description for details Helps users debug the issue
-Would you like a code example of how to implement toast.promise with a custom error-formatting callback?
+- Summary Table: Sonner Error Patterns
+  Feature Best Practice Benefit
+  Promise State Use toast.promise() Reduces boilerplate code
+  Interaction Add action or cancel buttons Encourages user recovery
+  Styling Use toast.error() specifically Visual clarity of failure
+  Information Use description for details Helps users debug the issue
+  Would you like a code example of how to implement toast.promise with a custom error-formatting callback?
 
 Using toast.promise is the most efficient way to handle async operations in Sonner. You can pass a function to the error property that receives the rejection reason and returns a custom message or configuration.
 Code Implementation
-Here is how to implement a promise toast that dynamically formats error messages based on the caught error:
+
+## Here is how to implement a promise toast that dynamically formats error messages based on the caught error:
 
 ```tsx
 import { toast } from 'sonner';
@@ -76,11 +77,11 @@ const handleSubmit = formData => {
 };
 ```
 
-Key Techniques used:
+- Key Techniques used:
 
-    Dynamic Messages: Instead of a static string, the error property uses a callback to extract err.message.
-    Object Configuration: By returning an object rather than a string, you can add a description or action buttons specifically for the error state.
-    Custom Rejections: By throwing specific errors in your fetch logic (like "File too large"), the toast becomes more actionable for the user.
+  Dynamic Messages: Instead of a static string, the error property uses a callback to extract err.message.
+  Object Configuration: By returning an object rather than a string, you can add a description or action buttons specifically for the error state.
+  Custom Rejections: By throwing specific errors in your fetch logic (like "File too large"), the toast becomes more actionable for the user.
 
 # how to style these toasts specifically using Tailwind CSS or standard CSS?
 
@@ -121,8 +122,6 @@ Sonner effectively depends on whether you want to override its default look or b
   }}
 />
 ```
-
-.
 
 ## 2. Styling with Standard CSS
 
@@ -179,7 +178,8 @@ To create a fully custom toast, you can pass a
 JSX element directly into toast(). This bypasses Sonner's default structure entirely, giving you 100% control over the layout, icons, and animations.
 
 1. Create a Custom Error Component
-   First, build a reusable component. Using Tailwind CSS makes this easy to manage:
+
+- First, build a reusable component. Using Tailwind CSS makes this easy to manage:
 
 ```tsx
 const CustomErrorToast = ({

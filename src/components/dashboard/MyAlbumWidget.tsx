@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { toast } from 'sonner';
+import { useApiToast } from '@/hooks/useApiToast';
 
 interface AlbumItem {
   id: string;
@@ -27,6 +27,7 @@ interface MediaItem {
 export function MyAlbumWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
+  const { fetch, mutate } = useApiToast({ component: 'MyAlbumWidget' });
   const [albums, setAlbums] = useState<AlbumItem[]>([]);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,34 +43,33 @@ export function MyAlbumWidget() {
     }
   }, [session?.user?.id]);
 
-  const fetchAlbums = async () => {
-    try {
-      const res = await fetch('/api/user/albums');
-      const data = await res.json();
-      setAlbums(data.albums || []);
-    } catch (e) {
-      toast.error('Failed to fetch albums');
-    }
+  const fetchAlbums = () => {
+    fetch(
+      fetch('/api/user/albums').then(res => res.json()),
+      {
+        error: 'Failed to fetch albums',
+        onSuccess: (data: { albums?: AlbumItem[] }) => setAlbums(data.albums || []),
+      }
+    );
   };
 
-  const fetchMediaItems = async () => {
-    try {
-      const res = await fetch('/api/media');
-      const data = await res.json();
-      setMediaItems(data.images || []);
-    } catch (e) {
-      toast.error('Failed to fetch media items');
-    } finally {
-      setLoading(false);
-    }
+  const fetchMediaItems = () => {
+    fetch(
+      fetch('/api/media').then(res => res.json()),
+      {
+        error: 'Failed to fetch media items',
+        onSuccess: (data: { images?: MediaItem[] }) => setMediaItems(data.images || []),
+        onError: () => setLoading(false),
+      }
+    );
   };
 
-  const handleCreateAlbum = async () => {
+  const handleCreateAlbum = () => {
     if (!newAlbum.title.trim()) return;
 
     setSaving(true);
-    try {
-      const res = await fetch('/api/user/albums', {
+    mutate(
+      fetch('/api/user/albums', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -81,17 +81,21 @@ export function MyAlbumWidget() {
             mediaIds: [],
           },
         }),
-      });
-      const data = await res.json();
-      setAlbums(data.albums || []);
-      setNewAlbum({ title: '', description: '', isPublic: false });
-    } catch (e) {
-      toast.error('Failed to create album');
-    }
-    setSaving(false);
+      }).then(res => res.json()),
+      {
+        loading: 'Creating album...',
+        success: 'Album created!',
+        error: 'Failed to create album',
+        onSuccess: (data: { albums?: AlbumItem[] }) => {
+          setAlbums(data.albums || []);
+          setNewAlbum({ title: '', description: '', isPublic: false });
+        },
+        onError: () => setSaving(false),
+      }
+    );
   };
 
-  const handleDeleteAlbum = async (albumId: string) => {
+  const handleDeleteAlbum = (albumId: string) => {
     if (!confirm('Delete this album?')) return;
 
     setSaving(true);

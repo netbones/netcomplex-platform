@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { toast } from 'sonner';
+import { useApiToast } from '@/hooks/useApiToast';
 
 interface ServiceInquiry {
   id: string;
@@ -26,25 +26,29 @@ interface ServiceInquiry {
 export function ServiceInquiriesWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
+  const { fetch } = useApiToast({ component: 'ServiceInquiriesWidget' });
   const [inquiries, setInquiries] = useState<ServiceInquiry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchInquiries() {
-      if (!session?.user?.id) return;
-      try {
-        const res = await fetch('/api/community-services/inquiries?providerId=' + session.user.id);
-        if (res.ok) {
-          const data = await res.json();
-          setInquiries(data.inquiries || data || []);
-        }
-      } catch (error) {
-        toast.error('Failed to fetch inquiries');
-      } finally {
-        setLoading(false);
+    if (!session?.user?.id) return;
+
+    fetch(
+      fetch('/api/community-services/inquiries?providerId=' + session.user.id).then(res =>
+        res.json()
+      ),
+      {
+        error: 'Failed to fetch inquiries',
+        onSuccess: (data: ServiceInquiry[] | { inquiries: ServiceInquiry[] }) => {
+          if ('inquiries' in data) {
+            setInquiries(data.inquiries);
+          } else if (Array.isArray(data)) {
+            setInquiries(data);
+          }
+        },
+        onError: () => setLoading(false),
       }
-    }
-    fetchInquiries();
+    );
   }, [session?.user?.id]);
 
   const formatDate = (dateStr: string) => {
