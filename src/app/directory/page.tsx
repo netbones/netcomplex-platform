@@ -9,6 +9,7 @@ import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { ServiceListing } from '@/components/services/ServiceCard';
 import { useResidentFilter } from '@/hooks/useResidentFilter';
+import { useServiceFilter } from '@/hooks/useServiceFilter';
 
 export default function DirectoryPage() {
   const { t } = useTranslation(['common', 'directory']);
