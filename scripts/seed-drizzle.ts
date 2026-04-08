@@ -265,7 +265,7 @@ async function seed() {
       status: 'ACTIVE' as const,
       homeImage:
         'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=400&fit=crop',
-      moveInDate: new Date('2024-03-10'),
+      moveInDate: new Date('2023-03-10'),
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -278,7 +278,33 @@ async function seed() {
       status: 'ACTIVE' as const,
       homeImage:
         'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=400&fit=crop',
-      moveInDate: new Date('2023-06-01'),
+      moveInDate: new Date('2021-11-05'),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'household-005',
+      tenantId: SORALIA_TENANT_ID,
+      street: 'Beechwood Rd',
+      unit: '15',
+      platformAddress: 'unit015@soralia.org',
+      status: 'ACTIVE' as const,
+      homeImage:
+        'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=400&fit=crop',
+      moveInDate: new Date('2023-06-20'),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'household-006',
+      tenantId: SORALIA_TENANT_ID,
+      street: 'Sugarbrush Rd',
+      unit: '22',
+      platformAddress: 'unit022@soralia.org',
+      status: 'ACTIVE' as const,
+      homeImage:
+        'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=400&fit=crop',
+      moveInDate: new Date('2022-02-14'),
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -382,6 +408,27 @@ async function seed() {
       createdAt: new Date(),
       updatedAt: new Date(),
     },
+    // Additional owners for new households
+    {
+      id: 'seat-dav-005',
+      tenantId: SORALIA_TENANT_ID,
+      userId: '3CdkXjlKJ9j4sb8wYiIJwcns22pN9UUV',
+      householdId: 'household-005',
+      isPrimaryOwner: true,
+      platformAddress: 'unit015@soralia.org',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'seat-extra-006',
+      tenantId: SORALIA_TENANT_ID,
+      userId: 'user-john-smith',
+      householdId: 'household-006',
+      isPrimaryOwner: true,
+      platformAddress: 'unit022@soralia.org',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
   ];
 
   for (const seat of testStandardSeats) {
@@ -438,6 +485,20 @@ async function seed() {
       displayName: 'Lisa Chen',
       profileAddress: 'unit012@soralia.org',
       userId: 'user-lisa-chen',
+      occupantType: 'OCCUPANT' as const,
+      status: 'ACTIVE' as const,
+      residencyType: 'RENTER' as const,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    // Additional renter for household-005
+    {
+      id: 'profile-dav-005',
+      tenantId: SORALIA_TENANT_ID,
+      householdId: 'household-005',
+      displayName: 'Dav',
+      profileAddress: 'unit015@soralia.org',
+      userId: '3CdkXjlKJ9j4sb8wYiIJwcns22pN9UUV',
       occupantType: 'OCCUPANT' as const,
       status: 'ACTIVE' as const,
       residencyType: 'RENTER' as const,
