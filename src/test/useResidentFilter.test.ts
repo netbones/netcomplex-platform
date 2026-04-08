@@ -2,20 +2,20 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useResidentFilter } from '../hooks/useResidentFilter';
 
-/*
- * useResidentFilter Hook Tests
- * =============================
- * Tests for the resident filter hook functionality.
- */
+interface MockResponse {
+  ok: boolean;
+  json: () => Promise<{ users: unknown[]; total: number }>;
+}
+
+const createMockResponse = (data: { users: unknown[]; total: number }): MockResponse => ({
+  ok: true,
+  json: () => Promise.resolve(data),
+});
 
 describe('useResidentFilter', () => {
   beforeEach(() => {
     vi.spyOn(global, 'fetch').mockImplementation(
-      () =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ users: [], total: 0 }),
-        }) as any
+      () => Promise.resolve(createMockResponse({ users: [], total: 0 })) as unknown as typeof fetch
     );
   });
 
@@ -108,14 +108,12 @@ describe('useResidentFilter', () => {
   });
 
   it('should calculate totalPages correctly', async () => {
-    // Mock fetch to return 12 total items with limit 6
-    global.fetch = vi.fn().mockImplementation(
-      () =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ users: [], total: 12 }),
-        }) as any
-    );
+    global.fetch = vi
+      .fn()
+      .mockImplementation(
+        () =>
+          Promise.resolve(createMockResponse({ users: [], total: 12 })) as unknown as typeof fetch
+      );
 
     const { result } = renderHook(() => useResidentFilter({ defaultLimit: 6 }));
 
@@ -125,13 +123,14 @@ describe('useResidentFilter', () => {
   });
 
   it('should calculate filteredCount based on filter type', async () => {
-    global.fetch = vi.fn().mockImplementation(
-      () =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ users: [{ id: '1' }], total: 1 }),
-        }) as any
-    );
+    global.fetch = vi
+      .fn()
+      .mockImplementation(
+        () =>
+          Promise.resolve(
+            createMockResponse({ users: [{ id: '1' }], total: 1 })
+          ) as unknown as typeof fetch
+      );
 
     const { result } = renderHook(() => useResidentFilter());
 
@@ -151,23 +150,20 @@ describe('useResidentFilter', () => {
   });
 
   it('should call API with correct parameters on filter change', async () => {
-    const fetchSpy = vi.fn().mockImplementation(
-      () =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ users: [], total: 0 }),
-        }) as any
-    );
+    const fetchSpy = vi
+      .fn()
+      .mockImplementation(
+        () =>
+          Promise.resolve(createMockResponse({ users: [], total: 0 })) as unknown as typeof fetch
+      );
     global.fetch = fetchSpy;
 
     const { result } = renderHook(() => useResidentFilter({ apiEndpoint: '/api/users' }));
 
-    // Wait for initial fetch
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalled();
     });
 
-    // Change filter and wait for debounce
     act(() => {
       result.current.setFilterType('Board Members');
     });
@@ -179,7 +175,11 @@ describe('useResidentFilter', () => {
   });
 
   it('should handle API errors gracefully', async () => {
-    global.fetch = vi.fn().mockImplementation(() => Promise.reject(new Error('Network error')));
+    global.fetch = vi
+      .fn()
+      .mockImplementation(() =>
+        Promise.reject(new Error('Network error'))
+      ) as unknown as typeof fetch;
 
     const { result } = renderHook(() => useResidentFilter());
 
@@ -190,13 +190,9 @@ describe('useResidentFilter', () => {
   });
 
   it('should handle empty API response', async () => {
-    global.fetch = vi.fn().mockImplementation(
-      () =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({}),
-        }) as any
-    );
+    global.fetch = vi
+      .fn()
+      .mockImplementation(() => Promise.resolve(createMockResponse({})) as unknown as typeof fetch);
 
     const { result } = renderHook(() => useResidentFilter());
 
@@ -207,13 +203,12 @@ describe('useResidentFilter', () => {
   });
 
   it('should use custom apiEndpoint', async () => {
-    const fetchSpy = vi.fn().mockImplementation(
-      () =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ users: [], total: 0 }),
-        }) as any
-    );
+    const fetchSpy = vi
+      .fn()
+      .mockImplementation(
+        () =>
+          Promise.resolve(createMockResponse({ users: [], total: 0 })) as unknown as typeof fetch
+      );
     global.fetch = fetchSpy;
 
     renderHook(() => useResidentFilter({ apiEndpoint: '/api/custom-users' }));
