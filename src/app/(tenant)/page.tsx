@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import { Pagination } from '@/components/ui/Pagination';
 import { STREETS, CARD_HEADER_COLORS } from '@/lib/constants';
+import { useResidentFilter } from '@/hooks/useResidentFilter';
 
 const CommunityMap = dynamic(
   () => import('@/components/ui/CommunityMap').then(mod => mod.CommunityMap),
@@ -18,74 +19,31 @@ import { Carousel } from '@/components/ui/Carousel';
 import { UnifiedResidentCard, type Resident } from '@/components/shared/UnifiedResidentCard';
 
 export default function HomePage() {
-  const [mounted, setMounted] = useState(false);
   const { t, ready } = useTranslation('common');
-  const [residents, setResidents] = useState<Resident[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState('All Residents');
-  const [filterStreet, setFilterStreet] = useState('All Streets');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [filterTotal, setFilterTotal] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  const {
+    residents,
+    loading,
+    searchQuery,
+    filterType,
+    filterStreet,
+    page,
+    total,
+    viewMode,
+    setSearchQuery,
+    setFilterType,
+    setFilterStreet,
+    setPage,
+    setViewMode,
+    filteredCount,
+  } = useResidentFilter({ defaultLimit: 6 });
+
   const limit = 6;
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  useEffect(() => {
-    async function fetchResidents() {
-      try {
-        const params = new URLSearchParams();
-        if (searchQuery) params.set('search', searchQuery);
-        if (filterStreet !== 'All Streets') params.set('street', filterStreet);
-        params.set('page', String(page));
-        params.set('limit', String(limit));
-
-        // Pass role filter to API for BOARD/COMMITTEE
-        if (filterType !== 'All Residents') {
-          const filterValue = filterType.replace(' Members', '').replace('s', '');
-          if (filterValue === 'Board') {
-            params.set('role', 'BOARD');
-          } else if (filterValue === 'Committee') {
-            params.set('role', 'COMMITTEE');
-          } else if (filterValue === 'Owner') {
-            params.set('residentType', 'OWNER');
-          } else if (filterValue === 'Renter') {
-            params.set('residentType', 'RENTER');
-          }
-        }
-
-        const res = await fetch(`/api/users?${params}`);
-        const data = await res.json();
-        if (data.users) {
-          setResidents(data.users || []);
-          setTotal(data.total || 0);
-          // When filtering by role/type, track filtered total separately
-          if (filterType !== 'All Residents') {
-            setFilterTotal(data.total || 0);
-          } else {
-            setFilterTotal(0);
-          }
-        } else if (Array.isArray(data)) {
-          setResidents(data);
-          setTotal(data.length);
-        } else {
-          setResidents([]);
-        }
-      } catch (error) {
-        console.error('Failed to fetch residents:', error);
-        setResidents([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    const debounce = setTimeout(fetchResidents, searchQuery ? 300 : 0);
-    return () => clearTimeout(debounce);
-  }, [searchQuery, filterStreet, page, filterType]);
 
   if (!mounted || !ready) {
     return (
@@ -259,7 +217,7 @@ export default function HomePage() {
               : residents.length > 0
                 ? t('home.showingResidents', {
                     count: residents.length,
-                    total: filterType !== 'All Residents' ? residents.length : total,
+                    total: filteredCount,
                   })
                 : t('home.noResidents', { defaultValue: 'No residents found' })}
           </h3>
