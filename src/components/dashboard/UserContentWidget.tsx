@@ -7,7 +7,7 @@ import { authClient } from '@/lib/auth-client';
 import { sanitizeHtml } from '@/lib/utils';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { TagCloud } from '@/components/ui/TagCloud';
-import { toast } from 'sonner';
+import { useApiToast } from '@/hooks/useApiToast';
 
 interface ContentItem {
   id: string;
@@ -33,27 +33,21 @@ interface ContentItem {
 export function UserContentWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
+  const { fetch } = useApiToast({ component: 'UserContentWidget' });
   const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchUserContent() {
-      if (!session?.user?.id) return;
+    if (!session?.user?.id) return;
 
-      try {
-        const response = await fetch(`/api/content?authorId=${session.user.id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setContent(Array.isArray(data) ? data : []);
-        }
-      } catch (error) {
-        toast.error('Failed to fetch user content');
-      } finally {
-        setLoading(false);
+    fetch(
+      fetch(`/api/content?authorId=${session.user.id}`).then(res => res.json()),
+      {
+        error: 'Failed to fetch user content',
+        onSuccess: (data: ContentItem[] | unknown) => setContent(Array.isArray(data) ? data : []),
+        onError: () => setLoading(false),
       }
-    }
-
-    fetchUserContent();
+    );
   }, [session?.user?.id]);
 
   if (loading) {
