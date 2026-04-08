@@ -96,14 +96,74 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isPlatform = isPlatformHost(host);
 
-  // ── 1. Skip middleware for static assets, API routes, auth routes ──
-  if (
-    pathname.startsWith('/api/') ||
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/static') ||
-    pathname.includes('.') || // files with extensions
-    isAuthRoute(pathname)
-  ) {
+  const isApiRoute = pathname.startsWith('/api/');
+  const isAuthRouteCheck = isAuthRoute(pathname);
+
+  // ── 1. Skip redirect logic for static assets, API routes, auth routes, but still set tenant headers ──
+  if (pathname.startsWith('/_next') || pathname.startsWith('/static') || pathname.includes('.')) {
+    return response;
+  }
+
+  // For API routes: still set tenant headers but don't do redirects
+  if (isApiRoute) {
+    // Localhost: use default tenant
+    if (host.includes('localhost')) {
+      const tenant = await getTenantBySlug(DEFAULT_TENANT_SLUG);
+      if (tenant) {
+        response.headers.set('x-plane', 'tenant');
+        response.headers.set('x-tenant-id', tenant.id);
+        response.headers.set('x-tenant-slug', tenant.slug);
+        response.headers.set('x-tenant-name', tenant.name);
+      }
+      return response;
+    }
+    // Tenant host: resolve tenant
+    if (isTenantHost(host)) {
+      const subdomain = host.split('.')[0];
+      const tenant = await getTenantBySlug(subdomain);
+      if (tenant) {
+        response.headers.set('x-plane', 'tenant');
+        response.headers.set('x-tenant-id', tenant.id);
+        response.headers.set('x-tenant-slug', tenant.slug);
+        response.headers.set('x-tenant-name', tenant.name);
+      }
+      return response;
+    }
+    // Platform host accessing API: use default tenant
+    const tenant = await getTenantBySlug(DEFAULT_TENANT_SLUG);
+    if (tenant) {
+      response.headers.set('x-plane', 'tenant');
+      response.headers.set('x-tenant-id', tenant.id);
+      response.headers.set('x-tenant-slug', tenant.slug);
+      response.headers.set('x-tenant-name', tenant.name);
+    }
+    return response;
+  }
+
+  // For auth routes: set tenant headers but don't redirect
+  if (isAuthRouteCheck) {
+    // Localhost: use default tenant
+    if (host.includes('localhost')) {
+      const tenant = await getTenantBySlug(DEFAULT_TENANT_SLUG);
+      if (tenant) {
+        response.headers.set('x-plane', 'tenant');
+        response.headers.set('x-tenant-id', tenant.id);
+        response.headers.set('x-tenant-slug', tenant.slug);
+        response.headers.set('x-tenant-name', tenant.name);
+      }
+      return response;
+    }
+    // Tenant host: resolve tenant
+    if (isTenantHost(host)) {
+      const subdomain = host.split('.')[0];
+      const tenant = await getTenantBySlug(subdomain);
+      if (tenant) {
+        response.headers.set('x-plane', 'tenant');
+        response.headers.set('x-tenant-id', tenant.id);
+        response.headers.set('x-tenant-slug', tenant.slug);
+        response.headers.set('x-tenant-name', tenant.name);
+      }
+    }
     return response;
   }
 
