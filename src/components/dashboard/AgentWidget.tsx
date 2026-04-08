@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { toast } from 'sonner';
+import { useApiToast } from '@/hooks/useApiToast';
 
 interface AgentProfile {
   id: string;
@@ -36,6 +36,7 @@ interface PropertyListing {
 export function AgentWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
+  const { fetch, mutate } = useApiToast({ component: 'AgentWidget' });
   const [agents, setAgents] = useState<AgentProfile[]>([]);
   const [listings, setListings] = useState<PropertyListing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,40 +49,35 @@ export function AgentWidget() {
     }
   }, [session?.user?.id]);
 
-  const fetchAgentData = async () => {
-    try {
-      const response = await fetch('/api/agents/marketplace');
-      const data = await response.json();
-      setAgents(data.agents || []);
-    } catch (error) {
-      toast.error('Failed to fetch agent data');
-    }
+  const fetchAgentData = () => {
+    fetch(fetch('/api/agents/marketplace').then(res => res.json()), {
+      error: 'Failed to fetch agent data',
+      onSuccess: (data: { agents?: AgentProfile[] }) => setAgents(data.agents || []),
+    });
   };
 
-  const fetchListings = async () => {
-    try {
-      const response = await fetch('/api/premium/listings');
-      const data = await response.json();
-      setListings(data.listings || []);
-    } catch (error) {
-      toast.error('Failed to fetch listings');
-    } finally {
-      setLoading(false);
-    }
+  const fetchListings = () => {
+    fetch(fetch('/api/premium/listings').then(res => res.json()), {
+      error: 'Failed to fetch listings',
+      onSuccess: (data: { listings?: PropertyListing[] }) => setListings(data.listings || []),
+      onError: () => setLoading(false),
+    });
   };
 
-  const connectWithAgent = async (agentId: string) => {
-    try {
-      const response = await fetch('/api/agents/connect', {
+  const connectWithAgent = (agentId: string) => {
+    mutate(
+      fetch('/api/agents/connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ agentId }),
-      });
-
-      if (response.ok) {
-        alert('Connection request sent to agent!');
+      }).then(res => res.json()),
+      {
+        loading: 'Sending request...',
+        success: 'Connection request sent!',
+        error: 'Failed to connect with agent',
       }
-    } catch (error) {
+    );
+  };
       toast.error('Failed to connect with agent');
     }
   };
