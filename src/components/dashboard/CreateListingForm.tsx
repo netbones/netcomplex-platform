@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { toast } from 'sonner';
 
 interface CreateListingFormProps {
   householdId?: string;
@@ -49,7 +50,7 @@ export function CreateListingForm({ householdId, onClose, onSuccess }: CreateLis
         setHouseholds(data.portfolio.linkedHouseholds);
       }
     } catch (error) {
-      console.error('Failed to fetch households');
+      toast.error('Failed to fetch households');
     }
   };
 
@@ -73,8 +74,7 @@ export function CreateListingForm({ householdId, onClose, onSuccess }: CreateLis
         alert(data.error || 'Failed to create listing');
       }
     } catch (error) {
-      console.error('Listing creation error:', error);
-      alert('Failed to create listing');
+      toast.error('Failed to create listing');
     } finally {
       setLoading(false);
     }

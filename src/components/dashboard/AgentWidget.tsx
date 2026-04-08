@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { toast } from 'sonner';
 
 interface AgentProfile {
   id: string;
@@ -53,7 +54,7 @@ export function AgentWidget() {
       const data = await response.json();
       setAgents(data.agents || []);
     } catch (error) {
-      console.error('Failed to fetch agent data');
+      toast.error('Failed to fetch agent data');
     }
   };
 
@@ -63,7 +64,7 @@ export function AgentWidget() {
       const data = await response.json();
       setListings(data.listings || []);
     } catch (error) {
-      console.error('Failed to fetch listings');
+      toast.error('Failed to fetch listings');
     } finally {
       setLoading(false);
     }
@@ -81,7 +82,7 @@ export function AgentWidget() {
         alert('Connection request sent to agent!');
       }
     } catch (error) {
-      console.error('Failed to connect with agent');
+      toast.error('Failed to connect with agent');
     }
   };
 

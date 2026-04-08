@@ -7,6 +7,7 @@ import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { AgentWidget } from './AgentWidget';
 import { CreateListingForm } from './CreateListingForm';
+import { toast } from 'sonner';
 
 interface PortfolioHousehold {
   id: string;
@@ -79,7 +80,7 @@ export function PremiumPortfolioWidget() {
       const data = await response.json();
       setListings(data.listings || []);
     } catch (error) {
-      console.error('Failed to fetch listings');
+      toast.error('Failed to fetch listings');
     }
   };
 
@@ -92,7 +93,7 @@ export function PremiumPortfolioWidget() {
         setPortfolio(data.portfolio);
       }
     } catch (error) {
-      console.error('Failed to fetch portfolio');
+      toast.error('Failed to fetch portfolio');
     } finally {
       setLoading(false);
     }
@@ -130,8 +131,7 @@ export function PremiumPortfolioWidget() {
         alert(data.error || 'Upgrade failed');
       }
     } catch (error) {
-      console.error('Upgrade error:', error);
-      alert('Upgrade failed');
+      toast.error('Upgrade failed');
     } finally {
       setUpgrading(false);
     }

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { toast } from 'sonner';
 
 interface ServiceListing {
   id: string;
@@ -33,7 +34,7 @@ export function MyServicesWidget() {
           setServices(data.listings || []);
         }
       } catch (error) {
-        console.error('Failed to fetch my services:', error);
+        toast.error('Failed to fetch my services');
       } finally {
         setLoading(false);
       }

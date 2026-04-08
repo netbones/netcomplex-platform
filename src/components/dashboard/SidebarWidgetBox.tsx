@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { toast } from 'sonner';
 
 interface SidebarWidget {
   id: string;
@@ -137,7 +138,7 @@ function TagCloudWidget({ widgetId }: { widgetId: string }) {
         setTags(tagArray);
       }
     } catch (error) {
-      console.error('Failed to fetch user tags');
+      toast.error('Failed to fetch user tags');
       setTags([]);
     } finally {
       setLoading(false);
@@ -293,7 +294,7 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
       ];
       setWidgets(defaultWidgets);
     } catch (error) {
-      console.error('Failed to load sidebar widgets');
+      toast.error('Failed to load sidebar widgets');
     }
   };
 

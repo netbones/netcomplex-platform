@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
+import { toast } from 'sonner';
 
 interface Conversation {
   id: string;
@@ -31,7 +32,7 @@ export function MessagesWidget() {
         const data = await res.json();
         setConversations(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.error('Failed to fetch conversations:', error);
+        toast.error('Failed to fetch conversations');
       } finally {
         setLoading(false);
       }

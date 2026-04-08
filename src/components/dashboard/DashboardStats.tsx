@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { toast } from 'sonner';
 
 interface DashboardStats {
   requests: number;
@@ -86,7 +87,7 @@ export function DashboardStats() {
           notifications: data.notifications ?? 0,
         });
       } catch (error) {
-        console.error('Failed to fetch dashboard stats:', error);
+        toast.error('Failed to fetch dashboard stats');
       } finally {
         setLoading(false);
       }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { toast } from 'sonner';
 
 interface AlbumItem {
   id: string;
@@ -47,7 +48,7 @@ export function MyAlbumWidget() {
       const data = await res.json();
       setAlbums(data.albums || []);
     } catch (e) {
-      console.error('Failed to fetch albums');
+      toast.error('Failed to fetch albums');
     }
   };
 
@@ -57,7 +58,7 @@ export function MyAlbumWidget() {
       const data = await res.json();
       setMediaItems(data.images || []);
     } catch (e) {
-      console.error('Failed to fetch media items');
+      toast.error('Failed to fetch media items');
     } finally {
       setLoading(false);
     }
@@ -85,7 +86,7 @@ export function MyAlbumWidget() {
       setAlbums(data.albums || []);
       setNewAlbum({ title: '', description: '', isPublic: false });
     } catch (e) {
-      console.error('Failed to create album');
+      toast.error('Failed to create album');
     }
     setSaving(false);
   };
@@ -106,7 +107,7 @@ export function MyAlbumWidget() {
         setSelectedAlbum(null);
       }
     } catch (e) {
-      console.error('Failed to delete album');
+      toast.error('Failed to delete album');
     }
     setSaving(false);
   };
@@ -123,7 +124,7 @@ export function MyAlbumWidget() {
       setAlbums(data.albums || []);
       setSelectedAlbum(album);
     } catch (e) {
-      console.error('Failed to update album');
+      toast.error('Failed to update album');
     }
     setSaving(false);
   };

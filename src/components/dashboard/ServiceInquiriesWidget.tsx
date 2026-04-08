@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { toast } from 'sonner';
 
 interface ServiceInquiry {
   id: string;
@@ -38,7 +39,7 @@ export function ServiceInquiriesWidget() {
           setInquiries(data.inquiries || data || []);
         }
       } catch (error) {
-        console.error('Failed to fetch inquiries:', error);
+        toast.error('Failed to fetch inquiries');
       } finally {
         setLoading(false);
       }

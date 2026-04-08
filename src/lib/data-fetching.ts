@@ -6,6 +6,7 @@
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { CACHE_TAGS } from './revalidation';
+import { logError } from './logging';
 
 // Cache dashboard stats with ISR tags for on-demand revalidation
 export const getDashboardStats = unstable_cache(
@@ -40,7 +41,7 @@ export const getDashboardStats = unstable_cache(
         notifications: notifications.length || 0,
       };
     } catch (error) {
-      console.error('Failed to fetch dashboard stats:', error);
+      logError({ component: 'data-fetching' }, 'Failed to fetch dashboard stats', error);
       return {
         requests: 0,
         bookings: 0,
@@ -71,7 +72,7 @@ export const getStaticStats = unstable_cache(
       });
       return await res.json();
     } catch (error) {
-      console.error('Failed to fetch static stats:', error);
+      logError({ component: 'data-fetching' }, 'Failed to fetch static stats', error);
       return {
         homes: 180,
         years: 15,
@@ -102,7 +103,7 @@ export const getUserContent = unstable_cache(
       );
       return await res.json();
     } catch (error) {
-      console.error('Failed to fetch user content:', error);
+      logError({ component: 'data-fetching' }, 'Failed to fetch user content', error);
       return [];
     }
   },

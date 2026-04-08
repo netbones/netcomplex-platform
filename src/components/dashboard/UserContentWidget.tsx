@@ -7,6 +7,7 @@ import { authClient } from '@/lib/auth-client';
 import { sanitizeHtml } from '@/lib/utils';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { TagCloud } from '@/components/ui/TagCloud';
+import { toast } from 'sonner';
 
 interface ContentItem {
   id: string;
@@ -46,7 +47,7 @@ export function UserContentWidget() {
           setContent(Array.isArray(data) ? data : []);
         }
       } catch (error) {
-        console.error('Failed to fetch user content:', error);
+        toast.error('Failed to fetch user content');
       } finally {
         setLoading(false);
       }
