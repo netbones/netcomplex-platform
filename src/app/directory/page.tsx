@@ -161,7 +161,7 @@ export default function DirectoryPage() {
 
           <div className="flex flex-wrap items-center gap-4">
             <select
-              value={serviceCategory}
+              value={category}
               onChange={e => setServiceCategory(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-soralia-primary"
             >
