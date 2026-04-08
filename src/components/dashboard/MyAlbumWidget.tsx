@@ -99,38 +99,46 @@ export function MyAlbumWidget() {
     if (!confirm('Delete this album?')) return;
 
     setSaving(true);
-    try {
-      const res = await fetch('/api/user/albums', {
+    mutate(
+      fetch('/api/user/albums', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'delete', albumId }),
-      });
-      const data = await res.json();
-      setAlbums(data.albums || []);
-      if (selectedAlbum?.id === albumId) {
-        setSelectedAlbum(null);
+      }).then(res => res.json()),
+      {
+        loading: 'Deleting album...',
+        success: 'Album deleted!',
+        error: 'Failed to delete album',
+        onSuccess: (data: { albums?: AlbumItem[] }) => {
+          setAlbums(data.albums || []);
+          if (selectedAlbum?.id === albumId) {
+            setSelectedAlbum(null);
+          }
+        },
+        onError: () => setSaving(false),
       }
-    } catch (e) {
-      toast.error('Failed to delete album');
-    }
-    setSaving(false);
+    );
   };
 
-  const handleUpdateAlbum = async (album: AlbumItem) => {
+  const handleUpdateAlbum = (album: AlbumItem) => {
     setSaving(true);
-    try {
-      const res = await fetch('/api/user/albums', {
+    mutate(
+      fetch('/api/user/albums', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'update', album }),
-      });
-      const data = await res.json();
-      setAlbums(data.albums || []);
-      setSelectedAlbum(album);
-    } catch (e) {
-      toast.error('Failed to update album');
-    }
-    setSaving(false);
+      }).then(res => res.json()),
+      {
+        loading: 'Updating album...',
+        success: 'Album updated!',
+        error: 'Failed to update album',
+        onSuccess: (data: { albums?: AlbumItem[] }) => {
+          setAlbums(data.albums || []);
+          setSelectedAlbum(album);
+        },
+        onError: () => setSaving(false),
+      }
+    );
   };
 
   if (loading) {

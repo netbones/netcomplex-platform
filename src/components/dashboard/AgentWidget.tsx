@@ -50,18 +50,24 @@ export function AgentWidget() {
   }, [session?.user?.id]);
 
   const fetchAgentData = () => {
-    fetch(fetch('/api/agents/marketplace').then(res => res.json()), {
-      error: 'Failed to fetch agent data',
-      onSuccess: (data: { agents?: AgentProfile[] }) => setAgents(data.agents || []),
-    });
+    fetch(
+      fetch('/api/agents/marketplace').then(res => res.json()),
+      {
+        error: 'Failed to fetch agent data',
+        onSuccess: (data: { agents?: AgentProfile[] }) => setAgents(data.agents || []),
+      }
+    );
   };
 
   const fetchListings = () => {
-    fetch(fetch('/api/premium/listings').then(res => res.json()), {
-      error: 'Failed to fetch listings',
-      onSuccess: (data: { listings?: PropertyListing[] }) => setListings(data.listings || []),
-      onError: () => setLoading(false),
-    });
+    fetch(
+      fetch('/api/premium/listings').then(res => res.json()),
+      {
+        error: 'Failed to fetch listings',
+        onSuccess: (data: { listings?: PropertyListing[] }) => setListings(data.listings || []),
+        onError: () => setLoading(false),
+      }
+    );
   };
 
   const connectWithAgent = (agentId: string) => {
@@ -77,9 +83,6 @@ export function AgentWidget() {
         error: 'Failed to connect with agent',
       }
     );
-  };
-      toast.error('Failed to connect with agent');
-    }
   };
 
   if (loading) {
