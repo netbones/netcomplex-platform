@@ -2,14 +2,19 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-export interface ServiceFilterOptions {
-  defaultLimit?: number;
-  defaultPage?: number;
-  apiEndpoint?: string;
+export interface Service {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  type: string;
+  verified: boolean;
+  provider?: string;
+  [key: string]: unknown;
 }
 
 export interface UseServiceFilterReturn {
-  services: any[];
+  services: Service[];
   loading: boolean;
   searchQuery: string;
   category: string;
@@ -30,6 +35,12 @@ export interface UseServiceFilterReturn {
   refetch: () => void;
 }
 
+export interface ServiceFilterOptions {
+  defaultLimit?: number;
+  defaultPage?: number;
+  apiEndpoint?: string;
+}
+
 export function useServiceFilter(options: ServiceFilterOptions = {}): UseServiceFilterReturn {
   const {
     defaultLimit = 12,
@@ -37,7 +48,7 @@ export function useServiceFilter(options: ServiceFilterOptions = {}): UseService
     apiEndpoint = '/api/community-services/listings',
   } = options;
 
-  const [services, setServices] = useState<any[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');

@@ -2,14 +2,18 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-export interface ResidentFilterOptions {
-  defaultLimit?: number;
-  defaultPage?: number;
-  apiEndpoint?: string;
+export interface Resident {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  street?: string;
+  unitNumber?: string;
+  [key: string]: unknown;
 }
 
 export interface UseResidentFilterReturn {
-  residents: any[];
+  residents: Resident[];
   loading: boolean;
   searchQuery: string;
   filterType: string;
@@ -28,10 +32,16 @@ export interface UseResidentFilterReturn {
   refetch: () => void;
 }
 
+export interface ResidentFilterOptions {
+  defaultLimit?: number;
+  defaultPage?: number;
+  apiEndpoint?: string;
+}
+
 export function useResidentFilter(options: ResidentFilterOptions = {}): UseResidentFilterReturn {
   const { defaultLimit = 6, defaultPage = 1, apiEndpoint = '/api/users' } = options;
 
-  const [residents, setResidents] = useState<any[]>([]);
+  const [residents, setResidents] = useState<Resident[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('All Residents');
