@@ -32,33 +32,23 @@ export default function DirectoryPage() {
     filteredCount: residentsFilteredCount,
   } = useResidentFilter({ defaultLimit: 12 });
 
-  // Services state
-  const [services, setServices] = useState<ServiceListing[]>([]);
-  const [servicesLoading, setServicesLoading] = useState(false);
-  const [servicesSearch, setServicesSearch] = useState('');
-  const [servicesPage, setServicesPage] = useState(1);
-  const [servicesTotal, setServicesTotal] = useState(0);
-  const [serviceCategory, setServiceCategory] = useState('ALL');
-  const [serviceType, setServiceType] = useState('ALL');
-  const [verifiedOnly, setVerifiedOnly] = useState(false);
-
-  // Use hook for services
+  // Use hook for services (alias viewMode to avoid conflict)
   const {
     services,
     loading: servicesLoading,
     searchQuery: servicesSearch,
-    category: serviceCategory,
+    category,
     serviceType,
     verifiedOnly,
     page: servicesPage,
     total: servicesTotal,
-    viewMode,
+    viewMode: servicesViewMode,
     setSearchQuery: setServicesSearch,
     setCategory: setServiceCategory,
-    setServiceType,
+    setServiceType: setServiceTypeFilter,
     setVerifiedOnly,
     setPage: setServicesPage,
-    setViewMode,
+    setViewMode: setServicesViewMode,
   } = useServiceFilter({ defaultLimit: 12 });
 
   const loading = activeTab === 'residents' ? residentsLoading : servicesLoading;
@@ -211,7 +201,11 @@ export default function DirectoryPage() {
             <p className="text-gray-500">Loading services...</p>
           </div>
         ) : (
-          <ServicesGrid services={services} viewMode={viewMode} onInquiry={handleServiceInquiry} />
+          <ServicesGrid
+            services={services}
+            viewMode={servicesViewMode}
+            onInquiry={handleServiceInquiry}
+          />
         )}
 
         {servicesTotal > limit && (
