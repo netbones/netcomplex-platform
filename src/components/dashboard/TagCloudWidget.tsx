@@ -4,11 +4,23 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApiToast } from '@/hooks/useApiToast';
 
+/*
+ * TAG CLOUD WIDGET
+ * ---------------
+ * Used by: SidebarWidgetBox (type: 'tag-cloud')
+ *
+ * Displays content tags with size based on frequency.
+ * - If authorId provided: filters tags by that user's content
+ * - If no authorId: shows all site content tags (general tag cloud)
+ * ---------------
+ */
+
 interface TagCloudWidgetProps {
   widgetId: string;
+  authorId?: string;
 }
 
-export function TagCloudWidget({ widgetId }: TagCloudWidgetProps) {
+export function TagCloudWidget({ widgetId, authorId }: TagCloudWidgetProps) {
   const { t } = useTranslation('dashboard');
   const { fetch } = useApiToast({ component: 'TagCloudWidget' });
   const [tags, setTags] = useState<{ name: string; size: string; count: number }[]>([]);
@@ -16,7 +28,14 @@ export function TagCloudWidget({ widgetId }: TagCloudWidgetProps) {
 
   useEffect(() => {
     fetchUserTags();
-  }, []);
+  }, [authorId]);
+
+  const buildApiUrl = () => {
+    if (authorId) {
+      return `/api/content?authorId=${authorId}`;
+    }
+    return '/api/content';
+  };
 
   const getTagSize = (count: number): string => {
     if (count >= 10) return 'text-lg';
@@ -27,7 +46,7 @@ export function TagCloudWidget({ widgetId }: TagCloudWidgetProps) {
 
   const fetchUserTags = () => {
     fetch(
-      fetch('/api/content').then(res => res.json()),
+      fetch(buildApiUrl()).then(res => res.json()),
       {
         error: 'Failed to fetch user tags',
         onSuccess: (data: unknown[]) => {

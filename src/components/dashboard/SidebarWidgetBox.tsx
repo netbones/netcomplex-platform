@@ -4,7 +4,26 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { useApiToast } from '@/hooks/useApiToast';
+
+/*
+ * ==========================================
+ * SIDEBAR WIDGETS - Used by SidebarWidgetBox
+ * ==========================================
+ * These widgets are imported and rendered by SidebarWidgetBox.
+ * If you need to modify which widgets are available
+ * in the sidebar, edit AVAILABLE_WIDGETS and renderWidget below.
+ *
+ * Widgets:
+ *   - SocialMediaLinksWidget: User's social media links (requires widgetId)
+ *   - TagCloudWidget: Content tags - fetches by authorId when provided
+ *   - QuickStatsWidget: Quick stats display (no props required)
+ *   - WeatherWidget: Weather display (no props required)
+ * ==========================================
+ */
+import { SocialMediaLinksWidget } from './SocialMediaLinksWidget';
+import { TagCloudWidget } from './TagCloudWidget';
+import { QuickStatsWidget } from './QuickStatsWidget';
+import { WeatherWidget } from './WeatherWidget';
 
 interface SidebarWidget {
   id: string;
@@ -14,239 +33,31 @@ interface SidebarWidget {
   isPublic: boolean;
 }
 
-// Individual widget components
-function SocialMediaLinksWidget({ widgetId }: { widgetId: string }) {
-  const { t } = useTranslation('dashboard');
-  const { data: session } = authClient.useSession();
-  const [socialLinks, setSocialLinks] = useState([
-    { platform: 'Facebook', url: '', icon: 'fab fa-facebook' },
-    { platform: 'Twitter', url: '', icon: 'fab fa-twitter' },
-    { platform: 'Instagram', url: '', icon: 'fab fa-instagram' },
-    { platform: 'LinkedIn', url: '', icon: 'fab fa-linkedin' },
-  ]);
-  const [isEditing, setIsEditing] = useState(false);
-
-  useEffect(() => {
-    // In real implementation, fetch user's social media links
-    // For now, load from localStorage or API
-    const saved = localStorage.getItem(`social-links-${widgetId}`);
-    if (saved) {
-      setSocialLinks(JSON.parse(saved));
-    }
-  }, [widgetId]);
-
-  const updateLink = (platform: string, url: string) => {
-    const updated = socialLinks.map(link => (link.platform === platform ? { ...link, url } : link));
-    setSocialLinks(updated);
-    localStorage.setItem(`social-links-${widgetId}`, JSON.stringify(updated));
-  };
-
-  const visibleLinks = socialLinks.filter(link => link.url.trim());
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-gray-900">{t('socialMedia', 'Social Media')}</h4>
-        <button
-          onClick={() => setIsEditing(!isEditing)}
-          className="text-xs text-indigo-600 hover:text-indigo-800"
-        >
-          <i className={`fas fa-${isEditing ? 'check' : 'edit'}`}></i>
-        </button>
-      </div>
-
-      {isEditing ? (
-        <div className="space-y-2">
-          {socialLinks.map(link => (
-            <div key={link.platform} className="flex items-center gap-2">
-              <i className={`${link.icon} text-gray-500 w-4`}></i>
-              <input
-                type="url"
-                placeholder={`${link.platform} URL`}
-                value={link.url}
-                onChange={e => updateLink(link.platform, e.target.value)}
-                className="flex-1 text-xs px-2 py-1 border border-gray-300 rounded"
-              />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-1">
-          {visibleLinks.length === 0 ? (
-            <p className="text-xs text-gray-500 italic">
-              {t('noSocialLinks', 'No social links added')}
-            </p>
-          ) : (
-            visibleLinks.map(link => (
-              <a
-                key={link.platform}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-xs text-gray-600 hover:text-indigo-600 transition-colors"
-              >
-                <i className={link.icon}></i>
-                <span>{link.platform}</span>
-              </a>
-            ))
-          )}
-        </div>
-      )}
-    </div>
-  );
+interface AvailableWidget {
+  id: string;
+  type: string;
+  title: string;
+  icon: string;
 }
 
-function TagCloudWidget({ widgetId }: { widgetId: string }) {
-  const { t } = useTranslation('dashboard');
-  const { data: session } = authClient.useSession();
-  const [tags, setTags] = useState<{ name: string; size: string; count: number }[]>([]);
-  const [loading, setLoading] = useState(true);
+const AVAILABLE_WIDGETS: AvailableWidget[] = [
+  { id: 'social-media', type: 'social-media', title: 'Social Media', icon: 'fab fa-share-alt' },
+  { id: 'tag-cloud', type: 'tag-cloud', title: 'Tag Cloud', icon: 'fas fa-tags' },
+  { id: 'quick-stats', type: 'quick-stats', title: 'Quick Stats', icon: 'fas fa-chart-bar' },
+  { id: 'weather', type: 'weather', title: 'Weather', icon: 'fas fa-sun' },
+];
 
-  useEffect(() => {
-    if (session?.user?.id) {
-      fetchUserTags();
-    }
-  }, [session?.user?.id]);
-
-  const fetchUserTags = async () => {
-    try {
-      // Fetch user's content and extract tags
-      const response = await fetch('/api/content?authorId=' + session?.user?.id);
-      if (response.ok) {
-        const content = await response.json();
-        const tagCounts: { [key: string]: number } = {};
-
-        // Count tag occurrences across all user content
-        content.forEach((item: any) => {
-          if (item.tags && Array.isArray(item.tags)) {
-            item.tags.forEach((tag: string) => {
-              tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-            });
-          }
-        });
-
-        // Convert to tag objects with size classes based on frequency
-        const tagArray = Object.entries(tagCounts)
-          .map(([name, count]) => ({
-            name,
-            count,
-            size: getTagSize(count),
-          }))
-          .sort((a, b) => b.count - a.count) // Sort by frequency
-          .slice(0, 10); // Limit to top 10 tags
-
-        setTags(tagArray);
-      }
-    } catch (error) {
-      toast.error('Failed to fetch user tags');
-      setTags([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getTagSize = (count: number): string => {
-    if (count >= 10) return 'text-lg';
-    if (count >= 5) return 'text-base';
-    if (count >= 3) return 'text-sm';
-    return 'text-xs';
-  };
-
-  if (loading) {
-    return (
-      <div className="space-y-2">
-        <h4 className="text-sm font-medium text-gray-900">{t('tagCloud', 'Tag Cloud')}</h4>
-        <div className="animate-pulse flex flex-wrap gap-1">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-4 bg-gray-200 rounded w-12"></div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-900">{t('tagCloud', 'Tag Cloud')}</h4>
-      {tags.length === 0 ? (
-        <p className="text-xs text-gray-500 italic">{t('noTags', 'No tags found')}</p>
-      ) : (
-        <div className="flex flex-wrap gap-1">
-          {tags.map(tag => (
-            <span
-              key={tag.name}
-              className={`${tag.size} text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors`}
-              title={`${tag.count} items`}
-            >
-              #{tag.name}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function QuickStatsWidget() {
-  const { t } = useTranslation('dashboard');
-
-  // Mock stats - in real implementation, this would come from user data
-  const stats = [
-    { label: 'Posts', value: '24', icon: 'fas fa-file-alt' },
-    { label: 'Events', value: '8', icon: 'fas fa-calendar' },
-    { label: 'Connections', value: '156', icon: 'fas fa-users' },
-  ];
-
-  return (
-    <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-900">{t('quickStats', 'Quick Stats')}</h4>
-      <div className="space-y-2">
-        {stats.map(stat => (
-          <div key={stat.label} className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <i className={`${stat.icon} text-indigo-600 text-xs`}></i>
-              <span className="text-xs text-gray-600">{stat.label}</span>
-            </div>
-            <span className="text-sm font-medium text-gray-900">{stat.value}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function WeatherWidget() {
-  const { t } = useTranslation('dashboard');
-
-  // Mock weather data - in real implementation, this would come from a weather API
-  const weather = {
-    temperature: 72,
-    condition: 'Sunny',
-    location: 'Soralia Village',
-    icon: 'fas fa-sun',
-  };
-
-  return (
-    <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-900">{t('weather', 'Weather')}</h4>
-      <div className="flex items-center gap-2">
-        <i className={`${weather.icon} text-yellow-500 text-lg`}></i>
-        <div>
-          <div className="text-sm font-medium text-gray-900">{weather.temperature}°F</div>
-          <div className="text-xs text-gray-600">{weather.condition}</div>
-        </div>
-      </div>
-      <div className="text-xs text-gray-500">{weather.location}</div>
-    </div>
-  );
-}
-
-function renderWidget(type: string, widgetId: string) {
+/*
+ * SIDEBAR WIDGETS - These are the only widgets SidebarWidgetBox renders.
+ * See import section above for full documentation.
+ */
+function renderWidget(type: string, widgetId: string, authorId: string) {
   switch (type) {
     case 'social-media':
       return <SocialMediaLinksWidget widgetId={widgetId} />;
     case 'tag-cloud':
-      return <TagCloudWidget widgetId={widgetId} />;
+      // TagCloudWidget: If authorId provided, filters by author; otherwise shows all site content
+      return <TagCloudWidget widgetId={widgetId} authorId={authorId} />;
     case 'quick-stats':
       return <QuickStatsWidget />;
     case 'weather':
@@ -264,12 +75,6 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
   const [widgets, setWidgets] = useState<SidebarWidget[]>([]);
-  const [availableWidgets] = useState([
-    { id: 'social-media', type: 'social-media', title: 'Social Media', icon: 'fab fa-share-alt' },
-    { id: 'tag-cloud', type: 'tag-cloud', title: 'Tag Cloud', icon: 'fas fa-tags' },
-    { id: 'quick-stats', type: 'quick-stats', title: 'Quick Stats', icon: 'fas fa-chart-bar' },
-    { id: 'weather', type: 'weather', title: 'Weather', icon: 'fas fa-sun' },
-  ]);
   const [isAddingWidget, setIsAddingWidget] = useState(false);
 
   useEffect(() => {
@@ -280,8 +85,6 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
 
   const loadUserWidgets = async () => {
     try {
-      // In real implementation, fetch from API
-      // For now, load default widgets
       const defaultWidgets: SidebarWidget[] = [
         {
           id: 'social-media',
@@ -294,12 +97,12 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
       ];
       setWidgets(defaultWidgets);
     } catch (error) {
-      toast.error('Failed to load sidebar widgets');
+      console.error('Failed to load sidebar widgets');
     }
   };
 
   const addWidget = (widgetType: string) => {
-    const availableWidget = availableWidgets.find(w => w.type === widgetType);
+    const availableWidget = AVAILABLE_WIDGETS.find(w => w.type === widgetType);
     if (!availableWidget || widgets.length >= maxWidgets) return;
 
     const newWidget: SidebarWidget = {
@@ -307,7 +110,7 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
       type: widgetType,
       title: availableWidget.title,
       isVisible: true,
-      isPublic: false, // Default to private
+      isPublic: false,
     };
 
     setWidgets([...widgets, newWidget]);
@@ -354,9 +157,8 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
               {t('availableWidgets', 'Available Widgets')}
             </h4>
             <div className="space-y-1">
-              {availableWidgets
-                .filter(aw => !widgets.some(w => w.type === aw.type))
-                .map(widget => (
+              {AVAILABLE_WIDGETS.filter(aw => !widgets.some(w => w.type === aw.type)).map(
+                widget => (
                   <button
                     key={widget.id}
                     onClick={() => addWidget(widget.type)}
@@ -365,7 +167,8 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
                     <i className={`${widget.icon} text-indigo-600 w-4`}></i>
                     <span className="text-sm">{widget.title}</span>
                   </button>
-                ))}
+                )
+              )}
             </div>
           </div>
         )}
@@ -394,7 +197,7 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
                     <i className="fas fa-times"></i>
                   </button>
                 </div>
-                {renderWidget(widget.type, widget.id)}
+                {renderWidget(widget.type, widget.id, session?.user?.id || '')}
               </div>
             ))}
         </div>

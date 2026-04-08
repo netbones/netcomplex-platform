@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import {
   db,
   tenants,
@@ -816,24 +817,22 @@ async function seed() {
     {
       id: 'album-1',
       tenantId: SORALIA_TENANT_ID,
-      name: 'Soralia Village Gardens',
+      userId: 'user-john-smith',
+      title: 'Soralia Village Gardens',
       description: 'Beautiful photos of our community gardens',
-      coverImage:
-        'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
-      ownerId: 'user-john-smith',
       isPublic: true,
+      mediaIds: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     },
     {
       id: 'album-2',
       tenantId: SORALIA_TENANT_ID,
-      name: 'Community Events',
+      userId: 'user-sarah-mitchell',
+      title: 'Community Events',
       description: 'Photos from our community gatherings',
-      coverImage:
-        'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400&h=300&fit=crop',
-      ownerId: 'user-sarah-mitchell',
       isPublic: true,
+      mediaIds: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     },
