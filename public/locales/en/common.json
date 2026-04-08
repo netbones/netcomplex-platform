@@ -78,7 +78,7 @@
     "allStreets": "All Streets",
     "nameAZ": "Name (A-Z)",
     "nameZA": "Name (Z-A)",
-    "showingResidents": "{{#total}}Showing {{count}} of {{total}} residents{{/total}}{{^total}}Showing {{count}} residents{{/total}}",
+    "showingResidents": "Showing {{count}} of {{total}} residents",
     "loading": "Loading...",
     "view": "View",
     "previous": "Previous",

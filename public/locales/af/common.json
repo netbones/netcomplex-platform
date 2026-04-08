@@ -78,7 +78,7 @@
     "allStreets": "Alle Strate",
     "nameAZ": "Naam (A-Z)",
     "nameZA": "Naam (Z-A)",
-    "showingResidents": "{{#total}}Wys {{count}} van {{total}} bewoners{{/total}}{{^total}}Wys {{count}} bewoners{{/total}}",
+    "showingResidents": "Wys {{count}} van {{total}} bewoners",
     "loading": "Laai tans...",
     "view": "Bekyk",
     "previous": "Vorige",
