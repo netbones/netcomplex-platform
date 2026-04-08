@@ -13,6 +13,9 @@ import {
   conversations,
   messages,
   conversationParticipants,
+  contents,
+  communityServiceListings,
+  albums,
 } from '../src/lib/db';
 import { eq, sql } from 'drizzle-orm';
 
@@ -554,6 +557,293 @@ async function seed() {
   }
   console.log(`Created ${testAnnouncements.length} announcements`);
 
+  // ========== CONTENTS (CMS) ==========
+  console.log('Creating contents...');
+  const testContents = [
+    {
+      id: 'content-1',
+      tenantId: SORALIA_TENANT_ID,
+      title: {
+        en: 'Welcome to Soralia Village',
+        af: 'Welkom by Soralia Village',
+        xh: 'Wamkela kuSoralia Village',
+        zu: 'Siyakwamkela eSoralia Village',
+      },
+      content: {
+        en: 'Welcome to our beautiful community in Cape Town. Soralia Village is a premier residential community with 180 homes, beautiful gardens, and a strong sense of community.',
+        af: "Welkom by ons pragtige gemeenskap in Kaapstad. Soralia Village is 'n premier residensiële gemeenskap met 180 huise, pragtige tuine en 'n sterk gemeenskapsgevoel.",
+      },
+      excerpt: {
+        en: 'Welcome to our beautiful community in Cape Town.',
+        af: 'Welkom by ons pragtige gemeenskap in Kaapstad.',
+      },
+      category: 'NEWS' as const,
+      published: true,
+      featured: true,
+      priority: 'high' as const,
+      defaultLocale: 'en',
+      contentType: 'article' as const,
+      authorId: 'user-david-vdm',
+      tags: ['welcome', 'community'],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      publishedAt: new Date(),
+    },
+    {
+      id: 'content-2',
+      tenantId: SORALIA_TENANT_ID,
+      title: {
+        en: 'Community Garden Project',
+        af: 'Gemeenskapstuinprojek',
+        xh: 'Iprojekti ye-Garden yeLuntu',
+        zu: 'Iprojekti yegadi likommidi',
+      },
+      content: {
+        en: 'Join our community garden initiative! We are creating a beautiful shared garden space where residents can grow vegetables, flowers, and connect with nature. Volunteers welcome.',
+        af: "Sluit aan by ons gemeenskapstuin-inisiatief! Ons skep 'n pragtige gedeelde tuinruim waar inwoners groente, blomme kan kweek en met die natuur verbind. Vrywilligers is welkom.",
+      },
+      excerpt: {
+        en: 'Join our community garden initiative!',
+        af: 'Sluit aan by ons gemeenskapstuin-inisiatief!',
+      },
+      category: 'ANNOUNCEMENT' as const,
+      published: true,
+      featured: true,
+      priority: 'normal' as const,
+      defaultLocale: 'en',
+      contentType: 'article' as const,
+      authorId: 'user-sarah-mitchell',
+      tags: ['garden', 'volunteering', 'conservation'],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      publishedAt: new Date(),
+    },
+    {
+      id: 'content-3',
+      tenantId: SORALIA_TENANT_ID,
+      title: {
+        en: 'Upcoming Community Events',
+        af: 'Kommende Gemeenskapsgeleenthede',
+        xh: 'Iziganeku ezizezelayo zeLuntu',
+        zu: 'Imibhida yeqembu elizayo',
+      },
+      content: {
+        en: 'Mark your calendars! Our community has exciting events coming up including the annual braai, garden tour, and safety meeting. Check the events page for more details.',
+        af: 'Merk jou kalender! Ons gemeenskap het opwindende geleenthede wat kom insluit die jaarlikse braai, tuin-tour en veiligheidsvergadering. Kyk die geleenthede-bladsy vir meer besonderhede.',
+      },
+      excerpt: {
+        en: 'Mark your calendars for upcoming community events!',
+        af: 'Merk jou kalender vir komende gemeenskapsgeleenthede!',
+      },
+      category: 'EVENT' as const,
+      published: true,
+      featured: false,
+      priority: 'high' as const,
+      defaultLocale: 'en',
+      contentType: 'article' as const,
+      authorId: 'user-david-vdm',
+      tags: ['events', 'community'],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      publishedAt: new Date(),
+    },
+    {
+      id: 'content-4',
+      tenantId: SORALIA_TENANT_ID,
+      title: {
+        en: 'Conservation Efforts at Soralia',
+        af: 'Bewarings pogings by Soralia',
+        xh: 'Imisebenzi yokugcinwa eSoralia',
+        zu: 'Imizamo yokugcina eSoralia',
+      },
+      content: {
+        en: 'Soralia Village is committed to environmental conservation. Learn about our efforts to protect local wildlife, reduce water usage, and maintain our beautiful natural surroundings.',
+        af: 'Soralia Village is toegewyd aan omgewingsbewaring. Leer oor ons pogings om plaaslike wildbeskerming te beskerm, watergebruik te verminder en ons pragtige natuurlike omgewing te handhaaf.',
+      },
+      excerpt: {
+        en: 'Learn about our conservation efforts.',
+        af: 'Leer oor ons bewaring pogings.',
+      },
+      category: 'BLOG' as const,
+      published: true,
+      featured: true,
+      priority: 'normal' as const,
+      defaultLocale: 'en',
+      contentType: 'article' as const,
+      authorId: 'user-sarah-mitchell',
+      tags: ['conservation', 'environment', 'wildlife'],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      publishedAt: new Date(),
+    },
+  ];
+
+  for (const content of testContents) {
+    await db.insert(contents).values(content).onConflictDoNothing();
+  }
+  console.log(`Created ${testContents.length} contents`);
+
+  // ========== COMMUNITY SERVICE LISTINGS ==========
+  console.log('Creating community service listings...');
+  const testServices = [
+    {
+      id: 'service-1',
+      tenantId: SORALIA_TENANT_ID,
+      providerId: 'user-john-smith',
+      title: 'Garden Maintenance & Landscaping',
+      description:
+        'Professional garden maintenance including lawn mowing, trimming, weeding, and seasonal planting. 15 years experience in Cape Town gardens. References available.',
+      category: 'GARDENING' as const,
+      priceType: 'HOURLY' as const,
+      price: '180',
+      currency: 'ZAR',
+      serviceAreas: ['Soralia Village', 'Muizenberg', 'St James'],
+      availability: { weekdays: true, weekends: true, evenings: false },
+      images: [
+        'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
+        'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&h=300&fit=crop',
+        'https://images.unsplash.com/photo-1558904541-0143af7f5948?w=400&h=300&fit=crop',
+      ],
+      portfolio: [],
+      verified: true,
+      rating: 4.8,
+      reviewCount: 12,
+      status: 'ACTIVE' as const,
+      isPublished: true,
+      isFeatured: true,
+      contactMethods: ['email', 'phone', 'whatsapp'],
+      responseTime: 24,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'service-2',
+      tenantId: SORALIA_TENANT_ID,
+      providerId: 'user-marcus-johnson',
+      title: 'Professional Cleaning Services',
+      description:
+        'Reliable and thorough cleaning services for homes and offices. Weekly, bi-weekly, and monthly packages available. Eco-friendly products used.',
+      category: 'CLEANING' as const,
+      priceType: 'HOURLY' as const,
+      price: '150',
+      currency: 'ZAR',
+      serviceAreas: ['Soralia Village', 'Muizenberg', 'Cape Town'],
+      availability: { weekdays: true, weekends: true, evenings: false },
+      images: [
+        'https://images.unsplash.com/photo-1581578731117-104f2a41272c?w=400&h=300&fit=crop',
+        'https://images.unsplash.com/photo-1527515545081-5db817172677?w=400&h=300&fit=crop',
+      ],
+      portfolio: [],
+      verified: true,
+      rating: 4.6,
+      reviewCount: 8,
+      status: 'ACTIVE' as const,
+      isPublished: true,
+      isFeatured: false,
+      contactMethods: ['email', 'phone'],
+      responseTime: 24,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'service-3',
+      tenantId: SORALIA_TENANT_ID,
+      providerId: 'user-michael-chen',
+      title: 'Home Maintenance & Repairs',
+      description:
+        'General home maintenance including minor repairs, painting, carpentry, and plumbing fixes. Available for emergency callouts.',
+      category: 'MAINTENANCE' as const,
+      priceType: 'HOURLY' as const,
+      price: '200',
+      currency: 'ZAR',
+      serviceAreas: ['Soralia Village', 'Muizenberg'],
+      availability: { weekdays: true, weekends: true, evenings: true },
+      images: [
+        'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop',
+        'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=400&h=300&fit=crop',
+      ],
+      portfolio: [],
+      verified: false,
+      rating: 4.5,
+      reviewCount: 5,
+      status: 'ACTIVE' as const,
+      isPublished: true,
+      isFeatured: false,
+      contactMethods: ['email', 'phone', 'whatsapp'],
+      responseTime: 48,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'service-4',
+      tenantId: SORALIA_TENANT_ID,
+      providerId: 'user-emma-williams',
+      title: 'Professional Pet Care & Walking',
+      description:
+        'Loving pet care services including dog walking, pet sitting, and feeding. Available for both short and long-term care.',
+      category: 'OTHER' as const,
+      priceType: 'HOURLY' as const,
+      price: '80',
+      currency: 'ZAR',
+      serviceAreas: ['Soralia Village'],
+      availability: { weekdays: true, weekends: true, evenings: true },
+      images: [
+        'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=300&fit=crop',
+        'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=300&fit=crop',
+      ],
+      portfolio: [],
+      verified: true,
+      rating: 4.9,
+      reviewCount: 15,
+      status: 'ACTIVE' as const,
+      isPublished: true,
+      isFeatured: true,
+      contactMethods: ['phone', 'whatsapp'],
+      responseTime: 12,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
+  for (const service of testServices) {
+    await db.insert(communityServiceListings).values(service).onConflictDoNothing();
+  }
+  console.log(`Created ${testServices.length} community service listings`);
+
+  // ========== ALBUMS ==========
+  console.log('Creating albums...');
+  const testAlbums = [
+    {
+      id: 'album-1',
+      tenantId: SORALIA_TENANT_ID,
+      name: 'Soralia Village Gardens',
+      description: 'Beautiful photos of our community gardens',
+      coverImage:
+        'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop',
+      ownerId: 'user-john-smith',
+      isPublic: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'album-2',
+      tenantId: SORALIA_TENANT_ID,
+      name: 'Community Events',
+      description: 'Photos from our community gatherings',
+      coverImage:
+        'https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=400&h=300&fit=crop',
+      ownerId: 'user-sarah-mitchell',
+      isPublic: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
+  for (const album of testAlbums) {
+    await db.insert(albums).values(album).onConflictDoNothing();
+  }
+  console.log(`Created ${testAlbums.length} albums`);
+
   // ========== VERIFY ==========
   console.log('\n--- Verification ---');
   const userCount = await db
@@ -576,12 +866,27 @@ async function seed() {
     .select({ count: sql<number>`count(*)` })
     .from(announcements)
     .where(eq(announcements.tenantId, SORALIA_TENANT_ID));
+  const contentCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(contents)
+    .where(eq(contents.tenantId, SORALIA_TENANT_ID));
+  const serviceCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(communityServiceListings)
+    .where(eq(communityServiceListings.tenantId, SORALIA_TENANT_ID));
+  const albumCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(albums)
+    .where(eq(albums.tenantId, SORALIA_TENANT_ID));
 
   console.log(`Users: ${userCount[0].count}`);
   console.log(`Households: ${hhCount[0].count}`);
   console.log(`Groups: ${groupCount[0].count}`);
   console.log(`Events: ${eventCount[0].count}`);
   console.log(`Announcements: ${announceCount[0].count}`);
+  console.log(`Contents: ${contentCount[0].count}`);
+  console.log(`Service Listings: ${serviceCount[0].count}`);
+  console.log(`Albums: ${albumCount[0].count}`);
   console.log('\n✅ Seeding complete!');
 }
 
