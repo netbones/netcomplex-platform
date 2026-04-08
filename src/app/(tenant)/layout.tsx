@@ -1,7 +1,5 @@
 import '../globals.css';
 import { Providers } from '../providers';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { Toaster } from 'sonner';
@@ -62,11 +60,7 @@ export default async function TenantLayout({ children }: { children: React.React
         <Providers>
           <TenantProvider tenant={tenant}>
             <Toaster position="top-right" />
-            <Suspense fallback={null}>
-              <Header />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-            </Suspense>
+            <Suspense fallback={null}>{children}</Suspense>
           </TenantProvider>
         </Providers>
       </body>

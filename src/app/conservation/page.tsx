@@ -16,9 +16,9 @@ async function getContent() {
 
 type ContentItem = {
   id: string;
-  title: string;
-  content: string;
-  excerpt?: string;
+  title: Record<string, string>;
+  content: Record<string, string>;
+  excerpt?: Record<string, string>;
   image?: string;
   category: string;
   tags: string[];
@@ -32,9 +32,14 @@ type ContentItem = {
 
 export default function ConservationPage() {
   const { t: tCommon } = useTranslation('common');
-  const { t } = useTranslation('conservation');
+  const { t, i18n } = useTranslation('conservation');
   const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const getLocalizedContent = (field: Record<string, string> | null | undefined): string => {
+    if (!field) return '';
+    return field[i18n.language] || field.en || '';
+  };
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
@@ -180,8 +185,10 @@ export default function ConservationPage() {
                       : ''}
                   </span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{article.title}</h3>
-                <p className="text-gray-700 mb-4">{article.content}</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  {getLocalizedContent(article.title)}
+                </h3>
+                <p className="text-gray-700 mb-4">{getLocalizedContent(article.content)}</p>
                 <div className="flex items-center text-green-600 font-medium">
                   <i className="fas fa-user mr-2"></i>
                   <span>{article.author?.name}</span>

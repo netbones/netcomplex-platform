@@ -1,5 +1,7 @@
 import './globals.css';
 import { Providers } from './providers';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { Toaster } from 'sonner';
@@ -21,7 +23,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="bg-soralia-light min-h-screen flex flex-col">
         <Providers>
           <Toaster position="top-right" />
-          <Suspense fallback={null}>{children}</Suspense>
+          <Suspense fallback={null}>
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </Suspense>
         </Providers>
       </body>
     </html>
