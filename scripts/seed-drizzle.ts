@@ -342,12 +342,114 @@ async function seed() {
       createdAt: new Date(),
       updatedAt: new Date(),
     },
+    {
+      id: 'seat-emma-williams-002',
+      tenantId: SORALIA_TENANT_ID,
+      userId: 'user-emma-williams',
+      householdId: 'household-002',
+      isPrimaryOwner: false,
+      platformAddress: 'unit008@soralia.org',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'seat-anna-patel-003',
+      tenantId: SORALIA_TENANT_ID,
+      userId: 'user-anna-patel',
+      householdId: 'household-003',
+      isPrimaryOwner: false,
+      platformAddress: 'unit003@soralia.org',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'seat-marcus-johnson-004',
+      tenantId: SORALIA_TENANT_ID,
+      userId: 'user-marcus-johnson',
+      householdId: 'household-004',
+      isPrimaryOwner: false,
+      platformAddress: 'unit005@soralia.org',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'seat-lisa-chen-001',
+      tenantId: SORALIA_TENANT_ID,
+      userId: 'user-lisa-chen',
+      householdId: 'household-001',
+      isPrimaryOwner: false,
+      platformAddress: 'unit012@soralia.org',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
   ];
 
   for (const seat of testStandardSeats) {
     await db.insert(standardSeats).values(seat).onConflictDoNothing();
   }
   console.log(`Created ${testStandardSeats.length} standard seats`);
+
+  // ========== PROFILES (Renters) ==========
+  console.log('Creating profiles...');
+  const testProfiles = [
+    {
+      id: 'profile-emma-williams',
+      tenantId: SORALIA_TENANT_ID,
+      householdId: 'household-002',
+      displayName: 'Emma Williams',
+      profileAddress: 'unit008@soralia.org',
+      userId: 'user-emma-williams',
+      occupantType: 'OCCUPANT' as const,
+      status: 'ACTIVE' as const,
+      residencyType: 'RENTER' as const,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'profile-anna-patel',
+      tenantId: SORALIA_TENANT_ID,
+      householdId: 'household-003',
+      displayName: 'Anna Patel',
+      profileAddress: 'unit003@soralia.org',
+      userId: 'user-anna-patel',
+      occupantType: 'OCCUPANT' as const,
+      status: 'ACTIVE' as const,
+      residencyType: 'RENTER' as const,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'profile-marcus-johnson',
+      tenantId: SORALIA_TENANT_ID,
+      householdId: 'household-004',
+      displayName: 'Marcus Johnson',
+      profileAddress: 'unit005@soralia.org',
+      userId: 'user-marcus-johnson',
+      occupantType: 'OCCUPANT' as const,
+      status: 'ACTIVE' as const,
+      residencyType: 'RENTER' as const,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'profile-lisa-chen',
+      tenantId: SORALIA_TENANT_ID,
+      householdId: 'household-001',
+      displayName: 'Lisa Chen',
+      profileAddress: 'unit012@soralia.org',
+      userId: 'user-lisa-chen',
+      occupantType: 'OCCUPANT' as const,
+      status: 'ACTIVE' as const,
+      residencyType: 'RENTER' as const,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
+  for (const profile of testProfiles) {
+    await db.insert(profiles).values(profile).onConflictDoNothing();
+  }
+  console.log(`Created ${testProfiles.length} profiles`);
 
   // ========== GROUPS ==========
   console.log('Creating groups...');
