@@ -1,28 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DirectoryGrid } from '@/components/directory';
 import { ServicesGrid } from '@/components/services';
-import { type Resident } from '@/components/shared';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
-import { STREETS } from '@/lib/constants';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { ServiceListing } from '@/components/services/ServiceCard';
+import { useResidentFilter } from '@/hooks/useResidentFilter';
 
 export default function DirectoryPage() {
   const { t } = useTranslation(['common', 'directory']);
   const [activeTab, setActiveTab] = useState<'residents' | 'services'>('residents');
 
-  // Residents state
-  const [residents, setResidents] = useState<Resident[]>([]);
-  const [residentsLoading, setResidentsLoading] = useState(false);
-  const [residentsSearch, setResidentsSearch] = useState('');
-  const [residentsPage, setResidentsPage] = useState(1);
-  const [residentsTotal, setResidentsTotal] = useState(0);
-  const [filterType, setFilterType] = useState('All Residents');
-  const [filterStreet, setFilterStreet] = useState('All Streets');
+  // Use hook for residents (same filters as home page)
+  const {
+    residents,
+    loading: residentsLoading,
+    searchQuery: residentsSearch,
+    filterType,
+    filterStreet,
+    page: residentsPage,
+    total: residentsTotal,
+    viewMode,
+    setSearchQuery: setResidentsSearch,
+    setFilterType,
+    setFilterStreet,
+    setPage: setResidentsPage,
+    setViewMode,
+    filteredCount: residentsFilteredCount,
+  } = useResidentFilter({ defaultLimit: 12 });
 
   // Services state
   const [services, setServices] = useState<ServiceListing[]>([]);
@@ -34,8 +42,24 @@ export default function DirectoryPage() {
   const [serviceType, setServiceType] = useState('ALL');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
 
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const limit = 12; // Increased for services
+  // Use hook for services
+  const {
+    services,
+    loading: servicesLoading,
+    searchQuery: servicesSearch,
+    category: serviceCategory,
+    serviceType,
+    verifiedOnly,
+    page: servicesPage,
+    total: servicesTotal,
+    viewMode,
+    setSearchQuery: setServicesSearch,
+    setCategory: setServiceCategory,
+    setServiceType,
+    setVerifiedOnly,
+    setPage: setServicesPage,
+    setViewMode,
+  } = useServiceFilter({ defaultLimit: 12 });
 
   const loading = activeTab === 'residents' ? residentsLoading : servicesLoading;
 
@@ -46,83 +70,6 @@ export default function DirectoryPage() {
     ],
     { additionalLoading: loading }
   );
-
-  // Fetch residents
-  useEffect(() => {
-    if (activeTab !== 'residents') return;
-
-    async function fetchResidents() {
-      try {
-        setResidentsLoading(true);
-        const params = new URLSearchParams();
-        if (residentsSearch) params.set('search', residentsSearch);
-        if (filterStreet !== 'All Streets') params.set('street', filterStreet);
-        params.set('page', String(residentsPage));
-        params.set('limit', String(limit));
-
-        if (filterType !== 'All Residents') {
-          const filterValue = filterType.replace(' Members', '').replace('s', '');
-          if (filterValue === 'Board') {
-            params.set('role', 'BOARD');
-          } else if (filterValue === 'Committee') {
-            params.set('role', 'COMMITTEE');
-          } else if (filterValue === 'Owner') {
-            params.set('residentType', 'OWNER');
-          } else if (filterValue === 'Renter') {
-            params.set('residentType', 'RENTER');
-          }
-        }
-
-        const res = await fetch(`/api/users?${params}`);
-        const data = await res.json();
-        if (data.users) {
-          setResidents(data.users);
-          setResidentsTotal(data.total || 0);
-        } else if (Array.isArray(data)) {
-          setResidents(data);
-          setResidentsTotal(data.length);
-        } else {
-          setResidents([]);
-        }
-      } catch (error) {
-        console.error('Failed to fetch residents:', error);
-      } finally {
-        setResidentsLoading(false);
-      }
-    }
-
-    const debounce = setTimeout(fetchResidents, residentsSearch ? 300 : 0);
-    return () => clearTimeout(debounce);
-  }, [activeTab, residentsSearch, filterStreet, filterType, residentsPage]);
-
-  // Fetch services
-  useEffect(() => {
-    if (activeTab !== 'services') return;
-
-    async function fetchServices() {
-      try {
-        setServicesLoading(true);
-        const params = new URLSearchParams();
-        if (servicesSearch) params.set('search', servicesSearch);
-        if (serviceCategory !== 'ALL') params.set('category', serviceCategory);
-        if (verifiedOnly) params.set('verified', 'true');
-        params.set('page', String(servicesPage));
-        params.set('limit', String(limit));
-
-        const res = await fetch(`/api/community-services/listings?${params}`);
-        const data = await res.json();
-        setServices(data.listings || []);
-        setServicesTotal(data.pagination?.total || 0);
-      } catch (error) {
-        console.error('Failed to fetch services:', error);
-      } finally {
-        setServicesLoading(false);
-      }
-    }
-
-    const debounce = setTimeout(fetchServices, servicesSearch ? 300 : 0);
-    return () => clearTimeout(debounce);
-  }, [activeTab, servicesSearch, serviceCategory, verifiedOnly, servicesPage]);
 
   if (!isReady) {
     return LoadingComponent;
