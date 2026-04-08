@@ -1,7 +1,7 @@
 import { db, contents, users, groups } from '@/lib/db';
 import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@/lib/i18n';
+import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@/lib/i18n-config';
 import { revalidateContent } from '@/lib/revalidation';
 import { withTenant } from '@/lib/tenant/with-tenant';
 

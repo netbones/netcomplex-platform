@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 import { ContentCategoryEnum, type ContentCategory } from '@/types/enums';
 import { revalidateContent } from '@/lib/revalidation';
 import { withTenant } from '@/lib/tenant/with-tenant';
-import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@/lib/i18n';
+import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@/lib/i18n-config';
 
 /**
  * Retrieves session and role from the request for API routes.
