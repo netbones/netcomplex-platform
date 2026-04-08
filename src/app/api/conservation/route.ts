@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
 import { db, contents, users } from '@/lib/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { withTenantOptional } from '@/lib/tenant/with-tenant';
 import { logError } from '@/lib/logging';
 
 export async function GET() {
   try {
-    const { tenantId } = await withTenant();
+    // Use optional tenant - fallback to default for public access
+    let { tenantId } = await withTenantOptional();
+    if (!tenantId) {
+      tenantId = 'soralia'; // Default tenant for public pages
+    }
 
     const contentList = await db
       .select({
