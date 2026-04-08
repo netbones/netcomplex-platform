@@ -17,6 +17,9 @@ import {
   contents,
   communityServiceListings,
   albums,
+  standardSeats,
+  soloSeats,
+  profiles,
 } from '../src/lib/db';
 import { eq, sql } from 'drizzle-orm';
 
@@ -285,6 +288,66 @@ async function seed() {
     await db.insert(households).values(hh).onConflictDoNothing();
   }
   console.log(`Created ${testHouseholds.length} households`);
+
+  // ========== STANDARD SEATS (User-Household links for owners) ==========
+  console.log('Creating standard seats...');
+  const testStandardSeats = [
+    {
+      id: 'seat-john-smith-001',
+      tenantId: SORALIA_TENANT_ID,
+      userId: 'user-john-smith',
+      householdId: 'household-001',
+      isPrimaryOwner: true,
+      platformAddress: 'unit012@soralia.org',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'seat-sarah-mitchell-002',
+      tenantId: SORALIA_TENANT_ID,
+      userId: 'user-sarah-mitchell',
+      householdId: 'household-002',
+      isPrimaryOwner: true,
+      platformAddress: 'unit008@soralia.org',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'seat-michael-chen-003',
+      tenantId: SORALIA_TENANT_ID,
+      userId: 'user-michael-chen',
+      householdId: 'household-003',
+      isPrimaryOwner: true,
+      platformAddress: 'unit003@soralia.org',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'seat-robert-wilson-004',
+      tenantId: SORALIA_TENANT_ID,
+      userId: 'user-robert-wilson',
+      householdId: 'household-004',
+      isPrimaryOwner: true,
+      platformAddress: 'unit005@soralia.org',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    {
+      id: 'seat-david-vdm-001',
+      tenantId: SORALIA_TENANT_ID,
+      userId: 'user-david-vdm',
+      householdId: 'household-001',
+      isPrimaryOwner: false,
+      platformAddress: 'unit012@soralia.org',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  ];
+
+  for (const seat of testStandardSeats) {
+    await db.insert(standardSeats).values(seat).onConflictDoNothing();
+  }
+  console.log(`Created ${testStandardSeats.length} standard seats`);
 
   // ========== GROUPS ==========
   console.log('Creating groups...');

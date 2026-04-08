@@ -43,6 +43,9 @@ async function getSessionAndRole(request: Request) {
  * @query limit - Items per page (max 50)
  */
 export async function GET(request: Request) {
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
   const authData = await getSessionAndRole(request);
   const isAuthenticated = authData !== null;
   const canViewAll = isAuthenticated && hasPermission(authData.role, 'directory');
@@ -56,8 +59,8 @@ export async function GET(request: Request) {
   const limit = Math.min(parseInt(searchParams.get('limit') || '6'), 50);
   const skip = (page - 1) * limit;
 
-  // Build base conditions
-  const conditions: any[] = [];
+  // Build base conditions - always filter by tenant
+  const conditions: any[] = [eq(users.tenantId, tenantId)];
 
   if (!canViewAll) {
     conditions.push(eq(users.isPublic, true));
@@ -80,12 +83,12 @@ export async function GET(request: Request) {
     const ownerResults = await db
       .select({ userId: standardSeats.userId })
       .from(standardSeats)
-      .where(eq(standardSeats.isPrimaryOwner, true));
+      .where(and(eq(standardSeats.tenantId, tenantId), eq(standardSeats.isPrimaryOwner, true)));
 
     const soloSeatResults = await db
       .select({ userId: soloSeats.userId })
       .from(soloSeats)
-      .where(sql`${soloSeats.userId} IS NOT NULL`);
+      .where(and(eq(soloSeats.tenantId, tenantId), sql`${soloSeats.userId} IS NOT NULL`));
 
     userIds = [
       ...new Set([
@@ -99,22 +102,29 @@ export async function GET(request: Request) {
       .select({ userId: profiles.userId })
       .from(profiles)
       .where(
-        and(eq(profiles.status, 'ACTIVE' as any), eq(profiles.residencyType, 'RENTER' as any))
+        and(
+          eq(profiles.tenantId, tenantId),
+          eq(profiles.status, 'ACTIVE' as any),
+          eq(profiles.residencyType, 'RENTER' as any)
+        )
       );
     userIds = renterResults.map(r => r.userId).filter((id): id is string => id !== null);
   } else {
     // Default: show all actual residents
-    const ownerResults = await db.select({ userId: standardSeats.userId }).from(standardSeats);
+    const ownerResults = await db
+      .select({ userId: standardSeats.userId })
+      .from(standardSeats)
+      .where(eq(standardSeats.tenantId, tenantId));
 
     const soloSeatResults = await db
       .select({ userId: soloSeats.userId })
       .from(soloSeats)
-      .where(sql`${soloSeats.userId} IS NOT NULL`);
+      .where(and(eq(soloSeats.tenantId, tenantId), sql`${soloSeats.userId} IS NOT NULL`));
 
     const activeProfileResults = await db
       .select({ userId: profiles.userId })
       .from(profiles)
-      .where(eq(profiles.status, 'ACTIVE' as any));
+      .where(and(eq(profiles.tenantId, tenantId), eq(profiles.status, 'ACTIVE' as any)));
 
     userIds = [
       ...new Set([
@@ -176,7 +186,7 @@ export async function GET(request: Request) {
         })
         .from(standardSeats)
         .innerJoin(households, eq(standardSeats.householdId, households.id))
-        .where(eq(standardSeats.userId, user.id))
+        .where(and(eq(standardSeats.tenantId, tenantId), eq(standardSeats.userId, user.id)))
         .limit(1);
 
       // Get soloSeat with household
@@ -192,7 +202,7 @@ export async function GET(request: Request) {
         })
         .from(soloSeats)
         .leftJoin(households, eq(soloSeats.householdId, households.id))
-        .where(eq(soloSeats.userId, user.id))
+        .where(and(eq(soloSeats.tenantId, tenantId), eq(soloSeats.userId, user.id)))
         .limit(1);
 
       // Get active profiles with household and landlord
@@ -217,7 +227,13 @@ export async function GET(request: Request) {
         .from(profiles)
         .leftJoin(households, eq(profiles.householdId, households.id))
         .leftJoin(users, eq(profiles.landlordId, users.id))
-        .where(and(eq(profiles.userId, user.id), eq(profiles.status, 'ACTIVE' as any)))
+        .where(
+          and(
+            eq(profiles.tenantId, tenantId),
+            eq(profiles.userId, user.id),
+            eq(profiles.status, 'ACTIVE' as any)
+          )
+        )
         .limit(1);
 
       return {

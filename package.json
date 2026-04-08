@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "db:push": "prisma db push",
-    "db:seed": "npx tsx prisma/seed.ts",
+    "db:seed": "npx tsx scripts/seed-drizzle.ts",
     "db:studio": "prisma studio",
     "db:studio:drizzle": "drizzle-kit studio",
     "prepare": "husky",
