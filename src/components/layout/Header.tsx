@@ -11,6 +11,16 @@ import { PUBLIC_NAV_LINKS } from '@/lib/constants';
 import { authClient } from '@/lib/auth-client';
 import { hasPermission, canManageGroups } from '@/lib/permissions';
 
+interface CampaignConfig {
+  config: {
+    linkLabel: Record<string, string>;
+    pageTitle: Record<string, string>;
+    pageDescription: Record<string, string>;
+    contentCategory: string;
+  };
+  content: unknown[];
+}
+
 function TeaserLink({
   href,
   label,
@@ -65,12 +75,34 @@ export function Header() {
   const router = useRouter();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { t, ready } = useTranslation('common');
+  const [campaignConfig, setCampaignConfig] = useState<CampaignConfig['config'] | null>(null);
+  const { t, i18n } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Fetch campaign config to get dynamic link label
+  useEffect(() => {
+    async function fetchCampaignConfig() {
+      try {
+        const res = await fetch('/api/campaign');
+        const data: CampaignConfig = await res.json();
+        if (data.config) {
+          setCampaignConfig(data.config);
+        }
+      } catch (error) {
+        console.error('Failed to fetch campaign config:', error);
+      }
+    }
+    fetchCampaignConfig();
+  }, []);
+
+  // Get localized campaign link label
+  const campaignLabel = campaignConfig?.linkLabel
+    ? campaignConfig.linkLabel[i18n.language] || campaignConfig.linkLabel.en
+    : t('nav.campaign');
 
   if (!mounted || !ready) {
     return (
@@ -163,10 +195,10 @@ export function Header() {
             authenticated={!!session}
           />
           <Link
-            href="/conservation"
-            className={`hover:text-soralia-accent font-medium ${pathname === '/conservation' ? 'text-soralia-accent' : ''}`}
+            href="/campaign"
+            className={`hover:text-soralia-accent font-medium ${pathname === '/campaign' ? 'text-soralia-accent' : ''}`}
           >
-            {t('nav.conservation')}
+            {campaignLabel}
           </Link>
           {session && (isAdmin || isBoard) && (
             <Link
