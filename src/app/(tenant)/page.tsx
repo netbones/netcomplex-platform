@@ -85,7 +85,7 @@ export default function HomePage() {
 
     const debounce = setTimeout(fetchResidents, searchQuery ? 300 : 0);
     return () => clearTimeout(debounce);
-  }, [searchQuery, filterStreet, page]);
+  }, [searchQuery, filterStreet, page, filterType]);
 
   if (!mounted || !ready) {
     return (
@@ -256,13 +256,11 @@ export default function HomePage() {
           <h3 className="text-lg font-semibold text-soralia-dark">
             {loading
               ? t('home.loading')
-              : total > 0
-                ? filterType !== 'All Residents' && filterTotal > 0
-                  ? t('home.showingResidents', {
-                      count: filteredResidents.length,
-                      total: filterTotal,
-                    })
-                  : t('home.showingResidents', { count: filteredResidents.length, total })
+              : residents.length > 0
+                ? t('home.showingResidents', {
+                    count: residents.length,
+                    total: filterType !== 'All Residents' ? residents.length : total,
+                  })
                 : t('home.noResidents', { defaultValue: 'No residents found' })}
           </h3>
           <div className="flex items-center space-x-2">
