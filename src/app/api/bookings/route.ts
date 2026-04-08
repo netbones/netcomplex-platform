@@ -7,6 +7,20 @@ import { apiLogger } from '@/lib/logger';
 import { db, bookings, users } from '@/lib/db';
 import { eq, asc, gte, and, sql } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+import type { PgColumn } from 'drizzle-orm/pg-core';
+
+type BookingInsertValues = {
+  id: ReturnType<typeof sql>;
+  userId: string;
+  facility: 'POOL' | 'GYM' | 'COMMUNITY_CENTER' | 'TENNIS' | 'BBQ_AREA';
+  date: Date;
+  startTime: string;
+  endTime: string;
+  purpose: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: ReturnType<typeof sql> | null;
+};
 
 // Limit execution time to 8 seconds for booking operations
 export const maxDuration = 8;
@@ -64,7 +78,10 @@ export async function GET(request: Request) {
 
   // Filter by facility if provided
   if (facility) {
-    queryConditions.push(eq(bookings.facility, facility as any));
+    const validFacilities = ['POOL', 'GYM', 'COMMUNITY_CENTER', 'TENNIS', 'BBQ_AREA'] as const;
+    if (validFacilities.includes(facility as (typeof validFacilities)[number])) {
+      queryConditions.push(eq(bookings.facility, facility as (typeof validFacilities)[number]));
+    }
   }
 
   // Filter by date if provided
@@ -159,7 +176,7 @@ export async function POST(request: Request) {
     };
     const [booking] = await db
       .insert(bookings)
-      .values(insertValues as any)
+      .values(insertValues as unknown as Parameters<typeof db.insert>[1])
       .returning();
 
     // Revalidate dashboard caches immediately when new booking is created

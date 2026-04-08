@@ -1,7 +1,14 @@
-import { db, conversations, conversationParticipants, users } from '@/lib/db';
+import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
-import { eq, sql, and } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
+
+interface ConversationResult {
+  id: string;
+  name: string | null;
+  type: string;
+  [key: string]: unknown;
+}
 
 export async function POST(request: Request) {
   const { tenantId } = await withTenant();
@@ -30,7 +37,7 @@ export async function POST(request: Request) {
     AND cp."userId" IN ${sql`${participantIds}`}
     GROUP BY c.id
     HAVING COUNT(DISTINCT cp."userId") = 2
-  `)) as any;
+  `)) as { rows: ConversationResult[] };
 
   // Filter to ensure exactly 2 participants
   const validConversation = (existing.rows?.length || 0) > 0 ? existing.rows[0] : null;
@@ -44,7 +51,7 @@ export async function POST(request: Request) {
     INSERT INTO "conversation" (name, type, "tenantId")
     VALUES (NULL, 'DIRECT', ${tenantId})
     RETURNING *
-  `)) as any;
+  `)) as { rows: ConversationResult[] };
 
   const conversationId = newConversation.rows?.[0]?.id;
 
@@ -72,7 +79,7 @@ export async function POST(request: Request) {
     WHERE c.id = ${conversationId}
     AND c."tenantId" = ${tenantId}
     GROUP BY c.id
-  `)) as any;
+  `)) as { rows: ConversationResult[] };
 
   return NextResponse.json({ conversation: result.rows?.[0] }, { status: 201 });
 }

@@ -4,6 +4,13 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
+export interface ContentItem {
+  id: string;
+  title: string;
+  published: boolean;
+  [key: string]: unknown;
+}
+
 export function AdminContentWidget() {
   const { t } = useTranslation('admin');
   const [contentStats, setContentStats] = useState({
@@ -21,7 +28,7 @@ export function AdminContentWidget() {
         if (response.ok) {
           const content = await response.json();
           const total = content.length;
-          const published = content.filter((c: any) => c.published).length;
+          const published = content.filter((c: ContentItem) => c.published).length;
           const draft = total - published;
 
           // Mock recent content (last 7 days)

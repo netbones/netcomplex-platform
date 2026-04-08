@@ -4,6 +4,14 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
+export interface UserItem {
+  id: string;
+  name: string;
+  email: string;
+  isActive: boolean;
+  [key: string]: unknown;
+}
+
 export function AdminUserWidget() {
   const { t } = useTranslation('admin');
   const [userStats, setUserStats] = useState({
@@ -24,7 +32,9 @@ export function AdminUserWidget() {
           const total = data.total || users.length || 0;
 
           // Ensure users is an array before calling filter
-          const active = Array.isArray(users) ? users.filter((u: any) => u.isActive).length : 0;
+          const active = Array.isArray(users)
+            ? users.filter((u: UserItem) => u.isActive).length
+            : 0;
           const pending = total - active;
 
           // Mock recent signups (last 30 days)

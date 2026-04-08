@@ -54,15 +54,15 @@ export async function POST(request: Request) {
   const newNotification = await db
     .insert(notifications)
     .values({
-      id: crypto.randomUUID() as any,
+      id: crypto.randomUUID(),
       tenantId,
       userId: body.userId || userId,
       title: body.title,
       message: body.message,
-      type: body.type || 'info',
+      type: (body.type || 'info') as 'info' | 'warning' | 'success' | 'error',
       link: body.link || '',
       read: false,
-    } as any)
+    })
     .returning();
 
   return NextResponse.json(newNotification[0], { status: 201 });
