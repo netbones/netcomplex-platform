@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { toast } from 'sonner';
+import { useApiToast } from '@/hooks/useApiToast';
 
 interface ServiceListing {
   id: string;
@@ -19,27 +19,23 @@ interface ServiceListing {
 export function MyServicesWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
+  const { fetch } = useApiToast({ component: 'MyServicesWidget' });
   const [services, setServices] = useState<ServiceListing[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchMyServices() {
-      if (!session?.user?.id) return;
-      try {
-        const res = await fetch(
-          `/api/community-services/listings?providerId=${session.user.id}&limit=5`
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setServices(data.listings || []);
-        }
-      } catch (error) {
-        toast.error('Failed to fetch my services');
-      } finally {
-        setLoading(false);
+    if (!session?.user?.id) return;
+
+    fetch(
+      fetch(`/api/community-services/listings?providerId=${session.user.id}&limit=5`).then(res =>
+        res.json()
+      ),
+      {
+        error: 'Failed to fetch my services',
+        onSuccess: (data: { listings?: ServiceListing[] }) => setServices(data.listings || []),
+        onError: () => setLoading(false),
       }
-    }
-    fetchMyServices();
+    );
   }, [session?.user?.id]);
 
   if (loading) {

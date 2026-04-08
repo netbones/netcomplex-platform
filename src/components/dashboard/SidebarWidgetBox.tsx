@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { toast } from 'sonner';
+import { useApiToast } from '@/hooks/useApiToast';
 
 interface SidebarWidget {
   id: string;

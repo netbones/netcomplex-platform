@@ -7,7 +7,7 @@ import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { AgentWidget } from './AgentWidget';
 import { CreateListingForm } from './CreateListingForm';
-import { toast } from 'sonner';
+import { useApiToast } from '@/hooks/useApiToast';
 
 interface PortfolioHousehold {
   id: string;
@@ -60,6 +60,7 @@ interface PropertyListing {
 export function PremiumPortfolioWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
+  const { fetch, mutate } = useApiToast({ component: 'PremiumPortfolioWidget' });
   const [portfolio, setPortfolio] = useState<PremiumPortfolio | null>(null);
   const [listings, setListings] = useState<PropertyListing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,67 +75,66 @@ export function PremiumPortfolioWidget() {
     }
   }, [session?.user?.id]);
 
-  const fetchListings = async () => {
-    try {
-      const response = await fetch('/api/premium/listings');
-      const data = await response.json();
-      setListings(data.listings || []);
-    } catch (error) {
-      toast.error('Failed to fetch listings');
-    }
-  };
-
-  const fetchPortfolio = async () => {
-    try {
-      const response = await fetch('/api/premium/portfolio');
-      const data = await response.json();
-
-      if (data.hasPortfolio) {
-        setPortfolio(data.portfolio);
+  const fetchListings = () => {
+    fetch(
+      fetch('/api/premium/listings').then(res => res.json()),
+      {
+        error: 'Failed to fetch listings',
+        onSuccess: (data: { listings?: PropertyListing[] }) => setListings(data.listings || []),
       }
-    } catch (error) {
-      toast.error('Failed to fetch portfolio');
-    } finally {
-      setLoading(false);
-    }
+    );
   };
 
-  const handleUpgradeToPortfolio = async () => {
+  const fetchPortfolio = () => {
+    fetch(
+      fetch('/api/premium/portfolio').then(res => res.json()),
+      {
+        error: 'Failed to fetch portfolio',
+        onSuccess: (data: { hasPortfolio: boolean; portfolio?: PremiumPortfolio }) => {
+          if (data.hasPortfolio) {
+            setPortfolio(data.portfolio || null);
+          }
+        },
+        onError: () => setLoading(false),
+      }
+    );
+  };
+
+  const handleUpgradeToPortfolio = () => {
     // Get all households owned by user
-    try {
-      setUpgrading(true);
+    setUpgrading(true);
 
-      // First get user's households
-      const userResponse = await fetch(`/api/users/${session?.user?.id}`);
-      const userData = await userResponse.json();
+    // First get user's households, then create portfolio
+    const getUser = fetch(`/api/users/${session?.user?.id}`).then(res => res.json());
 
-      // Extract household IDs from standard seats
-      const householdIds = userData.standardSeats?.map((seat: any) => seat.household.id) || [];
+    mutate(
+      getUser.then((userData: { standardSeats?: Array<{ household: { id: string } }> }) => {
+        const householdIds =
+          userData.standardSeats?.map((seat: { household: { id: string } }) => seat.household.id) ||
+          [];
 
-      if (householdIds.length < 2) {
-        alert('You need at least 2 properties to create a portfolio');
-        return;
+        if (householdIds.length < 2) {
+          throw new Error('You need at least 2 properties to create a portfolio');
+        }
+
+        return fetch('/api/premium/portfolio', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ householdIds }),
+        }).then(res => res.json());
+      }),
+      {
+        loading: 'Creating portfolio...',
+        success: 'Successfully upgraded to Premium Seat!',
+        error: 'Upgrade failed',
+        onSuccess: (data: { success: boolean; portfolio?: PremiumPortfolio }) => {
+          if (data.success) {
+            setPortfolio(data.portfolio || null);
+          }
+        },
+        onError: () => setUpgrading(false),
       }
-
-      const response = await fetch('/api/premium/portfolio', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ householdIds }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setPortfolio(data.portfolio);
-        alert('Successfully upgraded to Premium Seat with property portfolio!');
-      } else {
-        alert(data.error || 'Upgrade failed');
-      }
-    } catch (error) {
-      toast.error('Upgrade failed');
-    } finally {
-      setUpgrading(false);
-    }
+    );
   };
 
   const handleListingCreated = () => {

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { toast } from 'sonner';
+import { useApiToast } from '@/hooks/useApiToast';
 
 interface CreateListingFormProps {
   householdId?: string;
@@ -20,6 +20,7 @@ interface Household {
 
 export function CreateListingForm({ householdId, onClose, onSuccess }: CreateListingFormProps) {
   const { t } = useTranslation('dashboard');
+  const { fetch, mutate } = useApiToast({ component: 'CreateListingForm' });
   const [loading, setLoading] = useState(false);
   const [households, setHouseholds] = useState<Household[]>([]);
   const [formData, setFormData] = useState({
@@ -42,42 +43,46 @@ export function CreateListingForm({ householdId, onClose, onSuccess }: CreateLis
     }
   });
 
-  const fetchHouseholds = async () => {
-    try {
-      const response = await fetch('/api/premium/portfolio');
-      const data = await response.json();
-      if (data.hasPortfolio && data.portfolio.linkedHouseholds) {
-        setHouseholds(data.portfolio.linkedHouseholds);
+  const fetchHouseholds = () => {
+    fetch(
+      fetch('/api/premium/portfolio').then(res => res.json()),
+      {
+        error: 'Failed to fetch households',
+        onSuccess: (data: {
+          hasPortfolio: boolean;
+          portfolio?: { linkedHouseholds?: Household[] };
+        }) => {
+          if (data.hasPortfolio && data.portfolio?.linkedHouseholds) {
+            setHouseholds(data.portfolio.linkedHouseholds);
+          }
+        },
       }
-    } catch (error) {
-      toast.error('Failed to fetch households');
-    }
+    );
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const response = await fetch('/api/premium/listings', {
+    mutate(
+      fetch('/api/premium/listings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        onSuccess();
-        onClose();
-      } else {
-        alert(data.error || 'Failed to create listing');
+      }).then(res => res.json()),
+      {
+        loading: 'Creating listing...',
+        success: 'Listing created!',
+        error: 'Failed to create listing',
+        onSuccess: (data: { success?: boolean }) => {
+          if (data.success) {
+            onSuccess();
+            onClose();
+          }
+        },
+        onError: () => setLoading(false),
       }
-    } catch (error) {
-      toast.error('Failed to create listing');
-    } finally {
-      setLoading(false);
-    }
+    );
   };
 
   const handleInputChange = (field: string, value: string | boolean) => {
