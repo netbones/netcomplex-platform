@@ -28,6 +28,7 @@ export default function SettingsPage() {
   const [householdImage, setHouseholdImage] = useState<string>('');
   const [loadingHousehold, setLoadingHousehold] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string>('');
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     if (i18n.language) {
@@ -51,9 +52,11 @@ export default function SettingsPage() {
       try {
         const res = await fetch(`/api/users/${session.user.id}`);
         const data = await res.json();
-        if (data.standardSeats?.[0]?.household?.id) {
-          const hhId = data.standardSeats[0].household.id;
+        const seat = data.standardSeats?.[0];
+        if (seat?.household?.id) {
+          const hhId = seat.household.id;
           setHouseholdId(hhId);
+          setIsOwner(seat.isPrimaryOwner === true);
           const hhRes = await fetch(`/api/households/${hhId}`);
           const hhData = await hhRes.json();
           if (hhData.household?.homeImage) {
@@ -193,11 +196,13 @@ export default function SettingsPage() {
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Property Image</h2>
             <p className="text-sm text-gray-600 mb-4">
-              Upload a photo of your property. This will be displayed in the directory.
+              {isOwner
+                ? 'Upload a photo of your property. This will be displayed in the directory.'
+                : 'Your property photo (managed by property owner).'}
             </p>
             {loadingHousehold ? (
               <p className="text-gray-500">Loading...</p>
-            ) : (
+            ) : isOwner ? (
               <ImageUpload
                 value={householdImage}
                 onChange={async url => {
@@ -219,6 +224,12 @@ export default function SettingsPage() {
                 }}
                 label=""
               />
+            ) : householdImage ? (
+              <div className="relative w-32 h-32 rounded-lg overflow-hidden">
+                <img src={householdImage} alt="Property" className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <p className="text-gray-400 italic">No property image available</p>
             )}
           </div>
         )}
