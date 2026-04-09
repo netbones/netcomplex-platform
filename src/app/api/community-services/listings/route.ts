@@ -90,11 +90,11 @@ export async function GET(request: NextRequest) {
     // Build where conditions for list query
     const conditions = [
       eq(communityServiceListings.isPublished, true),
-      eq(communityServiceListings.status, 'ACTIVE' as any),
+      eq(communityServiceListings.status, 'ACTIVE' as ListingStatus),
     ];
 
     if (category && category !== 'ALL') {
-      conditions.push(eq(communityServiceListings.category, category as any));
+      conditions.push(eq(communityServiceListings.category, category as ListingStatus));
     }
 
     if (verified) {
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
         or(
           sql`lower(${communityServiceListings.title}) like ${searchLower}`,
           sql`lower(${communityServiceListings.description}) like ${searchLower}`
-        ) as any
+        )
       );
     }
 

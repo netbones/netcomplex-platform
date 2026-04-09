@@ -180,7 +180,24 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const body = await request.json();
-    const updateData: Record<string, any> = {
+    const updateData: {
+      updatedAt: Date;
+      title?: string;
+      description?: string;
+      subcategory?: string;
+      priceType?: string;
+      price?: string;
+      serviceAreas?: string[];
+      availability?: string;
+      licenseNumber?: string;
+      insuranceExpiry?: Date;
+      responseTime?: string;
+      contactMethods?: string[];
+      images?: string[];
+      portfolio?: string[];
+      termsAndConditions?: string;
+      cancellationPolicy?: string;
+    } = {
       updatedAt: new Date(),
     };
 

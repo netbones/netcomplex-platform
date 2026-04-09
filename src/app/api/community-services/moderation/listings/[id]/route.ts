@@ -43,7 +43,12 @@ export async function GET(request: NextRequest) {
     const conditions = [eq(communityServiceListings.tenantId, tenantId)];
 
     if (status !== 'ALL') {
-      conditions.push(eq(communityServiceListings.status, status as any));
+      conditions.push(
+        eq(
+          communityServiceListings.status,
+          status as 'DRAFT' | 'ACTIVE' | 'WITHDRAWN' | 'SUSPENDED'
+        )
+      );
     }
 
     // Get listings using Drizzle

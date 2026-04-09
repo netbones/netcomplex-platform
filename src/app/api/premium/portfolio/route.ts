@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       AND h."tenantId" = ${tenantId}
       AND ss."userId" = ${userId}
       AND ss."isPrimaryOwner" = true
-    `)) as any;
+    `)) as { rows: { id: string }[] };
 
     if ((householdsResult.rows?.length || 0) !== householdIds.length) {
       return NextResponse.json(
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       // Get user info
       const userResult = (await db.execute(sql`
         SELECT email, name FROM "user" WHERE id = ${userId}
-      `)) as any;
+      `)) as { rows: { email: string; name: string | null }[] };
 
       if (!userResult.rows?.length) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         INSERT INTO "premiumSeat" ("userId", "tenantId", "platformAddress")
         VALUES (${userId}, ${tenantId}, ${platformAddress})
         RETURNING id
-      `)) as any;
+      `)) as { rows: { id: string }[] };
 
       // Link households
       for (const householdId of householdIds) {
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
       WHERE ps."userId" = ${userId}
       AND ps."tenantId" = ${tenantId}
       GROUP BY ps.id
-    `)) as any;
+    `)) as { rows: { linkedHouseholds: { id: string; street: string; unit: string }[] }[] };
 
     return NextResponse.json({
       success: true,
@@ -201,7 +201,7 @@ export async function GET(request: NextRequest) {
       WHERE ps."userId" = ${session.user.id}
       AND ps."tenantId" = ${tenantId}
       GROUP BY ps.id
-    `)) as any;
+    `)) as { rows: { linkedHouseholds: { id: string; street: string; unit: string }[] }[] };
 
     if (!portfolioResult.rows?.length) {
       return NextResponse.json({

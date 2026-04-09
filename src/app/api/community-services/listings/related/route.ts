@@ -74,10 +74,10 @@ export async function GET(request: NextRequest) {
         and(
           eq(communityServiceListings.tenantId, tenantId),
           eq(communityServiceListings.isPublished, true),
-          eq(communityServiceListings.status, 'ACTIVE' as any),
+          eq(communityServiceListings.status, 'ACTIVE' as const),
           sql`${communityServiceListings.id} != ${serviceId}`,
           or(
-            eq(communityServiceListings.category, currentService.category as any),
+            eq(communityServiceListings.category, currentService.category),
             sql`lower(${communityServiceListings.title}) like ${searchPattern}`
           )
         )

@@ -52,7 +52,12 @@ export async function GET(request: NextRequest) {
     const conditions = [inArray(communityServiceInquiries.listingId, listingIds)];
 
     if (status && status !== 'ALL') {
-      conditions.push(eq(communityServiceInquiries.status, status as any));
+      conditions.push(
+        eq(
+          communityServiceInquiries.status,
+          status as 'PENDING' | 'CONTACTED' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
+        )
+      );
     }
 
     // Get inquiries using Drizzle

@@ -29,7 +29,12 @@ export async function GET(request: NextRequest) {
     const conditions = [eq(communityServiceInquiries.inquirerId, session.user.id)];
 
     if (status && status !== 'ALL') {
-      conditions.push(sql`${communityServiceInquiries.status} = ${status}` as any);
+      conditions.push(
+        eq(
+          communityServiceInquiries.status,
+          status as 'PENDING' | 'CONTACTED' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
+        )
+      );
     }
 
     // Get inquiries using Drizzle

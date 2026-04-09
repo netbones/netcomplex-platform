@@ -30,9 +30,14 @@ export async function GET(request: NextRequest) {
 
     const content = await response.json();
 
+    interface ContentItem {
+      tags?: string[];
+      [key: string]: unknown;
+    }
+
     // Extract all unique tags from user's content
     const tagSet = new Set<string>();
-    content.forEach((item: any) => {
+    (content as ContentItem[]).forEach(item => {
       if (item.tags && Array.isArray(item.tags)) {
         item.tags.forEach((tag: string) => tagSet.add(tag));
       }
