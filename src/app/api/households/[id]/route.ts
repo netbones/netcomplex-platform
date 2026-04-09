@@ -76,7 +76,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     ];
 
     // Fetch contents for these users
-    const userContentsMap: Record<string, any[]> = {};
+    interface ContentItem {
+      id: string;
+      title: string;
+      excerpt: string | null;
+      content: string | null;
+      category: string;
+      tags: string[] | null;
+      publishedAt: Date | null;
+      createdAt: Date;
+      authorId: string | null;
+    }
+    const userContentsMap: Record<string, ContentItem[]> = {};
 
     if (userIds.length > 0) {
       const allContents = await db
@@ -106,7 +117,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Aggregate all content from household members
-    const allContent: any[] = [];
+    const allContent: ContentItem[] = [];
 
     // Add content from Standard Seat holders
     seats.forEach(seat => {

@@ -54,7 +54,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const body = await request.json();
+  interface SettingBody {
+    key: string;
+    value: string;
+  }
+
+  const body = (await request.json()) as SettingBody;
 
   // Enforce tenant isolation
   const { tenantId } = await withTenant();

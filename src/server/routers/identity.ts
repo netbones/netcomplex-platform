@@ -277,8 +277,7 @@ export const identityRouter = router({
           platformAddress,
           createdAt: new Date(),
           updatedAt: new Date(),
-          organizationId: ctx.organizationId,
-        } as any)
+        })
         .returning();
 
       return created;
@@ -413,8 +412,7 @@ export const identityRouter = router({
           status: 'ACTIVE',
           createdAt: new Date(),
           updatedAt: new Date(),
-          organizationId: ctx.organizationId,
-        } as any)
+        })
         .returning();
 
       return created;
@@ -630,8 +628,7 @@ export const identityRouter = router({
           linkedFromProfileId: profile.id,
           createdAt: new Date(),
           updatedAt: new Date(),
-          organizationId: ctx.organizationId,
-        } as any)
+        })
         .returning();
 
       return created;
@@ -854,12 +851,10 @@ export const identityRouter = router({
           grantedById: ctx.userId!,
           accessLevel: 'VIEW',
           permissions: ['VIEW'],
-          reason: input.reason,
           isActive: false,
-          requestedAt: new Date(),
           createdAt: new Date(),
           updatedAt: new Date(),
-        } as any)
+        })
         .returning();
 
       return created;
@@ -908,7 +903,7 @@ export const identityRouter = router({
           grantedById: ctx.userId!,
           startedAt: new Date(),
           updatedAt: new Date(),
-        } as any)
+        })
         .where(eq(agentAccesses.id, input.accessId))
         .returning();
 
@@ -943,7 +938,7 @@ export const identityRouter = router({
 
       const [updated] = await db
         .update(agentAccesses)
-        .set({ isActive: false, updatedAt: new Date() } as any)
+        .set({ isActive: false, updatedAt: new Date() })
         .where(eq(agentAccesses.id, input.accessId))
         .returning();
 
