@@ -1,6 +1,7 @@
 import { getPlatformPageFlags, type PlatformPageFlags } from './platform-flags';
 import { getStatsigExperimentFlags } from './statsig-flags';
 import { withTenantOptional } from '@/lib/tenant/with-tenant';
+import { logError } from '@/lib/logging';
 
 export interface AllPageFlags extends PlatformPageFlags {
   newDashboard: boolean;
@@ -21,7 +22,11 @@ export async function getPageFlags(): Promise<AllPageFlags> {
   try {
     statsigFlags = await getStatsigExperimentFlags();
   } catch (error) {
-    console.error('Failed to get Statsig flags:', error);
+    logError(
+      { component: 'flags', operation: 'getPageFlags' },
+      'Failed to get Statsig flags',
+      error
+    );
   }
 
   return {
