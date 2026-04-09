@@ -87,7 +87,7 @@ export default function HomePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Carousel for For Sale / To Let / etc */}
-      <div className="mb-8">
+      <div className="relative mb-8">
         <Carousel
           items={[
             {
