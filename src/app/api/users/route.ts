@@ -60,7 +60,7 @@ export async function GET(request: Request) {
   const skip = (page - 1) * limit;
 
   // Build base conditions - always filter by tenant
-  const conditions: any[] = [eq(users.tenantId, tenantId)];
+  const conditions: ReturnType<typeof eq>[] = [eq(users.tenantId, tenantId)];
 
   if (!canViewAll) {
     conditions.push(eq(users.isPublic, true));
@@ -71,7 +71,10 @@ export async function GET(request: Request) {
   }
 
   if (role) {
-    conditions.push(eq(users.role, role as any));
+    const validRoles = ['ADMIN', 'BOARD', 'COMMITTEE', 'RESIDENT'] as const;
+    if (validRoles.includes(role as (typeof validRoles)[number])) {
+      conditions.push(eq(users.role, role as (typeof validRoles)[number]));
+    }
   }
 
   // Apply resident type filtering
@@ -104,8 +107,8 @@ export async function GET(request: Request) {
       .where(
         and(
           eq(profiles.tenantId, tenantId),
-          eq(profiles.status, 'ACTIVE' as any),
-          eq(profiles.residencyType, 'RENTER' as any)
+          eq(profiles.status, 'ACTIVE' as const),
+          eq(profiles.residencyType, 'RENTER' as const)
         )
       );
     userIds = renterResults.map(r => r.userId).filter((id): id is string => id !== null);
@@ -124,7 +127,7 @@ export async function GET(request: Request) {
     const activeProfileResults = await db
       .select({ userId: profiles.userId })
       .from(profiles)
-      .where(and(eq(profiles.tenantId, tenantId), eq(profiles.status, 'ACTIVE' as any)));
+      .where(and(eq(profiles.tenantId, tenantId), eq(profiles.status, 'ACTIVE' as const)));
 
     userIds = [
       ...new Set([
@@ -231,7 +234,7 @@ export async function GET(request: Request) {
           and(
             eq(profiles.tenantId, tenantId),
             eq(profiles.userId, user.id),
-            eq(profiles.status, 'ACTIVE' as any)
+            eq(profiles.status, 'ACTIVE' as const)
           )
         )
         .limit(1);

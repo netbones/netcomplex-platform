@@ -12,6 +12,29 @@ import { eq, sql, and } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
 import { logError } from '@/lib/logging';
 
+interface PropertyListing {
+  id: string;
+  tenantId: string;
+  householdId: string;
+  ownerId: string;
+  listingType: string;
+  title: string;
+  description: string | null;
+  price: string | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  parkingSpaces: number | null;
+  gardenSize: string | null;
+  petFriendly: boolean;
+  status: string;
+  isPublished: boolean;
+  createdAt: Date;
+  updatedAt: Date | null;
+  street?: string;
+  unit?: string;
+  homeImage?: string | null;
+}
+
 /**
  * GET /api/premium/listings - Get property listings for premium user
  */
@@ -54,7 +77,7 @@ export async function GET(request: NextRequest) {
       ORDER BY pl."createdAt" DESC
     `);
 
-    return NextResponse.json({ listings: listings as any });
+    return NextResponse.json({ listings: listings.rows as PropertyListing[] });
   } catch (error) {
     logError(
       { component: 'premium-listings-api', operation: 'GET' },
@@ -127,7 +150,7 @@ export async function POST(request: NextRequest) {
         ${petFriendly || false}, 'DRAFT', false
       )
       RETURNING *
-    `)) as any;
+    `)) as { rows: PropertyListing[] };
 
     return NextResponse.json({
       success: true,
