@@ -8,6 +8,7 @@ import { authClient } from '@/lib/auth-client';
 import { supportedLanguages, languageNames, type SupportedLanguage } from '@/lib/i18n';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { ImageUpload } from '@/components/ui/ImageUpload';
 
 export default function SettingsPage() {
   const { t: tCommon, t: tSettings } = useTranslation(['common', 'forms']);
@@ -23,6 +24,9 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [showEmail, setShowEmail] = useState(true);
   const [showPhone, setShowPhone] = useState(true);
+  const [householdId, setHouseholdId] = useState<string | null>(null);
+  const [householdImage, setHouseholdImage] = useState<string>('');
+  const [loadingHousehold, setLoadingHousehold] = useState(false);
 
   useEffect(() => {
     if (i18n.language) {
@@ -39,6 +43,29 @@ export default function SettingsPage() {
       if (data.showPhone !== undefined) setShowPhone(data.showPhone);
     }
     fetchUserSettings();
+
+    async function fetchUserHousehold() {
+      if (!session?.user?.id) return;
+      setLoadingHousehold(true);
+      try {
+        const res = await fetch(`/api/users/${session.user.id}`);
+        const data = await res.json();
+        if (data.standardSeats?.[0]?.household?.id) {
+          const hhId = data.standardSeats[0].household.id;
+          setHouseholdId(hhId);
+          const hhRes = await fetch(`/api/households/${hhId}`);
+          const hhData = await hhRes.json();
+          if (hhData.household?.homeImage) {
+            setHouseholdImage(hhData.household.homeImage);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch household:', e);
+      } finally {
+        setLoadingHousehold(false);
+      }
+    }
+    fetchUserHousehold();
   }, [session?.user?.id]);
 
   const handleLanguageChange = async (newLang: string) => {
@@ -106,6 +133,40 @@ export default function SettingsPage() {
           </div>
           {saved && <p className="mt-2 text-green-600 text-sm">Language saved!</p>}
         </div>
+
+        {householdId && (
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Property Image</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Upload a photo of your property. This will be displayed in the directory.
+            </p>
+            {loadingHousehold ? (
+              <p className="text-gray-500">Loading...</p>
+            ) : (
+              <ImageUpload
+                value={householdImage}
+                onChange={async url => {
+                  setHouseholdImage(url);
+                  try {
+                    const res = await fetch(`/api/households/${householdId}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ homeImage: url }),
+                    });
+                    if (res.ok) {
+                      toast.success('Property image saved!');
+                    } else {
+                      toast.error('Failed to save property image');
+                    }
+                  } catch (e) {
+                    toast.error('Failed to save property image');
+                  }
+                }}
+                label=""
+              />
+            )}
+          </div>
+        )}
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Account</h2>

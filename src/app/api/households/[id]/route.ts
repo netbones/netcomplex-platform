@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { db, households, standardSeats, profiles, contents, users } from '@/lib/db';
 import { eq, asc, desc, and } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
 import { logError } from '@/lib/logging';
+import { hasPermission } from '@/lib/permissions';
 
 /**
  * GET /api/households/[id] - Get household profile with occupants and aggregated content
@@ -229,6 +231,79 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json(response);
   } catch (error) {
     logError({ component: 'households-api', operation: 'GET' }, 'Error fetching household', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/**
+ * PATCH /api/households/[id] - Update household
+ */
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { tenantId } = await withTenant();
+    const { id: householdId } = await params;
+
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get user role
+    const [user] = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
+
+    const role = user?.role || 'RESIDENT';
+
+    // Check if user is a member of this household
+    const [seat] = await db
+      .select({ userId: standardSeats.userId })
+      .from(standardSeats)
+      .where(and(eq(standardSeats.householdId, householdId), eq(standardSeats.tenantId, tenantId)))
+      .limit(1);
+
+    const isHouseholdMember = seat?.userId === session.user.id;
+    const canManageHouseholds = hasPermission(role, 'households');
+
+    if (!isHouseholdMember && !canManageHouseholds) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const { homeImage } = body;
+
+    // Only allow updating homeImage for now
+    const updateData: { homeImage?: string } = {};
+    if (homeImage !== undefined) {
+      updateData.homeImage = homeImage;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
+    }
+
+    const [updated] = await db
+      .update(households)
+      .set(updateData)
+      .where(and(eq(households.id, householdId), eq(households.tenantId, tenantId)))
+      .returning();
+
+    if (!updated) {
+      return NextResponse.json({ error: 'Household not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(updated);
+  } catch (error) {
+    logError(
+      { component: 'households-api', operation: 'PATCH' },
+      'Error updating household',
+      error
+    );
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
