@@ -112,6 +112,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (body.dashboardLayout !== undefined) {
     updateData.dashboardLayout = body.dashboardLayout;
   }
+  if (body.avatar !== undefined) {
+    updateData.avatar = body.avatar;
+  }
 
   const updatedUser = await db
     .update(users)

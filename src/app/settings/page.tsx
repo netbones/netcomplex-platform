@@ -27,6 +27,7 @@ export default function SettingsPage() {
   const [householdId, setHouseholdId] = useState<string | null>(null);
   const [householdImage, setHouseholdImage] = useState<string>('');
   const [loadingHousehold, setLoadingHousehold] = useState(false);
+  const [userAvatar, setUserAvatar] = useState<string>('');
 
   useEffect(() => {
     if (i18n.language) {
@@ -66,6 +67,20 @@ export default function SettingsPage() {
       }
     }
     fetchUserHousehold();
+
+    async function fetchUserProfile() {
+      if (!session?.user?.id) return;
+      try {
+        const res = await fetch(`/api/users/${session.user.id}`);
+        const data = await res.json();
+        if (data.avatar) {
+          setUserAvatar(data.avatar);
+        }
+      } catch (e) {
+        console.error('Failed to fetch user:', e);
+      }
+    }
+    fetchUserProfile();
   }, [session?.user?.id]);
 
   const handleLanguageChange = async (newLang: string) => {
@@ -99,6 +114,46 @@ export default function SettingsPage() {
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Profile</h2>
           <div className="space-y-4">
+            <div className="flex items-center gap-6">
+              <div className="flex-shrink-0">
+                {userAvatar ? (
+                  <img
+                    src={userAvatar}
+                    alt="Profile"
+                    className="w-20 h-20 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-500 text-2xl">
+                      {session?.user?.name?.charAt(0) || '?'}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="flex-1">
+                <ImageUpload
+                  value={userAvatar}
+                  onChange={async url => {
+                    setUserAvatar(url);
+                    try {
+                      const res = await fetch(`/api/users/${session?.user?.id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ avatar: url }),
+                      });
+                      if (res.ok) {
+                        toast.success('Profile image saved!');
+                      } else {
+                        toast.error('Failed to save profile image');
+                      }
+                    } catch (e) {
+                      toast.error('Failed to save profile image');
+                    }
+                  }}
+                  label="Change profile photo"
+                />
+              </div>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Name</label>
               <p className="mt-1 text-gray-900">{session?.user?.name || 'Not set'}</p>
