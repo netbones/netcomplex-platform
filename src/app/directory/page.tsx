@@ -281,9 +281,11 @@ export default function DirectoryPage() {
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-600">View:</span>
               <button
-                onClick={() => setViewMode('grid')}
+                onClick={() =>
+                  activeTab === 'residents' ? setViewMode('grid') : setServicesViewMode('grid')
+                }
                 className={`p-2 rounded-md ${
-                  viewMode === 'grid'
+                  (activeTab === 'residents' ? viewMode : servicesViewMode) === 'grid'
                     ? 'bg-soralia-primary text-white'
                     : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                 }`}
@@ -292,9 +294,11 @@ export default function DirectoryPage() {
                 <i className="fas fa-th-large" aria-hidden="true"></i>
               </button>
               <button
-                onClick={() => setViewMode('list')}
+                onClick={() =>
+                  activeTab === 'residents' ? setViewMode('list') : setServicesViewMode('list')
+                }
                 className={`p-2 rounded-md ${
-                  viewMode === 'list'
+                  (activeTab === 'residents' ? viewMode : servicesViewMode) === 'list'
                     ? 'bg-soralia-primary text-white'
                     : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                 }`}
