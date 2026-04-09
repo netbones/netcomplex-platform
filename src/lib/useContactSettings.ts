@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { logError } from '@/lib/logging';
 
 /** Contact information interface for various departments */
 interface ContactSettings {
@@ -42,7 +43,13 @@ export function useContactSettings() {
           setContacts(prev => ({ ...prev, ...data }));
         }
       })
-      .catch(console.error)
+      .catch(error =>
+        logError(
+          { component: 'useContactSettings', operation: 'fetch' },
+          'Failed to fetch contact settings',
+          error
+        )
+      )
       .finally(() => setLoading(false));
   }, [mounted]);
 
