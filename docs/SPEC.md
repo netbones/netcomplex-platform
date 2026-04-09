@@ -1086,7 +1086,108 @@ module.exports = {
 
 ---
 
-## 15. Migration Path from Current Demo
+## 15. Logging Standards
+
+### Overview
+
+All error logging in the application uses **Pino** logger via the centralized logging utility in `src/lib/logging.ts`. This ensures consistent log formatting, proper error tracking, and enables centralized log management.
+
+### Logging Utility
+
+```typescript
+// src/lib/logging.ts
+import pino from 'pino';
+
+// Root logger instance
+export const logger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+  transport: process.env.NODE_ENV === 'development' ? { target: 'pino-pretty' } : undefined,
+});
+
+// Create a child logger with component context
+export function createComponentLogger(componentName: string) {
+  return logger.child({ component: componentName });
+}
+
+// Legacy function for server-side API logging
+export function logError(context: Record<string, unknown>, message: string, error?: unknown) {
+  logger.error({ ...context, error: error instanceof Error ? error.message : error }, message);
+}
+```
+
+### Usage Pattern
+
+**DO** - Use child loggers for each module to avoid repeating component names:
+
+```typescript
+// src/components/admin/MyWidget.tsx
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('MyWidget');
+
+export function MyWidget() {
+  // ... component code ...
+
+  try {
+    await fetch('/api/data');
+  } catch (error) {
+    log.error({}, 'Failed to fetch data', error);
+  }
+}
+```
+
+**DO** - Use the correct logging API:
+
+```typescript
+// Correct: log.error(contextObject, message, error)
+log.error({}, 'Failed to fetch user', error);
+log.error({ userId }, 'User not found', error);
+
+// Wrong: console.error or other patterns
+console.error('Failed to fetch user:', error); // DO NOT USE
+```
+
+**DO** - Define the logger at the top of the file, outside component functions:
+
+```typescript
+// Correct - module-level logger
+const log = createComponentLogger('MyComponent');
+
+export function MyComponent() {
+  // ... uses log.error() in handlers
+}
+
+// Also correct - for utility files
+const log = createComponentLogger('my-utils');
+export function doSomething() { ... }
+```
+
+### When to Log
+
+Log errors in these contexts:
+
+- API fetch failures
+- Form submission errors
+- Authentication errors
+- Database operation failures
+- Third-party service errors
+
+### What NOT to Log
+
+- Sensitive user data (passwords, tokens)
+- Stack traces in production (Pino handles this)
+- Debug information in production (use appropriate log levels)
+
+### Environment Variables
+
+```env
+# Logging
+LOG_LEVEL=info      # Trace, debug, info, warn, error, fatal
+```
+
+---
+
+## 16. Migration Path from Current Demo
 
 1. **Setup** - Initialize Next.js with Preact aliasing
 2. **Auth** - Integrate Better Auth SDK
