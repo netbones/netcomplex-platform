@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { logError } from '@/lib/logging';
 
 export interface ContentItem {
   id: string;
@@ -37,7 +38,11 @@ export function AdminContentWidget() {
           setContentStats({ total, published, draft, recent });
         }
       } catch (error) {
-        console.error('Failed to fetch content stats:', error);
+        logError(
+          { component: 'AdminContentWidget', operation: 'fetchContentStats' },
+          'Failed to fetch content stats',
+          error
+        );
       } finally {
         setLoading(false);
       }

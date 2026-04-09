@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { logError } from '@/lib/logging';
 
 export interface UserItem {
   id: string;
@@ -43,7 +44,11 @@ export function AdminUserWidget() {
           setUserStats({ total, active, pending, recentSignups });
         }
       } catch (error) {
-        console.error('Failed to fetch user stats:', error);
+        logError(
+          { component: 'AdminUserWidget', operation: 'fetchUserStats' },
+          'Failed to fetch user stats',
+          error
+        );
       } finally {
         setLoading(false);
       }
