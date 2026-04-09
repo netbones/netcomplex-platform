@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('ModerationQueueWidget');
 
 interface ModerationQueueWidgetProps {
   initialListings?: Listing[];
@@ -30,7 +33,7 @@ export function ModerationQueueWidget({ initialListings = [] }: ModerationQueueW
         setListings(data.listings || []);
       }
     } catch (err) {
-      console.error('Failed to fetch moderation listings:', err);
+      log.error({}, 'Failed to fetch moderation listings', err);
     } finally {
       setLoading(false);
     }
@@ -43,7 +46,7 @@ export function ModerationQueueWidget({ initialListings = [] }: ModerationQueueW
       });
       setListings(prev => prev.filter(l => l.id !== id));
     } catch (err) {
-      console.error('Failed to approve listing:', err);
+      log.error({}, 'Failed to approve listing', err);
     }
   };
 
@@ -58,7 +61,7 @@ export function ModerationQueueWidget({ initialListings = [] }: ModerationQueueW
       });
       setListings(prev => prev.filter(l => l.id !== id));
     } catch (err) {
-      console.error('Failed to reject listing:', err);
+      log.error({}, 'Failed to reject listing', err);
     }
   };
 

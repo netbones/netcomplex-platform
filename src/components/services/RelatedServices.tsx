@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { ServiceListing } from './ServiceCard';
 import { ReviewStars } from './ReviewStars';
 import { PricingDisplay } from './PricingDisplay';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('RelatedServices');
 
 interface RelatedServicesProps {
   serviceId: string;
@@ -25,7 +28,7 @@ export function RelatedServices({ serviceId }: RelatedServicesProps) {
           setServices(data.relatedServices || []);
         }
       } catch (error) {
-        console.error('Failed to fetch related services:', error);
+        log.error({}, 'Failed to fetch related services', error);
       } finally {
         setLoading(false);
       }

@@ -3,7 +3,9 @@ import { settings } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 import { SETTINGS_KEYS } from '@/lib/tenant/settings';
 import { v4 as uuidv4 } from 'uuid';
-import { logError } from '@/lib/logging';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('platform-flags');
 
 export interface PlatformPageFlags {
   campaign: boolean;
@@ -61,11 +63,7 @@ export async function getPlatformPageFlags(tenantId: string): Promise<PlatformPa
 
     return flags;
   } catch (error) {
-    logError(
-      { component: 'platform-flags', operation: 'getPageFlags' },
-      'Failed to get platform page flags',
-      error
-    );
+    log.error({ operation: 'getPageFlags' }, 'Failed to get platform page flags', error);
     return DEFAULT_PAGE_FLAGS;
   }
 }
@@ -101,11 +99,7 @@ export async function setPlatformPageFlag(
 
     return true;
   } catch (error) {
-    logError(
-      { component: 'platform-flags', operation: 'setPageFlag' },
-      'Failed to set platform page flag',
-      error
-    );
+    log.error({ operation: 'setPageFlag' }, 'Failed to set platform page flag', error);
     return false;
   }
 }

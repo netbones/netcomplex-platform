@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('ServiceQualityWidget');
 
 interface QualityAlert {
   id: string;
@@ -37,7 +40,7 @@ export function ServiceQualityWidget() {
           setAlerts(qualityAlerts);
         }
       } catch (err) {
-        console.error('Failed to fetch quality alerts:', err);
+        log.error({}, 'Failed to fetch quality alerts', err);
       } finally {
         setLoading(false);
       }

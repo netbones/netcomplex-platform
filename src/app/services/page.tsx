@@ -7,6 +7,9 @@ import { TagCloud } from '@/components/ui/TagCloud';
 import { CARD_ANIMATIONS } from '@/lib/constants';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('services-page');
 
 interface ContentItem {
   id: string;
@@ -187,7 +190,7 @@ export default function ServicesPage() {
           }
         }
       } catch (error) {
-        console.error('Failed to fetch services:', error);
+        log.error({}, 'Failed to fetch services', error);
       } finally {
         setLoading(false);
       }
@@ -222,7 +225,7 @@ export default function ServicesPage() {
         alert('Service request submitted successfully!');
       }
     } catch (error) {
-      console.error('Failed to submit request:', error);
+      log.error({}, 'Failed to submit request', error);
     }
     setSelectedService(null);
     setFormData({

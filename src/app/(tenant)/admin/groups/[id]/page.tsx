@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { GroupForm } from '@/components/admin/GroupForm';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('edit-group-page');
 
 interface Group {
   name: string;
@@ -23,7 +26,7 @@ export default function EditGroupPage() {
       .then(res => res.json())
       .then(data => {
         if (data.error) {
-          console.error(data.error);
+          log.error({}, 'Failed to fetch group', data.error);
           return;
         }
         setGroup({

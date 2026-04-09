@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('PageSettingsWidget');
 
 interface PageFlags {
   campaign: boolean;
@@ -42,7 +45,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
           setFlags(prev => ({ ...prev, ...data }));
         }
       } catch (error) {
-        console.error('Failed to fetch page flags:', error);
+        log.error({}, 'Failed to fetch page flags', error);
       } finally {
         setLoading(false);
       }
@@ -67,7 +70,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
         setTimeout(() => setSaved(false), 2000);
       }
     } catch (error) {
-      console.error('Failed to update flag:', error);
+      log.error({}, 'Failed to update flag', error);
     } finally {
       setSaving(false);
     }

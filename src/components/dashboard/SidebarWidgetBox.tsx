@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('SidebarWidgetBox');
 
 /*
  * ==========================================
@@ -97,7 +100,7 @@ export function SidebarWidgetBox({ maxWidgets = 6 }: SidebarWidgetBoxProps) {
       ];
       setWidgets(defaultWidgets);
     } catch (error) {
-      console.error('Failed to load sidebar widgets');
+      log.error({}, 'Failed to load sidebar widgets', error);
     }
   };
 

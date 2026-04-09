@@ -5,6 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { usePageLoading } from '@/hooks/usePageLoading';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('campaign-page');
 
 interface CampaignContent {
   id: string;
@@ -56,7 +59,7 @@ export default function CampaignPage() {
         const data = await res.json();
         setCampaignEnabled(data.value !== false);
       } catch (error) {
-        console.error('Failed to check campaign status:', error);
+        log.error({}, 'Failed to check campaign status', error);
         setCampaignEnabled(true);
       }
     }
@@ -70,7 +73,7 @@ export default function CampaignPage() {
         const data = await res.json();
         setCampaignData(data);
       } catch (error) {
-        console.error('Failed to fetch campaign data:', error);
+        log.error({}, 'Failed to fetch campaign data', error);
       } finally {
         setLoading(false);
       }

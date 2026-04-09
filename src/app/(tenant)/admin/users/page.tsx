@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/Toast';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('admin-users-page');
 
 interface User {
   id: string;
@@ -65,7 +68,7 @@ export default function AdminUsersPage() {
         setInvitations(invitesData);
         setLoading(false);
       })
-      .catch(console.error);
+      .catch(err => log.error({}, 'Failed to fetch users', err));
   }, []);
 
   useEffect(() => {

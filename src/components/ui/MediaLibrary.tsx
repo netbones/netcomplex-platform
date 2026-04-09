@@ -3,6 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { authClient } from '@/lib/auth-client';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('MediaLibrary');
 
 interface MediaItem {
   key: string;
@@ -44,7 +47,7 @@ export function MediaLibrary({
       const data = await res.json();
       setImages(data.images || []);
     } catch (e) {
-      console.error('Failed to fetch images');
+      log.error({}, 'Failed to fetch images', e);
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('useResidentFilter');
 
 export interface Resident {
   id: string;
@@ -97,7 +100,7 @@ export function useResidentFilter(options: ResidentFilterOptions = {}): UseResid
         setResidents([]);
       }
     } catch (error) {
-      console.error('Failed to fetch residents:', error);
+      log.error({}, 'Failed to fetch residents', error);
       setResidents([]);
     } finally {
       setLoading(false);

@@ -5,6 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('conservation-page');
 
 async function getContent() {
   const response = await fetch('/api/conservation');
@@ -63,7 +66,7 @@ export default function ConservationPage() {
           setConservationMode(data.value);
         }
       } catch (error) {
-        console.error('Failed to fetch conservation mode:', error);
+        log.error({}, 'Failed to fetch conservation mode', error);
       }
     }
     fetchMode();
@@ -79,7 +82,7 @@ export default function ConservationPage() {
           setExternalUrl(data.value);
         }
       } catch (error) {
-        console.error('Failed to fetch conservation external URL:', error);
+        log.error({}, 'Failed to fetch conservation external URL', error);
       }
     }
     fetchExternalUrl();

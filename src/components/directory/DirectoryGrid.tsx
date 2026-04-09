@@ -3,6 +3,9 @@ import { authClient } from '@/lib/auth-client';
 import { useState, useEffect } from 'react';
 import { ChatModal } from './DirectoryChatModal';
 import { UnifiedResidentCard, type Resident } from '../shared/UnifiedResidentCard';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('DirectoryGrid');
 
 interface DirectoryGridProps {
   residents: Resident[];
@@ -27,7 +30,7 @@ export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridPro
             setUnreadCounts(data.unreadCounts || {});
           }
         } catch (error) {
-          console.error('Failed to fetch unread counts:', error);
+          log.error({}, 'Failed to fetch unread counts', error);
         }
       };
 

@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { tenantConfig } from '@/lib/config/tenant';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('WeatherWidget');
 
 /*
  * WEATHER WIDGET
@@ -81,7 +84,7 @@ export function WeatherWidget({ location }: WeatherWidgetProps) {
         });
       }
     } catch (error) {
-      console.error('Failed to fetch weather:', error);
+      log.error({}, 'Failed to fetch weather', error);
       setWeather({
         temperature: 72,
         condition: 'Unavailable',

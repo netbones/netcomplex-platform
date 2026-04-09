@@ -4,6 +4,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { groupSchema, type GroupFormData } from '@/lib/schemas';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('GroupForm');
 
 const categories = [
   { value: 'gardening', label: 'Gardening' },
@@ -54,7 +57,7 @@ export function GroupForm({ initialData }: GroupFormProps) {
         router.refresh();
       }
     } catch (error) {
-      console.error('Error saving group:', error);
+      log.error({}, 'Error saving group', error);
     }
   };
 

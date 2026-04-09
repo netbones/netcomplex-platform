@@ -8,6 +8,9 @@ import { SignupHeader } from '@/components/platform/SignupHeader';
 import { SignupFormSection } from '@/components/platform/SignupFormSection';
 import { SignupCTA } from '@/components/platform/SignupCTA';
 import { PlatformFooter } from '@/components/platform/PlatformFooter';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('signup-page');
 
 export default function SignupPage() {
   const { form, step, loading, error, handleNext, handleBack, handleSubdomainChange } =
@@ -31,7 +34,7 @@ export default function SignupPage() {
           setPlans(data.plans);
         }
       } catch (error) {
-        console.error('Failed to fetch pricing plans:', error);
+        log.error({}, 'Failed to fetch pricing plans', error);
       } finally {
         setPlansLoading(false);
       }

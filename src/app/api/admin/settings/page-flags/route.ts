@@ -6,7 +6,9 @@ import {
 } from '@/lib/flags/platform-flags';
 import { withTenant } from '@/lib/tenant/with-tenant';
 import { getSessionAndRole } from '@/lib/auth-utils';
-import { logError } from '@/lib/logging';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('page-flags-api');
 
 export async function GET() {
   try {
@@ -14,7 +16,7 @@ export async function GET() {
     const flags = await getPlatformPageFlags(tenantId);
     return NextResponse.json(flags);
   } catch (error) {
-    logError({ component: 'page-flags-api', operation: 'GET' }, 'Failed to get page flags', error);
+    log.error({ operation: 'GET' }, 'Failed to get page flags', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
@@ -52,11 +54,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ error: 'Failed to update' }, { status: 500 });
   } catch (error) {
-    logError(
-      { component: 'page-flags-api', operation: 'POST' },
-      'Failed to update page flag',
-      error
-    );
+    log.error({ operation: 'POST' }, 'Failed to update page flag', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }

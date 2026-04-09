@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('new-tenant-page');
 
 interface TenantFormData {
   name: string;
@@ -47,7 +50,7 @@ export default function NewTenantPage() {
 
       router.push('/admin/platform');
     } catch (error) {
-      console.error(error);
+      log.error({}, 'Failed to create tenant', error);
       alert('Failed to create tenant');
     } finally {
       setLoading(false);

@@ -2,6 +2,9 @@
 
 import { useState, useRef } from 'react';
 import { toast } from 'sonner';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('ImageUpload');
 
 interface ImageUploadProps {
   value?: string;
@@ -58,7 +61,7 @@ export function ImageUpload({
       onChange(data.url);
       toast.success('Image uploaded successfully!');
     } catch (error) {
-      console.error('Upload error:', error);
+      log.error({}, 'Upload error', error);
       toast.error('Failed to upload image. Please try again.');
     } finally {
       setUploading(false);

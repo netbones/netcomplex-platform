@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('external-surveys-page');
 
 interface ExternalSurvey {
   id: string;
@@ -50,7 +53,7 @@ export default function ExternalSurveysPage() {
         setForm({ name: '', provider: 'bitlabs', externalId: '', embedUrl: '' });
       }
     } catch (error) {
-      console.error('Failed to create survey:', error);
+      log.error({}, 'Failed to create survey', error);
     }
   };
 

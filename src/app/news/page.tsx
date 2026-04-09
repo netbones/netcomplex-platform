@@ -8,6 +8,9 @@ import { TagCloud } from '@/components/ui/TagCloud';
 import { sanitizeHtml } from '@/lib/utils';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { usePageLoading } from '@/hooks/usePageLoading';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('news-page');
 
 interface ContentItem {
   id: string;
@@ -53,7 +56,7 @@ export default function NewsPage() {
         setContent(Array.isArray(data) ? data : []);
       }
     } catch (error) {
-      console.error('Failed to fetch content:', error);
+      log.error({}, 'Failed to fetch content', error);
     } finally {
       setLoading(false);
     }

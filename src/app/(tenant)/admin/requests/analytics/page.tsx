@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { LoadingSpinner } from '@/components/ui/Loading';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('admin-requests-analytics-page');
 
 interface Stats {
   overview: {
@@ -102,7 +105,7 @@ export default function MaintenanceAnalyticsPage() {
         const data = await res.json();
         setStats(data);
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        log.error({}, 'Failed to fetch stats', error);
       } finally {
         setLoading(false);
       }

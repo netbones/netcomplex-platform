@@ -6,6 +6,9 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { BookingForm } from '@/components/booking/BookingForm';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('bookings-page');
 
 interface Booking {
   id: string;
@@ -48,7 +51,7 @@ export default function BookingsPage() {
         const data = await res.json();
         setBookings(data);
       } catch (error) {
-        console.error('Failed to fetch bookings:', error);
+        log.error({}, 'Failed to fetch bookings', error);
       } finally {
         setLoading(false);
       }

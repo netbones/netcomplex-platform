@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { LoadingSpinner } from '@/components/ui/Loading';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('MaintenanceRequestsWidget');
 
 interface MaintenanceRequest {
   id: string;
@@ -47,7 +50,7 @@ export function MaintenanceRequestsWidget() {
         const data = await res.json();
         setRequests(data.slice(0, 5));
       } catch (error) {
-        console.error('Failed to fetch requests:', error);
+        log.error({}, 'Failed to fetch requests', error);
       } finally {
         setLoading(false);
       }

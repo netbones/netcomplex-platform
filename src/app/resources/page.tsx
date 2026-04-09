@@ -7,6 +7,9 @@ import { TagCloud } from '@/components/ui/TagCloud';
 import { CARD_ANIMATIONS } from '@/lib/constants';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('resources-page');
 
 interface ResourceItem {
   id: string;
@@ -179,7 +182,7 @@ export default function ResourcesPage() {
           }
         }
       } catch (error) {
-        console.error('Failed to fetch resources:', error);
+        log.error({}, 'Failed to fetch resources', error);
       } finally {
         setLoading(false);
       }

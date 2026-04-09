@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('TagInput');
 
 interface TagInputProps {
   tags: string[];
@@ -35,7 +38,7 @@ export function TagInput({
           setSuggestions(availableSuggestions);
         }
       } catch (error) {
-        console.error('Failed to load tag suggestions');
+        log.error({}, 'Failed to load tag suggestions', error);
       }
     };
 

@@ -8,6 +8,9 @@ import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { SideDrawer } from '@/components/ui/SideDrawer';
 import { authClient } from '@/lib/auth-client';
 import { hasPermission } from '@/lib/permissions';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('Header');
 
 interface PageFlags {
   campaign: boolean;
@@ -118,7 +121,7 @@ export function Header() {
           setPageFlags(prev => ({ ...prev, ...data.flags }));
         }
       } catch (error) {
-        console.error('Failed to fetch page flags:', error);
+        log.error({}, 'Failed to fetch page flags', error);
       }
     }
     fetchPageFlags();
@@ -134,7 +137,7 @@ export function Header() {
           setCampaignConfig(data.config);
         }
       } catch (error) {
-        console.error('Failed to fetch campaign config:', error);
+        log.error({}, 'Failed to fetch campaign config', error);
       }
     }
     fetchCampaignConfig();

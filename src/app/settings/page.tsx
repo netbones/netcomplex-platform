@@ -9,6 +9,9 @@ import { supportedLanguages, languageNames, type SupportedLanguage } from '@/lib
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { ImageUpload } from '@/components/ui/ImageUpload';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('settings-page');
 
 export default function SettingsPage() {
   const { t: tCommon, t: tSettings } = useTranslation(['common', 'forms']);
@@ -64,7 +67,7 @@ export default function SettingsPage() {
           }
         }
       } catch (e) {
-        console.error('Failed to fetch household:', e);
+        log.error({}, 'Failed to fetch household', e);
       } finally {
         setLoadingHousehold(false);
       }
@@ -80,7 +83,7 @@ export default function SettingsPage() {
           setUserAvatar(data.avatar);
         }
       } catch (e) {
-        console.error('Failed to fetch user:', e);
+        log.error({}, 'Failed to fetch user', e);
       }
     }
     fetchUserProfile();
@@ -95,7 +98,7 @@ export default function SettingsPage() {
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (error) {
-      console.error('Failed to change language:', error);
+      log.error({}, 'Failed to change language', error);
     } finally {
       setSaving(false);
     }

@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPageFlags, getPageFlag } from '@/lib/flags';
 import { getStatsigExperimentFlags } from '@/lib/flags/statsig-flags';
 import { withTenantOptional } from '@/lib/tenant/with-tenant';
-import { logError } from '@/lib/logging';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('flags-api');
 
 export const dynamic = 'force-dynamic';
 
@@ -43,7 +45,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   } catch (error) {
-    logError({ component: 'flags-api', operation: 'GET' }, 'Failed to evaluate flags', error);
+    log.error({ operation: 'GET' }, 'Failed to evaluate flags', error);
     return NextResponse.json(
       { error: 'Failed to evaluate flags', detail: String(error) },
       { status: 500 }

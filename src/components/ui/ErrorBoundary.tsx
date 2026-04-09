@@ -2,6 +2,9 @@
 
 import React, { Component, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('ErrorBoundary');
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -39,7 +42,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    log.error({ errorInfo: errorInfo.componentStack }, 'ErrorBoundary caught an error', error);
     this.props.onError?.(error, errorInfo);
   }
 

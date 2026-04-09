@@ -1,6 +1,8 @@
 import { dedupe } from 'flags/next';
 import type { ReadonlyRequestCookies } from 'flags';
-import { logError } from '@/lib/logging';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('statsig-flags');
 
 interface FlagEntities {
   tenant?: { id: string };
@@ -37,8 +39,6 @@ const experimentFlags: ExperimentFlag[] = [
   { key: 'adminAnalyticsPlus', evaluate: () => false },
 ];
 
-import { logError } from '@/lib/logging';
-
 export async function getStatsigExperimentFlags(): Promise<Record<string, boolean>> {
   const flags: Record<string, boolean> = {};
 
@@ -46,11 +46,7 @@ export async function getStatsigExperimentFlags(): Promise<Record<string, boolea
     try {
       flags[experiment.key] = experiment.evaluate();
     } catch (error) {
-      logError(
-        { component: 'statsig-flags', operation: 'evaluateFlag', flag: experiment.key },
-        `Failed to evaluate flag ${experiment.key}`,
-        error
-      );
+      log.error({ flag: experiment.key }, `Failed to evaluate flag ${experiment.key}`, error);
       flags[experiment.key] = false;
     }
   }

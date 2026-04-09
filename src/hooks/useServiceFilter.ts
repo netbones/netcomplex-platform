@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('useServiceFilter');
 
 export interface Service {
   id: string;
@@ -93,7 +96,7 @@ export function useServiceFilter(options: ServiceFilterOptions = {}): UseService
         setServices([]);
       }
     } catch (error) {
-      console.error('Failed to fetch services:', error);
+      log.error({}, 'Failed to fetch services', error);
       setServices([]);
     } finally {
       setLoading(false);

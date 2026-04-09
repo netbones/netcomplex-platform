@@ -16,6 +16,9 @@ import {
   type SupportedLanguage,
 } from '@/lib/i18n';
 import { contentSchema, type ContentFormData } from '@/lib/schemas';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('ContentForm');
 
 interface ContentFormProps {
   initialData?: {
@@ -141,7 +144,7 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
         toast.error(error.error || 'Failed to save content');
       }
     } catch (error) {
-      console.error('Error saving content:', error);
+      log.error({}, 'Error saving content', error);
       toast.error('Something went wrong');
     } finally {
       toast.dismiss(loadingToast);

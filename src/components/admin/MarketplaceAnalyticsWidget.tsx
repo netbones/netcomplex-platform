@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('MarketplaceAnalyticsWidget');
 
 export function MarketplaceAnalyticsWidget() {
   const { t } = useTranslation('admin');
@@ -31,7 +34,7 @@ export function MarketplaceAnalyticsWidget() {
           totalReviews: 0,
         });
       } catch (err) {
-        console.error('Failed to fetch marketplace stats:', err);
+        log.error({}, 'Failed to fetch marketplace stats', err);
       } finally {
         setLoading(false);
       }

@@ -4,6 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { LoadingSpinner } from '@/components/ui/Loading';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('admin-requests-page');
 
 interface MaintenanceRequest {
   id: string;
@@ -152,7 +155,7 @@ export default function AdminRequestsPage() {
       const data = await res.json();
       setRequests(data);
     } catch (error) {
-      console.error('Failed to fetch requests:', error);
+      log.error({}, 'Failed to fetch requests', error);
     } finally {
       setLoading(false);
     }
@@ -165,7 +168,7 @@ export default function AdminRequestsPage() {
       const data = await res.json();
       setHistory(data);
     } catch (error) {
-      console.error('Failed to fetch history:', error);
+      log.error({}, 'Failed to fetch history', error);
     } finally {
       setLoadingHistory(false);
     }
@@ -178,7 +181,7 @@ export default function AdminRequestsPage() {
       const data = await res.json();
       setNotes(data);
     } catch (error) {
-      console.error('Failed to fetch notes:', error);
+      log.error({}, 'Failed to fetch notes', error);
     } finally {
       setLoadingNotes(false);
     }
@@ -205,7 +208,7 @@ export default function AdminRequestsPage() {
         const data = await res.json();
         setBoardMembers(data);
       } catch (error) {
-        console.error('Failed to fetch board members:', error);
+        log.error({}, 'Failed to fetch board members', error);
       }
     }
     fetchBoardMembers();
@@ -224,7 +227,7 @@ export default function AdminRequestsPage() {
       }
       fetchHistory(requestId);
     } catch (error) {
-      console.error('Failed to update status:', error);
+      log.error({}, 'Failed to update status', error);
     }
   };
 
@@ -241,7 +244,7 @@ export default function AdminRequestsPage() {
       }
       fetchHistory(requestId);
     } catch (error) {
-      console.error('Failed to update priority:', error);
+      log.error({}, 'Failed to update priority', error);
     }
   };
 
@@ -258,7 +261,7 @@ export default function AdminRequestsPage() {
       }
       fetchHistory(requestId);
     } catch (error) {
-      console.error('Failed to update assignee:', error);
+      log.error({}, 'Failed to update assignee', error);
     }
   };
 
@@ -276,7 +279,7 @@ export default function AdminRequestsPage() {
       }
       fetchHistory(requestId);
     } catch (error) {
-      console.error('Failed to update schedule:', error);
+      log.error({}, 'Failed to update schedule', error);
     }
   };
 
@@ -293,7 +296,7 @@ export default function AdminRequestsPage() {
       }
       fetchHistory(requestId);
     } catch (error) {
-      console.error('Failed to update vendor:', error);
+      log.error({}, 'Failed to update vendor', error);
     }
   };
 
@@ -314,7 +317,7 @@ export default function AdminRequestsPage() {
         setSelectedRequest({ ...selectedRequest, [field]: value });
       }
     } catch (error) {
-      console.error(`Failed to update ${field}:`, error);
+      log.error({ field }, `Failed to update ${field}`, error);
     }
   };
 
@@ -329,7 +332,7 @@ export default function AdminRequestsPage() {
       setNewNote('');
       fetchNotes(requestId);
     } catch (error) {
-      console.error('Failed to add note:', error);
+      log.error({}, 'Failed to add note', error);
     }
   };
 
@@ -340,7 +343,7 @@ export default function AdminRequestsPage() {
       });
       fetchNotes(requestId);
     } catch (error) {
-      console.error('Failed to delete note:', error);
+      log.error({}, 'Failed to delete note', error);
     }
   };
 
@@ -603,7 +606,7 @@ export default function AdminRequestsPage() {
                               alert('Failed to send notification');
                             }
                           } catch (error) {
-                            console.error('Failed to send notification:', error);
+                            log.error({}, 'Failed to send notification', error);
                             alert('Error sending notification');
                           }
                         }}

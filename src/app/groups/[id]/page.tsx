@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('group-detail-page');
 
 interface Content {
   id: string;
@@ -41,7 +44,7 @@ export default function GroupDetailPage() {
       .then(res => res.json())
       .then(data => {
         if (data.error) {
-          console.error(data.error);
+          log.error({}, 'Failed to fetch group', data.error);
           return;
         }
         setGroup(data);

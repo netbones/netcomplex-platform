@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { LoadingSpinner } from '@/components/ui/Loading';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('MaintenanceAnalyticsWidget');
 
 interface Stats {
   overview: {
@@ -27,7 +30,7 @@ export function MaintenanceAnalyticsWidget() {
         const data = await res.json();
         setStats(data);
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        log.error({}, 'Failed to fetch stats', error);
       } finally {
         setLoading(false);
       }

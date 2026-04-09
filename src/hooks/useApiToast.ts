@@ -2,8 +2,10 @@
 
 import { useCallback } from 'react';
 import { toast } from 'sonner';
-import { logError } from '@/lib/logging';
+import { logError, createComponentLogger } from '@/lib/logging';
 import { authClient } from '@/lib/auth-client';
+
+const log = createComponentLogger('useApiToast');
 
 export interface UseApiToastOptions {
   component?: string;
@@ -45,7 +47,7 @@ export function useApiToast(options?: UseApiToastOptions): UseApiToastReturn {
 
       // Console log in dev mode
       if (isDev) {
-        console.error(`[${component}] ${operation} failed:`, error);
+        log.error({ operation }, `${operation} failed`, error);
       }
 
       // Log to server via logging utility
@@ -273,7 +275,7 @@ export function toastPromise<T>(
         // Log error
         const isDev = process.env.NODE_ENV === 'development';
         if (isDev) {
-          console.error(`[${component}] ${operation} failed:`, error);
+          log.error({ operation, attempt: attempt + 1 }, `${operation} failed`, error);
         }
         logError({ component, operation, attempt: attempt + 1 }, `${operation} failed`, error);
 

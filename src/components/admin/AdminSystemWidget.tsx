@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('AdminSystemWidget');
 
 interface SystemStatus {
   apiHealth: 'healthy' | 'warning' | 'error';
@@ -41,7 +44,7 @@ export function AdminSystemWidget() {
           setLoading(false);
         }, 500);
       } catch (error) {
-        console.error('Failed to fetch system status:', error);
+        log.error({}, 'Failed to fetch system status', error);
         setLoading(false);
       }
     }

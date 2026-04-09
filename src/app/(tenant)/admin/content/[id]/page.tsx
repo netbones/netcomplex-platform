@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { ContentForm } from '@/components/admin/ContentForm';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('edit-content-page');
 
 interface Content {
   id: string;
@@ -28,7 +31,7 @@ export default function EditContentPage() {
       .then(res => res.json())
       .then(data => {
         if (data.error) {
-          console.error(data.error);
+          log.error({}, 'Failed to fetch content', data.error);
           return;
         }
         setContent(data);

@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('Turnstile');
 
 interface TurnstileOptions {
   siteKey?: string;
@@ -180,7 +183,7 @@ export async function verifyTurnstile(token: string): Promise<boolean> {
     const data = await response.json();
     return data.success === true;
   } catch (error) {
-    console.error('Turnstile verification failed:', error);
+    log.error({}, 'Turnstile verification failed', error);
     return false;
   }
 }

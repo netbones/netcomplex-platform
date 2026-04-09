@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('new-survey-page');
 
 export default function NewSurveyPage() {
   const router = useRouter();
@@ -27,7 +30,7 @@ export default function NewSurveyPage() {
         router.push(`/admin/surveys/${survey.id}`);
       }
     } catch (error) {
-      console.error('Failed to create survey:', error);
+      log.error({}, 'Failed to create survey', error);
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('proudly-soralia-page');
 
 const values = [
   {
@@ -70,7 +73,7 @@ export default function ProudlySoraliaPage() {
           ]);
         }
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        log.error({}, 'Failed to fetch stats', error);
       } finally {
         setLoading(false);
       }

@@ -12,6 +12,9 @@ import { RelatedServices } from '@/components/services/RelatedServices';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('service-detail-page');
 
 interface ServiceInquiryForm {
   message: string;
@@ -77,7 +80,7 @@ export default function ServiceDetailPage() {
         setSubmitted(true);
       }
     } catch (err) {
-      console.error('Failed to send inquiry:', err);
+      log.error({}, 'Failed to send inquiry', err);
     } finally {
       setSubmitting(false);
     }

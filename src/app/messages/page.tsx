@@ -7,6 +7,9 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('messages-page');
 
 interface Conversation {
   id: string;
@@ -67,7 +70,7 @@ export default function MessagesPage() {
         setConversations(convData);
         setUsers(usersData.users || usersData);
       } catch (error) {
-        console.error('Failed to fetch data:', error);
+        log.error({}, 'Failed to fetch data', error);
       } finally {
         setLoading(false);
       }
@@ -119,7 +122,7 @@ export default function MessagesPage() {
         setSelectedUsers([]);
       }
     } catch (error) {
-      console.error('Failed to create conversation:', error);
+      log.error({}, 'Failed to create conversation', error);
     } finally {
       setCreating(false);
     }

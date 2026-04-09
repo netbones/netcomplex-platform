@@ -6,6 +6,9 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { MaintenanceForm } from '@/components/maintenance/MaintenanceForm';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('maintenance-page');
 
 interface MaintenanceRequest {
   id: string;
@@ -37,7 +40,7 @@ export default function MaintenancePage() {
         const data = await res.json();
         setRequests(data);
       } catch (error) {
-        console.error('Failed to fetch requests:', error);
+        log.error({}, 'Failed to fetch requests', error);
       } finally {
         setLoading(false);
       }

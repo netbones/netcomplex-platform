@@ -9,6 +9,9 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { TagCloud } from '@/components/ui/TagCloud';
 import { sanitizeHtml } from '@/lib/utils';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('resident-profile');
 
 interface SidebarWidget {
   id: string;
@@ -92,7 +95,7 @@ function TagCloudWidgetForUser({ userId }: { userId: string }) {
           setTags(tagArray);
         }
       } catch (error) {
-        console.error('Failed to fetch user tags');
+        log.error({}, 'Failed to fetch user tags', error);
         setTags([]);
       } finally {
         setLoading(false);

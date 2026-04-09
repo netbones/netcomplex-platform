@@ -4,6 +4,9 @@ import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { createComponentLogger } from '@/lib/logging';
+
+const log = createComponentLogger('dashboard-original');
 
 interface ContentItem {
   id: string;
@@ -154,7 +157,7 @@ function DashboardContent() {
           notifications: Array.isArray(notifications) ? notifications.length : 0,
         });
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        log.error({}, 'Failed to fetch stats', error);
       } finally {
         setLoading(false);
       }
