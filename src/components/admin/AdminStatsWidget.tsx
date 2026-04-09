@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { logError } from '@/lib/logging';
 
 interface AdminStats {
   totalUsers: number;
@@ -94,7 +95,11 @@ export function AdminStatsWidget() {
           totalContent: Array.isArray(content) ? content.length : 0,
         });
       } catch (error) {
-        console.error('Failed to fetch admin stats:', error);
+        logError(
+          { component: 'AdminStatsWidget', operation: 'fetchStats' },
+          'Failed to fetch admin stats',
+          error
+        );
         // Keep default values on error
       } finally {
         setLoading(false);
