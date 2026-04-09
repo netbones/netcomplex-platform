@@ -166,9 +166,9 @@ export default function ResourcesPage() {
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data) && data.length > 0) {
-            setDocuments(data);
+            setDocuments(data as ResourceItem[]);
             setQuickLinks(
-              data.slice(0, 4).map((item: any) => ({
+              data.slice(0, 4).map(item => ({
                 icon: 'fa-file-alt',
                 title: item.title,
                 desc: item.excerpt || item.content.substring(0, 80) + '...',

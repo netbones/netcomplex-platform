@@ -10,9 +10,16 @@ import { TagCloud } from '@/components/ui/TagCloud';
 import { sanitizeHtml } from '@/lib/utils';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
+interface SidebarWidget {
+  id: string;
+  type: string;
+  title: string;
+  isPublic: boolean;
+}
+
 // Public sidebar widgets component for resident profiles
 function PublicSidebarWidgets({ userId }: { userId: string }) {
-  const [widgets, setWidgets] = useState<any[]>([]);
+  const [widgets, setWidgets] = useState<SidebarWidget[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,10 +65,13 @@ function TagCloudWidgetForUser({ userId }: { userId: string }) {
         const response = await fetch(`/api/content?authorId=${userId}&published=true`);
         if (response.ok) {
           const content = await response.json();
+          interface ContentItem {
+            tags?: string[];
+          }
           const tagCounts: { [key: string]: number } = {};
 
           // Count tag occurrences across all user content
-          content.forEach((item: any) => {
+          (content as ContentItem[]).forEach(item => {
             if (item.tags && Array.isArray(item.tags)) {
               item.tags.forEach((tag: string) => {
                 tagCounts[tag] = (tagCounts[tag] || 0) + 1;
@@ -135,8 +145,8 @@ interface ResidentUser {
   phone: string | null;
   interests: string[];
   avatar: string | null;
-  books: any;
-  dashboardLayout: any;
+  books: unknown;
+  dashboardLayout: unknown;
   isPublic: boolean;
   showEmail: boolean;
   showPhone: boolean;
@@ -345,7 +355,7 @@ function ProfileContent() {
                 <div className="space-y-6">
                   {user.contents
                     .slice((page - 1) * contentsPerPage, page * contentsPerPage)
-                    .map((content: any) => (
+                    .map(content => (
                       <div
                         key={content.id}
                         className="border-b border-gray-200 pb-6 last:border-0 last:pb-0"
