@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
-import { TagCloud } from '@/components/ui/TagCloud';
+import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { TagCloud } from '@shared/ui/TagCloud';
 import { sanitizeHtml } from '@/lib/utils';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { createComponentLogger } from '@/lib/logging';
 

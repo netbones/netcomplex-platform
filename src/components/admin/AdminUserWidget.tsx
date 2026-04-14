@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 import { createComponentLogger } from '@/lib/logging';
 import { logError } from '@/lib/logging';
 

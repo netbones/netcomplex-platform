@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 import { useApiToast } from '@/hooks/useApiToast';
 
 interface CreateListingFormProps {

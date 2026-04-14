@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
 import { createComponentLogger } from '@/lib/logging';
 
 const log = createComponentLogger('new-survey-page');

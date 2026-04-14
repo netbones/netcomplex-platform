@@ -5,8 +5,8 @@ import { useState } from 'react';
 import { httpBatchLink } from '@trpc/client';
 import superjson from 'superjson';
 import { authClient } from '@/lib/auth-client';
-import { ToastProvider } from '@/components/ui/Toast';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { ToastProvider } from '@shared/ui/Toast';
+import { TooltipProvider } from '@shared/ui/tooltip';
 import { trpc } from '@/lib/trpc/client';
 import '@/lib/i18n';
 

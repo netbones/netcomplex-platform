@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import { trpc } from '@/lib/trpc/client';
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
 
 function ProfileContent() {
   const params = useParams();

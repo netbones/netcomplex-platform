@@ -1,4 +1,4 @@
-import { PrimaryCTA } from '@/components/ui/PrimaryCTA';
+import { PrimaryCTA } from '@shared/ui/PrimaryCTA';
 
 interface SignupCTAProps {
   step: number;

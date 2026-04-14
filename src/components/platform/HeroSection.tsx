@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslation } from 'react-i18next';
-import { PrimaryCTA } from '@/components/ui/PrimaryCTA';
+import { PrimaryCTA } from '@shared/ui/PrimaryCTA';
 import { SectionLayout } from '@/components/layout/SectionLayout';
 import { Network } from 'lucide-react';
 

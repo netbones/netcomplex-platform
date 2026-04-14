@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { createComponentLogger } from '@/lib/logging';
 

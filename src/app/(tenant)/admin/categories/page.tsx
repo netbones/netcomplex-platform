@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
 
 interface Setting {
   id: string;

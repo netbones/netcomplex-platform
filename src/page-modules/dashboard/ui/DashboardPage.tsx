@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
 import { useWidgetStore } from '@/lib/stores/widget-store';
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
 import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
 import { DashboardTabs, AddWidgetModal, DashboardTab } from '@/components/dashboard/DashboardTabs';
 import { WidgetRenderer } from '@/components/dashboard/WidgetRenderer';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 import {
   getWidgetTitle,
   getWidgetIcon,

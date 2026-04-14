@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { FrimoussePickerButton } from '@/components/ui/FrimoussePicker';
+import { FrimoussePickerButton } from '@shared/ui/FrimoussePicker';
 
 interface EmojiPickerButtonProps {
   onEmojiSelect: (emoji: string) => void;

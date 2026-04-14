@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
-import { TagCloud } from '@/components/ui/TagCloud';
+import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { TagCloud } from '@shared/ui/TagCloud';
 import { CARD_ANIMATIONS } from '@/lib/constants';
 import { usePageLoading } from '@/hooks/usePageLoading';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 import { createComponentLogger } from '@/lib/logging';
 
 const log = createComponentLogger('services-page');

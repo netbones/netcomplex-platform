@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useToast } from '@/components/ui/Toast';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { useToast } from '@shared/ui/Toast';
+import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 import { createComponentLogger } from '@/lib/logging';
 
 const log = createComponentLogger('admin-users-page');

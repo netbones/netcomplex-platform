@@ -3,10 +3,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@/lib/auth-client';
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { usePageLoading } from '@/hooks/usePageLoading';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 import { createComponentLogger } from '@/lib/logging';
 
 const log = createComponentLogger('messages-page');

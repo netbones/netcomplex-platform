@@ -3,19 +3,19 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
-import { Pagination } from '@/components/ui/Pagination';
+import { Pagination } from '@shared/ui/Pagination';
 import { STREETS, CARD_HEADER_COLORS } from '@/lib/constants';
 import { useResidentFilter } from '@/hooks/useResidentFilter';
 
 const CommunityMap = dynamic(
-  () => import('@/components/ui/CommunityMap').then(mod => mod.CommunityMap),
+  () => import('@shared/ui/CommunityMap').then(mod => mod.CommunityMap),
   {
     ssr: false,
     loading: () => <div className="h-96 w-full bg-gray-100 rounded-lg animate-pulse" />,
   }
 );
 
-import { Carousel } from '@/components/ui/Carousel';
+import { Carousel } from '@shared/ui/Carousel';
 import { UnifiedResidentCard, type Resident } from '@/components/shared/UnifiedResidentCard';
 
 export default function HomePage() {

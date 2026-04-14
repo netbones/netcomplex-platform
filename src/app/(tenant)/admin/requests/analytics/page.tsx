@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { LoadingSpinner } from '@/components/ui/Loading';
+import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { LoadingSpinner } from '@shared/ui/Loading';
 import { createComponentLogger } from '@/lib/logging';
 
 const log = createComponentLogger('admin-requests-analytics-page');

@@ -5,7 +5,7 @@ import { useTenant } from '@/lib/tenant/context';
 import type { Tenant } from '@/lib/tenant';
 import { isFeatureEnabled } from '@/lib/features/registry';
 import { WIDGET_FEATURE_MAP } from '@/lib/dashboard-config';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 import { getWidgetComponent, getWidgetMetadata, hasWidget } from '@/components/registry';
 
 interface WidgetRendererProps {

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { ADMIN_LINKS } from '@/lib/constants';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 
 export function AdminQuickLinksWidget() {
   const { t } = useTranslation('admin');

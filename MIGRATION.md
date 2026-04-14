@@ -89,13 +89,13 @@ Layer dependency direction:
 
 ## Phase 2 — Migrate `shared` (mechanical moves, biggest payoff)
 
-> **Status**: Not started - awaiting Phase 1 completion
+> **Status**: In Progress (Phase 2.1 complete)
 
 ### 2.1 UI kit
 
-- [ ] Move `src/components/ui/*` → `src/shared/ui/*`
-- [ ] Update imports across app/components accordingly
-- [ ] Ensure client components keep `"use client"` where needed
+- [x] Move `src/components/ui/*` → `src/shared/ui/*` (29 components)
+- [x] Update imports across app/components (109 imports updated)
+- [x] Ensure client components keep `"use client"` where needed
 
 ### 2.2 Shared utilities + infra
 

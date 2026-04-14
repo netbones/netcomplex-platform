@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { LanguageSwitcher } from '@shared/ui/LanguageSwitcher';
 
 interface PlatformHeaderProps {
   className?: string;

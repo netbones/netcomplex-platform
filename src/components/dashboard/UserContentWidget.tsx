@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import { sanitizeHtml } from '@/lib/utils';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { TagCloud } from '@/components/ui/TagCloud';
+import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { TagCloud } from '@shared/ui/TagCloud';
 import { useApiToast } from '@/hooks/useApiToast';
 
 interface ContentItem {

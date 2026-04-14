@@ -5,9 +5,9 @@ import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { RichTextEditor } from '@/components/ui/RichTextEditor';
-import { TagInput } from '@/components/ui/TagInput';
-import { LocaleSelector } from '@/components/ui/LocaleSelector';
+import { RichTextEditor } from '@shared/ui/RichTextEditor';
+import { TagInput } from '@shared/ui/TagInput';
+import { LocaleSelector } from '@shared/ui/LocaleSelector';
 import { authClient } from '@/lib/auth-client';
 import {
   supportedLanguages,

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import { LoadingSpinner } from '@/components/ui/Loading';
+import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { LoadingSpinner } from '@shared/ui/Loading';
 import { createComponentLogger } from '@/lib/logging';
 
 const log = createComponentLogger('MaintenanceRequestsWidget');

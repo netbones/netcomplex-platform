@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { trpc } from '@/lib/trpc/client';
-import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
+import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
 
 function MemberContent() {
   const params = useParams();
