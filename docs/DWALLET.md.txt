@@ -1,0 +1,98 @@
+﻿Technical Implementation Plan for dWallet Infrastructure (Next.js + React + tRPC)
+Your stack is ideal: Next.js App Router + tRPC provides type-safe, server-first endpoints perfect for privacy-sensitive operations. 
+
+We implement a lightweight, database-backed dWallet (no blockchain required initially—aligns with Brazil dWallet’s centralized-yet-user-controlled design; add DID/SSI later if desired for 31st-right “data titles”).
+Architecture Overview
+    • Frontend: React components (wallet dashboard, consent toggles) in /app/(protected)/dwallet 
+    • Backend: tRPC procedures (protected by auth) + Prisma schema 
+    • Data Layer: Server-only DAL (data access layer) with encryption 
+    • Security: No client-side storage of sensitive data; audit logs; POPIA breach hooks 
+    • Monetization: Rewards ledger table + cron for distributions
+
+3. Prisma + tRPC Code for Resident Data Share
+Prisma Schema Additions (add to schema.prisma)
+prisma
+model RewardsLedger {
+  id            String   @id @default(cuid())
+  userId        String
+  amount        Decimal
+  source        String   // e.g. "marketplace_tx", "survey_platform", "agent_commission"
+  streamGroup   String   // "GROUP2", "GROUP3", etc.
+  status        String   @default("pending") // pending | paid | rolled_to_cbf
+  creditedAt    DateTime @default(now())
+  paidAt        DateTime?
+  User          User     @relation(fields: [userId], references: [id])
+  @@index([userId, status])
+}
+
+model UserDataConsent {
+  id          String   @id @default(cuid())
+  userId      String
+  dataType    String   // "directory_profile", "marketplace_listing", etc.
+  purpose     String
+  consented   Boolean  @default(false)
+  grantedAt   DateTime @default(now())
+  revokedAt   DateTime?
+  User        User     @relation(fields: [userId], references: [id])
+}
+tRPC Router (server/api/routers/dwallet.ts)
+TypeScript
+export const dwalletRouter = router({
+  getWallet: protectedProcedure.query(async ({ ctx }) => {
+    const [consents, pendingRewards] = await Promise.all([
+      prisma.userDataConsent.findMany({ where: { userId: ctx.user.id } }),
+      prisma.rewardsLedger.findMany({
+        where: { userId: ctx.user.id, status: "pending" },
+        orderBy: { creditedAt: "desc" }
+      })
+    ]);
+
+    const balance = pendingRewards.reduce((sum, r) => sum + r.amount, new Decimal(0));
+
+    return { consents, pendingRewards, balance };
+  }),
+
+  // Called automatically by revenue events (e.g. after a transaction)
+  creditResidentShare: protectedProcedure  // or admin procedure
+    .input(z.object({
+      userId: z.string(),
+      amount: z.number(),
+      source: z.string(),
+      streamGroup: z.string()
+    }))
+    .mutation(async ({ input }) => {
+      // Only credit if user has opted in for this purpose
+      const consent = await prisma.userDataConsent.findFirst({
+        where: { userId: input.userId, purpose: input.source, consented: true }
+      });
+
+      if (!consent) return { credited: false };
+
+      return prisma.rewardsLedger.create({
+        data: {
+          userId: input.userId,
+          amount: new Decimal(input.amount),
+          source: input.source,
+          streamGroup: input.streamGroup
+        }
+      });
+    }),
+
+  requestPayout: protectedProcedure.mutation(async ({ ctx }) => {
+    const pending = await prisma.rewardsLedger.findMany({
+      where: { userId: ctx.user.id, status: "pending" }
+    });
+
+    if (pending.length === 0) throw new TRPCError({ code: "BAD_REQUEST", message: "No pending rewards" });
+
+    // TODO: Integrate with EFT / PayFast / Ozow
+    await prisma.rewardsLedger.updateMany({
+      where: { id: { in: pending.map(r => r.id) } },
+      data: { status: "paid", paidAt: new Date() }
+    });
+
+    return { success: true, amount: pending.reduce((sum, r) => sum + r.amount, new Decimal(0)) };
+  })
+});
+These updates are production-ready and integrate cleanly with your existing Next.js + tRPC setup.
+

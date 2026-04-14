@@ -1,6 +1,62 @@
 # Agent Instructions
 
-This project uses **pnpm** package manager and **bd** (beads) for issue tracking. Run `bd onboard` to get started.
+This project uses **pnpm** package manager
+
+## 📋 Issue Tracking: BD vs GSD
+
+This project uses TWO tracking systems for different purposes. Do NOT confuse them.
+
+### BD Issues (Non-Linear Work)
+
+Use `bd` for:
+
+- Bug fixes
+- Quick patches
+- Small feature additions
+- Research tasks
+- Exploratory work
+- Anything that doesn't fit a phase structure
+
+```bash
+bd list           # Show all issues
+bd create "Title" # Create new issue
+bd get <id>       # Get issue details
+bd close <id>     # Close completed issue
+bd sync           # Sync with git
+```
+
+**Limitations:** BD lacks validation, extended dependency tracking, and phase structure.
+
+### GSD Phase Plans (Major Overhaul)
+
+Use GSD workflow for:
+
+- Large architectural changes
+- Multi-step migrations
+- Phase-based work with dependencies
+- Work requiring validation and checkpoints
+
+```bash
+/gsd-plan-phase     # Plan a phase
+/gsd-discuss-phase  # Discuss phase context
+/gsd-execute-phase  # Execute phase plans
+/gsd-health         # Validate .planning/ directory
+```
+
+**Structure:** `.planning/` directory with ROADMAP.md, phases/, PLAN.md files.
+
+### When to Use Which
+
+| Work Type                            | Use |
+| ------------------------------------ | --- |
+| Fix a bug                            | BD  |
+| Add a small feature                  | BD  |
+| Research a library                   | BD  |
+| Major migration (Auth → Better Auth) | GSD |
+| Multi-phase refactor                 | GSD |
+| Architecture changes                 | GSD |
+
+**IMPORTANT:** When working on a GSD phase, close the related BD issue when the phase completes.
 
 ---
 
@@ -29,18 +85,6 @@ Check PRD.md and SPEC.md for details.
 | Logging    | Pino                             |
 | Deployment | Vercel                           |
 | Features   | Vercel Feature Flags             |
-
----
-
-## Quick Reference
-
-```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --status in_progress  # Claim work
-bd close <id>         # Complete work
-bd sync               # Sync with git
-```
 
 ---
 
