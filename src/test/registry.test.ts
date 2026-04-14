@@ -7,7 +7,7 @@ import {
   getAllWidgets,
   getWidgetsByCategory,
   getPremiumWidgets,
-} from '@/components/registry';
+} from '@widgets/dashboard';
 
 describe('Widget Registry', () => {
   describe('WIDGET_REGISTRY', () => {

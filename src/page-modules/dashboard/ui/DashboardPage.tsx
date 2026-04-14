@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { authClient } from '@api/auth-client';
 import { useWidgetStore } from '@/lib/stores/widget-store';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
-import { DashboardTabs, AddWidgetModal, DashboardTab } from '@/components/dashboard/DashboardTabs';
-import { WidgetRenderer } from '@/components/dashboard/WidgetRenderer';
+import { DraggableWidget } from '@widgets/dashboard';
+import { DashboardTabs, AddWidgetModal, DashboardTab } from '@widgets/dashboard';
+import { WidgetRenderer } from '@widgets/dashboard';
 import {
   getWidgetTitle,
   getWidgetIcon,

@@ -1,4 +1,4 @@
-import { DashboardTab } from '@/components/dashboard/DashboardTabs';
+import { DashboardTab } from '@widgets/dashboard';
 
 export interface AdminWidget {
   id: string;

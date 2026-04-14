@@ -6,7 +6,7 @@ import type { Tenant } from '@api/tenant';
 import { isFeatureEnabled } from '@api/features/registry';
 import { WIDGET_FEATURE_MAP } from '@/lib/dashboard-config';
 import { ErrorBoundary } from '@shared/ui';
-import { getWidgetComponent, getWidgetMetadata, hasWidget } from '@/components/registry';
+import { getWidgetComponent, getWidgetMetadata, hasWidget } from '../model/registry';
 
 interface WidgetRendererProps {
   widgetId: string;

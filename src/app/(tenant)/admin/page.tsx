@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
-import { DashboardTabs, AddWidgetModal } from '@/components/dashboard/DashboardTabs';
+import { DraggableWidget } from '@widgets/dashboard';
+import { DashboardTabs, AddWidgetModal } from '@widgets/dashboard';
 import { AdminWidgetRenderer } from '@/components/admin/AdminWidgetRenderer';
 import {
   ADMIN_TABS,

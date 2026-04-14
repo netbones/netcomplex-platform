@@ -1,22 +1,22 @@
 import { ComponentType } from 'react';
-import { DashboardStats } from '@/components/dashboard/DashboardStats';
-import { QuickActionsWidget } from '@/components/dashboard/QuickActionsWidget';
-import { RecentActivityWidget } from '@/components/dashboard/RecentActivityWidget';
-import { EventsWidget } from '@/components/dashboard/EventsWidget';
-import { NotificationsWidget } from '@/components/dashboard/NotificationsWidget';
-import { MessagesWidget } from '@/components/dashboard/MessagesWidget';
-import { UserContentWidget } from '@/components/dashboard/UserContentWidget';
-import { BookshelfWidget } from '@/components/dashboard/BookshelfWidget';
-import { MediaWidget } from '@/components/dashboard/MediaWidget';
-import { MyAlbumWidget } from '@/components/dashboard/MyAlbumWidget';
-import { SidebarWidgetBox } from '@/components/dashboard/SidebarWidgetBox';
-import { PremiumPortfolioWidget } from '@/components/dashboard/PremiumPortfolioWidget';
-import { HouseholdsWidget } from '@/components/dashboard/HouseholdsWidget';
-import { AgentDashboardWidget } from '@/components/dashboard/AgentDashboardWidget';
-import { SoloSeatWidget } from '@/components/dashboard/SoloSeatWidget';
-import { MyServicesWidget } from '@/components/dashboard/MyServicesWidget';
-import { ServiceInquiriesWidget } from '@/components/dashboard/ServiceInquiriesWidget';
-import { CommunityGraphWidget } from '@/components/dashboard/CommunityGraphWidget';
+import { DashboardStats } from '../ui/DashboardStats';
+import { QuickActionsWidget } from '../ui/QuickActionsWidget';
+import { RecentActivityWidget } from '../ui/RecentActivityWidget';
+import { EventsWidget } from '../ui/EventsWidget';
+import { NotificationsWidget } from '../ui/NotificationsWidget';
+import { MessagesWidget } from '../ui/MessagesWidget';
+import { UserContentWidget } from '../ui/UserContentWidget';
+import { BookshelfWidget } from '../ui/BookshelfWidget';
+import { MediaWidget } from '../ui/MediaWidget';
+import { MyAlbumWidget } from '../ui/MyAlbumWidget';
+import { SidebarWidgetBox } from '../ui/SidebarWidgetBox';
+import { PremiumPortfolioWidget } from '../ui/PremiumPortfolioWidget';
+import { HouseholdsWidget } from '../ui/HouseholdsWidget';
+import { AgentDashboardWidget } from '../ui/AgentDashboardWidget';
+import { SoloSeatWidget } from '../ui/SoloSeatWidget';
+import { MyServicesWidget } from '../ui/MyServicesWidget';
+import { ServiceInquiriesWidget } from '../ui/ServiceInquiriesWidget';
+import { CommunityGraphWidget } from '../ui/CommunityGraphWidget';
 
 /**
  * Widget registry entry
