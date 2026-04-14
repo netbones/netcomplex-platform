@@ -6,7 +6,8 @@ import { authClient } from '@api/auth-client';
 import { useWidgetStore } from '@entities/widget';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { DraggableWidget } from '@widgets/dashboard';
-import { DashboardTabs, AddWidgetModal, DashboardTab } from '@widgets/dashboard';
+import { DashboardTabs, DashboardTab } from '@widgets/dashboard';
+import { AddWidgetModal } from '@features/dashboard';
 import { WidgetRenderer } from '@widgets/dashboard';
 import {
   getWidgetTitle,
