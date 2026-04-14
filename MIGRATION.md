@@ -60,9 +60,13 @@ Layer dependency direction:
 
 - [x] **Problem**: Next.js confused `src/pages/` with Pages Router
 - [x] **Solution**:
-  - Use relative import from App route: `../../pages/dashboard-page`
-  - Directory renamed to `src/pages/dashboard-page/`
-  - tsconfig `@pages/*` → `src/page-modules/*` (unused)
+  - Use `@pages/*` alias → `src/page-modules/*`
+  - Dashboard at `src/page-modules/dashboard/`
+  - Route imports: `@pages/dashboard`
+- [x] **Type fixes applied**:
+  - Fix DraggableWidget props (`widgetId` → `id`, `title`, `icon`, `removable`, `tabId`)
+  - Fix AddWidgetModal props (`onSelect`, availableWidgets shape)
+  - Fix DashboardTab interface (`widgetIds` → `defaultWidgets`)
 - [x] Dashboard route now thin composition shell
 
 ### 1.3 Add lint guardrails (start simple)
@@ -130,27 +134,31 @@ Layer dependency direction:
 
 ## Pilot: Dashboard (end-to-end slice migration)
 
-> **Status**: In Progress (soralia-village-rbs)
+> **Status**: Mostly Complete (soralia-village-rbs)
 > **Goal**: migrate `/dashboard` so the route is thin and all dashboard logic lives under `widgets/features/entities/shared`.
+> **Note**: Basic structure done; widgets/features slices pending for future phases.
 
 ### Pilot Exit Criteria (Phase 3.7)
 
-- [x] Route is thin shell (`src/app/dashboard/page.tsx` imports from relative path)
-- [x] Page module created (`src/pages/dashboard-page/`)
+- [x] Route is thin shell (imports from `@pages/dashboard`)
+- [x] Page module created (`src/page-modules/dashboard/`)
 - [x] Build passes successfully
+- [x] Typecheck passes
+- [x] Lint passes (0 errors)
 
 ### 3.1 Slice map (create first)
 
 - [x] `src/page-modules/dashboard/` created with:
   - [x] `index.ts` - exports DashboardPage
   - [x] `ui/DashboardPage.tsx` - page component
+- [x] Route imports via `@pages/dashboard` alias
 
 ### 3.1.1 FSD Slice Status
 
-- [x] `src/pages/dashboard-page/` - Created (thin route shell)
-- [ ] `widgets/dashboard/` - NOT YET
-- [ ] `features/dashboard-*` - NOT YET
-- [ ] `entities/widget/` - NOT YET
+- [x] `src/page-modules/dashboard/` - Created (thin route shell) ✅
+- [ ] `widgets/dashboard/` - NOT YET (future phase)
+- [ ] `features/dashboard-*` - NOT YET (future phase)
+- [ ] `entities/widget/` - NOT YET (future phase)
 
 ### 3.2 Move dashboard UI pieces
 
