@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@api/auth-client';
-import { useWidgetStore } from '@/lib/stores/widget-store';
+import { useWidgetStore } from '@entities/widget';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { DraggableWidget } from '@widgets/dashboard';
 import { DashboardTabs, AddWidgetModal, DashboardTab } from '@widgets/dashboard';
@@ -12,7 +12,7 @@ import {
   getWidgetTitle,
   getWidgetIcon,
   getAvailableWidgets as getAvailableWidgetsFromConfig,
-} from '@/lib/dashboard-config';
+} from '@entities/widget';
 
 interface Tab {
   id: string;

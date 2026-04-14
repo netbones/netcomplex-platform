@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Rnd } from 'react-rnd';
 import { useTranslation } from 'react-i18next';
-import { useWidgetStore } from '@/lib/stores/widget-store';
+import { useWidgetStore } from '@entities/widget';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/ui';
 
 interface DraggableWidgetProps {

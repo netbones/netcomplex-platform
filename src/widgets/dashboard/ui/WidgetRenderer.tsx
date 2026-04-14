@@ -4,7 +4,7 @@ import { ReactNode } from 'react';
 import { useTenant } from '@api/tenant';
 import type { Tenant } from '@api/tenant';
 import { isFeatureEnabled } from '@api/features/registry';
-import { WIDGET_FEATURE_MAP } from '@/lib/dashboard-config';
+import { WIDGET_FEATURE_MAP } from '@entities/widget';
 import { ErrorBoundary } from '@shared/ui';
 import { getWidgetComponent, getWidgetMetadata, hasWidget } from '../model/registry';
 
