@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
-import { logError } from '@/lib/logging';
+import { ErrorBoundary } from '@shared/ui';
+import { logError } from '@shared/lib';
 
 export interface ContentItem {
   id: string;

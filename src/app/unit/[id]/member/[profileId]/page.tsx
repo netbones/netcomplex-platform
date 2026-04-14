@@ -4,9 +4,9 @@ import { useState, useEffect, Suspense } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { authClient } from '@/lib/auth-client';
-import { trpc } from '@/lib/trpc/client';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { authClient } from '@api/auth-client';
+import { trpc } from '@api/trpc/client';
+import { Breadcrumbs } from '@shared/ui';
 
 function ProfileContent() {
   const params = useParams();

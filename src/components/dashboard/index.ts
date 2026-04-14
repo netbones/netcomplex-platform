@@ -17,5 +17,5 @@ export { MyAlbumWidget } from './MyAlbumWidget';
 export { SidebarWidgetBox } from './SidebarWidgetBox';
 export { PremiumPortfolioWidget } from './PremiumPortfolioWidget';
 export { DashboardStats } from './DashboardStats';
-export { TagCloud } from '../ui/TagCloud';
+export { TagCloud } from '@shared/ui';
 export type { DashboardTab } from './DashboardTabs';

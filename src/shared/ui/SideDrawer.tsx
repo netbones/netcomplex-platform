@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { useIsMounted } from 'usehooks-ts';
-import { authClient } from '@/lib/auth-client';
-import { hasPermission } from '@/lib/permissions';
+import { authClient } from '@api/auth-client';
+import { hasPermission } from '@api/permissions';
 
 const DASHBOARD_LINKS = [
   { href: '/dashboard', label: 'dashboard', icon: 'home' },

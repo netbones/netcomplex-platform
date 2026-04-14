@@ -4,11 +4,9 @@ import { useState, useEffect, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { authClient } from '@/lib/auth-client';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
-import { TagCloud } from '@shared/ui/TagCloud';
-import { sanitizeHtml } from '@/lib/utils';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { authClient } from '@api/auth-client';
+import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
+import { sanitizeHtml } from '@shared/lib';
 import { usePageLoading } from '@/hooks/usePageLoading';
 
 interface HouseholdData {

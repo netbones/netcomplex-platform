@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { auth } from '@api/auth';
 
 // Drizzle imports
-import { db, communityServiceListings } from '@/lib/db';
+import { db, communityServiceListings } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
-import { logError } from '@/lib/logging';
+import { withTenant } from '@api/tenant';
+import { logError } from '@shared/lib';
 
 /**
  * POST /api/community-services/listings/[id]/publish - Publish or unpublish a listing

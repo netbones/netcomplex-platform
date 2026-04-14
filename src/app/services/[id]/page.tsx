@@ -9,10 +9,9 @@ import { ReviewStars } from '@/components/services/ReviewStars';
 import { PricingDisplay } from '@/components/services/PricingDisplay';
 import { ServiceListing } from '@/components/services/ServiceCard';
 import { RelatedServices } from '@/components/services/RelatedServices';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@/hooks/usePageLoading';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('service-detail-page');
 

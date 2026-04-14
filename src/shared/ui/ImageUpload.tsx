@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { toast } from 'sonner';
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('ImageUpload');
 

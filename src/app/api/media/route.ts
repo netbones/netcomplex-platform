@@ -1,8 +1,8 @@
-import { auth } from '@/lib/auth';
-import { listUserImages, deleteImage } from '@/lib/storage';
+import { auth } from '@api/auth';
+import { listUserImages, deleteImage } from '@api/storage';
 import { NextResponse } from 'next/server';
-import { withTenant } from '@/lib/tenant/with-tenant';
-import { logError } from '@/lib/logging';
+import { withTenant } from '@api/tenant';
+import { logError } from '@shared/lib';
 
 export async function GET(request: Request) {
   const { tenantId } = await withTenant();

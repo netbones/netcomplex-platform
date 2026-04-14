@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { GroupForm } from '@/components/admin/GroupForm';
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('edit-group-page');
 

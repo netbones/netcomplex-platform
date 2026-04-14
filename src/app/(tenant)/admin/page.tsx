@@ -2,11 +2,10 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { DraggableWidget } from '@/components/dashboard/DraggableWidget';
 import { DashboardTabs, AddWidgetModal } from '@/components/dashboard/DashboardTabs';
 import { AdminWidgetRenderer } from '@/components/admin/AdminWidgetRenderer';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 import {
   ADMIN_TABS,
   getWidgetTitle,

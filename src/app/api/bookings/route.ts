@@ -1,12 +1,12 @@
-import { auth } from '@/lib/auth';
-import { hasPermission } from '@/lib/permissions';
+import { auth } from '@api/auth';
+import { hasPermission } from '@api/permissions';
 import { NextResponse } from 'next/server';
-import { bookingSchema } from '@/lib/schemas';
-import { revalidateDashboard } from '@/lib/revalidation';
+import { bookingSchema } from '@api/schemas';
+import { revalidateDashboard } from '@api/revalidation';
 import { apiLogger } from '@/lib/logger';
-import { db, bookings, users } from '@/lib/db';
+import { db, bookings, users } from '@api/db';
 import { eq, asc, gte, and, sql } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { withTenant } from '@api/tenant';
 import type { PgColumn } from 'drizzle-orm/pg-core';
 
 type BookingInsertValues = {

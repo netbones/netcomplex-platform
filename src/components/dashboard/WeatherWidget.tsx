@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { tenantConfig } from '@/lib/config/tenant';
-import { createComponentLogger } from '@/lib/logging';
+import { tenantConfig } from '@api/config/tenant';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('WeatherWidget');
 

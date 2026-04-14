@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { ADMIN_LINKS } from '@/lib/constants';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { ADMIN_LINKS } from '@shared/lib';
+import { ErrorBoundary } from '@shared/ui';
 
 export function AdminQuickLinksWidget() {
   const { t } = useTranslation('admin');

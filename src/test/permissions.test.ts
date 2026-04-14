@@ -12,7 +12,7 @@ import {
   canAccessDirectory,
   canManageSettings,
   getPermissions,
-} from '@/lib/permissions';
+} from '@api/permissions';
 
 describe('permissions', () => {
   describe('hasPermission', () => {

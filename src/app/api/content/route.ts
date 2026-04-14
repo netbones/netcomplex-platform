@@ -1,12 +1,12 @@
-import { auth } from '@/lib/auth';
-import { hasPermission } from '@/lib/permissions';
-import { db, contents, users, groups } from '@/lib/db';
+import { auth } from '@api/auth';
+import { hasPermission } from '@api/permissions';
+import { db, contents, users, groups } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { ContentCategoryEnum, type ContentCategory } from '@/types/enums';
-import { revalidateContent } from '@/lib/revalidation';
-import { withTenant } from '@/lib/tenant/with-tenant';
-import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@/lib/i18n-config';
+import { revalidateContent } from '@api/revalidation';
+import { withTenant } from '@api/tenant';
+import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@shared/lib';
 
 /**
  * Retrieves session and role from the request for API routes.

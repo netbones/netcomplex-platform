@@ -1,8 +1,8 @@
-import { auth } from '@/lib/auth';
-import { db, notifications } from '@/lib/db';
+import { auth } from '@api/auth';
+import { db, notifications } from '@api/db';
 import { NextResponse } from 'next/server';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { withTenant } from '@api/tenant';
 
 async function getSessionAndUserId(request: Request) {
   const session = await auth.api.getSession({

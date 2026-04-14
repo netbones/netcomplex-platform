@@ -2,12 +2,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { authClient } from '@/lib/auth-client';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { authClient } from '@api/auth-client';
+import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { usePageLoading } from '@/hooks/usePageLoading';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('messages-page');
 

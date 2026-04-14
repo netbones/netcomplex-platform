@@ -13,7 +13,7 @@ import {
   hasModuleAccess,
   getTierModules,
 } from '@/lib/constants/tiers';
-import type { Tenant } from '@/lib/tenant';
+import type { Tenant } from '@api/tenant';
 
 export type { TierLevel, ModuleKey };
 export { TIERS, MODULES, hasModuleAccess, getTierModules };

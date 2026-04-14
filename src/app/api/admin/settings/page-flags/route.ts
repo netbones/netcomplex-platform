@@ -3,10 +3,10 @@ import {
   setPlatformPageFlag,
   getPlatformPageFlags,
   type PlatformPageFlags,
-} from '@/lib/flags/platform-flags';
-import { withTenant } from '@/lib/tenant/with-tenant';
-import { getSessionAndRole } from '@/lib/auth-utils';
-import { createComponentLogger } from '@/lib/logging';
+} from '@api/flags/platform-flags';
+import { withTenant } from '@api/tenant';
+import { getSessionAndRole } from '@api/auth-utils';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('page-flags-api');
 

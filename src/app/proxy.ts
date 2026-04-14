@@ -1,6 +1,6 @@
-import { auth } from '@/lib/auth';
-import { hasPermission, Permission } from '@/lib/permissions';
-import { db, users } from '@/lib/db';
+import { auth } from '@api/auth';
+import { hasPermission, Permission } from '@api/permissions';
+import { db, users } from '@api/db';
 import { NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 

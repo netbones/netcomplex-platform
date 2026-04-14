@@ -1,5 +1,5 @@
-import { Tenant } from './tenant';
-import { isFeatureEnabled, TierLevel } from './features/registry';
+import { Tenant } from '@api/tenant';
+import { isFeatureEnabled, TierLevel } from '@api/features/registry';
 
 export interface DashboardWidget {
   id: string;

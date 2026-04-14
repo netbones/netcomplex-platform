@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
-import { LoadingSpinner } from '@shared/ui/Loading';
-import { createComponentLogger } from '@/lib/logging';
+import { ErrorBoundary, LoadingSpinner } from '@shared/ui';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('MaintenanceAnalyticsWidget');
 

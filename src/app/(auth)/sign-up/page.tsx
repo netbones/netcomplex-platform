@@ -1,12 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { authClient } from '@/lib/auth-client';
+import { authClient } from '@api/auth-client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useToast } from '@shared/ui/Toast';
-import { Honeypot } from '@shared/ui/Honeypot';
-import { TurnstileWidget } from '@shared/ui/Turnstile';
+import { Honeypot, TurnstileWidget, useToast } from '@shared/ui';
 
 export default function SignUpPage() {
   const router = useRouter();

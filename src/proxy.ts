@@ -1,6 +1,6 @@
 // src/middleware.ts
 import { NextResponse, type NextRequest } from 'next/server';
-import { getTenantByDomain, getTenantBySlug } from '@/lib/tenant';
+import { getTenantByDomain, getTenantBySlug } from '@api/tenant';
 
 /**
  * Multi-tenant middleware enforcing host-based routing between platform and tenant planes.

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { ErrorBoundary } from '@shared/ui';
 
 interface ActivityItem {
   id: string;

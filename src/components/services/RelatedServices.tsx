@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ServiceListing } from './ServiceCard';
 import { ReviewStars } from './ReviewStars';
 import { PricingDisplay } from './PricingDisplay';
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('RelatedServices');
 

@@ -1,12 +1,12 @@
-import { auth } from '@/lib/auth';
-import { hasPermission } from '@/lib/permissions';
-import { db, maintenanceRequests, users, standardSeats, households } from '@/lib/db';
+import { auth } from '@api/auth';
+import { hasPermission } from '@api/permissions';
+import { db, maintenanceRequests, users, standardSeats, households } from '@api/db';
 import { NextResponse } from 'next/server';
-import { maintenanceRequestSchema } from '@/lib/schemas';
-import { revalidateDashboard } from '@/lib/revalidation';
+import { maintenanceRequestSchema } from '@api/schemas';
+import { revalidateDashboard } from '@api/revalidation';
 import { apiLogger } from '@/lib/logger';
 import { eq, desc, and, sql } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { withTenant } from '@api/tenant';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;

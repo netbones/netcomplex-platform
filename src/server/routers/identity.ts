@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { router, publicProcedure, protectedProcedure, adminProcedure } from '@/lib/trpc/server';
+import { router, publicProcedure, protectedProcedure, adminProcedure } from '@api/trpc/server';
 import { TRPCError } from '@trpc/server';
-import { hasPermission } from '@/lib/permissions';
-import { db, households, profiles, standardSeats, soloSeats, agentAccesses, users } from '@/lib/db';
+import { hasPermission } from '@api/permissions';
+import { db, households, profiles, standardSeats, soloSeats, agentAccesses, users } from '@api/db';
 import { eq, and, or, desc, asc, gt, ne, like, count } from 'drizzle-orm';
 
 export const identityRouter = router({

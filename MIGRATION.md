@@ -89,24 +89,26 @@ Layer dependency direction:
 
 ## Phase 2 — Migrate `shared` (mechanical moves, biggest payoff)
 
-> **Status**: In Progress (Phase 2.1 complete)
+> **Status**: In Progress (Phase 2.1 complete, Phase 2.2 scaffolded)
 
 ### 2.1 UI kit
 
 - [x] Move `src/components/ui/*` → `src/shared/ui/*` (29 components)
 - [x] Update imports across app/components (109 imports updated)
 - [x] Ensure client components keep `"use client"` where needed
+- [ ] **Pending**: Enforce Public API in `src/shared/ui/index.ts` (currently only exports TagInput) -> **Requires BD Issue**
 
 ### 2.2 Shared utilities + infra
 
-- [ ] Create `src/shared/lib/*` and move truly generic utilities:
-  - [ ] `utils`, `constants`, `logger/logging`, `i18n-config`, generic hooks
-- [ ] Create `src/shared/api/*` for infra clients/adapters:
+- [x] Create `src/shared/lib/*` and move truly generic utilities:
+  - [x] `utils`, `constants`, `logger/logging`, `i18n-config`
+  - [ ] Generic hooks (in progress)
+- [ ] Create `src/shared/api/*` for infra clients/adapters: -> **Requires BD Issue**
   - [ ] DB / ORM access (currently `src/lib/db.ts`)
   - [ ] tRPC client/server helpers (currently `src/lib/trpc/*`, `src/server/*`)
   - [ ] Auth client/server wrappers (currently `src/lib/auth*.ts`)
   - [ ] Revalidation helpers, flags providers
-- [ ] Update imports so features/entities consume **only** `shared/*` infra
+- [ ] Update imports so features/entities consume **only** `shared/*` infra (Started: logger/logging)
 
 ### 2.3 Type improvements (completed inline during refactors)
 
@@ -115,7 +117,7 @@ Layer dependency direction:
   - [x] Use `enumValues` for enum types:
   - [x] `community-services/moderation/listings/[id]/route.ts`: `ListingStatus`
 
-### 2.3 Quality gates
+### 2.4 Quality gates
 
 - [ ] `pnpm run typecheck`
 - [ ] `pnpm run lint`
@@ -134,17 +136,17 @@ Layer dependency direction:
 
 ## Pilot: Dashboard (end-to-end slice migration)
 
-> **Status**: Mostly Complete (soralia-village-rbs)
+> **Status**: In Progress (Phase 3.1 & 3.4 complete, logic migration pending)
 > **Goal**: migrate `/dashboard` so the route is thin and all dashboard logic lives under `widgets/features/entities/shared`.
-> **Note**: Basic structure done; widgets/features slices pending for future phases.
+> **Note**: Route shell refactored; widgets/features slices pending for future phases.
 
 ### Pilot Exit Criteria (Phase 3.7)
 
 - [x] Route is thin shell (imports from `@pages/dashboard`)
 - [x] Page module created (`src/page-modules/dashboard/`)
-- [x] Build passes successfully
-- [x] Typecheck passes
-- [x] Lint passes (0 errors)
+- [ ] Build passes successfully
+- [ ] Typecheck passes
+- [ ] Lint passes (0 errors)
 
 ### 3.1 Slice map (create first)
 
@@ -156,9 +158,9 @@ Layer dependency direction:
 ### 3.1.1 FSD Slice Status
 
 - [x] `src/page-modules/dashboard/` - Created (thin route shell) ✅
-- [ ] `widgets/dashboard/` - NOT YET (future phase)
-- [ ] `features/dashboard-*` - NOT YET (future phase)
-- [ ] `entities/widget/` - NOT YET (future phase)
+- [ ] `widgets/dashboard/` - NOT YET (future phase) -> **Requires BD Issue**
+- [ ] `features/dashboard-*` - NOT YET (future phase) -> **Requires BD Issue**
+- [ ] `entities/widget/` - NOT YET (future phase) -> **Requires BD Issue**
 
 ### 3.2 Move dashboard UI pieces
 
@@ -179,10 +181,10 @@ Layer dependency direction:
 
 ### 3.4 Create pages module + thin route
 
-- [ ] Create `src/pages/dashboard/` with `index.ts` exporting `<DashboardPage />`
-- [ ] Refactor `src/app/dashboard/page.tsx` to:
-  - [ ] import from `@pages/dashboard`
-  - [ ] contain minimal glue only (no dashboard logic)
+- [x] Create `src/pages/dashboard/` (aliased as `@pages/dashboard` in `src/page-modules/dashboard`)
+- [x] Refactor `src/app/dashboard/page.tsx` to:
+  - [x] import from `@pages/dashboard`
+  - [x] contain minimal glue only (no dashboard logic)
 
 ### 3.5 Enforce boundaries (tighten)
 

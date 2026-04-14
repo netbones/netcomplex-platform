@@ -1,9 +1,9 @@
-import { db } from '@/lib/db';
-import { settings } from '@/lib/db';
+import { db } from '@api/db';
+import { settings } from '@api/db';
 import { eq } from 'drizzle-orm';
-import { SETTINGS_KEYS } from '@/lib/tenant/settings';
+import { SETTINGS_KEYS } from '@api/tenant';
 import { v4 as uuidv4 } from 'uuid';
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('platform-flags');
 

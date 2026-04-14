@@ -1,9 +1,9 @@
-import { auth } from '@/lib/auth';
-import { hasPermission } from '@/lib/permissions';
-import { db, externalSurveys, users } from '@/lib/db';
+import { auth } from '@api/auth';
+import { hasPermission } from '@api/permissions';
+import { db, externalSurveys, users } from '@api/db';
 import { eq, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { withTenant } from '@api/tenant';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({

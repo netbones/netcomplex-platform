@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Benefits for Soralia Residents - Infographic</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+      }
+      #container {
+        width: 100%;
+        height: 600px;
+      }
+      #downloadBtn {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background: #4f46e5;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <button id="downloadBtn">Download SVG</button>
+    <script src="https://unpkg.com/@antv/infographic@latest/dist/infographic.min.js"></script>
+    <script>
+      // Resource Loader Script
+      const svgTextCache = new Map();
+      const pendingRequests = new Map();
+
+      AntVInfographic.registerResourceLoader(async config => {
+        const { data, scene } = config;
+
+        try {
+          const key = `${scene}::${data}`;
+          let svgText;
+
+          // 1. Check cache
+          if (svgTextCache.has(key)) {
+            svgText = svgTextCache.get(key);
+          }
+          // 2. Check if request is already in progress
+          else if (pendingRequests.has(key)) {
+            svgText = await pendingRequests.get(key);
+          }
+          // 3. Make new request
+          else {
+            const fetchPromise = (async () => {
+              try {
+                let url;
+
+                if (scene === 'icon') {
+                  url = `https://api.iconify.design/${data}.svg`;
+                } else if (scene === 'illus') {
+                  url = `https://raw.githubusercontent.com/balazser/undraw-svg-collection/refs/heads/main/svgs/${data}.svg`;
+                } else return null;
+
+                if (!url) return null;
+
+                const response = await fetch(url, { referrerPolicy: 'no-referrer' });
+
+                if (!response.ok) {
+                  console.error(`HTTP ${response.status}: Failed to load ${url}`);
+                  return null;
+                }
+
+                const text = await response.text();
+
+                if (!text || !text.trim().startsWith('<svg')) {
+                  console.error(`Invalid SVG content from ${url}`);
+                  return null;
+                }
+
+                svgTextCache.set(key, text);
+                return text;
+              } catch (fetchError) {
+                console.error(`Failed to fetch resource ${key}:`, fetchError);
+                return null;
+              }
+            })();
+
+            pendingRequests.set(key, fetchPromise);
+
+            try {
+              svgText = await fetchPromise;
+            } catch (error) {
+              pendingRequests.delete(key);
+              console.error(`Error loading resource ${key}:`, error);
+              return null;
+            } finally {
+              pendingRequests.delete(key);
+            }
+          }
+
+          if (!svgText) {
+            return null;
+          }
+
+          const resource = AntVInfographic.loadSVGResource(svgText);
+
+          if (!resource) {
+            console.error(`loadSVGResource returned null for ${key}`);
+            svgTextCache.delete(key);
+            return null;
+          }
+
+          return resource;
+        } catch (error) {
+          console.error('Unexpected error in resource loader:', error);
+          return null;
+        }
+      });
+    </script>
+    <script>
+      const infographic = new AntVInfographic.Infographic({
+        container: '#container',
+        width: '100%',
+        height: '100%',
+      });
+      infographic.render(`infographic list-column-vertical-icon-arrow
+data
+  title Benefits for Soralia Residents
+  desc What residents gain from the platform
+  items
+    - label Secure Messaging
+      desc Internal Platform Addresses for community communication
+      icon mdi/message
+    - label Family Accounts
+      desc Up to 5 Address Aliases per household
+      icon mdi/account-multiple
+    - label Directory Profiles
+      desc Personal and household directory cards
+      icon mdi/card-account-details
+    - label Data Monetization
+      desc dWallet for data rights and rewards from surveys
+      icon mdi/wallet
+    - label Survey Rewards
+      desc Earn credits from participating in paid surveys
+      icon mdi/gift
+    - label Data Control
+      desc Full control over personal data, export, delete, opt-out
+      icon mdi/lock-open
+theme
+  palette #4F46E5 #10b981 #f59e0b`);
+
+      document.getElementById('downloadBtn').addEventListener('click', async () => {
+        const svgDataUrl = await infographic.toDataURL({ type: 'svg' });
+        const link = document.createElement('a');
+        link.href = svgDataUrl;
+        link.download = 'Benefits-for-Soralia-Residents-infographic.svg';
+        link.click();
+      });
+    </script>
+  </body>
+</html>

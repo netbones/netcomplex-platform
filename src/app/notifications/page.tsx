@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@/hooks/usePageLoading';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 
 interface Notification {
   id: string;

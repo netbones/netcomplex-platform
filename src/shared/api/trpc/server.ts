@@ -1,8 +1,8 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
-import { auth } from '@/lib/auth';
-import { db, users, tenants } from '@/lib/db';
+import { auth } from '@api/auth';
+import { db, users, tenants } from '@api/db';
 import { eq } from 'drizzle-orm';
 
 export interface Context {

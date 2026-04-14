@@ -1,15 +1,15 @@
-import { auth } from '@/lib/auth';
+import { auth } from '@api/auth';
 
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-import { messageSchema } from '@/lib/schemas';
-import { revalidateConversations } from '@/lib/revalidation';
+import { messageSchema } from '@api/schemas';
+import { revalidateConversations } from '@api/revalidation';
 import { apiLogger } from '@/lib/logger';
 
 // Drizzle imports - use db.ts exports
-import { db, messages, users, premiumSeats } from '@/lib/db';
+import { db, messages, users, premiumSeats } from '@api/db';
 import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { withTenant } from '@api/tenant';
 
 /** Supabase client for real-time message broadcasting */
 const supabase = createClient(

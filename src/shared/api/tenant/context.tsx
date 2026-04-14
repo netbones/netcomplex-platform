@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import type { Tenant } from '@/lib/tenant';
+import type { Tenant } from './base';
 
 interface TenantContextValue {
   tenant: Tenant | null;

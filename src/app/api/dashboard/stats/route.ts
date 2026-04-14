@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth';
+import { auth } from '@api/auth';
 import {
   db,
   users,
@@ -7,10 +7,10 @@ import {
   conversations,
   conversationParticipants,
   notifications,
-} from '@/lib/db';
+} from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { withTenant } from '@api/tenant';
 
 export const maxDuration = 5;
 

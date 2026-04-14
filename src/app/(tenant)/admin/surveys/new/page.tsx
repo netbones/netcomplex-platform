@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
-import { createComponentLogger } from '@/lib/logging';
+import { Breadcrumbs } from '@shared/ui';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('new-survey-page');
 

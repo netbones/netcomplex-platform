@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { db, contents, users, settings } from '@/lib/db';
+import { db, contents, users, settings } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenantOptional } from '@/lib/tenant/with-tenant';
-import { logError } from '@/lib/logging';
+import { withTenantOptional } from '@api/tenant';
+import { logError } from '@shared/lib';
 
 // Default campaign configuration
 const DEFAULT_CAMPAIGN_CONFIG = {

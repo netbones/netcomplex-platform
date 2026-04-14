@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { authClient } from '@/lib/auth-client';
-import { trpc } from '@/lib/trpc/client';
+import { authClient } from '@api/auth-client';
+import { trpc } from '@api/trpc/client';
 
 export interface IdentityState {
   isAgent: boolean;

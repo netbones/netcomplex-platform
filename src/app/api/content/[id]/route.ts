@@ -1,9 +1,9 @@
-import { db, contents, users, groups } from '@/lib/db';
+import { db, contents, users, groups } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@/lib/i18n-config';
-import { revalidateContent } from '@/lib/revalidation';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@shared/lib';
+import { revalidateContent } from '@api/revalidation';
+import { withTenant } from '@api/tenant';
 
 /**
  * Transform content item to include localized fields

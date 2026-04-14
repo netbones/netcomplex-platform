@@ -1,4 +1,4 @@
-import { PageCTA } from '@shared/ui/PageCTA';
+import { PageCTA } from '@shared/ui';
 
 export function PricingCTA() {
   return (

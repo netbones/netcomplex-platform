@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TIERS, type TierLevel } from '@/lib/features/registry';
-import { createTenant } from '@/lib/tenant';
-import { db, users, tenants } from '@/lib/db';
+import { TIERS, type TierLevel } from '@api/features/registry';
+import { createTenant } from '@api/tenant';
+import { db, users, tenants } from '@api/db';
 import { eq } from 'drizzle-orm';
-import { logError } from '@/lib/logging';
+import { logError } from '@shared/lib';
 
 interface SignupRequest {
   name: string;

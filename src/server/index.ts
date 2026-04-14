@@ -1,5 +1,5 @@
 import { identityRouter } from './routers/identity';
-import { router } from '@/lib/trpc/server';
+import { router } from '@api/trpc/server';
 
 export const appRouter = router({
   identity: identityRouter,

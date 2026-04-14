@@ -2,8 +2,8 @@
 
 import { useCallback } from 'react';
 import { toast } from 'sonner';
-import { logError, createComponentLogger } from '@/lib/logging';
-import { authClient } from '@/lib/auth-client';
+import { logError, createComponentLogger } from '@shared/lib';
+import { authClient } from '@api/auth-client';
 
 const log = createComponentLogger('useApiToast');
 

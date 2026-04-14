@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { withTenant } from '@/lib/tenant/with-tenant';
-import { logError } from '@/lib/logging';
+import { auth } from '@api/auth';
+import { withTenant } from '@api/tenant';
+import { logError } from '@shared/lib';
 
 export async function GET(request: NextRequest) {
   try {

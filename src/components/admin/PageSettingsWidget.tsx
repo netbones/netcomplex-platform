@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
-import { createComponentLogger } from '@/lib/logging';
+import { ErrorBoundary } from '@shared/ui';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('PageSettingsWidget');
 

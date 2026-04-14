@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { messageSchema, conversationSchema } from '@/lib/schemas';
+import { messageSchema, conversationSchema } from '@api/schemas';
 
 describe('chat schemas', () => {
   describe('messageSchema', () => {

@@ -1,7 +1,7 @@
-import { db, userGroups } from '@/lib/db';
+import { db, userGroups } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { withTenant } from '@api/tenant';
 
 export async function POST(request: Request) {
   const body = await request.json();

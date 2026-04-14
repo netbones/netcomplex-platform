@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Drizzle imports
-import { db, communityServiceListings, users } from '@/lib/db';
+import { db, communityServiceListings, users } from '@api/db';
 import { eq, desc, and, or, sql } from 'drizzle-orm';
-import { communityServiceReviews } from '@/lib/db';
-import { withTenant } from '@/lib/tenant/with-tenant';
-import { logError } from '@/lib/logging';
+import { communityServiceReviews } from '@api/db';
+import { withTenant } from '@api/tenant';
+import { logError } from '@shared/lib';
 
 export const maxDuration = 5;
 

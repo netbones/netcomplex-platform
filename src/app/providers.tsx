@@ -4,10 +4,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { httpBatchLink } from '@trpc/client';
 import superjson from 'superjson';
-import { authClient } from '@/lib/auth-client';
-import { ToastProvider } from '@shared/ui/Toast';
-import { TooltipProvider } from '@shared/ui/tooltip';
-import { trpc } from '@/lib/trpc/client';
+import { authClient } from '@api/auth-client';
+import { ToastProvider, TooltipProvider } from '@shared/ui';
+import { trpc } from '@api/trpc/client';
 import '@/lib/i18n';
 
 export function Providers({ children }: { children: React.ReactNode }) {

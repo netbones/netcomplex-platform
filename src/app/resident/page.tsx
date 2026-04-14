@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
+import { auth } from '@api/auth';
 
 export default async function ResidentPage() {
   const session = await auth.api.getSession({

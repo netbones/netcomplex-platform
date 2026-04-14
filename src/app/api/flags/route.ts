@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPageFlags, getPageFlag } from '@/lib/flags';
-import { getStatsigExperimentFlags } from '@/lib/flags/statsig-flags';
-import { withTenantOptional } from '@/lib/tenant/with-tenant';
-import { createComponentLogger } from '@/lib/logging';
+import { getPageFlags, getPageFlag } from '@api/flags';
+import { getStatsigExperimentFlags } from '@api/flags/statsig-flags';
+import { withTenantOptional } from '@api/tenant';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('flags-api');
 

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { db, households, standardSeats, profiles, contents, users } from '@/lib/db';
+import { auth } from '@api/auth';
+import { db, households, standardSeats, profiles, contents, users } from '@api/db';
 import { eq, asc, desc, and } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
-import { logError } from '@/lib/logging';
-import { hasPermission } from '@/lib/permissions';
+import { withTenant } from '@api/tenant';
+import { logError } from '@shared/lib';
+import { hasPermission } from '@api/permissions';
 
 /**
  * GET /api/households/[id] - Get household profile with occupants and aggregated content

@@ -13,7 +13,7 @@
  */
 
 import { eq } from 'drizzle-orm';
-import type { TierLevel } from './features/registry';
+import type { TierLevel } from '@api/features/registry';
 import { cache } from 'react';
 import { headers } from 'next/headers';
 import {
@@ -52,7 +52,7 @@ import {
   conversationParticipants,
   questions,
   responses,
-} from './db';
+} from '@api/db';
 
 export interface Tenant {
   id: string;
@@ -161,7 +161,7 @@ export async function deleteTenant(id: string): Promise<void> {
   await db.delete(tenants).where(eq(tenants.id, id));
 }
 
-export function withTenant<T>(tenantId: string, conditions: T[]): T[] {
+export function drizzleTenantFilter<T>(tenantId: string, conditions: T[]): T[] {
   return conditions;
 }
 

@@ -6,7 +6,7 @@
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { CACHE_TAGS } from './revalidation';
-import { logError } from './logging';
+import { logError } from '@shared/lib';
 
 // Cache dashboard stats with ISR tags for on-demand revalidation
 export const getDashboardStats = unstable_cache(

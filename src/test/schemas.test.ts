@@ -5,7 +5,7 @@ import {
   maintenanceRequestSchema,
   bookingSchema,
   userProfileSchema,
-} from '@/lib/schemas';
+} from '@api/schemas';
 
 describe('schemas', () => {
   describe('contentSchema', () => {

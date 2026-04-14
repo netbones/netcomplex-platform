@@ -1,7 +1,7 @@
 'use client';
 
-import { useTenant } from '@/lib/tenant/context';
-import { isFeatureEnabled } from '@/lib/features/registry';
+import { useTenant } from '@api/tenant';
+import { isFeatureEnabled } from '@api/features/registry';
 
 /**
  * FeatureGate - Conditionally render content based on tenant feature flags

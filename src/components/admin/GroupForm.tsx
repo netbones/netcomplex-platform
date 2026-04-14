@@ -3,8 +3,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { groupSchema, type GroupFormData } from '@/lib/schemas';
-import { createComponentLogger } from '@/lib/logging';
+import { groupSchema, type GroupFormData } from '@api/schemas';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('GroupForm');
 

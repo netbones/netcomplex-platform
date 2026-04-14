@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { logError } from '@/lib/logging';
+import { logError } from '@shared/lib';
 
 /** Contact information interface for various departments */
 interface ContactSettings {

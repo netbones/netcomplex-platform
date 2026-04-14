@@ -1,4 +1,4 @@
-import { ROLES } from './constants';
+import { ROLES } from '@shared/lib';
 
 /** User role type derived from ROLES constants */
 export type Role = keyof typeof ROLES;

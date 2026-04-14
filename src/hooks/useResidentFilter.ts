@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@shared/lib';
 import type { Resident } from '@/components/shared/UnifiedResidentCard';
 
 const log = createComponentLogger('useResidentFilter');

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { auth } from '@api/auth';
 
 // Drizzle imports - use individual exports from db.ts
-import { db, messages, conversations, conversationParticipants, users } from '@/lib/db';
+import { db, messages, conversations, conversationParticipants, users } from '@api/db';
 import { eq, and, gt, desc, sql } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
-import { logError } from '@/lib/logging';
+import { withTenant } from '@api/tenant';
+import { logError } from '@shared/lib';
 
 /**
  * GET /api/messages/unread - Get unread message counts for current user

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { Breadcrumbs } from '@shared/ui';
 
 interface Group {
   id: string;

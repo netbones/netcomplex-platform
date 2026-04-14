@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
-import { createComponentLogger } from '@/lib/logging';
+import { ErrorBoundary } from '@shared/ui';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('AdminSystemWidget');
 

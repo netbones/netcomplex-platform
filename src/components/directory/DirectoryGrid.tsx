@@ -1,9 +1,8 @@
-import { CARD_HEADER_COLORS } from '@/lib/constants';
-import { authClient } from '@/lib/auth-client';
+import { CARD_HEADER_COLORS, createComponentLogger } from '@shared/lib';
+import { authClient } from '@api/auth-client';
 import { useState, useEffect } from 'react';
 import { ChatModal } from './DirectoryChatModal';
 import { UnifiedResidentCard, type Resident } from '../shared/UnifiedResidentCard';
-import { createComponentLogger } from '@/lib/logging';
 
 const log = createComponentLogger('DirectoryGrid');
 

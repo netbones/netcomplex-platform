@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { authClient } from '@/lib/auth-client';
+import { authClient } from '@api/auth-client';
 import { useApiToast } from '@/hooks/useApiToast';
 
 interface Conversation {

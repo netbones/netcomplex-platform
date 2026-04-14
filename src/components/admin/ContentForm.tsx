@@ -5,18 +5,16 @@ import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { RichTextEditor } from '@shared/ui/RichTextEditor';
-import { TagInput } from '@shared/ui/TagInput';
-import { LocaleSelector } from '@shared/ui/LocaleSelector';
-import { authClient } from '@/lib/auth-client';
+import { LocaleSelector, RichTextEditor, TagInput } from '@shared/ui';
+import { authClient } from '@api/auth-client';
 import {
   supportedLanguages,
   languageNames,
   defaultLanguage,
   type SupportedLanguage,
 } from '@/lib/i18n';
-import { contentSchema, type ContentFormData } from '@/lib/schemas';
-import { createComponentLogger } from '@/lib/logging';
+import { contentSchema, type ContentFormData } from '@api/schemas';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('ContentForm');
 

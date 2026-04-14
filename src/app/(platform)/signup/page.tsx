@@ -8,7 +8,7 @@ import { SignupHeader } from '@/components/platform/SignupHeader';
 import { SignupFormSection } from '@/components/platform/SignupFormSection';
 import { SignupCTA } from '@/components/platform/SignupCTA';
 import { PlatformFooter } from '@/components/platform/PlatformFooter';
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('signup-page');
 

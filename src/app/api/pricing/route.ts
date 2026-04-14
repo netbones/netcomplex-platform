@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { TIERS, type TierLevel } from '@/lib/features/registry';
-import { withTenant } from '@/lib/tenant/with-tenant';
-import { logError } from '@/lib/logging';
+import { TIERS, type TierLevel } from '@api/features/registry';
+import { withTenant } from '@api/tenant';
+import { logError } from '@shared/lib';
 
 export interface PricingPlan {
   id: TierLevel;

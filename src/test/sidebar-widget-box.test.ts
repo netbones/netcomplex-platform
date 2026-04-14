@@ -13,7 +13,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
  * =====================
  */
 
-vi.mock('@/lib/auth-client', () => ({
+vi.mock('@api/auth-client', () => ({
   authClient: {
     useSession: () => ({
       data: {
@@ -33,7 +33,7 @@ vi.mock('@/hooks/useApiToast', () => ({
   }),
 }));
 
-vi.mock('@/lib/config/tenant', () => ({
+vi.mock('@api/config/tenant', () => ({
   tenantConfig: {
     location: {
       latitude: 26.6619,

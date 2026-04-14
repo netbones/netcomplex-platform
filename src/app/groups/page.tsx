@@ -3,11 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
-import { authClient } from '@/lib/auth-client';
-import { INTEREST_CATEGORIES } from '@/lib/constants';
+import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
+import { authClient } from '@api/auth-client';
+import { INTEREST_CATEGORIES } from '@shared/lib';
 import { usePageLoading } from '@/hooks/usePageLoading';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 
 interface Group {
   id: string;

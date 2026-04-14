@@ -13,7 +13,7 @@ import {
   members,
   invitations,
   organizations,
-} from './db';
+} from '@api/db';
 import { tenantConfig } from './config/tenant';
 
 /**

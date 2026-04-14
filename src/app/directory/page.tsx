@@ -4,12 +4,11 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DirectoryGrid } from '@/components/directory';
 import { ServicesGrid } from '@/components/services';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@/hooks/usePageLoading';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
 import { useResidentFilter } from '@/hooks/useResidentFilter';
 import { useServiceFilter } from '@/hooks/useServiceFilter';
-import { STREETS } from '@/lib/constants';
+import { STREETS } from '@shared/lib';
 
 export default function DirectoryPage() {
   const { t } = useTranslation(['common', 'directory']);

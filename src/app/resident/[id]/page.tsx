@@ -4,12 +4,9 @@ import { useState, useEffect, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { authClient } from '@/lib/auth-client';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
-import { TagCloud } from '@shared/ui/TagCloud';
-import { sanitizeHtml } from '@/lib/utils';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
-import { createComponentLogger } from '@/lib/logging';
+import { authClient } from '@api/auth-client';
+import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
+import { createComponentLogger, sanitizeHtml } from '@shared/lib';
 
 const log = createComponentLogger('resident-profile');
 

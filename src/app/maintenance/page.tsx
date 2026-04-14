@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { MaintenanceForm } from '@/components/maintenance/MaintenanceForm';
 import { usePageLoading } from '@/hooks/usePageLoading';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('maintenance-page');
 

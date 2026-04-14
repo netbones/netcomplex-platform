@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTenantById, updateTenant, deleteTenant } from '@/lib/tenant';
-import { logError } from '@/lib/logging';
+import { getTenantById, updateTenant, deleteTenant } from '@api/tenant';
+import { logError } from '@shared/lib';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

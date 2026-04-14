@@ -1,7 +1,7 @@
-import { db, users, standardSeats, soloSeats, households, contents } from '@/lib/db';
+import { db, users, standardSeats, soloSeats, households, contents } from '@api/db';
 import { NextResponse } from 'next/server';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { withTenant } from '@api/tenant';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

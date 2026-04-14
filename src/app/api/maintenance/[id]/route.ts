@@ -5,13 +5,13 @@ import {
   standardSeats,
   households,
   requestHistories,
-} from '@/lib/db';
+} from '@api/db';
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { hasPermission } from '@/lib/permissions';
+import { auth } from '@api/auth';
+import { hasPermission } from '@api/permissions';
 import { eq, and } from 'drizzle-orm';
-import { revalidateDashboard } from '@/lib/revalidation';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { revalidateDashboard } from '@api/revalidation';
+import { withTenant } from '@api/tenant';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({

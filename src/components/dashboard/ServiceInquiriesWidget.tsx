@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { authClient } from '@/lib/auth-client';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { authClient } from '@api/auth-client';
+import { ErrorBoundary } from '@shared/ui';
 import { useApiToast } from '@/hooks/useApiToast';
 
 interface ServiceInquiry {

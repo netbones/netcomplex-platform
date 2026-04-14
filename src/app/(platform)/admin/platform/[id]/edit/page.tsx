@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { getTenantById } from '@/lib/tenant';
+import { getTenantById } from '@api/tenant';
 import BrandingForm from './components';
 
 interface Props {

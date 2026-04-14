@@ -1,11 +1,11 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { useTenant } from '@/lib/tenant/context';
-import type { Tenant } from '@/lib/tenant';
-import { isFeatureEnabled } from '@/lib/features/registry';
+import { useTenant } from '@api/tenant';
+import type { Tenant } from '@api/tenant';
+import { isFeatureEnabled } from '@api/features/registry';
 import { WIDGET_FEATURE_MAP } from '@/lib/dashboard-config';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { ErrorBoundary } from '@shared/ui';
 import { getWidgetComponent, getWidgetMetadata, hasWidget } from '@/components/registry';
 
 interface WidgetRendererProps {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { db, users } from '@/lib/db';
+import { auth } from '@api/auth';
+import { db, users } from '@api/db';
 import { eq, or } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';

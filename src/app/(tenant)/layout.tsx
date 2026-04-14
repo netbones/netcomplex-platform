@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { Toaster } from 'sonner';
 import { TenantProvider } from '@/components/tenant/TenantProvider';
-import { getCurrentTenant } from '@/lib/tenant';
+import { getCurrentTenant } from '@api/tenant';
 
 export const dynamic = 'force-dynamic';
 

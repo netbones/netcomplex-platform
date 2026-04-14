@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { ErrorBoundary } from '@shared/ui';
 import { AdminStatsWidget } from './AdminStatsWidget';
 import { AdminQuickLinksWidget } from './AdminQuickLinksWidget';
 import { AdminActivityWidget } from './AdminActivityWidget';

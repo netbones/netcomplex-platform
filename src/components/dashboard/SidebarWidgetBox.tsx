@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { authClient } from '@/lib/auth-client';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
-import { createComponentLogger } from '@/lib/logging';
+import { authClient } from '@api/auth-client';
+import { ErrorBoundary } from '@shared/ui';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('SidebarWidgetBox');
 

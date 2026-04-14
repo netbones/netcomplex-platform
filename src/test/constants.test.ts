@@ -11,7 +11,7 @@ import {
   CARD_ANIMATIONS,
   MAP_CENTER,
   MAP_ZOOM,
-} from '@/lib/constants';
+} from '@shared/lib';
 
 describe('constants', () => {
   describe('APP_NAME', () => {

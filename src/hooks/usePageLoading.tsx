@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { Breadcrumbs } from '@shared/ui';
 
 interface BreadcrumbItem {
   label: string;

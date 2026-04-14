@@ -4,11 +4,10 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { LanguageSwitcher } from '@shared/ui/LanguageSwitcher';
-import { SideDrawer } from '@shared/ui/SideDrawer';
-import { authClient } from '@/lib/auth-client';
-import { hasPermission } from '@/lib/permissions';
-import { createComponentLogger } from '@/lib/logging';
+import { LanguageSwitcher, SideDrawer } from '@shared/ui';
+import { authClient } from '@api/auth-client';
+import { hasPermission } from '@api/permissions';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('Header');
 

@@ -9,7 +9,7 @@
  *   npx tsx scripts/backfill-tenant-records.ts             # Apply changes
  */
 
-import { db } from '../src/lib/db';
+import { db } from '@api/db';
 import {
   tenants,
   users,
@@ -45,7 +45,7 @@ import {
   conversationParticipants,
   questions,
   responses,
-} from '../src/lib/db';
+} from '@api/db';
 import { eq, isNull, sql } from 'drizzle-orm';
 
 const DEFAULT_TENANT_SLUG = 'soralia';

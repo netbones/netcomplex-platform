@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getTenantById, updateTenant } from '@/lib/tenant';
-import { TIERS, FEATURE_REGISTRY, WIDGET_REGISTRY, type TierLevel } from '@/lib/features/registry';
+import { getTenantById, updateTenant } from '@api/tenant';
+import { TIERS, FEATURE_REGISTRY, WIDGET_REGISTRY, type TierLevel } from '@api/features/registry';
 import FeaturesForm from './components';
 
 interface Props {

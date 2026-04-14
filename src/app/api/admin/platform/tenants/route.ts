@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { listTenants, createTenant, updateTenant, deleteTenant, getTenantById } from '@/lib/tenant';
-import { logError } from '@/lib/logging';
+import { listTenants, createTenant, updateTenant, deleteTenant, getTenantById } from '@api/tenant';
+import { logError } from '@shared/lib';
 
 export async function GET() {
   try {

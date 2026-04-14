@@ -1,6 +1,6 @@
-import { db, users, maintenanceRequests } from '@/lib/db';
+import { db, users, maintenanceRequests } from '@api/db';
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { auth } from '@api/auth';
 import { eq, count, and, gte, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';

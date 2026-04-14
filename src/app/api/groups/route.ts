@@ -1,9 +1,9 @@
-import { auth } from '@/lib/auth';
-import { hasPermission, Permission } from '@/lib/permissions';
-import { db, groups, users, userGroups } from '@/lib/db';
+import { auth } from '@api/auth';
+import { hasPermission, Permission } from '@api/permissions';
+import { db, groups, users, userGroups } from '@api/db';
 import { eq, asc, sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { withTenant } from '@api/tenant';
 
 /**
  * Retrieves session and role from the request for API routes.

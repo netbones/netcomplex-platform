@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { db, agentProfiles, users, premiumSeats } from '@/lib/db';
+import { auth } from '@api/auth';
+import { db, agentProfiles, users, premiumSeats } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
-import { logError } from '@/lib/logging';
+import { withTenant } from '@api/tenant';
+import { logError } from '@shared/lib';
 
 /**
  * GET /api/agents/marketplace - Get available agents for property investors

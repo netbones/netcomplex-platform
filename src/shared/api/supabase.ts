@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { logError } from './logging';
+import { logError } from '@shared/lib';
 
 // Validate required environment variables at startup
 const requiredEnvVars = ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'];

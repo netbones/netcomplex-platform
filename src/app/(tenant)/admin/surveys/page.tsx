@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
+import { Breadcrumbs } from '@shared/ui';
 
 interface Survey {
   id: string;

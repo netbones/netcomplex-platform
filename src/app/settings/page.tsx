@@ -3,13 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
-import { authClient } from '@/lib/auth-client';
+import { Breadcrumbs, ErrorBoundary, ImageUpload } from '@shared/ui';
+import { authClient } from '@api/auth-client';
 import { supportedLanguages, languageNames, type SupportedLanguage } from '@/lib/i18n';
 import { usePageLoading } from '@/hooks/usePageLoading';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
-import { ImageUpload } from '@shared/ui/ImageUpload';
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('settings-page');
 

@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { listTenants } from '@/lib/tenant';
+import { listTenants } from '@api/tenant';
 import Link from 'next/link';
 
 function Badge({

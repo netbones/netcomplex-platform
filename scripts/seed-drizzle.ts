@@ -20,7 +20,7 @@ import {
   standardSeats,
   soloSeats,
   profiles,
-} from '../src/lib/db';
+} from '@api/db';
 import { eq, sql } from 'drizzle-orm';
 
 const SORALIA_TENANT_ID = 'soralia';

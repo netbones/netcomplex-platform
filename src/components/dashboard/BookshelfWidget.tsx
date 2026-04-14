@@ -1,8 +1,7 @@
 'use client';
 
-import { authClient } from '@/lib/auth-client';
-import { Bookshelf } from '@shared/ui/Bookshelf';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { authClient } from '@api/auth-client';
+import { Bookshelf, ErrorBoundary } from '@shared/ui';
 
 export function BookshelfWidget() {
   const { data: session } = authClient.useSession();

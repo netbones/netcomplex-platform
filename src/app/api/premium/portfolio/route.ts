@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { db, premiumSeats } from '@/lib/db';
+import { auth } from '@api/auth';
+import { db, premiumSeats } from '@api/db';
 import { eq, sql, and } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
-import { logError } from '@/lib/logging';
+import { withTenant } from '@api/tenant';
+import { logError } from '@shared/lib';
 
 /**
  * POST /api/premium/upgrade-portfolio - Upgrade to Premium Seat with multi-property portfolio

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
-import { createComponentLogger } from '@/lib/logging';
+import { Breadcrumbs } from '@shared/ui';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('external-surveys-page');
 

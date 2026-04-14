@@ -2,12 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
-import { TagCloud } from '@shared/ui/TagCloud';
-import { CARD_ANIMATIONS } from '@/lib/constants';
+import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
+import { CARD_ANIMATIONS, createComponentLogger } from '@shared/lib';
 import { usePageLoading } from '@/hooks/usePageLoading';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
-import { createComponentLogger } from '@/lib/logging';
 
 const log = createComponentLogger('resources-page');
 

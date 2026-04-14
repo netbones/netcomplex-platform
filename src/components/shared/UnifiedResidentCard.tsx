@@ -1,4 +1,4 @@
-import { CARD_HEADER_COLORS, CARD_ANIMATIONS, INTEREST_COLORS } from '@/lib/constants';
+import { CARD_HEADER_COLORS, CARD_ANIMATIONS, INTEREST_COLORS } from '@shared/lib';
 import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import Link from 'next/link';

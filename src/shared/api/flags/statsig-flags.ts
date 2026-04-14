@@ -1,6 +1,6 @@
 import { dedupe } from 'flags/next';
 import type { ReadonlyRequestCookies } from 'flags';
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('statsig-flags');
 

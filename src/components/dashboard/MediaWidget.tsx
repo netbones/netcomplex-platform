@@ -1,7 +1,6 @@
 'use client';
 
-import { MediaLibrary } from '@shared/ui/MediaLibrary';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { ErrorBoundary, MediaLibrary } from '@shared/ui';
 
 export function MediaWidget() {
   return (

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { auth } from '@api/auth';
 import {
   db,
   premiumSeats,
@@ -7,10 +7,10 @@ import {
   propertyListings,
   users,
   householdsTopremiumSeats,
-} from '@/lib/db';
+} from '@api/db';
 import { eq, sql, and } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
-import { logError } from '@/lib/logging';
+import { withTenant } from '@api/tenant';
+import { logError } from '@shared/lib';
 
 interface PropertyListing {
   id: string;

@@ -6,7 +6,7 @@ export default async function RootLayout({
   params: Promise<{ lng: string }>;
 }) {
   const { lng: languageParam } = await params;
-  const { getCurrentTenant } = await import('@/lib/tenant');
+  const { getCurrentTenant } = await import('@api/tenant');
   const { TenantProvider } = await import('@/components/tenant/TenantProvider');
   const tenant = await getCurrentTenant();
   const language = languageParam || 'en';

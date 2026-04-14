@@ -4,12 +4,9 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
-import { TagCloud } from '@shared/ui/TagCloud';
-import { sanitizeHtml } from '@/lib/utils';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
+import { createComponentLogger, sanitizeHtml } from '@shared/lib';
 import { usePageLoading } from '@/hooks/usePageLoading';
-import { createComponentLogger } from '@/lib/logging';
 
 const log = createComponentLogger('news-post-page');
 

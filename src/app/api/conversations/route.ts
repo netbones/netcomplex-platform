@@ -1,11 +1,11 @@
-import { auth } from '@/lib/auth';
+import { auth } from '@api/auth';
 
 import { NextResponse } from 'next/server';
 
 // Drizzle imports - use db.ts exports
-import { db, conversations, conversationParticipants, messages, users } from '@/lib/db';
+import { db, conversations, conversationParticipants, messages, users } from '@api/db';
 import { eq, desc } from 'drizzle-orm';
-import { withTenant } from '@/lib/tenant/with-tenant';
+import { withTenant } from '@api/tenant';
 
 export async function GET(request: Request) {
   const session = await auth.api.getSession({

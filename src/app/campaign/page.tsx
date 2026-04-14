@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumbs } from '@shared/ui/Breadcrumbs';
-import { ErrorBoundary } from '@shared/ui/ErrorBoundary';
+import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@/hooks/usePageLoading';
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('campaign-page');
 
