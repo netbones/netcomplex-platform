@@ -66,7 +66,8 @@ interface HouseholdData {
 }
 
 function HouseholdContent() {
-  const params = useParams();
+  const params = useParams() as { id?: string } | null;
+  const id = params?.id;
   const { t: tCommon } = useTranslation('common');
   const { data: session } = authClient.useSession();
   const [household, setHousehold] = useState<HouseholdData | null>(null);
@@ -81,18 +82,18 @@ function HouseholdContent() {
       { label: 'Directory', href: '/directory' },
       {
         label: `${household?.household.street || 'Household'} ${household?.household.unit || ''}`,
-        href: `/unit/${params.id}`,
+        href: id ? `/unit/${id}` : '/directory',
       },
     ],
     { additionalLoading: loading }
   );
 
   useEffect(() => {
-    if (!params.id) return;
+    if (!id) return;
 
     const fetchHousehold = async () => {
       try {
-        const res = await fetch(`/api/households/${params.id}`);
+        const res = await fetch(`/api/households/${id}`);
         if (!res.ok) {
           if (res.status === 404) {
             throw new Error('Household not found');
@@ -109,7 +110,7 @@ function HouseholdContent() {
     };
 
     fetchHousehold();
-  }, [params.id]);
+  }, [id]);
 
   if (!isReady) {
     return LoadingComponent;

@@ -210,7 +210,7 @@ export default function DirectoryPage() {
           </div>
         ) : (
           <ServicesGrid
-            services={services}
+            services={services as unknown as Parameters<typeof ServicesGrid>[0]['services']}
             viewMode={servicesViewMode}
             onInquiry={handleServiceInquiry}
           />

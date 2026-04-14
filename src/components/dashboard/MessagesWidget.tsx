@@ -19,15 +19,17 @@ interface Conversation {
 export function MessagesWidget() {
   const { t } = useTranslation('common');
   const { data: session } = authClient.useSession();
-  const { fetch } = useApiToast({ component: 'MessagesWidget' });
+  const { fetch: apiFetch } = useApiToast({ component: 'MessagesWidget' });
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!session?.user?.id) return;
 
-    fetch(
-      fetch(`/api/conversations?userId=${session.user.id}`).then(res => res.json()),
+    apiFetch(
+      globalThis
+        .fetch(`/api/conversations?userId=${session.user.id}`)
+        .then(res => res.json() as Promise<Conversation[]>),
       {
         error: 'Failed to fetch conversations',
         onSuccess: (data: Conversation[]) => setConversations(Array.isArray(data) ? data : []),

@@ -80,14 +80,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Fetch contents for these users
     interface ContentItem {
       id: string;
-      title: string;
-      excerpt: string | null;
-      content: string | null;
+      title: unknown;
+      excerpt: unknown;
+      content: unknown;
       category: string;
-      tags: string[] | null;
+      tags: string[];
       publishedAt: Date | null;
       createdAt: Date;
       authorId: string | null;
+      author?: {
+        id: string;
+        name: string;
+        type: 'member' | 'occupant';
+        isPrimaryOwner?: boolean;
+        profileId?: string;
+      };
     }
     const userContentsMap: Record<string, ContentItem[]> = {};
 
@@ -154,9 +161,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
 
     // Sort all content by published date (most recent first)
-    allContent.sort(
-      (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-    );
+    allContent.sort((a, b) => (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0));
 
     // Generate household tag cloud from all content
     const tagCounts: { [key: string]: number } = {};

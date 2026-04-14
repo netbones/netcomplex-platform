@@ -15,14 +15,15 @@ interface Group {
 }
 
 export default function EditGroupPage() {
-  const params = useParams();
+  const params = useParams() as { id?: string } | null;
+  const id = params?.id;
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!params.id) return;
+    if (!id) return;
 
-    fetch(`/api/groups/${params.id}`)
+    fetch(`/api/groups/${id}`)
       .then(res => res.json())
       .then(data => {
         if (data.error) {
@@ -37,7 +38,7 @@ export default function EditGroupPage() {
         });
         setLoading(false);
       });
-  }, [params.id]);
+  }, [id]);
 
   if (loading) {
     return <div className="p-8 text-center">Loading...</div>;
@@ -52,7 +53,7 @@ export default function EditGroupPage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Edit Interest Group</h1>
       <GroupForm
         initialData={{
-          id: params.id as string,
+          id: id,
           name: group.name,
           description: group.description || '',
           category: group.category,

@@ -7,6 +7,8 @@ import { eq, and, sql, inArray, desc } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
 import { logError } from '@/lib/logging';
 
+type InquiryStatus = (typeof communityServiceInquiries.status.enumValues)[number];
+
 /**
  * GET /api/community-services/provider/inquiries - Get inquiries for provider's listings
  */
@@ -52,12 +54,7 @@ export async function GET(request: NextRequest) {
     const conditions = [inArray(communityServiceInquiries.listingId, listingIds)];
 
     if (status && status !== 'ALL') {
-      conditions.push(
-        eq(
-          communityServiceInquiries.status,
-          status as 'PENDING' | 'CONTACTED' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
-        )
-      );
+      conditions.push(eq(communityServiceInquiries.status, status as InquiryStatus));
     }
 
     // Get inquiries using Drizzle

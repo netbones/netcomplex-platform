@@ -31,7 +31,8 @@ interface ContentItem {
 }
 
 export default function NewsPostPage() {
-  const params = useParams();
+  const params = useParams() as { id?: string } | null;
+  const id = params?.id;
   const { t } = useTranslation(['common', 'news']);
   const [content, setContent] = useState<ContentItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,17 +41,17 @@ export default function NewsPostPage() {
     [
       { label: 'Home', href: '/' },
       { label: 'News & Updates', href: '/news' },
-      { label: 'Post', href: `/news/${params.id}` },
+      { label: 'Post', href: id ? `/news/${id}` : '/news' },
     ],
     { additionalLoading: loading }
   );
 
   useEffect(() => {
-    if (!params.id) return;
+    if (!id) return;
 
     const fetchContent = async () => {
       try {
-        const res = await fetch(`/api/content/${params.id}`);
+        const res = await fetch(`/api/content/${id}`);
         if (res.ok) {
           const data = await res.json();
           if (data.published) {
@@ -65,7 +66,7 @@ export default function NewsPostPage() {
     };
 
     fetchContent();
-  }, [params.id]);
+  }, [id]);
 
   const getCategoryColor = (category: string) => {
     switch (category) {

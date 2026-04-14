@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { useApiToast } from '@/hooks/useApiToast';
@@ -20,7 +20,7 @@ interface Household {
 
 export function CreateListingForm({ householdId, onClose, onSuccess }: CreateListingFormProps) {
   const { t } = useTranslation('dashboard');
-  const { fetch, mutate } = useApiToast({ component: 'CreateListingForm' });
+  const { fetch: apiFetch, mutate: apiMutate } = useApiToast({ component: 'CreateListingForm' });
   const [loading, setLoading] = useState(false);
   const [households, setHouseholds] = useState<Household[]>([]);
   const [formData, setFormData] = useState({
@@ -37,36 +37,47 @@ export function CreateListingForm({ householdId, onClose, onSuccess }: CreateLis
   });
 
   // Fetch user's households if not provided
-  useState(() => {
+  useEffect(() => {
     if (!householdId) {
       fetchHouseholds();
     }
-  });
+  }, [householdId]);
 
   const fetchHouseholds = () => {
-    fetch(fetch('/api/premium/portfolio').then(res => res.json()) as Promise<unknown>, {
-      error: 'Failed to fetch households',
-      onSuccess: (data: {
-        hasPortfolio: boolean;
-        portfolio?: { linkedHouseholds?: Household[] };
-      }) => {
-        if (data.hasPortfolio && data.portfolio?.linkedHouseholds) {
-          setHouseholds(data.portfolio.linkedHouseholds);
-        }
-      },
-    });
+    apiFetch(
+      globalThis.fetch('/api/premium/portfolio').then(
+        res =>
+          res.json() as Promise<{
+            hasPortfolio: boolean;
+            portfolio?: { linkedHouseholds?: Household[] };
+          }>
+      ),
+      {
+        error: 'Failed to fetch households',
+        onSuccess: (data: {
+          hasPortfolio: boolean;
+          portfolio?: { linkedHouseholds?: Household[] };
+        }) => {
+          if (data.hasPortfolio && data.portfolio?.linkedHouseholds) {
+            setHouseholds(data.portfolio.linkedHouseholds);
+          }
+        },
+      }
+    );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    mutate(
-      fetch('/api/premium/listings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      }).then(res => res.json()) as Promise<unknown>,
+    apiMutate(
+      globalThis
+        .fetch('/api/premium/listings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        })
+        .then(res => res.json() as Promise<{ success?: boolean }>),
       {
         loading: 'Creating listing...',
         success: 'Listing created!',

@@ -27,7 +27,7 @@ interface MediaItem {
 export function MyAlbumWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
-  const { fetch, mutate } = useApiToast({ component: 'MyAlbumWidget' });
+  const { fetch: apiFetch, mutate: apiMutate } = useApiToast({ component: 'MyAlbumWidget' });
   const [albums, setAlbums] = useState<AlbumItem[]>([]);
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,8 +44,10 @@ export function MyAlbumWidget() {
   }, [session?.user?.id]);
 
   const fetchAlbums = () => {
-    fetch(
-      fetch('/api/user/albums').then(res => res.json()),
+    apiFetch(
+      globalThis
+        .fetch('/api/user/albums')
+        .then(res => res.json() as Promise<{ albums?: AlbumItem[] }>),
       {
         error: 'Failed to fetch albums',
         onSuccess: (data: { albums?: AlbumItem[] }) => setAlbums(data.albums || []),
@@ -54,8 +56,8 @@ export function MyAlbumWidget() {
   };
 
   const fetchMediaItems = () => {
-    fetch(
-      fetch('/api/media').then(res => res.json()),
+    apiFetch(
+      globalThis.fetch('/api/media').then(res => res.json() as Promise<{ images?: MediaItem[] }>),
       {
         error: 'Failed to fetch media items',
         onSuccess: (data: { images?: MediaItem[] }) => setMediaItems(data.images || []),
@@ -68,20 +70,22 @@ export function MyAlbumWidget() {
     if (!newAlbum.title.trim()) return;
 
     setSaving(true);
-    mutate(
-      fetch('/api/user/albums', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'create',
-          album: {
-            title: newAlbum.title.trim(),
-            description: newAlbum.description.trim(),
-            isPublic: newAlbum.isPublic,
-            mediaIds: [],
-          },
-        }),
-      }).then(res => res.json()),
+    apiMutate(
+      globalThis
+        .fetch('/api/user/albums', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'create',
+            album: {
+              title: newAlbum.title.trim(),
+              description: newAlbum.description.trim(),
+              isPublic: newAlbum.isPublic,
+              mediaIds: [],
+            },
+          }),
+        })
+        .then(res => res.json() as Promise<{ albums?: AlbumItem[] }>),
       {
         loading: 'Creating album...',
         success: 'Album created!',
@@ -99,12 +103,14 @@ export function MyAlbumWidget() {
     if (!confirm('Delete this album?')) return;
 
     setSaving(true);
-    mutate(
-      fetch('/api/user/albums', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'delete', albumId }),
-      }).then(res => res.json()),
+    apiMutate(
+      globalThis
+        .fetch('/api/user/albums', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'delete', albumId }),
+        })
+        .then(res => res.json() as Promise<{ albums?: AlbumItem[] }>),
       {
         loading: 'Deleting album...',
         success: 'Album deleted!',
@@ -122,12 +128,14 @@ export function MyAlbumWidget() {
 
   const handleUpdateAlbum = (album: AlbumItem) => {
     setSaving(true);
-    mutate(
-      fetch('/api/user/albums', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'update', album }),
-      }).then(res => res.json()),
+    apiMutate(
+      globalThis
+        .fetch('/api/user/albums', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'update', album }),
+        })
+        .then(res => res.json() as Promise<{ albums?: AlbumItem[] }>),
       {
         loading: 'Updating album...',
         success: 'Album updated!',

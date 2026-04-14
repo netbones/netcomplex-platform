@@ -15,48 +15,63 @@ import {
   getAvailableWidgets as getAvailableWidgetsFromConfig,
 } from '@/lib/dashboard-config';
 
-const DEFAULT_TABS: DashboardTab[] = [
+interface Tab {
+  id: string;
+  label: string;
+  icon: string;
+  defaultWidgets: string[];
+}
+
+const DEFAULT_TABS: Tab[] = [
   {
     id: 'overview',
-    title: 'Overview',
-    widgetIds: ['stats', 'quickActions', 'recentActivity', 'notifications'],
+    label: 'Overview',
+    icon: 'layout',
+    defaultWidgets: ['stats', 'quickActions', 'recentActivity', 'notifications'],
   },
   {
     id: 'maintenance',
-    title: 'Maintenance',
-    widgetIds: ['maintenanceRequests', 'maintenanceForm'],
+    label: 'Maintenance',
+    icon: 'tool',
+    defaultWidgets: ['maintenanceRequests', 'maintenanceForm'],
   },
   {
     id: 'bookings',
-    title: 'Bookings',
-    widgetIds: ['bookings', 'bookingCalendar'],
+    label: 'Bookings',
+    icon: 'calendar',
+    defaultWidgets: ['bookings', 'bookingCalendar'],
   },
   {
     id: 'services',
-    title: 'Services',
-    widgetIds: ['myServices', 'serviceInquiries'],
+    label: 'Services',
+    icon: 'briefcase',
+    defaultWidgets: ['myServices', 'serviceInquiries'],
   },
   {
     id: 'content',
-    title: 'Content',
-    widgetIds: ['userContent', 'createContent'],
+    label: 'Content',
+    icon: 'file-text',
+    defaultWidgets: ['userContent', 'createContent'],
   },
   {
     id: 'premium',
-    title: 'Premium',
-    widgetIds: ['premiumPortfolio', 'unifiedDashboard'],
+    label: 'Premium',
+    icon: 'star',
+    defaultWidgets: ['premiumPortfolio', 'unifiedDashboard'],
   },
 ];
 
 function DashboardContent() {
   const [activeTab, setActiveTab] = useState('overview');
   const { t } = useTranslation('dashboard');
-  const { userWidgets, setUserWidgets, resetLayout } = useWidgetStore();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { userWidgets, setUserWidgets, resetLayout } = useWidgetStore() as any;
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [availableWidgets, setAvailableWidgets] = useState<string[]>([]);
 
   useEffect(() => {
-    const widgets = getAvailableWidgetsFromConfig();
+    const widgets = getAvailableWidgetsFromConfig([]) as unknown as string[];
     setAvailableWidgets(widgets);
   }, []);
 
@@ -75,7 +90,7 @@ function DashboardContent() {
     const tabWidgets = userWidgets[activeTab] || [];
     setUserWidgets({
       ...userWidgets,
-      [activeTab]: tabWidgets.filter(id => id !== widgetId),
+      [activeTab]: tabWidgets.filter((id: string) => id !== widgetId),
     });
   };
 
@@ -84,7 +99,7 @@ function DashboardContent() {
   };
 
   const currentTab = DEFAULT_TABS.find(tab => tab.id === activeTab);
-  const tabWidgets = userWidgets[activeTab] || currentTab?.widgetIds || [];
+  const tabWidgets = userWidgets[activeTab] || currentTab?.defaultWidgets || [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -119,11 +134,15 @@ function DashboardContent() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {tabWidgets.map(widgetId => (
+                {tabWidgets.map((widgetId: string) => (
                   <DraggableWidget
                     key={widgetId}
-                    widgetId={widgetId}
+                    id={widgetId}
+                    title={getWidgetTitle(widgetId)}
+                    icon={getWidgetIcon(widgetId)}
+                    removable
                     onRemove={() => handleRemoveWidget(widgetId)}
+                    tabId={activeTab}
                   >
                     <WidgetRenderer widgetId={widgetId} />
                   </DraggableWidget>
@@ -133,13 +152,18 @@ function DashboardContent() {
           </main>
         </div>
       </div>
-      <AddWidgetModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAddWidget={handleAddWidget}
-        activeTabWidgets={tabWidgets}
-        availableWidgets={availableWidgets}
-      />
+      {isAddModalOpen && (
+        <AddWidgetModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onSelect={handleAddWidget}
+          availableWidgets={availableWidgets.map(id => ({
+            id,
+            label: getWidgetTitle(id),
+            icon: getWidgetIcon(id),
+          }))}
+        />
+      )}
     </div>
   );
 }

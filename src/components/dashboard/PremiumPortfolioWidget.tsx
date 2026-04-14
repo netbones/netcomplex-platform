@@ -60,7 +60,9 @@ interface PropertyListing {
 export function PremiumPortfolioWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
-  const { fetch, mutate } = useApiToast({ component: 'PremiumPortfolioWidget' });
+  const { fetch: apiFetch, mutate: apiMutate } = useApiToast({
+    component: 'PremiumPortfolioWidget',
+  });
   const [portfolio, setPortfolio] = useState<PremiumPortfolio | null>(null);
   const [listings, setListings] = useState<PropertyListing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,8 +78,10 @@ export function PremiumPortfolioWidget() {
   }, [session?.user?.id]);
 
   const fetchListings = () => {
-    fetch(
-      fetch('/api/premium/listings').then(res => res.json()),
+    apiFetch(
+      globalThis
+        .fetch('/api/premium/listings')
+        .then(res => res.json() as Promise<{ listings?: PropertyListing[] }>),
       {
         error: 'Failed to fetch listings',
         onSuccess: (data: { listings?: PropertyListing[] }) => setListings(data.listings || []),
@@ -86,8 +90,12 @@ export function PremiumPortfolioWidget() {
   };
 
   const fetchPortfolio = () => {
-    fetch(
-      fetch('/api/premium/portfolio').then(res => res.json()),
+    apiFetch(
+      globalThis
+        .fetch('/api/premium/portfolio')
+        .then(
+          res => res.json() as Promise<{ hasPortfolio: boolean; portfolio?: PremiumPortfolio }>
+        ),
       {
         error: 'Failed to fetch portfolio',
         onSuccess: (data: { hasPortfolio: boolean; portfolio?: PremiumPortfolio }) => {
@@ -105,10 +113,12 @@ export function PremiumPortfolioWidget() {
     setUpgrading(true);
 
     // First get user's households, then create portfolio
-    const getUser = fetch(`/api/users/${session?.user?.id}`).then(res => res.json());
+    const getUser = globalThis
+      .fetch(`/api/users/${session?.user?.id}`)
+      .then(res => res.json() as Promise<{ standardSeats?: Array<{ household: { id: string } }> }>);
 
-    mutate(
-      getUser.then((userData: { standardSeats?: Array<{ household: { id: string } }> }) => {
+    apiMutate(
+      getUser.then(userData => {
         const householdIds =
           userData.standardSeats?.map((seat: { household: { id: string } }) => seat.household.id) ||
           [];
@@ -117,11 +127,13 @@ export function PremiumPortfolioWidget() {
           throw new Error('You need at least 2 properties to create a portfolio');
         }
 
-        return fetch('/api/premium/portfolio', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ householdIds }),
-        }).then(res => res.json());
+        return globalThis
+          .fetch('/api/premium/portfolio', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ householdIds }),
+          })
+          .then(res => res.json() as Promise<{ success: boolean; portfolio?: PremiumPortfolio }>);
       }),
       {
         loading: 'Creating portfolio...',

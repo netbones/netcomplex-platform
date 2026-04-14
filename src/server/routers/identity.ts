@@ -639,15 +639,19 @@ export const identityRouter = router({
 
     if (!seat) return null;
 
-    const [household] = await db
-      .select({
-        id: households.id,
-        street: households.street,
-        unit: households.unit,
-        homeImage: households.homeImage,
-      })
-      .from(households)
-      .where(eq(households.id, seat.householdId));
+    const household = seat.householdId
+      ? (
+          await db
+            .select({
+              id: households.id,
+              street: households.street,
+              unit: households.unit,
+              homeImage: households.homeImage,
+            })
+            .from(households)
+            .where(eq(households.id, seat.householdId))
+        )[0]
+      : null;
 
     return { ...seat, household };
   }),
@@ -673,15 +677,19 @@ export const identityRouter = router({
 
     if (!user?.isPublic) return null;
 
-    const [household] = await db
-      .select({
-        id: households.id,
-        street: households.street,
-        unit: households.unit,
-        homeImage: households.homeImage,
-      })
-      .from(households)
-      .where(eq(households.id, seat.householdId));
+    const household = seat.householdId
+      ? (
+          await db
+            .select({
+              id: households.id,
+              street: households.street,
+              unit: households.unit,
+              homeImage: households.homeImage,
+            })
+            .from(households)
+            .where(eq(households.id, seat.householdId))
+        )[0]
+      : null;
 
     return {
       ...seat,
@@ -716,15 +724,19 @@ export const identityRouter = router({
           .from(users)
           .where(eq(users.id, soloSeat.userId));
 
-        const [household] = await db
-          .select({
-            id: households.id,
-            street: households.street,
-            unit: households.unit,
-            homeImage: households.homeImage,
-          })
-          .from(households)
-          .where(eq(households.id, soloSeat.householdId));
+        const household = soloSeat.householdId
+          ? (
+              await db
+                .select({
+                  id: households.id,
+                  street: households.street,
+                  unit: households.unit,
+                  homeImage: households.homeImage,
+                })
+                .from(households)
+                .where(eq(households.id, soloSeat.householdId))
+            )[0]
+          : null;
 
         return { type: 'soloSeat', data: { ...soloSeat, user, household } };
       }
@@ -748,7 +760,7 @@ export const identityRouter = router({
         const [user] = await db
           .select({ id: users.id, name: users.name, email: users.email, avatar: users.avatar })
           .from(users)
-          .where(eq(users.id, profile.userId));
+          .where(eq(users.id, profile.userId!));
 
         return { type: 'profile', data: { ...profile, household, user } };
       }
@@ -849,8 +861,9 @@ export const identityRouter = router({
           agentId: ctx.userId!,
           householdId: input.householdId,
           grantedById: ctx.userId!,
-          accessLevel: 'VIEW',
-          permissions: ['VIEW'],
+          accessLevel: 'VIEW_ONLY',
+          permissions: ['VIEW_LISTING'],
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
           isActive: false,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -864,7 +877,7 @@ export const identityRouter = router({
     .input(
       z.object({
         accessId: z.string(),
-        level: z.enum(['VIEW', 'MANAGE']).default('VIEW'),
+        level: z.enum(['VIEW_ONLY', 'MANAGEMENT', 'FULL_ACCESS']).default('VIEW_ONLY'),
         expiresAt: z.date().optional(),
       })
     )

@@ -19,17 +19,17 @@ interface ServiceListing {
 export function MyServicesWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
-  const { fetch } = useApiToast({ component: 'MyServicesWidget' });
+  const { fetch: apiFetch } = useApiToast({ component: 'MyServicesWidget' });
   const [services, setServices] = useState<ServiceListing[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!session?.user?.id) return;
 
-    fetch(
-      fetch(`/api/community-services/listings?providerId=${session.user.id}&limit=5`).then(res =>
-        res.json()
-      ),
+    apiFetch(
+      globalThis
+        .fetch(`/api/community-services/listings?providerId=${session.user.id}&limit=5`)
+        .then(res => res.json() as Promise<{ listings?: ServiceListing[] }>),
       {
         error: 'Failed to fetch my services',
         onSuccess: (data: { listings?: ServiceListing[] }) => setServices(data.listings || []),

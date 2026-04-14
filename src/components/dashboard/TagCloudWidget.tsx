@@ -22,7 +22,7 @@ interface TagCloudWidgetProps {
 
 export function TagCloudWidget({ widgetId, authorId }: TagCloudWidgetProps) {
   const { t } = useTranslation('dashboard');
-  const { fetch } = useApiToast({ component: 'TagCloudWidget' });
+  const { fetch: apiFetch } = useApiToast({ component: 'TagCloudWidget' });
   const [tags, setTags] = useState<{ name: string; size: string; count: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,15 +45,15 @@ export function TagCloudWidget({ widgetId, authorId }: TagCloudWidgetProps) {
   };
 
   const fetchUserTags = () => {
-    fetch(
-      fetch(buildApiUrl()).then(res => res.json()),
+    apiFetch(
+      globalThis.fetch(buildApiUrl()).then(res => res.json() as Promise<unknown>),
       {
         error: 'Failed to fetch user tags',
-        onSuccess: (data: unknown[]) => {
+        onSuccess: (data: unknown) => {
           if (!Array.isArray(data)) return;
 
           const tagCounts: Record<string, number> = {};
-          data.forEach((item: { tags?: string[] }) => {
+          (data as Array<{ tags?: string[] }>).forEach(item => {
             if (item.tags && Array.isArray(item.tags)) {
               item.tags.forEach((tag: string) => {
                 tagCounts[tag] = (tagCounts[tag] || 0) + 1;

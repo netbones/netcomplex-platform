@@ -21,7 +21,27 @@ export const tenantConfig = {
     // Allow dev origins in development, configurable in production
     allowedHosts:
       process.env.NODE_ENV === 'production'
-        ? process.env.AUTH_ALLOWED_HOSTS?.split(',') || []
+        ? (() => {
+            const envHosts = (process.env.AUTH_ALLOWED_HOSTS || '')
+              .split(',')
+              .map(s => s.trim())
+              .filter(Boolean);
+
+            const vercelHost = (() => {
+              const url = process.env.NEXT_PUBLIC_VERCEL_URL || '';
+              if (!url) return null;
+              try {
+                return new URL(url.startsWith('http') ? url : `https://${url}`).host;
+              } catch {
+                return null;
+              }
+            })();
+
+            // Better Auth requires at least one allowed host.
+            return envHosts.length > 0
+              ? envHosts
+              : ([vercelHost, '*.vercel.app', 'localhost:3000'].filter(Boolean) as string[]);
+          })()
         : [
             'soralia.com',
             'www.soralia.com',

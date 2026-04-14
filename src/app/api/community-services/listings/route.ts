@@ -5,12 +5,12 @@ import { apiLogger } from '@/lib/logger';
 
 // Drizzle imports
 import { db, communityServiceListings, users } from '@/lib/db';
-import { eq, desc, and, or, sql } from 'drizzle-orm';
+import { eq, desc, and, or, sql, ilike } from 'drizzle-orm';
 import { communityServiceReviews } from '@/lib/db';
 import { withTenant } from '@/lib/tenant/with-tenant';
 
-// Types for enums
-type ListingStatus = 'DRAFT' | 'ACTIVE' | 'WITHDRAWN' | 'SUSPENDED';
+type ListingStatus = (typeof communityServiceListings.status.enumValues)[number];
+type ServiceCategory = (typeof communityServiceListings.category.enumValues)[number];
 
 /**
  * GET /api/community-services/listings - Get community service listings
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     ];
 
     if (category && category !== 'ALL') {
-      conditions.push(eq(communityServiceListings.category, category as ListingStatus));
+      conditions.push(eq(communityServiceListings.category, category as ServiceCategory));
     }
 
     if (verified) {
@@ -110,13 +110,14 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      const searchLower = `%${search.toLowerCase()}%`;
-      conditions.push(
-        or(
-          sql`lower(${communityServiceListings.title}) like ${searchLower}`,
-          sql`lower(${communityServiceListings.description}) like ${searchLower}`
-        )
+      const searchLower = `%${search}%`;
+      const searchCondition = or(
+        ilike(communityServiceListings.title, searchLower),
+        ilike(sql`coalesce(${communityServiceListings.description}, '')`, searchLower)
       );
+      if (searchCondition) {
+        conditions.push(searchCondition);
+      }
     }
 
     // Get listings with pagination

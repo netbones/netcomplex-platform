@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
       ORDER BY pl."createdAt" DESC
     `);
 
-    return NextResponse.json({ listings: listings.rows as PropertyListing[] });
+    return NextResponse.json({ listings: listings.rows as unknown as PropertyListing[] });
   } catch (error) {
     logError(
       { component: 'premium-listings-api', operation: 'GET' },
@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
         ${petFriendly || false}, 'DRAFT', false
       )
       RETURNING *
-    `)) as { rows: PropertyListing[] };
+    `)) as unknown as { rows: PropertyListing[] };
 
     return NextResponse.json({
       success: true,

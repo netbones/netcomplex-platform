@@ -2,18 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createComponentLogger } from '@/lib/logging';
+import type { Resident } from '@/components/shared/UnifiedResidentCard';
 
 const log = createComponentLogger('useResidentFilter');
-
-export interface Resident {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  street?: string;
-  unitNumber?: string;
-  [key: string]: unknown;
-}
 
 export interface UseResidentFilterReturn {
   residents: Resident[];

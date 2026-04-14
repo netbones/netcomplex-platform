@@ -162,22 +162,21 @@ export async function POST(request: Request) {
 
     // Use Drizzle insert
     const now = new Date();
+    type BookingStatus = (typeof bookings.status.enumValues)[number];
     const insertValues = {
       id: sql`gen_random_uuid()`,
+      tenantId,
       userId,
       facility,
       date: new Date(date),
       startTime,
       endTime,
       purpose,
-      status: 'CONFIRMED',
+      status: 'CONFIRMED' as BookingStatus,
       createdAt: now,
-      updatedAt: sql`null`,
+      updatedAt: now,
     };
-    const [booking] = await db
-      .insert(bookings)
-      .values(insertValues as unknown as Parameters<typeof db.insert>[1])
-      .returning();
+    const [booking] = await db.insert(bookings).values(insertValues).returning();
 
     // Revalidate dashboard caches immediately when new booking is created
     revalidateDashboard();

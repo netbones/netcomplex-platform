@@ -17,7 +17,7 @@ interface PlatformHeaderProps {
  * for platform pages. Follows NetComplex brand guidelines.
  */
 export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t, ready } = useTranslation('platform');
 

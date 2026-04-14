@@ -374,7 +374,9 @@ function ProfileContent() {
                         <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
                           <div className="flex items-center gap-3">
                             <span className="text-xs text-gray-500">
-                              {new Date(content.publishedAt).toLocaleDateString()}
+                              {content.publishedAt
+                                ? new Date(content.publishedAt).toLocaleDateString()
+                                : ''}
                             </span>
                             <span className="text-xs bg-soralia-secondary text-white px-2 py-0.5 rounded">
                               {content.category}

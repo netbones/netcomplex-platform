@@ -7,6 +7,8 @@ import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@/lib/tenant/with-tenant';
 import { logError } from '@/lib/logging';
 
+type ListingStatus = (typeof communityServiceListings.status.enumValues)[number];
+
 /**
  * GET /api/community-services/moderation/listings - Get listings requiring moderation
  */
@@ -43,12 +45,7 @@ export async function GET(request: NextRequest) {
     const conditions = [eq(communityServiceListings.tenantId, tenantId)];
 
     if (status !== 'ALL') {
-      conditions.push(
-        eq(
-          communityServiceListings.status,
-          status as 'DRAFT' | 'ACTIVE' | 'WITHDRAWN' | 'SUSPENDED'
-        )
-      );
+      conditions.push(eq(communityServiceListings.status, status as ListingStatus));
     }
 
     // Get listings using Drizzle

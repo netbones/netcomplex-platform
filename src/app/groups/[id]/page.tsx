@@ -32,15 +32,16 @@ interface Group {
 }
 
 export default function GroupDetailPage() {
-  const params = useParams();
+  const params = useParams() as { id?: string } | null;
+  const id = params?.id;
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
 
   useEffect(() => {
-    if (!params.id) return;
+    if (!id) return;
 
-    fetch(`/api/groups/${params.id}`)
+    fetch(`/api/groups/${id}`)
       .then(res => res.json())
       .then(data => {
         if (data.error) {
@@ -50,13 +51,13 @@ export default function GroupDetailPage() {
         setGroup(data);
         setLoading(false);
       });
-  }, [params.id]);
+  }, [id]);
 
   const handleJoin = async () => {
     const res = await fetch('/api/groups/members', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: 'demo-user', groupId: params.id }),
+      body: JSON.stringify({ userId: 'demo-user', groupId: id }),
     });
     if (res.ok) {
       setIsMember(true);
@@ -64,7 +65,7 @@ export default function GroupDetailPage() {
   };
 
   const handleLeave = async () => {
-    const res = await fetch(`/api/groups/members?userId=demo-user&groupId=${params.id}`, {
+    const res = await fetch(`/api/groups/members?userId=demo-user&groupId=${id}`, {
       method: 'DELETE',
     });
     if (res.ok) {

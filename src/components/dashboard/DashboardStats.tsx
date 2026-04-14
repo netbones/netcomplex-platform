@@ -64,7 +64,7 @@ function StatCard({
 
 export function DashboardStats() {
   const { t } = useTranslation('dashboard');
-  const { fetch } = useApiToast({ component: 'DashboardStats' });
+  const { fetch: apiFetch } = useApiToast({ component: 'DashboardStats' });
   const [stats, setStats] = useState<DashboardStats>({
     requests: 0,
     bookings: 0,
@@ -74,11 +74,14 @@ export function DashboardStats() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(fetch('/api/dashboard/stats'), {
-      error: 'Failed to fetch dashboard stats',
-      onSuccess: (data: DashboardStats) => setStats(data),
-      onError: () => setLoading(false),
-    });
+    apiFetch(
+      globalThis.fetch('/api/dashboard/stats').then(res => res.json() as Promise<DashboardStats>),
+      {
+        error: 'Failed to fetch dashboard stats',
+        onSuccess: (data: DashboardStats) => setStats(data),
+        onError: () => setLoading(false),
+      }
+    );
   }, []);
 
   return (

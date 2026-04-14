@@ -33,15 +33,17 @@ interface ContentItem {
 export function UserContentWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
-  const { fetch } = useApiToast({ component: 'UserContentWidget' });
+  const { fetch: apiFetch } = useApiToast({ component: 'UserContentWidget' });
   const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!session?.user?.id) return;
 
-    fetch(
-      fetch(`/api/content?authorId=${session.user.id}`).then(res => res.json()),
+    apiFetch(
+      globalThis
+        .fetch(`/api/content?authorId=${session.user.id}`)
+        .then(res => res.json() as Promise<ContentItem[] | unknown>),
       {
         error: 'Failed to fetch user content',
         onSuccess: (data: ContentItem[] | unknown) => setContent(Array.isArray(data) ? data : []),

@@ -67,7 +67,10 @@ export async function GET(request: Request) {
   }
 
   if (search) {
-    conditions.push(or(ilike(users.name, `%${search}%`), ilike(users.email, `%${search}%`)));
+    const searchCondition = or(ilike(users.name, `%${search}%`), ilike(users.email, `%${search}%`));
+    if (searchCondition) {
+      conditions.push(searchCondition);
+    }
   }
 
   if (role) {

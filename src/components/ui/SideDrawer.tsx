@@ -42,7 +42,7 @@ interface SideDrawerProps {
 }
 
 export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? '';
   const isMounted = useIsMounted();
   const { t, ready } = useTranslation('common');
   const { data: session } = authClient.useSession();

@@ -26,17 +26,17 @@ interface ServiceInquiry {
 export function ServiceInquiriesWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
-  const { fetch } = useApiToast({ component: 'ServiceInquiriesWidget' });
+  const { fetch: apiFetch } = useApiToast({ component: 'ServiceInquiriesWidget' });
   const [inquiries, setInquiries] = useState<ServiceInquiry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!session?.user?.id) return;
 
-    fetch(
-      fetch('/api/community-services/inquiries?providerId=' + session.user.id).then(res =>
-        res.json()
-      ),
+    apiFetch(
+      globalThis
+        .fetch('/api/community-services/inquiries?providerId=' + session.user.id)
+        .then(res => res.json() as Promise<ServiceInquiry[] | { inquiries: ServiceInquiry[] }>),
       {
         error: 'Failed to fetch inquiries',
         onSuccess: (data: ServiceInquiry[] | { inquiries: ServiceInquiry[] }) => {

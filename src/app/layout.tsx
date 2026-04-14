@@ -6,6 +6,8 @@ import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { Toaster } from 'sonner';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Soralia Village Community Directory',
   description: 'A premier residential community in Cape Town',

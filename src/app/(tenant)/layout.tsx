@@ -6,6 +6,8 @@ import { Toaster } from 'sonner';
 import { TenantProvider } from '@/components/tenant/TenantProvider';
 import { getCurrentTenant } from '@/lib/tenant';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Soralia Village Community Directory',
   description: 'A premier residential community in Cape Town',

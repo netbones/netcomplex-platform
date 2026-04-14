@@ -104,8 +104,8 @@ export async function GET(request: Request) {
   interface QueryResult {
     MaintenanceRequest: typeof maintenanceRequests.$inferSelect;
     user: typeof users.$inferSelect | null;
-    standardSeat: typeof standardSeats.$inferSelect | null;
-    household: typeof households.$inferSelect | null;
+    standardSeat?: typeof standardSeats.$inferSelect | null;
+    household?: typeof households.$inferSelect | null;
   }
   let requests: QueryResult[];
   if (canViewAll) {
@@ -129,6 +129,8 @@ export async function GET(request: Request) {
       .select({
         MaintenanceRequest: maintenanceRequests,
         user: users,
+        standardSeat: sql<null>`null`,
+        household: sql<null>`null`,
       })
       .from(maintenanceRequests)
       .leftJoin(users, eq(maintenanceRequests.userId, users.id))

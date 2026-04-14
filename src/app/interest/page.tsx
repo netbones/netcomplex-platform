@@ -192,7 +192,7 @@ export default function InterestPage() {
 function InterestContent() {
   const { t } = useTranslation(['common', 'interest']);
   const searchParams = useSearchParams();
-  const groupId = searchParams.get('group') || 'gardening';
+  const groupId = searchParams?.get('group') || 'gardening';
   const group = interestGroups[groupId] || interestGroups.gardening;
   const colorClass = colorClasses[group.color];
   const [viewMode, setViewMode] = useState<ViewMode>('detail');

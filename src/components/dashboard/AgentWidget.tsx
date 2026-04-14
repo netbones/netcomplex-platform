@@ -36,7 +36,7 @@ interface PropertyListing {
 export function AgentWidget() {
   const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
-  const { fetch, mutate } = useApiToast({ component: 'AgentWidget' });
+  const { fetch: apiFetch, mutate: apiMutate } = useApiToast({ component: 'AgentWidget' });
   const [agents, setAgents] = useState<AgentProfile[]>([]);
   const [listings, setListings] = useState<PropertyListing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,27 +50,39 @@ export function AgentWidget() {
   }, [session?.user?.id]);
 
   const fetchAgentData = () => {
-    fetch(fetch('/api/agents/marketplace').then(res => res.json()) as Promise<unknown>, {
-      error: 'Failed to fetch agent data',
-      onSuccess: (data: { agents?: AgentProfile[] }) => setAgents(data.agents || []),
-    });
+    apiFetch(
+      globalThis
+        .fetch('/api/agents/marketplace')
+        .then(res => res.json() as Promise<{ agents?: AgentProfile[] }>),
+      {
+        error: 'Failed to fetch agent data',
+        onSuccess: (data: { agents?: AgentProfile[] }) => setAgents(data.agents || []),
+      }
+    );
   };
 
   const fetchListings = () => {
-    fetch(fetch('/api/premium/listings').then(res => res.json()) as Promise<unknown>, {
-      error: 'Failed to fetch listings',
-      onSuccess: (data: { listings?: PropertyListing[] }) => setListings(data.listings || []),
-      onError: () => setLoading(false),
-    });
+    apiFetch(
+      globalThis
+        .fetch('/api/premium/listings')
+        .then(res => res.json() as Promise<{ listings?: PropertyListing[] }>),
+      {
+        error: 'Failed to fetch listings',
+        onSuccess: (data: { listings?: PropertyListing[] }) => setListings(data.listings || []),
+        onError: () => setLoading(false),
+      }
+    );
   };
 
   const connectWithAgent = (agentId: string) => {
-    mutate(
-      fetch('/api/agents/connect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId }),
-      }).then(res => res.json()) as Promise<unknown>,
+    apiMutate(
+      globalThis
+        .fetch('/api/agents/connect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agentId }),
+        })
+        .then(res => res.json() as Promise<unknown>),
       {
         loading: 'Sending request...',
         success: 'Connection request sent!',

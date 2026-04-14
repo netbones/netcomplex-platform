@@ -180,24 +180,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const body = await request.json();
-    const updateData: {
-      updatedAt: Date;
-      title?: string;
-      description?: string;
-      subcategory?: string;
-      priceType?: string;
-      price?: string;
-      serviceAreas?: string[];
-      availability?: string;
-      licenseNumber?: string;
-      insuranceExpiry?: Date;
-      responseTime?: string;
-      contactMethods?: string[];
-      images?: string[];
-      portfolio?: string[];
-      termsAndConditions?: string;
-      cancellationPolicy?: string;
-    } = {
+    type ListingUpdate = Partial<typeof communityServiceListings.$inferInsert>;
+    const updateData: ListingUpdate = {
       updatedAt: new Date(),
     };
 
@@ -223,11 +207,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     allowedFields.forEach(field => {
       if (body[field] !== undefined) {
         if (field === 'price' && body[field] !== null) {
-          updateData[field] = String(parseFloat(body[field]));
+          (updateData as Record<string, unknown>)[field] = String(parseFloat(body[field]));
         } else if (field === 'insuranceExpiry' && body[field]) {
-          updateData[field] = new Date(body[field]);
+          (updateData as Record<string, unknown>)[field] = new Date(body[field]);
         } else {
-          updateData[field] = body[field];
+          (updateData as Record<string, unknown>)[field] = body[field];
         }
       }
     });

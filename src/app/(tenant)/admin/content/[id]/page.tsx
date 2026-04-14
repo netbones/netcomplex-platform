@@ -20,14 +20,15 @@ interface Content {
 }
 
 export default function EditContentPage() {
-  const params = useParams();
+  const params = useParams() as { id?: string } | null;
+  const id = params?.id;
   const [content, setContent] = useState<Content | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!params.id) return;
+    if (!id) return;
 
-    fetch(`/api/content/${params.id}`)
+    fetch(`/api/content/${id}`)
       .then(res => res.json())
       .then(data => {
         if (data.error) {
@@ -37,7 +38,7 @@ export default function EditContentPage() {
         setContent(data);
         setLoading(false);
       });
-  }, [params.id]);
+  }, [id]);
 
   if (loading) {
     return <div className="p-8 text-center">Loading...</div>;
