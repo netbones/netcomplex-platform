@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import { ServiceTypeBadge } from '@/components/services/ServiceTypeBadge';
-import { CategoryBadge } from '@/components/services/CategoryBadge';
-import { ReviewStars } from '@/components/services/ReviewStars';
-import { PricingDisplay } from '@/components/services/PricingDisplay';
-import { ServiceListing } from '@/components/services/ServiceCard';
-import { RelatedServices } from '@/components/services/RelatedServices';
+import {
+  ServiceTypeBadge,
+  CategoryBadge,
+  ReviewStars,
+  PricingDisplay,
+  ServiceListing,
+} from '@entities/service';
+import { RelatedServices } from '@widgets/service';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { createComponentLogger } from '@shared/lib';

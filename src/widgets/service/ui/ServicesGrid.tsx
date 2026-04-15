@@ -1,6 +1,6 @@
 'use client';
 
-import { ServiceCard, ServiceListing } from './ServiceCard';
+import { ServiceCard, ServiceListing } from '@entities/service';
 
 interface ServicesGridProps {
   services: ServiceListing[];

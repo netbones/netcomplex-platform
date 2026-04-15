@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ServiceListing } from './ServiceCard';
-import { ReviewStars } from './ReviewStars';
-import { PricingDisplay } from './PricingDisplay';
+import { ReviewStars, PricingDisplay, ServiceListing } from '@entities/service';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('RelatedServices');

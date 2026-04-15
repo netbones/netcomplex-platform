@@ -14,8 +14,7 @@ import { PremiumPortfolioWidget } from '../ui/PremiumPortfolioWidget';
 import { HouseholdsWidget } from '../ui/HouseholdsWidget';
 import { AgentDashboardWidget } from '../ui/AgentDashboardWidget';
 import { SoloSeatWidget } from '../ui/SoloSeatWidget';
-import { MyServicesWidget } from '../ui/MyServicesWidget';
-import { ServiceInquiriesWidget } from '../ui/ServiceInquiriesWidget';
+import { MyServicesWidget, ServiceInquiriesWidget } from '@widgets/service';
 import { CommunityGraphWidget } from '../ui/CommunityGraphWidget';
 
 /**

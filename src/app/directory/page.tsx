@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DirectoryGrid } from '@/components/directory';
-import { ServicesGrid } from '@/components/services';
+import { ServicesGrid } from '@widgets/service';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@/hooks/usePageLoading';
 import { useResidentFilter } from '@/hooks/useResidentFilter';
-import { useServiceFilter } from '@/hooks/useServiceFilter';
+import { useServiceFilter } from '@features/service';
 import { STREETS } from '@shared/lib';
 
 export default function DirectoryPage() {

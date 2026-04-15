@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { authClient } from '@api/auth-client';
 import { ErrorBoundary } from '@shared/ui';
 import { AgentWidget } from './AgentWidget';
-import { CreateListingForm } from './CreateListingForm';
+import { CreateListingForm } from '@features/service';
 import { useApiToast } from '@/hooks/useApiToast';
 
 interface PortfolioHousehold {

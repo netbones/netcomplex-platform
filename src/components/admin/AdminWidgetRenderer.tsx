@@ -9,8 +9,7 @@ import { AdminUserWidget } from './AdminUserWidget';
 import { AdminContentWidget } from './AdminContentWidget';
 import { AdminSystemWidget } from './AdminSystemWidget';
 import { ModerationQueueWidget } from './ModerationQueueWidget';
-import { MarketplaceAnalyticsWidget } from './MarketplaceAnalyticsWidget';
-import { ServiceQualityWidget } from './ServiceQualityWidget';
+import { MarketplaceAnalyticsWidget, ServiceQualityWidget } from '@widgets/service';
 import { MaintenanceRequestsWidget, MaintenanceAnalyticsWidget } from '@widgets/maintenance';
 import { PageSettingsWidget } from './PageSettingsWidget';
 
