@@ -11,8 +11,7 @@ import { AdminSystemWidget } from './AdminSystemWidget';
 import { ModerationQueueWidget } from './ModerationQueueWidget';
 import { MarketplaceAnalyticsWidget } from './MarketplaceAnalyticsWidget';
 import { ServiceQualityWidget } from './ServiceQualityWidget';
-import { MaintenanceRequestsWidget } from './MaintenanceRequestsWidget';
-import { MaintenanceAnalyticsWidget } from './MaintenanceAnalyticsWidget';
+import { MaintenanceRequestsWidget, MaintenanceAnalyticsWidget } from '@widgets/maintenance';
 import { PageSettingsWidget } from './PageSettingsWidget';
 
 interface WidgetRendererProps {
