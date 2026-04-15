@@ -4,7 +4,7 @@ import { QuickActionsWidget } from '../ui/QuickActionsWidget';
 import { RecentActivityWidget } from '../ui/RecentActivityWidget';
 import { EventsWidget } from '../ui/EventsWidget';
 import { NotificationsWidget } from '../ui/NotificationsWidget';
-import { MessagesWidget } from '../ui/MessagesWidget';
+import { MessagesWidget } from '@widgets/chat';
 import { UserContentWidget } from '../ui/UserContentWidget';
 import { BookshelfWidget } from '../ui/BookshelfWidget';
 import { MediaWidget } from '../ui/MediaWidget';
