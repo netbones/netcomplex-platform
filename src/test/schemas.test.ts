@@ -9,48 +9,42 @@ import {
 
 describe('schemas', () => {
   describe('contentSchema', () => {
+    const validContentData = {
+      title: { en: 'Test Title' },
+      content: { en: 'Test content body' },
+      excerpt: { en: 'Short excerpt' },
+      category: 'NEWS' as const,
+      tags: ['test'],
+      featured: false,
+      published: true,
+      defaultLocale: 'en',
+      contentType: 'article' as const,
+    };
+
     it('validates correct content data', () => {
-      const data = {
-        title: 'Test Title',
-        content: 'Test content body',
-        excerpt: 'Short excerpt',
-        category: 'NEWS',
-        groupId: '',
-        featured: false,
-        published: true,
-      };
-      expect(() => contentSchema.parse(data)).not.toThrow();
+      expect(() => contentSchema.parse(validContentData)).not.toThrow();
     });
 
-    it('requires title', () => {
+    it('requires title in at least one locale', () => {
       const data = {
-        title: '',
-        content: 'Test content',
-        category: 'NEWS',
-        featured: false,
-        published: false,
+        ...validContentData,
+        title: { en: '' },
       };
-      expect(() => contentSchema.parse(data)).toThrow('Title is required');
+      expect(() => contentSchema.parse(data)).toThrow('At least one language must have a title');
     });
 
-    it('requires content body', () => {
+    it('requires content in at least one locale', () => {
       const data = {
-        title: 'Test',
-        content: '',
-        category: 'NEWS',
-        featured: false,
-        published: false,
+        ...validContentData,
+        content: { en: '' },
       };
-      expect(() => contentSchema.parse(data)).toThrow('Content is required');
+      expect(() => contentSchema.parse(data)).toThrow('At least one language must have content');
     });
 
     it('validates category enum', () => {
       const data = {
-        title: 'Test',
-        content: 'Content',
-        category: 'INVALID',
-        featured: false,
-        published: false,
+        ...validContentData,
+        category: 'INVALID' as never,
       };
       expect(() => contentSchema.parse(data)).toThrow();
     });
@@ -103,8 +97,8 @@ describe('schemas', () => {
         category: 'PLUMBING',
         priority: 'HIGH',
         description: 'Leaking tap in bathroom needs urgent attention',
-        preferredDate: '2024-03-15',
-        preferredTime: 'morning',
+        preferredDate: '2026-04-20',
+        preferredTime: '14:00',
       };
       expect(() => maintenanceRequestSchema.parse(data)).not.toThrow();
     });
@@ -141,8 +135,8 @@ describe('schemas', () => {
         description: 'A valid description here',
       };
       const result = maintenanceRequestSchema.parse(data);
-      expect(result.preferredDate).toBe('');
-      expect(result.preferredTime).toBe('');
+      expect(result.preferredDate).toBeUndefined();
+      expect(result.preferredTime).toBeUndefined();
     });
   });
 
@@ -150,7 +144,7 @@ describe('schemas', () => {
     it('validates correct booking data', () => {
       const data = {
         facility: 'POOL',
-        date: '2024-03-15',
+        date: '2026-04-20',
         startTime: '09:00',
         endTime: '10:00',
         purpose: 'Swimming',
@@ -160,7 +154,7 @@ describe('schemas', () => {
 
     it('requires facility', () => {
       const data = {
-        date: '2024-03-15',
+        date: '2026-04-20',
         startTime: '09:00',
         endTime: '10:00',
       };
@@ -170,7 +164,7 @@ describe('schemas', () => {
     it('validates facility enum', () => {
       const data = {
         facility: 'INVALID_FACILITY',
-        date: '2024-03-15',
+        date: '2026-04-20',
         startTime: '09:00',
         endTime: '10:00',
       };
@@ -189,7 +183,7 @@ describe('schemas', () => {
     it('allows optional purpose', () => {
       const data = {
         facility: 'TENNIS',
-        date: '2024-03-15',
+        date: '2026-04-20',
         startTime: '09:00',
         endTime: '10:00',
       };

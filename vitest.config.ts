@@ -7,6 +7,14 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@shared': path.resolve(__dirname, './src/shared'),
+      '@api': path.resolve(__dirname, './src/shared/api'),
+      '@entities': path.resolve(__dirname, './src/entities'),
+      '@features': path.resolve(__dirname, './src/features'),
+      '@widgets': path.resolve(__dirname, './src/widgets'),
+      '@pages': path.resolve(__dirname, './src/page-modules'),
+      '@processes': path.resolve(__dirname, './src/processes'),
+      '@prisma': path.resolve(__dirname, './prisma/drizzle'),
     },
   },
   test: {

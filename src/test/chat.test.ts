@@ -85,11 +85,15 @@ describe('chat schemas', () => {
   });
 
   describe('conversationSchema', () => {
+    const validUuid1 = '550e8400-e29b-41d4-a716-446655440001';
+    const validUuid2 = '550e8400-e29b-41d4-a716-446655440002';
+    const validUuid3 = '550e8400-e29b-41d4-a716-446655440003';
+
     it('validates correct group conversation', () => {
       const data = {
         name: 'Test Group',
         type: 'GROUP',
-        participantIds: ['user-1', 'user-2', 'user-3'],
+        participantIds: [validUuid1, validUuid2, validUuid3],
       };
       expect(() => conversationSchema.parse(data)).not.toThrow();
     });
@@ -98,7 +102,7 @@ describe('chat schemas', () => {
       const data = {
         name: 'Direct Chat',
         type: 'DIRECT',
-        participantIds: ['user-1', 'user-2'],
+        participantIds: [validUuid1, validUuid2],
       };
       expect(() => conversationSchema.parse(data)).not.toThrow();
     });
@@ -107,7 +111,7 @@ describe('chat schemas', () => {
       const data = {
         name: '',
         type: 'GROUP',
-        participantIds: ['user-1', 'user-2'],
+        participantIds: [validUuid1, validUuid2],
       };
       expect(() => conversationSchema.parse(data)).toThrow('Group name is required');
     });
@@ -115,7 +119,7 @@ describe('chat schemas', () => {
     it('requires at least 2 participants', () => {
       const data = {
         name: 'Test Chat',
-        participantIds: ['user-1'],
+        participantIds: [validUuid1],
       };
       expect(() => conversationSchema.parse(data)).toThrow('At least 2 participants required');
     });
@@ -124,7 +128,7 @@ describe('chat schemas', () => {
       const data = {
         name: 'a'.repeat(101),
         type: 'GROUP',
-        participantIds: ['user-1', 'user-2'],
+        participantIds: [validUuid1, validUuid2],
       };
       expect(() => conversationSchema.parse(data)).toThrow('Name too long');
     });
@@ -132,7 +136,7 @@ describe('chat schemas', () => {
     it('defaults type to DIRECT when not provided', () => {
       const data = {
         name: 'Test Chat',
-        participantIds: ['user-1', 'user-2'],
+        participantIds: [validUuid1, validUuid2],
       };
       const result = conversationSchema.parse(data);
       expect(result.type).toBe('DIRECT');
@@ -142,7 +146,7 @@ describe('chat schemas', () => {
       const data = {
         name: 'Group Chat',
         type: 'GROUP',
-        participantIds: ['user-1', 'user-2'],
+        participantIds: [validUuid1, validUuid2],
       };
       const result = conversationSchema.parse(data);
       expect(result.type).toBe('GROUP');

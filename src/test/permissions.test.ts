@@ -130,14 +130,15 @@ describe('permissions', () => {
   });
 
   describe('getPermissions', () => {
-    it('returns RESIDENT permissions for null role', () => {
+    it('returns zero permissions for null role', () => {
       const perms = getPermissions(null);
-      expect(perms).toEqual(expect.objectContaining({ admin: false, events: true }));
+      expect(perms).toEqual(expect.objectContaining({ admin: false, events: false }));
     });
 
-    it('returns RESIDENT permissions for invalid role', () => {
+    it('returns zero permissions for invalid role', () => {
       const perms = getPermissions('INVALID');
       expect(perms.admin).toBe(false);
+      expect(perms.events).toBe(false);
     });
 
     it('returns correct permissions for ADMIN', () => {

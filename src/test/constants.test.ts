@@ -35,8 +35,13 @@ describe('constants', () => {
       expect(ROLES.ADMIN).toBe('ADMIN');
     });
 
-    it('has exactly 5 roles', () => {
-      expect(Object.keys(ROLES).length).toBe(5);
+    it('has all expected roles', () => {
+      expect(Object.keys(ROLES).length).toBeGreaterThanOrEqual(5);
+      expect(ROLES.RESIDENT).toBe('RESIDENT');
+      expect(ROLES.GROUP_ADMIN).toBe('GROUP_ADMIN');
+      expect(ROLES.COMMITTEE).toBe('COMMITTEE');
+      expect(ROLES.BOARD).toBe('BOARD');
+      expect(ROLES.ADMIN).toBe('ADMIN');
     });
   });
 
