@@ -207,9 +207,9 @@ Pick the next domain and repeat the pattern:
 - [x] Maintenance - ✅ COMPLETE
 - [x] Services / Community services - ✅ COMPLETE
 - [x] Messages / Conversations - ✅ COMPLETE
-- [ ] Bookings
-- [ ] Directory
-- [ ] Admin tenant management
+- [x] Bookings - ✅ COMPLETE
+- [x] Directory - ✅ COMPLETE
+- [x] Admin tenant management - ✅ COMPLETE
 
 For each domain:
 
