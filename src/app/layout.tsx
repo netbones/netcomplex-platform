@@ -2,6 +2,8 @@ import './globals.css';
 import { Providers } from './providers';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +23,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="bg-soralia-light min-h-screen">
         <Providers>
+          <Header />
           <Suspense fallback={null}>{children}</Suspense>
+          <Footer />
         </Providers>
       </body>
     </html>

@@ -62,7 +62,7 @@ Use GSD workflow for:
 
 ## Project Overview
 
-**Soralia Village Community Portal** - A full-stack SPA for a residential community with 180 homes.
+**Soralia Village Community Portal** - A full-stack SPA with FSD for a residential community with 180 homes.
 Check PRD.md and SPEC.md for details.
 
 ### Tech Stack
