@@ -1,10 +1,7 @@
 import './globals.css';
 import { Providers } from './providers';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
-import { Toaster } from 'sonner';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,14 +19,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         />
       </head>
-      <body className="bg-soralia-light min-h-screen flex flex-col">
+      <body className="bg-soralia-light min-h-screen">
         <Providers>
-          <Toaster position="top-right" />
-          <Suspense fallback={null}>
-            <Header />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-          </Suspense>
+          <Suspense fallback={null}>{children}</Suspense>
         </Providers>
       </body>
     </html>
