@@ -67,13 +67,15 @@ export function Carousel({ items, autoPlay = true, interval = 5000 }: CarouselPr
                 />
               </a>
             ) : (
-              <Image
-                src={item.image}
-                alt={item.title}
-                fill
-                className="object-cover"
-                priority={index === 0}
-              />
+              <div className="relative w-full h-full">
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  fill
+                  className="object-cover"
+                  priority={index === 0}
+                />
+              </div>
             )}
             {(item.title || item.subtitle) && (
               <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 to-transparent">
