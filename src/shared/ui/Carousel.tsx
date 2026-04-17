@@ -48,7 +48,7 @@ export function Carousel({ items, autoPlay = true, interval = 5000 }: CarouselPr
 
   return (
     <div className="relative w-full overflow-hidden rounded-lg shadow-md">
-      <div className="aspect-[21/9] md:aspect-[3/1] relative">
+      <div className="h-64 md:h-96 relative">
         {items.map((item, index) => (
           <div
             key={item.id}
@@ -67,7 +67,7 @@ export function Carousel({ items, autoPlay = true, interval = 5000 }: CarouselPr
                 />
               </a>
             ) : (
-              <div className="relative w-full h-full">
+              <div className="absolute inset-0">
                 <Image
                   src={item.image}
                   alt={item.title}
@@ -97,7 +97,7 @@ export function Carousel({ items, autoPlay = true, interval = 5000 }: CarouselPr
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 md:p-3 rounded-full shadow-lg transition-colors"
+            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 md:p-3 rounded-full shadow-lg transition-colors z-10"
             aria-label="Previous slide"
           >
             <svg
@@ -117,7 +117,7 @@ export function Carousel({ items, autoPlay = true, interval = 5000 }: CarouselPr
 
           <button
             onClick={goToNext}
-            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 md:p-3 rounded-full shadow-lg transition-colors"
+            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 md:p-3 rounded-full shadow-lg transition-colors z-10"
             aria-label="Next slide"
           >
             <svg
@@ -130,7 +130,7 @@ export function Carousel({ items, autoPlay = true, interval = 5000 }: CarouselPr
             </svg>
           </button>
 
-          <div className="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-2">
+          <div className="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-2 z-10">
             {items.map((_, index) => (
               <button
                 key={index}

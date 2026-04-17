@@ -3,6 +3,8 @@ import { Providers } from '../providers';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { Toaster } from 'sonner';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 import { TenantProvider } from '@/components/tenant/TenantProvider';
 import { getCurrentTenant } from '@api/tenant';
 
@@ -51,9 +53,15 @@ export default async function TenantLayout({ children }: { children: React.React
   const tenant = await getTenant();
 
   return (
-    <TenantProvider tenant={tenant}>
-      <Toaster position="top-right" />
-      <Suspense fallback={null}>{children}</Suspense>
-    </TenantProvider>
+    <Providers>
+      <TenantProvider tenant={tenant}>
+        <Toaster position="top-right" />
+        <Suspense fallback={null}>
+          <Header />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+        </Suspense>
+      </TenantProvider>
+    </Providers>
   );
 }
