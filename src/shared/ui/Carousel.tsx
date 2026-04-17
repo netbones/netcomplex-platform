@@ -57,7 +57,7 @@ export function Carousel({ items, autoPlay = true, interval = 5000 }: CarouselPr
             }`}
           >
             {item.link ? (
-              <a href={item.link} className="block w-full h-full">
+              <a href={item.link} className="block w-full h-full relative">
                 <Image
                   src={item.image}
                   alt={item.title}
