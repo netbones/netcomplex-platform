@@ -42,19 +42,26 @@ export default function GroupsHubPage() {
     fetch('/api/groups')
       .then(res => res.json())
       .then(data => {
-        setGroups(data);
+        if (Array.isArray(data)) {
+          setGroups(data);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
         setLoading(false);
       });
   }, []);
 
-  const filteredGroups = groups.filter(g => {
-    const matchesCategory = selectedCategory === 'all' || g.category === selectedCategory;
-    const matchesAccess = selectedAccess === 'all' || g.accessType === selectedAccess;
+  const filteredGroups = Array.isArray(groups)
+    ? groups.filter(g => {
+        const matchesCategory = selectedCategory === 'all' || g.category === selectedCategory;
+        const matchesAccess = selectedAccess === 'all' || g.accessType === selectedAccess;
 
-    const isEligible = g.accessType === 'OPEN';
+        const isEligible = g.accessType === 'OPEN';
 
-    return matchesCategory && matchesAccess && isEligible;
-  });
+        return matchesCategory && matchesAccess && isEligible;
+      })
+    : [];
 
   const accessTypeLabel = (type: string) => {
     if (type === 'OPEN') return t('groups:accessType.OPEN');
