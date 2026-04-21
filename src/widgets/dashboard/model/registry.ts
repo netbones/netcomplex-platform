@@ -11,7 +11,7 @@ import { MediaWidget } from '../ui/MediaWidget';
 import { MyAlbumWidget } from '../ui/MyAlbumWidget';
 import { SidebarWidgetBox } from '../ui/SidebarWidgetBox';
 import { PremiumPortfolioWidget } from '../ui/PremiumPortfolioWidget';
-import { HouseholdsWidget } from '../ui/HouseholdsWidget';
+import { PropertiesWidget } from '../ui/PropertiesWidget';
 import { AgentDashboardWidget } from '../ui/AgentDashboardWidget';
 import { SoloSeatWidget } from '../ui/SoloSeatWidget';
 import { MyServicesWidget, ServiceInquiriesWidget } from '@widgets/service';
@@ -155,12 +155,12 @@ export const WIDGET_REGISTRY: Record<
       category: 'premium',
     },
   },
-  households: {
-    component: HouseholdsWidget,
+  properties: {
+    component: PropertiesWidget,
     metadata: {
-      id: 'households',
-      name: 'Households',
-      description: 'Property and household management',
+      id: 'properties',
+      name: 'Properties',
+      description: 'Property asset and occupancy management',
       featureFlag: 'households',
       category: 'core',
     },

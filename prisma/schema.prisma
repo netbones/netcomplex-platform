@@ -48,18 +48,20 @@ model Announcement {
 }
 
 model Booking {
-  id        String        @id
-  tenantId  String
-  userId    String
-  facility  String
-  date      DateTime
-  startTime String
-  endTime   String
-  purpose   String?
-  status    BookingStatus @default(CONFIRMED)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime
-  user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id         String        @id
+  tenantId   String
+  propertyId String?       // NEW: Linked to property asset
+  userId     String
+  facility   String
+  date       DateTime
+  startTime  String
+  endTime    String
+  purpose    String?
+  status     BookingStatus @default(CONFIRMED)
+  createdAt  DateTime      @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user       user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property   Property?     @relation(fields: [propertyId], references: [id])
 }
 
 model Content {
@@ -79,7 +81,7 @@ model Content {
   defaultLocale String          @default("en")  // Fallback locale
   contentType   String          @default("article")  // "article" or "campaign"
   createdAt     DateTime        @default(now())
-  updatedAt     DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   publishedAt   DateTime?
   expiresAt     DateTime?
   user          user?           @relation(fields: [authorId], references: [id])
@@ -93,7 +95,7 @@ model Conversation {
   name                    String?
   type                    ConversationType          @default(DIRECT)
   createdAt               DateTime                  @default(now())
-  updatedAt               DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   ConversationParticipant ConversationParticipant[]
   Message                 Message[]
 }
@@ -126,7 +128,7 @@ model Event {
   image       String?
   isPublic    Boolean  @default(true)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model ExternalSurvey {
@@ -138,7 +140,7 @@ model ExternalSurvey {
   embedUrl   String
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
-  updatedAt  DateTime
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Group {
@@ -154,7 +156,7 @@ model Group {
   residentFilter         ResidentFilter           @default(ALL)
   isActive               Boolean                  @default(true)
   createdAt              DateTime                 @default(now())
-  updatedAt              DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   deletedAt              DateTime?
   ownerId                String
   Content                Content[]
@@ -171,7 +173,7 @@ model GroupMembershipRequest {
   status    MembershipStatus @default(PENDING)
   message   String?
   createdAt DateTime         @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   Group     Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
   user      user             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -182,6 +184,7 @@ model GroupMembershipRequest {
 model MaintenanceRequest {
   id          String        @id
   tenantId  String
+  propertyId  String?       // NEW: Linked to property asset
   userId      String
   category    String
   priority    Priority
@@ -196,8 +199,9 @@ model MaintenanceRequest {
   resolution  String?
   completedAt  DateTime?
   createdAt   DateTime      @default(now())
-  updatedAt   DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   user        user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property    Property?     @relation(fields: [propertyId], references: [id])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -271,7 +275,7 @@ model Survey {
   startDate   DateTime?
   endDate     DateTime?
   createdAt   DateTime     @default(now())
-  updatedAt   DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   Question    Question[]
   Response    Response[]
 }
@@ -303,7 +307,7 @@ model account {
   scope                 String?
   password              String?
   createdAt             DateTime  @default(now())
-  updatedAt             DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   user                  user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -313,7 +317,7 @@ model agentAccess {
   id                                 String            @id
   tenantId  String
   agentId                            String
-  householdId                        String
+  propertyId                         String
   grantedById                        String
   accessLevel                        AgentAccessLevel  @default(MANAGEMENT)
   permissions                        AgentPermission[]
@@ -324,14 +328,14 @@ model agentAccess {
   contractTerms                      String?
   organizationId                     String?
   createdAt                          DateTime          @default(now())
-  updatedAt                          DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   user_agentAccess_agentIdTouser     user              @relation("agentAccess_agentIdTouser", fields: [agentId], references: [id])
   user_agentAccess_grantedByIdTouser user              @relation("agentAccess_grantedByIdTouser", fields: [grantedById], references: [id])
-  household                          household         @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  property                           Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([agentId])
   @@index([expiresAt])
-  @@index([householdId])
+  @@index([propertyId])
   @@index([organizationId])
 }
 
@@ -356,7 +360,7 @@ model agentProfile {
   verificationDate DateTime?
   organizationId   String?
   createdAt        DateTime  @default(now())
-  updatedAt        DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   user             user      @relation(fields: [agentId], references: [id], onDelete: Cascade)
 
   @@index([agentId])
@@ -374,7 +378,7 @@ model album {
   isPublic    Boolean  @default(false)
   mediaIds    String[]
   createdAt   DateTime @default(now())
-  updatedAt   DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   user        user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([isPublic])
@@ -396,7 +400,7 @@ model communityServiceInquiry {
   providerResponse        String?
   respondedAt             DateTime?
   createdAt               DateTime                @default(now())
-  updatedAt               DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   user                    user                    @relation(fields: [inquirerId], references: [id])
   communityServiceListing communityServiceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
@@ -438,7 +442,7 @@ model communityServiceListing {
   cancellationPolicy      String?
   organizationId          String?
   createdAt               DateTime                  @default(now())
-  updatedAt               DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   communityServiceInquiry communityServiceInquiry[]
   user                    user                      @relation(fields: [providerId], references: [id])
   communityServiceReview  communityServiceReview[]
@@ -473,29 +477,59 @@ model communityServiceReview {
   @@index([reviewerId])
 }
 
-model household {
-  id              String            @id
-  tenantId  String
-  organizationId  String?
+model Property {
+  id              String            @id @default(cuid())
+  tenantId        String
+  platformAddress String            @unique
   street          String
   unit            String
-  platformAddress String            @unique
+  ownerId         String?           // The HOA Member (Legal Owner)
   homeImage       String?
-  status          HouseholdStatus   @default(ACTIVE)
-  moveInDate      DateTime?
-  moveOutDate     DateTime?
   createdAt       DateTime          @default(now())
-  updatedAt       DateTime
+  updatedAt       DateTime          @updatedAt
+  
+  // Relationships
+  owner           user?             @relation("PropertyOwner", fields: [ownerId], references: [id])
+  households      Household[]
   agentAccess     agentAccess[]
-  profile         profile[]
   propertyListing propertyListing[]
   soloSeat        soloSeat[]
   standardSeat    standardSeat[]
   premiumSeat     premiumSeat[]     @relation("PremiumSeatPortfolio")
+  
+  // Asset-linked features
+  Booking            Booking[]
+  MaintenanceRequest MaintenanceRequest[]
 
   @@unique([street, unit])
-  @@index([organizationId])
+  @@index([ownerId])
   @@index([platformAddress])
+}
+
+model Household {
+  id              String            @id @default(cuid())
+  tenantId        String
+  propertyId      String
+  organizationId  String?
+  occupancyType   OccupancyType     @default(OWNER_OCCUPIED)
+  status          HouseholdStatus   @default(ACTIVE)
+  moveInDate      DateTime?
+  moveOutDate     DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  // Relationships
+  property        Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  profiles        profile[]
+
+  @@index([propertyId])
+  @@index([organizationId])
+}
+
+enum OccupancyType {
+  OWNER_OCCUPIED
+  RENTAL
+  VACANT
 }
 
 model invitation {
@@ -578,7 +612,7 @@ model platformSuspension {
   isActive       Boolean        @default(true)
   createdById    String
   createdAt      DateTime       @default(now())
-  updatedAt      DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   user           user           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([isActive])
@@ -596,11 +630,11 @@ model premiumSeat {
   platformAddress      String      @unique
   organizationId       String?
   createdAt            DateTime    @default(now())
-  updatedAt            DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   messageRetentionDays Int         @default(30)
   tier                 String      @default("foundation")
   user                 user        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  household            household[] @relation("PremiumSeatPortfolio")
+  properties           Property[]  @relation("PremiumSeatPortfolio")
 
   @@index([organizationId])
   @@index([userId])
@@ -624,12 +658,12 @@ model profile {
   status                        ProfileStatus @default(ACTIVE)
   organizationId                String?
   createdAt                     DateTime      @default(now())
-  updatedAt                     DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   occupantImage                 String?
   rentalImage                   String?
   landlordId                    String?
   residencyType                 ResidencyType @default(FAMILY)
-  household                     household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  household                     Household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
   user_profile_landlordIdTouser user?         @relation("profile_landlordIdTouser", fields: [landlordId], references: [id])
   user_profile_userIdTouser     user?         @relation("profile_userIdTouser", fields: [userId], references: [id])
 
@@ -643,7 +677,7 @@ model profile {
 model propertyListing {
   id                                         String        @id
   tenantId  String
-  householdId                                String
+  propertyId                                 String
   ownerId                                    String
   listingType                                ListingType
   title                                      String
@@ -663,13 +697,13 @@ model propertyListing {
   featuredUntil                              DateTime?
   organizationId                             String?
   createdAt                                  DateTime      @default(now())
-  updatedAt                                  DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   user_propertyListing_assignedAgentIdTouser user?         @relation("propertyListing_assignedAgentIdTouser", fields: [assignedAgentId], references: [id])
-  household                                  household     @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  property                                   Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   user_propertyListing_ownerIdTouser         user          @relation("propertyListing_ownerIdTouser", fields: [ownerId], references: [id])
 
   @@index([assignedAgentId])
-  @@index([householdId])
+  @@index([propertyId])
   @@index([isPublished])
   @@index([listingType])
   @@index([organizationId])
@@ -683,7 +717,7 @@ model session {
   expiresAt            DateTime
   token                String   @unique
   createdAt            DateTime @default(now())
-  updatedAt            DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   ipAddress            String?
   userAgent            String?
   userId               String
@@ -699,17 +733,17 @@ model soloSeat {
   tenantId  String
   userId              String       @unique
   platformAddress     String       @unique
-  householdId         String?
+  propertyId          String?
   seatType            SoloSeatType
   isComplimentary     Boolean      @default(false)
   linkedFromProfileId String?
   organizationId      String?
   createdAt           DateTime     @default(now())
-  updatedAt           DateTime
-  household           household?   @relation(fields: [householdId], references: [id])
+  updatedAt DateTime @default(now()) @updatedAt
+  property            Property?    @relation(fields: [propertyId], references: [id])
   user                user         @relation(fields: [userId], references: [id])
 
-  @@index([householdId])
+  @@index([propertyId])
   @@index([organizationId])
 }
 
@@ -717,17 +751,17 @@ model standardSeat {
   id              String    @id
   tenantId  String
   userId          String
-  householdId     String
+  propertyId      String
   isPrimaryOwner  Boolean   @default(true)
   platformAddress String    @unique
   organizationId  String?
   createdAt       DateTime  @default(now())
-  updatedAt       DateTime
-  household       household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @default(now()) @updatedAt
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   user            user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, householdId])
-  @@index([householdId])
+  @@unique([userId, propertyId])
+  @@index([propertyId])
   @@index([organizationId])
   @@index([userId])
 }
@@ -762,7 +796,7 @@ model user {
   showPhone                                             Boolean                   @default(true)
   profileSlug                                           String?                   // SEO-friendly public profile URL
   createdAt                                             DateTime                  @default(now())
-  updatedAt                                             DateTime
+  updatedAt DateTime @default(now()) @updatedAt
   emailVerified                                         Boolean                   @default(false)
   image                                                 String?
   twoFactorEnabled                                      Boolean?                  @default(false)
@@ -796,6 +830,7 @@ model user {
   soloSeat                                              soloSeat?
   standardSeat                                          standardSeat[]
   twoFactor                                             twoFactor[]
+  ownedProperties                                       Property[]                @relation("PropertyOwner")
 }
 
 model verification {
@@ -805,7 +840,7 @@ model verification {
   value      String
   expiresAt  DateTime
   createdAt  DateTime @default(now())
-  updatedAt  DateTime
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([identifier])
 }

@@ -1,71 +1,91 @@
 // Identity-related type definitions
 
-export interface Household {
+export type OccupancyType = 'OWNER_OCCUPIED' | 'RENTAL' | 'VACANT';
+export type HouseholdStatus = 'ACTIVE' | 'ARCHIVED';
+
+export interface Property {
   id: string;
+  tenantId: string;
+  platformAddress: string;
   street: string;
   unit: string;
+  ownerId?: string;
   homeImage?: string;
-  status: 'ACTIVE' | 'ARCHIVED';
   createdAt: Date;
   updatedAt: Date;
-  standardSeats: StandardSeat[];
-  profiles: Profile[];
+  activeHousehold?: Household;
+  households?: Household[];
+}
+
+export interface Household {
+  id: string;
+  tenantId: string;
+  propertyId: string;
+  organizationId?: string;
+  occupancyType: OccupancyType;
+  status: HouseholdStatus;
+  moveInDate?: Date;
+  moveOutDate?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  property?: Property;
+  profiles?: Profile[];
 }
 
 export interface StandardSeat {
   id: string;
   userId: string;
-  householdId: string;
+  propertyId: string;
+  isPrimaryOwner: boolean;
+  platformAddress: string;
   createdAt: Date;
   updatedAt: Date;
-  user: {
+  user?: {
     id: string;
     name: string;
   };
-  household: Household;
+  property?: Property;
 }
 
 export interface Profile {
   id: string;
+  householdId: string;
+  displayName: string;
+  profileAddress: string;
   status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
-  firstName: string;
-  lastName: string;
-  relationship: string;
-  dateOfBirth?: Date;
-  // Add other profile fields as needed
+  occupantType: 'OCCUPANT' | 'MINOR' | 'FAMILY';
+  residencyType: 'FAMILY' | 'RENTER' | 'OWNER_RESIDENT';
+  occupantSince: Date;
+  household?: Household;
 }
 
 export interface AgentAccess {
   id: string;
   agentId: string;
-  householdId: string;
+  propertyId: string;
   permissions: string[];
   expiresAt: Date;
   isActive: boolean;
-  grantedBy: {
+  grantedBy?: {
     id: string;
     name: string;
   };
-  household: Household;
+  property?: Property;
 }
 
 export interface SoloSeat {
   id: string;
   userId: string;
-  seatType: 'BOARD' | 'COMMITTEE' | 'ADMIN';
-  householdId?: string;
-  complimentary: boolean;
+  platformAddress: string;
+  propertyId?: string;
+  seatType: 'RESIDENT' | 'MEMBER';
+  isComplimentary: boolean;
   createdAt: Date;
   updatedAt: Date;
-  household?: {
-    id: string;
-    street: string;
-    unit: string;
-    homeImage?: string;
-  };
+  property?: Property;
 }
 
-export interface ManagedHousehold extends Household {
+export interface ManagedProperty extends Property {
   accessExpiresAt: Date;
   grantedBy: {
     id: string;

@@ -23,6 +23,7 @@ import * as albums from './albums';
 import * as communityServiceInquiries from './community-service-inquiries';
 import * as communityServiceListings from './community-service-listings';
 import * as communityServiceReviews from './community-service-reviews';
+import * as properties from './properties';
 import * as households from './households';
 import * as invitations from './invitations';
 import * as members from './members';
@@ -58,6 +59,7 @@ import * as albumsRelations from './albums-relations';
 import * as communityServiceInquiriesRelations from './community-service-inquiries-relations';
 import * as communityServiceListingsRelations from './community-service-listings-relations';
 import * as communityServiceReviewsRelations from './community-service-reviews-relations';
+import * as propertiesRelations from './properties-relations';
 import * as householdsRelations from './households-relations';
 import * as invitationsRelations from './invitations-relations';
 import * as membersRelations from './members-relations';
@@ -72,7 +74,86 @@ import * as soloSeatsRelations from './solo-seats-relations';
 import * as standardSeatsRelations from './standard-seats-relations';
 import * as twoFactorsRelations from './two-factors-relations';
 import * as usersRelations from './users-relations';
-import * as householdsTopremiumSeats from './households-topremium-seats';
-import * as householdsTopremiumSeatsRelations from './households-topremium-seats-relations';
+import * as propertiesTopremiumSeats from './properties-topremium-seats';
+import * as propertiesTopremiumSeatsRelations from './properties-topremium-seats-relations';
 
-export const schema = { ...tenants, ...announcements, ...bookings, ...contents, ...conversations, ...conversationParticipants, ...events, ...externalSurveys, ...groups, ...groupMembershipRequests, ...maintenanceRequests, ...messages, ...notifications, ...questions, ...responses, ...settings, ...surveys, ...userGroups, ...accounts, ...agentAccesses, ...agentProfiles, ...albums, ...communityServiceInquiries, ...communityServiceListings, ...communityServiceReviews, ...households, ...invitations, ...members, ...organizations, ...passkeys, ...platformSuspensions, ...premiumSeats, ...profiles, ...propertyListings, ...sessions, ...soloSeats, ...standardSeats, ...twoFactors, ...users, ...verifications, ...bookingsRelations, ...contentsRelations, ...conversationsRelations, ...conversationParticipantsRelations, ...groupsRelations, ...groupMembershipRequestsRelations, ...maintenanceRequestsRelations, ...messagesRelations, ...notificationsRelations, ...questionsRelations, ...responsesRelations, ...surveysRelations, ...userGroupsRelations, ...accountsRelations, ...agentAccessesRelations, ...agentProfilesRelations, ...albumsRelations, ...communityServiceInquiriesRelations, ...communityServiceListingsRelations, ...communityServiceReviewsRelations, ...householdsRelations, ...invitationsRelations, ...membersRelations, ...organizationsRelations, ...passkeysRelations, ...platformSuspensionsRelations, ...premiumSeatsRelations, ...profilesRelations, ...propertyListingsRelations, ...sessionsRelations, ...soloSeatsRelations, ...standardSeatsRelations, ...twoFactorsRelations, ...usersRelations, ...householdsTopremiumSeats, ...householdsTopremiumSeatsRelations };
+export const schema = {
+  ...tenants,
+  ...announcements,
+  ...bookings,
+  ...contents,
+  ...conversations,
+  ...conversationParticipants,
+  ...events,
+  ...externalSurveys,
+  ...groups,
+  ...groupMembershipRequests,
+  ...maintenanceRequests,
+  ...messages,
+  ...notifications,
+  ...questions,
+  ...responses,
+  ...settings,
+  ...surveys,
+  ...userGroups,
+  ...accounts,
+  ...agentAccesses,
+  ...agentProfiles,
+  ...albums,
+  ...communityServiceInquiries,
+  ...communityServiceListings,
+  ...communityServiceReviews,
+  ...properties,
+  ...households,
+  ...invitations,
+  ...members,
+  ...organizations,
+  ...passkeys,
+  ...platformSuspensions,
+  ...premiumSeats,
+  ...profiles,
+  ...propertyListings,
+  ...sessions,
+  ...soloSeats,
+  ...standardSeats,
+  ...twoFactors,
+  ...users,
+  ...verifications,
+  ...bookingsRelations,
+  ...contentsRelations,
+  ...conversationsRelations,
+  ...conversationParticipantsRelations,
+  ...groupsRelations,
+  ...groupMembershipRequestsRelations,
+  ...maintenanceRequestsRelations,
+  ...messagesRelations,
+  ...notificationsRelations,
+  ...questionsRelations,
+  ...responsesRelations,
+  ...surveysRelations,
+  ...userGroupsRelations,
+  ...accountsRelations,
+  ...agentAccessesRelations,
+  ...agentProfilesRelations,
+  ...albumsRelations,
+  ...communityServiceInquiriesRelations,
+  ...communityServiceListingsRelations,
+  ...communityServiceReviewsRelations,
+  ...propertiesRelations,
+  ...householdsRelations,
+  ...invitationsRelations,
+  ...membersRelations,
+  ...organizationsRelations,
+  ...passkeysRelations,
+  ...platformSuspensionsRelations,
+  ...premiumSeatsRelations,
+  ...profilesRelations,
+  ...propertyListingsRelations,
+  ...sessionsRelations,
+  ...soloSeatsRelations,
+  ...standardSeatsRelations,
+  ...twoFactorsRelations,
+  ...usersRelations,
+  ...propertiesTopremiumSeats,
+  ...propertiesTopremiumSeatsRelations,
+};

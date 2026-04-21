@@ -1,4 +1,16 @@
 import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { occupancyTypeEnum } from './occupancy-type-enum';
 import { householdStatusEnum } from './household-status-enum';
 
-export const households = pgTable('household', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), organizationId: text('organizationId'), street: text('street').notNull(), unit: text('unit').notNull(), platformAddress: text('platformAddress').notNull(), homeImage: text('homeImage'), status: householdStatusEnum('status').default('ACTIVE').notNull(), moveInDate: timestamp('moveInDate', { mode: 'date', precision: 3 }), moveOutDate: timestamp('moveOutDate', { mode: 'date', precision: 3 }), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull() });
+export const households = pgTable('Household', {
+  id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
+  propertyId: text('propertyId').notNull(),
+  organizationId: text('organizationId'),
+  occupancyType: occupancyTypeEnum('occupancyType').default('OWNER_OCCUPIED').notNull(),
+  status: householdStatusEnum('status').default('ACTIVE').notNull(),
+  moveInDate: timestamp('moveInDate', { mode: 'date', precision: 3 }),
+  moveOutDate: timestamp('moveOutDate', { mode: 'date', precision: 3 }),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
+});

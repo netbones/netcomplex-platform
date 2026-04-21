@@ -9,7 +9,7 @@ export interface IdentityState {
   isPropertyOwner: boolean;
   isSoloSeatHolder: boolean;
   effectiveRole: 'AGENT' | 'OWNER' | 'SOLO' | 'RESIDENT';
-  households: ReturnType<typeof trpc.identity.getMyHouseholds.useQuery>['data'];
+  ownedProperties: ReturnType<typeof trpc.identity.getMyProperties.useQuery>['data'];
   agentAccesses: ReturnType<typeof trpc.identity.getAgentAccesses.useQuery>['data'];
   SoloSeat: ReturnType<typeof trpc.identity.getMySoloSeat.useQuery>['data'];
   isLoading: boolean;
@@ -25,8 +25,8 @@ export function useIdentityState(): IdentityState {
     }
   }, [session?.user?.id]);
 
-  const { data: householdsData, isLoading: loadingHouseholds } =
-    trpc.identity.getMyHouseholds.useQuery(undefined, { enabled: !!userId });
+  const { data: propertiesData, isLoading: loadingProperties } =
+    trpc.identity.getMyProperties.useQuery(undefined, { enabled: !!userId });
 
   const { data: agentAccessesData, isLoading: loadingManaged } =
     trpc.identity.getAgentAccesses.useQuery(undefined, { enabled: !!userId });
@@ -36,13 +36,13 @@ export function useIdentityState(): IdentityState {
     { enabled: !!userId }
   );
 
-  const households = householdsData || [];
+  const ownedProperties = propertiesData || [];
   const agentAccesses = agentAccessesData || [];
   const SoloSeat = SoloSeatData || null;
 
-  const isLoading = loadingHouseholds || loadingManaged || loadingSolo;
+  const isLoading = loadingProperties || loadingManaged || loadingSolo;
   const isAgent = !loadingManaged && agentAccesses.length > 0;
-  const isPropertyOwner = !loadingHouseholds && households.length > 0;
+  const isPropertyOwner = !loadingProperties && ownedProperties.length > 0;
   const isSoloSeatHolder = !loadingSolo && !!SoloSeat;
 
   let effectiveRole: 'AGENT' | 'OWNER' | 'SOLO' | 'RESIDENT' = 'RESIDENT';
@@ -55,7 +55,7 @@ export function useIdentityState(): IdentityState {
     isPropertyOwner,
     isSoloSeatHolder,
     effectiveRole,
-    households,
+    ownedProperties,
     agentAccesses,
     SoloSeat,
     isLoading,
@@ -71,13 +71,13 @@ export interface WidgetConfig {
 
 export interface WidgetPermission {
   roles?: string[];
-  requiresHousehold?: boolean;
+  requiresProperty?: boolean;
   requiresSolo?: boolean;
   requiresAgent?: boolean;
 }
 
 export const WIDGET_PERMISSIONS: Record<string, WidgetPermission> = {
-  households: { requiresHousehold: true },
+  properties: { requiresProperty: true },
   'agent-dashboard': { requiresAgent: true },
   'solo-seat': {},
 };
@@ -96,7 +96,7 @@ export function getVisibleWidgets(
       return false;
     }
 
-    if (perms.requiresHousehold && !isPropertyOwner) {
+    if (perms.requiresProperty && !isPropertyOwner) {
       return false;
     }
 

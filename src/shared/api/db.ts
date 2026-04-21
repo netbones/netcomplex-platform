@@ -35,6 +35,7 @@ import { settings } from '@prisma/settings';
 import { albums } from '@prisma/albums';
 import { standardSeats } from '@prisma/standard-seats';
 import { soloSeats } from '@prisma/solo-seats';
+import { properties } from '@prisma/properties';
 import { households } from '@prisma/households';
 import { premiumSeats } from '@prisma/premium-seats';
 import { contents } from '@prisma/contents';
@@ -53,7 +54,7 @@ import { bookings } from '@prisma/bookings';
 import { maintenanceRequests } from '@prisma/maintenance-requests';
 import { notifications } from '@prisma/notifications';
 import { agentProfiles } from '@prisma/agent-profiles';
-import { householdsTopremiumSeats } from '@prisma/households-topremium-seats';
+import { propertiesTopremiumSeats } from '@prisma/properties-topremium-seats';
 import { verifications } from '@prisma/verifications';
 import { accounts } from '@prisma/accounts';
 import { sessions } from '@prisma/sessions';
@@ -90,6 +91,7 @@ export const db = drizzle(pool, {
     albums,
     standardSeats,
     soloSeats,
+    properties,
     households,
     premiumSeats,
     contents,
@@ -108,7 +110,7 @@ export const db = drizzle(pool, {
     maintenanceRequests,
     notifications,
     agentProfiles,
-    householdsTopremiumSeats,
+    propertiesTopremiumSeats,
     verifications,
     accounts,
     sessions,
@@ -137,6 +139,7 @@ export {
   albums,
   standardSeats,
   soloSeats,
+  properties,
   households,
   premiumSeats,
   contents,
@@ -155,7 +158,7 @@ export {
   maintenanceRequests,
   notifications,
   agentProfiles,
-  householdsTopremiumSeats,
+  propertiesTopremiumSeats,
   verifications,
   accounts,
   sessions,

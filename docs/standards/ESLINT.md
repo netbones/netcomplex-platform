@@ -14,7 +14,8 @@ In flat config, the parser is no longer a string path but a direct reference mov
 
 Use tseslint.config(): This helper function replaces the old extends array and simplifies combining configurations.
 Example eslint.config.mjs:
-```
+
+````
 
 ```javascript
 import eslint from '@eslint/js';
@@ -28,7 +29,7 @@ export default tseslint.config(eslint.configs.recommended, ...tseslint.configs.r
     },
   },
 });
-```
+````
 
 ## 3. Key Compatibility Fixes
 

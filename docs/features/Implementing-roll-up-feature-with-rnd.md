@@ -55,6 +55,7 @@ minHeight={40}
 bounds="window"
 className="border bg-white shadow-md overflow-hidden rounded-lg" >
 {/_Header / Grab Bar_/}
+
 <div className="h-10 bg-gray-100 flex justify-between items-center px-4 cursor-move">
 <span className="font-bold">Widget Header</span>
 <button onClick={() => toggleRollup(id)}>
