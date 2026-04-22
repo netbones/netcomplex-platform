@@ -115,6 +115,11 @@ export function Header() {
     setMounted(true);
   }, []);
 
+  // Close drawer on navigation and session changes
+  useEffect(() => {
+    setIsDrawerOpen(false);
+  }, [pathname, session]);
+
   // Fetch page flags for dynamic nav
   useEffect(() => {
     async function fetchPageFlags() {
@@ -322,8 +327,9 @@ export function Header() {
           {mounted && (
             <button
               onClick={() => {
-                console.log('[Header] Opening drawer, current state:', isDrawerOpen);
-                setIsDrawerOpen(true);
+                const newState = !isDrawerOpen;
+                console.log('[Header] Burger clicked, drawer state:', isDrawerOpen, '->', newState);
+                setIsDrawerOpen(newState);
               }}
               className="p-2 rounded-md hover:bg-white/20"
               aria-label="Open menu"
