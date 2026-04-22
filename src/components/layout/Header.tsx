@@ -341,66 +341,69 @@ export function Header() {
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-white/20 py-4">
-            <nav className="space-y-2">
+          <div className="md:hidden border-t border-white/20 py-3">
+            <nav className="space-y-1">
               {session ? (
                 <>
-                  <Link href="/dashboard" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/dashboard" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Dashboard
                   </Link>
-                  <Link href="/directory" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/directory" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Directory
                   </Link>
-                  <Link href="/services" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/services" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Services
                   </Link>
-                  <Link href="/resources" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/resources" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Resources
                   </Link>
-                  <Link href="/groups" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/groups" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Groups
                   </Link>
-                  <Link href="/interest" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/interest" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Interest
                   </Link>
-                  <Link href="/maintenance" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/maintenance" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Maintenance
                   </Link>
-                  <Link href="/bookings" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/bookings" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Bookings
                   </Link>
-                  <Link href="/messages" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/messages" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Messages
                   </Link>
-                  <div className="border-t border-white/20 my-2"></div>
-                  <Link href="/notifications" className="block py-2 hover:text-soralia-accent">
+                  <div className="border-t border-white/20 my-1"></div>
+                  <Link
+                    href="/notifications"
+                    className="block py-1.5 px-2 hover:bg-white/10 rounded"
+                  >
                     Notifications
                   </Link>
-                  <Link href="/settings" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/settings" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Settings
                   </Link>
                 </>
               ) : (
                 <>
-                  <Link href="/directory" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/directory" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Directory
                   </Link>
-                  <Link href="/services" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/services" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Services
                   </Link>
-                  <Link href="/resources" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/resources" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Resources
                   </Link>
-                  <Link href="/groups" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/groups" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Groups
                   </Link>
-                  <Link href="/interest" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/interest" className="block py-1.5 px-2 hover:bg-white/10 rounded">
                     Interest
                   </Link>
                 </>
               )}
             </nav>
-            <div className="border-t border-white/20 mt-4 pt-4 space-y-2">
+            <div className="border-t border-white/20 mt-2 pt-2 space-y-1">
               {session ? (
                 <button
                   onClick={async () => {
@@ -413,7 +416,7 @@ export function Header() {
                 </button>
               ) : (
                 <>
-                  <Link href="/sign-in" className="block py-2 hover:text-soralia-accent">
+                  <Link href="/sign-in" className="block py-1 hover:text-soralia-accent">
                     {t('nav.login')}
                   </Link>
                 </>
