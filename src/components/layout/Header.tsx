@@ -341,7 +341,7 @@ export function Header() {
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-white/20 py-3">
+          <div className="absolute top-full left-0 right-0 border-t border-white/20 py-3 bg-soralia-primary z-50">
             <nav className="space-y-1">
               {session ? (
                 <>
