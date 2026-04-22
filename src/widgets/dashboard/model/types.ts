@@ -26,9 +26,11 @@ export interface WidgetManifest {
 
   // Component loading
   /** Lazy-loaded React component */
-  component: LazyExoticComponent<ComponentType<unknown>>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component: LazyExoticComponent<any>;
   /** Optional loader function for code splitting */
-  loader?: () => Promise<{ default: ComponentType<unknown> }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  loader?: () => Promise<any>;
 
   // Access control
   /** Feature flag required to render */

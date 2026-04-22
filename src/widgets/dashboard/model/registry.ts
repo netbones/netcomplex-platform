@@ -4,7 +4,8 @@ import type { WidgetManifest } from './types';
 /**
  * Widget component type - for backward compatibility
  */
-export type WidgetComponent = ComponentType<unknown>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type WidgetComponent = ComponentType<any>;
 
 /**
  * Widget registry entry for admin UI
@@ -177,3 +178,28 @@ export { WidgetRegistry };
 
 // Export registry instance
 export { registry as widgetRegistry };
+
+/**
+ * BACKWARD-COMPATIBLE: Export WIDGET_REGISTRY as object for tests
+ * Maps widget IDs to component and metadata
+ */
+export const WIDGET_REGISTRY: Record<
+  string,
+  { component: WidgetComponent; metadata: WidgetRegistryEntry }
+> = (() => {
+  const entries: Record<string, { component: WidgetComponent; metadata: WidgetRegistryEntry }> = {};
+  for (const manifest of registry.list()) {
+    entries[manifest.id] = {
+      component: manifest.component as WidgetComponent,
+      metadata: {
+        id: manifest.id,
+        name: manifest.name,
+        description: manifest.description,
+        featureFlag: manifest.featureFlag,
+        premium: manifest.premium,
+        category: manifest.category,
+      },
+    };
+  }
+  return entries;
+})();
