@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@shared/ui';
 import { authClient } from '@api/auth-client';
-import { hasPermission } from '@api/permissions';
+import { MobileMenu } from './MobileMenu';
 
 interface PageFlags {
   campaign: boolean;
@@ -18,14 +18,13 @@ interface PageFlags {
   directory: boolean;
 }
 
-const HOME_NAV = [
+const BASE_NAV = [
   { href: '/', label: 'home' },
   { href: '/directory', label: 'directory' },
   { href: '/news', label: 'news' },
   { href: '/events', label: 'events' },
   { href: '/conservation', label: 'conservation' },
   { href: '/campaign', label: 'campaign' },
-  { href: '/admin', label: 'admin' },
 ];
 
 function TeaserLink({
@@ -125,13 +124,12 @@ export function Header() {
     router.refresh();
   };
 
-  const navItems = HOME_NAV.filter(item => {
+  const navItems = BASE_NAV.filter(item => {
     if (item.href === '/directory' && pageFlags.directory === false) return false;
     if (item.href === '/news' && pageFlags.news === false) return false;
     if (item.href === '/events' && pageFlags.events === false) return false;
     if (item.href === '/conservation' && pageFlags.conservation === 'external') return false;
     if (item.href === '/campaign' && pageFlags.campaign === false) return false;
-    if (item.href === '/admin' && !session && (isAdmin || isBoard)) return false;
     return true;
   }).map(item => ({
     name: t(`nav.${item.label}`) || item.label,
@@ -176,7 +174,7 @@ export function Header() {
           </Link>
 
           <div className="flex items-center gap-4">
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden lg:flex space-x-6">
               {navItems.map(item => (
                 <TeaserLink
                   key={item.href}
@@ -195,7 +193,7 @@ export function Header() {
             {isPending ? (
               <div className="w-20 h-8 bg-white/20 rounded animate-pulse" />
             ) : session ? (
-              <div className="flex items-center space-x-3">
+              <div className="hidden md:flex items-center space-x-3">
                 <Link
                   href="/dashboard"
                   className="flex items-center space-x-2 bg-white/20 py-1.5 px-3 rounded-md hover:bg-white/30 transition"
@@ -217,7 +215,7 @@ export function Header() {
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="hidden md:block bg-white/20 text-white py-2 px-4 rounded-md hover:bg-white/30 transition text-sm"
+                  className="bg-white/20 text-white py-2 px-4 rounded-md hover:bg-white/30 transition text-sm hidden md:block"
                 >
                   {t('nav.logout')}
                 </button>
@@ -225,7 +223,7 @@ export function Header() {
             ) : (
               <Link
                 href="/sign-in"
-                className="bg-white text-soralia-primary py-2 px-4 rounded-md hover:bg-gray-100 transition"
+                className="bg-white text-soralia-primary py-2 px-4 rounded-md hover:bg-gray-100 transition hidden md:block"
               >
                 {t('nav.login')}
               </Link>
@@ -234,7 +232,7 @@ export function Header() {
             {mounted && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-md hover:bg-white/20 text-white md:hidden"
+                className="p-2 rounded-md hover:bg-white/20 text-white"
                 aria-expanded={mobileMenuOpen}
                 aria-label="Open menu"
                 type="button"
@@ -252,35 +250,11 @@ export function Header() {
           </div>
         </div>
 
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-4 p-4 bg-soralia-primary border-t-4 border-white">
-            <nav className="space-y-2">
-              {navItems.map(item => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="block py-2 px-3 hover:bg-white/10 rounded text-white"
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-            <div className="border-t border-white/20 mt-2 pt-2">
-              {session ? (
-                <button
-                  onClick={handleSignOut}
-                  className="block w-full text-left py-2 text-red-300"
-                >
-                  {t('nav.logout')}
-                </button>
-              ) : (
-                <Link href="/sign-in" className="block py-2 text-soralia-accent">
-                  {t('nav.login')}
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
+        <MobileMenu
+          isOpen={mobileMenuOpen}
+          onClose={() => setMobileMenuOpen(false)}
+          navItems={navItems}
+        />
       </div>
     </header>
   );
