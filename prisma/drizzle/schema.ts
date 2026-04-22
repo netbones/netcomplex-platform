@@ -39,6 +39,8 @@ import * as standardSeats from './standard-seats';
 import * as twoFactors from './two-factors';
 import * as users from './users';
 import * as verifications from './verifications';
+import * as platformModules from './platform-modules';
+import * as tenantModules from './tenant-modules';
 import * as bookingsRelations from './bookings-relations';
 import * as contentsRelations from './contents-relations';
 import * as conversationsRelations from './conversations-relations';
@@ -119,6 +121,8 @@ export const schema = {
   ...twoFactors,
   ...users,
   ...verifications,
+  ...platformModules,
+  ...tenantModules,
   ...bookingsRelations,
   ...contentsRelations,
   ...conversationsRelations,
