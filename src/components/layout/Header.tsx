@@ -233,8 +233,13 @@ export function Header() {
 
             {mounted && (
               <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-md hover:bg-white/20 md:hidden"
+                onClick={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Burger click', mobileMenuOpen);
+                  setMobileMenuOpen(!mobileMenuOpen);
+                }}
+                className="p-2 rounded-md hover:bg-white/20 text-white md:hidden"
                 aria-expanded={mobileMenuOpen}
                 aria-label="Open menu"
                 type="button"
