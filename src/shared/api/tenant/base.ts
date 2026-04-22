@@ -16,7 +16,7 @@ import { eq } from 'drizzle-orm';
 import type { TierLevel } from '@api/features/registry';
 import { cache } from 'react';
 import { headers } from 'next/headers';
-import type { Tenant } from './types';
+import type { Tenant, TenantTier } from './types';
 import {
   db,
   tenants,
@@ -87,10 +87,15 @@ function toTenant(row: Record<string, unknown>): Tenant {
     fontFamily: row.fontFamily as string | null,
     customCss: row.customCss as string | null,
     active: row.active as boolean,
-    subscriptionTier: row.subscriptionTier as string as TierLevel,
+    subscriptionTier: row.subscriptionTier as TierLevel,
+    tier: (row.tier as TenantTier) || 'STANDARD',
     maxPages: row.maxPages as number,
     pageCount: row.pageCount as number,
     featureFlags: row.featureFlags as Record<string, boolean>,
+    modules:
+      (row.modules as
+        | Record<string, { enabled: boolean; config?: Record<string, unknown> }>
+        | undefined) ?? undefined,
     createdAt: new Date(row.createdAt as string),
     updatedAt: row.updatedAt ? new Date(row.updatedAt as string) : null,
   };

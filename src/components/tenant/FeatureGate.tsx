@@ -1,45 +1,85 @@
 'use client';
 
 import { useTenant } from '@api/tenant';
-import { isFeatureEnabled } from '@api/features/registry';
+import { useModuleEnabled } from '@api/tenant/use-enabled-modules';
 
 /**
- * FeatureGate - Conditionally render content based on tenant feature flags
+ * FeatureGate - Conditionally render content based on module enablement
  *
- * SCOPE: Tenant-specific feature toggle
- * - Checks tenant's featureFlags for granular enable/disable overrides
- * - Use alongside TierGuard for hybrid approach:
- *   - TierGuard provides subscription tier baseline
- *   - FeatureGate allows tenant-specific customizations
- *
- * vs TierGuard: Use TierGuard for tier-based access, FeatureGate for tenant-specific flags
+ * SCOPE: Module-based feature toggle
+ * - Checks tenant's tier + tenant_modules for module enablement
+ * - Tier hierarchy: STANDARD < PREMIUM < ENTERPRISE
  *
  * Usage:
  *
- * // Wrapped by TierGuard for tier baseline
- * <TierGuard feature="feature.analytics" tier={tenant.subscriptionTier}>
- *   <FeatureGate feature="analytics.enabled">
- *     <AnalyticsDashboard />
- *   </FeatureGate>
- * </TierGuard>
+ * <FeatureGate module="maintenance">
+ *   <MaintenancePage />
+ * </FeatureGate>
  *
- * // Or standalone with tier baseline passed in
- * <FeatureGate feature="analytics.enabled" tierBaseline={tenant.subscriptionTier}>
- *   <AnalyticsDashboard />
+ * // With fallback
+ * <FeatureGate module="bookings" fallback={<BookingsDisabled />}>
+ *   <BookingPage />
  * </FeatureGate>
  */
 export function FeatureGate({
-  feature,
+  module,
   children,
   fallback = null,
 }: {
-  feature: string;
+  module: string;
   children: React.ReactNode;
   fallback?: React.ReactNode;
 }) {
   const tenant = useTenant();
-  if (!tenant || !isFeatureEnabled(tenant, feature)) {
+
+  // If no tenant context, don't render
+  if (!tenant) {
     return <>{fallback}</>;
   }
+
+  // Use module-enabled hook for server-fetched data
+  const { isEnabled, isLoading } = useModuleEnabled(tenant.id, module);
+
+  if (isLoading) {
+    return null; // Or loading skeleton
+  }
+
+  if (!isEnabled) {
+    return <>{fallback}</>;
+  }
+
+  return <>{children}</>;
+}
+
+/**
+ * TierGuard - Check if tenant tier satisfies minimum tier requirement
+ *
+ * @deprecated Use FeatureGate with module prop instead
+ */
+export function TierGuard({
+  tier,
+  children,
+  fallback = null,
+}: {
+  tier: string;
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}) {
+  const tenant = useTenant();
+
+  // Tier hierarchy
+  const tierLevels: Record<string, number> = {
+    STANDARD: 1,
+    PREMIUM: 2,
+    ENTERPRISE: 3,
+  };
+
+  const tenantTier = tierLevels[tenant?.tier ?? 'STANDARD'];
+  const requiredTier = tierLevels[tier] ?? 1;
+
+  if (tenantTier < requiredTier) {
+    return <>{fallback}</>;
+  }
+
   return <>{children}</>;
 }
