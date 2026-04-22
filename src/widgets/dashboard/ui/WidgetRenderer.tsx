@@ -1,22 +1,29 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, Suspense, lazy } from 'react';
 import { useTenant } from '@api/tenant';
 import type { Tenant } from '@api/tenant';
 import { isFeatureEnabled } from '@api/features/registry';
-import { WIDGET_FEATURE_MAP } from '@entities/widget';
 import { ErrorBoundary } from '@shared/ui';
-import { getWidgetComponent, getWidgetMetadata, hasWidget } from '../model/registry';
+import { registry } from '../model/registry';
+import type { WidgetManifest } from '../model/types';
 
 interface WidgetRendererProps {
   widgetId: string;
+  /** Optional fallback UI while widget loads */
+  fallback?: ReactNode;
+}
+
+/**
+ * Get widget manifest from registry
+ */
+function getWidgetManifest(widgetId: string): WidgetManifest | undefined {
+  return registry.resolve(widgetId);
 }
 
 /**
  * Check if a widget should be rendered based on tenant feature access.
- * - Returns true if no tenant context is available (e.g., public pages)
- * - Returns true for utility widgets with no feature mapping
- * - Returns true if tenant has access to the widget's feature
+ * Uses manifest featureFlag only - no dual-source lookup
  */
 function canRenderWidget(widgetId: string, tenant: Tenant | null): boolean {
   // If no tenant context, show all widgets (e.g., public pages)
@@ -27,29 +34,40 @@ function canRenderWidget(widgetId: string, tenant: Tenant | null): boolean {
     return true;
   }
 
-  // Get feature flag from registry metadata first
-  const metadata = getWidgetMetadata(widgetId);
-  if (metadata?.featureFlag) {
-    return isFeatureEnabled(tenant, metadata.featureFlag);
+  // Get feature flag from manifest only (no dual-source lookup)
+  const manifest = getWidgetManifest(widgetId);
+  if (manifest?.featureFlag) {
+    return isFeatureEnabled(tenant, manifest.featureFlag);
   }
 
-  // Fallback to dashboard-config mapping
-  const featureKey = WIDGET_FEATURE_MAP[widgetId];
-  if (!featureKey) {
-    return true;
-  }
-
-  // Check if tenant has access to the feature
-  return isFeatureEnabled(tenant, featureKey);
+  // No feature flag means widget is always visible
+  return true;
 }
 
 /**
- * Error fallback when widget fails to render
+ * Error fallback when widget fails to load
  */
 function WidgetErrorFallback({ widgetId }: { widgetId: string }) {
   return (
-    <div className="text-center py-4 text-gray-500">
-      <p>Widget "{widgetId}" failed to load</p>
+    <div className="flex items-center justify-center h-full min-h-[100px] text-gray-500">
+      <div className="text-center">
+        <p className="text-sm font-medium">Widget failed to load</p>
+        <p className="text-xs text-gray-400 mt-1">{widgetId}</p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Loading fallback for lazy-loaded widgets
+ */
+function WidgetLoadingFallback({ widgetId }: { widgetId: string }) {
+  return (
+    <div className="flex items-center justify-center h-full min-h-[100px]">
+      <div className="animate-pulse flex flex-col items-center">
+        <div className="h-8 w-8 bg-gray-200 rounded-full mb-2"></div>
+        <div className="h-3 w-20 bg-gray-200 rounded"></div>
+      </div>
     </div>
   );
 }
@@ -60,14 +78,17 @@ function WidgetErrorFallback({ widgetId }: { widgetId: string }) {
 function UnknownWidget({ widgetId }: { widgetId: string }) {
   return (
     <ErrorBoundary>
-      <div className="text-center py-4 text-gray-500">
-        <p>Widget "{widgetId}" not found</p>
+      <div className="flex items-center justify-center h-full min-h-[100px] text-gray-500">
+        <div className="text-center">
+          <p className="text-sm font-medium">Widget not found</p>
+          <p className="text-xs text-gray-400 mt-1">{widgetId}</p>
+        </div>
       </div>
     </ErrorBoundary>
   );
 }
 
-export function WidgetRenderer({ widgetId }: WidgetRendererProps): ReactNode {
+export function WidgetRenderer({ widgetId, fallback }: WidgetRendererProps): ReactNode {
   const tenant = useTenant();
 
   // Check feature access before rendering
@@ -75,22 +96,21 @@ export function WidgetRenderer({ widgetId }: WidgetRendererProps): ReactNode {
     return null;
   }
 
-  // Check if widget exists in registry
-  if (!hasWidget(widgetId)) {
+  // Get manifest from registry
+  const manifest = getWidgetManifest(widgetId);
+
+  if (!manifest) {
     return <UnknownWidget widgetId={widgetId} />;
   }
 
-  // Get component from registry
-  const WidgetComponent = getWidgetComponent(widgetId);
+  // Render widget with Suspense and ErrorBoundary for lazy loading
+  const loadingFallback = fallback ?? <WidgetLoadingFallback widgetId={widgetId} />;
 
-  if (!WidgetComponent) {
-    return <UnknownWidget widgetId={widgetId} />;
-  }
-
-  // Render widget with error boundary
   return (
     <ErrorBoundary fallback={<WidgetErrorFallback widgetId={widgetId} />}>
-      <WidgetComponent />
+      <Suspense fallback={loadingFallback}>
+        <manifest.component />
+      </Suspense>
     </ErrorBoundary>
   );
 }
