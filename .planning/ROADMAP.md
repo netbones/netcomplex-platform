@@ -80,14 +80,13 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Implement maintenance request system — submit requests with category, priority, description, photo upload, status tracking, notifications on status changes, request history
 
-**Status:** Not Started
+**Status:** Planned
 
-**Requirements:** [From PRD acceptance criteria]
+**Requirements:** MAINT-01, MAINT-02, MAINT-03 (from PRD acceptance criteria)
 
 **Plans:**
 
-- [ ] 06-01-PLAN.md — Maintenance Request Model + API (create model, CRUD API, status workflow)
-- [ ] 06-02-PLAN.md — Maintenance Request UI (submission form, tracking dashboard, admin queue)
+- [ ] 06-01-PLAN.md — Complete maintenance (photo storage, email notifications, admin queue)
 
 ---
 
