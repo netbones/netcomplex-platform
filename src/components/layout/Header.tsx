@@ -258,13 +258,17 @@ export function Header() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-soralia-primary border-t border-white/20 mt-4 -mx-4 -mb-4 p-4 z-50">
+          <div
+            className="md:hidden mt-4 p-4 bg-soralia-primary border-t-4 border-white"
+            style={{ display: 'block' }}
+          >
+            <div className="text-white font-bold mb-2">Menu Debug: OPEN</div>
             <nav className="space-y-2">
               {navItems.map(item => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="block py-2 px-3 hover:bg-white/10 rounded"
+                  className="block py-2 px-3 hover:bg-white/10 rounded text-white"
                 >
                   {item.name}
                 </Link>
