@@ -34,37 +34,9 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 02-admin-ui
-
-**Goal:** Build tenant admin UI for branding, feature toggles, and back-populate tenant records
-
-**Status:** Planned
-
-**Requirements:** MULTI-05, MULTI-06
-
-**Plans:**
-
-- [ ] 02-01-PLAN.md — Phase 2 Admin UI (3 tasks)
-
----
-
-## Phase: 03-localization
-
-**Goal:** Add internationalization support to platform landing page with language switcher and tenant-specific translation overrides
-
-**Status:** Planned
-
-**Requirements:** [To be added]
-
-**Plans:**
-
-- [ ] 03-01-PLAN.md — Phase 3 Localization (7 tasks)
-
----
-
 ## Phase: 05-widget-registry-alignment
 
-**Goal:** Align widget registry with NetComplex architecture — convert from plain object to WidgetRegistry class with full manifest support (version, author, icon, lazy loading), remove dual-source feature flag lookup
+**Goal:** Align widget registry with NetComplex architecture — convert from plain object to WidgetRegistry class
 
 **Status:** Complete
 
@@ -78,37 +50,47 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ## Phase: 06-maintenance-requests
 
-**Goal:** Implement maintenance request system — submit requests with category, priority, description, photo upload, status tracking, notifications on status changes, request history
+**Goal:** Implement maintenance request system — submit requests with category, priority, description, photo upload, status tracking
 
-**Status:** In Progress
+**Status:** Complete
 
-**Requirements:** MAINT-01, MAINT-02, MAINT-03 (from PRD acceptance criteria)
+**Requirements:** MAINT-01, MAINT-02, MAINT-03
 
 **Plans:**
 
-- [x] 06-01-PLAN.md — Complete maintenance (photo storage, email notifications, admin queue) ✅
+- [x] 06-01-PLAN.md — Complete maintenance ✅
 
 ---
 
 ## Phase: 07-facility-booking
 
-**Goal:** Implement facility booking as a **NetComplex module** — tenants can enable via feature flag, configure their facilities, and extend to external APIs (San Marina Recreation Club, The Zone Gym)
+**Goal:** Implement facility booking as NetComplex module — feature flag gated, tenant-configurable
 
-**Status:** Not Started
+**Status:** Complete
+
+**Requirements:** BOOKING-01, BOOKING-02, BOOKING-03
 
 **Plans:**
 
-- [ ] 07-01-PLAN.md — Module scaffold (feature flag, facilities config, calendar view UI)
-
-**Notes:**
-
-- Built as installable module, not Soralia-specific
-- Soralia: feature flag OFF by default (no facilities to book)
-- Other tenants: enable module, configure facilities, optionally connect external APIs
+- [x] 07-01-PLAN.md — Facility Booking Module ✅
 
 ---
 
-## Phase: 08-real-time-chat
+## Phase: 08-module-architecture
+
+**Goal:** Establish module architecture — platform_modules + tenant_modules tables, tier on tenants, enforcement helpers, FeatureGate update. Foundation for all future module work.
+
+**Status:** Planned
+
+**Requirements:** MOD-01, MOD-02, MOD-03, MOD-04
+
+**Plans:**
+
+- [ ] 08-01-PLAN.md — Module Architecture Foundation (3 tasks + migration)
+
+---
+
+## Phase: 09-real-time-chat
 
 **Goal:** Wire Supabase Realtime for chat — real-time message delivery, typing indicators, online presence
 
@@ -116,11 +98,11 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Plans:**
 
-- [ ] 07-01-PLAN.md — Real-time wiring for conversations
+- [ ] 09-01-PLAN.md — Real-time wiring for conversations
 
 ---
 
-## Phase: 09-announcements
+## Phase: 10-announcements
 
 **Goal:** Implement announcements board — announcement model, API, board UI with priority levels
 
@@ -128,7 +110,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Plans:**
 
-- [ ] 08-01-PLAN.md — Announcement model + API
+- [ ] 10-01-PLAN.md — Announcement model + API
 
 ---
 
@@ -139,3 +121,40 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 - Onboard second tenant
 - Enable RLS
 - Test isolation
+
+---
+
+## Module Architecture (Phase 08 Design)
+
+### Tier Model
+
+| Tier           | Modules                                                                |
+| -------------- | ---------------------------------------------------------------------- |
+| **Standard**   | Dashboard, Directory, Groups, Maintenance, Community Services, Content |
+| **Premium**    | Bookings, Premium Seats, Property Listings                             |
+| **Enterprise** | Agent Marketplace, White Label                                         |
+
+_Marketing picks display labels. Internal tier names: standard | premium | enterprise_
+
+### Two-Table Schema
+
+```
+platform_modules          → What NetComplex offers
+├── key (text unique)     → 'bookings', 'maintenance', etc.
+├── minTier              → Enforces tier-gating
+├── label               → Display name
+└── defaultEnabled      → Boolean
+
+tenant_modules           → What each tenant has
+├── tenantId             → FK → tenants
+├── moduleKey            → FK → platform_modules.key
+├── enabled             → Boolean
+├── config (jsonb)       → Per-module overrides
+└── enabledAt           → Audit trail
+```
+
+### Enforcement Gates
+
+1. **Middleware**: Coarse-grained route protection (redirect if tier insufficient)
+2. **FeatureGate**: Reads resolved module list from tables (tier check implicit)
+3. **API Layer**: `assertModuleEnabled()` helper — server-side enforcement
