@@ -86,14 +86,14 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         <button
           type="button"
           aria-label="Close menu"
-          className="fixed inset-0 bg-black/50 z-[9999] cursor-pointer border-none"
+          className="fixed inset-0 bg-black/50 z-[99999] cursor-pointer border-none"
           onClick={() => onClose()}
         />
       )}
       <aside
         role="dialog"
         aria-modal="true"
-        className={`fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg z-[10000] transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-800 shadow-2xl z-[100000] transform transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >

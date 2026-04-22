@@ -52,7 +52,7 @@ export default function MapContent() {
   }, []);
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full relative z-0">
       <div ref={mapRef} className="h-full w-full" />
     </div>
   );

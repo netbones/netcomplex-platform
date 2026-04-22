@@ -319,7 +319,7 @@ export function Header() {
             </Link>
           )}
 
-          {session && (
+          {mounted && (
             <button
               onClick={() => {
                 console.log('[Header] Opening drawer, current state:', isDrawerOpen);
