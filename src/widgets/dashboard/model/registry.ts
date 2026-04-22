@@ -1,229 +1,94 @@
-import { ComponentType } from 'react';
-import { DashboardStats } from '../ui/DashboardStats';
-import { QuickActionsWidget } from '../ui/QuickActionsWidget';
-import { RecentActivityWidget } from '../ui/RecentActivityWidget';
-import { EventsWidget } from '../ui/EventsWidget';
-import { NotificationsWidget } from '../ui/NotificationsWidget';
-import { MessagesWidget } from '@widgets/chat';
-import { UserContentWidget } from '../ui/UserContentWidget';
-import { BookshelfWidget } from '../ui/BookshelfWidget';
-import { MediaWidget } from '../ui/MediaWidget';
-import { MyAlbumWidget } from '../ui/MyAlbumWidget';
-import { SidebarWidgetBox } from '../ui/SidebarWidgetBox';
-import { PremiumPortfolioWidget } from '../ui/PremiumPortfolioWidget';
-import { PropertiesWidget } from '../ui/PropertiesWidget';
-import { AgentDashboardWidget } from '../ui/AgentDashboardWidget';
-import { SoloSeatWidget } from '../ui/SoloSeatWidget';
-import { MyServicesWidget, ServiceInquiriesWidget } from '@widgets/service';
-import { CommunityGraphWidget } from '../ui/CommunityGraphWidget';
+import type { ComponentType } from 'react';
+import type { WidgetManifest } from './types';
 
 /**
- * Widget registry entry
+ * Widget component type - for backward compatibility
+ */
+export type WidgetComponent = ComponentType<unknown>;
+
+/**
+ * Widget registry entry for admin UI
  */
 export interface WidgetRegistryEntry {
-  /** Unique widget identifier */
   id: string;
-  /** Display name for admin UI */
   name: string;
-  /** Description for admin UI */
   description?: string;
-  /** Feature flag required to render (optional) */
   featureFlag?: string;
-  /** Whether this is a premium/paid widget */
   premium?: boolean;
-  /** Category for organizing widgets in admin */
   category?: 'core' | 'content' | 'communication' | 'premium' | 'utility';
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type WidgetComponent = ComponentType<any>;
-
 /**
- * Complete widget registry mapping widget IDs to their components and metadata
+ * WidgetRegistry - Class-based registry with manifest support
+ * Replaces plain object registry with Map for O(1) lookups
  */
-export const WIDGET_REGISTRY: Record<
-  string,
-  { component: WidgetComponent; metadata: WidgetRegistryEntry }
-> = {
-  stats: {
-    component: DashboardStats,
-    metadata: {
-      id: 'stats',
-      name: 'Dashboard Stats',
-      description: 'Overview statistics for the dashboard',
-      category: 'core',
-    },
-  },
-  'quick-actions': {
-    component: QuickActionsWidget,
-    metadata: {
-      id: 'quick-actions',
-      name: 'Quick Actions',
-      description: 'Common actions and shortcuts',
-      category: 'core',
-    },
-  },
-  'recent-activity': {
-    component: RecentActivityWidget,
-    metadata: {
-      id: 'recent-activity',
-      name: 'Recent Activity',
-      description: 'Recent user activities and updates',
-      category: 'core',
-    },
-  },
-  notifications: {
-    component: NotificationsWidget,
-    metadata: {
-      id: 'notifications',
-      name: 'Notifications',
-      description: 'User notifications and alerts',
-      category: 'communication',
-    },
-  },
-  messages: {
-    component: MessagesWidget,
-    metadata: {
-      id: 'messages',
-      name: 'Messages',
-      description: 'Recent messages and conversations',
-      category: 'communication',
-    },
-  },
-  events: {
-    component: EventsWidget,
-    metadata: {
-      id: 'events',
-      name: 'Events',
-      description: 'Upcoming community events',
-      category: 'content',
-    },
-  },
-  'my-content': {
-    component: UserContentWidget,
-    metadata: {
-      id: 'my-content',
-      name: 'My Content',
-      description: "User's published content",
-      category: 'content',
-    },
-  },
-  bookshelf: {
-    component: BookshelfWidget,
-    metadata: {
-      id: 'bookshelf',
-      name: 'Bookshelf',
-      description: "User's book collection",
-      category: 'content',
-    },
-  },
-  media: {
-    component: MediaWidget,
-    metadata: {
-      id: 'media',
-      name: 'Media',
-      description: 'Shared media gallery',
-      category: 'content',
-    },
-  },
-  'my-album': {
-    component: MyAlbumWidget,
-    metadata: {
-      id: 'my-album',
-      name: 'My Album',
-      description: "User's personal photo album",
-      category: 'content',
-    },
-  },
-  'sidebar-widgets': {
-    component: SidebarWidgetBox,
-    metadata: {
-      id: 'sidebar-widgets',
-      name: 'Sidebar Widgets',
-      description: 'Container for sidebar widgets',
-      category: 'utility',
-    },
-  },
-  'premium-portfolio': {
-    component: PremiumPortfolioWidget,
-    metadata: {
-      id: 'premium-portfolio',
-      name: 'Premium Portfolio',
-      description: 'Portfolio management for premium members',
-      premium: true,
-      featureFlag: 'portfolio',
-      category: 'premium',
-    },
-  },
-  properties: {
-    component: PropertiesWidget,
-    metadata: {
-      id: 'properties',
-      name: 'Properties',
-      description: 'Property asset and occupancy management',
-      featureFlag: 'households',
-      category: 'core',
-    },
-  },
-  'agent-dashboard': {
-    component: AgentDashboardWidget,
-    metadata: {
-      id: 'agent-dashboard',
-      name: 'Agent Dashboard',
-      description: 'Real estate agent tools and metrics',
-      featureFlag: 'agents',
-      premium: true,
-      category: 'premium',
-    },
-  },
-  'solo-seat': {
-    component: SoloSeatWidget,
-    metadata: {
-      id: 'solo-seat',
-      name: 'Solo Seat',
-      description: 'Solo seat member profile',
-      category: 'core',
-    },
-  },
-  'my-services': {
-    component: MyServicesWidget,
-    metadata: {
-      id: 'my-services',
-      name: 'My Services',
-      description: 'Community services offered by user',
-      featureFlag: 'services',
-      category: 'content',
-    },
-  },
-  'service-inquiries': {
-    component: ServiceInquiriesWidget,
-    metadata: {
-      id: 'service-inquiries',
-      name: 'Service Inquiries',
-      description: 'Inquiries received for community services',
-      featureFlag: 'services',
-      category: 'content',
-    },
-  },
-  'community-graph-widget': {
-    component: CommunityGraphWidget,
-    metadata: {
-      id: 'community-graph-widget',
-      name: 'Community Graph',
-      description: 'Visualization of community connections',
-      featureFlag: 'communityGraph',
-      premium: true,
-      category: 'premium',
-    },
-  },
-};
+class WidgetRegistry {
+  private manifests = new Map<string, WidgetManifest>();
 
-/**
- * Get all registered widget metadata (for admin UI)
- */
-export function getAllWidgets(): WidgetRegistryEntry[] {
-  return Object.values(WIDGET_REGISTRY).map(w => w.metadata);
+  /**
+   * Register a widget with its manifest
+   */
+  register(manifest: WidgetManifest): void {
+    if (this.manifests.has(manifest.id)) {
+      console.warn(`[WidgetRegistry] Overwriting widget: ${manifest.id}`);
+    }
+    this.manifests.set(manifest.id, manifest);
+  }
+
+  /**
+   * Resolve a widget manifest by ID
+   */
+  resolve(id: string): WidgetManifest | undefined {
+    return this.manifests.get(id);
+  }
+
+  /**
+   * List all registered widget manifests
+   */
+  list(): WidgetManifest[] {
+    return [...this.manifests.values()];
+  }
+
+  /**
+   * List widgets by category
+   */
+  listByCategory(category: string): WidgetManifest[] {
+    return this.list().filter(m => m.category === category);
+  }
+
+  /**
+   * List premium widgets only
+   */
+  listPremium(): WidgetManifest[] {
+    return this.list().filter(m => m.premium);
+  }
+
+  /**
+   * Filter widgets by feature flags and user role
+   */
+  listForContext(enabledFeatures: string[], userRole: string): WidgetManifest[] {
+    return this.list().filter(m => {
+      if (m.featureFlag && !enabledFeatures.includes(m.featureFlag)) return false;
+      if (
+        m.permissions &&
+        !m.permissions.includes(userRole as 'resident' | 'board' | 'admin' | 'agent')
+      )
+        return false;
+      return true;
+    });
+  }
 }
+
+// Create singleton instance
+export const registry = new WidgetRegistry();
+
+// Import widgets to auto-register them
+// This import must come after registry is defined
+import './widgets';
+
+// ═══════════════════════════════════════════════════════════════
+// BACKWARD-COMPATIBLE EXPORTS - preserve existing API
+// ═══════════════════════════════════════════════════════════════
 
 /**
  * Get widget component by ID
@@ -231,7 +96,7 @@ export function getAllWidgets(): WidgetRegistryEntry[] {
  * @returns The widget component or undefined if not found
  */
 export function getWidgetComponent(widgetId: string): WidgetComponent | undefined {
-  return WIDGET_REGISTRY[widgetId]?.component;
+  return registry.resolve(widgetId)?.component as WidgetComponent | undefined;
 }
 
 /**
@@ -240,7 +105,17 @@ export function getWidgetComponent(widgetId: string): WidgetComponent | undefine
  * @returns The widget metadata or undefined if not found
  */
 export function getWidgetMetadata(widgetId: string): WidgetRegistryEntry | undefined {
-  return WIDGET_REGISTRY[widgetId]?.metadata;
+  const m = registry.resolve(widgetId);
+  if (!m) return undefined;
+  // Map to existing shape for admin UI
+  return {
+    id: m.id,
+    name: m.name,
+    description: m.description,
+    featureFlag: m.featureFlag,
+    premium: m.premium,
+    category: m.category,
+  };
 }
 
 /**
@@ -249,7 +124,21 @@ export function getWidgetMetadata(widgetId: string): WidgetRegistryEntry | undef
  * @returns true if widget exists
  */
 export function hasWidget(widgetId: string): boolean {
-  return widgetId in WIDGET_REGISTRY;
+  return registry.resolve(widgetId) !== undefined;
+}
+
+/**
+ * Get all registered widget metadata (for admin UI)
+ */
+export function getAllWidgets(): WidgetRegistryEntry[] {
+  return registry.list().map(m => ({
+    id: m.id,
+    name: m.name,
+    description: m.description,
+    featureFlag: m.featureFlag,
+    premium: m.premium,
+    category: m.category,
+  }));
 }
 
 /**
@@ -258,9 +147,14 @@ export function hasWidget(widgetId: string): boolean {
  * @returns Array of widget metadata in the category
  */
 export function getWidgetsByCategory(category: string): WidgetRegistryEntry[] {
-  return Object.values(WIDGET_REGISTRY)
-    .map(w => w.metadata)
-    .filter(w => w.category === category);
+  return registry.listByCategory(category).map(m => ({
+    id: m.id,
+    name: m.name,
+    description: m.description,
+    featureFlag: m.featureFlag,
+    premium: m.premium,
+    category: m.category,
+  }));
 }
 
 /**
@@ -268,7 +162,18 @@ export function getWidgetsByCategory(category: string): WidgetRegistryEntry[] {
  * @returns Array of premium widget metadata
  */
 export function getPremiumWidgets(): WidgetRegistryEntry[] {
-  return Object.values(WIDGET_REGISTRY)
-    .map(w => w.metadata)
-    .filter(w => w.premium);
+  return registry.listPremium().map(m => ({
+    id: m.id,
+    name: m.name,
+    description: m.description,
+    featureFlag: m.featureFlag,
+    premium: m.premium,
+    category: m.category,
+  }));
 }
+
+// Export the class for direct usage if needed
+export { WidgetRegistry };
+
+// Export registry instance
+export { registry as widgetRegistry };
