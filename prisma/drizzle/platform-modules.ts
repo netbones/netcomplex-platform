@@ -13,7 +13,7 @@ export const tierEnum = pgEnum('tier', ['standard', 'premium', 'enterprise']);
  * @see docs/netcomplex-module-architecture-2026-04-22.md
  */
 export const platformModules = pgTable('platform_modules', {
-  id: text('id').defaultRandom().primaryKey(),
+  id: text('id').primaryKey(),
   key: varchar('key', { length: 100 }).notNull().unique(),
   label: varchar('label', { length: 255 }).notNull(),
   minTier: tierEnum('min_tier').default('standard').notNull(),

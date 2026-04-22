@@ -8,7 +8,7 @@ import { tenants } from './tenants';
  * @see docs/netcomplex-module-architecture-2026-04-22.md
  */
 export const tenantModules = pgTable('tenant_modules', {
-  id: text('id').defaultRandom().primaryKey(),
+  id: text('id').primaryKey(),
   tenantId: text('tenant_id')
     .notNull()
     .references(() => tenants.id, { onDelete: 'cascade' }),
