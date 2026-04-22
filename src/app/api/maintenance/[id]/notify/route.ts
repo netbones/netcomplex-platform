@@ -24,6 +24,47 @@ async function getSessionAndRole(request: Request) {
   };
 }
 
+/**
+ * Send email notification via MailerSend API
+ * Uses MailerSend HTTP API for reliability
+ */
+async function sendEmail(to: string, subject: string, html: string) {
+  const apiKey = process.env.MAILERSEND_API_KEY;
+  const fromEmail = process.env.MAILERSEND_FROM_EMAIL || 'notifications@soralia.co.za';
+
+  if (!apiKey) {
+    console.log('[MailerSend] No API key configured, skipping email');
+    return { success: false, error: 'No API key' };
+  }
+
+  try {
+    const response = await fetch('https://api.mailersend.com/v1/email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        from: { email: fromEmail, name: 'Soralia Village' },
+        to: [{ email: to }],
+        subject,
+        html,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[MailerSend] Error:', response.status, errorText);
+      return { success: false, error: errorText };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('[MailerSend] Exception:', err);
+    return { success: false, error: String(err) };
+  }
+}
+
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
@@ -65,15 +106,68 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     CANCELLED: 'Your maintenance request has been cancelled.',
   };
 
+  const statusSubject: Record<string, string> = {
+    SUBMITTED: 'Maintenance Request Received',
+    ASSIGNED: 'Maintenance Request Assigned',
+    IN_PROGRESS: 'Work Started on Your Request',
+    PENDING_PARTS: 'Maintenance Request - Pending Parts',
+    SCHEDULED: 'Maintenance Request Scheduled',
+    COMPLETED: 'Maintenance Request Completed',
+    CANCELLED: 'Maintenance Request Cancelled',
+  };
+
   const message =
     statusMessages[mr.status] ||
     `Your maintenance request status has been updated to ${mr.status}.`;
 
-  console.log(`[Notification] Would send email to ${resident.email}: ${message}`);
+  const subject = statusSubject[mr.status] || 'Maintenance Request Update';
+
+  // Build HTML email
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+    <h2 style="color: #4F46E5; margin: 0 0 16px 0;">Soralia Village - Maintenance Update</h2>
+    <p style="color: #374151; font-size: 16px; margin: 0 0 16px 0;">${message}</p>
+    <div style="background: white; padding: 16px; border-radius: 8px; margin: 16px 0;">
+      <p style="margin: 8px 0; color: #6b7280; font-size: 14px;">
+        <strong>Category:</strong> ${mr.category}
+      </p>
+      <p style="margin: 8px 0; color: #6b7280; font-size: 14px;">
+        <strong>Priority:</strong> ${mr.priority}
+      </p>
+      <p style="margin: 8px 0; color: #6b7280; font-size: 14px;">
+        <strong>Status:</strong> ${mr.status}
+      </p>
+      <p style="margin: 8px 0; color: #6b7280; font-size: 14px;">
+        <strong>Description:</strong> ${mr.description?.substring(0, 200)}...
+      </p>
+    </div>
+    <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">
+      Log in to your Soralia Village portal to view full details and track progress.
+    </p>
+  </div>
+</body>
+</html>`;
+
+  // Send email notification
+  const emailResult = await sendEmail(resident.email, subject, html);
+
+  if (!emailResult.success) {
+    console.log(`[Notification] Failed to send email to ${resident.email}:`, emailResult.error);
+  } else {
+    console.log(`[Notification] Email sent to ${resident.email}`);
+  }
 
   return NextResponse.json({
     success: true,
     message: 'Notification sent',
     recipient: resident.email,
+    emailSent: emailResult.success,
   });
 }
