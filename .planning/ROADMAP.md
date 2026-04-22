@@ -92,15 +92,23 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ## Phase: 07-facility-booking
 
-**Goal:** Deferred — Soralia Village does not have pool, gym, community center, tennis court, or BBQ area. This module may apply to other tenants who add nearby facilities (San Marina Recreation Club, The Zone Gym) or install facilities in the future.
+**Goal:** Implement facility booking as a **NetComplex module** — tenants can enable via feature flag, configure their facilities, and extend to external APIs (San Marina Recreation Club, The Zone Gym)
 
-**Status:** Deferred
+**Status:** Not Started
 
-**Decision:** Not implementing. Booking model + API remain in codebase as tenant-future-proofing. Feature flag controls visibility.
+**Plans:**
+
+- [ ] 07-01-PLAN.md — Module scaffold (feature flag, facilities config, calendar view UI)
+
+**Notes:**
+
+- Built as installable module, not Soralia-specific
+- Soralia: feature flag OFF by default (no facilities to book)
+- Other tenants: enable module, configure facilities, optionally connect external APIs
 
 ---
 
-## Phase: 07-real-time-chat
+## Phase: 08-real-time-chat
 
 **Goal:** Wire Supabase Realtime for chat — real-time message delivery, typing indicators, online presence
 
@@ -112,7 +120,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 08-announcements
+## Phase: 09-announcements
 
 **Goal:** Implement announcements board — announcement model, API, board UI with priority levels
 
