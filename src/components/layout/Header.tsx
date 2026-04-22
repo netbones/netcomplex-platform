@@ -186,7 +186,7 @@ export function Header() {
   return (
     <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md relative overflow-hidden">
       <svg
-        className="absolute inset-0 w-full h-full pointer-events-none opacity-10"
+        className="absolute inset-0 w-full h-full pointer-events-none opacity-10 -z-10"
         viewBox="0 0 1440 120"
         preserveAspectRatio="none"
       >
@@ -206,7 +206,7 @@ export function Header() {
         />
       </svg>
       <div className="container mx-auto px-4 py-4 flex justify-between items-center relative z-10">
-        <Link href="/" className="flex items-center space-x-3">
+        <Link href="/" className="flex items-center space-x-3 z-10">
           <img
             src="/logo.png"
             alt="Soralia Village Logo"
@@ -218,7 +218,7 @@ export function Header() {
           </div>
         </Link>
 
-        <nav className="hidden md:flex space-x-6">
+        <nav className="hidden md:flex space-x-6 z-10">
           <Link
             href="/"
             className={`hover:text-soralia-accent font-medium ${pathname === '/' ? 'text-soralia-accent' : ''}`}
@@ -275,7 +275,7 @@ export function Header() {
           )}
         </nav>
 
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-2 md:gap-4 z-10">
           <Suspense fallback={<div className="w-16 h-6 bg-white/20 rounded" />}>
             <LanguageSwitcher />
           </Suspense>
