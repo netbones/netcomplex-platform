@@ -233,12 +233,7 @@ export function Header() {
 
             {mounted && (
               <button
-                onClick={e => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('Burger click', mobileMenuOpen);
-                  setMobileMenuOpen(!mobileMenuOpen);
-                }}
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="p-2 rounded-md hover:bg-white/20 text-white md:hidden"
                 aria-expanded={mobileMenuOpen}
                 aria-label="Open menu"
@@ -258,11 +253,7 @@ export function Header() {
         </div>
 
         {mobileMenuOpen && (
-          <div
-            className="md:hidden mt-4 p-4 bg-soralia-primary border-t-4 border-white"
-            style={{ display: 'block' }}
-          >
-            <div className="text-white font-bold mb-2">Menu Debug: OPEN</div>
+          <div className="md:hidden mt-4 p-4 bg-soralia-primary border-t-4 border-white">
             <nav className="space-y-2">
               {navItems.map(item => (
                 <Link
