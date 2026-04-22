@@ -89,6 +89,7 @@ export const maintenanceRequestSchema = z.object({
     .refine(val => !val || /^([01]\d|2[0-3]):([0-5]\d)$/.test(val), {
       message: 'Time must be in HH:MM 24-hour format',
     }),
+  images: z.array(z.string().url()).max(5).optional().default([]),
 });
 
 export type MaintenanceRequestFormData = z.infer<typeof maintenanceRequestSchema>;

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { supabase } from '@shared/api/supabase';
 
 interface MaintenanceFormProps {
   onSubmit?: (data: MaintenanceRequest) => Promise<void>;
@@ -10,6 +11,7 @@ interface MaintenanceRequest {
   category: string;
   priority: string;
   description: string;
+  images?: string[];
 }
 
 const categories = [
@@ -35,9 +37,86 @@ export function MaintenanceForm({ onSubmit }: MaintenanceFormProps) {
     category: '',
     priority: 'MEDIUM',
     description: '',
+    images: [],
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const fileArray = Array.from(files);
+    if (formData.images && formData.images.length + fileArray.length > 5) {
+      setError('Maximum 5 images allowed');
+      return;
+    }
+
+    setUploading(true);
+    setError('');
+
+    try {
+      const uploadedUrls: string[] = [];
+
+      for (const file of fileArray) {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          continue;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          setError('Each image must be less than 5MB');
+          continue;
+        }
+
+        const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+
+        const { data, error: uploadError } = await supabase.storage
+          .from('maintenance-images')
+          .upload(fileName, file, {
+            contentType: file.type,
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          continue;
+        }
+
+        if (data) {
+          const { data: urlData } = supabase.storage
+            .from('maintenance-images')
+            .getPublicUrl(data.path);
+          uploadedUrls.push(urlData.publicUrl);
+        }
+      }
+
+      if (uploadedUrls.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          images: [...(prev.images || []), ...uploadedUrls],
+        }));
+      }
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError('Failed to upload images. Please try again.');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: (prev.images || []).filter((_, i) => i !== index),
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +138,7 @@ export function MaintenanceForm({ onSubmit }: MaintenanceFormProps) {
         }
 
         alert('Maintenance request submitted successfully!');
-        setFormData({ category: '', priority: 'MEDIUM', description: '' });
+        setFormData({ category: '', priority: 'MEDIUM', description: '', images: [] });
       }
     } catch (err) {
       setError('Failed to submit request. Please try again.');
@@ -116,6 +195,46 @@ export function MaintenanceForm({ onSubmit }: MaintenanceFormProps) {
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
         />
       </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Photos (optional, max 5)
+        </label>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFileChange}
+          disabled={uploading}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
+        />
+        {uploading && <p className="text-sm text-gray-500 mt-1">Uploading...</p>}
+      </div>
+
+      {formData.images && formData.images.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Attached Photos</label>
+          <div className="grid grid-cols-3 gap-2">
+            {formData.images.map((url, index) => (
+              <div key={url} className="relative group">
+                <img
+                  src={url}
+                  alt={`Upload ${index + 1}`}
+                  className="w-full h-24 object-cover rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImage(index)}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <button
         type="submit"
