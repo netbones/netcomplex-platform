@@ -92,30 +92,39 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ## Phase: 07-facility-booking
 
-**Goal:** Implement facility booking system — community center, pool, gym, tennis court bookings with calendar view, confirmation, cancellation
+**Goal:** Deferred — Soralia Village does not have pool, gym, community center, tennis court, or BBQ area. This module may apply to other tenants who add nearby facilities (San Marina Recreation Club, The Zone Gym) or install facilities in the future.
+
+**Status:** Deferred
+
+**Decision:** Not implementing. Booking model + API remain in codebase as tenant-future-proofing. Feature flag controls visibility.
+
+---
+
+## Phase: 07-real-time-chat
+
+**Goal:** Wire Supabase Realtime for chat — real-time message delivery, typing indicators, online presence
 
 **Status:** Not Started
 
-**Requirements:** [From PRD acceptance criteria]
+**Plans:**
+
+- [ ] 07-01-PLAN.md — Real-time wiring for conversations
+
+---
+
+## Phase: 08-announcements
+
+**Goal:** Implement announcements board — announcement model, API, board UI with priority levels
+
+**Status:** Not Started
 
 **Plans:**
 
-- [ ] 07-01-PLAN.md — Booking Model + API (create model, CRUD API, availability check)
-- [ ] 07-02-PLAN.md — Booking UI (calendar view, booking form, my bookings)
+- [ ] 08-01-PLAN.md — Announcement model + API
 
 ---
 
 ## Future Phases (To Be Planned)
-
-### Phase: Announcements
-
-- Announcement model + API
-- Announcement board UI
-
-### Phase: Real-time Wiring
-
-- Wire Supabase Realtime for chat
-- Notification real-time updates
 
 ### Phase: Second Tenant
 
