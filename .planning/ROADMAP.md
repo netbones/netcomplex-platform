@@ -76,9 +76,49 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase: 06-maintenance-requests
+
+**Goal:** Implement maintenance request system — submit requests with category, priority, description, photo upload, status tracking, notifications on status changes, request history
+
+**Status:** Not Started
+
+**Requirements:** [From PRD acceptance criteria]
+
+**Plans:**
+
+- [ ] 06-01-PLAN.md — Maintenance Request Model + API (create model, CRUD API, status workflow)
+- [ ] 06-02-PLAN.md — Maintenance Request UI (submission form, tracking dashboard, admin queue)
+
+---
+
+## Phase: 07-facility-booking
+
+**Goal:** Implement facility booking system — community center, pool, gym, tennis court bookings with calendar view, confirmation, cancellation
+
+**Status:** Not Started
+
+**Requirements:** [From PRD acceptance criteria]
+
+**Plans:**
+
+- [ ] 07-01-PLAN.md — Booking Model + API (create model, CRUD API, availability check)
+- [ ] 07-02-PLAN.md — Booking UI (calendar view, booking form, my bookings)
+
+---
+
 ## Future Phases (To Be Planned)
 
-### Phase 3: Second Tenant
+### Phase: Announcements
+
+- Announcement model + API
+- Announcement board UI
+
+### Phase: Real-time Wiring
+
+- Wire Supabase Realtime for chat
+- Notification real-time updates
+
+### Phase: Second Tenant
 
 - Onboard second tenant
 - Enable RLS
