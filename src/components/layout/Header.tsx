@@ -321,7 +321,10 @@ export function Header() {
 
           {mounted && (
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => {
+                console.log('Burger clicked, state:', mobileMenuOpen);
+                setMobileMenuOpen(!mobileMenuOpen);
+              }}
               className="p-2 rounded-md hover:bg-white/20"
               aria-expanded={mobileMenuOpen}
               aria-label="Open menu"
