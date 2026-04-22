@@ -8,6 +8,14 @@ import { useIsMounted } from 'usehooks-ts';
 import { authClient } from '@api/auth-client';
 import { hasPermission } from '@api/permissions';
 
+const GUEST_LINKS = [
+  { href: '/directory', label: 'directory', icon: 'users' },
+  { href: '/services', label: 'services', icon: 'calendar' },
+  { href: '/resources', label: 'resources', icon: 'file' },
+  { href: '/groups', label: 'groups', icon: 'users' },
+  { href: '/interest', label: 'interest', icon: 'heart' },
+];
+
 const DASHBOARD_LINKS = [
   { href: '/dashboard', label: 'dashboard', icon: 'home' },
   { href: '/directory', label: 'directory', icon: 'users' },
@@ -79,6 +87,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
   const canManageRequests = userRole && hasPermission(userRole, 'requests');
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
+  const isLoggedIn = !!session;
 
   return (
     <>
@@ -93,18 +102,18 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
       <aside
         role="dialog"
         aria-modal="true"
-        className={`fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-800 shadow-2xl z-[100000] transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-full w-72 bg-white dark:bg-gray-900 shadow-2xl z-[100000] transform transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{t('app.name')}</h2>
+        <div className="p-6 border-b border-lapis-azure/20 flex justify-between items-center">
+          <h2 className="text-xl font-bold text-lapis-deep dark:text-white">{t('app.name')}</h2>
           <button
             onClick={() => onClose()}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600"
+            className="p-2 rounded-lg hover:bg-lapis-azure/10 text-lapis-mid transition-colors"
             type="button"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -116,18 +125,18 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         </div>
 
         <nav className="p-4 space-y-1">
-          <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+          <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
             Menu
           </div>
-          {DASHBOARD_LINKS.map(link => (
+          {(isLoggedIn ? DASHBOARD_LINKS : GUEST_LINKS).map(link => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => onClose()}
-              className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
+              className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 ${
                 isActive(link.href)
-                  ? 'bg-soralia-primary text-white'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? 'bg-lapis-deep text-white font-medium'
+                  : 'text-lapis-mid hover:bg-lapis-azure/10 hover:text-lapis-deep'
               }`}
             >
               <NavIcon name={link.icon} />
@@ -135,70 +144,88 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
             </Link>
           ))}
 
-          <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
-
-          <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-            Settings
-          </div>
-          {SETTINGS_LINKS.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => onClose()}
-              className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
-                isActive(link.href)
-                  ? 'bg-soralia-primary text-white'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-              }`}
-            >
-              <NavIcon name={link.icon} />
-              <span>{t(`nav.${link.label}`)}</span>
-            </Link>
-          ))}
-
-          {(canManageUsers || canManageContent || canManageGroups || canManageRequests) && (
+          {isLoggedIn && (
             <>
-              <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
-              <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                Admin
+              <div className="border-t border-lapis-azure/20 my-4"></div>
+
+              <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
+                Settings
               </div>
-              {ADMIN_LINKS.map(link => {
-                if (link.href === '/admin/users' && !canManageUsers) return null;
-                if (link.href === '/admin/content' && !canManageContent) return null;
-                if (link.href === '/admin/groups' && !canManageGroups) return null;
-                if (link.href === '/admin/requests' && !canManageRequests) return null;
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => onClose()}
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
-                      isActive(link.href)
-                        ? 'bg-soralia-primary text-white'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    <NavIcon name={link.icon} />
-                    <span>{t(`admin.${link.label}`) || link.label}</span>
-                  </Link>
-                );
-              })}
+              {SETTINGS_LINKS.map(link => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => onClose()}
+                  className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 ${
+                    isActive(link.href)
+                      ? 'bg-lapis-deep text-white font-medium'
+                      : 'text-lapis-mid hover:bg-lapis-azure/10 hover:text-lapis-deep'
+                  }`}
+                >
+                  <NavIcon name={link.icon} />
+                  <span>{t(`nav.${link.label}`)}</span>
+                </Link>
+              ))}
+
+              {(canManageUsers || canManageContent || canManageGroups || canManageRequests) && (
+                <>
+                  <div className="border-t border-lapis-azure/20 my-4"></div>
+                  <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
+                    Admin
+                  </div>
+                  {ADMIN_LINKS.map(link => {
+                    if (link.href === '/admin/users' && !canManageUsers) return null;
+                    if (link.href === '/admin/content' && !canManageContent) return null;
+                    if (link.href === '/admin/groups' && !canManageGroups) return null;
+                    if (link.href === '/admin/requests' && !canManageRequests) return null;
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => onClose()}
+                        className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 ${
+                          isActive(link.href)
+                            ? 'bg-lapis-deep text-white font-medium'
+                            : 'text-lapis-mid hover:bg-lapis-azure/10 hover:text-lapis-deep'
+                        }`}
+                      >
+                        <NavIcon name={link.icon} />
+                        <span>{t(`admin.${link.label}`) || link.label}</span>
+                      </Link>
+                    );
+                  })}
+                </>
+              )}
+
+              <div className="border-t border-lapis-azure/20 my-4"></div>
+
+              <button
+                onClick={async () => {
+                  await authClient.signOut();
+                  onClose();
+                  window.location.href = '/';
+                }}
+                className="flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 w-full"
+              >
+                <NavIcon name="signout" />
+                <span>{t('nav.logout')}</span>
+              </button>
             </>
           )}
 
-          <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
-
-          <button
-            onClick={async () => {
-              await authClient.signOut();
-              onClose();
-              window.location.href = '/';
-            }}
-            className="flex items-center space-x-3 px-3 py-2 rounded-md transition-colors text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 w-full"
-          >
-            <NavIcon name="signout" />
-            <span>{t('nav.logout')}</span>
-          </button>
+          {!isLoggedIn && (
+            <>
+              <div className="border-t border-lapis-azure/20 my-4"></div>
+              <Link
+                href="/sign-in"
+                onClick={() => onClose()}
+                className="flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 text-lapis-mid hover:bg-lapis-azure/10 hover:text-lapis-deep w-full"
+              >
+                <NavIcon name="signin" />
+                <span>{t('nav.login')}</span>
+              </Link>
+            </>
+          )}
         </nav>
       </aside>
     </>
@@ -206,9 +233,10 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
 }
 
 function NavIcon({ name }: { name: string }) {
+  const iconClass = 'w-5 h-5';
   const icons: Record<string, React.ReactNode> = {
     home: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -218,7 +246,7 @@ function NavIcon({ name }: { name: string }) {
       </svg>
     ),
     users: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -228,7 +256,7 @@ function NavIcon({ name }: { name: string }) {
       </svg>
     ),
     calendar: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -238,7 +266,7 @@ function NavIcon({ name }: { name: string }) {
       </svg>
     ),
     file: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -248,7 +276,7 @@ function NavIcon({ name }: { name: string }) {
       </svg>
     ),
     heart: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -258,7 +286,7 @@ function NavIcon({ name }: { name: string }) {
       </svg>
     ),
     tool: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -268,7 +296,7 @@ function NavIcon({ name }: { name: string }) {
       </svg>
     ),
     mail: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -278,7 +306,7 @@ function NavIcon({ name }: { name: string }) {
       </svg>
     ),
     shield: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -288,12 +316,72 @@ function NavIcon({ name }: { name: string }) {
       </svg>
     ),
     signout: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={2}
           d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+        />
+      </svg>
+    ),
+    cog: (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.81 2.62 2.27l-.534 6.592a1 1 0 01-.986.84H5.5a1 1 0 01-.986-.84L2.61 8.08A1.724 1.724 0 004.04 6.37a1.724 1.724 0 002.573-1.066c1.543-.94 3.31.81 2.62 2.27l-.534 6.592a1 1 0 01-.986.84H4.5a1 1 0 01-1-1v-3a1 1 0 011-1h3.325z"
+        />
+      </svg>
+    ),
+    bell: (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.659 6 8.009 6 10v2.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a1 1 0 001-1v-4a1 1 0 00-1-1h-6a1 1 0 00-1 1v4a1 1 0 001 1m6 0h6"
+        />
+      </svg>
+    ),
+    'external-link-alt': (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+        />
+      </svg>
+    ),
+    tags: (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7h4a2 2 0 010 4H7z"
+        />
+      </svg>
+    ),
+    chart: (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+        />
+      </svg>
+    ),
+    signin: (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M11 16l-5-5m5 5l5-5m-5 5v12"
         />
       </svg>
     ),
