@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -47,6 +47,27 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
   const { t, ready } = useTranslation('common');
   const { data: session } = authClient.useSession();
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [isOpen, onClose]);
+
   if (!isMounted || !ready) {
     return null;
   }
@@ -62,9 +83,16 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 z-[9999] transition-opacity" onClick={onClose} />
+        <button
+          type="button"
+          aria-label="Close menu"
+          className="fixed inset-0 bg-black/50 z-[9999] cursor-pointer border-none"
+          onClick={() => onClose()}
+        />
       )}
       <aside
+        role="dialog"
+        aria-modal="true"
         className={`fixed top-0 right-0 h-full w-64 bg-white dark:bg-gray-800 shadow-lg z-[10000] transform transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
@@ -72,8 +100,9 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white">{t('app.name')}</h2>
           <button
-            onClick={onClose}
+            onClick={() => onClose()}
             className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600"
+            type="button"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -94,7 +123,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
             <Link
               key={link.href}
               href={link.href}
-              onClick={onClose}
+              onClick={() => onClose()}
               className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
                 isActive(link.href)
                   ? 'bg-soralia-primary text-white'
@@ -115,7 +144,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
             <Link
               key={link.href}
               href={link.href}
-              onClick={onClose}
+              onClick={() => onClose()}
               className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
                 isActive(link.href)
                   ? 'bg-soralia-primary text-white'
@@ -142,7 +171,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
                   <Link
                     key={link.href}
                     href={link.href}
-                    onClick={onClose}
+                    onClick={() => onClose()}
                     className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
                       isActive(link.href)
                         ? 'bg-soralia-primary text-white'

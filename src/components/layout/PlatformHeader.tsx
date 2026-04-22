@@ -25,24 +25,32 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
   const subtextColor = variant === 'dark' ? 'text-lapis-azure/70' : 'text-lapis-mid';
   const hoverColor = variant === 'dark' ? 'hover:text-gold-vein' : 'hover:text-lapis-azure';
 
-  const navItems = ready
-    ? [
-        { name: t('header.home'), href: '/' },
-        { name: t('header.features'), href: '/features' },
-        { name: t('header.pricing'), href: '/pricing' },
-        { name: t('header.about'), href: '/about' },
-      ]
-    : [
-        { name: 'Home', href: '/' },
-        { name: 'Features', href: '/features' },
-        { name: 'Pricing', href: '/pricing' },
-        { name: 'About', href: '/about' },
-      ];
+  const defaultNavItems = [
+    { name: 'Home', href: '/' },
+    { name: 'Features', href: '/features' },
+    { name: 'Pricing', href: '/pricing' },
+    { name: 'About', href: '/about' },
+  ];
 
-  const signInText = ready ? t('header.signIn') : 'Sign In';
-  const getStartedText = ready ? t('header.getStarted') : 'Get Started';
+  const navItems =
+    ready === true && t
+      ? [
+          { name: t('header.home') || 'Home', href: '/' },
+          { name: t('header.features') || 'Features', href: '/features' },
+          { name: t('header.pricing') || 'Pricing', href: '/pricing' },
+          { name: t('header.about') || 'About', href: '/about' },
+        ]
+      : defaultNavItems;
 
-  const isActive = (href: string) => {
+  const defaultSignInText = 'Sign In';
+  const defaultGetStartedText = 'Get Started';
+
+  const signInText =
+    ready === true && t ? t('header.signIn') || defaultSignInText : defaultSignInText;
+  const getStartedText =
+    ready === true && t ? t('header.getStarted') || defaultGetStartedText : defaultGetStartedText;
+
+  const isActive = (href: string): boolean => {
     if (href === '/' && pathname === '/') return true;
     if (href !== '/' && pathname.startsWith(href)) return true;
     return false;

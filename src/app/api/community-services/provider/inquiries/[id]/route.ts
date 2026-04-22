@@ -4,7 +4,7 @@ import { auth } from '@api/auth';
 // Drizzle imports
 import { db, communityServiceInquiries, communityServiceListings, users } from '@api/db';
 import { eq, and, sql, inArray, desc } from 'drizzle-orm';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 import { logError } from '@shared/lib';
 
 type InquiryStatus = (typeof communityServiceInquiries.status.enumValues)[number];

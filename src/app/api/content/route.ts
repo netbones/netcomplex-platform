@@ -5,7 +5,7 @@ import { eq, and, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { ContentCategoryEnum, type ContentCategory } from '@/types/enums';
 import { revalidateContent } from '@api/revalidation';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@shared/lib';
 
 /**

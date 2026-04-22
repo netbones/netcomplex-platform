@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@api/auth';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 import { logError } from '@shared/lib';
 
 export async function GET(request: NextRequest) {

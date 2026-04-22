@@ -3,7 +3,7 @@ import { hasPermission } from '@api/permissions';
 import { db, externalSurveys, users } from '@api/db';
 import { eq, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({

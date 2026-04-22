@@ -3,7 +3,7 @@ import { hasPermission, Permission } from '@api/permissions';
 import { db, groups, users, userGroups } from '@api/db';
 import { eq, asc, sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 
 /**
  * Retrieves session and role from the request for API routes.

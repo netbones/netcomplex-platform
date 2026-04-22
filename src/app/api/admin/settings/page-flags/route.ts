@@ -4,7 +4,7 @@ import {
   getPlatformPageFlags,
   type PlatformPageFlags,
 } from '@api/flags/platform-flags';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 import { getSessionAndRole } from '@api/auth-utils';
 import { createComponentLogger } from '@shared/lib';
 

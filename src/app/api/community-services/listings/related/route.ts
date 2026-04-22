@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db, communityServiceListings, users } from '@api/db';
 import { eq, desc, and, or, sql } from 'drizzle-orm';
 import { communityServiceReviews } from '@api/db';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 import { logError } from '@shared/lib';
 
 export const maxDuration = 5;

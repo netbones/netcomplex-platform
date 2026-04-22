@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -105,6 +105,11 @@ export function Header() {
   });
   const { t, i18n, ready } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
+
+  const handleDrawerClose = useCallback(() => {
+    console.log('[Header] Closing drawer via callback');
+    setIsDrawerOpen(false);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -316,9 +321,13 @@ export function Header() {
 
           {session && (
             <button
-              onClick={() => setIsDrawerOpen(true)}
+              onClick={() => {
+                console.log('[Header] Opening drawer, current state:', isDrawerOpen);
+                setIsDrawerOpen(true);
+              }}
               className="p-2 rounded-md hover:bg-white/20"
               aria-label="Open menu"
+              type="button"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -332,7 +341,7 @@ export function Header() {
           )}
         </div>
 
-        <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+        <SideDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} />
       </div>
     </header>
   );

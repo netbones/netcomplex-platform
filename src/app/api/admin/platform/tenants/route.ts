@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { listTenants, createTenant, updateTenant, deleteTenant, getTenantById } from '@api/tenant';
+import {
+  listTenants,
+  createTenant,
+  updateTenant,
+  deleteTenant,
+  getTenantById,
+} from '@api/tenant/server';
 import { logError } from '@shared/lib';
 
 export async function GET() {

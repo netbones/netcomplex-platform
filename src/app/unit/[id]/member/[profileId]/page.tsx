@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { Suspense } from 'react';
+import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@api/auth-client';
@@ -12,7 +12,6 @@ function ProfileContent() {
   const params = useParams();
   const profileId = params?.profileId as string | undefined;
   const { t: tCommon } = useTranslation('common');
-  const { data: session } = authClient.useSession();
 
   const {
     data: profile,
@@ -51,12 +50,10 @@ function ProfileContent() {
     );
   }
 
-  const avatarUrl =
-    profile.avatar ||
-    `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.displayName.replace(' ', '')}`;
-
   const tenantSince = new Date(profile.occupantSince);
-  const isOwnProfile = profile.user?.id === session?.user?.id;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const household = (profile as any).household;
+  const property = household?.property;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -64,7 +61,7 @@ function ProfileContent() {
         items={[
           { label: tCommon('nav.home'), href: '/' },
           { label: tCommon('nav.directory'), href: '/directory' },
-          { label: `Unit ${profile.household.unit}`, href: `/unit/${profile.household.id}` },
+          { label: `Unit ${property?.unit || '...'}`, href: `/unit/${household?.id}` },
           { label: profile.displayName },
         ]}
       />
@@ -78,7 +75,7 @@ function ProfileContent() {
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900">{profile.displayName}</h1>
               <p className="text-gray-600 mt-1">
-                {profile.household.street}, Unit {profile.household.unit}
+                {property ? `${property.street}, Unit ${property.unit}` : 'Soralia Village'}
               </p>
               <p className="text-sm text-gray-500 mt-1 font-mono">{profile.profileAddress}</p>
               <div className="flex items-center gap-3 mt-3">
@@ -98,15 +95,17 @@ function ProfileContent() {
         <div className="p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Information</h2>
           <div className="space-y-3">
-            <Link
-              href={`/unit/${profile.household.id}`}
-              className="flex items-center gap-3 text-gray-700 hover:text-soralia-primary"
-            >
-              <i className="fas fa-home w-5"></i>
-              <span>
-                View household ({profile.household.street} Unit {profile.household.unit})
-              </span>
-            </Link>
+            {household && (
+              <Link
+                href={`/unit/${household.id}`}
+                className="flex items-center gap-3 text-gray-700 hover:text-soralia-primary"
+              >
+                <i className="fas fa-home w-5"></i>
+                <span>
+                  View household ({property?.street} Unit {property?.unit})
+                </span>
+              </Link>
+            )}
           </div>
         </div>
       </div>

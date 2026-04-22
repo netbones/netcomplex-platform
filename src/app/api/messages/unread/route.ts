@@ -4,7 +4,7 @@ import { auth } from '@api/auth';
 // Drizzle imports - use individual exports from db.ts
 import { db, messages, conversations, conversationParticipants, users } from '@api/db';
 import { eq, and, gt, desc, sql } from 'drizzle-orm';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 import { logError } from '@shared/lib';
 
 /**

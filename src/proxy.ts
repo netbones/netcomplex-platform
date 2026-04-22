@@ -1,6 +1,5 @@
 // src/middleware.ts
 import { NextResponse, type NextRequest } from 'next/server';
-import { getTenantByDomain, getTenantBySlug } from '@api/tenant';
 
 /**
  * Multi-tenant middleware enforcing host-based routing between platform and tenant planes.
@@ -104,66 +103,24 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  const hostWithoutPort = host.split(':')[0] || '';
+  const subdomain = hostWithoutPort.split('.')[0] || '';
+  const inferredTenantSlug = hostWithoutPort.includes('localhost')
+    ? DEFAULT_TENANT_SLUG
+    : subdomain || DEFAULT_TENANT_SLUG;
+
   // For API routes: still set tenant headers but don't do redirects
   if (isApiRoute) {
-    // Localhost: use default tenant
-    if (host.includes('localhost')) {
-      const tenant = await getTenantBySlug(DEFAULT_TENANT_SLUG);
-      if (tenant) {
-        response.headers.set('x-plane', 'tenant');
-        response.headers.set('x-tenant-id', tenant.id);
-        response.headers.set('x-tenant-slug', tenant.slug);
-        response.headers.set('x-tenant-name', tenant.name);
-      }
-      return response;
-    }
-    // Tenant host: resolve tenant
-    if (isTenantHost(host)) {
-      const subdomain = host.split('.')[0];
-      const tenant = await getTenantBySlug(subdomain);
-      if (tenant) {
-        response.headers.set('x-plane', 'tenant');
-        response.headers.set('x-tenant-id', tenant.id);
-        response.headers.set('x-tenant-slug', tenant.slug);
-        response.headers.set('x-tenant-name', tenant.name);
-      }
-      return response;
-    }
-    // Platform host accessing API: use default tenant
-    const tenant = await getTenantBySlug(DEFAULT_TENANT_SLUG);
-    if (tenant) {
-      response.headers.set('x-plane', 'tenant');
-      response.headers.set('x-tenant-id', tenant.id);
-      response.headers.set('x-tenant-slug', tenant.slug);
-      response.headers.set('x-tenant-name', tenant.name);
-    }
+    // Edge-safe: infer tenant from hostname only (no DB access in middleware).
+    response.headers.set('x-plane', 'tenant');
+    response.headers.set('x-tenant-slug', inferredTenantSlug);
     return response;
   }
 
   // For auth routes: set tenant headers but don't redirect
   if (isAuthRouteCheck) {
-    // Localhost: use default tenant
-    if (host.includes('localhost')) {
-      const tenant = await getTenantBySlug(DEFAULT_TENANT_SLUG);
-      if (tenant) {
-        response.headers.set('x-plane', 'tenant');
-        response.headers.set('x-tenant-id', tenant.id);
-        response.headers.set('x-tenant-slug', tenant.slug);
-        response.headers.set('x-tenant-name', tenant.name);
-      }
-      return response;
-    }
-    // Tenant host: resolve tenant
-    if (isTenantHost(host)) {
-      const subdomain = host.split('.')[0];
-      const tenant = await getTenantBySlug(subdomain);
-      if (tenant) {
-        response.headers.set('x-plane', 'tenant');
-        response.headers.set('x-tenant-id', tenant.id);
-        response.headers.set('x-tenant-slug', tenant.slug);
-        response.headers.set('x-tenant-name', tenant.name);
-      }
-    }
+    response.headers.set('x-plane', 'tenant');
+    response.headers.set('x-tenant-slug', inferredTenantSlug);
     return response;
   }
 
@@ -187,21 +144,8 @@ export async function proxy(request: NextRequest) {
   // ── 3. For localhost: treat as tenant with fallback ──
   // Skip platform route checks for localhost - allow all routes
   if (host.includes('localhost')) {
-    // Default tenant for localhost
-    const tenant = await getTenantBySlug(DEFAULT_TENANT_SLUG);
-    if (tenant) {
-      response.headers.set('x-plane', 'tenant');
-      response.headers.set('x-tenant-id', tenant.id);
-      response.headers.set('x-tenant-slug', tenant.slug);
-      response.headers.set('x-tenant-name', tenant.name);
-      response.headers.set('x-primary-color', tenant.primaryColor || '#4F46E5');
-      response.headers.set('x-accent-color', tenant.accentColor || '');
-      response.headers.set('x-secondary-color', tenant.secondaryColor || '');
-      response.headers.set('x-logo-url', tenant.logoUrl || '');
-      response.headers.set('x-favicon-url', tenant.faviconUrl || '');
-      response.headers.set('x-font-family', tenant.fontFamily || '');
-      response.headers.set('x-feature-flags', JSON.stringify(tenant.featureFlags || {}));
-    }
+    response.headers.set('x-plane', 'tenant');
+    response.headers.set('x-tenant-slug', DEFAULT_TENANT_SLUG);
     return response;
   }
 
@@ -211,44 +155,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // ── 5. Tenant Resolution (for tenant hosts) ──
-  let tenant = null;
-
-  if (isTenantHost(host)) {
-    // Subdomain handling: soralia.netbones.co.za
-    const subdomain = host.split('.')[0];
-    if (subdomain && subdomain !== 'www' && subdomain !== 'app' && subdomain !== 'platform') {
-      tenant = await getTenantBySlug(subdomain);
-    }
-
-    // Fall back to custom domain lookup if no subdomain match
-    if (!tenant) {
-      tenant = await getTenantByDomain(host);
-    }
-  } else {
-    // Custom domain (e.g. soralia.org, soralia.com, soralia.co.za)
-    tenant = await getTenantByDomain(host);
-  }
-
-  // Fallback: Always default to Soralia Village (important for localhost + main domain)
-  if (!tenant) {
-    tenant = await getTenantBySlug(DEFAULT_TENANT_SLUG);
-  }
-
-  // ── 5. Attach tenant information to headers ──
-  if (tenant) {
-    response.headers.set('x-plane', 'tenant');
-    response.headers.set('x-tenant-id', tenant.id);
-    response.headers.set('x-tenant-slug', tenant.slug);
-    response.headers.set('x-tenant-name', tenant.name);
-    response.headers.set('x-primary-color', tenant.primaryColor || '#4F46E5');
-    response.headers.set('x-accent-color', tenant.accentColor || '');
-    response.headers.set('x-secondary-color', tenant.secondaryColor || '');
-    response.headers.set('x-logo-url', tenant.logoUrl || '');
-    response.headers.set('x-favicon-url', tenant.faviconUrl || '');
-    response.headers.set('x-font-family', tenant.fontFamily || '');
-    response.headers.set('x-feature-flags', JSON.stringify(tenant.featureFlags || {}));
-  }
+  // ── 5. Attach inferred tenant headers (edge-safe) ──
+  response.headers.set('x-plane', 'tenant');
+  response.headers.set('x-tenant-slug', inferredTenantSlug);
 
   return response;
 }

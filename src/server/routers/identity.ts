@@ -12,7 +12,7 @@ import {
   agentAccesses,
   users,
 } from '@api/db';
-import { eq, and, or, desc, asc, gt, ne, like, count } from 'drizzle-orm';
+import { eq, and, or, asc, desc, gt, ne, like, count } from 'drizzle-orm';
 
 export const identityRouter = router({
   // ============ PROPERTIES (The Assets) ============
@@ -28,7 +28,7 @@ export const identityRouter = router({
         })
         .optional()
     )
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input }) => {
       const { search, street, page, limit } = input || {};
       const skip = ((page || 1) - 1) * (limit || 20);
       const limitVal = limit || 20;
@@ -122,7 +122,8 @@ export const identityRouter = router({
       }
 
       // Fetch residents if we have an active household
-      let residents = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let residents: any[] = [];
       if (activeHousehold) {
         residents = await db
           .select()
@@ -266,7 +267,8 @@ export const identityRouter = router({
           db.select().from(standardSeats).where(eq(standardSeats.propertyId, prop.id)),
         ]);
 
-        let profilesData = [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let profilesData: any[] = [];
         if (activeHousehold) {
           profilesData = await db
             .select()

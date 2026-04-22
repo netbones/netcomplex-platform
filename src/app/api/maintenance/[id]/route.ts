@@ -1,17 +1,10 @@
-import {
-  db,
-  maintenanceRequests,
-  users,
-  standardSeats,
-  households,
-  requestHistories,
-} from '@api/db';
+import { db, maintenanceRequests, users, properties, requestHistories } from '@api/db';
 import { NextResponse } from 'next/server';
 import { auth } from '@api/auth';
 import { hasPermission } from '@api/permissions';
 import { eq, and } from 'drizzle-orm';
 import { revalidateDashboard } from '@api/revalidation';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -62,34 +55,26 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  // Get user info and address
+  // Get user info and property address
   const [uRow] = await db.select().from(users).where(eq(users.id, mrRow.userId)).limit(1);
 
   let address = null;
-  if (canViewAll && uRow) {
-    // Get household address through standardSeats
-    const [ssRow] = await db
+  if (mrRow.propertyId) {
+    const [propRow] = await db
       .select()
-      .from(standardSeats)
-      .where(eq(standardSeats.userId, mrRow.userId))
+      .from(properties)
+      .where(eq(properties.id, mrRow.propertyId))
       .limit(1);
 
-    if (ssRow?.householdId) {
-      const [hhRow] = await db
-        .select()
-        .from(households)
-        .where(eq(households.id, ssRow.householdId))
-        .limit(1);
-
-      if (hhRow) {
-        address = { street: hhRow.street, unit: hhRow.unit };
-      }
+    if (propRow) {
+      address = { street: propRow.street, unit: propRow.unit };
     }
   }
 
   return NextResponse.json({
     id: mrRow.id,
     userId: mrRow.userId,
+    propertyId: mrRow.propertyId,
     category: mrRow.category,
     priority: mrRow.priority,
     description: mrRow.description,
@@ -146,7 +131,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const now = new Date();
-  const updates: Record<string, unknown> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const updates: Record<string, any> = {
     updatedAt: now,
   };
 

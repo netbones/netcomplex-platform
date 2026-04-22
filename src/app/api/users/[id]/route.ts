@@ -1,7 +1,7 @@
-import { db, users, standardSeats, soloSeats, households, contents } from '@api/db';
+import { db, users, standardSeats, soloSeats, properties, contents } from '@api/db';
 import { NextResponse } from 'next/server';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -34,35 +34,34 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const user = userResult[0];
 
-  // Get standardSeats with household
+  // Get standardSeats with property
   const seats = await db
     .select({
-      household: {
-        id: households.id,
-        street: households.street,
-        unit: households.unit,
-        homeImage: households.homeImage,
+      property: {
+        id: properties.id,
+        street: properties.street,
+        unit: properties.unit,
+        homeImage: properties.homeImage,
       },
       isPrimaryOwner: standardSeats.isPrimaryOwner,
     })
     .from(standardSeats)
-    .innerJoin(households, eq(standardSeats.householdId, households.id))
-    .where(eq(standardSeats.userId, id))
-    .limit(1);
+    .innerJoin(properties, eq(standardSeats.propertyId, properties.id))
+    .where(eq(standardSeats.userId, id));
 
-  // Get soloSeat with household
-  const soloSeat = await db
+  // Get soloSeat with property
+  const soloSeatResult = await db
     .select({
       seatType: soloSeats.seatType,
-      household: {
-        id: households.id,
-        street: households.street,
-        unit: households.unit,
-        homeImage: households.homeImage,
+      property: {
+        id: properties.id,
+        street: properties.street,
+        unit: properties.unit,
+        homeImage: properties.homeImage,
       },
     })
     .from(soloSeats)
-    .leftJoin(households, eq(soloSeats.householdId, households.id))
+    .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
     .where(eq(soloSeats.userId, id))
     .limit(1);
 
@@ -85,7 +84,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   return NextResponse.json({
     ...user,
     standardSeats: seats,
-    soloSeat: soloSeat[0] || null,
+    soloSeat: soloSeatResult[0] || null,
     contents: userContents,
   });
 }

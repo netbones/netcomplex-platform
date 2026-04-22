@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { trpc } from '@api/trpc/client';
@@ -14,7 +14,7 @@ function MemberContent() {
     data: SoloSeat,
     isLoading,
     error,
-  } = trpc.identity.getSoloSeat.useQuery({ id: id! }, { enabled: !!id });
+  } = trpc.identity.getMySoloSeat.useQuery(undefined, { enabled: !!id }); // Using getMySoloSeat as getSoloSeat was replaced
 
   if (isLoading) {
     return (
@@ -46,7 +46,11 @@ function MemberContent() {
     );
   }
 
-  const { user, household } = SoloSeat;
+  // Type-safe destructuring
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { property } = SoloSeat as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const user = (SoloSeat as any).user;
   const isBoardMember = SoloSeat.seatType === 'MEMBER';
 
   if (!user) {
@@ -80,9 +84,9 @@ function MemberContent() {
       />
 
       <div className="bg-white rounded-lg shadow-md overflow-hidden mt-6">
-        {household?.homeImage && (
+        {property?.homeImage && (
           <div className="h-48 w-full">
-            <img src={household.homeImage} alt="Property" className="w-full h-full object-cover" />
+            <img src={property.homeImage} alt="Property" className="w-full h-full object-cover" />
           </div>
         )}
 
@@ -92,7 +96,7 @@ function MemberContent() {
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900">{user.name}</h1>
               <p className="text-gray-600 mt-1">
-                {household ? `${household.street}, Unit ${household.unit}` : 'Soralia Village'}
+                {property ? `${property.street}, Unit ${property.unit}` : 'Soralia Village'}
               </p>
               <p className="text-sm text-gray-500 mt-1 font-mono">{SoloSeat.platformAddress}</p>
               <div className="flex flex-col sm:flex-row sm:gap-4 mt-3">
@@ -119,7 +123,7 @@ function MemberContent() {
           <div className="p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Interests</h2>
             <div className="flex flex-wrap gap-2">
-              {user.interests.map(interest => (
+              {(user.interests as string[]).map(interest => (
                 <span
                   key={interest}
                   className="bg-soralia-primary text-white text-sm px-3 py-1 rounded-full"

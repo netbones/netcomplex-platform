@@ -1,39 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@api/auth';
-import {
-  db,
-  premiumSeats,
-  households,
-  propertyListings,
-  users,
-  householdsTopremiumSeats,
-} from '@api/db';
-import { eq, sql, and } from 'drizzle-orm';
-import { withTenant } from '@api/tenant';
+import { db, premiumSeats, properties, propertyListings, propertiesTopremiumSeats } from '@api/db';
+import { eq, sql, and, desc } from 'drizzle-orm';
+import { withTenant } from '@api/tenant/server';
 import { logError } from '@shared/lib';
-
-interface PropertyListing {
-  id: string;
-  tenantId: string;
-  householdId: string;
-  ownerId: string;
-  listingType: string;
-  title: string;
-  description: string | null;
-  price: string | null;
-  bedrooms: number | null;
-  bathrooms: number | null;
-  parkingSpaces: number | null;
-  gardenSize: string | null;
-  petFriendly: boolean;
-  status: string;
-  isPublished: boolean;
-  createdAt: Date;
-  updatedAt: Date | null;
-  street?: string;
-  unit?: string;
-  homeImage?: string | null;
-}
 
 /**
  * GET /api/premium/listings - Get property listings for premium user
@@ -49,35 +19,48 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get linked households for this premium seat via junction table
-    const linkedHouseholds = await db
-      .select({ id: households.id })
-      .from(households)
-      .innerJoin(householdsTopremiumSeats, eq(households.id, householdsTopremiumSeats.B))
-      .innerJoin(premiumSeats, eq(premiumSeats.id, householdsTopremiumSeats.A))
+    // Get linked properties for this premium seat via junction table
+    const linkedProperties = await db
+      .select({ id: properties.id })
+      .from(properties)
+      .innerJoin(propertiesTopremiumSeats, eq(properties.id, propertiesTopremiumSeats.B))
+      .innerJoin(premiumSeats, eq(premiumSeats.id, propertiesTopremiumSeats.A))
       .where(and(eq(premiumSeats.userId, session.user.id), eq(premiumSeats.tenantId, tenantId)));
 
-    if (!linkedHouseholds.length) {
+    if (!linkedProperties.length) {
       return NextResponse.json(
         { error: 'Premium Seat required to access listings' },
         { status: 403 }
       );
     }
 
-    const householdIds = linkedHouseholds.map(h => h.id);
+    const propertyIds = linkedProperties.map(p => p.id);
 
-    // Get all listings for user's properties using raw SQL
-    const listings = await db.execute(sql`
-      SELECT pl.*, h.street, h.unit, h.homeImage
-      FROM "propertyListing" pl
-      JOIN "household" h ON pl."householdId" = h.id
-      WHERE pl."ownerId" = ${session.user.id}
-      AND pl."tenantId" = ${tenantId}
-      AND pl."householdId" IN ${sql`${householdIds}`}
-      ORDER BY pl."createdAt" DESC
-    `);
+    // Get all listings for user's properties using Drizzle (joining with properties)
+    const listings = await db
+      .select({
+        listing: propertyListings,
+        property: properties,
+      })
+      .from(propertyListings)
+      .innerJoin(properties, eq(propertyListings.propertyId, properties.id))
+      .where(
+        and(
+          eq(propertyListings.ownerId, session.user.id),
+          eq(propertyListings.tenantId, tenantId),
+          sql`${propertyListings.propertyId} IN ${propertyIds}`
+        )
+      )
+      .orderBy(desc(propertyListings.createdAt));
 
-    return NextResponse.json({ listings: listings.rows as unknown as PropertyListing[] });
+    const transformedListings = listings.map(l => ({
+      ...l.listing,
+      street: l.property.street,
+      unit: l.property.unit,
+      homeImage: l.property.homeImage,
+    }));
+
+    return NextResponse.json({ listings: transformedListings });
   } catch (error) {
     logError(
       { component: 'premium-listings-api', operation: 'GET' },
@@ -118,7 +101,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const {
-      householdId,
+      propertyId,
       listingType,
       title,
       description,
@@ -130,31 +113,37 @@ export async function POST(request: NextRequest) {
       petFriendly,
     } = body;
 
-    if (!householdId) {
-      return NextResponse.json({ error: 'Household ID required' }, { status: 400 });
+    if (!propertyId) {
+      return NextResponse.json({ error: 'Property ID required' }, { status: 400 });
     }
 
-    // Create listing via raw SQL
-    const result = (await db.execute(sql`
-      INSERT INTO "propertyListing" (
-        "tenantId", "householdId", "ownerId", "listingType", "title", "description",
-        "price", "bedrooms", "bathrooms", "parkingSpaces", "gardenSize",
-        "petFriendly", "status", "isPublished"
-      ) VALUES (
-        ${tenantId}, ${householdId}, ${session.user.id}, ${listingType || 'SALE'}, ${title},
-        ${description}, ${price ? parseFloat(price) : null},
-        ${bedrooms ? parseInt(bedrooms) : null},
-        ${bathrooms ? parseInt(bathrooms) : null},
-        ${parkingSpaces ? parseInt(parkingSpaces) : null},
-        ${gardenSize ? parseFloat(gardenSize) : null},
-        ${petFriendly || false}, 'DRAFT', false
-      )
-      RETURNING *
-    `)) as unknown as { rows: PropertyListing[] };
+    // Use Drizzle insert
+    const [newListing] = await db
+      .insert(propertyListings)
+      .values({
+        id: crypto.randomUUID(),
+        tenantId,
+        propertyId,
+        ownerId: session.user.id,
+        listingType: listingType || 'SALE',
+        title,
+        description,
+        price: price ? price.toString() : null,
+        bedrooms: bedrooms ? parseInt(bedrooms) : null,
+        bathrooms: bathrooms ? parseInt(bathrooms) : null,
+        parkingSpaces: parkingSpaces ? parseInt(parkingSpaces) : null,
+        gardenSize: gardenSize ? parseFloat(gardenSize) : null,
+        petFriendly: petFriendly || false,
+        status: 'DRAFT',
+        isPublished: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
 
     return NextResponse.json({
       success: true,
-      listing: result.rows?.[0],
+      listing: newListing,
     });
   } catch (error) {
     logError(

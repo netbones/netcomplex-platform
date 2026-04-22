@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@api/auth';
-import { db, households, standardSeats, profiles, contents, users } from '@api/db';
-import { eq, asc, desc, and } from 'drizzle-orm';
-import { withTenant } from '@api/tenant';
+import { db, properties, households, standardSeats, profiles, contents, users } from '@api/db';
+import { eq, asc, and } from 'drizzle-orm';
+import { withTenant } from '@api/tenant/server';
 import { logError } from '@shared/lib';
 import { hasPermission } from '@api/permissions';
 
@@ -14,34 +14,35 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { tenantId } = await withTenant();
     const { id: householdId } = await params;
 
-    // Fetch household
-    const [household] = await db
+    // Fetch household with its property
+    const [householdData] = await db
       .select({
         id: households.id,
-        street: households.street,
-        unit: households.unit,
-        homeImage: households.homeImage,
-        platformAddress: households.platformAddress,
+        propertyId: households.propertyId,
+        street: properties.street,
+        unit: properties.unit,
+        homeImage: properties.homeImage,
+        platformAddress: properties.platformAddress,
         status: households.status,
         createdAt: households.createdAt,
       })
       .from(households)
+      .innerJoin(properties, eq(households.propertyId, properties.id))
       .where(and(eq(households.id, householdId), eq(households.tenantId, tenantId)))
       .limit(1);
 
-    if (!household) {
+    if (!householdData) {
       return NextResponse.json({ error: 'Household not found' }, { status: 404 });
     }
 
-    // Get standard seats (members) with user data and content
+    // Get standard seats (members) with user data linked to the property
     const seats = await db
       .select({
         id: standardSeats.id,
         userId: standardSeats.userId,
         isPrimaryOwner: standardSeats.isPrimaryOwner,
         platformAddress: standardSeats.platformAddress,
-        householdId: standardSeats.householdId,
-        userId_ref: users.id,
+        propertyId: standardSeats.propertyId,
         name: users.name,
         email: users.email,
         phone: users.phone,
@@ -52,9 +53,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       })
       .from(standardSeats)
       .leftJoin(users, eq(standardSeats.userId, users.id))
-      .where(and(eq(standardSeats.householdId, householdId), eq(standardSeats.tenantId, tenantId)));
+      .where(
+        and(
+          eq(standardSeats.propertyId, householdData.propertyId),
+          eq(standardSeats.tenantId, tenantId)
+        )
+      );
 
-    // Get profiles with user data
+    // Get profiles linked to this specific household
     const profileList = await db
       .select({
         id: profiles.id,
@@ -75,7 +81,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const userIds = [
       ...seats.map(s => s.userId).filter(Boolean),
       ...profileList.map(p => p.userId).filter(Boolean),
-    ];
+    ] as string[];
 
     // Fetch contents for these users
     interface ContentItem {
@@ -193,7 +199,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         type: 'member',
         isPrimaryOwner: seat.isPrimaryOwner,
         platformAddress: seat.platformAddress,
-        occupantSince: household.createdAt, // Household creation date
+        occupantSince: householdData.createdAt, // Household creation date
       })),
       // Address Profiles
       ...profileList.map(profile => ({
@@ -214,15 +220,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     ];
 
     const response = {
-      household: {
-        id: household.id,
-        street: household.street,
-        unit: household.unit,
-        homeImage: household.homeImage,
-        platformAddress: household.platformAddress,
-        status: household.status,
-        createdAt: household.createdAt,
-      },
+      household: householdData,
       occupants,
       content: allContent.slice(0, 20), // Limit to 20 most recent posts
       tags: householdTags,
@@ -265,44 +263,51 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     const role = user?.role || 'RESIDENT';
 
-    // Check if user is a member of this household
+    // Get household and its property
+    const [householdData] = await db
+      .select({
+        id: households.id,
+        propertyId: households.propertyId,
+      })
+      .from(households)
+      .where(and(eq(households.id, householdId), eq(households.tenantId, tenantId)))
+      .limit(1);
+
+    if (!householdData) {
+      return NextResponse.json({ error: 'Household not found' }, { status: 404 });
+    }
+
+    // Check if user is an owner of the property linked to this household
     const [seat] = await db
       .select({ userId: standardSeats.userId })
       .from(standardSeats)
-      .where(and(eq(standardSeats.householdId, householdId), eq(standardSeats.tenantId, tenantId)))
+      .where(
+        and(
+          eq(standardSeats.propertyId, householdData.propertyId),
+          eq(standardSeats.tenantId, tenantId)
+        )
+      )
       .limit(1);
 
-    const isHouseholdMember = seat?.userId === session.user.id;
+    const isPropertyOwner = seat?.userId === session.user.id;
     const canManageHouseholds = hasPermission(role, 'households');
 
-    if (!isHouseholdMember && !canManageHouseholds) {
+    if (!isPropertyOwner && !canManageHouseholds) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const body = await request.json();
     const { homeImage } = body;
 
-    // Only allow updating homeImage for now
-    const updateData: { homeImage?: string } = {};
+    // Only allow updating homeImage for now (updates the Property asset)
     if (homeImage !== undefined) {
-      updateData.homeImage = homeImage;
+      await db
+        .update(properties)
+        .set({ homeImage })
+        .where(and(eq(properties.id, householdData.propertyId), eq(properties.tenantId, tenantId)));
     }
 
-    if (Object.keys(updateData).length === 0) {
-      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
-    }
-
-    const [updated] = await db
-      .update(households)
-      .set(updateData)
-      .where(and(eq(households.id, householdId), eq(households.tenantId, tenantId)))
-      .returning();
-
-    if (!updated) {
-      return NextResponse.json({ error: 'Household not found' }, { status: 404 });
-    }
-
-    return NextResponse.json(updated);
+    return NextResponse.json({ success: true });
   } catch (error) {
     logError(
       { component: 'households-api', operation: 'PATCH' },

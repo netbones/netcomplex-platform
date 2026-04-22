@@ -10,7 +10,7 @@ import {
 } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 
 export const maxDuration = 5;
 

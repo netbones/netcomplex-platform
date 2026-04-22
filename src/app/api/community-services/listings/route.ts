@@ -7,7 +7,7 @@ import { apiLogger } from '@/lib/logger';
 import { db, communityServiceListings, users } from '@api/db';
 import { eq, desc, and, or, sql, ilike } from 'drizzle-orm';
 import { communityServiceReviews } from '@api/db';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 
 type ListingStatus = (typeof communityServiceListings.status.enumValues)[number];
 type ServiceCategory = (typeof communityServiceListings.category.enumValues)[number];

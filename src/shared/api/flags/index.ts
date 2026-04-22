@@ -1,6 +1,6 @@
 import { getPlatformPageFlags, type PlatformPageFlags } from './platform-flags';
 import { getStatsigExperimentFlags } from './statsig-flags';
-import { withTenantOptional } from '@api/tenant';
+import { withTenantOptional } from '@api/tenant/server';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('flags');

@@ -1,7 +1,7 @@
 import { db } from '@api/db';
 import { NextResponse } from 'next/server';
 import { sql } from 'drizzle-orm';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 
 interface ConversationResult {
   id: string;

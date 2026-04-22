@@ -1,12 +1,12 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@api/permissions';
-import { db, maintenanceRequests, users, standardSeats, households } from '@api/db';
+import { db, maintenanceRequests, users, properties } from '@api/db';
 import { NextResponse } from 'next/server';
 import { maintenanceRequestSchema } from '@api/schemas';
 import { revalidateDashboard } from '@api/revalidation';
 import { apiLogger } from '@/lib/logger';
 import { eq, desc, and, sql } from 'drizzle-orm';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;
@@ -100,37 +100,34 @@ export async function GET(request: Request) {
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-  // Execute query with left joins to get user info and household address
+  // Execute query with left joins to get user info and property address
   interface QueryResult {
     MaintenanceRequest: typeof maintenanceRequests.$inferSelect;
     user: typeof users.$inferSelect | null;
-    standardSeat?: typeof standardSeats.$inferSelect | null;
-    household?: typeof households.$inferSelect | null;
+    property?: typeof properties.$inferSelect | null;
   }
-  let requests: QueryResult[];
+  let results: QueryResult[];
+
   if (canViewAll) {
-    // Admin view: join through standardSeats to get household address
-    requests = await db
+    // Admin view: join with properties to get address
+    results = await db
       .select({
         MaintenanceRequest: maintenanceRequests,
         user: users,
-        standardSeat: standardSeats,
-        household: households,
+        property: properties,
       })
       .from(maintenanceRequests)
       .leftJoin(users, eq(maintenanceRequests.userId, users.id))
-      .leftJoin(standardSeats, eq(maintenanceRequests.userId, standardSeats.userId))
-      .leftJoin(households, eq(standardSeats.householdId, households.id))
+      .leftJoin(properties, eq(maintenanceRequests.propertyId, properties.id))
       .where(whereClause)
       .orderBy(desc(maintenanceRequests.createdAt));
   } else {
     // Resident view: simple join
-    requests = await db
+    results = await db
       .select({
         MaintenanceRequest: maintenanceRequests,
         user: users,
-        standardSeat: sql<null>`null`,
-        household: sql<null>`null`,
+        property: sql<null>`null`,
       })
       .from(maintenanceRequests)
       .leftJoin(users, eq(maintenanceRequests.userId, users.id))
@@ -139,17 +136,18 @@ export async function GET(request: Request) {
   }
 
   // Transform results
-  const transformed = requests.map(row => {
+  const transformed = results.map(row => {
     const mr = row.MaintenanceRequest;
     const u = row.user;
-    const hh = row.household;
+    const prop = row.property;
 
-    // Get household address from standardSeats
-    const address = hh ? { street: hh.street, unit: hh.unit } : null;
+    // Get property address
+    const address = prop ? { street: prop.street, unit: prop.unit } : null;
 
     return {
       id: mr.id,
       userId: mr.userId,
+      propertyId: mr.propertyId,
       category: mr.category,
       priority: mr.priority,
       description: mr.description,
@@ -195,6 +193,7 @@ export async function GET(request: Request) {
 /**
  * POST /api/maintenance - Create a new maintenance request
  * @body userId - Optional user ID (defaults to authenticated user)
+ * @body propertyId - Optional property ID
  * @body category - Issue category (PLUMBING, ELECTRICAL, etc.)
  * @body priority - Priority level (LOW, MEDIUM, HIGH, EMERGENCY)
  * @body description - Detailed description
@@ -221,23 +220,26 @@ export async function POST(request: Request) {
 
     const { category, priority, description } = validationResult.data;
     const userId = body.userId || authData.userId;
+    const propertyId = body.propertyId || null;
 
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
 
-    // Use Drizzle insert - use raw SQL to generate ID
+    // Use Drizzle insert
     const now = new Date();
-    const insertValues: typeof maintenanceRequests.$inferInsert = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const insertValues: any = {
       id: crypto.randomUUID(),
       tenantId,
       userId,
+      propertyId,
       category,
       priority,
       description,
       images: body.images || [],
       status: 'SUBMITTED',
       createdAt: now,
-      updatedAt: now, // Use current timestamp instead of null
+      updatedAt: now,
     };
     const insertResult = await db.insert(maintenanceRequests).values(insertValues).returning();
 

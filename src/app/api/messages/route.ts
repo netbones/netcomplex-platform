@@ -9,7 +9,7 @@ import { apiLogger } from '@/lib/logger';
 // Drizzle imports - use db.ts exports
 import { db, messages, users, premiumSeats } from '@api/db';
 import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 
 /** Supabase client for real-time message broadcasting */
 const supabase = createClient(

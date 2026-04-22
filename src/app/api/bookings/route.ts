@@ -6,7 +6,7 @@ import { revalidateDashboard } from '@api/revalidation';
 import { apiLogger } from '@/lib/logger';
 import { db, bookings, users } from '@api/db';
 import { eq, asc, gte, and, sql } from 'drizzle-orm';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 import type { PgColumn } from 'drizzle-orm/pg-core';
 
 type BookingInsertValues = {

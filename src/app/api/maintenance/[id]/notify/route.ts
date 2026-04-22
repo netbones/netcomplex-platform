@@ -4,7 +4,7 @@ import { hasPermission } from '@api/permissions';
 import { db, maintenanceRequests, users, requestHistories } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { revalidateDashboard } from '@api/revalidation';
-import { withTenant } from '@api/tenant';
+import { withTenant } from '@api/tenant/server';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
