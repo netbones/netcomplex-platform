@@ -124,17 +124,19 @@ export function Header() {
     router.refresh();
   };
 
-  const navItems = BASE_NAV.filter(item => {
-    if (item.href === '/directory' && pageFlags.directory === false) return false;
-    if (item.href === '/news' && pageFlags.news === false) return false;
-    if (item.href === '/events' && pageFlags.events === false) return false;
-    if (item.href === '/conservation' && pageFlags.conservation === 'external') return false;
-    if (item.href === '/campaign' && pageFlags.campaign === false) return false;
-    return true;
-  }).map(item => ({
-    name: t(`nav.${item.label}`) || item.label,
-    href: item.href,
-  }));
+  const navItems = mounted
+    ? BASE_NAV.filter(item => {
+        if (item.href === '/directory' && pageFlags.directory === false) return false;
+        if (item.href === '/news' && pageFlags.news === false) return false;
+        if (item.href === '/events' && pageFlags.events === false) return false;
+        if (item.href === '/conservation' && pageFlags.conservation === 'external') return false;
+        if (item.href === '/campaign' && pageFlags.campaign === false) return false;
+        return true;
+      }).map(item => ({
+        name: t(`nav.${item.label}`) || item.label,
+        href: item.href,
+      }))
+    : [];
 
   return (
     <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md relative overflow-hidden">
@@ -175,22 +177,25 @@ export function Header() {
 
           <div className="flex items-center gap-4">
             <nav className="hidden lg:flex space-x-6">
-              {navItems.map(item => (
-                <TeaserLink
-                  key={item.href}
-                  href={item.href}
-                  label={item.name}
-                  pathname={pathname}
-                  authenticated={!!session}
-                />
-              ))}
+              {mounted &&
+                navItems.map(item => (
+                  <TeaserLink
+                    key={item.href}
+                    href={item.href}
+                    label={item.name}
+                    pathname={pathname}
+                    authenticated={!!session}
+                  />
+                ))}
             </nav>
 
             <Suspense fallback={<div className="w-16 h-6 bg-white/20 rounded" />}>
               <LanguageSwitcher />
             </Suspense>
 
-            {isPending ? (
+            {!mounted ? (
+              <div className="w-20 h-8 bg-white/20 rounded animate-pulse" />
+            ) : isPending ? (
               <div className="w-20 h-8 bg-white/20 rounded animate-pulse" />
             ) : session ? (
               <div className="hidden md:flex items-center space-x-3">
