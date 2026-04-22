@@ -168,8 +168,8 @@ export function Header() {
               className="w-16 h-16 rounded-full bg-white p-2 border-2 border-white shadow-lg object-cover"
             />
             <div>
-              <h1 className="text-2xl font-bold">{t('app.name')}</h1>
-              <p className="text-xs opacity-75">{t('app.tagline')}</p>
+              <h1 className="text-2xl font-bold">{mounted ? t('app.name') : 'Loading...'}</h1>
+              <p className="text-xs opacity-75">{mounted ? t('app.tagline') : ''}</p>
             </div>
           </Link>
 

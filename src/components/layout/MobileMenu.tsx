@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@api/auth-client';
+import { useIsMounted } from 'usehooks-ts';
 
 interface NavItem {
   name: string;
@@ -18,12 +19,21 @@ interface MobileMenuProps {
 
 export function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProps) {
   const { t } = useTranslation('common');
+  const isMounted = useIsMounted();
   const { data: session } = authClient.useSession();
   const isAdmin = session?.user?.role === 'admin';
   const isBoard = session?.user?.role === 'board';
   const isLoggedIn = !!session;
 
   if (!isOpen) return null;
+
+  if (!isMounted) {
+    return (
+      <div className="mt-4 p-4 bg-soralia-primary border-t-4 border-white">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-4 p-4 bg-soralia-primary border-t-4 border-white">
