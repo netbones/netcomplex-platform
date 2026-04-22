@@ -1,117 +1,126 @@
-/**
- * NetComplex Platform Module Seed Data
- *
- * Canonical module registry for NetComplex platform features.
- * These modules define what's available across all tenants.
- *
- * @see docs/netcomplex-module-architecture-2026-04-22.md
- */
-export const PLATFORM_MODULES = [
-  // ── Core modules — always on for all tiers ──────────────────────────
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+const modules = [
+  // Core - always available
   {
     key: 'dashboard',
     label: 'Dashboard',
-    minTier: 'standard' as const,
+    minTier: 'STANDARD',
     defaultEnabled: true,
-    description: 'Resident dashboard with widgets and activity feed',
+    description: 'User dashboard with widgets',
   },
   {
     key: 'auth',
     label: 'Authentication',
-    minTier: 'standard' as const,
+    minTier: 'STANDARD',
     defaultEnabled: true,
-    description: 'Login, registration, and session management',
+    description: 'User authentication and sessions',
   },
   {
     key: 'notifications',
     label: 'Notifications',
-    minTier: 'standard' as const,
+    minTier: 'STANDARD',
     defaultEnabled: true,
-    description: 'In-app notifications and alerts',
+    description: 'In-app notifications',
   },
   {
     key: 'settings',
     label: 'Settings',
-    minTier: 'standard' as const,
+    minTier: 'STANDARD',
     defaultEnabled: true,
-    description: 'Tenant settings, branding, and user preferences',
+    description: 'User and tenant settings',
   },
 
-  // ── Standard modules ────────────────────────────────────────────────
+  // Standard
   {
     key: 'directory',
     label: 'Directory',
-    minTier: 'standard' as const,
+    minTier: 'STANDARD',
     defaultEnabled: true,
-    description: 'Resident directory with profiles',
+    description: 'Community member directory',
   },
   {
     key: 'groups',
-    label: 'Interest Groups',
-    minTier: 'standard' as const,
+    label: 'Groups',
+    minTier: 'STANDARD',
     defaultEnabled: true,
-    description: 'Community groups and member management',
+    description: 'Interest groups and memberships',
   },
   {
     key: 'maintenance',
     label: 'Maintenance Requests',
-    minTier: 'standard' as const,
+    minTier: 'STANDARD',
     defaultEnabled: true,
-    description: 'Asset-linked maintenance request tracking',
+    description: 'Submit and track maintenance requests',
   },
   {
     key: 'community-services',
     label: 'Community Services',
-    minTier: 'standard' as const,
+    minTier: 'STANDARD',
     defaultEnabled: true,
-    description: 'Service provider directory and inquiries',
+    description: 'Local service marketplace',
   },
   {
     key: 'content',
     label: 'Content Management',
-    minTier: 'standard' as const,
+    minTier: 'STANDARD',
     defaultEnabled: true,
-    description: 'Articles, announcements, and campaigns via TipTap',
+    description: 'CMS for news, events, blogs',
   },
 
-  // ── Premium modules ──────────────────────────────────────────────
+  // Premium
   {
     key: 'bookings',
     label: 'Facility Booking',
-    minTier: 'premium' as const,
+    minTier: 'PREMIUM',
     defaultEnabled: false,
-    description: 'Reserve amenities and common areas',
+    description: 'Book community facilities',
   },
   {
     key: 'premium-seats',
     label: 'Premium Seats',
-    minTier: 'premium' as const,
+    minTier: 'PREMIUM',
     defaultEnabled: false,
-    description: 'Agent marketplace and premium membership seats',
+    description: 'Multi-property portfolio management',
   },
   {
     key: 'property-listings',
     label: 'Property Listings',
-    minTier: 'premium' as const,
+    minTier: 'PREMIUM',
     defaultEnabled: false,
-    description: 'Buy/rent/lease property listings',
+    description: 'Real estate marketplace',
   },
 
-  // ── Enterprise modules ─────────────────────────────────────────
+  // Enterprise
   {
     key: 'agent-marketplace',
     label: 'Agent Marketplace',
-    minTier: 'enterprise' as const,
+    minTier: 'ENTERPRISE',
     defaultEnabled: false,
-    description: 'Managed agent assignments and commissions',
+    description: 'Agent directory and lead management',
   },
   {
     key: 'white-label',
     label: 'White Label',
-    minTier: 'enterprise' as const,
+    minTier: 'ENTERPRISE',
     defaultEnabled: false,
-    description: 'Custom domain and full branding control',
+    description: 'Custom domain and branding',
   },
-] as const;
+];
 
-export type PlatformModuleSeed = (typeof PLATFORM_MODULES)[number];
+async function main() {
+  for (const m of modules) {
+    await prisma.platformModule.upsert({
+      where: { key: m.key },
+      update: m,
+      create: m,
+    });
+  }
+  console.log('Seeded', modules.length, 'platform modules');
+}
+
+main()
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());

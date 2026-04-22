@@ -11,6 +11,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Module tier enum
+enum Tier {
+  STANDARD
+  PREMIUM
+  ENTERPRISE
+}
+
+// Platform modules — what NetComplex offers
+model PlatformModule {
+  id             String   @id @default(cuid())
+  key            String   @unique
+  label          String
+  minTier        Tier     @default(STANDARD)
+  defaultEnabled Boolean  @default(false)
+  description   String?
+  createdAt     DateTime @default(now())
+
+  tenantModules TenantModule[]
+}
+
+// Tenant modules — what each tenant has enabled
+model TenantModule {
+  id         String    @id @default(cuid())
+  tenantId   String
+  moduleKey  String
+  enabled    Boolean   @default(false)
+  config     Json?
+  enabledAt  DateTime?
+
+  tenant     Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  module    PlatformModule    @relation(fields: [moduleKey], references: [key])
+
+  @@unique([tenantId, moduleKey])
+}
+
 model Tenant {
   id              String    @id
   name            String
@@ -21,12 +56,13 @@ model Tenant {
   primaryColor   String    @default("#4F46E5")
   accentColor     String?
   secondaryColor  String?
-  fontFamily      String?
-  customCss       String?
+  fontFamily     String?
+  customCss      String?
   active          Boolean   @default(true)
   
   // Subscription
   subscriptionTier String   @default("sprout") // sprout, grove, forest
+  tier             Tier     @default(STANDARD) // standard, premium, enterprise
   modules          Json?    // Optional custom module bundle, e.g., ["directory", "bookings", "chat"]
   maxPages          Int      @default(5)
   pageCount         Int      @default(0)
@@ -34,6 +70,8 @@ model Tenant {
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime?
+
+  tenantModules TenantModule[]
 }
 
 model Announcement {

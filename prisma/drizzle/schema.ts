@@ -1,3 +1,5 @@
+import * as platformModules from './platform-modules';
+import * as tenantModules from './tenant-modules';
 import * as tenants from './tenants';
 import * as announcements from './announcements';
 import * as bookings from './bookings';
@@ -39,8 +41,9 @@ import * as standardSeats from './standard-seats';
 import * as twoFactors from './two-factors';
 import * as users from './users';
 import * as verifications from './verifications';
-import * as platformModules from './platform-modules';
-import * as tenantModules from './tenant-modules';
+import * as platformModulesRelations from './platform-modules-relations';
+import * as tenantModulesRelations from './tenant-modules-relations';
+import * as tenantsRelations from './tenants-relations';
 import * as bookingsRelations from './bookings-relations';
 import * as contentsRelations from './contents-relations';
 import * as conversationsRelations from './conversations-relations';
@@ -80,6 +83,8 @@ import * as propertiesTopremiumSeats from './properties-topremium-seats';
 import * as propertiesTopremiumSeatsRelations from './properties-topremium-seats-relations';
 
 export const schema = {
+  ...platformModules,
+  ...tenantModules,
   ...tenants,
   ...announcements,
   ...bookings,
@@ -121,8 +126,9 @@ export const schema = {
   ...twoFactors,
   ...users,
   ...verifications,
-  ...platformModules,
-  ...tenantModules,
+  ...platformModulesRelations,
+  ...tenantModulesRelations,
+  ...tenantsRelations,
   ...bookingsRelations,
   ...contentsRelations,
   ...conversationsRelations,
