@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { LanguageSwitcher, SideDrawer } from '@shared/ui';
+import { LanguageSwitcher } from '@shared/ui';
 import { authClient } from '@api/auth-client';
 import { hasPermission } from '@api/permissions';
 import { createComponentLogger } from '@shared/lib';
@@ -91,7 +91,7 @@ function TeaserLink({
 export function Header() {
   const pathname = usePathname() ?? '';
   const router = useRouter();
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [campaignConfig, setCampaignConfig] = useState<CampaignConfig['config'] | null>(null);
   const [pageFlags, setPageFlags] = useState<PageFlags>({
@@ -106,19 +106,14 @@ export function Header() {
   const { t, i18n, ready } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
 
-  const handleDrawerClose = useCallback(() => {
-    console.log('[Header] Closing drawer via callback');
-    setIsDrawerOpen(false);
-  }, []);
-
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Close drawer on navigation and session changes
+  // Close mobile menu on navigation
   useEffect(() => {
-    setIsDrawerOpen(false);
-  }, [pathname, session]);
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   // Fetch page flags for dynamic nav
   useEffect(() => {
@@ -326,12 +321,9 @@ export function Header() {
 
           {mounted && (
             <button
-              onClick={() => {
-                const newState = !isDrawerOpen;
-                console.log('[Header] Burger clicked, drawer state:', isDrawerOpen, '->', newState);
-                setIsDrawerOpen(newState);
-              }}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-md hover:bg-white/20"
+              aria-expanded={mobileMenuOpen}
               aria-label="Open menu"
               type="button"
             >
@@ -340,14 +332,95 @@ export function Header() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
+                  d={mobileMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
                 />
               </svg>
             </button>
           )}
         </div>
 
-        <SideDrawer isOpen={isDrawerOpen} onClose={handleDrawerClose} />
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-white/20 py-4">
+            <nav className="space-y-2">
+              {session ? (
+                <>
+                  <Link href="/dashboard" className="block py-2 hover:text-soralia-accent">
+                    Dashboard
+                  </Link>
+                  <Link href="/directory" className="block py-2 hover:text-soralia-accent">
+                    Directory
+                  </Link>
+                  <Link href="/services" className="block py-2 hover:text-soralia-accent">
+                    Services
+                  </Link>
+                  <Link href="/resources" className="block py-2 hover:text-soralia-accent">
+                    Resources
+                  </Link>
+                  <Link href="/groups" className="block py-2 hover:text-soralia-accent">
+                    Groups
+                  </Link>
+                  <Link href="/interest" className="block py-2 hover:text-soralia-accent">
+                    Interest
+                  </Link>
+                  <Link href="/maintenance" className="block py-2 hover:text-soralia-accent">
+                    Maintenance
+                  </Link>
+                  <Link href="/bookings" className="block py-2 hover:text-soralia-accent">
+                    Bookings
+                  </Link>
+                  <Link href="/messages" className="block py-2 hover:text-soralia-accent">
+                    Messages
+                  </Link>
+                  <div className="border-t border-white/20 my-2"></div>
+                  <Link href="/notifications" className="block py-2 hover:text-soralia-accent">
+                    Notifications
+                  </Link>
+                  <Link href="/settings" className="block py-2 hover:text-soralia-accent">
+                    Settings
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/directory" className="block py-2 hover:text-soralia-accent">
+                    Directory
+                  </Link>
+                  <Link href="/services" className="block py-2 hover:text-soralia-accent">
+                    Services
+                  </Link>
+                  <Link href="/resources" className="block py-2 hover:text-soralia-accent">
+                    Resources
+                  </Link>
+                  <Link href="/groups" className="block py-2 hover:text-soralia-accent">
+                    Groups
+                  </Link>
+                  <Link href="/interest" className="block py-2 hover:text-soralia-accent">
+                    Interest
+                  </Link>
+                </>
+              )}
+            </nav>
+            <div className="border-t border-white/20 mt-4 pt-4 space-y-2">
+              {session ? (
+                <button
+                  onClick={async () => {
+                    await authClient.signOut();
+                    window.location.href = '/';
+                  }}
+                  className="block w-full text-left py-2 text-red-400"
+                >
+                  {t('nav.logout')}
+                </button>
+              ) : (
+                <>
+                  <Link href="/sign-in" className="block py-2 hover:text-soralia-accent">
+                    {t('nav.login')}
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
