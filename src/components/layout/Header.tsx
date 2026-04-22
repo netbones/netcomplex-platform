@@ -1,15 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, Suspense, useCallback } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@shared/ui';
 import { authClient } from '@api/auth-client';
 import { hasPermission } from '@api/permissions';
-import { createComponentLogger } from '@shared/lib';
-
-const log = createComponentLogger('Header');
 
 interface PageFlags {
   campaign: boolean;
@@ -21,23 +18,15 @@ interface PageFlags {
   directory: boolean;
 }
 
-interface CampaignConfig {
-  config: {
-    linkLabel: Record<string, string>;
-    pageTitle: Record<string, string>;
-    pageDescription: Record<string, string>;
-    contentCategory: string;
-  };
-  content: unknown[];
-}
-
-function getLocalizedLabel(
-  labelObj: Record<string, string> | null | undefined,
-  i18n: { language: string }
-): string {
-  if (!labelObj || typeof labelObj !== 'object') return '';
-  return labelObj[i18n.language] || labelObj.en || '';
-}
+const HOME_NAV = [
+  { href: '/', label: 'home' },
+  { href: '/directory', label: 'directory' },
+  { href: '/news', label: 'news' },
+  { href: '/events', label: 'events' },
+  { href: '/conservation', label: 'conservation' },
+  { href: '/campaign', label: 'campaign' },
+  { href: '/admin', label: 'admin' },
+];
 
 function TeaserLink({
   href,
@@ -93,7 +82,6 @@ export function Header() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [campaignConfig, setCampaignConfig] = useState<CampaignConfig['config'] | null>(null);
   const [pageFlags, setPageFlags] = useState<PageFlags>({
     campaign: true,
     conservation: 'default',
@@ -103,19 +91,20 @@ export function Header() {
     events: true,
     directory: true,
   });
-  const { t, i18n, ready } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
+
+  const isAdmin = session?.user?.role === 'admin';
+  const isBoard = session?.user?.role === 'board';
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Close mobile menu on navigation
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
 
-  // Fetch page flags for dynamic nav
   useEffect(() => {
     async function fetchPageFlags() {
       try {
@@ -125,68 +114,34 @@ export function Header() {
           setPageFlags(prev => ({ ...prev, ...data.flags }));
         }
       } catch (error) {
-        log.error({}, 'Failed to fetch page flags', error);
+        console.error('Failed to fetch page flags', error);
       }
     }
     fetchPageFlags();
   }, []);
 
-  // Fetch campaign config to get dynamic link label
-  useEffect(() => {
-    async function fetchCampaignConfig() {
-      try {
-        const res = await fetch('/api/campaign');
-        const data: CampaignConfig = await res.json();
-        if (data.config) {
-          setCampaignConfig(data.config);
-        }
-      } catch (error) {
-        log.error({}, 'Failed to fetch campaign config', error);
-      }
-    }
-    fetchCampaignConfig();
-  }, []);
-
-  // Get localized campaign link label with safety check
-  const campaignLabel =
-    pageFlags.campaign === false
-      ? null
-      : getLocalizedLabel(campaignConfig?.linkLabel, i18n) || t('nav.campaign');
-
-  if (!mounted || !ready) {
-    return (
-      <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <img
-              src="/logo.png"
-              alt="Soralia Village Logo"
-              className="w-16 h-16 rounded-full bg-white p-2 border-2 border-white shadow-lg object-cover"
-            />
-            <div>
-              <h1 className="text-2xl font-bold">Soralia Village</h1>
-              <p className="text-xs opacity-75">A Community of Neighbors</p>
-            </div>
-          </div>
-        </div>
-      </header>
-    );
-  }
-
-  const userRole = session?.user?.role as string | undefined;
-  const isAdmin = userRole && hasPermission(userRole, 'admin');
-  const isBoard = userRole && hasPermission(userRole, 'users');
-
   const handleSignOut = async () => {
     await authClient.signOut();
-    router.push('/');
     router.refresh();
   };
+
+  const navItems = HOME_NAV.filter(item => {
+    if (item.href === '/directory' && pageFlags.directory === false) return false;
+    if (item.href === '/news' && pageFlags.news === false) return false;
+    if (item.href === '/events' && pageFlags.events === false) return false;
+    if (item.href === '/conservation' && pageFlags.conservation === 'external') return false;
+    if (item.href === '/campaign' && pageFlags.campaign === false) return false;
+    if (item.href === '/admin' && !session && (isAdmin || isBoard)) return false;
+    return true;
+  }).map(item => ({
+    name: t(`nav.${item.label}`) || item.label,
+    href: item.href,
+  }));
 
   return (
     <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md relative overflow-hidden">
       <svg
-        className="absolute inset-0 w-full h-full pointer-events-none opacity-10 -z-10"
+        className="absolute inset-0 w-full h-full pointer-events-none opacity-10"
         viewBox="0 0 1440 120"
         preserveAspectRatio="none"
       >
@@ -205,224 +160,123 @@ export function Header() {
           opacity="0.3"
         />
       </svg>
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center relative z-10">
-        <Link href="/" className="flex items-center space-x-3 z-10">
-          <img
-            src="/logo.png"
-            alt="Soralia Village Logo"
-            className="w-16 h-16 rounded-full bg-white p-2 border-2 border-white shadow-lg object-cover"
-          />
-          <div>
-            <h1 className="text-2xl font-bold">{t('app.name')}</h1>
-            <p className="text-xs opacity-75">{t('app.tagline')}</p>
-          </div>
-        </Link>
 
-        <nav className="hidden md:flex space-x-6 z-10">
-          <Link
-            href="/"
-            className={`hover:text-soralia-accent font-medium ${pathname === '/' ? 'text-soralia-accent' : ''}`}
-          >
-            {t('nav.home')}
-          </Link>
-          {pageFlags.directory !== false && (
-            <TeaserLink
-              href="/directory"
-              label={t('nav.directory')}
-              pathname={pathname}
-              authenticated={!!session}
+      <div className="container mx-auto px-4 py-4 relative">
+        <div className="flex justify-between items-center">
+          <Link href="/" className="flex items-center space-x-3">
+            <img
+              src="/logo.png"
+              alt="Soralia Village Logo"
+              className="w-16 h-16 rounded-full bg-white p-2 border-2 border-white shadow-lg object-cover"
             />
-          )}
-          {pageFlags.news !== false && (
-            <TeaserLink
-              href="/news"
-              label={t('nav.news')}
-              pathname={pathname}
-              authenticated={!!session}
-            />
-          )}
-          {pageFlags.events !== false && (
-            <TeaserLink
-              href="/events"
-              label={t('nav.events')}
-              pathname={pathname}
-              authenticated={!!session}
-            />
-          )}
-          {pageFlags.conservation !== 'external' && (
-            <Link
-              href="/conservation"
-              className={`hover:text-soralia-accent font-medium ${pathname === '/conservation' ? 'text-soralia-accent' : ''}`}
-            >
-              {t('nav.conservation')}
-            </Link>
-          )}
-          {pageFlags.campaign !== false && campaignLabel && (
-            <Link
-              href="/campaign"
-              className={`hover:text-soralia-accent font-medium ${pathname === '/campaign' ? 'text-soralia-accent' : ''}`}
-            >
-              {campaignLabel}
-            </Link>
-          )}
-          {session && (isAdmin || isBoard) && (
-            <Link
-              href="/admin"
-              className={`hover:text-soralia-accent font-medium ${pathname.startsWith('/admin') ? 'text-soralia-accent' : ''}`}
-            >
-              {t('nav.admin')}
-            </Link>
-          )}
-        </nav>
-
-        <div className="flex items-center gap-2 md:gap-4 z-10">
-          <Suspense fallback={<div className="w-16 h-6 bg-white/20 rounded" />}>
-            <LanguageSwitcher />
-          </Suspense>
-
-          {isPending ? (
-            <div className="w-20 h-8 bg-white/20 rounded animate-pulse" />
-          ) : session ? (
-            <div className="flex items-center space-x-3">
-              <Link
-                href="/dashboard"
-                className="flex items-center space-x-2 bg-white/20 py-1.5 px-3 rounded-md hover:bg-white/30 transition"
-              >
-                {session.user.image ? (
-                  <img
-                    src={session.user.image}
-                    alt=""
-                    className="w-6 h-6 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-xs font-medium">
-                    {(session.user.name || session.user.email || '?').charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <span className="text-sm font-medium hidden sm:inline">
-                  {session.user.name || session.user.email?.split('@')[0]}
-                </span>
-              </Link>
-              <button
-                onClick={handleSignOut}
-                className="hidden md:block bg-white/20 text-white py-2 px-4 rounded-md hover:bg-white/30 transition text-sm"
-              >
-                {t('nav.logout')}
-              </button>
+            <div>
+              <h1 className="text-2xl font-bold">{t('app.name')}</h1>
+              <p className="text-xs opacity-75">{t('app.tagline')}</p>
             </div>
-          ) : (
-            <Link
-              href="/sign-in"
-              className="bg-white text-soralia-primary py-2 px-4 rounded-md hover:bg-gray-100 transition"
-            >
-              {t('nav.login')}
-            </Link>
-          )}
+          </Link>
 
-          {mounted && (
-            <button
-              onClick={() => {
-                console.log('Burger clicked, state:', mobileMenuOpen);
-                setMobileMenuOpen(!mobileMenuOpen);
-              }}
-              className="p-2 rounded-md hover:bg-white/20"
-              aria-expanded={mobileMenuOpen}
-              aria-label="Open menu"
-              type="button"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={mobileMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
+          <div className="flex items-center gap-4">
+            <nav className="hidden md:flex space-x-6">
+              {navItems.map(item => (
+                <TeaserLink
+                  key={item.href}
+                  href={item.href}
+                  label={item.name}
+                  pathname={pathname}
+                  authenticated={!!session}
                 />
-              </svg>
-            </button>
-          )}
+              ))}
+            </nav>
+
+            <Suspense fallback={<div className="w-16 h-6 bg-white/20 rounded" />}>
+              <LanguageSwitcher />
+            </Suspense>
+
+            {isPending ? (
+              <div className="w-20 h-8 bg-white/20 rounded animate-pulse" />
+            ) : session ? (
+              <div className="flex items-center space-x-3">
+                <Link
+                  href="/dashboard"
+                  className="flex items-center space-x-2 bg-white/20 py-1.5 px-3 rounded-md hover:bg-white/30 transition"
+                >
+                  {session.user.image ? (
+                    <img
+                      src={session.user.image}
+                      alt=""
+                      className="w-6 h-6 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-xs font-medium">
+                      {(session.user.name || session.user.email || '?').charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="text-sm font-medium hidden sm:inline">
+                    {session.user.name || session.user.email?.split('@')[0]}
+                  </span>
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="hidden md:block bg-white/20 text-white py-2 px-4 rounded-md hover:bg-white/30 transition text-sm"
+                >
+                  {t('nav.logout')}
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/sign-in"
+                className="bg-white text-soralia-primary py-2 px-4 rounded-md hover:bg-gray-100 transition"
+              >
+                {t('nav.login')}
+              </Link>
+            )}
+
+            {mounted && (
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-md hover:bg-white/20 md:hidden"
+                aria-expanded={mobileMenuOpen}
+                aria-label="Open menu"
+                type="button"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d={mobileMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="absolute top-full left-0 right-0 border-t border-white/20 py-3 bg-soralia-primary z-50">
-            <nav className="space-y-1">
-              {session ? (
-                <>
-                  <Link href="/dashboard" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Dashboard
-                  </Link>
-                  <Link href="/directory" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Directory
-                  </Link>
-                  <Link href="/services" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Services
-                  </Link>
-                  <Link href="/resources" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Resources
-                  </Link>
-                  <Link href="/groups" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Groups
-                  </Link>
-                  <Link href="/interest" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Interest
-                  </Link>
-                  <Link href="/maintenance" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Maintenance
-                  </Link>
-                  <Link href="/bookings" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Bookings
-                  </Link>
-                  <Link href="/messages" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Messages
-                  </Link>
-                  <div className="border-t border-white/20 my-1"></div>
-                  <Link
-                    href="/notifications"
-                    className="block py-1.5 px-2 hover:bg-white/10 rounded"
-                  >
-                    Notifications
-                  </Link>
-                  <Link href="/settings" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Settings
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link href="/directory" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Directory
-                  </Link>
-                  <Link href="/services" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Services
-                  </Link>
-                  <Link href="/resources" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Resources
-                  </Link>
-                  <Link href="/groups" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Groups
-                  </Link>
-                  <Link href="/interest" className="block py-1.5 px-2 hover:bg-white/10 rounded">
-                    Interest
-                  </Link>
-                </>
-              )}
+          <div className="md:hidden absolute top-full left-0 right-0 bg-soralia-primary border-t border-white/20 mt-4 -mx-4 -mb-4 p-4 z-50">
+            <nav className="space-y-2">
+              {navItems.map(item => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="block py-2 px-3 hover:bg-white/10 rounded"
+                >
+                  {item.name}
+                </Link>
+              ))}
             </nav>
-            <div className="border-t border-white/20 mt-2 pt-2 space-y-1">
+            <div className="border-t border-white/20 mt-2 pt-2">
               {session ? (
                 <button
-                  onClick={async () => {
-                    await authClient.signOut();
-                    window.location.href = '/';
-                  }}
-                  className="block w-full text-left py-2 text-red-400"
+                  onClick={handleSignOut}
+                  className="block w-full text-left py-2 text-red-300"
                 >
                   {t('nav.logout')}
                 </button>
               ) : (
-                <>
-                  <Link href="/sign-in" className="block py-1 hover:text-soralia-accent">
-                    {t('nav.login')}
-                  </Link>
-                </>
+                <Link href="/sign-in" className="block py-2 text-soralia-accent">
+                  {t('nav.login')}
+                </Link>
               )}
             </div>
           </div>
