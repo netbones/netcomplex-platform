@@ -80,13 +80,13 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Establish module architecture — platform_modules + tenant_modules tables, tier on tenants, enforcement helpers, FeatureGate update. Foundation for all future module work.
 
-**Status:** Planned
+**Status:** Complete
 
 **Requirements:** MOD-01, MOD-02, MOD-03, MOD-04
 
 **Plans:**
 
-- [ ] 08-01-PLAN.md — Module Architecture Foundation (3 tasks + migration)
+- [x] 08-01-PLAN.md — Module Architecture Foundation ✅
 
 ---
 
