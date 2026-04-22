@@ -2,14 +2,16 @@
 
 ## Current Position
 
-- **Phase:** 03-localization
-- **Plan:** 01 (Planned)
-- **Status:** In Progress
-- **Last Updated:** 2026-04-06
+- **Phase:** 05-widget-registry-alignment
+- **Plan:** 01 (Complete)
+- **Status:** Complete
+- **Last Updated:** 2026-04-22
 
 ## Completed Phases
 
-None yet.
+- 00-multi-tenant-foundation
+- 01-enforcement
+- 02-admin-ui
 
 ## Pending Decisions
 
@@ -22,6 +24,7 @@ None - decisions resolved in plan 00-01.
 - **withTenant enforcement:** Applied to 11 tenant-scoped API routes
 - **Tenant branding UI:** Uses API routes for updates with live client-side preview
 - **Feature toggle UI:** Shows tier-allowed (green), tenant-overridden (yellow), locked (gray) states
+- **Widget registry:** Map-based O(1) lookups, manifest-driven feature flags, backward-compatible exports
 
 ## Notes
 

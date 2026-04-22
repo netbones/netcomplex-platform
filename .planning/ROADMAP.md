@@ -24,13 +24,13 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Apply tenant enforcement to API routes, wire dynamic theming, integrate FeatureGate, consolidate locales
 
-**Status:** In Progress
+**Status:** Complete
 
 **Requirements:** MULTI-04
 
 **Plans:**
 
-- [ ] 01-01-PLAN.md — Phase 1 Enforcement (4 tasks)
+- [x] 01-01-PLAN.md — Phase 1 Enforcement (4 tasks) ✅
 
 ---
 
@@ -59,6 +59,20 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 **Plans:**
 
 - [ ] 03-01-PLAN.md — Phase 3 Localization (7 tasks)
+
+---
+
+## Phase: 05-widget-registry-alignment
+
+**Goal:** Align widget registry with NetComplex architecture — convert from plain object to WidgetRegistry class with full manifest support (version, author, icon, lazy loading), remove dual-source feature flag lookup
+
+**Status:** Complete
+
+**Requirements:** WIDGET-01, WIDGET-02, WIDGET-03, WIDGET-04
+
+**Plans:**
+
+- [x] 05-01-PLAN.md — Widget Registry Alignment (3 tasks) ✅
 
 ---
 
