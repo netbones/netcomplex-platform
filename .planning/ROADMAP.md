@@ -94,17 +94,31 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Wire Supabase Realtime for chat — real-time message delivery, typing indicators, online presence
 
-**Status:** In Progress
+**Status:** Complete
 
 **Requirements:** CHAT-01, CHAT-02
 
 **Plans:**
 
-- [x] 09-01-PLAN.md — Real-time wiring for conversations (Tasks 1-4 complete, Task 5 checkpoint)
+- [x] 09-01-PLAN.md — Real-time wiring for conversations ✅
 
 ---
 
-## Phase: 10-announcements
+## Phase: 10-email-notifications
+
+**Goal:** Wire MailerSend for transactional emails — signup welcome, password reset, user-enabled notifications
+
+**Status:** Not Started
+
+**Requirements:** EMAIL-01, EMAIL-02
+
+**Plans:**
+
+- [ ] 10-01-PLAN.md — MailerSend email integration
+
+---
+
+## Phase: 11-announcements
 
 **Goal:** Implement announcements board — announcement model, API, board UI with priority levels
 
@@ -112,7 +126,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Plans:**
 
-- [ ] 10-01-PLAN.md — Announcement model + API
+- [ ] 11-01-PLAN.md — Announcement model + API
 
 ---
 
