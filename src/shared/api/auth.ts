@@ -15,11 +15,19 @@ import {
   organizations,
 } from '@api/db';
 import { tenantConfig } from './config/tenant';
+import { sendEmail } from '@/lib/email/mailer-send';
+import { templates } from '@/lib/email/templates';
 
 /**
  * Better Auth configuration for Soralia Village.
  * Configured with Drizzle adapter, two-factor auth, organization support, and passkey.
  * Uses tenantConfig for environment-specific settings.
+ *
+ * Email sending is wired via Better Auth's built-in email options:
+ * - emailVerification.sendVerificationEmail: sends verification/signup emails (when requireEmailVerification is true)
+ * - emailAndPassword.sendResetPassword: sends password reset emails
+ *
+ * For welcome emails when requireEmailVerification is false, we use onSignUp callback.
  */
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -39,6 +47,25 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
+    // Wire password reset email via Better Auth
+    sendResetPassword: async ({ user, url, token }) => {
+      await sendEmail({
+        to: user.email,
+        subject: templates.passwordReset.subject,
+        html: templates.passwordReset.getHtml(url),
+      });
+    },
+  },
+  // Wire verification email via Better Auth (used when requireEmailVerification is true)
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url, token }) => {
+      await sendEmail({
+        to: user.email,
+        subject: templates.welcome.subject,
+        html: templates.welcome.getHtml(user.name || 'there'),
+      });
+    },
+    sendOnSignUp: true, // Send welcome email on signup
   },
   // Use additionalFields to add tenantId as a managed field that Better Auth handles
   user: {
