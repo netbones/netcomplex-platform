@@ -213,6 +213,14 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
     description: 'Accept payments for facility bookings',
     icon: 'credit-card',
   },
+  'feature.facilityBooking': {
+    key: 'feature.facilityBooking',
+    tier: 'foundation',
+    category: 'feature',
+    label: 'Facility Booking Module',
+    description: 'Calendar view and advanced facility booking',
+    icon: 'calendar-check',
+  },
   'feature.conservation': {
     key: 'feature.conservation',
     tier: 'foundation',

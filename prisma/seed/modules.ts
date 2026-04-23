@@ -1,34 +1,40 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, type Tier } from '@prisma/client';
 
 const prisma = new PrismaClient();
+
+const tierMap: Record<string, Tier> = {
+  STANDARD: 'STANDARD',
+  PREMIUM: 'PREMIUM',
+  ENTERPRISE: 'ENTERPRISE',
+} as const;
 
 const modules = [
   // Core - always available
   {
     key: 'dashboard',
     label: 'Dashboard',
-    minTier: 'STANDARD',
+    minTier: tierMap.STANDARD,
     defaultEnabled: true,
     description: 'User dashboard with widgets',
   },
   {
     key: 'auth',
     label: 'Authentication',
-    minTier: 'STANDARD',
+    minTier: tierMap.STANDARD,
     defaultEnabled: true,
     description: 'User authentication and sessions',
   },
   {
     key: 'notifications',
     label: 'Notifications',
-    minTier: 'STANDARD',
+    minTier: tierMap.STANDARD,
     defaultEnabled: true,
     description: 'In-app notifications',
   },
   {
     key: 'settings',
     label: 'Settings',
-    minTier: 'STANDARD',
+    minTier: tierMap.STANDARD,
     defaultEnabled: true,
     description: 'User and tenant settings',
   },
@@ -37,35 +43,35 @@ const modules = [
   {
     key: 'directory',
     label: 'Directory',
-    minTier: 'STANDARD',
+    minTier: tierMap.STANDARD,
     defaultEnabled: true,
     description: 'Community member directory',
   },
   {
     key: 'groups',
     label: 'Groups',
-    minTier: 'STANDARD',
+    minTier: tierMap.STANDARD,
     defaultEnabled: true,
     description: 'Interest groups and memberships',
   },
   {
     key: 'maintenance',
     label: 'Maintenance Requests',
-    minTier: 'STANDARD',
+    minTier: tierMap.STANDARD,
     defaultEnabled: true,
     description: 'Submit and track maintenance requests',
   },
   {
     key: 'community-services',
     label: 'Community Services',
-    minTier: 'STANDARD',
+    minTier: tierMap.STANDARD,
     defaultEnabled: true,
     description: 'Local service marketplace',
   },
   {
     key: 'content',
     label: 'Content Management',
-    minTier: 'STANDARD',
+    minTier: tierMap.STANDARD,
     defaultEnabled: true,
     description: 'CMS for news, events, blogs',
   },
@@ -74,21 +80,21 @@ const modules = [
   {
     key: 'bookings',
     label: 'Facility Booking',
-    minTier: 'PREMIUM',
+    minTier: tierMap.PREMIUM,
     defaultEnabled: false,
     description: 'Book community facilities',
   },
   {
     key: 'premium-seats',
     label: 'Premium Seats',
-    minTier: 'PREMIUM',
+    minTier: tierMap.PREMIUM,
     defaultEnabled: false,
     description: 'Multi-property portfolio management',
   },
   {
     key: 'property-listings',
     label: 'Property Listings',
-    minTier: 'PREMIUM',
+    minTier: tierMap.PREMIUM,
     defaultEnabled: false,
     description: 'Real estate marketplace',
   },
@@ -97,14 +103,14 @@ const modules = [
   {
     key: 'agent-marketplace',
     label: 'Agent Marketplace',
-    minTier: 'ENTERPRISE',
+    minTier: tierMap.ENTERPRISE,
     defaultEnabled: false,
     description: 'Agent directory and lead management',
   },
   {
     key: 'white-label',
     label: 'White Label',
-    minTier: 'ENTERPRISE',
+    minTier: tierMap.ENTERPRISE,
     defaultEnabled: false,
     description: 'Custom domain and branding',
   },

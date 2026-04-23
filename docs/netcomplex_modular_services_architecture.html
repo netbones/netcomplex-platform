@@ -1,0 +1,157 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem 0;font-size:13px;color:var(--color-text-primary)}
+.row{display:grid;gap:12px;margin-bottom:12px}
+.r2{grid-template-columns:1fr 1fr}
+.r3{grid-template-columns:1fr 1fr 1fr}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem}
+.card-label{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:10px}
+.tier-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tier-row:last-child{border-bottom:none}
+.tier-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.t-core{background:#E6F1FB;color:#0C447C}
+.t-std{background:#EAF3DE;color:#27500A}
+.t-prem{background:#FAEEDA;color:#633806}
+.t-ent{background:#EEEDFE;color:#3C3489}
+.mod-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.mod-row:last-child{border-bottom:none}
+.mod-name{color:var(--color-text-primary);font-weight:500}
+.mod-sub{color:var(--color-text-tertiary);font-size:11px;margin-top:1px}
+.dots{display:flex;gap:4px}
+.dot{width:10px;height:10px;border-radius:50%;border:0.5px solid var(--color-border-secondary)}
+.dot.on-core{background:#378ADD}
+.dot.on-std{background:#639922}
+.dot.on-prem{background:#BA7517}
+.dot.on-ent{background:#7F77DD}
+.dot.off{background:var(--color-background-secondary)}
+.schema-block{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:8px}
+.schema-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.field{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;color:var(--color-text-secondary)}
+.field-type{color:var(--color-text-tertiary);font-family:var(--font-mono)}
+.arrow-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--color-text-tertiary);margin:4px 0 4px 12px}
+.arr-line{flex:1;height:0.5px;background:var(--color-border-secondary)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)}
+.leg-dot{width:8px;height:8px;border-radius:50%}
+.section-head{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-tertiary);margin:16px 0 8px}
+.gate-row{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.gate-row:last-child{border-bottom:none}
+.gate-tag{background:var(--color-background-secondary);border-radius:4px;font-family:var(--font-mono);font-size:10px;padding:2px 6px;color:var(--color-text-secondary);flex-shrink:0;margin-top:1px}
+.gate-desc{color:var(--color-text-secondary);line-height:1.5}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">NetComplex modular services architecture — tier model, schema design, and gate patterns</h2>
+
+<div class="section-head">Tier model</div>
+<div class="row r2">
+  <div class="card">
+    <div class="card-label">Four tiers</div>
+    <div class="tier-row"><span class="tier-badge t-core">Core</span><span style="font-size:12px;color:var(--color-text-secondary)">Always on. Every tenant gets these — auth, dashboard shell, notifications, settings.</span></div>
+    <div class="tier-row"><span class="tier-badge t-std">Standard</span><span style="font-size:12px;color:var(--color-text-secondary)">Default for most tenants. Directory, groups, maintenance, content, community services.</span></div>
+    <div class="tier-row"><span class="tier-badge t-prem">Premium</span><span style="font-size:12px;color:var(--color-text-secondary)">Opt-in paid modules. Bookings, premium seats, property listings, agent marketplace.</span></div>
+    <div class="tier-row"><span class="tier-badge t-ent">Enterprise</span><span style="font-size:12px;color:var(--color-text-secondary)">Bespoke or high-cost. Custom sections, advanced analytics, white-label domains.</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Module availability matrix</div>
+    <div style="display:flex;justify-content:flex-end;gap:20px;margin-bottom:8px;font-size:10px;color:var(--color-text-tertiary);padding-right:2px">
+      <span>Core</span><span>Std</span><span>Prem</span><span>Ent</span>
+    </div>
+    <div class="mod-row"><div><div class="mod-name">Dashboard</div></div><div class="dots"><div class="dot on-core"></div><div class="dot on-std"></div><div class="dot on-prem"></div><div class="dot on-ent"></div></div></div>
+    <div class="mod-row"><div><div class="mod-name">Directory</div></div><div class="dots"><div class="dot off"></div><div class="dot on-std"></div><div class="dot on-prem"></div><div class="dot on-ent"></div></div></div>
+    <div class="mod-row"><div><div class="mod-name">Groups</div></div><div class="dots"><div class="dot off"></div><div class="dot on-std"></div><div class="dot on-prem"></div><div class="dot on-ent"></div></div></div>
+    <div class="mod-row"><div><div class="mod-name">Maintenance</div></div><div class="dots"><div class="dot off"></div><div class="dot on-std"></div><div class="dot on-prem"></div><div class="dot on-ent"></div></div></div>
+    <div class="mod-row"><div><div class="mod-name">Community services</div></div><div class="dots"><div class="dot off"></div><div class="dot on-std"></div><div class="dot on-prem"></div><div class="dot on-ent"></div></div></div>
+    <div class="mod-row"><div><div class="mod-name">Bookings</div></div><div class="dots"><div class="dot off"></div><div class="dot off"></div><div class="dot on-prem"></div><div class="dot on-ent"></div></div></div>
+    <div class="mod-row"><div><div class="mod-name">Premium seats</div></div><div class="dots"><div class="dot off"></div><div class="dot off"></div><div class="dot on-prem"></div><div class="dot on-ent"></div></div></div>
+    <div class="mod-row"><div><div class="mod-name">Agent marketplace</div></div><div class="dots"><div class="dot off"></div><div class="dot off"></div><div class="dot off"></div><div class="dot on-ent"></div></div></div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#378ADD"></div>Core</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#639922"></div>Standard</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#BA7517"></div>Premium</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#7F77DD"></div>Enterprise</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-head">Recommended schema additions</div>
+<div class="row r2">
+  <div class="card">
+    <div class="card-label">platform_modules <span style="font-weight:400;font-size:10px;color:var(--color-text-tertiary)">— what NetComplex offers</span></div>
+    <div class="schema-block">
+      <div class="field"><span>id</span><span class="field-type">uuid PK</span></div>
+      <div class="field"><span>key</span><span class="field-type">text unique</span></div>
+      <div class="field"><span style="color:var(--color-text-tertiary);font-style:italic">e.g. 'bookings', 'premium-seats'</span><span></span></div>
+      <div class="field"><span>label</span><span class="field-type">text</span></div>
+      <div class="field"><span>min_tier</span><span class="field-type">enum</span></div>
+      <div class="field"><span style="color:var(--color-text-tertiary);font-style:italic">'core' | 'standard' | 'premium' | 'enterprise'</span><span></span></div>
+      <div class="field"><span>default_enabled</span><span class="field-type">boolean</span></div>
+      <div class="field"><span>description</span><span class="field-type">text?</span></div>
+    </div>
+    <div class="arrow-row"><span>one</span><div class="arr-line"></div><span>many</span></div>
+    <div class="card-label" style="margin-top:8px">tenant_modules <span style="font-weight:400;font-size:10px;color:var(--color-text-tertiary)">— what each tenant has</span></div>
+    <div class="schema-block">
+      <div class="field"><span>id</span><span class="field-type">uuid PK</span></div>
+      <div class="field"><span>tenant_id</span><span class="field-type">uuid FK → tenants</span></div>
+      <div class="field"><span>module_key</span><span class="field-type">text FK → platform_modules</span></div>
+      <div class="field"><span>enabled</span><span class="field-type">boolean</span></div>
+      <div class="field"><span>config</span><span class="field-type">jsonb?</span></div>
+      <div class="field"><span style="color:var(--color-text-tertiary);font-style:italic">per-module overrides, limits, custom labels</span><span></span></div>
+      <div class="field"><span>enabled_at</span><span class="field-type">timestamp?</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Why not just json[] on tenants?</div>
+    <div class="gate-row">
+      <span class="gate-tag">query</span>
+      <span class="gate-desc">A junction table lets you query "all tenants with bookings enabled" without scanning jsonb. Critical for billing and analytics.</span>
+    </div>
+    <div class="gate-row">
+      <span class="gate-tag">config</span>
+      <span class="gate-desc">The <code>config jsonb</code> column on tenant_modules stores per-module overrides — e.g. booking slot limits, custom labels — without polluting the tenants table.</span>
+    </div>
+    <div class="gate-row">
+      <span class="gate-tag">audit</span>
+      <span class="gate-desc"><code>enabled_at</code> gives you a free activation timeline for billing, support, and churn analysis.</span>
+    </div>
+    <div class="gate-row">
+      <span class="gate-tag">tier</span>
+      <span class="gate-desc"><code>min_tier</code> on platform_modules lets you validate at the platform level — a tenant on Standard cannot enable a Premium module even if they call the API directly.</span>
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:0.5px solid var(--color-border-tertiary)">
+      <div class="card-label">Relation to existing tenants.ts</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.6">Keep <code>tenants.ts</code> as-is for branding + domain config. Add <code>tier</code> enum column to it (<code>'standard' | 'premium' | 'enterprise'</code>). The two new tables hang off it via <code>tenant_id FK</code>.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section-head">Enforcement patterns</div>
+<div class="card">
+  <div class="card-label">Three gates — use all three</div>
+  <div class="gate-row">
+    <span class="gate-tag">middleware</span>
+    <span class="gate-desc">Resolve tenant tier from the tenants table and attach to request context alongside tenant_id. Used for coarse-grained route protection — redirect to upgrade page if tier insufficient before any DB work happens.</span>
+  </div>
+  <div class="gate-row">
+    <span class="gate-tag">FeatureGate</span>
+    <span class="gate-desc">React component that reads the resolved tenant module list from context. Wraps page sections, nav items, and dashboard widgets. Renders a locked/upgrade state rather than a redirect — better UX for in-app gating.</span>
+  </div>
+  <div class="gate-row">
+    <span class="gate-tag">API layer</span>
+    <span class="gate-desc">Every API route for a gated feature calls <code>assertModuleEnabled(tenantId, 'bookings')</code> as its second operation after <code>withTenant()</code>. Server-side enforcement is non-negotiable — client gates are UX only.</span>
+  </div>
+  <div class="gate-row">
+    <span class="gate-tag">DB query</span>
+    <span class="gate-desc">Drizzle helper <code>requireModule(tenantId, key)</code> — joins tenant_modules, throws 403 if not enabled. Used inside service-layer functions so even tRPC and cron jobs are gated consistently.</span>
+  </div>
+</div>
+
+<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+  <button onclick="sendPrompt('Show me the Drizzle schema code for platform_modules and tenant_modules')">Schema code ↗</button>
+  <button onclick="sendPrompt('Show me the assertModuleEnabled helper implementation')">assertModuleEnabled helper ↗</button>
+  <button onclick="sendPrompt('How should FeatureGate read the module list efficiently without a waterfall?')">FeatureGate data loading ↗</button>
+</div>
+</div>

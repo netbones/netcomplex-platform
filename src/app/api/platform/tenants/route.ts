@@ -67,6 +67,7 @@ export async function POST(request: NextRequest) {
       customCss: null,
       active: true,
       subscriptionTier: body.plan,
+      tier: 'STANDARD',
       maxPages: tierConfig.maxPages,
       pageCount: 0,
       featureFlags: {},

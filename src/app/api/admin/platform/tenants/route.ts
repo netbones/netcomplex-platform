@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
       customCss: body.customCss || null,
       active: body.active ?? true,
       subscriptionTier: body.subscriptionTier || 'foundation',
+      tier: body.tier || 'STANDARD',
       maxPages: body.maxPages ?? 5,
       pageCount: body.pageCount ?? 0,
       featureFlags: body.featureFlags || {},
