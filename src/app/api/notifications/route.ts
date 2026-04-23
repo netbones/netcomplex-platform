@@ -3,9 +3,12 @@ import { db, notifications, users } from '@api/db';
 import { NextResponse } from 'next/server';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@api/tenant/server';
-import { sendEmail } from '@/lib/email/mailer-send';
+import { sendEmail } from '@/lib/email/resend';
 import { templates } from '@/lib/email/templates';
 import { logError } from '@shared/lib';
+import { createLogger } from '@/lib/logger';
+
+const notifyLogger = createLogger('notifications');
 
 async function getSessionAndUserId(request: Request) {
   const session = await auth.api.getSession({
@@ -136,15 +139,14 @@ async function sendEmailNotificationIfEnabled(
     const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
 
     if (!user) {
-      console.log(`[Email] User ${userId} not found, skipping notification email`);
+      notifyLogger.warn({ userId }, 'User not found, skipping notification email');
       return;
     }
 
     // Check if user has email notifications enabled
     // Using showEmail as a proxy for email notification preference
-    // In a production system, you'd have a dedicated emailNotifications field
     if (!user.showEmail) {
-      console.log(`[Email] User ${userId} has email notifications disabled, skipping`);
+      notifyLogger.debug({ userId }, 'User has email notifications disabled');
       return;
     }
 
@@ -157,9 +159,9 @@ async function sendEmailNotificationIfEnabled(
       html,
     });
 
-    console.log(`[Email] Notification email sent to ${user.email}`);
+    notifyLogger.info({ email: user.email }, 'Notification email sent');
   } catch (error) {
-    console.error(`[Email] Failed to send notification email to user ${userId}:`, error);
+    notifyLogger.error({ userId, error }, 'Failed to send notification email');
     // Don't throw - email failure shouldn't fail the notification creation
   }
 }

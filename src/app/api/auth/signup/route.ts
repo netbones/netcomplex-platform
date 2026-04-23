@@ -68,8 +68,7 @@ export async function POST(request: NextRequest) {
  */
 async function sendWelcomeEmail(email: string, name: string) {
   try {
-    // Dynamically import to avoid circular dependencies
-    const { sendEmail } = await import('@/lib/email/mailer-send');
+    const { sendEmail } = await import('@/lib/email/resend');
     const { templates } = await import('@/lib/email/templates');
 
     const html = templates.welcome.getHtml(name);
@@ -79,10 +78,7 @@ async function sendWelcomeEmail(email: string, name: string) {
       subject: templates.welcome.subject,
       html,
     });
-
-    console.log(`[Email] Welcome email sent to ${email}`);
-  } catch (error) {
-    // Log but don't throw - email failure shouldn't affect signup
-    console.error(`[Email] Failed to send welcome email to ${email}:`, error);
+  } catch (_error) {
+    // Email failure shouldn't affect signup
   }
 }

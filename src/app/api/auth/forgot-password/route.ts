@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@api/auth';
-import { sendEmail } from '@/lib/email/mailer-send';
+import { sendEmail } from '@/lib/email/resend';
 import { templates } from '@/lib/email/templates';
 import { db, verifications, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { logError } from '@shared/lib';
+import { ENV } from 'varlock/env';
 
-const RESET_LINK_BASE = process.env.NEXT_PUBLIC_APP_URL || 'https://soralia.co.za';
+const RESET_LINK_BASE = ENV.NEXT_PUBLIC_APP_URL;
 const RESET_TOKEN_EXPIRY_HOURS = 1;
 
 /**

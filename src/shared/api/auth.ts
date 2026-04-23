@@ -1,6 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
-import { twoFactor, organization, admin, bearer } from 'better-auth/plugins';
+import { twoFactor, organization, bearer } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
 import { ENV } from 'varlock/env';
 import {
@@ -16,7 +16,7 @@ import {
   organizations,
 } from '@api/db';
 import { tenantConfig } from './config/tenant';
-import { sendEmail } from '@/lib/email/mailer-send';
+import { sendEmail } from '@/lib/email/resend';
 import { templates } from '@/lib/email/templates';
 import { authLogger } from '@/lib/logger';
 

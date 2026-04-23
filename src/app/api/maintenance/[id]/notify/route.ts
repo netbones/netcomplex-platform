@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@api/auth';
 import { hasPermission } from '@api/permissions';
-import { db, maintenanceRequests, users, requestHistories } from '@api/db';
+import { db, maintenanceRequests, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { revalidateDashboard } from '@api/revalidation';
 import { withTenant } from '@api/tenant/server';
+import { sendEmail } from '@/lib/email/resend';
+import { createLogger } from '@/lib/logger';
+
+const notifyLogger = createLogger('maintenance-notify');
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -22,47 +25,6 @@ async function getSessionAndRole(request: Request) {
     userId: session.user.id,
     role: userResult?.role || 'RESIDENT',
   };
-}
-
-/**
- * Send email notification via MailerSend API
- * Uses MailerSend HTTP API for reliability
- */
-async function sendEmail(to: string, subject: string, html: string) {
-  const apiKey = process.env.MAILERSEND_API_KEY;
-  const fromEmail = process.env.MAILERSEND_FROM_EMAIL || 'notifications@soralia.co.za';
-
-  if (!apiKey) {
-    console.log('[MailerSend] No API key configured, skipping email');
-    return { success: false, error: 'No API key' };
-  }
-
-  try {
-    const response = await fetch('https://api.mailersend.com/v1/email', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        from: { email: fromEmail, name: 'Soralia Village' },
-        to: [{ email: to }],
-        subject,
-        html,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[MailerSend] Error:', response.status, errorText);
-      return { success: false, error: errorText };
-    }
-
-    return { success: true };
-  } catch (err) {
-    console.error('[MailerSend] Exception:', err);
-    return { success: false, error: String(err) };
-  }
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -156,12 +118,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 </html>`;
 
   // Send email notification
-  const emailResult = await sendEmail(resident.email, subject, html);
+  const emailResult = await sendEmail({
+    to: resident.email,
+    subject,
+    html,
+  });
 
   if (!emailResult.success) {
-    console.log(`[Notification] Failed to send email to ${resident.email}:`, emailResult.error);
+    notifyLogger.error(
+      { email: resident.email, error: emailResult.error },
+      'Failed to send notification'
+    );
   } else {
-    console.log(`[Notification] Email sent to ${resident.email}`);
+    notifyLogger.info({ email: resident.email }, 'Notification sent');
   }
 
   return NextResponse.json({
