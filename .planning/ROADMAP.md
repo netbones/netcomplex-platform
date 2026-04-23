@@ -94,11 +94,13 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Wire Supabase Realtime for chat — real-time message delivery, typing indicators, online presence
 
-**Status:** Not Started
+**Status:** In Progress
+
+**Requirements:** CHAT-01, CHAT-02
 
 **Plans:**
 
-- [ ] 09-01-PLAN.md — Real-time wiring for conversations
+- [x] 09-01-PLAN.md — Real-time wiring for conversations (Tasks 1-4 complete, Task 5 checkpoint)
 
 ---
 
