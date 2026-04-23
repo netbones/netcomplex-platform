@@ -5,6 +5,52 @@
 
 export const templates = {
   /**
+   * Email verification sent on signup or when verification is required.
+   * Includes a verification link.
+   */
+  verifyEmail: {
+    subject: 'Verify your Soralia Village email',
+    getHtml: (name: string, verificationUrl: string) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify your email</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #4F46E5; margin: 0;">Soralia Village</h1>
+  </div>
+  
+  <h2 style="color: #1f2937;">Verify your email address</h2>
+  
+  <p style="margin: 20px 0;">Hi${name ? `, ${escapeHtml(name)}` : ''}!</p>
+  
+  <p style="margin: 20px 0;">Thank you for signing up to Soralia Village. Please verify your email address by clicking the button below:</p>
+  
+  <div style="text-align: center; margin: 30px 0;">
+    <a href="${verificationUrl}" style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Verify Email</a>
+  </div>
+  
+  <div style="background: #fef3c7; border-radius: 8px; padding: 16px; margin: 20px 0;">
+    <p style="margin: 0; color: #92400e; font-size: 14px;">
+      <strong>⚠️ Important:</strong> This link expires in 1 hour for security reasons.
+    </p>
+  </div>
+  
+  <p style="color: #6b7280; font-size: 14px;">If you didn't create an account with Soralia Village, please ignore this email.</p>
+  
+  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+  <p style="color: #9ca3af; font-size: 12px; text-align: center;">
+    &copy; ${new Date().getFullYear()} Soralia Village. All rights reserved.
+  </p>
+</body>
+</html>
+`,
+  },
+
+  /**
    * Welcome email sent on user signup.
    * Includes greeting and next steps for the user.
    */

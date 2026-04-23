@@ -46,7 +46,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
+    requireEmailVerification: true, // Require email verification before sign-in
     // Wire password reset email via Better Auth
     sendResetPassword: async ({ user, url, token }) => {
       await sendEmail({
@@ -61,11 +61,11 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url, token }) => {
       await sendEmail({
         to: user.email,
-        subject: templates.welcome.subject,
-        html: templates.welcome.getHtml(user.name || 'there'),
+        subject: templates.verifyEmail.subject,
+        html: templates.verifyEmail.getHtml(user.name || '', url),
       });
     },
-    sendOnSignUp: true, // Send welcome email on signup
+    sendOnSignUp: false, // Don't send on signup - require verification first
   },
   // Use additionalFields to add tenantId as a managed field that Better Auth handles
   user: {
