@@ -2,9 +2,9 @@
 
 ## Current Position
 
-- **Phase:** 09-real-time-chat
+- **Phase:** 10-email-notifications
 - **Plan:** 01 (complete)
-- **Status:** Plan complete - All tasks verified
+- **Status:** Plan complete - All tasks committed
 - **Last Updated:** 2026-04-23
 
 ## Decisions Made
@@ -19,6 +19,9 @@
 - **Feature toggle UI:** Shows tier-allowed (green), tenant-overridden (yellow), locked (gray) states
 - **Widget registry:** Map-based O(1) lookups, manifest-driven feature flags, backward-compatible exports
 - **Real-time chat hooks:** useRealtimeMessages, useTypingIndicator, usePresence for Supabase Realtime
+- **Email infrastructure:** MailerSend for transactional emails with graceful API key validation
+- **Password reset:** Custom UUID token-based flow with 1-hour expiry
+- **Email enumeration protection:** Password reset always returns success regardless of email existence
 
 ## Notes
 
@@ -27,4 +30,6 @@
 - FeatureGate ready for navigation integration
 - Phase 02-01 complete: Admin UI for tenant management implemented
 - **09-real-time-chat-01:** Complete - Tasks 1-5 verified (user approved)
+- **10-email-notifications-01:** Complete - Tasks 1-5 committed, TypeScript errors fixed
 - Task 5 checkpoint: human verification passed
+- Email sending is async and non-blocking to not affect main flows

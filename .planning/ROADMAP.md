@@ -108,13 +108,13 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Wire MailerSend for transactional emails — signup welcome, password reset, user-enabled notifications
 
-**Status:** Not Started
+**Status:** Complete
 
 **Requirements:** EMAIL-01, EMAIL-02
 
 **Plans:**
 
-- [ ] 10-01-PLAN.md — MailerSend email integration
+- [x] 10-01-PLAN.md — MailerSend email integration ✅
 
 ---
 
