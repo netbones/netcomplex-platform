@@ -2,6 +2,7 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { twoFactor, organization, admin, bearer } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
+import { ENV } from 'varlock/env';
 import {
   db,
   users,
@@ -17,6 +18,7 @@ import {
 import { tenantConfig } from './config/tenant';
 import { sendEmail } from '@/lib/email/mailer-send';
 import { templates } from '@/lib/email/templates';
+import { authLogger } from '@/lib/logger';
 
 /**
  * Better Auth configuration for Soralia Village.
@@ -56,6 +58,11 @@ export const auth = betterAuth({
         html: templates.passwordReset.getHtml(url),
       });
     },
+    async onExistingUserSignUp({ user }) {
+      // Notify existing user about sign-up attempt (security measure)
+      // TODO: Implement email notification to existing user
+      authLogger.info({ email: user.email }, 'Sign-up attempt with existing email');
+    },
   },
   // Wire verification email via Better Auth (used when requireEmailVerification is true)
   emailVerification: {
@@ -68,6 +75,12 @@ export const auth = betterAuth({
       });
     },
     sendOnSignIn: true, // Send verification email on sign-in if not verified
+    autoSignInAfterVerification: true, // Auto sign-in user after email verification
+    async afterEmailVerification(user) {
+      // Grant access to all features during testing phase
+      // TODO: Remove or adjust this after testing phase ends
+      authLogger.info({ email: user.email }, 'Email verified - granting testing access');
+    },
   },
   // Use additionalFields to add tenantId as a managed field that Better Auth handles
   user: {
@@ -87,5 +100,5 @@ export const auth = betterAuth({
   baseURL: {
     allowedHosts: tenantConfig.auth.allowedHosts,
   },
-  trustedOrigins: [process.env.BETTER_AUTH_URL || 'http://localhost:3000'],
+  trustedOrigins: [ENV.BETTER_AUTH_URL || 'http://localhost:3000'],
 });
