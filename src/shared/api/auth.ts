@@ -48,8 +48,9 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true, // Require email verification before sign-in
     // Wire password reset email via Better Auth
-    sendResetPassword: async ({ user, url, token }) => {
-      await sendEmail({
+    sendResetPassword: async ({ user, url }) => {
+      // Use void to avoid blocking - prevents timing attacks
+      void sendEmail({
         to: user.email,
         subject: templates.passwordReset.subject,
         html: templates.passwordReset.getHtml(url),
@@ -58,14 +59,15 @@ export const auth = betterAuth({
   },
   // Wire verification email via Better Auth (used when requireEmailVerification is true)
   emailVerification: {
-    sendVerificationEmail: async ({ user, url, token }) => {
-      await sendEmail({
+    sendVerificationEmail: async ({ user, url }) => {
+      // Use void to avoid blocking - prevents timing attacks on email enumeration
+      void sendEmail({
         to: user.email,
         subject: templates.verifyEmail.subject,
         html: templates.verifyEmail.getHtml(user.name || '', url),
       });
     },
-    sendOnSignUp: false, // Don't send on signup - require verification first
+    sendOnSignIn: true, // Send verification email on sign-in if not verified
   },
   // Use additionalFields to add tenantId as a managed field that Better Auth handles
   user: {
