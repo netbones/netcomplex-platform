@@ -149,7 +149,7 @@ async function sendEmailNotificationIfEnabled(
     }
 
     // Send email notification
-    const { html } = templates.emailNotification.getHtml(title, message);
+    const html = templates.emailNotification.getHtml(title, message);
 
     await sendEmail({
       to: user.email,

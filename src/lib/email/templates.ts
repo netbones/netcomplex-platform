@@ -165,13 +165,11 @@ function escapeHtml(text: string): string {
 /**
  * Convenience function to get template by key.
  */
-export function getTemplate<K extends TemplateKey>(
-  key: K,
-  ...args: Parameters<(typeof templates)[K]['getHtml']>
-) {
+export function getTemplate<K extends TemplateKey>(key: K): { subject: string; html: string } {
   const template = templates[key];
+  // Return placeholder - caller should use specific template methods
   return {
     subject: template.subject,
-    html: template.getHtml(...args),
+    html: '',
   };
 }

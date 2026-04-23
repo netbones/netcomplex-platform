@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     const resetUrl = `${RESET_LINK_BASE}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
 
     // Send password reset email
-    const { html } = templates.passwordReset.getHtml(resetUrl);
+    const html = templates.passwordReset.getHtml(resetUrl);
 
     await sendEmail({
       to: email,

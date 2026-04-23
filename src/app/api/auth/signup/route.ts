@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@api/auth';
-import { sendEmail } from '@/lib/email/mailer-send';
-import { templates } from '@/lib/email/templates';
 import { logError } from '@shared/lib';
+
+const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 /**
  * User signup endpoint with welcome email.
- * Uses Better Auth's signUpEmailAndPassword for user creation.
+ * Forwards to Better Auth's sign-up handler, then sends welcome email.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -21,36 +20,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create user with Better Auth
-    const response = await auth.api.signUpEmailAndPassword({
-      body: {
-        email,
-        password,
-        name,
+    // Forward to Better Auth's sign-up endpoint
+    const authResponse = await fetch(`${BETTER_AUTH_URL}/api/auth/sign-up/email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({ email, password, name }),
     });
 
-    // Send welcome email after successful signup
-    // Note: We intentionally don't await this to not block the response
-    // and we don't fail the signup if email fails
-    sendWelcomeEmail(email, name).catch(error => {
-      logError(
-        { component: 'signup-email', operation: 'SEND_WELCOME' },
-        'Failed to send welcome email',
-        error
-      );
-    });
+    const responseData = await authResponse.json();
 
-    return NextResponse.json(response, { status: 201 });
-  } catch (error) {
-    // Check if it's a duplicate email error
-    if (error && typeof error === 'object' && 'message' in error) {
-      const errorMessage = (error as { message: string }).message;
-      if (errorMessage.includes('already') || errorMessage.includes('exists')) {
-        return NextResponse.json({ error: 'Email address is already registered' }, { status: 409 });
-      }
+    // If signup succeeded, send welcome email
+    if (authResponse.ok) {
+      // Note: We intentionally don't await this to not block the response
+      // and we don't fail the signup if email fails
+      sendWelcomeEmail(email, name).catch(error => {
+        logError(
+          { component: 'signup-email', operation: 'SEND_WELCOME' },
+          'Failed to send welcome email',
+          error
+        );
+      });
+
+      return NextResponse.json(responseData, { status: 201 });
     }
 
+    // Return Better Auth's error response
+    if (authResponse.status === 422) {
+      return NextResponse.json({ error: 'Email address is already registered' }, { status: 409 });
+    }
+
+    return NextResponse.json(responseData, { status: authResponse.status });
+  } catch (error) {
     logError({ component: 'signup-api', operation: 'USER_SIGNUP' }, 'Failed to create user', error);
 
     return NextResponse.json(
@@ -66,7 +68,11 @@ export async function POST(request: NextRequest) {
  */
 async function sendWelcomeEmail(email: string, name: string) {
   try {
-    const { html } = templates.welcome.getHtml(name);
+    // Dynamically import to avoid circular dependencies
+    const { sendEmail } = await import('@/lib/email/mailer-send');
+    const { templates } = await import('@/lib/email/templates');
+
+    const html = templates.welcome.getHtml(name);
 
     await sendEmail({
       to: email,
