@@ -71,63 +71,78 @@ import { platformModules } from '@prisma/platform-modules';
 import { tenantModules } from '@prisma/tenant-modules';
 import { groupMembershipRequests } from '@prisma/group-membership-requests';
 
-const envUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
-const connectionString = envUrl ? envUrl.replace('sslmode=require', 'sslmode=no-verify') : '';
+import { ENV } from 'varlock/env';
 
-if (!connectionString) {
-  throw new Error('DATABASE_URL or DIRECT_URL is not set');
+let dbInstance: ReturnType<typeof drizzle> | undefined;
+
+function getDb() {
+  if (dbInstance) {
+    return dbInstance;
+  }
+
+  const envUrl = ENV.DIRECT_URL || ENV.DATABASE_URL;
+  if (!envUrl) {
+    throw new Error('DATABASE_URL or DIRECT_URL is not set');
+  }
+
+  const connectionString = envUrl.replace('sslmode=require', 'sslmode=no-verify');
+  const pool = new Pool({ connectionString });
+
+  dbInstance = drizzle(pool, {
+    schema: {
+      messages,
+      conversations,
+      conversationParticipants,
+      users,
+      profiles,
+      settings,
+      albums,
+      standardSeats,
+      soloSeats,
+      properties,
+      households,
+      premiumSeats,
+      contents,
+      propertyListings,
+      communityServiceListings,
+      communityServiceReviews,
+      communityServiceInquiries,
+      groups,
+      userGroups,
+      surveys,
+      questions,
+      responses,
+      externalSurveys,
+      invitations,
+      bookings,
+      maintenanceRequests,
+      notifications,
+      agentProfiles,
+      propertiesTopremiumSeats,
+      verifications,
+      accounts,
+      sessions,
+      passkeys,
+      twoFactors,
+      members,
+      organizations,
+      tenants,
+      events,
+      announcements,
+      agentAccesses,
+      platformSuspensions,
+      groupMembershipRequests,
+      platformModules,
+      tenantModules,
+    },
+  });
+
+  return dbInstance;
 }
 
-const pool = new Pool({
-  connectionString,
-});
-
-export const db = drizzle(pool, {
-  schema: {
-    messages,
-    conversations,
-    conversationParticipants,
-    users,
-    profiles,
-    settings,
-    albums,
-    standardSeats,
-    soloSeats,
-    properties,
-    households,
-    premiumSeats,
-    contents,
-    propertyListings,
-    communityServiceListings,
-    communityServiceReviews,
-    communityServiceInquiries,
-    groups,
-    userGroups,
-    surveys,
-    questions,
-    responses,
-    externalSurveys,
-    invitations,
-    bookings,
-    maintenanceRequests,
-    notifications,
-    agentProfiles,
-    propertiesTopremiumSeats,
-    verifications,
-    accounts,
-    sessions,
-    passkeys,
-    twoFactors,
-    members,
-    organizations,
-    tenants,
-    events,
-    announcements,
-    agentAccesses,
-    platformSuspensions,
-    groupMembershipRequests,
-    platformModules,
-    tenantModules,
+export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+  get(_target, prop) {
+    return getDb()[prop as keyof ReturnType<typeof drizzle>];
   },
 });
 
