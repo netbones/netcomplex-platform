@@ -83,9 +83,10 @@ class WidgetRegistry {
 // Create singleton instance
 export const registry = new WidgetRegistry();
 
-// Import widgets to auto-register them
-// This import must come after registry is defined
-import './widgets';
+// Register all widgets — breaks circular dependency by passing registry
+// instead of having widgets.ts import it
+import { registerAllWidgets } from './widgets';
+registerAllWidgets(registry);
 
 // ═══════════════════════════════════════════════════════════════
 // BACKWARD-COMPATIBLE EXPORTS - preserve existing API
