@@ -35,8 +35,7 @@ export default function SignUpPage() {
       if (error) {
         setError(error.message || 'Failed to sign up');
       } else {
-        showToast('Account created successfully! Please sign in.', 'success');
-        router.push('/sign-in?registered=true');
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'An unexpected error occurred';

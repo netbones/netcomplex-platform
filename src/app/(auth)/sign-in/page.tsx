@@ -10,11 +10,13 @@ export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [unverifiedEmail, setUnverifiedEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setUnverifiedEmail('');
     setLoading(true);
 
     try {
@@ -31,6 +33,9 @@ export default function SignInPage() {
       );
 
       if (authError) {
+        if (authError.status === 403) {
+          setUnverifiedEmail(email);
+        }
         setError(authError.message || 'Failed to sign in');
       }
     } catch (err) {
@@ -46,6 +51,18 @@ export default function SignInPage() {
         <h1 className="text-2xl font-bold text-center mb-6">Sign In to Soralia Village</h1>
 
         {error && <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm">{error}</div>}
+
+        {unverifiedEmail && (
+          <div className="bg-amber-50 text-amber-800 p-3 rounded mb-4 text-sm">
+            Your email isn&apos;t verified yet.{' '}
+            <Link
+              href={`/verify-email?email=${encodeURIComponent(unverifiedEmail)}`}
+              className="text-indigo-600 hover:underline font-medium"
+            >
+              Resend verification email
+            </Link>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
