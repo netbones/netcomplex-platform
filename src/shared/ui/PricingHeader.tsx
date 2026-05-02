@@ -1,4 +1,4 @@
-import { SectionLayout } from '@/components/layout/SectionLayout';
+import { SectionLayout } from '@shared/ui/SectionLayout';
 
 export function PricingHeader() {
   return (

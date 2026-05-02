@@ -1,7 +1,7 @@
 import { db } from '@api/db';
 import { settings } from '@api/db';
 import { eq } from 'drizzle-orm';
-import { SETTINGS_KEYS } from '@api/tenant';
+import { SETTINGS_KEYS } from '@entities/tenant';
 import { v4 as uuidv4 } from 'uuid';
 import { createComponentLogger } from '@shared/lib';
 

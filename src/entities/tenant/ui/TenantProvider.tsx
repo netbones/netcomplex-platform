@@ -1,6 +1,6 @@
 'use client';
 
-import { TenantStyles } from '@/components/tenant/TenantStyles';
+import { TenantStyles } from './TenantStyles';
 
 interface TenantInfo {
   id: string;

@@ -1,7 +1,7 @@
 'use client';
 
-import { useTenant } from '@api/tenant';
-import { useModuleEnabled } from '@api/tenant/use-enabled-modules';
+import { useTenant } from '@entities/tenant';
+import { useModuleEnabled } from '@entities/tenant';
 
 /**
  * FeatureGate - Conditionally render content based on module enablement

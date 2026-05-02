@@ -7,7 +7,6 @@ export * from './revalidation';
 export * from './storage';
 export * from './data-fetching';
 export * from './permissions';
-export * from './tenant';
 export * from './slug';
 export * from './schemas';
 export * from './trpc/server';

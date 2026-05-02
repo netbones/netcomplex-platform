@@ -10,7 +10,7 @@
 
 import { db, tenantModules, platformModules, tenants } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import type { TenantTier } from '@api/tenant/types';
+import type { TenantTier } from '@entities/tenant';
 
 // Tier hierarchy for enforcement
 const TIER_LEVELS: Record<TenantTier, number> = {

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SectionLayout } from '@/components/layout/SectionLayout';
+import { SectionLayout } from '@shared/ui/SectionLayout';
 import {
   Users,
   Wrench,

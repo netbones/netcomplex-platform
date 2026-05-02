@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { SectionLayout } from '@/components/layout/SectionLayout';
+import { SectionLayout } from '@shared/ui/SectionLayout';
 import type { PricingPlan } from '@/app/api/pricing/route';
 
 export function PricingCards() {

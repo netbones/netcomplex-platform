@@ -1,11 +1,11 @@
 'use client';
 
-import { PricingHeader } from '@/components/platform/PricingHeader';
-import { PricingCards } from '@/components/platform/PricingCards';
-import { PricingFAQ } from '@/components/platform/PricingFAQ';
-import { PricingCTA } from '@/components/platform/PricingCTA';
-import { PlatformFooter } from '@/components/platform/PlatformFooter';
-import { PageLayout } from '@/components/layout/PageLayout';
+import { PricingHeader } from '@shared/ui/PricingHeader';
+import { PricingCards } from '@shared/ui/PricingCards';
+import { PricingFAQ } from '@shared/ui/PricingFAQ';
+import { PricingCTA } from '@shared/ui/PricingCTA';
+import { PlatformFooter } from '@shared/ui/PlatformFooter';
+import { PageLayout } from '@shared/ui/PageLayout';
 
 export default function PricingPage() {
   return (

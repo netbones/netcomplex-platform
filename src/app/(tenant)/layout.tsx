@@ -1,8 +1,8 @@
 import '../globals.css';
 import { Toaster } from 'sonner';
 import { Suspense } from 'react';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import { Header } from '@shared/ui/Header';
+import { Footer } from '@shared/ui/Footer';
 
 export default async function TenantLayout({ children }: { children: React.ReactNode }) {
   return (

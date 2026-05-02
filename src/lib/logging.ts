@@ -1,4 +1,4 @@
-import { createLogger, logger as defaultLogger } from './logger';
+import { createLogger, logger as defaultLogger } from '@shared/lib/logger';
 
 type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 

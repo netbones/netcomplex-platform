@@ -18,7 +18,7 @@ import {
 import { tenantConfig } from './config/tenant';
 import { sendEmail } from '@/lib/email/resend';
 import { templates } from '@/lib/email/templates';
-import { authLogger } from '@/lib/logger';
+import { authLogger } from '@shared/lib';
 
 /**
  * Better Auth configuration for Soralia Village.

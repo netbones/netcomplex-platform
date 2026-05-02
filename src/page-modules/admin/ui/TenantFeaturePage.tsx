@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getTenantById, updateTenant } from '@shared/api/tenant/base';
+import { getTenantById, updateTenant } from '@entities/tenant';
 import { TIERS, FEATURE_REGISTRY, WIDGET_REGISTRY } from '@api/features/registry';
 import type { TierLevel } from '@api/features/registry';
 import { FeaturesForm } from '@features/admin';

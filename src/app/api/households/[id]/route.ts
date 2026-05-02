@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@api/auth';
 import { db, properties, households, standardSeats, profiles, contents, users } from '@api/db';
 import { eq, asc, and } from 'drizzle-orm';
-import { withTenant } from '@api/tenant/server';
+import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 import { hasPermission } from '@api/permissions';
 

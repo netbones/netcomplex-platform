@@ -1,7 +1,7 @@
 import { db, users, groups, contents } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { withTenant } from '@api/tenant/server';
+import { withTenant } from '@entities/tenant';
 
 // Fast stats endpoint - limit to 3 seconds
 export const maxDuration = 3;

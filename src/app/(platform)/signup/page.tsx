@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useSignupForm } from '@/lib/hooks/useSignupForm';
 import type { PricingPlan } from '@/app/api/pricing/route';
-import { PageLayout } from '@/components/layout/PageLayout';
-import { SignupHeader } from '@/components/platform/SignupHeader';
-import { SignupFormSection } from '@/components/platform/SignupFormSection';
-import { SignupCTA } from '@/components/platform/SignupCTA';
-import { PlatformFooter } from '@/components/platform/PlatformFooter';
+import { PageLayout } from '@shared/ui/PageLayout';
+import { SignupHeader } from '@shared/ui/SignupHeader';
+import { SignupFormSection } from '@shared/ui/SignupFormSection';
+import { SignupCTA } from '@shared/ui/SignupCTA';
+import { PlatformFooter } from '@shared/ui/PlatformFooter';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('signup-page');

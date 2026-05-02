@@ -3,8 +3,8 @@
 import { CARD_HEADER_COLORS, createComponentLogger } from '@shared/lib';
 import { authClient } from '@api/auth-client';
 import { useState, useEffect } from 'react';
-import { ChatModal } from '@/components/directory/DirectoryChatModal';
-import { UnifiedResidentCard, type Resident } from '@/components/shared/UnifiedResidentCard';
+// import { ChatModal } from './DirectoryChatModal'; // TODO: Fix chat modal
+import { UnifiedResidentCard, type Resident } from '@entities/directory';
 
 const log = createComponentLogger('DirectoryGrid');
 
@@ -82,6 +82,7 @@ export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridPro
         })}
       </div>
 
+      {/* TODO: Fix chat modal
       {chatUser && currentUserId && (
         <ChatModal
           recipientId={chatUser.id}
@@ -90,7 +91,7 @@ export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridPro
           currentUserName={currentUserName}
           onClose={closeChat}
         />
-      )}
+      )} */}
     </>
   );
 }

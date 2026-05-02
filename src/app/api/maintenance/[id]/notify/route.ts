@@ -3,9 +3,9 @@ import { auth } from '@api/auth';
 import { hasPermission } from '@api/permissions';
 import { db, maintenanceRequests, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@api/tenant/server';
+import { withTenant } from '@entities/tenant';
 import { sendEmail } from '@/lib/email/resend';
-import { createLogger } from '@/lib/logger';
+import { createLogger } from '@shared/lib';
 
 const notifyLogger = createLogger('maintenance-notify');
 

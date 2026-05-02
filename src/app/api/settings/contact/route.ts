@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db, settings } from '@api/db';
 import { eq, like } from 'drizzle-orm';
-import { withTenant, withTenantOptional } from '@api/tenant/server';
+import { withTenant, withTenantOptional } from '@entities/tenant';
 
 export async function GET() {
   // Allow reading settings without tenant (for public access)

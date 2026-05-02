@@ -3,7 +3,7 @@ import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@shared/lib';
 import { revalidateContent } from '@api/revalidation';
-import { withTenant } from '@api/tenant/server';
+import { withTenant } from '@entities/tenant';
 
 /**
  * Transform content item to include localized fields

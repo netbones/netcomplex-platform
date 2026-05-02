@@ -4,9 +4,9 @@ import { db, maintenanceRequests, users, properties } from '@api/db';
 import { NextResponse } from 'next/server';
 import { maintenanceRequestSchema } from '@api/schemas';
 import { revalidateDashboard } from '@api/revalidation';
-import { apiLogger } from '@/lib/logger';
+import { apiLogger } from '@shared/lib';
 import { eq, desc, and, sql } from 'drizzle-orm';
-import { withTenant } from '@api/tenant/server';
+import { withTenant } from '@entities/tenant';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;

@@ -6,7 +6,7 @@ import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { DraggableWidget } from '@widgets/dashboard';
 import { DashboardTabs } from '@widgets/dashboard';
 import { AddWidgetModal } from '@features/dashboard';
-import { AdminWidgetRenderer } from '@/components/admin/AdminWidgetRenderer';
+import { AdminWidgetRenderer } from '@/widgets/admin/ui/AdminWidgetRenderer';
 import {
   ADMIN_TABS,
   getWidgetTitle,

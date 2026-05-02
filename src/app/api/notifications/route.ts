@@ -2,11 +2,11 @@ import { auth } from '@api/auth';
 import { db, notifications, users } from '@api/db';
 import { NextResponse } from 'next/server';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@api/tenant/server';
+import { withTenant } from '@entities/tenant';
 import { sendEmail } from '@/lib/email/resend';
 import { templates } from '@/lib/email/templates';
 import { logError } from '@shared/lib';
-import { createLogger } from '@/lib/logger';
+import { createLogger } from '@shared/lib';
 
 const notifyLogger = createLogger('notifications');
 

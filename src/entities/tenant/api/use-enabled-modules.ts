@@ -5,7 +5,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import type { TenantModuleConfig } from '@api/tenant/types';
+import type { TenantModuleConfig } from '@entities/tenant';
 
 async function fetchEnabledModules(tenantId: string): Promise<Record<string, TenantModuleConfig>> {
   const res = await fetch(`/api/tenants/${tenantId}/modules`);

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@api/auth';
 
-import { apiLogger } from '@/lib/logger';
+import { apiLogger } from '@shared/lib';
 
 // Drizzle imports
 import { db, communityServiceListings, users } from '@api/db';
 import { eq, desc, and, or, sql, ilike } from 'drizzle-orm';
 import { communityServiceReviews } from '@api/db';
-import { withTenant } from '@api/tenant/server';
+import { withTenant } from '@entities/tenant';
 
 type ListingStatus = (typeof communityServiceListings.status.enumValues)[number];
 type ServiceCategory = (typeof communityServiceListings.category.enumValues)[number];

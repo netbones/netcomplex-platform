@@ -10,7 +10,7 @@ import {
   users,
 } from '@api/db';
 import { eq, desc, and, sql } from 'drizzle-orm';
-import { withTenant } from '@api/tenant/server';
+import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
 /**

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createComponentLogger } from '@shared/lib';
-import type { Resident } from '@/components/shared/UnifiedResidentCard';
+import type { Resident } from '@entities/directory';
 
 const log = createComponentLogger('useResidentFilter');
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useTenant } from '@api/tenant';
+import { useTenant } from '@entities/tenant';
 import { isFeatureEnabled } from '@api/features/registry';
 import { BookingsPage } from '@pages/booking';
 import { Suspense } from 'react';

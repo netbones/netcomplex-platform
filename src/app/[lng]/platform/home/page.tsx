@@ -1,11 +1,11 @@
 'use client';
 
-import { HeroSection } from '@/components/platform/HeroSection';
-import { MissionSection } from '@/components/platform/MissionSection';
-import { FeaturesSection } from '@/components/platform/FeaturesSection';
-import { CTASection } from '@/components/platform/CTASection';
-import { PlatformFooter } from '@/components/platform/PlatformFooter';
-import { PlatformHeader } from '@/components/layout/PlatformHeader';
+import { HeroSection } from '@shared/ui/HeroSection';
+import { MissionSection } from '@shared/ui/MissionSection';
+import { FeaturesSection } from '@shared/ui/FeaturesSection';
+import { CTASection } from '@shared/ui/CTASection';
+import { PlatformFooter } from '@shared/ui/PlatformFooter';
+import { PlatformHeader } from '@shared/ui/PlatformHeader';
 
 export default function PlatformHomePage() {
   return (

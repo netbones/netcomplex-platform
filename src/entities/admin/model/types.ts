@@ -1,4 +1,4 @@
-import type { Tenant } from '@shared/api/tenant/base';
+import type { Tenant } from '@entities/tenant';
 import type { TierLevel } from '@api/features/registry';
 
 export type { Tenant, TierLevel };

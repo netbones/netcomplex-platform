@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getTenantById } from '@shared/api/tenant/base';
+import { getTenantById } from '@entities/tenant';
 import { BrandingForm } from '@features/admin';
 
 interface Props {

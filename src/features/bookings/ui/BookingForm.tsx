@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { BookingFormData, Facility } from '@entities/booking';
 import { VALID_FACILITIES } from '@entities/booking';
-import type { TenantFacilityConfig } from '@api/tenant/types';
+import type { TenantFacilityConfig } from '@entities/tenant';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('BookingForm');

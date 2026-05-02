@@ -6,7 +6,7 @@
 
 import { Resend } from 'resend';
 import { ENV } from 'varlock/env';
-import { createLogger } from '@/lib/logger';
+import { createLogger } from '@shared/lib';
 
 const emailLogger = createLogger('email');
 

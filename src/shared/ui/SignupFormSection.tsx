@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { SectionLayout } from '@/components/layout/SectionLayout';
+import { SectionLayout } from '@shared/ui/SectionLayout';
 
 interface SignupFormSectionProps {
   children: ReactNode;

@@ -2,49 +2,7 @@ import { CARD_HEADER_COLORS, CARD_ANIMATIONS, INTEREST_COLORS } from '@shared/li
 import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import Link from 'next/link';
-
-export interface Resident {
-  id: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  interests: string[];
-  avatar: string | null;
-  isPublic: boolean;
-  role?: string;
-  standardSeats?: Array<{
-    household: {
-      street: string;
-      unit: string;
-      homeImage: string | null;
-    };
-    isPrimaryOwner: boolean;
-  }>;
-  soloSeat?: {
-    seatType: string;
-    household?: {
-      street: string;
-      unit: string;
-      homeImage: string | null;
-    };
-  };
-  profiles?: Array<{
-    household: {
-      street: string;
-      unit: string;
-      homeImage: string | null;
-    };
-    occupantType: string;
-    residencyType: string;
-    rentalImage: string | null;
-    occupantImage: string | null;
-    landlord?: {
-      id: string;
-      name: string;
-      avatar: string | null;
-    };
-  }>;
-}
+import type { Resident } from '../model/types';
 
 interface UnifiedResidentCardProps {
   resident: Resident;

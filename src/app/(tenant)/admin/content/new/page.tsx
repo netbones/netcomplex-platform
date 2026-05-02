@@ -1,4 +1,4 @@
-import { ContentForm } from '@/components/admin/ContentForm';
+import { ContentForm } from '@/widgets/admin/ui/ContentForm';
 
 export default function NewContentPage() {
   return (

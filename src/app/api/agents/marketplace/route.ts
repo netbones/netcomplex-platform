@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@api/auth';
 import { db, agentProfiles, users, premiumSeats } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@api/tenant/server';
+import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
 /**
