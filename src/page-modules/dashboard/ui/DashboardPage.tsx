@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { authClient } from '@api/auth-client';
 import { useWidgetStore } from '@entities/widget';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { DraggableWidget } from '@widgets/dashboard';
+import { DraggableWidget, WidgetCard } from '@widgets/dashboard';
 import { DashboardTabs, DashboardTab } from '@widgets/dashboard';
 import { AddWidgetModal } from '@features/dashboard';
 import { WidgetRenderer } from '@widgets/dashboard';
@@ -127,22 +126,40 @@ function DashboardContent() {
                 </button>
               </div>
             ) : (
-              <div className="flex flex-wrap gap-4 min-h-[400px]">
-                {tabWidgets.map((widgetId: string) => (
-                  <DraggableWidget
-                    key={widgetId}
-                    id={widgetId}
-                    title={getWidgetTitle(widgetId)}
-                    icon={getWidgetIcon(widgetId)}
-                    removable={isEditMode}
-                    onRemove={() => handleRemoveWidget(widgetId)}
-                    tabId={activeTab}
-                    isEditMode={isEditMode}
-                  >
-                    <WidgetRenderer widgetId={widgetId} />
-                  </DraggableWidget>
-                ))}
-              </div>
+              <>
+                {/* Mobile: Simple stacked cards (hidden on md+) */}
+                <div className="block md:hidden">
+                  {tabWidgets.map((widgetId: string) => (
+                    <WidgetCard
+                      key={widgetId}
+                      id={widgetId}
+                      title={getWidgetTitle(widgetId)}
+                      icon={getWidgetIcon(widgetId)}
+                      tabId={activeTab}
+                      isEditMode={isEditMode}
+                      onRemove={() => handleRemoveWidget(widgetId)}
+                    />
+                  ))}
+                </div>
+
+                {/* Desktop: Draggable widgets (hidden on small screens) */}
+                <div className="hidden md:flex flex-wrap gap-4 min-h-[400px]">
+                  {tabWidgets.map((widgetId: string) => (
+                    <DraggableWidget
+                      key={widgetId}
+                      id={widgetId}
+                      title={getWidgetTitle(widgetId)}
+                      icon={getWidgetIcon(widgetId)}
+                      removable={isEditMode}
+                      onRemove={() => handleRemoveWidget(widgetId)}
+                      tabId={activeTab}
+                      isEditMode={isEditMode}
+                    >
+                      <WidgetRenderer widgetId={widgetId} />
+                    </DraggableWidget>
+                  ))}
+                </div>
+              </>
             )}
           </main>
         </div>
