@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useWidgetStore } from '@entities/widget';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { DraggableWidget, WidgetCard } from '@widgets/dashboard';
-import { DashboardTabs, DashboardTab } from '@widgets/dashboard';
+import { DashboardTabs } from '@widgets/dashboard';
 import { AddWidgetModal } from '@features/dashboard';
 import { WidgetRenderer } from '@widgets/dashboard';
 import {
@@ -82,10 +82,6 @@ function DashboardContent() {
     removeWidgetFromTab(activeTab, widgetId);
   };
 
-  const handleResetLayout = () => {
-    resetLayout();
-  };
-
   const currentTab = DEFAULT_TABS.find(tab => tab.id === activeTab);
   const tabWidgets = userWidgets[activeTab] || currentTab?.defaultWidgets || [];
 
@@ -119,7 +115,10 @@ function DashboardContent() {
               <div className="bg-white rounded-lg shadow p-8 text-center">
                 <p className="mb-4">{t('empty', 'No widgets added yet')}</p>
                 <button
-                  onClick={() => setIsEditMode(true)}
+                  onClick={() => {
+                    setIsEditMode(true);
+                    setIsAddModalOpen(true);
+                  }}
                   className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
                 >
                   {t('addWidget', 'Add widgets')}
