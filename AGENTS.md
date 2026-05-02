@@ -62,7 +62,7 @@ Use GSD workflow for:
 
 ## Project Overview
 
-**Soralia Village Community Portal** - A full-stack SPA with FSD for a residential community with 180 homes.
+**Netcomplex** - A multi-tenant community management platform. **Soralia Village** is the anchor tenant (180 homes).
 
 ### Project Documentation
 
