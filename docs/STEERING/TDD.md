@@ -1,6 +1,6 @@
 # Test-Driven Development (TDD) Workflow
 
-This document describes the TDD approach for Soralia Village - a Next.js + TypeScript project.
+This document describes the TDD approach for Netcomplex and Soralia Village multi-tenant - a Next.js + TypeScript project.
 
 ## Core Principles
 
@@ -136,19 +136,19 @@ describe('calculateTotal', () => {
 
 ```bash
 # Run all tests
-npm run test
+pnpm run test
 
 # Run tests matching pattern
-npm run test -- --grep "validateEmail"
+ppm run test -- --grep "validateEmail"
 
 # Watch mode
-npm run test:watch
+pnpm run test:watch
 
 # Coverage report
-npm run test:coverage
+pnpm run test:coverage
 
 # Run in CI mode (single run)
-npm run test:ci
+pnpm run test:ci
 ```
 
 ## Test Utilities

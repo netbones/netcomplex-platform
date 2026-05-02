@@ -1,6 +1,25 @@
-# Soralia Village Documentation Index
+# Netcomplex Documentation Index
 
-Welcome to the central documentation hub for Soralia Village. This index provides an overview of the project's documentation organized by functional area.
+Welcome to the central documentation hub for Netcomplex. This index provides an overview of the project's documentation organized by functional area.
+
+> **Note:** The project has been reorganized. Core steering documents (PRD, SPEC, ADR, TDD, Guide) now live in `/docs/STEERING/`. Legacy product docs are being migrated.
+
+---
+
+## 🎯 [STEERING](./STEERING/)
+
+Core governance, requirements, and methodology documents.
+
+| Document                                      | Description                                                       |
+| --------------------------------------------- | ----------------------------------------------------------------- |
+| **[PRD.md](./STEERING/PRD.md)**               | Product Requirements - multi-tenant platform, tiers, modules      |
+| **[SPEC.md](./STEERING/SPEC.md)**             | Functional specifications - what the system does                  |
+| **[ADR.md](./STEERING/ADR.md)**               | Architecture Decision Records - why we made architectural choices |
+| **[GUIDE.md](./STEERING/GUIDE.md)**           | Development guides and best practices                             |
+| **[TDD.md](./STEERING/TDD.md)**               | Test-driven development workflow                                  |
+| **[tRPC_GUIDE.md](./STEERING/tRPC_GUIDE.md)** | tRPC procedures for OpenAPI/Android consumption                   |
+
+---
 
 ## 🏛️ [Architecture](./architecture/)
 
@@ -11,14 +30,20 @@ Core system designs, technical models, and technical foundations.
 - **[TIER_MODEL.md](./architecture/TIER_MODEL.md)**: Service tiering and subscription logic.
 - **[NETCOMPLEX_ARCHITECTURE.md](./architecture/NETCOMPLEX_ARCHITECTURE.md)**: Overall system topology and architecture.
 
-## 📦 [Product](./product/)
+---
+
+## 📦 [Product](./product/) _(legacy)_
+
+> ⚠️ **Deprecated:** These files are being migrated to `/docs/STEERING/`. Please update any references.
 
 Requirements, business logic, and user-centric documentation.
 
-- **[PRD.md](./product/PRD.md)**: Product Requirements Document.
-- **[SPEC.md](./product/SPEC.md)**: Detailed project specifications and technical requirements.
+- **[PRD.md](./product/PRD.md)**: _(moved to STEERING/PRD.md)_
+- **[SPEC.md](./product/SPEC.md)**: _(moved to STEERING/SPEC.md)_
 - **[user-stories-john-mary.md](./product/user-stories-john-mary.md)**: User personas and journey mapping.
 - **[SaaS/](./product/SaaS/)**: SaaS-specific business documentation.
+
+---
 
 ## ✨ [Features](./features/)
 
@@ -29,6 +54,8 @@ Functional specifications and design for specific system components.
 - **[COMPONENT_REGISTRY.md](./features/COMPONENT_REGISTRY.md)**: Documentation for the shared UI component library.
 - **[widgets/](./features/widgets/)**: Widget-based architecture and registry details.
 
+---
+
 ## 🌐 [Multi-Tenant](./multi-tenant/)
 
 Core multi-tenancy configuration, strategy, and audits.
@@ -36,6 +63,8 @@ Core multi-tenancy configuration, strategy, and audits.
 - **[MULTI_TENANT.md](./multi-tenant/MULTI_TENANT.md)**: Core strategy for multi-tenant isolation and scaling.
 - **[TENANT_AUDIT.md](./multi-tenant/TENANT_AUDIT.md)**: Audit of existing tenant structures and compliance.
 - **[MULTI_TENANT_SIGNUP.md](./multi-tenant/MULTI_TENANT_SIGNUP.md)**: Onboarding flow for new community tenants.
+
+---
 
 ## 🔄 [Migrations](./migrations/)
 
@@ -45,6 +74,8 @@ Strategy and history of database, identity, and platform evolutions.
 - **[migration-plan-identity.md](./migrations/migration-plan-identity.md)**: Strategy for migrating to the new identity model.
 - **[WHITE_LABEL_MIGRATE.md](./migrations/WHITE_LABEL_MIGRATE.md)**: Procedures for white-labeling the village portal.
 
+---
+
 ## 🛠️ [Infrastructure](./infrastructure/)
 
 Deployment, performance, security, and edge configuration.
@@ -52,6 +83,8 @@ Deployment, performance, security, and edge configuration.
 - **[BETTER_AUTH_EDGE.md](./infrastructure/BETTER_AUTH_EDGE.md)**: Implementation of Better Auth on Vercel Edge.
 - **[Vercel_Edge_Runtime_Compatibility_Audit.md](./infrastructure/Vercel_Edge_Runtime_Compatibility_Audit.md)**: Edge runtime compatibility status.
 - **[minimize_vercel_compute_costs.md](./infrastructure/minimize_vercel_compute_costs.md)**: Optimization strategies for cloud compute efficiency.
+
+---
 
 ## 📏 [Standards](./standards/)
 
@@ -61,6 +94,8 @@ Best practices, linting rules, testing strategies, and technical debt management
 - **[ESLINT.md](./standards/ESLINT.md)**: Code style, linting rules, and formatting standards.
 - **[TECH_DEBT_REMEDIATION_PLAN.md](./standards/TECH_DEBT_REMEDIATION_PLAN.md)**: Strategy for identifying and resolving technical debt.
 
+---
+
 ## 🖼️ [Assets](./assets/)
 
 Visual resources, maps, infographics, and branding assets.
@@ -69,6 +104,8 @@ Visual resources, maps, infographics, and branding assets.
 - **[infographics/](./assets/infographics/)**: Visual data representations and village infographics.
 - **[soralia_map.png](./assets/soralia_map.png)**: Core village layout map.
 
+---
+
 ## 📅 [Plans](./plans/)
 
 Roadmaps, strategic project planning, and long-term initiatives.
@@ -76,10 +113,12 @@ Roadmaps, strategic project planning, and long-term initiatives.
 - **[ROUTE_MAP_PLANNING.md](./plans/ROUTE_MAP_PLANNING.md)**: Strategic development roadmap.
 - **[p3-plan.md](./plans/p3-plan.md)**: Phase 3 development plan.
 
+---
+
 ## 📂 [Misc](./misc/)
 
 Miscellaneous data, workspace configurations, and legacy references.
 
 ---
 
-_Last updated: Tuesday, April 21, 2026_
+_Last updated: May 2026_
