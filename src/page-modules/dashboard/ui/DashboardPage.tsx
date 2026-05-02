@@ -64,6 +64,7 @@ const DEFAULT_TABS: Tab[] = [
 
 function DashboardContent() {
   const [activeTab, setActiveTab] = useState('overview');
+  const [isEditMode, setIsEditMode] = useState(false);
   const { t } = useTranslation('dashboard');
   const { userWidgets, addWidgetToTab, removeWidgetFromTab, resetLayout } = useWidgetStore();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -99,8 +100,13 @@ function DashboardContent() {
               tabs={DEFAULT_TABS}
               activeTab={activeTab}
               onTabChange={setActiveTab}
+              isEditMode={isEditMode}
+              onToggleEditMode={() => setIsEditMode(!isEditMode)}
               onAddWidget={() => setIsAddModalOpen(true)}
-              onResetLayout={handleResetLayout}
+              onResetLayout={() => {
+                resetLayout();
+                setIsEditMode(false);
+              }}
             />
           </aside>
           <main className="flex-1">
@@ -114,7 +120,7 @@ function DashboardContent() {
               <div className="bg-white rounded-lg shadow p-8 text-center">
                 <p className="mb-4">{t('empty', 'No widgets added yet')}</p>
                 <button
-                  onClick={() => setIsAddModalOpen(true)}
+                  onClick={() => setIsEditMode(true)}
                   className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
                 >
                   {t('addWidget', 'Add widgets')}
@@ -128,9 +134,10 @@ function DashboardContent() {
                     id={widgetId}
                     title={getWidgetTitle(widgetId)}
                     icon={getWidgetIcon(widgetId)}
-                    removable
+                    removable={isEditMode}
                     onRemove={() => handleRemoveWidget(widgetId)}
                     tabId={activeTab}
+                    isEditMode={isEditMode}
                   >
                     <WidgetRenderer widgetId={widgetId} />
                   </DraggableWidget>

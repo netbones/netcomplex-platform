@@ -14,7 +14,8 @@ interface DraggableWidgetProps {
   removable?: boolean;
   onRemove?: () => void;
   collapsible?: boolean;
-  tabId: string; // Required for state management
+  tabId: string;
+  isEditMode?: boolean;
 }
 
 export function DraggableWidget({
@@ -26,6 +27,7 @@ export function DraggableWidget({
   onRemove,
   collapsible = true,
   tabId,
+  isEditMode = false,
 }: DraggableWidgetProps) {
   const { t } = useTranslation('dashboard');
   const { updateWidgetLayout, toggleWidgetCollapsed } = useWidgetStore();
@@ -100,34 +102,39 @@ export function DraggableWidget({
     <Rnd
       size={size}
       position={position}
-      onDragStop={handleDragStop}
-      onResizeStart={handleResizeStart}
-      onResizeStop={handleResizeStop}
+      onDragStop={isEditMode ? handleDragStop : undefined}
+      onResizeStart={isEditMode ? handleResizeStart : undefined}
+      onResizeStop={isEditMode ? handleResizeStop : undefined}
       minWidth={280}
-      minHeight={60} // Match header height to prevent resizing below collapsed state
+      minHeight={60}
       maxWidth={800}
       maxHeight={600}
-      className="bg-white rounded-lg shadow-md overflow-hidden group"
-      dragHandleClassName="drag-handle"
+      disableDragging={!isEditMode}
+      className={`bg-white rounded-lg shadow-md overflow-hidden group ${isEditMode ? '' : 'cursor-default'}`}
+      dragHandleClassName={isEditMode ? 'drag-handle' : undefined}
       enableResizing={
-        layout.isCollapsed
-          ? {}
-          : {
-              top: false,
-              right: true,
-              bottom: true,
-              left: false,
-              topRight: false,
-              bottomRight: true,
-              bottomLeft: false,
-              topLeft: false,
-            }
+        !isEditMode
+          ? false
+          : layout.isCollapsed
+            ? {}
+            : {
+                top: false,
+                right: true,
+                bottom: true,
+                left: false,
+                topRight: false,
+                bottomRight: true,
+                bottomLeft: false,
+                topLeft: false,
+              }
       }
     >
       {/* Header */}
-      <div className="drag-handle flex items-center justify-between p-4 bg-gradient-to-r from-indigo-500 to-purple-600 cursor-move">
+      <div
+        className={`drag-handle flex items-center justify-between p-4 bg-gradient-to-r from-indigo-500 to-purple-600 ${isEditMode ? 'cursor-move' : ''}`}
+      >
         <div className="flex items-center gap-3">
-          <i className="fas fa-grip-vertical text-white/50 mr-2"></i>
+          {isEditMode && <i className="fas fa-grip-vertical text-white/50 mr-2"></i>}
           <i className={`fas ${icon} text-white text-lg`}></i>
           <h3 className="text-lg font-semibold text-white">{title}</h3>
         </div>
@@ -145,7 +152,7 @@ export function DraggableWidget({
               ></i>
             </button>
           )}
-          {removable && onRemove && (
+          {isEditMode && removable && onRemove && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button

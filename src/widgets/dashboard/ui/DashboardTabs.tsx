@@ -11,6 +11,8 @@ interface DashboardTabsProps {
   tabs: DashboardTab[];
   activeTab: string;
   onTabChange: (tabId: string) => void;
+  isEditMode?: boolean;
+  onToggleEditMode?: () => void;
   onAddWidget?: (tabId: string) => void;
   onResetLayout?: (tabId: string) => void;
 }
@@ -19,6 +21,8 @@ export function DashboardTabs({
   tabs,
   activeTab,
   onTabChange,
+  isEditMode = false,
+  onToggleEditMode,
   onAddWidget,
   onResetLayout,
 }: DashboardTabsProps) {
@@ -39,7 +43,7 @@ export function DashboardTabs({
             <span>{tab.label}</span>
           </button>
         ))}
-        {onAddWidget && (
+        {isEditMode && onAddWidget && (
           <button
             onClick={() => onAddWidget(activeTab)}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-gray-600 hover:bg-gray-100 border-2 border-dashed border-gray-300 hover:border-indigo-400 transition-all"
@@ -48,7 +52,7 @@ export function DashboardTabs({
             <span>Add Widget</span>
           </button>
         )}
-        {onResetLayout && (
+        {isEditMode && onResetLayout && (
           <button
             onClick={() => onResetLayout(activeTab)}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-gray-600 hover:bg-red-50 hover:text-red-600 border border-gray-300 hover:border-red-300 transition-all"
@@ -56,6 +60,19 @@ export function DashboardTabs({
           >
             <i className="fas fa-undo"></i>
             <span>Reset Layout</span>
+          </button>
+        )}
+        {onToggleEditMode && (
+          <button
+            onClick={onToggleEditMode}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+              isEditMode
+                ? 'bg-green-600 text-white shadow-md hover:bg-green-700'
+                : 'bg-indigo-600 text-white shadow-md hover:bg-indigo-700'
+            }`}
+          >
+            <i className={`fas ${isEditMode ? 'fa-check' : 'fa-pencil-alt'}`}></i>
+            <span>{isEditMode ? 'Done' : 'Edit'}</span>
           </button>
         )}
       </div>
