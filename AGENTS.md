@@ -63,7 +63,18 @@ Use GSD workflow for:
 ## Project Overview
 
 **Soralia Village Community Portal** - A full-stack SPA with FSD for a residential community with 180 homes.
-Check PRD.md and SPEC.md for details.
+
+### Project Documentation
+
+Project documentation lives in `docs/STEERING/`:
+
+| Document     | Purpose                                                           |
+| ------------ | ----------------------------------------------------------------- |
+| **SPEC.md**  | Functional specifications - what the system does                  |
+| **PRD.md**   | Product requirements - business goals and user needs              |
+| **ADR.md**   | Architecture Decision Records - why we made architectural choices |
+| **GUIDE.md** | Development guides and best practices                             |
+| **TDD.md**   | Test-driven development workflow                                  |
 
 ### Tech Stack
 
