@@ -10,14 +10,18 @@ Welcome to the central documentation hub for Netcomplex. This index provides an 
 
 Core governance, requirements, and methodology documents.
 
-| Document                                      | Description                                                       |
-| --------------------------------------------- | ----------------------------------------------------------------- |
-| **[PRD.md](./STEERING/PRD.md)**               | Product Requirements - multi-tenant platform, tiers, modules      |
-| **[SPEC.md](./STEERING/SPEC.md)**             | Functional specifications - what the system does                  |
-| **[ADR.md](./STEERING/ADR.md)**               | Architecture Decision Records - why we made architectural choices |
-| **[GUIDE.md](./STEERING/GUIDE.md)**           | Development guides and best practices                             |
-| **[TDD.md](./STEERING/TDD.md)**               | Test-driven development workflow                                  |
-| **[tRPC_GUIDE.md](./STEERING/tRPC_GUIDE.md)** | tRPC procedures for OpenAPI/Android consumption                   |
+| Document                                                                                                    | Description                                                       |
+| ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **[PRD.md](./STEERING/PRD.md)**                                                                             | Product Requirements - multi-tenant platform, tiers, modules      |
+| **[SPEC.md](./STEERING/SPEC.md)**                                                                           | Functional specifications - what the system does                  |
+| **[ADR.md](./STEERING/ADR.md)**                                                                             | Architecture Decision Records - why we made architectural choices |
+| **[GUIDE.md](./STEERING/GUIDE.md)**                                                                         | Development guides and best practices                             |
+| **[TDD.md](./STEERING/TDD.md)**                                                                             | Test-driven development workflow                                  |
+| **[tRPC_GUIDE.md](./STEERING/tRPC_GUIDE.md)**                                                               | tRPC procedures for OpenAPI/Android consumption                   |
+| **[module.md](./STEERING/module.md)**                                                                       | Module architecture overview                                      |
+| **[netcomplex-module-architecture-2026-04-22.md](./STEERING/netcomplex-module-architecture-2026-04-22.md)** | Module architecture details                                       |
+| **[better-auth-paystack.md](./STEERING/better-auth-paystack.md)**                                           | Better Auth + Paystack integration                                |
+| **[email-provider-comparison.md](./STEERING/email-provider-comparison.md)**                                 | Email provider comparison                                         |
 
 ---
 
@@ -29,6 +33,7 @@ Core system designs, technical models, and technical foundations.
 - **[IDENTITY_MODEL.md](./architecture/IDENTITY_MODEL.md)**: Comprehensive user identity, roles, and permissions model.
 - **[TIER_MODEL.md](./architecture/TIER_MODEL.md)**: Service tiering and subscription logic.
 - **[NETCOMPLEX_ARCHITECTURE.md](./architecture/NETCOMPLEX_ARCHITECTURE.md)**: Overall system topology and architecture.
+- **[netcomplex_modular_services_architecture.html](./architecture/netcomplex_modular_services_architecture.html)**: Modular services architecture diagram.
 
 ---
 
@@ -112,6 +117,8 @@ Roadmaps, strategic project planning, and long-term initiatives.
 
 - **[ROUTE_MAP_PLANNING.md](./plans/ROUTE_MAP_PLANNING.md)**: Strategic development roadmap.
 - **[p3-plan.md](./plans/p3-plan.md)**: Phase 3 development plan.
+- **[progress-review.md](./plans/progress-review.md)**: Project progress review and status updates.
+- **[PROPERTY_MIGRATION_PLAN.md](./plans/PROPERTY_MIGRATION_PLAN.md)**: Property data migration plan.
 
 ---
 
