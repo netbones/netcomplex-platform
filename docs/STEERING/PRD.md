@@ -1,469 +1,359 @@
-# Soralia Village Community Portal - PRD
+# Netcomplex Platform - PRD
 
 ## Project Overview
 
-**Project Name:** Soralia Village Community Portal
-**Type:** Full-stack SPA with Next.js 14 and Supabase
-**Core Functionality:** A community management platform for residents of Soralia Village, enabling directory access, maintenance requests, facility booking, interest groups, content management, and real-time communication.
-**Target Users:** Soralia Village residents, HOA board members, property managers, and administrators.
+**Project Name:** Netcomplex  
+**Type:** Multi-tenant Community Management Platform  
+**Core Functionality:** A coherent multi-tenant platform that enables clients to install and configure modules according to their tier subscription. Each tenant receives a dedicated community portal with authentication, content management, facility booking, maintenance tracking, and real-time communication.  
+**Anchor Tenant:** Soralia Village Community Hub (180 homes)
 
 ---
 
-## Current State Analysis
+## Vision
 
-### Existing Application (Legacy)
+Netcomplex transforms community management into a modular, tiered SaaS platform:
 
-- **Stack:** Static HTML/CSS/JS with Tailwind CSS CDN
-- **Pages:** 10+ static HTML files (index, dashboard, directory, services, resources, conservation, resident, interest, proudly-soralia)
-- **Auth:** Mock authentication UI (no real backend)
-- **Data:** Hardcoded static content
-- **Map:** Leaflet.js with OpenStreetMap
-- **Limitations:** No real authentication, no database, no CRUD operations, no real-time features
+- **Multi-tenant architecture** with isolated data per tenant
+- **Module-based features** - tenants activate features based on subscription tier
+- **Scalable** - New tenants onboard quickly with pre-configured module bundles
+- **Soralia Village** serves as the anchor tenant, demonstrating full platform capabilities
 
-### Current Implementation (Completed)
+---
+
+## Product Structure
+
+### Tenants
+
+| Tenant Type  | Description                                 | Example                             |
+| ------------ | ------------------------------------------- | ----------------------------------- |
+| **Anchor**   | Full platform access, reference customer    | Soralia Village                     |
+| **Premium**  | Multi-property portfolio, advanced features | Property management companies       |
+| **Standard** | Single community, core features             | Individual HOA, residential complex |
+| **Starter**  | Basic features, limited users               | Small communities                   |
+
+### Subscription Tiers
+
+Each tier unlocks specific modules:
+
+| Tier           | Modules Included                              | Price Model    |
+| -------------- | --------------------------------------------- | -------------- |
+| **Foundation** | Directory, Basic Pages, News                  | Per-home/month |
+| **Growth**     | Foundation + Maintenance, Bookings, Groups    | Per-home/month |
+| **Enterprise** | Growth + Premium Portfolio, Analytics, Agents | Per-home/month |
+
+### Modules
+
+| Module                | Description                               | Tier       |
+| --------------------- | ----------------------------------------- | ---------- |
+| **Directory**         | Resident listings, search, profiles       | Foundation |
+| **Pages**             | Static content pages, announcements       | Foundation |
+| **News**              | Blog, events, announcements               | Foundation |
+| **Maintenance**       | Request submission, tracking, assignments | Growth     |
+| **Bookings**          | Facility reservations, calendar           | Growth     |
+| **Groups**            | Interest groups, forums                   | Growth     |
+| **Messaging**         | Real-time chat, notifications             | Growth     |
+| **Marketplace**       | Services offered by residents             | Growth     |
+| **Premium Portfolio** | Multi-property management                 | Enterprise |
+| **Analytics**         | Usage stats, reports                      | Enterprise |
+| **Agent Access**      | Real estate agent tools                   | Enterprise |
+
+---
+
+## Current State
+
+### Soralia Village (Anchor Tenant)
+
+**Existing Implementation:**
 
 - **Stack:** Next.js 14 (App Router) with React + Turbopack
-- **Auth:** Better Auth integrated (with SSR handling)
-- **Database:** Supabase PostgreSQL with Prisma ORM
+- **Auth:** Better Auth integrated with SSR handling
+- **Database:** Supabase PostgreSQL with Prisma + Drizzle ORM
 - **Real-time:** Supabase Realtime prepared for messaging
-- **Forms:** React Hook Form + Zod v3 validation
+- **Forms:** React Hook Form + Zod validation
 - **Rich Text:** Tiptap WYSIWYG editor
-- **Package Manager:** pnpm
 - **Styling:** Tailwind CSS
 
-### Completed Work
+**Completed Features:**
 
-- **Migrated Pages:** Home, Directory, Services, Resources, Conservation, Interest Groups, Proudly Soralia, Resident Profile
-- **CMS Implementation:** Admin pages at /admin/content, /admin/groups with Tiptap rich text editor
-- **Interest Groups:** Public hub at /groups, /groups/[id], join/leave functionality via API
-- **Content API:** Full CRUD for Content model with categories (ANNOUNCEMENT, NEWS, EVENT, BLOG)
-- **Database Models:** User, Group, Content, UserGroup with proper relations
-- **Zod Schemas:** Validation schemas in src/lib/schemas.ts for content and group forms
-- **i18n:** Added i18next with inline resources for 4 languages (en, af, xh, zu) to avoid async loading issues
+- Pages: Home, Directory, Services, Resources, Conservation, Interest Groups, Proudly Soralia
+- CMS at /admin/content, /admin/groups with Tiptap editor
+- Interest Groups: /groups hub, join/leave via API
+- Content API: Full CRUD with categories (ANNOUNCEMENT, NEWS, EVENT, BLOG)
+- Database models: User, Group, Content, UserGroup with relations
+- i18n support: en, af, xh, zu via i18next
 
-### Technical Discoveries & Fixes
+**Technical Debt:**
 
-1. **Database URL Conflict:** `.env.local` had wrong Supabase URL that overrode `.env` - fixed by updating to pooler URL
-2. **Stack Auth SSR Issues:** Had to use dynamic imports for StackHandler, wrap useSearchParams in Suspense
-3. **Zod v4 + RHF Type Conflicts:** Upgraded to Zod v3, removed explicit generics from useForm to fix type inference issues
-4. **Interest Groups Workflow:** Users join groups → create content (BLOG category) → posts appear on group pages
-5. **Internationalization:** Added i18next with inline resources for 4 languages (en, af, xh, zu), LanguageSwitcher component
-
----
-
-## Product Vision
-
-Transform Soralia Village from a static demo into a fully functional SPA with:
-
-- **Better Auth** for secure user authentication
-- **Prisma + Supabase PostgreSQL** for data persistence
-- **Supabase Realtime** for real-time messaging
-- **Next.js 16 SPA architecture** with React
-- **Role-based access** for residents, board members, and admins
-- **Interest Groups** - Residents can join groups and create content
-- **CMS** - Admins and group members can publish content
+- Single-tenant hardcoded (no tenant abstraction)
+- Module system not implemented
+- Tier-based feature gating not enforced
 
 ---
 
 ## User Personas
 
-| Persona              | Seat Type | Access Level                                                           |
-| -------------------- | --------- | ---------------------------------------------------------------------- |
-| Property Owner       | Standard  | Manage household, occupants, content aggregation, facility booking     |
-| Household Occupant   | Profile   | Participate in groups, messaging, limited content creation             |
-| Independent Resident | Solo      | Full platform access, personal identity, independent from household    |
-| Property Investor    | Premium   | Multi-property portfolio management, unified dashboard, volume pricing |
-| Group Admin          | Standard  | Manage own group: add/remove members, delete own group content         |
-| Committee Member     | Solo      | Committee duties, group admin + platform reporting access              |
-| Board Member         | Solo      | HOA Board: oversight, platform management                              |
-| Admin                | Admin     | SuperAdmin: user management, content moderation, suspend users         |
+### Platform-Level Personas
+
+| Persona              | Description                                              |
+| -------------------- | -------------------------------------------------------- |
+| **Platform Admin**   | Netcomplex superuser, manages tenants, billing           |
+| **Tenant Admin**     | Community manager, configures modules, moderates content |
+| **Board Member**     | HOA leadership, oversight, reporting                     |
+| **Resident**         | Community member, uses directory, submits requests       |
+| **Property Owner**   | Legal owner, may have multiple properties                |
+| **Occupant**         | Tenant/renter, limited access                            |
+| **Service Provider** | Resident offering services via marketplace               |
+| **Agent**            | External real estate agent with limited property access  |
+
+### Soralia Village-Specific
+
+| Persona              | Seat Type | Access                                      |
+| -------------------- | --------- | ------------------------------------------- |
+| Property Owner       | Standard  | Household management, facility booking      |
+| Household Occupant   | Profile   | Groups, messaging, limited content          |
+| Independent Resident | Solo      | Full platform, personal identity            |
+| Premium Investor     | Premium   | Multi-property portfolio, unified dashboard |
+| Committee Member     | Solo      | Committee duties, reporting                 |
+| Board Member         | Solo      | HOA oversight, platform management          |
+| Admin                | Admin     | User management, content moderation         |
 
 ---
 
 ## Functional Requirements
 
-### 1. Authentication (Better Auth)
+### 1. Multi-Tenant Architecture
+
+- **Tenant Isolation:** Each tenant's data isolated via tenantId column
+- **Tenant Context:** Middleware extracts tenant from subdomain/slug
+- **Configuration:** Tenant settings stored in database (features, branding)
+- **Onboarding:** New tenant provisioning with tier selection
+
+### 2. Module System
+
+- **Module Registry:** Central registry of available features
+- **Feature Flags:** Vercel flags for module enablement per tenant
+- **Tier Gating:** API enforces tier requirements
+- **Module Config:** Each module has configuration options
+
+### 3. Authentication (Better Auth)
 
 - Email/password registration and login
-- Social login (Google, Apple)
-- Password reset flow
-- Session management with JWT
-- Role-based access control (Resident, Board, Admin)
+- Multi-tenant session with tenant context
+- Role-based access (Resident, Board, Admin, Platform Admin)
+- OAuth ready (Google, Apple)
 
-### 2. Community Directory
+### 4. Core Modules
 
-- Searchable/filterable resident listings
+#### Directory
+
+- Searchable resident listings
 - Profile views with contact info
 - Interest-based filtering
-- Privacy controls (show/hide contact info)
-- Street/unit filtering
-- Grid/List view toggle
-- **External Cards**: Public view (homepage, /directory) - read-only
-- **Internal Cards**: Authenticated view (/dashboard/directory) - with chat/messaging
+- Privacy controls per user
 
-### 3. Resident Dashboard
+#### Maintenance
 
-- Personalized welcome
-- Notification center
-- Quick actions (maintenance, booking)
-- My requests/status tracking
-- Community map with personal location
+- Submit requests with category, priority
+- Photo upload
+- Status tracking workflow
+- Notification on changes
 
-### 4. Maintenance Requests
+#### Bookings
 
-- Submit requests with category, priority, description
-- Photo upload capability
-- Status tracking (Submitted, In Progress, Completed)
-- Notification on status changes
-- History of submitted requests
+- Facility reservations (pool, gym, hall)
+- Calendar view
+- Confirmation/cancellation
 
-### 5. Facility Booking
+#### Groups
 
-- Community center reservations
-- Pool, gym, tennis court bookings
-- Calendar view of availability
-- Booking confirmation
-- Cancellation/modification
+- Interest groups with categories
+- Join/leave functionality
+- Group content creation
 
-### 6. Interest Groups & User Dashboard
+#### Messaging
 
-**Groups Hub (`/groups`)**
+- Real-time chat via Supabase
+- Direct and group conversations
+- Notification delivery
 
-- Search/browse groups by category (fitness, gardening, sports, etc.)
-- Filter by access type (open to join, invite-only, application required)
-- Filter by resident type (owners only, renters only, all)
-- Join/leave groups directly from hub
-- Group pages with member list
+#### Marketplace
 
-**User Dashboard (`/dashboard`)**
+- Services listing
+- Inquiry system
+- Provider profiles
 
-- Personalized breadcrumbs navigation
-- Quick access to:
-  - My Profile: Edit name, phone, address, avatar
-  - My Interests: Select interests (gardening, fitness, sports, etc.)
-  - My Groups: Manage group memberships
-  - Notifications: Activity alerts
-  - My Requests: Maintenance request history
-  - Messages: Conversation center
-  - Create Content: Blog posts for public/village access
+#### Premium Portfolio (Enterprise)
 
-**Interests Visualization (`/interest`)**
+- Multi-property dashboard
+- Unified tenant view
+- Volume pricing display
 
-- React Flow network graph showing connections between residents
-- Nodes = residents, Edges = shared interests
-- Interactive exploration of community connections
-- Click resident to view profile card
+### 5. Admin Panel
 
-### 7. Content Management (CMS)
-
-- Rich text editor (Tiptap) for content creation
-- Categories: News, Announcement, Event, Blog
-- Associate content with interest groups
-- Featured/published flags
-- Author attribution
-
-### 8. Events & Announcements
-
-- Community event calendar
-- Announcement board
-- RSVP functionality
-- Event reminders
-
-### 9. Admin Panel
-
-- Resident management (CRUD)
-- Maintenance request management
-- Booking management
-- Content management for pages (CMS)
-- Interest group management
-- Analytics dashboard
+- Tenant management (platform admin)
+- Resident management (tenant admin)
+- Content moderation
+- Module configuration
+- Analytics per tenant
 
 ---
 
 ## Technical Architecture
 
+### Multi-Tenant Strategy
+
+```
+┌─────────────────────────────────────────────┐
+│              Netcomplex Platform             │
+├─────────────────────────────────────────────┤
+│  Tenant A (Soralia) │ Tenant B │ Tenant C   │
+│  - Directory        │ Module  │ Module     │
+│  - Maintenance      │ A, B    │ A only     │
+│  - Bookings         │         │            │
+│  - Groups           │         │            │
+│  - Messaging        │         │            │
+└─────────────────────────────────────────────┘
+        │              │          │
+        ▼              ▼          ▼
+   ┌─────────────────────────────────────────┐
+   │         Shared Infrastructure            │
+   │  - Database (tenant_id isolation)        │
+   │  - Auth (tenant context in session)      │
+   │  - Feature Flags (per tenant)            │
+   │  - Storage (per tenant bucket)           │
+   └─────────────────────────────────────────┘
+```
+
 ### Stack Implementation
 
-| Layer     | Technology              | Justification                                   |
-| --------- | ----------------------- | ----------------------------------------------- |
-| Frontend  | Next.js 14 + React      | App Router, SSR/SSG, Turbopack for fast builds  |
-| Styling   | Tailwind CSS v3         | Already in use, efficient                       |
-| Auth      | Better Auth             | Full auth solution, pre-built UI components     |
-| Database  | PostgreSQL via Supabase | Serverless Postgres + real-time, Prisma support |
-| ORM       | Prisma 5                | Type-safe, excellent Supabase integration       |
-| Real-time | Supabase Realtime       | Chat/messaging, notifications                   |
-| Forms     | React Hook Form + Zod   | Validation with TypeScript inference            |
-| Editor    | Tiptap                  | WYSIWYG rich text editing                       |
-| Maps      | Leaflet + OpenStreetMap | Continue existing implementation                |
-| Deploy    | Vercel                  | Native Next.js support, zero-config             |
-| Package   | pnpm                    | Disk space efficient                            |
+| Layer         | Technology              | Notes                    |
+| ------------- | ----------------------- | ------------------------ |
+| Frontend      | Next.js 14 + React      | App Router, ISR          |
+| Styling       | Tailwind CSS            | Design tokens per tenant |
+| Auth          | Better Auth             | Multi-tenant sessions    |
+| Database      | PostgreSQL (Supabase)   | tenant_id on all tables  |
+| ORM           | Prisma + Drizzle        | Edge-compatible queries  |
+| Real-time     | Supabase Realtime       | Per-tenant channels      |
+| Forms         | React Hook Form + Zod   | Validation               |
+| Maps          | Leaflet + OpenStreetMap | Per-tenant markers       |
+| Feature Flags | Vercel Flags            | Per-tenant module gating |
+| Deploy        | Vercel                  | Multi-tenant preview     |
 
-### Database Schema (Prisma)
+### Database Schema Changes
+
+Add tenantId to all tables:
 
 ```prisma
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String
-  role          Role      @default(RESIDENT)
-  street        String?
-  unit          String?
-  phone         String?
-  interests     String[]
-  avatar        String?
-  isPublic      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  requests      MaintenanceRequest[]
-  bookings      Booking[]
-  notifications Notification[]
-  conversations Conversation[]
-  messages      Message[]
-  groupMemberships UserGroup[]
-  ownedGroups   Group[]
-  contents     Content[]
+  id        String  @id @default(cuid())
+  tenantId  String  // Multi-tenant: required
+  email     String
+  name      String
+  role      Role    @default(RESIDENT)
+  // ... rest
 }
 
-enum Role {
-  RESIDENT
-  BOARD
-  ADMIN
-}
-
-model MaintenanceRequest {
-  id          String        @id @default(cuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category    String
-  priority    Priority
-  description String
-  status      RequestStatus @default(SUBMITTED)
-  images      String[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-}
-
-enum Priority { LOW, MEDIUM, HIGH, EMERGENCY }
-enum RequestStatus { SUBMITTED, IN_PROGRESS, COMPLETED, CANCELLED }
-
-model Booking {
-  id          String        @id @default(cuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  facility    String
-  date        DateTime
-  startTime   String
-  endTime     String
-  purpose     String?
-  status      BookingStatus @default(CONFIRMED)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-}
-
-enum BookingStatus { CONFIRMED, CANCELLED, COMPLETED }
-
-model Event {
+model Tenant {
   id          String   @id @default(cuid())
-  title       String
-  description String
-  date        DateTime
-  location    String
-  organizer   String
-  image       String?
-  isPublic    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Content {
-  id          String         @id @default(cuid())
-  title       String
-  content     String         @db.Text
-  excerpt     String?
-  image       String?
-  category    ContentCategory
-  authorId    String?
-  author      User?          @relation(fields: [authorId], references: [id])
-  groupId     String?
-  group       Group?         @relation(fields: [groupId], references: [id])
-  published   Boolean        @default(false)
-  featured    Boolean        @default(false)
-  priority    String         @default("normal")
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  publishedAt DateTime?
-  expiresAt   DateTime?
-}
-
-enum ContentCategory {
-  ANNOUNCEMENT
-  NEWS
-  EVENT
-  BLOG
-}
-
-model Group {
-  id          String   @id @default(cuid())
+  slug        String   @unique  // e.g., "soralia"
   name        String
-  description String?
-  category    String
-  image       String?
-  isPublic    Boolean  @default(true)
+  tier        TenantTier
+  isActive    Boolean  @default(true)
+  config      Json?    // Feature configuration
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  members     UserGroup[]
-  contents    Content[]
 }
 
-enum GroupRole {
-  MEMBER
-  MODERATOR
-  ADMIN
+enum TenantTier {
+  STARTER
+  STANDARD
+  PREMIUM
+  ENTERPRISE
 }
-
-model UserGroup {
-  id        String    @id @default(cuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  groupId   String
-  group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  role      GroupRole @default(MEMBER)
-  joinedAt  DateTime  @default(now())
-
-  @@unique([userId, groupId])
-}
-
-model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title     String
-  message   String
-  type      String
-  link      String?
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
-
-model Conversation {
-  id           String    @id @default(cuid())
-  name         String?
-  type         ConversationType @default(DIRECT)
-  participants User[]
-  messages     Message[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-}
-
-enum ConversationType { DIRECT, GROUP }
-
-model Message {
-  id             String       @id @default(cuid())
-  conversationId String
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  senderId       String
-  sender         User         @relation(fields: [senderId], references: [id])
-  content        String
-  type           MessageType  @default(TEXT)
-  createdAt      DateTime     @default(now())
-}
-
-enum MessageType { TEXT, IMAGE, SYSTEM }
 ```
 
 ---
 
-## Phased Implementation Plan
+## Implementation Phases
 
-### Phase 1: Foundation (Weeks 1-2)
+### Phase 1: Platform Foundation (Weeks 1-3)
 
-- Next.js project setup with Preact
-- Supabase PostgreSQL database
-- Prisma schema implementation
-- Better Auth integration
-- Basic auth pages (login/register)
+- [ ] Tenant model and CRUD
+- [ ] Middleware tenant extraction
+- [ ] Tenant context in API routes
+- [ ] Tenant-specific auth sessions
+- [ ] Basic tenant configuration
 
-### Phase 2: Core Features (Weeks 3-4)
+### Phase 2: Module System (Weeks 4-6)
 
-- User profile management
-- Community directory with CRUD
-- Basic dashboard with user data
+- [ ] Module registry definition
+- [ ] Feature flag integration
+- [ ] Tier-based gating
+- [ ] Module configuration UI
 
-### Phase 3: Business Logic (Weeks 5-6)
+### Phase 3: Migration (Weeks 7-8)
 
-- Maintenance request system
-- Facility booking system
-- Events/announcements
+- [ ] Migrate Soralia to tenant model
+- [ ] Add tenantId to existing tables
+- [ ] Update API routes for tenant context
+- [ ] Verify all features work per tenant
 
-### Phase 4: Admin & Polish (Weeks 7-8)
+### Phase 4: Platform Admin (Weeks 9-10)
 
-- Admin panel
-- Analytics dashboard
-- Performance optimization
-- PWA capabilities
-
----
-
-## Migration Strategy
-
-1. **Keep existing design** - Maintain current UI/UX (Tailwind, colors, layout)
-2. **Port page components** - Convert each HTML page to React components
-3. **Implement API routes** - Replace static data with database queries
-4. **Add auth guards** - Protect routes based on login state
-5. **Deploy incrementally** - Feature flags for gradual rollout
-
----
-
-## Feasibility Assessment
-
-| Factor         | Assessment                                              |
-| -------------- | ------------------------------------------------------- |
-| Complexity     | Medium - Standard SPA with auth                         |
-| Dependencies   | Well-supported (Next.js, Prisma, Supabase, Better Auth) |
-| Data Migration | Static demo data → JSON seed → Database                 |
-| Timeline       | 8-10 weeks for full implementation                      |
-| Risk           | Low - Proven stack, extensive documentation             |
-
-### Risks & Mitigations
-
-| Risk             | Mitigation                     |
-| ---------------- | ------------------------------ |
-| Auth complexity  | Use NextAuth (battle-tested)   |
-| Database scaling | Supabase handles automatically |
-| Map performance  | Implement tile caching         |
-| Offline support  | Add PWA with service workers   |
+- [ ] Tenant provisioning UI
+- [ ] Tier management
+- [ ] Billing interface placeholder
+- [ ] Platform analytics
 
 ---
 
 ## Acceptance Criteria
 
-- [x] Users can register and log in securely (Better Auth)
-- [x] Residents can view and search the directory
-- [x] Interest groups with join/leave functionality
-- [x] CMS with Tiptap rich text editor (admin content management)
-- [x] Admins can manage content and groups via admin panel
-- [ ] Users can submit and track maintenance requests
-- [ ] Users can book community facilities
-- [ ] Real-time messaging/notifications
-- [ ] Application is responsive and accessible
-- [ ] Deployment pipeline is automated
+### Platform Level
+
+- [ ] Multiple tenants can exist with isolated data
+- [ ] Tenant identified by subdomain or path slug
+- [ ] Feature flags enable/disable modules per tenant
+- [ ] Tier restricts access to premium features
+
+### Soralia Village (Anchor)
+
+- [ ] Existing features work with tenant isolation
+- [ ] All current functionality preserved
+- [ ] Multi-property view for premium seats
+- [ ] Module enablement matches Growth tier
+
+### Technical
+
+- [ ] API routes extract tenant context
+- [ ] Auth session includes tenant info
+- [ ] Database queries filtered by tenant
+- [ ] Storage buckets per tenant
 
 ---
 
-## Appendix: Page Mapping
+## Risks & Mitigations
 
-| Current HTML         | Target Component                      |
-| -------------------- | ------------------------------------- |
-| index.html           | HomePage (Directory, Map, Auth Modal) |
-| dashboard.html       | DashboardPage                         |
-| directory.html       | DirectoryPage                         |
-| services.html        | ServicesPage                          |
-| resources.html       | ResourcesPage                         |
-| conservation.html    | ConservationPage                      |
-| resident.html        | ProfilePage                           |
-| interest.html        | InterestGroupsPage                    |
-| proudly-soralia.html | CampaignPage                          |
+| Risk                    | Impact   | Mitigation                      |
+| ----------------------- | -------- | ------------------------------- |
+| Multi-tenant complexity | High     | Phased approach, Soralia first  |
+| Query performance       | Medium   | Add indexes on tenant_id        |
+| Feature flag explosion  | Medium   | Module registry, cleanup policy |
+| Tenant data leakage     | Critical | RLS + tenant_id checks          |
+
+---
+
+## Appendix: Module Comparison
+
+| Feature           | Starter | Standard | Premium | Enterprise |
+| ----------------- | ------- | -------- | ------- | ---------- |
+| Directory         | ✓       | ✓        | ✓       | ✓          |
+| Pages             | ✓       | ✓        | ✓       | ✓          |
+| News/Events       | ✓       | ✓        | ✓       | ✓          |
+| Maintenance       | -       | ✓        | ✓       | ✓          |
+| Bookings          | -       | ✓        | ✓       | ✓          |
+| Groups            | -       | ✓        | ✓       | ✓          |
+| Messaging         | -       | ✓        | ✓       | ✓          |
+| Marketplace       | -       | -        | ✓       | ✓          |
+| Analytics         | -       | -        | -       | ✓          |
+| Agent Access      | -       | -        | -       | ✓          |
+| Premium Portfolio | -       | -        | -       | ✓          |
