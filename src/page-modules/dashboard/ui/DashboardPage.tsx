@@ -13,6 +13,7 @@ import {
   getWidgetTitle,
   getWidgetIcon,
   getAvailableWidgets as getAvailableWidgetsFromConfig,
+  type DashboardWidget,
 } from '@entities/widget';
 
 interface Tab {
@@ -27,71 +28,58 @@ const DEFAULT_TABS: Tab[] = [
     id: 'overview',
     label: 'Overview',
     icon: 'layout',
-    defaultWidgets: ['stats', 'quickActions', 'recentActivity', 'notifications'],
+    defaultWidgets: ['stats', 'quick-actions', 'recent-activity', 'notifications'],
   },
   {
     id: 'maintenance',
     label: 'Maintenance',
     icon: 'tool',
-    defaultWidgets: ['maintenanceRequests', 'maintenanceForm'],
+    defaultWidgets: ['solo-seat', 'properties'],
   },
   {
     id: 'bookings',
     label: 'Bookings',
     icon: 'calendar',
-    defaultWidgets: ['bookings', 'bookingCalendar'],
+    defaultWidgets: ['events', 'notifications'],
   },
   {
     id: 'services',
     label: 'Services',
     icon: 'briefcase',
-    defaultWidgets: ['myServices', 'serviceInquiries'],
+    defaultWidgets: ['my-services', 'service-inquiries'],
   },
   {
     id: 'content',
     label: 'Content',
     icon: 'file-text',
-    defaultWidgets: ['userContent', 'createContent'],
+    defaultWidgets: ['my-content', 'media'],
   },
   {
     id: 'premium',
     label: 'Premium',
     icon: 'star',
-    defaultWidgets: ['premiumPortfolio', 'unifiedDashboard'],
+    defaultWidgets: ['premium-portfolio', 'agent-dashboard'],
   },
 ];
 
 function DashboardContent() {
   const [activeTab, setActiveTab] = useState('overview');
   const { t } = useTranslation('dashboard');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { userWidgets, setUserWidgets, resetLayout } = useWidgetStore() as any;
+  const { userWidgets, addWidgetToTab, removeWidgetFromTab, resetLayout } = useWidgetStore();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [availableWidgets, setAvailableWidgets] = useState<string[]>([]);
+  const [availableWidgets, setAvailableWidgets] = useState<DashboardWidget[]>([]);
 
   useEffect(() => {
-    const widgets = getAvailableWidgetsFromConfig([]) as unknown as string[];
+    const widgets = getAvailableWidgetsFromConfig([]);
     setAvailableWidgets(widgets);
   }, []);
 
   const handleAddWidget = (widgetId: string) => {
-    const tabWidgets = userWidgets[activeTab] || [];
-    if (!tabWidgets.includes(widgetId)) {
-      setUserWidgets({
-        ...userWidgets,
-        [activeTab]: [...tabWidgets, widgetId],
-      });
-    }
-    setIsAddModalOpen(false);
+    addWidgetToTab(activeTab, widgetId);
   };
 
   const handleRemoveWidget = (widgetId: string) => {
-    const tabWidgets = userWidgets[activeTab] || [];
-    setUserWidgets({
-      ...userWidgets,
-      [activeTab]: tabWidgets.filter((id: string) => id !== widgetId),
-    });
+    removeWidgetFromTab(activeTab, widgetId);
   };
 
   const handleResetLayout = () => {
@@ -157,10 +145,10 @@ function DashboardContent() {
           isOpen={isAddModalOpen}
           onClose={() => setIsAddModalOpen(false)}
           onSelect={handleAddWidget}
-          availableWidgets={availableWidgets.map(id => ({
-            id,
-            label: getWidgetTitle(id),
-            icon: getWidgetIcon(id),
+          availableWidgets={availableWidgets.map(w => ({
+            id: w.id,
+            label: w.title,
+            icon: w.icon,
           }))}
         />
       )}

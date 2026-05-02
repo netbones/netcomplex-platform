@@ -1,0 +1,4 @@
+packages: # <- ⚠️ this field is also required
+  - . # set this to '.' if not in a monorepo
+overrides:
+  '@next/env': 'npm:@varlock/nextjs-integration'

@@ -16,8 +16,13 @@ export interface WidgetLayouts {
   };
 }
 
+export interface UserWidgets {
+  [tabId: string]: string[];
+}
+
 interface WidgetStore {
   layouts: WidgetLayouts;
+  userWidgets: UserWidgets;
 
   // Get layout for a specific widget in a specific tab
   getWidgetLayout: (tabId: string, widgetId: string) => WidgetLayout | undefined;
@@ -33,6 +38,18 @@ interface WidgetStore {
 
   // Reset all layouts
   resetAllLayouts: () => void;
+
+  // Set user widgets (which widgets are active per tab)
+  setUserWidgets: (widgets: UserWidgets) => void;
+
+  // Add a widget to a tab
+  addWidgetToTab: (tabId: string, widgetId: string) => void;
+
+  // Remove a widget from a tab
+  removeWidgetFromTab: (tabId: string, widgetId: string) => void;
+
+  // Reset user widgets to defaults (clears all custom widget selections)
+  resetLayout: () => void;
 }
 
 // Stable default layout to prevent infinite re-renders
@@ -48,6 +65,7 @@ export const useWidgetStore = create<WidgetStore>()(
   persist(
     (set, get) => ({
       layouts: {},
+      userWidgets: {},
 
       getWidgetLayout: (tabId: string, widgetId: string) => {
         const tabLayouts = get().layouts[tabId];
@@ -92,7 +110,7 @@ export const useWidgetStore = create<WidgetStore>()(
                 [widgetId]: {
                   ...currentLayout,
                   isCollapsed: isCollapsing,
-                  height: isCollapsing ? 60 : currentLayout.lastHeight || currentLayout.height, // 60px is header height
+                  height: isCollapsing ? 60 : currentLayout.lastHeight || currentLayout.height,
                   lastHeight: isCollapsing ? currentLayout.height : currentLayout.lastHeight,
                 },
               },
@@ -105,17 +123,59 @@ export const useWidgetStore = create<WidgetStore>()(
         set(state => {
           const newLayouts = { ...state.layouts };
           delete newLayouts[tabId];
-          return { layouts: newLayouts };
+          const newUserWidgets = { ...state.userWidgets };
+          delete newUserWidgets[tabId];
+          return { layouts: newLayouts, userWidgets: newUserWidgets };
         });
       },
 
       resetAllLayouts: () => {
         set({ layouts: {} });
       },
+
+      setUserWidgets: (widgets: UserWidgets) => {
+        set({ userWidgets: widgets });
+      },
+
+      addWidgetToTab: (tabId: string, widgetId: string) => {
+        set(state => {
+          const tabWidgets = state.userWidgets[tabId] || [];
+          if (tabWidgets.includes(widgetId)) return state;
+          return {
+            userWidgets: {
+              ...state.userWidgets,
+              [tabId]: [...tabWidgets, widgetId],
+            },
+          };
+        });
+      },
+
+      removeWidgetFromTab: (tabId: string, widgetId: string) => {
+        set(state => {
+          const tabWidgets = state.userWidgets[tabId] || [];
+          return {
+            userWidgets: {
+              ...state.userWidgets,
+              [tabId]: tabWidgets.filter(id => id !== widgetId),
+            },
+          };
+        });
+      },
+
+      resetLayout: () => {
+        set({ layouts: {}, userWidgets: {} });
+      },
     }),
     {
       name: 'widget-layouts',
-      version: 1,
+      version: 2,
+      migrate: (persistedState: unknown, version: number) => {
+        const persisted = persistedState as Record<string, unknown>;
+        if (version < 2) {
+          return { ...persisted, userWidgets: {} };
+        }
+        return persisted;
+      },
     }
   )
 );
