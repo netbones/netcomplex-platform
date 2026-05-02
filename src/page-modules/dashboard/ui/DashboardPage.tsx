@@ -121,7 +121,7 @@ function DashboardContent() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="flex flex-wrap gap-4 min-h-[400px]">
                 {tabWidgets.map((widgetId: string) => (
                   <DraggableWidget
                     key={widgetId}

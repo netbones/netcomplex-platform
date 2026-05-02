@@ -162,46 +162,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const portfolioResult = (await db.execute(sql`
-      SELECT 
-        ps.*,
-        json_agg(
-          json_build_object(
-            'id', h.id,
-            'street', h.street,
-            'unit', h.unit,
-            'homeImage', h."homeImage",
-            'standardSeats', (
-              SELECT json_agg(
-                json_build_object(
-                  'id', ss.id,
-                  'user', json_build_object('id', u.id, 'name', u.name, 'email', u.email)
-                )
-              )
-              FROM "standardSeat" ss
-              JOIN "user" u ON u.id = ss."userId"
-              WHERE ss."householdId" = h.id
-            ),
-            'profiles', (
-              SELECT json_agg(
-                json_build_object(
-                  'id', p.id,
-                  'user', json_build_object('id', u.id, 'name', u.name)
-                )
-              )
-              FROM "profile" p
-              JOIN "user" u ON u.id = p."userId"
-              WHERE p."householdId" = h.id
-            )
-          )
-        ) FILTER (WHERE h.id IS NOT NULL) as "linkedHouseholds"
-      FROM "premiumSeat" ps
-      JOIN "_PremiumSeatPortfolio" htl ON htl.A = ps.id
-      JOIN "household" h ON h.id = htl.B
-      WHERE ps."userId" = ${session.user.id}
-      AND ps."tenantId" = ${tenantId}
-      GROUP BY ps.id
-    `)) as { rows: { linkedHouseholds: { id: string; street: string; unit: string }[] }[] };
+    const portfolioResult = await db.execute(
+      sql`SELECT * FROM "premiumSeat" WHERE "userId" = ${session.user.id} AND "tenantId" = ${tenantId} LIMIT 1`
+    );
 
     if (!portfolioResult.rows?.length) {
       return NextResponse.json({

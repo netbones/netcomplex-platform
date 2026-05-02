@@ -9,7 +9,7 @@ interface PropertiesWidgetProps {
   loading?: boolean;
 }
 
-export function PropertiesWidget({ properties, loading = false }: PropertiesWidgetProps) {
+export function PropertiesWidget({ properties = [], loading = false }: PropertiesWidgetProps) {
   const { t } = useTranslation('dashboard');
 
   if (loading) {

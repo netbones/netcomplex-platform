@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Rnd } from 'react-rnd';
 import { useTranslation } from 'react-i18next';
 import { useWidgetStore } from '@entities/widget';
@@ -50,17 +50,21 @@ export function DraggableWidget({
 
   // Local state for immediate updates (position/size)
   const [position, setPosition] = useState({ x: layout.x, y: layout.y });
-  const [size, setSize] = useState({ width: layout.width, height: layout.height });
+  const [size, setSize] = useState({ width: layout.width || 320, height: layout.height || 200 });
+  const isResizingRef = useRef(false);
 
-  // Sync local state with store changes
+  // Only sync position from store, never sync size after initial mount
   useEffect(() => {
     setPosition({ x: layout.x, y: layout.y });
-    setSize({ width: layout.width, height: layout.height });
-  }, [layout.x, layout.y, layout.width, layout.height]);
+  }, [layout.x, layout.y]);
 
   const handleDragStop = (_e: unknown, d: { x: number; y: number }) => {
     setPosition(d);
     updateWidgetLayout(tabId, id, { x: d.x, y: d.y });
+  };
+
+  const handleResizeStart = () => {
+    isResizingRef.current = true;
   };
 
   const handleResizeStop = (
@@ -79,8 +83,12 @@ export function DraggableWidget({
       y: position.y,
       width: newWidth,
       height: newHeight,
-      ...(!layout.isCollapsed ? { lastHeight: newHeight } : {}), // Update lastHeight if not collapsed
+      ...(!layout.isCollapsed ? { lastHeight: newHeight } : {}),
     });
+    // Reset flag after React renders
+    setTimeout(() => {
+      isResizingRef.current = false;
+    }, 100);
   };
 
   const handleToggleCollapsed = () => {
@@ -93,12 +101,12 @@ export function DraggableWidget({
       size={size}
       position={position}
       onDragStop={handleDragStop}
+      onResizeStart={handleResizeStart}
       onResizeStop={handleResizeStop}
       minWidth={280}
       minHeight={60} // Match header height to prevent resizing below collapsed state
       maxWidth={800}
       maxHeight={600}
-      bounds="parent"
       className="bg-white rounded-lg shadow-md overflow-hidden group"
       dragHandleClassName="drag-handle"
       enableResizing={
