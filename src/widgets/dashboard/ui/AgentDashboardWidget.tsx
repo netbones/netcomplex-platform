@@ -1,43 +1,70 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 
-interface ManagedHousehold {
+interface ManagedProperty {
   id: string;
   street: string;
   unit: string;
   platformAddress: string;
   homeImage: string | null;
-  accessExpiresAt: Date;
+  accessExpiresAt: string;
+  accessLevel: string;
   grantedBy: {
+    id: string;
     name: string;
   };
-  standardSeats: {
-    user: {
-      name: string;
-    };
-  }[];
-  profiles: {
-    id: string;
-    displayName: string;
-    occupantType: string;
-  }[];
+  grantedAt: string;
 }
 
-interface AgentDashboardWidgetProps {
-  households: ManagedHousehold[];
-  loading?: boolean;
-}
-
-export function AgentDashboardWidget({ households, loading = false }: AgentDashboardWidgetProps) {
+export function AgentDashboardWidget() {
   const { t } = useTranslation('dashboard');
+  const [households, setHouseholds] = useState<ManagedProperty[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchManagedProperties() {
+      try {
+        const res = await fetch('/api/agents/managed-properties');
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        setHouseholds(data.properties || []);
+      } catch (err) {
+        setError('Failed to load properties');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchManagedProperties();
+  }, []);
+
+  const isExpiringSoon = (expiresAt: string) => {
+    const now = new Date();
+    const daysUntilExpiry = Math.ceil(
+      (new Date(expiresAt).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return daysUntilExpiry <= 7;
+  };
 
   if (loading) {
     return (
       <div className="space-y-3">
         <div className="animate-pulse h-20 bg-gray-100 rounded-lg"></div>
         <div className="animate-pulse h-20 bg-gray-100 rounded-lg"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-6">
+        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-50 flex items-center justify-center">
+          <i className="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <p className="text-red-500 text-sm">{error}</p>
       </div>
     );
   }
@@ -53,14 +80,6 @@ export function AgentDashboardWidget({ households, loading = false }: AgentDashb
       </div>
     );
   }
-
-  const isExpiringSoon = (expiresAt: Date) => {
-    const now = new Date();
-    const daysUntilExpiry = Math.ceil(
-      (new Date(expiresAt).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return daysUntilExpiry <= 7;
-  };
 
   return (
     <div className="space-y-3">
@@ -100,8 +119,8 @@ export function AgentDashboardWidget({ households, loading = false }: AgentDashb
                 {t('managedFor', 'Managed for')}: {household.grantedBy.name}
               </p>
               <div className="flex items-center justify-between mt-2">
-                <span className="text-xs text-gray-500">
-                  {household.profiles.length} {t('occupants', 'occupants')}
+                <span className="text-xs text-gray-500 capitalize">
+                  {household.accessLevel.toLowerCase()} access
                 </span>
                 <span className="text-xs text-gray-400">
                   {t('expires', 'Expires')}:{' '}

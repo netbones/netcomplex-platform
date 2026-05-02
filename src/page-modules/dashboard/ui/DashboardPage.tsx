@@ -8,12 +8,8 @@ import { DraggableWidget, WidgetCard } from '@widgets/dashboard';
 import { DashboardTabs } from '@widgets/dashboard';
 import { AddWidgetModal } from '@features/dashboard';
 import { WidgetRenderer } from '@widgets/dashboard';
-import {
-  getWidgetTitle,
-  getWidgetIcon,
-  getAvailableWidgets as getAvailableWidgetsFromConfig,
-  type DashboardWidget,
-} from '@entities/widget';
+import { getWidgetTitle, getWidgetIcon } from '@entities/widget';
+import { registry } from '@widgets/dashboard';
 
 interface Tab {
   id: string;
@@ -67,11 +63,19 @@ function DashboardContent() {
   const { t } = useTranslation('dashboard');
   const { userWidgets, addWidgetToTab, removeWidgetFromTab, resetLayout } = useWidgetStore();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [availableWidgets, setAvailableWidgets] = useState<DashboardWidget[]>([]);
+  const [availableWidgets, setAvailableWidgets] = useState<
+    { id: string; title: string; icon: string }[]
+  >([]);
 
   useEffect(() => {
-    const widgets = getAvailableWidgetsFromConfig([]);
-    setAvailableWidgets(widgets);
+    const allWidgets = registry.list();
+    setAvailableWidgets(
+      allWidgets.map(w => ({
+        id: w.id,
+        title: w.name,
+        icon: w.icon ? (typeof w.icon === 'string' ? w.icon : 'fa-widget') : 'fa-widget',
+      }))
+    );
   }, []);
 
   const handleAddWidget = (widgetId: string) => {

@@ -318,8 +318,8 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   registry.register({
     id: 'agent-dashboard',
     version: '1.0.0',
-    name: 'Agent Dashboard',
-    description: 'Real estate agent tools and metrics',
+    name: 'Managed Properties',
+    description: 'Properties you manage on behalf of owners',
     author: 'netcomplex-premium',
     category: 'premium',
     icon: Briefcase,
@@ -351,6 +351,25 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     loader: () => import('../ui/CommunityGraphWidget'),
     defaultSize: { width: 4, height: 4 },
     minSize: { width: 3, height: 3 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'agent-activity',
+    version: '1.0.0',
+    name: 'Agent Activity',
+    description: "Track your agent's recent activities",
+    author: 'netcomplex-premium',
+    category: 'premium',
+    icon: Activity,
+    premium: true,
+    featureFlag: 'agents',
+    component: lazy(() =>
+      import('../ui/AgentActivityWidget').then(m => ({ default: m.AgentActivityWidget }))
+    ),
+    loader: () => import('../ui/AgentActivityWidget'),
+    defaultSize: { width: 3, height: 3 },
+    minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
   });
 }
