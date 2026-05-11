@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { authClient } from '@api/auth-client';
 import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
 import { sanitizeHtml } from '@shared/lib';
-import { usePageLoading } from '@/hooks/usePageLoading';
+import { usePageLoading } from '@shared/ui';
 
 interface HouseholdData {
   household: {

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { usePageLoading } from '@/hooks/usePageLoading';
+import { usePageLoading } from '@shared/ui';
 
 interface Notification {
   id: string;

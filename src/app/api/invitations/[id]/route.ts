@@ -1,7 +1,7 @@
 import { db, invitations } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/api/with-tenant';
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { tenantId } = await withTenant();

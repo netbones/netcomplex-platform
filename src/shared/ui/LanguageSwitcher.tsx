@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useIsMounted } from 'usehooks-ts';
-import { supportedLanguages, languageNames, type SupportedLanguage } from '@/lib/i18n';
+import { supportedLanguages, languageNames, type SupportedLanguage } from '@/shared/lib/i18n';
 
 interface LanguageSwitcherProps {
   variant?: 'light' | 'dark';

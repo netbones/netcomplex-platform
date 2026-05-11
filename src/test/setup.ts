@@ -1,4 +1,8 @@
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
+
+// Mock server-only package for tests
+vi.mock('server-only', () => ({}));
 
 window.ResizeObserver = class ResizeObserver {
   observe() {}

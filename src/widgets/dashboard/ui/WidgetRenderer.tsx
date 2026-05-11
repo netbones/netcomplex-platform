@@ -3,7 +3,7 @@
 import { ReactNode, Suspense, lazy } from 'react';
 import { useTenant } from '@entities/tenant';
 import type { Tenant } from '@entities/tenant';
-import { isFeatureEnabled } from '@api/features/registry';
+import { isFeatureEnabled } from '@entities/tenant/api/features/registry';
 import { ErrorBoundary } from '@shared/ui';
 import { registry } from '../model/registry';
 import type { WidgetManifest } from '../model/types';

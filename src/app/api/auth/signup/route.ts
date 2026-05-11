@@ -68,8 +68,8 @@ export async function POST(request: NextRequest) {
  */
 async function sendWelcomeEmail(email: string, name: string) {
   try {
-    const { sendEmail } = await import('@/lib/email/resend');
-    const { templates } = await import('@/lib/email/templates');
+    const { sendEmail } = await import('@shared/api/email/resend');
+    const { templates } = await import('@shared/api/email/templates');
 
     const html = templates.welcome.getHtml(name);
 

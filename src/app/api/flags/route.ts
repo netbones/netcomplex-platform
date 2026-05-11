@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPageFlags, getPageFlag } from '@api/flags';
-import { getStatsigExperimentFlags } from '@api/flags/statsig-flags';
-import { withTenantOptional } from '@entities/tenant';
+import { getPlatformPageFlags } from '@entities/tenant/api/flags/platform-flags';
+import { getStatsigExperimentFlags } from '@entities/tenant/api/flags/statsig-flags';
+import { withTenantOptional } from '@entities/tenant/api/with-tenant';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('flags-api');
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const { tenantId } = await withTenantOptional();
 
     if (!flagParam && !experiments) {
-      const allFlags = await getPageFlags();
+      const allFlags = await getPlatformPageFlags(tenantId!);
       return NextResponse.json({ flags: allFlags, tenantId });
     }
 
@@ -34,7 +34,8 @@ export async function GET(request: NextRequest) {
       if (!validFlags.includes(flagParam as (typeof validFlags)[number])) {
         return NextResponse.json({ error: 'Invalid flag parameter' }, { status: 400 });
       }
-      const value = await getPageFlag(flagParam as (typeof validFlags)[number]);
+      const allFlags = await getPlatformPageFlags(tenantId!);
+      const value = allFlags[flagParam as keyof typeof allFlags];
       return NextResponse.json({ flag: flagParam, value, tenantId });
     }
 

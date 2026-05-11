@@ -1,7 +1,7 @@
 import { db, invitations } from '@api/db';
 import { eq, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/api/with-tenant';
 
 export async function GET() {
   const invitationList = await db.select().from(invitations).orderBy(desc(invitations.createdAt));

@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { useIsMounted } from 'usehooks-ts';
 import { authClient } from '@api/auth-client';
-import { hasPermission } from '@api/permissions';
+import { hasPermission } from '@entities/tenant/api/permissions';
 
 const GUEST_LINKS = [
   { href: '/directory', label: 'directory', icon: 'users' },

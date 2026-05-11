@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';

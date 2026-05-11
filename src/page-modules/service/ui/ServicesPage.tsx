@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePageLoading } from '@/hooks/usePageLoading';
+import { usePageLoading } from '@shared/ui';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { CARD_ANIMATIONS, createComponentLogger } from '@shared/lib';
 import {

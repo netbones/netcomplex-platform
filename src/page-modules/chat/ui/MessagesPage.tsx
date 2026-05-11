@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@api/auth-client';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { usePageLoading } from '@/hooks/usePageLoading';
+import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import {
   ChatMessage,

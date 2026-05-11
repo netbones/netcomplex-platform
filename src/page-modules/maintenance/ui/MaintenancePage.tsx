@@ -6,7 +6,7 @@ import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { MaintenanceForm } from '@features/maintenance';
 import { MaintenanceList } from '@widgets/maintenance';
 import { MaintenanceRequest } from '@entities/maintenance';
-import { usePageLoading } from '@/hooks/usePageLoading';
+import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('maintenance-page');

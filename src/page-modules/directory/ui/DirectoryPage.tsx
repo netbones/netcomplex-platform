@@ -7,7 +7,7 @@ import { useResidentFilter } from '@features/directory';
 import { useServiceFilter } from '@features/service';
 import { ServicesGrid } from '@widgets/service';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { usePageLoading } from '@/hooks/usePageLoading';
+import { usePageLoading } from '@shared/ui';
 import { STREETS } from '@shared/lib';
 
 export function DirectoryPage() {

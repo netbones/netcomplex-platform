@@ -12,7 +12,7 @@ import {
 } from '@entities/service';
 import { RelatedServices } from '@widgets/service';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { usePageLoading } from '@/hooks/usePageLoading';
+import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('service-detail-page');

@@ -7,7 +7,7 @@ import superjson from 'superjson';
 import { authClient } from '@api/auth-client';
 import { ToastProvider, TooltipProvider } from '@shared/ui';
 import { trpc } from '@api/trpc/client';
-import '@/lib/i18n';
+import '@shared/lib/i18n';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(

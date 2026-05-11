@@ -15,9 +15,9 @@ import {
   invitations,
   organizations,
 } from '@api/db';
-import { tenantConfig } from './config/tenant';
-import { sendEmail } from '@/lib/email/resend';
-import { templates } from '@/lib/email/templates';
+import { tenantConfig } from '@entities/tenant/api/tenant';
+import { sendEmail } from '@shared/api/email/resend';
+import { templates } from '@shared/api/email/templates';
 import { authLogger } from '@shared/lib';
 
 /**

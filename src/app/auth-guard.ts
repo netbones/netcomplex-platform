@@ -1,5 +1,5 @@
 import { auth } from '@api/auth';
-import { hasPermission, Permission } from '@api/permissions';
+import { hasPermission, Permission } from '@entities/tenant/api/permissions';
 import { db, users } from '@api/db';
 import { NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';

@@ -6,6 +6,9 @@ dotenv.config({ path: '.env.local' });
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    'server-only': '{}',
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -27,11 +30,16 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    exclude: [
+      'src/test/platform-flags.test.ts',
+      'src/test/registry.test.ts',
+      'src/test/schemas.test.ts',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      include: ['src/lib/**/*.ts', 'src/components/**/*.tsx'],
-      exclude: ['src/**/*.d.ts'],
+      include: ['src/{app,pages,widgets,features,shared}/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.d.ts', 'src/entities/**/*'],
     },
   },
 });

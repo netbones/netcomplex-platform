@@ -1,13 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSignupForm } from '@/lib/hooks/useSignupForm';
+import { useSignupForm } from '@/features/auth/model/useSignupForm';
 import type { PricingPlan } from '@/app/api/pricing/route';
 import { PageLayout } from '@shared/ui/PageLayout';
-import { SignupHeader } from '@shared/ui/SignupHeader';
-import { SignupFormSection } from '@shared/ui/SignupFormSection';
-import { SignupCTA } from '@shared/ui/SignupCTA';
-import { PlatformFooter } from '@shared/ui/PlatformFooter';
+import { SignupHeader, SignupFormSection, SignupCTA } from '@features/auth/ui';
+
+import { PlatformFooter } from '@features/platform/ui';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('signup-page');

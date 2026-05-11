@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTenantById, updateTenant, deleteTenant } from '@entities/tenant';
+import { getTenantById, updateTenant, deleteTenant } from '@entities/tenant/api/base';
 import { logError } from '@shared/lib';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

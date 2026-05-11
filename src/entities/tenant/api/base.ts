@@ -13,7 +13,9 @@
  */
 
 import { eq } from 'drizzle-orm';
-import type { TierLevel } from '@api/features/registry';
+import 'server-only';
+
+import type { TierLevel } from '@entities/tenant/api/features/registry';
 import { cache } from 'react';
 import { headers } from 'next/headers';
 import type { Tenant, TenantTier } from './types';

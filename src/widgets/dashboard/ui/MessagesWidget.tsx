@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@api/auth-client';
-import { useApiToast } from '@/hooks/useApiToast';
+import { useApiToast } from '@shared/lib';
 
 interface Conversation {
   id: string;

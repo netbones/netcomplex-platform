@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db, contents, users } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenantOptional } from '@entities/tenant';
+import { withTenantOptional } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
 export async function GET() {

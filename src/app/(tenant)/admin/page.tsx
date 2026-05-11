@@ -12,7 +12,7 @@ import {
   getWidgetTitle,
   getWidgetIcon,
   getAvailableAdminWidgets,
-} from '@/lib/admin-config';
+} from '@/entities/admin/model/admin-config';
 
 export default function AdminDashboardPage() {
   const { t } = useTranslation('admin');

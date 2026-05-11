@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getLocalizedValue, contentLocales, getContentLocales } from '@/lib/i18n';
+import { getLocalizedValue, contentLocales, getContentLocales } from '@shared/lib/i18n';
 
 describe('content i18n', () => {
   describe('getLocalizedValue', () => {

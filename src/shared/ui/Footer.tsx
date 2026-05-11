@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import { useContactSettings } from '@/lib/useContactSettings';
+import { useContactSettings } from '@/shared/lib/useContactSettings';
 
 export function Footer() {
   const [mounted, setMounted] = useState(false);

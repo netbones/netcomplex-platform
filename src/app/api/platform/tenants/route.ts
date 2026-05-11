@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TIERS, type TierLevel } from '@api/features/registry';
-import { createTenant } from '@entities/tenant';
+import { TIERS, type TierLevel } from '@entities/tenant/api/features/registry';
+import { createTenant } from '@entities/tenant/api/base';
 import { db, users, tenants } from '@api/db';
 import { eq } from 'drizzle-orm';
 import { logError } from '@shared/lib';

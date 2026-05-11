@@ -1,151 +1,24 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { supabase } from '@shared/api/supabase';
+import { useMaintenanceForm, categories, priorities } from '../model/useMaintenanceForm';
+import { MaintenanceRequestForm, MaintenancePriority } from '@entities/maintenance';
 
 interface MaintenanceFormProps {
-  onSubmit?: (data: MaintenanceRequest) => Promise<void>;
+  onSubmit?: (data: MaintenanceRequestForm) => Promise<void>;
 }
-
-interface MaintenanceRequest {
-  category: string;
-  priority: string;
-  description: string;
-  images?: string[];
-}
-
-const categories = [
-  { value: 'plumbing', label: 'Plumbing' },
-  { value: 'electrical', label: 'Electrical' },
-  { value: 'hvac', label: 'HVAC/Climate' },
-  { value: 'structural', label: 'Structural' },
-  { value: 'landscaping', label: 'Landscaping' },
-  { value: 'common_area', label: 'Common Area' },
-  { value: 'security', label: 'Security' },
-  { value: 'other', label: 'Other' },
-];
-
-const priorities = [
-  { value: 'LOW', label: 'Low - Minor inconvenience' },
-  { value: 'MEDIUM', label: 'Medium - Needs attention soon' },
-  { value: 'HIGH', label: 'High - Urgent issue' },
-  { value: 'EMERGENCY', label: 'Emergency - Immediate danger' },
-];
 
 export function MaintenanceForm({ onSubmit }: MaintenanceFormProps) {
-  const [formData, setFormData] = useState<MaintenanceRequest>({
-    category: '',
-    priority: 'MEDIUM',
-    description: '',
-    images: [],
-  });
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    const fileArray = Array.from(files);
-    if (formData.images && formData.images.length + fileArray.length > 5) {
-      setError('Maximum 5 images allowed');
-      return;
-    }
-
-    setUploading(true);
-    setError('');
-
-    try {
-      const uploadedUrls: string[] = [];
-
-      for (const file of fileArray) {
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-          continue;
-        }
-
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          setError('Each image must be less than 5MB');
-          continue;
-        }
-
-        const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-
-        const { data, error: uploadError } = await supabase.storage
-          .from('maintenance-images')
-          .upload(fileName, file, {
-            contentType: file.type,
-            upsert: false,
-          });
-
-        if (uploadError) {
-          console.error('Upload error:', uploadError);
-          continue;
-        }
-
-        if (data) {
-          const { data: urlData } = supabase.storage
-            .from('maintenance-images')
-            .getPublicUrl(data.path);
-          uploadedUrls.push(urlData.publicUrl);
-        }
-      }
-
-      if (uploadedUrls.length > 0) {
-        setFormData(prev => ({
-          ...prev,
-          images: [...(prev.images || []), ...uploadedUrls],
-        }));
-      }
-    } catch (err) {
-      console.error('Upload error:', err);
-      setError('Failed to upload images. Please try again.');
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      images: (prev.images || []).filter((_, i) => i !== index),
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError('');
-
-    try {
-      if (onSubmit) {
-        await onSubmit(formData);
-      } else {
-        const res = await fetch('/api/maintenance', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-
-        if (!res.ok) {
-          throw new Error('Failed to submit request');
-        }
-
-        alert('Maintenance request submitted successfully!');
-        setFormData({ category: '', priority: 'MEDIUM', description: '', images: [] });
-      }
-    } catch (err) {
-      setError('Failed to submit request. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const {
+    formData,
+    submitting,
+    error,
+    uploading,
+    fileInputRef,
+    handleFileChange,
+    removeImage,
+    handleSubmit,
+    updateFormData,
+  } = useMaintenanceForm(onSubmit);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -156,7 +29,7 @@ export function MaintenanceForm({ onSubmit }: MaintenanceFormProps) {
         <select
           required
           value={formData.category}
-          onChange={e => setFormData({ ...formData, category: e.target.value })}
+          onChange={e => updateFormData({ category: e.target.value })}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
         >
           <option value="">Select a category</option>
@@ -173,7 +46,7 @@ export function MaintenanceForm({ onSubmit }: MaintenanceFormProps) {
         <select
           required
           value={formData.priority}
-          onChange={e => setFormData({ ...formData, priority: e.target.value })}
+          onChange={e => updateFormData({ priority: e.target.value as MaintenancePriority })}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
         >
           {priorities.map(p => (
@@ -190,7 +63,7 @@ export function MaintenanceForm({ onSubmit }: MaintenanceFormProps) {
           required
           rows={5}
           value={formData.description}
-          onChange={e => setFormData({ ...formData, description: e.target.value })}
+          onChange={e => updateFormData({ description: e.target.value })}
           placeholder="Please describe the issue in detail..."
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
         />

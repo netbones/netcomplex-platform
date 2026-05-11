@@ -92,6 +92,7 @@ export function useResidentFilter(options: UseResidentFilterOptions = {}): UseRe
   }, [fetchResidents]);
 
   const filteredCount = filterType !== 'All Residents' ? residents.length : total;
+  const totalPages = Math.ceil(total / limit);
 
   return {
     residents,
@@ -109,6 +110,7 @@ export function useResidentFilter(options: UseResidentFilterOptions = {}): UseRe
     setPage: handleSetPage,
     setViewMode,
     filteredCount,
+    totalPages,
     refetch,
   };
 }

@@ -70,5 +70,6 @@ export interface UseResidentFilterReturn {
   setPage: (page: number | ((p: number) => number)) => void;
   setViewMode: (mode: ViewMode) => void;
   filteredCount: number;
+  totalPages: number;
   refetch: () => void;
 }

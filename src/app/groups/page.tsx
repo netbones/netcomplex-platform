@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { authClient } from '@api/auth-client';
 import { INTEREST_CATEGORIES } from '@shared/lib';
-import { usePageLoading } from '@/hooks/usePageLoading';
+import { usePageLoading } from '@shared/ui';
 
 interface Group {
   id: string;

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@shared/ui';
-import { useApiToast } from '@/hooks/useApiToast';
+import { useApiToast } from '@shared/lib';
 
 interface CreateListingFormProps {
   householdId?: string;

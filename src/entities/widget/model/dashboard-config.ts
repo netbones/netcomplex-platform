@@ -1,5 +1,5 @@
 import type { Tenant } from '@entities/tenant';
-import { isFeatureEnabled, TierLevel } from '@api/features/registry';
+import { isFeatureEnabled, TierLevel } from '@entities/tenant/api/features/registry';
 
 export interface DashboardWidget {
   id: string;

@@ -2,9 +2,9 @@ import { auth } from '@api/auth';
 import { db, notifications, users } from '@api/db';
 import { NextResponse } from 'next/server';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import { sendEmail } from '@/lib/email/resend';
-import { templates } from '@/lib/email/templates';
+import { withTenant } from '@entities/tenant/api/with-tenant';
+import { sendEmail } from '@shared/api/email/resend';
+import { templates } from '@shared/api/email/templates';
 import { logError } from '@shared/lib';
 import { createLogger } from '@shared/lib';
 

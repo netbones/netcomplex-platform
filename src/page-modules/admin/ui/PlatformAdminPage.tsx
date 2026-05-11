@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { listTenants } from '@entities/tenant';
+import { listTenants } from '@entities/tenant/api/base';
 
 function Badge({
   children,

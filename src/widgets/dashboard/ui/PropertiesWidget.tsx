@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { Property } from '@/types/identity';
+import { Property } from '@entities/tenant/model/types';
 
 interface PropertiesWidgetProps {
   properties: Property[];

@@ -1,5 +1,5 @@
 import type { Tenant } from '@entities/tenant';
-import type { TierLevel } from '@api/features/registry';
+import type { TierLevel } from '@entities/tenant/api/features/registry';
 
 export type { Tenant, TierLevel };
 

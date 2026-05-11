@@ -1,7 +1,7 @@
 import { db, groups, users, userGroups, contents } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/api/with-tenant';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useApiToast } from '@/hooks/useApiToast';
+import { useApiToast } from '@shared/lib';
 
 /*
  * TAG CLOUD WIDGET

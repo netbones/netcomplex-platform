@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Breadcrumbs, ErrorBoundary, ImageUpload } from '@shared/ui';
 import { authClient } from '@api/auth-client';
-import { supportedLanguages, languageNames, type SupportedLanguage } from '@/lib/i18n';
-import { usePageLoading } from '@/hooks/usePageLoading';
+import { supportedLanguages, languageNames, type SupportedLanguage } from '@/shared/lib/i18n';
+import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('settings-page');

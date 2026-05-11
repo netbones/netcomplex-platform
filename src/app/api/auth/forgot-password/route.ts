@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sendEmail } from '@/lib/email/resend';
-import { templates } from '@/lib/email/templates';
+import { sendEmail } from '@shared/api/email/resend';
+import { templates } from '@shared/api/email/templates';
 import { db, verifications, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { logError } from '@shared/lib';

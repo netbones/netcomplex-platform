@@ -1,4 +1,4 @@
-import type { TierLevel } from '@api/features/registry';
+import type { TierLevel } from '@entities/tenant/api/features/registry';
 import type { Facility } from '@entities/booking';
 
 export type TenantTier = 'STANDARD' | 'PREMIUM' | 'ENTERPRISE';

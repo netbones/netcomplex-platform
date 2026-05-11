@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@api/auth';
-import { hasPermission } from '@api/permissions';
+import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, maintenanceRequests, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import { sendEmail } from '@/lib/email/resend';
+import { withTenant } from '@entities/tenant/api/with-tenant';
+import { sendEmail } from '@shared/api/email/resend';
 import { createLogger } from '@shared/lib';
 
 const notifyLogger = createLogger('maintenance-notify');

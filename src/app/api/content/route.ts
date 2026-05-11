@@ -1,11 +1,11 @@
 import { auth } from '@api/auth';
-import { hasPermission } from '@api/permissions';
+import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, contents, users, groups } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { ContentCategoryEnum, type ContentCategory } from '@/types/enums';
+import { ContentCategoryEnum, type ContentCategory } from '@shared/api/types';
 import { revalidateContent } from '@api/revalidation';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/api/with-tenant';
 import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@shared/lib';
 
 /**

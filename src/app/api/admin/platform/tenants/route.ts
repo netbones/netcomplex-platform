@@ -5,7 +5,7 @@ import {
   updateTenant,
   deleteTenant,
   getTenantById,
-} from '@entities/tenant';
+} from '@entities/tenant/api/base';
 import { logError } from '@shared/lib';
 
 export async function GET() {

@@ -3,8 +3,8 @@ import {
   setPlatformPageFlag,
   getPlatformPageFlags,
   type PlatformPageFlags,
-} from '@api/flags/platform-flags';
-import { withTenant } from '@entities/tenant';
+} from '@entities/tenant/api/flags/platform-flags';
+import { withTenant } from '@entities/tenant/api/with-tenant';
 import { getSessionAndRole } from '@api/auth-utils';
 import { createComponentLogger } from '@shared/lib';
 

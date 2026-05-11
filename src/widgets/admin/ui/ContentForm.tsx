@@ -5,14 +5,15 @@ import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { LocaleSelector, RichTextEditor, TagInput } from '@shared/ui';
+import { LocaleSelector } from '@features/i18n/ui';
+import { RichTextEditor, TagInput } from '@shared/ui';
 import { authClient } from '@api/auth-client';
 import {
   supportedLanguages,
   languageNames,
   defaultLanguage,
   type SupportedLanguage,
-} from '@/lib/i18n';
+} from '@/shared/lib/i18n';
 import { contentSchema, type ContentFormData } from '@api/schemas';
 import { createComponentLogger } from '@shared/lib';
 

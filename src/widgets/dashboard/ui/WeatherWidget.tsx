@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { tenantConfig } from '@api/config/tenant';
+import { tenantConfig } from '@entities/tenant/api/tenant';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('WeatherWidget');
