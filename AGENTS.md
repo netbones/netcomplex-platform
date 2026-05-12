@@ -605,6 +605,37 @@ NEXT_PUBLIC_VERCEL_URL=""
 
 ---
 
+## Documentation Practices
+
+### Architectural Decisions
+
+**When making architectural decisions, ALWAYS update ADR.md:**
+
+- **Major technology choices** (frameworks, libraries, patterns)
+- **Significant refactoring** that changes system structure
+- **Performance or scalability decisions**
+- **Security architecture changes**
+- **Breaking API changes**
+- **Migration decisions** (e.g., Context → Zustand, Next.js version changes)
+
+**ADR Requirements:**
+
+- Use the established ADR template in `docs/STEERING/ADR.md`
+- Include context, decision, alternatives considered, and consequences
+- Document both positive and negative impacts
+- Number ADRs sequentially (ADR-001, ADR-002, etc.)
+- Commit ADR updates with code changes
+
+**When to skip ADR:**
+
+- Routine implementation details
+- Minor configuration changes
+- Bug fixes without architectural impact
+- Documentation updates
+- Code style or formatting changes
+
+---
+
 ## Quality Gates
 
 Before every commit/push, run:
