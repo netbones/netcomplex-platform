@@ -525,4 +525,102 @@ Use **Vercel Feature Flags** for gradual rollouts and tenant-specific features.
 
 ---
 
+## ADR-013: Migrate from React Context to Zustand
+
+**Status:** Accepted
+
+**Date:** 2026-05
+
+### Context
+
+Our application was experiencing build failures with Next.js 16 and React 19 due to React Context compatibility issues during server-side rendering. The original React Context implementation was causing `TypeError: createContext is not a function` errors during build-time page data collection.
+
+### Decision
+
+Migrated all application state management from React Context to **Zustand**, a lightweight state management library. This included:
+
+- Converting tenant context to Zustand store
+- Converting toast notifications to Zustand store
+- Removing all React Context providers from the application
+- Maintaining the same API surface for components using the state
+
+**Alternatives considered:**
+
+- **Redux Toolkit**: More boilerplate, larger bundle size, learning curve
+- **Recoil**: Meta-specific, smaller ecosystem, less mature
+- **Jotai**: Good alternative, but Zustand has better TypeScript support
+- **Keep React Context**: Would prevent upgrading to React 19/Next.js 16
+
+### Consequences
+
+**Positive:**
+
+- Resolved Next.js 16 + React 19 compatibility issues
+- Smaller bundle size (no React Context overhead)
+- Better TypeScript support and developer experience
+- Simpler API than React Context
+- No provider wrapping required
+- Better performance (no context re-renders on unrelated state changes)
+
+**Negative:**
+
+- Learning curve for team members unfamiliar with Zustand
+- Migration effort required to convert existing Context usage
+- Potential for state management complexity if not properly structured
+
+---
+
+## ADR-014: Downgrade Next.js to Resolve React 19 Compatibility
+
+**Status:** Accepted
+
+**Date:** 2026-05
+
+### Context
+
+After migrating from React Context to Zustand, we encountered persistent build failures with Next.js 16.2.1 and React 19.2.4. The error `TypeError: createContext is not a function` was occurring during build-time prerendering of API routes, specifically during "Collecting page data" phase.
+
+Despite eliminating all React Context from application code, the error persisted, indicating it was a framework-level compatibility issue between Next.js 16 and React 19.
+
+### Decision
+
+Downgraded Next.js from **16.2.1** to **15.5.18** to ensure stable compatibility with React 19.2.4.
+
+**Key changes made:**
+
+- Updated `package.json` to use Next.js `^15.5.18`
+- Removed incompatible `--webpack` flag from build script
+- Cleaned up `next.config.js` experimental options
+- Added CSS module type declarations
+
+**Alternatives considered:**
+
+- **Wait for Next.js 16.x fixes**: Would delay React 19 adoption indefinitely
+- **Downgrade React to 18**: Would lose React 19 features and future compatibility
+- **Use webpack flag**: Didn't resolve the underlying compatibility issue
+- **Custom webpack config**: Complex workaround, maintenance burden
+
+### Consequences
+
+**Positive:**
+
+- Immediate resolution of build failures
+- Stable production builds with React 19
+- Maintains access to modern React features
+- Reliable deployment pipeline
+- No complex workarounds needed
+
+**Negative:**
+
+- Cannot use Next.js 16 features (Turbopack by default, new caching APIs)
+- May need to upgrade again when Next.js 16 + React 19 compatibility is fully resolved
+- Missing some performance optimizations available in Next.js 16
+
+## Related
+
+- ADR-013: Required Zustand migration to eliminate React Context
+- ADR-001: Original Next.js App Router decision
+
+---
+
 _More ADRs will be added as we make architectural decisions. Use the template above to propose new ADRs._
