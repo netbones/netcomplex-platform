@@ -1,7 +1,7 @@
 'use client';
 
 // import { useTenant } from '@entities/tenant/api/context';
-import { isFeatureEnabled } from '@entities/tenant/api/features/registry';
+// import { isFeatureEnabled } from '@entities/tenant/api/features/registry';
 import { BookingsPage } from '@pages/booking';
 import { Suspense } from 'react';
 import { LoadingSpinner } from '@shared/ui';

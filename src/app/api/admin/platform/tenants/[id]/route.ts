@@ -4,7 +4,7 @@ import { logError } from '@shared/lib';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
+    const { id: _id } = await params;
     // const tenant = await getTenantById(id);
     const tenant = null;
 
@@ -21,8 +21,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
-    const body = await request.json();
+    const { id: _id } = await params;
+    const _body = await request.json();
 
     // const tenant = await updateTenant(id, {
     //   name: body.name,
@@ -53,7 +53,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id: _id } = await params;
     // await deleteTenant(id);
     return NextResponse.json({ success: true });
   } catch (error) {

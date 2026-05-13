@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWidgetStore } from '@entities/widget';
 import { WidgetRenderer } from '@widgets/dashboard';
-// import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/ui';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/ui';
 
 interface WidgetCardProps {
   id: string;
@@ -57,9 +57,8 @@ export function WidgetCard({
             <i className={`fas fa-chevron-${isCollapsed ? 'down' : 'up'} text-white text-sm`}></i>
           </button>
           {isEditMode && onRemove && (
-            // Temporarily disabled tooltip due to build issues
-            // <Tooltip>
-            //   <TooltipTrigger asChild>
+            <Tooltip>
+              <TooltipTrigger asChild>
                 <button
                   onClick={e => {
                     e.stopPropagation();
@@ -70,14 +69,14 @@ export function WidgetCard({
                 >
                   <i className="fas fa-times text-white/70 hover:text-red-400 text-sm transition-colors"></i>
                 </button>
-            //   </TooltipTrigger>
-            //   <TooltipContent
-            //     side="top"
-            //     className="bg-yellow-100 text-yellow-800 border-yellow-200"
-            //   >
-            //     {t('removeWidget', 'Remove widget')}
-            //   </TooltipContent>
-            // </Tooltip>
+              </TooltipTrigger>
+              <TooltipContent
+                side="top"
+                className="bg-yellow-100 text-yellow-800 border-yellow-200"
+              >
+                {t('removeWidget', 'Remove widget')}
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
       </div>

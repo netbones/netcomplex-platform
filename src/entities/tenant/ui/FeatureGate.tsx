@@ -22,7 +22,7 @@ import { useModuleEnabled } from '../api/use-enabled-modules';
  * </FeatureGate>
  */
 export function FeatureGate({
-  module,
+  module: _module,
   children,
   fallback = null,
 }: {
@@ -60,9 +60,9 @@ export function FeatureGate({
  * @deprecated Use FeatureGate with module prop instead
  */
 export function TierGuard({
-  tier,
+  tier: _tier,
   children,
-  fallback = null,
+  fallback: _fallback = null,
 }: {
   tier: string;
   children: React.ReactNode;

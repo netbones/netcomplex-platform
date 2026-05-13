@@ -1,6 +1,7 @@
 'use client';
 
-import { ReactNode, Suspense, lazy } from 'react';
+import { ReactNode, Suspense } from 'react';
+// import { lazy } from 'react';
 // import { useTenant } from '@entities/tenant/api/context';
 import type { Tenant } from '@entities/tenant';
 import { isFeatureEnabled } from '@entities/tenant/api/features/registry';
@@ -25,7 +26,7 @@ function getWidgetManifest(widgetId: string): WidgetManifest | undefined {
  * Check if a widget should be rendered based on tenant feature access.
  * Uses manifest featureFlag only - no dual-source lookup
  */
-function canRenderWidget(widgetId: string, tenant: Tenant | null): boolean {
+function _canRenderWidget(widgetId: string, tenant: Tenant | null): boolean {
   // If no tenant context, show all widgets (e.g., public pages)
   if (!tenant) {
     if (process.env.NODE_ENV === 'development') {
@@ -61,7 +62,7 @@ function WidgetErrorFallback({ widgetId }: { widgetId: string }) {
 /**
  * Loading fallback for lazy-loaded widgets
  */
-function WidgetLoadingFallback({ widgetId }: { widgetId: string }) {
+function WidgetLoadingFallback({ widgetId: _widgetId }: { widgetId: string }) {
   return (
     <div className="flex items-center justify-center h-full min-h-[100px]">
       <div className="animate-pulse flex flex-col items-center">
@@ -93,7 +94,7 @@ export function WidgetRenderer({ widgetId, fallback }: WidgetRendererProps): Rea
 
   // Check feature access before rendering
   // Temporarily disabled tenant check
-  // if (!canRenderWidget(widgetId, tenant)) {
+  // if (!_canRenderWidget(widgetId, tenant)) {
   //   return null;
   // }
 

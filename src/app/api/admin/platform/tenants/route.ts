@@ -20,7 +20,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const _body = await request.json();
 
     // const tenant = await createTenant({
     //   id: crypto.randomUUID(),

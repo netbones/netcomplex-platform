@@ -834,6 +834,86 @@ const validate = (data: FormData): boolean => {
 - `ChatTypingIndicator` - Show when other user is typing
 - `UnreadBadge` - Badge showing unread message count
 
+### Tooltip System
+
+**Technology**: Radix UI tooltips with custom styling
+
+#### Usage Guidelines
+
+**WHEN to use tooltips:**
+
+- **Icon-only buttons** - Explain button action without visible text
+- **Complex UI elements** - Clarify non-obvious interactions
+- **Status indicators** - Explain status meanings
+- **Helpful hints** - Provide additional context without cluttering UI
+
+**WHEN NOT to use tooltips:**
+
+- **Obvious buttons** - Don't tooltip "Save" or "Cancel" buttons
+- **Mobile-first** - Avoid reliance on hover interactions
+- **Critical information** - Don't hide important details in tooltips
+
+#### Design System
+
+**Color Variants:**
+
+- **Default**: `bg-popover text-popover-foreground` (neutral)
+- **Warning/Destructive**: `bg-yellow-100 text-yellow-800 border-yellow-200`
+- **Success**: `bg-green-100 text-green-800 border-green-200`
+- **Info**: `bg-blue-100 text-blue-800 border-blue-200`
+
+**Positioning:**
+
+- **Primary**: `side="top"` for most cases
+- **Secondary**: `side="bottom"` for bottom-positioned elements
+- **Fallback**: Auto-adjusts if tooltip would overflow viewport
+
+**Animation:**
+
+- **Fade in/out** with smooth transitions
+- **Zoom effect** for modern feel
+- **Slide from origin** for directional awareness
+
+#### Accessibility
+
+- **Keyboard navigation** - Tooltips accessible via keyboard focus
+- **Screen reader support** - Proper ARIA labels and descriptions
+- **Reduced motion** - Respects user's motion preferences
+- **High contrast** - Sufficient color contrast ratios
+
+#### Implementation Pattern
+
+```tsx
+import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/ui';
+
+<Tooltip>
+  <TooltipTrigger asChild>
+    <button
+      title={t('actionLabel', 'Action description')} // Fallback for no-JS
+      aria-label={t('actionLabel', 'Action description')}
+    >
+      <i className="fas fa-icon"></i>
+    </button>
+  </TooltipTrigger>
+  <TooltipContent side="top" className="bg-blue-100 text-blue-800">
+    {t('tooltipText', 'Detailed explanation')}
+  </TooltipContent>
+</Tooltip>;
+```
+
+#### Provider Setup
+
+Tooltips require `TooltipProvider` at the app root level:
+
+```tsx
+// src/app/providers.tsx
+import { TooltipProvider } from '@shared/ui';
+
+<TooltipProvider>
+  <App />
+</TooltipProvider>;
+```
+
 ---
 
 ## 9. Environment Variables

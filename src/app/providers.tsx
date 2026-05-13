@@ -5,8 +5,7 @@ import { useState } from 'react';
 import { httpBatchLink } from '@trpc/client';
 import superjson from 'superjson';
 import { authClient } from '@api/auth-client';
-// import { ToastProvider, TooltipProvider } from '@shared/ui';
-import { ToastProvider } from '@shared/ui';
+import { ToastProvider, TooltipProvider } from '@shared/ui';
 import { trpc } from '@api/trpc/client';
 import '@shared/lib/i18n';
 
@@ -43,7 +42,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <ToastProvider>{children}</ToastProvider>
+        <TooltipProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </TooltipProvider>
       </QueryClientProvider>
     </trpc.Provider>
   );
