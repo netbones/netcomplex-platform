@@ -228,3 +228,39 @@ For each domain:
 - [ ] Remove/empty legacy buckets (`src/components/*`, `src/lib/*`) once all domains migrated
 - [ ] Make boundary violations fail CI (eslint errors)
 - [ ] Update `README.md` with the new architecture rules + import conventions
+
+---
+
+## Remaining Work Summary
+
+### High Priority
+
+- [ ] Phase 1.3: Add lint guardrails (no-restricted-imports rules)
+- [ ] Phase 3.5: Enforce lint boundaries for dashboard slices (warn → error)
+- [ ] Phase 2.2: Complete shared/api/\* infrastructure (DB, tRPC, auth wrappers)
+
+### Medium Priority
+
+- [ ] Phase 2.1: Enforce Public API in src/shared/ui/index.ts
+- [ ] Phase 2.2: Generic hooks migration (in progress)
+- [ ] Phase 2.4: Quality gates for Phase 2
+
+### Low Priority (Cleanup)
+
+- [ ] Remove/empty legacy buckets once all domains migrated
+- [ ] Update README.md with architecture rules
+
+---
+
+## Completion Status (as of 2026-05-13)
+
+### Completed Domains (FSD Migration)
+
+- [x] Dashboard (pilot - COMPLETE)
+- [x] Maintenance
+- [x] Services / Community services
+- [x] Messages / Conversations
+- [x] Bookings
+- [x] Directory
+- [x] Admin tenant management
+- [x] Agent widgets (Managed Properties, Agent Activity)
