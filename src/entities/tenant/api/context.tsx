@@ -1,40 +1,35 @@
-'use client';
-
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { create } from 'zustand';
 import type { Tenant } from './types';
 
-interface TenantContextValue {
+interface TenantState {
   tenant: Tenant | null;
   isLoading: boolean;
+  setTenant: (tenant: Tenant | null) => void;
+  setLoading: (loading: boolean) => void;
 }
 
-const TenantContext = createContext<TenantContextValue>({
-  tenant: null,
-  isLoading: true,
-});
+// SSR-compatible Zustand store for tenant state
+export const useTenantStore = create<TenantState>()(
+  (set) => ({
+    tenant: null,
+    isLoading: false,
+    setTenant: (tenant) => set({ tenant }),
+    setLoading: (isLoading) => set({ isLoading }),
+  })
+);
 
-export function TenantContextProvider({ children }: { children: ReactNode }) {
-  const [tenant, setTenant] = useState<Tenant | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Fetch tenant from API or use window.__TENANT__ injected by server
-    const tenantData = (window as unknown as { __TENANT__?: Tenant }).__TENANT__;
-    if (tenantData) {
-      setTenant(tenantData);
-    }
-    setIsLoading(false);
-  }, []);
-
-  return <TenantContext.Provider value={{ tenant, isLoading }}>{children}</TenantContext.Provider>;
-}
-
+// React hooks for accessing tenant state
 export const useTenant = (): Tenant | null => {
-  const context = useContext(TenantContext);
-  return context.tenant;
+  return useTenantStore((state) => state.tenant);
 };
 
 export const useTenantLoading = (): boolean => {
-  const context = useContext(TenantContext);
-  return context.isLoading;
+  return useTenantStore((state) => state.isLoading);
+};
+
+export const useTenantActions = () => {
+  return useTenantStore((state) => ({
+    setTenant: state.setTenant,
+    setLoading: state.setLoading,
+  }));
 };

@@ -2,20 +2,4 @@ import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core';
 import { groupAccessEnum } from './group-access-enum';
 import { residentFilterEnum } from './resident-filter-enum';
 
-export const groups = pgTable('Group', {
-  id: text('id').primaryKey(),
-  tenantId: text('tenantId').notNull(),
-  name: text('name').notNull(),
-  description: text('description'),
-  category: text('category').notNull(),
-  image: text('image'),
-  color: text('color').default('#4F46E5').notNull(),
-  isPublic: boolean('isPublic').default(true).notNull(),
-  accessType: groupAccessEnum('accessType').default('OPEN').notNull(),
-  residentFilter: residentFilterEnum('residentFilter').default('ALL').notNull(),
-  isActive: boolean('isActive').default(true).notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
-  ownerId: text('ownerId').notNull(),
-});
+export const groups = pgTable('Group', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), name: text('name').notNull(), description: text('description'), category: text('category').notNull(), image: text('image'), color: text('color').default('#4F46E5').notNull(), isPublic: boolean('isPublic').default(true).notNull(), accessType: groupAccessEnum('accessType').default('OPEN').notNull(), residentFilter: residentFilterEnum('residentFilter').default('ALL').notNull(), isActive: boolean('isActive').default(true).notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }), ownerId: text('ownerId').notNull() });

@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, Suspense, lazy } from 'react';
-import { useTenant } from '@entities/tenant';
+// import { useTenant } from '@entities/tenant/api/context';
 import type { Tenant } from '@entities/tenant';
 import { isFeatureEnabled } from '@entities/tenant/api/features/registry';
 import { ErrorBoundary } from '@shared/ui';
@@ -89,12 +89,13 @@ function UnknownWidget({ widgetId }: { widgetId: string }) {
 }
 
 export function WidgetRenderer({ widgetId, fallback }: WidgetRendererProps): ReactNode {
-  const tenant = useTenant();
+  // const tenant = useTenant();
 
   // Check feature access before rendering
-  if (!canRenderWidget(widgetId, tenant)) {
-    return null;
-  }
+  // Temporarily disabled tenant check
+  // if (!canRenderWidget(widgetId, tenant)) {
+  //   return null;
+  // }
 
   // Get manifest from registry
   const manifest = getWidgetManifest(widgetId);

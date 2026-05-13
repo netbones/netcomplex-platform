@@ -7,7 +7,7 @@ export default async function RootLayout({
 }) {
   const { lng: languageParam } = await params;
   const { getCurrentTenant } = await import('@entities/tenant/api/base');
-  const { TenantProvider } = await import('@entities/tenant');
+  const { TenantProvider } = await import('@entities/tenant/ui/TenantProvider');
   const tenant = await getCurrentTenant();
   const language = languageParam || 'en';
 

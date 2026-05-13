@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import { create } from 'zustand';
+import { ReactNode } from 'react';
 
 interface Toast {
   id: string;
@@ -8,28 +9,44 @@ interface Toast {
   type: 'success' | 'error' | 'info';
 }
 
-interface ToastContextType {
+interface ToastState {
+  toasts: Toast[];
   showToast: (message: string, type?: Toast['type']) => void;
+  removeToast: (id: string) => void;
 }
 
-const ToastContext = createContext<ToastContextType | null>(null);
+// SSR-compatible Zustand store for toast management
+export const useToastStore = create<ToastState>((set, get) => ({
+  toasts: [],
+
+  showToast: (message: string, type: Toast['type'] = 'success') => {
+    const id = Date.now().toString();
+    const toast: Toast = { id, message, type };
+
+    set((state) => ({
+      toasts: [...state.toasts, toast]
+    }));
+
+    // Auto-remove toast after 3 seconds
+    setTimeout(() => {
+      get().removeToast(id);
+    }, 3000);
+  },
+
+  removeToast: (id: string) => {
+    set((state) => ({
+      toasts: state.toasts.filter(toast => toast.id !== id)
+    }));
+  },
+}));
 
 export function useToast() {
-  const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error('useToast must be used within ToastProvider');
-  return ctx;
+  const showToast = useToastStore((state) => state.showToast);
+  return { showToast };
 }
 
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toasts, setToasts] = useState<Toast[]>([]);
-
-  const showToast = useCallback((message: string, type: Toast['type'] = 'success') => {
-    const id = Date.now().toString();
-    setToasts(prev => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
-    }, 3000);
-  }, []);
+  const toasts = useToastStore((state) => state.toasts);
 
   const typeStyles = {
     success: 'bg-green-500',
@@ -44,7 +61,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <>
       {children}
       <div className="fixed bottom-4 right-4 z-50 space-y-2">
         {toasts.map(toast => (
@@ -57,6 +74,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           </div>
         ))}
       </div>
-    </ToastContext.Provider>
+    </>
   );
 }

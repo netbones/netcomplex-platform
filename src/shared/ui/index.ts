@@ -19,7 +19,7 @@ export * from './SideDrawer';
 export * from './TagCloud';
 export * from './Toast';
 export * from './Turnstile';
-export * from './tooltip';
+// export * from './tooltip'; // File temporarily disabled
 // Layout components
 export * from './ContainerLayout';
 export * from './Footer';

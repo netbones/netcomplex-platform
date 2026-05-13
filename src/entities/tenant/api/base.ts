@@ -16,7 +16,7 @@ import { eq } from 'drizzle-orm';
 import 'server-only';
 
 import type { TierLevel } from '@entities/tenant/api/features/registry';
-import { cache } from 'react';
+// import { unstable_cache } from 'next/cache';
 import { headers } from 'next/headers';
 import type { Tenant, TenantTier } from './types';
 import {
@@ -59,7 +59,7 @@ import {
 
 export type { Tenant };
 
-export const getCurrentTenant = cache(async (): Promise<Tenant | undefined> => {
+const getCurrentTenantImpl = async (): Promise<Tenant | undefined> => {
   const headersList = await headers();
 
   const tenantId = headersList.get('x-tenant-id');
@@ -72,7 +72,9 @@ export const getCurrentTenant = cache(async (): Promise<Tenant | undefined> => {
   // This allows Soralia development to work with the multi-tenant system
   const localTenantSlug = process.env.LOCAL_TENANT_SLUG || 'soralia';
   return getTenantBySlug(localTenantSlug);
-});
+};
+
+export const getCurrentTenant = getCurrentTenantImpl;
 
 // Type helper to convert Drizzle result to Tenant
 function toTenant(row: Record<string, unknown>): Tenant {
