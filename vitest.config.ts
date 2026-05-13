@@ -38,8 +38,14 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      include: ['src/{app,pages,widgets,features,shared}/**/*.{ts,tsx}'],
-      exclude: ['src/**/*.d.ts', 'src/entities/**/*'],
+      include: [
+        'src/shared/**/*.{ts,tsx}',
+        'src/entities/**/*.{ts,tsx}',
+        'src/features/**/*.{ts,tsx}',
+        'src/widgets/**/*.{ts,tsx}',
+        'src/page-modules/**/*.{ts,tsx}',
+      ],
+      exclude: ['src/**/*.d.ts', 'src/shared/api/db.ts'],
     },
   },
 });

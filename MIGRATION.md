@@ -264,3 +264,18 @@ For each domain:
 - [x] Directory
 - [x] Admin tenant management
 - [x] Agent widgets (Managed Properties, Agent Activity)
+
+### Cleanup Tasks Completed
+
+- [x] Task 1: shared/ui cleanup (AuthCheck, TierGuard, TenantStyles already in entities/tenant/ui)
+- [x] Task 1c: Move usePageLoading.tsx → shared/lib/hooks/
+- [x] Task 2a: Delete empty src/hooks/ directory
+- [x] Task 2b: Delete shared/api/tenant/ stub
+- [x] Task 3: entities/identity/ audit (already properly organized)
+- [x] Task 4: Update vitest.config.ts coverage paths for FSD layers
+
+### Remaining
+
+- [ ] Phase 1.3: Add lint guardrails (no-restricted-imports rules)
+- [ ] Phase 3.5: Enforce lint boundaries for dashboard slices
+- [ ] Phase 2.2: Complete shared/api/\* infrastructure

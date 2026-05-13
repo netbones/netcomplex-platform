@@ -11,7 +11,6 @@ export * from './Honeypot';
 export * from './ImageUpload';
 export * from './LanguageSwitcher';
 export * from './Loading';
-export * from './usePageLoading';
 export * from './MediaLibrary';
 export * from './Pagination';
 export * from './RichTextEditor';
@@ -20,6 +19,8 @@ export * from './TagCloud';
 export * from './Toast';
 export * from './Turnstile';
 export * from './tooltip';
+// Re-export from hooks for backward compatibility
+export { usePageLoading, useI18nReady, PageLoadingSkeleton } from '../lib/hooks/usePageLoading';
 // Layout components
 export * from './ContainerLayout';
 export * from './Footer';
