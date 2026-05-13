@@ -243,11 +243,11 @@ For each domain:
 
 - [ ] Phase 2.1: Enforce Public API in src/shared/ui/index.ts
 - [ ] Phase 2.2: Generic hooks migration (in progress)
-- [ ] Phase 2.4: Quality gates for Phase 2
+- [x] Phase 2.4: Quality gates for Phase 2 (typecheck ✅, lint ✅, build ⚠️)
 
 ### Low Priority (Cleanup)
 
-- [ ] Remove/empty legacy buckets once all domains migrated
+- [x] Remove/empty legacy buckets once all domains migrated
 - [ ] Update README.md with architecture rules
 
 ---
