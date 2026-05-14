@@ -28,7 +28,7 @@ export function DashboardTabs({
 }: DashboardTabsProps) {
   return (
     <div className="mb-6">
-      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap items-center gap-2">
         {tabs.map(tab => (
           <button
             key={tab.id}
