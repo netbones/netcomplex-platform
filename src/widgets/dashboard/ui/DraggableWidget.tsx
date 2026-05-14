@@ -153,23 +153,13 @@ export function DraggableWidget({
             </button>
           )}
           {isEditMode && removable && onRemove && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={onRemove}
-                  className="p-1 rounded transition-colors pointer-events-auto"
-                  title={t('removeWidget', 'Remove widget')}
-                >
-                  <i className="fas fa-times text-white/70 hover:text-red-400 text-sm transition-colors"></i>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent
-                side="top"
-                className="bg-yellow-100 text-yellow-800 border-yellow-200"
-              >
-                {t('removeWidget', 'Remove widget')}
-              </TooltipContent>
-            </Tooltip>
+            <button
+              onClick={onRemove}
+              className="p-1 rounded transition-colors pointer-events-auto"
+              title={t('removeWidget', 'Remove widget')}
+            >
+              <i className="fas fa-times text-white/70 hover:text-red-400 text-sm transition-colors"></i>
+            </button>
           )}
         </div>
       </div>

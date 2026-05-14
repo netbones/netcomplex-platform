@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
-import { createComponentLogger, sanitizeHtml } from '@shared/lib';
+import { createComponentLogger } from '@shared/lib';
+import { sanitizeHtml } from '@shared/lib/sanitize';
 import { usePageLoading } from '@shared/ui';
 
 const log = createComponentLogger('news-page');

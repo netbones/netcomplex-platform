@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@api/auth-client';
 import { ErrorBoundary } from '@shared/ui';
-import { useApiToast } from '@shared/lib';
+import { useApiToast } from '@shared/lib/hooks/useApiToast';
 
 interface ServiceListing {
   id: string;
