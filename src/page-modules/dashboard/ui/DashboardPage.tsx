@@ -60,7 +60,7 @@ const DEFAULT_TABS: Tab[] = [
 function DashboardContent() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditMode, setIsEditMode] = useState(false);
-  const { t } = useTranslation('dashboard');
+  const { t } = useTranslation(['common', 'dashboard']);
   const { userWidgets, addWidgetToTab, removeWidgetFromTab, resetLayout } = useWidgetStore();
 
   const { isReady, LoadingComponent } = usePageLoading([
