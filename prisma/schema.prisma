@@ -4,6 +4,7 @@ generator client {
 
 generator drizzle {
   provider = "prisma-generator-drizzle"
+  output   = "../src/db/schema"
 }
 
 datasource db {

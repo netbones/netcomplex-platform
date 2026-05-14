@@ -25,6 +25,7 @@ export default tseslint.config(
     plugins: { boundaries },
     settings: {
       'boundaries/elements': [
+        { type: 'schema', pattern: 'src/db/schema/**/*' },
         { type: 'shared', pattern: 'src/shared/**/*' },
         { type: 'entities', pattern: 'src/entities/**/*' },
         { type: 'features', pattern: 'src/features/**/*' },
@@ -47,13 +48,14 @@ export default tseslint.config(
         {
           default: 'disallow',
           rules: [
-            { from: 'shared', allow: ['shared'] },
-            { from: 'entities', allow: ['shared', 'entities'] },
-            { from: 'features', allow: ['shared', 'entities', 'features'] },
-            { from: 'widgets', allow: ['shared', 'entities', 'features', 'widgets'] },
-            { from: 'app', allow: ['shared', 'entities', 'features', 'widgets', 'app', 'processes'] },
-            { from: 'pages', allow: ['shared', 'entities', 'features', 'widgets', 'pages', 'processes'] },
-            { from: 'processes', allow: ['shared', 'entities', 'features', 'processes'] },
+            { from: 'schema',    allow: ['schema'] },
+            { from: 'shared',    allow: ['schema', 'shared'] },
+            { from: 'entities',  allow: ['schema', 'shared', 'entities'] },
+            { from: 'features',  allow: ['schema', 'shared', 'entities', 'features'] },
+            { from: 'widgets',   allow: ['schema', 'shared', 'entities', 'features', 'widgets'] },
+            { from: 'app',       allow: ['schema', 'shared', 'entities', 'features', 'widgets', 'app', 'processes'] },
+            { from: 'pages',     allow: ['schema', 'shared', 'entities', 'features', 'widgets', 'pages', 'processes'] },
+            { from: 'processes', allow: ['schema', 'shared', 'entities', 'features', 'processes'] },
           ],
         },
       ],

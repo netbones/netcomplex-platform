@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -23,33 +19,15 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@shared/*": [
-        "./src/shared/*"
-      ],
-      "@api/*": [
-        "./src/shared/api/*"
-      ],
-      "@entities/*": [
-        "./src/entities/*"
-      ],
-      "@features/*": [
-        "./src/features/*"
-      ],
-      "@widgets/*": [
-        "./src/widgets/*"
-      ],
-      "@pages/*": [
-        "./src/page-modules/*"
-      ],
-      "@processes/*": [
-        "./src/processes/*"
-      ],
-      "@prisma/*": [
-        "./prisma/drizzle/*"
-      ]
+      "@/*": ["./src/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@api/*": ["./src/shared/api/*"],
+      "@entities/*": ["./src/entities/*"],
+      "@features/*": ["./src/features/*"],
+      "@widgets/*": ["./src/widgets/*"],
+      "@pages/*": ["./src/page-modules/*"],
+      "@processes/*": ["./src/processes/*"],
+      "@schema/*": ["./src/db/schema/*"]
     }
   },
   "include": [
@@ -58,12 +36,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "prisma/drizzle/**/*.ts"
+    "src/db/schema/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "src/**/*.html",
-    "migrate-*.ts",
-    "prisma/seed.ts"
-  ]
+  "exclude": ["node_modules", "src/**/*.html", "migrate-*.ts"]
 }
