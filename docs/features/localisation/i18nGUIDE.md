@@ -451,7 +451,7 @@ const renderWithI18n = component => {
 | **resources**     | ✅ Fixed | Using `usePageLoading` hook                 |
 | **notifications** | ✅ Fixed | Using `usePageLoading` hook                 |
 | **interest**      | ✅ Fixed | Using `usePageLoading` hook                 |
-| dashboard         | ✅ Fixed | Hardcoded after hydration issues            |
+| dashboard         | ✅ Fixed | Using `usePageLoading` hook                 |
 | member            | ✅ Fixed | Hardcoded after hydration issues            |
 
 ## Common Issues

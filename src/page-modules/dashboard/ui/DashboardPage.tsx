@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWidgetStore } from '@entities/widget';
-import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
+import { Breadcrumbs, ErrorBoundary, usePageLoading } from '@shared/ui';
 import { DraggableWidget, WidgetCard } from '@widgets/dashboard';
 import { DashboardTabs } from '@widgets/dashboard';
 import { AddWidgetModal } from '@features/dashboard';
@@ -62,6 +62,11 @@ function DashboardContent() {
   const [isEditMode, setIsEditMode] = useState(false);
   const { t } = useTranslation('dashboard');
   const { userWidgets, addWidgetToTab, removeWidgetFromTab, resetLayout } = useWidgetStore();
+
+  const { isReady, LoadingComponent } = usePageLoading([
+    { label: 'Home', href: '/' },
+    { label: 'Dashboard', href: '/dashboard' },
+  ]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [availableWidgets, setAvailableWidgets] = useState<
     { id: string; title: string; icon: string }[]
@@ -78,13 +83,9 @@ function DashboardContent() {
     );
   }, []);
 
-  const handleAddWidget = (widgetId: string) => {
-    addWidgetToTab(activeTab, widgetId);
-  };
-
-  const handleRemoveWidget = (widgetId: string) => {
-    removeWidgetFromTab(activeTab, widgetId);
-  };
+  if (!isReady) {
+    return LoadingComponent;
+  }
 
   const currentTab = DEFAULT_TABS.find(tab => tab.id === activeTab);
   const tabWidgets = userWidgets[activeTab] || currentTab?.defaultWidgets || [];

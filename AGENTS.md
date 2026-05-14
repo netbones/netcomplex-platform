@@ -78,24 +78,24 @@ Project documentation lives in `docs/STEERING/`:
 
 ### Tech Stack
 
-| Layer      | Technology                       |
-| ---------- | -------------------------------- |
-| Frontend   | Next.js 14 (App Router) + Preact |
-| Language   | TypeScript                       |
-| Styling    | Tailwind CSS                     |
-| Auth       | Better Auth                      |
-| Database   | PostgreSQL via Supabase          |
-| ORM        | Prisma + Drizzle                 |
-| Real-time  | Supabase Realtime (chat)         |
-| State      | TanStack Query                   |
-| Forms      | React Hook Form + Zod            |
-| Maps       | Leaflet + react-leaflet          |
-| API        | tRPC                             |
-| Commerce   | UCP & AP2                        |
-| CMS Editor | TipTap                           |
-| Logging    | Pino                             |
-| Deployment | Vercel                           |
-| Features   | Vercel Feature Flags             |
+| Layer      | Technology                                 |
+| ---------- | ------------------------------------------ |
+| Frontend   | Next.js 14 (App Router) + Preact           |
+| Language   | TypeScript                                 |
+| Styling    | Tailwind CSS                               |
+| Auth       | Better Auth                                |
+| Database   | PostgreSQL via Supabase                    |
+| ORM        | Prisma + Drizzle                           |
+| Real-time  | Supabase Realtime (chat)                   |
+| State      | TanStack Query (server) + Zustand (client) |
+| Forms      | React Hook Form + Zod                      |
+| Maps       | Leaflet + react-leaflet                    |
+| API        | tRPC (internal) + OpenAPI (external)       |
+| Commerce   | UCP & AP2                                  |
+| CMS Editor | TipTap                                     |
+| Logging    | Pino                                       |
+| Deployment | Vercel                                     |
+| Features   | Vercel Feature Flags                       |
 
 ---
 

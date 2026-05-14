@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { router } from '@api/trpc/server';
+import {
+  openApiRouter,
+  openApiPublicProcedure,
+  openApiProtectedProcedure,
+  openApiAdminProcedure,
+} from '@api/trpc/server';
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import {
@@ -14,7 +19,7 @@ import {
 } from '@api/db';
 import { eq, and, or, asc, desc, gt, ne, like, count } from 'drizzle-orm';
 
-// Output Schemas
+// Output Schemas (same as in router.ts)
 const propertySchema = z.object({
   id: z.string(),
   tenantId: z.string(),
@@ -95,11 +100,18 @@ const agentAccessSchema = z.object({
   updatedAt: z.date(),
 });
 
-export const identityRouter = router({
+export const identityOpenApiRouter = openApiRouter({
   // ============ PROPERTIES (The Assets) ============
 
   listProperties: openApiAdminProcedure
-    .meta({ openapi: { method: 'GET', path: '/properties', tags: ['Properties'] } })
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/properties',
+        tags: ['Properties'],
+        protect: true, // This indicates authentication is required
+      },
+    })
     .input(
       z
         .object({
@@ -132,7 +144,14 @@ export const identityRouter = router({
         limit: z.number(),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      // Handle authentication in the procedure
+      if (!ctx.session?.user?.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
+      }
+      if (ctx.role !== 'ADMIN' && ctx.role !== 'BOARD') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+      }
       const { search, street, page, limit } = input || {};
       const skip = ((page || 1) - 1) * (limit || 20);
       const limitVal = limit || 20;
@@ -187,7 +206,14 @@ export const identityRouter = router({
     }),
 
   getProperty: openApiProtectedProcedure
-    .meta({ openapi: { method: 'GET', path: '/properties/{id}', tags: ['Properties'] } })
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/properties/{id}',
+        tags: ['Properties'],
+        protect: true,
+      },
+    })
     .input(z.object({ id: z.string() }))
     .output(
       z.object({
@@ -219,6 +245,10 @@ export const identityRouter = router({
       })
     )
     .query(async ({ input, ctx }) => {
+      // Handle authentication in the procedure
+      if (!ctx.session?.user?.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
+      }
       const [property] = await db.select().from(properties).where(eq(properties.id, input.id));
 
       if (!property) {
@@ -256,8 +286,7 @@ export const identityRouter = router({
       }
 
       // Fetch residents if we have an active household
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let residents: any[] = [];
+      let residents: (typeof profiles.$inferSelect)[] = [];
       if (activeHousehold) {
         residents = await db
           .select()
@@ -274,7 +303,14 @@ export const identityRouter = router({
     }),
 
   createProperty: openApiAdminProcedure
-    .meta({ openapi: { method: 'POST', path: '/properties', tags: ['Properties'] } })
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/properties',
+        tags: ['Properties'],
+        protect: true,
+      },
+    })
     .input(
       z.object({
         street: z.string().min(1),
@@ -286,6 +322,13 @@ export const identityRouter = router({
     )
     .output(propertySchema)
     .mutation(async ({ input, ctx }) => {
+      // Handle authentication and authorization in the procedure
+      if (!ctx.session?.user?.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
+      }
+      if (ctx.role !== 'ADMIN' && ctx.role !== 'BOARD') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin access required' });
+      }
       const [existing] = await db
         .select()
         .from(properties)
@@ -318,11 +361,20 @@ export const identityRouter = router({
 
   listHouseholds: openApiProtectedProcedure
     .meta({
-      openapi: { method: 'GET', path: '/properties/{propertyId}/households', tags: ['Households'] },
+      openapi: {
+        method: 'GET',
+        path: '/properties/{propertyId}/households',
+        tags: ['Households'],
+        protect: true,
+      },
     })
     .input(z.object({ propertyId: z.string() }))
     .output(z.array(householdSchema))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      // Handle authentication in the procedure
+      if (!ctx.session?.user?.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
+      }
       return db
         .select()
         .from(households)
@@ -331,7 +383,14 @@ export const identityRouter = router({
     }),
 
   createHousehold: openApiProtectedProcedure
-    .meta({ openapi: { method: 'POST', path: '/households', tags: ['Households'] } })
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/households',
+        tags: ['Households'],
+        protect: true,
+      },
+    })
     .input(
       z.object({
         propertyId: z.string(),
@@ -340,7 +399,11 @@ export const identityRouter = router({
       })
     )
     .output(householdSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      // Handle authentication in the procedure
+      if (!ctx.session?.user?.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
+      }
       const [property] = await db
         .select()
         .from(properties)
@@ -371,7 +434,14 @@ export const identityRouter = router({
     }),
 
   getMyProperties: openApiProtectedProcedure
-    .meta({ openapi: { method: 'GET', path: '/my/properties', tags: ['Properties'] } })
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/my/properties',
+        tags: ['Properties'],
+        protect: true,
+      },
+    })
     .output(
       z.array(
         z.object({
@@ -403,6 +473,10 @@ export const identityRouter = router({
       )
     )
     .query(async ({ ctx }) => {
+      // Handle authentication in the procedure
+      if (!ctx.session?.user?.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
+      }
       const owned = await db
         .select()
         .from(properties)
@@ -441,8 +515,7 @@ export const identityRouter = router({
             db.select().from(standardSeats).where(eq(standardSeats.propertyId, prop.id)),
           ]);
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          let profilesData: any[] = [];
+          let profilesData: (typeof profiles.$inferSelect)[] = [];
           if (activeHousehold) {
             profilesData = await db
               .select()
@@ -468,7 +541,14 @@ export const identityRouter = router({
   // ============ PROFILES (Resident Participation) ============
 
   createProfile: openApiProtectedProcedure
-    .meta({ openapi: { method: 'POST', path: '/profiles', tags: ['Profiles'] } })
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/profiles',
+        tags: ['Profiles'],
+        protect: true,
+      },
+    })
     .input(
       z.object({
         householdId: z.string(),
@@ -479,6 +559,10 @@ export const identityRouter = router({
     )
     .output(profileSchema)
     .mutation(async ({ input, ctx }) => {
+      // Handle authentication in the procedure
+      if (!ctx.session?.user?.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
+      }
       const { householdId, displayName, occupantType, residencyType } = input;
 
       const [household] = await db.select().from(households).where(eq(households.id, householdId));
@@ -525,7 +609,14 @@ export const identityRouter = router({
     }),
 
   updateProfile: openApiProtectedProcedure
-    .meta({ openapi: { method: 'PATCH', path: '/profiles/{id}', tags: ['Profiles'] } })
+    .meta({
+      openapi: {
+        method: 'PATCH',
+        path: '/profiles/{id}',
+        tags: ['Profiles'],
+        protect: true,
+      },
+    })
     .input(
       z.object({
         id: z.string(),
@@ -538,6 +629,10 @@ export const identityRouter = router({
     )
     .output(profileSchema)
     .mutation(async ({ input, ctx }) => {
+      // Handle authentication in the procedure
+      if (!ctx.session?.user?.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
+      }
       const { id, ...data } = input;
       const [profile] = await db.select().from(profiles).where(eq(profiles.id, id));
       if (!profile) throw new TRPCError({ code: 'NOT_FOUND', message: 'Profile not found' });
@@ -621,7 +716,14 @@ export const identityRouter = router({
   // ============ SOLO SEATS ============
 
   getMySoloSeat: openApiProtectedProcedure
-    .meta({ openapi: { method: 'GET', path: '/my/solo-seat', tags: ['Solo Seats'] } })
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/my/solo-seat',
+        tags: ['Solo Seats'],
+        protect: true,
+      },
+    })
     .output(
       z
         .object({
@@ -635,6 +737,10 @@ export const identityRouter = router({
         .nullable()
     )
     .query(async ({ ctx }) => {
+      // Handle authentication in the procedure
+      if (!ctx.session?.user?.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
+      }
       const [seat] = await db.select().from(soloSeats).where(eq(soloSeats.userId, ctx.userId!));
       if (!seat) return null;
 
@@ -652,9 +758,20 @@ export const identityRouter = router({
   // ============ AGENT ACCESS ============
 
   getAgentAccesses: openApiProtectedProcedure
-    .meta({ openapi: { method: 'GET', path: '/my/agent-accesses', tags: ['Agent Access'] } })
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/my/agent-accesses',
+        tags: ['Agent Access'],
+        protect: true,
+      },
+    })
     .output(z.array(agentAccessSchema))
     .query(async ({ ctx }) => {
+      // Handle authentication in the procedure
+      if (!ctx.session?.user?.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
+      }
       return db.select().from(agentAccesses).where(eq(agentAccesses.agentId, ctx.userId!));
     }),
 
@@ -664,11 +781,16 @@ export const identityRouter = router({
         method: 'GET',
         path: '/properties/{propertyId}/agent-accesses',
         tags: ['Agent Access'],
+        protect: true,
       },
     })
     .input(z.object({ propertyId: z.string() }))
     .output(z.array(agentAccessSchema))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      // Handle authentication in the procedure
+      if (!ctx.session?.user?.id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
+      }
       return db.select().from(agentAccesses).where(eq(agentAccesses.propertyId, input.propertyId));
     }),
 });

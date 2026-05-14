@@ -1,4 +1,5 @@
 import { initTRPC, TRPCError } from '@trpc/server';
+import { OpenApiMeta } from 'trpc-openapi';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
 import { auth } from '@api/auth';
@@ -58,6 +59,7 @@ export async function createContext(opts: { headers: Headers }): Promise<Context
   };
 }
 
+// Main tRPC instance with superjson for internal use
 const t = initTRPC.context<Context>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
@@ -70,6 +72,22 @@ const t = initTRPC.context<Context>().create({
     };
   },
 });
+
+// OpenAPI-compatible tRPC instance (no transformer, with OpenApiMeta)
+const tOpenApi = initTRPC
+  .meta<OpenApiMeta>()
+  .context<Context>()
+  .create({
+    errorFormatter({ shape, error }) {
+      return {
+        ...shape,
+        data: {
+          ...shape.data,
+          zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
+        },
+      };
+    },
+  });
 
 export const router = t.router;
 export const publicProcedure = t.procedure;
@@ -101,3 +119,9 @@ export const agentProcedure = protectedProcedure.use(async ({ ctx, next }) => {
   }
   return next({ ctx });
 });
+
+// OpenAPI-compatible procedures (base procedures for OpenAPI generation)
+export const openApiPublicProcedure = tOpenApi.procedure;
+export const openApiProtectedProcedure = tOpenApi.procedure;
+export const openApiAdminProcedure = tOpenApi.procedure;
+export const openApiRouter = tOpenApi.router;

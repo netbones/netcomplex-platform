@@ -623,4 +623,113 @@ Downgraded Next.js from **16.2.1** to **15.5.18** to ensure stable compatibility
 
 ---
 
+## ADR-015: Add OpenAPI Support for Mobile App Integration
+
+**Status:** Superseded by ADR-016
+
+**Date:** 2026-05
+
+### Context
+
+Our Android mobile app needs to consume API endpoints, but tRPC is primarily designed for TypeScript-to-TypeScript communication. While we have both tRPC and REST API routes, we need a standardized way to expose our API to external clients with proper OpenAPI documentation.
+
+### Decision
+
+~~Implement OpenAPI spec generation using `trpc-openapi` to create REST-compatible endpoints from our tRPC procedures.~~
+
+**Note:** This approach was superseded when we discovered `trpc-openapi` only supports tRPC v10, while our codebase uses v11.
+
+### Consequences
+
+**Positive:**
+
+- Identified the need for OpenAPI documentation early
+
+**Negative:**
+
+- `trpc-openapi` incompatibility with tRPC v11
+- Downgrading to v10 would cause breaking changes across the codebase
+
+**Related:**
+
+- Superseded by ADR-016: Manual OpenAPI Specification
+
+---
+
+## ADR-016: Manual OpenAPI Specification
+
+**Status:** Accepted
+
+**Date:** 2026-05-14
+
+### Context
+
+After attempting to use `trpc-openapi` for automatic OpenAPI generation (ADR-015), we discovered it only supports tRPC v10, while our codebase uses tRPC v11. Downgrading would cause breaking changes across the entire application due to API differences between versions.
+
+The Android mobile app still needs OpenAPI documentation to consume our APIs, but we need a solution compatible with tRPC v11.
+
+### Decision
+
+Create a manual OpenAPI 3.0 specification served at `/api/openapi.json`. The specification:
+
+- Is hand-written and maintained as code
+- Documents tRPC endpoints in OpenAPI format
+- Includes proper schemas, security definitions, and error responses
+- Passes OpenAPI validation with zero warnings
+- Uses production URL (not localhost) in server definitions
+
+**Implementation:**
+
+```typescript
+// src/app/api/openapi.json/route.ts
+const openApiSpec = {
+  openapi: '3.0.0',
+  info: {
+    title: 'Soralia Village API',
+    version: '1.0.0',
+    license: { name: 'Proprietary' },
+  },
+  paths: {
+    /* manual endpoint definitions */
+  },
+};
+```
+
+**Alternatives considered:**
+
+1. **Downgrade to tRPC v10**: Would cause breaking changes, incompatible with v11 features
+2. **Wait for trpc-openapi v11 support**: No timeline, blocks mobile app development
+3. **Use community forks**: All tested forks also require tRPC v10
+4. **GraphQL**: Overkill, adds unnecessary complexity
+
+### Consequences
+
+**Positive:**
+
+- Compatible with tRPC v11 - no breaking changes
+- Full control over API documentation
+- Passes OpenAPI validation (redocly lint)
+- Can be incrementally expanded as needed
+- No dependency on unmaintained packages
+
+**Negative:**
+
+- Manual maintenance required when APIs change
+- No automatic sync between tRPC procedures and OpenAPI spec
+- Requires discipline to keep documentation updated
+- More verbose than automatic generation
+
+**Mitigation:**
+
+- Document OpenAPI update process in AGENTS.md
+- Add OpenAPI validation to CI/CD pipeline
+- Review OpenAPI spec during API changes
+
+**Related:**
+
+- Supersedes ADR-015: Add OpenAPI Support for Mobile App Integration
+- ADR-011: Use tRPC for Type-Safe APIs
+
+---
+
 _More ADRs will be added as we make architectural decisions. Use the template above to propose new ADRs._
