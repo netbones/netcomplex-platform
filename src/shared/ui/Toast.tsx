@@ -11,7 +11,7 @@ interface Toast {
 
 interface ToastState {
   toasts: Toast[];
-  showToast: (message: string, type?: Toast['type']) => void;
+  showToast: (message: string, type?: Toast['type'], allowDuplicate?: boolean) => void;
   removeToast: (id: string) => void;
 }
 
@@ -19,12 +19,24 @@ interface ToastState {
 export const useToastStore = create<ToastState>((set, get) => ({
   toasts: [],
 
-  showToast: (message: string, type: Toast['type'] = 'success') => {
+  showToast: (message: string, type: Toast['type'] = 'success', allowDuplicate = false) => {
+    const state = get();
+
+    // Prevent duplicate toasts with the same message and type (unless explicitly allowed)
+    if (!allowDuplicate) {
+      const existingToast = state.toasts.find(
+        toast => toast.message === message && toast.type === type
+      );
+      if (existingToast) {
+        return; // Don't add duplicate toast
+      }
+    }
+
     const id = Date.now().toString();
     const toast: Toast = { id, message, type };
 
-    set((state) => ({
-      toasts: [...state.toasts, toast]
+    set(state => ({
+      toasts: [...state.toasts, toast],
     }));
 
     // Auto-remove toast after 3 seconds
@@ -34,19 +46,19 @@ export const useToastStore = create<ToastState>((set, get) => ({
   },
 
   removeToast: (id: string) => {
-    set((state) => ({
-      toasts: state.toasts.filter(toast => toast.id !== id)
+    set(state => ({
+      toasts: state.toasts.filter(toast => toast.id !== id),
     }));
   },
 }));
 
 export function useToast() {
-  const showToast = useToastStore((state) => state.showToast);
+  const showToast = useToastStore(state => state.showToast);
   return { showToast };
 }
 
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const toasts = useToastStore((state) => state.toasts);
+  const toasts = useToastStore(state => state.toasts);
 
   const typeStyles = {
     success: 'bg-green-500',
