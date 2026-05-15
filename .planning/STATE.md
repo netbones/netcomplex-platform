@@ -2,10 +2,10 @@
 
 ## Current Position
 
-- **Phase:** 10-email-notifications
+- **Phase:** 18-toast-unification
 - **Plan:** 01 (complete)
 - **Status:** Plan complete - All tasks committed
-- **Last Updated:** 2026-04-23
+- **Last Updated:** 2026-05-15
 
 ## Decisions Made
 
@@ -22,6 +22,7 @@
 - **Email infrastructure:** MailerSend for transactional emails with graceful API key validation
 - **Password reset:** Custom UUID token-based flow with 1-hour expiry
 - **Email enumeration protection:** Password reset always returns success regardless of email existence
+- **Toast unification:** Sonner as single toast system — Zustand toast removed, useApiToast retained for API operations
 
 ## Notes
 
@@ -33,3 +34,4 @@
 - **10-email-notifications-01:** Complete - Tasks 1-5 committed, TypeScript errors fixed
 - Task 5 checkpoint: human verification passed
 - Email sending is async and non-blocking to not affect main flows
+- **18-toast-unification-01:** Complete - Zustand toast removed, Sonner unified, ADR-018 added
