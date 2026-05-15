@@ -1,9 +1,11 @@
 import { db, contents, users, groups } from '@api/db';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, or, isNull, lte, gt } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@shared/lib';
 import { revalidateContent } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
+import { auth } from '@api/auth';
+import { hasPermission } from '@entities/tenant/api/permissions';
 
 /**
  * Transform content item to include localized fields
@@ -59,6 +61,28 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     ? locale
     : defaultLanguage;
 
+  // Check if user has content permission (admin)
+  const session = await auth.api.getSession({ headers: request.headers });
+  let canViewAll = false;
+  if (session?.user?.id) {
+    const [user] = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
+    canViewAll = hasPermission(user?.role || 'RESIDENT', 'content');
+  }
+
+  // Build where conditions
+  const whereConditions = [eq(contents.id, id), eq(contents.tenantId, tenantId)];
+
+  // For non-admin users, apply date filtering
+  if (!canViewAll) {
+    const now = new Date();
+    whereConditions.push(or(isNull(contents.publishedAt), lte(contents.publishedAt, now)));
+    whereConditions.push(or(isNull(contents.expiresAt), gt(contents.expiresAt, now)));
+  }
+
   const [content] = await db
     .select({
       id: contents.id,
@@ -83,7 +107,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .from(contents)
     .leftJoin(users, eq(contents.authorId, users.id))
     .leftJoin(groups, eq(contents.groupId, groups.id))
-    .where(and(eq(contents.id, id), eq(contents.tenantId, tenantId)))
+    .where(and(...whereConditions))
     .limit(1);
 
   if (!content) {
@@ -153,6 +177,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   if (body.published && !body.publishedAt) {
     updateData.publishedAt = new Date();
+  }
+  if (body.publishedAt !== undefined) {
+    updateData.publishedAt = body.publishedAt ? new Date(body.publishedAt) : null;
+  }
+  if (body.expiresAt !== undefined) {
+    updateData.expiresAt = body.expiresAt ? new Date(body.expiresAt) : null;
   }
 
   const [content] = await db

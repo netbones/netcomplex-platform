@@ -1,7 +1,7 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, contents, users, groups } from '@api/db';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, or, isNull, lte, gt } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { ContentCategoryEnum, type ContentCategory } from '@shared/api/types';
 import { revalidateContent } from '@api/revalidation';
@@ -126,6 +126,16 @@ export async function GET(request: Request) {
     whereConditions.push(eq(contents.authorId, authData.userId));
   }
 
+  // For public queries, filter by publish/expiry dates
+  // Admins see all content regardless of schedule
+  if (!canViewAll) {
+    const now = new Date();
+    // Only show content that has been published (publishedAt <= now or publishedAt is null)
+    whereConditions.push(or(isNull(contents.publishedAt), lte(contents.publishedAt, now)));
+    // AND has not expired (expiresAt is null or expiresAt > now)
+    whereConditions.push(or(isNull(contents.expiresAt), gt(contents.expiresAt, now)));
+  }
+
   const contentItems = await db
     .select({
       id: contents.id,
@@ -203,7 +213,8 @@ export async function POST(request: Request) {
       groupId: body.groupId || null,
       featured: body.featured || false,
       published: body.published || false,
-      publishedAt: body.published ? now : null,
+      publishedAt: body.publishedAt ? new Date(body.publishedAt) : body.published ? now : null,
+      expiresAt: body.expiresAt ? new Date(body.expiresAt) : null,
       tags: body.tags || [],
       priority: body.priority || 'normal',
       defaultLocale: body.defaultLocale || defaultLanguage,
