@@ -72,6 +72,7 @@ import { platformSuspensions } from '@schema/platform-suspensions';
 import { platformModules } from '@schema/platform-modules';
 import { tenantModules } from '@schema/tenant-modules';
 import { groupMembershipRequests } from '@schema/group-membership-requests';
+import { assistSessions } from '@schema/assist-sessions';
 
 import { ENV } from 'varlock/env';
 
@@ -136,6 +137,7 @@ function getDb() {
       groupMembershipRequests,
       platformModules,
       tenantModules,
+      assistSessions,
     },
   });
 
@@ -193,4 +195,5 @@ export {
   groupMembershipRequests,
   platformModules,
   tenantModules,
+  assistSessions,
 };
