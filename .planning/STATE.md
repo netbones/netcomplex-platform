@@ -32,6 +32,7 @@
 - **Events CRUD pattern:** Simplified form (no Tiptap, no i18n) vs ContentForm — events are single-language plain text
 - **adminEventSchema:** Separate schema from existing eventSchema (different fields: title/description/date/location/organizer vs startDate/endDate/maxAttendees)
 - [Phase 21-content-events]: Used simplified form pattern (no Tiptap, no i18n) vs ContentForm — events are single-language with plain text fields
+- [Phase 21-content-events]: Extended events API with limit and upcoming query params for efficient widget data fetching — Client-side filtering would be inefficient; API should support server-side filtering
 
 ## Notes
 
