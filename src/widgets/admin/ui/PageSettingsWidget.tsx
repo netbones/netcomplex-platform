@@ -14,6 +14,7 @@ interface PageFlags {
   news: boolean;
   events: boolean;
   directory: boolean;
+  flags: boolean;
 }
 
 interface PageFlagsWidgetProps {
@@ -30,6 +31,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
       news: true,
       events: true,
       directory: true,
+      flags: true,
     }
   );
   const [loading, setLoading] = useState(true);
@@ -106,6 +108,12 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
       label: 'Chat',
       icon: 'fa-comments',
       description: 'Enable community chat',
+    },
+    {
+      key: 'flags' as const,
+      label: 'Page Settings',
+      icon: 'fa-cog',
+      description: 'Show page settings toggle',
     },
   ];
 
