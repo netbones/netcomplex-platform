@@ -17,6 +17,7 @@ interface PageFlags {
   news: boolean;
   events: boolean;
   directory: boolean;
+  surveys: boolean;
 }
 
 const BASE_NAV = [
@@ -24,6 +25,7 @@ const BASE_NAV = [
   { href: '/directory', label: 'directory' },
   { href: '/news', label: 'news' },
   { href: '/events', label: 'events' },
+  { href: '/surveys', label: 'surveys' },
   { href: '/conservation', label: 'conservation' },
   { href: '/campaign', label: 'campaign' },
 ];
@@ -90,6 +92,7 @@ export function Header() {
     news: true,
     events: true,
     directory: true,
+    surveys: true,
   });
   const { t, i18n } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
@@ -127,6 +130,7 @@ export function Header() {
 
   const navItems = mounted
     ? BASE_NAV.filter(item => {
+        if (item.href === '/surveys' && pageFlags.surveys === false) return false;
         if (item.href === '/directory' && pageFlags.directory === false) return false;
         if (item.href === '/news' && pageFlags.news === false) return false;
         if (item.href === '/events' && pageFlags.events === false) return false;
