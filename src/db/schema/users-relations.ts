@@ -28,6 +28,7 @@ import { soloSeats } from './solo-seats';
 import { standardSeats } from './standard-seats';
 import { twoFactors } from './two-factors';
 import { properties } from './properties';
+import { tenants } from './tenants';
 
 export const usersRelations = relations(users, helpers => ({
   Booking: helpers.many(bookings, { relationName: 'BookingTouser' }),
@@ -85,4 +86,5 @@ export const usersRelations = relations(users, helpers => ({
   standardSeat: helpers.many(standardSeats, { relationName: 'standardSeatTouser' }),
   twoFactor: helpers.many(twoFactors, { relationName: 'twoFactorTouser' }),
   ownedProperties: helpers.many(properties, { relationName: 'PropertyOwner' }),
+  ownedTenants: helpers.many(tenants, { relationName: 'TenantOwner' }),
 }));

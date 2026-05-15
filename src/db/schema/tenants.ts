@@ -22,4 +22,5 @@ export const tenants = pgTable('Tenant', {
   featureFlags: jsonb('featureFlags').default({}).notNull(),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }),
+  ownerId: text('ownerId'),
 });

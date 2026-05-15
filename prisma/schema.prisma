@@ -71,8 +71,10 @@ model Tenant {
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime?
+  ownerId         String?
 
   tenantModules TenantModule[]
+  owner         user?       @relation("TenantOwner", fields: [ownerId], references: [id])
 }
 
 model Announcement {
@@ -300,8 +302,10 @@ model Response {
 model Setting {
   id    String @id
   tenantId  String
-  key   String @unique
+  key   String
   value String
+
+  @@unique([tenantId, key])
 }
 
 model Survey {
@@ -837,6 +841,7 @@ model user {
   createdAt                                             DateTime                  @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   emailVerified                                         Boolean                   @default(false)
+  isPlatformAdmin                                       Boolean                   @default(false)
   image                                                 String?
   twoFactorEnabled                                      Boolean?                  @default(false)
   Booking                                               Booking[]
@@ -870,6 +875,7 @@ model user {
   standardSeat                                          standardSeat[]
   twoFactor                                             twoFactor[]
   ownedProperties                                       Property[]                @relation("PropertyOwner")
+  ownedTenants                                          Tenant[]                  @relation("TenantOwner")
 }
 
 model verification {
