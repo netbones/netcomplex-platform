@@ -130,6 +130,18 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase: 18-toast-unification
+
+**Goal:** Unify on Sonner as the single toast notification system, remove Zustand Toast
+
+**Status:** Planned
+
+**Plans:**
+
+- [ ] 18-01-PLAN.md — Remove Zustand Toast, migrate admin/users to Sonner, add ADR-018
+
+---
+
 ## Future Phases (To Be Planned)
 
 ### Phase: Second Tenant
