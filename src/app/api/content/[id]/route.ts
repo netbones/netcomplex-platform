@@ -1,5 +1,5 @@
 import { db, contents, users, groups } from '@api/db';
-import { eq, and, or, isNull, lte, gt } from 'drizzle-orm';
+import { eq, and, or, isNull, lte, gt, type SQL } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@shared/lib';
 import { revalidateContent } from '@api/revalidation';
@@ -79,8 +79,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   // For non-admin users, apply date filtering
   if (!canViewAll) {
     const now = new Date();
-    whereConditions.push(or(isNull(contents.publishedAt), lte(contents.publishedAt, now)));
-    whereConditions.push(or(isNull(contents.expiresAt), gt(contents.expiresAt, now)));
+    whereConditions.push(
+      or(isNull(contents.publishedAt), lte(contents.publishedAt, now)) as SQL<unknown>
+    );
+    whereConditions.push(
+      or(isNull(contents.expiresAt), gt(contents.expiresAt, now)) as SQL<unknown>
+    );
   }
 
   const [content] = await db
