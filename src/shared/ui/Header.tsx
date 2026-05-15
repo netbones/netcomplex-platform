@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@shared/ui';
 import { authClient } from '@api/auth-client';
+import { isAdmin } from '@entities/tenant/api/permissions';
 import { MobileMenu } from './MobileMenu';
 
 interface PageFlags {
@@ -93,8 +94,8 @@ export function Header() {
   const { t, i18n } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
 
-  const isAdmin = session?.user?.role === 'admin';
-  const isBoard = session?.user?.role === 'board';
+  const isAdminUser = isAdmin(session?.user?.role);
+  const isBoardUser = session?.user?.role === 'BOARD';
 
   useEffect(() => {
     setMounted(true);
