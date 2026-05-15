@@ -28,6 +28,8 @@ export async function proxy(request: Request): Promise<NextResponse> {
     '/guidelines',
     '/competition',
     '/proudly-soralia',
+    '/platform/signup',
+    '/platform/onboarding',
   ];
 
   const isPublicPath = publicPaths.some(path => pathname === path || pathname.startsWith(path));
@@ -41,6 +43,25 @@ export async function proxy(request: Request): Promise<NextResponse> {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     return NextResponse.redirect(new URL('/sign-in', request.url));
+  }
+
+  // Platform Admin routes require isPlatformAdmin flag
+  if (pathname.startsWith('/platform/admin') || pathname.startsWith('/api/admin/platform')) {
+    const user = await db
+      .select({ isPlatformAdmin: users.isPlatformAdmin })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
+
+    if (!user[0]?.isPlatformAdmin) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json(
+          { error: 'Forbidden - Platform Admin access required' },
+          { status: 403 }
+        );
+      }
+      return NextResponse.redirect(new URL('/', request.url));
+    }
   }
 
   const protectedPaths: Array<{ path: string; permission: keyof Permission }> = [
