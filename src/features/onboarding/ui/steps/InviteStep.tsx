@@ -55,9 +55,41 @@ export function InviteStep({
 
   const handleSave = async () => {
     setSaving(true);
+    // First save to onboarding settings (existing behavior)
     const success = await saveStep(4, { invites: formData.invites });
+    if (!success) {
+      setSaving(false);
+      return;
+    }
+
+    // Then send actual invitations
+    const errors: string[] = [];
+    for (const invite of formData.invites) {
+      try {
+        const res = await fetch('/api/invitations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: invite.email,
+            name: invite.email.split('@')[0],
+            role: invite.role,
+            residentType: 'OWNER',
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          errors.push(`${invite.email}: ${data.error || 'Failed'}`);
+        }
+      } catch {
+        errors.push(`${invite.email}: Network error`);
+      }
+    }
+
     setSaving(false);
-    if (success) onNext();
+    if (errors.length > 0) {
+      console.error('Invitation errors:', errors);
+    }
+    onNext();
   };
 
   return (
