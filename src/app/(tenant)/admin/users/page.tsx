@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ErrorBoundary, useToast } from '@shared/ui';
+import { ErrorBoundary } from '@shared/ui';
+import { toast } from 'sonner';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('admin-users-page');
@@ -39,7 +40,6 @@ const residentTypeOptions = ['OWNER', 'RENTER', 'SUSPENDED'];
 const activeOptions = ['active', 'suspended'];
 
 export default function AdminUsersPage() {
-  const { showToast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -97,9 +97,9 @@ export default function AdminUsersPage() {
     });
     if (r.ok) {
       setInvitations([await r.json(), ...invitations]);
-      showToast('Invitation sent successfully');
+      toast.success('Invitation sent successfully');
     } else {
-      showToast('Failed to send invitation', 'error');
+      toast.error('Failed to send invitation');
     }
     setShowInvite(false);
     setInviteForm({
@@ -115,7 +115,7 @@ export default function AdminUsersPage() {
   const handleRevoke = async (id: string) => {
     await fetch(`/api/invitations/${id}`, { method: 'DELETE' });
     setInvitations(invitations.filter(i => i.id !== id));
-    showToast('Invitation revoked');
+    toast.success('Invitation revoked');
   };
 
   const updateUser = async (id: string, data: Record<string, string>) => {
@@ -125,7 +125,7 @@ export default function AdminUsersPage() {
       body: JSON.stringify(data),
     });
     setUsers(users.map(u => (u.id === id ? { ...u, ...data } : u)));
-    showToast('User updated successfully');
+    toast.success('User updated successfully');
   };
 
   const handleDelete = async () => {
@@ -134,7 +134,7 @@ export default function AdminUsersPage() {
     setUsers(users.filter(u => u.id !== deleteUser?.id));
     setDeleteUser(null);
     setConfirmText('');
-    showToast('User removed successfully');
+    toast.success('User removed successfully');
   };
 
   const handleSuspend = async () => {
@@ -150,7 +150,7 @@ export default function AdminUsersPage() {
           u.id === suspendUser?.id ? { ...u, residentType: 'SUSPENDED', isActive: false } : u
         )
       );
-      showToast('User suspended successfully');
+      toast.success('User suspended successfully');
     }
     setSuspendUser(null);
     setConfirmText('');
@@ -175,7 +175,7 @@ export default function AdminUsersPage() {
             : u
         )
       );
-      showToast('User activated successfully');
+      toast.success('User activated successfully');
     }
   };
 

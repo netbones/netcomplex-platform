@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react';
 import { authClient } from '@api/auth-client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Honeypot, TurnstileWidget, useToast } from '@shared/ui';
+import { Honeypot, TurnstileWidget } from '@shared/ui';
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { showToast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
