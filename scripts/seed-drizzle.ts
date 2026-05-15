@@ -157,6 +157,7 @@ const PROPERTIES = [
     street: 'Pagoda Rd',
     unit: '12',
     ownerId: 'user-john-smith',
+    homeImage: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80',
   },
   {
     id: 'prop-002',
@@ -164,6 +165,7 @@ const PROPERTIES = [
     street: 'Wild Almond Rd',
     unit: '8',
     ownerId: 'user-sarah-mitchell',
+    homeImage: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80',
   },
   {
     id: 'prop-003',
@@ -171,6 +173,7 @@ const PROPERTIES = [
     street: 'Silkypuff St',
     unit: '3',
     ownerId: 'user-michael-chen',
+    homeImage: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80',
   },
   {
     id: 'prop-004',
@@ -178,6 +181,7 @@ const PROPERTIES = [
     street: 'Conebrush Rd',
     unit: '5',
     ownerId: 'user-robert-wilson',
+    homeImage: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80',
   },
   {
     id: 'prop-005',
@@ -185,6 +189,7 @@ const PROPERTIES = [
     street: 'Fynbos Ave',
     unit: '17',
     ownerId: 'user-anna-patel',
+    homeImage: 'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=800&q=80',
   },
   {
     id: 'prop-006',
@@ -192,6 +197,7 @@ const PROPERTIES = [
     street: 'Protea Close',
     unit: '22',
     ownerId: 'user-marcus-johnson',
+    homeImage: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80',
   },
 ].map(p => ({ ...p, tenantId: TENANT_ID, createdAt: now, updatedAt: now }));
 
