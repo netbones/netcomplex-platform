@@ -808,4 +808,48 @@ asset, with **Household** representing temporal occupancy records.
 
 ---
 
+## ADR-018: Unify on Sonner for Toast Notifications
+
+**Status:** Accepted
+
+**Date:** 2026-05
+
+### Context
+
+Three competing toast systems existed in the codebase: Sonner (used directly and via `useApiToast` wrapper), a custom Zustand `ToastProvider` with `useToast` hook, and the `useApiToast` hook for API operations. This caused dual rendering (Sonner toasts at top-right + Zustand toasts at bottom-right), inconsistent features, and maintenance burden.
+
+### Decision
+
+**Sonner** is the single toast notification system. `useApiToast` remains as the preferred hook for API operations (adds retry, server logging, promise handling). The Zustand toast system is removed entirely.
+
+**Alternatives considered:**
+
+- **Keep Zustand toast**: Would maintain dual rendering, inconsistent UX, higher maintenance
+- **Keep both with unified API**: More abstraction layer, unnecessary complexity
+- **Switch entirely to useApiToast**: Loses direct `toast.*` call flexibility for non-API toasts
+
+### Consequences
+
+**Positive:**
+
+- Single rendering engine — toasts only appear at top-right
+- Consistent API across all toast call sites (`toast.success`, `toast.error`, etc.)
+- `useApiToast` provides retry/logging for API operations
+- Reduced bundle size (no Zustand toast store, no ToastProvider component)
+- Simpler mental model for developers
+
+**Negative:**
+
+- Zustand toast's duplicate prevention lost (Sonner doesn't dedup by default — acceptable trade-off)
+- Migration effort for remaining `useToast()` call sites
+
+### Migration
+
+- Remove `src/shared/ui/Toast.tsx`
+- Remove `ToastProvider` from `src/app/providers.tsx`
+- Migrate admin/users page from `useToast()` to direct `toast.*` calls
+- Remove dead `useToast` import from sign-up page
+
+---
+
 _More ADRs will be added as we make architectural decisions. Use the template above to propose new ADRs._
