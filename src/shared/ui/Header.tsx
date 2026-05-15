@@ -7,25 +7,20 @@ import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@shared/ui';
 import { authClient } from '@api/auth-client';
 import { isAdmin } from '@entities/tenant/api/permissions';
+import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
 import { MobileMenu } from './MobileMenu';
-
-interface PageFlags {
-  campaign: boolean;
-  conservation: string;
-  conservationExternalUrl: string;
-  chat: boolean;
-  news: boolean;
-  events: boolean;
-  directory: boolean;
-  surveys: boolean;
-}
 
 const BASE_NAV = [
   { href: '/', label: 'home' },
   { href: '/directory', label: 'directory' },
+  { href: '/groups', label: 'groups' },
+  { href: '/services', label: 'services' },
+  { href: '/resources', label: 'resources' },
   { href: '/news', label: 'news' },
+  { href: '/maintenance', label: 'maintenance' },
   { href: '/events', label: 'events' },
   { href: '/surveys', label: 'surveys' },
+  { href: '/competition', label: 'competition' },
   { href: '/conservation', label: 'conservation' },
   { href: '/campaign', label: 'campaign' },
 ];
@@ -84,16 +79,7 @@ export function Header() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [pageFlags, setPageFlags] = useState<PageFlags>({
-    campaign: true,
-    conservation: 'default',
-    conservationExternalUrl: '',
-    chat: true,
-    news: true,
-    events: true,
-    directory: true,
-    surveys: true,
-  });
+  const { flags: pageFlags } = usePageFlags();
   const { t, i18n } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
 
@@ -108,40 +94,31 @@ export function Header() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
-  useEffect(() => {
-    async function fetchPageFlags() {
-      try {
-        const res = await fetch('/api/flags');
-        const data = await res.json();
-        if (data.flags) {
-          setPageFlags(prev => ({ ...prev, ...data.flags }));
-        }
-      } catch (error) {
-        console.error('Failed to fetch page flags', error);
-      }
-    }
-    fetchPageFlags();
-  }, []);
-
   const handleSignOut = async () => {
     await authClient.signOut();
     router.refresh();
   };
 
-  const navItems = mounted
-    ? BASE_NAV.filter(item => {
-        if (item.href === '/surveys' && pageFlags.surveys === false) return false;
-        if (item.href === '/directory' && pageFlags.directory === false) return false;
-        if (item.href === '/news' && pageFlags.news === false) return false;
-        if (item.href === '/events' && pageFlags.events === false) return false;
-        if (item.href === '/conservation' && pageFlags.conservation === 'external') return false;
-        if (item.href === '/campaign' && pageFlags.campaign === false) return false;
-        return true;
-      }).map(item => ({
-        name: t(`nav.${item.label}`) || item.label,
-        href: item.href,
-      }))
-    : [];
+  const navItems =
+    mounted && pageFlags
+      ? BASE_NAV.filter(item => {
+          if (item.href === '/surveys' && pageFlags.surveys === false) return false;
+          if (item.href === '/directory' && pageFlags.directory === false) return false;
+          if (item.href === '/groups' && pageFlags.groups === false) return false;
+          if (item.href === '/services' && pageFlags.services === false) return false;
+          if (item.href === '/resources' && pageFlags.resources === false) return false;
+          if (item.href === '/news' && pageFlags.news === false) return false;
+          if (item.href === '/maintenance' && pageFlags.maintenance === false) return false;
+          if (item.href === '/events' && pageFlags.events === false) return false;
+          if (item.href === '/competition' && pageFlags.competition === false) return false;
+          if (item.href === '/conservation' && pageFlags.conservation === 'external') return false;
+          if (item.href === '/campaign' && pageFlags.campaign === false) return false;
+          return true;
+        }).map(item => ({
+          name: t(`nav.${item.label}`) || item.label,
+          href: item.href,
+        }))
+      : [];
 
   return (
     <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md relative overflow-hidden">

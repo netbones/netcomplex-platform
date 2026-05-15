@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@api/auth-client';
 import { useIsMounted } from 'usehooks-ts';
+import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
 
 interface NavItem {
   name: string;
@@ -21,13 +22,14 @@ export function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProps) {
   const { t } = useTranslation('common');
   const isMounted = useIsMounted();
   const { data: session } = authClient.useSession();
+  const { flags } = usePageFlags();
   const isAdmin = session?.user?.role === 'admin';
   const isBoard = session?.user?.role === 'board';
   const isLoggedIn = !!session;
 
   if (!isOpen) return null;
 
-  if (!isMounted) {
+  if (!isMounted || !flags) {
     return (
       <div className="mt-4 p-4 bg-soralia-primary border-t-4 border-white">
         <div className="text-white">Loading...</div>
@@ -52,34 +54,42 @@ export function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProps) {
         {isLoggedIn && (
           <>
             <div className="border-t border-white/20 my-2" />
-            <Link
-              href="/dashboard"
-              onClick={onClose}
-              className="block py-2 px-3 hover:bg-white/10 rounded text-white"
-            >
-              {t('nav.dashboard')}
-            </Link>
-            <Link
-              href="/maintenance"
-              onClick={onClose}
-              className="block py-2 px-3 hover:bg-white/10 rounded text-white"
-            >
-              {t('nav.maintenance')}
-            </Link>
-            <Link
-              href="/bookings"
-              onClick={onClose}
-              className="block py-2 px-3 hover:bg-white/10 rounded text-white"
-            >
-              {t('nav.bookings')}
-            </Link>
-            <Link
-              href="/messages"
-              onClick={onClose}
-              className="block py-2 px-3 hover:bg-white/10 rounded text-white"
-            >
-              {t('nav.messages')}
-            </Link>
+            {flags.dashboard !== false && (
+              <Link
+                href="/dashboard"
+                onClick={onClose}
+                className="block py-2 px-3 hover:bg-white/10 rounded text-white"
+              >
+                {t('nav.dashboard')}
+              </Link>
+            )}
+            {flags.maintenance !== false && (
+              <Link
+                href="/maintenance"
+                onClick={onClose}
+                className="block py-2 px-3 hover:bg-white/10 rounded text-white"
+              >
+                {t('nav.maintenance')}
+              </Link>
+            )}
+            {flags.bookings !== false && (
+              <Link
+                href="/bookings"
+                onClick={onClose}
+                className="block py-2 px-3 hover:bg-white/10 rounded text-white"
+              >
+                {t('nav.bookings')}
+              </Link>
+            )}
+            {flags.messages !== false && (
+              <Link
+                href="/messages"
+                onClick={onClose}
+                className="block py-2 px-3 hover:bg-white/10 rounded text-white"
+              >
+                {t('nav.messages')}
+              </Link>
+            )}
           </>
         )}
 
