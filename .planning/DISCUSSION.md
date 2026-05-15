@@ -4,6 +4,7 @@
 >
 > - v1: Initial agent investigation (Platform Admin–led inception flow)
 > - v2: Architectural review — self-service inception, trust boundary separation, schema fixes
+> - v3: Resources redesigned as standalone model with file attachments, versioning, and visibility scoping
 
 ---
 
@@ -154,6 +155,18 @@ This replaces Journey 1 from v1 entirely for self-service tenants. The Platform 
 | Survey results    | ⚠️ Partial  | View link exists, results page unconfirmed |
 | Survey categories | ❌ Missing  | No survey type categorisation              |
 
+#### Tenant Admin — Resources
+
+| Feature            | Status     | Notes                                                                             |
+| ------------------ | ---------- | --------------------------------------------------------------------------------- |
+| Resource model     | ❌ Missing | No dedicated model — currently overloaded onto `Content` with `RESOURCE` category |
+| Admin page         | ❌ Missing | No `/admin/resources` route                                                       |
+| Resources API      | ❌ Missing | No CRUD API                                                                       |
+| File attachments   | ❌ Missing | Content model has no `fileUrl`, `fileType`, or `fileSize` fields                  |
+| Visibility scoping | ❌ Missing | Content has no per-item access control beyond tenant-wide `published` boolean     |
+| Versioning         | ❌ Missing | No version field or revision history                                              |
+| Category taxonomy  | ❌ Missing | No resource-specific categories (Architectural, Engineering, Board Reports, etc.) |
+
 #### Tenant Admin — Competitions
 
 | Feature           | Status       | Notes                           |
@@ -242,7 +255,55 @@ model Setting {
 }
 ```
 
-### 3.4 Add `TenantOwnership` for Multi-Tenant Portfolio (Phase 2)
+### 3.4 Add `Resource` Model (replaces RESOURCE Content category)
+
+See Technical Decision 2 for full rationale. The `RESOURCE` value should be removed from the `ContentCategory` enum once the Resource model is live and existing content migrated. A one-time migration script should re-classify any existing `Content` records with `category=RESOURCE` into the new model.
+
+```prisma
+model Resource {
+  id           String             @id @default(cuid())
+  tenantId     String
+  title        String
+  description  String?
+  category     ResourceCategory
+  fileUrl      String?
+  fileType     String?
+  fileSize     Int?
+  externalUrl  String?
+  bodyContent  Json?
+  version      String?
+  visibility   ResourceVisibility @default(ALL_RESIDENTS)
+  authorId     String?
+  publishedAt  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  user         user?              @relation(fields: [authorId], references: [id])
+
+  @@index([tenantId])
+  @@index([category])
+  @@index([visibility])
+}
+
+enum ResourceCategory {
+  ARCHITECTURAL
+  ENGINEERING
+  GOVERNANCE
+  BOARD_REPORT
+  DIY
+  FINANCIAL
+  LEGAL
+  OTHER
+}
+
+enum ResourceVisibility {
+  ALL_RESIDENTS
+  OWNERS_ONLY
+  BOARD_ONLY
+  COMMITTEE_ONLY
+}
+```
+
+### 3.5 Add `TenantOwnership` for Multi-Tenant Portfolio (Phase 2)
 
 For tenant owners managing several community projects, replace the single `ownerId` with a join table allowing one user to own or administer multiple tenants with differentiated roles.
 
@@ -481,19 +542,20 @@ This also enables a "My Communities" dashboard at the platform level, showing al
 
 ## 6. Revised Epic Breakdown
 
-| Epic                                    | Description                                                      | Replaces                    |
-| --------------------------------------- | ---------------------------------------------------------------- | --------------------------- |
-| **E0: Self-Service Signup**             | `/platform/signup` creates tenant + founding admin atomically    | Old E1 (Platform Admin–led) |
-| **E1a: Onboarding Wizard**              | Post-signup guided setup (branding, modules, pages, invites)     | Old E2                      |
-| **E1b: Assisted Provisioning**          | Staff-assisted path with time-limited access, scoped to metadata | Old Journey 1               |
-| **E1c: Multi-Project Portfolio**        | "My Communities" for users managing multiple tenants             | New                         |
-| **E2: First Login & Page Setup**        | Tenant Admin first-run experience                                | Old E2                      |
-| **E3: User Management**                 | Invite, roles, suspend, remove                                   | Old E3                      |
-| **E4: Content Publishing**              | Create/schedule News, Events, Resources, Campaigns               | Old E4                      |
-| **E5: Group Moderation**                | Create, moderate, manage interest groups                         | Old E5                      |
-| **E6: Survey & Competition Management** | Surveys with results, Competitions model                         | Old E6                      |
-| **E7: Maintenance Triage**              | Attend, assign, track maintenance requests                       | Old E7                      |
-| **E8: Page Governance**                 | Header page flag toggles                                         | Old E8                      |
+| Epic                                    | Description                                                                                 | Replaces                    |
+| --------------------------------------- | ------------------------------------------------------------------------------------------- | --------------------------- |
+| **E0: Self-Service Signup**             | `/platform/signup` creates tenant + founding admin atomically                               | Old E1 (Platform Admin–led) |
+| **E1a: Onboarding Wizard**              | Post-signup guided setup (branding, modules, pages, invites)                                | Old E2                      |
+| **E1b: Assisted Provisioning**          | Staff-assisted path with time-limited access, scoped to metadata                            | Old Journey 1               |
+| **E1c: Multi-Project Portfolio**        | "My Communities" for users managing multiple tenants                                        | New                         |
+| **E2: First Login & Page Setup**        | Tenant Admin first-run experience                                                           | Old E2                      |
+| **E3: User Management**                 | Invite, roles, suspend, remove                                                              | Old E3                      |
+| **E4: Content Publishing**              | Create/schedule News, Events, Campaigns                                                     | Old E4                      |
+| **E4b: Resources Library**              | Standalone Resource model — file uploads, visibility scoping, versioning, category taxonomy | New (split from E4)         |
+| **E5: Group Moderation**                | Create, moderate, manage interest groups                                                    | Old E5                      |
+| **E6: Survey & Competition Management** | Surveys with results, Competitions model                                                    | Old E6                      |
+| **E7: Maintenance Triage**              | Attend, assign, track maintenance requests                                                  | Old E7                      |
+| **E8: Page Governance**                 | Header page flag toggles                                                                    | Old E8                      |
 
 ---
 
@@ -513,18 +575,18 @@ This also enables a "My Communities" dashboard at the platform level, showing al
 
 ### Important Gaps — Admin Workflow
 
-| Gap                                                                                      | Impact                                   | Effort | Priority |
-| ---------------------------------------------------------------------------------------- | ---------------------------------------- | ------ | -------- |
-| **No Onboarding Wizard**                                                                 | New tenants dropped into raw admin panel | Medium | P1       |
-| **No Events admin page**                                                                 | Event model exists, no CRUD UI           | Medium | P1       |
-| **No content scheduling UI**                                                             | `publishedAt`/`expiresAt` unusable       | Small  | P1       |
-| **No Competitions model or admin**                                                       | Hardcoded page                           | Medium | P1       |
-| **Missing page flags** (Groups, Services, Resources, Maintenance, Surveys, Competitions) | Cannot control header visibility         | Small  | P1       |
-| **No group moderation queue**                                                            | Cannot approve membership applications   | Medium | P2       |
-| **No dedicated Resources admin**                                                         | Resources via generic content only       | Small  | P2       |
-| **Widget state persistence**                                                             | Dashboard resets on tab change           | Small  | P2       |
-| **No admin activity audit log**                                                          | Cannot track admin actions               | Medium | P2       |
-| **No survey results visualisation**                                                      | Data exists, not presented               | Medium | P2       |
+| Gap                                                                                      | Impact                                                                                                           | Effort | Priority |
+| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------ | -------- |
+| **No Onboarding Wizard**                                                                 | New tenants dropped into raw admin panel                                                                         | Medium | P1       |
+| **No Events admin page**                                                                 | Event model exists, no CRUD UI                                                                                   | Medium | P1       |
+| **No content scheduling UI**                                                             | `publishedAt`/`expiresAt` unusable                                                                               | Small  | P1       |
+| **No Competitions model or admin**                                                       | Hardcoded page                                                                                                   | Medium | P1       |
+| **Missing page flags** (Groups, Services, Resources, Maintenance, Surveys, Competitions) | Cannot control header visibility                                                                                 | Small  | P1       |
+| **No group moderation queue**                                                            | Cannot approve membership applications                                                                           | Medium | P2       |
+| **No dedicated Resources admin**                                                         | Resources require standalone model, file uploads, visibility scoping, versioning — Content model is insufficient | Medium | P1       |
+| **Widget state persistence**                                                             | Dashboard resets on tab change                                                                                   | Small  | P2       |
+| **No admin activity audit log**                                                          | Cannot track admin actions                                                                                       | Medium | P2       |
+| **No survey results visualisation**                                                      | Data exists, not presented                                                                                       | Medium | P2       |
 
 ### Nice-to-Have Gaps
 
@@ -576,11 +638,27 @@ This also enables a "My Communities" dashboard at the platform level, showing al
 
 ### Phase D: Competitions & Resources (P1)
 
+**Competitions:**
+
 1. Create `Competition` model in Prisma schema
 2. Create `/admin/competitions` page + API routes
 3. Add date controls (start/end) for competitions
 4. Replace hardcoded `/competition` page with dynamic content
-5. Create `/admin/resources` (or enhance content filtering)
+
+**Resources (standalone model — not Content category):**
+
+1. Add `Resource`, `ResourceCategory`, `ResourceVisibility` to Prisma schema + migration
+2. Create `/api/resources` CRUD API routes with visibility enforcement
+3. Create `/admin/resources` admin page — list, new, edit with:
+   - File upload (PDF, DOCX, DWG, XLSX) via existing upload API
+   - Optional rich text body (Tiptap, for DIY articles)
+   - Category selector (Architectural, Engineering, Governance, Board Report, DIY, Financial, Legal)
+   - Visibility selector (All Residents, Owners Only, Board Only, Committee Only)
+   - Version field
+   - External URL field (for linked documents)
+4. Update public `/resources` page to query `Resource` model with visibility filtering based on session role
+5. Write migration script to re-classify any existing `Content` records with `category=RESOURCE`
+6. Remove `RESOURCE` from `ContentCategory` enum once migration is confirmed clean
 
 ### Phase E: Admin Dashboard Enhancement (P2)
 
@@ -600,22 +678,27 @@ This also enables a "My Communities" dashboard at the platform level, showing al
 
 ## 9. Admin Permission Matrix (Current)
 
-| Capability         | ADMIN | MANAGER | BOARD | COMMITTEE | GROUP_ADMIN | RESIDENT |
-| ------------------ | ----- | ------- | ----- | --------- | ----------- | -------- |
-| Full admin access  | ✅    | ❌      | ❌    | ❌        | ❌          | ❌       |
-| Manage users       | ✅    | ✅      | ❌    | ❌        | ❌          | ❌       |
-| Manage households  | ✅    | ✅      | ✅    | ❌        | ❌          | ❌       |
-| Manage maintenance | ✅    | ✅      | ✅    | ✅        | ❌          | ❌       |
-| Manage all content | ✅    | ✅      | ✅    | ✅        | ❌          | ❌       |
-| Manage own content | ✅    | ✅      | ✅    | ✅        | ✅          | ✅       |
-| Manage all groups  | ✅    | ✅      | ✅    | ✅        | ❌          | ❌       |
-| Manage own groups  | ✅    | ✅      | ✅    | ✅        | ✅          | ❌       |
-| Manage events      | ✅    | ✅      | ✅    | ✅        | ❌          | ✅       |
-| Manage bookings    | ✅    | ✅      | ✅    | ✅        | ❌          | ✅       |
-| Access directory   | ✅    | ✅      | ✅    | ✅        | ✅          | ✅       |
-| Manage messages    | ✅    | ✅      | ✅    | ✅        | ✅          | ✅       |
-| Manage settings    | ✅    | ✅      | ✅    | ✅        | ❌          | ❌       |
-| **Platform Admin** | ❌    | ❌      | ❌    | ❌        | ❌          | ❌       |
+| Capability                      | ADMIN | MANAGER | BOARD | COMMITTEE | GROUP_ADMIN | RESIDENT    |
+| ------------------------------- | ----- | ------- | ----- | --------- | ----------- | ----------- |
+| Full admin access               | ✅    | ❌      | ❌    | ❌        | ❌          | ❌          |
+| Manage users                    | ✅    | ✅      | ❌    | ❌        | ❌          | ❌          |
+| Manage households               | ✅    | ✅      | ✅    | ❌        | ❌          | ❌          |
+| Manage maintenance              | ✅    | ✅      | ✅    | ✅        | ❌          | ❌          |
+| Manage all content              | ✅    | ✅      | ✅    | ✅        | ❌          | ❌          |
+| Manage own content              | ✅    | ✅      | ✅    | ✅        | ✅          | ✅          |
+| Manage all groups               | ✅    | ✅      | ✅    | ✅        | ❌          | ❌          |
+| Manage own groups               | ✅    | ✅      | ✅    | ✅        | ✅          | ❌          |
+| Manage events                   | ✅    | ✅      | ✅    | ✅        | ❌          | ✅          |
+| Manage bookings                 | ✅    | ✅      | ✅    | ✅        | ❌          | ✅          |
+| Access directory                | ✅    | ✅      | ✅    | ✅        | ✅          | ✅          |
+| Manage messages                 | ✅    | ✅      | ✅    | ✅        | ✅          | ✅          |
+| Manage resources                | ✅    | ✅      | ✅    | ✅        | ❌          | ❌          |
+| View resources (all residents)  | ✅    | ✅      | ✅    | ✅        | ✅          | ✅          |
+| View resources (owners only)    | ✅    | ✅      | ✅    | ✅        | ❌          | owners only |
+| View resources (board only)     | ✅    | ❌      | ✅    | ❌        | ❌          | ❌          |
+| View resources (committee only) | ✅    | ❌      | ✅    | ✅        | ❌          | ❌          |
+| Manage settings                 | ✅    | ✅      | ✅    | ✅        | ❌          | ❌          |
+| **Platform Admin**              | ❌    | ❌      | ❌    | ❌        | ❌          | ❌          |
 
 > Platform Admin is a separate flag (`isPlatformAdmin`) on the `user` model, never a `Role` enum value. It grants access only to `/platform/admin/*` routes and only to tenant metadata — never tenant content, users, or settings.
 
@@ -631,8 +714,65 @@ This also enables a "My Communities" dashboard at the platform level, showing al
 
 ### 2. Should Resources be a standalone model or Content category?
 
-- **Currently:** `RESOURCE` category in Content
-- **Decision:** Keep as Content category — resources are essentially articles with attachments; no structural reason for a separate model
+- **Previously:** `RESOURCE` category in Content (v2 recommendation)
+- **Revised decision (v3): Standalone model** — the use cases for Resources are materially different from editorial Content and the Content model cannot accommodate them without significant compromise
+
+**Why Content is insufficient for Resources:**
+
+Resources as described (architectural directives, engineering specs, DIY articles, board reports, PDF downloads) are _documentary_, not _editorial_. The structural differences are:
+
+- **File attachments are first-class.** A board report or engineering spec _is_ its PDF — the file is not optional media on an article. The Content model has an `image` field but no `fileUrl`, `fileType`, or `fileSize`.
+- **Access control differs per item.** Board Reports should be visible to owners only; DIY articles to all residents; engineering specs to committee members. Content has no per-item visibility scoping beyond the tenant-wide `published` boolean.
+- **Versioning matters.** A board report from March is superseded by April's. An engineering spec gets revised. Resources need a `version` field and optionally a relationship to previous versions. Content has no concept of this.
+- **Category taxonomy is domain-specific.** Resources need Architectural, Engineering, Governance, Board Report, DIY, Financial, Legal — none of which map cleanly to the Content `ContentCategory` enum.
+
+**Proposed `Resource` model:**
+
+```prisma
+model Resource {
+  id           String             @id @default(cuid())
+  tenantId     String
+  title        String
+  description  String?
+  category     ResourceCategory
+  fileUrl      String?            // Primary attachment (PDF, DOCX, DWG, etc.)
+  fileType     String?            // "pdf", "docx", "dwg", "xlsx"
+  fileSize     Int?               // bytes
+  externalUrl  String?            // Link to externally hosted document
+  bodyContent  Json?              // Optional rich text body (for DIY articles)
+  version      String?            // "v2.1", "Rev B", "April 2026"
+  visibility   ResourceVisibility @default(ALL_RESIDENTS)
+  authorId     String?
+  publishedAt  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  user         user?              @relation(fields: [authorId], references: [id])
+
+  @@index([tenantId])
+  @@index([category])
+  @@index([visibility])
+}
+
+enum ResourceCategory {
+  ARCHITECTURAL   // Design guidelines, aesthetic directives
+  ENGINEERING     // Structural specs, drawings, surveys
+  GOVERNANCE      // Rules, bylaws, conduct policies
+  BOARD_REPORT    // Monthly/quarterly board reports
+  DIY             // Self-help guides for residents
+  FINANCIAL       // Budgets, levy schedules, audits
+  LEGAL           // Contracts, agreements, notices
+  OTHER
+}
+
+enum ResourceVisibility {
+  ALL_RESIDENTS
+  OWNERS_ONLY
+  BOARD_ONLY
+  COMMITTEE_ONLY
+}
+```
+
+The `bodyContent Json?` field (same pattern as the existing `Content` model) provides the Tiptap rich text editor for DIY articles, while `fileUrl` handles documentary resources — both use cases in one model without compromise. `externalUrl` supports linking to externally hosted documents (e.g. a council planning portal) without requiring a file upload.
 
 ### 3. Should page flags stay in the `settings` table?
 
