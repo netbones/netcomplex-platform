@@ -1,6 +1,6 @@
 import { auth } from '@api/auth';
 import { db, events, users } from '@api/db';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, asc, gte } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { revalidateContent } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
@@ -36,6 +36,9 @@ async function getSessionAndRole(request: Request) {
 /**
  * GET /api/events - List all events for the tenant
  * Returns events ordered by date descending.
+ * Query params:
+ *   - limit: number of events to return
+ *   - upcoming: if "true", filter to events with date >= now, sorted ascending
  */
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
@@ -47,11 +50,33 @@ export async function GET(request: Request) {
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
 
-  const eventItems = await db
-    .select()
-    .from(events)
-    .where(eq(events.tenantId, tenantId))
-    .orderBy(desc(events.date));
+  const url = new URL(request.url);
+  const limitParam = url.searchParams.get('limit');
+  const upcomingParam = url.searchParams.get('upcoming');
+
+  const limit = limitParam ? parseInt(limitParam, 10) : undefined;
+  const upcoming = upcomingParam === 'true';
+
+  let eventItems: (typeof events.$inferSelect)[];
+
+  if (upcoming) {
+    const now = new Date();
+    const query = db
+      .select()
+      .from(events)
+      .where(and(eq(events.tenantId, tenantId), gte(events.date, now)))
+      .orderBy(asc(events.date));
+
+    eventItems = limit ? await query.limit(limit) : await query;
+  } else {
+    const query = db
+      .select()
+      .from(events)
+      .where(eq(events.tenantId, tenantId))
+      .orderBy(desc(events.date));
+
+    eventItems = limit ? await query.limit(limit) : await query;
+  }
 
   return NextResponse.json(eventItems);
 }

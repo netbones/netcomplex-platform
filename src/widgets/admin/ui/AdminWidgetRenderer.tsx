@@ -12,6 +12,7 @@ import { ModerationQueueWidget } from './ModerationQueueWidget';
 import { MarketplaceAnalyticsWidget, ServiceQualityWidget } from '@widgets/service';
 import { MaintenanceRequestsWidget, MaintenanceAnalyticsWidget } from '@widgets/maintenance';
 import { PageSettingsWidget } from './PageSettingsWidget';
+import { EventsWidget } from './EventsWidget';
 
 interface WidgetRendererProps {
   widgetId: string;
@@ -43,6 +44,8 @@ export function AdminWidgetRenderer({ widgetId }: WidgetRendererProps): ReactNod
       return <MaintenanceAnalyticsWidget />;
     case 'page-settings':
       return <PageSettingsWidget />;
+    case 'admin-events':
+      return <EventsWidget />;
     default:
       return (
         <ErrorBoundary>
