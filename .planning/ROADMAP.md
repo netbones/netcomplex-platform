@@ -162,14 +162,14 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Self-service tenant signup + onboarding wizard — atomic user+tenant creation, 5-step guided setup, assisted provisioning
 
-**Status:** In Progress (1/3 plans complete)
+**Status:** In Progress (2/3 plans complete)
 
 **Requirements:** INCEPT-01, INCEPT-02, INCEPT-03, INCEPT-04, INCEPT-05
 
 **Plans:**
 
 - [x] 20-01-PLAN.md — Fix signup API: ownerId, Better Auth password, onboarding redirect ✅
-- [ ] 20-02-PLAN.md — Build 5-step onboarding wizard (branding, modules, pages, invites, launch)
+- [x] 20-02-PLAN.md — Build 5-step onboarding wizard (branding, modules, pages, invites, launch) ✅
 - [ ] 20-03-PLAN.md — AssistSession model + API for time-limited staff access (Path B)
 
 ---

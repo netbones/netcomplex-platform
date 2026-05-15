@@ -45,3 +45,4 @@
 - **19-schema-corrections-02:** Complete - Header role case-sensitivity bug fixed with isAdmin() helper
 - **19-schema-corrections-03:** Complete - Platform Admin tenant CRUD wired, isPlatformAdmin guard added
 - **20-self-service-inception-01:** Complete - Signup API uses Better Auth for password, sets ownerId, redirects to onboarding
+- **20-self-service-inception-02:** Complete - 5-step onboarding wizard built with state management, API persistence, and admin redirect
