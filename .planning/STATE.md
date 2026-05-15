@@ -2,13 +2,19 @@
 
 ## Current Position
 
-- **Phase:** 18-toast-unification
-- **Plan:** 01 (complete)
-- **Status:** Ready to plan
+- **Phase:** 19-schema-corrections
+- **Plan:** 01, 02, 03 (planned, not started)
+- **Status:** Ready to execute
 - **Last Updated:** 2026-05-15
 
 ## Decisions Made
 
+- **Self-service tenant signup:** Primary path is /platform/signup — Platform Admin–led inception replaced (DISCUSSION.md v2)
+- **Trust boundary separation:** isPlatformAdmin flag on user model, never a Role enum value
+- **Tenant ownership:** ownerId on Tenant schema for verifiable ownership
+- **Setting uniqueness:** @@unique([tenantId, key]) — global @unique breaks with 2+ tenants
+- **Resources as standalone model:** Not Content category — needs file attachments, visibility scoping, versioning
+- **Competitions as standalone model:** Needs entry management, voting, deadlines
 - **Module architecture:** Two-table design (platform_modules + tenant_modules)
 - **Tier hierarchy:** standard (base) → premium → enterprise
 - **Tier enforcement:** FeatureGate reads from tenant_modules filtered by tier
