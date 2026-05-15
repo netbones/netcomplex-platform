@@ -108,9 +108,10 @@ export function useSignupForm() {
         throw new Error(responseData.error || 'Failed to create community');
       }
 
-      // Redirect to sign-in page for the new tenant
-      const signInUrl = `https://${data.subdomain}.netbones.co.za/sign-in?message=Community created successfully! Please sign in with your credentials.`;
-      router.push(signInUrl);
+      // Redirect to onboarding wizard with the new tenant id
+      const responseData = await res.json();
+      const { tenantId } = responseData;
+      router.push(`/platform/onboarding/${tenantId}`);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create community';
       setError(message);
