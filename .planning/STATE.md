@@ -3,8 +3,8 @@
 ## Current Position
 
 - **Phase:** 19-schema-corrections
-- **Plan:** 01 (complete), 02, 03 (planned, not started)
-- **Status:** Plan 01 complete
+- **Plan:** 01 (complete), 02 (complete), 03 (planned, not started)
+- **Status:** Plan 02 complete
 - **Last Updated:** 2026-05-15
 
 ## Decisions Made
@@ -42,3 +42,4 @@
 - Email sending is async and non-blocking to not affect main flows
 - **18-toast-unification-01:** Complete - Zustand toast removed, Sonner unified, ADR-018 added
 - **19-schema-corrections-01:** Complete - Setting @@unique, Tenant.ownerId, user.isPlatformAdmin — migration applied
+- **19-schema-corrections-02:** Complete - Header role case-sensitivity bug fixed with isAdmin() helper
