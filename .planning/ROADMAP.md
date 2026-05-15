@@ -191,6 +191,22 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase: 22-page-flag-expansion
+
+**Goal:** Expand page visibility flags for Groups, Services, Resources, Maintenance, Surveys, and Competitions.
+
+**Status:** Not Started
+
+**Requirements:** FLAG-EXP-01, FLAG-EXP-02, FLAG-EXP-03, FLAG-EXP-04, FLAG-EXP-05
+
+**Plans:**
+
+- [ ] 22-01-PLAN.md — Foundation: Enums, Flag Logic, API, and Hook
+- [ ] 22-02-PLAN.md — Configuration UI: Admin Widget and Locales
+- [ ] 22-03-PLAN.md — Navigation: Header, Footer, and Mobile Menu
+
+---
+
 ## Future Phases (To Be Planned)
 
 ### Phase: Second Tenant

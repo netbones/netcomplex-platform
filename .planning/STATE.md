@@ -2,9 +2,9 @@
 
 ## Current Position
 
-- **Phase:** 21-content-events
-- **Plan:** 01 (complete), 02 (complete), 03 (planned, not started)
-- **Status:** Ready to plan
+- **Phase:** 22-page-flag-expansion
+- **Plan:** 01 (planned), 02 (planned), 03 (planned)
+- **Status:** Planning complete
 - **Last Updated:** 2026-05-15
 
 ## Decisions Made
@@ -33,6 +33,8 @@
 - **adminEventSchema:** Separate schema from existing eventSchema (different fields: title/description/date/location/organizer vs startDate/endDate/maxAttendees)
 - [Phase 21-content-events]: Used simplified form pattern (no Tiptap, no i18n) vs ContentForm — events are single-language with plain text fields
 - [Phase 21-content-events]: Extended events API with limit and upcoming query params for efficient widget data fetching — Client-side filtering would be inefficient; API should support server-side filtering
+- [Phase 22-page-flag-expansion]: Expanding page visibility flags to Groups, Services, Resources, Maintenance, Surveys, and Competitions.
+- [Phase 22-page-flag-expansion]: Centralized flag fetching via `usePageFlags` hook to ensure consistency across Header, Footer, and Mobile Menu.
 
 ## Notes
 
@@ -55,3 +57,4 @@
 - **21-content-events-01:** Complete — ContentForm date pickers, API date filtering for public queries, admin bypass
 - **21-content-events-02:** Complete — Events CRUD admin pages, EventForm, EventList, API routes (3 commits)
 - **21-content-events-03:** Planned — Events dashboard tab and upcoming events widget
+- **22-page-flag-expansion:** Planned — 3 plans created to expand visibility flags and update navigation.
