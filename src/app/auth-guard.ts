@@ -1,8 +1,8 @@
 import { auth } from '@api/auth';
 import { hasPermission, Permission } from '@entities/tenant/api/permissions';
-import { db, users } from '@api/db';
+import { db, users, assistSessions } from '@api/db';
 import { NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
+import { eq, and, gt } from 'drizzle-orm';
 
 export async function proxy(request: Request): Promise<NextResponse> {
   const { pathname } = new URL(request.url);
@@ -61,6 +61,45 @@ export async function proxy(request: Request): Promise<NextResponse> {
         );
       }
       return NextResponse.redirect(new URL('/', request.url));
+    }
+
+    // AssistSession scope enforcement for platform admin accessing tenant-scoped routes
+    if (pathname.startsWith('/api/admin/platform/tenants/')) {
+      const pathParts = pathname.split('/');
+      const tenantsIdx = pathParts.indexOf('tenants');
+      const tenantId = tenantsIdx >= 0 ? pathParts[tenantsIdx + 1] : null;
+
+      if (tenantId && tenantId !== 'route' && tenantId !== 'assist') {
+        const now = new Date();
+        const activeSession = await db
+          .select()
+          .from(assistSessions)
+          .where(
+            and(
+              eq(assistSessions.tenantId, tenantId),
+              eq(assistSessions.staffId, session.user.id),
+              eq(assistSessions.isActive, true),
+              gt(assistSessions.expiresAt, now)
+            )
+          )
+          .limit(1);
+
+        if (activeSession.length > 0) {
+          const assistSession = activeSession[0];
+          // Enforce scope restriction
+          if (assistSession.scope === 'metadata') {
+            if (request.method !== 'GET') {
+              return NextResponse.json(
+                {
+                  error:
+                    'Assist session is metadata-read-only. Use tenant admin panel for modifications.',
+                },
+                { status: 403 }
+              );
+            }
+          }
+        }
+      }
     }
   }
 
