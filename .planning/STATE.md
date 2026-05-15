@@ -3,8 +3,8 @@
 ## Current Position
 
 - **Phase:** 19-schema-corrections
-- **Plan:** 01 (complete), 02 (complete), 03 (planned, not started)
-- **Status:** Plan 02 complete
+- **Plan:** 01 (complete), 02 (complete), 03 (complete)
+- **Status:** Plan 03 complete
 - **Last Updated:** 2026-05-15
 
 ## Decisions Made
@@ -43,3 +43,4 @@
 - **18-toast-unification-01:** Complete - Zustand toast removed, Sonner unified, ADR-018 added
 - **19-schema-corrections-01:** Complete - Setting @@unique, Tenant.ownerId, user.isPlatformAdmin — migration applied
 - **19-schema-corrections-02:** Complete - Header role case-sensitivity bug fixed with isAdmin() helper
+- **19-schema-corrections-03:** Complete - Platform Admin tenant CRUD wired, isPlatformAdmin guard added
