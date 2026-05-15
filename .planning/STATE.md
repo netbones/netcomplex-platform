@@ -3,8 +3,8 @@
 ## Current Position
 
 - **Phase:** 21-content-events
-- **Plan:** 01, 02, 03 (planned, not started)
-- **Status:** Ready to execute
+- **Plan:** 01 (complete), 02 (complete), 03 (planned, not started)
+- **Status:** In Progress
 - **Last Updated:** 2026-05-15
 
 ## Decisions Made
@@ -29,6 +29,9 @@
 - **Password reset:** Custom UUID token-based flow with 1-hour expiry
 - **Email enumeration protection:** Password reset always returns success regardless of email existence
 - **Toast unification:** Sonner as single toast system — Zustand toast removed, useApiToast retained for API operations
+- **Events CRUD pattern:** Simplified form (no Tiptap, no i18n) vs ContentForm — events are single-language plain text
+- **adminEventSchema:** Separate schema from existing eventSchema (different fields: title/description/date/location/organizer vs startDate/endDate/maxAttendees)
+- [Phase 21-content-events]: Used simplified form pattern (no Tiptap, no i18n) vs ContentForm — events are single-language with plain text fields
 
 ## Notes
 
@@ -49,5 +52,5 @@
 - **20-self-service-inception-03:** Complete - AssistSession model + API for time-limited staff access with dual revocation
 - **20-self-service-inception-04:** Complete - Gap closure: InviteStep sends invitations, auth-guard enforces AssistSession scope
 - **21-content-events-01:** Complete — ContentForm date pickers, API date filtering for public queries, admin bypass
-- **21-content-events-02:** Planned — Events CRUD admin pages, EventForm, EventList, API routes
+- **21-content-events-02:** Complete — Events CRUD admin pages, EventForm, EventList, API routes (3 commits)
 - **21-content-events-03:** Planned — Events dashboard tab and upcoming events widget
