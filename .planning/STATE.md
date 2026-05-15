@@ -47,3 +47,4 @@
 - **20-self-service-inception-01:** Complete - Signup API uses Better Auth for password, sets ownerId, redirects to onboarding
 - **20-self-service-inception-02:** Complete - 5-step onboarding wizard built with state management, API persistence, and admin redirect
 - **20-self-service-inception-03:** Complete - AssistSession model + API for time-limited staff access with dual revocation
+- **20-self-service-inception-04:** Complete - Gap closure: InviteStep sends invitations, auth-guard enforces AssistSession scope
