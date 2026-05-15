@@ -306,3 +306,26 @@ export const signupSchema = z
   });
 
 export type SignupFormData = z.infer<typeof signupSchema>;
+
+/**
+ * Zod schema for admin event form validation.
+ * Matches the Event model: title, description, date, location, organizer, image, isPublic.
+ */
+export const adminEventSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(200, 'Title too long').trim(),
+  description: z
+    .string()
+    .min(1, 'Description is required')
+    .max(5000, 'Description too long')
+    .trim(),
+  date: z
+    .string()
+    .min(1, 'Date is required')
+    .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'Date must be YYYY-MM-DDTHH:MM'),
+  location: z.string().min(1, 'Location is required').max(200, 'Location too long').trim(),
+  organizer: z.string().min(1, 'Organizer is required').max(200, 'Organizer too long').trim(),
+  image: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  isPublic: z.boolean(),
+});
+
+export type AdminEventFormData = z.infer<typeof adminEventSchema>;
