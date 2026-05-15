@@ -53,8 +53,8 @@ export default function HomePage() {
   }
 
   const filteredResidents = residents.filter(r => {
-    const street = r.standardSeats?.[0]?.household?.street || r.soloSeat?.household?.street || '';
-    const unit = r.standardSeats?.[0]?.household?.unit || r.soloSeat?.household?.unit || '';
+    const street = r.standardSeats?.[0]?.property?.street || r.soloSeat?.property?.street || '';
+    const unit = r.standardSeats?.[0]?.property?.unit || r.soloSeat?.property?.unit || '';
     const address = [street, unit].filter(Boolean).join(', ');
     const interestList = Array.isArray(r.interests) ? r.interests : [];
 
