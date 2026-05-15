@@ -4,17 +4,19 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { useContactSettings } from '@/shared/lib/useContactSettings';
+import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
 
 export function Footer() {
   const [mounted, setMounted] = useState(false);
   const { t, ready } = useTranslation('common');
   const { contacts, loading } = useContactSettings();
+  const { flags } = usePageFlags();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted || !ready) {
+  if (!mounted || !ready || !flags) {
     return (
       <footer className="bg-gray-900 text-white mt-auto">
         <div className="container mx-auto px-4 py-12">
@@ -70,60 +72,72 @@ export function Footer() {
                   {t('nav.home')}
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/directory"
-                  className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
-                >
-                  {t('nav.directory')}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/services"
-                  className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
-                >
-                  {t('nav.services')}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/resources"
-                  className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
-                >
-                  {t('nav.resources')}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/conservation"
-                  className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
-                >
-                  {t('nav.conservation')}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/dashboard"
-                  className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
-                >
-                  {t('nav.dashboard')}
-                </Link>
-              </li>
+              {flags.directory !== false && (
+                <li>
+                  <Link
+                    href="/directory"
+                    className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
+                  >
+                    {t('nav.directory')}
+                  </Link>
+                </li>
+              )}
+              {flags.services !== false && (
+                <li>
+                  <Link
+                    href="/services"
+                    className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
+                  >
+                    {t('nav.services')}
+                  </Link>
+                </li>
+              )}
+              {flags.resources !== false && (
+                <li>
+                  <Link
+                    href="/resources"
+                    className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
+                  >
+                    {t('nav.resources')}
+                  </Link>
+                </li>
+              )}
+              {flags.conservation !== false && (
+                <li>
+                  <Link
+                    href="/conservation"
+                    className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
+                  >
+                    {t('nav.conservation')}
+                  </Link>
+                </li>
+              )}
+              {flags.dashboard !== false && (
+                <li>
+                  <Link
+                    href="/dashboard"
+                    className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
+                  >
+                    {t('nav.dashboard')}
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
           <div>
             <h4 className="text-lg font-semibold mb-4">{t('footer.services')}</h4>
             <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/services#maintenance"
-                  className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
-                >
-                  {t('footer.maintenance')}
-                </Link>
-              </li>
+              {flags.maintenance !== false && (
+                <li>
+                  <Link
+                    href="/services#maintenance"
+                    className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
+                  >
+                    {t('footer.maintenance')}
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link
                   href="/services#security"
@@ -148,14 +162,16 @@ export function Footer() {
                   {t('footer.amenities')}
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/resources#events"
-                  className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
-                >
-                  {t('footer.events')}
-                </Link>
-              </li>
+              {flags.events !== false && (
+                <li>
+                  <Link
+                    href="/resources#events"
+                    className="text-gray-300 hover:text-soralia-accent transition-colors text-sm"
+                  >
+                    {t('footer.events')}
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
