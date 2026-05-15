@@ -177,7 +177,7 @@ export function useApiToast(options?: UseApiToastOptions): UseApiToastReturn {
         onError,
         retry = true,
         retryCount = 3,
-        silent = false,
+        silent = true,
         critical = false,
         duration,
       } = options;
@@ -288,7 +288,6 @@ export function toastPromise<T>(
     return undefined;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return toast.promise(executeWithRetry(), {
     loading,
     success: success ? data => success : undefined,
