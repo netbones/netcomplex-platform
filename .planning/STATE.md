@@ -2,9 +2,9 @@
 
 ## Current Position
 
-- **Phase:** 20-self-service-inception
-- **Plan:** 01 (complete), 02, 03 (planned, not started)
-- **Status:** Ready to plan
+- **Phase:** 21-content-events
+- **Plan:** 01, 02, 03 (planned, not started)
+- **Status:** Ready to execute
 - **Last Updated:** 2026-05-15
 
 ## Decisions Made
@@ -48,3 +48,6 @@
 - **20-self-service-inception-02:** Complete - 5-step onboarding wizard built with state management, API persistence, and admin redirect
 - **20-self-service-inception-03:** Complete - AssistSession model + API for time-limited staff access with dual revocation
 - **20-self-service-inception-04:** Complete - Gap closure: InviteStep sends invitations, auth-guard enforces AssistSession scope
+- **21-content-events-01:** Planned — ContentForm date pickers, API date filtering for public queries
+- **21-content-events-02:** Planned — Events CRUD admin pages, EventForm, EventList, API routes
+- **21-content-events-03:** Planned — Events dashboard tab and upcoming events widget

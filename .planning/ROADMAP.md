@@ -175,6 +175,22 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase: 21-content-events
+
+**Goal:** Content scheduling UI, Events CRUD admin pages, Events dashboard tab
+
+**Status:** Planned
+
+**Requirements:** CONTENT-01, CONTENT-02, EVENTS-01, EVENTS-02, EVENTS-03
+
+**Plans:**
+
+- [ ] 21-01-PLAN.md — Content scheduling: date pickers, API date filtering
+- [ ] 21-02-PLAN.md — Events CRUD: admin pages, EventForm, EventList, API routes
+- [ ] 21-03-PLAN.md — Events dashboard tab and upcoming events widget
+
+---
+
 ## Future Phases (To Be Planned)
 
 ### Phase: Second Tenant
