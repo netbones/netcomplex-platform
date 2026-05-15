@@ -1,6 +1,6 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
-import { db, users, profiles, standardSeats, soloSeats, properties } from '@api/db';
+import { db, users, profiles, standardSeats, soloSeats, properties, households } from '@api/db';
 import { NextResponse } from 'next/server';
 import { eq, and, or, asc, ilike, count } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
@@ -134,13 +134,21 @@ export async function GET(request: Request) {
         .where(and(eq(soloSeats.tenantId, tenantSlug), eq(soloSeats.userId, user.id)))
         .limit(1);
 
-      // Get active profiles with household and landlord
+      // Get active profiles with household, property, and landlord
 
       const userProfiles = await db
         .select({
           householdId: profiles.householdId,
           occupantType: profiles.occupantType,
           residencyType: profiles.residencyType,
+          rentalImage: profiles.rentalImage,
+          occupantImage: profiles.occupantImage,
+          property: {
+            id: properties.id,
+            street: properties.street,
+            unit: properties.unit,
+            homeImage: properties.homeImage,
+          },
           landlord: {
             id: users.id,
             name: users.name,
@@ -148,6 +156,8 @@ export async function GET(request: Request) {
           },
         })
         .from(profiles)
+        .innerJoin(households, eq(profiles.householdId, households.id))
+        .innerJoin(properties, eq(households.propertyId, properties.id))
         .leftJoin(users, eq(profiles.landlordId, users.id))
         .where(
           and(

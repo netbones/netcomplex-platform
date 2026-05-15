@@ -33,6 +33,7 @@ export interface Resident {
     residencyType: string;
     rentalImage: string | null;
     occupantImage: string | null;
+    property: Property;
     landlord?: Landlord;
   }>;
 }
