@@ -49,6 +49,21 @@ const categories = [
 ] as const;
 
 function getInitialDefaultValues(initialData?: ContentFormProps['initialData']): ContentFormData {
+  // Convert Date objects to datetime-local format for the inputs
+  const formatForInput = (date: unknown): string => {
+    if (!date) return '';
+    const d =
+      typeof date === 'string'
+        ? new Date(date)
+        : date instanceof Date
+          ? date
+          : new Date(String(date));
+    // datetime-local expects YYYY-MM-DDTHH:MM format
+    return d.toISOString().slice(0, 16);
+  };
+
+  const initialDataRecord = initialData as Record<string, unknown> | undefined;
+
   return {
     title: initialData?.title || { [defaultLanguage]: '' },
     content: initialData?.content || { [defaultLanguage]: '' },
@@ -60,6 +75,8 @@ function getInitialDefaultValues(initialData?: ContentFormProps['initialData']):
     published: initialData?.published || false,
     defaultLocale: initialData?.defaultLocale || defaultLanguage,
     contentType: (initialData?.contentType as ContentFormData['contentType']) || 'article',
+    publishedAt: formatForInput(initialDataRecord?.publishedAt),
+    expiresAt: formatForInput(initialDataRecord?.expiresAt),
   };
 }
 
@@ -126,10 +143,17 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
       const method = isEditing ? 'PATCH' : 'POST';
       const url = isEditing ? `/api/content/${initialData.id}` : '/api/content';
 
+      // Convert datetime-local strings to Date objects
+      const body = {
+        ...data,
+        publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
+        expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+      };
+
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(body),
       });
 
       if (res.ok) {
@@ -293,6 +317,38 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
             ))}
           </select>
         </div>
+      </div>
+
+      {/* Schedule Publish Date */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Publish Date (optional)
+        </label>
+        <input
+          type="datetime-local"
+          value={formValues.publishedAt || ''}
+          onChange={e => setValue('publishedAt', e.target.value || null, { shouldValidate: false })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          Leave empty to publish immediately when toggled on. Set a future date to auto-publish.
+        </p>
+      </div>
+
+      {/* Schedule Expiry Date */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Expiry Date (optional)
+        </label>
+        <input
+          type="datetime-local"
+          value={formValues.expiresAt || ''}
+          onChange={e => setValue('expiresAt', e.target.value || null, { shouldValidate: false })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          Content will be hidden after this date. Leave empty for no expiry.
+        </p>
       </div>
 
       <div>
