@@ -47,6 +47,28 @@ model TenantModule {
   @@unique([tenantId, moduleKey])
 }
 
+// Time-limited staff access for assisted provisioning (Path B)
+model AssistSession {
+  id        String   @id @default(cuid())
+  tenantId  String
+  staffId   String
+  scope     String   @default("metadata") // metadata, full (future)
+  expiresAt DateTime
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+  revokedBy String?  // userId who revoked
+  notes     String?  // reason for assist
+
+  tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  staff     user   @relation(fields: [staffId], references: [id])
+
+  @@index([tenantId])
+  @@index([staffId])
+  @@index([expiresAt])
+  @@index([isActive])
+}
+
 model Tenant {
   id              String    @id
   name            String
@@ -60,7 +82,7 @@ model Tenant {
   fontFamily     String?
   customCss      String?
   active          Boolean   @default(true)
-  
+
   // Subscription
   subscriptionTier String   @default("sprout") // sprout, grove, forest
   tier             Tier     @default(STANDARD) // standard, premium, enterprise
@@ -68,13 +90,14 @@ model Tenant {
   maxPages          Int      @default(5)
   pageCount         Int      @default(0)
   featureFlags      Json     @default("{}")
-  
+
   createdAt       DateTime  @default(now())
   updatedAt       DateTime?
   ownerId         String?
 
-  tenantModules TenantModule[]
-  owner         user?       @relation("TenantOwner", fields: [ownerId], references: [id])
+  tenantModules    TenantModule[]
+  assistSessions   AssistSession[]
+  owner            user?       @relation("TenantOwner", fields: [ownerId], references: [id])
 }
 
 model Announcement {
@@ -876,6 +899,7 @@ model user {
   twoFactor                                             twoFactor[]
   ownedProperties                                       Property[]                @relation("PropertyOwner")
   ownedTenants                                          Tenant[]                  @relation("TenantOwner")
+  assistSessions                                        AssistSession[]
 }
 
 model verification {
