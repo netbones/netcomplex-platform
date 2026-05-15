@@ -1,4 +1,4 @@
-export interface Household {
+export interface Property {
   street: string;
   unit: string;
   homeImage: string | null;
@@ -20,15 +20,15 @@ export interface Resident {
   isPublic: boolean;
   role?: string;
   standardSeats?: Array<{
-    household: Household;
+    property: Property;
     isPrimaryOwner: boolean;
   }>;
   soloSeat?: {
     seatType: string;
-    household?: Household;
-  };
+    property?: Property;
+  } | null;
   profiles?: Array<{
-    household: Household;
+    householdId: string;
     occupantType: string;
     residencyType: string;
     rentalImage: string | null;

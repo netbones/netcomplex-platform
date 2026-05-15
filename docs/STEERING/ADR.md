@@ -732,4 +732,80 @@ const openApiSpec = {
 
 ---
 
+## ADR-017: Property-First Architecture — Separate Asset from Occupancy
+
+**Status:** Accepted
+
+**Date:** 2026-05
+
+### Context
+
+The original schema used a single `Household` table that conflated two distinct concepts:
+the **physical asset** (street, unit, platform address, home image) and the **social
+occupancy** (who lives there, when they moved in/out, occupancy type). This caused
+semantic confusion for multi-tenant scenarios — a property management company in Cape
+Town and a residential community in Johannesburg should not both be shoehorned into
+"household" semantics.
+
+Additionally, the frontend directory components expected `household` keys while the
+database schema and API had already migrated to `property` as the fundamental building
+block, causing a data structure mismatch that broke the resident directory display.
+
+### Decision
+
+Adopt **Property** as the permanent, foundational entity representing the physical
+asset, with **Household** representing temporal occupancy records.
+
+**Property (The Asset):**
+
+- Permanent identity that never changes (`platformAddress`, e.g. `unit101@soralia.org`)
+- Contains physical location (`street`, `unit`), `tenantId`, `ownerId`, `homeImage`
+- One Property has many Households (historical occupancy records)
+- One Property has one **Active** Household (current occupancy)
+- HOA rights (voting, resolutions, financials) are tied to Property ownership
+
+**Household (The Occupancy):**
+
+- Temporal — bounded by `moveInDate` / `moveOutDate`
+- Contains `propertyId` (FK), `occupancyType` (`OWNER_OCCUPIED`, `RENTAL`, `VACANT`)
+- Community participation rights (chat, bookings, maintenance) are tied to active Household
+- Profiles (residents) link to Household, not directly to Property
+
+**API Response Convention:**
+
+- All API endpoints return `property` (not `household`) for standardSeats and soloSeats
+- Frontend types and components must use `property` key consistently
+- Profiles carry `householdId` (FK string), not a nested property object
+
+**Alternatives considered:**
+
+- **Keep Household as single entity**: Simpler but conflates asset and occupancy, breaks
+  multi-property investor scenarios, misrepresents HOA legal structure
+- **Rename Household to Property only**: Loses the temporal occupancy tracking needed
+  for tenant turnover history
+
+### Consequences
+
+**Positive:**
+
+- Accurately models real-world legal and social structure of communities
+- Supports multi-property investors (Premium tier) with portfolio management
+- Stable identity — Property never changes even as occupants turnover
+- Clear separation of HOA rights (Property) vs community participation (Household)
+- Enables historical occupancy tracking per unit
+
+**Negative:**
+
+- Requires dual-table joins for most queries (Property + Household)
+- Frontend types must be kept in sync with API's `property` key convention
+- Migration complexity when converting existing household data
+- Additional cognitive load for developers to understand the distinction
+
+## Related
+
+- `docs/architecture/PROPERTY_HOUSEHOLD_MODEL.md` — Detailed Property vs. Household model
+- `docs/plans/PROPERTY_MIGRATION_PLAN.md` — Migration implementation plan
+
+---
+
 _More ADRs will be added as we make architectural decisions. Use the template above to propose new ADRs._

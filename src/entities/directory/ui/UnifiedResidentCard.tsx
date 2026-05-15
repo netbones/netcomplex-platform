@@ -37,23 +37,23 @@ export function UnifiedResidentCard({
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${resident.name.replace(' ', '')}`;
 
   const street =
-    resident.standardSeats?.[0]?.household?.street ||
-    resident.soloSeat?.household?.street ||
-    resident.profiles?.[0]?.household?.street ||
+    resident.standardSeats?.[0]?.property?.street ||
+    resident.soloSeat?.property?.street ||
+    resident.profiles?.[0]?.property?.street ||
     '';
   const unit =
-    resident.standardSeats?.[0]?.household?.unit ||
-    resident.soloSeat?.household?.unit ||
-    resident.profiles?.[0]?.household?.unit ||
+    resident.standardSeats?.[0]?.property?.unit ||
+    resident.soloSeat?.property?.unit ||
+    resident.profiles?.[0]?.property?.unit ||
     '';
   const address = [street, unit].filter(Boolean).join(', ');
 
   const interestList = Array.isArray(resident.interests) ? resident.interests : [];
 
   const hasHomeImage = !!(
-    resident.standardSeats?.[0]?.household?.homeImage ||
-    resident.soloSeat?.household?.homeImage ||
-    resident.profiles?.[0]?.household?.homeImage ||
+    resident.standardSeats?.[0]?.property?.homeImage ||
+    resident.soloSeat?.property?.homeImage ||
+    resident.profiles?.[0]?.property?.homeImage ||
     resident.profiles?.[0]?.rentalImage ||
     resident.profiles?.[0]?.occupantImage
   );
@@ -91,9 +91,9 @@ export function UnifiedResidentCard({
             <div className="w-full h-full relative">
               <Image
                 src={
-                  resident.standardSeats?.[0]?.household?.homeImage ||
-                  resident.soloSeat?.household?.homeImage ||
-                  resident.profiles?.[0]?.household?.homeImage ||
+                  resident.standardSeats?.[0]?.property?.homeImage ||
+                  resident.soloSeat?.property?.homeImage ||
+                  resident.profiles?.[0]?.property?.homeImage ||
                   ''
                 }
                 alt={`${resident.name}'s home`}
@@ -112,7 +112,7 @@ export function UnifiedResidentCard({
                 src={
                   resident.profiles?.[0]?.rentalImage ||
                   resident.profiles?.[0]?.occupantImage ||
-                  resident.profiles?.[0]?.household?.homeImage ||
+                  resident.profiles?.[0]?.property?.homeImage ||
                   ''
                 }
                 alt="Property"
@@ -285,9 +285,9 @@ export function UnifiedResidentCard({
             <div className="w-full h-full relative">
               <Image
                 src={
-                  resident.standardSeats?.[0]?.household?.homeImage ||
-                  resident.soloSeat?.household?.homeImage ||
-                  resident.profiles?.[0]?.household?.homeImage ||
+                  resident.standardSeats?.[0]?.property?.homeImage ||
+                  resident.soloSeat?.property?.homeImage ||
+                  resident.profiles?.[0]?.property?.homeImage ||
                   ''
                 }
                 alt={`${resident.name}'s home`}
@@ -305,7 +305,7 @@ export function UnifiedResidentCard({
                 src={
                   resident.profiles?.[0]?.rentalImage ||
                   resident.profiles?.[0]?.occupantImage ||
-                  resident.profiles?.[0]?.household?.homeImage ||
+                  resident.profiles?.[0]?.property?.homeImage ||
                   ''
                 }
                 alt="Property"
