@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TIERS, type TierLevel } from '@entities/tenant/api/features/registry';
-import { createTenant } from '@entities/tenant/api/base';
+import { createTenant, getTenantById } from '@entities/tenant/api/base';
 import { db, users, tenants } from '@api/db';
 import { eq } from 'drizzle-orm';
 import { logError } from '@shared/lib';
@@ -17,6 +17,8 @@ interface SignupRequest {
     password: string;
   };
 }
+
+const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,7 +54,7 @@ export async function POST(request: NextRequest) {
     // Get tier configuration
     const tierConfig = TIERS[body.plan];
 
-    // Create tenant
+    // Step 1: Create tenant with ownerId=null (we don't have user id yet)
     const tenant = await createTenant({
       id: crypto.randomUUID(),
       name: body.name,
@@ -73,38 +75,61 @@ export async function POST(request: NextRequest) {
       featureFlags: {},
     });
 
-    // Create admin user
-    const [user] = await db
-      .insert(users)
-      .values({
-        id: crypto.randomUUID(),
-        tenantId: tenant.id,
+    // Step 2: Create admin user via Better Auth (handles password hashing)
+    const authResponse = await fetch(`${BETTER_AUTH_URL}/api/auth/sign-up/email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         email: body.admin.email,
+        password: body.admin.password,
         name: `${body.admin.firstName} ${body.admin.lastName}`,
-        role: 'ADMIN',
-        isActive: true,
-        phone: body.admin.phone || null,
-        interests: [],
-        avatar: null,
-        profileImage: null,
-        books: [],
-        dashboardLayout: null,
-        isPublic: true,
-        showEmail: true,
-        showPhone: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        emailVerified: false,
-        image: null,
-        twoFactorEnabled: false,
-      })
-      .returning();
+      }),
+    });
 
-    // Note: Password will be set when the user completes Better Auth signup
-    // For now, we just create the user record with tenant association
+    if (!authResponse.ok) {
+      // Better Auth signup failed — clean up the tenant we just created
+      await db.delete(tenants).where(eq(tenants.id, tenant.id));
+      const authError = await authResponse.json();
+      if (authResponse.status === 422) {
+        return NextResponse.json({ error: 'Email address is already registered' }, { status: 409 });
+      }
+      return NextResponse.json(
+        { error: authError.error || 'Failed to create user account' },
+        { status: authResponse.status }
+      );
+    }
+
+    const authData = await authResponse.json();
+    const userId = authData.user?.id;
+
+    if (!userId) {
+      await db.delete(tenants).where(eq(tenants.id, tenant.id));
+      return NextResponse.json(
+        { error: 'Failed to retrieve user id from auth response' },
+        { status: 500 }
+      );
+    }
+
+    // Step 3: Atomic update — set user's tenantId and tenant's ownerId
+    await db.transaction(async tx => {
+      await tx
+        .update(users)
+        .set({
+          tenantId: tenant.id,
+          role: 'ADMIN',
+          isPlatformAdmin: false,
+        })
+        .where(eq(users.id, userId));
+
+      await tx.update(tenants).set({ ownerId: userId }).where(eq(tenants.id, tenant.id));
+    });
+
+    // Fetch the fully-linked tenant for response
+    const linkedTenant = await getTenantById(tenant.id);
 
     return NextResponse.json(
       {
+        tenantId: tenant.id,
         tenant: {
           id: tenant.id,
           name: tenant.name,
@@ -112,10 +137,10 @@ export async function POST(request: NextRequest) {
           subscriptionTier: tenant.subscriptionTier,
         },
         user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
+          id: userId,
+          email: body.admin.email,
+          name: `${body.admin.firstName} ${body.admin.lastName}`,
+          role: 'ADMIN',
         },
       },
       { status: 201 }
