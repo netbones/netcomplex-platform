@@ -3,8 +3,8 @@
 ## Current Position
 
 - **Phase:** 20-self-service-inception
-- **Plan:** 01, 02, 03 (planned, not started)
-- **Status:** Ready to execute
+- **Plan:** 01 (complete), 02, 03 (planned, not started)
+- **Status:** Plan 01 complete
 - **Last Updated:** 2026-05-15
 
 ## Decisions Made
@@ -44,3 +44,4 @@
 - **19-schema-corrections-01:** Complete - Setting @@unique, Tenant.ownerId, user.isPlatformAdmin — migration applied
 - **19-schema-corrections-02:** Complete - Header role case-sensitivity bug fixed with isAdmin() helper
 - **19-schema-corrections-03:** Complete - Platform Admin tenant CRUD wired, isPlatformAdmin guard added
+- **20-self-service-inception-01:** Complete - Signup API uses Better Auth for password, sets ownerId, redirects to onboarding
