@@ -90,6 +90,7 @@ export default function AdminDashboardPage() {
             {activeTab === 'maintenance' && 'Maintenance requests, scheduling, and analytics'}
             {activeTab === 'users' && 'User management and account statistics'}
             {activeTab === 'content' && 'Content creation and management tools'}
+            {activeTab === 'events' && 'Upcoming events and event management'}
             {activeTab === 'system' && 'System maintenance and configuration'}
           </div>
         </div>
