@@ -146,13 +146,13 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Critical schema fixes and Platform Admin API wiring — Setting uniqueness, Tenant ownerId, user isPlatformAdmin, Header role bug, tenant CRUD routes
 
-**Status:** Planned
+**Status:** In Progress (1/3 plans complete)
 
 **Requirements:** SCHEMA-01, SCHEMA-02, SCHEMA-03, SCHEMA-04, SCHEMA-05
 
 **Plans:**
 
-- [ ] 19-01-PLAN.md — Schema: Setting uniqueness, Tenant ownerId, user isPlatformAdmin
+- [x] 19-01-PLAN.md — Schema: Setting uniqueness, Tenant ownerId, user isPlatformAdmin ✅
 - [ ] 19-02-PLAN.md — Fix Header role case-sensitivity bug
 - [ ] 19-03-PLAN.md — Wire Platform Admin tenant CRUD + isPlatformAdmin guard
 
