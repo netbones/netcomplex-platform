@@ -35,6 +35,9 @@
 - [Phase 21-content-events]: Extended events API with limit and upcoming query params for efficient widget data fetching — Client-side filtering would be inefficient; API should support server-side filtering
 - [Phase 22-page-flag-expansion]: Expanding page visibility flags to Groups, Services, Resources, Maintenance, Surveys, and Competitions.
 - [Phase 22-page-flag-expansion]: Centralized flag fetching via `usePageFlags` hook to ensure consistency across Header, Footer, and Mobile Menu.
+- [Phase 22-page-flag-expansion]: Added 6 new page visibility flags to PlatformPageFlags interface with default value 'true'
+- [Phase 22-page-flag-expansion]: Implemented a simple client-side hook 'usePageFlags' using native fetch
+- [Phase 22]: Added Page Settings toggle and localized navigation labels.
 
 ## Notes
 
