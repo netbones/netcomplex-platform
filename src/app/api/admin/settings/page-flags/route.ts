@@ -40,6 +40,12 @@ export async function POST(request: NextRequest) {
       'news',
       'events',
       'directory',
+      'groups',
+      'services',
+      'resources',
+      'maintenance',
+      'surveys',
+      'competitions',
     ];
 
     if (!validKeys.includes(key)) {
