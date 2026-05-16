@@ -2,13 +2,14 @@
 
 ## Current Position
 
-- **Phase:** 24-dashboard-enhancement
-- **Plan:** 03
+- **Phase:** 25-gap-closure
+- **Plan:** 01
 - **Status:** Complete
 - **Last Updated:** 2026-05-16
 
 ## Decisions Made
 
+- **Server-side guard separation:** requirePlatformAdmin helper placed in separate guards.ts file (not permissions.ts) to avoid breaking client-side imports — permissions.ts is imported by Header.tsx and other client components
 - **Self-service tenant signup:** Primary path is /platform/signup — Platform Admin–led inception replaced (DISCUSSION.md v2)
 - **Trust boundary separation:** isPlatformAdmin flag on user model, never a Role enum value
 - **Tenant ownership:** ownerId on Tenant schema for verifiable ownership
@@ -81,3 +82,4 @@
 - **24-dashboard-enhancement-02:** Complete — Group membership moderation API + GroupModerationWidget (2 commits).
 - **24-dashboard-enhancement-03:** Complete — Widget state persistence wired to zustand store, reset-to-defaults added (2 commits).
 - **24-dashboard-enhancement-01:** Complete — Surveys tab, SurveysWidget, responses API, results page (3 commits).
+- **25-gap-closure-01:** Complete — Platform admin auth guards on tenant CRUD routes, MobileMenu role case-sensitivity fix (2 commits).
