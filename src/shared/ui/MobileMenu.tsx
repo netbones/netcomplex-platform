@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { authClient } from '@api/auth-client';
 import { useIsMounted } from 'usehooks-ts';
 import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
+import { isAdmin } from '@entities/tenant/api/permissions';
 
 interface NavItem {
   name: string;
@@ -23,7 +24,7 @@ export function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProps) {
   const isMounted = useIsMounted();
   const { data: session } = authClient.useSession();
   const { flags } = usePageFlags();
-  const isAdmin = session?.user?.role === 'admin';
+  const isAdminUser = isAdmin(session?.user?.role);
   const isBoard = session?.user?.role === 'board';
   const isLoggedIn = !!session;
 
@@ -93,7 +94,7 @@ export function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProps) {
           </>
         )}
 
-        {(isAdmin || isBoard) && (
+        {(isAdminUser || isBoard) && (
           <>
             <div className="border-t border-white/20 my-2" />
             <Link
