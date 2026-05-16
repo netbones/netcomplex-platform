@@ -207,6 +207,22 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase: 23-competitions-resources
+
+**Goal:** Competitions model + admin CRUD + dynamic public page, Resources standalone model with file uploads/visibility/migration
+
+**Status:** Planned
+
+**Requirements:** COMP-01, COMP-02, RES-01, RES-02, RES-03, RES-04, RES-05
+
+**Plans:**
+
+- [ ] 23-01-PLAN.md — Competition model, API, admin CRUD, dynamic public page
+- [ ] 23-02-PLAN.md — Resource model, API with visibility, admin CRUD with file upload
+- [ ] 23-03-PLAN.md — Public resources page rewrite, Content migration, enum cleanup
+
+---
+
 ## Future Phases (To Be Planned)
 
 ### Phase: Second Tenant
