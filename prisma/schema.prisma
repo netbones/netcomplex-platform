@@ -181,6 +181,25 @@ model ConversationParticipant {
   @@index([userId])
 }
 
+model Competition {
+  id          String             @id @default(cuid())
+  tenantId    String
+  title       String
+  description String?
+  rules       String?
+  prizeInfo   String?
+  startDate   DateTime
+  endDate     DateTime
+  status      CompetitionStatus  @default(DRAFT)
+  entryCount  Int                @default(0)
+  image       String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+}
+
 model Event {
   id          String   @id
   tenantId  String
@@ -900,6 +919,7 @@ model user {
   ownedProperties                                       Property[]                @relation("PropertyOwner")
   ownedTenants                                          Tenant[]                  @relation("TenantOwner")
   assistSessions                                        AssistSession[]
+  Resource                                              Resource[]
 }
 
 model verification {
@@ -1083,6 +1103,48 @@ enum Role {
   ASSOCIATE
 }
 
+enum ResourceCategory {
+  ARCHITECTURAL
+  ENGINEERING
+  GOVERNANCE
+  BOARD_REPORT
+  DIY
+  FINANCIAL
+  LEGAL
+  OTHER
+}
+
+enum ResourceVisibility {
+  ALL_RESIDENTS
+  OWNERS_ONLY
+  BOARD_ONLY
+  COMMITTEE_ONLY
+}
+
+model Resource {
+  id           String             @id @default(cuid())
+  tenantId     String
+  title        String
+  description  String?
+  category     ResourceCategory
+  fileUrl      String?
+  fileType     String?
+  fileSize     Int?
+  externalUrl  String?
+  bodyContent  Json?
+  version      String?
+  visibility   ResourceVisibility @default(ALL_RESIDENTS)
+  authorId     String?
+  publishedAt  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  user         user?              @relation(fields: [authorId], references: [id])
+
+  @@index([tenantId])
+  @@index([category])
+  @@index([visibility])
+}
+
 enum ServiceCategory {
   GARDENING
   MAINTENANCE
@@ -1109,6 +1171,13 @@ enum SurveyStatus {
 enum SurveyType {
   INTERNAL
   EXTERNAL
+}
+
+enum CompetitionStatus {
+  DRAFT
+  ACTIVE
+  ENDED
+  CANCELLED
 }
 
 enum SuspensionType {

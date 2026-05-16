@@ -1,11 +1,13 @@
 import * as platformModules from './platform-modules';
 import * as tenantModules from './tenant-modules';
+import * as assistSessions from './assist-sessions';
 import * as tenants from './tenants';
 import * as announcements from './announcements';
 import * as bookings from './bookings';
 import * as contents from './contents';
 import * as conversations from './conversations';
 import * as conversationParticipants from './conversation-participants';
+import * as competitions from './competitions';
 import * as events from './events';
 import * as externalSurveys from './external-surveys';
 import * as groups from './groups';
@@ -41,8 +43,10 @@ import * as standardSeats from './standard-seats';
 import * as twoFactors from './two-factors';
 import * as users from './users';
 import * as verifications from './verifications';
+import * as resources from './resources';
 import * as platformModulesRelations from './platform-modules-relations';
 import * as tenantModulesRelations from './tenant-modules-relations';
+import * as assistSessionsRelations from './assist-sessions-relations';
 import * as tenantsRelations from './tenants-relations';
 import * as bookingsRelations from './bookings-relations';
 import * as contentsRelations from './contents-relations';
@@ -79,18 +83,21 @@ import * as soloSeatsRelations from './solo-seats-relations';
 import * as standardSeatsRelations from './standard-seats-relations';
 import * as twoFactorsRelations from './two-factors-relations';
 import * as usersRelations from './users-relations';
+import * as resourcesRelations from './resources-relations';
 import * as propertiesTopremiumSeats from './properties-topremium-seats';
 import * as propertiesTopremiumSeatsRelations from './properties-topremium-seats-relations';
 
 export const schema = {
   ...platformModules,
   ...tenantModules,
+  ...assistSessions,
   ...tenants,
   ...announcements,
   ...bookings,
   ...contents,
   ...conversations,
   ...conversationParticipants,
+  ...competitions,
   ...events,
   ...externalSurveys,
   ...groups,
@@ -126,8 +133,10 @@ export const schema = {
   ...twoFactors,
   ...users,
   ...verifications,
+  ...resources,
   ...platformModulesRelations,
   ...tenantModulesRelations,
+  ...assistSessionsRelations,
   ...tenantsRelations,
   ...bookingsRelations,
   ...contentsRelations,
@@ -164,6 +173,7 @@ export const schema = {
   ...standardSeatsRelations,
   ...twoFactorsRelations,
   ...usersRelations,
+  ...resourcesRelations,
   ...propertiesTopremiumSeats,
   ...propertiesTopremiumSeatsRelations,
 };
