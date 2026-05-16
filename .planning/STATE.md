@@ -61,3 +61,5 @@
 - **21-content-events-02:** Complete — Events CRUD admin pages, EventForm, EventList, API routes (3 commits)
 - **21-content-events-03:** Planned — Events dashboard tab and upcoming events widget
 - **22-page-flag-expansion:** Planned — 3 plans created to expand visibility flags and update navigation.
+- **23-competitions-resources-01:** Complete — Competition model, API routes, admin pages.
+- **23-competitions-resources-02:** Complete — Resource model with file attachments, visibility scoping, admin CRUD.
