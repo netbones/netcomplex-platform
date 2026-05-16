@@ -69,6 +69,7 @@ export default function EditCompetitionPage() {
           prizeInfo: competition.prizeInfo,
           startDate: competition.startDate,
           endDate: competition.endDate,
+          status: competition.status,
           image: competition.image,
         }}
       />

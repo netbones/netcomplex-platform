@@ -348,6 +348,7 @@ export const adminCompetitionSchema = z.object({
     .min(1, 'End date is required')
     .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'Date must be YYYY-MM-DDTHH:MM'),
   image: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  status: z.enum(['DRAFT', 'ACTIVE', 'ENDED', 'CANCELLED']),
 });
 
 export type AdminCompetitionFormData = z.infer<typeof adminCompetitionSchema>;

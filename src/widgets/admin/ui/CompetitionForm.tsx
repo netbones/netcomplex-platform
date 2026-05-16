@@ -19,6 +19,7 @@ interface CompetitionFormProps {
     prizeInfo?: string | null;
     startDate?: string;
     endDate?: string;
+    status?: string;
     image?: string | null;
   };
 }
@@ -49,6 +50,7 @@ function getInitialDefaultValues(
     startDate: initialData?.startDate ? formatForInput(initialData.startDate) : '',
     endDate: initialData?.endDate ? formatForInput(initialData.endDate) : '',
     image: initialData?.image || '',
+    status: (initialData?.status as 'DRAFT' | 'ACTIVE' | 'ENDED' | 'CANCELLED') || 'DRAFT',
   };
 }
 
@@ -60,12 +62,23 @@ export function CompetitionForm({ initialData }: CompetitionFormProps) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    watch,
   } = useForm<AdminCompetitionFormData>({
     resolver: zodResolver(adminCompetitionSchema),
     defaultValues: getInitialDefaultValues(initialData),
   });
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+
+  // Watch status for conditional UI (e.g., color coding)
+  const currentStatus = watch('status');
+
+  const statusColors: Record<string, string> = {
+    DRAFT: 'text-gray-600',
+    ACTIVE: 'text-green-600',
+    ENDED: 'text-blue-600',
+    CANCELLED: 'text-red-600',
+  };
 
   const onSubmit = async (data: AdminCompetitionFormData) => {
     const loadingToast = toast.loading(
@@ -82,6 +95,7 @@ export function CompetitionForm({ initialData }: CompetitionFormProps) {
         rules: data.rules || null,
         prizeInfo: data.prizeInfo || null,
         image: data.image || null,
+        status: data.status,
       };
 
       const res = await fetch(url, {
@@ -164,6 +178,30 @@ export function CompetitionForm({ initialData }: CompetitionFormProps) {
           <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
         )}
       </div>
+
+      {/* Status (edit mode only) */}
+      {isEditing && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select
+            {...register('status')}
+            className={`w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
+              errors.status ? 'border-red-300' : 'border-gray-300'
+            }`}
+          >
+            <option value="DRAFT">DRAFT</option>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="ENDED">ENDED</option>
+            <option value="CANCELLED">CANCELLED</option>
+          </select>
+          {currentStatus && (
+            <p className={`mt-1 text-xs ${statusColors[currentStatus] || 'text-gray-500'}`}>
+              Current: {currentStatus}
+            </p>
+          )}
+          {errors.status && <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>}
+        </div>
+      )}
 
       {/* Rules */}
       <div>
