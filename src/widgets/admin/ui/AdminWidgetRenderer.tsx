@@ -8,7 +8,6 @@ import { AdminActivityWidget } from './AdminActivityWidget';
 import { AdminUserWidget } from './AdminUserWidget';
 import { AdminContentWidget } from './AdminContentWidget';
 import { AdminSystemWidget } from './AdminSystemWidget';
-import { ModerationQueueWidget } from './ModerationQueueWidget';
 import { MarketplaceAnalyticsWidget, ServiceQualityWidget } from '@widgets/service';
 import { MaintenanceRequestsWidget, MaintenanceAnalyticsWidget } from '@widgets/maintenance';
 import { PageSettingsWidget } from './PageSettingsWidget';
@@ -34,8 +33,6 @@ export function AdminWidgetRenderer({ widgetId }: WidgetRendererProps): ReactNod
       return <AdminContentWidget />;
     case 'admin-system':
       return <AdminSystemWidget />;
-    case 'moderation-queue':
-      return <ModerationQueueWidget />;
     case 'marketplace-analytics':
       return <MarketplaceAnalyticsWidget />;
     case 'service-quality':

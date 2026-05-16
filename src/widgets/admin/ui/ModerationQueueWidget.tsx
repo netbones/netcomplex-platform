@@ -1,3 +1,4 @@
+// DEPRECATED: use GroupModerationWidget instead. This file is kept for reference only.
 'use client';
 
 import { useState } from 'react';

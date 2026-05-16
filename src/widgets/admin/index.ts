@@ -8,5 +8,4 @@ export * from './ui/AdminWidgetRenderer';
 export * from './ui/ContentForm';
 export * from './ui/EventsWidget';
 export * from './ui/GroupForm';
-export * from './ui/ModerationQueueWidget';
 export * from './ui/PageSettingsWidget';
