@@ -74,6 +74,7 @@ import { tenantModules } from '@schema/tenant-modules';
 import { groupMembershipRequests } from '@schema/group-membership-requests';
 import { assistSessions } from '@schema/assist-sessions';
 import { resources } from '@schema/resources';
+import { competitions } from '@schema/competitions';
 
 import { ENV } from 'varlock/env';
 
@@ -140,6 +141,7 @@ function getDb() {
       tenantModules,
       assistSessions,
       resources,
+      competitions,
     },
   });
 
@@ -199,4 +201,5 @@ export {
   tenantModules,
   assistSessions,
   resources,
+  competitions,
 };
