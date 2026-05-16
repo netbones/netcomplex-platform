@@ -224,6 +224,22 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase: 24-dashboard-enhancement
+
+**Goal:** Add surveys tab with results visualisation, group moderation queue widget, fix widget state persistence
+
+**Status:** Planned
+
+**Requirements:** DASH-01, DASH-02, DASH-03, DASH-04
+
+**Plans:**
+
+- [ ] 24-01-PLAN.md — Surveys tab, SurveysWidget, survey results API + visualisation page
+- [ ] 24-02-PLAN.md — Group membership request API, GroupModerationWidget
+- [ ] 24-03-PLAN.md — Widget state persistence fix, reset-to-defaults
+
+---
+
 ## Future Phases (To Be Planned)
 
 ### Phase: Second Tenant
