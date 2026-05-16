@@ -39,8 +39,35 @@ async function getSessionAndRole(request: Request) {
  * Query params:
  *   - status: filter by competition status
  *   - upcoming: if "true", filter to active competitions (startDate <= now AND endDate >= now)
+ *               Unauthenticated access allowed — only returns ACTIVE status competitions
  */
 export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const upcomingParam = url.searchParams.get('upcoming');
+
+  // Allow unauthenticated access for upcoming filter only (public page use case)
+  if (upcomingParam === 'true') {
+    const { tenantId } = await withTenant();
+
+    const now = new Date();
+    const query = db
+      .select()
+      .from(competitions)
+      .where(
+        and(
+          eq(competitions.tenantId, tenantId),
+          eq(competitions.status, 'ACTIVE'),
+          lte(competitions.startDate, now),
+          gte(competitions.endDate, now)
+        )
+      )
+      .orderBy(desc(competitions.startDate));
+
+    const competitionItems = await query;
+    return NextResponse.json(competitionItems);
+  }
+
+  // All other queries require authentication
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
@@ -50,31 +77,14 @@ export async function GET(request: Request) {
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
 
-  const url = new URL(request.url);
   const statusParam = url.searchParams.get('status');
-  const upcomingParam = url.searchParams.get('upcoming');
 
   const validStatuses = ['DRAFT', 'ACTIVE', 'ENDED', 'CANCELLED'] as const;
   type CompetitionStatus = (typeof validStatuses)[number];
 
   let competitionItems: (typeof competitions.$inferSelect)[];
 
-  if (upcomingParam === 'true') {
-    const now = new Date();
-    const query = db
-      .select()
-      .from(competitions)
-      .where(
-        and(
-          eq(competitions.tenantId, tenantId),
-          lte(competitions.startDate, now),
-          gte(competitions.endDate, now)
-        )
-      )
-      .orderBy(desc(competitions.startDate));
-
-    competitionItems = await query;
-  } else if (statusParam && validStatuses.includes(statusParam as CompetitionStatus)) {
+  if (statusParam && validStatuses.includes(statusParam as CompetitionStatus)) {
     const query = db
       .select()
       .from(competitions)
