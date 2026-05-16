@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { DraggableWidget } from '@widgets/dashboard';
-import { DashboardTabs } from '@widgets/dashboard';
 import { AddWidgetModal } from '@features/dashboard';
 import { AdminWidgetRenderer } from '@/widgets/admin/ui/AdminWidgetRenderer';
 import {
@@ -13,38 +12,63 @@ import {
   getWidgetIcon,
   getAvailableAdminWidgets,
 } from '@/entities/admin/model/admin-config';
+import { useWidgetStore } from '@/entities/widget/model/widget-store';
 
 export default function AdminDashboardPage() {
   const { t } = useTranslation('admin');
 
   const [activeTab, setActiveTab] = useState('overview');
-  const [activeWidgets, setActiveWidgets] = useState<string[]>(
-    ADMIN_TABS.find(tab => tab.id === 'overview')?.defaultWidgets || []
-  );
   const [showAddWidget, setShowAddWidget] = useState(false);
 
-  const handleTabChange = (tabId: string) => {
+  // Read from zustand store with persist middleware (localStorage)
+  const userWidgets = useWidgetStore(state => state.userWidgets);
+  const addWidgetToTab = useWidgetStore(state => state.addWidgetToTab);
+  const removeWidgetFromTab = useWidgetStore(state => state.removeWidgetFromTab);
+  const setUserWidgets = useWidgetStore(state => state.setUserWidgets);
+
+  // Derive activeWidgets from store for the current tab
+  const currentTab = ADMIN_TABS.find(tab => tab.id === activeTab);
+  const activeWidgets = userWidgets[activeTab] || currentTab?.defaultWidgets || [];
+
+  // Initialize userWidgets for all tabs on mount (only if not already saved)
+  useEffect(() => {
+    const needsInit = ADMIN_TABS.some(
+      tab => !userWidgets[tab.id] || userWidgets[tab.id].length === 0
+    );
+    if (needsInit) {
+      const initialized = { ...userWidgets };
+      for (const tab of ADMIN_TABS) {
+        if (!initialized[tab.id] || initialized[tab.id].length === 0) {
+          initialized[tab.id] = tab.defaultWidgets;
+        }
+      }
+      setUserWidgets(initialized);
+    }
+  }, []);
+
+  const handleTabChange = useCallback((tabId: string) => {
     setActiveTab(tabId);
-    const currentTab = ADMIN_TABS.find(tab => tab.id === tabId);
-    if (currentTab) {
-      setActiveWidgets(currentTab.defaultWidgets);
-    }
-  };
+    // Widget state comes from store — no reset to defaults on tab switch
+  }, []);
 
-  const handleRemoveWidget = (widgetId: string) => {
-    setActiveWidgets(activeWidgets.filter(id => id !== widgetId));
-  };
+  const handleRemoveWidget = useCallback(
+    (widgetId: string) => {
+      removeWidgetFromTab(activeTab, widgetId);
+    },
+    [activeTab, removeWidgetFromTab]
+  );
 
-  const handleAddWidget = (widgetId: string) => {
-    if (!activeWidgets.includes(widgetId)) {
-      setActiveWidgets([...activeWidgets, widgetId]);
-    }
-    setShowAddWidget(false);
-  };
+  const handleAddWidget = useCallback(
+    (widgetId: string) => {
+      addWidgetToTab(activeTab, widgetId);
+      setShowAddWidget(false);
+    },
+    [activeTab, addWidgetToTab]
+  );
 
-  const getAvailableWidgets = () => {
+  const getAvailableWidgets = useCallback(() => {
     return getAvailableAdminWidgets(activeWidgets);
-  };
+  }, [activeWidgets]);
 
   return (
     <ErrorBoundary>
