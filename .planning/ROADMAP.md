@@ -179,15 +179,15 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Content scheduling UI, Events CRUD admin pages, Events dashboard tab
 
-**Status:** Planned
+**Status:** Complete (3/3 plans)
 
 **Requirements:** CONTENT-01, CONTENT-02, EVENTS-01, EVENTS-02, EVENTS-03
 
 **Plans:**
 
-- [ ] 21-01-PLAN.md — Content scheduling: date pickers, API date filtering
-- [ ] 21-02-PLAN.md — Events CRUD: admin pages, EventForm, EventList, API routes
-- [ ] 21-03-PLAN.md — Events dashboard tab and upcoming events widget
+- [x] 21-01-PLAN.md — Content scheduling: date pickers, API date filtering ✅
+- [x] 21-02-PLAN.md — Events CRUD: admin pages, EventForm, EventList, API routes ✅
+- [x] 21-03-PLAN.md — Events dashboard tab and upcoming events widget ✅
 
 ---
 
@@ -195,15 +195,15 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Expand page visibility flags for Groups, Services, Resources, Maintenance, Surveys, and Competitions.
 
-**Status:** Not Started
+**Status:** Complete (3/3 plans)
 
 **Requirements:** FLAG-EXP-01, FLAG-EXP-02, FLAG-EXP-03, FLAG-EXP-04, FLAG-EXP-05
 
 **Plans:**
 
-- [ ] 22-01-PLAN.md — Foundation: Enums, Flag Logic, API, and Hook
-- [ ] 22-02-PLAN.md — Configuration UI: Admin Widget and Locales
-- [ ] 22-03-PLAN.md — Navigation: Header, Footer, and Mobile Menu
+- [x] 22-01-PLAN.md — Foundation: Enums, Flag Logic, API, and Hook ✅
+- [x] 22-02-PLAN.md — Configuration UI: Admin Widget and Locales ✅
+- [x] 22-03-PLAN.md — Navigation: Header, Footer, and Mobile Menu ✅
 
 ---
 
@@ -211,7 +211,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Competitions model + admin CRUD + dynamic public page, Resources standalone model with file uploads/visibility/migration
 
-**Status:** Planned
+**Status:** Complete (4/4 plans)
 
 **Requirements:** COMP-01, COMP-02, RES-01, RES-02, RES-03, RES-04, RES-05
 
@@ -228,7 +228,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Add surveys tab with results visualisation, group moderation queue widget, fix widget state persistence
 
-**Status:** In Progress
+**Status:** Complete (3/3 plans)
 
 **Requirements:** DASH-01, DASH-02, DASH-03, DASH-04
 

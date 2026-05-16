@@ -4,7 +4,7 @@
 
 - **Phase:** 24-dashboard-enhancement
 - **Plan:** 03
-- **Status:** Ready to plan
+- **Status:** Complete
 - **Last Updated:** 2026-05-16
 
 ## Decisions Made
@@ -67,10 +67,13 @@
 - **20-self-service-inception-02:** Complete - 5-step onboarding wizard built with state management, API persistence, and admin redirect
 - **20-self-service-inception-03:** Complete - AssistSession model + API for time-limited staff access with dual revocation
 - **20-self-service-inception-04:** Complete - Gap closure: InviteStep sends invitations, auth-guard enforces AssistSession scope
-- **21-content-events-01:** Complete — ContentForm date pickers, API date filtering for public queries, admin bypass
+- **21-content-events-01:** Complete — ContentForm date pickers, API date filtering for public queries, admin bypass (2 commits)
 - **21-content-events-02:** Complete — Events CRUD admin pages, EventForm, EventList, API routes (3 commits)
-- **21-content-events-03:** Planned — Events dashboard tab and upcoming events widget
-- **22-page-flag-expansion:** Planned — 3 plans created to expand visibility flags and update navigation.
+- **21-content-events-03:** Complete — Events dashboard tab and upcoming events widget with limit/upcoming query params (2 commits)
+- **22-page-flag-expansion-01:** Complete — Expanded settings/flag logic, API, shared hook, tests (2 commits)
+- **22-page-flag-expansion-02:** Complete — Page Settings toggle in admin widget, localized navigation labels (2 commits)
+- **22-page-flag-expansion-03:** Complete — Header, Footer, MobileMenu navigation expansion with usePageFlags hook (2 commits)
+- **22-page-flag-expansion:** All 3 verification blockers resolved post-execution (surveys page stub, test path, competition href)
 - **23-competitions-resources-01:** Complete — Competition model, API routes, admin pages.
 - **23-competitions-resources-02:** Complete — Resource model with file attachments, visibility scoping, admin CRUD.
 - **23-competitions-resources-03:** Complete — Public /resources page rewritten to use Resource API, migration script created, RESOURCES removed from ContentCategory enum.
