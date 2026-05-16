@@ -22,52 +22,57 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Save step data as tenant settings
+    // Wrap all setting operations in a database transaction to ensure atomicity.
+    // If any step fails, no partial onboarding state is left in the database.
     const settingKey = `onboarding_step_${step}`;
 
-    const existing = await db
-      .select()
-      .from(settings)
-      .where(eq(settings.tenantId, tenantId))
-      .then(rows => rows.find(s => s.key === settingKey));
-
-    if (existing) {
-      await db
-        .update(settings)
-        .set({ value: JSON.stringify(data) })
-        .where(eq(settings.id, existing.id));
-    } else {
-      await db.insert(settings).values({
-        id: uuidv4(),
-        tenantId,
-        key: settingKey,
-        value: JSON.stringify(data),
-      });
-    }
-
-    // Mark onboarding as complete when step 5 is saved
-    if (step === 5) {
-      const completedKey = 'onboarding_completed';
-      const completedExisting = await db
+    await db.transaction(async tx => {
+      // Upsert the current step data
+      const existing = await tx
         .select()
         .from(settings)
         .where(eq(settings.tenantId, tenantId))
-        .then(rows => rows.find(s => s.key === completedKey));
+        .then(rows => rows.find(s => s.key === settingKey));
 
-      if (completedExisting) {
-        await db
+      if (existing) {
+        await tx
           .update(settings)
-          .set({ value: 'true' })
-          .where(eq(settings.id, completedExisting.id));
+          .set({ value: JSON.stringify(data) })
+          .where(eq(settings.id, existing.id));
       } else {
-        await db.insert(settings).values({
+        await tx.insert(settings).values({
           id: uuidv4(),
           tenantId,
-          key: completedKey,
-          value: 'true',
+          key: settingKey,
+          value: JSON.stringify(data),
         });
       }
-    }
+
+      // Mark onboarding as complete when step 5 is saved — within the same transaction
+      // so that step data and completion flag are committed atomically.
+      if (step === 5) {
+        const completedKey = 'onboarding_completed';
+        const completedExisting = await tx
+          .select()
+          .from(settings)
+          .where(eq(settings.tenantId, tenantId))
+          .then(rows => rows.find(s => s.key === completedKey));
+
+        if (completedExisting) {
+          await tx
+            .update(settings)
+            .set({ value: 'true' })
+            .where(eq(settings.id, completedExisting.id));
+        } else {
+          await tx.insert(settings).values({
+            id: uuidv4(),
+            tenantId,
+            key: completedKey,
+            value: 'true',
+          });
+        }
+      }
+    });
 
     return NextResponse.json({ success: true, step });
   } catch (error) {
