@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listTenants, createTenant } from '@entities/tenant/api/base';
+import { requirePlatformAdmin } from '@entities/tenant/api/guards';
 import { logError } from '@shared/lib';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const guard = await requirePlatformAdmin(request);
+  if (guard) return guard;
+
   try {
     const tenants = await listTenants();
     return NextResponse.json(tenants);
@@ -13,6 +17,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const guard = await requirePlatformAdmin(request);
+  if (guard) return guard;
+
   try {
     const body = await request.json();
 

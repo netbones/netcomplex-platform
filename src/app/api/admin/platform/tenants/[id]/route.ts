@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTenantById, updateTenant, deleteTenant } from '@entities/tenant/api/base';
+import { requirePlatformAdmin } from '@entities/tenant/api/guards';
 import { logError } from '@shared/lib';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await requirePlatformAdmin(request);
+  if (guard) return guard;
+
   try {
     const { id } = await params;
     const tenant = await getTenantById(id);
@@ -19,6 +23,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const guard = await requirePlatformAdmin(request);
+  if (guard) return guard;
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -51,6 +58,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const guard = await requirePlatformAdmin(request);
+  if (guard) return guard;
+
   try {
     const { id } = await params;
     await deleteTenant(id);
