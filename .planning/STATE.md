@@ -72,3 +72,4 @@
 - **23-competitions-resources-02:** Complete — Resource model with file attachments, visibility scoping, admin CRUD.
 - **23-competitions-resources-03:** Complete — Public /resources page rewritten to use Resource API, migration script created, RESOURCES removed from ContentCategory enum.
 - **23-competitions-resources-04:** Complete — Gap closure: unauthenticated competition API, status selector UI, resource edit Drizzle query (3 commits).
+- **24-dashboard-enhancement-03:** Complete — Widget state persistence wired to zustand store, reset-to-defaults added (2 commits).
