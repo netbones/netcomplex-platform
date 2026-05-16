@@ -13,6 +13,7 @@ import {
   getAvailableAdminWidgets,
 } from '@/entities/admin/model/admin-config';
 import { useWidgetStore } from '@/entities/widget/model/widget-store';
+import { toast } from 'sonner';
 
 export default function AdminDashboardPage() {
   const { t } = useTranslation('admin');
@@ -25,6 +26,7 @@ export default function AdminDashboardPage() {
   const addWidgetToTab = useWidgetStore(state => state.addWidgetToTab);
   const removeWidgetFromTab = useWidgetStore(state => state.removeWidgetFromTab);
   const setUserWidgets = useWidgetStore(state => state.setUserWidgets);
+  const resetTabToDefaults = useWidgetStore(state => state.resetTabToDefaults);
 
   // Derive activeWidgets from store for the current tab
   const currentTab = ADMIN_TABS.find(tab => tab.id === activeTab);
@@ -70,6 +72,17 @@ export default function AdminDashboardPage() {
     return getAvailableAdminWidgets(activeWidgets);
   }, [activeWidgets]);
 
+  const handleResetToDefaults = useCallback(() => {
+    if (!currentTab) return;
+    const confirmed = window.confirm(
+      `Reset "${currentTab.label}" to default widgets? This will clear any custom widget selections.`
+    );
+    if (confirmed) {
+      resetTabToDefaults(activeTab, currentTab.defaultWidgets);
+      toast.success('Widget layout reset to defaults');
+    }
+  }, [activeTab, currentTab, resetTabToDefaults]);
+
   return (
     <ErrorBoundary>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -105,6 +118,14 @@ export default function AdminDashboardPage() {
             >
               <i className="fas fa-plus"></i>
               <span>Add Widget</span>
+            </button>
+            <button
+              onClick={handleResetToDefaults}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-red-600 hover:bg-red-50 border border-red-200 hover:border-red-400 transition-all"
+              title="Reset to default widgets for this tab"
+            >
+              <i className="fas fa-undo"></i>
+              <span>Reset</span>
             </button>
           </div>
 

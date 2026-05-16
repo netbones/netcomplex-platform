@@ -50,6 +50,9 @@ interface WidgetStore {
 
   // Reset user widgets to defaults (clears all custom widget selections)
   resetLayout: () => void;
+
+  // Reset a specific tab to its default widget configuration
+  resetTabToDefaults: (tabId: string, defaultWidgets: string[]) => void;
 }
 
 // Stable default layout to prevent infinite re-renders
@@ -165,10 +168,23 @@ export const useWidgetStore = create<WidgetStore>()(
       resetLayout: () => {
         set({ layouts: {}, userWidgets: {} });
       },
+
+      resetTabToDefaults: (tabId: string, defaultWidgets: string[]) => {
+        set(state => ({
+          userWidgets: {
+            ...state.userWidgets,
+            [tabId]: [...defaultWidgets],
+          },
+          layouts: {
+            ...state.layouts,
+            [tabId]: {},
+          },
+        }));
+      },
     }),
     {
       name: 'widget-layouts',
-      version: 2,
+      version: 3,
       migrate: (persistedState: unknown, version: number) => {
         const persisted = persistedState as Record<string, unknown>;
         if (version < 2) {
