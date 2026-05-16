@@ -1,0 +1,509 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+// Mock server-only before any imports that use it
+vi.mock('server-only', () => ({}));
+
+// Mock next/headers (used by withTenant)
+vi.mock('next/headers', () => ({
+  headers: vi.fn(() =>
+    Promise.resolve({
+      get: vi.fn((key: string) => {
+        if (key === 'x-tenant-id') return 'test-tenant-id';
+        if (key === 'x-tenant-slug') return 'test-tenant';
+        return null;
+      }),
+    })
+  ),
+}));
+
+// Mock revalidation
+vi.mock('@api/revalidation', () => ({
+  revalidateContent: vi.fn(),
+}));
+
+// Mock auth
+vi.mock('@api/auth', () => ({
+  auth: {
+    api: {
+      getSession: vi.fn(() => Promise.resolve(null)),
+    },
+  },
+}));
+
+// Mock db - each test will configure the return values
+const { dbMock } = vi.hoisted(() => ({
+  dbMock: {
+    select: vi.fn(),
+    insert: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+
+vi.mock('@api/db', () => ({
+  db: dbMock,
+  competitions: {
+    tenantId: 'tenantId',
+    status: 'status',
+    startDate: 'startDate',
+    endDate: 'endDate',
+    id: 'id',
+  },
+  users: {
+    id: 'id',
+    role: 'role',
+    isPlatformAdmin: 'isPlatformAdmin',
+  },
+  tenants: {
+    id: 'id',
+    ownerId: 'ownerId',
+  },
+  assistSessions: {
+    id: 'id',
+    tenantId: 'tenantId',
+    staffId: 'staffId',
+    scope: 'scope',
+    expiresAt: 'expiresAt',
+    isActive: 'isActive',
+    notes: 'notes',
+    createdAt: 'createdAt',
+    revokedAt: 'revokedAt',
+    revokedBy: 'revokedBy',
+  },
+}));
+
+// Mock withTenant
+vi.mock('@entities/tenant/api/with-tenant', () => ({
+  withTenant: vi.fn(() =>
+    Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' })
+  ),
+}));
+
+// Mock permissions
+vi.mock('@entities/tenant/api/permissions', () => ({
+  hasPermission: vi.fn((role: string | null | undefined, permission: string) => {
+    if (!role) return false;
+    if (permission === 'content')
+      return role === 'ADMIN' || role === 'MANAGER' || role === 'COMMITTEE';
+    if (permission === 'contentOwn') return role === 'ADMIN' || role === 'COMMITTEE';
+    return false;
+  }),
+}));
+
+// Mock guards for platform admin
+const mockRequirePlatformAdmin = vi.fn();
+vi.mock('@entities/tenant/api/guards', () => ({
+  requirePlatformAdmin: () => mockRequirePlatformAdmin(),
+}));
+
+// Mock base tenant API
+vi.mock('@entities/tenant/api/base', () => ({
+  listTenants: vi.fn(() => Promise.resolve([{ id: 'tenant-1', name: 'Test Tenant' }])),
+  createTenant: vi.fn(() => Promise.resolve({ id: 'new-tenant', name: 'New Tenant' })),
+}));
+
+// Mock logError
+vi.mock('@shared/lib', () => ({
+  logError: vi.fn(),
+}));
+
+// Import route handlers after mocking
+import { GET as COMPETITIONS_GET, POST as COMPETITIONS_POST } from '@/app/api/competitions/route';
+import {
+  GET as COMPETITION_GET,
+  PATCH as COMPETITION_PATCH,
+  DELETE as COMPETITION_DELETE,
+} from '@/app/api/competitions/[id]/route';
+import { GET as TENANTS_GET, POST as TENANTS_POST } from '@/app/api/admin/platform/tenants/route';
+import { GET as ASSIST_GET, POST as ASSIST_POST } from '@/app/api/admin/platform/assist/route';
+import {
+  DELETE as ASSIST_REVOKE,
+  PATCH as ASSIST_EXTEND,
+} from '@/app/api/admin/platform/assist/[id]/route';
+import { auth } from '@api/auth';
+
+// Helper: create a full chainable select
+function makeSelectChain(result: unknown[]) {
+  const chain: Record<string, unknown> = {};
+  const whereResult = Promise.resolve(result);
+  const limitFn = vi.fn(() => Promise.resolve(result));
+  const orderByFn = vi.fn(() => Promise.resolve(result));
+
+  chain.from = vi.fn(() => chain);
+  chain.innerJoin = vi.fn(() => chain);
+  chain.where = vi.fn(() => {
+    const thenable = {
+      then: (resolve: (v: unknown[]) => void, reject: (e: Error) => void) =>
+        whereResult.then(resolve, reject),
+      limit: limitFn,
+      orderBy: orderByFn,
+    };
+    return thenable;
+  });
+  chain.limit = limitFn;
+  chain.orderBy = orderByFn;
+
+  return chain;
+}
+
+function makeInsertChain(result: unknown[]) {
+  const chain = {
+    values: vi.fn(() => chain),
+    returning: vi.fn(() => Promise.resolve(result)),
+  };
+  return chain;
+}
+
+function makeUpdateChain(result: unknown[]) {
+  const chain = {
+    set: vi.fn(() => chain),
+    where: vi.fn(() => chain),
+    returning: vi.fn(() => Promise.resolve(result)),
+  };
+  return chain;
+}
+
+describe('Competition API', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  describe('GET /api/competitions', () => {
+    it('public upcoming filter returns only ACTIVE status competitions', async () => {
+      const activeCompetitions = [
+        { id: '1', title: 'Active Comp', status: 'ACTIVE', tenantId: 'test-tenant-id' },
+      ];
+
+      const chain = makeSelectChain(activeCompetitions);
+      dbMock.select.mockImplementation(() => chain);
+
+      const request = new Request('http://localhost/api/competitions?upcoming=true');
+      const response = await COMPETITIONS_GET(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+    });
+
+    it('unauthenticated access to upcoming competitions returns 200', async () => {
+      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+
+      const chain = makeSelectChain([]);
+      dbMock.select.mockImplementation(() => chain);
+
+      const request = new Request('http://localhost/api/competitions?upcoming=true');
+      const response = await COMPETITIONS_GET(request);
+
+      expect(response.status).toBe(200);
+    });
+
+    it('authenticated GET returns competitions for caller tenant', async () => {
+      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
+        user: { id: 'user-1' },
+      });
+
+      const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
+      const compChain = makeSelectChain([
+        { id: '1', title: 'Comp 1', status: 'ACTIVE', tenantId: 'test-tenant-id' },
+      ]);
+
+      let callCount = 0;
+      dbMock.select.mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) return roleChain;
+        return compChain;
+      });
+
+      const request = new Request('http://localhost/api/competitions');
+      const response = await COMPETITIONS_GET(request);
+
+      expect(response.status).toBe(200);
+    });
+
+    it('returns 401 for non-upcoming unauthenticated access', async () => {
+      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+
+      const request = new Request('http://localhost/api/competitions');
+      const response = await COMPETITIONS_GET(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(401);
+      expect(data.error).toBe('Unauthorized');
+    });
+  });
+
+  describe('POST /api/competitions', () => {
+    it('admin can create competition', async () => {
+      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
+        user: { id: 'admin-user' },
+      });
+
+      const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
+      const insertChain = makeInsertChain([
+        { id: 'new-comp', title: 'New Competition', status: 'DRAFT' },
+      ]);
+
+      dbMock.select.mockImplementation(() => roleChain);
+      dbMock.insert.mockImplementation(() => insertChain);
+
+      const request = new Request('http://localhost/api/competitions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: 'New Competition',
+          startDate: '2026-06-01',
+          endDate: '2026-06-30',
+        }),
+      });
+
+      const response = await COMPETITIONS_POST(request);
+      expect(response.status).toBe(201);
+    });
+
+    it('returns 403 for user without content permission', async () => {
+      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
+        user: { id: 'resident-user' },
+      });
+
+      const roleChain = makeSelectChain([{ role: 'RESIDENT' }]);
+      dbMock.select.mockImplementation(() => roleChain);
+
+      const request = new Request('http://localhost/api/competitions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: 'New Competition',
+          startDate: '2026-06-01',
+          endDate: '2026-06-30',
+        }),
+      });
+
+      const response = await COMPETITIONS_POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(403);
+      expect(data.error).toBe('Forbidden');
+    });
+  });
+
+  describe('PATCH /api/competitions/[id]', () => {
+    it('admin can update competition', async () => {
+      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
+        user: { id: 'admin-user' },
+      });
+
+      const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
+      const updateChain = makeUpdateChain([{ id: 'comp-1', title: 'Updated', status: 'ACTIVE' }]);
+
+      let callCount = 0;
+      dbMock.select.mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) return roleChain;
+        return makeSelectChain([{ id: 'comp-1' }]);
+      });
+      dbMock.update.mockImplementation(() => updateChain);
+
+      const params = Promise.resolve({ id: 'comp-1' });
+      const request = new Request('http://localhost/api/competitions/comp-1', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: 'Updated' }),
+      });
+
+      const response = await COMPETITION_PATCH(request, { params });
+      expect(response.status).toBe(200);
+    });
+  });
+
+  describe('DELETE /api/competitions/[id]', () => {
+    it('admin can delete competition', async () => {
+      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
+        user: { id: 'admin-user' },
+      });
+
+      const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
+      const deleteChain = {
+        where: vi.fn(() => ({
+          returning: vi.fn(() => Promise.resolve([{ id: 'comp-1', title: 'Deleted' }])),
+        })),
+      };
+
+      dbMock.select.mockImplementation(() => roleChain);
+      dbMock.delete.mockImplementation(() => deleteChain);
+
+      const params = Promise.resolve({ id: 'comp-1' });
+      const request = new Request('http://localhost/api/competitions/comp-1', {
+        method: 'DELETE',
+      });
+
+      const response = await COMPETITION_DELETE(request, { params });
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+    });
+  });
+});
+
+describe('Platform Admin API', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    mockRequirePlatformAdmin.mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  describe('GET /api/admin/platform/tenants', () => {
+    it('returns 403 for user with isPlatformAdmin: false', async () => {
+      mockRequirePlatformAdmin.mockResolvedValue(
+        new Response(JSON.stringify({ error: 'Forbidden - Platform Admin access required' }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
+
+      const request = new Request('http://localhost/api/admin/platform/tenants');
+      const response = await TENANTS_GET(request as never);
+      const data = await response.json();
+
+      expect(response.status).toBe(403);
+    });
+
+    it('returns 200 for user with isPlatformAdmin: true', async () => {
+      mockRequirePlatformAdmin.mockResolvedValue(null);
+
+      const request = new Request('http://localhost/api/admin/platform/tenants');
+      const response = await TENANTS_GET(request as never);
+
+      expect(response.status).toBe(200);
+    });
+  });
+
+  describe('POST /api/admin/platform/assist', () => {
+    it('creates AssistSession with correct expiry', async () => {
+      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
+        user: { id: 'platform-admin' },
+      });
+
+      const userChain = makeSelectChain([{ isPlatformAdmin: true }]);
+      const tenantChain = makeSelectChain([{ id: 'tenant-1' }]);
+      const insertChain = makeInsertChain([
+        {
+          id: 'assist-1',
+          tenantId: 'tenant-1',
+          staffId: 'platform-admin',
+          scope: 'metadata',
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        },
+      ]);
+
+      let callCount = 0;
+      dbMock.select.mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) return userChain;
+        return tenantChain;
+      });
+      dbMock.insert.mockImplementation(() => insertChain);
+
+      const request = new Request('http://localhost/api/admin/platform/assist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tenantId: 'tenant-1' }),
+      });
+
+      const response = await ASSIST_POST(request as never);
+      expect(response.status).toBe(201);
+    });
+
+    it('returns 403 for non-platform-admin creating assist session', async () => {
+      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
+        user: { id: 'regular-user' },
+      });
+
+      const userChain = makeSelectChain([{ isPlatformAdmin: false }]);
+      dbMock.select.mockImplementation(() => userChain);
+
+      const request = new Request('http://localhost/api/admin/platform/assist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tenantId: 'tenant-1' }),
+      });
+
+      const response = await ASSIST_POST(request as never);
+      const data = await response.json();
+
+      expect(response.status).toBe(403);
+    });
+  });
+
+  describe('DELETE /api/admin/platform/assist/[id] (revoke)', () => {
+    it('returns 404 for non-existent assist session', async () => {
+      const getSessionMock = auth.api.getSession as ReturnType<typeof vi.fn>;
+      getSessionMock.mockResolvedValue({ user: { id: 'platform-admin' } });
+
+      const sessionChain = makeSelectChain([]);
+      dbMock.select.mockImplementation(() => sessionChain);
+
+      const params = Promise.resolve({ id: 'nonexistent' });
+      const request = new Request('http://localhost/api/admin/platform/assist/nonexistent', {
+        method: 'DELETE',
+      });
+
+      const response = await ASSIST_REVOKE(request as never, { params });
+      const data = await response.json();
+
+      expect(response.status).toBe(404);
+    });
+
+    it('returns 400 for already revoked session', async () => {
+      const getSessionMock = auth.api.getSession as ReturnType<typeof vi.fn>;
+      getSessionMock.mockResolvedValue({ user: { id: 'platform-admin' } });
+
+      const sessionChain = makeSelectChain([
+        { id: 'assist-1', tenantId: 'tenant-1', isActive: false, expiresAt: new Date() },
+      ]);
+      dbMock.select.mockImplementation(() => sessionChain);
+
+      const params = Promise.resolve({ id: 'assist-1' });
+      const request = new Request('http://localhost/api/admin/platform/assist/assist-1', {
+        method: 'DELETE',
+      });
+
+      const response = await ASSIST_REVOKE(request as never, { params });
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data.error).toContain('already revoked');
+    });
+  });
+
+  describe('Expired AssistSession rejection', () => {
+    it('expired AssistSession is not returned in active list', async () => {
+      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
+        user: { id: 'platform-admin' },
+      });
+
+      const userChain = makeSelectChain([{ isPlatformAdmin: true }]);
+      const sessionChain = makeSelectChain([]);
+
+      let callCount = 0;
+      dbMock.select.mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) return userChain;
+        return sessionChain;
+      });
+
+      const request = new Request('http://localhost/api/admin/platform/assist?tenantId=tenant-1');
+      const response = await ASSIST_GET(request as never);
+
+      expect(response.status).toBe(200);
+    });
+  });
+});
