@@ -3,7 +3,7 @@
 ## Current Position
 
 - **Phase:** 24-dashboard-enhancement
-- **Plan:** 01 (complete)
+- **Plan:** 03
 - **Status:** In progress
 - **Last Updated:** 2026-05-16
 
@@ -47,6 +47,7 @@
 - [Phase 23-competitions-resources-04]: Competition API allows unauthenticated access for upcoming=true filter with ACTIVE status only
 - [Phase 24-dashboard-enhancement-01]: Surveys tab added to admin dashboard with SurveysWidget, aggregated responses API, and visual results page
 - [Phase 24-dashboard-enhancement-01]: Pure Tailwind CSS bar charts used instead of external chart library for survey results
+- [Phase 24-dashboard-enhancement-02]: Group membership moderation API + GroupModerationWidget — uses hasPermission('content') for access control, withTenant() for tenant isolation
 
 ## Notes
 
@@ -74,5 +75,6 @@
 - **23-competitions-resources-02:** Complete — Resource model with file attachments, visibility scoping, admin CRUD.
 - **23-competitions-resources-03:** Complete — Public /resources page rewritten to use Resource API, migration script created, RESOURCES removed from ContentCategory enum.
 - **23-competitions-resources-04:** Complete — Gap closure: unauthenticated competition API, status selector UI, resource edit Drizzle query (3 commits).
+- **24-dashboard-enhancement-02:** Complete — Group membership moderation API + GroupModerationWidget (2 commits).
 - **24-dashboard-enhancement-03:** Complete — Widget state persistence wired to zustand store, reset-to-defaults added (2 commits).
 - **24-dashboard-enhancement-01:** Complete — Surveys tab, SurveysWidget, responses API, results page (3 commits).
