@@ -9,6 +9,7 @@
 
 ## Decisions Made
 
+- **Onboarding transaction scope:** Onboarding route wraps setting upserts (not user/tenant/role creation) in db.transaction — user/tenant creation happens in tenants route with its own transaction + cleanup pattern
 - **Server-side guard separation:** requirePlatformAdmin helper placed in separate guards.ts file (not permissions.ts) to avoid breaking client-side imports — permissions.ts is imported by Header.tsx and other client components
 - **Self-service tenant signup:** Primary path is /platform/signup — Platform Admin–led inception replaced (DISCUSSION.md v2)
 - **Trust boundary separation:** isPlatformAdmin flag on user model, never a Role enum value
