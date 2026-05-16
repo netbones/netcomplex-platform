@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
+import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { CARD_ANIMATIONS, createComponentLogger } from '@shared/lib';
 import { usePageLoading } from '@shared/ui';
 
@@ -11,181 +11,110 @@ const log = createComponentLogger('resources-page');
 interface ResourceItem {
   id: string;
   title: string;
-  content: string;
-  excerpt: string | null;
-  tags?: string[];
-  icon?: string;
-  desc?: string;
-  color?: string;
-  href?: string;
+  description: string | null;
+  category: string;
+  fileUrl: string | null;
+  fileType: string | null;
+  fileSize: number | null;
+  externalUrl: string | null;
+  bodyContent: Record<string, unknown> | null;
+  version: string | null;
+  visibility: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-const defaultQuickLinks = [
-  {
-    icon: 'fa-file-alt',
-    title: 'Documents',
-    desc: 'HOA bylaws, forms, and official documents',
-    color: 'text-blue-600',
-    href: '#documents',
-  },
-  {
-    icon: 'fa-calendar-alt',
-    title: 'Events',
-    desc: 'Community events and meeting schedules',
-    color: 'text-green-600',
-    href: '#events',
-  },
-  {
-    icon: 'fa-book',
-    title: 'Guidelines',
-    desc: 'Community rules and living guidelines',
-    color: 'text-purple-600',
-    href: '#guidelines',
-  },
-  {
-    icon: 'fa-phone',
-    title: 'Contacts',
-    desc: 'Important phone numbers and contacts',
-    color: 'text-red-600',
-    href: '#contacts',
-  },
-];
-
-const documents = [
-  { icon: 'fa-gavel', title: 'HOA Bylaws', desc: 'Official community bylaws and regulations' },
-  { icon: 'fa-home', title: 'CC&Rs', desc: 'Covenants, Conditions & Restrictions' },
-  { icon: 'fa-file-contract', title: 'Governing Docs', desc: 'All community governing documents' },
-  {
-    icon: 'fa-file-invoice-dollar',
-    title: 'Financial Reports',
-    desc: 'Annual budgets and financial statements',
-  },
-  {
-    icon: 'fa-paint-roller',
-    title: 'Architectural Guidelines',
-    desc: 'Home improvement and renovation rules',
-  },
-  {
-    icon: 'fa-user-shield',
-    title: 'Privacy Policy',
-    desc: 'Community privacy policies and procedures',
-  },
-];
-
-const events = [
-  {
-    icon: 'fa-users',
-    title: 'Monthly Board Meeting',
-    date: 'First Tuesday of each month',
-    time: '7:00 PM',
-  },
-  {
-    icon: 'fa-calendar-check',
-    title: 'Annual General Meeting',
-    date: 'Once per year',
-    time: '6:00 PM',
-  },
-  { icon: 'fa-broom', title: 'Community Cleanup Day', date: 'Quarterly', time: '9:00 AM' },
-  { icon: 'fa-tree', title: 'Landscaping Day', date: 'Twice per year', time: '8:00 AM' },
-];
-
-const guidelines = [
-  {
-    icon: 'fa-paint-brush',
-    title: 'Exterior Appearance',
-    desc: 'Guidelines for home exteriors, paint colors, and landscaping',
-  },
-  {
-    icon: 'fa-paw',
-    title: 'Pet Policy',
-    desc: 'Rules and regulations regarding pets in the community',
-  },
-  {
-    icon: 'fa-parking',
-    title: 'Parking Guidelines',
-    desc: 'Parking rules, visitor parking, and vehicle restrictions',
-  },
-  { icon: 'fa-volume-off', title: 'Noise Policy', desc: 'Quiet hours and noise guidelines' },
-  {
-    icon: 'fa-swimming-pool',
-    title: 'Amenity Rules',
-    desc: 'Pool, gym, and common area usage rules',
-  },
-  {
-    icon: 'fa-recycle',
-    title: 'Waste & Recycling',
-    desc: 'Waste disposal and recycling guidelines',
-  },
-];
-
-const contacts = [
-  {
+const CATEGORY_CONFIG: Record<string, { icon: string; color: string; labelKey: string }> = {
+  ARCHITECTURAL: {
     icon: 'fa-building',
-    title: 'Management Office',
-    phone: '+27 21 555-MGMT',
-    email: 'management@soralia.org',
+    color: 'text-blue-600',
+    labelKey: 'categories.architectural',
   },
-  {
-    icon: 'fa-shield-alt',
-    title: 'Security',
-    phone: '+27 21 555-SAFE',
-    email: 'security@soralia.org',
+  ENGINEERING: { icon: 'fa-cogs', color: 'text-indigo-600', labelKey: 'categories.engineering' },
+  GOVERNANCE: { icon: 'fa-landmark', color: 'text-purple-600', labelKey: 'categories.governance' },
+  BOARD_REPORT: {
+    icon: 'fa-file-signature',
+    color: 'text-red-600',
+    labelKey: 'categories.boardReport',
   },
-  {
-    icon: 'fa-tools',
-    title: 'Maintenance',
-    phone: '+27 21 555-FIXIT',
-    email: 'maintenance@soralia.org',
-  },
-  {
-    icon: 'fa-envelope',
-    title: 'General Inquiries',
-    phone: '+27 21 555-INFO',
-    email: 'info@soralia.org',
-  },
-];
+  DIY: { icon: 'fa-tools', color: 'text-green-600', labelKey: 'categories.diy' },
+  FINANCIAL: { icon: 'fa-chart-line', color: 'text-emerald-600', labelKey: 'categories.financial' },
+  LEGAL: { icon: 'fa-gavel', color: 'text-amber-600', labelKey: 'categories.legal' },
+  OTHER: { icon: 'fa-folder', color: 'text-gray-600', labelKey: 'categories.other' },
+};
+
+const ALL_CATEGORIES = Object.keys(CATEGORY_CONFIG);
+
+function getFileIcon(fileType: string | null): string {
+  if (!fileType) return 'fa-file';
+  const lower = fileType.toLowerCase();
+  if (lower.includes('pdf')) return 'fa-file-pdf';
+  if (lower.includes('word') || lower.includes('doc')) return 'fa-file-word';
+  if (lower.includes('excel') || lower.includes('xls') || lower.includes('csv'))
+    return 'fa-file-excel';
+  if (lower.includes('image') || lower.includes('png') || lower.includes('jpg'))
+    return 'fa-file-image';
+  return 'fa-file';
+}
+
+function formatFileSize(bytes: number | null): string | null {
+  if (!bytes) return null;
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export default function ResourcesPage() {
   const { t } = useTranslation(['common', 'resources']);
-  const [quickLinks, setQuickLinks] = useState(defaultQuickLinks);
-  const [documents, setDocuments] = useState<ResourceItem[]>([]);
+  const [resources, setResources] = useState<ResourceItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
-      { label: 'Home', href: '/' },
-      { label: 'Resources', href: '/resources' },
+      { label: t('nav.home'), href: '/' },
+      { label: t('nav.resources'), href: '/resources' },
     ],
     { additionalLoading: loading }
   );
 
   useEffect(() => {
-    async function fetchContent() {
+    async function fetchResources() {
       try {
-        const res = await fetch('/api/content?category=RESOURCES&published=true');
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            setDocuments(data as ResourceItem[]);
-            setQuickLinks(
-              data.slice(0, 4).map(item => ({
-                icon: 'fa-file-alt',
-                title: item.title,
-                desc: item.excerpt || item.content.substring(0, 80) + '...',
-                color: 'text-blue-600',
-                href: `#${item.id}`,
-              }))
-            );
-          }
+        setLoading(true);
+        setError(null);
+        const res = await fetch('/api/resources');
+        if (!res.ok) {
+          throw new Error(`Failed to fetch resources: ${res.status}`);
         }
-      } catch (error) {
-        log.error({}, 'Failed to fetch resources', error);
+        const data = await res.json();
+        setResources(Array.isArray(data) ? data : []);
+      } catch (err) {
+        log.error({}, 'Failed to fetch resources', err);
+        setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
     }
-    fetchContent();
+    fetchResources();
   }, []);
+
+  const filteredResources = useMemo(() => {
+    if (selectedCategory === 'ALL') return resources;
+    return resources.filter(r => r.category === selectedCategory);
+  }, [resources, selectedCategory]);
+
+  const groupedResources = useMemo(() => {
+    const groups: Record<string, ResourceItem[]> = {};
+    for (const resource of filteredResources) {
+      if (!groups[resource.category]) {
+        groups[resource.category] = [];
+      }
+      groups[resource.category].push(resource);
+    }
+    return groups;
+  }, [filteredResources]);
 
   if (!isReady) {
     return LoadingComponent;
@@ -195,158 +124,190 @@ export default function ResourcesPage() {
     <ErrorBoundary>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.resources') }]} />
-        <div className="text-center mb-12">
+
+        <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('resources:title')}</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">{t('resources:subtitle')}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {quickLinks.map(link => (
-            <a
-              key={link.title}
-              href={link.href}
-              className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg hover:scale-[1.02] ${CARD_ANIMATIONS.transition} text-center`}
-            >
-              <i className={`fas ${link.icon} text-4xl ${link.color} mb-4`}></i>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{link.title}</h3>
-              <p className="text-gray-600 text-sm">{link.desc}</p>
-            </a>
-          ))}
+        {/* Category Filter Tabs */}
+        <div className="flex flex-wrap gap-2 mb-8 justify-center">
+          <button
+            onClick={() => setSelectedCategory('ALL')}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              selectedCategory === 'ALL'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {t('resources:filter.all', 'All')}
+          </button>
+          {ALL_CATEGORIES.map(cat => {
+            const config = CATEGORY_CONFIG[cat];
+            const count = resources.filter(r => r.category === cat).length;
+            if (count === 0) return null;
+            return (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  selectedCategory === cat
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <i className={`fas ${config.icon} mr-1`}></i>
+                {t(`resources:${config.labelKey}`, cat)} ({count})
+              </button>
+            );
+          })}
         </div>
 
-        <div className="relative bg-white rounded-lg shadow-md p-8 mb-8 text-center overflow-hidden group">
-          <div className="absolute inset-0 opacity-90 group-hover:opacity-100 transition-opacity duration-300">
-            <img src="/soralia.jpg" alt="" className="w-full h-full object-cover" />
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
           </div>
-          <div className="relative bg-black/40 p-8 rounded-lg">
-            <h2 className="text-3xl font-bold text-white mb-6">Community Campaigns</h2>
-            <p className="text-white/90 mb-6">
-              Explore our ongoing initiatives and discover how we're building a stronger, more
-              vibrant Soralia Village together.
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <i className="fas fa-exclamation-triangle text-red-500 text-3xl mb-3"></i>
+            <p className="text-red-700 font-medium">{t('resources:error.loading')}</p>
+            <p className="text-red-500 text-sm mt-1">{error}</p>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && !error && filteredResources.length === 0 && (
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
+            <i className="fas fa-folder-open text-gray-400 text-5xl mb-4"></i>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              {t('resources:empty.title', 'No Resources Available')}
+            </h3>
+            <p className="text-gray-500 max-w-md mx-auto">
+              {t(
+                'resources:empty.description',
+                'There are no resources to display yet. Check back later for updates.'
+              )}
             </p>
-            <a
-              href="/proudly-soralia"
-              className="inline-block bg-indigo-600 text-white py-3 px-8 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
-            >
-              <i className="fas fa-heart mr-2"></i>Proudly Soralia Campaign
-            </a>
           </div>
-        </div>
+        )}
 
-        <div
-          className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
-          id="documents"
-        >
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            <i className="fas fa-file-alt text-blue-600 mr-3"></i>
-            {t('resources:documents.title')}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {documents.map(doc => (
-              <div
-                key={doc.title}
-                className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
-              >
-                <div className="flex items-center mb-4">
-                  <i className={`fas ${doc.icon} text-blue-600 text-2xl mr-3`}></i>
-                  <h3 className="text-lg font-semibold">{doc.title}</h3>
-                </div>
-                <p className="text-gray-600 text-sm mb-4">{doc.desc}</p>
-                {doc.tags && doc.tags.length > 0 && (
-                  <div className="mb-4">
-                    <TagCloud tags={doc.tags} maxDisplay={3} size="small" />
+        {/* Resources Grouped by Category */}
+        {!loading && !error && filteredResources.length > 0 && (
+          <>
+            {selectedCategory === 'ALL' ? (
+              // Show all categories with groupings
+              ALL_CATEGORIES.map(cat => {
+                const items = groupedResources[cat];
+                if (!items || items.length === 0) return null;
+                const config = CATEGORY_CONFIG[cat];
+                return (
+                  <div
+                    key={cat}
+                    id={`category-${cat.toLowerCase()}`}
+                    className={`bg-white rounded-lg shadow-lg p-8 mb-8 hover:shadow-xl ${CARD_ANIMATIONS.transition}`}
+                  >
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                      <i className={`fas ${config.icon} ${config.color} mr-3`}></i>
+                      {t(`resources:${config.labelKey}`, cat)}
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {items.map(resource => (
+                        <ResourceCard key={resource.id} resource={resource} t={t} />
+                      ))}
+                    </div>
                   </div>
-                )}
-                <div className="flex space-x-2">
-                  <button className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700 transition-colors">
-                    <i className="fas fa-download mr-1"></i>Download
-                  </button>
-                  <button className="flex-1 bg-gray-200 text-gray-700 py-2 px-3 rounded text-sm hover:bg-gray-300 transition-colors">
-                    <i className="fas fa-eye mr-1"></i>View
-                  </button>
+                );
+              })
+            ) : (
+              // Show single category
+              <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                  <i className={`fas ${CATEGORY_CONFIG[selectedCategory]?.icon} mr-3`}></i>
+                  {t(`resources:${CATEGORY_CONFIG[selectedCategory]?.labelKey}`, selectedCategory)}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredResources.map(resource => (
+                    <ResourceCard key={resource.id} resource={resource} t={t} />
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div
-          className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
-          id="events"
-        >
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            <i className="fas fa-calendar-alt text-green-600 mr-3"></i>
-            {t('resources:events.title')}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {events.map(event => (
-              <div
-                key={event.title}
-                className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
-              >
-                <div className="flex items-center mb-4">
-                  <i className={`fas ${event.icon} text-green-600 text-2xl mr-3`}></i>
-                  <h3 className="text-lg font-semibold">{event.title}</h3>
-                </div>
-                <p className="text-gray-600 text-sm">{event.date}</p>
-                <p className="text-gray-500 text-sm">{event.time}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div
-          className={`bg-white rounded-lg shadow-lg p-8 mb-12 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
-          id="guidelines"
-        >
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            <i className="fas fa-book text-purple-600 mr-3"></i>
-            {t('resources:guidelines.title')}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {guidelines.map(guideline => (
-              <div
-                key={guideline.title}
-                className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
-              >
-                <div className="flex items-center mb-4">
-                  <i className={`fas ${guideline.icon} text-purple-600 text-2xl mr-3`}></i>
-                  <h3 className="text-lg font-semibold">{guideline.title}</h3>
-                </div>
-                <p className="text-gray-600 text-sm">{guideline.desc}</p>
-                <button className="text-indigo-600 hover:text-indigo-800 font-medium text-sm mt-2">
-                  Read More →
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div
-          className={`bg-white rounded-lg shadow-lg p-8 hover:shadow-xl hover:scale-[1.005] ${CARD_ANIMATIONS.transition}`}
-          id="contacts"
-        >
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            <i className="fas fa-phone text-red-600 mr-3"></i>
-            {t('resources:contacts.title')}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {contacts.map(contact => (
-              <div
-                key={contact.title}
-                className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow"
-              >
-                <div className="flex items-center mb-4">
-                  <i className={`fas ${contact.icon} text-red-600 text-2xl mr-3`}></i>
-                  <h3 className="text-lg font-semibold">{contact.title}</h3>
-                </div>
-                <p className="text-gray-600 text-sm mb-1">{contact.phone}</p>
-                <p className="text-gray-500 text-sm">{contact.email}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+            )}
+          </>
+        )}
       </div>
     </ErrorBoundary>
+  );
+}
+
+import type { TFunction } from 'i18next';
+
+function ResourceCard({
+  resource,
+  t,
+}: {
+  resource: ResourceItem;
+  t: TFunction<['common', 'resources']>;
+}) {
+  const fileIcon = getFileIcon(resource.fileType);
+  const fileSize = formatFileSize(resource.fileSize);
+
+  return (
+    <div className="border border-gray-200 rounded-lg p-6 hover:shadow-md hover:scale-[1.02] transition-shadow flex flex-col">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center">
+          <i className={`fas ${fileIcon} text-blue-600 text-xl mr-3`}></i>
+          <h3 className="text-lg font-semibold text-gray-900">{resource.title}</h3>
+        </div>
+        {resource.version && (
+          <span className="bg-indigo-100 text-indigo-700 text-xs font-medium px-2 py-1 rounded-full">
+            v{resource.version}
+          </span>
+        )}
+      </div>
+
+      {resource.description && (
+        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{resource.description}</p>
+      )}
+
+      {/* File info */}
+      {resource.fileUrl && (
+        <div className="flex items-center gap-3 text-xs text-gray-500 mb-4">
+          {resource.fileType && (
+            <span className="bg-gray-100 px-2 py-1 rounded">{resource.fileType.toUpperCase()}</span>
+          )}
+          {fileSize && <span>{fileSize}</span>}
+        </div>
+      )}
+
+      {/* Action buttons */}
+      <div className="flex space-x-2 mt-auto pt-3">
+        {resource.fileUrl && (
+          <a
+            href={resource.fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm hover:bg-blue-700 transition-colors text-center"
+          >
+            <i className="fas fa-download mr-1"></i>
+            {t('resources:download', 'Download')}
+          </a>
+        )}
+        {(resource.externalUrl || resource.bodyContent) && (
+          <a
+            href={resource.externalUrl || `#preview-${resource.id}`}
+            target={resource.externalUrl ? '_blank' : undefined}
+            rel={resource.externalUrl ? 'noopener noreferrer' : undefined}
+            className="flex-1 bg-gray-200 text-gray-700 py-2 px-3 rounded text-sm hover:bg-gray-300 transition-colors text-center"
+          >
+            <i className="fas fa-eye mr-1"></i>
+            {t('resources:view', 'View')}
+          </a>
+        )}
+      </div>
+    </div>
   );
 }
