@@ -3,8 +3,8 @@
 ## Current Position
 
 - **Phase:** 23-competitions-resources
-- **Plan:** 01 (complete), 02 (planned), 03 (planned)
-- **Status:** Plan 01 complete
+- **Plan:** 01 (complete), 02 (complete), 03 (complete)
+- **Status:** Phase 23 complete — all 3 plans done
 - **Last Updated:** 2026-05-16
 
 ## Decisions Made
@@ -41,6 +41,8 @@
 - [Phase 23-competitions-resources-01]: Used Events CRUD pattern as template for competition admin pages (adminEventSchema → adminCompetitionSchema)
 - [Phase 23-competitions-resources-01]: Public /competition page fetches upcoming competitions (startDate <= now AND endDate >= now)
 - [Phase 23-competitions-resources-01]: Entry submission button kept as placeholder — entry management is future work
+- [Phase 23-competitions-resources-03]: Migration script does NOT delete original Content records — left for manual verification
+- [Phase 23-competitions-resources-03]: Content RESOURCE maps to ResourceCategory.OTHER (no direct category mapping)
 
 ## Notes
 
@@ -66,3 +68,4 @@
 - **22-page-flag-expansion:** Planned — 3 plans created to expand visibility flags and update navigation.
 - **23-competitions-resources-01:** Complete — Competition model, API routes, admin pages.
 - **23-competitions-resources-02:** Complete — Resource model with file attachments, visibility scoping, admin CRUD.
+- **23-competitions-resources-03:** Complete — Public /resources page rewritten to use Resource API, migration script created, RESOURCES removed from ContentCategory enum.
