@@ -13,6 +13,7 @@ import { MarketplaceAnalyticsWidget, ServiceQualityWidget } from '@widgets/servi
 import { MaintenanceRequestsWidget, MaintenanceAnalyticsWidget } from '@widgets/maintenance';
 import { PageSettingsWidget } from './PageSettingsWidget';
 import { EventsWidget } from './EventsWidget';
+import { SurveysWidget } from './SurveysWidget';
 
 interface WidgetRendererProps {
   widgetId: string;
@@ -46,6 +47,8 @@ export function AdminWidgetRenderer({ widgetId }: WidgetRendererProps): ReactNod
       return <PageSettingsWidget />;
     case 'admin-events':
       return <EventsWidget />;
+    case 'admin-surveys':
+      return <SurveysWidget />;
     default:
       return (
         <ErrorBoundary>

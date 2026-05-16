@@ -38,6 +38,12 @@ export const ADMIN_TABS: DashboardTab[] = [
     defaultWidgets: ['admin-events', 'admin-quick-links'],
   },
   {
+    id: 'surveys',
+    label: 'Surveys',
+    icon: 'fa-poll',
+    defaultWidgets: ['admin-surveys', 'admin-stats'],
+  },
+  {
     id: 'system',
     label: 'System',
     icon: 'fa-cog',
@@ -58,6 +64,7 @@ export const ALL_ADMIN_WIDGETS: AdminWidget[] = [
   { id: 'admin-users', label: 'User Overview', icon: 'fa-users' },
   { id: 'admin-content', label: 'Content Overview', icon: 'fa-file-alt' },
   { id: 'admin-events', label: 'Upcoming Events', icon: 'fa-calendar' },
+  { id: 'admin-surveys', label: 'Survey Overview', icon: 'fa-poll' },
   { id: 'admin-system', label: 'System Status', icon: 'fa-cog' },
   { id: 'moderation-queue', label: 'Moderation Queue', icon: 'fa-shield-alt' },
   { id: 'marketplace-analytics', label: 'Marketplace Analytics', icon: 'fa-store' },
@@ -89,6 +96,7 @@ export function getAdminWidgetSize(widgetId: string): 'small' | 'medium' | 'larg
     case 'admin-quick-links':
     case 'maintenance-requests':
     case 'admin-events':
+    case 'admin-surveys':
       return 'medium';
     default:
       return 'medium';
