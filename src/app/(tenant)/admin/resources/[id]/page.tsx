@@ -1,8 +1,9 @@
-'use client';
-
 import { notFound } from 'next/navigation';
 import { Breadcrumbs } from '@shared/ui';
 import { ResourceForm } from '@/widgets/admin/ui/ResourceForm';
+import { db, resources } from '@api/db';
+import { eq, and } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant/api/with-tenant';
 
 interface EditResourcePageProps {
   params: Promise<{ id: string }>;
@@ -10,18 +11,33 @@ interface EditResourcePageProps {
 
 export default async function EditResourcePage({ params }: EditResourcePageProps) {
   const { id } = await params;
+  const { tenantId } = await withTenant();
 
-  // Fetch resource data on the server
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/resources/${id}`, {
-    cache: 'no-store',
-  });
+  // Fetch resource directly from Drizzle — no visibility filtering for admin edit
+  const [resource] = await db
+    .select()
+    .from(resources)
+    .where(and(eq(resources.id, id), eq(resources.tenantId, tenantId)));
 
-  if (!res.ok) {
+  if (!resource) {
     notFound();
   }
 
-  const resource = await res.json();
+  // Transform DB types to form-expected types
+  const formData = {
+    id: resource.id,
+    title: resource.title,
+    description: resource.description,
+    category: resource.category,
+    fileUrl: resource.fileUrl,
+    fileType: resource.fileType,
+    fileSize: resource.fileSize,
+    externalUrl: resource.externalUrl,
+    bodyContent: resource.bodyContent as Record<string, unknown> | null,
+    version: resource.version,
+    visibility: resource.visibility,
+    publishedAt: resource.publishedAt ? resource.publishedAt.toISOString().slice(0, 16) : null,
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -33,7 +49,7 @@ export default async function EditResourcePage({ params }: EditResourcePageProps
         ]}
       />
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Edit Resource</h1>
-      <ResourceForm initialData={resource} />
+      <ResourceForm initialData={formData} />
     </div>
   );
 }
