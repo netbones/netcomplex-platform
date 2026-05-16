@@ -3,7 +3,7 @@
 ## Current Position
 
 - **Phase:** 25-gap-closure
-- **Plan:** 02
+- **Plan:** 03
 - **Status:** Complete
 - **Last Updated:** 2026-05-16
 
@@ -85,3 +85,5 @@
 - **24-dashboard-enhancement-01:** Complete — Surveys tab, SurveysWidget, responses API, results page (3 commits).
 - **25-gap-closure-02:** Complete — Onboarding setting upserts wrapped in db.transaction, ModerationQueueWidget deprecated in favor of GroupModerationWidget (2 commits).
 - **25-gap-closure-01:** Complete — Platform admin auth guards on tenant CRUD routes, MobileMenu role case-sensitivity fix (2 commits).
+- **25-gap-closure-02:** Complete — Onboarding setting upserts wrapped in db.transaction, ModerationQueueWidget deprecated in favor of GroupModerationWidget (2 commits).
+- **25-gap-closure-03:** Complete — Resource, Competition, and Platform Admin API test suites (41 tests across 3 files).
