@@ -244,14 +244,14 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Close remaining gaps from GAPS.md — platform admin auth guards, MobileMenu role fix, onboarding transaction, widget deduplication, test coverage
 
-**Status:** Planned
+**Status:** In Progress (2/3 plans)
 
 **Requirements:** SCHEMA-04, INCEPT-01, GAP-03, GAP-04, GAP-09, GAP-12, GAP-14
 
 **Plans:**
 
-- [ ] 25-01-PLAN.md — Platform admin auth guards + MobileMenu role fix
-- [ ] 25-02-PLAN.md — Onboarding transaction + widget deduplication
+- [x] 25-01-PLAN.md — Platform admin auth guards + MobileMenu role fix
+- [x] 25-02-PLAN.md — Onboarding transaction + widget deduplication
 - [ ] 25-03-PLAN.md — Test suites for resources, competitions, platform-admin
 
 ---
