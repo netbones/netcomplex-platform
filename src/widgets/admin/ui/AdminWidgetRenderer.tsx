@@ -14,6 +14,7 @@ import { MaintenanceRequestsWidget, MaintenanceAnalyticsWidget } from '@widgets/
 import { PageSettingsWidget } from './PageSettingsWidget';
 import { EventsWidget } from './EventsWidget';
 import { SurveysWidget } from './SurveysWidget';
+import { GroupModerationWidgetWithErrorBoundary } from './GroupModerationWidget';
 
 interface WidgetRendererProps {
   widgetId: string;
@@ -49,6 +50,8 @@ export function AdminWidgetRenderer({ widgetId }: WidgetRendererProps): ReactNod
       return <EventsWidget />;
     case 'admin-surveys':
       return <SurveysWidget />;
+    case 'group-moderation':
+      return <GroupModerationWidgetWithErrorBoundary />;
     default:
       return (
         <ErrorBoundary>

@@ -72,6 +72,7 @@ export const ALL_ADMIN_WIDGETS: AdminWidget[] = [
   { id: 'maintenance-requests', label: 'Maintenance Requests', icon: 'fa-tools' },
   { id: 'maintenance-analytics', label: 'Maintenance Analytics', icon: 'fa-chart-line' },
   { id: 'page-settings', label: 'Page Visibility', icon: 'fa-toggle-on' },
+  { id: 'group-moderation', label: 'Group Membership Requests', icon: 'fa-user-check' },
 ];
 
 export function getWidgetTitle(widgetId: string): string {
@@ -97,6 +98,7 @@ export function getAdminWidgetSize(widgetId: string): 'small' | 'medium' | 'larg
     case 'maintenance-requests':
     case 'admin-events':
     case 'admin-surveys':
+    case 'group-moderation':
       return 'medium';
     default:
       return 'medium';

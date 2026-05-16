@@ -87,11 +87,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   if (action === 'approve') {
     // Update request status to APPROVED
-    const [updatedRequest] = await db
+    await db
       .update(groupMembershipRequests)
       .set({ status: 'APPROVED', updatedAt: now })
-      .where(eq(groupMembershipRequests.id, requestId))
-      .returning();
+      .where(eq(groupMembershipRequests.id, requestId));
 
     // Create a UserGroup record with role=MEMBER
     // Check for existing membership first (unique constraint on userId+groupId)
@@ -145,11 +144,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
   }
 
   // action === 'reject'
-  const [updatedRequest] = await db
+  await db
     .update(groupMembershipRequests)
     .set({ status: 'REJECTED', updatedAt: now })
-    .where(eq(groupMembershipRequests.id, requestId))
-    .returning();
+    .where(eq(groupMembershipRequests.id, requestId));
 
   // Fetch full response with user and group details
   const [fullRequest] = await db
