@@ -3,8 +3,8 @@
 ## Current Position
 
 - **Phase:** 23-competitions-resources
-- **Plan:** 01 (complete), 02 (complete), 03 (complete)
-- **Status:** Phase 23 complete — all 3 plans done
+- **Plan:** 01 (complete), 02 (complete), 03 (complete), 04 (complete)
+- **Status:** Phase 23 complete — all 4 plans done, 3 verification gaps closed
 - **Last Updated:** 2026-05-16
 
 ## Decisions Made
@@ -43,6 +43,8 @@
 - [Phase 23-competitions-resources-01]: Entry submission button kept as placeholder — entry management is future work
 - [Phase 23-competitions-resources-03]: Migration script does NOT delete original Content records — left for manual verification
 - [Phase 23-competitions-resources-03]: Content RESOURCE maps to ResourceCategory.OTHER (no direct category mapping)
+- [Phase 23-competitions-resources-04]: Server components query Drizzle directly for admin edit pages instead of fetching from internal API — simpler, more reliable
+- [Phase 23-competitions-resources-04]: Competition API allows unauthenticated access for upcoming=true filter with ACTIVE status only
 
 ## Notes
 
@@ -69,3 +71,4 @@
 - **23-competitions-resources-01:** Complete — Competition model, API routes, admin pages.
 - **23-competitions-resources-02:** Complete — Resource model with file attachments, visibility scoping, admin CRUD.
 - **23-competitions-resources-03:** Complete — Public /resources page rewritten to use Resource API, migration script created, RESOURCES removed from ContentCategory enum.
+- **23-competitions-resources-04:** Complete — Gap closure: unauthenticated competition API, status selector UI, resource edit Drizzle query (3 commits).

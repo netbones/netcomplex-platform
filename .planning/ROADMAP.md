@@ -217,9 +217,10 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Plans:**
 
-- [ ] 23-01-PLAN.md — Competition model, API, admin CRUD, dynamic public page
-- [ ] 23-02-PLAN.md — Resource model, API with visibility, admin CRUD with file upload
-- [ ] 23-03-PLAN.md — Public resources page rewrite, Content migration, enum cleanup
+- [x] 23-01-PLAN.md — Competition model, API, admin CRUD, dynamic public page ✅
+- [x] 23-02-PLAN.md — Resource model, API with visibility, admin CRUD with file upload ✅
+- [x] 23-03-PLAN.md — Public resources page rewrite, Content migration, enum cleanup ✅
+- [ ] 23-04-PLAN.md — Gap closure: Competition status UI, public auth fix, resource edit auth forwarding
 
 ---
 
