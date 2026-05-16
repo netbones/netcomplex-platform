@@ -2,10 +2,10 @@
 
 ## Current Position
 
-- **Phase:** 22-page-flag-expansion
-- **Plan:** 01 (planned), 02 (planned), 03 (planned)
-- **Status:** Planning complete
-- **Last Updated:** 2026-05-15
+- **Phase:** 23-competitions-resources
+- **Plan:** 01 (complete), 02 (planned), 03 (planned)
+- **Status:** Plan 01 complete
+- **Last Updated:** 2026-05-16
 
 ## Decisions Made
 
@@ -38,6 +38,9 @@
 - [Phase 22-page-flag-expansion]: Added 6 new page visibility flags to PlatformPageFlags interface with default value 'true'
 - [Phase 22-page-flag-expansion]: Implemented a simple client-side hook 'usePageFlags' using native fetch
 - [Phase 22]: Added Page Settings toggle and localized navigation labels.
+- [Phase 23-competitions-resources-01]: Used Events CRUD pattern as template for competition admin pages (adminEventSchema → adminCompetitionSchema)
+- [Phase 23-competitions-resources-01]: Public /competition page fetches upcoming competitions (startDate <= now AND endDate >= now)
+- [Phase 23-competitions-resources-01]: Entry submission button kept as placeholder — entry management is future work
 
 ## Notes
 
