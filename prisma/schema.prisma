@@ -962,7 +962,6 @@ enum ContentCategory {
   BLOG
   CONSERVATION
   SERVICES
-  RESOURCES
   CAMPAIGN
 }
 

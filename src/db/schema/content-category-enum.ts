@@ -7,6 +7,5 @@ export const contentCategoryEnum = pgEnum('ContentCategory', [
   'BLOG',
   'CONSERVATION',
   'SERVICES',
-  'RESOURCES',
   'CAMPAIGN',
 ]);
