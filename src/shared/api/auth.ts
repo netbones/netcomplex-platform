@@ -60,8 +60,12 @@ export const auth = betterAuth({
     },
     async onExistingUserSignUp({ user }) {
       // Notify existing user about sign-up attempt (security measure)
-      // TODO: Implement email notification to existing user
-      authLogger.info({ email: user.email }, 'Sign-up attempt with existing email');
+      void sendEmail({
+        to: user.email,
+        subject: templates.securityAlert.subject,
+        html: templates.securityAlert.getHtml(user.email),
+      });
+      authLogger.info({ email: user.email }, 'Sign-up attempt with existing email - alert sent');
     },
   },
   // Wire verification email via Better Auth (used when requireEmailVerification is true)
@@ -77,12 +81,11 @@ export const auth = betterAuth({
     sendOnSignIn: true, // Send verification email on sign-in if not verified
     autoSignInAfterVerification: true, // Auto sign-in user after email verification
     async afterEmailVerification(user) {
-      // Grant access to all features during testing phase
-      // TODO: Remove or adjust this after testing phase ends
-      authLogger.info({ email: user.email }, 'Email verified - granting testing access');
+      // Grant access to all features during testing phase (log verification)
+      authLogger.info({ email: user.email }, 'Email verified');
     },
   },
-  // Use additionalFields to add tenantId as a managed field that Better Auth handles
+  // Use additionalFields to add tenantId and dashboardLayout as managed fields
   user: {
     additionalFields: {
       tenantId: {
@@ -90,6 +93,11 @@ export const auth = betterAuth({
         required: true,
         defaultValue: tenantConfig.defaultSlug,
         input: false, // Users cannot set this during signup - it's auto-set
+      },
+      dashboardLayout: {
+        type: 'string',
+        required: false,
+        input: false, // Managed by the application
       },
     },
   },

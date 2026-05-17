@@ -21,6 +21,9 @@ export interface PlatformPageFlags {
   maintenance: boolean;
   surveys: boolean;
   competitions: boolean;
+  dashboard: boolean;
+  bookings: boolean;
+  messages: boolean;
 }
 
 const DEFAULT_PAGE_FLAGS: PlatformPageFlags = {
@@ -37,6 +40,9 @@ const DEFAULT_PAGE_FLAGS: PlatformPageFlags = {
   maintenance: true,
   surveys: true,
   competitions: true,
+  dashboard: true,
+  bookings: true,
+  messages: true,
 };
 
 export async function getPlatformPageFlags(tenantId: string): Promise<PlatformPageFlags> {
@@ -87,6 +93,15 @@ export async function getPlatformPageFlags(tenantId: string): Promise<PlatformPa
           break;
         case SETTINGS_KEYS.PAGE_COMPETITIONS_ENABLED:
           flags.competitions = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED:
+          flags.dashboard = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED:
+          flags.bookings = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_MESSAGES_ENABLED:
+          flags.messages = setting.value === 'true';
           break;
       }
     }
@@ -149,6 +164,9 @@ export function mapFlagToSettingKey(key: keyof PlatformPageFlags): string | unde
     maintenance: SETTINGS_KEYS.PAGE_MAINTENANCE_ENABLED,
     surveys: SETTINGS_KEYS.PAGE_SURVEYS_ENABLED,
     competitions: SETTINGS_KEYS.PAGE_COMPETITIONS_ENABLED,
+    dashboard: SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED,
+    bookings: SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED,
+    messages: SETTINGS_KEYS.PAGE_MESSAGES_ENABLED,
   };
   return mapping[key];
 }

@@ -102,7 +102,7 @@ export function Footer() {
                   </Link>
                 </li>
               )}
-              {flags.conservation !== false && (
+              {flags.conservation !== 'external' && (
                 <li>
                   <Link
                     href="/conservation"

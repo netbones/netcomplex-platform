@@ -12,6 +12,9 @@ export const SETTINGS_KEYS = {
   PAGE_MAINTENANCE_ENABLED: 'page_maintenance_enabled',
   PAGE_SURVEYS_ENABLED: 'page_surveys_enabled',
   PAGE_COMPETITIONS_ENABLED: 'page_competitions_enabled',
+  PAGE_DASHBOARD_ENABLED: 'page_dashboard_enabled',
+  PAGE_BOOKINGS_ENABLED: 'page_bookings_enabled',
+  PAGE_MESSAGES_ENABLED: 'page_messages_enabled',
   CUSTOM_PAGES: 'custom_pages',
   CUSTOM_NAV: 'custom_nav',
 } as const;

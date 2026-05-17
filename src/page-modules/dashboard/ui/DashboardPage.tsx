@@ -90,6 +90,9 @@ function DashboardContent() {
   const currentTab = DEFAULT_TABS.find(tab => tab.id === activeTab);
   const tabWidgets = userWidgets[activeTab] || currentTab?.defaultWidgets || [];
 
+  const handleRemoveWidget = (widgetId: string) => removeWidgetFromTab(widgetId, activeTab);
+  const handleAddWidget = (widgetId: string) => addWidgetToTab(widgetId, activeTab);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.dashboard') }]} />

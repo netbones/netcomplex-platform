@@ -80,11 +80,11 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { flags: pageFlags } = usePageFlags();
-  const { t, i18n } = useTranslation('common');
+  const { t } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
 
-  const isAdminUser = isAdmin(session?.user?.role);
-  const isBoardUser = session?.user?.role === 'BOARD';
+  const _isAdminUser = isAdmin(session?.user?.role);
+  const _isBoardUser = session?.user?.role === 'BOARD';
 
   useEffect(() => {
     setMounted(true);
@@ -110,7 +110,7 @@ export function Header() {
           if (item.href === '/news' && pageFlags.news === false) return false;
           if (item.href === '/maintenance' && pageFlags.maintenance === false) return false;
           if (item.href === '/events' && pageFlags.events === false) return false;
-          if (item.href === '/competition' && pageFlags.competition === false) return false;
+          if (item.href === '/competition' && pageFlags.competitions === false) return false;
           if (item.href === '/conservation' && pageFlags.conservation === 'external') return false;
           if (item.href === '/campaign' && pageFlags.campaign === false) return false;
           return true;

@@ -187,6 +187,49 @@ export const templates = {
 </html>
 `,
   },
+
+  /**
+   * Security alert email sent when a signup attempt is made with an existing email.
+   */
+  securityAlert: {
+    subject: 'Security Alert: Sign-up attempt with your email',
+    getHtml: (email: string) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Alert</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #4F46E5; margin: 0;">Soralia Village</h1>
+  </div>
+  
+  <h2 style="color: #dc2626;">Security Alert</h2>
+  
+  <p style="margin: 20px 0;">Hello,</p>
+  
+  <p style="margin: 20px 0;">A sign-up attempt was recently made for Soralia Village using your email address (<strong>${escapeHtml(email)}</strong>). Since you already have an account, this attempt was blocked.</p>
+  
+  <p style="margin: 20px 0;">If this was you, you can simply log in to your existing account. If this wasn't you, someone may have tried to use your email address to create a duplicate account. Your account remains secure, and no action is required.</p>
+  
+  <div style="text-align: center; margin: 30px 0;">
+    <a href="https://soralia.co.za/login" style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Login to your account</a>
+  </div>
+  
+  <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+    For your security, we recommend never sharing your password and enabling two-factor authentication if you haven't already.
+  </p>
+  
+  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+  <p style="color: #9ca3af; font-size: 12px; text-align: center;">
+    &copy; ${new Date().getFullYear()} Soralia Village. All rights reserved.
+  </p>
+</body>
+</html>
+`,
+  },
 } as const;
 
 /**

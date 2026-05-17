@@ -10,6 +10,7 @@ import { apiLogger } from '@shared/lib';
 import { db, messages, users, premiumSeats, conversationParticipants } from '@api/db';
 import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
+import { sanitizeHtml } from '@/lib/sanitization';
 
 /** Supabase client for real-time message broadcasting */
 const supabase = createClient(
@@ -183,7 +184,7 @@ export async function POST(request: Request) {
         tenantId,
         conversationId,
         senderId: authData.userId,
-        content,
+        content: type === 'TEXT' ? sanitizeHtml(content) : content,
         type: type || 'TEXT',
         mediaUrl,
         expiresAt,

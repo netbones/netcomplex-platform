@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock server-only before any imports that use it
@@ -82,7 +83,7 @@ vi.mock('@entities/tenant/api/guards', () => ({
 
 // Mock base tenant API
 const mockListTenants = vi.fn(() => Promise.resolve([{ id: 'tenant-1', name: 'Test Tenant' }]));
-const mockCreateTenant = vi.fn(() => Promise.resolve({ id: 'new-tenant', name: 'New Tenant' }));
+const mockCreateTenant = vi.fn((_data) => Promise.resolve({ id: 'new-tenant', name: 'New Tenant' }));
 vi.mock('@entities/tenant/api/base', () => ({
   listTenants: () => mockListTenants(),
   createTenant: (data: unknown) => mockCreateTenant(data),
@@ -138,7 +139,7 @@ function makeUpdateChain(result: unknown[]) {
 describe('Platform Admin Tenant API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    vi.mocked(auth.api.getSession).mockResolvedValue(null);
     mockRequirePlatformAdmin.mockResolvedValue(null);
   });
 
@@ -212,7 +213,7 @@ describe('Platform Admin Tenant API', () => {
 describe('Platform Admin Assist API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    vi.mocked(auth.api.getSession).mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -221,9 +222,9 @@ describe('Platform Admin Assist API', () => {
 
   describe('POST /api/admin/platform/assist', () => {
     it('creates AssistSession with correct expiry', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'platform-admin' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'platform-admin' } as any,
+      } as any);
 
       const userChain = makeSelectChain([{ isPlatformAdmin: true }]);
       const tenantChain = makeSelectChain([{ id: 'tenant-1' }]);
@@ -262,9 +263,9 @@ describe('Platform Admin Assist API', () => {
     });
 
     it('returns 403 for non-platform-admin creating assist session', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'regular-user' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'regular-user' } as any,
+      } as any);
 
       const userChain = makeSelectChain([{ isPlatformAdmin: false }]);
       mocks.dbMock.select.mockImplementation(() => userChain);
@@ -282,9 +283,9 @@ describe('Platform Admin Assist API', () => {
     });
 
     it('returns 400 if tenantId is missing', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'platform-admin' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'platform-admin' } as any,
+      } as any);
 
       const userChain = makeSelectChain([{ isPlatformAdmin: true }]);
       mocks.dbMock.select.mockImplementation(() => userChain);
@@ -303,9 +304,9 @@ describe('Platform Admin Assist API', () => {
     });
 
     it('returns 404 if tenant does not exist', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'platform-admin' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'platform-admin' } as any,
+      } as any);
 
       const userChain = makeSelectChain([{ isPlatformAdmin: true }]);
       const tenantChain = makeSelectChain([]);
@@ -333,9 +334,9 @@ describe('Platform Admin Assist API', () => {
 
   describe('DELETE /api/admin/platform/assist/[id] (revoke)', () => {
     it('returns 404 for non-existent assist session', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'platform-admin' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'platform-admin' } as any,
+      } as any);
 
       const sessionChain = makeSelectChain([]);
       mocks.dbMock.select.mockImplementation(() => sessionChain);
@@ -352,9 +353,9 @@ describe('Platform Admin Assist API', () => {
     });
 
     it('returns 400 for already revoked session', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'platform-admin' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'platform-admin' } as any,
+      } as any);
 
       const sessionChain = makeSelectChain([
         {
@@ -381,9 +382,9 @@ describe('Platform Admin Assist API', () => {
 
   describe('Expired AssistSession rejection', () => {
     it('expired AssistSession is not returned in active list', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'platform-admin' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'platform-admin' } as any,
+      } as any);
 
       const userChain = makeSelectChain([{ isPlatformAdmin: true }]);
       const sessionChain = makeSelectChain([]);

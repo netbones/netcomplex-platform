@@ -40,10 +40,11 @@ export default function AdminDashboardPage() {
 
   // Hydrate from DB on mount
   useEffect(() => {
-    if (session?.user?.dashboardLayout && !isHydratedFromDb) {
-      hydrateFromDatabase(session.user.dashboardLayout);
+    const user = session?.user as { dashboardLayout?: string } | undefined;
+    if (user?.dashboardLayout && !isHydratedFromDb) {
+      hydrateFromDatabase(user.dashboardLayout);
     }
-  }, [session?.user?.dashboardLayout, isHydratedFromDb, hydrateFromDatabase]);
+  }, [session?.user, isHydratedFromDb, hydrateFromDatabase]);
 
   // Debounce save to DB on changes
   useEffect(() => {

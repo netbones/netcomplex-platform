@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock server-only before any imports that use it
@@ -166,7 +167,7 @@ function makeUpdateChain(result: unknown[]) {
 describe('Competition API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    vi.mocked(auth.api.getSession).mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -190,7 +191,7 @@ describe('Competition API', () => {
     });
 
     it('unauthenticated access to upcoming competitions returns 200', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+      vi.mocked(auth.api.getSession).mockResolvedValue(null);
 
       const chain = makeSelectChain([]);
       dbMock.select.mockImplementation(() => chain);
@@ -202,9 +203,9 @@ describe('Competition API', () => {
     });
 
     it('authenticated GET returns competitions for caller tenant', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
+      vi.mocked(auth.api.getSession).mockResolvedValue({
         user: { id: 'user-1' },
-      });
+      } as any);
 
       const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
       const compChain = makeSelectChain([
@@ -225,7 +226,7 @@ describe('Competition API', () => {
     });
 
     it('returns 401 for non-upcoming unauthenticated access', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+      vi.mocked(auth.api.getSession).mockResolvedValue(null);
 
       const request = new Request('http://localhost/api/competitions');
       const response = await COMPETITIONS_GET(request);
@@ -238,9 +239,9 @@ describe('Competition API', () => {
 
   describe('POST /api/competitions', () => {
     it('admin can create competition', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'admin-user' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'admin-user' } as any,
+      } as any);
 
       const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
       const insertChain = makeInsertChain([
@@ -265,9 +266,9 @@ describe('Competition API', () => {
     });
 
     it('returns 403 for user without content permission', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'resident-user' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'resident-user' } as any,
+      } as any);
 
       const roleChain = makeSelectChain([{ role: 'RESIDENT' }]);
       dbMock.select.mockImplementation(() => roleChain);
@@ -292,9 +293,9 @@ describe('Competition API', () => {
 
   describe('PATCH /api/competitions/[id]', () => {
     it('admin can update competition', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'admin-user' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'admin-user' } as any,
+      } as any);
 
       const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
       const updateChain = makeUpdateChain([{ id: 'comp-1', title: 'Updated', status: 'ACTIVE' }]);
@@ -321,9 +322,9 @@ describe('Competition API', () => {
 
   describe('DELETE /api/competitions/[id]', () => {
     it('admin can delete competition', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'admin-user' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'admin-user' } as any,
+      } as any);
 
       const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
       const deleteChain = {
@@ -352,7 +353,7 @@ describe('Competition API', () => {
 describe('Platform Admin API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    vi.mocked(auth.api.getSession).mockResolvedValue(null);
     mockRequirePlatformAdmin.mockResolvedValue(null);
   });
 
@@ -388,9 +389,9 @@ describe('Platform Admin API', () => {
 
   describe('POST /api/admin/platform/assist', () => {
     it('creates AssistSession with correct expiry', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'platform-admin' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'platform-admin' } as any,
+      } as any);
 
       const userChain = makeSelectChain([{ isPlatformAdmin: true }]);
       const tenantChain = makeSelectChain([{ id: 'tenant-1' }]);
@@ -423,9 +424,9 @@ describe('Platform Admin API', () => {
     });
 
     it('returns 403 for non-platform-admin creating assist session', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'regular-user' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'regular-user' } as any,
+      } as any);
 
       const userChain = makeSelectChain([{ isPlatformAdmin: false }]);
       dbMock.select.mockImplementation(() => userChain);
@@ -445,8 +446,8 @@ describe('Platform Admin API', () => {
 
   describe('DELETE /api/admin/platform/assist/[id] (revoke)', () => {
     it('returns 404 for non-existent assist session', async () => {
-      const getSessionMock = auth.api.getSession as ReturnType<typeof vi.fn>;
-      getSessionMock.mockResolvedValue({ user: { id: 'platform-admin' } });
+      const getSessionMock = vi.mocked(auth.api.getSession);
+      getSessionMock.mockResolvedValue({ user: { id: 'platform-admin' } } as any);
 
       const sessionChain = makeSelectChain([]);
       dbMock.select.mockImplementation(() => sessionChain);
@@ -463,8 +464,8 @@ describe('Platform Admin API', () => {
     });
 
     it('returns 400 for already revoked session', async () => {
-      const getSessionMock = auth.api.getSession as ReturnType<typeof vi.fn>;
-      getSessionMock.mockResolvedValue({ user: { id: 'platform-admin' } });
+      const getSessionMock = vi.mocked(auth.api.getSession);
+      getSessionMock.mockResolvedValue({ user: { id: 'platform-admin' } } as any);
 
       const sessionChain = makeSelectChain([
         { id: 'assist-1', tenantId: 'tenant-1', isActive: false, expiresAt: new Date() },
@@ -486,9 +487,9 @@ describe('Platform Admin API', () => {
 
   describe('Expired AssistSession rejection', () => {
     it('expired AssistSession is not returned in active list', async () => {
-      (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
-        user: { id: 'platform-admin' },
-      });
+      vi.mocked(auth.api.getSession).mockResolvedValue({
+        user: { id: 'platform-admin' } as any,
+      } as any);
 
       const userChain = makeSelectChain([{ isPlatformAdmin: true }]);
       const sessionChain = makeSelectChain([]);

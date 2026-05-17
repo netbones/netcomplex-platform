@@ -37,7 +37,8 @@ async function getSessionAndRole(request: Request) {
  * Requires authentication and content permission.
  * Body: { action: 'approve' | 'reject' }
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id: requestId } = await params;
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
@@ -57,8 +58,6 @@ export async function POST(request: Request, { params }: { params: { id: string 
       { status: 400 }
     );
   }
-
-  const requestId = params.id;
 
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
