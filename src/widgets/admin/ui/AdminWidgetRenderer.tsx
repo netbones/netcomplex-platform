@@ -21,45 +21,124 @@ interface WidgetRendererProps {
   widgetId: string;
 }
 
+function AdminWidgetErrorFallback({ widgetId }: { widgetId: string }) {
+  return (
+    <div className="flex items-center justify-center h-full min-h-[100px] text-gray-500">
+      <div className="text-center">
+        <p className="text-sm font-medium">Widget failed to load</p>
+        <p className="text-xs text-gray-400 mt-1">{widgetId}</p>
+      </div>
+    </div>
+  );
+}
+
+function WidgetWithBoundary({ widgetId, children }: { widgetId: string; children: ReactNode }) {
+  return (
+    <ErrorBoundary fallback={<AdminWidgetErrorFallback widgetId={widgetId} />}>
+      {children}
+    </ErrorBoundary>
+  );
+}
+
 export function AdminWidgetRenderer({ widgetId }: WidgetRendererProps): ReactNode {
   switch (widgetId) {
     case 'admin-stats':
-      return <AdminStatsWidget />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <AdminStatsWidget />
+        </WidgetWithBoundary>
+      );
     case 'admin-quick-links':
-      return <AdminQuickLinksWidget />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <AdminQuickLinksWidget />
+        </WidgetWithBoundary>
+      );
     case 'admin-activity':
-      return <AdminActivityWidget />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <AdminActivityWidget />
+        </WidgetWithBoundary>
+      );
     case 'admin-users':
-      return <AdminUserWidget />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <AdminUserWidget />
+        </WidgetWithBoundary>
+      );
     case 'admin-content':
-      return <AdminContentWidget />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <AdminContentWidget />
+        </WidgetWithBoundary>
+      );
     case 'admin-system':
-      return <AdminSystemWidget />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <AdminSystemWidget />
+        </WidgetWithBoundary>
+      );
     case 'marketplace-analytics':
-      return <MarketplaceAnalyticsWidget />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <MarketplaceAnalyticsWidget />
+        </WidgetWithBoundary>
+      );
     case 'service-quality':
-      return <ServiceQualityWidget />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <ServiceQualityWidget />
+        </WidgetWithBoundary>
+      );
     case 'maintenance-requests':
-      return <MaintenanceRequestsWidget />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <MaintenanceRequestsWidget />
+        </WidgetWithBoundary>
+      );
     case 'maintenance-analytics':
-      return <MaintenanceAnalyticsWidget />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <MaintenanceAnalyticsWidget />
+        </WidgetWithBoundary>
+      );
     case 'page-settings':
-      return <PageSettingsWidget />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <PageSettingsWidget />
+        </WidgetWithBoundary>
+      );
     case 'admin-events':
-      return <AdminEventsWidget />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <AdminEventsWidget />
+        </WidgetWithBoundary>
+      );
     case 'admin-competitions':
-      return <CompetitionList />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <CompetitionList />
+        </WidgetWithBoundary>
+      );
     case 'admin-resources':
-      return <ResourceList />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <ResourceList />
+        </WidgetWithBoundary>
+      );
     case 'admin-surveys':
-      return <SurveysWidget />;
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <SurveysWidget />
+        </WidgetWithBoundary>
+      );
     case 'group-moderation':
       return <GroupModerationWidgetWithErrorBoundary />;
     default:
       return (
         <ErrorBoundary>
           <div className="text-center py-4 text-gray-500">
-            <p>Admin widget "{widgetId}" not implemented</p>
+            <p>Admin widget &quot;{widgetId}&quot; not implemented</p>
           </div>
         </ErrorBoundary>
       );
