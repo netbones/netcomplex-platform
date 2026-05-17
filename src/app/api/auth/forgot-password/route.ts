@@ -5,6 +5,7 @@ import { db, verifications, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { logError } from '@shared/lib';
 import { ENV } from 'varlock/env';
+import { verifyTurnstile } from '@shared/api/turnstile';
 
 const RESET_LINK_BASE = ENV.NEXT_PUBLIC_APP_URL;
 const RESET_TOKEN_EXPIRY_HOURS = 1;
@@ -18,10 +19,21 @@ const RESET_TOKEN_EXPIRY_HOURS = 1;
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email } = body;
+    const { email, turnstileToken } = body;
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    }
+
+    // Verify Turnstile token if provided
+    if (turnstileToken) {
+      const isHuman = await verifyTurnstile(turnstileToken);
+      if (!isHuman) {
+        return NextResponse.json(
+          { error: 'Bot verification failed. Please try again.' },
+          { status: 403 }
+        );
+      }
     }
 
     // Check if user exists with this email

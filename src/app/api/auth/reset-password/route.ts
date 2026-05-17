@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db, verifications, users } from '@api/db';
+import { db, verifications } from '@api/db';
 import { eq, and, gt } from 'drizzle-orm';
 import { logError } from '@shared/lib';
+import { verifyTurnstile } from '@shared/api/turnstile';
 
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
@@ -12,13 +13,24 @@ const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { token, email, newPassword } = body;
+    const { token, email, newPassword, turnstileToken } = body;
 
     if (!token || !email || !newPassword) {
       return NextResponse.json(
         { error: 'Token, email, and new password are required' },
         { status: 400 }
       );
+    }
+
+    // Verify Turnstile token if provided
+    if (turnstileToken) {
+      const isHuman = await verifyTurnstile(turnstileToken);
+      if (!isHuman) {
+        return NextResponse.json(
+          { error: 'Bot verification failed. Please try again.' },
+          { status: 403 }
+        );
+      }
     }
 
     // Verify the token exists and hasn't expired

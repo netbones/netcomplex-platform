@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 import { maintenanceRequestSchema } from '@api/schemas';
 import { revalidateDashboard } from '@api/revalidation';
 import { apiLogger } from '@shared/lib';
-import { eq, desc, and, sql } from 'drizzle-orm';
+import { eq, desc, and, sql, InferInsertModel } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
 // Limit execution time to 8 seconds to control costs
@@ -227,8 +227,7 @@ export async function POST(request: Request) {
 
     // Use Drizzle insert
     const now = new Date();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const insertValues: any = {
+    const insertValues: InferInsertModel<typeof maintenanceRequests> = {
       id: crypto.randomUUID(),
       tenantId,
       userId,

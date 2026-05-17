@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { authClient } from '@api/auth-client';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { TurnstileWidget } from '@shared/ui';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -12,6 +12,12 @@ export default function SignInPage() {
   const [error, setError] = useState('');
   const [unverifiedEmail, setUnverifiedEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [turnstileSiteKey, setTurnstileSiteKey] = useState<string>('');
+  const [turnstileToken, setTurnstileToken] = useState<string>('');
+
+  useEffect(() => {
+    setTurnstileSiteKey(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '');
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,25 +26,23 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      const { data, error: authError } = await authClient.signIn.email(
-        {
-          email,
-          password,
-        },
-        {
-          onSuccess: () => {
-            router.push('/dashboard');
-          },
-        }
-      );
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, turnstileToken }),
+      });
 
-      if (authError) {
-        if (authError.status === 403) {
+      const data = await response.json();
+
+      if (response.ok) {
+        router.push('/dashboard');
+      } else {
+        if (response.status === 403) {
           setUnverifiedEmail(email);
         }
-        setError(authError.message || 'Failed to sign in');
+        setError(data.error || 'Failed to sign in');
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);
@@ -92,6 +96,14 @@ export default function SignInPage() {
               required
             />
           </div>
+
+          {turnstileSiteKey && (
+            <TurnstileWidget
+              siteKey={turnstileSiteKey}
+              theme="auto"
+              onTokenChange={setTurnstileToken}
+            />
+          )}
 
           <button
             type="submit"

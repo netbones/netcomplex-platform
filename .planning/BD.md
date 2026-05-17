@@ -1,46 +1,41 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-05-17 (Session 2)
-> **Total remaining:** 27 issues (down from 54)
-> **Closed this session:** 27 issues total (22 in Session 1, 5 in Session 2)
+> **Last updated:** 2026-05-17 (Session 3)
+> **Total remaining:** 25 issues (down from 54)
+> **Closed this session:** 29 issues total (22 in Session 1, 5 in Session 2, 2 in Session 3)
 
 ## Summary by Priority
 
-| Priority | Open | Focus                              |
-| -------- | ---- | ---------------------------------- |
-| P2       | 14   | Core features, epics, verification |
-| P3       | 12   | Tech debt, Phase 4/5 features      |
-| P4       | 6    | Backlog, blocked events            |
+| Priority | Open | Focus                         |
+| -------- | ---- | ----------------------------- |
+| P2       | 7    | Core features, epics          |
+| P3       | 12   | Tech debt, Phase 4/5 features |
+| P4       | 6    | Backlog, blocked events       |
 
 ## Summary by Status
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 29    |
+| ○ Open        | 22    |
 | ◐ In Progress | 3     |
 
 ---
 
-## P2 — High Priority (14 issues)
+## P2 — High Priority (7 issues)
 
 ### Features & Tasks
 
-| ID    | Type    | Title                                                            | Status |
-| ----- | ------- | ---------------------------------------------------------------- | ------ |
-| `dlc` | task    | Implement full functionality for BookshelfWidget and MediaWidget | ○      |
-| `yml` | feature | Implement bot protection with captcha                            | ○      |
-| `ywr` | task    | Debug and test authentication login/sign-up flow                 | ○      |
-| `utj` | task    | Add admin household management page                              | ○      |
-| `uou` | task    | Generate random words for SEO-friendly public profile links      | ○      |
-| `og6` | task    | Determine how bookings data flows to maintenance services portal | ○      |
+| ID    | Type | Title                                           | Status |
+| ----- | ---- | ----------------------------------------------- | ------ |
+| `l23` | epic | Epic: i18n for all pages                        | ○      |
+| `bgb` | epic | Interests Visualization                         | ◐      |
+| `wmm` | task | Improve directory cards with chat functionality | ◐      |
 
 ### Epics
 
 | ID    | Title                            | Blocked Children                   | Status |
 | ----- | -------------------------------- | ---------------------------------- | ------ |
 | `71p` | Continue improving test coverage | `71p.1`, `71p.2`, `71p.3`, `71p.4` | ○      |
-| `l23` | Epic: i18n for all pages         | `0f7`                              | ○      |
-| `bgb` | Interests Visualization          | —                                  | ◐      |
 
 ### Blocked Tasks
 
@@ -51,13 +46,6 @@
 | `71p.3` | Add tests for custom hooks                     | `71p`      | ○      |
 | `71p.4` | Add tests for UI components                    | `71p`      | ○      |
 | `0f7`   | i18n: Database content localization for Tiptap | `l23`      | ○      |
-
-### In Progress
-
-| ID    | Title                                                         | Status |
-| ----- | ------------------------------------------------------------- | ------ |
-| `c3y` | Fix ESLint any type errors in src/components/dashboard/\*.tsx | ◐      |
-| `wmm` | Improve directory cards with chat functionality               | ◐      |
 
 ---
 
@@ -98,7 +86,14 @@
 
 ---
 
-## Closed This Session (27 issues)
+## Closed This Session (28 issues)
+
+### Session 3 - Bot Protection & Type Safety (2 issues)
+
+| ID    | Title                                 | Reason                                                                                                                        |
+| ----- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `yml` | Implement bot protection with captcha | Fixed: added Turnstile to sign-in, sign-up, forgot-password, reset-password; created /api/auth/signin route with verification |
+| `c3y` | Fix ESLint any type errors            | Fixed: replaced 3 `any` usages with `InferSelectModel` and `InferInsertModel` from drizzle-orm                                |
 
 ### Session 2 - High Priority (5 issues)
 
@@ -112,7 +107,7 @@
 
 ### Session 1 - Performance & Verification (22 issues)
 
-### Completed
+#### Completed
 
 | ID      | Title                                                     | Reason                                      |
 | ------- | --------------------------------------------------------- | ------------------------------------------- |
@@ -125,7 +120,7 @@
 | `n95`   | Fix Better Auth admin plugin conflict                     | No conflict — uses additionalFields pattern |
 | `wu1.4` | Remove Prisma dependency after migration                  | Won't fix — intentional per ADR-003         |
 
-### Verified (Code Review)
+#### Verified (Code Review)
 
 | ID    | Title                                                       | Verification                                   |
 | ----- | ----------------------------------------------------------- | ---------------------------------------------- |
@@ -139,14 +134,14 @@
 | `6cf` | Verify onboarding wizard navigation and data persistence    | OnboardingWizard.tsx: 5 steps, progress bar    |
 | `479` | Verify end-to-end signup flow                               | signup → tenant created → onboarding → /admin  |
 
-### Duplicates Closed
+#### Duplicates Closed
 
 | ID    | Title                                                   | Duplicate Of |
 | ----- | ------------------------------------------------------- | ------------ |
 | `og0` | Navigate to /admin/events — verify event list           | `uuz`        |
 | `8as` | Verify EventsWidget empty state shows Create Event link | `95n`        |
 
-### Logging Consolidation
+#### Logging Consolidation
 
 | ID    | Title                                          | Status       |
 | ----- | ---------------------------------------------- | ------------ |
@@ -158,8 +153,8 @@
 
 ## Recommended Next Actions
 
-1. **`yml`** — Implement bot protection with captcha (security - Turnstile already wired, needs verification on all auth routes)
-2. **`c3y`** — Fix ESLint any type errors (tech debt, in-progress)
-3. **`6d8`** — Migrate React imports to Preact (performance)
-4. **`l23`** — Epic: i18n for all pages (large scope)
-5. **`71p`** — Continue improving test coverage (epic)
+1. **`6d8`** — Migrate React imports to Preact (performance)
+2. **`l23`** — Epic: i18n for all pages (large scope)
+3. **`71p`** — Continue improving test coverage (epic)
+4. **`ltn`** — Add request validation plugin (security)
+5. **`bgb`** — Epic: Interests Visualization (in-progress)

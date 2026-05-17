@@ -12,7 +12,7 @@ import {
   agentAccesses,
   users,
 } from '@api/db';
-import { eq, and, or, asc, desc, gt, ne, like, count } from 'drizzle-orm';
+import { eq, and, or, asc, desc, gt, ne, like, count, InferSelectModel } from 'drizzle-orm';
 
 // Output Schemas
 const propertySchema = z.object({
@@ -266,8 +266,7 @@ export const identityRouter = router({
       }
 
       // Fetch residents if we have an active household
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let residents: any[] = [];
+      let residents: InferSelectModel<typeof profiles>[] = [];
       if (activeHousehold) {
         residents = await db
           .select()
@@ -445,8 +444,7 @@ export const identityRouter = router({
             db.select().from(standardSeats).where(eq(standardSeats.propertyId, prop.id)),
           ]);
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          let profilesData: any[] = [];
+          let profilesData: InferSelectModel<typeof profiles>[] = [];
           if (activeHousehold) {
             profilesData = await db
               .select()

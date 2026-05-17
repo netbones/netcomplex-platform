@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { authClient } from '@api/auth-client';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Honeypot, TurnstileWidget } from '@shared/ui';
@@ -15,7 +14,6 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [turnstileSiteKey, setTurnstileSiteKey] = useState<string>('');
   const [turnstileToken, setTurnstileToken] = useState<string>('');
-  const turnstileRef = useRef<{ getToken: () => string } | null>(null);
 
   useEffect(() => {
     setTurnstileSiteKey(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '');
