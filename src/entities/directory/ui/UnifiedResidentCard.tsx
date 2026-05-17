@@ -76,9 +76,13 @@ export function UnifiedResidentCard({
     );
   };
 
+  const profileLink = resident.profileSlug
+    ? `/resident/${resident.profileSlug}`
+    : `/resident/${resident.id}`;
+
   return (
     <Link
-      href={`/resident/${resident.id}`}
+      href={profileLink}
       className={`block bg-white rounded-lg shadow-md hover:scale-[1.02] hover:shadow-xl transition-all duration-300 ease-in-out cursor-pointer ${CARD_ANIMATIONS.transition} ${
         viewMode === 'list' ? 'flex relative overflow-hidden min-h-32' : 'overflow-hidden'
       }`}

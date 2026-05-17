@@ -7,6 +7,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const { tenantId } = await withTenant();
 
+  // Determine if id is a UUID or a profile slug
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
   // Get user data (filter by tenantId)
   const userResult = await db
     .select({
@@ -23,9 +26,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       showPhone: users.showPhone,
       role: users.role,
       createdAt: users.createdAt,
+      profileSlug: users.profileSlug,
     })
     .from(users)
-    .where(and(eq(users.id, id), eq(users.tenantId, tenantId)))
+    .where(and(isUUID ? eq(users.id, id) : eq(users.profileSlug, id), eq(users.tenantId, tenantId)))
     .limit(1);
 
   if (!userResult[0]) {
@@ -33,6 +37,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   }
 
   const user = userResult[0];
+  const userId = user.id;
 
   // Get standardSeats with property
   const seats = await db
@@ -47,7 +52,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     })
     .from(standardSeats)
     .innerJoin(properties, eq(standardSeats.propertyId, properties.id))
-    .where(eq(standardSeats.userId, id));
+    .where(eq(standardSeats.userId, userId));
 
   // Get soloSeat with property
   const soloSeatResult = await db
@@ -62,7 +67,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     })
     .from(soloSeats)
     .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
-    .where(eq(soloSeats.userId, id))
+    .where(eq(soloSeats.userId, userId))
     .limit(1);
 
   // Get published contents
@@ -77,7 +82,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       publishedAt: contents.publishedAt,
     })
     .from(contents)
-    .where(and(eq(contents.authorId, id), eq(contents.published, true)))
+    .where(and(eq(contents.authorId, userId), eq(contents.published, true)))
     .orderBy(desc(contents.publishedAt))
     .limit(10);
 

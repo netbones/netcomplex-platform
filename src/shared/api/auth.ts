@@ -19,6 +19,7 @@ import { tenantConfig } from '@entities/tenant/api/tenant';
 import { sendEmail } from '@shared/api/email/resend';
 import { templates } from '@shared/api/email/templates';
 import { authLogger } from '@shared/lib';
+import { generateProfileSlug } from '@shared/api/slug';
 
 /**
  * Better Auth configuration for Soralia Village.
@@ -85,7 +86,7 @@ export const auth = betterAuth({
       authLogger.info({ email: user.email }, 'Email verified');
     },
   },
-  // Use additionalFields to add tenantId and dashboardLayout as managed fields
+  // Use additionalFields to add tenantId, dashboardLayout, and profileSlug as managed fields
   user: {
     additionalFields: {
       tenantId: {
@@ -99,6 +100,11 @@ export const auth = betterAuth({
         required: false,
         input: false, // Managed by the application
       },
+      profileSlug: {
+        type: 'string',
+        required: false,
+        input: false, // Auto-generated on signup
+      },
     },
   },
   plugins: [twoFactor({ issuer: tenantConfig.auth.issuer }), organization(), bearer(), passkey()],
@@ -109,4 +115,18 @@ export const auth = betterAuth({
     allowedHosts: tenantConfig.auth.allowedHosts,
   },
   trustedOrigins: [ENV.BETTER_AUTH_URL || 'http://localhost:3000'],
+  databaseHooks: {
+    user: {
+      create: {
+        before: async user => {
+          return {
+            data: {
+              ...user,
+              profileSlug: generateProfileSlug(user.name),
+            },
+          };
+        },
+      },
+    },
+  },
 });

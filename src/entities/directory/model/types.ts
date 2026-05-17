@@ -18,6 +18,7 @@ export interface Resident {
   interests: string[];
   avatar: string | null;
   isPublic: boolean;
+  profileSlug: string | null;
   role?: string;
   standardSeats?: Array<{
     property: Property;

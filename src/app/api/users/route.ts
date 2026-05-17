@@ -89,6 +89,7 @@ export async function GET(request: Request) {
       isPublic: users.isPublic,
       isActive: users.isActive,
       role: users.role,
+      profileSlug: users.profileSlug,
     })
     .from(users)
     .where(whereClause)
