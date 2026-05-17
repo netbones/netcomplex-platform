@@ -162,7 +162,7 @@ export function TurnstileWidget({ siteKey, theme = 'auto', size = 'normal' }: Tu
 export async function verifyTurnstile(token: string): Promise<boolean> {
   const secretKey = process.env.TURNSTILE_SECRET_KEY;
   if (!secretKey) {
-    console.warn('TURNSTILE_SECRET_KEY not configured, skipping verification');
+    log.warn('TURNSTILE_SECRET_KEY not configured, skipping verification');
     return true;
   }
 

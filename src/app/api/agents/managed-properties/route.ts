@@ -3,6 +3,7 @@ import { auth } from '@api/auth';
 import { db, agentAccesses, users, properties } from '@api/db';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
+import { apiLogger } from '@shared/lib';
 
 export const maxDuration = 8;
 
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ properties: managedProperties });
   } catch (error) {
-    console.error('Failed to fetch managed properties:', error);
+    apiLogger.error({ error }, 'Failed to fetch managed properties');
     return NextResponse.json({ error: 'Failed to fetch properties' }, { status: 500 });
   }
 }

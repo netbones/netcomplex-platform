@@ -1,5 +1,8 @@
 import type { ComponentType } from 'react';
 import type { WidgetManifest } from './types';
+import { createComponentLogger } from '@shared/lib';
+
+const log = createComponentLogger('WidgetRegistry');
 
 /**
  * Widget component type - for backward compatibility
@@ -31,7 +34,7 @@ class WidgetRegistry {
    */
   register(manifest: WidgetManifest): void {
     if (this.manifests.has(manifest.id)) {
-      console.warn(`[WidgetRegistry] Overwriting widget: ${manifest.id}`);
+      log.warn('Overwriting widget: %s', manifest.id);
     }
     this.manifests.set(manifest.id, manifest);
   }

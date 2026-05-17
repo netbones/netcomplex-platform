@@ -8,7 +8,9 @@ import { useServiceFilter } from '@features/service';
 import { ServicesGrid } from '@widgets/service';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@shared/ui';
-import { STREETS } from '@shared/lib';
+import { STREETS, createComponentLogger } from '@shared/lib';
+
+const log = createComponentLogger('DirectoryPage');
 
 export function DirectoryPage() {
   const { t } = useTranslation(['common', 'directory']);
@@ -70,7 +72,7 @@ export function DirectoryPage() {
   }
 
   const handleServiceInquiry = (serviceId: string) => {
-    console.log('Inquiring about service:', serviceId);
+    log.debug('Inquiring about service: %s', serviceId);
   };
 
   const renderResidentsTab = () => (

@@ -3,6 +3,9 @@
 import { useState, useRef } from 'react';
 import { supabase } from '@shared/api/supabase';
 import { MaintenanceRequestForm, MaintenancePriority } from '@entities/maintenance';
+import { createComponentLogger } from '@shared/lib';
+
+const log = createComponentLogger('useMaintenanceForm');
 
 export const categories = [
   { value: 'plumbing', label: 'Plumbing' },
@@ -72,7 +75,7 @@ export function useMaintenanceForm(onSubmit?: (data: MaintenanceRequestForm) => 
           });
 
         if (uploadError) {
-          console.error('Upload error:', uploadError);
+          log.error({ uploadError }, 'Upload error');
           continue;
         }
 
@@ -91,7 +94,7 @@ export function useMaintenanceForm(onSubmit?: (data: MaintenanceRequestForm) => 
         }));
       }
     } catch (err) {
-      console.error('Upload error:', err);
+      log.error({ err }, 'Upload error');
       setError('Failed to upload images. Please try again.');
     } finally {
       setUploading(false);

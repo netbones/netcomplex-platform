@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { createComponentLogger } from '@shared/lib';
+
+const log = createComponentLogger('WidgetStore');
 
 export interface WidgetLayout {
   x: number;
@@ -202,7 +205,7 @@ export const useWidgetStore = create<WidgetStore>()(
             isHydratedFromDb: true,
           });
         } catch (err) {
-          console.error('[WidgetStore] Failed to hydrate from DB', err);
+          log.error({ err }, 'Failed to hydrate from DB');
           set({ isHydratedFromDb: true });
         }
       },
@@ -225,7 +228,7 @@ export const useWidgetStore = create<WidgetStore>()(
             throw new Error(`Failed to save layout: ${response.status}`);
           }
         } catch (err) {
-          console.error('[WidgetStore] Failed to save to DB', err);
+          log.error({ err }, 'Failed to save to DB');
         }
       },
     }),

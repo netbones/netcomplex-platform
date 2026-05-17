@@ -8,6 +8,7 @@ import { NextResponse } from 'next/server';
 import { db, tenantModules, platformModules, tenants } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
 import type { TenantTier } from '@entities/tenant';
+import { apiLogger } from '@shared/lib';
 
 const TIER_ORDER: Record<TenantTier, number> = {
   STANDARD: 1,
@@ -66,7 +67,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
     return NextResponse.json(enabled);
   } catch (error) {
-    console.error('Failed to fetch tenant modules:', error);
+    apiLogger.error({ error }, 'Failed to fetch tenant modules');
     return NextResponse.json({ error: 'Failed to fetch modules' }, { status: 500 });
   }
 }

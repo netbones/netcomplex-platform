@@ -6,7 +6,7 @@ const log = createComponentLogger('Turnstile');
 export async function verifyTurnstile(token: string): Promise<boolean> {
   const secretKey = ENV.TURNSTILE_SECRET_KEY;
   if (!secretKey) {
-    console.warn('TURNSTILE_SECRET_KEY not configured, skipping verification');
+    log.warn('TURNSTILE_SECRET_KEY not configured, skipping verification');
     return true;
   }
 

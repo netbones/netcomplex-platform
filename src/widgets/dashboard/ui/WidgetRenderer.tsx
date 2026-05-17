@@ -6,8 +6,11 @@ import { ReactNode, Suspense } from 'react';
 import type { Tenant } from '@entities/tenant';
 import { isFeatureEnabled } from '@entities/tenant/api/features/registry';
 import { ErrorBoundary } from '@shared/ui';
+import { createComponentLogger } from '@shared/lib';
 import { registry } from '../model/registry';
 import type { WidgetManifest } from '../model/types';
+
+const log = createComponentLogger('WidgetRenderer');
 
 interface WidgetRendererProps {
   widgetId: string;
@@ -30,7 +33,7 @@ function _canRenderWidget(widgetId: string, tenant: Tenant | null): boolean {
   // If no tenant context, show all widgets (e.g., public pages)
   if (!tenant) {
     if (process.env.NODE_ENV === 'development') {
-      console.debug('[WidgetRenderer] No tenant context, showing all widgets');
+      log.debug('No tenant context, showing all widgets');
     }
     return true;
   }

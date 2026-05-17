@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { OnboardingStep } from '../OnboardingStep';
 import type { OnboardingFormData } from '../../model/useOnboarding';
+import { createComponentLogger } from '@shared/lib';
+
+const log = createComponentLogger('InviteStep');
 
 interface StepProps {
   loading: boolean;
@@ -87,7 +90,7 @@ export function InviteStep({
 
     setSaving(false);
     if (errors.length > 0) {
-      console.error('Invitation errors:', errors);
+      log.error({ errors }, 'Invitation errors');
     }
     onNext();
   };
