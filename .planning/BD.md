@@ -1,8 +1,8 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-05-17
-> **Total remaining:** 32 issues (down from 54)
-> **Closed this session:** 22 issues
+> **Last updated:** 2026-05-17 (Session 2)
+> **Total remaining:** 27 issues (down from 54)
+> **Closed this session:** 27 issues total (22 in Session 1, 5 in Session 2)
 
 ## Summary by Priority
 
@@ -98,7 +98,19 @@
 
 ---
 
-## Closed This Session (22 issues)
+## Closed This Session (27 issues)
+
+### Session 2 - High Priority (5 issues)
+
+| ID    | Title                                                | Reason                                                                                                                      |
+| ----- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `ywr` | Debug and test authentication login/sign-up flow     | Fixed: added /reset-password page, stored reset token in DB, fixed sign-up to use API route, added Turnstile token callback |
+| `uou` | SEO-friendly public profile links                    | Implemented: profileSlug generated on signup, API resolves both UUIDs and slugs                                             |
+| `dlc` | Implement BookshelfWidget and MediaWidget            | Already implemented: both widgets have full CRUD functionality                                                              |
+| `utj` | Add admin household management page                  | Implemented: GET /api/households + /admin/households page with search, pagination                                           |
+| `og6` | Determine bookings data flow to maintenance services | Research complete: No data flow exists - independent features                                                               |
+
+### Session 1 - Performance & Verification (22 issues)
 
 ### Completed
 
@@ -146,8 +158,8 @@
 
 ## Recommended Next Actions
 
-1. **`ywr`** — Debug auth login/sign-up flow (core functionality)
-2. **`yml`** — Implement bot protection with captcha (security)
-3. **`utj`** — Add admin household management page (feature gap)
-4. **`c3y`** — Fix ESLint any type errors (tech debt, in-progress)
-5. **`6d8`** — Migrate React imports to Preact (performance)
+1. **`yml`** — Implement bot protection with captcha (security - Turnstile already wired, needs verification on all auth routes)
+2. **`c3y`** — Fix ESLint any type errors (tech debt, in-progress)
+3. **`6d8`** — Migrate React imports to Preact (performance)
+4. **`l23`** — Epic: i18n for all pages (large scope)
+5. **`71p`** — Continue improving test coverage (epic)
