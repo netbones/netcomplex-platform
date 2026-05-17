@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { router } from '@api/trpc/server';
+import { router, publicProcedure, protectedProcedure, adminProcedure } from '@api/trpc/server';
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import {
@@ -42,7 +42,7 @@ const householdSchema = z.object({
   propertyId: z.string(),
   occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
   status: z.enum(['ACTIVE', 'ARCHIVED']),
-  moveInDate: z.date(),
+  moveInDate: z.date().nullable(),
   moveOutDate: z.date().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -59,12 +59,18 @@ const profileSchema = z.object({
   residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER_RESIDENT']),
   avatar: z.string().nullable(),
   occupantSince: z.date(),
-  status: z.enum(['ACTIVE', 'REMOVED']),
+  status: z.enum(['ACTIVE', 'UPGRADED', 'REMOVED', 'EVICTED', 'LEASE_ENDED']),
   isPublic: z.boolean(),
   showEmail: z.boolean(),
   showPhone: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  organizationId: z.string().nullable(),
+  occupantImage: z.string().nullable(),
+  rentalImage: z.string().nullable(),
+  landlordId: z.string().nullable(),
+  leaseStartDate: z.date().nullable(),
+  leaseEndDate: z.date().nullable(),
 });
 
 const userSchema = z.object({
@@ -79,8 +85,14 @@ const userSchema = z.object({
 
 const soloSeatSchema = z.object({
   id: z.string(),
-  propertyId: z.string(),
+  tenantId: z.string(),
   userId: z.string(),
+  platformAddress: z.string(),
+  propertyId: z.string().nullable(),
+  seatType: z.string(),
+  isComplimentary: z.boolean(),
+  linkedFromProfileId: z.string().nullable(),
+  organizationId: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -98,8 +110,7 @@ const agentAccessSchema = z.object({
 export const identityRouter = router({
   // ============ PROPERTIES (The Assets) ============
 
-  listProperties: openApiAdminProcedure
-    .meta({ openapi: { method: 'GET', path: '/properties', tags: ['Properties'] } })
+  listProperties: adminProcedure
     .input(
       z
         .object({
@@ -186,8 +197,7 @@ export const identityRouter = router({
       return { properties: propertiesWithRelations, total, page: page || 1, limit: limitVal };
     }),
 
-  getProperty: openApiProtectedProcedure
-    .meta({ openapi: { method: 'GET', path: '/properties/{id}', tags: ['Properties'] } })
+  getProperty: protectedProcedure
     .input(z.object({ id: z.string() }))
     .output(
       z.object({
@@ -208,7 +218,7 @@ export const identityRouter = router({
             propertyId: z.string(),
             occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
             status: z.enum(['ACTIVE', 'ARCHIVED']),
-            moveInDate: z.date(),
+            moveInDate: z.date().nullable(),
             moveOutDate: z.date().nullable(),
             createdAt: z.date(),
             updatedAt: z.date(),
@@ -273,8 +283,7 @@ export const identityRouter = router({
       };
     }),
 
-  createProperty: openApiAdminProcedure
-    .meta({ openapi: { method: 'POST', path: '/properties', tags: ['Properties'] } })
+  createProperty: adminProcedure
     .input(
       z.object({
         street: z.string().min(1),
@@ -316,10 +325,7 @@ export const identityRouter = router({
 
   // ============ HOUSEHOLDS (The Occupancies) ============
 
-  listHouseholds: openApiProtectedProcedure
-    .meta({
-      openapi: { method: 'GET', path: '/properties/{propertyId}/households', tags: ['Households'] },
-    })
+  listHouseholds: protectedProcedure
     .input(z.object({ propertyId: z.string() }))
     .output(z.array(householdSchema))
     .query(async ({ input }) => {
@@ -330,8 +336,7 @@ export const identityRouter = router({
         .orderBy(desc(households.moveInDate));
     }),
 
-  createHousehold: openApiProtectedProcedure
-    .meta({ openapi: { method: 'POST', path: '/households', tags: ['Households'] } })
+  createHousehold: protectedProcedure
     .input(
       z.object({
         propertyId: z.string(),
@@ -370,8 +375,7 @@ export const identityRouter = router({
       return created;
     }),
 
-  getMyProperties: openApiProtectedProcedure
-    .meta({ openapi: { method: 'GET', path: '/my/properties', tags: ['Properties'] } })
+  getMyProperties: protectedProcedure
     .output(
       z.array(
         z.object({
@@ -391,7 +395,7 @@ export const identityRouter = router({
               propertyId: z.string(),
               occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
               status: z.enum(['ACTIVE', 'ARCHIVED']),
-              moveInDate: z.date(),
+              moveInDate: z.date().nullable(),
               moveOutDate: z.date().nullable(),
               createdAt: z.date(),
               updatedAt: z.date(),
@@ -467,8 +471,7 @@ export const identityRouter = router({
 
   // ============ PROFILES (Resident Participation) ============
 
-  createProfile: openApiProtectedProcedure
-    .meta({ openapi: { method: 'POST', path: '/profiles', tags: ['Profiles'] } })
+  createProfile: protectedProcedure
     .input(
       z.object({
         householdId: z.string(),
@@ -524,8 +527,7 @@ export const identityRouter = router({
       return created;
     }),
 
-  updateProfile: openApiProtectedProcedure
-    .meta({ openapi: { method: 'PATCH', path: '/profiles/{id}', tags: ['Profiles'] } })
+  updateProfile: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -551,8 +553,7 @@ export const identityRouter = router({
       return updated;
     }),
 
-  getProfile: openApiPublicProcedure
-    .meta({ openapi: { method: 'GET', path: '/profiles/{id}', tags: ['Profiles'] } })
+  getProfile: publicProcedure
     .input(z.object({ id: z.string() }))
     .output(
       z
@@ -567,7 +568,7 @@ export const identityRouter = router({
           residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER_RESIDENT']),
           avatar: z.string().nullable(),
           occupantSince: z.date(),
-          status: z.enum(['ACTIVE', 'REMOVED']),
+          status: z.enum(['ACTIVE', 'UPGRADED', 'REMOVED', 'EVICTED', 'LEASE_ENDED']),
           isPublic: z.boolean(),
           showEmail: z.boolean(),
           showPhone: z.boolean(),
@@ -580,7 +581,7 @@ export const identityRouter = router({
               propertyId: z.string(),
               occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
               status: z.enum(['ACTIVE', 'ARCHIVED']),
-              moveInDate: z.date(),
+              moveInDate: z.date().nullable(),
               moveOutDate: z.date().nullable(),
               createdAt: z.date(),
               updatedAt: z.date(),
@@ -620,14 +621,20 @@ export const identityRouter = router({
 
   // ============ SOLO SEATS ============
 
-  getMySoloSeat: openApiProtectedProcedure
+  getMySoloSeat: protectedProcedure
     .meta({ openapi: { method: 'GET', path: '/my/solo-seat', tags: ['Solo Seats'] } })
     .output(
       z
         .object({
           id: z.string(),
-          propertyId: z.string(),
+          tenantId: z.string(),
           userId: z.string(),
+          platformAddress: z.string(),
+          propertyId: z.string().nullable(),
+          seatType: z.string(),
+          isComplimentary: z.boolean(),
+          linkedFromProfileId: z.string().nullable(),
+          organizationId: z.string().nullable(),
           createdAt: z.date(),
           updatedAt: z.date(),
           property: propertySchema.nullable(),
@@ -651,14 +658,14 @@ export const identityRouter = router({
 
   // ============ AGENT ACCESS ============
 
-  getAgentAccesses: openApiProtectedProcedure
+  getAgentAccesses: protectedProcedure
     .meta({ openapi: { method: 'GET', path: '/my/agent-accesses', tags: ['Agent Access'] } })
     .output(z.array(agentAccessSchema))
     .query(async ({ ctx }) => {
       return db.select().from(agentAccesses).where(eq(agentAccesses.agentId, ctx.userId!));
     }),
 
-  getPropertyAgentAccesses: openApiProtectedProcedure
+  getPropertyAgentAccesses: protectedProcedure
     .meta({
       openapi: {
         method: 'GET',
