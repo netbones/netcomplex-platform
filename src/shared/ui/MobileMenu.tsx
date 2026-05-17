@@ -25,7 +25,7 @@ export function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProps) {
   const { data: session } = authClient.useSession();
   const { flags } = usePageFlags();
   const isAdminUser = isAdmin(session?.user?.role);
-  const isBoard = session?.user?.role === 'board';
+  const isBoard = session?.user?.role === 'BOARD';
   const isLoggedIn = !!session;
 
   if (!isOpen) return null;

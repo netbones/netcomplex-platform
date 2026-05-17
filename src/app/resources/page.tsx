@@ -262,11 +262,18 @@ function ResourceCard({
           <i className={`fas ${fileIcon} text-blue-600 text-xl mr-3`}></i>
           <h3 className="text-lg font-semibold text-gray-900">{resource.title}</h3>
         </div>
-        {resource.version && (
-          <span className="bg-indigo-100 text-indigo-700 text-xs font-medium px-2 py-1 rounded-full">
-            v{resource.version}
-          </span>
-        )}
+        <div className="flex gap-1 items-start">
+          {resource.visibility && resource.visibility !== 'ALL_RESIDENTS' && (
+            <span className="bg-amber-100 text-amber-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border border-amber-200 whitespace-nowrap">
+              {resource.visibility.replace('_ONLY', '').replace('_', ' ')}
+            </span>
+          )}
+          {resource.version && (
+            <span className="bg-indigo-100 text-indigo-700 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
+              v{resource.version}
+            </span>
+          )}
+        </div>
       </div>
 
       {resource.description && (

@@ -7,7 +7,7 @@ import { revalidateConversations } from '@api/revalidation';
 import { apiLogger } from '@shared/lib';
 
 // Drizzle imports - use db.ts exports
-import { db, messages, users, premiumSeats } from '@api/db';
+import { db, messages, users, premiumSeats, conversationParticipants } from '@api/db';
 import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
@@ -64,7 +64,25 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Conversation ID required' }, { status: 400 });
   }
 
-  // TODO: Add conversation access control - verify user has access to this conversation
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
+  // Verify user has access to this conversation
+  const [participant] = await db
+    .select({ id: conversationParticipants.id })
+    .from(conversationParticipants)
+    .where(
+      and(
+        eq(conversationParticipants.conversationId, conversationId),
+        eq(conversationParticipants.userId, authData.userId),
+        eq(conversationParticipants.tenantId, tenantId)
+      )
+    )
+    .limit(1);
+
+  if (!participant && authData.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+  }
 
   // Drizzle query with relation join for sender
   const result = await db
@@ -129,7 +147,22 @@ export async function POST(request: Request) {
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
 
-    // TODO: Add conversation access control - verify user has access to this conversation
+    // Verify user has access to this conversation
+    const [participant] = await db
+      .select({ id: conversationParticipants.id })
+      .from(conversationParticipants)
+      .where(
+        and(
+          eq(conversationParticipants.conversationId, conversationId),
+          eq(conversationParticipants.userId, authData.userId),
+          eq(conversationParticipants.tenantId, tenantId)
+        )
+      )
+      .limit(1);
+
+    if (!participant && authData.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
 
     // Check for PremiumSeat to determine retention period (using Drizzle)
     const [premiumSeat] = await db

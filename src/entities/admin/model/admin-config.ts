@@ -38,6 +38,18 @@ export const ADMIN_TABS: DashboardTab[] = [
     defaultWidgets: ['admin-events', 'admin-quick-links'],
   },
   {
+    id: 'competitions',
+    label: 'Competitions',
+    icon: 'fa-star',
+    defaultWidgets: ['admin-competitions', 'admin-stats'],
+  },
+  {
+    id: 'resources',
+    label: 'Resources',
+    icon: 'fa-file-pdf',
+    defaultWidgets: ['admin-resources', 'admin-stats'],
+  },
+  {
     id: 'surveys',
     label: 'Surveys',
     icon: 'fa-poll',
@@ -64,6 +76,8 @@ export const ALL_ADMIN_WIDGETS: AdminWidget[] = [
   { id: 'admin-users', label: 'User Overview', icon: 'fa-users' },
   { id: 'admin-content', label: 'Content Overview', icon: 'fa-file-alt' },
   { id: 'admin-events', label: 'Upcoming Events', icon: 'fa-calendar' },
+  { id: 'admin-competitions', label: 'Competitions List', icon: 'fa-star' },
+  { id: 'admin-resources', label: 'Resources List', icon: 'fa-file-pdf' },
   { id: 'admin-surveys', label: 'Survey Overview', icon: 'fa-poll' },
   { id: 'admin-system', label: 'System Status', icon: 'fa-cog' },
   { id: 'moderation-queue', label: 'Moderation Queue', icon: 'fa-shield-alt' },
@@ -92,6 +106,8 @@ export function getAdminWidgetSize(widgetId: string): 'small' | 'medium' | 'larg
     case 'admin-users':
     case 'admin-content':
     case 'admin-system':
+    case 'admin-competitions':
+    case 'admin-resources':
     case 'maintenance-analytics':
       return 'large';
     case 'admin-quick-links':

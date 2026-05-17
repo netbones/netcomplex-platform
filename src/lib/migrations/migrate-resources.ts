@@ -1,5 +1,6 @@
 /**
  * Migration script: Content RESOURCE -> Resource model
+ * status: COMPLETED (2026-05-16) - Verified zero records in Content table.
  *
  * Converts all Content records with category=RESOURCE into the new Resource model.
  * Original Content records are NOT deleted — left for manual verification.
@@ -7,8 +8,22 @@
  * Usage: npx tsx src/lib/migrations/migrate-resources.ts
  */
 
-import { db, contents, resources } from '@api/db';
+import 'dotenv/config';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 import { eq } from 'drizzle-orm';
+
+// Import schemas directly
+import { contents } from '../../db/schema/contents';
+import { resources } from '../../db/schema/resources';
+
+const connectionString = (process.env.DATABASE_URL ?? '').replace(
+  'sslmode=require',
+  'sslmode=no-verify'
+);
+
+const pool = new Pool({ connectionString });
+const db = drizzle(pool);
 
 interface ContentRecord {
   id: string;

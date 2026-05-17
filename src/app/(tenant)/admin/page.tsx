@@ -12,6 +12,7 @@ import {
   getWidgetIcon,
   getAvailableAdminWidgets,
 } from '@/entities/admin/model/admin-config';
+import { authClient } from '@api/auth-client';
 import { useWidgetStore } from '@/entities/widget/model/widget-store';
 import { toast } from 'sonner';
 
@@ -22,31 +23,60 @@ export default function AdminDashboardPage() {
   const [showAddWidget, setShowAddWidget] = useState(false);
 
   // Read from zustand store with persist middleware (localStorage)
-  const userWidgets = useWidgetStore(state => state.userWidgets);
-  const addWidgetToTab = useWidgetStore(state => state.addWidgetToTab);
-  const removeWidgetFromTab = useWidgetStore(state => state.removeWidgetFromTab);
-  const setUserWidgets = useWidgetStore(state => state.setUserWidgets);
-  const resetTabToDefaults = useWidgetStore(state => state.resetTabToDefaults);
+  const {
+    userWidgets,
+    layouts,
+    addWidgetToTab,
+    removeWidgetFromTab,
+    setUserWidgets,
+    resetTabToDefaults,
+    hydrateFromDatabase,
+    saveToDatabase,
+    isHydratedFromDb,
+  } = useWidgetStore();
+
+  const { data: session } = authClient.useSession();
+  const userId = session?.user?.id;
+
+  // Hydrate from DB on mount
+  useEffect(() => {
+    if (session?.user?.dashboardLayout && !isHydratedFromDb) {
+      hydrateFromDatabase(session.user.dashboardLayout);
+    }
+  }, [session?.user?.dashboardLayout, isHydratedFromDb, hydrateFromDatabase]);
+
+  // Debounce save to DB on changes
+  useEffect(() => {
+    if (!userId || !isHydratedFromDb) return;
+
+    const timer = setTimeout(() => {
+      saveToDatabase(userId);
+    }, 2000); // 2 second debounce
+
+    return () => clearTimeout(timer);
+  }, [layouts, userWidgets, userId, isHydratedFromDb, saveToDatabase]);
 
   // Derive activeWidgets from store for the current tab
   const currentTab = ADMIN_TABS.find(tab => tab.id === activeTab);
   const activeWidgets = userWidgets[activeTab] || currentTab?.defaultWidgets || [];
 
-  // Initialize userWidgets for all tabs on mount (only if not already saved)
+  // Initialize userWidgets for all tabs on mount (only if not already saved/hydrated)
   useEffect(() => {
-    const needsInit = ADMIN_TABS.some(
-      tab => !userWidgets[tab.id] || userWidgets[tab.id].length === 0
-    );
-    if (needsInit) {
-      const initialized = { ...userWidgets };
-      for (const tab of ADMIN_TABS) {
-        if (!initialized[tab.id] || initialized[tab.id].length === 0) {
-          initialized[tab.id] = tab.defaultWidgets;
+    if (isHydratedFromDb) {
+      const needsInit = ADMIN_TABS.some(
+        tab => !userWidgets[tab.id] || userWidgets[tab.id].length === 0
+      );
+      if (needsInit) {
+        const initialized = { ...userWidgets };
+        for (const tab of ADMIN_TABS) {
+          if (!initialized[tab.id] || initialized[tab.id].length === 0) {
+            initialized[tab.id] = tab.defaultWidgets;
+          }
         }
+        setUserWidgets(initialized);
       }
-      setUserWidgets(initialized);
     }
-  }, []);
+  }, [isHydratedFromDb, userWidgets, setUserWidgets]);
 
   const handleTabChange = useCallback((tabId: string) => {
     setActiveTab(tabId);
@@ -136,6 +166,8 @@ export default function AdminDashboardPage() {
             {activeTab === 'users' && 'User management and account statistics'}
             {activeTab === 'content' && 'Content creation and management tools'}
             {activeTab === 'events' && 'Upcoming events and event management'}
+            {activeTab === 'competitions' && 'Manage community competitions and entries'}
+            {activeTab === 'resources' && 'Manage community resources and documents'}
             {activeTab === 'system' && 'System maintenance and configuration'}
           </div>
         </div>

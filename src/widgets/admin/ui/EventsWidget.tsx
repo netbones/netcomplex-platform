@@ -1,3 +1,7 @@
+/**
+ * Admin management widget — use in /admin routes only.
+ * Displays a management-oriented list of upcoming events.
+ */
 'use client';
 
 import { useState, useEffect } from 'react';

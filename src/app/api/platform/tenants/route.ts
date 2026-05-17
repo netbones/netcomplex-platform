@@ -54,28 +54,8 @@ export async function POST(request: NextRequest) {
     // Get tier configuration
     const tierConfig = TIERS[body.plan];
 
-    // Step 1: Create tenant with ownerId=null (we don't have user id yet)
-    const tenant = await createTenant({
-      id: crypto.randomUUID(),
-      name: body.name,
-      slug: body.slug,
-      customDomain: null,
-      logoUrl: null,
-      faviconUrl: null,
-      primaryColor: '#4F46E5',
-      accentColor: null,
-      secondaryColor: null,
-      fontFamily: null,
-      customCss: null,
-      active: true,
-      subscriptionTier: body.plan,
-      tier: 'STANDARD',
-      maxPages: tierConfig.maxPages,
-      pageCount: 0,
-      featureFlags: {},
-    });
-
-    // Step 2: Create admin user via Better Auth (handles password hashing)
+    // Step 1: Create admin user via Better Auth (handles password hashing)
+    // We do this first because Better Auth handles its own internal transaction
     const authResponse = await fetch(`${BETTER_AUTH_URL}/api/auth/sign-up/email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -87,8 +67,6 @@ export async function POST(request: NextRequest) {
     });
 
     if (!authResponse.ok) {
-      // Better Auth signup failed — clean up the tenant we just created
-      await db.delete(tenants).where(eq(tenants.id, tenant.id));
       const authError = await authResponse.json();
       if (authResponse.status === 422) {
         return NextResponse.json({ error: 'Email address is already registered' }, { status: 409 });
@@ -103,38 +81,70 @@ export async function POST(request: NextRequest) {
     const userId = authData.user?.id;
 
     if (!userId) {
-      await db.delete(tenants).where(eq(tenants.id, tenant.id));
       return NextResponse.json(
         { error: 'Failed to retrieve user id from auth response' },
         { status: 500 }
       );
     }
 
-    // Step 3: Atomic update — set user's tenantId and tenant's ownerId
-    await db.transaction(async tx => {
-      await tx
-        .update(users)
-        .set({
-          tenantId: tenant.id,
-          role: 'ADMIN',
-          isPlatformAdmin: false,
-        })
-        .where(eq(users.id, userId));
+    let tenantId: string | undefined;
 
-      await tx.update(tenants).set({ ownerId: userId }).where(eq(tenants.id, tenant.id));
-    });
+    try {
+      // Step 2: Atomic transaction for tenant creation and role assignment
+      await db.transaction(async tx => {
+        const newTenantId = crypto.randomUUID();
+        tenantId = newTenantId;
+
+        // Create the tenant
+        await tx.insert(tenants).values({
+          id: newTenantId,
+          name: body.name,
+          slug: body.slug,
+          customDomain: null,
+          logoUrl: null,
+          faviconUrl: null,
+          primaryColor: '#4F46E5',
+          accentColor: null,
+          secondaryColor: null,
+          fontFamily: null,
+          customCss: null,
+          active: true,
+          subscriptionTier: body.plan,
+          tier: 'STANDARD',
+          maxPages: tierConfig.maxPages,
+          pageCount: 0,
+          featureFlags: {},
+          ownerId: userId,
+        });
+
+        // Update the user to link to the tenant and set ADMIN role
+        await tx
+          .update(users)
+          .set({
+            tenantId: newTenantId,
+            role: 'ADMIN',
+            isPlatformAdmin: false,
+          })
+          .where(eq(users.id, userId));
+      });
+    } catch (err) {
+      // If the transaction fails, we must clean up the user created in Step 1
+      // to avoid leaving a stranded user without a tenant.
+      await db.delete(users).where(eq(users.id, userId));
+      throw err;
+    }
 
     // Fetch the fully-linked tenant for response
-    const linkedTenant = await getTenantById(tenant.id);
+    const linkedTenant = await getTenantById(tenantId!);
 
     return NextResponse.json(
       {
-        tenantId: tenant.id,
+        tenantId: tenantId,
         tenant: {
-          id: tenant.id,
-          name: tenant.name,
-          slug: tenant.slug,
-          subscriptionTier: tenant.subscriptionTier,
+          id: tenantId,
+          name: body.name,
+          slug: body.slug,
+          subscriptionTier: body.plan,
         },
         user: {
           id: userId,

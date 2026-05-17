@@ -88,11 +88,18 @@ export async function proxy(request: Request): Promise<NextResponse> {
           const assistSession = activeSession[0];
           // Enforce scope restriction
           if (assistSession.scope === 'metadata') {
-            if (request.method !== 'GET') {
+            // Metadata scope is read-only for tenant metadata fields
+            // Block all mutations and access to sensitive sub-resources
+            const isRestrictedPath =
+              pathname.includes('/users') ||
+              pathname.includes('/content') ||
+              pathname.includes('/settings');
+
+            if (request.method !== 'GET' || isRestrictedPath) {
               return NextResponse.json(
                 {
                   error:
-                    'Assist session is metadata-read-only. Use tenant admin panel for modifications.',
+                    'Assist session is metadata-read-only. Access to users, content, and settings is restricted.',
                 },
                 { status: 403 }
               );

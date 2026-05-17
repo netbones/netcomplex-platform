@@ -11,7 +11,9 @@ import { AdminSystemWidget } from './AdminSystemWidget';
 import { MarketplaceAnalyticsWidget, ServiceQualityWidget } from '@widgets/service';
 import { MaintenanceRequestsWidget, MaintenanceAnalyticsWidget } from '@widgets/maintenance';
 import { PageSettingsWidget } from './PageSettingsWidget';
-import { EventsWidget } from './EventsWidget';
+import { EventsWidget as AdminEventsWidget } from './EventsWidget';
+import { CompetitionList } from './CompetitionList';
+import { ResourceList } from './ResourceList';
 import { SurveysWidget } from './SurveysWidget';
 import { GroupModerationWidgetWithErrorBoundary } from './GroupModerationWidget';
 
@@ -44,7 +46,11 @@ export function AdminWidgetRenderer({ widgetId }: WidgetRendererProps): ReactNod
     case 'page-settings':
       return <PageSettingsWidget />;
     case 'admin-events':
-      return <EventsWidget />;
+      return <AdminEventsWidget />;
+    case 'admin-competitions':
+      return <CompetitionList />;
+    case 'admin-resources':
+      return <ResourceList />;
     case 'admin-surveys':
       return <SurveysWidget />;
     case 'group-moderation':

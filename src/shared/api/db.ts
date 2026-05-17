@@ -148,6 +148,10 @@ function getDb() {
   return dbInstance;
 }
 
+/**
+ * Singleton Drizzle client instance.
+ * All application queries should use this exported 'db' instance.
+ */
 export const db = new Proxy({} as ReturnType<typeof drizzle>, {
   get(_target, prop) {
     return getDb()[prop as keyof ReturnType<typeof drizzle>];

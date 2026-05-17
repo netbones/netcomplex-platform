@@ -53,6 +53,11 @@ interface WidgetStore {
 
   // Reset a specific tab to its default widget configuration
   resetTabToDefaults: (tabId: string, defaultWidgets: string[]) => void;
+
+  // Database synchronization
+  hydrateFromDatabase: (layout: string | null) => void;
+  saveToDatabase: (userId: string) => Promise<void>;
+  isHydratedFromDb: boolean;
 }
 
 // Stable default layout to prevent infinite re-renders
@@ -69,6 +74,7 @@ export const useWidgetStore = create<WidgetStore>()(
     (set, get) => ({
       layouts: {},
       userWidgets: {},
+      isHydratedFromDb: false,
 
       getWidgetLayout: (tabId: string, widgetId: string) => {
         const tabLayouts = get().layouts[tabId];
@@ -180,6 +186,47 @@ export const useWidgetStore = create<WidgetStore>()(
             [tabId]: {},
           },
         }));
+      },
+
+      hydrateFromDatabase: (layout: string | null) => {
+        if (!layout) {
+          set({ isHydratedFromDb: true });
+          return;
+        }
+
+        try {
+          const parsed = typeof layout === 'string' ? JSON.parse(layout) : layout;
+          set({
+            layouts: parsed.layouts || {},
+            userWidgets: parsed.userWidgets || {},
+            isHydratedFromDb: true,
+          });
+        } catch (err) {
+          console.error('[WidgetStore] Failed to hydrate from DB', err);
+          set({ isHydratedFromDb: true });
+        }
+      },
+
+      saveToDatabase: async (userId: string) => {
+        const { layouts, userWidgets, isHydratedFromDb } = get();
+
+        // Don't save if we haven't hydrated from DB yet (prevents overwriting DB with default local state)
+        if (!isHydratedFromDb) return;
+
+        try {
+          const dashboardLayout = JSON.stringify({ layouts, userWidgets });
+          const response = await fetch(`/api/users/${userId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dashboardLayout }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to save layout: ${response.status}`);
+          }
+        } catch (err) {
+          console.error('[WidgetStore] Failed to save to DB', err);
+        }
       },
     }),
     {

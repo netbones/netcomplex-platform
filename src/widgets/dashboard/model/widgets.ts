@@ -174,6 +174,116 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   });
 
   registry.register({
+    id: 'admin-events',
+    version: '1.0.0',
+    name: 'Admin Events',
+    description: 'Management summary of community events',
+    author: 'internal',
+    category: 'core',
+    icon: Calendar,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../../admin/ui/EventsWidget').then(m => ({ default: m.EventsWidget }))
+    ),
+    loader: () => import('../../admin/ui/EventsWidget'),
+    defaultSize: { width: 3, height: 2 },
+    minSize: { width: 2, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'admin-surveys',
+    version: '1.0.0',
+    name: 'Admin Surveys',
+    description: 'Management summary of community surveys',
+    author: 'internal',
+    category: 'core',
+    icon: FileText,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../../admin/ui/SurveysWidget').then(m => ({ default: m.SurveysWidget }))
+    ),
+    loader: () => import('../../admin/ui/SurveysWidget'),
+    defaultSize: { width: 3, height: 2 },
+    minSize: { width: 2, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'group-moderation',
+    version: '1.0.0',
+    name: 'Group Moderation',
+    description: 'Pending group membership requests',
+    author: 'internal',
+    category: 'core',
+    icon: User,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../../admin/ui/GroupModerationWidget').then(m => ({
+        default: m.GroupModerationWidgetWithErrorBoundary,
+      }))
+    ),
+    loader: () => import('../../admin/ui/GroupModerationWidget'),
+    defaultSize: { width: 3, height: 3 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'page-settings',
+    version: '1.0.0',
+    name: 'Page Settings',
+    description: 'Configure tenant page flags and visibility',
+    author: 'internal',
+    category: 'core',
+    icon: Settings,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../../admin/ui/PageSettingsWidget').then(m => ({ default: m.PageSettingsWidget }))
+    ),
+    loader: () => import('../../admin/ui/PageSettingsWidget'),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 3, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'admin-competitions',
+    version: '1.0.0',
+    name: 'Competitions List',
+    description: 'Full list of community competitions',
+    author: 'internal',
+    category: 'core',
+    icon: Star,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../../admin/ui/CompetitionList').then(m => ({ default: m.CompetitionList }))
+    ),
+    loader: () => import('../../admin/ui/CompetitionList'),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 3, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'admin-resources',
+    version: '1.0.0',
+    name: 'Resources List',
+    description: 'Full list of community resources',
+    author: 'internal',
+    category: 'core',
+    icon: FileText,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../../admin/ui/ResourceList').then(m => ({ default: m.ResourceList }))
+    ),
+    loader: () => import('../../admin/ui/ResourceList'),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 3, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
     id: 'my-content',
     version: '1.0.0',
     name: 'My Content',

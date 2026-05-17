@@ -1,3 +1,7 @@
+/**
+ * Resident-facing events summary widget — use in resident dashboard.
+ * Displays a lightweight summary of upcoming events for residents.
+ */
 'use client';
 
 import Link from 'next/link';
