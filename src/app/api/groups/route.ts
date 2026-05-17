@@ -5,6 +5,8 @@ import { eq, asc, sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+export const maxDuration = 8;
+
 /**
  * Retrieves session and role from the request for API routes.
  * @param request - Incoming HTTP request
