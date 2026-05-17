@@ -1,5 +1,3 @@
-'use client';
-
 interface NotificationsWidgetProps {
   count?: number;
 }

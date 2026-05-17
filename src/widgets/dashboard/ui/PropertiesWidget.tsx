@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { Property } from '@entities/tenant/model/types';
