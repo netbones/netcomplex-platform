@@ -6,6 +6,8 @@ import { eq, and, or, asc, ilike, count } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+export const maxDuration = 8;
+
 /**
  * Retrieves session and role from the request for API routes.
  * @param request - Incoming HTTP request
