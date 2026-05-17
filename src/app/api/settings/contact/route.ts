@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db, settings } from '@api/db';
-import { eq, like } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { withTenant, withTenantOptional } from '@entities/tenant/api/with-tenant';
 
 export async function GET() {

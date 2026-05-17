@@ -2,7 +2,7 @@ import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, users, settings } from '@api/db';
 import { NextResponse } from 'next/server';
-import { eq, like } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
 async function getSessionAndRole(request: Request) {
