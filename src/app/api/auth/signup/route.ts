@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logError } from '@shared/lib';
+import { verifyTurnstile } from '@shared/api/turnstile';
 
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 /**
- * User signup endpoint with welcome email.
- * Forwards to Better Auth's sign-up handler, then sends welcome email.
+ * User signup endpoint with welcome email and bot protection.
+ * Verifies Turnstile token, forwards to Better Auth's sign-up handler, then sends welcome email.
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password, name } = body;
+    const { email, password, name, turnstileToken } = body;
 
     // Validate required fields
     if (!email || !password || !name) {
@@ -18,6 +19,17 @@ export async function POST(request: NextRequest) {
         { error: 'Email, password, and name are required' },
         { status: 400 }
       );
+    }
+
+    // Verify Turnstile token if provided
+    if (turnstileToken) {
+      const isHuman = await verifyTurnstile(turnstileToken);
+      if (!isHuman) {
+        return NextResponse.json(
+          { error: 'Bot verification failed. Please try again.' },
+          { status: 403 }
+        );
+      }
     }
 
     // Forward to Better Auth's sign-up endpoint

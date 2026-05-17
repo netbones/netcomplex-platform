@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { authClient } from '@api/auth-client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -14,6 +14,8 @@ export default function SignUpPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [turnstileSiteKey, setTurnstileSiteKey] = useState<string>('');
+  const [turnstileToken, setTurnstileToken] = useState<string>('');
+  const turnstileRef = useRef<{ getToken: () => string } | null>(null);
 
   useEffect(() => {
     setTurnstileSiteKey(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '');
@@ -25,16 +27,18 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      const { data, error } = await authClient.signUp.email({
-        email,
-        password,
-        name,
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name, turnstileToken }),
       });
 
-      if (error) {
-        setError(error.message || 'Failed to sign up');
-      } else {
+      const data = await response.json();
+
+      if (response.ok) {
         router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+      } else {
+        setError(data.error || 'Failed to sign up');
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'An unexpected error occurred';
@@ -95,7 +99,13 @@ export default function SignUpPage() {
             />
           </div>
 
-          {turnstileSiteKey && <TurnstileWidget siteKey={turnstileSiteKey} theme="auto" />}
+          {turnstileSiteKey && (
+            <TurnstileWidget
+              siteKey={turnstileSiteKey}
+              theme="auto"
+              onTokenChange={setTurnstileToken}
+            />
+          )}
 
           <button
             type="submit"

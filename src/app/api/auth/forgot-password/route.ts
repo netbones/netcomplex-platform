@@ -46,9 +46,10 @@ export async function POST(request: NextRequest) {
       .delete(verifications)
       .where(and(eq(verifications.identifier, 'password-reset'), eq(verifications.value, email)));
 
-    // Insert new verification record
+    // Insert new verification record with the token stored in the `id` field
+    // and email in `value` for lookup
     await db.insert(verifications).values({
-      id: crypto.randomUUID(),
+      id: resetToken,
       tenantId: existingUser.tenantId || null,
       identifier: 'password-reset',
       value: email,

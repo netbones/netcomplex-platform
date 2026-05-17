@@ -11,6 +11,7 @@ interface TurnstileOptions {
   theme?: 'light' | 'dark' | 'auto';
   size?: 'normal' | 'compact';
   tabIndex?: number;
+  onTokenChange?: (token: string) => void;
 }
 
 declare global {
@@ -102,10 +103,21 @@ export function useTurnstile(options: TurnstileOptions = {}) {
   };
 }
 
-export function TurnstileWidget({ siteKey, theme = 'auto', size = 'normal' }: TurnstileOptions) {
+export function TurnstileWidget({
+  siteKey,
+  theme = 'auto',
+  size = 'normal',
+  onTokenChange,
+}: TurnstileOptions) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const [token, setToken] = useState<string>('');
+
+  useEffect(() => {
+    if (token && onTokenChange) {
+      onTokenChange(token);
+    }
+  }, [token, onTokenChange]);
 
   useEffect(() => {
     if (!siteKey) return;
