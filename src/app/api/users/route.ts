@@ -51,8 +51,8 @@ export async function GET(request: Request) {
   const limit = Math.min(parseInt(searchParams.get('limit') || '6'), 50);
   const skip = (page - 1) * limit;
 
-  // Build base conditions - always filter by tenant
-  const conditions: SQL<unknown>[] = [eq(users.tenantId, tenantSlug)];
+  // Build base conditions - always filter by tenant and active users only
+  const conditions: SQL<unknown>[] = [eq(users.tenantId, tenantSlug), eq(users.isActive, true)];
 
   if (!canViewAll) {
     conditions.push(eq(users.isPublic, true));
