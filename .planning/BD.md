@@ -1,22 +1,22 @@
 # BD Issue Tracker
 
 > **Last updated:** 2026-05-17 (Session 3)
-> **Total remaining:** 25 issues (down from 54)
-> **Closed this session:** 29 issues total (22 in Session 1, 5 in Session 2, 2 in Session 3)
+> **Total remaining:** 24 issues (down from 54)
+> **Closed this session:** 30 issues total (22 in Session 1, 5 in Session 2, 3 in Session 3)
 
 ## Summary by Priority
 
 | Priority | Open | Focus                         |
 | -------- | ---- | ----------------------------- |
 | P2       | 6    | Core features, epics          |
-| P3       | 13   | Tech debt, Phase 4/5 features |
+| P3       | 12   | Tech debt, Phase 4/5 features |
 | P4       | 6    | Backlog, blocked events       |
 
 ## Summary by Status
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 22    |
+| ○ Open        | 21    |
 | ◐ In Progress | 3     |
 
 ---
@@ -71,10 +71,9 @@
 
 ### In Progress
 
-| ID    | Type | Title                                           | Status |
-| ----- | ---- | ----------------------------------------------- | ------ |
-| `bgb` | epic | Interests Visualization                         | ◐      |
-| `wmm` | task | Improve directory cards with chat functionality | ◐      |
+| ID    | Type | Title                   | Status |
+| ----- | ---- | ----------------------- | ------ |
+| `bgb` | epic | Interests Visualization | ◐      |
 
 ---
 
@@ -99,6 +98,7 @@
 | ----- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `yml` | Implement bot protection with captcha | Fixed: added Turnstile to sign-in, sign-up, forgot-password, reset-password; created /api/auth/signin route with verification |
 | `c3y` | Fix ESLint any type errors            | Fixed: replaced 3 `any` usages with `InferSelectModel` and `InferInsertModel` from drizzle-orm                                |
+| `wmm` | Improve directory cards with chat     | Implemented: created DirectoryChatModal with find-or-create flow, Supabase realtime, wired to card chat buttons               |
 
 ### Session 2 - High Priority (5 issues)
 
