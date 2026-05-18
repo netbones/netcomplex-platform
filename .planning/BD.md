@@ -8,8 +8,8 @@
 
 | Priority | Open | Focus                         |
 | -------- | ---- | ----------------------------- |
-| P2       | 7    | Core features, epics          |
-| P3       | 12   | Tech debt, Phase 4/5 features |
+| P2       | 6    | Core features, epics          |
+| P3       | 13   | Tech debt, Phase 4/5 features |
 | P4       | 6    | Backlog, blocked events       |
 
 ## Summary by Status
@@ -21,15 +21,13 @@
 
 ---
 
-## P2 — High Priority (7 issues)
+## P2 — High Priority (6 issues)
 
 ### Features & Tasks
 
-| ID    | Type | Title                                           | Status |
-| ----- | ---- | ----------------------------------------------- | ------ |
-| `l23` | epic | Epic: i18n for all pages                        | ○      |
-| `bgb` | epic | Interests Visualization                         | ◐      |
-| `wmm` | task | Improve directory cards with chat functionality | ◐      |
+| ID    | Type | Title                    | Status |
+| ----- | ---- | ------------------------ | ------ |
+| `l23` | epic | Epic: i18n for all pages | ○      |
 
 ### Epics
 
@@ -43,13 +41,12 @@
 | ------- | ---------------------------------------------- | ---------- | ------ |
 | `71p.1` | Add tests for API routes                       | `71p`      | ○      |
 | `71p.2` | Add tests for form components                  | `71p`      | ○      |
-| `71p.3` | Add tests for custom hooks                     | `71p`      | ○      |
 | `71p.4` | Add tests for UI components                    | `71p`      | ○      |
 | `0f7`   | i18n: Database content localization for Tiptap | `l23`      | ○      |
 
 ---
 
-## P3 — Medium Priority (12 issues)
+## P3 — Medium Priority (13 issues)
 
 ### Features
 
@@ -60,16 +57,24 @@
 
 ### Tasks
 
-| ID    | Title                                                | Status |
-| ----- | ---------------------------------------------------- | ------ |
-| `jc1` | Implement cookie management for privacy compliance   | ○      |
-| `6d8` | Migrate React imports to Preact and remove dead code | ○      |
-| `gtm` | Phase 5: Notification system                         | ○      |
-| `cp8` | Phase 5: Payment processing                          | ○      |
-| `qx7` | Phase 5: Booking calendar integration                | ○      |
-| `kia` | Phase 4: Advanced analytics                          | ○      |
-| `9e8` | Phase 4: Provider dashboard                          | ○      |
-| `69c` | Phase 4: Third party registration flow               | ○      |
+| ID      | Title                                                | Status |
+| ------- | ---------------------------------------------------- | ------ |
+| `jc1`   | Implement cookie management for privacy compliance   | ○      |
+| `6d8`   | Migrate React imports to Preact and remove dead code | ○      |
+| `gtm`   | Phase 5: Notification system                         | ○      |
+| `cp8`   | Phase 5: Payment processing                          | ○      |
+| `qx7`   | Phase 5: Booking calendar integration                | ○      |
+| `kia`   | Phase 4: Advanced analytics                          | ○      |
+| `9e8`   | Phase 4: Provider dashboard                          | ○      |
+| `69c`   | Phase 4: Third party registration flow               | ○      |
+| `71p.3` | Add tests for custom hooks                           | ○      |
+
+### In Progress
+
+| ID    | Type | Title                                           | Status |
+| ----- | ---- | ----------------------------------------------- | ------ |
+| `bgb` | epic | Interests Visualization                         | ◐      |
+| `wmm` | task | Improve directory cards with chat functionality | ◐      |
 
 ---
 
