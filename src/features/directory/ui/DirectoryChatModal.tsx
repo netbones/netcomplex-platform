@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { authClient } from '@api/auth-client';
 import type { ConversationMessage } from '@entities/chat';
+import { usePresence } from '@features/chat/hooks/use-presence';
+import { OnlineIndicator } from '@entities/chat';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',
@@ -31,6 +33,9 @@ export function DirectoryChatModal({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const currentUserId = session?.user?.id || '';
+
+  const { onlineUsers, isOnline } = usePresence(conversationId, currentUserId);
+  const recipientOnline = onlineUsers.includes(recipientId);
 
   // Find or create conversation
   useEffect(() => {
@@ -184,7 +189,10 @@ export function DirectoryChatModal({
                 {recipientName.charAt(0).toUpperCase()}
               </span>
             </div>
-            <h3 className="font-semibold">{recipientName}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold">{recipientName}</h3>
+              {isOnline && recipientOnline && <OnlineIndicator count={1} showLabel={false} />}
+            </div>
           </div>
           <button
             onClick={onClose}
