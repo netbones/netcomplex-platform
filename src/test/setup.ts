@@ -20,3 +20,6 @@ window.matchMedia = (query: string) => ({
   removeEventListener: () => {},
   dispatchEvent: () => true,
 });
+
+// Mock scrollIntoView for tests
+Element.prototype.scrollIntoView = vi.fn();
