@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
+import { useParams } from 'next/navigation';
+import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
-import { sanitizeHtml } from '@shared/lib/sanitize';
 import { usePageLoading } from '@shared/ui';
 
 const log = createComponentLogger('news-post-page');
@@ -14,8 +13,9 @@ const log = createComponentLogger('news-post-page');
 interface ContentItem {
   id: string;
   title: string;
-  content: string;
+  content: string | Record<string, unknown>;
   excerpt?: string;
+  image?: string;
   category: string;
   tags: string[];
   published: boolean;
@@ -28,18 +28,138 @@ interface ContentItem {
   };
 }
 
+interface TipTapNode {
+  type: string;
+  content?: TipTapNode[];
+  attrs?: Record<string, unknown>;
+  text?: string;
+  marks?: Array<{ type: string }>;
+}
+
+function renderText(node: TipTapNode): React.ReactNode {
+  let result: React.ReactNode = node.text || '';
+  if (node.marks) {
+    for (const mark of node.marks) {
+      if (mark.type === 'bold') {
+        result = <strong>{result}</strong>;
+      }
+    }
+  }
+  return result;
+}
+
+function renderNode(node: TipTapNode, key: number): React.ReactNode {
+  const { type, content, attrs } = node;
+
+  if (!type) return null;
+
+  switch (type) {
+    case 'heading': {
+      const level = (attrs?.level as number) || 2;
+      const headingStyles: Record<number, string> = {
+        1: 'text-3xl font-bold text-gray-900 mt-8 mb-4',
+        2: 'text-2xl font-bold text-gray-900 mt-6 mb-3',
+        3: 'text-xl font-semibold text-gray-900 mt-4 mb-2',
+      };
+      const HeadingElement = level === 1 ? 'h1' : level === 3 ? 'h3' : 'h2';
+      return (
+        <HeadingElement key={key} className={headingStyles[level] || headingStyles[2]}>
+          {content?.map((child, i) => renderText(child))}
+        </HeadingElement>
+      );
+    }
+    case 'paragraph':
+      return (
+        <p key={key} className="text-gray-700 leading-relaxed mb-4">
+          {content?.map((child, i) => renderText(child))}
+        </p>
+      );
+    case 'bulletList':
+      return (
+        <ul key={key} className="list-disc list-inside space-y-2 mb-4 text-gray-700">
+          {content?.map((item, i) => (
+            <li key={i}>{item.content?.map((child, j) => renderNode(child, j))}</li>
+          ))}
+        </ul>
+      );
+    case 'orderedList':
+      return (
+        <ol key={key} className="list-decimal list-inside space-y-2 mb-4 text-gray-700">
+          {content?.map((item, i) => (
+            <li key={i}>{item.content?.map((child, j) => renderNode(child, j))}</li>
+          ))}
+        </ol>
+      );
+    case 'text':
+      return <span key={key}>{renderText(node)}</span>;
+    default:
+      return null;
+  }
+}
+
+function renderContent(content: string | Record<string, unknown>): React.ReactNode {
+  if (typeof content === 'string') {
+    return <p className="text-gray-700 leading-relaxed">{content}</p>;
+  }
+
+  if (content && typeof content === 'object' && 'type' in content) {
+    const doc = content as unknown as TipTapNode;
+
+    if (doc.type === 'doc' && doc.content) {
+      return doc.content.map((node, idx) => renderNode(node, idx));
+    }
+
+    return renderNode(doc, 0);
+  }
+
+  return <p className="text-gray-700">{String(content)}</p>;
+}
+
+function getCategoryColor(category: string) {
+  switch (category) {
+    case 'NEWS':
+      return 'bg-blue-100 text-blue-800';
+    case 'ANNOUNCEMENT':
+      return 'bg-green-100 text-green-800';
+    case 'EVENT':
+      return 'bg-purple-100 text-purple-800';
+    case 'BLOG':
+      return 'bg-indigo-100 text-indigo-800';
+    case 'CONSERVATION':
+      return 'bg-emerald-100 text-emerald-800';
+    case 'CAMPAIGN':
+      return 'bg-amber-100 text-amber-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+}
+
+function getCategoryLabel(category: string) {
+  const labels: Record<string, string> = {
+    NEWS: 'News',
+    ANNOUNCEMENT: 'Announcement',
+    EVENT: 'Event',
+    BLOG: 'Blog Post',
+    CONSERVATION: 'Conservation',
+    CAMPAIGN: 'Campaign',
+  };
+  return labels[category] || category;
+}
+
 export default function NewsPostPage() {
-  const params = useParams() as { id?: string } | null;
-  const id = params?.id;
   const { t } = useTranslation(['common', 'news']);
-  const [content, setContent] = useState<ContentItem | null>(null);
+  const params = useParams();
+  const id = params?.id as string;
+
+  const [post, setPost] = useState<ContentItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
-      { label: 'Home', href: '/' },
+      { label: t('nav.home'), href: '/' },
       { label: 'News & Updates', href: '/news' },
-      { label: 'Post', href: id ? `/news/${id}` : '/news' },
+      { label: 'Post', href: `/news/${id}` },
     ],
     { additionalLoading: loading }
   );
@@ -47,88 +167,51 @@ export default function NewsPostPage() {
   useEffect(() => {
     if (!id) return;
 
-    const fetchContent = async () => {
+    const fetchPost = async () => {
       try {
-        const res = await fetch(`/api/content/${id}`);
+        const res = await fetch(`/api/content/${id}?published=true`);
         if (res.ok) {
           const data = await res.json();
-          if (data.published) {
-            setContent(data);
-          }
+          setPost(data);
+        } else {
+          setError('Post not found');
         }
-      } catch (error) {
-        log.error({}, 'Failed to fetch content', error);
+      } catch (err) {
+        log.error({}, 'Failed to fetch post', err);
+        setError('Failed to load post');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchContent();
+    fetchPost();
   }, [id]);
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'NEWS':
-        return 'bg-blue-100 text-blue-800';
-      case 'ANNOUNCEMENT':
-        return 'bg-green-100 text-green-800';
-      case 'EVENT':
-        return 'bg-purple-100 text-purple-800';
-      case 'BLOG':
-        return 'bg-indigo-100 text-indigo-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   if (!isReady) {
     return LoadingComponent;
   }
 
-  if (loading) {
+  if (error) {
     return (
       <ErrorBoundary>
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-            <div className="space-y-4">
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            </div>
-          </div>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <i className="fas fa-exclamation-circle text-5xl text-gray-300 mb-4"></i>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Post Not Found</h1>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <Link
+            href="/news"
+            className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium"
+          >
+            <i className="fas fa-arrow-left"></i>
+            Back to News
+          </Link>
         </div>
       </ErrorBoundary>
     );
   }
 
-  if (!content) {
-    return (
-      <ErrorBoundary>
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <Breadcrumbs
-            items={[
-              { label: t('nav.home'), href: '/' },
-              { label: 'News & Updates', href: '/news' },
-            ]}
-          />
-          <div className="text-center py-12">
-            <i className="fas fa-exclamation-triangle text-4xl text-gray-400 mb-4"></i>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Post Not Found</h1>
-            <p className="text-gray-600 mb-6">
-              The post you're looking for doesn't exist or is not published.
-            </p>
-            <Link
-              href="/news"
-              className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              Back to News
-            </Link>
-          </div>
-        </div>
-      </ErrorBoundary>
-    );
+  if (!post) {
+    return null;
   }
 
   return (
@@ -138,56 +221,82 @@ export default function NewsPostPage() {
           items={[
             { label: t('nav.home'), href: '/' },
             { label: 'News & Updates', href: '/news' },
-            { label: content.title, href: `/news/${content.id}` },
+            { label: post.title },
           ]}
         />
 
-        <article className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="p-8">
+        <article className="mt-8">
+          {/* Header */}
+          <div className="mb-8">
             <div className="flex items-center gap-3 mb-4">
               <span
-                className={`text-sm font-medium px-3 py-1 rounded-full ${getCategoryColor(content.category)}`}
+                className={`text-xs font-medium px-3 py-1 rounded-full ${getCategoryColor(post.category)}`}
               >
-                {content.category}
+                {getCategoryLabel(post.category)}
               </span>
-              <span className="text-sm text-gray-500">
-                {content.publishedAt
-                  ? new Date(content.publishedAt).toLocaleDateString()
-                  : new Date(content.createdAt).toLocaleDateString()}
-              </span>
-              {content.author?.name && (
-                <span className="text-sm text-gray-500">By {content.author.name}</span>
+              {post.publishedAt && (
+                <span className="text-sm text-gray-500">
+                  {new Date(post.publishedAt).toLocaleDateString('en-ZA', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </span>
               )}
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-900 mb-6">{content.title}</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">{post.title}</h1>
 
-            {content.excerpt && (
-              <p className="text-xl text-gray-600 mb-6 italic">{content.excerpt}</p>
-            )}
-
-            <div
-              className="prose prose-lg max-w-none mb-8"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(content.content) }}
-            />
-
-            {content.tags && content.tags.length > 0 && (
-              <div className="border-t pt-6">
-                <TagCloud tags={content.tags} maxDisplay={10} size="medium" />
+            {post.author?.name && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <i className="fas fa-user"></i>
+                <span>By {post.author.name}</span>
               </div>
             )}
           </div>
-        </article>
 
-        <div className="mt-8 text-center">
-          <Link
-            href="/news"
-            className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition-colors"
-          >
-            <i className="fas fa-arrow-left"></i>
-            Back to News & Updates
-          </Link>
-        </div>
+          {/* Featured Image */}
+          {post.image && (
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img src={post.image} alt={post.title} className="w-full h-64 sm:h-80 object-cover" />
+            </div>
+          )}
+
+          {/* Excerpt */}
+          {post.excerpt && (
+            <div className="bg-indigo-50 border-l-4 border-indigo-400 p-4 mb-8 rounded-r-lg">
+              <p className="text-indigo-800 font-medium italic">{post.excerpt}</p>
+            </div>
+          )}
+
+          {/* Content */}
+          <div className="mb-8">{renderContent(post.content)}</div>
+
+          {/* Tags */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-6 border-t border-gray-200">
+              {post.tags.map(tag => (
+                <span
+                  key={tag}
+                  className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Back to news */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <Link
+              href="/news"
+              className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium"
+            >
+              <i className="fas fa-arrow-left"></i>
+              Back to News & Updates
+            </Link>
+          </div>
+        </article>
       </div>
     </ErrorBoundary>
   );
