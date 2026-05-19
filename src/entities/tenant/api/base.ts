@@ -131,7 +131,9 @@ export async function listTenants(): Promise<Tenant[]> {
   return result.map(toTenant);
 }
 
-export async function createTenant(data: Omit<Tenant, 'createdAt' | 'updatedAt'>): Promise<Tenant> {
+export async function createTenant(
+  data: Omit<Tenant, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<Tenant> {
   const result = await db.insert(tenants).values(data).returning();
   return toTenant(result[0]);
 }

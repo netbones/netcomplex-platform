@@ -53,7 +53,7 @@ vi.mock('@entities/tenant/api/tenant', () => ({
 
 // Mock withTenant
 vi.mock('@entities/tenant/api/with-tenant', () => ({
-  withTenant: vi.fn().mockResolvedValue({ tenantId: 'soralia' }),
+  withTenant: vi.fn().mockResolvedValue({ tenantId: '00000000-0000-0000-0000-000000000001' }),
 }));
 
 // Mock email

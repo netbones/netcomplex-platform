@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     const tenant = await createTenant({
-      id: crypto.randomUUID(),
       name: body.name,
       slug: body.slug,
       customDomain: body.customDomain || null,

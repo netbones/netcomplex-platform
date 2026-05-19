@@ -303,12 +303,16 @@ export const identityRouter = router({
         throw new TRPCError({ code: 'CONFLICT', message: 'Property already exists' });
       }
 
+      if (!ctx.tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context is required' });
+      }
+
       const now = new Date();
       const [created] = await db
         .insert(properties)
         .values({
           id: crypto.randomUUID(),
-          tenantId: ctx.tenantId || 'soralia',
+          tenantId: ctx.tenantId,
           street: input.street,
           unit: input.unit,
           platformAddress: input.platformAddress,
@@ -505,11 +509,18 @@ export const identityRouter = router({
 
       const profileAddress = `${displayName.toLowerCase().replace(/\s+/g, '.')}.${property?.unit}@${property?.platformAddress.split('@')[1]}`;
 
+      if (!property?.tenantId) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Property tenant context is required',
+        });
+      }
+
       const [created] = await db
         .insert(profiles)
         .values({
           id: crypto.randomUUID(),
-          tenantId: property?.tenantId || 'soralia',
+          tenantId: property.tenantId,
           householdId,
           displayName,
           profileAddress,

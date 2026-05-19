@@ -92,36 +92,37 @@ export async function POST(request: NextRequest) {
     try {
       // Step 2: Atomic transaction for tenant creation and role assignment
       await db.transaction(async tx => {
-        const newTenantId = crypto.randomUUID();
-        tenantId = newTenantId;
+        // Create the tenant (UUID generated automatically)
+        const [newTenant] = await tx
+          .insert(tenants)
+          .values({
+            name: body.name,
+            slug: body.slug,
+            customDomain: null,
+            logoUrl: null,
+            faviconUrl: null,
+            primaryColor: '#4F46E5',
+            accentColor: null,
+            secondaryColor: null,
+            fontFamily: null,
+            customCss: null,
+            active: true,
+            subscriptionTier: body.plan,
+            tier: 'STANDARD',
+            maxPages: tierConfig.maxPages,
+            pageCount: 0,
+            featureFlags: {},
+            ownerId: userId,
+          })
+          .returning();
 
-        // Create the tenant
-        await tx.insert(tenants).values({
-          id: newTenantId,
-          name: body.name,
-          slug: body.slug,
-          customDomain: null,
-          logoUrl: null,
-          faviconUrl: null,
-          primaryColor: '#4F46E5',
-          accentColor: null,
-          secondaryColor: null,
-          fontFamily: null,
-          customCss: null,
-          active: true,
-          subscriptionTier: body.plan,
-          tier: 'STANDARD',
-          maxPages: tierConfig.maxPages,
-          pageCount: 0,
-          featureFlags: {},
-          ownerId: userId,
-        });
+        tenantId = newTenant.id;
 
         // Update the user to link to the tenant and set ADMIN role
         await tx
           .update(users)
           .set({
-            tenantId: newTenantId,
+            tenantId: newTenant.id,
             role: 'ADMIN',
             isPlatformAdmin: false,
           })

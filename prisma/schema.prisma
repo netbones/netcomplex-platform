@@ -57,7 +57,7 @@ model AssistSession {
 }
 
 model Tenant {
-  id               String          @id
+  id               String          @id @default(uuid())
   name             String
   slug             String          @unique
   customDomain     String?         @unique

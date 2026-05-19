@@ -44,7 +44,6 @@ const now = new Date();
 // ---------------------------------------------------------------------------
 
 const TENANT = {
-  id: 'soralia',
   name: 'Soralia Village',
   slug: 'soralia',
   primaryColor: '#4F46E5',
@@ -2739,55 +2738,44 @@ const COMPETITIONS = [
 async function seed() {
   console.log('🌱 Seeding Soralia Village...\n');
 
-  // Look up existing tenant by slug to get its real UUID
-  const [existingTenant] = await db
-    .select()
-    .from(tenants)
-    .where(eq(tenants.slug, 'soralia'))
-    .limit(1);
-  const TENANT_ID = existingTenant?.id || 'soralia';
-  console.log('  Using tenant ID:', TENANT_ID);
-
-  // Fix any records that have the wrong tenantId (from old seeds)
-  if (existingTenant) {
-    await db.update(users).set({ tenantId: TENANT_ID }).where(eq(users.tenantId, 'soralia'));
-    await db.update(contents).set({ tenantId: TENANT_ID }).where(eq(contents.tenantId, 'soralia'));
-    await db
-      .update(properties)
-      .set({ tenantId: TENANT_ID })
-      .where(eq(properties.tenantId, 'soralia'));
-    await db.update(events).set({ tenantId: TENANT_ID }).where(eq(events.tenantId, 'soralia'));
-    await db.update(groups).set({ tenantId: TENANT_ID }).where(eq(groups.tenantId, 'soralia'));
-    await db
-      .update(resources)
-      .set({ tenantId: TENANT_ID })
-      .where(eq(resources.tenantId, 'soralia'));
-    await db.update(surveys).set({ tenantId: TENANT_ID }).where(eq(surveys.tenantId, 'soralia'));
-    await db
-      .update(competitions)
-      .set({ tenantId: TENANT_ID })
-      .where(eq(competitions.tenantId, 'soralia'));
-    await db
-      .update(households)
-      .set({ tenantId: TENANT_ID })
-      .where(eq(households.tenantId, 'soralia'));
-    await db
-      .update(standardSeats)
-      .set({ tenantId: TENANT_ID })
-      .where(eq(standardSeats.tenantId, 'soralia'));
-    await db.update(profiles).set({ tenantId: TENANT_ID }).where(eq(profiles.tenantId, 'soralia'));
-    console.log('  ✓ Fixed tenantId on existing records');
-  }
-
+  // Create or update tenant, then get its UUID
   console.log('Tenant...');
-  await db
+  const [tenant] = await db
     .insert(tenants)
     .values(TENANT)
     .onConflictDoUpdate({
       target: tenants.slug,
       set: { name: 'Soralia Village', primaryColor: '#4F46E5', active: true },
-    });
-  console.log('  ✓ 1 tenant');
+    })
+    .returning();
+  const TENANT_ID = tenant.id;
+  console.log('  ✓ 1 tenant (id:', TENANT_ID, ')');
+
+  // Fix any records that have old/slug tenantId values
+  await db.update(users).set({ tenantId: TENANT_ID }).where(eq(users.tenantId, 'soralia'));
+  await db.update(contents).set({ tenantId: TENANT_ID }).where(eq(contents.tenantId, 'soralia'));
+  await db
+    .update(properties)
+    .set({ tenantId: TENANT_ID })
+    .where(eq(properties.tenantId, 'soralia'));
+  await db.update(events).set({ tenantId: TENANT_ID }).where(eq(events.tenantId, 'soralia'));
+  await db.update(groups).set({ tenantId: TENANT_ID }).where(eq(groups.tenantId, 'soralia'));
+  await db.update(resources).set({ tenantId: TENANT_ID }).where(eq(resources.tenantId, 'soralia'));
+  await db.update(surveys).set({ tenantId: TENANT_ID }).where(eq(surveys.tenantId, 'soralia'));
+  await db
+    .update(competitions)
+    .set({ tenantId: TENANT_ID })
+    .where(eq(competitions.tenantId, 'soralia'));
+  await db
+    .update(households)
+    .set({ tenantId: TENANT_ID })
+    .where(eq(households.tenantId, 'soralia'));
+  await db
+    .update(standardSeats)
+    .set({ tenantId: TENANT_ID })
+    .where(eq(standardSeats.tenantId, 'soralia'));
+  await db.update(profiles).set({ tenantId: TENANT_ID }).where(eq(profiles.tenantId, 'soralia'));
+  console.log('  ✓ Fixed tenantId on existing records');
 
   console.log('Users...');
   for (const user of USERS) {
