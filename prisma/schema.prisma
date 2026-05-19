@@ -12,56 +12,43 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Module tier enum
-enum Tier {
-  STANDARD
-  PREMIUM
-  ENTERPRISE
-}
-
-// Platform modules — what NetComplex offers
 model PlatformModule {
-  id             String   @id @default(cuid())
-  key            String   @unique
+  id             String         @id @default(cuid())
+  key            String         @unique
   label          String
-  minTier        Tier     @default(STANDARD)
-  defaultEnabled Boolean  @default(false)
-  description   String?
-  createdAt     DateTime @default(now())
-
-  tenantModules TenantModule[]
+  minTier        Tier           @default(STANDARD)
+  defaultEnabled Boolean        @default(false)
+  description    String?
+  createdAt      DateTime       @default(now())
+  tenantModules  TenantModule[]
 }
 
-// Tenant modules — what each tenant has enabled
 model TenantModule {
-  id         String    @id @default(cuid())
-  tenantId   String
-  moduleKey  String
-  enabled    Boolean   @default(false)
-  config     Json?
-  enabledAt  DateTime?
-
-  tenant     Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  module    PlatformModule    @relation(fields: [moduleKey], references: [key])
+  id        String         @id @default(cuid())
+  tenantId  String
+  moduleKey String
+  enabled   Boolean        @default(false)
+  config    Json?
+  enabledAt DateTime?
+  module    PlatformModule @relation(fields: [moduleKey], references: [key])
+  tenant    Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, moduleKey])
 }
 
-// Time-limited staff access for assisted provisioning (Path B)
 model AssistSession {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   tenantId  String
   staffId   String
-  scope     String   @default("metadata") // metadata, full (future)
+  scope     String    @default("metadata")
   expiresAt DateTime
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
   revokedAt DateTime?
-  revokedBy String?  // userId who revoked
-  notes     String?  // reason for assist
-
-  tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  staff     user   @relation(fields: [staffId], references: [id])
+  revokedBy String?
+  notes     String?
+  staff     user      @relation(fields: [staffId], references: [id])
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([staffId])
@@ -70,34 +57,30 @@ model AssistSession {
 }
 
 model Tenant {
-  id              String    @id
-  name            String
-  slug            String    @unique
-  customDomain    String?   @unique
-  logoUrl         String?
-  faviconUrl      String?
-  primaryColor   String    @default("#4F46E5")
-  accentColor     String?
-  secondaryColor  String?
-  fontFamily     String?
-  customCss      String?
-  active          Boolean   @default(true)
-
-  // Subscription
-  subscriptionTier String   @default("sprout") // sprout, grove, forest
-  tier             Tier     @default(STANDARD) // standard, premium, enterprise
-  modules          Json?    // Optional custom module bundle, e.g., ["directory", "bookings", "chat"]
-  maxPages          Int      @default(5)
-  pageCount         Int      @default(0)
-  featureFlags      Json     @default("{}")
-
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime?
-  ownerId         String?
-
-  tenantModules    TenantModule[]
+  id               String          @id
+  name             String
+  slug             String          @unique
+  customDomain     String?         @unique
+  logoUrl          String?
+  faviconUrl       String?
+  primaryColor     String          @default("#4F46E5")
+  accentColor      String?
+  secondaryColor   String?
+  fontFamily       String?
+  customCss        String?
+  active           Boolean         @default(true)
+  subscriptionTier String          @default("sprout")
+  modules          Json?
+  maxPages         Int             @default(5)
+  pageCount        Int             @default(0)
+  featureFlags     Json            @default("{}")
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime?
+  tier             Tier            @default(STANDARD)
+  ownerId          String?
   assistSessions   AssistSession[]
-  owner            user?       @relation("TenantOwner", fields: [ownerId], references: [id])
+  owner            user?           @relation("TenantOwner", fields: [ownerId], references: [id])
+  tenantModules    TenantModule[]
 }
 
 model Announcement {
@@ -114,7 +97,7 @@ model Announcement {
 model Booking {
   id         String        @id
   tenantId   String
-  propertyId String?       // NEW: Linked to property asset
+  propertyId String?
   userId     String
   facility   String
   date       DateTime
@@ -123,17 +106,17 @@ model Booking {
   purpose    String?
   status     BookingStatus @default(CONFIRMED)
   createdAt  DateTime      @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  user       user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  updatedAt  DateTime      @default(now()) @updatedAt
   property   Property?     @relation(fields: [propertyId], references: [id])
+  user       user          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Content {
   id            String          @id
   tenantId      String
-  title         Json            // { "en": "Title", "af": "Titel" }
-  content       Json            // { "en": "<p>...</p>", "af": "<p>...</p>" }
-  excerpt       Json?           // { "en": "...", "af": "..." }
+  title         Json
+  content       Json
+  excerpt       Json?
   image         String?
   category      ContentCategory
   tags          String[]
@@ -142,10 +125,10 @@ model Content {
   published     Boolean         @default(false)
   featured      Boolean         @default(false)
   priority      String          @default("normal")
-  defaultLocale String          @default("en")  // Fallback locale
-  contentType   String          @default("article")  // "article" or "campaign"
+  defaultLocale String          @default("en")
+  contentType   String          @default("article")
   createdAt     DateTime        @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt     DateTime        @default(now()) @updatedAt
   publishedAt   DateTime?
   expiresAt     DateTime?
   user          user?           @relation(fields: [authorId], references: [id])
@@ -155,11 +138,11 @@ model Content {
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Conversation {
   id                      String                    @id
-  tenantId  String
+  tenantId                String
   name                    String?
   type                    ConversationType          @default(DIRECT)
   createdAt               DateTime                  @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt               DateTime                  @default(now()) @updatedAt
   ConversationParticipant ConversationParticipant[]
   Message                 Message[]
 }
@@ -167,7 +150,7 @@ model Conversation {
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model ConversationParticipant {
   id                String       @id
-  tenantId  String
+  tenantId          String
   conversationId    String
   userId            String
   joinedAt          DateTime     @default(now())
@@ -182,7 +165,7 @@ model ConversationParticipant {
 }
 
 model Competition {
-  id          String             @id @default(cuid())
+  id          String            @id @default(cuid())
   tenantId    String
   title       String
   description String?
@@ -190,11 +173,11 @@ model Competition {
   prizeInfo   String?
   startDate   DateTime
   endDate     DateTime
-  status      CompetitionStatus  @default(DRAFT)
-  entryCount  Int                @default(0)
+  status      CompetitionStatus @default(DRAFT)
+  entryCount  Int               @default(0)
   image       String?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
   @@index([tenantId])
   @@index([status])
@@ -202,7 +185,7 @@ model Competition {
 
 model Event {
   id          String   @id
-  tenantId  String
+  tenantId    String
   title       String
   description String
   date        DateTime
@@ -211,24 +194,24 @@ model Event {
   image       String?
   isPublic    Boolean  @default(true)
   createdAt   DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt   DateTime @default(now()) @updatedAt
 }
 
 model ExternalSurvey {
   id         String   @id
-  tenantId  String
+  tenantId   String
   name       String
   provider   String
   externalId String
   embedUrl   String
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt  DateTime @default(now()) @updatedAt
 }
 
 model Group {
   id                     String                   @id
-  tenantId  String
+  tenantId               String
   name                   String
   description            String?
   category               String
@@ -239,7 +222,7 @@ model Group {
   residentFilter         ResidentFilter           @default(ALL)
   isActive               Boolean                  @default(true)
   createdAt              DateTime                 @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt              DateTime                 @default(now()) @updatedAt
   deletedAt              DateTime?
   ownerId                String
   Content                Content[]
@@ -256,7 +239,7 @@ model GroupMembershipRequest {
   status    MembershipStatus @default(PENDING)
   message   String?
   createdAt DateTime         @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt DateTime         @default(now()) @updatedAt
   Group     Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
   user      user             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -265,32 +248,32 @@ model GroupMembershipRequest {
 }
 
 model MaintenanceRequest {
-  id          String        @id
-  tenantId  String
-  propertyId  String?       // NEW: Linked to property asset
-  userId      String
-  category    String
-  priority    Priority
-  description String
-  status      RequestStatus @default(SUBMITTED)
-  images      String[]
-  assignedTo  String?
-  vendor      String?
+  id            String        @id
+  tenantId      String
+  propertyId    String?
+  userId        String
+  category      String
+  priority      Priority
+  description   String
+  status        RequestStatus @default(SUBMITTED)
+  images        String[]
+  assignedTo    String?
+  vendor        String?
   scheduledDate DateTime?
-  estimatedCost Decimal?    @db.Decimal(10, 2)
-  actualCost   Decimal?    @db.Decimal(10, 2)
-  resolution  String?
-  completedAt  DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  user        user          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  property    Property?     @relation(fields: [propertyId], references: [id])
+  estimatedCost Decimal?      @db.Decimal(10, 2)
+  actualCost    Decimal?      @db.Decimal(10, 2)
+  resolution    String?
+  completedAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now()) @updatedAt
+  property      Property?     @relation(fields: [propertyId], references: [id])
+  user          user          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Message {
   id             String       @id
-  tenantId  String
+  tenantId       String
   conversationId String
   senderId       String
   content        String
@@ -321,7 +304,7 @@ model Notification {
 
 model Question {
   id       String       @id
-  tenantId  String
+  tenantId String
   surveyId String
   text     String
   type     QuestionType
@@ -342,17 +325,17 @@ model Response {
 }
 
 model Setting {
-  id    String @id
-  tenantId  String
-  key   String
-  value String
+  id       String @id
+  tenantId String
+  key      String
+  value    String
 
   @@unique([tenantId, key])
 }
 
 model Survey {
   id          String       @id
-  tenantId  String
+  tenantId    String
   title       String
   description String?
   type        SurveyType   @default(INTERNAL)
@@ -360,14 +343,14 @@ model Survey {
   startDate   DateTime?
   endDate     DateTime?
   createdAt   DateTime     @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt   DateTime     @default(now()) @updatedAt
   Question    Question[]
   Response    Response[]
 }
 
 model UserGroup {
   id       String    @id
-  tenantId  String
+  tenantId String
   userId   String
   groupId  String
   role     GroupRole @default(MEMBER)
@@ -392,7 +375,7 @@ model account {
   scope                 String?
   password              String?
   createdAt             DateTime  @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt             DateTime  @default(now()) @updatedAt
   user                  user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -400,7 +383,7 @@ model account {
 
 model agentAccess {
   id                                 String            @id
-  tenantId  String
+  tenantId                           String
   agentId                            String
   propertyId                         String
   grantedById                        String
@@ -413,7 +396,7 @@ model agentAccess {
   contractTerms                      String?
   organizationId                     String?
   createdAt                          DateTime          @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt                          DateTime          @default(now()) @updatedAt
   user_agentAccess_agentIdTouser     user              @relation("agentAccess_agentIdTouser", fields: [agentId], references: [id])
   user_agentAccess_grantedByIdTouser user              @relation("agentAccess_grantedByIdTouser", fields: [grantedById], references: [id])
   property                           Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
@@ -426,7 +409,7 @@ model agentAccess {
 
 model agentProfile {
   id               String    @id
-  tenantId  String
+  tenantId         String
   agentId          String    @unique
   agencyName       String?
   licenseNumber    String?
@@ -445,7 +428,7 @@ model agentProfile {
   verificationDate DateTime?
   organizationId   String?
   createdAt        DateTime  @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt        DateTime  @default(now()) @updatedAt
   user             user      @relation(fields: [agentId], references: [id], onDelete: Cascade)
 
   @@index([agentId])
@@ -456,14 +439,14 @@ model agentProfile {
 
 model album {
   id          String   @id
-  tenantId  String
+  tenantId    String
   userId      String
   title       String
   description String?
   isPublic    Boolean  @default(false)
   mediaIds    String[]
   createdAt   DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt   DateTime @default(now()) @updatedAt
   user        user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([isPublic])
@@ -472,7 +455,7 @@ model album {
 
 model communityServiceInquiry {
   id                      String                  @id
-  tenantId  String
+  tenantId                String
   listingId               String
   inquirerId              String
   serviceType             String?
@@ -485,7 +468,7 @@ model communityServiceInquiry {
   providerResponse        String?
   respondedAt             DateTime?
   createdAt               DateTime                @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt               DateTime                @default(now()) @updatedAt
   user                    user                    @relation(fields: [inquirerId], references: [id])
   communityServiceListing communityServiceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
@@ -496,7 +479,7 @@ model communityServiceInquiry {
 
 model communityServiceListing {
   id                      String                    @id
-  tenantId  String
+  tenantId                String
   providerId              String
   title                   String
   description             String?
@@ -527,7 +510,7 @@ model communityServiceListing {
   cancellationPolicy      String?
   organizationId          String?
   createdAt               DateTime                  @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt               DateTime                  @default(now()) @updatedAt
   communityServiceInquiry communityServiceInquiry[]
   user                    user                      @relation(fields: [providerId], references: [id])
   communityServiceReview  communityServiceReview[]
@@ -542,7 +525,7 @@ model communityServiceListing {
 
 model communityServiceReview {
   id                      String                  @id
-  tenantId  String
+  tenantId                String
   listingId               String
   reviewerId              String
   rating                  Int
@@ -563,28 +546,24 @@ model communityServiceReview {
 }
 
 model Property {
-  id              String            @id @default(cuid())
-  tenantId        String
-  platformAddress String            @unique
-  street          String
-  unit            String
-  ownerId         String?           // The HOA Member (Legal Owner)
-  homeImage       String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  
-  // Relationships
-  owner           user?             @relation("PropertyOwner", fields: [ownerId], references: [id])
-  households      Household[]
-  agentAccess     agentAccess[]
-  propertyListing propertyListing[]
-  soloSeat        soloSeat[]
-  standardSeat    standardSeat[]
-  premiumSeat     premiumSeat[]     @relation("PremiumSeatPortfolio")
-  
-  // Asset-linked features
+  id                 String               @id @default(cuid())
+  tenantId           String
+  platformAddress    String               @unique
+  street             String
+  unit               String
+  ownerId            String?
+  homeImage          String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
   Booking            Booking[]
+  households         Household[]
   MaintenanceRequest MaintenanceRequest[]
+  owner              user?                @relation("PropertyOwner", fields: [ownerId], references: [id])
+  agentAccess        agentAccess[]
+  propertyListing    propertyListing[]
+  soloSeat           soloSeat[]
+  standardSeat       standardSeat[]
+  premiumSeat        premiumSeat[]        @relation("PremiumSeatPortfolio")
 
   @@unique([street, unit])
   @@index([ownerId])
@@ -592,34 +571,26 @@ model Property {
 }
 
 model Household {
-  id              String            @id @default(cuid())
-  tenantId        String
-  propertyId      String
-  organizationId  String?
-  occupancyType   OccupancyType     @default(OWNER_OCCUPIED)
-  status          HouseholdStatus   @default(ACTIVE)
-  moveInDate      DateTime?
-  moveOutDate     DateTime?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  
-  // Relationships
-  property        Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  profiles        profile[]
+  id             String          @id @default(cuid())
+  tenantId       String
+  propertyId     String
+  organizationId String?
+  occupancyType  OccupancyType   @default(OWNER_OCCUPIED)
+  status         HouseholdStatus @default(ACTIVE)
+  moveInDate     DateTime?
+  moveOutDate    DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  property       Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  profiles       profile[]
 
   @@index([propertyId])
   @@index([organizationId])
 }
 
-enum OccupancyType {
-  OWNER_OCCUPIED
-  RENTAL
-  VACANT
-}
-
 model invitation {
   id             String           @id
-  tenantId  String
+  tenantId       String
   email          String           @unique
   name           String
   street         String?
@@ -641,7 +612,7 @@ model invitation {
 
 model member {
   id             String       @id
-  tenantId  String
+  tenantId       String
   organizationId String
   userId         String
   role           String       @default("member")
@@ -655,7 +626,7 @@ model member {
 
 model organization {
   id         String       @id
-  tenantId  String
+  tenantId   String
   name       String
   slug       String       @unique
   logo       String?
@@ -667,7 +638,7 @@ model organization {
 
 model passkey {
   id           String    @id
-  tenantId  String
+  tenantId     String
   name         String?
   publicKey    String
   userId       String
@@ -686,7 +657,7 @@ model passkey {
 
 model platformSuspension {
   id             String         @id
-  tenantId  String
+  tenantId       String
   userId         String
   suspensionType SuspensionType
   reason         String
@@ -697,7 +668,7 @@ model platformSuspension {
   isActive       Boolean        @default(true)
   createdById    String
   createdAt      DateTime       @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt      DateTime       @default(now()) @updatedAt
   user           user           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([isActive])
@@ -705,21 +676,21 @@ model platformSuspension {
 }
 
 model premiumSeat {
-  id                   String      @id
-  tenantId  String
-  userId               String      @unique
-  isActive             Boolean     @default(true)
+  id                   String     @id
+  tenantId             String
+  userId               String     @unique
+  isActive             Boolean    @default(true)
   portfolioName        String?
-  subscriptionTier     String      @default("basic")
-  maxProperties        Int         @default(5)
-  platformAddress      String      @unique
+  subscriptionTier     String     @default("basic")
+  maxProperties        Int        @default(5)
+  platformAddress      String     @unique
   organizationId       String?
-  createdAt            DateTime    @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  messageRetentionDays Int         @default(30)
-  tier                 String      @default("foundation")
-  user                 user        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  properties           Property[]  @relation("PremiumSeatPortfolio")
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @default(now()) @updatedAt
+  messageRetentionDays Int        @default(30)
+  tier                 String     @default("foundation")
+  user                 user       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  properties           Property[] @relation("PremiumSeatPortfolio")
 
   @@index([organizationId])
   @@index([userId])
@@ -727,7 +698,7 @@ model premiumSeat {
 
 model profile {
   id                            String        @id
-  tenantId  String
+  tenantId                      String
   householdId                   String
   displayName                   String
   profileAddress                String        @unique
@@ -743,7 +714,7 @@ model profile {
   status                        ProfileStatus @default(ACTIVE)
   organizationId                String?
   createdAt                     DateTime      @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt                     DateTime      @default(now()) @updatedAt
   occupantImage                 String?
   rentalImage                   String?
   landlordId                    String?
@@ -761,7 +732,7 @@ model profile {
 
 model propertyListing {
   id                                         String        @id
-  tenantId  String
+  tenantId                                   String
   propertyId                                 String
   ownerId                                    String
   listingType                                ListingType
@@ -782,10 +753,10 @@ model propertyListing {
   featuredUntil                              DateTime?
   organizationId                             String?
   createdAt                                  DateTime      @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt                                  DateTime      @default(now()) @updatedAt
   user_propertyListing_assignedAgentIdTouser user?         @relation("propertyListing_assignedAgentIdTouser", fields: [assignedAgentId], references: [id])
-  property                                   Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   user_propertyListing_ownerIdTouser         user          @relation("propertyListing_ownerIdTouser", fields: [ownerId], references: [id])
+  property                                   Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([assignedAgentId])
   @@index([propertyId])
@@ -802,7 +773,7 @@ model session {
   expiresAt            DateTime
   token                String   @unique
   createdAt            DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt            DateTime @default(now()) @updatedAt
   ipAddress            String?
   userAgent            String?
   userId               String
@@ -815,7 +786,7 @@ model session {
 
 model soloSeat {
   id                  String       @id
-  tenantId  String
+  tenantId            String
   userId              String       @unique
   platformAddress     String       @unique
   propertyId          String?
@@ -824,7 +795,7 @@ model soloSeat {
   linkedFromProfileId String?
   organizationId      String?
   createdAt           DateTime     @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt           DateTime     @default(now()) @updatedAt
   property            Property?    @relation(fields: [propertyId], references: [id])
   user                user         @relation(fields: [userId], references: [id])
 
@@ -833,17 +804,17 @@ model soloSeat {
 }
 
 model standardSeat {
-  id              String    @id
-  tenantId  String
+  id              String   @id
+  tenantId        String
   userId          String
   propertyId      String
-  isPrimaryOwner  Boolean   @default(true)
-  platformAddress String    @unique
+  isPrimaryOwner  Boolean  @default(true)
+  platformAddress String   @unique
   organizationId  String?
-  createdAt       DateTime  @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  user            user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+  property        Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user            user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, propertyId])
   @@index([propertyId])
@@ -853,7 +824,7 @@ model standardSeat {
 
 model twoFactor {
   id          String @id
-  tenantId  String
+  tenantId    String
   secret      String
   backupCodes String
   userId      String
@@ -879,13 +850,14 @@ model user {
   isPublic                                              Boolean                   @default(true)
   showEmail                                             Boolean                   @default(true)
   showPhone                                             Boolean                   @default(true)
-  profileSlug                                           String?                   // SEO-friendly public profile URL
+  profileSlug                                           String?
   createdAt                                             DateTime                  @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt                                             DateTime                  @default(now()) @updatedAt
   emailVerified                                         Boolean                   @default(false)
-  isPlatformAdmin                                       Boolean                   @default(false)
   image                                                 String?
   twoFactorEnabled                                      Boolean?                  @default(false)
+  isPlatformAdmin                                       Boolean                   @default(false)
+  assistSessions                                        AssistSession[]
   Booking                                               Booking[]
   Content                                               Content[]
   ConversationParticipant                               ConversationParticipant[]
@@ -894,6 +866,9 @@ model user {
   MaintenanceRequest                                    MaintenanceRequest[]
   Message                                               Message[]
   Notification                                          Notification[]
+  ownedProperties                                       Property[]                @relation("PropertyOwner")
+  Resource                                              Resource[]
+  ownedTenants                                          Tenant[]                  @relation("TenantOwner")
   UserGroup                                             UserGroup[]
   account                                               account[]
   agentAccess_agentAccess_agentIdTouser                 agentAccess[]             @relation("agentAccess_agentIdTouser")
@@ -916,10 +891,6 @@ model user {
   soloSeat                                              soloSeat?
   standardSeat                                          standardSeat[]
   twoFactor                                             twoFactor[]
-  ownedProperties                                       Property[]                @relation("PropertyOwner")
-  ownedTenants                                          Tenant[]                  @relation("TenantOwner")
-  assistSessions                                        AssistSession[]
-  Resource                                              Resource[]
 }
 
 model verification {
@@ -929,9 +900,45 @@ model verification {
   value      String
   expiresAt  DateTime
   createdAt  DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt  DateTime @default(now()) @updatedAt
 
   @@index([identifier])
+}
+
+model Resource {
+  id          String             @id @default(cuid())
+  tenantId    String
+  title       String
+  description String?
+  category    ResourceCategory
+  fileUrl     String?
+  fileType    String?
+  fileSize    Int?
+  externalUrl String?
+  bodyContent Json?
+  version     String?
+  visibility  ResourceVisibility @default(ALL_RESIDENTS)
+  authorId    String?
+  publishedAt DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  user        user?              @relation(fields: [authorId], references: [id])
+
+  @@index([tenantId])
+  @@index([category])
+  @@index([visibility])
+}
+
+enum Tier {
+  STANDARD
+  PREMIUM
+  ENTERPRISE
+}
+
+enum OccupancyType {
+  OWNER_OCCUPIED
+  RENTAL
+  VACANT
 }
 
 enum AgentAccessLevel {
@@ -1118,30 +1125,6 @@ enum ResourceVisibility {
   OWNERS_ONLY
   BOARD_ONLY
   COMMITTEE_ONLY
-}
-
-model Resource {
-  id           String             @id @default(cuid())
-  tenantId     String
-  title        String
-  description  String?
-  category     ResourceCategory
-  fileUrl      String?
-  fileType     String?
-  fileSize     Int?
-  externalUrl  String?
-  bodyContent  Json?
-  version      String?
-  visibility   ResourceVisibility @default(ALL_RESIDENTS)
-  authorId     String?
-  publishedAt  DateTime?
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-  user         user?              @relation(fields: [authorId], references: [id])
-
-  @@index([tenantId])
-  @@index([category])
-  @@index([visibility])
 }
 
 enum ServiceCategory {
