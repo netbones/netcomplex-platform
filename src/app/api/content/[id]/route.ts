@@ -57,6 +57,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const { searchParams } = new URL(request.url);
   const locale = searchParams.get('locale') || defaultLanguage;
+  const published = searchParams.get('published');
   const userLocale = supportedLanguages.includes(locale as (typeof supportedLanguages)[number])
     ? locale
     : defaultLanguage;
@@ -74,17 +75,20 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   }
 
   // Build where conditions
-  const whereConditions = [eq(contents.id, id), eq(contents.tenantId, tenantId)];
+  const whereConditions: (SQL<unknown> | undefined)[] = [
+    eq(contents.id, id),
+    eq(contents.tenantId, tenantId),
+  ];
+
+  if (published !== null) {
+    whereConditions.push(eq(contents.published, published === 'true'));
+  }
 
   // For non-admin users, apply date filtering
   if (!canViewAll) {
     const now = new Date();
-    whereConditions.push(
-      or(isNull(contents.publishedAt), lte(contents.publishedAt, now)) as SQL<unknown>
-    );
-    whereConditions.push(
-      or(isNull(contents.expiresAt), gt(contents.expiresAt, now)) as SQL<unknown>
-    );
+    whereConditions.push(or(isNull(contents.publishedAt), lte(contents.publishedAt, now)));
+    whereConditions.push(or(isNull(contents.expiresAt), gt(contents.expiresAt, now)));
   }
 
   const [content] = await db
@@ -111,7 +115,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .from(contents)
     .leftJoin(users, eq(contents.authorId, users.id))
     .leftJoin(groups, eq(contents.groupId, groups.id))
-    .where(and(...whereConditions))
+    .where(and(...whereConditions.filter((c): c is NonNullable<typeof c> => c !== undefined)))
     .limit(1);
 
   if (!content) {

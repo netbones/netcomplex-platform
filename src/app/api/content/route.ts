@@ -1,7 +1,7 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, contents, users, groups } from '@api/db';
-import { eq, and, desc, or, isNull, lte, gt } from 'drizzle-orm';
+import { eq, and, desc, or, isNull, lte, gt, type SQL } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { ContentCategoryEnum, type ContentCategory } from '@shared/api/types';
 import { revalidateContent } from '@api/revalidation';
@@ -89,6 +89,9 @@ function transformContentForLocale(content: Record<string, unknown>, userLocale:
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
 
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
+
   const { searchParams } = new URL(request.url);
   const category = searchParams.get('category');
   const published = searchParams.get('published');
@@ -102,8 +105,8 @@ export async function GET(request: Request) {
     ? locale
     : defaultLanguage;
 
-  // Build where conditions
-  const whereConditions = [];
+  // Build where conditions — tenant isolation is mandatory
+  const whereConditions: (SQL<unknown> | undefined)[] = [eq(contents.tenantId, tenantId)];
 
   if (category && category in ContentCategoryEnum) {
     whereConditions.push(eq(contents.category, category as ContentCategory));
@@ -160,7 +163,7 @@ export async function GET(request: Request) {
     .from(contents)
     .leftJoin(users, eq(contents.authorId, users.id))
     .leftJoin(groups, eq(contents.groupId, groups.id))
-    .where(and(...whereConditions))
+    .where(and(...whereConditions.filter((c): c is NonNullable<typeof c> => c !== undefined)))
     .orderBy(desc(contents.createdAt));
 
   // Transform to localized content
