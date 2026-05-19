@@ -54,7 +54,7 @@ export async function GET(request: Request) {
   const skip = (page - 1) * limit;
 
   // Build base conditions - always filter by tenant and active users only
-  // Exclude AGENT users from directory (they appear in Services tab instead)
+  // Exclude AGENT users (appear in Services tab)
   const conditions: SQL<unknown>[] = [
     eq(users.tenantId, tenantId),
     eq(users.isActive, true),
@@ -123,7 +123,7 @@ export async function GET(request: Request) {
         })
         .from(standardSeats)
         .innerJoin(properties, eq(standardSeats.propertyId, properties.id))
-        .where(and(eq(standardSeats.tenantId, tenantId), eq(standardSeats.userId, user.id)));
+        .where(eq(standardSeats.userId, user.id));
 
       // Get soloSeat with property
 
@@ -139,7 +139,7 @@ export async function GET(request: Request) {
         })
         .from(soloSeats)
         .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
-        .where(and(eq(soloSeats.tenantId, tenantId), eq(soloSeats.userId, user.id)))
+        .where(eq(soloSeats.userId, user.id))
         .limit(1);
 
       // Get active profiles with household, property, and landlord
@@ -184,7 +184,12 @@ export async function GET(request: Request) {
     })
   );
 
-  return NextResponse.json({ users: usersWithRelations, total, page, limit });
+  // Filter out service accounts with no seat or profile (e.g., HOA Services)
+  const residents = usersWithRelations.filter(
+    u => u.standardSeats.length > 0 || u.soloSeat || u.profiles.length > 0
+  );
+
+  return NextResponse.json({ users: residents, total: residents.length, page, limit });
 }
 
 /**
