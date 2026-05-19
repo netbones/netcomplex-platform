@@ -256,6 +256,22 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase: 26-navigation-alignment
+
+**Goal:** Align all navigation surfaces with NAVIGATION_GOVERNANCE.md — single source of truth, More dropdown, 4-section burger, Conservation/Campaign mutual exclusion, role-aware admin isolation
+
+**Status:** Planned
+
+**Requirements:** NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, NAV-06, NAV-07, NAV-08, NAV-09
+
+**Plans:** 3 plans
+
+- [ ] 26-01-PLAN.md — Navigation config foundation: types, items, filtering functions, headerEngagementFocus setting
+- [ ] 26-02-PLAN.md — Wire components: Header (More dropdown + avatar), MobileMenu (4-section burger), Footer (2-tier), SideDrawer (flag-gated)
+- [ ] 26-03-PLAN.md — Admin UI (engagement focus selector), dead code cleanup, navigation-config test suite
+
+---
+
 ## Future Phases (To Be Planned)
 
 ### Phase: Second Tenant
