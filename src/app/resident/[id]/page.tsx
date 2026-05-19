@@ -171,6 +171,12 @@ interface ResidentUser {
       homeImage: string | null;
     };
   };
+  profileProperty?: {
+    id: string;
+    street: string;
+    unit: string;
+    homeImage: string | null;
+  };
   contents: Array<{
     id: string;
     title: string;
@@ -275,12 +281,14 @@ function ProfileContent() {
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             {(user.standardSeats?.[0]?.household?.homeImage ||
-              user.soloSeat?.household?.homeImage) && (
+              user.soloSeat?.household?.homeImage ||
+              user.profileProperty?.homeImage) && (
               <div className="h-48 w-full">
                 <img
                   src={
                     user.standardSeats?.[0]?.household?.homeImage ||
                     user.soloSeat?.household?.homeImage ||
+                    user.profileProperty?.homeImage ||
                     ''
                   }
                   alt={`${user.name}'s home`}
@@ -301,9 +309,12 @@ function ProfileContent() {
                   <p className="text-gray-600 mt-1">
                     {user.standardSeats?.[0]?.household?.street ||
                       user.soloSeat?.household?.street ||
+                      user.profileProperty?.street ||
                       'Address not available'}
-                    {(user.standardSeats?.[0]?.household?.unit || user.soloSeat?.household?.unit) &&
-                      `, ${user.standardSeats?.[0]?.household?.unit || user.soloSeat?.household?.unit}`}
+                    {(user.standardSeats?.[0]?.household?.unit ||
+                      user.soloSeat?.household?.unit ||
+                      user.profileProperty?.unit) &&
+                      `, ${user.standardSeats?.[0]?.household?.unit || user.soloSeat?.household?.unit || user.profileProperty?.unit}`}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
                     Resident since {new Date(user.createdAt).getFullYear()}

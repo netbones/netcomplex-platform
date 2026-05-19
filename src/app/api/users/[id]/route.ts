@@ -1,4 +1,13 @@
-import { db, users, standardSeats, soloSeats, properties, contents } from '@api/db';
+import {
+  db,
+  users,
+  standardSeats,
+  soloSeats,
+  properties,
+  contents,
+  profiles,
+  households,
+} from '@api/db';
 import { NextResponse } from 'next/server';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
@@ -77,7 +86,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   // Get standardSeats with property
   const seats = await db
     .select({
-      property: {
+      household: {
         id: properties.id,
         street: properties.street,
         unit: properties.unit,
@@ -93,7 +102,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const soloSeatResult = await db
     .select({
       seatType: soloSeats.seatType,
-      property: {
+      household: {
         id: properties.id,
         street: properties.street,
         unit: properties.unit,
@@ -103,6 +112,22 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .from(soloSeats)
     .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
     .where(eq(soloSeats.userId, userId))
+    .limit(1);
+
+  // Get profile-based address (for family members without seats)
+  const profileResult = await db
+    .select({
+      property: {
+        id: properties.id,
+        street: properties.street,
+        unit: properties.unit,
+        homeImage: properties.homeImage,
+      },
+    })
+    .from(profiles)
+    .innerJoin(households, eq(profiles.householdId, households.id))
+    .innerJoin(properties, eq(households.propertyId, properties.id))
+    .where(and(eq(profiles.userId, userId), eq(profiles.status, 'ACTIVE')))
     .limit(1);
 
   // Get published contents
@@ -133,6 +158,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     ...user,
     standardSeats: seats,
     soloSeat: soloSeatResult[0] || null,
+    profileProperty: profileResult[0]?.property || null,
     contents: localizedContents,
   });
 }
