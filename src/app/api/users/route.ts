@@ -186,7 +186,8 @@ export async function GET(request: Request) {
 
   // Filter out service accounts with no seat or profile (e.g., HOA Services)
   const residents = usersWithRelations.filter(
-    u => u.standardSeats.length > 0 || u.soloSeat || u.profiles.length > 0
+    userRecord =>
+      userRecord.standardSeats.length > 0 || userRecord.soloSeat || userRecord.profiles.length > 0
   );
 
   return NextResponse.json({ users: residents, total: residents.length, page, limit });
