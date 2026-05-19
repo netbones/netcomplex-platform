@@ -41,6 +41,14 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'warn',
       'prefer-const': 'error',
       'no-var': 'error',
+      'id-length': [
+        'error',
+        {
+          min: 3,
+          exceptions: ['id', 'db', 'in', 'to', 'i', 'j', 'k', 'e', 'n', 'x', 'y', 'z', 't', 'q'],
+          properties: 'never',
+        },
+      ],
       'boundaries/no-unknown': 'error',
       'boundaries/no-unknown-files': 'error',
       'boundaries/element-types': [
