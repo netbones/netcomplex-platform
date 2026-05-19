@@ -2,6 +2,7 @@ import { db, users, standardSeats, soloSeats, properties, contents } from '@api/
 import { NextResponse } from 'next/server';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
+import { getLocalizedValue, defaultLanguage } from '@shared/lib';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -120,11 +121,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .orderBy(desc(contents.publishedAt))
     .limit(10);
 
+  // Transform localized fields to strings
+  const localizedContents = userContents.map(item => ({
+    ...item,
+    title: getLocalizedValue(item.title as Record<string, unknown>, defaultLanguage) || '',
+    excerpt: getLocalizedValue(item.excerpt as Record<string, unknown>, defaultLanguage),
+    content: getLocalizedValue(item.content as Record<string, unknown>, defaultLanguage) || '',
+  }));
+
   return NextResponse.json({
     ...user,
     standardSeats: seats,
     soloSeat: soloSeatResult[0] || null,
-    contents: userContents,
+    contents: localizedContents,
   });
 }
 
