@@ -1,7 +1,12 @@
 import { db, contents, users, groups } from '@api/db';
 import { eq, and, or, isNull, lte, gt, type SQL } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@shared/lib';
+import {
+  getLocalizedValue,
+  getLocalizedContent,
+  supportedLanguages,
+  defaultLanguage,
+} from '@shared/lib';
 import { revalidateContent } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { auth } from '@api/auth';
@@ -47,58 +52,6 @@ function transformContentForLocale(content: Record<string, unknown>, userLocale:
       excerpt: content.excerpt,
     },
   };
-}
-
-/**
- * Get localized value that also handles TipTap JSON objects
- */
-function getLocalizedContent(
-  localeData: Record<string, unknown> | null | undefined,
-  userLocale: string,
-  fallbackLocale: string = defaultLanguage
-): string | Record<string, unknown> | null {
-  if (!localeData) return null;
-
-  // If it's a TipTap document (has type: 'doc'), return as-is
-  if (localeData.type === 'doc') {
-    return localeData as Record<string, unknown>;
-  }
-
-  // Try user locale
-  if (localeData[userLocale]) {
-    const value = localeData[userLocale];
-    if (typeof value === 'string') {
-      return value;
-    }
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
-      return value as Record<string, unknown>;
-    }
-  }
-
-  // Try fallback locale
-  if (localeData[fallbackLocale]) {
-    const value = localeData[fallbackLocale];
-    if (typeof value === 'string') {
-      return value;
-    }
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
-      return value as Record<string, unknown>;
-    }
-  }
-
-  // Return first available value
-  const keys = Object.keys(localeData);
-  if (keys.length > 0) {
-    const value = localeData[keys[0]];
-    if (typeof value === 'string') {
-      return value;
-    }
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
-      return value as Record<string, unknown>;
-    }
-  }
-
-  return null;
 }
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {

@@ -5,6 +5,7 @@ export {
   supportedLanguages,
   defaultLanguage,
   getLocalizedValue,
+  getLocalizedContent,
   languageNames,
   getContentLocales,
   type SupportedLanguage,

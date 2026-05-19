@@ -48,6 +48,59 @@ export function getLocalizedValue(
   return null;
 }
 
+/**
+ * Get localized value that also handles TipTap JSON objects.
+ * Returns the full TipTap document if found, or a string for plain text.
+ */
+export function getLocalizedContent(
+  localeData: Record<string, unknown> | null | undefined,
+  userLocale: string,
+  fallbackLocale: string = defaultLanguage
+): string | Record<string, unknown> | null {
+  if (!localeData) return null;
+
+  // If it's a TipTap document (has type: 'doc'), return as-is
+  if (localeData.type === 'doc') {
+    return localeData as Record<string, unknown>;
+  }
+
+  // Try user locale
+  if (localeData[userLocale]) {
+    const value = localeData[userLocale];
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      return value as Record<string, unknown>;
+    }
+  }
+
+  // Try fallback locale
+  if (localeData[fallbackLocale]) {
+    const value = localeData[fallbackLocale];
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      return value as Record<string, unknown>;
+    }
+  }
+
+  // Return first available value
+  const keys = Object.keys(localeData);
+  if (keys.length > 0) {
+    const value = localeData[keys[0]];
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      return value as Record<string, unknown>;
+    }
+  }
+
+  return null;
+}
+
 export const namespaces = [
   'common',
   'dashboard',
