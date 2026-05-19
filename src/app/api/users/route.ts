@@ -2,7 +2,7 @@ import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, users, profiles, standardSeats, soloSeats, properties, households } from '@api/db';
 import { NextResponse } from 'next/server';
-import { eq, and, or, asc, ilike, count } from 'drizzle-orm';
+import { eq, and, or, asc, ilike, count, ne } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
@@ -54,7 +54,12 @@ export async function GET(request: Request) {
   const skip = (page - 1) * limit;
 
   // Build base conditions - always filter by tenant and active users only
-  const conditions: SQL<unknown>[] = [eq(users.tenantId, tenantId), eq(users.isActive, true)];
+  // Exclude AGENT users from directory (they appear in Services tab instead)
+  const conditions: SQL<unknown>[] = [
+    eq(users.tenantId, tenantId),
+    eq(users.isActive, true),
+    ne(users.role, 'AGENT'),
+  ];
 
   if (!canViewAll) {
     conditions.push(eq(users.isPublic, true));
