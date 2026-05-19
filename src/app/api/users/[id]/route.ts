@@ -7,8 +7,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const { tenantId } = await withTenant();
 
-  // Determine if id is a UUID or a profile slug
+  // Determine if id is a UUID or a profile slug/string ID
   const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
+  // Build the where clause: match by UUID id, or by id/profileSlug for string identifiers
+  const whereClause = isUUID
+    ? and(eq(users.id, id), eq(users.tenantId, tenantId))
+    : and(
+        eq(users.tenantId, tenantId),
+        eq(users.id, id) // Try matching by id first (e.g., 'user-anna-patel')
+      );
 
   // Get user data (filter by tenantId)
   const userResult = await db
@@ -29,14 +37,40 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       profileSlug: users.profileSlug,
     })
     .from(users)
-    .where(and(isUUID ? eq(users.id, id) : eq(users.profileSlug, id), eq(users.tenantId, tenantId)))
+    .where(whereClause)
     .limit(1);
 
-  if (!userResult[0]) {
+  // If not found by id, try profileSlug
+  let user = userResult[0] as (typeof userResult)[number] | undefined;
+  if (!user && !isUUID) {
+    const slugResult = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        phone: users.phone,
+        interests: users.interests,
+        avatar: users.avatar,
+        books: users.books,
+        dashboardLayout: users.dashboardLayout,
+        isPublic: users.isPublic,
+        showEmail: users.showEmail,
+        showPhone: users.showPhone,
+        role: users.role,
+        createdAt: users.createdAt,
+        profileSlug: users.profileSlug,
+      })
+      .from(users)
+      .where(and(eq(users.profileSlug, id), eq(users.tenantId, tenantId)))
+      .limit(1);
+
+    user = slugResult[0];
+  }
+
+  if (!user) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  const user = userResult[0];
   const userId = user.id;
 
   // Get standardSeats with property
