@@ -121,23 +121,16 @@ export async function GET(request: Request) {
     whereConditions.push(eq(contents.groupId, groupId));
   }
 
-  // Users can only see their own content unless they have content permission
-  const canViewAll = hasPermission(authData?.role || 'RESIDENT', 'content');
+  // Filter by author only when explicitly requested (e.g., "my posts" page)
+  // Public/news listings should show ALL published content for the tenant
   if (authorId) {
     whereConditions.push(eq(contents.authorId, authorId));
-  } else if (!canViewAll && authData) {
-    whereConditions.push(eq(contents.authorId, authData.userId));
   }
 
-  // For public queries, filter by publish/expiry dates
-  // Admins see all content regardless of schedule
-  if (!canViewAll) {
-    const now = new Date();
-    // Only show content that has been published (publishedAt <= now or publishedAt is null)
-    whereConditions.push(or(isNull(contents.publishedAt), lte(contents.publishedAt, now)));
-    // AND has not expired (expiresAt is null or expiresAt > now)
-    whereConditions.push(or(isNull(contents.expiresAt), gt(contents.expiresAt, now)));
-  }
+  // Always filter by publish/expiry dates for public-facing queries
+  const now = new Date();
+  whereConditions.push(or(isNull(contents.publishedAt), lte(contents.publishedAt, now)));
+  whereConditions.push(or(isNull(contents.expiresAt), gt(contents.expiresAt, now)));
 
   const contentItems = await db
     .select({
