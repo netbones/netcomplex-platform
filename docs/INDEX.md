@@ -34,6 +34,8 @@ Core system designs, technical models, and technical foundations.
 - **[TIER_MODEL.md](./architecture/TIER_MODEL.md)**: Service tiering and subscription logic.
 - **[NETCOMPLEX_ARCHITECTURE.md](./architecture/NETCOMPLEX_ARCHITECTURE.md)**: Overall system topology and architecture.
 - **[netcomplex_modular_services_architecture.html](./architecture/netcomplex_modular_services_architecture.html)**: Modular services architecture diagram.
+- **[REG_FLOW.md](/docs/architecture/REG_FLOW.md)**:
+  : registration flow documentation
 
 ---
 

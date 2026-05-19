@@ -430,35 +430,55 @@ On success: /admin/platform
 
 ---
 
-## Flow 7: Team Invitations (During Onboarding)
+## Flow 7: Team Invitations & Acceptance
 
-**Purpose:** Tenant admins invite co-administrators/board members.
+**Purpose:** Tenant admins invite co-administrators/board members, and invitees accept via token link.
 
 ### Entry Points
 
-- **Component:** `src/features/onboarding/ui/steps/InviteStep.tsx`
-- **Trigger:** Onboarding Wizard Step 4
-- **API:** `POST /api/invitations`
+- **Create:** `src/features/onboarding/ui/steps/InviteStep.tsx` (Onboarding Step 4)
+- **Accept:** `/invite/[token]` page
+- **APIs:** `POST /api/invitations`, `GET /api/invitations/validate`, `POST /api/invitations/accept`
 
 ### Flow Diagram
 
 ```
 Onboarding Step 4: Invite Team
   │
-  ├─ Admin enters email + selects role (ADMIN/MANAGER/BOARD)
+  ├─ Admin enters email + selects role (ADMIN/MANAGER/BOARD/AGENT)
   ├─ Clicks "Add" to add to invite list
   ├─ Can add multiple invites
   │
   ▼
 POST /api/invitations (for each invite)
   │
-  ├─ Creates invitation record (PENDING, 7-day expiry)
-  └─ ⚠️ NO email sent
+  ├─ Creates invitation record (PENDING, 7-day expiry, unique token)
+  ├─ Sends invitation email with accept link → /invite/[token]
   │
   ▼
-Invitations stored in database
+Invitee receives email → clicks link → /invite/[token]
   │
-  └─ ⚠️ NO acceptance flow implemented
+  ├─ GET /api/invitations/validate?token=<token>
+  ├─ Shows invitation details (community, role, inviter)
+  │
+  ├─ If user exists AND logged in with matching email:
+  │   ├─ Clicks "Accept Invitation"
+  │   ├─ POST /api/invitations/accept
+  │   ├─ Updates user role + tenantId via Better Auth
+  │   ├─ Marks invitation as ACCEPTED
+  │   └─ Redirects to /dashboard
+  │
+  ├─ If user exists but NOT logged in:
+  │   └─ "Sign In to Accept" → /sign-in?email=<email>
+  │
+  └─ If user does NOT exist:
+      ├─ "Create Account & Accept" → /sign-up?token=<token>&email=<email>&name=<name>&role=<role>&tenantId=<tenantId>
+      ├─ Signup page pre-fills email/name, shows invitation banner
+      ├─ POST /api/auth/signup (with invitationToken)
+      ├─ Creates user via Better Auth
+      ├─ Applies invitation role + tenantId
+      ├─ Marks invitation as ACCEPTED
+      └─ Redirects to /verify-email
 ```
 
 ### Database Tables Affected
@@ -466,6 +486,8 @@ Invitations stored in database
 | Table        | Action | Notes                                      |
 | ------------ | ------ | ------------------------------------------ |
 | `invitation` | Insert | PENDING status, 7-day expiry, unique token |
+| `invitation` | Update | Status → ACCEPTED (after acceptance)       |
+| `user`       | Update | role + tenantId set from invitation        |
 
 ### Invitation Record Structure
 
@@ -474,10 +496,10 @@ Invitations stored in database
   id: UUID,
   email: string (unique),
   name: string (derived from email),
-  role: 'ADMIN' | 'MANAGER' | 'BOARD',
+  role: 'RESIDENT' | 'ADMIN' | 'MANAGER' | 'BOARD' | 'AGENT' | 'ASSOCIATE' | 'GROUP_ADMIN' | 'COMMITTEE',
   residentType: 'OWNER' (default),
   token: UUID (unique),
-  status: 'PENDING',
+  status: 'PENDING' | 'ACCEPTED' | 'EXPIRED' | 'REVOKED',
   expiresAt: 7 days from creation,
   tenantId: current tenant,
   inviterId: current user,
@@ -485,17 +507,21 @@ Invitations stored in database
 }
 ```
 
-### ⚠️ Known Gaps
+### Email Notifications
 
-1. **No invitation acceptance flow** — Records created but nothing to accept them
-2. **No invitation emails sent** — API creates records but doesn't send emails
-3. **No token-based signup** — Invitees can't use token to complete registration
+| Email           | Trigger            | Template                   |
+| --------------- | ------------------ | -------------------------- |
+| Team Invitation | Invitation created | `templates.teamInvitation` |
 
 ### Key Files
 
 - `src/features/onboarding/ui/steps/InviteStep.tsx` — Invite UI
-- `src/app/api/invitations/route.ts` — Create invitation
-- `src/app/api/invitations/[id]/route.ts` — Cancel invitation
+- `src/app/api/invitations/route.ts` — Create invitation + send email
+- `src/app/api/invitations/validate/route.ts` — Validate token
+- `src/app/api/invitations/accept/route.ts` — Accept invitation
+- `src/app/invite/[token]/page.tsx` — Acceptance page
+- `src/app/(auth)/sign-up/page.tsx` — Token-based signup
+- `src/app/api/auth/signup/route.ts` — Signup with invitation processing
 
 ---
 

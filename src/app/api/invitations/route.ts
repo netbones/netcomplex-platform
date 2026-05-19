@@ -1,7 +1,12 @@
-import { db, invitations } from '@api/db';
+import { db, invitations, tenants, users } from '@api/db';
 import { eq, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
+import { sendEmail } from '@shared/api/email/resend';
+import { templates } from '@shared/api/email/templates';
+import { apiLogger } from '@shared/lib';
+
+const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 export async function GET() {
   const invitationList = await db.select().from(invitations).orderBy(desc(invitations.createdAt));
@@ -16,7 +21,23 @@ export async function POST(request: Request) {
 
   // For now, use a placeholder - in production this would come from the authenticated user
   const inviterId = body.inviterId || 'placeholder-user-id';
-  const organizationId = body.organizationId || 'placeholder-org-id';
+
+  // Get tenant name for email
+  const [tenant] = await db
+    .select({ name: tenants.name })
+    .from(tenants)
+    .where(eq(tenants.id, tenantId))
+    .limit(1);
+
+  // Get inviter name for email
+  const [inviter] = await db
+    .select({ name: users.name })
+    .from(users)
+    .where(eq(users.id, inviterId))
+    .limit(1);
+
+  const token = crypto.randomUUID();
+  const acceptUrl = `${BETTER_AUTH_URL}/invite/${token}`;
 
   const [invitation] = await db
     .insert(invitations)
@@ -28,13 +49,28 @@ export async function POST(request: Request) {
       role: body.role ?? 'RESIDENT',
       residentType: body.residentType ?? 'OWNER',
       inviterId,
-      organizationId,
-      token: crypto.randomUUID(),
+      organizationId: body.organizationId || 'placeholder-org-id',
+      token,
       status: 'PENDING',
       createdAt: new Date(),
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     })
     .returning();
+
+  // Send invitation email (non-blocking)
+  void sendEmail({
+    to: body.email,
+    subject: templates.teamInvitation.subject,
+    html: templates.teamInvitation.getHtml(
+      body.name,
+      inviter?.name || 'A community member',
+      tenant?.name || 'Soralia Village',
+      acceptUrl,
+      body.role ?? 'RESIDENT'
+    ),
+  }).catch(error => {
+    apiLogger.error({ invitationId: invitation.id, error }, 'Failed to send invitation email');
+  });
 
   return NextResponse.json(invitation, { status: 201 });
 }

@@ -230,6 +230,68 @@ export const templates = {
 </html>
 `,
   },
+
+  /**
+   * Team invitation email sent when a user is invited to join a community.
+   * Includes an acceptance link with the invitation token.
+   */
+  teamInvitation: {
+    subject: 'You have been invited to join Soralia Village',
+    getHtml: (
+      inviteeName: string,
+      inviterName: string,
+      communityName: string,
+      acceptUrl: string,
+      role: string
+    ) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Invitation</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #4F46E5; margin: 0;">Soralia Village</h1>
+  </div>
+  
+  <h2 style="color: #1f2937;">You've been invited to join ${escapeHtml(communityName)}</h2>
+  
+  <p style="margin: 20px 0;">Hi${inviteeName ? `, ${escapeHtml(inviteeName)}` : ''}!</p>
+  
+  <p style="margin: 20px 0;"><strong>${escapeHtml(inviterName)}</strong> has invited you to join <strong>${escapeHtml(communityName)}</strong> as a <strong>${escapeHtml(role)}</strong>.</p>
+  
+  <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin: 20px 0;">
+    <h3 style="margin-top: 0; color: #1f2937;">What you can do as a ${escapeHtml(role)}:</h3>
+    <ul style="margin: 0; padding-left: 20px;">
+      <li>Access the community portal</li>
+      <li>Connect with community members</li>
+      <li>View community announcements and events</li>
+      ${role === 'ADMIN' || role === 'BOARD' || role === 'MANAGER' ? '<li>Manage community settings and content</li>' : ''}
+    </ul>
+  </div>
+  
+  <div style="text-align: center; margin: 30px 0;">
+    <a href="${acceptUrl}" style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Accept Invitation</a>
+  </div>
+  
+  <div style="background: #fef3c7; border-radius: 8px; padding: 16px; margin: 20px 0;">
+    <p style="margin: 0; color: #92400e; font-size: 14px;">
+      <strong>⚠️ Important:</strong> This invitation expires in 7 days.
+    </p>
+  </div>
+  
+  <p style="color: #6b7280; font-size: 14px;">If you didn't expect this invitation, please ignore this email.</p>
+  
+  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+  <p style="color: #9ca3af; font-size: 12px; text-align: center;">
+    &copy; ${new Date().getFullYear()} Soralia Village. All rights reserved.
+  </p>
+</body>
+</html>
+`,
+  },
 } as const;
 
 /**
