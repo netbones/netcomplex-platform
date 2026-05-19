@@ -1,113 +1,470 @@
 # Test-Driven Development (TDD) Workflow
 
-This document describes the TDD approach for Netcomplex and Soralia Village multi-tenant - a Next.js + TypeScript project.
+This document describes the TDD approach for Netcomplex and Soralia Village multi-tenant — a Next.js + TypeScript platform using Prisma for schema development and Drizzle ORM for runtime querying.
 
-## Core Principles
+---
 
-1. **Write the test first** - Test describes the desired behavior before implementation
-2. **Red-Green-Refactor** - Failing test → Passing code → Clean up
-3. **One test at a time** - Focus on single behavior per test
-4. **Test behavior, not implementation** - Test the public API, not internal details
+# Core Principles
 
-## When to Use TDD
+1. **Write the test first**
+   Tests define desired behavior before implementation.
 
-TDD is recommended for:
+2. **Red → Green → Refactor**
+   - Red: failing test
+   - Green: minimal passing implementation
+   - Refactor: improve structure without changing behavior
 
-- Complex business logic (validation, calculations)
-- Utility functions and helpers
-- Data transformation functions
-- API route handlers
-- Custom hooks
+3. **Test behavior, not implementation**
+   Focus on public APIs, observable outputs, and domain guarantees.
 
-For UI components, prefer **component testing** with visual validation rather than pure unit TDD.
+4. **Database contracts are part of the domain**
+   Schema integrity, tenant isolation, and relation consistency must be tested.
 
-## Workflow
+5. **Prisma is the schema authority**
+   All database structures originate from `prisma/schema.prisma`.
 
-### 1. Identify the Behavior
+6. **Drizzle is the runtime query layer**
+   All application queries use Drizzle for edge compatibility and typed execution.
 
-Before writing code, clearly define:
+---
 
-- What the feature should do
-- What the expected output/input is
-- What edge cases need handling
+# Architecture-Aware TDD
 
-### 2. Write a Failing Test
+## ORM Workflow
 
-```typescript
-// Example: validateEmail utility
-describe('validateEmail', () => {
-  it('should return true for valid email', () => {
-    expect(validateEmail('user@example.com')).toBe(true);
-  });
+This project uses a hybrid ORM architecture:
 
-  it('should return false for invalid email', () => {
-    expect(validateEmail('not-an-email')).toBe(false);
+| Concern            | Technology       |
+| ------------------ | ---------------- |
+| Schema definition  | Prisma           |
+| Migrations         | Prisma Migrate   |
+| Runtime querying   | Drizzle ORM      |
+| Edge compatibility | Drizzle          |
+| Type generation    | Prisma → Drizzle |
+
+### Rules
+
+- Define all models in `prisma/schema.prisma`
+- Never manually edit generated Drizzle schema artifacts
+- Use Drizzle for all application queries
+- Validate generated schema contracts with tests
+- Treat migrations as testable artifacts
+
+---
+
+# When to Use TDD
+
+TDD is strongly recommended for:
+
+| Area                         | Priority |
+| ---------------------------- | -------- |
+| Business logic               | High     |
+| Validation logic             | High     |
+| Database query layers        | High     |
+| Multi-tenant isolation       | Critical |
+| API route handlers           | High     |
+| Utility functions            | High     |
+| Custom hooks                 | Medium   |
+| UI interactions              | Medium   |
+| Pure presentation components | Lower    |
+
+---
+
+# Full Workflow
+
+---
+
+# 1. Identify the Behavior
+
+Before writing code:
+
+- What should the system do?
+- What tenant constraints exist?
+- What database guarantees are required?
+- What edge cases exist?
+- What permissions are involved?
+
+Example:
+
+```txt
+A resident should only see maintenance requests for their tenant.
+```
+
+---
+
+# 2. Write a Failing Test
+
+## Business Logic Example
+
+```ts
+describe('calculateInvoiceTotal', () => {
+  it('should apply VAT correctly', () => {
+    expect(calculateInvoiceTotal(100, 0.15)).toBe(115);
   });
 });
 ```
 
-### 3. Run Tests to Verify Failure
+## Query Layer Example
 
-```bash
-npm run test        # Run all tests
-npm run test:watch  # Watch mode for development
+```ts
+describe('maintenance queries', () => {
+  it('should only return requests for active tenant', async () => {
+    const results = await getMaintenanceRequests(tenantId);
+
+    expect(results.every(r => r.tenantId === tenantId)).toBe(true);
+  });
+});
 ```
 
-The test should fail with a clear error message.
+## Schema Contract Example
 
-### 4. Write Minimal Code to Pass
+```ts
+describe('schema contracts', () => {
+  it('should expose tenantId on tenant-bound tables', () => {
+    expect(users.tenantId).toBeDefined();
+    expect(groups.tenantId).toBeDefined();
+    expect(events.tenantId).toBeDefined();
+  });
+});
+```
 
-```typescript
-export function validateEmail(email: string): boolean {
-  return email.includes('@') && email.includes('.');
+---
+
+# 3. Verify Failure (Red)
+
+Run tests and confirm failure:
+
+```bash
+pnpm run test
+pnpm run test:watch
+```
+
+The failure must clearly describe missing behavior.
+
+---
+
+# 4. Implement Minimal Code (Green)
+
+## Schema Changes
+
+1. Update Prisma schema
+
+```prisma
+model Event {
+  id       String @id @default(cuid())
+  tenantId String
 }
 ```
 
-### 5. Run Tests to Verify Pass
+2. Generate migration
 
-If tests pass, proceed. If not, iterate.
-
-### 6. Refactor
-
-Clean up the implementation while keeping tests passing:
-
-- Remove duplication
-- Improve naming
-- Optimize performance
-
-### 7. Commit
-
-Commit both the test and implementation together with a descriptive message.
-
-## Test Organization
-
-### File Placement
-
+```bash
+pnpm prisma migrate dev
 ```
+
+3. Generate Drizzle schema artifacts
+
+```bash
+pnpm prisma generate
+```
+
+---
+
+## Query Implementation
+
+Use Drizzle exclusively:
+
+```ts
+export async function getEvents(tenantId: string) {
+  return db.select().from(events).where(eq(events.tenantId, tenantId));
+}
+```
+
+---
+
+# 5. Run Tests Again
+
+```bash
+pnpm run test
+```
+
+All tests must pass before refactoring.
+
+---
+
+# 6. Refactor
+
+Allowed refactors:
+
+- Query extraction
+- Type improvements
+- Relation simplification
+- Performance optimization
+- Transaction consolidation
+- Hook extraction
+- Component decomposition
+
+Refactoring must NOT:
+
+- Change tenant guarantees
+- Alter schema behavior
+- Break migrations
+- Introduce untested query behavior
+
+---
+
+# 7. Validate Database Contracts
+
+After schema changes:
+
+```bash
+pnpm prisma migrate deploy
+pnpm prisma generate
+pnpm run test
+pnpm run lint
+pnpm run typecheck
+```
+
+---
+
+# Database Schema TDD
+
+---
+
+# Prisma-First Schema Development
+
+All database changes begin in:
+
+```txt
+prisma/schema.prisma
+```
+
+Never:
+
+- modify generated Drizzle schema manually
+- bypass migrations
+- add ad-hoc runtime tables
+
+---
+
+# Schema Contract Testing
+
+Every major schema change should include:
+
+| Test Type            | Purpose                      |
+| -------------------- | ---------------------------- |
+| Enum synchronization | Prevent Prisma/Drizzle drift |
+| Nullable consistency | Prevent runtime mismatches   |
+| Relation integrity   | Validate joins               |
+| Tenant guarantees    | Enforce isolation            |
+| Cascade behavior     | Prevent orphaned data        |
+
+---
+
+## Example Enum Test
+
+```ts
+describe('role enum', () => {
+  it('should include platform_admin role', () => {
+    expect(roleEnum.enumValues).toContain('platform_admin');
+  });
+});
+```
+
+---
+
+## Example Relation Test
+
+```ts
+describe('user relations', () => {
+  it('should associate profiles with users', async () => {
+    const result = await db.query.users.findFirst({
+      with: {
+        profile: true,
+      },
+    });
+
+    expect(result?.profile).toBeDefined();
+  });
+});
+```
+
+---
+
+# Migration Testing
+
+Every migration must be testable.
+
+## Required Validation
+
+```bash
+pnpm prisma migrate reset --force
+pnpm prisma generate
+pnpm run test
+```
+
+CI should verify:
+
+- migrations execute cleanly
+- schema generates correctly
+- Drizzle types compile
+- relations remain valid
+
+---
+
+# Multi-Tenant Testing
+
+Tenant isolation is a first-class invariant.
+
+Every tenant-aware query should have tests.
+
+---
+
+## Example Tenant Isolation Test
+
+```ts
+describe('tenant isolation', () => {
+  it('should never leak cross-tenant data', async () => {
+    const tenantAResults = await getUsers(tenantA);
+    const tenantBResults = await getUsers(tenantB);
+
+    expect(tenantAResults.some(u => u.tenantId === tenantB)).toBe(false);
+  });
+});
+```
+
+---
+
+# Query Layer Testing
+
+Do NOT test Prisma clients directly.
+
+Test Drizzle query behavior instead.
+
+Preferred targets:
+
+- repositories
+- query builders
+- service functions
+- API handlers
+
+Avoid:
+
+- mocking Drizzle internals
+- testing generated code directly
+
+---
+
+# API Route Testing
+
+API routes should test:
+
+- authentication
+- authorization
+- tenant isolation
+- validation
+- response shape
+- cache invalidation
+
+---
+
+## Example API Test
+
+```ts
+describe('GET /api/events', () => {
+  it('should return only tenant events', async () => {
+    const response = await request(app).get('/api/events').set('Authorization', token);
+
+    expect(response.status).toBe(200);
+
+    expect(response.body.every((e: Event) => e.tenantId === tenantId)).toBe(true);
+  });
+});
+```
+
+---
+
+# ISR & Cache Testing
+
+When using ISR or revalidation:
+
+Test:
+
+- cache invalidation
+- stale data replacement
+- tag revalidation
+- tenant-specific cache separation
+
+---
+
+## Example
+
+```ts
+describe('dashboard revalidation', () => {
+  it('should invalidate dashboard cache after mutation', async () => {
+    await createMaintenanceRequest(data);
+
+    const cache = await getDashboardCache();
+
+    expect(cache.invalidated).toBe(true);
+  });
+});
+```
+
+---
+
+# Component Testing
+
+Prefer behavior testing over snapshot testing.
+
+Focus on:
+
+- user interaction
+- accessibility
+- loading states
+- error handling
+- permission rendering
+
+---
+
+# Test Organization
+
+---
+
+# File Placement
+
+```txt
 src/
 ├── lib/
-│   ├── validation.ts       # Implementation
-│   └── validation.test.ts # Tests (colocated)
-├── hooks/
-│   ├── useAuth.ts         # Hook
-│   └── useAuth.test.ts    # Tests
-├── components/
-│   └── Button/
-│       ├── Button.tsx
-│       └── Button.test.tsx
+│   ├── validation.ts
+│   └── validation.test.ts
+
+├── db/
+│   ├── queries/
+│   │   ├── users.ts
+│   │   └── users.test.ts
+
+├── app/api/
+│   ├── events/
+│   │   ├── route.ts
+│   │   └── route.test.ts
 ```
 
-### Naming Conventions
+---
 
-- **Describe**: `describe('validateEmail', () => { ... })`
-- **It**: `it('should return true for valid email', () => { ... })`
-- **Test**: `test('handles null input', () => { ... })`
+# Naming Conventions
 
-## Test Patterns
+```ts
+describe('getTenantUsers', () => {
+  it('should return only active tenant users', () => {});
+});
+```
 
-### AAA Pattern (Arrange-Act-Assert)
+---
 
-```typescript
+# AAA Pattern
+
+```ts
 it('should calculate total correctly', () => {
   // Arrange
   const items = [{ price: 10 }, { price: 20 }];
@@ -120,144 +477,179 @@ it('should calculate total correctly', () => {
 });
 ```
 
-### Given-When-Then
+---
 
-```typescript
-describe('calculateTotal', () => {
-  it('given multiple items, when summing prices, then returns correct total', () => {
-    const items = [{ price: 10 }, { price: 20 }];
-    const total = calculateTotal(items);
-    expect(total).toBe(30);
-  });
-});
+# Mocking Strategy
+
+Mock only external systems:
+
+- email providers
+- payment providers
+- Supabase realtime
+- external APIs
+
+Avoid mocking:
+
+- business logic
+- query composition
+- validation logic
+
+---
+
+# Fixtures
+
+```ts
+export const mockTenant = {
+  id: 'tenant-1',
+  slug: 'soralia',
+};
+
+export const mockUser = {
+  id: 'user-1',
+  tenantId: 'tenant-1',
+};
 ```
 
-## Running Tests
+---
+
+# Coverage Targets
+
+| Category       | Target |
+| -------------- | ------ |
+| Business logic | 90%+   |
+| Query layer    | 90%+   |
+| API routes     | 85%+   |
+| Hooks          | 80%+   |
+| Components     | 70%+   |
+| Utilities      | 85%+   |
+
+Coverage is not the goal.
+Correctness and domain guarantees are the goal.
+
+---
+
+# CI Requirements
+
+Every PR should run:
 
 ```bash
-# Run all tests
+pnpm prisma generate
+pnpm prisma migrate deploy
+pnpm run lint
+pnpm run typecheck
 pnpm run test
+```
 
-# Run tests matching pattern
-ppm run test -- --grep "validateEmail"
+---
+
+# Common Pitfalls
+
+---
+
+## ❌ Testing Prisma Instead of Queries
+
+Bad:
+
+```ts
+expect(prisma.user.findMany).toHaveBeenCalled();
+```
+
+Good:
+
+```ts
+expect(results).toHaveLength(3);
+```
+
+---
+
+## ❌ Manual Drizzle Schema Edits
+
+Generated schema files must never become source-of-truth.
+
+Prisma owns the schema definition.
+
+---
+
+## ❌ Missing Tenant Tests
+
+Every tenant-aware query requires isolation tests.
+
+---
+
+## ❌ Over-Mocking
+
+Mock infrastructure boundaries, not domain behavior.
+
+---
+
+# Recommended Database Structure
+
+As schema grows:
+
+```txt
+src/db/
+├── schema/
+│   ├── generated/
+│   ├── relations/
+│   ├── enums/
+│   └── queries/
+```
+
+---
+
+# Recommended Testing Stack
+
+| Concern           | Tool                    |
+| ----------------- | ----------------------- |
+| Unit testing      | Vitest                  |
+| Component testing | Testing Library         |
+| API testing       | Supertest               |
+| Mocking           | Vitest mocks            |
+| E2E               | Playwright              |
+| Database testing  | Testcontainers/Postgres |
+
+---
+
+# Development Commands
+
+```bash
+# Run tests
+pnpm run test
 
 # Watch mode
 pnpm run test:watch
 
-# Coverage report
+# Coverage
 pnpm run test:coverage
 
-# Run in CI mode (single run)
-pnpm run test:ci
+# Type checking
+pnpm run typecheck
+
+# Generate Prisma artifacts
+pnpm prisma generate
+
+# Apply migrations
+pnpm prisma migrate dev
+
+# Reset database
+pnpm prisma migrate reset --force
 ```
 
-## Test Utilities
+---
 
-### Testing Library
+# Final Principle
 
-Use `@testing-library/react` for component testing:
+The database layer is part of the domain model.
 
-```typescript
-import { render, screen, fireEvent } from '@testing-library/react';
+In a multi-tenant architecture:
 
-it('should submit form on button click', () => {
-  render(<Form onSubmit={mockSubmit} />);
-  fireEvent.click(screen.getByText('Submit'));
-  expect(mockSubmit).toHaveBeenCalled();
-});
+- schema integrity
+- tenant isolation
+- query correctness
+- migration safety
+
+are business requirements — not implementation details.
+
 ```
 
-### Mocking
-
-Use Jest mocks for external dependencies:
-
-```typescript
-// Mock API calls
-jest.mock('@api/db', () => ({
-  db: {
-    query: jest.fn(),
-  },
-}));
-
-// Mock hooks
-jest.mock('@api/tenant', () => ({
-  useTenant: () => ({ id: 'test-tenant' }),
-}));
 ```
-
-### Fixtures
-
-Create reusable test data:
-
-```typescript
-// tests/fixtures/user.ts
-export const mockUser = {
-  id: 'user-123',
-  email: 'test@example.com',
-  role: 'resident',
-};
-
-export const createMockUser = (overrides = {}) => ({
-  ...mockUser,
-  ...overrides,
-});
-```
-
-## Coverage Guidelines
-
-| Category          | Target                           |
-| ----------------- | -------------------------------- |
-| Business Logic    | 90%+                             |
-| Utility Functions | 85%+                             |
-| Hooks             | 80%+                             |
-| Components        | 70%+ (focus on user interaction) |
-| API Routes        | 80%+                             |
-
-**Note:** High coverage doesn't mean good tests. Focus on meaningful test cases that verify behavior and catch bugs.
-
-## Common Pitfalls
-
-### ❌ Don't Test Implementation Details
-
-```typescript
-// Bad - tests internal state
-expect(component.state('count')).toBe(5);
-
-// Good - tests observable behavior
-expect(screen.getByText('Count: 5')).toBeInTheDocument();
-```
-
-### ❌ Don't Over-Mock
-
-```typescript
-// Bad - mocks everything, tests nothing real
-jest.mock('some-lib');
-const result = someLib.method();
-
-// Good - mock only external dependencies
-jest.mock('@api/db');
-const result = await fetchUserData(); // Tests real logic with mocked DB
-```
-
-### ❌ Don't Write Tests After
-
-TDD means tests come first. If you're adding tests after implementation:
-
-1. You're likely testing what's implemented, not what's needed
-2. Tests may miss edge cases that TDD would catch
-
-## Integration with BD Issues
-
-When working on a BD task:
-
-1. Write failing tests first (Red)
-2. Implement to pass tests (Green)
-3. Refactor for quality (Refactor)
-4. Run full test suite
-5. Commit with message: `test: add validation tests for user input`
-
-## Resources
-
-- [Jest Docs](https://jestjs.io/docs/getting-started)
-- [Testing Library Docs](https://testing-library.com/docs/react-testing-library/intro/)
-- [Vitest](https://vitest.io/) - Alternative test runner (faster, Vite-native)
