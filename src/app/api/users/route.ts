@@ -2,7 +2,7 @@ import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, users, profiles, standardSeats, soloSeats, properties, households } from '@api/db';
 import { NextResponse } from 'next/server';
-import { eq, and, or, asc, ilike, count, ne } from 'drizzle-orm';
+import { eq, and, or, asc, ilike, count, ne, sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
@@ -55,10 +55,16 @@ export async function GET(request: Request) {
 
   // Build base conditions - always filter by tenant and active users only
   // Exclude AGENT users (appear in Services tab)
+  // Only include users with at least one seat or profile (filter out service accounts)
   const conditions: SQL<unknown>[] = [
     eq(users.tenantId, tenantId),
     eq(users.isActive, true),
     ne(users.role, 'AGENT'),
+    sql`(
+      EXISTS (SELECT 1 FROM "standardSeat" WHERE "userId" = ${users.id})
+      OR EXISTS (SELECT 1 FROM "soloSeat" WHERE "userId" = ${users.id})
+      OR EXISTS (SELECT 1 FROM "profile" WHERE "userId" = ${users.id} AND "status" = 'ACTIVE')
+    )`,
   ];
 
   if (!canViewAll) {
@@ -184,13 +190,7 @@ export async function GET(request: Request) {
     })
   );
 
-  // Filter out service accounts with no seat or profile (e.g., HOA Services)
-  const residents = usersWithRelations.filter(
-    userRecord =>
-      userRecord.standardSeats.length > 0 || userRecord.soloSeat || userRecord.profiles.length > 0
-  );
-
-  return NextResponse.json({ users: residents, total: residents.length, page, limit });
+  return NextResponse.json({ users: usersWithRelations, total, page, limit });
 }
 
 /**
