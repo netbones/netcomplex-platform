@@ -39,8 +39,8 @@ async function getSessionAndRole(request: Request) {
  * GET /api/users - List users with optional filters
  */
 export async function GET(request: Request) {
-  // Enforce tenant isolation - use tenantSlug since DB stores slugs not UUIDs
-  const { tenantSlug } = await withTenant();
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
 
   const authData = await getSessionAndRole(request);
   const isAuthenticated = authData !== null;
@@ -54,7 +54,7 @@ export async function GET(request: Request) {
   const skip = (page - 1) * limit;
 
   // Build base conditions - always filter by tenant and active users only
-  const conditions: SQL<unknown>[] = [eq(users.tenantId, tenantSlug), eq(users.isActive, true)];
+  const conditions: SQL<unknown>[] = [eq(users.tenantId, tenantId), eq(users.isActive, true)];
 
   if (!canViewAll) {
     conditions.push(eq(users.isPublic, true));
@@ -118,7 +118,7 @@ export async function GET(request: Request) {
         })
         .from(standardSeats)
         .innerJoin(properties, eq(standardSeats.propertyId, properties.id))
-        .where(and(eq(standardSeats.tenantId, tenantSlug), eq(standardSeats.userId, user.id)));
+        .where(and(eq(standardSeats.tenantId, tenantId), eq(standardSeats.userId, user.id)));
 
       // Get soloSeat with property
 
@@ -134,7 +134,7 @@ export async function GET(request: Request) {
         })
         .from(soloSeats)
         .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
-        .where(and(eq(soloSeats.tenantId, tenantSlug), eq(soloSeats.userId, user.id)))
+        .where(and(eq(soloSeats.tenantId, tenantId), eq(soloSeats.userId, user.id)))
         .limit(1);
 
       // Get active profiles with household, property, and landlord
@@ -164,7 +164,7 @@ export async function GET(request: Request) {
         .leftJoin(users, eq(profiles.landlordId, users.id))
         .where(
           and(
-            eq(profiles.tenantId, tenantSlug),
+            eq(profiles.tenantId, tenantId),
             eq(profiles.userId, user.id),
             eq(profiles.status, 'ACTIVE' as const)
           )
@@ -194,13 +194,13 @@ export async function POST(request: Request) {
 
   const body = await request.json();
   const now = new Date();
-  const { tenantSlug } = await withTenant();
+  const { tenantId } = await withTenant();
 
   const newUser = await db
     .insert(users)
     .values({
       id: crypto.randomUUID(),
-      tenantId: tenantSlug,
+      tenantId,
       email: body.email,
       name: body.name,
       phone: body.phone || null,
