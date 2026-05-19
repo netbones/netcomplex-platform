@@ -14,6 +14,7 @@ export * from './Loading';
 export * from './MediaLibrary';
 export * from './Pagination';
 export * from './RichTextEditor';
+export * from './RichTextRenderer';
 export * from './SideDrawer';
 export * from './TagCloud';
 export * from './Turnstile';

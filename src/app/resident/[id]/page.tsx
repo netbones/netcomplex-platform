@@ -5,92 +5,11 @@ import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@api/auth-client';
-import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
+import { Breadcrumbs, ErrorBoundary, TagCloud, RichTextRenderer } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import { sanitizeHtml } from '@shared/lib/sanitize';
 
 const log = createComponentLogger('resident-profile');
-
-interface TipTapNode {
-  type: string;
-  content?: TipTapNode[];
-  attrs?: Record<string, unknown>;
-  text?: string;
-  marks?: Array<{ type: string }>;
-}
-
-function renderText(node: TipTapNode): React.ReactNode {
-  let result: React.ReactNode = node.text || '';
-  if (node.marks) {
-    for (const mark of node.marks) {
-      if (mark.type === 'bold') result = <strong>{result}</strong>;
-      if (mark.type === 'italic') result = <em>{result}</em>;
-    }
-  }
-  return result;
-}
-
-function renderNode(node: TipTapNode, key: number): React.ReactNode {
-  const { type, content, attrs } = node;
-  if (!type) return null;
-
-  switch (type) {
-    case 'heading': {
-      const level = (attrs?.level as number) || 2;
-      const headingStyles: Record<number, string> = {
-        1: 'text-2xl font-bold text-gray-900 mt-6 mb-3',
-        2: 'text-xl font-bold text-gray-900 mt-5 mb-2',
-        3: 'text-lg font-semibold text-gray-900 mt-4 mb-2',
-      };
-      const HeadingElement = level === 1 ? 'h1' : level === 3 ? 'h3' : 'h2';
-      return (
-        <HeadingElement key={key} className={headingStyles[level] || headingStyles[2]}>
-          {content?.map((child, i) => renderText(child))}
-        </HeadingElement>
-      );
-    }
-    case 'paragraph':
-      return (
-        <p key={key} className="text-gray-700 leading-relaxed mb-3">
-          {content?.map((child, i) => renderText(child))}
-        </p>
-      );
-    case 'bulletList':
-      return (
-        <ul key={key} className="list-disc list-inside space-y-1 mb-3 text-gray-700">
-          {content?.map((item, i) => (
-            <li key={i}>{item.content?.map((child, j) => renderNode(child, j))}</li>
-          ))}
-        </ul>
-      );
-    case 'orderedList':
-      return (
-        <ol key={key} className="list-decimal list-inside space-y-1 mb-3 text-gray-700">
-          {content?.map((item, i) => (
-            <li key={i}>{item.content?.map((child, j) => renderNode(child, j))}</li>
-          ))}
-        </ol>
-      );
-    case 'text':
-      return <span key={key}>{renderText(node)}</span>;
-    default:
-      return null;
-  }
-}
-
-function renderContent(content: string | Record<string, unknown>): React.ReactNode {
-  if (typeof content === 'string') {
-    return <p className="text-gray-700 leading-relaxed">{content}</p>;
-  }
-  if (content && typeof content === 'object' && 'type' in content) {
-    const doc = content as unknown as TipTapNode;
-    if (doc.type === 'doc' && doc.content) {
-      return doc.content.map((node, idx) => renderNode(node, idx));
-    }
-    return renderNode(doc, 0);
-  }
-  return <p className="text-gray-700">{String(content)}</p>;
-}
 
 interface SidebarWidget {
   id: string;
@@ -446,9 +365,10 @@ function ProfileContent() {
                         {content.excerpt && (
                           <p className="text-gray-600 text-sm mt-1 mb-3">{content.excerpt}</p>
                         )}
-                        <div className="prose prose-sm max-w-none content-body mb-3">
-                          {renderContent(content.content)}
-                        </div>
+                        <RichTextRenderer
+                          content={content.content}
+                          className="prose prose-sm max-w-none content-body mb-3"
+                        />
                         <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
                           <div className="flex items-center gap-3">
                             <span className="text-xs text-gray-500">
