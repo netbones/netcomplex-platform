@@ -45,7 +45,7 @@ export default tseslint.config(
         'error',
         {
           min: 3,
-          exceptions: ['id', 'db', 'in', 'to', 'i', 'j', 'k', 'e', 'n', 'x', 'y', 'z', 't', 'q'],
+          exceptions: ['id', 'db', 'in', 'to', 'i', 'j', 'k', 'n', 'x', 'y', 'z', 't', 'q'],
           properties: 'never',
         },
       ],
