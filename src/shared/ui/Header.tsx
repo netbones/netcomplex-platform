@@ -18,7 +18,6 @@ const BASE_NAV = [
   { href: '/resources', label: 'resources' },
   { href: '/news', label: 'news' },
   { href: '/maintenance', label: 'maintenance' },
-  { href: '/events', label: 'events' },
   { href: '/surveys', label: 'surveys' },
   { href: '/competition', label: 'competition' },
   { href: '/conservation', label: 'conservation' },
@@ -109,7 +108,6 @@ export function Header() {
           if (item.href === '/resources' && pageFlags.resources === false) return false;
           if (item.href === '/news' && pageFlags.news === false) return false;
           if (item.href === '/maintenance' && pageFlags.maintenance === false) return false;
-          if (item.href === '/events' && pageFlags.events === false) return false;
           if (item.href === '/competition' && pageFlags.competitions === false) return false;
           if (item.href === '/conservation' && pageFlags.conservation === 'external') return false;
           if (item.href === '/campaign' && pageFlags.campaign === false) return false;
