@@ -8,20 +8,20 @@
 
 | Priority | Open | Focus                         |
 | -------- | ---- | ----------------------------- |
-| P2       | 1    | Core features, epics          |
-| P3       | 12   | Tech debt, Phase 4/5 features |
+| P2       | 2    | Core features, epics          |
+| P3       | 11   | Tech debt, Phase 4/5 features |
 | P4       | 6    | Backlog, blocked events       |
 
 ## Summary by Status
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 16    |
-| ◐ In Progress | 3     |
+| ○ Open        | 18    |
+| ◐ In Progress | 1     |
 
 ---
 
-## P2 — High Priority (1 issue)
+## P2 — High Priority (2 issues)
 
 ### Features & Tasks
 
@@ -37,7 +37,7 @@
 
 ---
 
-## P3 — Medium Priority (13 issues)
+## P3 — Medium Priority (11 issues)
 
 ### Features
 
@@ -48,17 +48,16 @@
 
 ### Tasks
 
-| ID      | Title                                                | Status |
-| ------- | ---------------------------------------------------- | ------ |
-| `jc1`   | Implement cookie management for privacy compliance   | ○      |
-| `6d8`   | Migrate React imports to Preact and remove dead code | ○      |
-| `gtm`   | Phase 5: Notification system                         | ○      |
-| `cp8`   | Phase 5: Payment processing                          | ○      |
-| `qx7`   | Phase 5: Booking calendar integration                | ○      |
-| `kia`   | Phase 4: Advanced analytics                          | ○      |
-| `9e8`   | Phase 4: Provider dashboard                          | ○      |
-| `69c`   | Phase 4: Third party registration flow               | ○      |
-| `71p.3` | Add tests for custom hooks                           | ○      |
+| ID    | Title                                                | Status |
+| ----- | ---------------------------------------------------- | ------ |
+| `jc1` | Implement cookie management for privacy compliance   | ○      |
+| `6d8` | Migrate React imports to Preact and remove dead code | ○      |
+| `gtm` | Phase 5: Notification system                         | ○      |
+| `cp8` | Phase 5: Payment processing                          | ○      |
+| `qx7` | Phase 5: Booking calendar integration                | ○      |
+| `kia` | Phase 4: Advanced analytics                          | ○      |
+| `9e8` | Phase 4: Provider dashboard                          | ○      |
+| `69c` | Phase 4: Third party registration flow               | ○      |
 
 ### In Progress
 
