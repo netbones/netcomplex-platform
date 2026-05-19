@@ -16,7 +16,7 @@ function transformContentForLocale(content: Record<string, unknown>, userLocale:
   return {
     id: content.id,
     title: getLocalizedValue(content.title as Record<string, unknown>, userLocale, defaultLocale),
-    content: getLocalizedValue(
+    content: getLocalizedContent(
       content.content as Record<string, unknown>,
       userLocale,
       defaultLocale
@@ -47,6 +47,58 @@ function transformContentForLocale(content: Record<string, unknown>, userLocale:
       excerpt: content.excerpt,
     },
   };
+}
+
+/**
+ * Get localized value that also handles TipTap JSON objects
+ */
+function getLocalizedContent(
+  localeData: Record<string, unknown> | null | undefined,
+  userLocale: string,
+  fallbackLocale: string = defaultLanguage
+): string | Record<string, unknown> | null {
+  if (!localeData) return null;
+
+  // If it's a TipTap document (has type: 'doc'), return as-is
+  if (localeData.type === 'doc') {
+    return localeData as Record<string, unknown>;
+  }
+
+  // Try user locale
+  if (localeData[userLocale]) {
+    const value = localeData[userLocale];
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      return value as Record<string, unknown>;
+    }
+  }
+
+  // Try fallback locale
+  if (localeData[fallbackLocale]) {
+    const value = localeData[fallbackLocale];
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      return value as Record<string, unknown>;
+    }
+  }
+
+  // Return first available value
+  const keys = Object.keys(localeData);
+  if (keys.length > 0) {
+    const value = localeData[keys[0]];
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      return value as Record<string, unknown>;
+    }
+  }
+
+  return null;
 }
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -111,6 +163,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       updatedAt: contents.updatedAt,
       publishedAt: contents.publishedAt,
       expiresAt: contents.expiresAt,
+      authorName: users.name,
+      groupName: groups.name,
     })
     .from(contents)
     .leftJoin(users, eq(contents.authorId, users.id))
@@ -127,8 +181,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   // Add author and group info
   const result = {
     ...localized,
-    author: content.authorId ? { id: content.authorId, name: '' } : null,
-    group: content.groupId ? { id: content.groupId, name: '' } : null,
+    author: content.authorId ? { id: content.authorId, name: content.authorName || '' } : null,
+    group: content.groupId ? { id: content.groupId, name: content.groupName || '' } : null,
   };
 
   return NextResponse.json(result);
