@@ -2748,8 +2748,9 @@ async function seed() {
   const TENANT_ID = existingTenant?.id || 'soralia';
   console.log('  Using tenant ID:', TENANT_ID);
 
-  // Fix any content records that have the wrong tenantId (from old seeds)
+  // Fix any records that have the wrong tenantId (from old seeds)
   if (existingTenant) {
+    await db.update(users).set({ tenantId: TENANT_ID }).where(eq(users.tenantId, 'soralia'));
     await db.update(contents).set({ tenantId: TENANT_ID }).where(eq(contents.tenantId, 'soralia'));
     await db
       .update(properties)
@@ -2766,6 +2767,15 @@ async function seed() {
       .update(competitions)
       .set({ tenantId: TENANT_ID })
       .where(eq(competitions.tenantId, 'soralia'));
+    await db
+      .update(households)
+      .set({ tenantId: TENANT_ID })
+      .where(eq(households.tenantId, 'soralia'));
+    await db
+      .update(standardSeats)
+      .set({ tenantId: TENANT_ID })
+      .where(eq(standardSeats.tenantId, 'soralia'));
+    await db.update(profiles).set({ tenantId: TENANT_ID }).where(eq(profiles.tenantId, 'soralia'));
     console.log('  ✓ Fixed tenantId on existing records');
   }
 
