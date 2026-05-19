@@ -306,18 +306,26 @@ function ProfileContent() {
                 />
                 <div className="flex-1">
                   <h1 className="text-3xl font-bold text-gray-900">{user.name}</h1>
-                  <p className="text-gray-600 mt-1">
-                    {user.standardSeats?.[0]?.household?.street ||
-                      user.soloSeat?.household?.street ||
-                      user.profileProperty?.street ||
-                      'Address not available'}
-                    {(user.standardSeats?.[0]?.household?.unit ||
-                      user.soloSeat?.household?.unit ||
-                      user.profileProperty?.unit) &&
-                      `, ${user.standardSeats?.[0]?.household?.unit || user.soloSeat?.household?.unit || user.profileProperty?.unit}`}
-                  </p>
+                  {user.role === 'AGENT' ? (
+                    <p className="text-soralia-primary font-medium mt-1">
+                      Trusted Service Provider
+                    </p>
+                  ) : (
+                    <p className="text-gray-600 mt-1">
+                      {user.standardSeats?.[0]?.household?.street ||
+                        user.soloSeat?.household?.street ||
+                        user.profileProperty?.street ||
+                        'Address not available'}
+                      {(user.standardSeats?.[0]?.household?.unit ||
+                        user.soloSeat?.household?.unit ||
+                        user.profileProperty?.unit) &&
+                        `, ${user.standardSeats?.[0]?.household?.unit || user.soloSeat?.household?.unit || user.profileProperty?.unit}`}
+                    </p>
+                  )}
                   <p className="text-sm text-gray-500 mt-1">
-                    Resident since {new Date(user.createdAt).getFullYear()}
+                    {user.role === 'AGENT'
+                      ? `Service provider since ${new Date(user.createdAt).getFullYear()}`
+                      : `Resident since ${new Date(user.createdAt).getFullYear()}`}
                   </p>
                   <div className="flex flex-col sm:flex-row sm:gap-4 mt-3">
                     {user.showEmail && (
