@@ -1,14 +1,14 @@
 # BD Issue Tracker
 
 > **Last updated:** 2026-05-17 (Session 3)
-> **Total remaining:** 24 issues (down from 54)
-> **Closed this session:** 30 issues total (22 in Session 1, 5 in Session 2, 3 in Session 3)
+> **Total remaining:** 19 issues (down from 54)
+> **Closed this session:** 35 issues total (22 in Session 1, 5 in Session 2, 8 in Session 3)
 
 ## Summary by Priority
 
 | Priority | Open | Focus                         |
 | -------- | ---- | ----------------------------- |
-| P2       | 6    | Core features, epics          |
+| P2       | 1    | Core features, epics          |
 | P3       | 12   | Tech debt, Phase 4/5 features |
 | P4       | 6    | Backlog, blocked events       |
 
@@ -16,12 +16,12 @@
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 21    |
+| ○ Open        | 16    |
 | ◐ In Progress | 3     |
 
 ---
 
-## P2 — High Priority (6 issues)
+## P2 — High Priority (1 issue)
 
 ### Features & Tasks
 
@@ -29,20 +29,11 @@
 | ----- | ---- | ------------------------ | ------ |
 | `l23` | epic | Epic: i18n for all pages | ○      |
 
-### Epics
-
-| ID    | Title                            | Blocked Children                   | Status |
-| ----- | -------------------------------- | ---------------------------------- | ------ |
-| `71p` | Continue improving test coverage | `71p.1`, `71p.2`, `71p.3`, `71p.4` | ○      |
-
 ### Blocked Tasks
 
-| ID      | Title                                          | Blocked By | Status |
-| ------- | ---------------------------------------------- | ---------- | ------ |
-| `71p.1` | Add tests for API routes                       | `71p`      | ○      |
-| `71p.2` | Add tests for form components                  | `71p`      | ○      |
-| `71p.4` | Add tests for UI components                    | `71p`      | ○      |
-| `0f7`   | i18n: Database content localization for Tiptap | `l23`      | ○      |
+| ID    | Title                                          | Blocked By | Status |
+| ----- | ---------------------------------------------- | ---------- | ------ |
+| `0f7` | i18n: Database content localization for Tiptap | `l23`      | ○      |
 
 ---
 
@@ -92,13 +83,18 @@
 
 ## Closed This Session (28 issues)
 
-### Session 3 - Bot Protection & Type Safety (2 issues)
+### Session 3 - Bot Protection & Type Safety (8 issues)
 
-| ID    | Title                                 | Reason                                                                                                                        |
-| ----- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `yml` | Implement bot protection with captcha | Fixed: added Turnstile to sign-in, sign-up, forgot-password, reset-password; created /api/auth/signin route with verification |
-| `c3y` | Fix ESLint any type errors            | Fixed: replaced 3 `any` usages with `InferSelectModel` and `InferInsertModel` from drizzle-orm                                |
-| `wmm` | Improve directory cards with chat     | Implemented: created DirectoryChatModal with find-or-create flow, Supabase realtime, wired to card chat buttons               |
+| ID      | Title                                 | Reason                                                                                                                        |
+| ------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `yml`   | Implement bot protection with captcha | Fixed: added Turnstile to sign-in, sign-up, forgot-password, reset-password; created /api/auth/signin route with verification |
+| `c3y`   | Fix ESLint any type errors            | Fixed: replaced 3 `any` usages with `InferSelectModel` and `InferInsertModel` from drizzle-orm                                |
+| `wmm`   | Improve directory cards with chat     | Implemented: created DirectoryChatModal with find-or-create flow, Supabase realtime, wired to card chat buttons               |
+| `71p`   | Continue improving test coverage      | Closed: added 69 new tests across auth routes, forms, hooks, and UI components (205 total passing)                            |
+| `71p.1` | Add tests for API routes              | Added auth route tests for signup, signin, forgot-password, reset-password                                                    |
+| `71p.2` | Add tests for form components         | Added SignInPage, ForgotPasswordPage, ResetPasswordPage component tests                                                       |
+| `71p.3` | Add tests for custom hooks            | Added usePresence and useMessageSend hook tests                                                                               |
+| `71p.4` | Add tests for UI components           | Added LoadingSpinner, LoadingSkeleton, Breadcrumbs, ErrorBoundary, Tooltip, TurnstileWidget tests                             |
 
 ### Session 2 - High Priority (5 issues)
 
@@ -160,6 +156,6 @@
 
 1. **`6d8`** — Migrate React imports to Preact (performance)
 2. **`l23`** — Epic: i18n for all pages (large scope)
-3. **`71p`** — Continue improving test coverage (epic)
-4. **`ltn`** — Add request validation plugin (security)
-5. **`bgb`** — Epic: Interests Visualization (in-progress)
+3. **`ltn`** — Add request validation plugin (security)
+4. **`bgb`** — Epic: Interests Visualization (in-progress)
+5. **`7td`** — Enable One Tap passkey login (security)
