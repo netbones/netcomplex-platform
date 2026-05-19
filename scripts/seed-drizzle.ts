@@ -7,6 +7,7 @@
  */
 import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { eq } from 'drizzle-orm';
 import { Pool } from 'pg';
 import { users } from '@schema/users';
 import { properties } from '@schema/properties';
@@ -34,6 +35,7 @@ const connectionString = (process.env.DATABASE_URL ?? '').replace(
 const pool = new Pool({ connectionString, connectionTimeoutMillis: 15000 });
 const db = drizzle(pool);
 
+// Placeholder — overridden in seed() with actual tenant UUID
 const TENANT_ID = 'soralia';
 const now = new Date();
 
@@ -42,7 +44,7 @@ const now = new Date();
 // ---------------------------------------------------------------------------
 
 const TENANT = {
-  id: TENANT_ID,
+  id: 'soralia',
   name: 'Soralia Village',
   slug: 'soralia',
   primaryColor: '#4F46E5',
@@ -2011,6 +2013,362 @@ const CONTENT_ITEMS = [
     featured: true,
     publishedAt: new Date('2026-04-01'),
   },
+  // Events as Content items (for news page Events tab)
+  {
+    id: 'event-content-plant-swap',
+    title: { en: 'Monthly Plant Swap' },
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'Exchange plants, seeds, and cuttings with fellow gardeners. Bring at least one plant to swap. All skill levels welcome. Refreshments provided.',
+            },
+          ],
+        },
+        {
+          type: 'heading',
+          attrs: { level: 2 },
+          content: [{ type: 'text', text: 'When & Where' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📅 25 May 2026 at 10:00 AM' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📍 Community Garden' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '👤 Organised by Sarah Mitchell' }],
+        },
+      ],
+    },
+    excerpt: { en: 'Share plants, seeds, and gardening tips with neighbours' },
+    image: 'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=800&q=80',
+    category: 'EVENT' as const,
+    tags: ['plant-swap', 'gardening', 'community', 'free'],
+    authorId: 'user-sarah-mitchell',
+    published: true,
+    featured: false,
+    publishedAt: new Date('2026-05-01'),
+    expiresAt: new Date('2026-05-26'),
+  },
+  {
+    id: 'event-content-yoga',
+    title: { en: 'Morning Yoga in the Park' },
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'Free yoga session for all levels. Bring your own mat. Suitable for beginners and experienced practitioners. Led by certified instructor Priya Naidoo.',
+            },
+          ],
+        },
+        {
+          type: 'heading',
+          attrs: { level: 2 },
+          content: [{ type: 'text', text: 'When & Where' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📅 20 May 2026 at 7:00 AM' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📍 Community Park' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '👤 Led by Priya Naidoo' }],
+        },
+      ],
+    },
+    excerpt: { en: 'Free yoga for all levels in the Community Park' },
+    image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80',
+    category: 'EVENT' as const,
+    tags: ['yoga', 'fitness', 'wellness', 'free', 'morning'],
+    authorId: 'user-priya-naidoo',
+    published: true,
+    featured: false,
+    publishedAt: new Date('2026-05-01'),
+    expiresAt: new Date('2026-05-21'),
+  },
+  {
+    id: 'event-content-book-club',
+    title: { en: 'Book Club: "The Promise" by Damon Galgut' },
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'Monthly book discussion. This month we are reading The Promise by Damon Galgut, winner of the Booker Prize. New members always welcome.',
+            },
+          ],
+        },
+        {
+          type: 'heading',
+          attrs: { level: 2 },
+          content: [{ type: 'text', text: 'When & Where' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📅 28 May 2026 at 6:30 PM' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📍 Community Hall' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '👤 Organised by Emma Williams' }],
+        },
+      ],
+    },
+    excerpt: { en: 'Monthly book discussion — The Promise by Damon Galgut' },
+    category: 'EVENT' as const,
+    tags: ['book-club', 'reading', 'discussion', 'community-hall'],
+    authorId: 'user-emma-williams',
+    published: true,
+    featured: false,
+    publishedAt: new Date('2026-05-01'),
+    expiresAt: new Date('2026-05-29'),
+  },
+  {
+    id: 'event-content-agm',
+    title: { en: 'Annual General Meeting 2026' },
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'Annual General Meeting of the Soralia Village Homeowners Association. Agenda includes financial report, board elections, and community updates. All owners must attend.',
+            },
+          ],
+        },
+        {
+          type: 'heading',
+          attrs: { level: 2 },
+          content: [{ type: 'text', text: 'When & Where' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📅 15 June 2026 at 7:00 PM' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📍 Community Hall' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '👤 Board of Directors' }],
+        },
+        {
+          type: 'heading',
+          attrs: { level: 2 },
+          content: [{ type: 'text', text: 'Agenda' }],
+        },
+        {
+          type: 'bulletList',
+          content: [
+            {
+              type: 'listItem',
+              content: [
+                { type: 'paragraph', content: [{ type: 'text', text: 'Welcome and apologies' }] },
+              ],
+            },
+            {
+              type: 'listItem',
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'Confirmation of minutes from previous AGM' }],
+                },
+              ],
+            },
+            {
+              type: 'listItem',
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'Financial report and budget approval' }],
+                },
+              ],
+            },
+            {
+              type: 'listItem',
+              content: [
+                { type: 'paragraph', content: [{ type: 'text', text: 'Board elections' }] },
+              ],
+            },
+            {
+              type: 'listItem',
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [{ type: 'text', text: 'Community updates and Q&A' }],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    excerpt: { en: 'All owners must attend — financial report, board elections, and updates' },
+    image: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800&q=80',
+    category: 'EVENT' as const,
+    tags: ['agm', 'meeting', 'board', 'elections', 'mandatory'],
+    authorId: 'user-sarah-mitchell',
+    published: true,
+    featured: true,
+    publishedAt: new Date('2026-05-01'),
+    expiresAt: new Date('2026-06-16'),
+  },
+  {
+    id: 'event-content-aloe-workshop',
+    title: { en: 'Aloe Photography Workshop' },
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'Learn how to capture stunning photos of our iconic aloe plants. Professional photographer Michael Chen will share tips on composition, lighting, and macro photography techniques.',
+            },
+          ],
+        },
+        {
+          type: 'heading',
+          attrs: { level: 2 },
+          content: [{ type: 'text', text: 'When & Where' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📅 30 May 2026 at 8:00 AM' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📍 Soralia Nature Reserve' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '👤 Led by Michael Chen' }],
+        },
+      ],
+    },
+    excerpt: { en: 'Learn macro photography techniques with our iconic aloe plants' },
+    image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800&q=80',
+    category: 'EVENT' as const,
+    tags: ['photography', 'aloe', 'workshop', 'nature', 'macro'],
+    authorId: 'user-michael-chen',
+    published: true,
+    featured: false,
+    publishedAt: new Date('2026-05-01'),
+    expiresAt: new Date('2026-05-31'),
+  },
+  {
+    id: 'event-content-braai',
+    title: { en: 'Community Braai & Social' },
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'Join your neighbours for a relaxed community braai. Bring your own meat and drinks. Sides and desserts provided by the social committee. Entertainment and activities for children.',
+            },
+          ],
+        },
+        {
+          type: 'heading',
+          attrs: { level: 2 },
+          content: [{ type: 'text', text: 'When & Where' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📅 7 June 2026 at 4:00 PM' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📍 Community Park' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '👤 Social Committee' }],
+        },
+      ],
+    },
+    excerpt: { en: 'Relaxed community braai — bring your meat, sides provided' },
+    image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80',
+    category: 'EVENT' as const,
+    tags: ['braai', 'social', 'community', 'family', 'food'],
+    authorId: 'user-sarah-mitchell',
+    published: true,
+    featured: false,
+    publishedAt: new Date('2026-05-15'),
+    expiresAt: new Date('2026-06-08'),
+  },
+  {
+    id: 'event-content-cleanup',
+    title: { en: 'Community Cleanup Day' },
+    content: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'Help keep Soralia beautiful! Join us for a community cleanup of common areas, trails, and the wetland. Gloves and bags provided. Refreshments and thank-you braai afterwards.',
+            },
+          ],
+        },
+        {
+          type: 'heading',
+          attrs: { level: 2 },
+          content: [{ type: 'text', text: 'When & Where' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📅 14 June 2026 at 8:00 AM' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '📍 Meeting Point: Community Hall' }],
+        },
+        {
+          type: 'paragraph',
+          content: [{ type: 'text', text: '👤 Organised by David van der Merwe' }],
+        },
+      ],
+    },
+    excerpt: { en: 'Help keep Soralia beautiful — gloves and braai provided' },
+    category: 'EVENT' as const,
+    tags: ['cleanup', 'volunteering', 'community', 'environment', 'wetland'],
+    authorId: 'user-david-vdm',
+    published: true,
+    featured: false,
+    publishedAt: new Date('2026-05-15'),
+    expiresAt: new Date('2026-06-15'),
+  },
 ].map(c => ({
   ...c,
   tenantId: TENANT_ID,
@@ -2381,8 +2739,44 @@ const COMPETITIONS = [
 async function seed() {
   console.log('🌱 Seeding Soralia Village...\n');
 
+  // Look up existing tenant by slug to get its real UUID
+  const [existingTenant] = await db
+    .select()
+    .from(tenants)
+    .where(eq(tenants.slug, 'soralia'))
+    .limit(1);
+  const TENANT_ID = existingTenant?.id || 'soralia';
+  console.log('  Using tenant ID:', TENANT_ID);
+
+  // Fix any content records that have the wrong tenantId (from old seeds)
+  if (existingTenant) {
+    await db.update(contents).set({ tenantId: TENANT_ID }).where(eq(contents.tenantId, 'soralia'));
+    await db
+      .update(properties)
+      .set({ tenantId: TENANT_ID })
+      .where(eq(properties.tenantId, 'soralia'));
+    await db.update(events).set({ tenantId: TENANT_ID }).where(eq(events.tenantId, 'soralia'));
+    await db.update(groups).set({ tenantId: TENANT_ID }).where(eq(groups.tenantId, 'soralia'));
+    await db
+      .update(resources)
+      .set({ tenantId: TENANT_ID })
+      .where(eq(resources.tenantId, 'soralia'));
+    await db.update(surveys).set({ tenantId: TENANT_ID }).where(eq(surveys.tenantId, 'soralia'));
+    await db
+      .update(competitions)
+      .set({ tenantId: TENANT_ID })
+      .where(eq(competitions.tenantId, 'soralia'));
+    console.log('  ✓ Fixed tenantId on existing records');
+  }
+
   console.log('Tenant...');
-  await db.insert(tenants).values(TENANT).onConflictDoNothing();
+  await db
+    .insert(tenants)
+    .values(TENANT)
+    .onConflictDoUpdate({
+      target: tenants.slug,
+      set: { name: 'Soralia Village', primaryColor: '#4F46E5', active: true },
+    });
   console.log('  ✓ 1 tenant');
 
   console.log('Users...');
@@ -2447,7 +2841,13 @@ async function seed() {
 
   console.log('News & Content...');
   for (const item of CONTENT_ITEMS) {
-    await db.insert(contents).values(item).onConflictDoNothing();
+    await db
+      .insert(contents)
+      .values({ ...item, tenantId: TENANT_ID })
+      .onConflictDoUpdate({
+        target: contents.id,
+        set: { tenantId: TENANT_ID },
+      });
   }
   console.log(`  ✓ ${CONTENT_ITEMS.length} content items`);
 
