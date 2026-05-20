@@ -73,31 +73,6 @@ export const BOOKING_STATUSES = {
   COMPLETED: 'COMPLETED',
 } as const;
 
-/** Main navigation links for authenticated users */
-export const NAV_LINKS = [
-  { href: '/', page: 'home' },
-  { href: '/directory', page: 'directory' },
-  { href: '/services', page: 'services' },
-  { href: '/resources', page: 'resources' },
-  { href: '/conservation', page: 'conservation' },
-  { href: '/groups', page: 'groups' },
-  { href: '/interest', page: 'interest' },
-] as const;
-
-/** Public navigation links for unauthenticated users */
-export const PUBLIC_NAV_LINKS = [
-  { href: '/', page: 'home' },
-  { href: '/conservation', page: 'conservation' },
-] as const;
-
-/** Admin panel navigation links */
-export const ADMIN_LINKS = [
-  { href: '/admin/users', page: 'Users' },
-  { href: '/admin/content', page: 'Content' },
-  { href: '/admin/groups', page: 'Groups' },
-  { href: '/admin/requests', page: 'Requests' },
-] as const;
-
 /** Available interest categories for user profiles */
 export const INTEREST_CATEGORIES = [
   'gardening',

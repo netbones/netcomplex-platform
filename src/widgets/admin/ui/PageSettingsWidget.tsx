@@ -3,26 +3,16 @@
 import { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import type { PlatformPageFlags } from '@entities/tenant/api/flags/platform-flags';
 
 const log = createComponentLogger('PageSettingsWidget');
 
-interface PageFlags {
-  campaign: boolean;
-  conservation: 'default' | 'managed' | 'external';
-  conservationExternalUrl: string;
-  chat: boolean;
-  news: boolean;
-  events: boolean;
-  directory: boolean;
-  flags: boolean;
-}
-
 interface PageFlagsWidgetProps {
-  initialFlags?: PageFlags;
+  initialFlags?: PlatformPageFlags;
 }
 
 export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
-  const [flags, setFlags] = useState<PageFlags>(
+  const [flags, setFlags] = useState<PlatformPageFlags>(
     initialFlags || {
       campaign: true,
       conservation: 'default',
@@ -31,7 +21,16 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
       news: true,
       events: true,
       directory: true,
-      flags: true,
+      groups: true,
+      services: true,
+      resources: true,
+      maintenance: true,
+      surveys: true,
+      competitions: true,
+      dashboard: true,
+      bookings: true,
+      messages: true,
+      headerEngagementFocus: 'conservation',
     }
   );
   const [loading, setLoading] = useState(true);
@@ -55,7 +54,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
     fetchFlags();
   }, []);
 
-  const updateFlag = async (key: keyof PageFlags, value: string | boolean) => {
+  const updateFlag = async (key: keyof PlatformPageFlags, value: string | boolean) => {
     setSaving(true);
     setSaved(false);
 
@@ -104,16 +103,64 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
       description: 'Show community events',
     },
     {
+      key: 'groups' as const,
+      label: 'Groups',
+      icon: 'fa-users',
+      description: 'Show community groups',
+    },
+    {
+      key: 'services' as const,
+      label: 'Services',
+      icon: 'fa-concierge-bell',
+      description: 'Show services section',
+    },
+    {
+      key: 'resources' as const,
+      label: 'Resources',
+      icon: 'fa-book',
+      description: 'Show resources section',
+    },
+    {
+      key: 'maintenance' as const,
+      label: 'Maintenance',
+      icon: 'fa-tools',
+      description: 'Show maintenance section',
+    },
+    {
+      key: 'surveys' as const,
+      label: 'Surveys',
+      icon: 'fa-poll',
+      description: 'Show surveys section',
+    },
+    {
+      key: 'competitions' as const,
+      label: 'Competitions',
+      icon: 'fa-trophy',
+      description: 'Show competitions section',
+    },
+    {
+      key: 'dashboard' as const,
+      label: 'Dashboard',
+      icon: 'fa-tachometer-alt',
+      description: 'Show resident dashboard',
+    },
+    {
+      key: 'bookings' as const,
+      label: 'Bookings',
+      icon: 'fa-calendar-check',
+      description: 'Show facility bookings',
+    },
+    {
+      key: 'messages' as const,
+      label: 'Messages',
+      icon: 'fa-envelope',
+      description: 'Show messages',
+    },
+    {
       key: 'chat' as const,
       label: 'Chat',
       icon: 'fa-comments',
       description: 'Enable community chat',
-    },
-    {
-      key: 'flags' as const,
-      label: 'Page Settings',
-      icon: 'fa-cog',
-      description: 'Show page settings toggle',
     },
   ];
 
@@ -155,6 +202,59 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
           )}
         </div>
 
+        {/* Header Engagement Focus */}
+        <div className="border-t pt-6">
+          <h4 className="text-sm font-medium text-gray-700 mb-4 flex items-center gap-2">
+            <i className="fas fa-arrows-alt-h text-indigo-600"></i>
+            Header Engagement Focus
+          </h4>
+          <p className="text-xs text-gray-500 mb-3">
+            Choose which module appears in the header navigation. The other will appear in the
+            &quot;More&quot; dropdown.
+          </p>
+          <div className="space-y-2">
+            {[
+              {
+                value: 'conservation' as const,
+                label: 'Conservation in Header',
+                description: 'Campaign goes to More dropdown',
+              },
+              {
+                value: 'campaign' as const,
+                label: 'Campaign in Header',
+                description: 'Conservation goes to More dropdown',
+              },
+            ].map(option => (
+              <label
+                key={option.value}
+                className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition-all ${
+                  flags.headerEngagementFocus === option.value
+                    ? 'bg-indigo-50 border-2 border-indigo-500'
+                    : 'bg-slate-50 border-2 border-transparent hover:bg-gray-100'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <input
+                    type="radio"
+                    name="headerEngagementFocus"
+                    value={option.value}
+                    checked={flags.headerEngagementFocus === option.value}
+                    onChange={() => updateFlag('headerEngagementFocus', option.value)}
+                    className="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                  />
+                  <div>
+                    <p className="font-medium text-gray-900">{option.label}</p>
+                    <p className="text-sm text-gray-500">{option.description}</p>
+                  </div>
+                </div>
+                {flags.headerEngagementFocus === option.value && (
+                  <i className="fas fa-check-circle text-indigo-600 text-lg"></i>
+                )}
+              </label>
+            ))}
+          </div>
+        </div>
+
         {/* Page Toggles */}
         <div className="space-y-3">
           {pageOptions.map(option => (
@@ -174,7 +274,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
                 </div>
               </div>
               <button
-                onClick={() => updateFlag(option.key, !flags[option.key])}
+                onClick={() => updateFlag(option.key, !flags[option.key] as boolean)}
                 disabled={saving}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                   flags[option.key] ? 'bg-indigo-600' : 'bg-gray-200'
