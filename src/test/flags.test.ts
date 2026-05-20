@@ -143,6 +143,43 @@ describe('Page Visibility Integration', () => {
       expect(validModes.includes(mode)).toBe(false);
     });
   });
+
+  it('should validate headerEngagementFocus values', () => {
+    const validFocuses = ['conservation', 'campaign'];
+    const invalidFocuses = ['invalid', 'both', 'none', ''];
+
+    validFocuses.forEach(focus => {
+      expect(validFocuses.includes(focus)).toBe(true);
+    });
+
+    invalidFocuses.forEach(focus => {
+      expect(validFocuses.includes(focus)).toBe(false);
+    });
+  });
+
+  it('should default headerEngagementFocus to conservation', () => {
+    const defaultFlags = {
+      campaign: true,
+      conservation: 'default' as const,
+      conservationExternalUrl: '',
+      chat: true,
+      news: true,
+      events: true,
+      directory: true,
+      groups: true,
+      services: true,
+      resources: true,
+      maintenance: true,
+      surveys: true,
+      competitions: true,
+      dashboard: true,
+      bookings: true,
+      messages: true,
+      headerEngagementFocus: 'conservation' as const,
+    };
+
+    expect(defaultFlags.headerEngagementFocus).toBe('conservation');
+  });
 });
 
 describe('Admin Page Flags API', () => {
@@ -228,6 +265,25 @@ describe('Admin Page Flags API', () => {
       const data = await response.json();
 
       expect(data.error).toBe('Invalid key');
+    });
+
+    it('should update headerEngagementFocus', async () => {
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+        ok: true,
+        json: async () => ({ success: true, key: 'headerEngagementFocus', value: 'campaign' }),
+      });
+
+      const response = await fetch('/api/admin/settings/page-flags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'headerEngagementFocus', value: 'campaign' }),
+      });
+      const data = await response.json();
+
+      expect(response.ok).toBe(true);
+      expect(data.success).toBe(true);
+      expect(data.key).toBe('headerEngagementFocus');
+      expect(data.value).toBe('campaign');
     });
   });
 });
