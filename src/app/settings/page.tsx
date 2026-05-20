@@ -77,8 +77,8 @@ export default function SettingsPage() {
       try {
         const res = await fetch(`/api/users/${session.user.id}`);
         const data = await res.json();
-        if (data.avatar) {
-          setUserAvatar(data.avatar);
+        if (data.avatar || data.image) {
+          setUserAvatar(data.avatar || data.image);
         }
       } catch (e) {
         log.error({}, 'Failed to fetch user', e);
@@ -143,8 +143,16 @@ export default function SettingsPage() {
                       const res = await fetch(`/api/users/${session?.user?.id}`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ avatar: url }),
+                        body: JSON.stringify({ avatar: url, image: url }),
                       });
+
+                      // Update better-auth session so the header updates instantly
+                      try {
+                        await authClient.updateUser({ image: url });
+                      } catch (e) {
+                        log.error({}, 'Failed to update better-auth session image', e);
+                      }
+
                       if (res.ok) {
                         toast.success('Profile image saved!');
                       } else {

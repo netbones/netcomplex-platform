@@ -37,6 +37,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       phone: users.phone,
       interests: users.interests,
       avatar: users.avatar,
+      image: users.image,
       books: users.books,
       dashboardLayout: users.dashboardLayout,
       isPublic: users.isPublic,
@@ -61,6 +62,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         phone: users.phone,
         interests: users.interests,
         avatar: users.avatar,
+        image: users.image,
         books: users.books,
         dashboardLayout: users.dashboardLayout,
         isPublic: users.isPublic,
@@ -187,6 +189,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
   if (body.avatar !== undefined) {
     updateData.avatar = body.avatar;
+    updateData.image = body.avatar;
+  }
+  if (body.image !== undefined) {
+    updateData.image = body.image;
+    updateData.avatar = body.image;
   }
 
   const updatedUser = await db
