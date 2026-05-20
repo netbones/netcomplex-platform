@@ -33,7 +33,12 @@
     "adminSurveysNew": "Isilingo esitsha",
     "adminExternal": "Izilingo zangaphandle",
     "adminCategories": "Iindidi",
-    "adminFlags": "Amasethi ekhasis"
+    "adminFlags": "Amasethi ekhasis",
+    "more": "Kabanzi",
+    "explore": "Hlola",
+    "community": "Umphakathi",
+    "mySpace": "Isikhala sami",
+    "administration": "Ulawulo"
   },
   "footer": {
     "description": "Umphakathi wokuhlala eTheku, onikezela ngobomi bokuhlala kwanamasevisi anokuhlanganiswa.",

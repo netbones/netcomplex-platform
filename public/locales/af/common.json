@@ -33,7 +33,12 @@
     "adminSurveysNew": "Nuwe Opname",
     "adminExternal": "Eksterne Opnames",
     "adminCategories": "Kategorieë",
-    "adminFlags": "Bladsy Instellings"
+    "adminFlags": "Bladsy Instellings",
+    "more": "Meer",
+    "explore": "Verken",
+    "community": "Gemeenskap",
+    "mySpace": "My Ruimte",
+    "administration": "Administrasie"
   },
   "footer": {
     "description": "'n Eerste residensiële gemeenskap in Kaapstad, wat moderne lewe bied met uitsonderlike geriewe en dienste.",

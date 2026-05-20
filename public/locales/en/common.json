@@ -33,7 +33,12 @@
     "adminSurveysNew": "New Survey",
     "adminExternal": "External Surveys",
     "adminCategories": "Categories",
-    "adminFlags": "Page Settings"
+    "adminFlags": "Page Settings",
+    "more": "More",
+    "explore": "Explore",
+    "community": "Community",
+    "mySpace": "My Space",
+    "administration": "Administration"
   },
   "footer": {
     "description": "A premier residential community in Cape Town, offering modern living with exceptional amenities and services.",

@@ -1,36 +1,28 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@api/auth-client';
 import { useIsMounted } from 'usehooks-ts';
-import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
-import { isAdmin } from '@entities/tenant/api/permissions';
-
-interface NavItem {
-  name: string;
-  href: string;
-}
+import { getBurgerSections, type NavItem } from '@/shared/lib/navigation-config';
+import type { PlatformPageFlags } from '@entities/tenant/api/flags/platform-flags';
 
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
-  navItems: NavItem[];
+  pageFlags: PlatformPageFlags | null;
+  isAuthenticated: boolean;
+  role: string | null;
 }
 
-export function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProps) {
+export function MobileMenu({ isOpen, onClose, pageFlags, isAuthenticated, role }: MobileMenuProps) {
   const { t } = useTranslation('common');
   const isMounted = useIsMounted();
-  const { data: session } = authClient.useSession();
-  const { flags } = usePageFlags();
-  const isAdminUser = isAdmin(session?.user?.role);
-  const isBoard = session?.user?.role === 'BOARD';
-  const isLoggedIn = !!session;
 
   if (!isOpen) return null;
 
-  if (!isMounted || !flags) {
+  if (!isMounted() || !pageFlags) {
     return (
       <div className="mt-4 p-4 bg-soralia-primary border-t-4 border-white">
         <div className="text-white">Loading...</div>
@@ -38,99 +30,80 @@ export function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProps) {
     );
   }
 
+  const sections = getBurgerSections(pageFlags, isAuthenticated, role);
+
+  const renderItem = (item: NavItem) => (
+    <Link
+      key={item.href}
+      href={item.href}
+      onClick={onClose}
+      className="block py-2 px-3 hover:bg-white/10 rounded text-white"
+    >
+      {t(item.labelKey)}
+    </Link>
+  );
+
+  const renderAdminItem = (item: NavItem) => (
+    <Link
+      key={item.href}
+      href={item.href}
+      onClick={onClose}
+      className="block py-2 px-3 hover:bg-white/10 rounded text-gold-vein font-medium"
+    >
+      {item.adminLabelKey ? t(item.adminLabelKey) : t(item.labelKey)}
+    </Link>
+  );
+
   return (
     <div className="mt-4 p-4 bg-soralia-primary border-t-4 border-white">
       <nav className="space-y-2">
-        {navItems.map(item => (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onClose}
-            className="block py-2 px-3 hover:bg-white/10 rounded text-white"
-          >
-            {item.name}
-          </Link>
-        ))}
+        {/* Explore */}
+        <div className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-2 px-3">
+          {t('nav.explore')}
+        </div>
+        {sections.explore.map(item => renderItem(item))}
 
-        {isLoggedIn && (
+        {/* Community */}
+        <div className="border-t border-white/20 my-2" />
+        <div className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-2 px-3">
+          {t('nav.community')}
+        </div>
+        {sections.community.map(item => renderItem(item))}
+
+        {/* My Space (only if authenticated) */}
+        {isAuthenticated && sections.workspace.length > 0 && (
           <>
             <div className="border-t border-white/20 my-2" />
-            {flags.dashboard !== false && (
-              <Link
-                href="/dashboard"
-                onClick={onClose}
-                className="block py-2 px-3 hover:bg-white/10 rounded text-white"
-              >
-                {t('nav.dashboard')}
-              </Link>
-            )}
-            {flags.maintenance !== false && (
-              <Link
-                href="/maintenance"
-                onClick={onClose}
-                className="block py-2 px-3 hover:bg-white/10 rounded text-white"
-              >
-                {t('nav.maintenance')}
-              </Link>
-            )}
-            {flags.bookings !== false && (
-              <Link
-                href="/bookings"
-                onClick={onClose}
-                className="block py-2 px-3 hover:bg-white/10 rounded text-white"
-              >
-                {t('nav.bookings')}
-              </Link>
-            )}
-            {flags.messages !== false && (
-              <Link
-                href="/messages"
-                onClick={onClose}
-                className="block py-2 px-3 hover:bg-white/10 rounded text-white"
-              >
-                {t('nav.messages')}
-              </Link>
-            )}
+            <div className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-2 px-3">
+              {t('nav.mySpace')}
+            </div>
+            {sections.workspace.map(item => renderItem(item))}
           </>
         )}
 
-        {(isAdminUser || isBoard) && (
+        {/* Administration (only if admin items exist) */}
+        {isAuthenticated && sections.admin.length > 0 && (
           <>
             <div className="border-t border-white/20 my-2" />
-            <Link
-              href="/admin"
-              onClick={onClose}
-              className="block py-2 px-3 hover:bg-white/10 rounded text-gold-vein font-medium"
-            >
-              {t('nav.admin')}
-            </Link>
-            <Link
-              href="/admin/users"
-              onClick={onClose}
-              className="block py-2 px-3 hover:bg-white/10 rounded text-white text-sm"
-            >
-              {t('admin.users')}
-            </Link>
-            <Link
-              href="/admin/requests"
-              onClick={onClose}
-              className="block py-2 px-3 hover:bg-white/10 rounded text-white text-sm"
-            >
-              {t('admin.requests')}
-            </Link>
+            <div className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-2 px-3">
+              {t('nav.administration')}
+            </div>
+            {sections.admin.map(item => renderAdminItem(item))}
           </>
         )}
       </nav>
 
+      {/* Auth actions */}
       <div className="border-t border-white/20 mt-4 pt-4">
-        {isLoggedIn ? (
+        {isAuthenticated ? (
           <button
             onClick={async () => {
               await authClient.signOut();
               onClose();
               window.location.href = '/';
             }}
-            className="block w-full text-left py-2 text-red-300"
+            className="block w-full text-left py-2 text-red-300 cursor-pointer"
+            type="button"
           >
             {t('nav.logout')}
           </button>

@@ -1,41 +1,36 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@shared/ui';
 import { authClient } from '@api/auth-client';
-import { isAdmin } from '@entities/tenant/api/permissions';
 import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
+import {
+  getHeaderItems,
+  getMoreDropdownItems,
+  getWorkspaceItems,
+  type NavItem,
+} from '@/shared/lib/navigation-config';
 import { MobileMenu } from './MobileMenu';
-
-const BASE_NAV = [
-  { href: '/', label: 'home' },
-  { href: '/directory', label: 'directory' },
-  { href: '/groups', label: 'groups' },
-  { href: '/services', label: 'services' },
-  { href: '/resources', label: 'resources' },
-  { href: '/news', label: 'news' },
-  { href: '/maintenance', label: 'maintenance' },
-  { href: '/surveys', label: 'surveys' },
-  { href: '/competition', label: 'competition' },
-  { href: '/conservation', label: 'conservation' },
-  { href: '/campaign', label: 'campaign' },
-];
 
 function TeaserLink({
   href,
-  label,
+  labelKey,
   pathname,
   authenticated,
+  t,
 }: {
   href: string;
-  label: string;
+  labelKey: string;
   pathname: string;
   authenticated: boolean;
+  t: (key: string) => string;
 }) {
   const [showToast, setShowToast] = useState(false);
+
+  const label = t(labelKey);
 
   const handleClick = (e: React.MouseEvent) => {
     if (!authenticated) {
@@ -66,10 +61,183 @@ function TeaserLink({
   return (
     <Link
       href={href}
-      className={`hover:text-soralia-accent font-medium ${pathname.startsWith(href) ? 'text-soralia-accent' : ''}`}
+      className={`hover:text-soralia-accent font-medium ${pathname === href || (href !== '/' && pathname.startsWith(href)) ? 'text-soralia-accent' : ''}`}
     >
       {label}
     </Link>
+  );
+}
+
+function MoreDropdown({
+  items,
+  t,
+  pathname,
+  authenticated,
+}: {
+  items: NavItem[];
+  t: (key: string) => string;
+  pathname: string;
+  authenticated: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [open]);
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="hover:text-soralia-accent font-medium flex items-center space-x-1 cursor-pointer"
+        aria-expanded={open}
+        aria-haspopup="true"
+        type="button"
+      >
+        <span>{t('nav.more')}</span>
+        <svg
+          className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 py-1 border border-gray-200">
+          {items.map(item => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setOpen(false)}
+              className={`block px-4 py-2 text-sm hover:bg-gray-100 ${
+                pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
+                  ? 'text-soralia-primary font-medium'
+                  : 'text-gray-700'
+              }`}
+            >
+              {t(item.labelKey)}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AvatarDropdown({
+  session,
+  flags,
+  onSignOut,
+  t,
+  pathname,
+}: {
+  session: NonNullable<ReturnType<typeof authClient.useSession>['data']>;
+  flags: import('@entities/tenant/api/flags/platform-flags').PlatformPageFlags;
+  onSignOut: () => void;
+  t: (key: string) => string;
+  pathname: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const workspaceItems = getWorkspaceItems(flags, true);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [open]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center space-x-2 bg-white/20 py-1.5 px-3 rounded-md hover:bg-white/30 transition cursor-pointer"
+        aria-expanded={open}
+        aria-haspopup="true"
+        type="button"
+      >
+        {session.user.image ? (
+          <img src={session.user.image} alt="" className="w-6 h-6 rounded-full object-cover" />
+        ) : (
+          <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-xs font-medium">
+            {(session.user.name || session.user.email || '?').charAt(0).toUpperCase()}
+          </div>
+        )}
+        <span className="text-sm font-medium hidden sm:inline">
+          {session.user.name || session.user.email?.split('@')[0]}
+        </span>
+      </button>
+      {open && (
+        <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-50 py-1 border border-gray-200">
+          {workspaceItems.map(item => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setOpen(false)}
+              className={`block px-4 py-2 text-sm hover:bg-gray-100 ${
+                pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
+                  ? 'text-soralia-primary font-medium'
+                  : 'text-gray-700'
+              }`}
+            >
+              {t(item.labelKey)}
+            </Link>
+          ))}
+          <div className="border-t border-gray-100 my-1" />
+          <Link
+            href="/settings"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
+          >
+            {t('nav.settings')}
+          </Link>
+          <button
+            onClick={() => {
+              setOpen(false);
+              onSignOut();
+            }}
+            className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 text-red-600 cursor-pointer"
+            type="button"
+          >
+            {t('nav.logout')}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -81,9 +249,6 @@ export function Header() {
   const { flags: pageFlags } = usePageFlags();
   const { t } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
-
-  const _isAdminUser = isAdmin(session?.user?.role);
-  const _isBoardUser = session?.user?.role === 'BOARD';
 
   useEffect(() => {
     setMounted(true);
@@ -98,25 +263,8 @@ export function Header() {
     router.refresh();
   };
 
-  const navItems =
-    mounted && pageFlags
-      ? BASE_NAV.filter(item => {
-          if (item.href === '/surveys' && pageFlags.surveys === false) return false;
-          if (item.href === '/directory' && pageFlags.directory === false) return false;
-          if (item.href === '/groups' && pageFlags.groups === false) return false;
-          if (item.href === '/services' && pageFlags.services === false) return false;
-          if (item.href === '/resources' && pageFlags.resources === false) return false;
-          if (item.href === '/news' && pageFlags.news === false) return false;
-          if (item.href === '/maintenance' && pageFlags.maintenance === false) return false;
-          if (item.href === '/competition' && pageFlags.competitions === false) return false;
-          if (item.href === '/conservation' && pageFlags.conservation === 'external') return false;
-          if (item.href === '/campaign' && pageFlags.campaign === false) return false;
-          return true;
-        }).map(item => ({
-          name: t(`nav.${item.label}`) || item.label,
-          href: item.href,
-        }))
-      : [];
+  const headerItems = mounted && pageFlags ? getHeaderItems(pageFlags) : [];
+  const moreItems = mounted && pageFlags ? getMoreDropdownItems(pageFlags) : [];
 
   return (
     <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md relative overflow-hidden">
@@ -156,17 +304,18 @@ export function Header() {
           </Link>
 
           <div className="flex items-center gap-4">
-            <nav className="hidden lg:flex space-x-6">
-              {mounted &&
-                navItems.map(item => (
-                  <TeaserLink
-                    key={item.href}
-                    href={item.href}
-                    label={item.name}
-                    pathname={pathname}
-                    authenticated={!!session}
-                  />
-                ))}
+            <nav className="hidden lg:flex space-x-6 items-center">
+              {headerItems.map(item => (
+                <TeaserLink
+                  key={item.href}
+                  href={item.href}
+                  labelKey={item.labelKey}
+                  pathname={pathname}
+                  authenticated={!!session}
+                  t={t}
+                />
+              ))}
+              <MoreDropdown items={moreItems} t={t} pathname={pathname} authenticated={!!session} />
             </nav>
 
             <Suspense fallback={<div className="w-16 h-6 bg-white/20 rounded" />}>
@@ -178,32 +327,14 @@ export function Header() {
             ) : isPending ? (
               <div className="w-20 h-8 bg-white/20 rounded animate-pulse" />
             ) : session ? (
-              <div className="hidden md:flex items-center space-x-3">
-                <Link
-                  href="/dashboard"
-                  className="flex items-center space-x-2 bg-white/20 py-1.5 px-3 rounded-md hover:bg-white/30 transition"
-                >
-                  {session.user.image ? (
-                    <img
-                      src={session.user.image}
-                      alt=""
-                      className="w-6 h-6 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center text-xs font-medium">
-                      {(session.user.name || session.user.email || '?').charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <span className="text-sm font-medium hidden sm:inline">
-                    {session.user.name || session.user.email?.split('@')[0]}
-                  </span>
-                </Link>
-                <button
-                  onClick={handleSignOut}
-                  className="bg-white/20 text-white py-2 px-4 rounded-md hover:bg-white/30 transition text-sm hidden md:block"
-                >
-                  {t('nav.logout')}
-                </button>
+              <div className="hidden md:flex items-center">
+                <AvatarDropdown
+                  session={session}
+                  flags={pageFlags!}
+                  onSignOut={handleSignOut}
+                  t={t}
+                  pathname={pathname}
+                />
               </div>
             ) : (
               <Link
@@ -238,7 +369,9 @@ export function Header() {
         <MobileMenu
           isOpen={mobileMenuOpen}
           onClose={() => setMobileMenuOpen(false)}
-          navItems={navItems}
+          pageFlags={pageFlags}
+          isAuthenticated={!!session}
+          role={session?.user?.role as string | null}
         />
       </div>
     </header>

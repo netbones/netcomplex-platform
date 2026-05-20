@@ -33,7 +33,12 @@
     "adminSurveysNew": "Isilingo esitsha",
     "adminExternal": "Izilingo zasemaphandleni",
     "adminCategories": "Iindidi",
-    "adminFlags": "Iisetingi zephepha"
+    "adminFlags": "Iisetingi zephepha",
+    "more": "Ngakumbi",
+    "explore": "Qwalasela",
+    "community": "Umphakathi",
+    "mySpace": "Isithuba sam",
+    "administration": "Ulawulo"
   },
   "footer": {
     "description": "Umphakathi wokuhlala eKapa, onikezela ngobomi bokuhlala kwanamagosa anobulungisa.",
