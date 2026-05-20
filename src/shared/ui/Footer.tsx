@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { useContactSettings } from '@/shared/lib/useContactSettings';
 import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
+import { getHeaderItems, getMoreDropdownItems } from '@/shared/lib/navigation-config';
 
 export function Footer() {
   const [mounted, setMounted] = useState(false);
@@ -28,10 +29,20 @@ export function Footer() {
 
   const formatPhone = (phone: string | undefined) => phone?.replace(/\D/g, '') || '';
 
+  // Quick Links: header items + the non-header engagement item
+  const headerItems = getHeaderItems(flags);
+  const moreItems = getMoreDropdownItems(flags);
+
+  // Find the engagement item that's NOT in the header (the "other" one)
+  const engagementInMore = moreItems.find(
+    item => item.href === '/conservation' || item.href === '/campaign'
+  );
+
   return (
     <footer className="bg-gray-900 text-white mt-auto">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          {/* Column 1: Brand */}
           <div>
             <div className="flex items-center space-x-3 mb-4">
               <img
@@ -61,54 +72,27 @@ export function Footer() {
             </div>
           </div>
 
+          {/* Column 2: Quick Links — driven by navigation-config */}
           <div>
             <h4 className="text-lg font-semibold mb-4">{t('footer.quickLinks')}</h4>
             <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/"
-                  className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
-                >
-                  {t('nav.home')}
-                </Link>
-              </li>
-              {flags.directory !== false && (
-                <li>
+              {headerItems.map(item => (
+                <li key={item.href}>
                   <Link
-                    href="/directory"
+                    href={item.href}
                     className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
                   >
-                    {t('nav.directory')}
+                    {t(item.labelKey)}
                   </Link>
                 </li>
-              )}
-              {flags.services !== false && (
+              ))}
+              {engagementInMore && (
                 <li>
                   <Link
-                    href="/services"
+                    href={engagementInMore.href}
                     className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
                   >
-                    {t('nav.services')}
-                  </Link>
-                </li>
-              )}
-              {flags.resources !== false && (
-                <li>
-                  <Link
-                    href="/resources"
-                    className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
-                  >
-                    {t('nav.resources')}
-                  </Link>
-                </li>
-              )}
-              {flags.conservation !== 'external' && (
-                <li>
-                  <Link
-                    href="/conservation"
-                    className="text-gray-300 hover:text-yellow-400 transition-colors text-sm"
-                  >
-                    {t('nav.conservation')}
+                    {t(engagementInMore.labelKey)}
                   </Link>
                 </li>
               )}
@@ -125,6 +109,7 @@ export function Footer() {
             </ul>
           </div>
 
+          {/* Column 3: Services — gate with page flags */}
           <div>
             <h4 className="text-lg font-semibold mb-4">{t('footer.services')}</h4>
             <ul className="space-y-2">
@@ -175,6 +160,7 @@ export function Footer() {
             </ul>
           </div>
 
+          {/* Column 4: Contact Us */}
           <div>
             <h4 className="text-lg font-semibold mb-4">{t('footer.contactUs')}</h4>
             <div className="space-y-3">
@@ -217,6 +203,7 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Emergency contacts */}
         <div className="border-t border-gray-600 pt-8 mb-8">
           <h4 className="text-lg font-semibold mb-4 text-center">
             {t('footer.emergencyContacts')}
@@ -259,6 +246,7 @@ export function Footer() {
           )}
         </div>
 
+        {/* Lower footer — Legal & Utility */}
         <div className="border-t border-gray-600 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-center md:text-left mb-4 md:mb-0">

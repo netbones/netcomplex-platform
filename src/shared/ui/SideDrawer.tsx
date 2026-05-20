@@ -6,43 +6,14 @@ import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { useIsMounted } from 'usehooks-ts';
 import { authClient } from '@api/auth-client';
-import { hasPermission } from '@entities/tenant/api/permissions';
-
-const GUEST_LINKS = [
-  { href: '/directory', label: 'directory', icon: 'users' },
-  { href: '/services', label: 'services', icon: 'calendar' },
-  { href: '/resources', label: 'resources', icon: 'file' },
-  { href: '/groups', label: 'groups', icon: 'users' },
-  { href: '/interest', label: 'interest', icon: 'heart' },
-];
-
-const DASHBOARD_LINKS = [
-  { href: '/dashboard', label: 'dashboard', icon: 'home' },
-  { href: '/directory', label: 'directory', icon: 'users' },
-  { href: '/services', label: 'services', icon: 'calendar' },
-  { href: '/resources', label: 'resources', icon: 'file' },
-  { href: '/groups', label: 'groups', icon: 'users' },
-  { href: '/interest', label: 'interest', icon: 'heart' },
-  { href: '/maintenance', label: 'maintenance', icon: 'tool' },
-  { href: '/bookings', label: 'bookings', icon: 'calendar' },
-  { href: '/messages', label: 'messages', icon: 'mail' },
-];
-
-const SETTINGS_LINKS = [
-  { href: '/notifications', label: 'notifications', icon: 'bell' },
-  { href: '/settings', label: 'settings', icon: 'cog' },
-];
-
-const ADMIN_LINKS = [
-  { href: '/admin', label: 'overview', icon: 'shield' },
-  { href: '/admin/users', label: 'users', icon: 'users' },
-  { href: '/admin/groups', label: 'groups', icon: 'users' },
-  { href: '/admin/content', label: 'content', icon: 'file' },
-  { href: '/admin/requests', label: 'requests', icon: 'tool' },
-  { href: '/admin/surveys', label: 'surveys', icon: 'chart' },
-  { href: '/admin/external-surveys', label: 'external', icon: 'external-link-alt' },
-  { href: '/admin/categories', label: 'categories', icon: 'tags' },
-];
+import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
+import {
+  getHeaderItems,
+  getMoreDropdownItems,
+  getWorkspaceItems,
+  getAdminItems,
+  type NavItem,
+} from '@/shared/lib/navigation-config';
 
 interface SideDrawerProps {
   isOpen: boolean;
@@ -54,6 +25,7 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
   const isMounted = useIsMounted();
   const { t, ready } = useTranslation('common');
   const { data: session } = authClient.useSession();
+  const { flags } = usePageFlags();
 
   useEffect(() => {
     if (isOpen) {
@@ -76,18 +48,41 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
     return () => document.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
 
-  if (!isMounted || !ready) {
+  if (!isMounted() || !ready) {
     return null;
   }
 
+  const isLoggedIn = !!session;
   const userRole = session?.user?.role as string | undefined;
-  const canManageUsers = userRole && hasPermission(userRole, 'users');
-  const canManageContent = userRole && hasPermission(userRole, 'content');
-  const canManageGroups = userRole && hasPermission(userRole, 'groups');
-  const canManageRequests = userRole && hasPermission(userRole, 'requests');
+
+  // Build nav sections from navigation-config
+  const publicItems = flags ? [...getHeaderItems(flags), ...getMoreDropdownItems(flags)] : [];
+  const workspaceItems = flags ? getWorkspaceItems(flags, isLoggedIn) : [];
+  const adminItems = getAdminItems(userRole);
+
+  // Static app-level settings items (not module-scoped)
+  const settingsItems: NavItem[] = [
+    { href: '/notifications', labelKey: 'nav.notifications', section: 'workspace', icon: 'bell' },
+    { href: '/settings', labelKey: 'nav.settings', section: 'workspace', icon: 'cog' },
+  ];
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
-  const isLoggedIn = !!session;
+
+  const renderNavItem = (item: NavItem, useAdminLabel = false) => (
+    <Link
+      key={item.href}
+      href={item.href}
+      onClick={() => onClose()}
+      className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 ${
+        isActive(item.href)
+          ? 'bg-lapis-deep text-white font-medium'
+          : 'text-lapis-mid hover:bg-lapis-azure/10 hover:text-lapis-deep'
+      }`}
+    >
+      <NavIcon name={item.icon || 'file'} />
+      <span>{useAdminLabel && item.adminLabelKey ? t(item.adminLabelKey) : t(item.labelKey)}</span>
+    </Link>
+  );
 
   return (
     <>
@@ -125,75 +120,40 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         </div>
 
         <nav className="p-4 space-y-1">
+          {/* Public navigation (explore + community) */}
           <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
-            Menu
+            {t('nav.explore')}
           </div>
-          {(isLoggedIn ? DASHBOARD_LINKS : GUEST_LINKS).map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => onClose()}
-              className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 ${
-                isActive(link.href)
-                  ? 'bg-lapis-deep text-white font-medium'
-                  : 'text-lapis-mid hover:bg-lapis-azure/10 hover:text-lapis-deep'
-              }`}
-            >
-              <NavIcon name={link.icon} />
-              <span>{t(`nav.${link.label}`)}</span>
-            </Link>
-          ))}
+          {publicItems.map(item => renderNavItem(item))}
 
           {isLoggedIn && (
             <>
-              <div className="border-t border-lapis-azure/20 my-4"></div>
-
-              <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
-                Settings
-              </div>
-              {SETTINGS_LINKS.map(link => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => onClose()}
-                  className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 ${
-                    isActive(link.href)
-                      ? 'bg-lapis-deep text-white font-medium'
-                      : 'text-lapis-mid hover:bg-lapis-azure/10 hover:text-lapis-deep'
-                  }`}
-                >
-                  <NavIcon name={link.icon} />
-                  <span>{t(`nav.${link.label}`)}</span>
-                </Link>
-              ))}
-
-              {(canManageUsers || canManageContent || canManageGroups || canManageRequests) && (
+              {/* Workspace items */}
+              {workspaceItems.length > 0 && (
                 <>
                   <div className="border-t border-lapis-azure/20 my-4"></div>
                   <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
-                    Admin
+                    {t('nav.mySpace')}
                   </div>
-                  {ADMIN_LINKS.map(link => {
-                    if (link.href === '/admin/users' && !canManageUsers) return null;
-                    if (link.href === '/admin/content' && !canManageContent) return null;
-                    if (link.href === '/admin/groups' && !canManageGroups) return null;
-                    if (link.href === '/admin/requests' && !canManageRequests) return null;
-                    return (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => onClose()}
-                        className={`flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 ${
-                          isActive(link.href)
-                            ? 'bg-lapis-deep text-white font-medium'
-                            : 'text-lapis-mid hover:bg-lapis-azure/10 hover:text-lapis-deep'
-                        }`}
-                      >
-                        <NavIcon name={link.icon} />
-                        <span>{t(`admin.${link.label}`) || link.label}</span>
-                      </Link>
-                    );
-                  })}
+                  {workspaceItems.map(item => renderNavItem(item))}
+                </>
+              )}
+
+              {/* Settings (app-level, not module-scoped) */}
+              <div className="border-t border-lapis-azure/20 my-4"></div>
+              <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
+                {t('nav.settings')}
+              </div>
+              {settingsItems.map(item => renderNavItem(item))}
+
+              {/* Admin items (role-gated) */}
+              {adminItems.length > 0 && (
+                <>
+                  <div className="border-t border-lapis-azure/20 my-4"></div>
+                  <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
+                    {t('nav.administration')}
+                  </div>
+                  {adminItems.map(item => renderNavItem(item, true))}
                 </>
               )}
 
@@ -205,7 +165,8 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
                   onClose();
                   window.location.href = '/';
                 }}
-                className="flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 w-full"
+                className="flex items-center space-x-3 px-3 py-3 rounded-lg transition-all duration-200 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 w-full cursor-pointer"
+                type="button"
               >
                 <NavIcon name="signout" />
                 <span>{t('nav.logout')}</span>
