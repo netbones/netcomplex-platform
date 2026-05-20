@@ -103,9 +103,9 @@ describe('getMoreDropdownItems', () => {
 });
 
 describe('getWorkspaceItems', () => {
-  it('returns 4 items for authenticated user with all flags enabled', () => {
+  it('returns 6 items for authenticated user with all flags enabled', () => {
     const items = getWorkspaceItems(defaultFlags, true);
-    expect(items).toHaveLength(4);
+    expect(items).toHaveLength(6);
   });
 
   it('returns empty for unauthenticated user', () => {
@@ -113,15 +113,33 @@ describe('getWorkspaceItems', () => {
     expect(items).toHaveLength(0);
   });
 
-  it('filters out items with false flags', () => {
+  it('filters out flagged items but keeps no-flag items (notifications, settings)', () => {
     const items = getWorkspaceItems({ ...defaultFlags, bookings: false, messages: false }, true);
-    expect(items).toHaveLength(2); // Dashboard + Maintenance
+    // Dashboard + Maintenance + Notifications + Settings = 4 (bookings and messages filtered)
+    expect(items).toHaveLength(4);
   });
 
   it('filters out dashboard when flag is false', () => {
     const items = getWorkspaceItems({ ...defaultFlags, dashboard: false }, true);
     expect(items.some(i => i.href === '/dashboard')).toBe(false);
-    expect(items).toHaveLength(3);
+    // Messages + Bookings + Maintenance + Notifications + Settings = 5
+    expect(items).toHaveLength(5);
+  });
+
+  it('always includes notifications and settings for authenticated users (no flagKey)', () => {
+    const items = getWorkspaceItems(
+      { ...defaultFlags, dashboard: false, bookings: false, messages: false, maintenance: false },
+      true
+    );
+    expect(items.some(i => i.href === '/notifications')).toBe(true);
+    expect(items.some(i => i.href === '/settings')).toBe(true);
+    expect(items).toHaveLength(2); // Only notifications + settings survive
+  });
+
+  it('notifications and settings are always last in workspace list', () => {
+    const items = getWorkspaceItems(defaultFlags, true);
+    expect(items[items.length - 2].href).toBe('/notifications');
+    expect(items[items.length - 1].href).toBe('/settings');
   });
 });
 
@@ -191,5 +209,33 @@ describe('getBurgerSections', () => {
     const moreItems = getMoreDropdownItems(defaultFlags);
     const sections = getBurgerSections(defaultFlags, true, 'ADMIN');
     expect(sections.community).toEqual(moreItems);
+  });
+
+  it('workspace section includes notifications and settings', () => {
+    const sections = getBurgerSections(defaultFlags, true, 'RESIDENT');
+    expect(sections.workspace.some(i => i.href === '/notifications')).toBe(true);
+    expect(sections.workspace.some(i => i.href === '/settings')).toBe(true);
+  });
+});
+
+describe('NavItem icons', () => {
+  it('all header items have an icon property', () => {
+    const items = getHeaderItems(defaultFlags);
+    expect(items.every(i => typeof i.icon === 'string' && i.icon.length > 0)).toBe(true);
+  });
+
+  it('all More dropdown items have an icon property', () => {
+    const items = getMoreDropdownItems(defaultFlags);
+    expect(items.every(i => typeof i.icon === 'string' && i.icon.length > 0)).toBe(true);
+  });
+
+  it('all workspace items have an icon property', () => {
+    const items = getWorkspaceItems(defaultFlags, true);
+    expect(items.every(i => typeof i.icon === 'string' && i.icon.length > 0)).toBe(true);
+  });
+
+  it('all admin items have an icon property', () => {
+    const items = getAdminItems('ADMIN');
+    expect(items.every(i => typeof i.icon === 'string' && i.icon.length > 0)).toBe(true);
   });
 });

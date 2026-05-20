@@ -50,7 +50,7 @@ function TeaserLink({
           {label}
         </button>
         {showToast && (
-          <div className="absolute top-full left-0 mt-2 w-64 bg-red-600 text-white text-sm px-4 py-2 rounded-md shadow-lg z-50">
+          <div className="absolute top-full left-0 mt-2 w-64 bg-red-600 text-white text-sm px-4 py-2 rounded-md shadow-lg z-[60]">
             This feature is available to residents only. Please sign in to access.
           </div>
         )}
@@ -72,12 +72,10 @@ function MoreDropdown({
   items,
   t,
   pathname,
-  authenticated,
 }: {
   items: NavItem[];
   t: (key: string) => string;
   pathname: string;
-  authenticated: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -123,7 +121,7 @@ function MoreDropdown({
         </svg>
       </button>
       {open && (
-        <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50 py-1 border border-gray-200">
+        <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-[60] py-1 border border-gray-200">
           {items.map(item => (
             <Link
               key={item.href}
@@ -160,7 +158,9 @@ function AvatarDropdown({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const workspaceItems = getWorkspaceItems(flags, true);
+  const allWorkspaceItems = getWorkspaceItems(flags, true);
+  // Avatar menu shows workspace items except Notifications (per governance: avatar = Dashboard, Messages, Bookings, Maintenance, Settings, Sign Out)
+  const workspaceItems = allWorkspaceItems.filter(item => item.href !== '/notifications');
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -202,7 +202,7 @@ function AvatarDropdown({
         </span>
       </button>
       {open && (
-        <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-50 py-1 border border-gray-200">
+        <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-[60] py-1 border border-gray-200">
           {workspaceItems.map(item => (
             <Link
               key={item.href}
@@ -218,13 +218,6 @@ function AvatarDropdown({
             </Link>
           ))}
           <div className="border-t border-gray-100 my-1" />
-          <Link
-            href="/settings"
-            onClick={() => setOpen(false)}
-            className="block px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
-          >
-            {t('nav.settings')}
-          </Link>
           <button
             onClick={() => {
               setOpen(false);
@@ -267,27 +260,25 @@ export function Header() {
   const moreItems = mounted && pageFlags ? getMoreDropdownItems(pageFlags) : [];
 
   return (
-    <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md relative overflow-hidden">
-      <svg
-        className="absolute inset-0 w-full h-full pointer-events-none opacity-10"
-        viewBox="0 0 1440 120"
-        preserveAspectRatio="none"
-      >
-        <path
-          fill="currentColor"
-          d="M0,32 C120,64 240,0 360,32 C480,64 600,96 720,64 C840,32 960,0 1080,32 C1200,64 1320,96 1440,64 L1440,120 L0,120 Z"
-        />
-        <path
-          fill="currentColor"
-          d="M0,48 C180,96 360,32 540,64 C720,96 900,64 1080,32 C1260,0 1350,0 1440,32 L1440,120 L0,120 Z"
-          opacity="0.5"
-        />
-        <path
-          fill="currentColor"
-          d="M0,80 C240,48 480,96 720,64 C960,32 1200,0 1440,48 L1440,120 L0,120 Z"
-          opacity="0.3"
-        />
-      </svg>
+    <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md relative z-40">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <svg className="w-full h-full opacity-10" viewBox="0 0 1440 120" preserveAspectRatio="none">
+          <path
+            fill="currentColor"
+            d="M0,32 C120,64 240,0 360,32 C480,64 600,96 720,64 C840,32 960,0 1080,32 C1200,64 1320,96 1440,64 L1440,120 L0,120 Z"
+          />
+          <path
+            fill="currentColor"
+            d="M0,48 C180,96 360,32 540,64 C720,96 900,64 1080,32 C1260,0 1350,0 1440,32 L1440,120 L0,120 Z"
+            opacity="0.5"
+          />
+          <path
+            fill="currentColor"
+            d="M0,80 C240,48 480,96 720,64 C960,32 1200,0 1440,48 L1440,120 L0,120 Z"
+            opacity="0.3"
+          />
+        </svg>
+      </div>
 
       <div className="container mx-auto px-4 py-4 relative">
         <div className="flex justify-between items-center">
@@ -315,7 +306,7 @@ export function Header() {
                   t={t}
                 />
               ))}
-              <MoreDropdown items={moreItems} t={t} pathname={pathname} authenticated={!!session} />
+              <MoreDropdown items={moreItems} t={t} pathname={pathname} />
             </nav>
 
             <Suspense fallback={<div className="w-16 h-6 bg-white/20 rounded" />}>

@@ -55,16 +55,11 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
   const isLoggedIn = !!session;
   const userRole = session?.user?.role as string | undefined;
 
-  // Build nav sections from navigation-config
-  const publicItems = flags ? [...getHeaderItems(flags), ...getMoreDropdownItems(flags)] : [];
+  // Build nav sections from navigation-config (4-section structure per governance)
+  const exploreItems = flags ? getHeaderItems(flags) : [];
+  const communityItems = flags ? getMoreDropdownItems(flags) : [];
   const workspaceItems = flags ? getWorkspaceItems(flags, isLoggedIn) : [];
   const adminItems = getAdminItems(userRole);
-
-  // Static app-level settings items (not module-scoped)
-  const settingsItems: NavItem[] = [
-    { href: '/notifications', labelKey: 'nav.notifications', section: 'workspace', icon: 'bell' },
-    { href: '/settings', labelKey: 'nav.settings', section: 'workspace', icon: 'cog' },
-  ];
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 
@@ -120,15 +115,26 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         </div>
 
         <nav className="p-4 space-y-1">
-          {/* Public navigation (explore + community) */}
+          {/* Explore section */}
           <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
             {t('nav.explore')}
           </div>
-          {publicItems.map(item => renderNavItem(item))}
+          {exploreItems.map(item => renderNavItem(item))}
+
+          {/* Community section */}
+          {communityItems.length > 0 && (
+            <>
+              <div className="border-t border-lapis-azure/20 my-4"></div>
+              <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
+                {t('nav.community')}
+              </div>
+              {communityItems.map(item => renderNavItem(item))}
+            </>
+          )}
 
           {isLoggedIn && (
             <>
-              {/* Workspace items */}
+              {/* My Space (workspace items — now includes Notifications + Settings) */}
               {workspaceItems.length > 0 && (
                 <>
                   <div className="border-t border-lapis-azure/20 my-4"></div>
@@ -138,13 +144,6 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
                   {workspaceItems.map(item => renderNavItem(item))}
                 </>
               )}
-
-              {/* Settings (app-level, not module-scoped) */}
-              <div className="border-t border-lapis-azure/20 my-4"></div>
-              <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
-                {t('nav.settings')}
-              </div>
-              {settingsItems.map(item => renderNavItem(item))}
 
               {/* Admin items (role-gated) */}
               {adminItems.length > 0 && (

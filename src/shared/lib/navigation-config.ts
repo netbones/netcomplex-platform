@@ -26,10 +26,28 @@ export interface NavItem {
 // ─── PUBLIC HEADER ITEMS (max 5 nav items + More dropdown) ────────────────
 
 const STATIC_HEADER_ITEMS: NavItem[] = [
-  { href: '/', labelKey: 'nav.home', section: 'explore' },
-  { href: '/directory', labelKey: 'nav.directory', section: 'explore', flagKey: 'directory' },
-  { href: '/services', labelKey: 'nav.services', section: 'explore', flagKey: 'services' },
-  { href: '/resources', labelKey: 'nav.resources', section: 'explore', flagKey: 'resources' },
+  { href: '/', labelKey: 'nav.home', section: 'explore', icon: 'home' },
+  {
+    href: '/directory',
+    labelKey: 'nav.directory',
+    section: 'explore',
+    flagKey: 'directory',
+    icon: 'users',
+  },
+  {
+    href: '/services',
+    labelKey: 'nav.services',
+    section: 'explore',
+    flagKey: 'services',
+    icon: 'shield',
+  },
+  {
+    href: '/resources',
+    labelKey: 'nav.resources',
+    section: 'explore',
+    flagKey: 'resources',
+    icon: 'file',
+  },
 ];
 
 const CONSERVATION_NAV_ITEM: NavItem = {
@@ -37,6 +55,7 @@ const CONSERVATION_NAV_ITEM: NavItem = {
   labelKey: 'nav.conservation',
   section: 'explore',
   flagKey: 'conservation',
+  icon: 'heart',
 };
 
 const CAMPAIGN_NAV_ITEM: NavItem = {
@@ -44,6 +63,7 @@ const CAMPAIGN_NAV_ITEM: NavItem = {
   labelKey: 'nav.campaign',
   section: 'explore',
   flagKey: 'campaign',
+  icon: 'tags',
 };
 
 export const PUBLIC_HEADER_ITEMS: NavItem[] = [
@@ -54,17 +74,36 @@ export const PUBLIC_HEADER_ITEMS: NavItem[] = [
 // ─── MORE DROPDOWN ITEMS (Community items) ─────────────────────────────────
 
 const MORE_DROPDOWN_ITEMS: NavItem[] = [
-  { href: '/news', labelKey: 'nav.news', section: 'community', flagKey: 'news' },
-  { href: '/groups', labelKey: 'nav.groups', section: 'community', flagKey: 'groups' },
+  { href: '/news', labelKey: 'nav.news', section: 'community', flagKey: 'news', icon: 'mail' },
+  {
+    href: '/groups',
+    labelKey: 'nav.groups',
+    section: 'community',
+    flagKey: 'groups',
+    icon: 'users',
+  },
   // Conservation/Campaign slot is dynamic — populated by getMoreDropdownItems
-  { href: '/surveys', labelKey: 'nav.surveys', section: 'community', flagKey: 'surveys' },
+  {
+    href: '/surveys',
+    labelKey: 'nav.surveys',
+    section: 'community',
+    flagKey: 'surveys',
+    icon: 'chart',
+  },
   {
     href: '/competition',
     labelKey: 'nav.competition',
     section: 'community',
     flagKey: 'competitions',
+    icon: 'tags',
   },
-  { href: '/events', labelKey: 'nav.events', section: 'community', flagKey: 'events' },
+  {
+    href: '/events',
+    labelKey: 'nav.events',
+    section: 'community',
+    flagKey: 'events',
+    icon: 'calendar',
+  },
 ];
 
 // ─── WORKSPACE ITEMS ────────────────────────────────────────────────────────
@@ -76,6 +115,7 @@ export const WORKSPACE_ITEMS: NavItem[] = [
     section: 'workspace',
     flagKey: 'dashboard',
     requiresAuth: true,
+    icon: 'home',
   },
   {
     href: '/messages',
@@ -83,6 +123,7 @@ export const WORKSPACE_ITEMS: NavItem[] = [
     section: 'workspace',
     flagKey: 'messages',
     requiresAuth: true,
+    icon: 'mail',
   },
   {
     href: '/bookings',
@@ -90,6 +131,7 @@ export const WORKSPACE_ITEMS: NavItem[] = [
     section: 'workspace',
     flagKey: 'bookings',
     requiresAuth: true,
+    icon: 'calendar',
   },
   {
     href: '/maintenance',
@@ -97,6 +139,21 @@ export const WORKSPACE_ITEMS: NavItem[] = [
     section: 'workspace',
     flagKey: 'maintenance',
     requiresAuth: true,
+    icon: 'tool',
+  },
+  {
+    href: '/notifications',
+    labelKey: 'nav.notifications',
+    section: 'workspace',
+    requiresAuth: true,
+    icon: 'bell',
+  },
+  {
+    href: '/settings',
+    labelKey: 'nav.settings',
+    section: 'workspace',
+    requiresAuth: true,
+    icon: 'cog',
   },
 ];
 
@@ -107,13 +164,20 @@ export const COMMUNITY_ITEMS = MORE_DROPDOWN_ITEMS;
 // ─── ADMIN ITEMS ────────────────────────────────────────────────────────────
 
 export const ADMIN_ITEMS: NavItem[] = [
-  { href: '/admin', labelKey: 'nav.admin', section: 'admin', permissionKey: 'admin' },
+  {
+    href: '/admin',
+    labelKey: 'nav.admin',
+    section: 'admin',
+    permissionKey: 'admin',
+    icon: 'shield',
+  },
   {
     href: '/admin/users',
     adminLabelKey: 'admin.users',
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'users',
+    icon: 'users',
   },
   {
     href: '/admin/groups',
@@ -121,6 +185,7 @@ export const ADMIN_ITEMS: NavItem[] = [
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'groups',
+    icon: 'users',
   },
   {
     href: '/admin/content',
@@ -128,6 +193,7 @@ export const ADMIN_ITEMS: NavItem[] = [
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'content',
+    icon: 'file',
   },
   {
     href: '/admin/requests',
@@ -135,6 +201,7 @@ export const ADMIN_ITEMS: NavItem[] = [
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'requests',
+    icon: 'tool',
   },
   {
     href: '/admin/surveys',
@@ -142,6 +209,7 @@ export const ADMIN_ITEMS: NavItem[] = [
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'content',
+    icon: 'chart',
   },
   {
     href: '/admin/external-surveys',
@@ -149,6 +217,7 @@ export const ADMIN_ITEMS: NavItem[] = [
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'content',
+    icon: 'external-link-alt',
   },
   {
     href: '/admin/categories',
@@ -156,6 +225,7 @@ export const ADMIN_ITEMS: NavItem[] = [
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'content',
+    icon: 'tags',
   },
 ];
 
@@ -176,8 +246,9 @@ export interface BurgerSections {
  * - Conservation uses a special check: 'external' mode hides the local page.
  * - Boolean flags: false means hidden.
  */
-function isItemVisible(item: NavItem, flags: PlatformPageFlags): boolean {
+function isItemVisible(item: NavItem, flags?: PlatformPageFlags | null): boolean {
   if (!item.flagKey) return true; // e.g. Home
+  if (!flags) return false;
 
   const flagValue = flags[item.flagKey];
 
@@ -199,7 +270,7 @@ function isItemVisible(item: NavItem, flags: PlatformPageFlags): boolean {
  * Returns the 4-5 header items (Home + 3 static + dynamic Conservation/Campaign).
  * Max 5 items — the 6th is the "More" dropdown trigger (rendered by Header, not a NavItem).
  */
-export function getHeaderItems(flags: PlatformPageFlags): NavItem[] {
+export function getHeaderItems(flags?: PlatformPageFlags | null): NavItem[] {
   const items: NavItem[] = [];
 
   // Static items: Home, Directory, Services, Resources
@@ -210,7 +281,7 @@ export function getHeaderItems(flags: PlatformPageFlags): NavItem[] {
   }
 
   // Dynamic 5th item: Conservation or Campaign based on headerEngagementFocus
-  const focus = flags.headerEngagementFocus ?? 'conservation';
+  const focus = flags?.headerEngagementFocus ?? 'conservation';
 
   if (focus === 'conservation') {
     if (isItemVisible(CONSERVATION_NAV_ITEM, flags)) {
@@ -230,8 +301,8 @@ export function getHeaderItems(flags: PlatformPageFlags): NavItem[] {
  * Returns community items for the More dropdown, including whichever
  * of Conservation/Campaign is NOT in the header.
  */
-export function getMoreDropdownItems(flags: PlatformPageFlags): NavItem[] {
-  const focus = flags.headerEngagementFocus ?? 'conservation';
+export function getMoreDropdownItems(flags?: PlatformPageFlags | null): NavItem[] {
+  const focus = flags?.headerEngagementFocus ?? 'conservation';
   const items: NavItem[] = [];
 
   // Add the dynamic engagement item (the one NOT in header)
@@ -261,7 +332,10 @@ export function getMoreDropdownItems(flags: PlatformPageFlags): NavItem[] {
  * Returns workspace items filtered by flags and auth status.
  * Unauthenticated users see nothing.
  */
-export function getWorkspaceItems(flags: PlatformPageFlags, isAuthenticated: boolean): NavItem[] {
+export function getWorkspaceItems(
+  flags?: PlatformPageFlags | null,
+  isAuthenticated?: boolean
+): NavItem[] {
   if (!isAuthenticated) return [];
 
   return WORKSPACE_ITEMS.filter(item => isItemVisible(item, flags));
@@ -284,9 +358,9 @@ export function getAdminItems(role: string | null | undefined): NavItem[] {
  * Explore + Community are always shown; Workspace requires auth; Admin requires role.
  */
 export function getBurgerSections(
-  flags: PlatformPageFlags,
-  isAuthenticated: boolean,
-  role: string | null
+  flags?: PlatformPageFlags | null,
+  isAuthenticated?: boolean,
+  role?: string | null
 ): BurgerSections {
   return {
     explore: getHeaderItems(flags),

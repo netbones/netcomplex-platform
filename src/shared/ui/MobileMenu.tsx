@@ -31,6 +31,8 @@ export function MobileMenu({ isOpen, onClose, pageFlags, isAuthenticated, role }
   }
 
   const sections = getBurgerSections(pageFlags, isAuthenticated, role);
+  // Burger My Space excludes Settings (per governance: Settings in avatar dropdown only)
+  const burgerWorkspace = sections.workspace.filter(item => item.href !== '/settings');
 
   const renderItem = (item: NavItem) => (
     <Link
@@ -71,13 +73,13 @@ export function MobileMenu({ isOpen, onClose, pageFlags, isAuthenticated, role }
         {sections.community.map(item => renderItem(item))}
 
         {/* My Space (only if authenticated) */}
-        {isAuthenticated && sections.workspace.length > 0 && (
+        {isAuthenticated && burgerWorkspace.length > 0 && (
           <>
             <div className="border-t border-white/20 my-2" />
             <div className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-2 px-3">
               {t('nav.mySpace')}
             </div>
-            {sections.workspace.map(item => renderItem(item))}
+            {burgerWorkspace.map(item => renderItem(item))}
           </>
         )}
 
