@@ -14,6 +14,12 @@ import {
   getAdminItems,
   type NavItem,
 } from '@/shared/lib/navigation-config';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/shared/ui/Accordion';
 
 interface SideDrawerProps {
   isOpen: boolean;
@@ -55,7 +61,6 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
   const isLoggedIn = !!session;
   const userRole = session?.user?.role as string | undefined;
 
-  // Build nav sections from navigation-config (4-section structure per governance)
   const exploreItems = flags ? getHeaderItems(flags) : [];
   const communityItems = flags ? getMoreDropdownItems(flags) : [];
   const workspaceItems = flags ? getWorkspaceItems(flags, isLoggedIn) : [];
@@ -82,17 +87,12 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
   return (
     <>
       {isOpen && (
-        <button
-          type="button"
-          aria-label="Close menu"
-          className="fixed inset-0 bg-black/50 z-[99999] cursor-pointer border-none"
-          onClick={() => onClose()}
-        />
+        <div aria-hidden="true" className="fixed inset-0 bg-black/50 z-[99999]" onClick={onClose} />
       )}
       <aside
         role="dialog"
         aria-modal="true"
-        className={`fixed top-0 right-0 h-full w-72 bg-white dark:bg-gray-900 shadow-2xl z-[100000] transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-full w-72 bg-white dark:bg-gray-900 shadow-2xl z-[100000] pointer-events-auto transform transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -115,47 +115,48 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
         </div>
 
         <nav className="p-4 space-y-1">
-          {/* Explore section */}
-          <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
-            {t('nav.explore')}
-          </div>
-          {exploreItems.map(item => renderNavItem(item))}
+          <Accordion
+            type="multiple"
+            defaultValue={['explore', 'community', 'workspace', 'admin']}
+            className="space-y-1"
+          >
+            <AccordionItem value="explore">
+              <AccordionTrigger>{t('nav.explore')}</AccordionTrigger>
+              <AccordionContent>{exploreItems.map(item => renderNavItem(item))}</AccordionContent>
+            </AccordionItem>
 
-          {/* Community section */}
-          {communityItems.length > 0 && (
-            <>
-              <div className="border-t border-lapis-azure/20 my-4"></div>
-              <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
-                {t('nav.community')}
-              </div>
-              {communityItems.map(item => renderNavItem(item))}
-            </>
-          )}
+            {communityItems.length > 0 && (
+              <AccordionItem value="community">
+                <AccordionTrigger className="text-gold-vein hover:text-gold-vein/80">
+                  {t('nav.community')}
+                </AccordionTrigger>
+                <AccordionContent>
+                  {communityItems.map(item => renderNavItem(item))}
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+            {isLoggedIn && workspaceItems.length > 0 && (
+              <AccordionItem value="workspace">
+                <AccordionTrigger>{t('nav.mySpace')}</AccordionTrigger>
+                <AccordionContent>
+                  {workspaceItems.map(item => renderNavItem(item))}
+                </AccordionContent>
+              </AccordionItem>
+            )}
+
+            {isLoggedIn && adminItems.length > 0 && (
+              <AccordionItem value="admin">
+                <AccordionTrigger>{t('nav.administration')}</AccordionTrigger>
+                <AccordionContent>
+                  {adminItems.map(item => renderNavItem(item, true))}
+                </AccordionContent>
+              </AccordionItem>
+            )}
+          </Accordion>
 
           {isLoggedIn && (
             <>
-              {/* My Space (workspace items — now includes Notifications + Settings) */}
-              {workspaceItems.length > 0 && (
-                <>
-                  <div className="border-t border-lapis-azure/20 my-4"></div>
-                  <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
-                    {t('nav.mySpace')}
-                  </div>
-                  {workspaceItems.map(item => renderNavItem(item))}
-                </>
-              )}
-
-              {/* Admin items (role-gated) */}
-              {adminItems.length > 0 && (
-                <>
-                  <div className="border-t border-lapis-azure/20 my-4"></div>
-                  <div className="text-xs font-semibold text-lapis-mid uppercase tracking-wider mb-3 px-3">
-                    {t('nav.administration')}
-                  </div>
-                  {adminItems.map(item => renderNavItem(item, true))}
-                </>
-              )}
-
               <div className="border-t border-lapis-azure/20 my-4"></div>
 
               <button

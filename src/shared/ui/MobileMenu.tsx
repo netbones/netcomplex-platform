@@ -7,6 +7,12 @@ import { authClient } from '@api/auth-client';
 import { useIsMounted } from 'usehooks-ts';
 import { getBurgerSections, type NavItem } from '@/shared/lib/navigation-config';
 import type { PlatformPageFlags } from '@entities/tenant/api/flags/platform-flags';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/shared/ui/Accordion';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -39,7 +45,7 @@ export function MobileMenu({ isOpen, onClose, pageFlags, isAuthenticated, role }
       key={item.href}
       href={item.href}
       onClick={onClose}
-      className="block py-2 px-3 hover:bg-white/10 rounded text-white"
+      className="block py-2 px-3 hover:bg-white/10 active:bg-white/10 focus:bg-white/10 rounded text-white"
     >
       {t(item.labelKey)}
     </Link>
@@ -50,7 +56,7 @@ export function MobileMenu({ isOpen, onClose, pageFlags, isAuthenticated, role }
       key={item.href}
       href={item.href}
       onClick={onClose}
-      className="block py-2 px-3 hover:bg-white/10 rounded text-gold-vein font-medium"
+      className="block py-2 px-3 hover:bg-white/10 active:bg-white/10 focus:bg-white/10 rounded text-gold-vein font-medium"
     >
       {item.adminLabelKey ? t(item.adminLabelKey) : t(item.labelKey)}
     </Link>
@@ -59,40 +65,57 @@ export function MobileMenu({ isOpen, onClose, pageFlags, isAuthenticated, role }
   return (
     <div className="mt-4 p-4 bg-soralia-primary border-t-4 border-white">
       <nav className="space-y-2">
-        {/* Explore */}
-        <div className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-2 px-3">
-          {t('nav.explore')}
-        </div>
-        {sections.explore.map(item => renderItem(item))}
+        <Accordion
+          type="multiple"
+          defaultValue={['explore', 'community', 'workspace', 'admin']}
+          className="space-y-1"
+        >
+          <AccordionItem
+            value="explore"
+            className="mb-2 p-2 -mx-2 rounded-xl border border-white/5 bg-white/5"
+          >
+            <AccordionTrigger className="text-xs font-semibold !text-gold-vein opacity-80 hover:opacity-100 active:opacity-100 focus:opacity-100 uppercase tracking-wider mb-2 px-3 py-1">
+              {t('nav.explore')}
+            </AccordionTrigger>
+            <AccordionContent>{sections.explore.map(item => renderItem(item))}</AccordionContent>
+          </AccordionItem>
 
-        {/* Community */}
-        <div className="border-t border-white/20 my-2" />
-        <div className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-2 px-3">
-          {t('nav.community')}
-        </div>
-        {sections.community.map(item => renderItem(item))}
+          <AccordionItem
+            value="community"
+            className="my-2 p-2 -mx-2 bg-white/10 rounded-xl border border-white/10"
+          >
+            <AccordionTrigger className="text-xs font-semibold !text-gold-vein opacity-80 hover:opacity-100 active:opacity-100 focus:opacity-100 uppercase tracking-wider mb-2 px-3 py-1">
+              {t('nav.community')}
+            </AccordionTrigger>
+            <AccordionContent>{sections.community.map(item => renderItem(item))}</AccordionContent>
+          </AccordionItem>
 
-        {/* My Space (only if authenticated) */}
-        {isAuthenticated && burgerWorkspace.length > 0 && (
-          <>
-            <div className="border-t border-white/20 my-2" />
-            <div className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-2 px-3">
-              {t('nav.mySpace')}
-            </div>
-            {burgerWorkspace.map(item => renderItem(item))}
-          </>
-        )}
+          {isAuthenticated && burgerWorkspace.length > 0 && (
+            <AccordionItem
+              value="workspace"
+              className="my-2 p-2 -mx-2 rounded-xl border border-white/5 bg-white/5"
+            >
+              <AccordionTrigger className="text-xs font-semibold !text-gold-vein opacity-80 hover:opacity-100 active:opacity-100 focus:opacity-100 uppercase tracking-wider mb-2 px-3 py-1">
+                {t('nav.mySpace')}
+              </AccordionTrigger>
+              <AccordionContent>{burgerWorkspace.map(item => renderItem(item))}</AccordionContent>
+            </AccordionItem>
+          )}
 
-        {/* Administration (only if admin items exist) */}
-        {isAuthenticated && sections.admin.length > 0 && (
-          <>
-            <div className="border-t border-white/20 my-2" />
-            <div className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-2 px-3">
-              {t('nav.administration')}
-            </div>
-            {sections.admin.map(item => renderAdminItem(item))}
-          </>
-        )}
+          {isAuthenticated && sections.admin.length > 0 && (
+            <AccordionItem
+              value="admin"
+              className="my-2 p-2 -mx-2 rounded-xl border border-white/5 bg-white/5"
+            >
+              <AccordionTrigger className="text-xs font-semibold !text-gold-vein opacity-80 hover:opacity-100 active:opacity-100 focus:opacity-100 uppercase tracking-wider mb-2 px-3 py-1">
+                {t('nav.administration')}
+              </AccordionTrigger>
+              <AccordionContent>
+                {sections.admin.map(item => renderAdminItem(item))}
+              </AccordionContent>
+            </AccordionItem>
+          )}
+        </Accordion>
       </nav>
 
       {/* Auth actions */}
