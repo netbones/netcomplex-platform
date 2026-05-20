@@ -24,6 +24,7 @@ export interface PlatformPageFlags {
   dashboard: boolean;
   bookings: boolean;
   messages: boolean;
+  headerEngagementFocus: 'conservation' | 'campaign';
 }
 
 const DEFAULT_PAGE_FLAGS: PlatformPageFlags = {
@@ -43,6 +44,7 @@ const DEFAULT_PAGE_FLAGS: PlatformPageFlags = {
   dashboard: true,
   bookings: true,
   messages: true,
+  headerEngagementFocus: 'conservation',
 };
 
 export async function getPlatformPageFlags(tenantId: string): Promise<PlatformPageFlags> {
@@ -102,6 +104,11 @@ export async function getPlatformPageFlags(tenantId: string): Promise<PlatformPa
           break;
         case SETTINGS_KEYS.PAGE_MESSAGES_ENABLED:
           flags.messages = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.HEADER_ENGAGEMENT_FOCUS:
+          if (['conservation', 'campaign'].includes(setting.value)) {
+            flags.headerEngagementFocus = setting.value as 'conservation' | 'campaign';
+          }
           break;
       }
     }
@@ -167,6 +174,7 @@ export function mapFlagToSettingKey(key: keyof PlatformPageFlags): string | unde
     dashboard: SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED,
     bookings: SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED,
     messages: SETTINGS_KEYS.PAGE_MESSAGES_ENABLED,
+    headerEngagementFocus: SETTINGS_KEYS.HEADER_ENGAGEMENT_FOCUS,
   };
   return mapping[key];
 }

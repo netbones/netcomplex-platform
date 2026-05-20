@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
         'maintenance',
         'surveys',
         'competitions',
+        'headerEngagementFocus',
       ] as const;
       if (!validFlags.includes(flagParam as (typeof validFlags)[number])) {
         return NextResponse.json({ error: 'Invalid flag parameter' }, { status: 400 });
