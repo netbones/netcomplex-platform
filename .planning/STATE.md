@@ -2,10 +2,10 @@
 
 ## Current Position
 
-- **Phase:** 25-gap-closure
-- **Plan:** 03
-- **Status:** Ready to plan
-- **Last Updated:** 2026-05-16
+- **Phase:** 26-navigation-alignment
+- **Plan:** 03 (Complete)
+- **Status:** Phase complete
+- **Last Updated:** 2026-05-20
 
 ## Decisions Made
 
@@ -50,6 +50,9 @@
 - [Phase 24-dashboard-enhancement-01]: Surveys tab added to admin dashboard with SurveysWidget, aggregated responses API, and visual results page
 - [Phase 24-dashboard-enhancement-01]: Pure Tailwind CSS bar charts used instead of external chart library for survey results
 - [Phase 24-dashboard-enhancement-02]: Group membership moderation API + GroupModerationWidget — uses hasPermission('content') for access control, withTenant() for tenant isolation
+- [Phase 26]: PageSettingsWidget imports PlatformPageFlags from entity layer instead of duplicating locally
+- [Phase 26]: AdminQuickLinksWidget uses ADMIN_ITEMS from navigation-config with adminLabelKey i18n fallback
+- [Phase 26]: headerEngagementFocus radio placed before page toggles for admin visual prominence
 
 ## Notes
 
@@ -87,3 +90,9 @@
 - **25-gap-closure-01:** Complete — Platform admin auth guards on tenant CRUD routes, MobileMenu role case-sensitivity fix (2 commits).
 - **25-gap-closure-02:** Complete — Onboarding setting upserts wrapped in db.transaction, ModerationQueueWidget deprecated in favor of GroupModerationWidget (2 commits).
 - **25-gap-closure-03:** Complete — Resource, Competition, and Platform Admin API test suites (41 tests across 3 files).
+- [Phase 26-navigation-alignment]: PageSettingsWidget imports canonical PlatformPageFlags type instead of local duplicate
+- [Phase 26-navigation-alignment]: AdminQuickLinksWidget uses ADMIN_ITEMS from navigation-config with adminLabelKey i18n
+- [Phase 26-navigation-alignment]: headerEngagementFocus radio placed before page toggles for visual prominence
+- **26-navigation-alignment-01:** Complete — navigation-config.ts single source of truth + headerEngagementFocus flag (2 commits)
+- **26-navigation-alignment-02:** Complete — Header, MobileMenu, SideDrawer, Footer all aligned to navigation-config (2 commits)
+- **26-navigation-alignment-03:** Complete — headerEngagementFocus admin selector, dead constants removed, 28 nav tests (2 commits)
