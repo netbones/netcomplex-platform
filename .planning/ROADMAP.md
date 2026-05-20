@@ -120,13 +120,16 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ## Phase: 11-announcements
 
-**Goal:** Implement announcements board — announcement model, API, board UI with priority levels
+**Goal:** Implement announcements board — announcement CRUD API, admin page with form/list, public page with priority levels, admin dashboard widget, nav config integration
 
 **Status:** Not Started
 
-**Plans:**
+**Requirements:** ANN-01, ANN-02, ANN-03
 
-- [ ] 11-01-PLAN.md — Announcement model + API
+**Plans:** 2 plans
+
+- [ ] 11-01-PLAN.md — Announcement CRUD API + admin page + form + list + hook
+- [ ] 11-02-PLAN.md — Public announcements page + admin dashboard widget + nav config integration
 
 ---
 
@@ -134,11 +137,11 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Unify on Sonner as the single toast notification system, remove Zustand Toast
 
-**Status:** Planned
+**Status:** Complete
 
 **Plans:**
 
-- [ ] 18-01-PLAN.md — Remove Zustand Toast, migrate admin/users to Sonner, add ADR-018
+- [x] 18-01-PLAN.md — Remove Zustand Toast, migrate admin/users to Sonner, add ADR-018 ✅
 
 ---
 
@@ -220,7 +223,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 - [x] 23-01-PLAN.md — Competition model, API, admin CRUD, dynamic public page ✅
 - [x] 23-02-PLAN.md — Resource model, API with visibility, admin CRUD with file upload ✅
 - [x] 23-03-PLAN.md — Public resources page rewrite, Content migration, enum cleanup ✅
-- [ ] 23-04-PLAN.md — Gap closure: Competition status UI, public auth fix, resource edit auth forwarding
+- [x] 23-04-PLAN.md — Gap closure: Competition status UI, public auth fix, resource edit auth forwarding ✅
 
 ---
 
@@ -235,8 +238,8 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 **Plans:**
 
 - [x] 24-01-PLAN.md — Surveys tab, SurveysWidget, survey results API + visualisation page ✅
-- [ ] 24-02-PLAN.md — Group membership request API, GroupModerationWidget
-- [ ] 24-03-PLAN.md — Widget state persistence fix, reset-to-defaults
+- [x] 24-02-PLAN.md — Group membership request API, GroupModerationWidget ✅
+- [x] 24-03-PLAN.md — Widget state persistence fix, reset-to-defaults ✅
 
 ---
 
@@ -260,15 +263,30 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Align all navigation surfaces with NAVIGATION_GOVERNANCE.md — single source of truth, More dropdown, 4-section burger, Conservation/Campaign mutual exclusion, role-aware admin isolation
 
-**Status:** Planned
+**Status:** Complete (3/3 plans)
 
 **Requirements:** NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, NAV-06, NAV-07, NAV-08, NAV-09
 
-**Plans:** 3 plans
+**Plans:**
 
-- [ ] 26-01-PLAN.md — Navigation config foundation: types, items, filtering functions, headerEngagementFocus setting
-- [ ] 26-02-PLAN.md — Wire components: Header (More dropdown + avatar), MobileMenu (4-section burger), Footer (2-tier), SideDrawer (flag-gated)
-- [ ] 26-03-PLAN.md — Admin UI (engagement focus selector), dead code cleanup, navigation-config test suite
+- [x] 26-01-PLAN.md — Navigation config foundation: types, items, filtering functions, headerEngagementFocus setting ✅
+- [x] 26-02-PLAN.md — Wire components: Header (More dropdown + avatar), MobileMenu (4-section burger), Footer (2-tier), SideDrawer (flag-gated) ✅
+- [x] 26-03-PLAN.md — Admin UI (engagement focus selector), dead code cleanup, navigation-config test suite ✅
+
+---
+
+## Phase: 27-tenant-config-and-gaps
+
+**Goal:** Make booking facilities and maintenance categories tenant-configurable via onboarding + settings API; close remaining GAPS.md items (GAP-05, GAP-10, GAP-13, GAP-15, GAP-16)
+
+**Status:** Not Started
+
+**Requirements:** CFG-01, CFG-02, CFG-03, GAP-05, GAP-10, GAP-13, GAP-15, GAP-16
+
+**Plans:** 2 plans
+
+- [ ] 27-01-PLAN.md — Tenant-configurable facilities/categories: preset catalogs, settings API, onboarding steps, booking form reads tenant config
+- [ ] 27-02-PLAN.md — Gap closures: resource migration (GAP-05), EventsWidget duplication (GAP-15), duplicate DB client (GAP-16), assist scope enforcement (GAP-10), widget DB sync (GAP-13)
 
 ---
 
