@@ -120,16 +120,16 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ## Phase: 11-announcements
 
-**Goal:** Implement announcements board — announcement CRUD API, admin page with form/list, public page with priority levels, admin dashboard widget, nav config integration
+**Goal:** Implement governed announcements layer — role-gated priority taxonomy, audience targeting with fanout, document attachment, admin CRUD UI, stream widget + /news embed (no new nav items)
 
 **Status:** Not Started
 
-**Requirements:** ANN-01, ANN-02, ANN-03
+**Requirements:** ANN-01, ANN-02, ANN-03, R1, R2, R3, R6, R7, R8
 
 **Plans:** 2 plans
 
-- [ ] 11-01-PLAN.md — Announcement CRUD API + admin page + form + list + hook
-- [ ] 11-02-PLAN.md — Public announcements page + admin dashboard widget + nav config integration
+- [ ] 11-01-PLAN.md — Schema migration + priority taxonomy + API with targeting/fanout/priority enforcement
+- [ ] 11-02-PLAN.md — Admin form (role-gated priority + targeting + resource link) + stream widget + /news embed
 
 ---
 
