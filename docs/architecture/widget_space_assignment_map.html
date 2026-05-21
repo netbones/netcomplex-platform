@@ -1,0 +1,172 @@
+
+<style>
+  .wrap { padding: 1rem 0; font-size: 13px; }
+  h2 { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .subtitle { color: var(--color-text-secondary); font-size: 12px; margin-bottom: 16px; }
+  .space-block { margin-bottom: 20px; }
+  .space-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .space-label { font-weight: 500; font-size: 13px; color: var(--color-text-primary); }
+  .space-note { font-size: 11px; color: var(--color-text-secondary); }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 500; margin: 2px 3px 2px 0; line-height: 1.4; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 0; }
+  .resident { background: #E6F1FB; color: #0C447C; border: 0.5px solid #85B7EB; }
+  .resident .dot { background: #378ADD; }
+  .admin { background: #EEEDFE; color: #3C3489; border: 0.5px solid #AFA9EC; }
+  .admin .dot { background: #7F77DD; }
+  .both { background: #E1F5EE; color: #085041; border: 0.5px solid #5DCAA5; }
+  .both .dot { background: #1D9E75; }
+  .premium { background: #FAEEDA; color: #633806; border: 0.5px solid #EF9F27; }
+  .premium .dot { background: #BA7517; }
+  .flag { background: #FCEBEB; color: #791F1F; border: 0.5px solid #F09595; }
+  .flag .dot { background: #E24B4A; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+  .leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--color-text-secondary); }
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 14px 0; }
+  .section-icon { width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; }
+  .warn-box { background: #FAEEDA; border: 0.5px solid #EF9F27; border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; }
+  .warn-title { font-weight: 500; font-size: 12px; color: #633806; margin-bottom: 4px; }
+  .warn-body { font-size: 11px; color: #854F0B; line-height: 1.5; }
+</style>
+<div class="wrap">
+  <h2>Widget → Focus Space assignment</h2>
+  <p class="subtitle">All 27 registered widgets mapped to their Phase B spaces. Unregistered admin widgets noted separately.</p>
+
+  <div class="legend">
+    <div class="leg-item"><span class="dot" style="background:#378ADD;width:8px;height:8px;border-radius:50%"></span>Resident only</div>
+    <div class="leg-item"><span class="dot" style="background:#7F77DD;width:8px;height:8px;border-radius:50%"></span>Admin only</div>
+    <div class="leg-item"><span class="dot" style="background:#1D9E75;width:8px;height:8px;border-radius:50%"></span>Both roles</div>
+    <div class="leg-item"><span class="dot" style="background:#BA7517;width:8px;height:8px;border-radius:50%"></span>Premium / feature-flagged</div>
+    <div class="leg-item"><span class="dot" style="background:#E24B4A;width:8px;height:8px;border-radius:50%"></span>Needs attention</div>
+  </div>
+
+  <div class="warn-box">
+    <div class="warn-title">⚠ Unregistered admin widgets found on disk</div>
+    <div class="warn-body">AdminActivityWidget, AdminContentWidget, AdminQuickLinksWidget, AdminStatsWidget, AdminSystemWidget, AdminUserWidget exist in <code>src/widgets/admin/ui/</code> but are NOT in the registry. They need registration before Phase B can assign them. See notes at bottom.</div>
+  </div>
+
+  <div class="space-block">
+    <div class="space-header">
+      <div class="section-icon" style="background:#E6F1FB">🏠</div>
+      <span class="space-label">Home layer</span>
+      <span class="space-note">— first screen on login, read-oriented, no forms</span>
+    </div>
+    <div class="row">
+      <span class="badge both"><span class="dot"></span>stats</span>
+      <span class="badge both"><span class="dot"></span>quick-actions</span>
+      <span class="badge both"><span class="dot"></span>recent-activity</span>
+      <span class="badge both"><span class="dot"></span>notifications</span>
+      <span class="badge both"><span class="dot"></span>sidebar-widgets</span>
+    </div>
+  </div>
+  <hr class="divider">
+
+  <div class="space-block">
+    <div class="space-header">
+      <div class="section-icon" style="background:#E1F5EE">🏡</div>
+      <span class="space-label">My Home space</span>
+      <span class="space-note">— property, household, profile (resident-scoped)</span>
+    </div>
+    <div class="row">
+      <span class="badge resident"><span class="dot"></span>properties <em style="font-weight:400">(flag: households)</em></span>
+      <span class="badge resident"><span class="dot"></span>solo-seat</span>
+      <span class="badge premium"><span class="dot"></span>premium-portfolio <em style="font-weight:400">(flag: portfolio)</em></span>
+    </div>
+  </div>
+  <hr class="divider">
+
+  <div class="space-block">
+    <div class="space-header">
+      <div class="section-icon" style="background:#EEEDFE">💬</div>
+      <span class="space-label">Messages space</span>
+      <span class="space-note">— all communication channels</span>
+    </div>
+    <div class="row">
+      <span class="badge both"><span class="dot"></span>messages</span>
+      <span class="badge both"><span class="dot"></span>notifications</span>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;">Note: notifications appears in both Home and Messages — that is intentional (summary on Home, full panel in Messages space).</div>
+  </div>
+  <hr class="divider">
+
+  <div class="space-block">
+    <div class="space-header">
+      <div class="section-icon" style="background:#E1F5EE">🌿</div>
+      <span class="space-label">Community space</span>
+      <span class="space-note">— events, content, groups, surveys, competitions</span>
+    </div>
+    <div class="row">
+      <span class="badge both"><span class="dot"></span>events</span>
+      <span class="badge resident"><span class="dot"></span>my-content</span>
+      <span class="badge resident"><span class="dot"></span>bookshelf</span>
+      <span class="badge resident"><span class="dot"></span>media</span>
+      <span class="badge resident"><span class="dot"></span>my-album</span>
+      <span class="badge admin"><span class="dot"></span>admin-events</span>
+      <span class="badge admin"><span class="dot"></span>admin-surveys</span>
+      <span class="badge admin"><span class="dot"></span>admin-competitions</span>
+      <span class="badge admin"><span class="dot"></span>group-moderation</span>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;">admin-announcements (Phase 11) also belongs here once registered.</div>
+  </div>
+  <hr class="divider">
+
+  <div class="space-block">
+    <div class="space-header">
+      <div class="section-icon" style="background:#FAEEDA">🔧</div>
+      <span class="space-label">Maintenance space</span>
+      <span class="space-note">— requests, tracking, analytics</span>
+    </div>
+    <div class="row">
+      <span class="badge flag"><span class="dot"></span>⚠ No resident maintenance widget registered</span>
+    </div>
+    <div style="font-size:11px;color:#854F0B;margin-top:6px;">MaintenanceRequestsWidget, MaintenanceList, MaintenanceAnalyticsWidget exist in <code>src/widgets/maintenance/</code> but are not in the registry. This space would be empty for residents without registration.</div>
+  </div>
+  <hr class="divider">
+
+  <div class="space-block">
+    <div class="space-header">
+      <div class="section-icon" style="background:#FAEEDA">🛠</div>
+      <span class="space-label">Services space</span>
+      <span class="space-note">— community marketplace, listings, inquiries</span>
+    </div>
+    <div class="row">
+      <span class="badge resident"><span class="dot"></span>my-services <em style="font-weight:400">(flag: services)</em></span>
+      <span class="badge resident"><span class="dot"></span>service-inquiries <em style="font-weight:400">(flag: services)</em></span>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;">MarketplaceAnalyticsWidget, ServiceQualityWidget exist on disk but are unregistered. ServicesGrid and RelatedServices are page-level components, not widgets — they stay as pages.</div>
+  </div>
+  <hr class="divider">
+
+  <div class="space-block">
+    <div class="space-header">
+      <div class="section-icon" style="background:#EEEDFE">⚙️</div>
+      <span class="space-label">Admin space</span>
+      <span class="space-note">— management sub-launcher + operational widgets (admin-only)</span>
+    </div>
+    <div class="row">
+      <span class="badge admin"><span class="dot"></span>admin-resources</span>
+      <span class="badge admin"><span class="dot"></span>page-settings</span>
+      <span class="badge flag"><span class="dot"></span>⚠ AdminStatsWidget — unregistered</span>
+      <span class="badge flag"><span class="dot"></span>⚠ AdminUserWidget — unregistered</span>
+      <span class="badge flag"><span class="dot"></span>⚠ AdminActivityWidget — unregistered</span>
+      <span class="badge flag"><span class="dot"></span>⚠ AdminQuickLinksWidget — unregistered</span>
+      <span class="badge flag"><span class="dot"></span>⚠ AdminContentWidget — unregistered</span>
+      <span class="badge flag"><span class="dot"></span>⚠ AdminSystemWidget — unregistered</span>
+    </div>
+  </div>
+  <hr class="divider">
+
+  <div class="space-block">
+    <div class="space-header">
+      <div class="section-icon" style="background:#FAEEDA">👑</div>
+      <span class="space-label">Premium / Agent space</span>
+      <span class="space-note">— only shown to premium-tier users / agents</span>
+    </div>
+    <div class="row">
+      <span class="badge premium"><span class="dot"></span>agent-dashboard <em style="font-weight:400">(flag: agents)</em></span>
+      <span class="badge premium"><span class="dot"></span>agent-activity <em style="font-weight:400">(flag: agents)</em></span>
+      <span class="badge premium"><span class="dot"></span>community-graph-widget <em style="font-weight:400">(flag: communityGraph)</em></span>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;">These could surface within My Home or a dedicated Agent space. Recommend Agent space as a sub-space of My Home rather than a top-level space, since it serves a minority role.</div>
+  </div>
+</div>
