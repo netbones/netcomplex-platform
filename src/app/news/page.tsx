@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import { sanitizeHtml } from '@shared/lib/sanitize';
 import { usePageLoading } from '@shared/ui';
+import { AnnouncementsStreamWidget } from '@widgets/dashboard/ui/AnnouncementsStreamWidget';
 
 const log = createComponentLogger('news-page');
 
@@ -188,6 +189,23 @@ export default function NewsPage() {
             ))}
           </div>
         )}
+
+        {/* Standalone Announcements Section */}
+        <section id="announcements" className="mt-12 pt-8 border-t border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Announcements</h2>
+          <Suspense
+            fallback={
+              <div className="animate-pulse space-y-3">
+                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-16 bg-gray-200 rounded"></div>
+                ))}
+              </div>
+            }
+          >
+            <AnnouncementsStreamWidget />
+          </Suspense>
+        </section>
       </div>
     </ErrorBoundary>
   );

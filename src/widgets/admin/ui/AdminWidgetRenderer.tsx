@@ -15,6 +15,7 @@ import { EventsWidget as AdminEventsWidget } from './EventsWidget';
 import { CompetitionList } from './CompetitionList';
 import { ResourceList } from './ResourceList';
 import { SurveysWidget } from './SurveysWidget';
+import { AdminAnnouncementsWidget } from './AdminAnnouncementsWidget';
 import { GroupModerationWidgetWithErrorBoundary } from './GroupModerationWidget';
 
 interface WidgetRendererProps {
@@ -130,6 +131,12 @@ export function AdminWidgetRenderer({ widgetId }: WidgetRendererProps): ReactNod
       return (
         <WidgetWithBoundary widgetId={widgetId}>
           <SurveysWidget />
+        </WidgetWithBoundary>
+      );
+    case 'admin-announcements':
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <AdminAnnouncementsWidget />
         </WidgetWithBoundary>
       );
     case 'group-moderation':

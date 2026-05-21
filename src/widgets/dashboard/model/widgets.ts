@@ -25,6 +25,7 @@ import {
   Send,
   User,
   Settings,
+  Megaphone,
 } from 'lucide-react';
 
 export function registerAllWidgets(registry: { register: (m: WidgetManifest) => void }) {
@@ -174,6 +175,25 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   });
 
   registry.register({
+    id: 'announcements-stream',
+    version: '1.0.0',
+    name: 'Announcements',
+    description: 'Recent community announcements',
+    author: 'internal',
+    category: 'communication',
+    icon: Megaphone,
+    component: lazy(() =>
+      import('../ui/AnnouncementsStreamWidget').then(m => ({
+        default: m.AnnouncementsStreamWidget,
+      }))
+    ),
+    loader: () => import('../ui/AnnouncementsStreamWidget'),
+    defaultSize: { width: 3, height: 2 },
+    minSize: { width: 2, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
     id: 'admin-events',
     version: '1.0.0',
     name: 'Admin Events',
@@ -204,6 +224,26 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
       import('../../admin/ui/SurveysWidget').then(m => ({ default: m.SurveysWidget }))
     ),
     loader: () => import('../../admin/ui/SurveysWidget'),
+    defaultSize: { width: 3, height: 2 },
+    minSize: { width: 2, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'admin-announcements',
+    version: '1.0.0',
+    name: 'Admin Announcements',
+    description: 'Manage community announcements',
+    author: 'internal',
+    category: 'core',
+    icon: Megaphone,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../../admin/ui/AdminAnnouncementsWidget').then(m => ({
+        default: m.AdminAnnouncementsWidget,
+      }))
+    ),
+    loader: () => import('../../admin/ui/AdminAnnouncementsWidget'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
