@@ -18,6 +18,7 @@ export interface Permission {
   directory: boolean;
   messages: boolean;
   settings: boolean;
+  announcements: boolean;
 }
 
 /** Role-to-permission mapping for the application */
@@ -36,6 +37,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     directory: true,
     messages: true,
     settings: false,
+    announcements: false,
   },
   GROUP_ADMIN: {
     admin: false,
@@ -51,6 +53,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     directory: true,
     messages: true,
     settings: false,
+    announcements: false,
   },
   COMMITTEE: {
     admin: false,
@@ -66,6 +69,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     directory: true,
     messages: true,
     settings: true,
+    announcements: true,
   },
   BOARD: {
     admin: false,
@@ -81,6 +85,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     directory: true,
     messages: true,
     settings: true,
+    announcements: true,
   },
   ADMIN: {
     admin: true,
@@ -96,6 +101,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     directory: true,
     messages: true,
     settings: true,
+    announcements: true,
   },
   AGENT: {
     admin: false,
@@ -111,6 +117,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     directory: false,
     messages: false,
     settings: false,
+    announcements: false,
   },
   MANAGER: {
     admin: false,
@@ -126,6 +133,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     directory: true,
     messages: true,
     settings: true,
+    announcements: true,
   },
   ASSOCIATE: {
     admin: false,
@@ -141,6 +149,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     directory: true,
     messages: true,
     settings: false,
+    announcements: false,
   },
 };
 
@@ -273,6 +282,7 @@ const ZERO_PERMISSIONS: Permission = {
   directory: false,
   messages: false,
   settings: false,
+  announcements: false,
 };
 
 /**
@@ -283,4 +293,13 @@ const ZERO_PERMISSIONS: Permission = {
 export function getPermissions(role: string | null | undefined): Permission {
   if (!role) return ZERO_PERMISSIONS;
   return ROLE_PERMISSIONS[role as Role] ?? ZERO_PERMISSIONS;
+}
+
+/**
+ * Checks if the role can publish announcements.
+ * @param role - The user role to check
+ * @returns True if role has announcements permission
+ */
+export function canPublishAnnouncements(role: string | null | undefined): boolean {
+  return hasPermission(role, 'announcements');
 }

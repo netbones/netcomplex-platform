@@ -1,11 +1,8 @@
-import { sql } from 'drizzle-orm';
 import { pgTable, text, boolean, jsonb, integer, timestamp } from 'drizzle-orm/pg-core';
 import { tierEnum } from './tier-enum';
 
 export const tenants = pgTable('Tenant', {
-  id: text('id')
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
+  id: text('id').primaryKey(),
   name: text('name').notNull(),
   slug: text('slug').notNull(),
   customDomain: text('customDomain'),
@@ -18,12 +15,12 @@ export const tenants = pgTable('Tenant', {
   customCss: text('customCss'),
   active: boolean('active').default(true).notNull(),
   subscriptionTier: text('subscriptionTier').default('sprout').notNull(),
-  tier: tierEnum('tier').default('STANDARD').notNull(),
   modules: jsonb('modules'),
   maxPages: integer('maxPages').default(5).notNull(),
   pageCount: integer('pageCount').default(0).notNull(),
   featureFlags: jsonb('featureFlags').default({}).notNull(),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }),
+  tier: tierEnum('tier').default('STANDARD').notNull(),
   ownerId: text('ownerId'),
 });

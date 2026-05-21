@@ -9,14 +9,14 @@ export const propertyListingsRelations = relations(propertyListings, helpers => 
     fields: [propertyListings.assignedAgentId],
     references: [users.id],
   }),
-  property: helpers.one(properties, {
-    relationName: 'PropertyTopropertyListing',
-    fields: [propertyListings.propertyId],
-    references: [properties.id],
-  }),
   user_propertyListing_ownerIdTouser: helpers.one(users, {
     relationName: 'propertyListing_ownerIdTouser',
     fields: [propertyListings.ownerId],
     references: [users.id],
+  }),
+  property: helpers.one(properties, {
+    relationName: 'PropertyTopropertyListing',
+    fields: [propertyListings.propertyId],
+    references: [properties.id],
   }),
 }));

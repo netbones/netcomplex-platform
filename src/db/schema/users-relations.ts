@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { users } from './users';
+import { assistSessions } from './assist-sessions';
 import { bookings } from './bookings';
 import { contents } from './contents';
 import { conversationParticipants } from './conversation-participants';
@@ -8,6 +9,9 @@ import { groupMembershipRequests } from './group-membership-requests';
 import { maintenanceRequests } from './maintenance-requests';
 import { messages } from './messages';
 import { notifications } from './notifications';
+import { properties } from './properties';
+import { resources } from './resources';
+import { tenants } from './tenants';
 import { userGroups } from './user-groups';
 import { accounts } from './accounts';
 import { agentAccesses } from './agent-accesses';
@@ -27,10 +31,9 @@ import { sessions } from './sessions';
 import { soloSeats } from './solo-seats';
 import { standardSeats } from './standard-seats';
 import { twoFactors } from './two-factors';
-import { properties } from './properties';
-import { tenants } from './tenants';
 
 export const usersRelations = relations(users, helpers => ({
+  assistSessions: helpers.many(assistSessions, { relationName: 'AssistSessionTouser' }),
   Booking: helpers.many(bookings, { relationName: 'BookingTouser' }),
   Content: helpers.many(contents, { relationName: 'ContentTouser' }),
   ConversationParticipant: helpers.many(conversationParticipants, {
@@ -45,6 +48,9 @@ export const usersRelations = relations(users, helpers => ({
   }),
   Message: helpers.many(messages, { relationName: 'MessageTouser' }),
   Notification: helpers.many(notifications, { relationName: 'NotificationTouser' }),
+  ownedProperties: helpers.many(properties, { relationName: 'PropertyOwner' }),
+  Resource: helpers.many(resources, { relationName: 'ResourceTouser' }),
+  ownedTenants: helpers.many(tenants, { relationName: 'TenantOwner' }),
   UserGroup: helpers.many(userGroups, { relationName: 'UserGroupTouser' }),
   account: helpers.many(accounts, { relationName: 'accountTouser' }),
   agentAccess_agentAccess_agentIdTouser: helpers.many(agentAccesses, {
@@ -85,6 +91,4 @@ export const usersRelations = relations(users, helpers => ({
   soloSeat: helpers.one(soloSeats),
   standardSeat: helpers.many(standardSeats, { relationName: 'standardSeatTouser' }),
   twoFactor: helpers.many(twoFactors, { relationName: 'twoFactorTouser' }),
-  ownedProperties: helpers.many(properties, { relationName: 'PropertyOwner' }),
-  ownedTenants: helpers.many(tenants, { relationName: 'TenantOwner' }),
 }));

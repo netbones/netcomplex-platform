@@ -48,6 +48,7 @@ import * as platformModulesRelations from './platform-modules-relations';
 import * as tenantModulesRelations from './tenant-modules-relations';
 import * as assistSessionsRelations from './assist-sessions-relations';
 import * as tenantsRelations from './tenants-relations';
+import * as announcementsRelations from './announcements-relations';
 import * as bookingsRelations from './bookings-relations';
 import * as contentsRelations from './contents-relations';
 import * as conversationsRelations from './conversations-relations';
@@ -138,6 +139,7 @@ export const schema = {
   ...tenantModulesRelations,
   ...assistSessionsRelations,
   ...tenantsRelations,
+  ...announcementsRelations,
   ...bookingsRelations,
   ...contentsRelations,
   ...conversationsRelations,

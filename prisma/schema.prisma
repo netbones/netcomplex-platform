@@ -84,14 +84,19 @@ model Tenant {
 }
 
 model Announcement {
-  id        String    @id
-  tenantId  String
-  title     String
-  content   String
-  author    String
-  priority  String    @default("normal")
-  createdAt DateTime  @default(now())
+  id String @id
+  tenantId String
+  title String
+  content String
+  author String
+  priority String @default("normal")
+  targetFilter ResidentFilter @default(ALL)
+  targetRoles Role[]
+  resourceId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   expiresAt DateTime?
+  resource Resource? @relation(fields: [resourceId], references: [id])
 }
 
 model Booking {
@@ -927,6 +932,7 @@ model Resource {
   @@index([tenantId])
   @@index([category])
   @@index([visibility])
+  announcements Announcement[]
 }
 
 enum Tier {

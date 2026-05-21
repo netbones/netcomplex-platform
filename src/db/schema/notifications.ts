@@ -1,5 +1,7 @@
 import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core';
 
+// FUTURE: add requiresAck Boolean @default(false) and ackedAt DateTime? for governance notice acknowledgement (R4/R6)
+
 export const notifications = pgTable('Notification', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),

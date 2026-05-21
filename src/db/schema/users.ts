@@ -21,7 +21,7 @@ export const users = pgTable('user', {
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   emailVerified: boolean('emailVerified').default(false).notNull(),
-  isPlatformAdmin: boolean('isPlatformAdmin').default(false).notNull(),
   image: text('image'),
   twoFactorEnabled: boolean('twoFactorEnabled').default(false).notNull(),
+  isPlatformAdmin: boolean('isPlatformAdmin').default(false).notNull(),
 });
