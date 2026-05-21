@@ -2,10 +2,10 @@
 
 ## Current Position
 
-- **Phase:** Planning complete for 11-announcements + 27-tenant-config-and-gaps
-- **Plan:** All 4 plans written and validated
-- **Status:** Ready for execution
-- **Last Updated:** 2026-05-20
+- **Phase:** 11-announcements
+- **Plan:** 01 complete (2/2 tasks), 02 next
+- **Status:** Plan 01 executed — schema + API done
+- **Last Updated:** 2026-05-21
 
 ## Decisions Made
 
@@ -96,3 +96,7 @@
 - **26-navigation-alignment-01:** Complete — navigation-config.ts single source of truth + headerEngagementFocus flag (2 commits)
 - **26-navigation-alignment-02:** Complete — Header, MobileMenu, SideDrawer, Footer all aligned to navigation-config (2 commits)
 - **26-navigation-alignment-03:** Complete — headerEngagementFocus admin selector, dead constants removed, 28 nav tests (2 commits)
+- [Phase 11-announcements-01]: Priority is structural not cosmetic — validatePriorityForRole() downgrades with warning in response
+- [Phase 11-announcements-01]: Notification type includes priority suffix (announcement-urgent, announcement-high) for future R4 acknowledgement
+- [Phase 11-announcements-01]: Fanout capped at 500 users with TODO for queue-based processing
+- [Phase 11-announcements-01]: FUTURE comment on Notification table for requiresAck/ackedAt — no blocking constraints
