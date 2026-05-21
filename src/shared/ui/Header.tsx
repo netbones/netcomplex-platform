@@ -7,12 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@shared/ui';
 import { authClient } from '@api/auth-client';
 import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
-import {
-  getHeaderItems,
-  getMoreDropdownItems,
-  getWorkspaceItems,
-  type NavItem,
-} from '@/shared/lib/navigation-config';
+import { NAV_REGISTRY } from '@/shared/lib/navigation';
+import { isNavItemVisible } from '@/shared/lib/nav-utils';
 import { MobileMenu } from './MobileMenu';
 
 function TeaserLink({
@@ -73,7 +69,7 @@ function MoreDropdown({
   t,
   pathname,
 }: {
-  items: NavItem[];
+  items: import('@/shared/lib/navigation').NavItem[];
   t: (key: string) => string;
   pathname: string;
 }) {
@@ -133,7 +129,7 @@ function MoreDropdown({
                   : 'text-gray-700'
               }`}
             >
-              {t(item.labelKey)}
+              {t(item.nameKey)}
             </Link>
           ))}
         </div>
@@ -158,9 +154,12 @@ function AvatarDropdown({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const allWorkspaceItems = getWorkspaceItems(flags, true);
-  // Avatar menu shows workspace items except Notifications (per governance: avatar = Dashboard, Messages, Bookings, Maintenance, Settings, Sign Out)
-  const workspaceItems = allWorkspaceItems.filter(item => item.href !== '/notifications');
+  const role = session.user.role;
+  const workspaceItems = NAV_REGISTRY.filter(
+    item =>
+      ['dashboard', 'messages', 'bookings', 'maintenance'].includes(item.id) &&
+      isNavItemVisible(item, flags, role)
+  );
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -214,7 +213,7 @@ function AvatarDropdown({
                   : 'text-gray-700'
               }`}
             >
-              {t(item.labelKey)}
+              {t(item.nameKey)}
             </Link>
           ))}
           <div className="border-t border-gray-100 my-1" />
@@ -256,8 +255,20 @@ export function Header() {
     router.refresh();
   };
 
-  const headerItems = mounted && pageFlags ? getHeaderItems(pageFlags) : [];
-  const moreItems = mounted && pageFlags ? getMoreDropdownItems(pageFlags) : [];
+  const role = session?.user?.role;
+  const visibleItems =
+    mounted && pageFlags
+      ? NAV_REGISTRY.filter(item => isNavItemVisible(item, pageFlags, role))
+      : [];
+
+  // Header items: Home, Directory, Services, Resources, Conservation, Campaign (first 6 items that pass visibility)
+  const headerItems = visibleItems
+    .filter(item => !['dashboard', 'bookings', 'messages', 'maintenance'].includes(item.id))
+    .slice(0, 5);
+  // More items: Everything else public
+  const moreItems = visibleItems.filter(
+    item => !['home', ...headerItems.map(i => i.id)].includes(item.id)
+  );
 
   return (
     <header className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md relative z-40">
@@ -300,7 +311,7 @@ export function Header() {
                 <TeaserLink
                   key={item.href}
                   href={item.href}
-                  labelKey={item.labelKey}
+                  labelKey={item.nameKey}
                   pathname={pathname}
                   authenticated={!!session}
                   t={t}

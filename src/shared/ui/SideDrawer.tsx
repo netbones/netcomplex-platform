@@ -7,13 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { useIsMounted } from 'usehooks-ts';
 import { authClient } from '@api/auth-client';
 import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
-import {
-  getHeaderItems,
-  getMoreDropdownItems,
-  getWorkspaceItems,
-  getAdminItems,
-  type NavItem,
-} from '@/shared/lib/navigation-config';
+import { NAV_REGISTRY, ADMIN_NAV_REGISTRY } from '@/shared/lib/navigation';
+import { isNavItemVisible } from '@/shared/lib/nav-utils';
 import {
   Accordion,
   AccordionItem,
@@ -54,21 +49,50 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
     return () => document.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
 
-  if (!isMounted() || !ready) {
+  if (!isMounted() || !ready || !flags) {
     return null;
   }
 
+  const role = session?.user?.role;
   const isLoggedIn = !!session;
-  const userRole = session?.user?.role as string | undefined;
 
-  const exploreItems = flags ? getHeaderItems(flags) : [];
-  const communityItems = flags ? getMoreDropdownItems(flags) : [];
-  const workspaceItems = flags ? getWorkspaceItems(flags, isLoggedIn) : [];
-  const adminItems = getAdminItems(userRole);
+  const visibleNav = NAV_REGISTRY.filter(item => isNavItemVisible(item, flags, role));
+  const visibleAdmin = ADMIN_NAV_REGISTRY.filter(item => isNavItemVisible(item, flags, role));
+
+  const sections = {
+    explore: visibleNav.filter(i => ['home', 'directory', 'services', 'resources'].includes(i.id)),
+    community: visibleNav.filter(i =>
+      ['groups', 'news', 'surveys', 'competition', 'conservation', 'campaign'].includes(i.id)
+    ),
+    workspace: visibleNav.filter(i =>
+      ['dashboard', 'bookings', 'messages', 'maintenance'].includes(i.id)
+    ),
+    admin: visibleAdmin,
+  };
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 
-  const renderNavItem = (item: NavItem, useAdminLabel = false) => (
+  const getIcon = (id: string) => {
+    const map: Record<string, string> = {
+      home: 'home',
+      directory: 'users',
+      groups: 'users',
+      services: 'tool',
+      resources: 'file',
+      news: 'bell',
+      maintenance: 'tool',
+      surveys: 'tags',
+      competition: 'heart',
+      conservation: 'heart',
+      campaign: 'heart',
+      dashboard: 'home',
+      bookings: 'calendar',
+      messages: 'mail',
+    };
+    return map[id] || 'file';
+  };
+
+  const renderNavItem = (item: (typeof NAV_REGISTRY)[0], useAdminLabel = false) => (
     <Link
       key={item.href}
       href={item.href}
@@ -79,8 +103,8 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           : 'text-lapis-mid hover:bg-lapis-azure/10 hover:text-lapis-deep'
       }`}
     >
-      <NavIcon name={item.icon || 'file'} />
-      <span>{useAdminLabel && item.adminLabelKey ? t(item.adminLabelKey) : t(item.labelKey)}</span>
+      <NavIcon name={getIcon(item.id)} />
+      <span>{t(item.nameKey)}</span>
     </Link>
   );
 
@@ -122,34 +146,36 @@ export function SideDrawer({ isOpen, onClose }: SideDrawerProps) {
           >
             <AccordionItem value="explore">
               <AccordionTrigger>{t('nav.explore')}</AccordionTrigger>
-              <AccordionContent>{exploreItems.map(item => renderNavItem(item))}</AccordionContent>
+              <AccordionContent>
+                {sections.explore.map(item => renderNavItem(item))}
+              </AccordionContent>
             </AccordionItem>
 
-            {communityItems.length > 0 && (
+            {sections.community.length > 0 && (
               <AccordionItem value="community">
                 <AccordionTrigger className="text-gold-vein hover:text-gold-vein/80">
                   {t('nav.community')}
                 </AccordionTrigger>
                 <AccordionContent>
-                  {communityItems.map(item => renderNavItem(item))}
+                  {sections.community.map(item => renderNavItem(item))}
                 </AccordionContent>
               </AccordionItem>
             )}
 
-            {isLoggedIn && workspaceItems.length > 0 && (
+            {isLoggedIn && sections.workspace.length > 0 && (
               <AccordionItem value="workspace">
                 <AccordionTrigger>{t('nav.mySpace')}</AccordionTrigger>
                 <AccordionContent>
-                  {workspaceItems.map(item => renderNavItem(item))}
+                  {sections.workspace.map(item => renderNavItem(item))}
                 </AccordionContent>
               </AccordionItem>
             )}
 
-            {isLoggedIn && adminItems.length > 0 && (
+            {isLoggedIn && sections.admin.length > 0 && (
               <AccordionItem value="admin">
                 <AccordionTrigger>{t('nav.administration')}</AccordionTrigger>
                 <AccordionContent>
-                  {adminItems.map(item => renderNavItem(item, true))}
+                  {sections.admin.map(item => renderNavItem(item))}
                 </AccordionContent>
               </AccordionItem>
             )}
@@ -266,16 +292,6 @@ function NavIcon({ name }: { name: string }) {
         />
       </svg>
     ),
-    shield: (
-      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-        />
-      </svg>
-    ),
     signout: (
       <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -283,16 +299,6 @@ function NavIcon({ name }: { name: string }) {
           strokeLinejoin="round"
           strokeWidth={2}
           d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-        />
-      </svg>
-    ),
-    cog: (
-      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.81 2.62 2.27l-.534 6.592a1 1 0 01-.986.84H5.5a1 1 0 01-.986-.84L2.61 8.08A1.724 1.724 0 004.04 6.37a1.724 1.724 0 002.573-1.066c1.543-.94 3.31.81 2.62 2.27l-.534 6.592a1 1 0 01-.986.84H4.5a1 1 0 01-1-1v-3a1 1 0 011-1h3.325z"
         />
       </svg>
     ),
@@ -306,13 +312,13 @@ function NavIcon({ name }: { name: string }) {
         />
       </svg>
     ),
-    'external-link-alt': (
+    signin: (
       <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeWidth={2}
-          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+          d="M11 16l-5-5m5 5l5-5m-5 5v12"
         />
       </svg>
     ),
@@ -323,26 +329,6 @@ function NavIcon({ name }: { name: string }) {
           strokeLinejoin="round"
           strokeWidth={2}
           d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7h4a2 2 0 010 4H7z"
-        />
-      </svg>
-    ),
-    chart: (
-      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-        />
-      </svg>
-    ),
-    signin: (
-      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M11 16l-5-5m5 5l5-5m-5 5v12"
         />
       </svg>
     ),

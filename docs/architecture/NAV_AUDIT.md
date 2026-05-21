@@ -189,33 +189,28 @@ Users (/admin/users), Content (/admin/content), Groups (/admin/groups), Requests
 
 ## 4. Navigation Configuration Patterns
 
-**Pattern 1: Hardcoded + Feature-Flag Filtered (Primary Pattern)**
+## 4. Navigation Configuration Patterns
 
-The Header.tsx defines BASE_NAV as a hardcoded array of 11 items. At runtime, usePageFlags() fetches the tenant's page flags from /api/flags, and each item is conditionally filtered out if its corresponding flag is false (or 'external' for conservation). This is the dominant pattern -- the set of possible nav items is fixed in code, but visibility is dynamic per-tenant.
+**Pattern 1: Centralized Registry & Visibility Utility (Current Standard)**
 
-**Pattern 2: Completely Hardcoded (SideDrawer)**
+The codebase has been refactored to use a centralized `NAV_REGISTRY` (in `src/shared/lib/navigation.ts`) and a unified visibility utility (`src/shared/lib/nav-utils.ts`). All navigation components (Header, MobileMenu, SideDrawer, Footer) now import from this registry and use `isNavItemVisible(item, flags, role)` to dynamically filter items based on both tenant feature flags and RBAC permissions. This replaces the previous fragmented hardcoded arrays and logic scattered across multiple files.
 
-The SideDrawer.tsx has four separate hardcoded arrays (GUEST_LINKS, DASHBOARD_LINKS, SETTINGS_LINKS, ADMIN_LINKS). These are NOT filtered by page flags at all -- only by authentication status and role-based permissions. This creates an inconsistency: a page disabled via flags still appears in the SideDrawer.
+**Pattern 2: Dynamic Visibility Gating**
 
-**Pattern 3: Constants-Based (Unused in UI)**
+The `isNavItemVisible` utility serves as the single source of truth for navigation access. It evaluates items against:
 
-constants.ts exports NAV_LINKS (7 items), PUBLIC_NAV_LINKS (2 items), and ADMIN_LINKS (4 items), but these are not imported by any navigation component. The Header and SideDrawer define their own inline arrays. These constants appear to be legacy/dead code or intended for future use.
+1. Feature Flags: Fetched client-side via `usePageFlags()` hook from `/api/flags`.
+2. RBAC Permissions: Checked using `getPermissions()` (derived from `ROLE_PERMISSIONS` in `src/entities/tenant/api/permissions.ts`).
 
-**Pattern 4: Role-Based Access Control**
+This ensures consistent enforcement across desktop, mobile, and side navigation surfaces.
 
-Admin links in the SideDrawer use hasPermission(role, permission) for fine-grained gating (users, content, groups, requests). The MobileMenu uses the simpler isAdmin() / isBoard check. Neither aligns exactly with the other.
+**Pattern 3: i18n Translation Keys**
 
-**Pattern 5: Custom Nav (Defined but Not Implemented)**
+Navigation labels continue to use react-i18next with the `common` namespace. The `NAV_REGISTRY` contains `nameKey` fields that map directly to these translation keys.
 
-SETTINGS_KEYS.CUSTOM_NAV ('custom_nav') and SETTINGS_KEYS.CUSTOM_PAGES ('custom_pages') are defined in settings.ts and tested in platform-flags.test.ts, but there is no UI or API logic that reads or writes these values. This appears to be a planned feature for tenant-customizable navigation that has not yet been built.
+**Pattern 4: Onboarding-Driven Configuration**
 
-**Pattern 6: i18n Translation Keys**
-
-All navigation labels use react-i18next with the common namespace (tenant site) or platform namespace (marketing site). Keys follow the pattern nav.home, nav.directory, nav.dashboard, header.home, header.features, etc. Four languages are supported: English, Afrikaans, Xhosa, Zulu. Fallback to the raw label string if translation is not ready.
-
-**Pattern 7: Onboarding-Driven Configuration**
-
-The PagesStep.tsx in onboarding lets new tenants choose which pages appear in navigation during initial setup. It toggles: news, directory, events, campaign, chat. These are saved as page flags via the onboarding API.
+The `PagesStep.tsx` in onboarding continues to save toggle choices as page flags, which now automatically propagate to all navigation components because they share the centralized visibility logic.
 
 ## 5. Key Inconsistencies / Observations
 

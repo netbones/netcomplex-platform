@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@api/auth-client';
 import { useIsMounted } from 'usehooks-ts';
-import { getBurgerSections, type NavItem } from '@/shared/lib/navigation-config';
+import { NAV_REGISTRY, ADMIN_NAV_REGISTRY } from '@/shared/lib/navigation';
+import { isNavItemVisible } from '@/shared/lib/nav-utils';
 import type { PlatformPageFlags } from '@entities/tenant/api/flags/platform-flags';
 import {
   Accordion,
@@ -36,29 +37,28 @@ export function MobileMenu({ isOpen, onClose, pageFlags, isAuthenticated, role }
     );
   }
 
-  const sections = getBurgerSections(pageFlags, isAuthenticated, role);
-  // Burger My Space excludes Settings (per governance: Settings in avatar dropdown only)
-  const burgerWorkspace = sections.workspace.filter(item => item.href !== '/settings');
+  const visibleNav = NAV_REGISTRY.filter(item => isNavItemVisible(item, pageFlags, role));
+  const visibleAdmin = ADMIN_NAV_REGISTRY.filter(item => isNavItemVisible(item, pageFlags, role));
 
-  const renderItem = (item: NavItem) => (
+  const sections = {
+    explore: visibleNav.filter(i => ['home', 'directory', 'services', 'resources'].includes(i.id)),
+    community: visibleNav.filter(i =>
+      ['groups', 'news', 'surveys', 'competition', 'conservation', 'campaign'].includes(i.id)
+    ),
+    workspace: visibleNav.filter(i =>
+      ['dashboard', 'bookings', 'messages', 'maintenance'].includes(i.id)
+    ),
+    admin: visibleAdmin,
+  };
+
+  const renderItem = (item: (typeof NAV_REGISTRY)[0], isAdmin = false) => (
     <Link
       key={item.href}
       href={item.href}
       onClick={onClose}
-      className="block py-2 px-3 hover:bg-white/10 active:bg-white/10 focus:bg-white/10 rounded text-white"
+      className={`block py-2 px-3 hover:bg-white/10 active:bg-white/10 focus:bg-white/10 rounded text-white ${isAdmin ? 'text-gold-vein font-medium' : ''}`}
     >
-      {t(item.labelKey)}
-    </Link>
-  );
-
-  const renderAdminItem = (item: NavItem) => (
-    <Link
-      key={item.href}
-      href={item.href}
-      onClick={onClose}
-      className="block py-2 px-3 hover:bg-white/10 active:bg-white/10 focus:bg-white/10 rounded text-gold-vein font-medium"
-    >
-      {item.adminLabelKey ? t(item.adminLabelKey) : t(item.labelKey)}
+      {t(item.nameKey)}
     </Link>
   );
 
@@ -74,31 +74,31 @@ export function MobileMenu({ isOpen, onClose, pageFlags, isAuthenticated, role }
             value="explore"
             className="mb-2 p-2 -mx-2 rounded-xl border border-white/5 bg-white/5"
           >
-            <AccordionTrigger className="text-xs font-semibold !text-gold-vein opacity-80 hover:opacity-100 active:opacity-100 focus:opacity-100 uppercase tracking-wider mb-2 px-3 py-1">
+            <AccordionTrigger className="text-xs font-semibold !text-gold-vein opacity-80 hover:opacity-100 uppercase tracking-wider mb-2 px-3 py-1">
               {t('nav.explore')}
             </AccordionTrigger>
-            <AccordionContent>{sections.explore.map(item => renderItem(item))}</AccordionContent>
+            <AccordionContent>{sections.explore.map(i => renderItem(i))}</AccordionContent>
           </AccordionItem>
 
           <AccordionItem
             value="community"
             className="my-2 p-2 -mx-2 bg-white/10 rounded-xl border border-white/10"
           >
-            <AccordionTrigger className="text-xs font-semibold !text-gold-vein opacity-80 hover:opacity-100 active:opacity-100 focus:opacity-100 uppercase tracking-wider mb-2 px-3 py-1">
+            <AccordionTrigger className="text-xs font-semibold !text-gold-vein opacity-80 hover:opacity-100 uppercase tracking-wider mb-2 px-3 py-1">
               {t('nav.community')}
             </AccordionTrigger>
-            <AccordionContent>{sections.community.map(item => renderItem(item))}</AccordionContent>
+            <AccordionContent>{sections.community.map(i => renderItem(i))}</AccordionContent>
           </AccordionItem>
 
-          {isAuthenticated && burgerWorkspace.length > 0 && (
+          {isAuthenticated && sections.workspace.length > 0 && (
             <AccordionItem
               value="workspace"
               className="my-2 p-2 -mx-2 rounded-xl border border-white/5 bg-white/5"
             >
-              <AccordionTrigger className="text-xs font-semibold !text-gold-vein opacity-80 hover:opacity-100 active:opacity-100 focus:opacity-100 uppercase tracking-wider mb-2 px-3 py-1">
+              <AccordionTrigger className="text-xs font-semibold !text-gold-vein opacity-80 hover:opacity-100 uppercase tracking-wider mb-2 px-3 py-1">
                 {t('nav.mySpace')}
               </AccordionTrigger>
-              <AccordionContent>{burgerWorkspace.map(item => renderItem(item))}</AccordionContent>
+              <AccordionContent>{sections.workspace.map(i => renderItem(i))}</AccordionContent>
             </AccordionItem>
           )}
 
@@ -107,18 +107,15 @@ export function MobileMenu({ isOpen, onClose, pageFlags, isAuthenticated, role }
               value="admin"
               className="my-2 p-2 -mx-2 rounded-xl border border-white/5 bg-white/5"
             >
-              <AccordionTrigger className="text-xs font-semibold !text-gold-vein opacity-80 hover:opacity-100 active:opacity-100 focus:opacity-100 uppercase tracking-wider mb-2 px-3 py-1">
+              <AccordionTrigger className="text-xs font-semibold !text-gold-vein opacity-80 hover:opacity-100 uppercase tracking-wider mb-2 px-3 py-1">
                 {t('nav.administration')}
               </AccordionTrigger>
-              <AccordionContent>
-                {sections.admin.map(item => renderAdminItem(item))}
-              </AccordionContent>
+              <AccordionContent>{sections.admin.map(i => renderItem(i, true))}</AccordionContent>
             </AccordionItem>
           )}
         </Accordion>
       </nav>
 
-      {/* Auth actions */}
       <div className="border-t border-white/20 mt-4 pt-4">
         {isAuthenticated ? (
           <button
