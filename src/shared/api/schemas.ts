@@ -352,3 +352,40 @@ export const adminCompetitionSchema = z.object({
 });
 
 export type AdminCompetitionFormData = z.infer<typeof adminCompetitionSchema>;
+
+/**
+ * Zod schema for announcement form validation.
+ * @property title - Announcement title (1-200 chars)
+ * @property content - Announcement body (1-5000 chars)
+ * @property author - Author name (1-100 chars)
+ * @property priority - Priority level (urgent/high/normal/low)
+ * @property targetFilter - Audience filter (ALL/OWNERS_ONLY/RENTERS_ONLY)
+ * @property targetRoles - Optional role array for targeting specific roles
+ * @property resourceId - Optional link to a Resource record for supporting documents
+ * @property expiresAt - Optional expiration date (ISO string)
+ */
+export const announcementSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(200, 'Title too long').trim(),
+  content: z.string().min(1, 'Content is required').max(5000, 'Content too long').trim(),
+  author: z.string().min(1, 'Author is required').max(100, 'Author name too long').trim(),
+  priority: z.enum(['urgent', 'high', 'normal', 'low']).default('normal'),
+  targetFilter: z.enum(['ALL', 'OWNERS_ONLY', 'RENTERS_ONLY']).default('ALL'),
+  targetRoles: z
+    .array(
+      z.enum([
+        'RESIDENT',
+        'GROUP_ADMIN',
+        'COMMITTEE',
+        'BOARD',
+        'ADMIN',
+        'AGENT',
+        'MANAGER',
+        'ASSOCIATE',
+      ])
+    )
+    .default([]),
+  resourceId: z.string().optional(),
+  expiresAt: z.string().optional(),
+});
+
+export type AnnouncementFormData = z.infer<typeof announcementSchema>;
