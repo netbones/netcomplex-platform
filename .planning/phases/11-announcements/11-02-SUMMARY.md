@@ -120,6 +120,10 @@ None — plan executed as specified.
 - Widget registry entries available for dashboard configuration
 - Future: requiresAck on Notification (R4/R6) can be added without schema migration issues
 
+## Self-Check: PASSED
+
+All key files verified on disk. Commits verified in git log. No FAILED markers.
+
 ---
 
 _Phase: 11-announcements_
