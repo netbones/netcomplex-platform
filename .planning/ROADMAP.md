@@ -122,7 +122,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Implement governed announcements layer — role-gated priority taxonomy, audience targeting with fanout, document attachment, admin CRUD UI, stream widget + /news embed (no new nav items)
 
-**Status:** Not Started
+**Status:** Complete
 
 **Requirements:** ANN-01, ANN-02, ANN-03, R1, R2, R3, R6, R7, R8
 
