@@ -3,8 +3,8 @@
 ## Current Position
 
 - **Phase:** 11-announcements
-- **Plan:** 01 complete (2/2 tasks), 02 next
-- **Status:** Plan 01 executed — schema + API done
+- **Plan:** 02 complete (2/2 tasks) — all plans done
+- **Status:** Phase 11 execution complete — ready for verification
 - **Last Updated:** 2026-05-21
 
 ## Decisions Made
@@ -53,6 +53,10 @@
 - [Phase 26]: PageSettingsWidget imports PlatformPageFlags from entity layer instead of duplicating locally
 - [Phase 26]: AdminQuickLinksWidget uses ADMIN_ITEMS from navigation-config with adminLabelKey i18n fallback
 - [Phase 26]: headerEngagementFocus radio placed before page toggles for admin visual prominence
+- [Phase 11]: Announcement admin UI uses simplified form pattern (no Tiptap, no i18n) matching Phase 21 events
+- [Phase 11]: Stream widget renders full content per revised instructions, not truncated
+- [Phase 11]: No new navigation entries — discovery through dashboard widgets and notification feed only
+- [Phase 11]: /news page embeds stream as section with #announcements anchor — no separate route
 
 ## Notes
 
