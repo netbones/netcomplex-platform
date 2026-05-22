@@ -43,6 +43,18 @@ export const WIDGET_FEATURE_MAP: Record<string, string> = {
   'premium-portfolio': 'page.property',
   'my-services': 'page.marketplace',
   'service-inquiries': 'page.marketplace',
+  'announcements-stream': 'page.news',
+  // Maintenance widgets
+  'maintenance-requests': 'page.maintenance',
+  'maintenance-list': 'page.maintenance',
+  'maintenance-analytics': 'page.maintenance',
+  // Admin core widgets
+  'admin-stats': 'page.dashboard',
+  'admin-activity': 'page.dashboard',
+  'admin-quick-links': 'page.dashboard',
+  'admin-content': 'page.dashboard',
+  'admin-user': 'page.dashboard',
+  'admin-system': 'page.dashboard',
 };
 
 export const ALL_WIDGETS: DashboardWidget[] = [
@@ -138,6 +150,78 @@ export const ALL_WIDGETS: DashboardWidget[] = [
     title: 'Community Graph',
     icon: 'fa-project-diagram',
     label: 'Community Graph',
+  },
+  {
+    id: 'announcements-stream',
+    type: 'announcements-stream',
+    title: 'Announcements',
+    icon: 'fa-bullhorn',
+    label: 'Announcements',
+  },
+  // Maintenance widgets
+  {
+    id: 'maintenance-requests',
+    type: 'maintenance-requests',
+    title: 'Maintenance Requests',
+    icon: 'fa-wrench',
+    label: 'Maintenance Requests',
+  },
+  {
+    id: 'maintenance-list',
+    type: 'maintenance-list',
+    title: 'Maintenance List',
+    icon: 'fa-clipboard-list',
+    label: 'Maintenance List',
+  },
+  {
+    id: 'maintenance-analytics',
+    type: 'maintenance-analytics',
+    title: 'Maintenance Analytics',
+    icon: 'fa-chart-line',
+    label: 'Maintenance Analytics',
+  },
+  // Admin core widgets
+  {
+    id: 'admin-stats',
+    type: 'admin-stats',
+    title: 'Admin Statistics',
+    icon: 'fa-chart-bar',
+    label: 'Admin Statistics',
+  },
+  {
+    id: 'admin-activity',
+    type: 'admin-activity',
+    title: 'Admin Activity',
+    icon: 'fa-activity',
+    label: 'Admin Activity',
+  },
+  {
+    id: 'admin-quick-links',
+    type: 'admin-quick-links',
+    title: 'Admin Quick Links',
+    icon: 'fa-bolt',
+    label: 'Admin Quick Links',
+  },
+  {
+    id: 'admin-content',
+    type: 'admin-content',
+    title: 'Admin Content',
+    icon: 'fa-file-alt',
+    label: 'Admin Content',
+  },
+  {
+    id: 'admin-user',
+    type: 'admin-user',
+    title: 'Admin Users',
+    icon: 'fa-users',
+    label: 'Admin Users',
+  },
+  {
+    id: 'admin-system',
+    type: 'admin-system',
+    title: 'Admin System',
+    icon: 'fa-cog',
+    label: 'Admin System',
   },
 ];
 
