@@ -72,7 +72,7 @@ export type GroupFormData = z.infer<typeof groupSchema>;
  * @property preferredTime - Optional preferred service time
  */
 export const maintenanceRequestSchema = z.object({
-  category: z.enum(['PLUMBING', 'ELECTRICAL', 'APPLIANCE', 'STRUCTURAL', 'OTHER']),
+  category: z.string().min(1, 'Category is required'),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'EMERGENCY']),
   description: z
     .string()
@@ -106,7 +106,7 @@ export type MaintenanceRequestFormData = z.infer<typeof maintenanceRequestSchema
  */
 export const bookingSchema = z
   .object({
-    facility: z.enum(['POOL', 'GYM', 'COMMUNITY_CENTER', 'TENNIS', 'BBQ_AREA']),
+    facility: z.string().min(1, 'Facility is required'),
     date: z
       .string()
       .min(1, 'Date is required')

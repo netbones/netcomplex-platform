@@ -1,6 +1,19 @@
 export type BookingStatus = 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
 
-export type Facility = 'POOL' | 'GYM' | 'COMMUNITY_CENTER' | 'TENNIS' | 'BBQ_AREA';
+/**
+ * Facility type is now tenant-configurable (string) instead of a fixed enum.
+ * Tenants define their own facility list via onboarding or settings API.
+ * Backward-compatible: existing facility values (POOL, GYM, etc.) still work.
+ */
+export type Facility = string;
+
+/**
+ * A tenant-configurable facility option with value/label pairs.
+ */
+export interface TenantFacility {
+  value: string;
+  label: string;
+}
 
 export interface Booking {
   id: string;

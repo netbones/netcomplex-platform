@@ -1,22 +1,57 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { supabase } from '@shared/api/supabase';
-import { MaintenanceRequestForm, MaintenancePriority } from '@entities/maintenance';
+import {
+  MaintenanceRequestForm,
+  MaintenancePriority,
+  PRESET_CATEGORIES,
+  DEFAULT_CATEGORIES,
+} from '@entities/maintenance';
+import type { TenantCategory } from '@entities/maintenance';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('useMaintenanceForm');
 
-export const categories = [
-  { value: 'plumbing', label: 'Plumbing' },
-  { value: 'electrical', label: 'Electrical' },
-  { value: 'hvac', label: 'HVAC/Climate' },
-  { value: 'structural', label: 'Structural' },
-  { value: 'landscaping', label: 'Landscaping' },
-  { value: 'common_area', label: 'Common Area' },
-  { value: 'security', label: 'Security' },
-  { value: 'other', label: 'Other' },
-];
+/**
+ * Fetches tenant-configured maintenance categories from settings API.
+ * Falls back to DEFAULT_CATEGORIES if no tenant config found.
+ */
+export function useTenantCategories() {
+  const [categories, setCategories] = useState<TenantCategory[]>(DEFAULT_CATEGORIES);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const res = await fetch('/api/settings?key=maintenance_categories');
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.value) {
+            const parsed = JSON.parse(data.value);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setCategories(parsed as TenantCategory[]);
+            }
+          }
+        }
+      } catch (err) {
+        log.error({ err }, 'Failed to fetch tenant categories, using defaults');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCategories();
+  }, []);
+
+  return { categories, loading };
+}
+
+/**
+ * Legacy categories export — kept for backward compatibility.
+ * New code should use useTenantCategories() hook instead.
+ */
+export const categories = DEFAULT_CATEGORIES.map(c => ({ value: c.value, label: c.label }));
 
 export const priorities = [
   { value: 'LOW', label: 'Low - Minor inconvenience' },

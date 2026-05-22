@@ -12,7 +12,7 @@ import type { PgColumn } from 'drizzle-orm/pg-core';
 type BookingInsertValues = {
   id: ReturnType<typeof sql>;
   userId: string;
-  facility: 'POOL' | 'GYM' | 'COMMUNITY_CENTER' | 'TENNIS' | 'BBQ_AREA';
+  facility: string;
   date: Date;
   startTime: string;
   endTime: string;

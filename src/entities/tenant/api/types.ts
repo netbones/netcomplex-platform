@@ -1,12 +1,11 @@
 import type { TierLevel } from '@shared/lib/constants/tiers';
-import type { Facility } from '@entities/booking';
 
 export type TenantTier = 'STANDARD' | 'PREMIUM' | 'ENTERPRISE';
 
 export interface TenantFacilityConfig {
   id: string;
   name: string;
-  type: Facility;
+  type: string;
   externalApiUrl?: string;
 }
 
