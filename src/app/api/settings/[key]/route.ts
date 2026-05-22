@@ -38,6 +38,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ key:
   const queryKey = searchParams.get('key');
   const settingKey = key || queryKey;
 
+  if (!settingKey) {
+    return NextResponse.json({ error: 'Setting key is required' }, { status: 400 });
+  }
+
   const { tenantId } = await withTenant();
 
   const result = await db

@@ -24,8 +24,11 @@ import {
   Layers,
   Send,
   User,
+  Users,
   Settings,
   Megaphone,
+  Wrench,
+  ClipboardList,
 } from 'lucide-react';
 
 export function registerAllWidgets(registry: { register: (m: WidgetManifest) => void }) {
@@ -152,6 +155,193 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     loader: () => import('@widgets/chat'),
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // MAINTENANCE WIDGETS
+  // ═══════════════════════════════════════════════════════════════
+
+  registry.register({
+    id: 'maintenance-requests',
+    version: '1.0.0',
+    name: 'Maintenance Requests',
+    description: 'Open maintenance requests overview',
+    author: 'internal',
+    category: 'core',
+    icon: Wrench,
+    component: lazy(() =>
+      import('../../maintenance/ui/MaintenanceRequestsWidget').then(m => ({
+        default: m.MaintenanceRequestsWidget,
+      }))
+    ),
+    loader: () => import('../../maintenance/ui/MaintenanceRequestsWidget'),
+    defaultSize: { width: 3, height: 3 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'maintenance-list',
+    version: '1.0.0',
+    name: 'Maintenance List',
+    description: 'Full list of maintenance requests',
+    author: 'internal',
+    category: 'core',
+    icon: ClipboardList,
+    permissions: ['admin', 'board'],
+    component: lazy(() =>
+      import('../../maintenance/ui/MaintenanceList').then(m => ({
+        default: m.MaintenanceList,
+      }))
+    ),
+    loader: () => import('../../maintenance/ui/MaintenanceList'),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 3, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'maintenance-analytics',
+    version: '1.0.0',
+    name: 'Maintenance Analytics',
+    description: 'Maintenance request trends and statistics',
+    author: 'internal',
+    category: 'core',
+    icon: BarChart2,
+    permissions: ['admin', 'board'],
+    component: lazy(() =>
+      import('../../maintenance/ui/MaintenanceAnalyticsWidget').then(m => ({
+        default: m.MaintenanceAnalyticsWidget,
+      }))
+    ),
+    loader: () => import('../../maintenance/ui/MaintenanceAnalyticsWidget'),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 3, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // ADMIN CORE WIDGETS
+  // ═══════════════════════════════════════════════════════════════
+
+  registry.register({
+    id: 'admin-stats',
+    version: '1.0.0',
+    name: 'Admin Statistics',
+    description: 'Platform statistics and key metrics',
+    author: 'internal',
+    category: 'core',
+    icon: BarChart2,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../../admin/ui/AdminStatsWidget').then(m => ({
+        default: m.AdminStatsWidget,
+      }))
+    ),
+    loader: () => import('../../admin/ui/AdminStatsWidget'),
+    defaultSize: { width: 4, height: 2 },
+    minSize: { width: 3, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'admin-activity',
+    version: '1.0.0',
+    name: 'Admin Activity',
+    description: 'Recent admin activity feed',
+    author: 'internal',
+    category: 'core',
+    icon: Activity,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../../admin/ui/AdminActivityWidget').then(m => ({
+        default: m.AdminActivityWidget,
+      }))
+    ),
+    loader: () => import('../../admin/ui/AdminActivityWidget'),
+    defaultSize: { width: 3, height: 3 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'admin-quick-links',
+    version: '1.0.0',
+    name: 'Admin Quick Links',
+    description: 'Quick access to admin actions',
+    author: 'internal',
+    category: 'core',
+    icon: Zap,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../../admin/ui/AdminQuickLinksWidget').then(m => ({
+        default: m.AdminQuickLinksWidget,
+      }))
+    ),
+    loader: () => import('../../admin/ui/AdminQuickLinksWidget'),
+    defaultSize: { width: 2, height: 2 },
+    minSize: { width: 1, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'admin-content',
+    version: '1.0.0',
+    name: 'Admin Content',
+    description: 'Content management overview',
+    author: 'internal',
+    category: 'core',
+    icon: FileText,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../../admin/ui/AdminContentWidget').then(m => ({
+        default: m.AdminContentWidget,
+      }))
+    ),
+    loader: () => import('../../admin/ui/AdminContentWidget'),
+    defaultSize: { width: 3, height: 2 },
+    minSize: { width: 2, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'admin-user',
+    version: '1.0.0',
+    name: 'Admin Users',
+    description: 'User management overview',
+    author: 'internal',
+    category: 'core',
+    icon: Users,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../../admin/ui/AdminUserWidget').then(m => ({
+        default: m.AdminUserWidget,
+      }))
+    ),
+    loader: () => import('../../admin/ui/AdminUserWidget'),
+    defaultSize: { width: 3, height: 3 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+  });
+
+  registry.register({
+    id: 'admin-system',
+    version: '1.0.0',
+    name: 'Admin System',
+    description: 'System health and configuration',
+    author: 'internal',
+    category: 'core',
+    icon: Settings,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../../admin/ui/AdminSystemWidget').then(m => ({
+        default: m.AdminSystemWidget,
+      }))
+    ),
+    loader: () => import('../../admin/ui/AdminSystemWidget'),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
   });
 
