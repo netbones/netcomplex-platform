@@ -1,3 +1,4 @@
+// Schema re-exports only — the DB client lives in src/shared/api/db.ts
 export * from '@schema/accounts';
 export * from '@schema/agent-accesses';
 export * from '@schema/agent-profiles';

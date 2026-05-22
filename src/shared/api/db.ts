@@ -94,6 +94,7 @@ function getDb() {
   const pool = new Pool({ connectionString });
 
   dbInstance = drizzle(pool, {
+    // Single drizzle() instantiation — all queries use this via the 'db' export
     schema: {
       messages,
       conversations,
