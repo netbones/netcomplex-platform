@@ -304,6 +304,21 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase: 29-dashboard-defaults
+
+**Goal:** Register missing maintenance + admin widgets, implement role-seeded default dashboard layouts per tab, integrate defaults into loading path, add reset-to-default action
+
+**Status:** Not Started
+
+**Requirements:** DASH-DEFAULT-00, DASH-DEFAULT-01, DASH-DEFAULT-02, DASH-DEFAULT-03
+
+**Plans:** 2 plans
+
+- [ ] 29-01-PLAN.md — Register missing widgets, update dashboard-config.ts, discover layout shape, write default layouts per role/tab
+- [ ] 29-02-PLAN.md — Wire defaults into DashboardPage loading path, reconcile DEFAULT_TABS fallback, add reset-to-default with DB persist
+
+---
+
 ## Future Phases (To Be Planned)
 
 ### Phase: Second Tenant
