@@ -1,16 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { BookingFormData } from '@entities/booking';
-import { FACILITY_LABELS } from '@entities/booking';
+import { FACILITY_LABELS, DEFAULT_FACILITIES } from '@entities/booking';
+import type { TenantFacility } from '@entities/booking';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('BookingForm');
-
-const facilities = Object.entries(FACILITY_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
 
 interface BookingFormProps {
   onSubmit?: (data: BookingFormData) => Promise<void>;
@@ -27,6 +23,33 @@ export function BookingForm({ onSubmit, onSuccess }: BookingFormProps) {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [facilities, setFacilities] = useState<TenantFacility[]>(DEFAULT_FACILITIES);
+  const [loadingFacilities, setLoadingFacilities] = useState(true);
+
+  // Fetch tenant-configured facilities from settings
+  useEffect(() => {
+    async function fetchFacilities() {
+      try {
+        const res = await fetch('/api/settings?key=booking_facilities');
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.value) {
+            const parsed = JSON.parse(data.value);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setFacilities(parsed as TenantFacility[]);
+              return;
+            }
+          }
+        }
+      } catch (err) {
+        log.error({}, 'Failed to fetch tenant facilities, using defaults', err);
+      } finally {
+        setLoadingFacilities(false);
+      }
+    }
+
+    fetchFacilities();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +67,8 @@ export function BookingForm({ onSubmit, onSuccess }: BookingFormProps) {
         });
 
         if (!res.ok) {
-          throw new Error('Failed to create booking');
+          const errorData = await res.json();
+          throw new Error(errorData.error || 'Failed to create booking');
         }
       }
 
@@ -58,7 +82,7 @@ export function BookingForm({ onSubmit, onSuccess }: BookingFormProps) {
       onSuccess?.();
     } catch (err) {
       log.error({}, 'Failed to submit booking', err);
-      setError('Failed to submit booking. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to submit booking. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -76,9 +100,12 @@ export function BookingForm({ onSubmit, onSuccess }: BookingFormProps) {
           onChange={e =>
             setFormData({ ...formData, facility: e.target.value as BookingFormData['facility'] })
           }
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
+          disabled={loadingFacilities}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary disabled:opacity-50"
         >
-          <option value="">Select a facility</option>
+          <option value="">
+            {loadingFacilities ? 'Loading facilities...' : 'Select a facility'}
+          </option>
           {facilities.map(f => (
             <option key={f.value} value={f.value}>
               {f.label}
@@ -135,7 +162,7 @@ export function BookingForm({ onSubmit, onSuccess }: BookingFormProps) {
 
       <button
         type="submit"
-        disabled={submitting}
+        disabled={submitting || loadingFacilities}
         className="w-full bg-soralia-primary text-white py-3 px-6 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50"
       >
         {submitting ? 'Booking...' : 'Book Facility'}

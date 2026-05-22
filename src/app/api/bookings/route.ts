@@ -4,9 +4,11 @@ import { NextResponse } from 'next/server';
 import { bookingSchema } from '@api/schemas';
 import { revalidateDashboard } from '@api/revalidation';
 import { apiLogger } from '@shared/lib';
-import { db, bookings, users } from '@api/db';
+import { db, bookings, users, settings } from '@api/db';
 import { eq, asc, gte, and, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
+import { DEFAULT_FACILITIES } from '@entities/booking';
+import type { TenantFacility } from '@entities/booking';
 import type { PgColumn } from 'drizzle-orm/pg-core';
 
 type BookingInsertValues = {
@@ -50,9 +52,34 @@ async function getSessionAndRole(request: Request) {
 }
 
 /**
+ * Fetches tenant-configured facilities from the settings table.
+ * Falls back to DEFAULT_FACILITIES if no tenant config found.
+ */
+async function getTenantFacilities(tenantId: string): Promise<TenantFacility[]> {
+  try {
+    const result = await db
+      .select()
+      .from(settings)
+      .where(and(eq(settings.tenantId, tenantId), eq(settings.key, 'booking_facilities')))
+      .limit(1);
+
+    if (result.length > 0 && result[0].value) {
+      const parsed = JSON.parse(result[0].value);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed as TenantFacility[];
+      }
+    }
+  } catch (error) {
+    apiLogger.error({ err: error, tenantId }, 'Failed to fetch tenant facilities, using defaults');
+  }
+
+  return DEFAULT_FACILITIES;
+}
+
+/**
  * GET /api/bookings - List facility bookings
  * Residents see only their own, admins see all
- * @query facility - Filter by POOL, GYM, COMMUNITY_CENTER, TENNIS, BBQ_AREA
+ * @query facility - Filter by facility name (tenant-configurable)
  * @query date - Filter bookings from this date onwards
  */
 export async function GET(request: Request) {
@@ -76,12 +103,9 @@ export async function GET(request: Request) {
     queryConditions.push(eq(bookings.userId, authData.userId));
   }
 
-  // Filter by facility if provided
+  // Filter by facility if provided — now accepts any string (tenant-configurable)
   if (facility) {
-    const validFacilities = ['POOL', 'GYM', 'COMMUNITY_CENTER', 'TENNIS', 'BBQ_AREA'] as const;
-    if (validFacilities.includes(facility as (typeof validFacilities)[number])) {
-      queryConditions.push(eq(bookings.facility, facility as (typeof validFacilities)[number]));
-    }
+    queryConditions.push(eq(bookings.facility, facility));
   }
 
   // Filter by date if provided
@@ -159,6 +183,16 @@ export async function POST(request: Request) {
 
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
+
+    // Validate facility against tenant's configured facilities
+    const tenantFacilities = await getTenantFacilities(tenantId);
+    const validFacilityValues = tenantFacilities.map(f => f.value);
+    if (!validFacilityValues.includes(facility)) {
+      return NextResponse.json(
+        { error: `Invalid facility. Valid options: ${validFacilityValues.join(', ')}` },
+        { status: 400 }
+      );
+    }
 
     // Use Drizzle insert
     const now = new Date();

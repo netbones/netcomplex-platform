@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from 'react';
 import type { BookingFormData, Booking } from '@entities/booking';
-import { VALID_FACILITIES, FACILITY_LABELS } from '@entities/booking';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('useBookings');
