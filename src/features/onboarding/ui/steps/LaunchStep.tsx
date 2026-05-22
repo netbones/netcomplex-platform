@@ -9,7 +9,7 @@ interface StepProps {
   error: string;
   formData: OnboardingFormData;
   setFormData: React.Dispatch<React.SetStateAction<OnboardingFormData>>;
-  saveStep: (step: 1 | 2 | 3 | 4 | 5, data: Record<string, unknown>) => Promise<boolean>;
+  saveStep: (step: 1 | 2 | 3 | 4 | 5 | 6 | 7, data: Record<string, unknown>) => Promise<boolean>;
   onNext?: () => void;
   onBack?: () => void;
   onSkip?: () => void;
@@ -22,7 +22,7 @@ export function LaunchStep({ loading, error, onComplete, saveStep }: StepProps) 
 
   const handleComplete = async () => {
     setCompleting(true);
-    const success = await saveStep(5, { completed: true });
+    const success = await saveStep(7, { completed: true });
     setCompleting(false);
     if (success) {
       onComplete();

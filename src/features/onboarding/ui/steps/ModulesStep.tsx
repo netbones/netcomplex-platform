@@ -10,7 +10,7 @@ interface StepProps {
   error: string;
   formData: OnboardingFormData;
   setFormData: React.Dispatch<React.SetStateAction<OnboardingFormData>>;
-  saveStep: (step: 1 | 2 | 3 | 4 | 5, data: Record<string, unknown>) => Promise<boolean>;
+  saveStep: (step: 1 | 2 | 3 | 4 | 5 | 6 | 7, data: Record<string, unknown>) => Promise<boolean>;
   onNext: () => void;
   onBack: () => void;
   onSkip: () => void;
@@ -122,6 +122,13 @@ export function ModulesStep({
             </div>
           </div>
         )}
+
+        {/* Next Steps Teaser */}
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-700">
+            You'll configure your facilities and maintenance categories in the next steps.
+          </p>
+        </div>
 
         {/* Save Button */}
         <div className="flex gap-3 pt-2">

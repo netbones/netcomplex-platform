@@ -17,7 +17,7 @@ interface StepProps {
   error: string;
   formData: OnboardingFormData;
   setFormData: React.Dispatch<React.SetStateAction<OnboardingFormData>>;
-  saveStep: (step: 1 | 2 | 3 | 4 | 5, data: Record<string, unknown>) => Promise<boolean>;
+  saveStep: (step: 1 | 2 | 3 | 4 | 5 | 6 | 7, data: Record<string, unknown>) => Promise<boolean>;
   onNext: () => void;
   onBack: () => void;
   onSkip?: () => void;
@@ -82,7 +82,7 @@ export function PagesStep({ loading, error, formData, setFormData, saveStep, onN
 
   const handleSave = async () => {
     setSaving(true);
-    const success = await saveStep(3, { pages: formData.pages });
+    const success = await saveStep(5, { pages: formData.pages });
     setSaving(false);
     if (success) onNext();
   };

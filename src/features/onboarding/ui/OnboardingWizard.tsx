@@ -4,13 +4,19 @@ import { useOnboarding, type OnboardingStep } from '../model/useOnboarding';
 import { OnboardingStep as StepWrapper } from './OnboardingStep';
 import { BrandingStep } from './steps/BrandingStep';
 import { ModulesStep } from './steps/ModulesStep';
+import { FacilitiesStep } from './steps/FacilitiesStep';
+import { MaintenanceStep } from './steps/MaintenanceStep';
 import { PagesStep } from './steps/PagesStep';
 import { InviteStep } from './steps/InviteStep';
 import { LaunchStep } from './steps/LaunchStep';
 
+const TOTAL_STEPS = 7;
+
 const STEPS: { label: string; skippable: boolean }[] = [
   { label: 'Branding', skippable: false },
   { label: 'Modules', skippable: true },
+  { label: 'Facilities', skippable: true },
+  { label: 'Maintenance', skippable: true },
   { label: 'Pages', skippable: false },
   { label: 'Invite Team', skippable: true },
   { label: 'Launch', skippable: false },
@@ -55,10 +61,14 @@ export function OnboardingWizard({ tenantId }: OnboardingWizardProps) {
       case 2:
         return <ModulesStep {...(baseProps as Parameters<typeof ModulesStep>[0])} />;
       case 3:
-        return <PagesStep {...(baseProps as Parameters<typeof PagesStep>[0])} />;
+        return <FacilitiesStep {...(baseProps as Parameters<typeof FacilitiesStep>[0])} />;
       case 4:
-        return <InviteStep {...(baseProps as Parameters<typeof InviteStep>[0])} />;
+        return <MaintenanceStep {...(baseProps as Parameters<typeof MaintenanceStep>[0])} />;
       case 5:
+        return <PagesStep {...(baseProps as Parameters<typeof PagesStep>[0])} />;
+      case 6:
+        return <InviteStep {...(baseProps as Parameters<typeof InviteStep>[0])} />;
+      case 7:
         return <LaunchStep {...(baseProps as Parameters<typeof LaunchStep>[0])} />;
       default:
         return null;
@@ -72,15 +82,17 @@ export function OnboardingWizard({ tenantId }: OnboardingWizardProps) {
       {/* Progress Bar */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-500">Step {currentStep} of 5</span>
           <span className="text-sm font-medium text-gray-500">
-            {Math.round((currentStep / 5) * 100)}%
+            Step {currentStep} of {TOTAL_STEPS}
+          </span>
+          <span className="text-sm font-medium text-gray-500">
+            {Math.round((currentStep / TOTAL_STEPS) * 100)}%
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
             className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / 5) * 100}%` }}
+            style={{ width: `${(currentStep / TOTAL_STEPS) * 100}%` }}
           />
         </div>
         {/* Step Labels */}
@@ -106,7 +118,7 @@ export function OnboardingWizard({ tenantId }: OnboardingWizardProps) {
       {renderStep()}
 
       {/* Navigation */}
-      {currentStep < 5 && (
+      {currentStep < TOTAL_STEPS && (
         <div className="flex items-center justify-between mt-6">
           <div className="flex gap-3">
             {currentStep > 1 && (
@@ -133,7 +145,7 @@ export function OnboardingWizard({ tenantId }: OnboardingWizardProps) {
             disabled={loading}
             className="px-6 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
           >
-            {loading ? 'Saving...' : currentStep === 4 ? 'Next' : 'Continue'}
+            {loading ? 'Saving...' : currentStep === TOTAL_STEPS - 1 ? 'Next' : 'Continue'}
           </button>
         </div>
       )}

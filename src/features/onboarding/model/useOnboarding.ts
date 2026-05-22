@@ -2,8 +2,10 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import type { TenantFacility } from '@entities/booking';
+import type { TenantCategory } from '@entities/maintenance';
 
-export type OnboardingStep = 1 | 2 | 3 | 4 | 5;
+export type OnboardingStep = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 export interface OnboardingFormData {
   branding: {
@@ -13,6 +15,8 @@ export interface OnboardingFormData {
     fontFamily?: string;
   };
   modules: Record<string, boolean>;
+  facilities: TenantFacility[];
+  maintenanceCategories: TenantCategory[];
   pages: Record<string, boolean>;
   invites: { email: string; role: string }[];
 }
@@ -24,6 +28,8 @@ const DEFAULT_FORM_DATA: OnboardingFormData = {
     fontFamily: 'system',
   },
   modules: {},
+  facilities: [],
+  maintenanceCategories: [],
   pages: {},
   invites: [],
 };
@@ -66,7 +72,7 @@ export function useOnboarding(tenantId: string) {
   );
 
   const handleNext = useCallback(async () => {
-    if (currentStep < 5) {
+    if (currentStep < 7) {
       setCurrentStep((currentStep + 1) as OnboardingStep);
     }
   }, [currentStep]);
@@ -79,7 +85,7 @@ export function useOnboarding(tenantId: string) {
 
   const handleSkip = useCallback(async () => {
     // Skip just advances without saving step data
-    if (currentStep < 5) {
+    if (currentStep < 7) {
       setCurrentStep((currentStep + 1) as OnboardingStep);
     }
   }, [currentStep]);
