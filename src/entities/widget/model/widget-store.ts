@@ -59,6 +59,7 @@ interface WidgetStore {
 
   // Database synchronization
   hydrateFromDatabase: (layout: string | null) => void;
+  hydrateFromServer: (userId: string) => Promise<void>;
   saveToDatabase: (userId: string) => Promise<void>;
   isHydratedFromDb: boolean;
 }
@@ -71,6 +72,10 @@ const defaultWidgetLayout: WidgetLayout = Object.freeze({
   height: 200,
   isCollapsed: false,
 });
+
+// Debounce timer for auto-save
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+const SAVE_DEBOUNCE_MS = 500;
 
 export const useWidgetStore = create<WidgetStore>()(
   persist(
@@ -210,6 +215,47 @@ export const useWidgetStore = create<WidgetStore>()(
         }
       },
 
+      /**
+       * Hydrate widget layout from server API.
+       * Fetches GET /api/users/[userId], reads dashboardLayout field,
+       * and merges with localStorage (server wins on conflict).
+       */
+      hydrateFromServer: async (userId: string) => {
+        try {
+          const response = await fetch(`/api/users/${userId}`);
+          if (!response.ok) {
+            log.error({ status: response.status }, 'Failed to fetch user for widget hydration');
+            set({ isHydratedFromDb: true });
+            return;
+          }
+
+          const userData = await response.json();
+          const dashboardLayout = userData.dashboardLayout;
+
+          if (dashboardLayout) {
+            // Server is source of truth — merge with localStorage, server wins on conflict
+            const parsed =
+              typeof dashboardLayout === 'string' ? JSON.parse(dashboardLayout) : dashboardLayout;
+            set({
+              layouts: parsed.layouts || {},
+              userWidgets: parsed.userWidgets || {},
+              isHydratedFromDb: true,
+            });
+          } else {
+            // No server layout — keep localStorage as-is
+            set({ isHydratedFromDb: true });
+          }
+        } catch (err) {
+          log.error({ err }, 'Failed to hydrate from server');
+          // Fallback to localStorage — mark hydrated so saves can proceed
+          set({ isHydratedFromDb: true });
+        }
+      },
+
+      /**
+       * Save current layout to DB via PATCH /api/users/[userId].
+       * Silently continues on failure (localStorage is the fallback cache).
+       */
       saveToDatabase: async (userId: string) => {
         const { layouts, userWidgets, isHydratedFromDb } = get();
 
@@ -245,3 +291,21 @@ export const useWidgetStore = create<WidgetStore>()(
     }
   )
 );
+
+/**
+ * Subscribe to widget store changes and auto-save to DB with debounce.
+ * Call this once on app mount after authentication.
+ * Pattern: localStorage = fast local cache, DB = source of truth across devices.
+ */
+export function subscribeWidgetAutoSave(userId: string) {
+  return useWidgetStore.subscribe(state => {
+    // Skip saves before hydration completes (prevents overwriting DB with defaults)
+    if (!state.isHydratedFromDb) return;
+
+    // Debounce: wait 500ms after last change before saving
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      state.saveToDatabase(userId);
+    }, SAVE_DEBOUNCE_MS);
+  });
+}

@@ -13,7 +13,7 @@ import {
   getAvailableAdminWidgets,
 } from '@/entities/admin/model/admin-config';
 import { authClient } from '@api/auth-client';
-import { useWidgetStore } from '@/entities/widget/model/widget-store';
+import { useWidgetStore, subscribeWidgetAutoSave } from '@/entities/widget/model/widget-store';
 import { toast } from 'sonner';
 
 export default function AdminDashboardPage() {
@@ -22,7 +22,7 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [showAddWidget, setShowAddWidget] = useState(false);
 
-  // Read from zustand store with persist middleware (localStorage)
+  // Read from zustand store with persist middleware (localStorage) + DB sync
   const {
     userWidgets,
     layouts,
@@ -30,32 +30,25 @@ export default function AdminDashboardPage() {
     removeWidgetFromTab,
     setUserWidgets,
     resetTabToDefaults,
-    hydrateFromDatabase,
-    saveToDatabase,
+    hydrateFromServer,
     isHydratedFromDb,
   } = useWidgetStore();
 
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
 
-  // Hydrate from DB on mount
+  // Hydrate from server on mount — server wins on conflict with localStorage
   useEffect(() => {
-    const user = session?.user as { dashboardLayout?: string } | undefined;
-    if (user?.dashboardLayout && !isHydratedFromDb) {
-      hydrateFromDatabase(user.dashboardLayout);
-    }
-  }, [session?.user, isHydratedFromDb, hydrateFromDatabase]);
+    if (!userId || isHydratedFromDb) return;
+    hydrateFromServer(userId);
+  }, [userId, isHydratedFromDb, hydrateFromServer]);
 
-  // Debounce save to DB on changes
+  // Subscribe to auto-save with debounce (500ms) — localStorage = fast cache, DB = source of truth
   useEffect(() => {
-    if (!userId || !isHydratedFromDb) return;
-
-    const timer = setTimeout(() => {
-      saveToDatabase(userId);
-    }, 2000); // 2 second debounce
-
-    return () => clearTimeout(timer);
-  }, [layouts, userWidgets, userId, isHydratedFromDb, saveToDatabase]);
+    if (!userId) return;
+    const unsub = subscribeWidgetAutoSave(userId);
+    return unsub;
+  }, [userId]);
 
   // Derive activeWidgets from store for the current tab
   const currentTab = ADMIN_TABS.find(tab => tab.id === activeTab);

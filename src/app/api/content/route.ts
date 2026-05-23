@@ -1,5 +1,6 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
+import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
 import { db, contents, users, groups } from '@api/db';
 import { eq, and, desc, or, isNull, lte, gt, type SQL } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
@@ -184,6 +185,10 @@ export async function POST(request: Request) {
   if (!authData) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  // AssistSession scope guard: metadata-scoped staff can only read, not modify content/users/settings
+  const scopeError = await requireAssistScope(request, 'full');
+  if (scopeError) return scopeError;
 
   if (!hasPermission(authData.role, 'content') && !hasPermission(authData.role, 'contentOwn')) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

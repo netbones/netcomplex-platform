@@ -11,6 +11,7 @@ import {
 import { NextResponse } from 'next/server';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
+import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
 import { getLocalizedValue, getLocalizedContent, defaultLanguage } from '@shared/lib';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -167,6 +168,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+
+  // AssistSession scope guard: metadata-scoped staff can only read, not modify content/users/settings
+  const scopeError = await requireAssistScope(request, 'full');
+  if (scopeError) return scopeError;
+
   const { tenantId } = await withTenant();
   const body = await request.json();
 
@@ -212,6 +218,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+
+  // AssistSession scope guard: metadata-scoped staff can only read, not modify content/users/settings
+  const scopeError = await requireAssistScope(request, 'full');
+  if (scopeError) return scopeError;
+
   const { tenantId } = await withTenant();
 
   const deleted = await db

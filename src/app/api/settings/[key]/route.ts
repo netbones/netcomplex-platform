@@ -4,6 +4,7 @@ import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
+import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
 import { apiLogger } from '@shared/lib';
 
 /**
@@ -75,6 +76,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
       { status: 403 }
     );
   }
+
+  // AssistSession scope guard: metadata-scoped staff can only read, not modify content/users/settings
+  const scopeError = await requireAssistScope(request, 'full');
+  if (scopeError) return scopeError;
 
   const { key } = await params;
   const { tenantId } = await withTenant();
