@@ -2,11 +2,11 @@
 
 ## Current Position
 
-- **Phase:** 29-dashboard-defaults
-- **Plan:** 02 complete (2/2 plans) — all plans done
-- **Status:** Complete
+- **Phase:** 30-dashboard-phase-b
+- **Plan:** All 5 plans written (0/5 executed) — planning complete
+- **Status:** In Progress
 - **Last Updated:** 2026-05-23
-- **Last Session:** Completed 29-02-PLAN.md
+- **Last Session:** Wrote Phase B plans 01-05 (Focus Space architecture)
 
 ## Decisions Made
 
@@ -125,3 +125,8 @@
 - [Phase 29-dashboard-defaults-02]: default-layouts.ts moved from @widgets/dashboard/model to @entities/widget/model to avoid circular dependency
 - [Phase 29-dashboard-defaults-02]: resetToRoleDefaults takes both role and userId parameters for single-call persist flow
 - [Phase 29-dashboard-defaults-02]: DEFAULT_TABS.defaultWidgets retained on interface but no longer used as widget fallback source
+- [Phase 30-dashboard-phase-b Q1]: Mobile slots — 5 spaces: Home, Services (merges Maintenance), Community, Messages, Admin
+- [Phase 30-dashboard-phase-b Q2]: Hybrid module gating — core spaces (Home, Messages, Admin) always visible; optional spaces (Services, Community) auto-hide when all their feature flags are disabled
+- [Phase 30-dashboard-phase-b Q3]: My Home — full consolidation of property details, household members, and profile management in one Home space
+- [Phase 30-dashboard-phase-b Q4]: Announcements — absorbed into Messages space as broadcast message type; admin UI at /dashboard/messages/announcements
+- [Phase 30-dashboard-phase-b Q5]: Feature flag rollout — NEXT_PUBLIC_FOCUS_SPACES builds alongside existing tabs, toggle with flag, remove tabs later
