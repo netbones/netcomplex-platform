@@ -90,7 +90,7 @@ Prefix your commit message with the gap ID (e.g. `fix(GAP-01): enforce tenantId 
 
 ### GAP-05 · Run the Resource migration script and verify
 
-> ❌ **OPEN** (2026-05-16 audit) — Migration script exists and is well-structured but has NOT been executed. Script queries `category = 'RESOURCES'` (plural), wraps in transaction, is idempotent. Needs to be run against the database.
+> ✅ **CLOSED** (2026-05-23) — Migration already executed (2026-05-16), zero Content RESOURCE records remain. Script renamed to `migrate-resources.DONE.ts`. `RESOURCE` removed from ContentCategory enum.
 
 **What:** `src/lib/migrations/migrate-resources.ts` exists but has NOT been executed. Any `Content` records with `category = 'RESOURCES'` need to be migrated to the new standalone `Resource` model.
 
@@ -198,7 +198,7 @@ Prefix your commit message with the gap ID (e.g. `fix(GAP-01): enforce tenantId 
 
 ### GAP-10 · Verify `AssistSession` expiry is enforced at request time
 
-> ⚠️ **PARTIAL** (2026-05-16 audit) — Expiry check implemented ✅: assist API GET filters by `isActive === true` AND `expiresAt > now` (line 31). Revoke via DELETE works ✅: sets `isActive: false`, `revokedAt`, `revokedBy` (lines 60-67). Tenant owner can revoke ✅. **REMAINING:** `scope: 'metadata'` enforcement is missing — there is no middleware or guard preventing metadata-scoped sessions from accessing `/api/users`, `/api/content`, or `/api/settings`.
+> ✅ **CLOSED** (2026-05-23) — `requireAssistScope(request, 'full'|'metadata')` guard created in `src/entities/tenant/api/assist-scope-guard.ts`. Applied to content POST, users PATCH/DELETE, settings/[key] PATCH. Metadata-scoped sessions receive 403 on write operations. GET routes intentionally unguarded.
 
 **What:** ~~`AssistSession` records have an `expiresAt` field and an `isActive` boolean.~~ Expiry and revoke implemented. **Missing: scope enforcement for metadata sessions.**
 
@@ -279,7 +279,7 @@ Prefix your commit message with the gap ID (e.g. `fix(GAP-01): enforce tenantId 
 
 ### GAP-13 · Implement widget state persistence for the admin dashboard
 
-> ⚠️ **PARTIAL** (2026-05-16 audit) — Zustand store with `persist` middleware exists at `src/entities/widget/model/widget-store.ts` (NOT at the path in the original gap). It persists layout to **localStorage** (key: `widget-layouts`, version 3). Per-tab layouts supported via `WidgetLayouts` type. **REMAINING:** GAP requires DB-backed persistence via `user.dashboardLayout` — currently the store is localStorage-only. The `user.dashboardLayout` column exists in the schema (`src/db/schema/users.ts` line 16) and the users API accepts it (`src/app/api/users/[id]/route.ts` lines 111-112), but the widget store does not sync to/from the database.
+> ✅ **CLOSED** (2026-05-23) — Widget store now syncs to DB via `hydrateFromServer(userId)` and `subscribeWidgetAutoSave(userId)` with 500ms debounce. Admin dashboard uses new pattern: localStorage = fast local cache, DB = source of truth across devices. `saveToDatabase` guards against pre-hydration saves.
 
 **What:** ~~The admin dashboard widget layout resets when the user changes tabs.~~ Layout persists via localStorage. **Missing: DB-backed persistence via `user.dashboardLayout`.**
 
@@ -308,6 +308,8 @@ Prefix your commit message with the gap ID (e.g. `fix(GAP-01): enforce tenantId 
 ---
 
 ### GAP-15 · Resolve `EventsWidget` duplication between admin and dashboard layers
+
+> ✅ **CLOSED** (2026-05-23) — Both files serve distinct purposes and are both imported. Dashboard widget: resident-facing summary (24 lines). Admin widget: management-oriented list with fetch/retry (167 lines). Both have clarifying purpose comments at top. Dashboard registry uses dashboard widget, admin uses admin widget.
 
 **What:** Two `EventsWidget.tsx` files exist at different paths:
 
@@ -344,6 +346,8 @@ These may be intentional (admin management view vs resident upcoming-events view
 ---
 
 ### GAP-16 · Confirm single database client instantiation path
+
+> ✅ **CLOSED** (2026-05-23) — Verified: `src/shared/api/db.ts` has single `drizzle()` call (singleton via Proxy). `src/db/index.ts` is schema re-exports only (no `drizzle()` call). `migrate-resources.DONE.ts` has a one-off `drizzle()` call (acceptable — completed migration script). Both files have clarifying comments.
 
 **What:** Two database client files now exist:
 

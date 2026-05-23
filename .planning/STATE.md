@@ -2,10 +2,10 @@
 
 ## Current Position
 
-- **Phase:** 11-announcements
-- **Plan:** 02 complete (2/2 tasks) — all plans done
-- **Status:** Ready to plan
-- **Last Updated:** 2026-05-21
+- **Phase:** 27-tenant-config-and-gaps
+- **Plan:** 02 complete (2/2 plans) — all plans done
+- **Status:** Complete
+- **Last Updated:** 2026-05-23
 
 ## Decisions Made
 
@@ -104,3 +104,11 @@
 - [Phase 11-announcements-01]: Notification type includes priority suffix (announcement-urgent, announcement-high) for future R4 acknowledgement
 - [Phase 11-announcements-01]: Fanout capped at 500 users with TODO for queue-based processing
 - [Phase 11-announcements-01]: FUTURE comment on Notification table for requiresAck/ackedAt — no blocking constraints
+- [Phase 27-tenant-config-and-gaps-01]: Facility type changed from union to string — Prisma already had `facility String`, no migration needed
+- [Phase 27-tenant-config-and-gaps-01]: Preset catalog pattern — PRESET_FACILITIES (15) + PRESET_CATEGORIES (14) for onboarding; DEFAULT_FACILITIES (5) + DEFAULT_CATEGORIES (8) for backward compat
+- [Phase 27-tenant-config-and-gaps-01]: Settings keys `booking_facilities` and `maintenance_categories` stored as JSON arrays of {value, label}
+- [Phase 27-tenant-config-and-gaps-01]: Onboarding wizard expanded from 5→7 steps (Branding→Modules→Facilities→Maintenance→Pages→Invite→Launch)
+- [Phase 27-tenant-config-and-gaps-02]: Assist scope guard applied only to write operations (POST/PATCH/DELETE) — GET routes intentionally unguarded
+- [Phase 27-tenant-config-and-gaps-02]: Widget auto-save uses 500ms debounce via subscribeWidgetAutoSave subscription pattern
+- [Phase 27-tenant-config-and-gaps-02]: Server-wins-on-conflict pattern for widget hydration — DB layout overrides localStorage on mount
+- [Phase 27-tenant-config-and-gaps-02]: Migration script kept as .DONE.ts (not deleted) — idempotent, historical reference
