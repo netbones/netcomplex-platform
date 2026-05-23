@@ -294,13 +294,13 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Consolidate split proxy.ts + middleware.ts into single src/middleware.ts aligned with Next.js 15.5 (current Vercel deployment); correct architecture docs
 
-**Status:** Not Started
+**Status:** Complete
 
 **Requirements:** PROXY-01, PROXY-02
 
 **Plans:** 1 plan
 
-- [ ] 28-01-PLAN.md — Merge proxy logic into src/middleware.ts, delete root proxy.ts, correct DOMAINS-PROXY.md
+- [x] 28-01-PLAN.md — Merge proxy logic into src/middleware.ts, delete root proxy.ts, correct DOMAINS-PROXY.md ✅
 
 ---
 

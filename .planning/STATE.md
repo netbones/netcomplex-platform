@@ -116,3 +116,12 @@
 - [Phase 27-tenant-config-and-gaps-02]: Widget auto-save uses 500ms debounce via subscribeWidgetAutoSave subscription pattern
 - [Phase 27-tenant-config-and-gaps-02]: Server-wins-on-conflict pattern for widget hydration — DB layout overrides localStorage on mount
 - [Phase 27-tenant-config-and-gaps-02]: Migration script kept as .DONE.ts (not deleted) — idempotent, historical reference
+- [Phase 28-proxy-consolidation-01]: Export name must be 'middleware' for Next.js 15.5 — 'proxy' is Next.js 16+ only
+- [Phase 28-proxy-consolidation-01]: Root proxy.ts deleted entirely — not kept as re-export to avoid confusion
+- [Phase 28-proxy-consolidation-01]: Debug console.log removed from production middleware
+- [Phase 29-dashboard-defaults-01]: 'manager' is not a valid WidgetManifest permissions role — mapped to ['admin', 'board']
+- [Phase 29-dashboard-defaults-01]: MaintenanceList is a named export (not default) — lazy() uses .then(m => ({ default: m.MaintenanceList }))
+- [Phase 29-dashboard-defaults-01]: announcements-stream was also missing from dashboard-config.ts — added with page.news feature key
+- [Phase 29-dashboard-defaults-02]: default-layouts.ts moved from @widgets/dashboard/model to @entities/widget/model to avoid circular dependency
+- [Phase 29-dashboard-defaults-02]: resetToRoleDefaults takes both role and userId parameters for single-call persist flow
+- [Phase 29-dashboard-defaults-02]: DEFAULT_TABS.defaultWidgets retained on interface but no longer used as widget fallback source
