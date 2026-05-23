@@ -2,10 +2,11 @@
 
 ## Current Position
 
-- **Phase:** 27-tenant-config-and-gaps
+- **Phase:** 29-dashboard-defaults
 - **Plan:** 02 complete (2/2 plans) — all plans done
 - **Status:** Complete
 - **Last Updated:** 2026-05-23
+- **Last Session:** Completed 29-02-PLAN.md
 
 ## Decisions Made
 
@@ -57,6 +58,9 @@
 - [Phase 11]: Stream widget renders full content per revised instructions, not truncated
 - [Phase 11]: No new navigation entries — discovery through dashboard widgets and notification feed only
 - [Phase 11]: /news page embeds stream as section with #announcements anchor — no separate route
+- [Phase 29]: Moved default-layouts.ts to @entities/widget/model to avoid circular dep — widget-store imports it directly
+- [Phase 29]: resetToRoleDefaults(role, userId) single-call pattern — clears store + persists to DB
+- [Phase 29]: DashboardPage fallback chain: userWidgets[tab] → roleDefaults.userWidgets[tab] → [] (no more DEFAULT_TABS.defaultWidgets)
 
 ## Notes
 
