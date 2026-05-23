@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useWidgetStore } from '@entities/widget';
+import { useWidgetStore, getDefaultLayout } from '@entities/widget';
 import { Breadcrumbs, ErrorBoundary, usePageLoading } from '@shared/ui';
 import { DraggableWidget, WidgetCard } from '@widgets/dashboard';
 import { DashboardTabs } from '@widgets/dashboard';
@@ -10,6 +10,7 @@ import { AddWidgetModal } from '@features/dashboard';
 import { WidgetRenderer } from '@widgets/dashboard';
 import { getWidgetTitle, getWidgetIcon } from '@entities/widget';
 import { registry } from '@widgets/dashboard';
+import { authClient } from '@api/auth-client';
 
 interface Tab {
   id: string;
@@ -61,7 +62,18 @@ function DashboardContent() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditMode, setIsEditMode] = useState(false);
   const { t } = useTranslation(['common', 'dashboard']);
-  const { userWidgets, addWidgetToTab, removeWidgetFromTab, resetLayout } = useWidgetStore();
+  const {
+    userWidgets,
+    addWidgetToTab,
+    removeWidgetFromTab,
+    resetToRoleDefaults,
+    isHydratedFromDb,
+    setUserWidgets,
+  } = useWidgetStore();
+  const { data: session } = authClient.useSession();
+
+  const role = session?.user?.role || 'RESIDENT';
+  const userId = session?.user?.id;
 
   const { isReady, LoadingComponent } = usePageLoading([
     { label: 'Home', href: '/' },
@@ -83,12 +95,21 @@ function DashboardContent() {
     );
   }, []);
 
+  // Seed default widgets when store is empty after DB hydration
+  useEffect(() => {
+    if (isHydratedFromDb && Object.keys(userWidgets).length === 0) {
+      const defaults = getDefaultLayout(role);
+      setUserWidgets(defaults.userWidgets);
+    }
+  }, [isHydratedFromDb, userWidgets, role, setUserWidgets]);
+
   if (!isReady) {
     return LoadingComponent;
   }
 
   const currentTab = DEFAULT_TABS.find(tab => tab.id === activeTab);
-  const tabWidgets = userWidgets[activeTab] || currentTab?.defaultWidgets || [];
+  const roleDefaults = getDefaultLayout(role);
+  const tabWidgets = userWidgets[activeTab] || roleDefaults.userWidgets[activeTab] || [];
 
   const handleRemoveWidget = (widgetId: string) => removeWidgetFromTab(widgetId, activeTab);
   const handleAddWidget = (widgetId: string) => addWidgetToTab(widgetId, activeTab);
@@ -110,7 +131,8 @@ function DashboardContent() {
               onToggleEditMode={() => setIsEditMode(!isEditMode)}
               onAddWidget={() => setIsAddModalOpen(true)}
               onResetLayout={() => {
-                resetLayout();
+                const userId = session?.user?.id;
+                if (userId) resetToRoleDefaults(role, userId);
                 setIsEditMode(false);
               }}
             />

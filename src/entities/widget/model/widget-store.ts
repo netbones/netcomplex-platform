@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createComponentLogger } from '@shared/lib';
+import { getDefaultLayout } from './default-layouts';
 
 const log = createComponentLogger('WidgetStore');
 
@@ -56,6 +57,9 @@ interface WidgetStore {
 
   // Reset a specific tab to its default widget configuration
   resetTabToDefaults: (tabId: string, defaultWidgets: string[]) => void;
+
+  // Reset all tabs to role-seeded defaults and persist to DB
+  resetToRoleDefaults: (role: string, userId: string) => void;
 
   // Database synchronization
   hydrateFromDatabase: (layout: string | null) => void;
@@ -194,6 +198,16 @@ export const useWidgetStore = create<WidgetStore>()(
             [tabId]: {},
           },
         }));
+      },
+
+      resetToRoleDefaults: (role: string, userId: string) => {
+        const defaults = getDefaultLayout(role);
+        set({
+          userWidgets: defaults.userWidgets,
+          layouts: defaults.layouts,
+        });
+        // Persist to DB after reset
+        get().saveToDatabase(userId);
       },
 
       hydrateFromDatabase: (layout: string | null) => {
