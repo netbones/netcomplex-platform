@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createComponentLogger } from '@shared/lib';
 import { getDefaultLayout } from './default-layouts';
+import { TAB_TO_SPACE_MAP } from './tab-migration-map';
 
 const log = createComponentLogger('WidgetStore');
 
@@ -60,6 +61,9 @@ interface WidgetStore {
 
   // Reset all tabs to role-seeded defaults and persist to DB
   resetToRoleDefaults: (role: string, userId: string) => void;
+
+  // Migrate old tab-keyed layouts to space-keyed layouts
+  migrateToSpaceLayouts: () => void;
 
   // Database synchronization
   hydrateFromDatabase: (layout: string | null) => void;
@@ -210,6 +214,43 @@ export const useWidgetStore = create<WidgetStore>()(
         get().saveToDatabase(userId);
       },
 
+      /**
+       * Migrate old tab-keyed layout to space-keyed layout.
+       * Converts keys using TAB_TO_SPACE_MAP and merges widgets from
+       * multiple old tabs into their new space keys.
+       * Called during hydrateFromServer if the stored layout uses old tab keys.
+       */
+      migrateToSpaceLayouts: () => {
+        const { userWidgets, layouts } = get();
+        const oldTabKeys = Object.keys(TAB_TO_SPACE_MAP);
+        const hasOldKeys = Object.keys(userWidgets).some(k => oldTabKeys.includes(k));
+
+        if (!hasOldKeys) return; // Already space-keyed, no migration needed
+
+        const newUserWidgets: UserWidgets = {};
+        const newLayouts: WidgetLayouts = {};
+
+        // Remap userWidgets
+        for (const [key, widgets] of Object.entries(userWidgets)) {
+          const spaceKey = TAB_TO_SPACE_MAP[key] || key;
+          const existing = newUserWidgets[spaceKey] || [];
+          newUserWidgets[spaceKey] = [...new Set([...existing, ...widgets])];
+        }
+
+        // Remap layouts
+        for (const [key, widgetLayouts] of Object.entries(layouts)) {
+          const spaceKey = TAB_TO_SPACE_MAP[key] || key;
+          const existing = newLayouts[spaceKey] || {};
+          newLayouts[spaceKey] = { ...existing, ...widgetLayouts };
+        }
+
+        log.info(
+          { oldKeys: Object.keys(userWidgets), newKeys: Object.keys(newUserWidgets) },
+          'Migrated tab-keyed layouts to space-keyed'
+        );
+        set({ userWidgets: newUserWidgets, layouts: newLayouts });
+      },
+
       hydrateFromDatabase: (layout: string | null) => {
         if (!layout) {
           set({ isHydratedFromDb: true });
@@ -250,11 +291,22 @@ export const useWidgetStore = create<WidgetStore>()(
             // Server is source of truth — merge with localStorage, server wins on conflict
             const parsed =
               typeof dashboardLayout === 'string' ? JSON.parse(dashboardLayout) : dashboardLayout;
+
+            // Check if layout uses old tab keys and auto-migrate
+            const oldTabKeys = Object.keys(TAB_TO_SPACE_MAP);
+            const widgetKeys = Object.keys(parsed.userWidgets || {});
+            const hasOldKeys = widgetKeys.some(k => oldTabKeys.includes(k));
+
             set({
               layouts: parsed.layouts || {},
               userWidgets: parsed.userWidgets || {},
               isHydratedFromDb: true,
             });
+
+            // Auto-migrate old tab-keyed layouts to space-keyed
+            if (hasOldKeys) {
+              get().migrateToSpaceLayouts();
+            }
           } else {
             // No server layout — keep localStorage as-is
             set({ isHydratedFromDb: true });
@@ -294,7 +346,7 @@ export const useWidgetStore = create<WidgetStore>()(
     }),
     {
       name: 'widget-layouts',
-      version: 3,
+      version: 4,
       migrate: (persistedState: unknown, version: number) => {
         const persisted = persistedState as Record<string, unknown>;
         if (version < 2) {

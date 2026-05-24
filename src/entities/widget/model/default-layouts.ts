@@ -23,10 +23,13 @@
  */
 
 import type { WidgetLayouts, UserWidgets } from '@entities/widget/model/widget-store';
+import { TAB_TO_SPACE_MAP } from './tab-migration-map';
 
 // ═══════════════════════════════════════════════════════════════
-// RESIDENT DEFAULT LAYOUT
+// LEGACY TAB-KEYED DEFAULTS (kept for backward compat when flag is off)
 // ═══════════════════════════════════════════════════════════════
+
+// RESIDENT DEFAULT LAYOUT
 
 const RESIDENT_USER_WIDGETS: UserWidgets = {
   overview: ['stats', 'quick-actions', 'notifications', 'recent-activity', 'events', 'messages'],
@@ -203,5 +206,100 @@ export function getDefaultLayout(role: string): {
   const normalized = role?.toUpperCase();
   const userWidgets = DEFAULT_USER_WIDGETS[normalized] || DEFAULT_USER_WIDGETS['RESIDENT'];
   const layouts = DEFAULT_LAYOUTS[normalized] || DEFAULT_LAYOUTS['RESIDENT'];
+  return { userWidgets, layouts };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SPACE-KEYED DEFAULTS (Focus Spaces architecture — Phase 30-B)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Remap a tab-keyed UserWidgets map to space-keyed using TAB_TO_SPACE_MAP.
+ * Merges widgets from multiple old tabs into their new space keys.
+ */
+function remapToSpaces(userWidgets: UserWidgets): UserWidgets {
+  const spaceWidgets: UserWidgets = {};
+
+  for (const [tabKey, widgets] of Object.entries(userWidgets)) {
+    const spaceKey = TAB_TO_SPACE_MAP[tabKey] || tabKey;
+    const existing = spaceWidgets[spaceKey] || [];
+    // Merge and deduplicate
+    spaceWidgets[spaceKey] = [...new Set([...existing, ...widgets])];
+  }
+
+  // Ensure messages and admin spaces exist
+  if (!spaceWidgets['messages']) {
+    spaceWidgets['messages'] = ['messages', 'notifications'];
+  }
+
+  return spaceWidgets;
+}
+
+/**
+ * Remap a tab-keyed WidgetLayouts map to space-keyed using TAB_TO_SPACE_MAP.
+ * Merges layout positions from multiple old tabs into their new space keys.
+ */
+function remapLayoutsToSpaces(layouts: WidgetLayouts): WidgetLayouts {
+  const spaceLayouts: WidgetLayouts = {};
+
+  for (const [tabKey, widgetLayouts] of Object.entries(layouts)) {
+    const spaceKey = TAB_TO_SPACE_MAP[tabKey] || tabKey;
+    const existing = spaceLayouts[spaceKey] || {};
+    // Merge widget layouts (later tab wins on conflict for same widgetId)
+    spaceLayouts[spaceKey] = { ...existing, ...widgetLayouts };
+  }
+
+  return spaceLayouts;
+}
+
+/** Space-keyed default widgets per role */
+const RESIDENT_SPACE_WIDGETS: UserWidgets = remapToSpaces(RESIDENT_USER_WIDGETS);
+const BOARD_SPACE_WIDGETS: UserWidgets = remapToSpaces(BOARD_USER_WIDGETS);
+const ADMIN_SPACE_WIDGETS: UserWidgets = remapToSpaces(ADMIN_USER_WIDGETS);
+
+/** Space-keyed default layouts per role */
+const RESIDENT_SPACE_LAYOUTS: WidgetLayouts = remapLayoutsToSpaces(RESIDENT_LAYOUTS);
+const BOARD_SPACE_LAYOUTS: WidgetLayouts = remapLayoutsToSpaces(BOARD_LAYOUTS);
+const ADMIN_SPACE_LAYOUTS: WidgetLayouts = remapLayoutsToSpaces(ADMIN_LAYOUTS);
+
+/**
+ * Default widget lists per space, keyed by user role.
+ * Used when NEXT_PUBLIC_FOCUS_SPACES is enabled.
+ */
+export const SPACE_DEFAULT_USER_WIDGETS: Record<string, UserWidgets> = {
+  RESIDENT: RESIDENT_SPACE_WIDGETS,
+  BOARD: BOARD_SPACE_WIDGETS,
+  COMMITTEE: BOARD_SPACE_WIDGETS,
+  ADMIN: ADMIN_SPACE_WIDGETS,
+  MANAGER: ADMIN_SPACE_WIDGETS,
+};
+
+/**
+ * Default widget layout positions per space, keyed by user role.
+ * Used when NEXT_PUBLIC_FOCUS_SPACES is enabled.
+ */
+export const SPACE_DEFAULT_LAYOUTS: Record<string, WidgetLayouts> = {
+  RESIDENT: RESIDENT_SPACE_LAYOUTS,
+  BOARD: BOARD_SPACE_LAYOUTS,
+  COMMITTEE: BOARD_SPACE_LAYOUTS,
+  ADMIN: ADMIN_SPACE_LAYOUTS,
+  MANAGER: ADMIN_SPACE_LAYOUTS,
+};
+
+/**
+ * Get the default dashboard layout using space keys (Focus Spaces architecture).
+ * Falls back to RESIDENT defaults if the role is not recognized.
+ *
+ * @param role - User role string (e.g. 'RESIDENT', 'ADMIN', 'BOARD')
+ * @returns Default userWidgets and layouts keyed by spaceId
+ */
+export function getSpaceDefaultLayout(role: string): {
+  userWidgets: UserWidgets;
+  layouts: WidgetLayouts;
+} {
+  const normalized = role?.toUpperCase();
+  const userWidgets =
+    SPACE_DEFAULT_USER_WIDGETS[normalized] || SPACE_DEFAULT_USER_WIDGETS['RESIDENT'];
+  const layouts = SPACE_DEFAULT_LAYOUTS[normalized] || SPACE_DEFAULT_LAYOUTS['RESIDENT'];
   return { userWidgets, layouts };
 }
