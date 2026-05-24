@@ -2,4 +2,6 @@
 
 import { DashboardPage } from '@pages/dashboard';
 
-export default DashboardPage;
+export default function DashboardHome() {
+  return <DashboardPage />;
+}
