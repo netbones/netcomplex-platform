@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentType, LazyExoticComponent } from 'react';
+import type { SpaceId } from './spaces';
 
 /**
  * Widget manifest - complete metadata for widget registration
@@ -57,6 +58,10 @@ export interface WidgetManifest {
   configSchema?: Record<string, unknown>;
   /** Config migration functions */
   migrations?: Record<string, (oldConfig: unknown) => unknown>;
+
+  // Space assignments (Focus Spaces architecture — Phase 30-B)
+  /** Which spaces this widget belongs to. If unspecified, defaults to ['home']. */
+  spaces?: SpaceId[];
 }
 
 // Re-export existing types for backward compatibility
