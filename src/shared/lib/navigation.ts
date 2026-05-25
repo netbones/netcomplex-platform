@@ -47,6 +47,26 @@ export const NAV_REGISTRY: NavItem[] = [
     permission: 'bookings',
   },
   { id: 'messages', nameKey: 'nav.messages', href: '/messages', permission: 'messages' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // DASHBOARD FOCUS SPACES (Phase 30-B)
+  // Internal workspace navigation — supplements the main dashboard entry
+  // ═══════════════════════════════════════════════════════════════
+  { id: 'dashboard-home', nameKey: 'spaces.home', href: '/dashboard' },
+  {
+    id: 'dashboard-services',
+    nameKey: 'spaces.services',
+    href: '/dashboard/services',
+    flag: 'services',
+  },
+  { id: 'dashboard-community', nameKey: 'spaces.community', href: '/dashboard/community' },
+  {
+    id: 'dashboard-messages',
+    nameKey: 'spaces.messages',
+    href: '/dashboard/messages',
+    flag: 'messages',
+  },
+  { id: 'dashboard-admin', nameKey: 'spaces.admin', href: '/dashboard/admin', permission: 'admin' },
 ];
 
 export const ADMIN_NAV_REGISTRY: NavItem[] = [

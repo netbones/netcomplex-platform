@@ -114,7 +114,7 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
     labelKey: 'spaces.messages',
     icon: MessageSquare,
     isCore: true,
-    widgetIds: ['messages', 'notifications'],
+    widgetIds: ['messages', 'notifications', 'admin-announcements'],
   },
   admin: {
     id: 'admin',

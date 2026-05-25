@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import { useWidgetStore, getSpaceDefaultLayout } from '@entities/widget';
 import { ErrorBoundary, usePageLoading } from '@shared/ui';
 import { DraggableWidget, WidgetCard, WidgetRenderer } from '@widgets/dashboard';
@@ -8,12 +9,38 @@ import { registry } from '@widgets/dashboard';
 import { getWidgetTitle, getWidgetIcon } from '@entities/widget';
 import { authClient } from '@api/auth-client';
 import { AddWidgetModal } from '@features/dashboard';
+import { Megaphone } from 'lucide-react';
 import type { SpaceId } from '../model/spaces';
 import { SPACES, getWidgetsForSpace } from '../model/spaces';
 
 interface SpaceLayoutProps {
   /** Current space ID (from URL) */
   spaceId: SpaceId;
+}
+
+/** Admin-only link — only renders for admin/board/manager roles */
+function AdminOnlyLink({
+  href,
+  icon,
+  label,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  const { data: session } = authClient.useSession();
+  const role = session?.user?.role?.toUpperCase();
+  const isAdmin = role === 'ADMIN' || role === 'BOARD' || role === 'MANAGER';
+  if (!isAdmin) return null;
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 transition"
+    >
+      {icon}
+      {label}
+    </Link>
+  );
 }
 
 /**
@@ -95,6 +122,14 @@ export function SpaceLayout({ spaceId }: SpaceLayoutProps) {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {/* Messages space: show "Manage Announcements" link for admin users */}
+            {spaceId === 'messages' && (
+              <AdminOnlyLink
+                href="/dashboard/messages/announcements"
+                icon={<Megaphone className="w-4 h-4" />}
+                label="Manage Announcements"
+              />
+            )}
             <button
               onClick={() => setIsEditMode(!isEditMode)}
               className={`px-3 py-1.5 text-sm rounded-md transition ${
