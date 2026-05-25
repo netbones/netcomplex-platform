@@ -1,20 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { TurnstileWidget } from '@shared/ui';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [turnstileSiteKey, setTurnstileSiteKey] = useState<string>('');
-  const [turnstileToken, setTurnstileToken] = useState<string>('');
-
-  useEffect(() => {
-    setTurnstileSiteKey(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '');
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,17 +15,17 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/forgot-password', {
+      const response = await fetch('/api/auth/request-password-reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, turnstileToken }),
+        body: JSON.stringify({ email }),
       });
 
       if (response.ok) {
         setSuccess(true);
       } else {
         const data = await response.json();
-        setError(data.message || 'Failed to send reset email');
+        setError(data.error || data.message || 'Failed to send reset email');
       }
     } catch {
       setError('An unexpected error occurred');
@@ -75,14 +68,6 @@ export default function ForgotPasswordPage() {
               required
             />
           </div>
-
-          {turnstileSiteKey && (
-            <TurnstileWidget
-              siteKey={turnstileSiteKey}
-              theme="auto"
-              onTokenChange={setTurnstileToken}
-            />
-          )}
 
           <button
             type="submit"

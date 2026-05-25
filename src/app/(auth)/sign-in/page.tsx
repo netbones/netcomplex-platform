@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { TurnstileWidget } from '@shared/ui';
+import { authClient } from '@api/auth-client';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -12,12 +12,6 @@ export default function SignInPage() {
   const [error, setError] = useState('');
   const [unverifiedEmail, setUnverifiedEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [turnstileSiteKey, setTurnstileSiteKey] = useState<string>('');
-  const [turnstileToken, setTurnstileToken] = useState<string>('');
-
-  useEffect(() => {
-    setTurnstileSiteKey(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '');
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,21 +20,19 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, turnstileToken }),
+      const { data, error } = await authClient.signIn.email({
+        email,
+        password,
+        callbackURL: '/dashboard',
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        router.push('/dashboard');
-      } else {
-        if (response.status === 403) {
+      if (error) {
+        if (error.code === 'EMAIL_NOT_VERIFIED' || error.status === 403) {
           setUnverifiedEmail(email);
         }
-        setError(data.error || 'Failed to sign in');
+        setError(error.message || 'Failed to sign in');
+      } else if (data) {
+        router.push('/dashboard');
       }
     } catch {
       setError('An unexpected error occurred');
@@ -96,14 +88,6 @@ export default function SignInPage() {
               required
             />
           </div>
-
-          {turnstileSiteKey && (
-            <TurnstileWidget
-              siteKey={turnstileSiteKey}
-              theme="auto"
-              onTokenChange={setTurnstileToken}
-            />
-          )}
 
           <button
             type="submit"

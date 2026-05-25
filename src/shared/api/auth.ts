@@ -51,33 +51,37 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true, // Require email verification before sign-in
     // Wire password reset email via Better Auth
-    sendResetPassword: async ({ user, url }) => {
-      // Use void to avoid blocking - prevents timing attacks
-      void sendEmail({
+    sendResetPassword: async ({ user, token }) => {
+      const resetUrl = `${ENV.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+      sendEmail({
         to: user.email,
         subject: templates.passwordReset.subject,
-        html: templates.passwordReset.getHtml(url),
-      });
+        html: templates.passwordReset.getHtml(resetUrl),
+      }).catch(err =>
+        authLogger.error({ err, email: user.email }, 'Password reset email send failed')
+      );
     },
     async onExistingUserSignUp({ user }) {
-      // Notify existing user about sign-up attempt (security measure)
-      void sendEmail({
+      sendEmail({
         to: user.email,
         subject: templates.securityAlert.subject,
         html: templates.securityAlert.getHtml(user.email),
-      });
+      }).catch(err =>
+        authLogger.error({ err, email: user.email }, 'Security alert email send failed')
+      );
       authLogger.info({ email: user.email }, 'Sign-up attempt with existing email - alert sent');
     },
   },
   // Wire verification email via Better Auth (used when requireEmailVerification is true)
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
-      // Use void to avoid blocking - prevents timing attacks on email enumeration
-      void sendEmail({
+      sendEmail({
         to: user.email,
         subject: templates.verifyEmail.subject,
         html: templates.verifyEmail.getHtml(user.name || '', url),
-      });
+      }).catch(err =>
+        authLogger.error({ err, email: user.email }, 'Verification email send failed')
+      );
     },
     sendOnSignIn: true, // Send verification email on sign-in if not verified
     autoSignInAfterVerification: true, // Auto sign-in user after email verification

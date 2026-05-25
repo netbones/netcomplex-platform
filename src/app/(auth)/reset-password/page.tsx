@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { TurnstileWidget } from '@shared/ui';
 
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
@@ -13,16 +12,10 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState('');
-  const [email, setEmail] = useState('');
-  const [turnstileSiteKey, setTurnstileSiteKey] = useState<string>('');
-  const [turnstileToken, setTurnstileToken] = useState<string>('');
 
   useEffect(() => {
     const tokenParam = searchParams.get('token');
-    const emailParam = searchParams.get('email');
     if (tokenParam) setToken(tokenParam);
-    if (emailParam) setEmail(emailParam);
-    setTurnstileSiteKey(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '');
   }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,7 +32,7 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    if (!token || !email) {
+    if (!token) {
       setError('Invalid reset link');
       return;
     }
@@ -50,7 +43,7 @@ export default function ResetPasswordPage() {
       const response = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, email, newPassword: password, turnstileToken }),
+        body: JSON.stringify({ token, newPassword: password }),
       });
 
       const data = await response.json();
@@ -141,14 +134,6 @@ export default function ResetPasswordPage() {
               minLength={8}
             />
           </div>
-
-          {turnstileSiteKey && (
-            <TurnstileWidget
-              siteKey={turnstileSiteKey}
-              theme="auto"
-              onTokenChange={setTurnstileToken}
-            />
-          )}
 
           <button
             type="submit"

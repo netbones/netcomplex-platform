@@ -12,6 +12,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 // Mock Better Auth client
+const mockSignInEmail = vi.fn();
 vi.mock('@api/auth-client', () => ({
   authClient: {
     useSession: vi.fn(() => ({
@@ -23,16 +24,18 @@ vi.mock('@api/auth-client', () => ({
         },
       },
     })),
+    signIn: {
+      email: mockSignInEmail,
+    },
   },
 }));
 
-// Mock fetch globally
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
 describe('SignInPage component', () => {
   beforeEach(() => {
-    mockFetch.mockReset();
+    mockSignInEmail.mockReset();
     vi.clearAllMocks();
   });
 
@@ -70,9 +73,9 @@ describe('SignInPage component', () => {
   });
 
   it('submits form with email and password', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({}),
+    mockSignInEmail.mockResolvedValueOnce({
+      data: { user: { id: 'test-user-123' } },
+      error: null,
     });
 
     const { default: SignInPage } = await import('@app/(auth)/sign-in/page');
@@ -90,21 +93,18 @@ describe('SignInPage component', () => {
     });
 
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith(
-        '/api/auth/signin',
-        expect.objectContaining({
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
+      expect(mockSignInEmail).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'password123',
+        callbackURL: '/dashboard',
+      });
     });
   });
 
   it('shows error message on failed sign in', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      status: 401,
-      json: async () => ({ error: 'Invalid credentials' }),
+    mockSignInEmail.mockResolvedValueOnce({
+      data: null,
+      error: { message: 'Invalid credentials', code: 'INVALID_EMAIL_OR_PASSWORD', status: 401 },
     });
 
     const { default: SignInPage } = await import('@app/(auth)/sign-in/page');
