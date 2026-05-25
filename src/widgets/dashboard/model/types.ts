@@ -60,8 +60,8 @@ export interface WidgetManifest {
   migrations?: Record<string, (oldConfig: unknown) => unknown>;
 
   // Space assignments (Focus Spaces architecture — Phase 30-B)
-  /** Which spaces this widget belongs to. If unspecified, defaults to ['home']. */
-  spaces?: SpaceId[];
+  /** Which spaces this widget belongs to. Defaults to ['home'] if unspecified. */
+  spaces: SpaceId[];
 }
 
 // Re-export existing types for backward compatibility

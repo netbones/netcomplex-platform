@@ -58,7 +58,15 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
     labelKey: 'spaces.home',
     icon: Home,
     isCore: true,
-    widgetIds: ['stats', 'quick-actions', 'recent-activity', 'notifications'],
+    widgetIds: [
+      'stats',
+      'quick-actions',
+      'recent-activity',
+      'notifications',
+      'solo-seat',
+      'properties',
+      'sidebar-widgets',
+    ],
   },
   services: {
     id: 'services',
@@ -72,6 +80,9 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
       'maintenance-analytics',
       'my-services',
       'service-inquiries',
+      'events',
+      'agent-dashboard',
+      'agent-activity',
     ],
   },
   community: {
@@ -87,6 +98,8 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
       'my-album',
       'media',
       'bookshelf',
+      'premium-portfolio',
+      'community-graph-widget',
       'admin-events',
       'admin-surveys',
       'group-moderation',
@@ -116,6 +129,16 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
       'admin-user',
       'admin-system',
       'page-settings',
+      'admin-announcements',
+      'admin-events',
+      'admin-surveys',
+      'admin-competitions',
+      'admin-resources',
+      'admin-content',
+      'maintenance-list',
+      'maintenance-analytics',
+      'agent-dashboard',
+      'agent-activity',
     ],
   },
 };
@@ -185,4 +208,34 @@ export function getVisibleSpaces(role: string, flags: PlatformPageFlags): SpaceD
  */
 export function resolveSpace(slug: string): SpaceDefinition | undefined {
   return SPACES[slug as SpaceId];
+}
+
+// ═══════════════════════════════════════════════════════════════
+// WIDGET-SPACE HELPERS (Phase 30-B)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Get all widget IDs that belong to a given space.
+ * Uses the SPACES registry's widgetIds array.
+ */
+export function getWidgetsForSpace(spaceId: SpaceId): string[] {
+  return SPACES[spaceId]?.widgetIds ?? [];
+}
+
+/**
+ * Check if a widget belongs to a given space.
+ * A widget belongs if its ID appears in the space's widgetIds.
+ */
+export function isWidgetInSpace(widgetId: string, spaceId: SpaceId): boolean {
+  const space = SPACES[spaceId];
+  if (!space) return false;
+  return space.widgetIds.includes(widgetId);
+}
+
+/**
+ * Get all spaces that contain a given widget.
+ * Useful for showing "also available in X" badges.
+ */
+export function getSpacesForWidget(widgetId: string): SpaceId[] {
+  return SPACE_SLUGS.filter(spaceId => SPACES[spaceId].widgetIds.includes(widgetId));
 }

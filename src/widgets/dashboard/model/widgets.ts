@@ -32,6 +32,23 @@ import {
 } from 'lucide-react';
 
 export function registerAllWidgets(registry: { register: (m: WidgetManifest) => void }) {
+  /**
+   * Space assignments (Focus Spaces architecture — Phase 30-B)
+   *
+   * home: stats, quick-actions, recent-activity, notifications, solo-seat, properties
+   * services: maintenance-requests, maintenance-list, maintenance-analytics, my-services, service-inquiries, events
+   * community: events, announcements-stream, my-content, my-album, media, bookshelf,
+   *   admin-events, admin-surveys, group-moderation, admin-announcements,
+   *   admin-competitions, admin-resources, admin-content
+   * messages: messages, notifications
+   * admin: admin-stats, admin-activity, admin-quick-links, admin-user, admin-system, page-settings, admin-announcements
+   *
+   * Some widgets belong to multiple spaces:
+   * notifications → ['home', 'messages']
+   * events → ['services', 'community']
+   * admin-announcements → ['community', 'admin']
+   */
+
   // ═══════════════════════════════════════════════════════════════
   // CORE WIDGETS
   // ═══════════════════════════════════════════════════════════════
@@ -51,6 +68,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 4, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['home'],
   });
 
   registry.register({
@@ -68,6 +86,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['home'],
   });
 
   registry.register({
@@ -85,6 +104,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['home'],
   });
 
   registry.register({
@@ -102,6 +122,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['home'],
   });
 
   registry.register({
@@ -120,6 +141,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['home'],
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -141,6 +163,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['home', 'messages'],
   });
 
   registry.register({
@@ -156,6 +179,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['messages'],
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -179,6 +203,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['services'],
   });
 
   registry.register({
@@ -199,6 +224,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['services', 'admin'],
   });
 
   registry.register({
@@ -219,6 +245,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['services', 'admin'],
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -243,6 +270,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 4, height: 2 },
     minSize: { width: 3, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
   });
 
   registry.register({
@@ -263,6 +291,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
   });
 
   registry.register({
@@ -283,6 +312,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
   });
 
   registry.register({
@@ -303,6 +333,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community', 'admin'],
   });
 
   registry.register({
@@ -323,6 +354,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
   });
 
   registry.register({
@@ -343,6 +375,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -362,6 +395,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['services', 'community'],
   });
 
   registry.register({
@@ -381,6 +415,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community'],
   });
 
   registry.register({
@@ -399,6 +434,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community', 'admin'],
   });
 
   registry.register({
@@ -417,6 +453,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community', 'admin'],
   });
 
   registry.register({
@@ -437,6 +474,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community', 'admin'],
   });
 
   registry.register({
@@ -457,6 +495,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community', 'admin'],
   });
 
   registry.register({
@@ -475,6 +514,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
   });
 
   registry.register({
@@ -493,6 +533,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community', 'admin'],
   });
 
   registry.register({
@@ -511,6 +552,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community', 'admin'],
   });
 
   registry.register({
@@ -528,6 +570,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community'],
   });
 
   registry.register({
@@ -545,21 +588,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
-  });
-
-  registry.register({
-    id: 'media',
-    version: '1.0.0',
-    name: 'Media',
-    description: 'Shared media gallery',
-    author: 'internal',
-    category: 'content',
-    icon: Image,
-    component: lazy(() => import('../ui/MediaWidget').then(m => ({ default: m.MediaWidget }))),
-    loader: () => import('../ui/MediaWidget'),
-    defaultSize: { width: 2, height: 2 },
-    minSize: { width: 1, height: 1 },
-    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community'],
   });
 
   registry.register({
@@ -575,6 +604,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community'],
   });
 
   registry.register({
@@ -591,6 +621,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['services'],
   });
 
   registry.register({
@@ -609,6 +640,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['services'],
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -630,6 +662,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 1, height: 3 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['home'],
   });
 
   // ═══════════════════════════════════════════════════════════════
@@ -653,6 +686,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community'],
   });
 
   registry.register({
@@ -673,6 +707,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['services', 'admin'],
   });
 
   registry.register({
@@ -692,6 +727,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 4, height: 4 },
     minSize: { width: 3, height: 3 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community'],
   });
 
   registry.register({
@@ -711,5 +747,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
+    spaces: ['services', 'admin'],
   });
 }
