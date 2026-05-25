@@ -1,11 +1,17 @@
 import './globals.css';
 import { Providers } from './providers';
 import { Suspense } from 'react';
-import { Metadata } from 'next';
+import { Metadata, Viewport } from 'next';
 import { Header } from '@shared/ui/Header';
 import { Footer } from '@shared/ui/Footer';
 
 export const dynamic = 'force-dynamic';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+};
 
 export const metadata: Metadata = {
   title: 'Soralia Village Community Directory',

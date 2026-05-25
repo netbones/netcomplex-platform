@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { authClient } from '@shared/api/auth-client';
 import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
 import { ErrorBoundary } from '@shared/ui';
 import { SpaceLauncher } from '@widgets/dashboard/ui/SpaceLauncher';
+import { MobileSpaceBar } from '@widgets/dashboard/ui/MobileSpaceBar';
 import { getVisibleSpaces, resolveSpace } from '@widgets/dashboard/model/spaces';
+
+const FOCUS_SPACES_ENABLED = process.env.NEXT_PUBLIC_FOCUS_SPACES === 'true';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(true);
@@ -26,10 +29,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // Navigation handled by Link href — this callback is for future extensibility
   };
 
+  // Feature flag OFF: old layout (no sidebar, no bottom bar)
+  if (!FOCUS_SPACES_ENABLED) {
+    return <ErrorBoundary>{children}</ErrorBoundary>;
+  }
+
+  // Feature flag ON: new Focus Space layout with sidebar + bottom bar
   return (
     <ErrorBoundary>
       <div className="flex min-h-screen bg-gray-50">
-        {/* Desktop sidebar */}
+        {/* Desktop sidebar — hidden on mobile */}
         <SpaceLauncher
           spaces={visibleSpaces}
           activeSpaceId={activeSpaceId}
@@ -38,9 +47,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           onToggleCollapse={() => setCollapsed(prev => !prev)}
         />
 
-        {/* Main content area */}
-        <main className="flex-1 min-w-0">{children}</main>
+        {/* Main content area — safe-area-aware bottom padding for mobile bottom bar */}
+        <main
+          className="flex-1 min-w-0 md:pb-0"
+          style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
+        >
+          {children}
+        </main>
       </div>
+
+      {/* Mobile bottom bar — hidden on desktop */}
+      <MobileSpaceBar />
     </ErrorBoundary>
   );
 }

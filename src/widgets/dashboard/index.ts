@@ -5,4 +5,5 @@ export * from './ui/DraggableWidget';
 export * from './ui/WidgetCard';
 export * from './ui/DashboardSkeleton';
 export * from './ui/SpaceLayout';
+export * from './ui/MobileSpaceBar';
 export * from './model/registry';
