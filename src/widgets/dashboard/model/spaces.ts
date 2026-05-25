@@ -239,3 +239,58 @@ export function isWidgetInSpace(widgetId: string, spaceId: SpaceId): boolean {
 export function getSpacesForWidget(widgetId: string): SpaceId[] {
   return SPACE_SLUGS.filter(spaceId => SPACES[spaceId].widgetIds.includes(widgetId));
 }
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN SUB-DOMAINS (Phase 30-B)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Admin management domains. These mirror the Admin Dashboard tab inventory
+ * defined in docs/architecture/NAVIGATION_GOVERNANCE.md.
+ * When adding a new admin domain, update both this constant AND the governance doc.
+ */
+export const ADMIN_DOMAINS = [
+  'users',
+  'maintenance',
+  'content',
+  'events',
+  'competitions',
+  'resources',
+  'surveys',
+  'announcements',
+  'system',
+] as const;
+
+export type AdminDomain = (typeof ADMIN_DOMAINS)[number];
+
+/**
+ * Map admin domain to widget IDs rendered on that domain's page.
+ * Multiple widgets per domain are rendered in vertical stack.
+ */
+const ADMIN_DOMAIN_WIDGET_MAP: Record<AdminDomain, string[]> = {
+  users: ['admin-user'],
+  maintenance: ['maintenance-list', 'maintenance-analytics'],
+  content: ['admin-content'],
+  events: ['admin-events'],
+  competitions: ['admin-competitions'],
+  resources: ['admin-resources'],
+  surveys: ['admin-surveys'],
+  announcements: ['admin-announcements'],
+  system: ['admin-system', 'page-settings'],
+};
+
+/**
+ * Get widget IDs for an admin management domain.
+ * Returns empty array for invalid domains.
+ */
+export function getAdminDomainWidgets(domain: string): string[] {
+  return ADMIN_DOMAIN_WIDGET_MAP[domain as AdminDomain] ?? [];
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MESSAGES SUB-ROUTES (Phase 30-B — Q4)
+// ═══════════════════════════════════════════════════════════════
+
+/** Sub-routes within the Messages space (e.g., /dashboard/messages/announcements) */
+export const MESSAGES_SUB_ROUTES = ['announcements'] as const;
+export type MessagesSubRoute = (typeof MESSAGES_SUB_ROUTES)[number];
