@@ -40,6 +40,13 @@
     "mySpace": "My Ruimte",
     "administration": "Administrasie"
   },
+  "spaces": {
+    "home": "Tuis",
+    "services": "Dienste",
+    "community": "Gemeenskap",
+    "messages": "Boodskappe",
+    "admin": "Admin"
+  },
   "footer": {
     "description": "'n Eerste residensiële gemeenskap in Kaapstad, wat moderne lewe bied met uitsonderlike geriewe en dienste.",
     "quickLinks": "Vinnige Skakels",

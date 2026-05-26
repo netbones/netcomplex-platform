@@ -109,6 +109,12 @@ export const auth = betterAuth({
         required: false,
         input: false, // Auto-generated on signup
       },
+      role: {
+        type: 'string',
+        required: false,
+        defaultValue: 'RESIDENT',
+        input: false, // Role is managed by admins, not settable during signup
+      },
     },
   },
   plugins: [twoFactor({ issuer: tenantConfig.auth.issuer }), organization(), bearer(), passkey()],

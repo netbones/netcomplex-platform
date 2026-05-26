@@ -434,9 +434,9 @@ export function HomeLayer() {
         .catch(() => []),
 
       // Unread message count
-      fetch('/api/messages?unread=true')
-        .then(r => (r.ok ? r.json() : []))
-        .then((msgs: unknown[]) => (Array.isArray(msgs) ? msgs.length : 0))
+      fetch('/api/messages/unread')
+        .then(r => (r.ok ? r.json() : { totalUnread: 0 }))
+        .then((data: { totalUnread?: number }) => data.totalUnread ?? 0)
         .catch(() => 0),
 
       // Upcoming events (filter today/tomorrow client-side)

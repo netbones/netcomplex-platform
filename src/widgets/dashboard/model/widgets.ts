@@ -608,6 +608,22 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   });
 
   registry.register({
+    id: 'media',
+    version: '1.0.0',
+    name: 'Media Gallery',
+    description: 'Community media gallery with photo and video uploads',
+    author: 'internal',
+    category: 'content',
+    icon: Image,
+    component: lazy(() => import('../ui/MediaWidget').then(m => ({ default: m.MediaWidget }))),
+    loader: () => import('../ui/MediaWidget'),
+    defaultSize: { width: 2, height: 2 },
+    minSize: { width: 1, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community'],
+  });
+
+  registry.register({
     id: 'my-services',
     version: '1.0.0',
     name: 'My Services',

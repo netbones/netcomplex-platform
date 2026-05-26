@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 import { authClient } from '@api/auth-client';
 import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
 import { getVisibleSpaces, type SpaceId } from '../model/spaces';
@@ -26,6 +27,7 @@ import { getVisibleSpaces, type SpaceId } from '../model/spaces';
  */
 export function MobileSpaceBar() {
   const pathname = usePathname();
+  const { t } = useTranslation();
   const { data: session } = authClient.useSession();
   const { flags } = usePageFlags();
   const role = session?.user?.role || 'RESIDENT';
@@ -62,6 +64,7 @@ export function MobileSpaceBar() {
         {mobileSpaces.map(space => {
           const Icon = space.icon;
           const active = isActive(space.id);
+          const label = t(space.labelKey);
 
           return (
             <Link
@@ -78,7 +81,7 @@ export function MobileSpaceBar() {
                 {space.id === 'messages' && <UnreadBadge />}
               </div>
               <span className="text-[10px] font-medium leading-tight truncate max-w-[64px]">
-                {space.labelKey.split('.').pop()}
+                {label}
               </span>
             </Link>
           );

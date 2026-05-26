@@ -93,7 +93,12 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const facility = searchParams.get('facility');
-  const date = searchParams.get('date');
+  let date = searchParams.get('date');
+
+  // Normalize "today" to today's ISO date string to avoid Invalid Date
+  if (date === 'today') {
+    date = new Date().toISOString().split('T')[0];
+  }
 
   // Build query conditions
   const queryConditions = [];

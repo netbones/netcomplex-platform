@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import type { SpaceDefinition } from '../model/spaces';
 
 interface SpaceLauncherProps {
@@ -18,6 +19,8 @@ export function SpaceLauncher({
   onNavigate,
   onToggleCollapse,
 }: SpaceLauncherProps) {
+  const { t } = useTranslation();
+
   return (
     <nav
       className={`hidden md:flex flex-col h-full bg-white border-r border-gray-200 transition-all duration-200 ${
@@ -31,6 +34,7 @@ export function SpaceLauncher({
           const Icon = space.icon;
           const isActive = space.id === activeSpaceId;
           const href = space.id === 'home' ? '/dashboard' : `/dashboard/${space.id}`;
+          const label = t(space.labelKey);
 
           return (
             <Link
@@ -43,11 +47,11 @@ export function SpaceLauncher({
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
               aria-current={isActive ? 'page' : undefined}
-              aria-label={collapsed ? space.labelKey : undefined}
-              title={collapsed ? space.labelKey : undefined}
+              aria-label={collapsed ? label : undefined}
+              title={collapsed ? label : undefined}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span className="text-sm font-medium truncate">{space.labelKey}</span>}
+              {!collapsed && <span className="text-sm font-medium truncate">{label}</span>}
             </Link>
           );
         })}

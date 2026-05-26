@@ -40,6 +40,13 @@
     "mySpace": "My Space",
     "administration": "Administration"
   },
+  "spaces": {
+    "home": "Home",
+    "services": "Services",
+    "community": "Community",
+    "messages": "Messages",
+    "admin": "Admin"
+  },
   "footer": {
     "description": "A premier residential community in Cape Town, offering modern living with exceptional amenities and services.",
     "quickLinks": "Quick Links",

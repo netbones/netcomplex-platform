@@ -40,6 +40,13 @@
     "mySpace": "Isikhala sami",
     "administration": "Ulawulo"
   },
+  "spaces": {
+    "home": "Ikaya",
+    "services": "Amasevisi",
+    "community": "Umphakathi",
+    "messages": "Umlando",
+    "admin": "Admin"
+  },
   "footer": {
     "description": "Umphakathi wokuhlala eTheku, onikezela ngobomi bokuhlala kwanamasevisi anokuhlanganiswa.",
     "quickLinks": "Izixhumanisi zokushesha",

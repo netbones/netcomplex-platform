@@ -40,6 +40,13 @@
     "mySpace": "Isithuba sam",
     "administration": "Ulawulo"
   },
+  "spaces": {
+    "home": "Ikaya",
+    "services": "Iinkonzo",
+    "community": "Umphakathi",
+    "messages": "Imiyalezo",
+    "admin": "Admin"
+  },
   "footer": {
     "description": "Umphakathi wokuhlala eKapa, onikezela ngobomi bokuhlala kwanamagosa anobulungisa.",
     "quickLinks": "Iilinks ezikhawulezayo",
