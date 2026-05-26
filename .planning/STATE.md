@@ -3,10 +3,10 @@
 ## Current Position
 
 - **Phase:** 30-dashboard-phase-b
-- **Plan:** All 5 plans written (0/5 executed) — planning complete
-- **Status:** In Progress
-- **Last Updated:** 2026-05-23
-- **Last Session:** Wrote Phase B plans 01-05 (Focus Space architecture)
+- **Plan:** 5/5 executed — phase complete
+- **Status:** Complete
+- **Last Updated:** 2026-05-27
+- **Last Session:** Executed Phase B plans 01-05 (Focus Space architecture) + checkpoint bug fixes
 
 ## Decisions Made
 
@@ -130,3 +130,18 @@
 - [Phase 30-dashboard-phase-b Q3]: My Home — full consolidation of property details, household members, and profile management in one Home space
 - [Phase 30-dashboard-phase-b Q4]: Announcements — absorbed into Messages space as broadcast message type; admin UI at /dashboard/messages/announcements
 - [Phase 30-dashboard-phase-b Q5]: Feature flag rollout — NEXT_PUBLIC_FOCUS_SPACES builds alongside existing tabs, toggle with flag, remove tabs later
+- [Phase 30-01]: WidgetManifest.spaces changed from optional to required — forces explicit space assignment
+- [Phase 30-02]: Tab-to-space mapping: overview→home, maintenance→services, bookings→services, services→services, content→community, premium→community
+- [Phase 30-02]: Widget store persist version bumped to 4 (triggers re-hydration for migration)
+- [Phase 30-03]: Multi-space widgets allowed — notifications→[home,messages], events→[services,community], etc.
+- [Phase 30-04]: 9 admin domains in sub-launcher: users, maintenance, content, events, competitions, resources, surveys, announcements, system
+- [Phase 30-05]: MobileSpaceBar md:hidden + SpaceLauncher hidden md:flex — no overlap
+- [Phase 30-05]: Better Auth additionalFields now includes role (defaultValue: 'RESIDENT', input: false) — fixes client-side role access
+- [Phase 30-05]: i18n spaces.\* keys added to all 4 locale files (en, af, xh, zu) in common namespace
+- [Phase 30-05]: /api/bookings date=today normalized to ISO date string before Date constructor
+- [Phase 30-05]: HomeLayer uses /api/messages/unread endpoint (not /api/messages?unread=true)
+- **30-01:** Complete — SpaceDefinition + SPACES registry + getVisibleSpaces + SpaceLauncher sidebar + dynamic route pages (2 commits)
+- **30-02:** Complete — HomeLayer three-zone + feature flag toggle + tab→space migration map + widget store v4 (2 commits)
+- **30-03:** Complete — Widget manifest spaces field (required) + SpaceLayout + AddWidgetModal filtering (2 commits)
+- **30-04:** Complete — Admin sub-launcher + MyHomeSpace + announcements in Messages + NAV_REGISTRY (2 commits)
+- **30-05:** Complete — MobileSpaceBar + responsive layout + 5 checkpoint bug fixes (2 commits)
