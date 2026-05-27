@@ -14,7 +14,7 @@ interface AdminDomainPageProps {
 }
 
 export default function AdminDomainPage({ params }: AdminDomainPageProps) {
-  const { t } = useTranslation(['admin', 'common']);
+  const { t } = useTranslation('common');
   const { domain } = use(params);
 
   // Validate domain
@@ -34,7 +34,10 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
             { label: t('nav.home'), href: '/' },
             { label: t('nav.dashboard'), href: '/dashboard' },
             { label: t('nav.admin'), href: '/dashboard/admin' },
-            { label: t(domainDef?.labelKey ?? domain), href: `/dashboard/admin/${domain}` },
+            {
+              label: t(domainDef?.labelKey ?? domain, { ns: 'admin' }),
+              href: `/dashboard/admin/${domain}`,
+            },
           ]}
         />
 
@@ -43,7 +46,7 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
             {DomainIcon && <DomainIcon className="w-8 h-8 text-indigo-600" />}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {t(domainDef?.labelKey ?? domain)}
+                {t(domainDef?.labelKey ?? domain, { ns: 'admin' })}
               </h1>
               <p className="text-sm text-gray-500">{domainDef?.description}</p>
             </div>
@@ -52,7 +55,7 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
             href="/dashboard/admin"
             className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
           >
-            &larr; {t('domains.back')}
+            &larr; {t('domains.back', { ns: 'admin' })}
           </Link>
         </div>
 
