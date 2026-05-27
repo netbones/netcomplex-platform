@@ -14,7 +14,6 @@ import {
   Settings,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { ADMIN_DOMAINS } from '../model/spaces';
 
 /**
  * Admin management domain definition.
@@ -112,12 +111,44 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
  */
 export function AdminSubLauncher() {
   const { t } = useTranslation('admin');
+
+  const handleUsersClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const toggle = document.getElementById('users-section-toggle');
+    if (toggle) {
+      toggle.scrollIntoView({ behavior: 'smooth' });
+      toggle.click();
+    }
+  };
+
   return (
     <div className="mt-8">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('domains.heading')}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {ADMIN_DOMAIN_DEFINITIONS.map(domain => {
           const DomainIcon = domain.icon;
+          if (domain.id === 'users') {
+            return (
+              <button
+                key={domain.id}
+                onClick={handleUsersClick}
+                className="group flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100 text-left w-full"
+                type="button"
+              >
+                <div className="flex-shrink-0 p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition">
+                  <DomainIcon className="w-6 h-6 text-indigo-600" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition">
+                    {t(domain.labelKey)}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                    {t(domain.descriptionKey)}
+                  </p>
+                </div>
+              </button>
+            );
+          }
           return (
             <Link
               key={domain.id}

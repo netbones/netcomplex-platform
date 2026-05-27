@@ -34,7 +34,7 @@ const residentTypeOptions = ['OWNER', 'RENTER', 'SUSPENDED'];
 
 export function UsersListSection() {
   const { t } = useTranslation('admin');
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);

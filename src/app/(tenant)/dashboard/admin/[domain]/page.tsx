@@ -8,6 +8,7 @@ import { ADMIN_DOMAINS, getAdminDomainWidgets } from '@widgets/dashboard/model/s
 import { ADMIN_DOMAIN_DEFINITIONS } from '@widgets/dashboard/ui/AdminSubLauncher';
 import { WidgetRenderer } from '@widgets/dashboard';
 import { ErrorBoundary, Breadcrumbs } from '@shared/ui';
+import { UsersListSection } from '@widgets/admin/ui/UsersListSection';
 
 interface AdminDomainPageProps {
   params: Promise<{ domain: string }>;
@@ -71,6 +72,9 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
             </ErrorBoundary>
           ))}
         </div>
+
+        {/* Users domain: render inline users table below widgets */}
+        {domain === 'users' && <UsersListSection />}
       </div>
     </div>
   );
