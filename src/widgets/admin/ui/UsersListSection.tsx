@@ -177,6 +177,7 @@ export function UsersListSection() {
     portfolioName: '',
   });
   const [removingUser, setRemovingUser] = useState<User | null>(null);
+  const [removingSeatAddress, setRemovingSeatAddress] = useState<string | null>(null);
   const [removeConfirmText, setRemoveConfirmText] = useState('');
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -446,12 +447,17 @@ export function UsersListSection() {
     if (!seatType) {
       toast.error('Cannot remove a standard seat from here');
       setRemovingUser(null);
+      setRemovingSeatAddress(null);
       return;
     }
     const res = await fetch('/api/seats', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: u.id, seatType }),
+      body: JSON.stringify({
+        userId: u.id,
+        seatType,
+        platformAddress: seatType === 'solo' ? removingSeatAddress : undefined,
+      }),
     });
     if (res.ok) {
       const userRes = await fetch(`/api/users/${u.id}`);
@@ -464,6 +470,8 @@ export function UsersListSection() {
       toast.error('Failed to remove seat');
     }
     setRemovingUser(null);
+    setRemovingSeatAddress(null);
+    setRemoveConfirmText('');
   };
 
   return (
@@ -713,6 +721,9 @@ export function UsersListSection() {
                                           <button
                                             onClick={e => {
                                               e.stopPropagation();
+                                              const seatAddr =
+                                                u.soloSeats?.[0]?.platformAddress || null;
+                                              setRemovingSeatAddress(seatAddr);
                                               setRemoveConfirmText('');
                                               setRemovingUser(u);
                                             }}
@@ -891,8 +902,24 @@ export function UsersListSection() {
                                       </p>
                                       <ul className="space-y-1">
                                         {u.soloSeats.slice(1).map((s, i) => (
-                                          <li key={i} className="text-xs text-gray-500 font-mono">
-                                            {s.platformAddress}
+                                          <li
+                                            key={i}
+                                            className="text-xs text-gray-500 font-mono flex items-center gap-2"
+                                          >
+                                            <span>{s.platformAddress}</span>
+                                            <button
+                                              onClick={e => {
+                                                e.stopPropagation();
+                                                setRemovingSeatAddress(s.platformAddress);
+                                                setRemoveConfirmText('');
+                                                setRemovingUser(u);
+                                              }}
+                                              className="text-red-400 hover:text-red-600"
+                                              type="button"
+                                              title={`Remove ${s.platformAddress}`}
+                                            >
+                                              <X className="w-3 h-3" />
+                                            </button>
                                           </li>
                                         ))}
                                       </ul>
@@ -939,6 +966,9 @@ export function UsersListSection() {
                                       <button
                                         onClick={e => {
                                           e.stopPropagation();
+                                          const seatAddr =
+                                            u.soloSeats?.[0]?.platformAddress || null;
+                                          setRemovingSeatAddress(seatAddr);
                                           setRemoveConfirmText('');
                                           setRemovingUser(u);
                                         }}
@@ -1342,6 +1372,7 @@ export function UsersListSection() {
                 onClick={() => {
                   setRemovingUser(null);
                   setRemoveConfirmText('');
+                  setRemovingSeatAddress(null);
                   setAllocSeatType('solo');
                 }}
                 type="button"
@@ -1352,6 +1383,11 @@ export function UsersListSection() {
             <p className="mb-4">
               Remove seat for <strong>{removingUser.name}</strong>? This cannot be undone.
             </p>
+            {removingSeatAddress && (
+              <p className="text-sm text-amber-700 mb-2">
+                Vanity address: <strong>{removingSeatAddress}</strong>
+              </p>
+            )}
             <p className="text-sm text-gray-600 mb-4">
               Type <strong>{removingUser.name}</strong> to confirm:
             </p>
@@ -1367,6 +1403,7 @@ export function UsersListSection() {
                 onClick={() => {
                   setRemovingUser(null);
                   setRemoveConfirmText('');
+                  setRemovingSeatAddress(null);
                   setAllocSeatType('solo');
                 }}
                 className="flex-1 bg-gray-200 py-2 rounded-lg hover:bg-gray-300"
@@ -1375,7 +1412,10 @@ export function UsersListSection() {
                 {t('cancel')}
               </button>
               <button
-                onClick={handleRemoveSeat}
+                onClick={() => {
+                  handleRemoveSeat();
+                  setRemovingSeatAddress(null);
+                }}
                 disabled={removeConfirmText !== removingUser.name}
                 className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 type="button"

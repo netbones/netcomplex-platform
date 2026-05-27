@@ -119,17 +119,20 @@ export async function DELETE(request: Request) {
 
   const { tenantId } = await withTenant();
   const body = await request.json();
-  const { userId, seatType } = body;
+  const { userId, seatType, platformAddress } = body;
 
   if (!userId || !seatType) {
     return NextResponse.json({ error: 'userId and seatType required' }, { status: 400 });
   }
 
   if (seatType === 'solo') {
-    const [seat] = await db
+    const conditions = [eq(soloSeats.userId, userId), eq(soloSeats.tenantId, tenantId)];
+    if (platformAddress) conditions.push(eq(soloSeats.platformAddress, platformAddress));
+
+    const seat = await db
       .select({ id: soloSeats.id })
       .from(soloSeats)
-      .where(and(eq(soloSeats.userId, userId), eq(soloSeats.tenantId, tenantId)))
+      .where(and(...conditions))
       .limit(1);
 
     if (!seat) {
