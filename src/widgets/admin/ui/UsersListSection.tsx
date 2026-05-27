@@ -61,6 +61,7 @@ export function UsersListSection() {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
     if (filterType !== 'all') params.set('residentType', filterType);
+    params.set('limit', '200');
     Promise.all([
       fetch(`/api/users?${params}`).then(r => r.json()),
       fetch('/api/invitations').then(r => r.json()),
