@@ -638,7 +638,7 @@ export function UsersListSection() {
                                               +Solo
                                             </button>
                                           )}
-                                          {u.standardSeats?.length && !u.premiumSeat && (
+                                          {(u.standardSeats?.length ?? 0) > 0 && !u.premiumSeat && (
                                             <button
                                               onClick={e => {
                                                 e.stopPropagation();
@@ -691,7 +691,7 @@ export function UsersListSection() {
                                             +Solo
                                           </button>
                                         )}
-                                        {u.standardSeats?.length && !u.premiumSeat && (
+                                        {(u.standardSeats?.length ?? 0) > 0 && !u.premiumSeat && (
                                           <button
                                             onClick={e => {
                                               e.stopPropagation();
@@ -917,7 +917,7 @@ export function UsersListSection() {
                                         Allocate Solo Seat
                                       </button>
                                     )}
-                                    {u.standardSeats?.length && !u.premiumSeat && (
+                                    {(u.standardSeats?.length ?? 0) > 0 && !u.premiumSeat && (
                                       <button
                                         onClick={e => {
                                           e.stopPropagation();
