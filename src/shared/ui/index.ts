@@ -12,6 +12,7 @@ export * from './ImageUpload';
 export * from './LanguageSwitcher';
 export * from './Loading';
 export * from './MediaLibrary';
+export * from './ModalOverlay';
 export * from './Pagination';
 export * from './RichTextEditor';
 export * from './RichTextRenderer';
