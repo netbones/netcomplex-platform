@@ -353,6 +353,20 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase: 32-users-list-refactor
+
+**Goal:** Break the 1,431-line UsersListSection.tsx into maintainable sub-components each under 500 lines — extract types to entity layer, pure helpers to lib/, data fetch to custom hook, 5 modal dialogs to separate components using shared ModalOverlay, table into row/edit-row/table components, slim orchestrator under 300 lines
+
+**Status:** Planning Complete
+
+**Requirements:** REFACTOR-01, REFACTOR-02, REFACTOR-03
+
+**Plans:** 1 plan
+
+- [ ] 32-01-PLAN.md — Extract types/helpers/hook/ModalOverlay, then extract modals + table components + slim orchestrator (Wave 1)
+
+---
+
 ## Future Phases (To Be Planned)
 
 ### Phase: Second Tenant
