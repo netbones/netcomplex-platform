@@ -166,6 +166,7 @@ export const COMMUNITY_ITEMS = MORE_DROPDOWN_ITEMS;
 export const ADMIN_ITEMS: NavItem[] = [
   {
     href: '/admin',
+    adminLabelKey: 'dashboard',
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'admin',
@@ -173,7 +174,7 @@ export const ADMIN_ITEMS: NavItem[] = [
   },
   {
     href: '/admin/users',
-    adminLabelKey: 'admin.users',
+    adminLabelKey: 'users',
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'users',
@@ -181,7 +182,7 @@ export const ADMIN_ITEMS: NavItem[] = [
   },
   {
     href: '/admin/groups',
-    adminLabelKey: 'admin.adminGroups',
+    adminLabelKey: 'groups',
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'groups',
@@ -189,7 +190,7 @@ export const ADMIN_ITEMS: NavItem[] = [
   },
   {
     href: '/admin/content',
-    adminLabelKey: 'admin.adminContent',
+    adminLabelKey: 'content',
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'content',
@@ -197,7 +198,7 @@ export const ADMIN_ITEMS: NavItem[] = [
   },
   {
     href: '/admin/requests',
-    adminLabelKey: 'admin.requests',
+    adminLabelKey: 'requests',
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'requests',
@@ -205,7 +206,7 @@ export const ADMIN_ITEMS: NavItem[] = [
   },
   {
     href: '/admin/surveys',
-    adminLabelKey: 'admin.adminSurveys',
+    adminLabelKey: 'surveys',
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'content',
@@ -213,7 +214,7 @@ export const ADMIN_ITEMS: NavItem[] = [
   },
   {
     href: '/admin/external-surveys',
-    adminLabelKey: 'admin.adminExternal',
+    adminLabelKey: 'externalSurveys',
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'content',
@@ -221,7 +222,7 @@ export const ADMIN_ITEMS: NavItem[] = [
   },
   {
     href: '/admin/categories',
-    adminLabelKey: 'admin.adminCategories',
+    adminLabelKey: 'categories',
     labelKey: 'nav.admin',
     section: 'admin',
     permissionKey: 'content',

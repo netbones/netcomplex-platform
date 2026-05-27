@@ -101,7 +101,7 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
  * on the admin space page.
  */
 export function AdminSubLauncher() {
-  const { t } = useTranslation();
+  const { t } = useTranslation('admin');
   return (
     <div className="mt-8">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Management Domains</h2>
