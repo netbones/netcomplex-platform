@@ -191,7 +191,7 @@ export function UsersListSection() {
   };
 
   const handleDelete = async () => {
-    if (confirmText !== `remove ${deleteUser?.name}`) return;
+    if (confirmText !== deleteUser?.name) return;
     await fetch(`/api/users/${deleteUser?.id}`, { method: 'DELETE' });
     setUsers(users.filter(u => u.id !== deleteUser?.id));
     setDeleteUser(null);
@@ -200,7 +200,7 @@ export function UsersListSection() {
   };
 
   const handleSuspend = async () => {
-    if (confirmText !== `suspend ${suspendUser?.name}`) return;
+    if (confirmText !== suspendUser?.name) return;
     const res = await fetch(`/api/users/${suspendUser?.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -562,14 +562,13 @@ export function UsersListSection() {
               {t('removeConfirm')} <strong>{deleteUser.name}</strong>? {t('cannotUndo')}
             </p>
             <p className="text-sm text-gray-600 mb-4">
-              {t('typeToConfirm')}{' '}
-              <code className="bg-gray-100 px-1">remove {deleteUser.name}</code>
+              {t('typeToConfirm')} <strong>{deleteUser.name}</strong>:
             </p>
             <input
               type="text"
               value={confirmText}
               onChange={e => setConfirmText(e.target.value)}
-              placeholder={`remove ${deleteUser.name}`}
+              placeholder={deleteUser.name}
               className="w-full border rounded-lg px-3 py-2 mb-4"
             />
             <div className="flex gap-4">
@@ -584,7 +583,7 @@ export function UsersListSection() {
               </button>
               <button
                 onClick={handleDelete}
-                disabled={confirmText !== `remove ${deleteUser.name}`}
+                disabled={confirmText !== deleteUser.name}
                 className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('removeUser')}
@@ -613,14 +612,13 @@ export function UsersListSection() {
               {t('suspendConfirm')} <strong>{suspendUser.name}</strong>? {t('loseAccess')}
             </p>
             <p className="text-sm text-gray-600 mb-4">
-              {t('typeToConfirm')}{' '}
-              <code className="bg-gray-100 px-1">suspend {suspendUser.name}</code>
+              {t('typeToConfirm')} <strong>{suspendUser.name}</strong>:
             </p>
             <input
               type="text"
               value={confirmText}
               onChange={e => setConfirmText(e.target.value)}
-              placeholder={`suspend ${suspendUser.name}`}
+              placeholder={suspendUser.name}
               className="w-full border rounded-lg px-3 py-2 mb-4"
             />
             <div className="flex gap-4">
@@ -635,7 +633,7 @@ export function UsersListSection() {
               </button>
               <button
                 onClick={handleSuspend}
-                disabled={confirmText !== `suspend ${suspendUser.name}`}
+                disabled={confirmText !== suspendUser.name}
                 className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('suspendUser')}
