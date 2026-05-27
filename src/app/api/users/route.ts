@@ -1,6 +1,15 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
-import { db, users, profiles, standardSeats, soloSeats, properties, households } from '@api/db';
+import {
+  db,
+  users,
+  profiles,
+  standardSeats,
+  soloSeats,
+  premiumSeats,
+  properties,
+  households,
+} from '@api/db';
 import { NextResponse } from 'next/server';
 import { eq, and, or, asc, ilike, count, ne, sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
@@ -126,6 +135,7 @@ export async function GET(request: Request) {
             homeImage: properties.homeImage,
           },
           isPrimaryOwner: standardSeats.isPrimaryOwner,
+          platformAddress: standardSeats.platformAddress,
         })
         .from(standardSeats)
         .innerJoin(properties, eq(standardSeats.propertyId, properties.id))
@@ -142,10 +152,25 @@ export async function GET(request: Request) {
             homeImage: properties.homeImage,
           },
           seatType: soloSeats.seatType,
+          platformAddress: soloSeats.platformAddress,
         })
         .from(soloSeats)
         .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
         .where(eq(soloSeats.userId, user.id))
+        .limit(1);
+
+      // Get premiumSeat
+
+      const premiumSeat = await db
+        .select({
+          id: premiumSeats.id,
+          platformAddress: premiumSeats.platformAddress,
+          portfolioName: premiumSeats.portfolioName,
+          tier: premiumSeats.tier,
+          isActive: premiumSeats.isActive,
+        })
+        .from(premiumSeats)
+        .where(eq(premiumSeats.userId, user.id))
         .limit(1);
 
       // Get active profiles with household, property, and landlord
@@ -185,6 +210,7 @@ export async function GET(request: Request) {
         ...user,
         standardSeats: seats,
         soloSeat: soloSeat[0] || null,
+        premiumSeat: premiumSeat[0] || null,
         profiles: userProfiles,
       };
     })

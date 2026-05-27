@@ -22,14 +22,30 @@ interface PropertyInfo {
   unit: string;
 }
 
+interface PropertyInfo {
+  id: string;
+  street: string;
+  unit: string;
+}
+
 interface StandardSeat {
   property: PropertyInfo;
   isPrimaryOwner: boolean;
+  platformAddress: string;
 }
 
 interface SoloSeat {
   property: PropertyInfo;
   seatType: string;
+  platformAddress: string;
+}
+
+interface PremiumSeat {
+  id: string;
+  platformAddress: string;
+  portfolioName: string | null;
+  tier: string | null;
+  isActive: boolean | null;
 }
 
 interface UserProfile {
@@ -53,7 +69,39 @@ interface User {
   isPlatformAdmin?: boolean;
   standardSeats: StandardSeat[];
   soloSeat: SoloSeat | null;
+  premiumSeat: PremiumSeat | null;
   profiles: UserProfile[];
+}
+
+interface SeatInfo {
+  label: string;
+  labelClass: string;
+  address: string;
+}
+
+function resolveSeatInfo(u: User): SeatInfo | null {
+  if (u.premiumSeat) {
+    return {
+      label: 'Premium',
+      labelClass: 'bg-purple-100 text-purple-800',
+      address: u.premiumSeat.platformAddress,
+    };
+  }
+  if (u.soloSeat) {
+    return {
+      label: 'Vanity',
+      labelClass: 'bg-amber-100 text-amber-800',
+      address: u.soloSeat.platformAddress,
+    };
+  }
+  if (u.standardSeats?.length && u.standardSeats[0]?.platformAddress) {
+    return {
+      label: 'Standard',
+      labelClass: 'bg-blue-100 text-blue-800',
+      address: u.standardSeats[0].platformAddress,
+    };
+  }
+  return null;
 }
 
 interface Invitation {
@@ -425,6 +473,7 @@ export function UsersListSection() {
                           t('name'),
                           t('email'),
                           t('address'),
+                          t('seat'),
                           t('type'),
                           t('role'),
                           t('status'),
@@ -442,7 +491,7 @@ export function UsersListSection() {
                     <tbody className="divide-y divide-gray-200">
                       {filteredUsers.length === 0 ? (
                         <tr>
-                          <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
+                          <td colSpan={8} className="px-4 py-8 text-center text-sm text-gray-500">
                             {t('search') === 'Search...' ? 'No users found' : t('search')}
                           </td>
                         </tr>
@@ -457,6 +506,24 @@ export function UsersListSection() {
                               <td className="px-4 py-3 text-sm text-gray-500">{u.email}</td>
                               <td className="px-4 py-3 text-sm text-gray-500">
                                 {resolveAddress(u) || '-'}
+                              </td>
+                              <td className="px-4 py-3 text-sm">
+                                {(() => {
+                                  const si = resolveSeatInfo(u);
+                                  if (!si) return <span className="text-gray-400">&mdash;</span>;
+                                  return (
+                                    <>
+                                      <span
+                                        className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${si.labelClass}`}
+                                      >
+                                        {si.label}
+                                      </span>
+                                      <span className="ml-2 text-gray-500 text-xs">
+                                        {si.address}
+                                      </span>
+                                    </>
+                                  );
+                                })()}
                               </td>
                               <td className="px-4 py-3 text-sm">{resolveType(u) || '-'}</td>
                               <td className="px-4 py-3">
@@ -501,7 +568,7 @@ export function UsersListSection() {
                             </tr>
                             {expandedUserId === u.id && (
                               <tr key={`${u.id}-edit`}>
-                                <td colSpan={7} className="px-6 py-4 bg-gray-50">
+                                <td colSpan={8} className="px-6 py-4 bg-gray-50">
                                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                       <label className="block text-xs font-medium text-gray-600 mb-1">

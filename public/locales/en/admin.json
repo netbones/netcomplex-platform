@@ -37,6 +37,7 @@
   "email": "Email",
   "address": "Address",
   "type": "Type",
+  "seat": "Seat",
   "role": "Role",
   "status": "Status",
   "active": "Active",

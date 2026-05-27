@@ -3,6 +3,7 @@ import {
   users,
   standardSeats,
   soloSeats,
+  premiumSeats,
   properties,
   contents,
   profiles,
@@ -96,6 +97,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         homeImage: properties.homeImage,
       },
       isPrimaryOwner: standardSeats.isPrimaryOwner,
+      platformAddress: standardSeats.platformAddress,
     })
     .from(standardSeats)
     .innerJoin(properties, eq(standardSeats.propertyId, properties.id))
@@ -111,10 +113,24 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         unit: properties.unit,
         homeImage: properties.homeImage,
       },
+      platformAddress: soloSeats.platformAddress,
     })
     .from(soloSeats)
     .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
     .where(eq(soloSeats.userId, userId))
+    .limit(1);
+
+  // Get premiumSeat
+  const premiumSeatResult = await db
+    .select({
+      id: premiumSeats.id,
+      platformAddress: premiumSeats.platformAddress,
+      portfolioName: premiumSeats.portfolioName,
+      tier: premiumSeats.tier,
+      isActive: premiumSeats.isActive,
+    })
+    .from(premiumSeats)
+    .where(eq(premiumSeats.userId, userId))
     .limit(1);
 
   // Get profile-based address (for family members without seats)
@@ -161,6 +177,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     ...user,
     standardSeats: seats,
     soloSeat: soloSeatResult[0] || null,
+    premiumSeat: premiumSeatResult[0] || null,
     profileProperty: profileResult[0]?.property || null,
     contents: localizedContents,
   });
