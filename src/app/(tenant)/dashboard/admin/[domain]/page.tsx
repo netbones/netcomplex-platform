@@ -48,7 +48,9 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
               <h1 className="text-2xl font-bold text-gray-900">
                 {t(domainDef?.labelKey ?? domain, { ns: 'admin' })}
               </h1>
-              <p className="text-sm text-gray-500">{domainDef?.description}</p>
+              <p className="text-sm text-gray-500">
+                {domainDef ? t(domainDef.descriptionKey, { ns: 'admin' }) : ''}
+              </p>
             </div>
           </div>
           <Link

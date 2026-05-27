@@ -15,17 +15,25 @@
   "domains": {
     "heading": "Izizinda zokuPhatha",
     "back": "Buyela ekuPhatheni",
-    "users": { "label": "Abasebenzisi", "desc": "Phatha amalungu omphakathi nezindima" },
-    "maintenance": { "label": "Ukugcina", "desc": "Ukuphathwa kwezicelo zokugcina nokuhlaziywa" },
-    "content": { "label": "Okuqukethwe", "desc": "Ukushicilelwa kokuqukethwe nokumodareyitha" },
-    "events": { "label": "Imicimbi", "desc": "Ukuphathwa kwemicimbi yomphakathi" },
-    "competitions": {
-      "label": "Imincintiswano",
-      "desc": "Ukusethwa kwemin cintiswano nemiphumela"
-    },
-    "resources": { "label": "Izinsiza", "desc": "Ukuphathwa kwezinsiza zomphakathi" },
-    "surveys": { "label": "Amaswihlome", "desc": "Ukudalwa kwamaswihlome nemiphumela" },
-    "announcements": { "label": "Izimemezelo", "desc": "Ukudalwa kwezimemezelo nokuphathwa" },
-    "system": { "label": "Uhlelo", "desc": "Ukumiswa kwesikhulumi nempilo" }
+    "users": "Abasebenzisi",
+    "maintenance": "Ukugcina",
+    "content": "Okuqukethwe",
+    "events": "Imicimbi",
+    "competitions": "Imincintiswano",
+    "resources": "Izinsiza",
+    "surveys": "Amaswihlome",
+    "announcements": "Izimemezelo",
+    "system": "Uhlelo",
+    "descriptions": {
+      "users": "Phatha amalungu omphakathi nezindima",
+      "maintenance": "Ukuphathwa kwezicelo zokugcina nokuhlaziywa",
+      "content": "Ukushicilelwa kokuqukethwe nokumodareyitha",
+      "events": "Ukuphathwa kwemicimbi yomphakathi",
+      "competitions": "Ukusethwa kwemin cintiswano nemiphumela",
+      "resources": "Ukuphathwa kwezinsiza zomphakathi",
+      "surveys": "Ukudalwa kwamaswihlome nemiphumela",
+      "announcements": "Ukudalwa kwezimemezelo nokuphathwa",
+      "system": "Ukumiswa kwesikhulumi nempilo"
+    }
   }
 }

@@ -15,17 +15,25 @@
   "domains": {
     "heading": "Management Domains",
     "back": "Back to Admin",
-    "users": { "label": "Users", "desc": "Manage community members and roles" },
-    "maintenance": {
-      "label": "Maintenance",
-      "desc": "Maintenance request management and analytics"
-    },
-    "content": { "label": "Content", "desc": "Content publishing and moderation" },
-    "events": { "label": "Events", "desc": "Community event management" },
-    "competitions": { "label": "Competitions", "desc": "Competition setup and results" },
-    "resources": { "label": "Resources", "desc": "Community resource management" },
-    "surveys": { "label": "Surveys", "desc": "Survey creation and results" },
-    "announcements": { "label": "Announcements", "desc": "Announcement creation and management" },
-    "system": { "label": "System", "desc": "Platform configuration and health" }
+    "users": "Users",
+    "maintenance": "Maintenance",
+    "content": "Content",
+    "events": "Events",
+    "competitions": "Competitions",
+    "resources": "Resources",
+    "surveys": "Surveys",
+    "announcements": "Announcements",
+    "system": "System",
+    "descriptions": {
+      "users": "Manage community members and roles",
+      "maintenance": "Maintenance request management and analytics",
+      "content": "Content publishing and moderation",
+      "events": "Community event management",
+      "competitions": "Competition setup and results",
+      "resources": "Community resource management",
+      "surveys": "Survey creation and results",
+      "announcements": "Announcement creation and management",
+      "system": "Platform configuration and health"
+    }
   }
 }
