@@ -36,55 +36,55 @@ export interface AdminDomainDef {
 export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
   {
     id: 'users',
-    labelKey: 'admin.domains.users',
+    labelKey: 'domains.users',
     icon: Users,
     description: 'Manage community members and roles',
   },
   {
     id: 'maintenance',
-    labelKey: 'admin.domains.maintenance',
+    labelKey: 'domains.maintenance',
     icon: Wrench,
     description: 'Maintenance request management and analytics',
   },
   {
     id: 'content',
-    labelKey: 'admin.domains.content',
+    labelKey: 'domains.content',
     icon: FileText,
     description: 'Content publishing and moderation',
   },
   {
     id: 'events',
-    labelKey: 'admin.domains.events',
+    labelKey: 'domains.events',
     icon: Calendar,
     description: 'Community event management',
   },
   {
     id: 'competitions',
-    labelKey: 'admin.domains.competitions',
+    labelKey: 'domains.competitions',
     icon: Star,
     description: 'Competition setup and results',
   },
   {
     id: 'resources',
-    labelKey: 'admin.domains.resources',
+    labelKey: 'domains.resources',
     icon: FolderOpen,
     description: 'Community resource management',
   },
   {
     id: 'surveys',
-    labelKey: 'admin.domains.surveys',
+    labelKey: 'domains.surveys',
     icon: BarChart2,
     description: 'Survey creation and results',
   },
   {
     id: 'announcements',
-    labelKey: 'admin.domains.announcements',
+    labelKey: 'domains.announcements',
     icon: Megaphone,
     description: 'Announcement creation and management',
   },
   {
     id: 'system',
-    labelKey: 'admin.domains.system',
+    labelKey: 'domains.system',
     icon: Settings,
     description: 'Platform configuration and health',
   },
@@ -104,7 +104,7 @@ export function AdminSubLauncher() {
   const { t } = useTranslation('admin');
   return (
     <div className="mt-8">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Management Domains</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('domains.heading')}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {ADMIN_DOMAIN_DEFINITIONS.map(domain => {
           const DomainIcon = domain.icon;

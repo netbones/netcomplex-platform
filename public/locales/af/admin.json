@@ -13,6 +13,7 @@
   "categories": "Belangengroep Kategorieë",
   "externalSurveys": "Eksterne Opnames",
   "domains": {
+    "heading": "Bestuursdomeine",
     "users": "Gebruikers",
     "maintenance": "Instandhouding",
     "content": "Inhoud",

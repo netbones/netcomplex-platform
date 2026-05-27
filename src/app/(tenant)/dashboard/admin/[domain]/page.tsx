@@ -14,7 +14,7 @@ interface AdminDomainPageProps {
 }
 
 export default function AdminDomainPage({ params }: AdminDomainPageProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['admin', 'common']);
   const { domain } = use(params);
 
   // Validate domain
@@ -31,9 +31,9 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Breadcrumbs
           items={[
-            { label: 'Home', href: '/' },
-            { label: 'Dashboard', href: '/dashboard' },
-            { label: 'Admin', href: '/dashboard/admin' },
+            { label: t('nav.home'), href: '/' },
+            { label: t('nav.dashboard'), href: '/dashboard' },
+            { label: t('nav.admin'), href: '/dashboard/admin' },
             { label: t(domainDef?.labelKey ?? domain), href: `/dashboard/admin/${domain}` },
           ]}
         />

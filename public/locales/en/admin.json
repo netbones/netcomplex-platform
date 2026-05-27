@@ -13,6 +13,7 @@
   "categories": "Interest Group Categories",
   "externalSurveys": "External Surveys",
   "domains": {
+    "heading": "Management Domains",
     "users": "Users",
     "maintenance": "Maintenance",
     "content": "Content",
