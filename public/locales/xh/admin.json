@@ -15,14 +15,17 @@
   "domains": {
     "heading": "Imimandla yoLawulo",
     "back": "Buyela kuLawulo",
-    "users": "Abasebenzisi",
-    "maintenance": "Umolondolozi",
-    "content": "Umxholo",
-    "events": "Imisitho",
-    "competitions": "Ukhuphiswano",
-    "resources": "Imitlalo",
-    "surveys": "iSurveys",
-    "announcements": "Izibhengezo",
-    "system": "Inkqubo"
+    "users": { "label": "Abasebenzisi", "desc": "Lawula amalungu oluntu kunye neendima" },
+    "maintenance": {
+      "label": "Umolondolozi",
+      "desc": "Ul awulo lwezicelo zokugcina kunye nohlalutyo"
+    },
+    "content": { "label": "Umxholo", "desc": "Ukupapashwa komxholo kunye nokumodareyitha" },
+    "events": { "label": "Imisitho", "desc": "Ul awulo lweziganeko zoluntu" },
+    "competitions": { "label": "Ukhuphiswano", "desc": "Uku setwa kokhuphiswano kunye neziphumo" },
+    "resources": { "label": "Imitlalo", "desc": "Ul awulo lwemithombo yoluntu" },
+    "surveys": { "label": "iSurveys", "desc": "Ukuyilwa kovavanyo kunye neziphumo" },
+    "announcements": { "label": "Izibhengezo", "desc": "Ukuyilwa kwezibhengezo kunye nolawulo" },
+    "system": { "label": "Inkqubo", "desc": "Uqwalaselo lweqonga kunye nempilo" }
   }
 }

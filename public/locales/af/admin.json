@@ -15,14 +15,17 @@
   "domains": {
     "heading": "Bestuursdomeine",
     "back": "Terug na Admin",
-    "users": "Gebruikers",
-    "maintenance": "Instandhouding",
-    "content": "Inhoud",
-    "events": "Gebeurtenisse",
-    "competitions": "Kompetisies",
-    "resources": "Hulpbronne",
-    "surveys": "Opnames",
-    "announcements": "Aankondigings",
-    "system": "Stelsel"
+    "users": { "label": "Gebruikers", "desc": "Bestuur gemeenskapslede en rolle" },
+    "maintenance": {
+      "label": "Instandhouding",
+      "desc": "Instandhoudingsversoekbestuur en ontleding"
+    },
+    "content": { "label": "Inhoud", "desc": "Inhoudpublisering en moderering" },
+    "events": { "label": "Gebeurtenisse", "desc": "Gemeenskapsgebeurtenisbestuur" },
+    "competitions": { "label": "Kompetisies", "desc": "Kompetisieopstelling en uitslae" },
+    "resources": { "label": "Hulpbronne", "desc": "Gemeenskapshulpbronbestuur" },
+    "surveys": { "label": "Opnames", "desc": "Opnameskepping en uitslae" },
+    "announcements": { "label": "Aankondigings", "desc": "Aankondigingskepping en bestuur" },
+    "system": { "label": "Stelsel", "desc": "Platformkonfigurasie en gesondheid" }
   }
 }

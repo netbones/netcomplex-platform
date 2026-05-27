@@ -23,6 +23,7 @@ import { ADMIN_DOMAINS } from '../model/spaces';
 export interface AdminDomainDef {
   id: string;
   labelKey: string;
+  descriptionKey: string;
   icon: LucideIcon;
   description: string;
 }
@@ -36,55 +37,64 @@ export interface AdminDomainDef {
 export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
   {
     id: 'users',
-    labelKey: 'domains.users',
+    labelKey: 'domains.users.label',
+    descriptionKey: 'domains.users.desc',
     icon: Users,
     description: 'Manage community members and roles',
   },
   {
     id: 'maintenance',
-    labelKey: 'domains.maintenance',
+    labelKey: 'domains.maintenance.label',
+    descriptionKey: 'domains.maintenance.desc',
     icon: Wrench,
     description: 'Maintenance request management and analytics',
   },
   {
     id: 'content',
-    labelKey: 'domains.content',
+    labelKey: 'domains.content.label',
+    descriptionKey: 'domains.content.desc',
     icon: FileText,
     description: 'Content publishing and moderation',
   },
   {
     id: 'events',
-    labelKey: 'domains.events',
+    labelKey: 'domains.events.label',
+    descriptionKey: 'domains.events.desc',
     icon: Calendar,
     description: 'Community event management',
   },
   {
     id: 'competitions',
-    labelKey: 'domains.competitions',
+    labelKey: 'domains.competitions.label',
+    descriptionKey: 'domains.competitions.desc',
     icon: Star,
     description: 'Competition setup and results',
   },
   {
     id: 'resources',
-    labelKey: 'domains.resources',
+    labelKey: 'domains.resources.label',
+    descriptionKey: 'domains.resources.desc',
     icon: FolderOpen,
     description: 'Community resource management',
   },
   {
     id: 'surveys',
-    labelKey: 'domains.surveys',
+    labelKey: 'domains.surveys.label',
+    descriptionKey: 'domains.surveys.desc',
     icon: BarChart2,
     description: 'Survey creation and results',
   },
   {
     id: 'announcements',
-    labelKey: 'domains.announcements',
+    labelKey: 'domains.announcements.label',
+    descriptionKey: 'domains.announcements.desc',
     icon: Megaphone,
     description: 'Announcement creation and management',
   },
   {
     id: 'system',
-    labelKey: 'domains.system',
+    labelKey: 'domains.system.label',
+    descriptionKey: 'domains.system.desc',
     icon: Settings,
     description: 'Platform configuration and health',
   },
@@ -121,7 +131,9 @@ export function AdminSubLauncher() {
                 <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition">
                   {t(domain.labelKey)}
                 </h3>
-                <p className="text-xs text-gray-500 mt-1 line-clamp-2">{domain.description}</p>
+                <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                  {t(domain.descriptionKey)}
+                </p>
               </div>
             </Link>
           );
