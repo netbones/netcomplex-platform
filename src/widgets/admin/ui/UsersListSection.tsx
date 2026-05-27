@@ -20,12 +20,7 @@ interface PropertyInfo {
   id: string;
   street: string;
   unit: string;
-}
-
-interface PropertyInfo {
-  id: string;
-  street: string;
-  unit: string;
+  platformAddress?: string;
 }
 
 interface StandardSeat {
@@ -68,7 +63,7 @@ interface User {
   interests: string[];
   isPlatformAdmin?: boolean;
   standardSeats: StandardSeat[];
-  soloSeat: SoloSeat | null;
+  soloSeats: SoloSeat[];
   premiumSeat: PremiumSeat | null;
   profiles: UserProfile[];
 }
@@ -79,7 +74,7 @@ interface SeatInfo {
   address: string;
 }
 
-function resolveSeatInfo(u: User): SeatInfo | null {
+function resolveSeatInfo(u: User): SeatInfo {
   if (u.premiumSeat) {
     return {
       label: 'Premium',
@@ -87,11 +82,11 @@ function resolveSeatInfo(u: User): SeatInfo | null {
       address: u.premiumSeat.platformAddress,
     };
   }
-  if (u.soloSeat) {
+  if (u.soloSeats?.[0]) {
     return {
-      label: 'Vanity',
+      label: u.soloSeats.length > 1 ? `Vanity (${u.soloSeats.length})` : 'Vanity',
       labelClass: 'bg-amber-100 text-amber-800',
-      address: u.soloSeat.platformAddress,
+      address: u.soloSeats[0].platformAddress,
     };
   }
   if (u.standardSeats?.length && u.standardSeats[0]?.platformAddress) {
@@ -101,7 +96,9 @@ function resolveSeatInfo(u: User): SeatInfo | null {
       address: u.standardSeats[0].platformAddress,
     };
   }
-  return null;
+  const pAddr = u.profiles?.[0]?.property?.platformAddress;
+  if (pAddr) return { label: '', labelClass: '', address: pAddr };
+  return { label: '', labelClass: '', address: '' };
 }
 
 interface Invitation {
@@ -123,8 +120,8 @@ function resolveAddress(u: User): string {
     const p = seat.property;
     return p.unit ? `${p.street} ${p.unit}` : p.street;
   }
-  if (u.soloSeat?.property?.street) {
-    const p = u.soloSeat.property;
+  if (u.soloSeats?.[0]?.property?.street) {
+    const p = u.soloSeats[0].property;
     return p.unit ? `${p.street} ${p.unit}` : p.street;
   }
   const profile = u.profiles?.[0];
@@ -141,7 +138,7 @@ function resolveType(u: User): string {
   if (profileOccupant === 'RENTER') return 'Renter';
   if (u.standardSeats?.length && u.standardSeats[0]?.isPrimaryOwner) return 'Owner';
   if (u.standardSeats?.length) return 'Resident';
-  if (u.soloSeat) return 'Board';
+  if (u.soloSeats?.length) return 'Board';
   if (u.profiles?.length) return 'Resident';
   return '';
 }
@@ -172,13 +169,15 @@ export function UsersListSection() {
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [editingForm, setEditingForm] = useState<Record<string, string | string[] | boolean>>({});
   const [saving, setSaving] = useState<string | null>(null);
-  const [allocatingSeat, setAllocatingSeat] = useState<'solo' | 'premium' | null>(null);
+  const [allocatingUser, setAllocatingUser] = useState<User | null>(null);
+  const [allocSeatType, setAllocSeatType] = useState<'solo' | 'premium'>('solo');
   const [allocForm, setAllocForm] = useState({
     platformAddress: '',
     soloSeatType: 'RESIDENT',
     portfolioName: '',
   });
-  const [removingSeat, setRemovingSeat] = useState<string | null>(null);
+  const [removingUser, setRemovingUser] = useState<User | null>(null);
+  const [removeConfirmText, setRemoveConfirmText] = useState('');
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -369,8 +368,10 @@ export function UsersListSection() {
                   }),
                   platformAddress,
                 };
-              } else if (type === 'solo' && x.soloSeat) {
-                merged.soloSeat = { ...x.soloSeat, platformAddress };
+              } else if (type === 'solo' && x.soloSeats?.length) {
+                const seats = [...x.soloSeats];
+                if (seats.length) seats[0] = { ...seats[0], platformAddress };
+                merged.soloSeats = seats;
               } else if (type === 'standard' && x.standardSeats?.length) {
                 const seats = [...x.standardSeats];
                 if (seats.length) seats[0] = { ...seats[0], platformAddress };
@@ -402,46 +403,49 @@ export function UsersListSection() {
     }
   };
 
-  const handleAllocateSeat = async (u: User) => {
-    if (!allocatingSeat) return;
+  const handleAllocateSeat = async () => {
+    const u = allocatingUser;
+    if (!u) return;
     const res = await fetch('/api/seats', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         userId: u.id,
-        seatType: allocatingSeat,
+        seatType: allocSeatType,
         platformAddress: allocForm.platformAddress,
-        soloSeatType: allocatingSeat === 'solo' ? allocForm.soloSeatType : undefined,
-        portfolioName: allocatingSeat === 'premium' ? allocForm.portfolioName || null : undefined,
+        soloSeatType: allocSeatType === 'solo' ? allocForm.soloSeatType : undefined,
+        portfolioName: allocSeatType === 'premium' ? allocForm.portfolioName || null : undefined,
       }),
     });
     if (res.ok) {
-      // Refetch user data to get updated seat info
       const userRes = await fetch(`/api/users/${u.id}`);
       if (userRes.ok) {
         const updatedUser = await userRes.json();
         setUsers(users.map(x => (x.id === u.id ? { ...x, ...updatedUser } : x)));
       }
-      toast.success(allocatingSeat === 'solo' ? 'Solo seat allocated' : 'Premium seat allocated');
+      toast.success(allocSeatType === 'solo' ? 'Solo seat allocated' : 'Premium seat allocated');
     } else {
       const err = await res.json();
       toast.error(err.error || 'Failed to allocate seat');
     }
-    setAllocatingSeat(null);
+    setAllocatingUser(null);
+    setAllocSeatType('solo');
     setAllocForm({ platformAddress: '', soloSeatType: 'RESIDENT', portfolioName: '' });
   };
 
-  const handleRemoveSeat = async (u: User) => {
+  const handleRemoveSeat = async () => {
+    const u = removingUser;
+    if (!u || removeConfirmText !== u.name) return;
     const si = resolveSeatInfo(u);
     if (!si) return;
-    const seatType =
-      si.label.toLowerCase() === 'vanity'
-        ? 'solo'
-        : si.label.toLowerCase() === 'premium'
-          ? 'premium'
-          : null;
+    const seatType = si.label.toLowerCase().startsWith('vanity')
+      ? 'solo'
+      : si.label.toLowerCase() === 'premium'
+        ? 'premium'
+        : null;
     if (!seatType) {
       toast.error('Cannot remove a standard seat from here');
+      setRemovingUser(null);
       return;
     }
     const res = await fetch('/api/seats', {
@@ -459,7 +463,7 @@ export function UsersListSection() {
     } else {
       toast.error('Failed to remove seat');
     }
-    setRemovingSeat(null);
+    setRemovingUser(null);
   };
 
   return (
@@ -611,18 +615,116 @@ export function UsersListSection() {
                               <td className="px-4 py-3 text-sm">
                                 {(() => {
                                   const si = resolveSeatInfo(u);
-                                  if (!si) return <span className="text-gray-400">&mdash;</span>;
+                                  if (!si.label && !si.address) {
+                                    return (
+                                      <div className="flex items-center gap-1">
+                                        <span className="text-gray-400">&mdash;</span>
+                                        <div className="flex items-center gap-1">
+                                          {!u.soloSeats?.length && (
+                                            <button
+                                              onClick={e => {
+                                                e.stopPropagation();
+                                                setAllocatingUser(u);
+                                                setAllocSeatType('solo');
+                                                setAllocForm(f => ({
+                                                  ...f,
+                                                  platformAddress: `${u.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`,
+                                                  portfolioName: '',
+                                                }));
+                                              }}
+                                              className="px-1.5 py-0.5 text-xs border border-amber-300 text-amber-700 rounded hover:bg-amber-50"
+                                              type="button"
+                                            >
+                                              +Solo
+                                            </button>
+                                          )}
+                                          {u.standardSeats?.length && !u.premiumSeat && (
+                                            <button
+                                              onClick={e => {
+                                                e.stopPropagation();
+                                                setAllocatingUser(u);
+                                                setAllocSeatType('premium');
+                                                setAllocForm(f => ({
+                                                  ...f,
+                                                  platformAddress: `${u.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`,
+                                                  portfolioName: '',
+                                                }));
+                                              }}
+                                              className="px-1.5 py-0.5 text-xs border border-purple-300 text-purple-700 rounded hover:bg-purple-50"
+                                              type="button"
+                                            >
+                                              +Premium
+                                            </button>
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  }
                                   return (
-                                    <>
-                                      <span
-                                        className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${si.labelClass}`}
-                                      >
-                                        {si.label}
-                                      </span>
-                                      <span className="ml-2 text-gray-500 text-xs">
-                                        {si.address}
-                                      </span>
-                                    </>
+                                    <div className="flex items-center gap-1 flex-wrap">
+                                      {si.label && (
+                                        <span
+                                          className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${si.labelClass}`}
+                                        >
+                                          {si.label}
+                                        </span>
+                                      )}
+                                      {si.address && (
+                                        <span className="text-gray-500 text-xs">{si.address}</span>
+                                      )}
+                                      <div className="flex items-center gap-1">
+                                        {!u.soloSeats?.length && (
+                                          <button
+                                            onClick={e => {
+                                              e.stopPropagation();
+                                              setAllocatingUser(u);
+                                              setAllocSeatType('solo');
+                                              setAllocForm(f => ({
+                                                ...f,
+                                                platformAddress: `${u.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`,
+                                                portfolioName: '',
+                                              }));
+                                            }}
+                                            className="px-1.5 py-0.5 text-xs border border-amber-300 text-amber-700 rounded hover:bg-amber-50"
+                                            type="button"
+                                          >
+                                            +Solo
+                                          </button>
+                                        )}
+                                        {u.standardSeats?.length && !u.premiumSeat && (
+                                          <button
+                                            onClick={e => {
+                                              e.stopPropagation();
+                                              setAllocatingUser(u);
+                                              setAllocSeatType('premium');
+                                              setAllocForm(f => ({
+                                                ...f,
+                                                platformAddress: `${u.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`,
+                                                portfolioName: '',
+                                              }));
+                                            }}
+                                            className="px-1.5 py-0.5 text-xs border border-purple-300 text-purple-700 rounded hover:bg-purple-50"
+                                            type="button"
+                                          >
+                                            +Premium
+                                          </button>
+                                        )}
+                                        {(u.soloSeats?.length || u.premiumSeat) && (
+                                          <button
+                                            onClick={e => {
+                                              e.stopPropagation();
+                                              setRemoveConfirmText('');
+                                              setRemovingUser(u);
+                                            }}
+                                            className="p-0.5 text-red-400 hover:text-red-600"
+                                            title="Remove seat"
+                                            type="button"
+                                          >
+                                            <X className="w-3.5 h-3.5" />
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
                                   );
                                 })()}
                               </td>
@@ -751,9 +853,11 @@ export function UsersListSection() {
                                       <div className="flex items-center gap-3">
                                         {(() => {
                                           const si = resolveSeatInfo(u);
-                                          if (!si)
+                                          if (!si.label)
                                             return (
-                                              <span className="text-sm text-gray-400">None</span>
+                                              <span className="text-sm text-gray-400">
+                                                Household
+                                              </span>
                                             );
                                           return (
                                             <span
@@ -780,175 +884,71 @@ export function UsersListSection() {
                                       />
                                     </div>
                                   </div>
+                                  {u.soloSeats?.length > 1 && (
+                                    <div className="mt-2">
+                                      <p className="text-xs font-medium text-gray-600 mb-1">
+                                        Additional Vanity Addresses ({u.soloSeats.length - 1})
+                                      </p>
+                                      <ul className="space-y-1">
+                                        {u.soloSeats.slice(1).map((s, i) => (
+                                          <li key={i} className="text-xs text-gray-500 font-mono">
+                                            {s.platformAddress}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
                                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                                    {(() => {
-                                      const si = resolveSeatInfo(u);
-                                      if (si) {
-                                        const isRemovable =
-                                          si.label === 'Vanity' || si.label === 'Premium';
-                                        return (
-                                          <>
-                                            {isRemovable && (
-                                              <button
-                                                onClick={e => {
-                                                  e.stopPropagation();
-                                                  setRemovingSeat(u.id);
-                                                }}
-                                                className="px-3 py-1 text-xs border border-red-300 text-red-600 rounded hover:bg-red-50"
-                                                type="button"
-                                              >
-                                                Remove {si.label} Seat
-                                              </button>
-                                            )}
-                                          </>
-                                        );
-                                      }
-                                      return (
-                                        <>
-                                          <button
-                                            onClick={e => {
-                                              e.stopPropagation();
-                                              setAllocatingSeat('solo');
-                                              setAllocForm(f => ({
-                                                ...f,
-                                                platformAddress: `${u.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`,
-                                              }));
-                                            }}
-                                            className="px-3 py-1 text-xs border border-amber-300 text-amber-700 rounded hover:bg-amber-50"
-                                            type="button"
-                                          >
-                                            Allocate Solo Seat
-                                          </button>
-                                          <button
-                                            onClick={e => {
-                                              e.stopPropagation();
-                                              setAllocatingSeat('premium');
-                                              setAllocForm(f => ({
-                                                ...f,
-                                                platformAddress: `${u.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`,
-                                              }));
-                                            }}
-                                            className="px-3 py-1 text-xs border border-purple-300 text-purple-700 rounded hover:bg-purple-50"
-                                            type="button"
-                                          >
-                                            Allocate Premium Seat
-                                          </button>
-                                        </>
-                                      );
-                                    })()}
+                                    {!u.soloSeats?.length && (
+                                      <button
+                                        onClick={e => {
+                                          e.stopPropagation();
+                                          setAllocatingUser(u);
+                                          setAllocSeatType('solo');
+                                          setAllocForm(f => ({
+                                            ...f,
+                                            platformAddress: `${u.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`,
+                                            portfolioName: '',
+                                          }));
+                                        }}
+                                        className="px-3 py-1 text-xs border border-amber-300 text-amber-700 rounded hover:bg-amber-50"
+                                        type="button"
+                                      >
+                                        Allocate Solo Seat
+                                      </button>
+                                    )}
+                                    {u.standardSeats?.length && !u.premiumSeat && (
+                                      <button
+                                        onClick={e => {
+                                          e.stopPropagation();
+                                          setAllocatingUser(u);
+                                          setAllocSeatType('premium');
+                                          setAllocForm(f => ({
+                                            ...f,
+                                            platformAddress: `${u.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`,
+                                            portfolioName: '',
+                                          }));
+                                        }}
+                                        className="px-3 py-1 text-xs border border-purple-300 text-purple-700 rounded hover:bg-purple-50"
+                                        type="button"
+                                      >
+                                        Allocate Premium Seat
+                                      </button>
+                                    )}
+                                    {(u.soloSeats?.length || u.premiumSeat) && (
+                                      <button
+                                        onClick={e => {
+                                          e.stopPropagation();
+                                          setRemoveConfirmText('');
+                                          setRemovingUser(u);
+                                        }}
+                                        className="px-3 py-1 text-xs border border-red-300 text-red-600 rounded hover:bg-red-50"
+                                        type="button"
+                                      >
+                                        Remove Seat
+                                      </button>
+                                    )}
                                   </div>
-
-                                  {allocatingSeat && (
-                                    <div className="mt-3 p-3 border border-amber-200 rounded-lg bg-amber-50">
-                                      <p className="text-xs font-semibold text-amber-800 mb-2">
-                                        Allocate {allocatingSeat === 'solo' ? 'Solo' : 'Premium'}{' '}
-                                        Seat
-                                      </p>
-                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                        <div>
-                                          <label className="block text-xs text-gray-600 mb-1">
-                                            Platform Address
-                                          </label>
-                                          <input
-                                            type="text"
-                                            value={allocForm.platformAddress}
-                                            onChange={e =>
-                                              setAllocForm(f => ({
-                                                ...f,
-                                                platformAddress: e.target.value,
-                                              }))
-                                            }
-                                            className="w-full border rounded px-2 py-1 text-sm font-mono"
-                                          />
-                                        </div>
-                                        {allocatingSeat === 'solo' && (
-                                          <div>
-                                            <label className="block text-xs text-gray-600 mb-1">
-                                              Seat Type
-                                            </label>
-                                            <select
-                                              value={allocForm.soloSeatType}
-                                              onChange={e =>
-                                                setAllocForm(f => ({
-                                                  ...f,
-                                                  soloSeatType: e.target.value,
-                                                }))
-                                              }
-                                              className="w-full border rounded px-2 py-1 text-sm"
-                                            >
-                                              <option value="RESIDENT">Resident</option>
-                                              <option value="MEMBER">Member</option>
-                                            </select>
-                                          </div>
-                                        )}
-                                        {allocatingSeat === 'premium' && (
-                                          <div>
-                                            <label className="block text-xs text-gray-600 mb-1">
-                                              Portfolio Name (optional)
-                                            </label>
-                                            <input
-                                              type="text"
-                                              value={allocForm.portfolioName}
-                                              onChange={e =>
-                                                setAllocForm(f => ({
-                                                  ...f,
-                                                  portfolioName: e.target.value,
-                                                }))
-                                              }
-                                              className="w-full border rounded px-2 py-1 text-sm"
-                                            />
-                                          </div>
-                                        )}
-                                      </div>
-                                      <div className="flex gap-2 mt-2">
-                                        <button
-                                          onClick={() => {
-                                            setAllocatingSeat(null);
-                                            setAllocForm(f => ({
-                                              ...f,
-                                              platformAddress: '',
-                                              portfolioName: '',
-                                            }));
-                                          }}
-                                          className="px-3 py-1 text-xs border rounded hover:bg-gray-100"
-                                          type="button"
-                                        >
-                                          Cancel
-                                        </button>
-                                        <button
-                                          onClick={() => handleAllocateSeat(u)}
-                                          className="px-3 py-1 text-xs bg-amber-600 text-white rounded hover:bg-amber-700"
-                                          type="button"
-                                        >
-                                          Confirm
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {removingSeat === u.id && (
-                                    <div className="mt-3 p-3 border border-red-200 rounded-lg bg-red-50">
-                                      <p className="text-xs text-red-800 mb-2">
-                                        Remove this seat? This cannot be undone.
-                                      </p>
-                                      <div className="flex gap-2">
-                                        <button
-                                          onClick={() => setRemovingSeat(null)}
-                                          className="px-3 py-1 text-xs border rounded hover:bg-gray-100"
-                                          type="button"
-                                        >
-                                          Cancel
-                                        </button>
-                                        <button
-                                          onClick={() => handleRemoveSeat(u)}
-                                          className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
-                                          type="button"
-                                        >
-                                          Remove
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
                                   <div className="flex flex-wrap gap-4 mt-3">
                                     <label className="flex items-center gap-2 text-sm">
                                       <input
@@ -1235,6 +1235,152 @@ export function UsersListSection() {
                 className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {t('suspendUser')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {allocatingUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold">
+                Allocate {allocSeatType === 'solo' ? 'Solo' : 'Premium'} Seat
+              </h2>
+              <button
+                onClick={() => {
+                  setAllocatingUser(null);
+                  setAllocSeatType('solo');
+                  setAllocForm({
+                    platformAddress: '',
+                    soloSeatType: 'RESIDENT',
+                    portfolioName: '',
+                  });
+                }}
+                type="button"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="mb-4 text-sm text-gray-600">
+              User: <strong>{allocatingUser.name}</strong>
+            </p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Platform Address</label>
+                <input
+                  type="text"
+                  value={allocForm.platformAddress}
+                  onChange={e => setAllocForm(f => ({ ...f, platformAddress: e.target.value }))}
+                  className="w-full border rounded-lg px-3 py-2 text-sm font-mono"
+                  placeholder="e.g. unit183@soralia.org"
+                />
+              </div>
+              {allocSeatType === 'solo' && (
+                <div>
+                  <label className="block text-sm font-medium mb-1">Seat Type</label>
+                  <select
+                    value={allocForm.soloSeatType}
+                    onChange={e => setAllocForm(f => ({ ...f, soloSeatType: e.target.value }))}
+                    className="w-full border rounded-lg px-3 py-2 text-sm"
+                  >
+                    <option value="RESIDENT">Resident</option>
+                    <option value="MEMBER">Member</option>
+                  </select>
+                </div>
+              )}
+              {allocSeatType === 'premium' && (
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Portfolio Name (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={allocForm.portfolioName}
+                    onChange={e => setAllocForm(f => ({ ...f, portfolioName: e.target.value }))}
+                    className="w-full border rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
+              )}
+            </div>
+            <div className="flex gap-4 mt-6">
+              <button
+                onClick={() => {
+                  setAllocatingUser(null);
+                  setAllocSeatType('solo');
+                  setAllocForm({
+                    platformAddress: '',
+                    soloSeatType: 'RESIDENT',
+                    portfolioName: '',
+                  });
+                }}
+                className="flex-1 bg-gray-200 py-2 rounded-lg hover:bg-gray-300"
+                type="button"
+              >
+                {t('cancel')}
+              </button>
+              <button
+                onClick={handleAllocateSeat}
+                disabled={!allocForm.platformAddress}
+                className="flex-1 bg-amber-600 text-white py-2 rounded-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                type="button"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {removingUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-red-600">Remove Seat</h2>
+              <button
+                onClick={() => {
+                  setRemovingUser(null);
+                  setRemoveConfirmText('');
+                  setAllocSeatType('solo');
+                }}
+                type="button"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="mb-4">
+              Remove seat for <strong>{removingUser.name}</strong>? This cannot be undone.
+            </p>
+            <p className="text-sm text-gray-600 mb-4">
+              Type <strong>{removingUser.name}</strong> to confirm:
+            </p>
+            <input
+              type="text"
+              value={removeConfirmText}
+              onChange={e => setRemoveConfirmText(e.target.value)}
+              placeholder={removingUser.name}
+              className="w-full border rounded-lg px-3 py-2 mb-4"
+            />
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setRemovingUser(null);
+                  setRemoveConfirmText('');
+                  setAllocSeatType('solo');
+                }}
+                className="flex-1 bg-gray-200 py-2 rounded-lg hover:bg-gray-300"
+                type="button"
+              >
+                {t('cancel')}
+              </button>
+              <button
+                onClick={handleRemoveSeat}
+                disabled={removeConfirmText !== removingUser.name}
+                className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                type="button"
+              >
+                Remove
               </button>
             </div>
           </div>

@@ -88,7 +88,7 @@ export const usersRelations = relations(users, helpers => ({
     relationName: 'propertyListing_ownerIdTouser',
   }),
   session: helpers.many(sessions, { relationName: 'sessionTouser' }),
-  soloSeat: helpers.one(soloSeats),
+  soloSeat: helpers.many(soloSeats, { relationName: 'soloSeatTouser' }),
   standardSeat: helpers.many(standardSeats, { relationName: 'standardSeatTouser' }),
   twoFactor: helpers.many(twoFactors, { relationName: 'twoFactorTouser' }),
 }));

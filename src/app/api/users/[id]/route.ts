@@ -104,7 +104,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .where(eq(standardSeats.userId, userId));
 
   // Get soloSeat with property
-  const soloSeatResult = await db
+  const soloSeatsResult = await db
     .select({
       seatType: soloSeats.seatType,
       household: {
@@ -117,8 +117,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     })
     .from(soloSeats)
     .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
-    .where(eq(soloSeats.userId, userId))
-    .limit(1);
+    .where(eq(soloSeats.userId, userId));
 
   // Get premiumSeat
   const premiumSeatResult = await db
@@ -141,6 +140,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         street: properties.street,
         unit: properties.unit,
         homeImage: properties.homeImage,
+        platformAddress: properties.platformAddress,
       },
     })
     .from(profiles)
@@ -176,7 +176,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   return NextResponse.json({
     ...user,
     standardSeats: seats,
-    soloSeat: soloSeatResult[0] || null,
+    soloSeats: soloSeatsResult,
     premiumSeat: premiumSeatResult[0] || null,
     profileProperty: profileResult[0]?.property || null,
     contents: localizedContents,
@@ -276,7 +276,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         .select({ id: soloSeats.id })
         .from(soloSeats)
         .where(eq(soloSeats.userId, id))
-        .limit(1);
+        .limit(1)
+        .orderBy(soloSeats.createdAt);
 
       if (solo) {
         await db.update(soloSeats).set({ platformAddress: addr }).where(eq(soloSeats.id, solo.id));

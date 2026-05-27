@@ -792,7 +792,7 @@ model session {
 model soloSeat {
   id                  String       @id
   tenantId            String
-  userId              String       @unique
+  userId              String
   platformAddress     String       @unique
   propertyId          String?
   seatType            SoloSeatType
@@ -893,7 +893,7 @@ model user {
   propertyListing_propertyListing_assignedAgentIdTouser propertyListing[]         @relation("propertyListing_assignedAgentIdTouser")
   propertyListing_propertyListing_ownerIdTouser         propertyListing[]         @relation("propertyListing_ownerIdTouser")
   session                                               session[]
-  soloSeat                                              soloSeat?
+  soloSeat                                              soloSeat[]
   standardSeat                                          standardSeat[]
   twoFactor                                             twoFactor[]
 }

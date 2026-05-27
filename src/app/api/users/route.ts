@@ -143,7 +143,7 @@ export async function GET(request: Request) {
 
       // Get soloSeat with property
 
-      const soloSeat = await db
+      const soloSeatsResult = await db
         .select({
           property: {
             id: properties.id,
@@ -156,8 +156,7 @@ export async function GET(request: Request) {
         })
         .from(soloSeats)
         .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
-        .where(eq(soloSeats.userId, user.id))
-        .limit(1);
+        .where(eq(soloSeats.userId, user.id));
 
       // Get premiumSeat
 
@@ -187,11 +186,7 @@ export async function GET(request: Request) {
             street: properties.street,
             unit: properties.unit,
             homeImage: properties.homeImage,
-          },
-          landlord: {
-            id: users.id,
-            name: users.name,
-            avatar: users.avatar,
+            platformAddress: properties.platformAddress,
           },
         })
         .from(profiles)
@@ -209,7 +204,7 @@ export async function GET(request: Request) {
       return {
         ...user,
         standardSeats: seats,
-        soloSeat: soloSeat[0] || null,
+        soloSeats: soloSeatsResult,
         premiumSeat: premiumSeat[0] || null,
         profiles: userProfiles,
       };

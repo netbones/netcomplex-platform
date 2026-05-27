@@ -41,13 +41,15 @@ export async function POST(request: Request) {
 
   // Check if user already has a seat of this type
   if (seatType === 'solo') {
-    const [existing] = await db
+    const existing = await db
       .select({ id: soloSeats.id })
       .from(soloSeats)
-      .where(eq(soloSeats.userId, userId))
-      .limit(1);
-    if (existing) {
-      return NextResponse.json({ error: 'User already has a soloSeat' }, { status: 409 });
+      .where(eq(soloSeats.userId, userId));
+    if (existing.length >= 5) {
+      return NextResponse.json(
+        { error: 'User already has 5 soloSeats (maximum)' },
+        { status: 409 }
+      );
     }
 
     const seat = await db
