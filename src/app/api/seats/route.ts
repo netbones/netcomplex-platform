@@ -52,6 +52,19 @@ export async function POST(request: Request) {
       );
     }
 
+    // Check platformAddress uniqueness
+    const [existingAddr] = await db
+      .select({ id: soloSeats.id })
+      .from(soloSeats)
+      .where(eq(soloSeats.platformAddress, platformAddress))
+      .limit(1);
+    if (existingAddr) {
+      return NextResponse.json(
+        { error: `Platform address "${platformAddress}" is already allocated to another user` },
+        { status: 409 }
+      );
+    }
+
     const seat = await db
       .insert(soloSeats)
       .values({

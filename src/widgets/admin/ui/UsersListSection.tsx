@@ -84,7 +84,7 @@ function resolveSeatInfo(u: User): SeatInfo {
   }
   if (u.soloSeats?.[0]) {
     return {
-      label: u.soloSeats.length > 1 ? `Vanity (${u.soloSeats.length})` : 'Vanity',
+      label: `Vanity (${u.soloSeats.length})`,
       labelClass: 'bg-amber-100 text-amber-800',
       address: u.soloSeats[0].platformAddress,
     };
@@ -620,7 +620,7 @@ export function UsersListSection() {
                                       <div className="flex items-center gap-1">
                                         <span className="text-gray-400">&mdash;</span>
                                         <div className="flex items-center gap-1">
-                                          {!u.soloSeats?.length && (
+                                          {(u.soloSeats?.length ?? 0) < 5 && (
                                             <button
                                               onClick={e => {
                                                 e.stopPropagation();
@@ -673,7 +673,7 @@ export function UsersListSection() {
                                         <span className="text-gray-500 text-xs">{si.address}</span>
                                       )}
                                       <div className="flex items-center gap-1">
-                                        {!u.soloSeats?.length && (
+                                        {(u.soloSeats?.length ?? 0) < 5 && (
                                           <button
                                             onClick={e => {
                                               e.stopPropagation();
@@ -899,7 +899,7 @@ export function UsersListSection() {
                                     </div>
                                   )}
                                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                                    {!u.soloSeats?.length && (
+                                    {(u.soloSeats?.length ?? 0) < 5 && (
                                       <button
                                         onClick={e => {
                                           e.stopPropagation();
