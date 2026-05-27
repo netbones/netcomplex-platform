@@ -46,6 +46,9 @@
   "residentType": "Inwonertipe",
   "cancel": "Kanselleer",
   "search": "Soek...",
+  "save": "Stoor",
+  "phone": "Foon",
+  "interests": "Belangstellings",
   "loading": "Laai...",
   "domains": {
     "heading": "Bestuursdomeine",

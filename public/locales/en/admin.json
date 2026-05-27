@@ -46,6 +46,9 @@
   "residentType": "Resident Type",
   "cancel": "Cancel",
   "search": "Search...",
+  "save": "Save",
+  "phone": "Phone",
+  "interests": "Interests",
   "loading": "Loading...",
   "domains": {
     "heading": "Management Domains",

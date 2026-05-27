@@ -1,10 +1,20 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@shared/ui';
 import { toast } from 'sonner';
-import { ChevronDown, ChevronRight, UserPlus, X, Trash2, Search } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronRight,
+  UserPlus,
+  X,
+  Trash2,
+  Search,
+  Save,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 
 interface PropertyInfo {
   id: string;
@@ -32,8 +42,15 @@ interface User {
   id: string;
   name: string;
   email: string;
+  phone: string | null;
   role: string;
   isActive: boolean;
+  isPublic: boolean;
+  showEmail: boolean;
+  showPhone: boolean;
+  profileSlug: string | null;
+  interests: string[];
+  isPlatformAdmin?: boolean;
   standardSeats: StandardSeat[];
   soloSeat: SoloSeat | null;
   profiles: UserProfile[];
@@ -104,6 +121,9 @@ export function UsersListSection() {
     residentType: 'OWNER',
     role: 'RESIDENT',
   });
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+  const [editingForm, setEditingForm] = useState<Record<string, string | string[] | boolean>>({});
+  const [saving, setSaving] = useState<string | null>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -218,6 +238,67 @@ export function UsersListSection() {
     }
     setSuspendUser(null);
     setConfirmText('');
+  };
+
+  const handleRowClick = (u: User) => {
+    if (expandedUserId === u.id) {
+      setExpandedUserId(null);
+      setEditingForm({});
+    } else {
+      setExpandedUserId(u.id);
+      setEditingForm({
+        name: u.name,
+        email: u.email,
+        phone: u.phone ?? '',
+        profileSlug: u.profileSlug ?? '',
+        interests: u.interests ?? [],
+        isPublic: u.isPublic ?? true,
+        showEmail: u.showEmail ?? true,
+        showPhone: u.showPhone ?? true,
+      });
+    }
+  };
+
+  const handleFieldChange = (field: string, value: string | boolean | string[]) => {
+    setEditingForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveUser = async (u: User) => {
+    setSaving(u.id);
+    const payload: Record<string, unknown> = {};
+    if (editingForm.name !== u.name) payload.name = editingForm.name;
+    if (editingForm.email !== u.email) payload.email = editingForm.email;
+    if (editingForm.phone !== (u.phone ?? '')) payload.phone = editingForm.phone;
+    if (editingForm.profileSlug !== (u.profileSlug ?? ''))
+      payload.profileSlug = editingForm.profileSlug;
+    if (editingForm.isPublic !== u.isPublic) payload.isPublic = editingForm.isPublic;
+    if (editingForm.showEmail !== u.showEmail) payload.showEmail = editingForm.showEmail;
+    if (editingForm.showPhone !== u.showPhone) payload.showPhone = editingForm.showPhone;
+    if (JSON.stringify(editingForm.interests) !== JSON.stringify(u.interests ?? [])) {
+      payload.interests = editingForm.interests;
+    }
+    if (Object.keys(payload).length === 0) {
+      setSaving(null);
+      toast.success(t('userUpdated'));
+      return;
+    }
+    try {
+      const res = await fetch(`/api/users/${u.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setUsers(users.map(x => (x.id === u.id ? { ...x, ...updated } : x)));
+        toast.success(t('userUpdated'));
+      } else {
+        toast.error(t('inviteFailed'));
+      }
+    } catch {
+      toast.error(t('inviteFailed'));
+    }
+    setSaving(null);
   };
 
   const handleActivate = async (user: User) => {
@@ -367,47 +448,189 @@ export function UsersListSection() {
                         </tr>
                       ) : (
                         filteredUsers.map(u => (
-                          <tr key={u.id} className="hover:bg-gray-50">
-                            <td className="px-4 py-3 text-sm">{u.name}</td>
-                            <td className="px-4 py-3 text-sm text-gray-500">{u.email}</td>
-                            <td className="px-4 py-3 text-sm text-gray-500">
-                              {resolveAddress(u) || '-'}
-                            </td>
-                            <td className="px-4 py-3 text-sm">{resolveType(u) || '-'}</td>
-                            <td className="px-4 py-3">
-                              <select
-                                value={u.role || 'RESIDENT'}
-                                onChange={e => updateUser(u.id, { role: e.target.value })}
-                                className="text-sm border rounded px-2 py-1"
-                              >
-                                {roleOptions.map(r => (
-                                  <option key={r} value={r}>
-                                    {r}
-                                  </option>
-                                ))}
-                              </select>
-                            </td>
-                            <td className="px-4 py-3">
-                              <button
-                                onClick={
-                                  u.isActive === true
-                                    ? () => setSuspendUser(u)
-                                    : () => handleActivate(u)
-                                }
-                                className={`px-2 py-1 rounded text-sm ${u.isActive === true ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
-                              >
-                                {u.isActive === true ? t('active') : t('suspended')}
-                              </button>
-                            </td>
-                            <td className="px-4 py-3">
-                              <button
-                                onClick={() => setDeleteUser(u)}
-                                className="text-red-600 hover:text-red-800"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </td>
-                          </tr>
+                          <Fragment key={u.id}>
+                            <tr
+                              className="hover:bg-gray-50 cursor-pointer"
+                              onClick={() => handleRowClick(u)}
+                            >
+                              <td className="px-4 py-3 text-sm">{u.name}</td>
+                              <td className="px-4 py-3 text-sm text-gray-500">{u.email}</td>
+                              <td className="px-4 py-3 text-sm text-gray-500">
+                                {resolveAddress(u) || '-'}
+                              </td>
+                              <td className="px-4 py-3 text-sm">{resolveType(u) || '-'}</td>
+                              <td className="px-4 py-3">
+                                <select
+                                  value={u.role || 'RESIDENT'}
+                                  onChange={e => updateUser(u.id, { role: e.target.value })}
+                                  className="text-sm border rounded px-2 py-1"
+                                  onClick={e => e.stopPropagation()}
+                                >
+                                  {roleOptions.map(r => (
+                                    <option key={r} value={r}>
+                                      {r}
+                                    </option>
+                                  ))}
+                                </select>
+                              </td>
+                              <td className="px-4 py-3">
+                                <button
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    if (u.isActive === true) setSuspendUser(u);
+                                    else handleActivate(u);
+                                  }}
+                                  className={`px-2 py-1 rounded text-sm ${u.isActive === true ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                                  type="button"
+                                >
+                                  {u.isActive === true ? t('active') : t('suspended')}
+                                </button>
+                              </td>
+                              <td className="px-4 py-3">
+                                <button
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    setDeleteUser(u);
+                                  }}
+                                  className="text-red-600 hover:text-red-800"
+                                  type="button"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </td>
+                            </tr>
+                            {expandedUserId === u.id && (
+                              <tr key={`${u.id}-edit`}>
+                                <td colSpan={7} className="px-6 py-4 bg-gray-50">
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                                        {t('name')}
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={String(editingForm.name ?? '')}
+                                        onChange={e => handleFieldChange('name', e.target.value)}
+                                        className="w-full border rounded px-2 py-1.5 text-sm"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                                        {t('email')}
+                                      </label>
+                                      <input
+                                        type="email"
+                                        value={String(editingForm.email ?? '')}
+                                        onChange={e => handleFieldChange('email', e.target.value)}
+                                        className="w-full border rounded px-2 py-1.5 text-sm"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                                        {t('phone') ?? 'Phone'}
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={String(editingForm.phone ?? '')}
+                                        onChange={e => handleFieldChange('phone', e.target.value)}
+                                        className="w-full border rounded px-2 py-1.5 text-sm"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                                        Profile Slug
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={String(editingForm.profileSlug ?? '')}
+                                        onChange={e =>
+                                          handleFieldChange('profileSlug', e.target.value)
+                                        }
+                                        className="w-full border rounded px-2 py-1.5 text-sm font-mono"
+                                      />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                                        {t('interests') ?? 'Interests'}
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={
+                                          Array.isArray(editingForm.interests)
+                                            ? editingForm.interests.join(', ')
+                                            : ''
+                                        }
+                                        onChange={e =>
+                                          handleFieldChange(
+                                            'interests',
+                                            e.target.value
+                                              .split(',')
+                                              .map(s => s.trim())
+                                              .filter(Boolean)
+                                          )
+                                        }
+                                        placeholder="Comma-separated"
+                                        className="w-full border rounded px-2 py-1.5 text-sm"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-wrap gap-4 mt-3">
+                                    <label className="flex items-center gap-2 text-sm">
+                                      <input
+                                        type="checkbox"
+                                        checked={Boolean(editingForm.isPublic)}
+                                        onChange={e =>
+                                          handleFieldChange('isPublic', e.target.checked)
+                                        }
+                                        className="rounded border-gray-300"
+                                      />
+                                      <span className="flex items-center gap-1">
+                                        {Boolean(editingForm.isPublic) ? (
+                                          <Eye className="w-3.5 h-3.5" />
+                                        ) : (
+                                          <EyeOff className="w-3.5 h-3.5" />
+                                        )}{' '}
+                                        Public Profile
+                                      </span>
+                                    </label>
+                                    <label className="flex items-center gap-2 text-sm">
+                                      <input
+                                        type="checkbox"
+                                        checked={Boolean(editingForm.showEmail)}
+                                        onChange={e =>
+                                          handleFieldChange('showEmail', e.target.checked)
+                                        }
+                                        className="rounded border-gray-300"
+                                      />
+                                      Show Email
+                                    </label>
+                                    <label className="flex items-center gap-2 text-sm">
+                                      <input
+                                        type="checkbox"
+                                        checked={Boolean(editingForm.showPhone)}
+                                        onChange={e =>
+                                          handleFieldChange('showPhone', e.target.checked)
+                                        }
+                                        className="rounded border-gray-300"
+                                      />
+                                      Show Phone
+                                    </label>
+                                  </div>
+                                  <div className="flex justify-end mt-4">
+                                    <button
+                                      onClick={() => handleSaveUser(u)}
+                                      disabled={saving === u.id}
+                                      className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                                      type="button"
+                                    >
+                                      <Save className="w-4 h-4" />
+                                      {saving === u.id ? 'Saving...' : (t('save') ?? 'Save')}
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </Fragment>
                         ))
                       )}
                     </tbody>

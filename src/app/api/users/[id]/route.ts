@@ -178,17 +178,38 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const updateData: Record<string, unknown> = {};
 
+  if (body.name !== undefined) {
+    updateData.name = String(body.name);
+  }
+  if (body.email !== undefined) {
+    updateData.email = String(body.email);
+  }
+  if (body.phone !== undefined) {
+    updateData.phone = String(body.phone);
+  }
   if (body.role) {
     updateData.role = body.role;
   }
   if (body.isActive !== undefined) {
     updateData.isActive = body.isActive === 'true' || body.isActive === true;
   }
+  if (body.isPublic !== undefined) {
+    updateData.isPublic = body.isPublic === 'true' || body.isPublic === true;
+  }
   if (body.showEmail !== undefined) {
     updateData.showEmail = body.showEmail === 'true' || body.showEmail === true;
   }
   if (body.showPhone !== undefined) {
     updateData.showPhone = body.showPhone === 'true' || body.showPhone === true;
+  }
+  if (body.profileSlug !== undefined) {
+    updateData.profileSlug = String(body.profileSlug) || null;
+  }
+  if (body.interests !== undefined) {
+    updateData.interests = Array.isArray(body.interests) ? body.interests : [];
+  }
+  if (body.isPlatformAdmin !== undefined) {
+    updateData.isPlatformAdmin = body.isPlatformAdmin === 'true' || body.isPlatformAdmin === true;
   }
   if (body.dashboardLayout !== undefined) {
     updateData.dashboardLayout = body.dashboardLayout;
