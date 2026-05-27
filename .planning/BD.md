@@ -1,27 +1,35 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-05-17 (Session 3)
-> **Total remaining:** 19 issues (down from 54)
-> **Closed this session:** 35 issues total (22 in Session 1, 5 in Session 2, 8 in Session 3)
+> **Last updated:** 2026-05-27 (Session 4)
+> **Total remaining:** 22 issues (down from 54)
+> **Closed all sessions:** 35 issues total (22 in Session 1, 5 in Session 2, 8 in Session 3, 0 in Session 4)
+> **Created this session:** 3 issues (Phase 30 deferred items)
 
 ## Summary by Priority
 
-| Priority | Open | Focus                         |
-| -------- | ---- | ----------------------------- |
-| P2       | 2    | Core features, epics          |
-| P3       | 11   | Tech debt, Phase 4/5 features |
-| P4       | 6    | Backlog, blocked events       |
+| Priority | Open | Focus                                       |
+| -------- | ---- | ------------------------------------------- |
+| P2       | 3    | Core features, epics, bugs                  |
+| P3       | 13   | Tech debt, Phase 4/5 features, enhancements |
+| P4       | 6    | Backlog, blocked events                     |
 
 ## Summary by Status
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 18    |
+| ○ Open        | 21    |
 | ◐ In Progress | 1     |
 
 ---
 
-## P2 — High Priority (2 issues)
+## P2 — High Priority (3 issues)
+
+### Bugs
+
+| ID    | Type | Title                                                                         | Status | Source              |
+| ----- | ---- | ----------------------------------------------------------------------------- | ------ | ------------------- |
+| `cs5` | bug  | MyHomeSpace: Property not linked despite user having property (183 Pagoda Rd) | ○      | Phase 30 checkpoint |
+| `e0w` | task | Fix route-level cross-tenant data leakage (20 remaining routes)               | ○      | Security audit      |
 
 ### Features & Tasks
 
@@ -37,27 +45,29 @@
 
 ---
 
-## P3 — Medium Priority (11 issues)
+## P3 — Medium Priority (13 issues)
 
 ### Features
 
-| ID    | Type    | Title                         | Status |
-| ----- | ------- | ----------------------------- | ------ |
-| `ltn` | feature | Add request validation plugin | ○      |
-| `7td` | feature | Enable One Tap passkey login  | ○      |
+| ID    | Type    | Title                                                              | Status |
+| ----- | ------- | ------------------------------------------------------------------ | ------ |
+| `ltn` | feature | Add request validation plugin                                      | ○      |
+| `7td` | feature | Enable One Tap passkey login                                       | ○      |
+| `byj` | feature | Add search/filter to AddWidgetModal for space-scoped widget picker | ○      |
 
 ### Tasks
 
-| ID    | Title                                                | Status |
-| ----- | ---------------------------------------------------- | ------ |
-| `jc1` | Implement cookie management for privacy compliance   | ○      |
-| `6d8` | Migrate React imports to Preact and remove dead code | ○      |
-| `gtm` | Phase 5: Notification system                         | ○      |
-| `cp8` | Phase 5: Payment processing                          | ○      |
-| `qx7` | Phase 5: Booking calendar integration                | ○      |
-| `kia` | Phase 4: Advanced analytics                          | ○      |
-| `9e8` | Phase 4: Provider dashboard                          | ○      |
-| `69c` | Phase 4: Third party registration flow               | ○      |
+| ID    | Title                                                 | Status | Source              |
+| ----- | ----------------------------------------------------- | ------ | ------------------- |
+| `ka6` | Design decision: widget placement across Focus Spaces | ○      | Phase 30 checkpoint |
+| `jc1` | Implement cookie management for privacy compliance    | ○      |                     |
+| `6d8` | Migrate React imports to Preact and remove dead code  | ○      |
+| `gtm` | Phase 5: Notification system                          | ○      |
+| `cp8` | Phase 5: Payment processing                           | ○      |
+| `qx7` | Phase 5: Booking calendar integration                 | ○      |
+| `kia` | Phase 4: Advanced analytics                           | ○      |
+| `9e8` | Phase 4: Provider dashboard                           | ○      |
+| `69c` | Phase 4: Third party registration flow                | ○      |
 
 ### In Progress
 
@@ -81,6 +91,14 @@
 ---
 
 ## Closed This Session (28 issues)
+
+### Session 4 - Phase 30 Focus Space Architecture (3 created, 0 closed)
+
+| ID    | Title                                                                         | Reason                                                                                     |
+| ----- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `cs5` | MyHomeSpace: Property not linked despite user having property (183 Pagoda Rd) | Created: deferred from Phase 30 checkpoint — data/linking issue, not architecture bug      |
+| `ka6` | Design decision: widget placement across Focus Spaces                         | Created: deferred from Phase 30 checkpoint — UX decision needed on widget-to-space mapping |
+| `byj` | Add search/filter to AddWidgetModal for space-scoped widget picker            | Created: deferred from Phase 30 checkpoint — enhancement, not a bug                        |
 
 ### Session 3 - Bot Protection & Type Safety (8 issues)
 
@@ -153,8 +171,11 @@
 
 ## Recommended Next Actions
 
-1. **`6d8`** — Migrate React imports to Preact (performance)
-2. **`l23`** — Epic: i18n for all pages (large scope)
-3. **`ltn`** — Add request validation plugin (security)
-4. **`bgb`** — Epic: Interests Visualization (in-progress)
-5. **`7td`** — Enable One Tap passkey login (security)
+1. **`cs5`** — MyHomeSpace property linking bug (user has property but shows "No property linked")
+2. **`ka6`** — Design decision: widget placement across Focus Spaces (UX call needed)
+3. **`6d8`** — Migrate React imports to Preact (performance)
+4. **`l23`** — Epic: i18n for all pages (large scope)
+5. **`ltn`** — Add request validation plugin (security)
+6. **`byj`** — AddWidgetModal search/filter enhancement
+7. **`bgb`** — Epic: Interests Visualization (in-progress)
+8. **`7td`** — Enable One Tap passkey login (security)
