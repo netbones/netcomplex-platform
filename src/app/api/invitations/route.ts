@@ -9,7 +9,12 @@ import { apiLogger } from '@shared/lib';
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 export async function GET() {
-  const invitationList = await db.select().from(invitations).orderBy(desc(invitations.createdAt));
+  const { tenantId } = await withTenant();
+  const invitationList = await db
+    .select()
+    .from(invitations)
+    .where(eq(invitations.tenantId, tenantId))
+    .orderBy(desc(invitations.createdAt));
   return NextResponse.json(invitationList);
 }
 

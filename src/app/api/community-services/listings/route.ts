@@ -27,6 +27,8 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
+    const { tenantId } = await withTenant();
+
     // If id is provided, return single listing
     if (id) {
       // Drizzle query
@@ -69,7 +71,9 @@ export async function GET(request: NextRequest) {
         })
         .from(communityServiceListings)
         .leftJoin(users, eq(communityServiceListings.providerId, users.id))
-        .where(eq(communityServiceListings.id, id))
+        .where(
+          and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+        )
         .limit(1);
 
       if (!listing) {
@@ -89,6 +93,7 @@ export async function GET(request: NextRequest) {
 
     // Build where conditions for list query
     const conditions = [
+      eq(communityServiceListings.tenantId, tenantId),
       eq(communityServiceListings.isPublished, true),
       eq(communityServiceListings.status, 'ACTIVE' as ListingStatus),
     ];

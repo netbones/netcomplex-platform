@@ -229,7 +229,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const [maintenanceRequest] = await db
     .update(maintenanceRequests)
     .set(updates)
-    .where(eq(maintenanceRequests.id, id))
+    .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)))
     .returning();
 
   revalidateDashboard();

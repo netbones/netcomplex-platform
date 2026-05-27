@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
         const existingAlbums = await db
           .select({ id: albums.id })
           .from(albums)
-          .where(eq(albums.userId, userId));
+          .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId)));
 
         if (existingAlbums.length >= 3) {
           return NextResponse.json({ error: 'Maximum 3 albums allowed' }, { status: 400 });
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
         const allAlbums = await db
           .select()
           .from(albums)
-          .where(eq(albums.userId, userId))
+          .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId)))
           .orderBy(desc(albums.createdAt));
 
         return NextResponse.json({ albums: allAlbums });
@@ -67,25 +67,31 @@ export async function POST(request: NextRequest) {
             mediaIds: album.mediaIds || [],
             updatedAt: now,
           })
-          .where(and(eq(albums.id, album.id), eq(albums.userId, userId)))
+          .where(
+            and(eq(albums.id, album.id), eq(albums.tenantId, tenantId), eq(albums.userId, userId))
+          )
           .returning();
 
         const allAlbums = await db
           .select()
           .from(albums)
-          .where(eq(albums.userId, userId))
+          .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId)))
           .orderBy(desc(albums.createdAt));
 
         return NextResponse.json({ albums: allAlbums });
       }
 
       case 'delete': {
-        await db.delete(albums).where(and(eq(albums.id, albumId), eq(albums.userId, userId)));
+        await db
+          .delete(albums)
+          .where(
+            and(eq(albums.id, albumId), eq(albums.tenantId, tenantId), eq(albums.userId, userId))
+          );
 
         const allAlbums = await db
           .select()
           .from(albums)
-          .where(eq(albums.userId, userId))
+          .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId)))
           .orderBy(desc(albums.createdAt));
 
         return NextResponse.json({ albums: allAlbums });
@@ -109,10 +115,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { tenantId } = await withTenant();
+
     const userAlbums = await db
       .select()
       .from(albums)
-      .where(eq(albums.userId, session.user.id))
+      .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, session.user.id)))
       .orderBy(desc(albums.createdAt));
 
     return NextResponse.json({ albums: userAlbums });

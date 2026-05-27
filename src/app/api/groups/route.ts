@@ -1,7 +1,7 @@
 import { auth } from '@api/auth';
 import { hasPermission, Permission } from '@entities/tenant/api/permissions';
 import { db, groups, users, userGroups } from '@api/db';
-import { eq, asc, sql } from 'drizzle-orm';
+import { eq, and, asc, sql } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
@@ -53,6 +53,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  const { tenantId } = await withTenant();
+
   const groupList = await db
     .select({
       id: groups.id,
@@ -70,7 +72,7 @@ export async function GET(request: Request) {
       ownerId: groups.ownerId,
     })
     .from(groups)
-    .where(eq(groups.isActive, true))
+    .where(and(eq(groups.isActive, true), eq(groups.tenantId, tenantId)))
     .orderBy(asc(groups.name));
 
   // Get member counts for each group
@@ -79,7 +81,7 @@ export async function GET(request: Request) {
       const members = await db
         .select({ id: userGroups.id })
         .from(userGroups)
-        .where(eq(userGroups.groupId, group.id));
+        .where(and(eq(userGroups.groupId, group.id), eq(userGroups.tenantId, tenantId)));
 
       return {
         ...group,

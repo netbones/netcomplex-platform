@@ -57,8 +57,12 @@ export async function GET(request: Request) {
   const dateFrom = searchParams.get('dateFrom');
   const dateTo = searchParams.get('dateTo');
 
+  const { tenantId } = await withTenant();
+
   // Build query conditions
-  const conditions: (ReturnType<typeof eq> | ReturnType<typeof sql>)[] = [];
+  const conditions: (ReturnType<typeof eq> | ReturnType<typeof sql>)[] = [
+    eq(maintenanceRequests.tenantId, tenantId),
+  ];
 
   // Filter by user if not admin
   if (!canViewAll) {

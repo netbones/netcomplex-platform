@@ -189,7 +189,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         respondedAt: new Date(),
         updatedAt: new Date(),
       })
-      .where(eq(communityServiceInquiries.id, id));
+      .where(
+        and(eq(communityServiceInquiries.id, id), eq(communityServiceInquiries.tenantId, tenantId))
+      );
 
     // Fetch updated inquiry
     const [updatedInquiry] = await db
@@ -223,7 +225,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         eq(communityServiceInquiries.listingId, communityServiceListings.id)
       )
       .leftJoin(users, eq(communityServiceInquiries.inquirerId, users.id))
-      .where(eq(communityServiceInquiries.id, id))
+      .where(
+        and(eq(communityServiceInquiries.id, id), eq(communityServiceInquiries.tenantId, tenantId))
+      )
       .limit(1);
 
     return NextResponse.json({

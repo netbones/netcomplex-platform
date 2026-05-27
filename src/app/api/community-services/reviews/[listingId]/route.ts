@@ -20,6 +20,8 @@ export async function GET(
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = parseInt(searchParams.get('offset') || '0');
 
+    const { tenantId } = await withTenant();
+
     // Get reviews using Drizzle
     const reviews = await db
       .select({
@@ -44,7 +46,8 @@ export async function GET(
       .where(
         and(
           eq(communityServiceReviews.listingId, listingId),
-          eq(communityServiceReviews.isPublished, true)
+          eq(communityServiceReviews.isPublished, true),
+          eq(communityServiceReviews.tenantId, tenantId)
         )
       )
       .orderBy(desc(communityServiceReviews.createdAt))
@@ -58,7 +61,8 @@ export async function GET(
       .where(
         and(
           eq(communityServiceReviews.listingId, listingId),
-          eq(communityServiceReviews.isPublished, true)
+          eq(communityServiceReviews.isPublished, true),
+          eq(communityServiceReviews.tenantId, tenantId)
         )
       );
 
@@ -75,7 +79,8 @@ export async function GET(
       .where(
         and(
           eq(communityServiceReviews.listingId, listingId),
-          eq(communityServiceReviews.isPublished, true)
+          eq(communityServiceReviews.isPublished, true),
+          eq(communityServiceReviews.tenantId, tenantId)
         )
       );
 
@@ -128,6 +133,9 @@ export async function POST(
       return NextResponse.json({ error: 'Rating must be between 1 and 5' }, { status: 400 });
     }
 
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     // Check if listing exists and is published using Drizzle
     const [listing] = await db
       .select({
@@ -136,7 +144,12 @@ export async function POST(
         providerId: communityServiceListings.providerId,
       })
       .from(communityServiceListings)
-      .where(eq(communityServiceListings.id, listingId))
+      .where(
+        and(
+          eq(communityServiceListings.id, listingId),
+          eq(communityServiceListings.tenantId, tenantId)
+        )
+      )
       .limit(1);
 
     if (!listing || !listing.isPublished) {
@@ -189,7 +202,7 @@ export async function POST(
     });
 
     // Update listing rating
-    await updateListingRating(listingId);
+    await updateListingRating(listingId, tenantId);
 
     // Fetch created review
     const [review] = await db
@@ -232,7 +245,7 @@ export async function POST(
 /**
  * Helper function to update listing rating
  */
-async function updateListingRating(listingId: string) {
+async function updateListingRating(listingId: string, tenantId: string) {
   const [ratingStats] = await db
     .select({
       avgRating: sql<number>`avg(${communityServiceReviews.rating})`,
@@ -253,5 +266,10 @@ async function updateListingRating(listingId: string) {
       reviewCount: ratingStats?.count || 0,
       updatedAt: new Date(),
     })
-    .where(eq(communityServiceListings.id, listingId));
+    .where(
+      and(
+        eq(communityServiceListings.id, listingId),
+        eq(communityServiceListings.tenantId, tenantId)
+      )
+    );
 }

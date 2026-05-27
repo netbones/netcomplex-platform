@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 
 // Drizzle imports - use db.ts exports
 import { db, conversations, conversationParticipants, messages, users } from '@api/db';
-import { eq, desc } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
 export async function GET(request: Request) {
@@ -15,6 +15,8 @@ export async function GET(request: Request) {
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const { tenantId } = await withTenant();
 
   // Get conversations where user is a participant (Drizzle)
   const userConversations = await db
@@ -30,7 +32,12 @@ export async function GET(request: Request) {
       conversationParticipants,
       eq(conversations.id, conversationParticipants.conversationId)
     )
-    .where(eq(conversationParticipants.userId, session.user.id))
+    .where(
+      and(
+        eq(conversationParticipants.userId, session.user.id),
+        eq(conversations.tenantId, tenantId)
+      )
+    )
     .orderBy(desc(conversations.updatedAt));
 
   // For each conversation, get participants and latest message

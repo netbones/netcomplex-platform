@@ -27,8 +27,14 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
+
     // Build conditions
-    const conditions = [eq(communityServiceInquiries.inquirerId, session.user.id)];
+    const conditions = [
+      eq(communityServiceInquiries.tenantId, tenantId),
+      eq(communityServiceInquiries.inquirerId, session.user.id),
+    ];
 
     if (status && status !== 'ALL') {
       conditions.push(eq(communityServiceInquiries.status, status as InquiryStatus));

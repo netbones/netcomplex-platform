@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db, settings } from '@api/db';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { withTenant, withTenantOptional } from '@entities/tenant/api/with-tenant';
 
 export async function GET() {
@@ -29,13 +29,17 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   for (const [key, value] of Object.entries(body)) {
-    const existing = await db.select().from(settings).where(eq(settings.key, key)).limit(1);
+    const existing = await db
+      .select()
+      .from(settings)
+      .where(and(eq(settings.tenantId, tenantId), eq(settings.key, key)))
+      .limit(1);
 
     if (existing[0]) {
       await db
         .update(settings)
         .set({ value: String(value) })
-        .where(eq(settings.key, key));
+        .where(and(eq(settings.tenantId, tenantId), eq(settings.key, key)));
     } else {
       // Generate ID for new setting
       const newId = key.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();

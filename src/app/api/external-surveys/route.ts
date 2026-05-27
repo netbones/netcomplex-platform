@@ -1,7 +1,7 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, externalSurveys, users } from '@api/db';
-import { eq, desc } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
@@ -34,9 +34,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  const { tenantId } = await withTenant();
+
   const surveyList = await db
     .select()
     .from(externalSurveys)
+    .where(eq(externalSurveys.tenantId, tenantId))
     .orderBy(desc(externalSurveys.createdAt));
 
   return NextResponse.json(surveyList);
@@ -80,6 +83,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  const { tenantId } = await withTenant();
   const body = await request.json();
 
   const [survey] = await db
@@ -89,7 +93,7 @@ export async function PATCH(request: Request) {
       isActive: body.isActive,
       updatedAt: new Date(),
     })
-    .where(eq(externalSurveys.id, body.id))
+    .where(and(eq(externalSurveys.id, body.id), eq(externalSurveys.tenantId, tenantId)))
     .returning();
 
   return NextResponse.json(survey);
@@ -102,6 +106,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  const { tenantId } = await withTenant();
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
 
@@ -109,7 +114,9 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'ID required' }, { status: 400 });
   }
 
-  await db.delete(externalSurveys).where(eq(externalSurveys.id, id));
+  await db
+    .delete(externalSurveys)
+    .where(and(eq(externalSurveys.id, id), eq(externalSurveys.tenantId, tenantId)));
 
   return NextResponse.json({ success: true });
 }

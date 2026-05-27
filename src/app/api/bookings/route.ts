@@ -100,8 +100,10 @@ export async function GET(request: Request) {
     date = new Date().toISOString().split('T')[0];
   }
 
+  const { tenantId } = await withTenant();
+
   // Build query conditions
-  const queryConditions = [];
+  const queryConditions = [eq(bookings.tenantId, tenantId)];
 
   // Filter by user if not admin
   if (!canViewAll) {

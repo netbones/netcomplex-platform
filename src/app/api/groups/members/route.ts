@@ -45,9 +45,17 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'Missing userId or groupId' }, { status: 400 });
   }
 
+  const { tenantId } = await withTenant();
+
   await db
     .delete(userGroups)
-    .where(and(eq(userGroups.userId, userId), eq(userGroups.groupId, groupId)));
+    .where(
+      and(
+        eq(userGroups.tenantId, tenantId),
+        eq(userGroups.userId, userId),
+        eq(userGroups.groupId, groupId)
+      )
+    );
 
   return NextResponse.json({ success: true });
 }

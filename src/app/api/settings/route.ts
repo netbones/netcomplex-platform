@@ -2,7 +2,7 @@ import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, users, settings } from '@api/db';
 import { NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
 async function getSessionAndRole(request: Request) {
@@ -37,12 +37,18 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const key = searchParams.get('key');
 
+  const { tenantId } = await withTenant();
+
   if (!key) {
-    const allSettings = await db.select().from(settings);
+    const allSettings = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
     return NextResponse.json(allSettings);
   }
 
-  const settingResult = await db.select().from(settings).where(eq(settings.key, key)).limit(1);
+  const settingResult = await db
+    .select()
+    .from(settings)
+    .where(and(eq(settings.tenantId, tenantId), eq(settings.key, key)))
+    .limit(1);
 
   return NextResponse.json(settingResult[0] || { key, value: null });
 }
