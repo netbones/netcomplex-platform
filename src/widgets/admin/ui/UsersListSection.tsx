@@ -1,10 +1,32 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@shared/ui';
 import { toast } from 'sonner';
 import { ChevronDown, ChevronRight, UserPlus, X, Trash2, Search } from 'lucide-react';
+
+interface PropertyInfo {
+  id: string;
+  street: string;
+  unit: string;
+}
+
+interface StandardSeat {
+  property: PropertyInfo;
+  isPrimaryOwner: boolean;
+}
+
+interface SoloSeat {
+  property: PropertyInfo;
+  seatType: string;
+}
+
+interface UserProfile {
+  occupantType: string;
+  residencyType: string;
+  property: PropertyInfo;
+}
 
 interface User {
   id: string;
@@ -12,11 +34,9 @@ interface User {
   email: string;
   role: string;
   isActive: boolean;
-  standardSeats?: Array<{
-    household: { street: string; unit: string };
-    isPrimaryOwner: boolean;
-  }>;
-  soloSeat?: { seatType: string };
+  standardSeats: StandardSeat[];
+  soloSeat: SoloSeat | null;
+  profiles: UserProfile[];
 }
 
 interface Invitation {
@@ -30,7 +50,36 @@ interface Invitation {
 }
 
 const roleOptions = ['RESIDENT', 'BOARD', 'ADMIN', 'COMMITTEE'];
-const residentTypeOptions = ['OWNER', 'RENTER', 'SUSPENDED'];
+const PAGE_SIZE = 20;
+
+function resolveAddress(u: User): string {
+  const seat = u.standardSeats?.[0];
+  if (seat?.property?.street) {
+    const p = seat.property;
+    return p.unit ? `${p.street} ${p.unit}` : p.street;
+  }
+  if (u.soloSeat?.property?.street) {
+    const p = u.soloSeat.property;
+    return p.unit ? `${p.street} ${p.unit}` : p.street;
+  }
+  const profile = u.profiles?.[0];
+  if (profile?.property?.street) {
+    const p = profile.property;
+    return p.unit ? `${p.street} ${p.unit}` : p.street;
+  }
+  return '';
+}
+
+function resolveType(u: User): string {
+  const profileOccupant = u.profiles?.[0]?.occupantType;
+  if (profileOccupant === 'OWNER') return 'Owner';
+  if (profileOccupant === 'RENTER') return 'Renter';
+  if (u.standardSeats?.length && u.standardSeats[0]?.isPrimaryOwner) return 'Owner';
+  if (u.standardSeats?.length) return 'Resident';
+  if (u.soloSeat) return 'Board';
+  if (u.profiles?.length) return 'Resident';
+  return '';
+}
 
 export function UsersListSection() {
   const { t } = useTranslation('admin');
@@ -41,6 +90,8 @@ export function UsersListSection() {
   const [search, setSearch] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [filterType, setFilterType] = useState('all');
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [showInvite, setShowInvite] = useState(false);
   const [deleteUser, setDeleteUser] = useState<User | null>(null);
   const [suspendUser, setSuspendUser] = useState<User | null>(null);
@@ -59,23 +110,45 @@ export function UsersListSection() {
     if (!isOpen) return;
     setLoading(true);
     const params = new URLSearchParams();
+    params.set('page', String(page));
+    params.set('limit', String(PAGE_SIZE));
     if (search) params.set('search', search);
-    if (filterType !== 'all') params.set('residentType', filterType);
-    params.set('limit', '200');
+    if (filterRole !== 'all') params.set('role', filterRole);
     Promise.all([
       fetch(`/api/users?${params}`).then(r => r.json()),
       fetch('/api/invitations').then(r => r.json()),
     ])
       .then(([usersData, invitesData]) => {
         setUsers(usersData.users || []);
+        setTotal(usersData.total ?? 0);
         setInvitations(invitesData);
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [isOpen, search, filterType]);
+  }, [isOpen, search, filterRole, page]);
 
-  const pendingInvites = invitations.filter(i => i.status === 'PENDING');
-  const filteredUsers = filterRole === 'all' ? users : users.filter(u => u.role === filterRole);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, filterRole]);
+
+  const pendingInvites = useMemo(
+    () => invitations.filter(i => i.status === 'PENDING'),
+    [invitations]
+  );
+
+  const filteredUsers = useMemo(() => {
+    if (filterType === 'all') return users;
+    return users.filter(u => {
+      const type = resolveType(u);
+      if (filterType === 'OWNER') return type === 'Owner';
+      if (filterType === 'RENTER') return type === 'Renter';
+      if (filterType === 'SUSPENDED') return type === 'Suspended';
+      return true;
+    });
+  }, [users, filterType]);
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,7 +209,9 @@ export function UsersListSection() {
     if (res.ok) {
       setUsers(
         users.map(u =>
-          u.id === suspendUser?.id ? { ...u, residentType: 'SUSPENDED', isActive: false } : u
+          u.id === suspendUser?.id
+            ? { ...u, residentType: 'SUSPENDED' as string, isActive: false }
+            : u
         )
       );
       toast.success(t('userSuspended'));
@@ -179,7 +254,7 @@ export function UsersListSection() {
             <h2 className="text-lg font-semibold text-gray-900">{t('usersSection')}</h2>
             {!loading && (
               <span className="text-sm text-gray-500">
-                ({users.length} {t('users').toLowerCase()})
+                ({total} {t('users').toLowerCase()})
               </span>
             )}
           </div>
@@ -199,7 +274,7 @@ export function UsersListSection() {
                       <div>
                         <p className="font-medium text-sm">{inv.name}</p>
                         <p className="text-xs text-gray-500">
-                          {inv.email} • {inv.street}
+                          {inv.email} &bull; {inv.street}
                           {inv.unit && `, ${inv.unit}`}
                         </p>
                       </div>
@@ -244,11 +319,9 @@ export function UsersListSection() {
                 className="border rounded-lg px-3 py-2 text-sm"
               >
                 <option value="all">{t('allTypes')}</option>
-                {residentTypeOptions.map(t => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
+                <option value="OWNER">Owner</option>
+                <option value="RENTER">Renter</option>
+                <option value="SUSPENDED">Suspended</option>
               </select>
               <button
                 onClick={() => setShowInvite(true)}
@@ -262,85 +335,112 @@ export function UsersListSection() {
             {loading ? (
               <p className="text-center py-8 text-gray-500">{t('loading')}</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      {[
-                        t('name'),
-                        t('email'),
-                        t('address'),
-                        t('type'),
-                        t('role'),
-                        t('status'),
-                        '',
-                      ].map(h => (
-                        <th
-                          key={h}
-                          className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {filteredUsers.map(u => (
-                      <tr key={u.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm">{u.name}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500">{u.email}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500">
-                          {u.standardSeats?.[0]?.household?.street || u.soloSeat
-                            ? 'Assigned'
-                            : 'Not assigned'}
-                          {(u.standardSeats?.[0]?.household?.unit || u.soloSeat?.seatType) &&
-                            ` (${u.standardSeats?.[0]?.household?.unit || u.soloSeat?.seatType})`}
-                        </td>
-                        <td className="px-4 py-3 text-sm">
-                          {u.standardSeats?.[0]?.isPrimaryOwner
-                            ? 'Owner'
-                            : u.soloSeat
-                              ? 'Board'
-                              : 'No identity'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <select
-                            value={u.role || 'RESIDENT'}
-                            onChange={e => updateUser(u.id, { role: e.target.value })}
-                            className="text-sm border rounded px-2 py-1"
+              <>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        {[
+                          t('name'),
+                          t('email'),
+                          t('address'),
+                          t('type'),
+                          t('role'),
+                          t('status'),
+                          '',
+                        ].map(h => (
+                          <th
+                            key={h}
+                            className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"
                           >
-                            {roleOptions.map(r => (
-                              <option key={r} value={r}>
-                                {r}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td className="px-4 py-3">
-                          <button
-                            onClick={
-                              u.isActive === true
-                                ? () => setSuspendUser(u)
-                                : () => handleActivate(u)
-                            }
-                            className={`px-2 py-1 rounded text-sm ${u.isActive === true ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
-                          >
-                            {u.isActive === true ? t('active') : t('suspended')}
-                          </button>
-                        </td>
-                        <td className="px-4 py-3">
-                          <button
-                            onClick={() => setDeleteUser(u)}
-                            className="text-red-600 hover:text-red-800"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </td>
+                            {h}
+                          </th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {filteredUsers.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
+                            {t('search') === 'Search...' ? 'No users found' : t('search')}
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredUsers.map(u => (
+                          <tr key={u.id} className="hover:bg-gray-50">
+                            <td className="px-4 py-3 text-sm">{u.name}</td>
+                            <td className="px-4 py-3 text-sm text-gray-500">{u.email}</td>
+                            <td className="px-4 py-3 text-sm text-gray-500">
+                              {resolveAddress(u) || '-'}
+                            </td>
+                            <td className="px-4 py-3 text-sm">{resolveType(u) || '-'}</td>
+                            <td className="px-4 py-3">
+                              <select
+                                value={u.role || 'RESIDENT'}
+                                onChange={e => updateUser(u.id, { role: e.target.value })}
+                                className="text-sm border rounded px-2 py-1"
+                              >
+                                {roleOptions.map(r => (
+                                  <option key={r} value={r}>
+                                    {r}
+                                  </option>
+                                ))}
+                              </select>
+                            </td>
+                            <td className="px-4 py-3">
+                              <button
+                                onClick={
+                                  u.isActive === true
+                                    ? () => setSuspendUser(u)
+                                    : () => handleActivate(u)
+                                }
+                                className={`px-2 py-1 rounded text-sm ${u.isActive === true ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                              >
+                                {u.isActive === true ? t('active') : t('suspended')}
+                              </button>
+                            </td>
+                            <td className="px-4 py-3">
+                              <button
+                                onClick={() => setDeleteUser(u)}
+                                className="text-red-600 hover:text-red-800"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                  <p className="text-sm text-gray-500">
+                    {total > 0
+                      ? `${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, total)} of ${total}`
+                      : '0 users'}
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      disabled={page <= 1}
+                      className="px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                      type="button"
+                    >
+                      &larr; Prev
+                    </button>
+                    <button
+                      onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                      disabled={page >= totalPages}
+                      className="px-3 py-1.5 text-sm border rounded-md hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                      type="button"
+                    >
+                      Next &rarr;
+                    </button>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         )}
