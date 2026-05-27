@@ -2,6 +2,7 @@ import { db, users, maintenanceRequests } from '@api/db';
 import { NextResponse } from 'next/server';
 import { auth } from '@api/auth';
 import { eq, count, and, gte, sql } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant/api/with-tenant';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,8 +21,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  const { tenantId } = await withTenant();
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const tenantFilter = eq(maintenanceRequests.tenantId, tenantId);
 
   const [
     totalOpenResult,
@@ -38,6 +42,7 @@ export async function GET(request: Request) {
       .from(maintenanceRequests)
       .where(
         and(
+          tenantFilter,
           sql`${maintenanceRequests.status} != 'COMPLETED'`,
           sql`${maintenanceRequests.status} != 'CANCELLED'`
         )
@@ -45,12 +50,13 @@ export async function GET(request: Request) {
     db
       .select({ count: count() })
       .from(maintenanceRequests)
-      .where(gte(maintenanceRequests.createdAt, startOfMonth)),
+      .where(and(tenantFilter, gte(maintenanceRequests.createdAt, startOfMonth))),
     db
       .select({ count: count() })
       .from(maintenanceRequests)
       .where(
         and(
+          tenantFilter,
           sql`${maintenanceRequests.status} = 'COMPLETED'`,
           sql`${maintenanceRequests.completedAt} >= ${startOfMonth}`
         )
@@ -60,6 +66,7 @@ export async function GET(request: Request) {
       .from(maintenanceRequests)
       .where(
         and(
+          tenantFilter,
           sql`${maintenanceRequests.status} NOT IN ('COMPLETED', 'CANCELLED')`,
           sql`${maintenanceRequests.scheduledDate} < ${now}`
         )
@@ -67,14 +74,17 @@ export async function GET(request: Request) {
     db
       .select({ status: maintenanceRequests.status, count: count() })
       .from(maintenanceRequests)
+      .where(tenantFilter)
       .groupBy(maintenanceRequests.status),
     db
       .select({ priority: maintenanceRequests.priority, count: count() })
       .from(maintenanceRequests)
+      .where(tenantFilter)
       .groupBy(maintenanceRequests.priority),
     db
       .select({ category: maintenanceRequests.category, count: count() })
       .from(maintenanceRequests)
+      .where(tenantFilter)
       .groupBy(maintenanceRequests.category),
     db
       .select({
@@ -86,6 +96,7 @@ export async function GET(request: Request) {
       .from(maintenanceRequests)
       .where(
         and(
+          tenantFilter,
           eq(maintenanceRequests.status, 'COMPLETED'),
           sql`${maintenanceRequests.completedAt} IS NOT NULL`
         )
@@ -99,7 +110,12 @@ export async function GET(request: Request) {
       count: count(),
     })
     .from(maintenanceRequests)
-    .where(gte(maintenanceRequests.createdAt, new Date(now.getFullYear(), now.getMonth() - 11, 1)))
+    .where(
+      and(
+        tenantFilter,
+        gte(maintenanceRequests.createdAt, new Date(now.getFullYear(), now.getMonth() - 11, 1))
+      )
+    )
     .groupBy(sql`TO_CHAR(${maintenanceRequests.createdAt}, 'YYYY-MM')`)
     .orderBy(sql`TO_CHAR(${maintenanceRequests.createdAt}, 'YYYY-MM')`);
 

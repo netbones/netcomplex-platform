@@ -850,6 +850,54 @@ Three competing toast systems existed in the codebase: Sonner (used directly and
 - Migrate admin/users page from `useToast()` to direct `toast.*` calls
 - Remove dead `useToast` import from sign-up page
 
+## ADR-019: Focused RLS on Sensitive Tables + Application-Layer Audit
+
+### Status
+
+Accepted
+
+### Context
+
+A Supabase Security Advisor audit revealed 47 of 48 tables have RLS disabled, exposing data to the `anon` and `authenticated` roles. The existing authorization model is entirely application-layer: every API route manually checks session validity, user roles via `hasPermission()`, and tenant isolation via `withTenant()` + `eq(table.tenantId, tenantId)` filters.
+
+The app uses a single privileged Postgres connection (`DATABASE_URL` as superuser), which bypasses RLS by default. A cross-tenant data leakage audit of all 80 API routes found 3 critical leaks (fixed) and 20 medium-severity routes missing tenant filters.
+
+### Decision
+
+1. **RLS on 6 sensitive tables**: Enable RLS + create policies on `user`, `session`, `account`, `passkey`, `twoFactor`, and `profile` — the tables containing PII and auth credentials. Policies enforce tenant isolation, own-data scoping, and role-based access using `current_setting('app.*')` variables.
+
+2. **`app_user` role + `SET ROLE`**: Created a dedicated `app_user` database role. The `runWithRLS()` transaction helper does `SET ROLE app_user` + `set_config()` so RLS is actually enforced. Routes using `runWithRLS()` get DB-level defense; routes using plain `db.*` retain current superuser behavior.
+
+3. **`getRLSContext()` helper**: Derives user context (userId, tenantId, role, isPlatformAdmin) from a Next.js request, providing a one-call setup for wrapping routes in `runWithRLS()`.
+
+4. **Phased adoption**: Critical fixes applied immediately (3 routes). Remaining 20 routes tracked as separate issue for incremental fixes. `runWithRLS()` wrapping handled as a separate phase.
+
+5. **No full RLS**: Deliberately not implementing RLS on all 47 tables. The application-layer auth is robust for most tables, and the maintenance burden of mirroring complex permission logic in SQL policies outweighs the incremental benefit.
+
+### Consequences
+
+**Positive:**
+
+- Defense-in-depth for the most sensitive tables (PII, auth credentials)
+- Clear, version-controlled policy definitions
+- Infrastructure ready for future non-superuser connection patterns
+- Audit fixed 3 real cross-tenant data leaks
+
+**Negative:**
+
+- Routes not yet wrapped in `runWithRLS()` bypass RLS (only app-layer auth)
+- `app_user` role maintenance — must keep default privileges in sync with schema changes
+- Policy logic partially duplicates app-layer permission checks
+- `runWithRLS()` introduces a transaction wrapping cost per request
+
+### Key Files
+
+- `src/shared/api/db.ts` — `runWithRLS()`, `getRLSContext()`
+- Supabase migration `enable_rls_on_sensitive_tables` — RLS policies + `app_user` role
+- `src/app/api/admin/board-members/route.ts` — fixed cross-tenant leak
+- `src/app/api/admin/maintenance-stats/route.ts` — fixed cross-tenant leak
+- `src/app/api/surveys/route.ts` — fixed cross-tenant leak
+
 ---
 
 _More ADRs will be added as we make architectural decisions. Use the template above to propose new ADRs._

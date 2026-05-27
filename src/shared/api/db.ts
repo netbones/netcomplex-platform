@@ -1,8 +1,10 @@
 import 'server-only';
 
 import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { sql, eq } from 'drizzle-orm';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 // Request notes table (for maintenance request notes)
 const requestNotes = pgTable('RequestNote', {
@@ -27,6 +29,13 @@ const requestHistories = pgTable('RequestHistory', {
 });
 
 export { requestNotes, requestHistories };
+
+export type RLSContext = {
+  userId: string;
+  tenantId: string;
+  role: string;
+  isPlatformAdmin: boolean;
+};
 
 import { messages } from '@schema/messages';
 import { conversations } from '@schema/conversations';
@@ -78,6 +87,58 @@ import { competitions } from '@schema/competitions';
 
 import { ENV } from 'varlock/env';
 
+const dbSchema = {
+  messages,
+  conversations,
+  conversationParticipants,
+  users,
+  profiles,
+  settings,
+  albums,
+  standardSeats,
+  soloSeats,
+  properties,
+  households,
+  premiumSeats,
+  contents,
+  propertyListings,
+  communityServiceListings,
+  communityServiceReviews,
+  communityServiceInquiries,
+  groups,
+  userGroups,
+  surveys,
+  questions,
+  responses,
+  externalSurveys,
+  invitations,
+  bookings,
+  maintenanceRequests,
+  notifications,
+  agentProfiles,
+  propertiesTopremiumSeats,
+  verifications,
+  accounts,
+  sessions,
+  passkeys,
+  twoFactors,
+  members,
+  organizations,
+  tenants,
+  events,
+  announcements,
+  agentAccesses,
+  platformSuspensions,
+  groupMembershipRequests,
+  platformModules,
+  tenantModules,
+  assistSessions,
+  resources,
+  competitions,
+} as const;
+
+type DbSchema = typeof dbSchema;
+
 let dbInstance: ReturnType<typeof drizzle> | undefined;
 
 function getDb() {
@@ -93,58 +154,7 @@ function getDb() {
   const connectionString = envUrl.replace('sslmode=require', 'sslmode=no-verify');
   const pool = new Pool({ connectionString });
 
-  dbInstance = drizzle(pool, {
-    // Single drizzle() instantiation — all queries use this via the 'db' export
-    schema: {
-      messages,
-      conversations,
-      conversationParticipants,
-      users,
-      profiles,
-      settings,
-      albums,
-      standardSeats,
-      soloSeats,
-      properties,
-      households,
-      premiumSeats,
-      contents,
-      propertyListings,
-      communityServiceListings,
-      communityServiceReviews,
-      communityServiceInquiries,
-      groups,
-      userGroups,
-      surveys,
-      questions,
-      responses,
-      externalSurveys,
-      invitations,
-      bookings,
-      maintenanceRequests,
-      notifications,
-      agentProfiles,
-      propertiesTopremiumSeats,
-      verifications,
-      accounts,
-      sessions,
-      passkeys,
-      twoFactors,
-      members,
-      organizations,
-      tenants,
-      events,
-      announcements,
-      agentAccesses,
-      platformSuspensions,
-      groupMembershipRequests,
-      platformModules,
-      tenantModules,
-      assistSessions,
-      resources,
-      competitions,
-    },
-  });
+  dbInstance = drizzle(pool, { schema: dbSchema });
 
   return dbInstance;
 }
@@ -158,6 +168,61 @@ export const db = new Proxy({} as ReturnType<typeof drizzle>, {
     return getDb()[prop as keyof ReturnType<typeof drizzle>];
   },
 });
+
+/**
+ * Execute database operations within an RLS-aware transaction.
+ *
+ * Sets Postgres session-local configuration variables (app.user_id,
+ * app.tenant_id, app.user_role) so that RLS policies can reference them
+ * via current_setting('app.user_id') etc.
+ *
+ * The config is scoped to the transaction via set_config(..., true),
+ * so it is automatically cleaned up on commit or rollback.
+ *
+ * Usage:
+ *   const result = await runWithRLS(
+ *     { userId: '...', tenantId: '...', role: 'ADMIN' },
+ *     async (tx) => {
+ *       return tx.select().from(users).where(eq(users.id, userId));
+ *     }
+ *   );
+ */
+export async function runWithRLS<T>(
+  ctx: RLSContext,
+  fn: (tx: NodePgDatabase<DbSchema>) => Promise<T>
+): Promise<T> {
+  return getDb().transaction(async tx => {
+    await tx.execute(sql`SET ROLE app_user`);
+    await tx.execute(sql`SELECT set_config('app.user_id', ${ctx.userId}, true)`);
+    await tx.execute(sql`SELECT set_config('app.tenant_id', ${ctx.tenantId}, true)`);
+    await tx.execute(sql`SELECT set_config('app.user_role', ${ctx.role}, true)`);
+    await tx.execute(
+      sql`SELECT set_config('app.is_platform_admin', ${ctx.isPlatformAdmin ? 'true' : 'false'}, true)`
+    );
+    return fn(tx as unknown as NodePgDatabase<DbSchema>);
+  });
+}
+
+/**
+ * Derive RLS context from a Next.js request by authenticating the session.
+ * Must be called within a route handler.
+ */
+export async function getRLSContext(request: Request): Promise<RLSContext | null> {
+  const { auth } = await import('@api/auth');
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session?.user?.id) return null;
+
+  const [user] = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
+
+  if (!user) return null;
+
+  return {
+    userId: user.id,
+    tenantId: user.tenantId,
+    role: user.role,
+    isPlatformAdmin: user.isPlatformAdmin,
+  };
+}
 
 export {
   messages,

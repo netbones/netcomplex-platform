@@ -1,7 +1,7 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, surveys, users } from '@api/db';
-import { eq, desc } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
@@ -34,6 +34,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const { tenantId } = await withTenant();
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status');
 
@@ -41,9 +42,18 @@ export async function GET(request: Request) {
     ? await db
         .select()
         .from(surveys)
-        .where(eq(surveys.status, status as 'DRAFT' | 'ACTIVE' | 'CLOSED'))
+        .where(
+          and(
+            eq(surveys.tenantId, tenantId),
+            eq(surveys.status, status as 'DRAFT' | 'ACTIVE' | 'CLOSED')
+          )
+        )
         .orderBy(desc(surveys.createdAt))
-    : await db.select().from(surveys).orderBy(desc(surveys.createdAt));
+    : await db
+        .select()
+        .from(surveys)
+        .where(eq(surveys.tenantId, tenantId))
+        .orderBy(desc(surveys.createdAt));
 
   return NextResponse.json(surveyList);
 }

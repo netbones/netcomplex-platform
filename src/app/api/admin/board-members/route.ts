@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@api/auth';
 import { db, users } from '@api/db';
-import { eq, or } from 'drizzle-orm';
+import { eq, or, and } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant/api/with-tenant';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +23,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  // Build OR conditions for each board role
+  const { tenantId } = await withTenant();
+
   const roleConditions = BOARD_ROLES.map(role => eq(users.role, role));
 
   const boardMembers = await db
@@ -33,7 +35,7 @@ export async function GET(request: Request) {
       role: users.role,
     })
     .from(users)
-    .where(or(...roleConditions));
+    .where(and(eq(users.tenantId, tenantId), or(...roleConditions)));
 
   return NextResponse.json(boardMembers);
 }
