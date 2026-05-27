@@ -337,6 +337,22 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase: 31-dashboard-tab-removal
+
+**Goal:** Remove all tab-mode dashboard code after Phase 30 Focus Space architecture is proven — delete old DashboardPage/DashboardTabs, strip tab-keyed defaults, remove feature flag, redirect old /admin to /dashboard/admin
+
+**Status:** Planning Complete
+
+**Requirements:** TAB-REM-01, TAB-REM-02, TAB-REM-03, TAB-REM-04, TAB-REM-05, TAB-REM-06, TAB-REM-07
+
+**Plans:** 3 plans
+
+- [ ] 31-01-PLAN.md — Data migration: bump persist v4→v5, final migrateToSpaceLayouts, store cleanup + tabId→spaceId rename (Wave 1)
+- [ ] 31-02-PLAN.md — Delete tab files: DashboardPage, DashboardTabs, tab-migration-map, admin-config; redirect /admin; remove feature flag (Wave 2)
+- [ ] 31-03-PLAN.md — Strip tab-keyed defaults from default-layouts; rename getSpaceDefaultLayout→getDefaultLayout; rename tabId→spaceId in WidgetCard/DraggableWidget/SpaceLayout (Wave 2)
+
+---
+
 ## Future Phases (To Be Planned)
 
 ### Phase: Second Tenant
