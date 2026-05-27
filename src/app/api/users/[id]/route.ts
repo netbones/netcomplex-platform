@@ -239,6 +239,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     updateData.image = body.image;
     updateData.avatar = body.image;
   }
+  if (body.residentType !== undefined) {
+    updateData.residentType = String(body.residentType);
+  }
 
   const updatedUser = await db
     .update(users)
@@ -251,7 +254,52 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  return NextResponse.json(updatedUser);
+  let updatedSeat: { type: string; platformAddress: string } | null = null;
+
+  if (body.platformAddress !== undefined) {
+    const addr = String(body.platformAddress);
+
+    const [premium] = await db
+      .select({ id: premiumSeats.id })
+      .from(premiumSeats)
+      .where(eq(premiumSeats.userId, id))
+      .limit(1);
+
+    if (premium) {
+      await db
+        .update(premiumSeats)
+        .set({ platformAddress: addr })
+        .where(eq(premiumSeats.id, premium.id));
+      updatedSeat = { type: 'premium', platformAddress: addr };
+    } else {
+      const [solo] = await db
+        .select({ id: soloSeats.id })
+        .from(soloSeats)
+        .where(eq(soloSeats.userId, id))
+        .limit(1);
+
+      if (solo) {
+        await db.update(soloSeats).set({ platformAddress: addr }).where(eq(soloSeats.id, solo.id));
+        updatedSeat = { type: 'solo', platformAddress: addr };
+      } else {
+        const [standard] = await db
+          .select({ id: standardSeats.id })
+          .from(standardSeats)
+          .where(eq(standardSeats.userId, id))
+          .limit(1);
+
+        if (standard) {
+          await db
+            .update(standardSeats)
+            .set({ platformAddress: addr })
+            .where(eq(standardSeats.id, standard.id));
+          updatedSeat = { type: 'standard', platformAddress: addr };
+        }
+      }
+    }
+  }
+
+  return NextResponse.json({ ...updatedUser, updatedSeat });
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {

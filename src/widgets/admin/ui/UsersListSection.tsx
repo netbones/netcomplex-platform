@@ -293,6 +293,7 @@ export function UsersListSection() {
       setExpandedUserId(null);
       setEditingForm({});
     } else {
+      const si = resolveSeatInfo(u);
       setExpandedUserId(u.id);
       setEditingForm({
         name: u.name,
@@ -303,6 +304,7 @@ export function UsersListSection() {
         isPublic: u.isPublic ?? true,
         showEmail: u.showEmail ?? true,
         showPhone: u.showPhone ?? true,
+        platformAddress: si?.address ?? '',
       });
     }
   };
@@ -325,6 +327,11 @@ export function UsersListSection() {
     if (JSON.stringify(editingForm.interests) !== JSON.stringify(u.interests ?? [])) {
       payload.interests = editingForm.interests;
     }
+    // Seat platform address
+    const si = resolveSeatInfo(u);
+    if (editingForm.platformAddress !== (si?.address ?? '')) {
+      payload.platformAddress = editingForm.platformAddress;
+    }
     if (Object.keys(payload).length === 0) {
       setSaving(null);
       toast.success(t('userUpdated'));
@@ -338,7 +345,34 @@ export function UsersListSection() {
       });
       if (res.ok) {
         const updated = await res.json();
-        setUsers(users.map(x => (x.id === u.id ? { ...x, ...updated } : x)));
+        setUsers(
+          users.map(x => {
+            if (x.id !== u.id) return x;
+            const merged = { ...x, ...updated };
+            if (updated.updatedSeat) {
+              const { type, platformAddress } = updated.updatedSeat;
+              if (type === 'premium') {
+                merged.premiumSeat = {
+                  ...(x.premiumSeat ?? {
+                    id: '',
+                    platformAddress,
+                    portfolioName: null,
+                    tier: null,
+                    isActive: null,
+                  }),
+                  platformAddress,
+                };
+              } else if (type === 'solo' && x.soloSeat) {
+                merged.soloSeat = { ...x.soloSeat, platformAddress };
+              } else if (type === 'standard' && x.standardSeats?.length) {
+                const seats = [...x.standardSeats];
+                if (seats.length) seats[0] = { ...seats[0], platformAddress };
+                merged.standardSeats = seats;
+              }
+            }
+            return merged;
+          })
+        );
         toast.success(t('userUpdated'));
       } else {
         toast.error(t('inviteFailed'));
@@ -638,6 +672,44 @@ export function UsersListSection() {
                                         }
                                         placeholder="Comma-separated"
                                         className="w-full border rounded px-2 py-1.5 text-sm"
+                                      />
+                                    </div>
+                                  </div>
+                                  <hr className="my-4 border-gray-200" />
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                                        {t('seat')}
+                                      </label>
+                                      <div className="flex items-center gap-3">
+                                        {(() => {
+                                          const si = resolveSeatInfo(u);
+                                          if (!si)
+                                            return (
+                                              <span className="text-sm text-gray-400">None</span>
+                                            );
+                                          return (
+                                            <span
+                                              className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${si.labelClass}`}
+                                            >
+                                              {si.label}
+                                            </span>
+                                          );
+                                        })()}
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                                        Platform Address
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={String(editingForm.platformAddress ?? '')}
+                                        onChange={e =>
+                                          handleFieldChange('platformAddress', e.target.value)
+                                        }
+                                        className="w-full border rounded px-2 py-1.5 text-sm font-mono"
+                                        placeholder="e.g. unit183@soralia.org"
                                       />
                                     </div>
                                   </div>
