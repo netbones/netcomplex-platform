@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import {
   Users,
   Wrench,
@@ -100,6 +101,7 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
  * on the admin space page.
  */
 export function AdminSubLauncher() {
+  const { t } = useTranslation();
   return (
     <div className="mt-8">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Management Domains</h2>
@@ -117,7 +119,7 @@ export function AdminSubLauncher() {
               </div>
               <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition">
-                  {domain.labelKey}
+                  {t(domain.labelKey)}
                 </h3>
                 <p className="text-xs text-gray-500 mt-1 line-clamp-2">{domain.description}</p>
               </div>

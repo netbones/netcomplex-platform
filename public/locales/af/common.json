@@ -47,6 +47,13 @@
     "messages": "Boodskappe",
     "admin": "Admin"
   },
+  "admin": {
+    "overview": "Dashboard",
+    "users": "Gebruikersbestuur",
+    "requests": "Instandhoudingsversoeke",
+    "content": "Inhoudbestuur",
+    "groups": "Belangegroepe"
+  },
   "footer": {
     "description": "'n Eerste residensiële gemeenskap in Kaapstad, wat moderne lewe bied met uitsonderlike geriewe en dienste.",
     "quickLinks": "Vinnige Skakels",

@@ -254,13 +254,45 @@ function remapLayoutsToSpaces(layouts: WidgetLayouts): WidgetLayouts {
 
 /** Space-keyed default widgets per role */
 const RESIDENT_SPACE_WIDGETS: UserWidgets = remapToSpaces(RESIDENT_USER_WIDGETS);
-const BOARD_SPACE_WIDGETS: UserWidgets = remapToSpaces(BOARD_USER_WIDGETS);
-const ADMIN_SPACE_WIDGETS: UserWidgets = remapToSpaces(ADMIN_USER_WIDGETS);
+
+/** Space-keyed default widgets for board — admin space added explicitly */
+const BOARD_SPACE_WIDGETS: UserWidgets = (() => {
+  const base = remapToSpaces(BOARD_USER_WIDGETS);
+  base.admin = ['admin-stats', 'admin-activity', 'admin-quick-links', 'admin-user'];
+  return base;
+})();
+
+/** Space-keyed default widgets for admin — admin space added explicitly */
+const ADMIN_SPACE_WIDGETS: UserWidgets = (() => {
+  const base = remapToSpaces(ADMIN_USER_WIDGETS);
+  base.admin = [
+    'admin-stats',
+    'admin-activity',
+    'admin-quick-links',
+    'admin-user',
+    'admin-system',
+    'page-settings',
+    'admin-announcements',
+  ];
+  return base;
+})();
 
 /** Space-keyed default layouts per role */
 const RESIDENT_SPACE_LAYOUTS: WidgetLayouts = remapLayoutsToSpaces(RESIDENT_LAYOUTS);
 const BOARD_SPACE_LAYOUTS: WidgetLayouts = remapLayoutsToSpaces(BOARD_LAYOUTS);
-const ADMIN_SPACE_LAYOUTS: WidgetLayouts = remapLayoutsToSpaces(ADMIN_LAYOUTS);
+const ADMIN_SPACE_LAYOUTS: WidgetLayouts = (() => {
+  const base = remapLayoutsToSpaces(ADMIN_LAYOUTS);
+  base.admin = {
+    'admin-stats': { x: 0, y: 0, width: 4, height: 2, isCollapsed: false },
+    'admin-activity': { x: 0, y: 2, width: 2, height: 3, isCollapsed: false },
+    'admin-quick-links': { x: 2, y: 2, width: 2, height: 3, isCollapsed: false },
+    'admin-user': { x: 0, y: 5, width: 2, height: 3, isCollapsed: false },
+    'admin-system': { x: 2, y: 5, width: 2, height: 3, isCollapsed: false },
+    'page-settings': { x: 0, y: 8, width: 2, height: 2, isCollapsed: false },
+    'admin-announcements': { x: 2, y: 8, width: 2, height: 2, isCollapsed: false },
+  };
+  return base;
+})();
 
 /**
  * Default widget lists per space, keyed by user role.

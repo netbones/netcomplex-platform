@@ -47,6 +47,13 @@
     "messages": "Messages",
     "admin": "Admin"
   },
+  "admin": {
+    "overview": "Dashboard",
+    "users": "User Management",
+    "requests": "Maintenance Requests",
+    "content": "Content Management",
+    "groups": "Interest Groups"
+  },
   "footer": {
     "description": "A premier residential community in Cape Town, offering modern living with exceptional amenities and services.",
     "quickLinks": "Quick Links",

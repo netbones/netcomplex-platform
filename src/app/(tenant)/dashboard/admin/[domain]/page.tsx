@@ -2,6 +2,7 @@
 
 import { use } from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import { notFound } from 'next/navigation';
 import { ADMIN_DOMAINS, getAdminDomainWidgets } from '@widgets/dashboard/model/spaces';
 import { ADMIN_DOMAIN_DEFINITIONS } from '@widgets/dashboard/ui/AdminSubLauncher';
@@ -13,6 +14,7 @@ interface AdminDomainPageProps {
 }
 
 export default function AdminDomainPage({ params }: AdminDomainPageProps) {
+  const { t } = useTranslation();
   const { domain } = use(params);
 
   // Validate domain
@@ -32,7 +34,7 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
             { label: 'Home', href: '/' },
             { label: 'Dashboard', href: '/dashboard' },
             { label: 'Admin', href: '/dashboard/admin' },
-            { label: domainDef?.labelKey ?? domain, href: `/dashboard/admin/${domain}` },
+            { label: t(domainDef?.labelKey ?? domain), href: `/dashboard/admin/${domain}` },
           ]}
         />
 
@@ -40,7 +42,9 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
           <div className="flex items-center gap-3">
             {DomainIcon && <DomainIcon className="w-8 h-8 text-indigo-600" />}
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{domainDef?.labelKey ?? domain}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {t(domainDef?.labelKey ?? domain)}
+              </h1>
               <p className="text-sm text-gray-500">{domainDef?.description}</p>
             </div>
           </div>

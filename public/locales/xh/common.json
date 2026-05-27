@@ -47,6 +47,13 @@
     "messages": "Imiyalezo",
     "admin": "Admin"
   },
+  "admin": {
+    "overview": "Dashboard",
+    "users": "Ul.awulo lwabasebenzisi",
+    "requests": "Iimfuno zokuGcina",
+    "content": "Ul.awulo lweXwebhu",
+    "groups": "AmaQela anomDla"
+  },
   "footer": {
     "description": "Umphakathi wokuhlala eKapa, onikezela ngobomi bokuhlala kwanamagosa anobulungisa.",
     "quickLinks": "Iilinks ezikhawulezayo",

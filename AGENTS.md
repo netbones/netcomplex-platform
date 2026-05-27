@@ -57,6 +57,7 @@ Use GSD workflow for:
 | Architecture changes                 | GSD |
 
 **IMPORTANT:** When working on a GSD phase, close the related BD issue when the phase completes.
+When opening a bd issue, update .planning/BD.md so GSD is aware of the issue.
 
 ---
 

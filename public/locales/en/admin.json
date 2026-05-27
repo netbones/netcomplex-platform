@@ -11,5 +11,16 @@
   "surveys": "Surveys & Polls",
   "surveysNew": "Create New Survey",
   "categories": "Interest Group Categories",
-  "externalSurveys": "External Surveys"
+  "externalSurveys": "External Surveys",
+  "domains": {
+    "users": "Users",
+    "maintenance": "Maintenance",
+    "content": "Content",
+    "events": "Events",
+    "competitions": "Competitions",
+    "resources": "Resources",
+    "surveys": "Surveys",
+    "announcements": "Announcements",
+    "system": "System"
+  }
 }

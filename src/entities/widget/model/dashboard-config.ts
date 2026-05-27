@@ -223,6 +223,20 @@ export const ALL_WIDGETS: DashboardWidget[] = [
     icon: 'fa-cog',
     label: 'Admin System',
   },
+  {
+    id: 'admin-announcements',
+    type: 'admin-announcements',
+    title: 'Admin Announcements',
+    icon: 'fa-bullhorn',
+    label: 'Admin Announcements',
+  },
+  {
+    id: 'page-settings',
+    type: 'page-settings',
+    title: 'Page Settings',
+    icon: 'fa-cog',
+    label: 'Page Settings',
+  },
 ];
 
 export function getWidgetById(id: string): DashboardWidget | undefined {

@@ -11,5 +11,16 @@
   "surveys": "iSurveys & Polls",
   "surveysNew": "Yenza iSurvey entsha",
   "categories": "amaCathegorii eGqabantshintshi",
-  "externalSurveys": "iSurveys yangaphandle"
+  "externalSurveys": "iSurveys yangaphandle",
+  "domains": {
+    "users": "Abasebenzisi",
+    "maintenance": "Umolondolozi",
+    "content": "Umxholo",
+    "events": "Imisitho",
+    "competitions": "Ukhuphiswano",
+    "resources": "Imitlalo",
+    "surveys": "iSurveys",
+    "announcements": "Izibhengezo",
+    "system": "Inkqubo"
+  }
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import { useWidgetStore, getSpaceDefaultLayout } from '@entities/widget';
 import { ErrorBoundary, usePageLoading } from '@shared/ui';
 import { DraggableWidget, WidgetCard, WidgetRenderer } from '@widgets/dashboard';
@@ -51,6 +52,7 @@ function AdminOnlyLink({
  * AddWidgetModal is filtered to only show widgets assigned to this space.
  */
 export function SpaceLayout({ spaceId }: SpaceLayoutProps) {
+  const { t } = useTranslation();
   const [isEditMode, setIsEditMode] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
@@ -73,7 +75,7 @@ export function SpaceLayout({ spaceId }: SpaceLayoutProps) {
   const { isReady, LoadingComponent } = usePageLoading([
     { label: 'Home', href: '/' },
     { label: 'Dashboard', href: '/dashboard' },
-    { label: spaceDef.labelKey, href: `/dashboard/${spaceId}` },
+    { label: t(spaceDef.labelKey), href: `/dashboard/${spaceId}` },
   ]);
 
   // Seed default widgets when store is empty after DB hydration
@@ -115,7 +117,7 @@ export function SpaceLayout({ spaceId }: SpaceLayoutProps) {
           <div className="flex items-center gap-3">
             <Icon className="w-8 h-8 text-indigo-600" />
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{spaceDef.labelKey}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{t(spaceDef.labelKey)}</h1>
               <p className="mt-1 text-sm text-gray-600">
                 {currentWidgets.length} widget{currentWidgets.length !== 1 ? 's' : ''}
               </p>
@@ -197,7 +199,7 @@ export function SpaceLayout({ spaceId }: SpaceLayoutProps) {
             </div>
 
             {/* Desktop: Draggable widgets (hidden on small screens) */}
-            <div className="hidden md:flex flex-wrap gap-4 min-h-[400px]">
+            <div className="hidden md:block min-h-[1200px] relative">
               {currentWidgets.map((widgetId: string) => (
                 <DraggableWidget
                   key={widgetId}

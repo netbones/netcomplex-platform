@@ -47,6 +47,13 @@
     "messages": "Umlando",
     "admin": "Admin"
   },
+  "admin": {
+    "overview": "Dashboard",
+    "users": "UkuLawulwa kwabasebenzisi",
+    "requests": "Izicelo zokuNakekela",
+    "content": "UkuLawulwa koKuxhaswa",
+    "groups": "AmaQembu aneNtandokazi"
+  },
   "footer": {
     "description": "Umphakathi wokuhlala eTheku, onikezela ngobomi bokuhlala kwanamasevisi anokuhlanganiswa.",
     "quickLinks": "Izixhumanisi zokushesha",

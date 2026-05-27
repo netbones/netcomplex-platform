@@ -173,7 +173,7 @@ function DashboardContent() {
                 </div>
 
                 {/* Desktop: Draggable widgets (hidden on small screens) */}
-                <div className="hidden md:flex flex-wrap gap-4 min-h-[400px]">
+                <div className="hidden md:block min-h-[1200px] relative">
                   {tabWidgets.map((widgetId: string) => (
                     <DraggableWidget
                       key={widgetId}

@@ -11,5 +11,16 @@
   "surveys": "Opnames en Meningspeilings",
   "surveysNew": "Skep Nuwe Opname",
   "categories": "Belangengroep Kategorieë",
-  "externalSurveys": "Eksterne Opnames"
+  "externalSurveys": "Eksterne Opnames",
+  "domains": {
+    "users": "Gebruikers",
+    "maintenance": "Instandhouding",
+    "content": "Inhoud",
+    "events": "Gebeurtenisse",
+    "competitions": "Kompetisies",
+    "resources": "Hulpbronne",
+    "surveys": "Opnames",
+    "announcements": "Aankondigings",
+    "system": "Stelsel"
+  }
 }

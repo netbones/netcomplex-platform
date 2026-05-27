@@ -11,5 +11,16 @@
   "surveys": "Amaswihlome",
   "surveysNew": "Dala iswihlome esisha",
   "categories": "amaCategory eMaqembu",
-  "externalSurveys": "Amaswihlome angaphandle"
+  "externalSurveys": "Amaswihlome angaphandle",
+  "domains": {
+    "users": "Abasebenzisi",
+    "maintenance": "Ukugcina",
+    "content": "Okuqukethwe",
+    "events": "Imicimbi",
+    "competitions": "Imincintiswano",
+    "resources": "Izinsiza",
+    "surveys": "Amaswihlome",
+    "announcements": "Izimemezelo",
+    "system": "Uhlelo"
+  }
 }
