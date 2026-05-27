@@ -14,6 +14,7 @@
   "externalSurveys": "External Surveys",
   "domains": {
     "heading": "Management Domains",
+    "back": "Back to Admin",
     "users": "Users",
     "maintenance": "Maintenance",
     "content": "Content",

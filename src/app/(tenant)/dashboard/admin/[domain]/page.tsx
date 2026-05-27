@@ -52,7 +52,7 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
             href="/dashboard/admin"
             className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
           >
-            &larr; Back to Admin
+            &larr; {t('domains.back')}
           </Link>
         </div>
 

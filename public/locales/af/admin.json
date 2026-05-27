@@ -14,6 +14,7 @@
   "externalSurveys": "Eksterne Opnames",
   "domains": {
     "heading": "Bestuursdomeine",
+    "back": "Terug na Admin",
     "users": "Gebruikers",
     "maintenance": "Instandhouding",
     "content": "Inhoud",
