@@ -3,9 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@shared/ui';
-import { createComponentLogger, logError } from '@shared/lib';
-
-const log = createComponentLogger('AdminUserWidget');
+import { logError } from '@shared/lib';
 
 export interface UserItem {
   id: string;
@@ -120,12 +118,19 @@ export function AdminUserWidget() {
         </div>
 
         <div className="mt-4 flex gap-2">
-          <a
-            href="/admin/users"
-            className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+          <button
+            onClick={() => {
+              const toggle = document.getElementById('users-section-toggle');
+              if (toggle) {
+                toggle.scrollIntoView({ behavior: 'smooth' });
+                toggle.click();
+              }
+            }}
+            className="text-indigo-600 hover:text-indigo-800 text-sm font-medium text-left"
+            type="button"
           >
-            Manage Users →
-          </a>
+            {t('usersSection')} →
+          </button>
         </div>
       </div>
     </ErrorBoundary>
