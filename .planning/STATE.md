@@ -5,14 +5,14 @@
 - **Phase:** 35-api-alignment
 - **Plans:** 10 plans across 4 waves
 - **Plan:** A01 (A01–A10 in current phase)
-- **Current Plan:** 6
+- **Current Plan:** 8
 - **Total Plans in Phase:** 10
 - **Status:** Ready to execute
 - **Last Updated:** 2026-05-28
 - **Current Plan complete — ready for next plan:** 35-A01 canonical API response envelope
 
-**Last Session:** 2026-05-28T14:03:46.369Z
-**Stopped at:** Completed 35-D02-PLAN.md — rate limiting & feature gate enforcement
+**Last Session:** 2026-05-28T14:04:43.671Z
+**Stopped at:** Completed 35-D01-PLAN.md
 **Resume file:** None
 
 ## Decisions Made
@@ -198,6 +198,7 @@
 | Phase 35-api-alignment PC01 | 12min | 2 tasks  | 17 files |
 | Phase 35-api-alignment PC02 | 532   | 2 tasks  | 19 files |
 | Phase 35-api-alignment PD02 | 12min | 2 tasks  | 10 files |
+| Phase 35-api-alignment PD01 | 348   | 2 tasks  | 8 files  |
 
 ## A01 Execution Decisions
 
