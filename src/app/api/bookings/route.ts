@@ -18,6 +18,7 @@ import {
   apiUnauthorized,
   apiValidationError,
 } from '@api/api-response';
+import { toBookingDTO } from '@api/dto/booking';
 type BookingInsertValues = {
   id: ReturnType<typeof sql>;
   userId: string;
@@ -137,21 +138,12 @@ export async function GET(request: Request) {
     .where(whereClause)
     .orderBy(asc(bookings.date));
 
-  // Transform results
+  // Transform results using DTO
   const transformed = bookingResults.map(row => {
     const b = row.Booking;
     const u = row.user;
     return {
-      id: b.id,
-      userId: b.userId,
-      facility: b.facility,
-      date: b.date,
-      startTime: b.startTime,
-      endTime: b.endTime,
-      purpose: b.purpose,
-      status: b.status,
-      createdAt: b.createdAt,
-      updatedAt: b.updatedAt,
+      ...toBookingDTO(b),
       user: u
         ? {
             id: u.id,

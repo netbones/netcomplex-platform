@@ -13,6 +13,7 @@ import { revalidateDashboard } from '@api/revalidation';
 import { apiLogger } from '@shared/lib';
 import { eq, desc, and, sql, InferInsertModel } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
+import { toMaintenanceRequestDTO } from '@api/dto/maintenance';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;
@@ -145,7 +146,7 @@ export async function GET(request: Request) {
       .orderBy(desc(maintenanceRequests.createdAt));
   }
 
-  // Transform results
+  // Transform results using DTO
   const transformed = results.map(row => {
     const mr = row.MaintenanceRequest;
     const u = row.user;
@@ -155,23 +156,7 @@ export async function GET(request: Request) {
     const address = prop ? { street: prop.street, unit: prop.unit } : null;
 
     return {
-      id: mr.id,
-      userId: mr.userId,
-      propertyId: mr.propertyId,
-      category: mr.category,
-      priority: mr.priority,
-      description: mr.description,
-      status: mr.status,
-      images: mr.images,
-      assignedTo: mr.assignedTo,
-      vendor: mr.vendor,
-      scheduledDate: mr.scheduledDate,
-      estimatedCost: mr.estimatedCost,
-      actualCost: mr.actualCost,
-      resolution: mr.resolution,
-      completedAt: mr.completedAt,
-      createdAt: mr.createdAt,
-      updatedAt: mr.updatedAt,
+      ...toMaintenanceRequestDTO(mr),
       user: u
         ? {
             name: u.name,

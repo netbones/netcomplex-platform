@@ -17,6 +17,7 @@ import {
   users,
 } from '@api/db';
 import { eq, and, or, asc, desc, gt, ne, like, count, InferSelectModel } from 'drizzle-orm';
+import { toUserDTO, toPropertyDTO, toProfileDTO, toHouseholdDTO } from '@api/dto';
 
 // Output Schemas
 const propertySchema = z.object({
@@ -83,8 +84,8 @@ const userSchema = z.object({
   name: z.string(),
   image: z.string().nullable(),
   role: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
 const soloSeatSchema = z.object({
@@ -709,7 +710,7 @@ export const identityRouter = router({
       return {
         ...profile,
         household: household ? { ...household, property } : null,
-        user,
+        user: user ? toUserDTO(user) : null,
       };
     }),
 

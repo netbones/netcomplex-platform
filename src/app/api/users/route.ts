@@ -14,6 +14,8 @@ import { eq, and, or, asc, ilike, count, ne, sql } from 'drizzle-orm';
 import { apiPaginated, apiCreated, apiForbidden } from '@api/api-response';
 import type { SQL } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
+import { toUserDTO } from '@api/dto/user';
+import type { InferSelectModel } from 'drizzle-orm';
 
 export const maxDuration = 8;
 
@@ -99,18 +101,7 @@ export async function GET(request: Request) {
 
   // Get users with pagination
   const userResults = await db
-    .select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      phone: users.phone,
-      interests: users.interests,
-      avatar: users.avatar,
-      isPublic: users.isPublic,
-      isActive: users.isActive,
-      role: users.role,
-      profileSlug: users.profileSlug,
-    })
+    .select()
     .from(users)
     .where(whereClause)
     .orderBy(asc(users.name))
@@ -202,7 +193,7 @@ export async function GET(request: Request) {
         );
 
       return {
-        ...user,
+        ...toUserDTO(user),
         standardSeats: seats,
         soloSeats: soloSeatsResult,
         premiumSeat: premiumSeat[0] || null,
