@@ -3,6 +3,7 @@ import { hasPermission, canManageOwnGroupOnly, Permission } from '@entities/tena
 import { db, users, platformSuspensions } from '@api/db';
 import { NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
+import { apiUnauthorized, apiForbidden, apiSuspendedUser } from './api-response';
 
 export interface SuspensionInfo {
   id: string;
@@ -139,20 +140,14 @@ export async function throwIfSuspended(request: Request): Promise<NextResponse |
   const { suspended, suspension } = await requireNotSuspended(request);
 
   if (suspended) {
-    return NextResponse.json(
-      {
-        error: 'Account suspended',
-        suspension: {
-          id: suspension?.id,
-          reason: suspension?.reason,
-          suspensionType: suspension?.suspensionType,
-          startDate: suspension?.startDate,
-          endDate: suspension?.endDate,
-          isPermanent: suspension?.isPermanent,
-        },
-      },
-      { status: 403 }
-    );
+    return apiSuspendedUser({
+      id: suspension?.id,
+      reason: suspension?.reason,
+      suspensionType: suspension?.suspensionType,
+      startDate: suspension?.startDate,
+      endDate: suspension?.endDate,
+      isPermanent: suspension?.isPermanent,
+    });
   }
 
   return null;
@@ -169,11 +164,11 @@ export async function requirePermission(
   const authData = await getSessionAndRole();
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   if (!hasPermission(authData.role, permission)) {
-    return NextResponse.json({ error: 'Forbidden - Insufficient permissions' }, { status: 403 });
+    return apiForbidden('Insufficient permissions');
   }
 
   return null;
@@ -191,14 +186,14 @@ export async function requireOwnPermission(
   const authData = await getSessionAndRole();
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const hasFullPermission = hasPermission(authData.role, permission);
   const hasOwnPermission = canManageOwnGroupOnly(authData.role);
 
   if (!hasFullPermission && !hasOwnPermission) {
-    return NextResponse.json({ error: 'Forbidden - Insufficient permissions' }, { status: 403 });
+    return apiForbidden('Insufficient permissions');
   }
 
   return null;
@@ -215,13 +210,13 @@ export async function requireAnyPermission(
   const authData = await getSessionAndRole();
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const hasAny = permissions.some(p => hasPermission(authData.role, p));
 
   if (!hasAny) {
-    return NextResponse.json({ error: 'Forbidden - Insufficient permissions' }, { status: 403 });
+    return apiForbidden('Insufficient permissions');
   }
 
   return null;
