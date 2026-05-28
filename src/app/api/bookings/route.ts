@@ -3,12 +3,10 @@ import { hasPermission } from '@entities/tenant/api/permissions';
 import { bookingSchema } from '@api/schemas';
 import { revalidateDashboard } from '@api/revalidation';
 import { apiLogger } from '@shared/lib';
-import { db, bookings, users, settings } from '@api/db';
-import { eq, asc, gte, and, sql } from 'drizzle-orm';
+import { db, bookings, users } from '@api/db';
+import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
-import { DEFAULT_FACILITIES } from '@entities/booking';
-import type { TenantFacility } from '@entities/booking';
-import type { PgColumn } from 'drizzle-orm/pg-core';
+import * as bookingService from '@entities/booking/services';
 
 import {
   apiCreated,
@@ -19,18 +17,7 @@ import {
   apiValidationError,
 } from '@api/api-response';
 import { toBookingDTO } from '@api/dto/booking';
-type BookingInsertValues = {
-  id: ReturnType<typeof sql>;
-  userId: string;
-  facility: string;
-  date: Date;
-  startTime: string;
-  endTime: string;
-  purpose: string;
-  status: string;
-  createdAt: Date;
-  updatedAt: ReturnType<typeof sql> | null;
-};
+import { assertModuleEnabled } from '@api/feature-gate';
 
 // Limit execution time to 8 seconds for booking operations
 export const maxDuration = 8;
@@ -59,30 +46,7 @@ async function getSessionAndRole(request: Request) {
   };
 }
 
-/**
- * Fetches tenant-configured facilities from the settings table.
- * Falls back to DEFAULT_FACILITIES if no tenant config found.
- */
-async function getTenantFacilities(tenantId: string): Promise<TenantFacility[]> {
-  try {
-    const result = await db
-      .select()
-      .from(settings)
-      .where(and(eq(settings.tenantId, tenantId), eq(settings.key, 'booking_facilities')))
-      .limit(1);
-
-    if (result.length > 0 && result[0].value) {
-      const parsed = JSON.parse(result[0].value);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed as TenantFacility[];
-      }
-    }
-  } catch (error) {
-    apiLogger.error({ err: error, tenantId }, 'Failed to fetch tenant facilities, using defaults');
-  }
-
-  return DEFAULT_FACILITIES;
-}
+/** getTenantFacilities moved to @entities/booking/services */
 
 /**
  * GET /api/bookings - List facility bookings
@@ -97,6 +61,10 @@ export async function GET(request: Request) {
     return apiUnauthorized();
   }
 
+  // Feature gate: check bookings module is enabled for tenant
+  const featureCheck = await assertModuleEnabled('bookings');
+  if (featureCheck) return featureCheck;
+
   const canViewAll = hasPermission(authData.role, 'bookings');
 
   const { searchParams } = new URL(request.url);
@@ -110,33 +78,14 @@ export async function GET(request: Request) {
 
   const { tenantId } = await withTenant();
 
-  // Build query conditions
-  const queryConditions = [eq(bookings.tenantId, tenantId)];
-
-  // Filter by user if not admin
-  if (!canViewAll) {
-    queryConditions.push(eq(bookings.userId, authData.userId));
-  }
-
-  // Filter by facility if provided — now accepts any string (tenant-configurable)
-  if (facility) {
-    queryConditions.push(eq(bookings.facility, facility));
-  }
-
-  // Filter by date if provided
-  if (date) {
-    queryConditions.push(gte(bookings.date, new Date(date)));
-  }
-
-  const whereClause = queryConditions.length > 0 ? and(...queryConditions) : undefined;
-
-  // Execute query with left join to get user info
-  const bookingResults = await db
-    .select()
-    .from(bookings)
-    .leftJoin(users, eq(bookings.userId, users.id))
-    .where(whereClause)
-    .orderBy(asc(bookings.date));
+  // Delegate to entity service for query building and execution
+  const bookingResults = await bookingService.listBookings({
+    tenantId,
+    userId: authData.userId,
+    canViewAll,
+    facility,
+    date,
+  });
 
   // Transform results using DTO
   const transformed = bookingResults.map(row => {
@@ -172,6 +121,10 @@ export async function POST(request: Request) {
     return apiUnauthorized();
   }
 
+  // Feature gate: check bookings module is enabled for tenant
+  const featureCheck = await assertModuleEnabled('bookings');
+  if (featureCheck) return featureCheck;
+
   try {
     const body = await request.json();
 
@@ -190,21 +143,17 @@ export async function POST(request: Request) {
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
 
-    // Validate facility against tenant's configured facilities
-    const tenantFacilities = await getTenantFacilities(tenantId);
-    const validFacilityValues = tenantFacilities.map(f => f.value);
-    if (!validFacilityValues.includes(facility)) {
+    // Validate facility against tenant's configured facilities using service
+    const validation = await bookingService.validateFacility(facility, tenantId);
+    if (!validation.valid) {
       return apiSuccess(
-        { error: `Invalid facility. Valid options: ${validFacilityValues.join(', ')}` },
+        { error: `Invalid facility. Valid options: ${validation.validOptions.join(', ')}` },
         { status: 400 }
       );
     }
 
-    // Use Drizzle insert
-    const now = new Date();
-    type BookingStatus = (typeof bookings.status.enumValues)[number];
-    const insertValues = {
-      id: sql`gen_random_uuid()`,
+    // Delegate to service for booking creation
+    const [booking] = await bookingService.createBooking({
       tenantId,
       userId,
       facility,
@@ -212,11 +161,7 @@ export async function POST(request: Request) {
       startTime,
       endTime,
       purpose,
-      status: 'CONFIRMED' as BookingStatus,
-      createdAt: now,
-      updatedAt: now,
-    };
-    const [booking] = await db.insert(bookings).values(insertValues).returning();
+    });
 
     // Revalidate dashboard caches immediately when new booking is created
     revalidateDashboard();

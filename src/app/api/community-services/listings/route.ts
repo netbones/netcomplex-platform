@@ -16,6 +16,7 @@ import {
   apiUnauthorized,
   apiNotFound,
 } from '@api/api-response';
+import { assertModuleEnabled } from '@api/feature-gate';
 type ListingStatus = (typeof communityServiceListings.status.enumValues)[number];
 type ServiceCategory = (typeof communityServiceListings.category.enumValues)[number];
 
@@ -24,6 +25,10 @@ type ServiceCategory = (typeof communityServiceListings.category.enumValues)[num
  */
 export async function GET(request: NextRequest) {
   try {
+    // Feature gate: check community_services module is enabled for tenant
+    const featureCheck = await assertModuleEnabled('community_services');
+    if (featureCheck) return featureCheck;
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const category = searchParams.get('category');
@@ -211,6 +216,10 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Feature gate: check community_services module is enabled for tenant
+    const featureCheck = await assertModuleEnabled('community_services');
+    if (featureCheck) return featureCheck;
+
     const session = await auth.api.getSession({
       headers: request.headers,
     });
