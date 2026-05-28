@@ -5,14 +5,14 @@
 - **Phase:** 35-api-alignment
 - **Plans:** 10 plans across 4 waves
 - **Plan:** A01 (A01–A10 in current phase)
-- **Current Plan:** 5
+- **Current Plan:** 6
 - **Total Plans in Phase:** 10
 - **Status:** Ready to execute
 - **Last Updated:** 2026-05-28
 - **Current Plan complete — ready for next plan:** 35-A01 canonical API response envelope
 
-**Last Session:** 2026-05-28T13:55:47.380Z
-**Stopped at:** Completed 35-C02-PLAN.md — DTO mapping layer
+**Last Session:** 2026-05-28T14:03:46.369Z
+**Stopped at:** Completed 35-D02-PLAN.md — rate limiting & feature gate enforcement
 **Resume file:** None
 
 ## Decisions Made
@@ -74,6 +74,8 @@
 - [Phase 35-api-alignment]: Re-exports match source exactly — 16 mismatches fixed to prevent compilation failures
 - [Phase 35-api-alignment]: Public v1 routes only export GET handlers — mutations require auth in tenant namespace
 - [Phase 35-api-alignment]: DTO ISO string dates — all dates serialized to ISO strings for portable API contracts
+- [Phase 35-api-alignment]: Feature gate reuses existing DB-backed isModuleEnabled instead of simpler Tenant.modules check — already handles tier enforcement + platform_modules + tenant_modules
+- [Phase 35-api-alignment]: Rate limiter uses in-memory Map store (single-instance) — Redis upgrade flagged for multi-instance production
 
 ## Notes
 
@@ -195,6 +197,7 @@
 | Phase 35-api-alignment PB02 | 279s  | 2 tasks  | 4 files  |
 | Phase 35-api-alignment PC01 | 12min | 2 tasks  | 17 files |
 | Phase 35-api-alignment PC02 | 532   | 2 tasks  | 19 files |
+| Phase 35-api-alignment PD02 | 12min | 2 tasks  | 10 files |
 
 ## A01 Execution Decisions
 
