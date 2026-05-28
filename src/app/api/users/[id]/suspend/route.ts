@@ -8,6 +8,7 @@ import {
   apiNotFound,
   apiCreated,
   apiError,
+  apiConflict,
 } from '@api/api-response';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
@@ -110,9 +111,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .limit(1);
 
   if (existingSuspension) {
-    return apiError('VALIDATION_ERROR', 'User already has an active suspension', 409, {
-      existingSuspension,
-    });
+    return apiConflict('User already has an active suspension');
   }
 
   // Create suspension record + deactivate user atomically

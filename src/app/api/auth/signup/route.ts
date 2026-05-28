@@ -4,7 +4,15 @@ import { verifyTurnstile } from '@shared/api/turnstile';
 import { db, invitations, users } from '@api/db';
 import { eq, and, gt } from 'drizzle-orm';
 
-import { apiCreated, apiError, apiSuccess } from '@api/api-response';
+import {
+  apiCreated,
+  apiConflict,
+  apiError,
+  apiForbidden,
+  apiGone,
+  apiInternalError,
+  apiSuccess,
+} from '@api/api-response';
 import { rateLimitByIP } from '@api/rate-limit';
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
@@ -24,14 +32,14 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!email || !password || !name) {
-      return apiSuccess({ error: 'Email, password, and name are required' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'Email, password, and name are required', 400);
     }
 
     // Verify Turnstile token if provided
     if (turnstileToken) {
       const isHuman = await verifyTurnstile(turnstileToken);
       if (!isHuman) {
-        return apiSuccess({ error: 'Bot verification failed. Please try again.' }, { status: 403 });
+        return apiForbidden('Bot verification failed. Please try again.');
       }
     }
 
@@ -53,7 +61,7 @@ export async function POST(request: NextRequest) {
           .update(invitations)
           .set({ status: 'EXPIRED' })
           .where(eq(invitations.id, invitation.id));
-        return apiError('VALIDATION_ERROR', 'Invitation has expired', 410);
+        return apiGone('Invitation has expired');
       }
 
       invitationData = invitation;
@@ -98,14 +106,18 @@ export async function POST(request: NextRequest) {
 
     // Return Better Auth's error response
     if (authResponse.status === 422) {
-      return apiError('VALIDATION_ERROR', 'Email address is already registered', 409);
+      return apiConflict('Email address is already registered');
     }
 
-    return apiSuccess(responseData, { status: authResponse.status });
+    return apiError(
+      'VALIDATION_ERROR',
+      responseData.error?.message || 'Signup failed',
+      authResponse.status
+    );
   } catch (error) {
     logError({ component: 'signup-api', operation: 'USER_SIGNUP' }, 'Failed to create user', error);
 
-    return apiSuccess({ error: 'Failed to create account. Please try again.' }, { status: 500 });
+    return apiInternalError('Failed to create account. Please try again.');
   }
 }
 

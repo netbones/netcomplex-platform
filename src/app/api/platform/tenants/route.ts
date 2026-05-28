@@ -5,7 +5,7 @@ import { db, users, tenants } from '@api/db';
 import { eq } from 'drizzle-orm';
 import { logError } from '@shared/lib';
 
-import { apiCreated, apiError, apiSuccess } from '@api/api-response';
+import { apiCreated, apiConflict, apiError, apiInternalError, apiSuccess } from '@api/api-response';
 interface SignupRequest {
   name: string;
   slug: string;
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (existingTenant.length > 0) {
-      return apiError('VALIDATION_ERROR', 'Subdomain is already taken', 409);
+      return apiConflict('Subdomain is already taken');
     }
 
     // Check if email is already taken
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (existingUser.length > 0) {
-      return apiError('VALIDATION_ERROR', 'Email address is already registered', 409);
+      return apiConflict('Email address is already registered');
     }
 
     // Get tier configuration
@@ -70,11 +70,12 @@ export async function POST(request: NextRequest) {
     if (!authResponse.ok) {
       const authError = await authResponse.json();
       if (authResponse.status === 422) {
-        return apiError('VALIDATION_ERROR', 'Email address is already registered', 409);
+        return apiConflict('Email address is already registered');
       }
-      return apiSuccess(
-        { error: authError.error || 'Failed to create user account' },
-        { status: authResponse.status }
+      return apiError(
+        'VALIDATION_ERROR',
+        authError.error || 'Failed to create user account',
+        authResponse.status
       );
     }
 
@@ -82,10 +83,7 @@ export async function POST(request: NextRequest) {
     const userId = authData.user?.id;
 
     if (!userId) {
-      return apiSuccess(
-        { error: 'Failed to retrieve user id from auth response' },
-        { status: 500 }
-      );
+      return apiInternalError('Failed to retrieve user id from auth response');
     }
 
     let tenantId: string | undefined;
@@ -163,6 +161,6 @@ export async function POST(request: NextRequest) {
       'Failed to create tenant and user',
       error
     );
-    return apiSuccess({ error: 'Failed to create community. Please try again.' }, { status: 500 });
+    return apiInternalError('Failed to create community. Please try again.');
   }
 }

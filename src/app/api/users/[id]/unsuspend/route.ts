@@ -7,7 +7,7 @@ import {
   apiForbidden,
   apiNotFound,
   apiSuccess,
-  apiError,
+  apiConflict,
 } from '@api/api-response';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
@@ -64,7 +64,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .limit(1);
 
   if (!activeSuspension) {
-    return apiError('VALIDATION_ERROR', 'User has no active suspension', 409);
+    return apiConflict('User has no active suspension');
   }
 
   // Atomically deactivate suspension and reactivate user

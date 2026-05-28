@@ -9,6 +9,8 @@ export const ERROR_CODES = {
   TENANT_FORBIDDEN: 'TENANT_FORBIDDEN',
   VALIDATION_ERROR: 'VALIDATION_ERROR',
   NOT_FOUND: 'NOT_FOUND',
+  CONFLICT: 'CONFLICT',
+  GONE: 'GONE',
   RATE_LIMITED: 'RATE_LIMITED',
   FEATURE_DISABLED: 'FEATURE_DISABLED',
   SUSPENDED_USER: 'SUSPENDED_USER',
@@ -141,6 +143,14 @@ export function apiNotFound(message?: string): NextResponse<ApiErrorResponse> {
 
 export function apiSuspendedUser(details?: unknown): NextResponse<ApiErrorResponse> {
   return apiError(ERROR_CODES.SUSPENDED_USER, 'Account suspended', 403, details);
+}
+
+export function apiConflict(message?: string): NextResponse<ApiErrorResponse> {
+  return apiError(ERROR_CODES.CONFLICT, message || 'Resource conflict', 409);
+}
+
+export function apiGone(message?: string): NextResponse<ApiErrorResponse> {
+  return apiError(ERROR_CODES.GONE, message || 'Resource no longer available', 410);
 }
 
 export function apiInternalError(message?: string): NextResponse<ApiErrorResponse> {

@@ -1,7 +1,7 @@
 import { db, invitations, tenants, users } from '@api/db';
 import { eq, and, gt } from 'drizzle-orm';
 
-import { apiError, apiSuccess, apiNotFound } from '@api/api-response';
+import { apiError, apiGone, apiSuccess, apiNotFound } from '@api/api-response';
 /**
  * GET /api/invitations/validate?token=<token>
  * Validates an invitation token and returns invitation details.
@@ -38,14 +38,15 @@ export async function GET(request: Request) {
 
   // Check if expired
   if (new Date() > invitation.expiresAt) {
-    return apiError('VALIDATION_ERROR', 'Invitation has expired', 410);
+    return apiGone('Invitation has expired');
   }
 
   // Check if already accepted or revoked
   if (invitation.status !== 'PENDING') {
-    return apiSuccess(
-      { error: `Invitation is no longer pending (status: ${invitation.status})` },
-      { status: 400 }
+    return apiError(
+      'VALIDATION_ERROR',
+      `Invitation is no longer pending (status: ${invitation.status})`,
+      400
     );
   }
 

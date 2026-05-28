@@ -1,5 +1,12 @@
 import { db, users, soloSeats, premiumSeats } from '@api/db';
-import { apiSuccess, apiCreated, apiForbidden, apiNotFound, apiError } from '@api/api-response';
+import {
+  apiSuccess,
+  apiConflict,
+  apiCreated,
+  apiForbidden,
+  apiNotFound,
+  apiError,
+} from '@api/api-response';
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { hasPermission } from '@entities/tenant/api/permissions';
@@ -43,7 +50,7 @@ export async function POST(request: Request) {
       .from(soloSeats)
       .where(eq(soloSeats.userId, userId));
     if (existing.length >= 5) {
-      return apiError('VALIDATION_ERROR', 'User already has 5 soloSeats (maximum)', 409);
+      return apiConflict('User already has 5 soloSeats (maximum)');
     }
 
     // Check platformAddress uniqueness
@@ -53,10 +60,8 @@ export async function POST(request: Request) {
       .where(eq(soloSeats.platformAddress, platformAddress))
       .limit(1);
     if (existingAddr) {
-      return apiError(
-        'VALIDATION_ERROR',
-        `Platform address "${platformAddress}" is already allocated to another user`,
-        409
+      return apiConflict(
+        `Platform address "${platformAddress}" is already allocated to another user`
       );
     }
 
@@ -84,7 +89,7 @@ export async function POST(request: Request) {
     .limit(1);
 
   if (existing) {
-    return apiError('VALIDATION_ERROR', 'User already has a premiumSeat', 409);
+    return apiConflict('User already has a premiumSeat');
   }
 
   const seat = await db

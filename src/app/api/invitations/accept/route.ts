@@ -3,7 +3,7 @@ import { eq, and, gt } from 'drizzle-orm';
 import { auth } from '@api/auth';
 import { apiLogger } from '@shared/lib';
 
-import { apiError, apiSuccess, apiNotFound } from '@api/api-response';
+import { apiError, apiGone, apiInternalError, apiSuccess, apiNotFound } from '@api/api-response';
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 /**
@@ -39,14 +39,15 @@ export async function POST(request: Request) {
         .update(invitations)
         .set({ status: 'EXPIRED' })
         .where(eq(invitations.id, invitation.id));
-      return apiError('VALIDATION_ERROR', 'Invitation has expired', 410);
+      return apiGone('Invitation has expired');
     }
 
     // Check if already processed
     if (invitation.status !== 'PENDING') {
-      return apiSuccess(
-        { error: `Invitation is no longer pending (status: ${invitation.status})` },
-        { status: 400 }
+      return apiError(
+        'VALIDATION_ERROR',
+        `Invitation is no longer pending (status: ${invitation.status})`,
+        400
       );
     }
 
@@ -76,10 +77,7 @@ export async function POST(request: Request) {
           { userId: existingUser.id, invitationId: invitation.id },
           'Failed to update user role via Better Auth'
         );
-        return apiSuccess(
-          { error: 'Failed to apply invitation role. Please contact support.' },
-          { status: 500 }
-        );
+        return apiInternalError('Failed to apply invitation role. Please contact support.');
       }
 
       // Mark invitation as accepted
@@ -110,6 +108,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     apiLogger.error({ operation: 'accept_invitation' }, 'Failed to accept invitation', error);
-    return apiSuccess({ error: 'Failed to accept invitation. Please try again.' }, { status: 500 });
+    return apiInternalError('Failed to accept invitation. Please try again.');
   }
 }
