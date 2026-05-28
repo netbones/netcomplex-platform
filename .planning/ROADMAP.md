@@ -357,13 +357,28 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Break the 1,431-line UsersListSection.tsx into maintainable sub-components each under 500 lines — extract types to entity layer, pure helpers to lib/, data fetch to custom hook, 5 modal dialogs to separate components using shared ModalOverlay, table into row/edit-row/table components, slim orchestrator under 300 lines
 
-**Status:** Planning Complete
+**Status:** Complete
 
 **Requirements:** REFACTOR-01, REFACTOR-02, REFACTOR-03
 
 **Plans:** 1 plan
 
-- [ ] 32-01-PLAN.md — Extract types/helpers/hook/ModalOverlay, then extract modals + table components + slim orchestrator (Wave 1)
+- [x] 32-01-PLAN.md — Extract types/helpers/hook/ModalOverlay, then extract modals + table components + slim orchestrator (Wave 1) ✅
+
+---
+
+## Phase: 33-user-suspension
+
+**Goal:** Implement a proper admin suspension mechanism — admin can issue timed suspensions (2 days, 1 week, 30 days, permanent) with type (violation, disruption, behavior, property, non-payment, other), reason, and description. Suspended users are deactivated and blocked at the API level. Users can be unsuspended early. Suspension history is tracked in the existing platformSuspension table.
+
+**Status:** Planning Complete
+
+**Requirements:** SUSP-01, SUSP-02, SUSP-03
+
+**Plans:** 2 plans
+
+- [ ] 33-01-PLAN.md — Backend: suspension API routes (suspend/unsuspend/history) + auth guard + suspension-status endpoint (Wave 1)
+- [ ] 33-02-PLAN.md — Frontend: types, rewrite SuspendUserModal with full form, update UserRow/UsersListSection, i18n translations (Wave 2)
 
 ---
 

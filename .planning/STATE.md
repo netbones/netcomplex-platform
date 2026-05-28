@@ -2,11 +2,11 @@
 
 ## Current Position
 
-- **Phase:** 32-users-list-refactor
-- **Plan:** 32-01 complete
-- **Status:** Phase Complete
+- **Phase:** 33-user-suspension
+- **Plan:** 33-01 planned, 33-02 planned
+- **Status:** Planning Complete
 - **Last Updated:** 2026-05-28
-- **Last Session:** Refactored 1,431-line UsersListSection into 13 focused sub-components (all under 500 lines)
+- **Last Session:** Planned Phase 33 — suspension API routes + auth guard + suspension UI + i18n (2 plans, 2 waves)
 
 ## Decisions Made
 
@@ -146,7 +146,13 @@
 - **30-04:** Complete — Admin sub-launcher + MyHomeSpace + announcements in Messages + NAV_REGISTRY (2 commits)
 - **30-05:** Complete — MobileSpaceBar + responsive layout + 5 checkpoint bug fixes (2 commits)
 - **32-01:** Complete — UsersListSection 1,431→462 lines, 13 new files, ModalOverlay shared primitive, backward-compat re-export shim (1 commit)
+- **32-01:** Complete — UsersListSection 1,431→462 lines, 13 new files, ModalOverlay shared primitive, backward-compat re-export shim
 - [Phase 32-users-list-refactor]: AdminUser/SeatInfo/Invitation types extracted to @entities/user/model/types
 - [Phase 32-users-list-refactor]: resolveAddress/resolveType/resolveSeatInfo extracted to lib/resolve-user-helpers
 - [Phase 32-users-list-refactor]: ModalOverlay shared primitive replaces 5 duplicate overlay patterns
 - [Phase 32-users-list-refactor]: Old UsersListSection.tsx path preserved via re-export shim
+- [Phase 33-user-suspension]: platformSuspension table already exists — no schema migration needed
+- [Phase 33-user-suspension]: Dedicated POST /api/users/[id]/suspend and /unsuspend routes (not PATCH) for atomic operations in transactions
+- [Phase 33-user-suspension]: Suspension auth check via requireNotSuspended() helper — separate from getSessionAndRole() to avoid breaking existing callers
+- [Phase 33-user-suspension]: 4 duration presets (2 days, 1 week, 30 days, permanent) with end date calculation on the frontend
+- [Phase 33-user-suspension]: i18n-only frontend check — no Middleware interception for MVP; API-level enforcement via requireNotSuspended()
