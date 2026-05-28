@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 
 // Drizzle imports
@@ -13,6 +13,14 @@ import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import {
+  apiError,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+  apiForbidden,
+  apiNotFound,
+} from '@api/api-response';
 /**
  * GET /api/community-services/listings/[id] - Get a specific service listing
  */
@@ -70,7 +78,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .limit(1);
 
     if (!listing) {
-      return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
+      return apiNotFound('Listing not found');
     }
 
     // Get reviews
@@ -121,10 +129,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // Only published listings are visible to non-owners
     if (!listing.isPublished && listing.providerId !== session?.user?.id) {
-      return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
+      return apiNotFound('Listing not found');
     }
 
-    return NextResponse.json({
+    return apiSuccess({
       listing: {
         ...listing,
         CommunityServiceReview: reviews,
@@ -140,7 +148,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       'Community service listing fetch error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -159,7 +167,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     // Check ownership using Drizzle (with tenant filter)
@@ -172,11 +180,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       .limit(1);
 
     if (!existingListing) {
-      return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
+      return apiNotFound('Listing not found');
     }
 
     if (existingListing.providerId !== session.user.id) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      return apiForbidden('Access denied');
     }
 
     const body = await request.json();
@@ -229,7 +237,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       .where(eq(communityServiceListings.id, id))
       .limit(1);
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       listing,
     });
@@ -239,7 +247,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       'Community service listing update error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -261,7 +269,7 @@ export async function DELETE(
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     // Check ownership using Drizzle (with tenant filter)
@@ -274,11 +282,11 @@ export async function DELETE(
       .limit(1);
 
     if (!existingListing) {
-      return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
+      return apiNotFound('Listing not found');
     }
 
     if (existingListing.providerId !== session.user.id) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      return apiForbidden('Access denied');
     }
 
     // Delete with Drizzle (with tenant filter)
@@ -288,7 +296,7 @@ export async function DELETE(
         and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
       );
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       message: 'Listing deleted successfully',
     });
@@ -298,6 +306,6 @@ export async function DELETE(
       'Community service listing deletion error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 
 import { apiLogger } from '@shared/lib';
@@ -9,6 +9,13 @@ import { eq, desc, and, or, sql, ilike } from 'drizzle-orm';
 import { communityServiceReviews } from '@api/db';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import {
+  apiError,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+  apiNotFound,
+} from '@api/api-response';
 type ListingStatus = (typeof communityServiceListings.status.enumValues)[number];
 type ServiceCategory = (typeof communityServiceListings.category.enumValues)[number];
 
@@ -77,7 +84,7 @@ export async function GET(request: NextRequest) {
         .limit(1);
 
       if (!listing) {
-        return NextResponse.json({ error: 'Service not found' }, { status: 404 });
+        return apiNotFound('Service not found');
       }
 
       // Get review count separately (Drizzle doesn't support count in select for relates)
@@ -86,7 +93,7 @@ export async function GET(request: NextRequest) {
         .from(communityServiceReviews)
         .where(eq(communityServiceReviews.listingId, id));
 
-      return NextResponse.json({
+      return apiSuccess({
         listing: { ...listing, _count: { reviews: reviewCountResult?.count || 0 } },
       });
     }
@@ -181,7 +188,7 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    return NextResponse.json({
+    return apiSuccess({
       listings: listingsWithCounts,
       pagination: {
         total,
@@ -195,7 +202,7 @@ export async function GET(request: NextRequest) {
       { err: error, path: '/api/community-services/listings' },
       'Listings fetch error'
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -209,7 +216,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const body = await request.json();
@@ -274,7 +281,7 @@ export async function POST(request: NextRequest) {
       .where(eq(communityServiceListings.id, listingId))
       .limit(1);
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       listing,
     });
@@ -283,6 +290,6 @@ export async function POST(request: NextRequest) {
       { err: error, path: '/api/community-services/listings' },
       'Listing creation error'
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

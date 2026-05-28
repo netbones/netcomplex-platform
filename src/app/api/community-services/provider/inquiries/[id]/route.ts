@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 
 // Drizzle imports
@@ -7,6 +7,14 @@ import { eq, and, sql, inArray, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import {
+  apiError,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+  apiForbidden,
+  apiNotFound,
+} from '@api/api-response';
 type InquiryStatus = (typeof communityServiceInquiries.status.enumValues)[number];
 
 /**
@@ -22,7 +30,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const { searchParams } = new URL(request.url);
@@ -44,7 +52,7 @@ export async function GET(request: NextRequest) {
     const listingIds = providerListings.map(l => l.id);
 
     if (listingIds.length === 0) {
-      return NextResponse.json({
+      return apiSuccess({
         inquiries: [],
         pagination: { total: 0, limit, offset, hasMore: false },
       });
@@ -104,7 +112,7 @@ export async function GET(request: NextRequest) {
 
     const total = totalResult?.count || 0;
 
-    return NextResponse.json({
+    return apiSuccess({
       inquiries,
       pagination: {
         total,
@@ -119,7 +127,7 @@ export async function GET(request: NextRequest) {
       'Community service provider inquiries fetch error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -138,7 +146,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const { response, status } = await request.json();
@@ -161,7 +169,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .limit(1);
 
     if (!inquiry) {
-      return NextResponse.json({ error: 'Inquiry not found' }, { status: 404 });
+      return apiNotFound('Inquiry not found');
     }
 
     // Get listing to check ownership (with tenant filter)
@@ -177,7 +185,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .limit(1);
 
     if (!listing || listing.providerId !== session.user.id) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      return apiForbidden('Access denied');
     }
 
     // Update inquiry with Drizzle
@@ -230,7 +238,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       )
       .limit(1);
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       inquiry: updatedInquiry,
     });
@@ -240,6 +248,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       'Community service inquiry response error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

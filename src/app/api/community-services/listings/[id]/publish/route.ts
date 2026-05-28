@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 
 // Drizzle imports
@@ -7,6 +7,14 @@ import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import {
+  apiError,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+  apiForbidden,
+  apiNotFound,
+} from '@api/api-response';
 /**
  * POST /api/community-services/listings/[id]/publish - Publish or unpublish a listing
  */
@@ -22,7 +30,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const { publish } = await request.json();
@@ -37,11 +45,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .limit(1);
 
     if (!existingListing) {
-      return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
+      return apiNotFound('Listing not found');
     }
 
     if (existingListing.providerId !== session.user.id) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      return apiForbidden('Access denied');
     }
 
     // Update publish status with Drizzle
@@ -61,7 +69,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .where(eq(communityServiceListings.id, id))
       .limit(1);
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       listing,
       message: publish ? 'Listing published successfully' : 'Listing unpublished',
@@ -72,6 +80,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       'Community service listing publish error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

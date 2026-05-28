@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 
 // Drizzle imports
@@ -13,6 +13,13 @@ import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import {
+  apiError,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+  apiForbidden,
+} from '@api/api-response';
 /**
  * GET /api/community-services/analytics - Get marketplace analytics
  */
@@ -26,7 +33,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     // Check if user is admin using Drizzle
@@ -37,7 +44,7 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (!user || !['ADMIN', 'BOARD', 'COMMITTEE'].includes(user.role)) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return apiForbidden('Admin access required');
     }
 
     const { searchParams } = new URL(request.url);
@@ -164,7 +171,7 @@ export async function GET(request: NextRequest) {
         sql`EXISTS (SELECT 1 FROM "communityServiceListings" WHERE "communityServiceListings"."id" = ${communityServiceReviews.listingId} AND "communityServiceListings"."tenantId" = ${tenantId})`
       );
 
-    return NextResponse.json({
+    return apiSuccess({
       overview: {
         totalListings: totalListingsResult?.count || 0,
         activeListings: activeListingsResult?.count || 0,
@@ -185,6 +192,6 @@ export async function GET(request: NextRequest) {
       'Community services analytics error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

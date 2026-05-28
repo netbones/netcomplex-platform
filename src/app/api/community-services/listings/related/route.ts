@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
 // Drizzle imports
 import { db, communityServiceListings, users } from '@api/db';
@@ -7,6 +7,7 @@ import { communityServiceReviews } from '@api/db';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import { apiError, apiInternalError, apiSuccess, apiNotFound } from '@api/api-response';
 export const maxDuration = 5;
 
 export async function GET(request: NextRequest) {
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '4');
 
     if (!serviceId) {
-      return NextResponse.json({ error: 'serviceId is required' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'serviceId is required', 400);
     }
 
     // Get current service details using Drizzle (with tenant filter)
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (!currentService) {
-      return NextResponse.json({ error: 'Service not found' }, { status: 404 });
+      return apiNotFound('Service not found');
     }
 
     // Build search term from first word of title
@@ -96,13 +97,13 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    return NextResponse.json({ relatedServices: relatedWithCounts });
+    return apiSuccess({ relatedServices: relatedWithCounts });
   } catch (error) {
     logError(
       { component: 'related-services-api', operation: 'GET' },
       'Related services fetch error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

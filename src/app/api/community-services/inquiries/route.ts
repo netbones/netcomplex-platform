@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 
 // Drizzle imports
@@ -7,6 +7,13 @@ import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import {
+  apiError,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+  apiNotFound,
+} from '@api/api-response';
 type InquiryStatus = (typeof communityServiceInquiries.status.enumValues)[number];
 
 /**
@@ -19,7 +26,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const { searchParams } = new URL(request.url);
@@ -109,7 +116,7 @@ export async function GET(request: NextRequest) {
 
     const total = totalResult?.count || 0;
 
-    return NextResponse.json({
+    return apiSuccess({
       inquiries: inquiriesWithDetails,
       pagination: {
         total,
@@ -124,7 +131,7 @@ export async function GET(request: NextRequest) {
       'Community service inquiries fetch error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -138,7 +145,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const body = await request.json();
@@ -154,10 +161,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!listingId || !description) {
-      return NextResponse.json(
-        { error: 'Listing ID and description are required' },
-        { status: 400 }
-      );
+      return apiSuccess({ error: 'Listing ID and description are required' }, { status: 400 });
     }
 
     // Check if listing exists and is published using Drizzle
@@ -172,12 +176,12 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!listing || !listing.isPublished) {
-      return NextResponse.json({ error: 'Service listing not found' }, { status: 404 });
+      return apiNotFound('Service listing not found');
     }
 
     // Prevent self-inquiries
     if (listing.providerId === session.user.id) {
-      return NextResponse.json({ error: 'Cannot inquire about your own service' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'Cannot inquire about your own service', 400);
     }
 
     // Enforce tenant isolation
@@ -248,7 +252,7 @@ export async function POST(request: NextRequest) {
       .where(eq(users.id, session.user.id))
       .limit(1);
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       inquiry: {
         ...inquiry,
@@ -269,6 +273,6 @@ export async function POST(request: NextRequest) {
       'Community service inquiry creation error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

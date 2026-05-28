@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 
 // Drizzle imports
@@ -7,6 +7,13 @@ import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import {
+  apiError,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+  apiForbidden,
+} from '@api/api-response';
 type ListingStatus = (typeof communityServiceListings.status.enumValues)[number];
 
 /**
@@ -22,7 +29,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     // Check if user is admin using Drizzle
@@ -33,7 +40,7 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (!user || !['ADMIN', 'BOARD', 'COMMITTEE'].includes(user.role)) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return apiForbidden('Admin access required');
     }
 
     const { searchParams } = new URL(request.url);
@@ -87,7 +94,7 @@ export async function GET(request: NextRequest) {
 
     const total = totalResult?.count || 0;
 
-    return NextResponse.json({
+    return apiSuccess({
       listings,
       pagination: {
         total,
@@ -102,7 +109,7 @@ export async function GET(request: NextRequest) {
       'Community services moderation listings fetch error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -121,7 +128,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     // Check if user is admin using Drizzle
@@ -132,7 +139,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .limit(1);
 
     if (!user || !['ADMIN', 'BOARD', 'COMMITTEE'].includes(user.role)) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return apiForbidden('Admin access required');
     }
 
     const { notes } = await request.json();
@@ -161,7 +168,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       )
       .limit(1);
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       listing,
       message: 'Listing approved and published',
@@ -172,7 +179,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       'Community service listing approval error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -191,7 +198,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     // Check if user is admin using Drizzle
@@ -202,7 +209,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       .limit(1);
 
     if (!user || !['ADMIN', 'BOARD', 'COMMITTEE'].includes(user.role)) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return apiForbidden('Admin access required');
     }
 
     const { reason, notes } = await request.json();
@@ -231,7 +238,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       )
       .limit(1);
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       listing,
       message: 'Listing rejected',
@@ -242,7 +249,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       'Community service listing rejection error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -264,7 +271,7 @@ export async function DELETE(
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     // Check if user is admin using Drizzle
@@ -275,7 +282,7 @@ export async function DELETE(
       .limit(1);
 
     if (!user || !['ADMIN', 'BOARD'].includes(user.role)) {
-      return NextResponse.json({ error: 'Board/Admin access required' }, { status: 403 });
+      return apiForbidden('Board/Admin access required');
     }
 
     const { reason } = await request.json();
@@ -295,7 +302,7 @@ export async function DELETE(
         and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
       );
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       message: 'Listing removed from marketplace',
     });
@@ -305,6 +312,6 @@ export async function DELETE(
       'Community service listing removal error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

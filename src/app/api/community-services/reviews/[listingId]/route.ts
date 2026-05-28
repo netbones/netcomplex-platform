@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 
 // Drizzle imports
@@ -7,6 +7,13 @@ import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import {
+  apiError,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+  apiNotFound,
+} from '@api/api-response';
 /**
  * GET /api/community-services/reviews/[listingId] - Get reviews for a listing
  */
@@ -84,7 +91,7 @@ export async function GET(
         )
       );
 
-    return NextResponse.json({
+    return apiSuccess({
       reviews,
       stats: {
         averageRating: ratingStats?.avgRating || 0,
@@ -104,7 +111,7 @@ export async function GET(
       'Community service reviews fetch error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -122,7 +129,7 @@ export async function POST(
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const body = await request.json();
@@ -130,7 +137,7 @@ export async function POST(
 
     // Validate rating
     if (rating < 1 || rating > 5) {
-      return NextResponse.json({ error: 'Rating must be between 1 and 5' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'Rating must be between 1 and 5', 400);
     }
 
     // Enforce tenant isolation
@@ -153,12 +160,12 @@ export async function POST(
       .limit(1);
 
     if (!listing || !listing.isPublished) {
-      return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
+      return apiNotFound('Listing not found');
     }
 
     // Prevent self-reviews
     if (listing.providerId === session.user.id) {
-      return NextResponse.json({ error: 'Cannot review your own service' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'Cannot review your own service', 400);
     }
 
     // Check if user already reviewed this listing using Drizzle
@@ -174,10 +181,7 @@ export async function POST(
       .limit(1);
 
     if (existingReview) {
-      return NextResponse.json(
-        { error: 'You have already reviewed this service' },
-        { status: 400 }
-      );
+      return apiSuccess({ error: 'You have already reviewed this service' }, { status: 400 });
     }
 
     // Create review with Drizzle
@@ -228,7 +232,7 @@ export async function POST(
       .where(eq(communityServiceReviews.id, reviewId))
       .limit(1);
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       review,
     });
@@ -238,7 +242,7 @@ export async function POST(
       'Community service review creation error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
