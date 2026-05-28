@@ -41,7 +41,7 @@
 
 | ID    | Type    | Title                                        | Status |
 | ----- | ------- | -------------------------------------------- | ------ |
-| `2at` | feature | Phase 34: Community Merits & Standing System | ○      |
+| `2at` | feature | Phase 35: Community Merits & Standing System | ○      |
 
 ### Blocked Tasks
 

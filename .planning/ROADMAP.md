@@ -392,7 +392,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-### Phase: 34-merits-system
+### Phase: 35-merits-system
 
 - Community merits/standing tracking system with Gold/Silver/Bronze/Probation tiers
 - `behaviorRecord` table tracking MERIT/WARNING/INFRACTION entries per user
