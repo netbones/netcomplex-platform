@@ -656,11 +656,13 @@ Our Android mobile app needs to consume API endpoints, but tRPC is primarily des
 
 ---
 
-## ADR-016: Manual OpenAPI Specification
+## ADR-016: Auto-Generated OpenAPI Specification via @trpc/openapi
 
-**Status:** Accepted
+**Status:** Superseded
 
 **Date:** 2026-05-14
+
+**Superseded by:** ADR-019: Auto-Generated OpenAPI via @trpc/openapi
 
 ### Context
 
@@ -668,66 +670,80 @@ After attempting to use `trpc-openapi` for automatic OpenAPI generation (ADR-015
 
 The Android mobile app still needs OpenAPI documentation to consume our APIs, but we need a solution compatible with tRPC v11.
 
+### Decision (Original)
+
+Create a manual OpenAPI 3.0 specification served at `/api/openapi.json`.
+
+**This decision has been superseded by ADR-019.** See ADR-019 for the current approach using `@trpc/openapi` for auto-generated OpenAPI 3.1 specifications from tRPC procedures.
+
+**Related:**
+
+- Supersedes ADR-015: Add OpenAPI Support for Mobile App Integration
+- Superseded by ADR-019: Auto-Generated OpenAPI via @trpc/openapi
+- ADR-011: Use tRPC for Type-Safe APIs
+
+---
+
+## ADR-019: Auto-Generated OpenAPI via @trpc/openapi
+
+**Status:** Accepted
+
+**Date:** 2026-05-28
+
+### Context
+
+Phase 35 (API Alignment) identified that the hand-written OpenAPI spec (ADR-016) was perenially stale — it only described one endpoint and required manual maintenance. The governance documents (API.md §3.2, tRPC.md §16) require OpenAPI specs to be generated from tRPC, not hand-written.
+
+Previous attempts to use `trpc-openapi` (ADR-015, ADR-016) failed due to incompatibility with `@trpc/server@^11`.
+
 ### Decision
 
-Create a manual OpenAPI 3.0 specification served at `/api/openapi.json`. The specification:
+Use `@trpc/openapi@11.17.0-alpha` (the official tRPC v11 OpenAPI package) to auto-generate the OpenAPI 3.1 specification from governed tRPC procedures.
 
-- Is hand-written and maintained as code
-- Documents tRPC endpoints in OpenAPI format
-- Includes proper schemas, security definitions, and error responses
-- Passes OpenAPI validation with zero warnings
-- Uses production URL (not localhost) in server definitions
+**Key implementation details:**
 
-**Implementation:**
+- `src/server/openapi/generator.ts` — TypeScript compiler-based generation via `generateOpenAPIDocument(filePath)`
+- `GET /api/openapi.json` — Route serves the auto-generated spec (replaces hand-written file)
+- Security scheme (Bearer JWT via Better Auth) applied to all operations
+- Spec includes all 12+ identity procedures with complete Zod-derived schemas
+- Redocly CI validation passes with 0 errors
+- `pnpm api:generate` — CLI script writes spec to `public/openapi.json` for CI consumption
 
-```typescript
-// src/app/api/openapi.json/route.ts
-const openApiSpec = {
-  openapi: '3.0.0',
-  info: {
-    title: 'Soralia Village API',
-    version: '1.0.0',
-    license: { name: 'Proprietary' },
-  },
-  paths: {
-    /* manual endpoint definitions */
-  },
-};
-```
+**API differences from `trpc-openapi`:**
 
-**Alternatives considered:**
-
-1. **Downgrade to tRPC v10**: Would cause breaking changes, incompatible with v11 features
-2. **Wait for trpc-openapi v11 support**: No timeline, blocks mobile app development
-3. **Use community forks**: All tested forks also require tRPC v10
-4. **GraphQL**: Overkill, adds unnecessary complexity
+| Aspect | trpc-openapi (v1)               | @trpc/openapi (v11)                   |
+| ------ | ------------------------------- | ------------------------------------- |
+| Format | OpenAPI 3.0                     | OpenAPI 3.1                           |
+| Paths  | REST-style (/properties)        | tRPC-style (/identity.listProperties) |
+| API    | generateOpenApiDocument(router) | generateOpenAPIDocument(filePath)     |
+| Method | Runtime introspection           | TypeScript compiler analysis          |
 
 ### Consequences
 
 **Positive:**
 
-- Compatible with tRPC v11 - no breaking changes
-- Full control over API documentation
-- Passes OpenAPI validation (redocly lint)
-- Can be incrementally expanded as needed
-- No dependency on unmaintained packages
+- Always-fresh spec — no manual maintenance
+- All tRPC procedures with `.meta({ openapi })` automatically appear in the spec
+- OpenAPI 3.1 supports full JSON Schema 2020-12 (better type expressiveness)
+- CI validation via Redocly ensures spec stays valid
+- Security scheme auto-applied to all operations
 
 **Negative:**
 
-- Manual maintenance required when APIs change
-- No automatic sync between tRPC procedures and OpenAPI spec
-- Requires discipline to keep documentation updated
-- More verbose than automatic generation
+- tRPC-style paths (e.g., `/identity.listProperties`) instead of REST paths (`/identity/properties`)
+- OpenAPI 3.1 may not be supported by all tooling (most tools support 3.0+)
+- Only identity procedures are currently covered — REST routes not yet migrated
 
 **Mitigation:**
 
-- Document OpenAPI update process in AGENTS.md
-- Add OpenAPI validation to CI/CD pipeline
-- Review OpenAPI spec during API changes
+- `@trpc/openapi` is the official package — future tRPC versions will maintain compatibility
+- OpenAPI 3.1 is backward-compatible with most 3.0 consumers
+- Path transformation layer can be added if REST-style paths are required for external consumers
 
 **Related:**
 
-- Supersedes ADR-015: Add OpenAPI Support for Mobile App Integration
+- Supersedes ADR-016: Manual OpenAPI Specification (formerly Accepted)
+- ADR-015: Add OpenAPI Support for Mobile App Integration (formerly Superseded)
 - ADR-011: Use tRPC for Type-Safe APIs
 
 ---

@@ -1337,7 +1337,7 @@ TURNSTILE_SECRET_KEY=
 
 ### OpenAPI Standard
 
-All external integrations will follow OpenAPI 3.0 specification for:
+All external integrations will follow OpenAPI 3.1 specification for:
 
 - Consistent REST API documentation
 - Client SDK generation for service partners

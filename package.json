@@ -18,7 +18,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "api:generate": "trpc-openapi src/shared/api/trpc/routers.ts --output public/openapi.json --title 'Netcomplex API' --version 1.0.0",
+    "api:generate": "tsx src/server/openapi/generator.ts public/openapi.json",
     "api:lint": "redocly lint --config .redocly.yaml --format=stylish",
     "api:ci": "pnpm api:generate && pnpm api:lint"
   },

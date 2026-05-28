@@ -42,6 +42,7 @@
 │   │   ├── soralia_map.png
 │   │   ├── soralia_map_purp.png
 │   │   └── soralia_map.xcf
+│   ├── AUDIT.md
 │   ├── features
 │   │   ├── admin
 │   │   │   └── feature-management.md
@@ -315,7 +316,9 @@
 │   │   │   │   ├── forgot-password
 │   │   │   │   ├── reset-password
 │   │   │   │   ├── signin
-│   │   │   │   └── signup
+│   │   │   │   ├── signup
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── suspension-status
 │   │   │   │   └── route.ts
 │   │   │   ├── bookings
 │   │   │   │   └── route.ts
@@ -430,6 +433,8 @@
 │   │   │   │   ├── [id]
 │   │   │   │   │   └── route.ts
 │   │   │   │   └── route.ts
+│   │   │   ├── seats
+│   │   │   │   └── route.ts
 │   │   │   ├── settings
 │   │   │   │   ├── contact
 │   │   │   │   │   └── route.ts
@@ -461,6 +466,12 @@
 │   │   │   ├── [id]
 │   │   │   │   ├── books
 │   │   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   ├── suspend
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── suspensions
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── unsuspend
 │   │   │   │   └── route.ts
 │   │   │   └── route.ts
 │   │   ├── (auth)
@@ -866,6 +877,9 @@
 │   │   │   ├── TenantProvider.tsx
 │   │   │   ├── TenantStyles.tsx
 │   │   │   └── TierGuard.tsx
+│   │   ├── user
+│   │   │   └── model
+│   │   │   └── types.ts
 │   │   └── widget
 │   │   ├── index.ts
 │   │   └── model
@@ -1082,6 +1096,7 @@
 │   │   ├── MapContent.tsx
 │   │   ├── MediaLibrary.tsx
 │   │   ├── MobileMenu.tsx
+│   │   ├── ModalOverlay.tsx
 │   │   ├── PageLayout.tsx
 │   │   ├── Pagination.tsx
 │   │   ├── RichTextEditor.tsx
@@ -1138,7 +1153,21 @@
 │   │   ├── PageSettingsWidget.tsx
 │   │   ├── ResourceForm.tsx
 │   │   ├── ResourceList.tsx
-│   │   └── SurveysWidget.tsx
+│   │   ├── SurveysWidget.tsx
+│   │   ├── users
+│   │   │   ├── AllocateSeatModal.tsx
+│   │   │   ├── DeleteUserModal.tsx
+│   │   │   ├── InviteModal.tsx
+│   │   │   ├── lib
+│   │   │   │   ├── resolve-user-helpers.ts
+│   │   │   │   └── use-users-data.ts
+│   │   │   ├── RemoveSeatModal.tsx
+│   │   │   ├── SuspendUserModal.tsx
+│   │   │   ├── UserEditRow.tsx
+│   │   │   ├── UserRow.tsx
+│   │   │   ├── UsersListSection.tsx
+│   │   │   └── UserTable.tsx
+│   │   └── UsersListSection.tsx
 │   ├── booking
 │   │   └── index.ts
 │   ├── chat
@@ -1211,4 +1240,4 @@
 ├── tsconfig.tsbuildinfo
 └── vitest.config.ts
 
-346 directories, 866 files
+355 directories, 886 files

@@ -12,12 +12,39 @@ async function generate(): Promise<Record<string, unknown>> {
     version: '1.0.0',
   });
 
-  // Enhance with metadata that generateOpenAPIDocument doesn't support
+  const docObj = doc as Record<string, unknown>;
+
+  // Add security scheme for Better Auth bearer token
+  const securitySchemes = {
+    bearerAuth: {
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      description: 'Better Auth session token. Obtain via /api/auth/sign-in',
+    },
+  };
+
+  // Apply security to all operations
+  const security = [{ bearerAuth: [] }];
+
+  // Augment each operation with security definition
+  const paths = (docObj.paths as Record<string, unknown>) || {};
+  for (const pathKey of Object.keys(paths)) {
+    const path = paths[pathKey] as Record<string, unknown>;
+    for (const method of Object.keys(path)) {
+      const op = path[method] as Record<string, unknown>;
+      if (op && typeof op === 'object') {
+        op.security = security;
+      }
+    }
+  }
+
   return {
-    ...doc,
+    ...docObj,
     info: {
-      ...(doc.info as Record<string, unknown> | undefined),
+      ...(docObj.info as Record<string, unknown> | undefined),
       description: 'Multi-tenant community management platform API',
+      license: { name: 'Proprietary', url: 'https://netcomplex.io/license' },
     },
     servers: [
       {
@@ -25,6 +52,10 @@ async function generate(): Promise<Record<string, unknown>> {
         description: 'API Server',
       },
     ],
+    components: {
+      ...((docObj.components as Record<string, unknown>) || {}),
+      securitySchemes,
+    },
   };
 }
 
@@ -37,4 +68,14 @@ export async function generateOpenApiSpec(): Promise<Record<string, unknown>> {
     });
   }
   return docPromise;
+}
+
+// CLI invocation: writes spec to a file
+if (import.meta.url === `file://${process.argv[1]}`) {
+  generateOpenApiSpec().then(async doc => {
+    const { writeFileSync } = await import('node:fs');
+    const outputPath = process.argv[2] || 'public/openapi.json';
+    writeFileSync(outputPath, JSON.stringify(doc, null, 2));
+    console.log(`OpenAPI spec written to ${outputPath}`);
+  });
 }

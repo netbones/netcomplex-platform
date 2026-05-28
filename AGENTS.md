@@ -76,6 +76,7 @@ Project documentation lives in `docs/STEERING/`:
 | **ADR.md**   | Architecture Decision Records - why we made architectural choices |
 | **GUIDE.md** | Development guides and best practices                             |
 | **TDD.md**   | Test-driven development workflow                                  |
+| API.md       | API Governance Plan                                               |
 
 ### Tech Stack
 
