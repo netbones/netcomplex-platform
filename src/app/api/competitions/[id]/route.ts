@@ -1,11 +1,17 @@
 import { db, competitions, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { revalidateContent } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 
+import {
+  apiError,
+  apiForbidden,
+  apiNotFound,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/api-response';
 /**
  * GET /api/competitions/[id] - Get single competition by ID
  */
@@ -15,7 +21,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const session = await auth.api.getSession({ headers: request.headers });
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   // Enforce tenant isolation
@@ -28,10 +34,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .limit(1);
 
   if (!competition) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
-  return NextResponse.json(competition);
+  return apiSuccess(competition);
 }
 
 /**
@@ -44,7 +50,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const session = await auth.api.getSession({ headers: request.headers });
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const [user] = await db
@@ -57,7 +63,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     !hasPermission(user?.role || 'RESIDENT', 'content') &&
     !hasPermission(user?.role || 'RESIDENT', 'contentOwn')
   ) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const body = await request.json();
@@ -85,13 +91,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .returning();
 
   if (!competition) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
   // Revalidate content caches
   revalidateContent();
 
-  return NextResponse.json(competition);
+  return apiSuccess(competition);
 }
 
 /**
@@ -103,7 +109,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const session = await auth.api.getSession({ headers: request.headers });
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const [user] = await db
@@ -116,7 +122,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     !hasPermission(user?.role || 'RESIDENT', 'content') &&
     !hasPermission(user?.role || 'RESIDENT', 'contentOwn')
   ) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   // Enforce tenant isolation
@@ -128,11 +134,11 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     .returning();
 
   if (!competition) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
   // Revalidate content caches
   revalidateContent();
 
-  return NextResponse.json({ success: true });
+  return apiSuccess({ success: true });
 }

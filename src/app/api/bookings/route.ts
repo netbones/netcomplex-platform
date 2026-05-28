@@ -1,6 +1,5 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
-import { NextResponse } from 'next/server';
 import { bookingSchema } from '@api/schemas';
 import { revalidateDashboard } from '@api/revalidation';
 import { apiLogger } from '@shared/lib';
@@ -11,6 +10,14 @@ import { DEFAULT_FACILITIES } from '@entities/booking';
 import type { TenantFacility } from '@entities/booking';
 import type { PgColumn } from 'drizzle-orm/pg-core';
 
+import {
+  apiCreated,
+  apiError,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+  apiValidationError,
+} from '@api/api-response';
 type BookingInsertValues = {
   id: ReturnType<typeof sql>;
   userId: string;
@@ -86,7 +93,7 @@ export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const canViewAll = hasPermission(authData.role, 'bookings');
@@ -154,7 +161,7 @@ export async function GET(request: Request) {
     };
   });
 
-  return NextResponse.json(transformed);
+  return apiSuccess(transformed);
 }
 
 /**
@@ -170,7 +177,7 @@ export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   try {
@@ -179,7 +186,7 @@ export async function POST(request: Request) {
     // Validate input with Zod schema
     const validationResult = bookingSchema.safeParse(body);
     if (!validationResult.success) {
-      return NextResponse.json(
+      return apiSuccess(
         { error: 'Invalid input', details: validationResult.error.issues },
         { status: 400 }
       );
@@ -195,7 +202,7 @@ export async function POST(request: Request) {
     const tenantFacilities = await getTenantFacilities(tenantId);
     const validFacilityValues = tenantFacilities.map(f => f.value);
     if (!validFacilityValues.includes(facility)) {
-      return NextResponse.json(
+      return apiSuccess(
         { error: `Invalid facility. Valid options: ${validFacilityValues.join(', ')}` },
         { status: 400 }
       );
@@ -222,9 +229,9 @@ export async function POST(request: Request) {
     // Revalidate dashboard caches immediately when new booking is created
     revalidateDashboard();
 
-    return NextResponse.json(booking, { status: 201 });
+    return apiCreated(booking);
   } catch (error) {
     apiLogger.error({ err: error, path: '/api/bookings' }, 'Booking creation error');
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

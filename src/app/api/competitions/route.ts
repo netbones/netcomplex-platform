@@ -1,11 +1,11 @@
 import { auth } from '@api/auth';
 import { db, competitions, users } from '@api/db';
 import { eq, and, desc, lte, gte } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { revalidateContent } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { hasPermission } from '@entities/tenant/api/permissions';
 
+import { apiCreated, apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
  * Retrieves session and role from the request for API routes.
  * @param request - Incoming HTTP request
@@ -64,14 +64,14 @@ export async function GET(request: Request) {
       .orderBy(desc(competitions.startDate));
 
     const competitionItems = await query;
-    return NextResponse.json(competitionItems);
+    return apiSuccess(competitionItems);
   }
 
   // All other queries require authentication
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   // Enforce tenant isolation
@@ -107,7 +107,7 @@ export async function GET(request: Request) {
     competitionItems = await query;
   }
 
-  return NextResponse.json(competitionItems);
+  return apiSuccess(competitionItems);
 }
 
 /**
@@ -118,18 +118,18 @@ export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   if (!hasPermission(authData.role, 'content') && !hasPermission(authData.role, 'contentOwn')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const body = await request.json();
 
   // Validate required fields
   if (!body.title || !body.startDate || !body.endDate) {
-    return NextResponse.json(
+    return apiSuccess(
       { error: 'Missing required fields: title, startDate, endDate' },
       { status: 400 }
     );
@@ -162,5 +162,5 @@ export async function POST(request: Request) {
   // Revalidate content caches
   revalidateContent();
 
-  return NextResponse.json(competition, { status: 201 });
+  return apiCreated(competition);
 }

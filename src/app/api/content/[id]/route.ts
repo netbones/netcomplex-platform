@@ -1,6 +1,5 @@
 import { db, contents, users, groups } from '@api/db';
 import { eq, and, or, isNull, lte, gt, type SQL } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import {
   getLocalizedValue,
   getLocalizedContent,
@@ -12,6 +11,7 @@ import { withTenant } from '@entities/tenant/api/with-tenant';
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 
+import { apiError, apiNotFound, apiSuccess } from '@api/api-response';
 /**
  * Transform content item to include localized fields
  */
@@ -126,7 +126,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .limit(1);
 
   if (!content) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
   const localized = transformContentForLocale(content, userLocale);
@@ -138,7 +138,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     group: content.groupId ? { id: content.groupId, name: content.groupName || '' } : null,
   };
 
-  return NextResponse.json(result);
+  return apiSuccess(result);
 }
 
 /**
@@ -209,7 +209,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   // Revalidate content caches
   revalidateContent();
 
-  return NextResponse.json(content);
+  return apiSuccess(content);
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -223,5 +223,5 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   // Revalidate content caches
   revalidateContent();
 
-  return NextResponse.json({ success: true });
+  return apiSuccess({ success: true });
 }

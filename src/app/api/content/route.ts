@@ -3,12 +3,12 @@ import { hasPermission } from '@entities/tenant/api/permissions';
 import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
 import { db, contents, users, groups } from '@api/db';
 import { eq, and, desc, or, isNull, lte, gt, type SQL } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { ContentCategoryEnum, type ContentCategory } from '@shared/api/types';
 import { revalidateContent } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { getLocalizedValue, supportedLanguages, defaultLanguage } from '@shared/lib';
 
+import { apiCreated, apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
  * Retrieves session and role from the request for API routes.
  * @param request - Incoming HTTP request
@@ -163,7 +163,7 @@ export async function GET(request: Request) {
   // Transform to localized content
   const localizedContent = contentItems.map(item => transformContentForLocale(item, userLocale));
 
-  return NextResponse.json(localizedContent);
+  return apiSuccess(localizedContent);
 }
 
 /**
@@ -183,7 +183,7 @@ export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   // AssistSession scope guard: metadata-scoped staff can only read, not modify content/users/settings
@@ -191,7 +191,7 @@ export async function POST(request: Request) {
   if (scopeError) return scopeError;
 
   if (!hasPermission(authData.role, 'content') && !hasPermission(authData.role, 'contentOwn')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const body = await request.json();
@@ -228,5 +228,5 @@ export async function POST(request: Request) {
   // Revalidate content caches immediately when new content is created
   revalidateContent();
 
-  return NextResponse.json(content, { status: 201 });
+  return apiCreated(content);
 }

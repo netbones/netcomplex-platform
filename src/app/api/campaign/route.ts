@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
 import { db, contents, users, settings } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenantOptional } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import { apiError, apiSuccess, apiInternalError } from '@api/api-response';
 // Default campaign configuration
 const DEFAULT_CAMPAIGN_CONFIG = {
   linkLabel: { en: 'Campaign', af: 'Veldtog', xh: 'Icampaign', zu: 'I-Campaign' },
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     if (!tenantId) {
       // For public pages, we need to get tenant from settings or use header-based resolution
       // In production, this should come from middleware/host header
-      return NextResponse.json({
+      return apiSuccess({
         config: DEFAULT_CAMPAIGN_CONFIG,
         content: [],
       });
@@ -97,7 +97,7 @@ export async function GET(request: Request) {
       )
       .orderBy(desc(contents.featured), desc(contents.priority), desc(contents.publishedAt));
 
-    return NextResponse.json({
+    return apiSuccess({
       config: campaignConfig,
       content: contentList,
     });
@@ -107,6 +107,6 @@ export async function GET(request: Request) {
       'Failed to fetch campaign data',
       error
     );
-    return NextResponse.json({ error: 'Failed to fetch campaign data' }, { status: 500 });
+    return apiInternalError('Failed to fetch campaign data');
   }
 }

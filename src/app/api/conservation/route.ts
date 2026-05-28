@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
 import { db, contents, users } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import { apiError, apiSuccess, apiInternalError } from '@api/api-response';
 export async function GET() {
   try {
     const { tenantId } = await withTenant();
@@ -26,13 +26,13 @@ export async function GET() {
       .orderBy(desc(contents.publishedAt))
       .limit(3);
 
-    return NextResponse.json(contentList);
+    return apiSuccess(contentList);
   } catch (error) {
     logError(
       { component: 'conservation-api', operation: 'GET' },
       'Failed to fetch conservation content',
       error
     );
-    return NextResponse.json({ error: 'Failed to fetch content' }, { status: 500 });
+    return apiInternalError('Failed to fetch content');
   }
 }
