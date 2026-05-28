@@ -88,7 +88,8 @@ export async function POST(request: Request) {
       {
         error: `Missing required fields: ${validation.missing?.join(', ')}`,
       },
-      { status: 400 }
+      undefined,
+      400
     );
   }
 

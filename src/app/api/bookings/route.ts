@@ -133,7 +133,8 @@ export async function POST(request: Request) {
     if (!validationResult.success) {
       return apiSuccess(
         { error: 'Invalid input', details: validationResult.error.issues },
-        { status: 400 }
+        undefined,
+        400
       );
     }
 
@@ -148,7 +149,8 @@ export async function POST(request: Request) {
     if (!validation.valid) {
       return apiSuccess(
         { error: `Invalid facility. Valid options: ${validation.validOptions.join(', ')}` },
-        { status: 400 }
+        undefined,
+        400
       );
     }
 
