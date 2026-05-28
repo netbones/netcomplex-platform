@@ -5,7 +5,7 @@
 - **Phase:** 35-api-alignment
 - **Plans:** 10 plans across 4 waves
 - **Plan:** A01 (A01–A10 in current phase)
-- **Current Plan:** 6
+- **Current Plan:** 5
 - **Total Plans in Phase:** 10
 - **Status:** Ready to execute
 - **Last Updated:** 2026-05-28
