@@ -1,8 +1,8 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, users, platformSuspensions } from '@api/db';
-import { NextResponse } from 'next/server';
 import { eq, desc, and } from 'drizzle-orm';
+import { apiUnauthorized, apiForbidden, apiSuccess } from '@api/api-response';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
 export const maxDuration = 8;
@@ -19,7 +19,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   // Authentication: verify session and check admin permission
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const [adminUser] = await db
@@ -30,7 +30,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const adminRole = adminUser?.role || 'RESIDENT';
   if (!hasPermission(adminRole, 'users')) {
-    return NextResponse.json({ error: 'Forbidden - Insufficient permissions' }, { status: 403 });
+    return apiForbidden('Insufficient permissions');
   }
 
   // Fetch all suspensions for this user, ordered by most recent first
@@ -53,5 +53,5 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .where(and(eq(platformSuspensions.userId, id), eq(platformSuspensions.tenantId, tenantId)))
     .orderBy(desc(platformSuspensions.createdAt));
 
-  return NextResponse.json({ suspensions });
+  return apiSuccess({ suspensions });
 }

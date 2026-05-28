@@ -9,8 +9,8 @@ import {
   profiles,
   households,
 } from '@api/db';
-import { NextResponse } from 'next/server';
 import { eq, and, desc } from 'drizzle-orm';
+import { apiSuccess, apiNotFound } from '@api/api-response';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
 import { throwIfSuspended } from '@api/auth-utils';
@@ -83,7 +83,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   }
 
   if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    return apiNotFound('User not found');
   }
 
   const userId = user.id;
@@ -174,7 +174,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     content: getLocalizedContent(item.content as Record<string, unknown>, defaultLanguage) || '',
   }));
 
-  return NextResponse.json({
+  return apiSuccess({
     ...user,
     standardSeats: seats,
     soloSeats: soloSeatsResult,
@@ -256,7 +256,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .then(rows => rows[0]);
 
   if (!updatedUser) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    return apiNotFound('User not found');
   }
 
   let updatedSeat: { type: string; platformAddress: string } | null = null;
@@ -305,7 +305,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
   }
 
-  return NextResponse.json({ ...updatedUser, updatedSeat });
+  return apiSuccess({ ...updatedUser, updatedSeat });
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -328,8 +328,8 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     .then(rows => rows[0]);
 
   if (!deleted) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    return apiNotFound('User not found');
   }
 
-  return NextResponse.json({ success: true });
+  return apiSuccess({ success: true });
 }

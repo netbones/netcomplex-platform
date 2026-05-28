@@ -1,7 +1,7 @@
 import { db, users } from '@api/db';
-import { NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
+import { apiSuccess, apiNotFound, apiError } from '@api/api-response';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,11 +14,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .limit(1);
 
   if (!userResult[0]) {
-    return NextResponse.json({ books: [] }, { status: 404 });
+    return apiSuccess({ books: [] });
   }
 
   const books = Array.isArray(userResult[0].books) ? userResult[0].books : [];
-  return NextResponse.json({ books });
+  return apiSuccess({ books });
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -34,7 +34,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .limit(1);
 
   if (!userResult[0]) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    return apiNotFound('User not found');
   }
 
   const books = Array.isArray(userResult[0].books) ? userResult[0].books : [];
@@ -51,5 +51,5 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .set({ books: updatedBooks })
     .where(and(eq(users.id, id), eq(users.tenantId, tenantId)));
 
-  return NextResponse.json({ books: updatedBooks });
+  return apiSuccess({ books: updatedBooks });
 }

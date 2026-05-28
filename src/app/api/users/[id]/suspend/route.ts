@@ -1,8 +1,14 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, users, platformSuspensions } from '@api/db';
-import { NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
+import {
+  apiUnauthorized,
+  apiForbidden,
+  apiNotFound,
+  apiCreated,
+  apiError,
+} from '@api/api-response';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
 
@@ -42,7 +48,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   // Authentication: verify session and check admin permission
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const [adminUser] = await db
@@ -53,7 +59,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const adminRole = adminUser?.role || 'RESIDENT';
   if (!hasPermission(adminRole, 'users')) {
-    return NextResponse.json({ error: 'Forbidden - Insufficient permissions' }, { status: 403 });
+    return apiForbidden('Insufficient permissions');
   }
 
   // Verify target user exists within the same tenant
@@ -64,7 +70,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .limit(1);
 
   if (!targetUser) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    return apiNotFound('User not found');
   }
 
   // Parse and validate request body
@@ -72,17 +78,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   // Validate suspensionType
   if (!VALID_SUSPENSION_TYPES.includes(body.suspensionType as SuspensionType)) {
-    return NextResponse.json(
-      { error: 'Invalid suspension type. Must be one of: ' + VALID_SUSPENSION_TYPES.join(', ') },
-      { status: 400 }
+    return apiError(
+      'VALIDATION_ERROR',
+      'Invalid suspension type. Must be one of: ' + VALID_SUSPENSION_TYPES.join(', '),
+      400
     );
   }
 
   // Validate reason
   if (!body.reason || typeof body.reason !== 'string' || body.reason.trim().length < 3) {
-    return NextResponse.json(
-      { error: 'Reason is required and must be at least 3 characters' },
-      { status: 400 }
+    return apiError(
+      'VALIDATION_ERROR',
+      'Reason is required and must be at least 3 characters',
+      400
     );
   }
 
@@ -101,13 +109,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .limit(1);
 
   if (existingSuspension) {
-    return NextResponse.json(
-      {
-        error: 'User already has an active suspension',
-        existingSuspension,
-      },
-      { status: 409 }
-    );
+    return apiError('VALIDATION_ERROR', 'User already has an active suspension', 409, {
+      existingSuspension,
+    });
   }
 
   // Create suspension record + deactivate user atomically
@@ -140,5 +144,5 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return suspension;
   });
 
-  return NextResponse.json(result, { status: 201 });
+  return apiCreated(result);
 }

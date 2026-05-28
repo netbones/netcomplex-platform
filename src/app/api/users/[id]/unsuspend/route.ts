@@ -1,8 +1,14 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, users, platformSuspensions } from '@api/db';
-import { NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
+import {
+  apiUnauthorized,
+  apiForbidden,
+  apiNotFound,
+  apiSuccess,
+  apiError,
+} from '@api/api-response';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
 
@@ -24,7 +30,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   // Authentication: verify session and check admin permission
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const [adminUser] = await db
@@ -35,7 +41,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const adminRole = adminUser?.role || 'RESIDENT';
   if (!hasPermission(adminRole, 'users')) {
-    return NextResponse.json({ error: 'Forbidden - Insufficient permissions' }, { status: 403 });
+    return apiForbidden('Insufficient permissions');
   }
 
   // Verify target user exists within the same tenant
@@ -46,7 +52,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .limit(1);
 
   if (!targetUser) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    return apiNotFound('User not found');
   }
 
   // Find active suspension for this user
@@ -57,7 +63,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .limit(1);
 
   if (!activeSuspension) {
-    return NextResponse.json({ error: 'User has no active suspension' }, { status: 409 });
+    return apiError('VALIDATION_ERROR', 'User has no active suspension', 409);
   }
 
   // Atomically deactivate suspension and reactivate user
@@ -82,5 +88,5 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return user;
   });
 
-  return NextResponse.json({ success: true, user: updatedUser });
+  return apiSuccess({ success: true, user: updatedUser });
 }

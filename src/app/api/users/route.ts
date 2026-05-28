@@ -10,8 +10,8 @@ import {
   properties,
   households,
 } from '@api/db';
-import { NextResponse } from 'next/server';
 import { eq, and, or, asc, ilike, count, ne, sql } from 'drizzle-orm';
+import { apiPaginated, apiCreated, apiForbidden } from '@api/api-response';
 import type { SQL } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
@@ -211,7 +211,7 @@ export async function GET(request: Request) {
     })
   );
 
-  return NextResponse.json({ users: usersWithRelations, total, page, limit });
+  return apiPaginated(usersWithRelations, page, limit, total);
 }
 
 /**
@@ -221,7 +221,7 @@ export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'users')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const body = await request.json();
@@ -250,5 +250,5 @@ export async function POST(request: Request) {
     .returning()
     .then(rows => rows[0]);
 
-  return NextResponse.json(newUser, { status: 201 });
+  return apiCreated(newUser);
 }

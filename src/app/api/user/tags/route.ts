@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
+import { apiSuccess, apiUnauthorized, apiInternalError } from '@api/api-response';
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,7 +12,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     // Get all tags from user's content
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
     );
 
     if (!response.ok) {
-      return NextResponse.json({ tags: [] });
+      return apiSuccess({ tags: [] });
     }
 
     const content = await response.json();
@@ -45,9 +46,9 @@ export async function GET(request: NextRequest) {
 
     const tags = Array.from(tagSet).sort();
 
-    return NextResponse.json({ tags });
+    return apiSuccess({ tags });
   } catch (error) {
     logError({ component: 'user-tags-api', operation: 'GET' }, 'Error fetching user tags', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

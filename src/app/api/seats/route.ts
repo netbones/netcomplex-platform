@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { db, users, soloSeats, premiumSeats } from '@api/db';
+import { apiSuccess, apiCreated, apiForbidden, apiNotFound, apiError } from '@api/api-response';
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { hasPermission } from '@entities/tenant/api/permissions';
@@ -10,7 +10,7 @@ export const maxDuration = 8;
 export async function POST(request: Request) {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id || !hasPermission(session.user.role as string, 'users')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const { tenantId } = await withTenant();
@@ -18,14 +18,11 @@ export async function POST(request: Request) {
   const { userId, seatType, platformAddress, soloSeatType, portfolioName } = body;
 
   if (!userId || !seatType || !platformAddress) {
-    return NextResponse.json(
-      { error: 'userId, seatType, and platformAddress required' },
-      { status: 400 }
-    );
+    return apiError('VALIDATION_ERROR', 'userId, seatType, and platformAddress required', 400);
   }
 
   if (seatType !== 'solo' && seatType !== 'premium') {
-    return NextResponse.json({ error: 'seatType must be solo or premium' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'seatType must be solo or premium', 400);
   }
 
   // Verify user exists
@@ -36,7 +33,7 @@ export async function POST(request: Request) {
     .limit(1);
 
   if (!user) {
-    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    return apiNotFound('User not found');
   }
 
   // Check if user already has a seat of this type
@@ -46,10 +43,7 @@ export async function POST(request: Request) {
       .from(soloSeats)
       .where(eq(soloSeats.userId, userId));
     if (existing.length >= 5) {
-      return NextResponse.json(
-        { error: 'User already has 5 soloSeats (maximum)' },
-        { status: 409 }
-      );
+      return apiError('VALIDATION_ERROR', 'User already has 5 soloSeats (maximum)', 409);
     }
 
     // Check platformAddress uniqueness
@@ -59,9 +53,10 @@ export async function POST(request: Request) {
       .where(eq(soloSeats.platformAddress, platformAddress))
       .limit(1);
     if (existingAddr) {
-      return NextResponse.json(
-        { error: `Platform address "${platformAddress}" is already allocated to another user` },
-        { status: 409 }
+      return apiError(
+        'VALIDATION_ERROR',
+        `Platform address "${platformAddress}" is already allocated to another user`,
+        409
       );
     }
 
@@ -78,7 +73,7 @@ export async function POST(request: Request) {
       .returning()
       .then(r => r[0]);
 
-    return NextResponse.json({ seat });
+    return apiSuccess({ seat });
   }
 
   // premium
@@ -89,7 +84,7 @@ export async function POST(request: Request) {
     .limit(1);
 
   if (existing) {
-    return NextResponse.json({ error: 'User already has a premiumSeat' }, { status: 409 });
+    return apiError('VALIDATION_ERROR', 'User already has a premiumSeat', 409);
   }
 
   const seat = await db
@@ -108,13 +103,13 @@ export async function POST(request: Request) {
     .returning()
     .then(r => r[0]);
 
-  return NextResponse.json({ seat });
+  return apiSuccess({ seat });
 }
 
 export async function DELETE(request: Request) {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id || !hasPermission(session.user.role as string, 'users')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const { tenantId } = await withTenant();
@@ -122,7 +117,7 @@ export async function DELETE(request: Request) {
   const { userId, seatType, platformAddress } = body;
 
   if (!userId || !seatType) {
-    return NextResponse.json({ error: 'userId and seatType required' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'userId and seatType required', 400);
   }
 
   if (seatType === 'solo') {
@@ -136,11 +131,11 @@ export async function DELETE(request: Request) {
       .limit(1);
 
     if (!seat) {
-      return NextResponse.json({ error: 'soloSeat not found' }, { status: 404 });
+      return apiNotFound('soloSeat not found');
     }
 
     await db.delete(soloSeats).where(eq(soloSeats.id, seat.id));
-    return NextResponse.json({ success: true });
+    return apiSuccess({ success: true });
   }
 
   if (seatType === 'premium') {
@@ -151,12 +146,12 @@ export async function DELETE(request: Request) {
       .limit(1);
 
     if (!seat) {
-      return NextResponse.json({ error: 'premiumSeat not found' }, { status: 404 });
+      return apiNotFound('premiumSeat not found');
     }
 
     await db.delete(premiumSeats).where(eq(premiumSeats.id, seat.id));
-    return NextResponse.json({ success: true });
+    return apiSuccess({ success: true });
   }
 
-  return NextResponse.json({ error: 'seatType must be solo or premium' }, { status: 400 });
+  return apiError('VALIDATION_ERROR', 'seatType must be solo or premium', 400);
 }

@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 import { db, albums } from '@api/db';
 import { eq, desc, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
+import { apiSuccess, apiUnauthorized, apiInternalError, apiError } from '@api/api-response';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest) {
       headers: request.headers,
     });
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     // Enforce tenant isolation
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
           .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId)));
 
         if (existingAlbums.length >= 3) {
-          return NextResponse.json({ error: 'Maximum 3 albums allowed' }, { status: 400 });
+          return apiError('VALIDATION_ERROR', 'Maximum 3 albums allowed', 400);
         }
 
         const newAlbum = await db
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
           .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId)))
           .orderBy(desc(albums.createdAt));
 
-        return NextResponse.json({ albums: allAlbums });
+        return apiSuccess({ albums: allAlbums });
       }
 
       case 'update': {
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
           .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId)))
           .orderBy(desc(albums.createdAt));
 
-        return NextResponse.json({ albums: allAlbums });
+        return apiSuccess({ albums: allAlbums });
       }
 
       case 'delete': {
@@ -94,15 +95,15 @@ export async function POST(request: NextRequest) {
           .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, userId)))
           .orderBy(desc(albums.createdAt));
 
-        return NextResponse.json({ albums: allAlbums });
+        return apiSuccess({ albums: allAlbums });
       }
 
       default:
-        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+        return apiError('VALIDATION_ERROR', 'Invalid action', 400);
     }
   } catch (error) {
     logError({ component: 'albums-api', operation: 'POST' }, 'Album API error', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -112,7 +113,7 @@ export async function GET(request: Request) {
       headers: request.headers,
     });
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const { tenantId } = await withTenant();
@@ -123,9 +124,9 @@ export async function GET(request: Request) {
       .where(and(eq(albums.tenantId, tenantId), eq(albums.userId, session.user.id)))
       .orderBy(desc(albums.createdAt));
 
-    return NextResponse.json({ albums: userAlbums });
+    return apiSuccess({ albums: userAlbums });
   } catch (error) {
     logError({ component: 'albums-api', operation: 'GET' }, 'Get albums error', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
