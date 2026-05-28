@@ -1,9 +1,9 @@
 import { db, users, maintenanceRequests } from '@api/db';
-import { NextResponse } from 'next/server';
 import { auth } from '@api/auth';
 import { eq, count, and, gte, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import { apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
@@ -12,13 +12,13 @@ export async function GET(request: Request) {
   });
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const [currentUser] = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
 
   if (!currentUser || !['BOARD', 'ADMIN'].includes(currentUser.role)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const { tenantId } = await withTenant();
@@ -135,7 +135,7 @@ export async function GET(request: Request) {
     trend: trendResult.map(r => ({ month: r.month, count: Number(r.count) })),
   };
 
-  return NextResponse.json(response, {
+  return apiSuccess(response, {
     headers: {
       'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
     },

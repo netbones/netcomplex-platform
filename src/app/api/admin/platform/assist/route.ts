@@ -1,14 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 import { db, assistSessions, tenants, users } from '@api/db';
 import { eq, and, gt } from 'drizzle-orm';
 import { logError } from '@shared/lib';
 
+import {
+  apiCreated,
+  apiError,
+  apiSuccess,
+  apiUnauthorized,
+  apiInternalError,
+  apiNotFound,
+} from '@api/api-response';
 export async function GET(request: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const user = await db
@@ -18,10 +26,7 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (!user[0]?.isPlatformAdmin) {
-      return NextResponse.json(
-        { error: 'Forbidden - Platform Admin access required' },
-        { status: 403 }
-      );
+      return apiSuccess({ error: 'Forbidden - Platform Admin access required' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -47,14 +52,14 @@ export async function GET(request: NextRequest) {
       .from(assistSessions)
       .where(and(...whereConditions));
 
-    return NextResponse.json(sessions);
+    return apiSuccess(sessions);
   } catch (error) {
     logError(
       { component: 'assist-api', operation: 'LIST' },
       'Failed to list assist sessions',
       error
     );
-    return NextResponse.json({ error: 'Failed to list assist sessions' }, { status: 500 });
+    return apiInternalError('Failed to list assist sessions');
   }
 }
 
@@ -62,7 +67,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const user = await db
@@ -72,17 +77,14 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!user[0]?.isPlatformAdmin) {
-      return NextResponse.json(
-        { error: 'Forbidden - Platform Admin access required' },
-        { status: 403 }
-      );
+      return apiSuccess({ error: 'Forbidden - Platform Admin access required' }, { status: 403 });
     }
 
     const body = await request.json();
     const { tenantId, notes } = body;
 
     if (!tenantId) {
-      return NextResponse.json({ error: 'tenantId is required' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'tenantId is required', 400);
     }
 
     // Validate tenant exists
@@ -93,7 +95,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!tenant[0]) {
-      return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });
+      return apiNotFound('Tenant not found');
     }
 
     // Default expiry: 7 days from now
@@ -120,13 +122,13 @@ export async function POST(request: NextRequest) {
         scope: assistSessions.scope,
       });
 
-    return NextResponse.json(newSession, { status: 201 });
+    return apiCreated(newSession);
   } catch (error) {
     logError(
       { component: 'assist-api', operation: 'CREATE' },
       'Failed to create assist session',
       error
     );
-    return NextResponse.json({ error: 'Failed to create assist session' }, { status: 500 });
+    return apiInternalError('Failed to create assist session');
   }
 }

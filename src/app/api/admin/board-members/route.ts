@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
 import { auth } from '@api/auth';
 import { db, users } from '@api/db';
 import { eq, or, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import { apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 export const dynamic = 'force-dynamic';
 
 const BOARD_ROLES = ['BOARD', 'ADMIN', 'COMMITTEE'] as const;
@@ -14,13 +14,13 @@ export async function GET(request: Request) {
   });
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const [currentUser] = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
 
   if (!currentUser || !['BOARD', 'ADMIN'].includes(currentUser.role)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const { tenantId } = await withTenant();
@@ -37,5 +37,5 @@ export async function GET(request: Request) {
     .from(users)
     .where(and(eq(users.tenantId, tenantId), or(...roleConditions)));
 
-  return NextResponse.json(boardMembers);
+  return apiSuccess(boardMembers);
 }

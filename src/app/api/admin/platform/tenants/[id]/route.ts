@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getTenantById, updateTenant, deleteTenant } from '@entities/tenant/api/base';
 import { requirePlatformAdmin } from '@entities/tenant/api/guards';
 import { logError } from '@shared/lib';
 
+import { apiError, apiSuccess, apiInternalError, apiNotFound } from '@api/api-response';
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const guard = await requirePlatformAdmin(request);
   if (guard) return guard;
@@ -12,13 +13,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const tenant = await getTenantById(id);
 
     if (!tenant) {
-      return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });
+      return apiNotFound('Tenant not found');
     }
 
-    return NextResponse.json(tenant);
+    return apiSuccess(tenant);
   } catch (error) {
     logError({ component: 'tenant-api', operation: 'GET' }, 'Failed to get tenant', error);
-    return NextResponse.json({ error: 'Failed to get tenant' }, { status: 500 });
+    return apiInternalError('Failed to get tenant');
   }
 }
 
@@ -47,10 +48,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       featureFlags: body.featureFlags,
     });
 
-    return NextResponse.json(tenant);
+    return apiSuccess(tenant);
   } catch (error) {
     logError({ component: 'tenant-api', operation: 'UPDATE' }, 'Failed to update tenant', error);
-    return NextResponse.json({ error: 'Failed to update tenant' }, { status: 500 });
+    return apiInternalError('Failed to update tenant');
   }
 }
 
@@ -64,9 +65,9 @@ export async function DELETE(
   try {
     const { id } = await params;
     await deleteTenant(id);
-    return NextResponse.json({ success: true });
+    return apiSuccess({ success: true });
   } catch (error) {
     logError({ component: 'tenant-api', operation: 'DELETE' }, 'Failed to delete tenant', error);
-    return NextResponse.json({ error: 'Failed to delete tenant' }, { status: 500 });
+    return apiInternalError('Failed to delete tenant');
   }
 }

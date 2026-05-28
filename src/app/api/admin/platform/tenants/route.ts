@@ -1,18 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { listTenants, createTenant } from '@entities/tenant/api/base';
 import { requirePlatformAdmin } from '@entities/tenant/api/guards';
 import { logError } from '@shared/lib';
 
+import { apiCreated, apiError, apiSuccess, apiInternalError } from '@api/api-response';
 export async function GET(request: NextRequest) {
   const guard = await requirePlatformAdmin(request);
   if (guard) return guard;
 
   try {
     const tenants = await listTenants();
-    return NextResponse.json(tenants);
+    return apiSuccess(tenants);
   } catch (error) {
     logError({ component: 'tenants-api', operation: 'LIST' }, 'Failed to list tenants', error);
-    return NextResponse.json({ error: 'Failed to list tenants' }, { status: 500 });
+    return apiInternalError('Failed to list tenants');
   }
 }
 
@@ -42,9 +43,9 @@ export async function POST(request: NextRequest) {
       featureFlags: body.featureFlags || {},
     });
 
-    return NextResponse.json(tenant, { status: 201 });
+    return apiCreated(tenant);
   } catch (error) {
     logError({ component: 'tenants-api', operation: 'CREATE' }, 'Failed to create tenant', error);
-    return NextResponse.json({ error: 'Failed to create tenant' }, { status: 500 });
+    return apiInternalError('Failed to create tenant');
   }
 }

@@ -1,9 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 import { db, assistSessions, tenants, users } from '@api/db';
 import { eq } from 'drizzle-orm';
 import { logError } from '@shared/lib';
 
+import {
+  apiError,
+  apiSuccess,
+  apiUnauthorized,
+  apiInternalError,
+  apiNotFound,
+} from '@api/api-response';
 async function getAssistSession(id: string) {
   const [session] = await db
     .select()
@@ -21,16 +28,16 @@ export async function DELETE(
   try {
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const assistSession = await getAssistSession(id);
     if (!assistSession) {
-      return NextResponse.json({ error: 'Assist session not found' }, { status: 404 });
+      return apiNotFound('Assist session not found');
     }
 
     if (!assistSession.isActive) {
-      return NextResponse.json({ error: 'Assist session already revoked' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'Assist session already revoked', 400);
     }
 
     // Check if user is platform admin OR tenant owner
@@ -51,7 +58,7 @@ export async function DELETE(
     const isTenantOwner = tenant[0]?.ownerId === session.user.id;
 
     if (!isPlatformAdmin && !isTenantOwner) {
-      return NextResponse.json(
+      return apiSuccess(
         { error: 'Forbidden - Platform Admin or tenant owner access required' },
         { status: 403 }
       );
@@ -66,14 +73,14 @@ export async function DELETE(
       })
       .where(eq(assistSessions.id, id));
 
-    return NextResponse.json({ success: true });
+    return apiSuccess({ success: true });
   } catch (error) {
     logError(
       { component: 'assist-api', operation: 'REVOKE' },
       'Failed to revoke assist session',
       error
     );
-    return NextResponse.json({ error: 'Failed to revoke assist session' }, { status: 500 });
+    return apiInternalError('Failed to revoke assist session');
   }
 }
 
@@ -82,7 +89,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   try {
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const user = await db
@@ -92,22 +99,19 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       .limit(1);
 
     if (!user[0]?.isPlatformAdmin) {
-      return NextResponse.json(
-        { error: 'Forbidden - Platform Admin access required' },
-        { status: 403 }
-      );
+      return apiSuccess({ error: 'Forbidden - Platform Admin access required' }, { status: 403 });
     }
 
     const assistSession = await getAssistSession(id);
     if (!assistSession) {
-      return NextResponse.json({ error: 'Assist session not found' }, { status: 404 });
+      return apiNotFound('Assist session not found');
     }
 
     const body = await request.json();
     const { expiresAt } = body;
 
     if (!expiresAt) {
-      return NextResponse.json({ error: 'expiresAt is required' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'expiresAt is required', 400);
     }
 
     const newExpiry = new Date(expiresAt);
@@ -121,13 +125,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         expiresAt: assistSessions.expiresAt,
       });
 
-    return NextResponse.json(updated);
+    return apiSuccess(updated);
   } catch (error) {
     logError(
       { component: 'assist-api', operation: 'EXTEND' },
       'Failed to extend assist session',
       error
     );
-    return NextResponse.json({ error: 'Failed to extend assist session' }, { status: 500 });
+    return apiInternalError('Failed to extend assist session');
   }
 }

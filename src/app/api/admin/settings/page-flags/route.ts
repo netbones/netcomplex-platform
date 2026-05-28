@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import {
   setPlatformPageFlag,
   getPlatformPageFlags,
@@ -8,16 +8,17 @@ import { withTenant } from '@entities/tenant/api/with-tenant';
 import { getSessionAndRole } from '@api/auth-utils';
 import { createComponentLogger } from '@shared/lib';
 
+import { apiError, apiForbidden, apiSuccess, apiInternalError } from '@api/api-response';
 const log = createComponentLogger('page-flags-api');
 
 export async function GET() {
   try {
     const { tenantId } = await withTenant();
     const flags = await getPlatformPageFlags(tenantId);
-    return NextResponse.json(flags);
+    return apiSuccess(flags);
   } catch (error) {
     log.error({ operation: 'GET' }, 'Failed to get page flags', error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return apiInternalError(String(error));
   }
 }
 
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
   try {
     const sessionRole = await getSessionAndRole();
     if (!sessionRole || sessionRole.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return apiForbidden();
     }
 
     const { tenantId } = await withTenant();
@@ -49,18 +50,18 @@ export async function POST(request: NextRequest) {
     ];
 
     if (!validKeys.includes(key)) {
-      return NextResponse.json({ error: 'Invalid key' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'Invalid key', 400);
     }
 
     const success = await setPlatformPageFlag(tenantId, key, value);
 
     if (success) {
-      return NextResponse.json({ success: true, key, value });
+      return apiSuccess({ success: true, key, value });
     }
 
-    return NextResponse.json({ error: 'Failed to update' }, { status: 500 });
+    return apiInternalError('Failed to update');
   } catch (error) {
     log.error({ operation: 'POST' }, 'Failed to update page flag', error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return apiInternalError(String(error));
   }
 }
