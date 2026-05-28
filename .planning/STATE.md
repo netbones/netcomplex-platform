@@ -3,10 +3,11 @@
 ## Current Position
 
 - **Phase:** 33-user-suspension
-- **Plan:** 33-01 complete, 33-02 planned
+- **Plan:** 33-02 complete
 - **Status:** In Progress
 - **Last Updated:** 2026-05-28
-- **Last Session:** Executed 33-01 — suspension API routes (suspend/unsuspend/suspensions suspension-status) + auth guards + auto-unsuspension logic
+- **Last Session:** Completed 33-02 — suspension UI form, UserRow badge, UsersListSection wiring, i18n
+- **Last Session (prev):** Executed 33-01 — suspension API routes (suspend/unsuspend/suspensions suspension-status) + auth guards + auto-unsuspension logic
 
 ## Decisions Made
 
@@ -163,6 +164,7 @@
 
 ## Performance Metrics
 
-| Phase              | Plan | Duration | Tasks | Files |
-| ------------------ | ---- | -------- | ----- | ----- |
-| 33-user-suspension | 01   | 11min    | 4     | 6     |
+| Phase                        | Plan | Duration | Tasks   | Files |
+| ---------------------------- | ---- | -------- | ------- | ----- |
+| 33-user-suspension           | 01   | 11min    | 4       | 6     |
+| Phase 33-user-suspension P02 | 1min | 3 tasks  | 8 files |
