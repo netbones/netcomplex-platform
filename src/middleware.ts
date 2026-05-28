@@ -102,6 +102,11 @@ function isAuthRoute(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
+  // Generate request ID for observability (API.md §21.1)
+  const requestId = crypto.randomUUID?.() || Math.random().toString(36).substring(2, 15);
+  response.headers.set('x-request-id', requestId);
+  request.headers.set('x-request-id', requestId);
+
   const host = request.headers.get('host') || '';
   const pathname = request.nextUrl.pathname;
   const isPlatform = isPlatformHost(host);
