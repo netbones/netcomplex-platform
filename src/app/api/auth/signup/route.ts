@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { logError, apiLogger } from '@shared/lib';
 import { verifyTurnstile } from '@shared/api/turnstile';
 import { db, invitations, users } from '@api/db';
 import { eq, and, gt } from 'drizzle-orm';
 
+import { apiCreated, apiError, apiSuccess } from '@api/api-response';
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 /**
@@ -18,20 +19,14 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!email || !password || !name) {
-      return NextResponse.json(
-        { error: 'Email, password, and name are required' },
-        { status: 400 }
-      );
+      return apiSuccess({ error: 'Email, password, and name are required' }, { status: 400 });
     }
 
     // Verify Turnstile token if provided
     if (turnstileToken) {
       const isHuman = await verifyTurnstile(turnstileToken);
       if (!isHuman) {
-        return NextResponse.json(
-          { error: 'Bot verification failed. Please try again.' },
-          { status: 403 }
-        );
+        return apiSuccess({ error: 'Bot verification failed. Please try again.' }, { status: 403 });
       }
     }
 
@@ -45,7 +40,7 @@ export async function POST(request: NextRequest) {
         .limit(1);
 
       if (!invitation) {
-        return NextResponse.json({ error: 'Invalid or expired invitation token' }, { status: 400 });
+        return apiError('VALIDATION_ERROR', 'Invalid or expired invitation token', 400);
       }
 
       if (new Date() > invitation.expiresAt) {
@@ -53,7 +48,7 @@ export async function POST(request: NextRequest) {
           .update(invitations)
           .set({ status: 'EXPIRED' })
           .where(eq(invitations.id, invitation.id));
-        return NextResponse.json({ error: 'Invitation has expired' }, { status: 410 });
+        return apiError('VALIDATION_ERROR', 'Invitation has expired', 410);
       }
 
       invitationData = invitation;
@@ -93,22 +88,19 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      return NextResponse.json(responseData, { status: 201 });
+      return apiCreated(responseData);
     }
 
     // Return Better Auth's error response
     if (authResponse.status === 422) {
-      return NextResponse.json({ error: 'Email address is already registered' }, { status: 409 });
+      return apiError('VALIDATION_ERROR', 'Email address is already registered', 409);
     }
 
-    return NextResponse.json(responseData, { status: authResponse.status });
+    return apiSuccess(responseData, { status: authResponse.status });
   } catch (error) {
     logError({ component: 'signup-api', operation: 'USER_SIGNUP' }, 'Failed to create user', error);
 
-    return NextResponse.json(
-      { error: 'Failed to create account. Please try again.' },
-      { status: 500 }
-    );
+    return apiSuccess({ error: 'Failed to create account. Please try again.' }, { status: 500 });
   }
 }
 

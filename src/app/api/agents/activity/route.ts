@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 import { db, agentAccesses } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { apiLogger } from '@shared/lib';
 
+import { apiError, apiSuccess, apiUnauthorized, apiInternalError } from '@api/api-response';
 export const maxDuration = 8;
 
 export async function GET(request: NextRequest) {
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const userAgentAccess = await db
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (userAgentAccess.length === 0) {
-      return NextResponse.json({ activities: [] });
+      return apiSuccess({ activities: [] });
     }
 
     const activities = [
@@ -53,9 +54,9 @@ export async function GET(request: NextRequest) {
       },
     ];
 
-    return NextResponse.json({ activities });
+    return apiSuccess({ activities });
   } catch (error) {
     apiLogger.error({ error }, 'Failed to fetch agent activity');
-    return NextResponse.json({ error: 'Failed to fetch activity' }, { status: 500 });
+    return apiInternalError('Failed to fetch activity');
   }
 }

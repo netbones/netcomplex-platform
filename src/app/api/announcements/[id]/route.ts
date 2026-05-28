@@ -1,6 +1,5 @@
 import { db, announcements, users, resources } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { revalidateDashboard } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { auth } from '@api/auth';
@@ -8,6 +7,7 @@ import { canPublishAnnouncements } from '@entities/tenant/api/permissions';
 import { validatePriorityForRole } from '@features/announcements/model/priority-taxonomy';
 import type { AnnouncementPriority } from '@features/announcements/model/priority-taxonomy';
 
+import { apiError, apiNotFound, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
  * GET /api/announcements/[id] - Get single announcement by ID
  */
@@ -17,7 +17,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const session = await auth.api.getSession({ headers: request.headers });
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   // Enforce tenant isolation
@@ -30,10 +30,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .limit(1);
 
   if (!announcement) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
-  return NextResponse.json(announcement);
+  return apiSuccess(announcement);
 }
 
 /**
@@ -47,7 +47,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const session = await auth.api.getSession({ headers: request.headers });
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const [user] = await db
@@ -57,7 +57,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .limit(1);
 
   if (!canPublishAnnouncements(user?.role || 'RESIDENT')) {
-    return NextResponse.json(
+    return apiSuccess(
       { error: 'Forbidden — insufficient permissions to edit announcements' },
       { status: 403 }
     );
@@ -89,7 +89,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       .limit(1);
 
     if (!resource) {
-      return NextResponse.json(
+      return apiSuccess(
         { error: 'Resource not found or does not belong to this tenant' },
         { status: 400 }
       );
@@ -118,7 +118,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .returning();
 
   if (!announcement) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
   // Revalidate dashboard caches
@@ -130,7 +130,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     response.warning = `Priority downgraded from ${body.priority} to ${validatedPriority} — your role permits a maximum of ${validatedPriority}`;
   }
 
-  return NextResponse.json(response);
+  return apiSuccess(response);
 }
 
 /**
@@ -142,7 +142,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const session = await auth.api.getSession({ headers: request.headers });
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const [user] = await db
@@ -152,7 +152,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     .limit(1);
 
   if (!canPublishAnnouncements(user?.role || 'RESIDENT')) {
-    return NextResponse.json(
+    return apiSuccess(
       { error: 'Forbidden — insufficient permissions to delete announcements' },
       { status: 403 }
     );
@@ -167,11 +167,11 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     .returning();
 
   if (!announcement) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
   // Revalidate dashboard caches
   revalidateDashboard();
 
-  return NextResponse.json({ success: true });
+  return apiSuccess({ success: true });
 }

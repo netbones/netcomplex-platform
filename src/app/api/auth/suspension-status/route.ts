@@ -1,6 +1,6 @@
 import { requireNotSuspended } from '@api/auth-utils';
-import { NextResponse } from 'next/server';
 
+import { apiError, apiSuccess } from '@api/api-response';
 export const maxDuration = 8;
 
 /**
@@ -10,5 +10,5 @@ export const maxDuration = 8;
  */
 export async function GET(request: Request) {
   const status = await requireNotSuspended(request);
-  return NextResponse.json(status);
+  return apiSuccess(status);
 }

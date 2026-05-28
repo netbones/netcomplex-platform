@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 import { db, agentProfiles, users, premiumSeats } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import { apiError, apiInternalError, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
  * GET /api/agents/marketplace - Get available agents for property investors
  */
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const agentList = await db
@@ -46,14 +47,14 @@ export async function GET(request: NextRequest) {
       .orderBy(desc(agentProfiles.rating), desc(agentProfiles.reviewCount))
       .limit(20);
 
-    return NextResponse.json({ agents: agentList });
+    return apiSuccess({ agents: agentList });
   } catch (error) {
     logError(
       { component: 'marketplace-api', operation: 'GET' },
       'Agent marketplace fetch error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const { agentId } = await request.json();
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!seat[0]) {
-      return NextResponse.json(
+      return apiSuccess(
         {
           error: 'Premium Seat required to connect with agents',
         },
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
     // This would typically send a notification to the agent
     // For now, we'll just log it
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       message: 'Connection request sent successfully',
     });
@@ -103,6 +104,6 @@ export async function POST(request: NextRequest) {
       'Agent connection error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 import { db, agentAccesses, users, properties } from '@api/db';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { apiLogger } from '@shared/lib';
 
+import { apiError, apiSuccess, apiUnauthorized, apiInternalError } from '@api/api-response';
 export const maxDuration = 8;
 
 export async function GET(request: NextRequest) {
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const results = await db
@@ -45,9 +46,9 @@ export async function GET(request: NextRequest) {
       grantedAt: row.agentAccess.createdAt.toISOString(),
     }));
 
-    return NextResponse.json({ properties: managedProperties });
+    return apiSuccess({ properties: managedProperties });
   } catch (error) {
     apiLogger.error({ error }, 'Failed to fetch managed properties');
-    return NextResponse.json({ error: 'Failed to fetch properties' }, { status: 500 });
+    return apiInternalError('Failed to fetch properties');
   }
 }

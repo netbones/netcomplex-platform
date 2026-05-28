@@ -1,7 +1,6 @@
 import { auth } from '@api/auth';
 import { db, announcements, users, profiles, notifications, resources } from '@api/db';
 import { eq, and, desc, lte, gte, inArray, sql } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { revalidateDashboard } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { hasPermission } from '@entities/tenant/api/permissions';
@@ -10,6 +9,13 @@ import { validatePriorityForRole } from '@features/announcements/model/priority-
 import type { AnnouncementPriority } from '@features/announcements/model/priority-taxonomy';
 import { announcementSchema } from '@shared/api/schemas';
 
+import {
+  apiCreated,
+  apiError,
+  apiSuccess,
+  apiUnauthorized,
+  apiInternalError,
+} from '@api/api-response';
 /** Maximum number of notification records to create in a single fanout */
 const FANOUT_CAP = 500;
 
@@ -60,7 +66,7 @@ export async function GET(request: Request) {
   if (!isPublicQuery) {
     const authData = await getSessionAndRole(request);
     if (!authData) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
   }
 
@@ -102,7 +108,7 @@ export async function GET(request: Request) {
     .orderBy(priorityOrder, desc(announcements.createdAt))
     .limit(limit ?? 10000); // Use a high default instead of no limit to avoid type issues
 
-  return NextResponse.json(announcementItems);
+  return apiSuccess(announcementItems);
 }
 
 /**
@@ -114,11 +120,11 @@ export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   if (!canPublishAnnouncements(authData.role)) {
-    return NextResponse.json(
+    return apiSuccess(
       { error: 'Forbidden — insufficient permissions to publish announcements' },
       { status: 403 }
     );
@@ -129,7 +135,7 @@ export async function POST(request: Request) {
   // Validate with Zod schema
   const parsed = announcementSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json(
+    return apiSuccess(
       { error: 'Validation failed', details: parsed.error.flatten().fieldErrors },
       { status: 400 }
     );
@@ -157,7 +163,7 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (!resource) {
-      return NextResponse.json(
+      return apiSuccess(
         { error: 'Resource not found or does not belong to this tenant' },
         { status: 400 }
       );
@@ -185,7 +191,7 @@ export async function POST(request: Request) {
     .returning();
 
   if (!announcement) {
-    return NextResponse.json({ error: 'Failed to create announcement' }, { status: 500 });
+    return apiInternalError('Failed to create announcement');
   }
 
   // ─── NOTIFICATION FANOUT ───────────────────────────────────────────────────
@@ -271,5 +277,5 @@ export async function POST(request: Request) {
     response.warning = `Priority downgraded from ${data.priority} to ${validatedPriority} — your role permits a maximum of ${validatedPriority}`;
   }
 
-  return NextResponse.json(response, { status: 201 });
+  return apiCreated(response);
 }
