@@ -1,10 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 import { db, premiumSeats } from '@api/db';
 import { eq, sql, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import {
+  apiError,
+  apiInternalError,
+  apiNotFound,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/api-response';
 /**
  * POST /api/premium/upgrade-portfolio - Upgrade to Premium Seat with multi-property portfolio
  * Body: { householdIds: string[] } - Array of household IDs to include in portfolio
@@ -17,13 +24,13 @@ export async function POST(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const { householdIds } = await request.json();
 
     if (!Array.isArray(householdIds) || householdIds.length < 2) {
-      return NextResponse.json(
+      return apiSuccess(
         { error: 'At least 2 household IDs required for portfolio upgrade' },
         { status: 400 }
       );
@@ -43,10 +50,7 @@ export async function POST(request: NextRequest) {
     `)) as { rows: { id: string }[] };
 
     if ((householdsResult.rows?.length || 0) !== householdIds.length) {
-      return NextResponse.json(
-        { error: 'You do not own all specified households' },
-        { status: 403 }
-      );
+      return apiSuccess({ error: 'You do not own all specified households' }, { status: 403 });
     }
 
     // Check if user already has a Premium Seat
@@ -72,7 +76,7 @@ export async function POST(request: NextRequest) {
       `)) as { rows: { email: string; name: string | null }[] };
 
       if (!userResult.rows?.length) {
-        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        return apiNotFound('User not found');
       }
 
       const user = userResult.rows[0];
@@ -137,14 +141,14 @@ export async function POST(request: NextRequest) {
       GROUP BY ps.id
     `)) as { rows: { linkedHouseholds: { id: string; street: string; unit: string }[] }[] };
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       message: 'Successfully upgraded to Premium Seat with property portfolio',
       portfolio: portfolioResult.rows?.[0],
     });
   } catch (error) {
     logError({ component: 'portfolio-api', operation: 'POST' }, 'Premium upgrade error', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -159,7 +163,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const portfolioResult = await db.execute(
@@ -167,18 +171,18 @@ export async function GET(request: NextRequest) {
     );
 
     if (!portfolioResult.rows?.length) {
-      return NextResponse.json({
+      return apiSuccess({
         hasPortfolio: false,
         message: 'No Premium Seat portfolio found',
       });
     }
 
-    return NextResponse.json({
+    return apiSuccess({
       hasPortfolio: true,
       portfolio: portfolioResult.rows[0],
     });
   } catch (error) {
     logError({ component: 'portfolio-api', operation: 'GET' }, 'Portfolio fetch error', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

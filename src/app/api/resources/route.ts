@@ -1,12 +1,12 @@
 import { auth } from '@api/auth';
 import { db, resources, users } from '@api/db';
 import { eq, and, desc, inArray, or, isNull } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { revalidateContent } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import type { Role } from '@entities/tenant/api/permissions';
 
+import { apiCreated, apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
  * Retrieves session and role from the request for API routes.
  */
@@ -116,7 +116,7 @@ export async function GET(request: Request) {
     .where(and(...conditions))
     .orderBy(desc(resources.createdAt));
 
-  return NextResponse.json(resourceItems);
+  return apiSuccess(resourceItems);
 }
 
 /**
@@ -127,21 +127,18 @@ export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   if (!hasPermission(authData.role, 'content')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const body = await request.json();
 
   // Validate required fields
   if (!body.title || !body.category) {
-    return NextResponse.json(
-      { error: 'Missing required fields: title, category' },
-      { status: 400 }
-    );
+    return apiSuccess({ error: 'Missing required fields: title, category' }, { status: 400 });
   }
 
   // Enforce tenant isolation
@@ -174,5 +171,5 @@ export async function POST(request: Request) {
   // Revalidate content caches
   revalidateContent();
 
-  return NextResponse.json(resource, { status: 201 });
+  return apiCreated(resource);
 }

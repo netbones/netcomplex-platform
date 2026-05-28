@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
 import { TIERS, type TierLevel } from '@entities/tenant/api/features/registry';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import { apiError, apiSuccess, apiInternalError } from '@api/api-response';
 export interface PricingPlan {
   id: TierLevel;
   name: string;
@@ -90,12 +90,12 @@ export async function GET() {
       ...plan,
     }));
 
-    return NextResponse.json({
+    return apiSuccess({
       plans,
       tiers: TIERS,
     });
   } catch (error) {
     logError({ component: 'pricing-api', operation: 'GET' }, 'Error fetching pricing data', error);
-    return NextResponse.json({ error: 'Failed to fetch pricing data' }, { status: 500 });
+    return apiInternalError('Failed to fetch pricing data');
   }
 }

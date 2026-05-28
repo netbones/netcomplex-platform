@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 import { db, premiumSeats, properties, propertyListings, propertiesTopremiumSeats } from '@api/db';
 import { eq, sql, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import { apiError, apiInternalError, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
  * GET /api/premium/listings - Get property listings for premium user
  */
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     // Get linked properties for this premium seat via junction table
@@ -28,10 +29,7 @@ export async function GET(request: NextRequest) {
       .where(and(eq(premiumSeats.userId, session.user.id), eq(premiumSeats.tenantId, tenantId)));
 
     if (!linkedProperties.length) {
-      return NextResponse.json(
-        { error: 'Premium Seat required to access listings' },
-        { status: 403 }
-      );
+      return apiSuccess({ error: 'Premium Seat required to access listings' }, { status: 403 });
     }
 
     const propertyIds = linkedProperties.map(p => p.id);
@@ -60,14 +58,14 @@ export async function GET(request: NextRequest) {
       homeImage: l.property.homeImage,
     }));
 
-    return NextResponse.json({ listings: transformedListings });
+    return apiSuccess({ listings: transformedListings });
   } catch (error) {
     logError(
       { component: 'premium-listings-api', operation: 'GET' },
       'Listings fetch error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -82,7 +80,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     // Check if user has Premium Seat
@@ -93,10 +91,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!premiumSeatExists.length) {
-      return NextResponse.json(
-        { error: 'Premium Seat required to create listings' },
-        { status: 403 }
-      );
+      return apiSuccess({ error: 'Premium Seat required to create listings' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -114,7 +109,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!propertyId) {
-      return NextResponse.json({ error: 'Property ID required' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'Property ID required', 400);
     }
 
     // Use Drizzle insert
@@ -141,7 +136,7 @@ export async function POST(request: NextRequest) {
       })
       .returning();
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       listing: newListing,
     });
@@ -151,6 +146,6 @@ export async function POST(request: NextRequest) {
       'Listing creation error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

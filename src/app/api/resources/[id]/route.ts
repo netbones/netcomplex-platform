@@ -1,11 +1,17 @@
 import { auth } from '@api/auth';
 import { db, resources, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { revalidateContent } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { hasPermission } from '@entities/tenant/api/permissions';
 
+import {
+  apiError,
+  apiForbidden,
+  apiSuccess,
+  apiUnauthorized,
+  apiNotFound,
+} from '@api/api-response';
 /**
  * Retrieves session and role from the request for API routes.
  */
@@ -88,7 +94,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     .where(and(eq(resources.id, id), eq(resources.tenantId, tenantId)));
 
   if (!resourceItem) {
-    return NextResponse.json({ error: 'Resource not found' }, { status: 404 });
+    return apiNotFound('Resource not found');
   }
 
   // Apply visibility enforcement
@@ -96,28 +102,28 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
   // ADMIN/MANAGER/BOARD: see all
   if (hasPermission(role, 'admin') || role === 'MANAGER' || role === 'BOARD') {
-    return NextResponse.json(resourceItem);
+    return apiSuccess(resourceItem);
   }
 
   // COMMITTEE: cannot see BOARD_ONLY
   if (role === 'COMMITTEE' && visibility === 'BOARD_ONLY') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   // RESIDENT (owner): cannot see BOARD_ONLY or COMMITTEE_ONLY
   if (role === 'RESIDENT' && isOwner) {
     if (visibility === 'BOARD_ONLY' || visibility === 'COMMITTEE_ONLY') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return apiForbidden();
     }
-    return NextResponse.json(resourceItem);
+    return apiSuccess(resourceItem);
   }
 
   // RESIDENT (non-owner) or unauthenticated: only ALL_RESIDENTS
   if (visibility !== 'ALL_RESIDENTS') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
-  return NextResponse.json(resourceItem);
+  return apiSuccess(resourceItem);
 }
 
 /**
@@ -129,11 +135,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   if (!hasPermission(authData.role, 'content')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   // Enforce tenant isolation
@@ -148,7 +154,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .where(and(eq(resources.id, id), eq(resources.tenantId, tenantId)));
 
   if (!existing) {
-    return NextResponse.json({ error: 'Resource not found' }, { status: 404 });
+    return apiNotFound('Resource not found');
   }
 
   const [updated] = await db
@@ -163,7 +169,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   revalidateContent();
 
-  return NextResponse.json(updated);
+  return apiSuccess(updated);
 }
 
 /**
@@ -175,11 +181,11 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   if (!hasPermission(authData.role, 'admin')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   // Enforce tenant isolation
@@ -192,12 +198,12 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     .where(and(eq(resources.id, id), eq(resources.tenantId, tenantId)));
 
   if (!existing) {
-    return NextResponse.json({ error: 'Resource not found' }, { status: 404 });
+    return apiNotFound('Resource not found');
   }
 
   await db.delete(resources).where(eq(resources.id, id));
 
   revalidateContent();
 
-  return NextResponse.json({ success: true });
+  return apiSuccess({ success: true });
 }
