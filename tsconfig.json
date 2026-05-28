@@ -27,7 +27,8 @@
       "@widgets/*": ["./src/widgets/*"],
       "@pages/*": ["./src/page-modules/*"],
       "@processes/*": ["./src/processes/*"],
-      "@schema/*": ["./src/db/schema/*"]
+      "@schema/*": ["./src/db/schema/*"],
+      "@server/*": ["./src/server/*"]
     }
   },
   "include": [
