@@ -111,6 +111,15 @@ export const identityRouter = router({
   // ============ PROPERTIES (The Assets) ============
 
   listProperties: adminProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/properties',
+        tags: ['Identity'],
+        summary: 'List all properties',
+        protect: true,
+      },
+    })
     .input(
       z
         .object({
@@ -198,6 +207,15 @@ export const identityRouter = router({
     }),
 
   getProperty: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/properties/{id}',
+        tags: ['Identity'],
+        summary: 'Get a property by ID',
+        protect: true,
+      },
+    })
     .input(z.object({ id: z.string() }))
     .output(
       z.object({
@@ -283,6 +301,15 @@ export const identityRouter = router({
     }),
 
   createProperty: adminProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/identity/properties',
+        tags: ['Identity'],
+        summary: 'Create a property',
+        protect: true,
+      },
+    })
     .input(
       z.object({
         street: z.string().min(1),
@@ -329,6 +356,15 @@ export const identityRouter = router({
   // ============ HOUSEHOLDS (The Occupancies) ============
 
   listHouseholds: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/households',
+        tags: ['Identity'],
+        summary: 'List households for a property',
+        protect: true,
+      },
+    })
     .input(z.object({ propertyId: z.string() }))
     .output(z.array(householdSchema))
     .query(async ({ input }) => {
@@ -340,6 +376,15 @@ export const identityRouter = router({
     }),
 
   createHousehold: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/identity/households',
+        tags: ['Identity'],
+        summary: 'Create a household',
+        protect: true,
+      },
+    })
     .input(
       z.object({
         propertyId: z.string(),
@@ -379,6 +424,15 @@ export const identityRouter = router({
     }),
 
   getMyProperties: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/properties/my',
+        tags: ['Identity'],
+        summary: 'Get my properties',
+        protect: true,
+      },
+    })
     .output(
       z.array(
         z.object({
@@ -474,6 +528,15 @@ export const identityRouter = router({
   // ============ PROFILES (Resident Participation) ============
 
   createProfile: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/identity/profiles',
+        tags: ['Identity'],
+        summary: 'Create a profile',
+        protect: true,
+      },
+    })
     .input(
       z.object({
         householdId: z.string(),
@@ -537,6 +600,15 @@ export const identityRouter = router({
     }),
 
   updateProfile: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'PATCH',
+        path: '/identity/profiles/{id}',
+        tags: ['Identity'],
+        summary: 'Update a profile',
+        protect: true,
+      },
+    })
     .input(
       z.object({
         id: z.string(),
@@ -563,6 +635,15 @@ export const identityRouter = router({
     }),
 
   getProfile: publicProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/profiles/{id}',
+        tags: ['Identity'],
+        summary: 'Get a public profile',
+        protect: false,
+      },
+    })
     .input(z.object({ id: z.string() }))
     .output(
       z
