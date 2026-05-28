@@ -4,8 +4,7 @@ import { use } from 'react';
 import { notFound } from 'next/navigation';
 import { SPACE_SLUGS, type SpaceId } from '@widgets/dashboard/model/spaces';
 import { SpaceLayoutWithErrorBoundary } from '@widgets/dashboard/ui/SpaceLayout';
-import { AdminSubLauncher } from '@widgets/dashboard/ui/AdminSubLauncher';
-import { UsersListSection } from '@widgets/admin/ui/UsersListSection';
+import { AdminLayer } from '@widgets/dashboard/ui/AdminLayer';
 
 interface SpacePageProps {
   params: Promise<{ space: string }>;
@@ -21,16 +20,10 @@ export default function SpacePage({ params }: SpacePageProps) {
 
   const spaceId = space as SpaceId;
 
-  return (
-    <>
-      <SpaceLayoutWithErrorBoundary spaceId={spaceId} />
-      {/* Admin space: show sub-launcher grid below overview widgets */}
-      {spaceId === 'admin' && (
-        <>
-          <AdminSubLauncher />
-          <UsersListSection />
-        </>
-      )}
-    </>
-  );
+  // Admin space uses AdminLayer (command panel) instead of SpaceLayout (widget grid)
+  if (spaceId === 'admin') {
+    return <AdminLayer />;
+  }
+
+  return <SpaceLayoutWithErrorBoundary spaceId={spaceId} />;
 }

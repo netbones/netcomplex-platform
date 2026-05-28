@@ -124,8 +124,6 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
     minimumRole: 'admin',
     widgetIds: [
       'admin-stats',
-      'admin-activity',
-      'admin-quick-links',
       'admin-user',
       'admin-system',
       'page-settings',

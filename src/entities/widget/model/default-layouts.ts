@@ -265,15 +265,7 @@ const BOARD_SPACE_WIDGETS: UserWidgets = (() => {
 /** Space-keyed default widgets for admin — admin space added explicitly */
 const ADMIN_SPACE_WIDGETS: UserWidgets = (() => {
   const base = remapToSpaces(ADMIN_USER_WIDGETS);
-  base.admin = [
-    'admin-stats',
-    'admin-activity',
-    'admin-quick-links',
-    'admin-user',
-    'admin-system',
-    'page-settings',
-    'admin-announcements',
-  ];
+  base.admin = ['admin-stats', 'admin-user'];
   return base;
 })();
 
@@ -284,12 +276,7 @@ const ADMIN_SPACE_LAYOUTS: WidgetLayouts = (() => {
   const base = remapLayoutsToSpaces(ADMIN_LAYOUTS);
   base.admin = {
     'admin-stats': { x: 0, y: 0, width: 4, height: 2, isCollapsed: false },
-    'admin-activity': { x: 0, y: 2, width: 2, height: 3, isCollapsed: false },
-    'admin-quick-links': { x: 2, y: 2, width: 2, height: 3, isCollapsed: false },
-    'admin-user': { x: 0, y: 5, width: 2, height: 3, isCollapsed: false },
-    'admin-system': { x: 2, y: 5, width: 2, height: 3, isCollapsed: false },
-    'page-settings': { x: 0, y: 8, width: 2, height: 2, isCollapsed: false },
-    'admin-announcements': { x: 2, y: 8, width: 2, height: 2, isCollapsed: false },
+    'admin-user': { x: 0, y: 2, width: 4, height: 3, isCollapsed: false },
   };
   return base;
 })();
