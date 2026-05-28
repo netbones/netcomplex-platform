@@ -410,7 +410,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Audit current API infrastructure against adopted governance standards (API.md, tRPC.md, API_ARCHITECTURE.md) and implement phased remediation across response envelopes, tRPC adoption, route structure, DTO layer, observability, rate limiting, module ownership, and compliance sweep
 
-**Status:** In Progress (1/10 plans complete)
+**Status:** In Progress (2/10 plans complete)
 
 **Requirements:** API-AUDIT-01, API-AUDIT-02, API-RESP-01, API-TRPC-01, API-TRPC-02, API-ROUTE-01, API-DTO-01, API-OBS-01, API-OBS-02, API-RATE-01, API-MOD-01, API-TEST-01, API-CI-01, API-SWEEP-01
 

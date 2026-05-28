@@ -5,14 +5,14 @@
 - **Phase:** 35-api-alignment
 - **Plans:** 10 plans across 4 waves
 - **Plan:** A01 (A01–A10 in current phase)
-- **Current Plan:** 2
+- **Current Plan:** 3
 - **Total Plans in Phase:** 10
 - **Status:** Ready to execute
 - **Last Updated:** 2026-05-28
 - **Current Plan complete — ready for next plan:** 35-A01 canonical API response envelope
 
-**Last Session:** 2026-05-28T12:40:34.216Z
-**Stopped at:** Completed 35-A01-PLAN.md — canonical response envelope
+**Last Session:** 2026-05-28T13:43:19.966Z
+**Stopped at:** Completed 35-B01-PLAN.md — tRPC OpenAPI auto-generation
 **Resume file:** None
 
 ## Decisions Made
@@ -68,6 +68,7 @@
 - [Phase 29]: Moved default-layouts.ts to @entities/widget/model to avoid circular dep — widget-store imports it directly
 - [Phase 29]: resetToRoleDefaults(role, userId) single-call pattern — clears store + persists to DB
 - [Phase 29]: DashboardPage fallback chain: userWidgets[tab] → roleDefaults.userWidgets[tab] → [] (no more DEFAULT_TABS.defaultWidgets)
+- [Phase 35-api-alignment]: [Phase 35-B01]: Used @trpc/openapi (official tRPC v11, not trpc-openapi v1) — trpc-openapi requires @trpc/server@^10, incompatible with v11
 
 ## Notes
 
@@ -178,13 +179,14 @@
 
 ## Performance Metrics
 
-| Phase               | Plan  | Duration | Tasks    | Files |
-| ------------------- | ----- | -------- | -------- | ----- |
-| Phase 33 P01        | 11min | 4 tasks  | 6 files  |
-| Phase 33 P02        | 1min  | 3 tasks  | 8 files  |
-| Phase 35 (Planning) | —     | 20 gaps  | 11 files |
-| Phase 35 P01        | 22min | 3 tasks  | 87 files |
-| Phase 35 PA01       | 22min | 3 tasks  | 87 files |
+| Phase                       | Plan  | Duration | Tasks    | Files |
+| --------------------------- | ----- | -------- | -------- | ----- |
+| Phase 33 P01                | 11min | 4 tasks  | 6 files  |
+| Phase 33 P02                | 1min  | 3 tasks  | 8 files  |
+| Phase 35 (Planning)         | —     | 20 gaps  | 11 files |
+| Phase 35 P01                | 22min | 3 tasks  | 87 files |
+| Phase 35 PA01               | 22min | 3 tasks  | 87 files |
+| Phase 35-api-alignment PB01 | 47m   | 2 tasks  | 6 files  |
 
 ## A01 Execution Decisions
 
