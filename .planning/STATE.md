@@ -2,12 +2,12 @@
 
 ## Current Position
 
-- **Phase:** 33-user-suspension
-- **Plan:** 33-02 complete
-- **Status:** Ready to plan
+- **Phase:** 35-api-alignment
+- **Plans:** 10 plans across 4 waves
+- **Status:** Planning Complete
 - **Last Updated:** 2026-05-28
-- **Last Session:** Completed 33-02 — suspension UI form, UserRow badge, UsersListSection wiring, i18n
-- **Last Session (prev):** Executed 33-01 — suspension API routes (suspend/unsuspend/suspensions suspension-status) + auth guards + auto-unsuspension logic
+- **Last Session:** Phase 35 full planning — audit (20 gaps G1-G20) + 10 PLAN.md files (A01–F02) across 4 waves
+- **Last Session (prev):** Completed 33-02 — suspension UI form, UserRow badge, UsersListSection wiring, i18n
 
 ## Decisions Made
 
@@ -161,10 +161,19 @@
 - [Phase 33-user-suspension-01]: requireNotSuspended() as separate helper — independent or integrated into getSessionAndRole()
 - [Phase 33-user-suspension-01]: throwIfSuspended() convenience guard returns 403 NextResponse for clean early-return pattern
 - [Phase 33-user-suspension-01]: Drizzle transactions for atomic suspend/unsuspend — both operations succeed or fail together
+- [Phase 35-api-alignment]: 20 gaps (G1–G20) identified across P0/P1/P2 severity — P0 gaps block all downstream work
+- [Phase 35-api-alignment]: Response envelope: apiSuccess(data) + apiError(code, status, message) — replaces all NextResponse.json() in governed routes
+- [Phase 35-api-alignment]: Error code taxonomy: VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, CONFLICT, TENANT_REQUIRED, SUSPENDED, RATE_LIMITED, INTERNAL_ERROR, NOT_IMPLEMENTED
+- [Phase 35-api-alignment]: tRPC migration: only identity module (12 procedures) currently uses tRPC — 85+ REST routes to migrate iteratively
+- [Phase 35-api-alignment]: trpc-openapi will replace hand-written /api/openapi.json — install from npm
+- [Phase 35-api-alignment]: Rate limiting: in-memory Map for now (single-instance), Redis upgrade flagged for multi-instance
+- [Phase 35-api-alignment]: Request IDs: middleware-set x-request-id header with crypto.randomUUID() fallback
+- [Phase 35-api-alignment]: All v1 canonical routes initially re-export from flat routes to keep logic DRY during transition
 
 ## Performance Metrics
 
-| Phase                        | Plan | Duration | Tasks   | Files |
-| ---------------------------- | ---- | -------- | ------- | ----- |
-| 33-user-suspension           | 01   | 11min    | 4       | 6     |
+| Phase                        | Plan | Duration | Tasks   | Files    |
+| ---------------------------- | ---- | -------- | ------- | -------- |
+| 33-user-suspension           | 01   | 11min    | 4       | 6        |
 | Phase 33-user-suspension P02 | 1min | 3 tasks  | 8 files |
+| 35-api-alignment (Planning)  | —    | —        | 20 gaps | 11 files |

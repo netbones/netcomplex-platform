@@ -406,14 +406,38 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-### Phase: 35-merits-system
+## Phase: 35-api-alignment
 
-- Community merits/standing tracking system with Gold/Silver/Bronze/Probation tiers
-- `behaviorRecord` table tracking MERIT/WARNING/INFRACTION entries per user
-- Auto-escalation rules: N infractions → warning → suspension recommendation
-- Standing badges on resident directory/profile
-- Admin dashboard: merit management, standing overview, tier audit log
-- **BD Issue:** `soralia-village-2at`
+**Goal:** Audit current API infrastructure against adopted governance standards (API.md, tRPC.md, API_ARCHITECTURE.md) and implement phased remediation across response envelopes, tRPC adoption, route structure, DTO layer, observability, rate limiting, module ownership, and compliance sweep
+
+**Status:** Planning Complete
+
+**Requirements:** API-AUDIT-01, API-AUDIT-02, API-RESP-01, API-TRPC-01, API-TRPC-02, API-ROUTE-01, API-DTO-01, API-OBS-01, API-OBS-02, API-RATE-01, API-MOD-01, API-TEST-01, API-CI-01, API-SWEEP-01
+
+**Plans:** 10 plans
+
+| Wave | Plans                                                                       |
+| ---- | --------------------------------------------------------------------------- |
+| 1    | A-01 (Response envelope + error codes)                                      |
+| 2    | B-01 (trpc-openapi), B-02 (Identity tRPC migration)                         |
+| 2    | C-01 (Canonical route structure), C-02 (DTO layer)                          |
+| 3    | D-01 (Observability + audit logging), D-02 (Rate limiting + feature gating) |
+| 3    | E-01 (Module ownership rollout)                                             |
+| 4    | F-01 (API tests + CI validation), F-02 (Compliance sweep)                   |
+
+Plans:
+
+- [x] 35-AUDIT.md — Full audit (20 gaps G1-G20) ✅
+- [ ] 35-A01-PLAN.md — Response envelope standards + error code framework (Wave 1)
+- [ ] 35-B01-PLAN.md — trpc-openapi integration + OpenAPI generator (Wave 2)
+- [ ] 35-B02-PLAN.md — Identity REST routes → tRPC migration (Wave 2)
+- [ ] 35-C01-PLAN.md — Canonical route structure (Wave 2)
+- [ ] 35-C02-PLAN.md — DTO layer (Wave 2)
+- [ ] 35-D01-PLAN.md — Observability + audit logging (Wave 3)
+- [ ] 35-D02-PLAN.md — Rate limiting + feature gating (Wave 3)
+- [ ] 35-E01-PLAN.md — Module ownership model rollout (Wave 3)
+- [ ] 35-F01-PLAN.md — API test suites + OpenAPI CI validation (Wave 4)
+- [ ] 35-F02-PLAN.md — Compliance sweep: schema ownership, role checks, error codes (Wave 4)
 
 ---
 
