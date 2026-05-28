@@ -2,14 +2,14 @@
 
 ## Current Position
 
-- **Phase:** 35-api-alignment
-- **Status:** Complete — All 10 plans across 4 waves executed
+- **Phase:** 34-admin-layer
+- **Status:** Complete — All 4 tasks in plan 34-01 executed
 - **Completed:** 2026-05-28
 - **Last Updated:** 2026-05-28
 - **Next Phase:** 99-build-fix
 
-**Last Session:** 2026-05-28T14:44:58.499Z
-**Stopped at:** Completed 35-F02-PLAN.md
+**Last Session:** 2026-05-28
+**Stopped at:** 34-01-PLAN.md complete
 **Resume file:** None
 
 ## Decisions Made
@@ -65,6 +65,11 @@
 - [Phase 29]: Moved default-layouts.ts to @entities/widget/model to avoid circular dep — widget-store imports it directly
 - [Phase 29]: resetToRoleDefaults(role, userId) single-call pattern — clears store + persists to DB
 - [Phase 29]: DashboardPage fallback chain: userWidgets[tab] → roleDefaults.userWidgets[tab] → [] (no more DEFAULT_TABS.defaultWidgets)
+- [Phase 34-admin-layer]: AdminLayer renders instead of SpaceLayout for admin space — replaces widget-grid+sub-launcher hybrid
+- [Phase 34-admin-layer]: AdminCommandBar has reactive CTAs (open maintenance, pending members, closing surveys, expired announcements) + 6 default shortcuts + extensible Add popover
+- [Phase 34-admin-layer]: AdminActivityStream uses lazy-load with domain filter tabs (All/Users/Maintenance/Content/Events/Surveys/System) + cursor pagination
+- [Phase 34-admin-layer]: Domain grid shows urgency badges from /api/admin/urgency domainBadges
+- [Phase 34-admin-layer]: admin-activity and admin-quick-links widgets removed from admin space defaults (absorbed into AdminLayer)
 - [Phase 35-api-alignment]: [Phase 35-B01]: Used @trpc/openapi (official tRPC v11, not trpc-openapi v1) — trpc-openapi requires @trpc/server@^10, incompatible with v11
 - [Phase 35-api-alignment]: Canonical tRPC routers live in src/server/routers/ per tRPC.md §15 — old entity router kept as deprecated re-export shim
 - [Phase 35-api-alignment]: v1 routes re-export from flat routes — keeps logic DRY during transition to tRPC

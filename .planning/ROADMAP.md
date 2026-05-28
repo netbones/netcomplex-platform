@@ -386,13 +386,13 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Replace the admin space widget-grid+sub-launcher hybrid with a purpose-built AdminLayer command panel that mirrors the HomeLayer architecture — command bar → domains grid → lazy activity stream → collapsible widget area, driven by urgency + activity APIs
 
-**Status:** Planning Complete
+**Status:** Complete
 
 **Requirements:** ADMIN-01, ADMIN-02, ADMIN-03, ADMIN-04
 
 **Plans:** 1 plan
 
-- [ ] 34-01-PLAN.md — AdminLayer command panel: urgency + activity APIs, AdminCommandBar, AdminActivityStream, AdminLayer component, admin space routing, widget cleanup (Wave 1)
+- [x] 34-01-PLAN.md — AdminLayer command panel: urgency + activity APIs, AdminCommandBar, AdminActivityStream, AdminLayer component, admin space routing, widget cleanup (Wave 1) ✅
 
 ---
 
