@@ -1,9 +1,9 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-05-27 (Session 4)
-> **Total remaining:** 22 issues (down from 54)
+> **Last updated:** 2026-05-28 (Session 5)
+> **Total remaining:** 23 issues (down from 54)
 > **Closed all sessions:** 35 issues total (22 in Session 1, 5 in Session 2, 8 in Session 3, 0 in Session 4)
-> **Created this session:** 3 issues (Phase 30 deferred items)
+> **Created this session:** 1 issue (Phase 34 merits system)
 
 ## Summary by Priority
 
@@ -36,6 +36,12 @@
 | ID    | Type | Title                    | Status |
 | ----- | ---- | ------------------------ | ------ |
 | `l23` | epic | Epic: i18n for all pages | ○      |
+
+### Features & Tasks
+
+| ID    | Type    | Title                                        | Status |
+| ----- | ------- | -------------------------------------------- | ------ |
+| `2at` | feature | Phase 34: Community Merits & Standing System | ○      |
 
 ### Blocked Tasks
 

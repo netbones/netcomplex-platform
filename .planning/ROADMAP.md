@@ -392,6 +392,17 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+### Phase: 34-merits-system
+
+- Community merits/standing tracking system with Gold/Silver/Bronze/Probation tiers
+- `behaviorRecord` table tracking MERIT/WARNING/INFRACTION entries per user
+- Auto-escalation rules: N infractions → warning → suspension recommendation
+- Standing badges on resident directory/profile
+- Admin dashboard: merit management, standing overview, tier audit log
+- **BD Issue:** `soralia-village-2at`
+
+---
+
 ## Module Architecture (Phase 08 Design)
 
 ### Tier Model
