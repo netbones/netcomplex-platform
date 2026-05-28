@@ -5,14 +5,14 @@
 - **Phase:** 35-api-alignment
 - **Plans:** 10 plans across 4 waves
 - **Plan:** A01 (A01–A10 in current phase)
-- **Current Plan:** 3
+- **Current Plan:** 4
 - **Total Plans in Phase:** 10
 - **Status:** Ready to execute
 - **Last Updated:** 2026-05-28
 - **Current Plan complete — ready for next plan:** 35-A01 canonical API response envelope
 
-**Last Session:** 2026-05-28T13:43:19.966Z
-**Stopped at:** Completed 35-B01-PLAN.md — tRPC OpenAPI auto-generation
+**Last Session:** 2026-05-28T13:50:48.996Z
+**Stopped at:** Completed 35-B02-PLAN.md — canonical tRPC router structure
 **Resume file:** None
 
 ## Decisions Made
@@ -69,6 +69,7 @@
 - [Phase 29]: resetToRoleDefaults(role, userId) single-call pattern — clears store + persists to DB
 - [Phase 29]: DashboardPage fallback chain: userWidgets[tab] → roleDefaults.userWidgets[tab] → [] (no more DEFAULT_TABS.defaultWidgets)
 - [Phase 35-api-alignment]: [Phase 35-B01]: Used @trpc/openapi (official tRPC v11, not trpc-openapi v1) — trpc-openapi requires @trpc/server@^10, incompatible with v11
+- [Phase 35-api-alignment]: Canonical tRPC routers live in src/server/routers/ per tRPC.md §15 — old entity router kept as deprecated re-export shim
 
 ## Notes
 
@@ -187,6 +188,7 @@
 | Phase 35 P01                | 22min | 3 tasks  | 87 files |
 | Phase 35 PA01               | 22min | 3 tasks  | 87 files |
 | Phase 35-api-alignment PB01 | 47m   | 2 tasks  | 6 files  |
+| Phase 35-api-alignment PB02 | 279s  | 2 tasks  | 4 files  |
 
 ## A01 Execution Decisions
 
