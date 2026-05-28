@@ -1,17 +1,45 @@
 import { auth } from '@api/auth';
 import { hasPermission, canManageOwnGroupOnly, Permission } from '@entities/tenant/api/permissions';
-import { db, users } from '@api/db';
+import { db, users, platformSuspensions } from '@api/db';
 import { NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
+
+export interface SuspensionInfo {
+  id: string;
+  suspensionType: string;
+  reason: string;
+  description: string | null;
+  startDate: Date;
+  endDate: Date | null;
+  isPermanent: boolean;
+  createdById: string;
+}
+
+export interface SessionAndRole {
+  session: {
+    user: {
+      id: string;
+      email: string;
+      name: string;
+      image?: string | null;
+    };
+  };
+  userId: string;
+  role: string;
+  suspension: SuspensionInfo | null;
+}
 
 /**
  * Retrieves the current user session and role from Better Auth.
- * @returns {Promise<{session: Session, userId: string, role: string} | null>}
- *   Session data with user ID and role, or null if not authenticated
+ * If a request is provided, uses request headers for session lookup.
+ * Also checks suspension status for the authenticated user.
+ *
+ * @param request - Optional incoming HTTP request for header-based auth
+ * @returns Session data with user ID, role, and suspension info, or null if not authenticated
  */
-export async function getSessionAndRole() {
+export async function getSessionAndRole(request?: Request): Promise<SessionAndRole | null> {
   const session = await auth.api.getSession({
-    headers: new Headers(),
+    headers: request?.headers ?? new Headers(),
   });
 
   if (!session?.user?.id) {
@@ -23,11 +51,111 @@ export async function getSessionAndRole() {
     .from(users)
     .where(eq(users.id, session.user.id));
 
+  const role = user?.role || 'RESIDENT';
+
+  // Check suspension status for the authenticated user
+  const suspensionInfo = await checkActiveSuspension(session.user.id);
+
   return {
     session,
     userId: session.user.id,
-    role: user?.role || 'RESIDENT',
+    role,
+    suspension: suspensionInfo,
   };
+}
+
+/**
+ * Check if a user has an active suspension, with auto-unsuspension for expired timed suspensions.
+ * @param userId - The user ID to check
+ * @returns SuspensionInfo if actively suspended, null otherwise
+ */
+async function checkActiveSuspension(userId: string): Promise<SuspensionInfo | null> {
+  const [suspension] = await db
+    .select({
+      id: platformSuspensions.id,
+      suspensionType: platformSuspensions.suspensionType,
+      reason: platformSuspensions.reason,
+      description: platformSuspensions.description,
+      startDate: platformSuspensions.startDate,
+      endDate: platformSuspensions.endDate,
+      isPermanent: platformSuspensions.isPermanent,
+      createdById: platformSuspensions.createdById,
+    })
+    .from(platformSuspensions)
+    .where(and(eq(platformSuspensions.userId, userId), eq(platformSuspensions.isActive, true)))
+    .limit(1);
+
+  if (!suspension) {
+    return null;
+  }
+
+  // Auto-unsuspend if the timed suspension has expired
+  if (suspension.endDate && new Date(suspension.endDate) < new Date()) {
+    await db
+      .update(platformSuspensions)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(platformSuspensions.id, suspension.id));
+
+    await db.update(users).set({ isActive: true }).where(eq(users.id, userId));
+
+    return null;
+  }
+
+  return suspension;
+}
+
+/**
+ * Check if the current request's user is suspended.
+ * Auto-unsuspends expired timed suspensions before returning.
+ *
+ * @param request - Incoming HTTP request
+ * @returns Object with suspended flag and optional suspension details
+ */
+export async function requireNotSuspended(request: Request): Promise<{
+  suspended: boolean;
+  suspension: SuspensionInfo | null;
+}> {
+  const session = await auth.api.getSession({ headers: request.headers });
+
+  if (!session?.user?.id) {
+    return { suspended: false, suspension: null };
+  }
+
+  const suspension = await checkActiveSuspension(session.user.id);
+  return {
+    suspended: suspension !== null,
+    suspension,
+  };
+}
+
+/**
+ * Convenience guard that returns a 403 NextResponse if the user is suspended.
+ * Returns null if not suspended (allowing clean early-return usage at top of routes).
+ *
+ * @param request - Incoming HTTP request
+ * @returns NextResponse with 403 error if suspended, null otherwise
+ */
+export async function throwIfSuspended(request: Request): Promise<NextResponse | null> {
+  const { suspended, suspension } = await requireNotSuspended(request);
+
+  if (suspended) {
+    return NextResponse.json(
+      {
+        error: 'Account suspended',
+        suspension: {
+          id: suspension?.id,
+          reason: suspension?.reason,
+          suspensionType: suspension?.suspensionType,
+          startDate: suspension?.startDate,
+          endDate: suspension?.endDate,
+          isPermanent: suspension?.isPermanent,
+        },
+      },
+      { status: 403 }
+    );
+  }
+
+  return null;
 }
 
 /**

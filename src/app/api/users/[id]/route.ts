@@ -13,6 +13,7 @@ import { NextResponse } from 'next/server';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
+import { throwIfSuspended } from '@api/auth-utils';
 import { getLocalizedValue, getLocalizedContent, defaultLanguage } from '@shared/lib';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -190,6 +191,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const scopeError = await requireAssistScope(request, 'full');
   if (scopeError) return scopeError;
 
+  // Suspension guard: suspended users cannot modify their own profile
+  const suspensionGuard = await throwIfSuspended(request);
+  if (suspensionGuard) return suspensionGuard;
+
   const { tenantId } = await withTenant();
   const body = await request.json();
 
@@ -309,6 +314,10 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   // AssistSession scope guard: metadata-scoped staff can only read, not modify content/users/settings
   const scopeError = await requireAssistScope(request, 'full');
   if (scopeError) return scopeError;
+
+  // Suspension guard: suspended users cannot be deleted
+  const suspensionGuard = await throwIfSuspended(request);
+  if (suspensionGuard) return suspensionGuard;
 
   const { tenantId } = await withTenant();
 
