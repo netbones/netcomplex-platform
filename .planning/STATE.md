@@ -5,14 +5,14 @@
 - **Phase:** 35-api-alignment
 - **Plans:** 10 plans across 4 waves
 - **Plan:** A01 (A01–A10 in current phase)
-- **Current Plan:** 5
+- **Current Plan:** 6
 - **Total Plans in Phase:** 10
 - **Status:** Ready to execute
 - **Last Updated:** 2026-05-28
 - **Current Plan complete — ready for next plan:** 35-A01 canonical API response envelope
 
-**Last Session:** 2026-05-28T13:54:43.048Z
-**Stopped at:** Completed 35-C01-PLAN.md — canonical route structure
+**Last Session:** 2026-05-28T13:55:47.380Z
+**Stopped at:** Completed 35-C02-PLAN.md — DTO mapping layer
 **Resume file:** None
 
 ## Decisions Made
@@ -73,6 +73,7 @@
 - [Phase 35-api-alignment]: v1 routes re-export from flat routes — keeps logic DRY during transition to tRPC
 - [Phase 35-api-alignment]: Re-exports match source exactly — 16 mismatches fixed to prevent compilation failures
 - [Phase 35-api-alignment]: Public v1 routes only export GET handlers — mutations require auth in tenant namespace
+- [Phase 35-api-alignment]: DTO ISO string dates — all dates serialized to ISO strings for portable API contracts
 
 ## Notes
 
@@ -193,6 +194,7 @@
 | Phase 35-api-alignment PB01 | 47m   | 2 tasks  | 6 files  |
 | Phase 35-api-alignment PB02 | 279s  | 2 tasks  | 4 files  |
 | Phase 35-api-alignment PC01 | 12min | 2 tasks  | 17 files |
+| Phase 35-api-alignment PC02 | 532   | 2 tasks  | 19 files |
 
 ## A01 Execution Decisions
 
