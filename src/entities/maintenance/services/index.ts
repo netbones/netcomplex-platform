@@ -99,29 +99,6 @@ export async function listMaintenanceRequests(params: {
 }
 
 /**
- * Applies search filter in memory (for description search).
- */
-export function searchMaintenanceRequests(
-  results: Array<{
-    MaintenanceRequest: typeof maintenanceRequests.$inferSelect;
-    user: typeof users.$inferSelect | null;
-    property: typeof properties.$inferSelect | null;
-  }>,
-  search: string
-) {
-  const searchLower = search.toLowerCase();
-  return results.filter(
-    r =>
-      r.MaintenanceRequest.description?.toLowerCase().includes(searchLower) ||
-      r.user?.name?.toLowerCase().includes(searchLower) ||
-      r.user?.email?.toLowerCase().includes(searchLower) ||
-      r.user?.address?.street?.toLowerCase().includes(searchLower) ||
-      r.user?.address?.unit?.toLowerCase().includes(searchLower) ||
-      r.MaintenanceRequest.category?.toLowerCase().includes(searchLower)
-  );
-}
-
-/**
  * Creates a new maintenance request.
  */
 export async function createMaintenanceRequest(data: {
@@ -130,7 +107,7 @@ export async function createMaintenanceRequest(data: {
   userId: string;
   propertyId: string | null;
   category: string;
-  priority: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'EMERGENCY';
   description: string;
   images: string[];
 }) {

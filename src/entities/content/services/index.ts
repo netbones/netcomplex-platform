@@ -145,7 +145,7 @@ export async function createContent(data: {
   title: Record<string, string>;
   content: Record<string, string>;
   excerpt: Record<string, string> | null;
-  category: string;
+  category: 'ANNOUNCEMENT' | 'NEWS' | 'EVENT' | 'BLOG' | 'CONSERVATION' | 'SERVICES' | 'CAMPAIGN';
   authorId: string;
   groupId: string | null;
   featured: boolean;
@@ -158,6 +158,8 @@ export async function createContent(data: {
   contentType: string;
 }) {
   const now = new Date();
+
+  const publishedAt: Date | null = data.published ? data.publishedAt || now : data.publishedAt;
 
   const [content] = await db
     .insert(contents)
@@ -172,7 +174,7 @@ export async function createContent(data: {
       groupId: data.groupId,
       featured: data.featured,
       published: data.published,
-      publishedAt: data.published || data.publishedAt ? data.publishedAt || now : null,
+      publishedAt,
       expiresAt: data.expiresAt,
       tags: data.tags,
       priority: data.priority,

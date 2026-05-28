@@ -1,9 +1,10 @@
 import { auth } from '@api/auth';
-import { db, events, users } from '@api/db';
-import { eq, and, desc, asc, gte } from 'drizzle-orm';
+import { db, users } from '@api/db';
+import { eq } from 'drizzle-orm';
 import { revalidateContent } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { hasPermission } from '@entities/tenant/api/permissions';
+import * as eventsService from '@entities/events/services';
 
 import { apiCreated, apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
@@ -57,26 +58,8 @@ export async function GET(request: Request) {
   const limit = limitParam ? parseInt(limitParam, 10) : undefined;
   const upcoming = upcomingParam === 'true';
 
-  let eventItems: (typeof events.$inferSelect)[];
-
-  if (upcoming) {
-    const now = new Date();
-    const query = db
-      .select()
-      .from(events)
-      .where(and(eq(events.tenantId, tenantId), gte(events.date, now)))
-      .orderBy(asc(events.date));
-
-    eventItems = limit ? await query.limit(limit) : await query;
-  } else {
-    const query = db
-      .select()
-      .from(events)
-      .where(eq(events.tenantId, tenantId))
-      .orderBy(desc(events.date));
-
-    eventItems = limit ? await query.limit(limit) : await query;
-  }
+  // Delegate to entity service
+  const eventItems = await eventsService.listEvents({ tenantId, limit, upcoming });
 
   return apiSuccess(eventItems);
 }
@@ -98,10 +81,13 @@ export async function POST(request: Request) {
 
   const body = await request.json();
 
-  // Validate required fields
-  if (!body.title || !body.description || !body.date || !body.location || !body.organizer) {
+  // Validate required fields using service
+  const validation = eventsService.validateEventFields(body);
+  if (!validation.valid) {
     return apiSuccess(
-      { error: 'Missing required fields: title, description, date, location, organizer' },
+      {
+        error: `Missing required fields: ${validation.missing?.join(', ')}`,
+      },
       { status: 400 }
     );
   }
@@ -109,24 +95,18 @@ export async function POST(request: Request) {
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
 
-  const now = new Date();
-
-  const [event] = await db
-    .insert(events)
-    .values({
-      id: crypto.randomUUID(),
-      tenantId,
-      title: body.title,
-      description: body.description,
-      date: new Date(body.date),
-      location: body.location,
-      organizer: body.organizer,
-      image: body.image || null,
-      isPublic: body.isPublic !== undefined ? body.isPublic : true,
-      createdAt: now,
-      updatedAt: now,
-    })
-    .returning();
+  // Delegate to entity service for creation
+  const event = await eventsService.createEvent({
+    id: crypto.randomUUID(),
+    tenantId,
+    title: body.title,
+    description: body.description,
+    date: new Date(body.date),
+    location: body.location,
+    organizer: body.organizer,
+    image: body.image || null,
+    isPublic: body.isPublic !== undefined ? body.isPublic : true,
+  });
 
   // Revalidate content caches
   revalidateContent();

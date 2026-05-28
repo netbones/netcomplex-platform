@@ -28,7 +28,7 @@ export async function createContent(data: {
   title: Record<string, string>;
   content: Record<string, string>;
   excerpt: Record<string, string> | null;
-  category: string;
+  category: 'ANNOUNCEMENT' | 'NEWS' | 'EVENT' | 'BLOG' | 'CONSERVATION' | 'SERVICES' | 'CAMPAIGN';
   authorId: string;
   groupId?: string | null;
   featured?: boolean;

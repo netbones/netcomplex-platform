@@ -1,6 +1,5 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
-import { db, maintenanceRequests, users, properties } from '@api/db';
 import { maintenanceRequestSchema } from '@api/schemas';
 import {
   apiSuccess,
@@ -11,9 +10,11 @@ import {
 } from '@api/api-response';
 import { revalidateDashboard } from '@api/revalidation';
 import { apiLogger } from '@shared/lib';
-import { eq, desc, and, sql, InferInsertModel } from 'drizzle-orm';
+import { db, users } from '@api/db';
+import { eq } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { toMaintenanceRequestDTO } from '@api/dto/maintenance';
+import * as maintenanceService from '@entities/maintenance/services';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;
@@ -66,85 +67,17 @@ export async function GET(request: Request) {
 
   const { tenantId } = await withTenant();
 
-  // Build query conditions
-  const conditions: (ReturnType<typeof eq> | ReturnType<typeof sql>)[] = [
-    eq(maintenanceRequests.tenantId, tenantId),
-  ];
-
-  // Filter by user if not admin
-  if (!canViewAll) {
-    conditions.push(eq(maintenanceRequests.userId, authData.userId));
-  }
-
-  // Filter by status if provided
-  if (status && status !== 'all') {
-    conditions.push(
-      eq(
-        maintenanceRequests.status,
-        status as (typeof maintenanceRequests.status.enumValues)[number]
-      )
-    );
-  }
-
-  // Filter by priority if provided
-  if (priority && priority !== 'all') {
-    conditions.push(
-      eq(
-        maintenanceRequests.priority,
-        priority as (typeof maintenanceRequests.priority.enumValues)[number]
-      )
-    );
-  }
-
-  // Filter by category if provided
-  if (category && category !== 'all') {
-    conditions.push(eq(maintenanceRequests.category, category));
-  }
-
-  // Filter by date range
-  if (dateFrom) {
-    conditions.push(sql`${maintenanceRequests.createdAt} >= ${new Date(dateFrom)}`);
-  }
-  if (dateTo) {
-    conditions.push(sql`${maintenanceRequests.createdAt} <= ${new Date(dateTo)}`);
-  }
-
-  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-  // Execute query with left joins to get user info and property address
-  interface QueryResult {
-    MaintenanceRequest: typeof maintenanceRequests.$inferSelect;
-    user: typeof users.$inferSelect | null;
-    property?: typeof properties.$inferSelect | null;
-  }
-  let results: QueryResult[];
-
-  if (canViewAll) {
-    // Admin view: join with properties to get address
-    results = await db
-      .select({
-        MaintenanceRequest: maintenanceRequests,
-        user: users,
-        property: properties,
-      })
-      .from(maintenanceRequests)
-      .leftJoin(users, eq(maintenanceRequests.userId, users.id))
-      .leftJoin(properties, eq(maintenanceRequests.propertyId, properties.id))
-      .where(whereClause)
-      .orderBy(desc(maintenanceRequests.createdAt));
-  } else {
-    // Resident view: simple join
-    results = await db
-      .select({
-        MaintenanceRequest: maintenanceRequests,
-        user: users,
-        property: sql<null>`null`,
-      })
-      .from(maintenanceRequests)
-      .leftJoin(users, eq(maintenanceRequests.userId, users.id))
-      .where(whereClause)
-      .orderBy(desc(maintenanceRequests.createdAt));
-  }
+  // Delegate to entity service for query building and execution
+  const results = await maintenanceService.listMaintenanceRequests({
+    tenantId,
+    userId: authData.userId,
+    canViewAll,
+    status,
+    priority,
+    category,
+    dateFrom,
+    dateTo,
+  });
 
   // Transform results using DTO
   const transformed = results.map(row => {
@@ -152,7 +85,6 @@ export async function GET(request: Request) {
     const u = row.user;
     const prop = row.property;
 
-    // Get property address
     const address = prop ? { street: prop.street, unit: prop.unit } : null;
 
     return {
@@ -217,9 +149,8 @@ export async function POST(request: Request) {
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
 
-    // Use Drizzle insert
-    const now = new Date();
-    const insertValues: InferInsertModel<typeof maintenanceRequests> = {
+    // Delegate to entity service for creation
+    const [maintenanceRequest] = await maintenanceService.createMaintenanceRequest({
       id: crypto.randomUUID(),
       tenantId,
       userId,
@@ -228,13 +159,7 @@ export async function POST(request: Request) {
       priority,
       description,
       images: body.images || [],
-      status: 'SUBMITTED',
-      createdAt: now,
-      updatedAt: now,
-    };
-    const insertResult = await db.insert(maintenanceRequests).values(insertValues).returning();
-
-    const maintenanceRequest = insertResult[0];
+    });
 
     // Revalidate dashboard caches immediately when new request is created
     revalidateDashboard();

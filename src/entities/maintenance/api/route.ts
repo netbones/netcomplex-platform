@@ -38,22 +38,18 @@ export async function listMaintenanceRequests(params: {
     };
   });
 
-  // Apply search filter in memory
+  // Apply search filter in memory (on DTO-transformed data)
   if (params.search && params.canViewAll) {
-    transformed =
-      maintenanceService.searchMaintenanceRequests(results, params.search).length > 0
-        ? transformed.filter(t => {
-            const searchLower = params.search!.toLowerCase();
-            return (
-              t.description?.toLowerCase().includes(searchLower) ||
-              t.user?.name?.toLowerCase().includes(searchLower) ||
-              t.user?.email?.toLowerCase().includes(searchLower) ||
-              t.user?.address?.street?.toLowerCase().includes(searchLower) ||
-              t.user?.address?.unit?.toLowerCase().includes(searchLower) ||
-              t.category?.toLowerCase().includes(searchLower)
-            );
-          })
-        : transformed;
+    const searchLower = params.search.toLowerCase();
+    transformed = transformed.filter(
+      t =>
+        t.description?.toLowerCase().includes(searchLower) ||
+        t.user?.name?.toLowerCase().includes(searchLower) ||
+        t.user?.email?.toLowerCase().includes(searchLower) ||
+        t.user?.address?.street?.toLowerCase().includes(searchLower) ||
+        t.user?.address?.unit?.toLowerCase().includes(searchLower) ||
+        t.category?.toLowerCase().includes(searchLower)
+    );
   }
 
   return transformed;
@@ -67,7 +63,7 @@ export async function createMaintenanceRequest(data: {
   userId: string;
   propertyId: string | null;
   category: string;
-  priority: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'EMERGENCY';
   description: string;
   images?: string[];
 }) {

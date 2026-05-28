@@ -5,22 +5,23 @@ import { eq, and, desc, asc, gte } from 'drizzle-orm';
  * Lists events for a tenant with optional filtering.
  */
 export async function listEvents(params: { tenantId: string; limit?: number; upcoming?: boolean }) {
-  let query = db.select().from(events);
-
   if (params.upcoming) {
     const now = new Date();
-    query = query
+    const query = db
+      .select()
+      .from(events)
       .where(and(eq(events.tenantId, params.tenantId), gte(events.date, now)))
       .orderBy(asc(events.date));
-  } else {
-    query = query.where(eq(events.tenantId, params.tenantId)).orderBy(desc(events.date));
+    return params.limit ? query.limit(params.limit) : query;
   }
 
-  if (params.limit) {
-    return query.limit(params.limit);
-  }
+  const query = db
+    .select()
+    .from(events)
+    .where(eq(events.tenantId, params.tenantId))
+    .orderBy(desc(events.date));
 
-  return query;
+  return params.limit ? query.limit(params.limit) : query;
 }
 
 /**
