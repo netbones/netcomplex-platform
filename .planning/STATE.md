@@ -7,12 +7,12 @@
 - **Plan:** A01 (A01–A10 in current phase)
 - **Current Plan:** 10
 - **Total Plans in Phase:** 10
-- **Status:** Ready to execute
+- **Status:** Phase complete — ready for verification
 - **Last Updated:** 2026-05-28
 - **Current Plan complete — ready for next plan:** 35-F01 API test coverage and CI validation
 
-**Last Session:** 2026-05-28T14:25:23.307Z
-**Stopped at:** Completed 35-F01-PLAN.md
+**Last Session:** 2026-05-28T14:44:58.499Z
+**Stopped at:** Completed 35-F02-PLAN.md
 **Resume file:** None
 
 ## Decisions Made
@@ -81,6 +81,9 @@
 - [Phase 35-api-alignment]: Shared helpers (makeSelectChain, createMockRequest) extracted to src/test/api/helpers.ts
 - [Phase 35-api-alignment]: Entity services mocked at module level (vi.mock) to avoid deep import chains during route testing
 - [Phase 35-api-alignment]: Redocly lint targets local public/openapi.json via --config .redocly.yaml
+- [Phase 35-api-alignment]: Schema ownership: Entity-owned schema.ts files created for 6 entities (booking, chat, content, events, maintenance, tenant), re-exported from shared
+- [Phase 35-api-alignment]: requireRole() helper added to permissions.ts for canonical role gating
+- [Phase 35-api-alignment]: CONFLICT (409) and GONE (410) added to canonical error taxonomy with apiConflict()/apiGone() wrappers
 
 ## Notes
 
@@ -206,6 +209,7 @@
 | Phase 35-api-alignment PD01 | 348    | 2 tasks  | 8 files  |
 | Phase 35-api-alignment PE01 | 12m    | 2 tasks  | 19 files |
 | Phase 35-api-alignment PF01 | 8m 51s | 2 tasks  | 7 files  |
+| Phase 35-api-alignment PF02 | 1054   | 2 tasks  | 28 files |
 
 ## A01 Execution Decisions
 
