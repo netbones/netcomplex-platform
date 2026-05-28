@@ -1,10 +1,17 @@
-import { NextResponse } from 'next/server';
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, requestNotes, users, maintenanceRequests } from '@api/db';
 import { eq, desc, and } from 'drizzle-orm';
 import { revalidateDashboard } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
+import {
+  apiSuccess,
+  apiCreated,
+  apiUnauthorized,
+  apiForbidden,
+  apiNotFound,
+  apiError,
+} from '@api/api-response';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -33,7 +40,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const authData = await getSessionAndRole(request);
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const canViewAll = hasPermission(authData.role, 'requests');
@@ -46,7 +53,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .limit(1);
 
   if (!mr) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
   let notes;
@@ -75,7 +82,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       .limit(1);
 
     if (existing) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return apiForbidden();
     }
 
     notes = await db
@@ -96,7 +103,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       .orderBy(desc(requestNotes.createdAt));
   }
 
-  return NextResponse.json(notes);
+  return apiSuccess(notes);
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -106,12 +113,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const authData = await getSessionAndRole(request);
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const canViewAll = hasPermission(authData.role, 'requests');
   if (!canViewAll) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   // First verify the request belongs to this tenant
@@ -122,14 +129,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .limit(1);
 
   if (!mr) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
   const body = await request.json();
   const { content, isInternal } = body;
 
   if (!content) {
-    return NextResponse.json({ error: 'Content is required' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'Content is required', 400);
   }
 
   const note = await db
@@ -145,7 +152,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   revalidateDashboard();
 
-  return NextResponse.json(note[0], { status: 201 });
+  return apiCreated(note[0]);
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -157,24 +164,24 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const noteId = url.searchParams.get('noteId');
 
   if (!noteId) {
-    return NextResponse.json({ error: 'noteId required' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'noteId required', 400);
   }
 
   const authData = await getSessionAndRole(request);
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const canViewAll = hasPermission(authData.role, 'requests');
   if (!canViewAll) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   // Get the note to find the associated request
   const [note] = await db.select().from(requestNotes).where(eq(requestNotes.id, noteId)).limit(1);
 
   if (!note) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
   // Verify the request belongs to this tenant
@@ -187,12 +194,12 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     .limit(1);
 
   if (!mr) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
   await db.delete(requestNotes).where(eq(requestNotes.id, noteId));
 
   revalidateDashboard();
 
-  return NextResponse.json({ success: true });
+  return apiSuccess({ success: true });
 }

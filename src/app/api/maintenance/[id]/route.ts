@@ -1,10 +1,10 @@
 import { db, maintenanceRequests, users, properties, requestHistories } from '@api/db';
-import { NextResponse } from 'next/server';
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { eq, and } from 'drizzle-orm';
 import { revalidateDashboard } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
+import { apiSuccess, apiUnauthorized, apiForbidden, apiNotFound } from '@api/api-response';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -34,7 +34,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const authData = await getSessionAndRole(request);
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const canViewAll = hasPermission(authData.role, 'requests');
@@ -47,12 +47,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .limit(1);
 
   if (!mrRow) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
   // Check if user can view this request
   if (!canViewAll && mrRow.userId !== authData.userId) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   // Get user info and property address
@@ -71,7 +71,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
   }
 
-  return NextResponse.json({
+  return apiSuccess({
     id: mrRow.id,
     userId: mrRow.userId,
     propertyId: mrRow.propertyId,
@@ -109,12 +109,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const authData = await getSessionAndRole(request);
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const canViewAll = hasPermission(authData.role, 'requests');
   if (!canViewAll) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const body = await request.json();
@@ -127,7 +127,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .limit(1);
 
   if (!existing) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
   const now = new Date();
@@ -234,7 +234,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   revalidateDashboard();
 
-  return NextResponse.json(maintenanceRequest);
+  return apiSuccess(maintenanceRequest);
 }
 
 /**
@@ -247,12 +247,12 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
   const authData = await getSessionAndRole(request);
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const canViewAll = hasPermission(authData.role, 'requests');
   if (!canViewAll) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   // Use Drizzle to delete with tenant check
@@ -260,5 +260,5 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     .delete(maintenanceRequests)
     .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)));
 
-  return NextResponse.json({ success: true });
+  return apiSuccess({ success: true });
 }

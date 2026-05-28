@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, maintenanceRequests, users } from '@api/db';
@@ -6,6 +5,7 @@ import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { sendEmail } from '@shared/api/email/resend';
 import { createLogger } from '@shared/lib';
+import { apiSuccess, apiUnauthorized, apiForbidden, apiNotFound } from '@api/api-response';
 
 const notifyLogger = createLogger('maintenance-notify');
 
@@ -34,12 +34,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const authData = await getSessionAndRole(request);
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const canViewAll = hasPermission(authData.role, 'requests');
   if (!canViewAll) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const [mr] = await db
@@ -49,13 +49,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .limit(1);
 
   if (!mr) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
   const [resident] = await db.select().from(users).where(eq(users.id, mr.userId)).limit(1);
 
   if (!resident?.email) {
-    return NextResponse.json({ error: 'Resident email not found' }, { status: 404 });
+    return apiNotFound('Resident email not found');
   }
 
   const statusMessages: Record<string, string> = {
@@ -133,7 +133,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     notifyLogger.info({ email: resident.email }, 'Notification sent');
   }
 
-  return NextResponse.json({
+  return apiSuccess({
     success: true,
     message: 'Notification sent',
     recipient: resident.email,

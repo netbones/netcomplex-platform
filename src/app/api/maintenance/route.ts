@@ -1,8 +1,14 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, maintenanceRequests, users, properties } from '@api/db';
-import { NextResponse } from 'next/server';
 import { maintenanceRequestSchema } from '@api/schemas';
+import {
+  apiSuccess,
+  apiCreated,
+  apiUnauthorized,
+  apiInternalError,
+  apiValidationError,
+} from '@api/api-response';
 import { revalidateDashboard } from '@api/revalidation';
 import { apiLogger } from '@shared/lib';
 import { eq, desc, and, sql, InferInsertModel } from 'drizzle-orm';
@@ -44,7 +50,7 @@ export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const canViewAll = hasPermission(authData.role, 'requests');
@@ -191,7 +197,7 @@ export async function GET(request: Request) {
     );
   }
 
-  return NextResponse.json(filteredResults);
+  return apiSuccess(filteredResults);
 }
 
 /**
@@ -207,7 +213,7 @@ export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   try {
@@ -216,10 +222,7 @@ export async function POST(request: Request) {
     // Validate input with Zod schema
     const validationResult = maintenanceRequestSchema.safeParse(body);
     if (!validationResult.success) {
-      return NextResponse.json(
-        { error: 'Invalid input', details: validationResult.error.issues },
-        { status: 400 }
-      );
+      return apiValidationError(validationResult.error.issues);
     }
 
     const { category, priority, description } = validationResult.data;
@@ -251,9 +254,9 @@ export async function POST(request: Request) {
     // Revalidate dashboard caches immediately when new request is created
     revalidateDashboard();
 
-    return NextResponse.json(maintenanceRequest, { status: 201 });
+    return apiCreated(maintenanceRequest);
   } catch (error) {
     apiLogger.error({ err: error, path: '/api/maintenance' }, 'Maintenance request creation error');
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
