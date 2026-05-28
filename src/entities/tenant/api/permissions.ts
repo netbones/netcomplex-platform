@@ -303,3 +303,26 @@ export function getPermissions(role: string | null | undefined): Permission {
 export function canPublishAnnouncements(role: string | null | undefined): boolean {
   return hasPermission(role, 'announcements');
 }
+
+/**
+ * Canonical role gate for route handlers.
+ * Returns an object with `allowed` boolean and the resolved `role`.
+ * Use at the top of route handlers for clean permission gating:
+ *
+ * ```typescript
+ * const roleCheck = requireRole(authData.role, ['admin', 'settings']);
+ * if (!roleCheck.allowed) return apiForbidden('Insufficient permissions');
+ * ```
+ *
+ * @param role - The user role to check (may be null if unauthenticated)
+ * @param permissions - One or more permission keys; any match grants access
+ * @returns Object with `allowed` (boolean) and `role` (resolved role string)
+ */
+export function requireRole(
+  role: string | null | undefined,
+  permissions: Array<keyof Permission>
+): { allowed: boolean; role: string | null } {
+  if (!role) return { allowed: false, role: null };
+  const allowed = permissions.some(p => hasPermission(role, p));
+  return { allowed, role };
+}

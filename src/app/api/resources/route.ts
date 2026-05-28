@@ -138,7 +138,7 @@ export async function POST(request: Request) {
 
   // Validate required fields
   if (!body.title || !body.category) {
-    return apiSuccess({ error: 'Missing required fields: title, category' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'Missing required fields: title, category', 400);
   }
 
   // Enforce tenant isolation

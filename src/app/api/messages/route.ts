@@ -11,6 +11,7 @@ import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { sanitizeHtml } from '@/lib/sanitization';
 
+import { hasPermission } from '@entities/tenant/api/permissions';
 import {
   apiCreated,
   apiError,
@@ -90,7 +91,7 @@ export async function GET(request: Request) {
     )
     .limit(1);
 
-  if (!participant && authData.role !== 'ADMIN') {
+  if (!participant && !hasPermission(authData.role, 'admin')) {
     return apiForbidden('Access denied');
   }
 
@@ -150,10 +151,7 @@ export async function POST(request: Request) {
     // Validate input with Zod schema
     const validationResult = messageSchema.safeParse(body);
     if (!validationResult.success) {
-      return apiSuccess(
-        { error: 'Invalid input', details: validationResult.error.issues },
-        { status: 400 }
-      );
+      return apiValidationError(validationResult.error.issues);
     }
 
     const { conversationId, content, type, mediaUrl } = validationResult.data;
@@ -174,7 +172,7 @@ export async function POST(request: Request) {
       )
       .limit(1);
 
-    if (!participant && authData.role !== 'ADMIN') {
+    if (!participant && !hasPermission(authData.role, 'admin')) {
       return apiForbidden('Access denied');
     }
 
@@ -247,7 +245,7 @@ export async function DELETE(request: Request) {
     return apiUnauthorized();
   }
 
-  if (authData.role !== 'ADMIN') {
+  if (!hasPermission(authData.role, 'admin')) {
     return apiForbidden();
   }
 

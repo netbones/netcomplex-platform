@@ -6,6 +6,7 @@ import {
 } from '@entities/tenant/api/flags/platform-flags';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { getSessionAndRole } from '@api/auth-utils';
+import { isAdmin } from '@entities/tenant/api/permissions';
 import { createComponentLogger } from '@shared/lib';
 
 import { apiError, apiForbidden, apiSuccess, apiInternalError } from '@api/api-response';
@@ -25,7 +26,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const sessionRole = await getSessionAndRole();
-    if (!sessionRole || sessionRole.role !== 'ADMIN') {
+    if (!sessionRole || !isAdmin(sessionRole.role)) {
       return apiForbidden();
     }
 

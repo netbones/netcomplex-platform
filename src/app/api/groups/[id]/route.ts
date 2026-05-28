@@ -1,8 +1,16 @@
+import { auth } from '@api/auth';
 import { db, groups, users, userGroups, contents } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
+import { hasPermission } from '@entities/tenant/api/permissions';
 
-import { apiError, apiNotFound, apiSuccess } from '@api/api-response';
+import {
+  apiError,
+  apiForbidden,
+  apiNotFound,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/api-response';
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
@@ -96,6 +104,24 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+
+  // Check authentication
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session?.user?.id) {
+    return apiUnauthorized();
+  }
+
+  // Check role for groups management
+  const [user] = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
+  const role = user?.role || 'RESIDENT';
+  if (!hasPermission(role, 'groups') && !hasPermission(role, 'groupsOwn')) {
+    return apiForbidden('Insufficient permissions to manage groups');
+  }
+
   const body = await request.json();
 
   // Enforce tenant isolation
@@ -122,6 +148,23 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+
+  // Check authentication
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session?.user?.id) {
+    return apiUnauthorized();
+  }
+
+  // Check role for groups management
+  const [user] = await db
+    .select({ role: users.role })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
+  const role = user?.role || 'RESIDENT';
+  if (!hasPermission(role, 'groups') && !hasPermission(role, 'groupsOwn')) {
+    return apiForbidden('Insufficient permissions to manage groups');
+  }
 
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
