@@ -11,6 +11,7 @@ import {
 } from '@api/api-response';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
+import { writeAuditLog } from '@api/audit-log';
 
 export const maxDuration = 8;
 
@@ -86,6 +87,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       });
 
     return user;
+  });
+
+  // Audit log: record unsuspension with actor and target
+  writeAuditLog({
+    action: 'USER_UNSUSPENDED',
+    actorId: session.user.id,
+    targetId: id,
+    tenantId,
+    requestId: request.headers.get('x-request-id') || undefined,
   });
 
   return apiSuccess({ success: true, user: updatedUser });

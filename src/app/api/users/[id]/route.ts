@@ -10,11 +10,13 @@ import {
   households,
 } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { apiSuccess, apiNotFound } from '@api/api-response';
+import { apiSuccess, apiNotFound, apiUnauthorized } from '@api/api-response';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
 import { throwIfSuspended } from '@api/auth-utils';
 import { getLocalizedValue, getLocalizedContent, defaultLanguage } from '@shared/lib';
+import { writeAuditLog } from '@api/audit-log';
+import { auth } from '@api/auth';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -191,6 +193,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const scopeError = await requireAssistScope(request, 'full');
   if (scopeError) return scopeError;
 
+  // Authentication: verify session for role change audit logging
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session?.user?.id) {
+    return apiUnauthorized();
+  }
+
   // Suspension guard: suspended users cannot modify their own profile
   const suspensionGuard = await throwIfSuspended(request);
   if (suspensionGuard) return suspensionGuard;
@@ -211,6 +219,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
   if (body.role) {
     updateData.role = body.role;
+  }
+
+  // Capture current role before update for audit logging
+  let currentRole: string | undefined;
+  if (body.role) {
+    const [existingUser] = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(and(eq(users.id, id), eq(users.tenantId, tenantId)))
+      .limit(1);
+    currentRole = existingUser?.role;
   }
   if (body.isActive !== undefined) {
     updateData.isActive = body.isActive === 'true' || body.isActive === true;
@@ -257,6 +276,18 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   if (!updatedUser) {
     return apiNotFound('User not found');
+  }
+
+  // Audit log: if role was changed, record the change
+  if (body.role && currentRole && currentRole !== body.role) {
+    writeAuditLog({
+      action: 'USER_ROLE_CHANGED',
+      actorId: session.user.id,
+      targetId: id,
+      tenantId,
+      details: { oldRole: currentRole, newRole: body.role },
+      requestId: request.headers.get('x-request-id') || undefined,
+    });
   }
 
   let updatedSeat: { type: string; platformAddress: string } | null = null;

@@ -1,0 +1,44 @@
+import { apiLogger } from '@shared/lib';
+
+export type AuditAction =
+  | 'USER_SUSPENDED'
+  | 'USER_UNSUSPENDED'
+  | 'USER_ROLE_CHANGED'
+  | 'USER_DEACTIVATED'
+  | 'TENANT_CREATED'
+  | 'TENANT_UPDATED'
+  | 'TENANT_DELETED'
+  | 'PERMISSIONS_CHANGED'
+  | 'SETTINGS_CHANGED'
+  | 'CONTENT_DELETED'
+  | 'INVITATION_CREATED'
+  | 'INVITATION_REVOKED';
+
+export interface AuditLogEntry {
+  action: AuditAction;
+  actorId: string;
+  targetId?: string;
+  tenantId?: string;
+  details?: Record<string, unknown>;
+  requestId?: string;
+}
+
+/**
+ * Write an audit log entry.
+ * In the current infrastructure, this writes to the structured Pino logger.
+ * Future: will write to a dedicated audit_log table.
+ */
+export function writeAuditLog(entry: AuditLogEntry): void {
+  apiLogger.info(
+    {
+      audit: true,
+      action: entry.action,
+      actorId: entry.actorId,
+      targetId: entry.targetId,
+      tenantId: entry.tenantId,
+      details: entry.details,
+      requestId: entry.requestId,
+    },
+    `AUDIT: ${entry.action}`
+  );
+}

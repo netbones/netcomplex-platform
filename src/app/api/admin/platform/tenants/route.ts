@@ -4,6 +4,8 @@ import { requirePlatformAdmin } from '@entities/tenant/api/guards';
 import { logError } from '@shared/lib';
 
 import { apiCreated, apiError, apiSuccess, apiInternalError } from '@api/api-response';
+import { writeAuditLog } from '@api/audit-log';
+import { auth } from '@api/auth';
 export async function GET(request: NextRequest) {
   const guard = await requirePlatformAdmin(request);
   if (guard) return guard;
@@ -24,6 +26,9 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
+    // Get session for audit logging
+    const session = await auth.api.getSession({ headers: request.headers });
+
     const tenant = await createTenant({
       name: body.name,
       slug: body.slug,
@@ -41,6 +46,15 @@ export async function POST(request: NextRequest) {
       maxPages: body.maxPages ?? 5,
       pageCount: body.pageCount ?? 0,
       featureFlags: body.featureFlags || {},
+    });
+
+    // Audit log: record tenant creation with actor and details
+    writeAuditLog({
+      action: 'TENANT_CREATED',
+      actorId: session?.user?.id || 'unknown',
+      targetId: tenant.id,
+      details: { name: tenant.name, slug: tenant.slug },
+      requestId: request.headers.get('x-request-id') || undefined,
     });
 
     return apiCreated(tenant);

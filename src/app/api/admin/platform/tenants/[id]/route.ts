@@ -4,6 +4,8 @@ import { requirePlatformAdmin } from '@entities/tenant/api/guards';
 import { logError } from '@shared/lib';
 
 import { apiError, apiSuccess, apiInternalError, apiNotFound } from '@api/api-response';
+import { writeAuditLog } from '@api/audit-log';
+import { auth } from '@api/auth';
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const guard = await requirePlatformAdmin(request);
   if (guard) return guard;
@@ -46,6 +48,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       subscriptionTier: body.subscriptionTier,
       maxPages: body.maxPages,
       featureFlags: body.featureFlags,
+    });
+
+    // Audit log: record tenant update with updated fields
+    const session = await auth.api.getSession({ headers: request.headers });
+    writeAuditLog({
+      action: 'TENANT_UPDATED',
+      actorId: session?.user?.id || 'unknown',
+      targetId: id,
+      details: { updatedFields: Object.keys(body) },
+      requestId: request.headers.get('x-request-id') || undefined,
     });
 
     return apiSuccess(tenant);

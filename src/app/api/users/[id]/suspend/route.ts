@@ -11,6 +11,7 @@ import {
 } from '@api/api-response';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
+import { writeAuditLog } from '@api/audit-log';
 
 export const maxDuration = 8;
 
@@ -142,6 +143,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     await tx.update(users).set({ isActive: false }).where(eq(users.id, id));
 
     return suspension;
+  });
+
+  // Audit log: record suspension with actor, target, and reason
+  writeAuditLog({
+    action: 'USER_SUSPENDED',
+    actorId: session.user.id,
+    targetId: id,
+    tenantId,
+    details: {
+      suspensionType: body.suspensionType,
+      reason: body.reason,
+      endDate: body.endDate || null,
+    },
+    requestId: request.headers.get('x-request-id') || undefined,
   });
 
   return apiCreated(result);
