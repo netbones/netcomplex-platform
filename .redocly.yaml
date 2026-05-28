@@ -1,20 +1,11 @@
 apis:
   netcomplex@v1:
-    root: http://localhost:3000/api/openapi.json
+    root: ./public/openapi.json
     x-openapi-version: '3.1.0'
 
-features:
-  openapi:
-    lint:
-      rules:
-        operation-4xx-response: warn
-        operation-operationId: warn
-        path-parameters-defined: error
-
-lint:
-  plugins: []
-  extends:
-    - recommended
-  rules:
-    no-server-trailing-slash: error
-    no-empty-servers: error
+rules:
+  no-server-trailing-slash: error
+  no-empty-servers: warn
+  operation-4xx-response: warn
+  operation-operationId: warn
+  path-parameters-defined: error

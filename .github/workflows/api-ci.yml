@@ -1,0 +1,50 @@
+name: API Governance
+
+on:
+  pull_request:
+    paths:
+      - 'src/app/api/**'
+      - 'src/shared/api/**'
+      - 'src/server/**'
+      - 'src/entities/**/api/**'
+  push:
+    branches: [main]
+    paths:
+      - 'src/app/api/**'
+      - 'src/shared/api/**'
+      - 'src/server/**'
+
+jobs:
+  openapi-lint:
+    name: OpenAPI Specification Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Generate and lint OpenAPI spec
+        run: pnpm api:ci
+
+  api-tests:
+    name: API Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run API tests
+        run: pnpm vitest run src/test/api/ --reporter=verbose
