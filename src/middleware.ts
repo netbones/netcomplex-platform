@@ -87,6 +87,18 @@ function isAuthRoute(pathname: string): boolean {
   );
 }
 
+/**
+ * Canonical API Route Classification (API.md §4-5):
+ *
+ * /api/v1/public/*   → No auth required
+ * /api/v1/tenant/*   → Authenticated tenant member
+ * /api/v1/platform/* → Platform administrator only
+ * /api/v1/system/*   → Infrastructure/internal
+ * /api/webhooks/*    → Signed webhook payloads
+ *
+ * Flat /api/* routes are legacy — new routes should use v1 structure.
+ * See docs/STEERING/API.md §5 and docs/architecture/API_ARCHITECTURE.md §10
+ */
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
