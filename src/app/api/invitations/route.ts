@@ -6,6 +6,7 @@ import { templates } from '@shared/api/email/templates';
 import { apiLogger } from '@shared/lib';
 
 import { apiCreated, apiError, apiSuccess } from '@api/api-response';
+import { rateLimitByIP } from '@api/rate-limit';
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 export async function GET() {
@@ -19,6 +20,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  // Rate limit: 5 invitations per minute per IP
+  const rateLimit = rateLimitByIP(request, { windowMs: 60_000, maxRequests: 5 });
+  if (rateLimit) return rateLimit;
+
   const body = await request.json();
 
   // Enforce tenant isolation

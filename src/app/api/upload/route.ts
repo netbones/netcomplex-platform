@@ -4,7 +4,12 @@ import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
 import { apiError, apiSuccess, apiUnauthorized, apiInternalError } from '@api/api-response';
+import { rateLimitByIP } from '@api/rate-limit';
 export async function POST(request: Request) {
+  // Rate limit: 10 uploads per minute per IP
+  const rateLimit = rateLimitByIP(request, { windowMs: 60_000, maxRequests: 10 });
+  if (rateLimit) return rateLimit;
+
   await withTenant(); // Enforce tenant context
   const session = await auth.api.getSession({
     headers: request.headers,

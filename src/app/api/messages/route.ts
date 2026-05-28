@@ -20,6 +20,7 @@ import {
   apiUnauthorized,
   apiValidationError,
 } from '@api/api-response';
+import { rateLimitByUser } from '@api/rate-limit';
 /** Supabase client for real-time message broadcasting */
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -138,6 +139,10 @@ export async function POST(request: Request) {
   if (!authData) {
     return apiUnauthorized();
   }
+
+  // Rate limit: 30 messages per minute per user
+  const rateLimit = rateLimitByUser(authData.userId, { windowMs: 60_000, maxRequests: 30 });
+  if (rateLimit) return rateLimit;
 
   try {
     const body = await request.json();

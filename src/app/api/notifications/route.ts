@@ -8,6 +8,7 @@ import { logError } from '@shared/lib';
 import { createLogger } from '@shared/lib';
 
 import { apiCreated, apiError, apiSuccess, apiUnauthorized } from '@api/api-response';
+import { rateLimitByUser } from '@api/rate-limit';
 const notifyLogger = createLogger('notifications');
 
 async function getSessionAndUserId(request: Request) {
@@ -63,6 +64,10 @@ export async function POST(request: Request) {
     return apiUnauthorized();
   }
 
+  // Rate limit: 60 notification create/modify operations per minute per user
+  const rateLimit = rateLimitByUser(userId, { windowMs: 60_000, maxRequests: 60 });
+  if (rateLimit) return rateLimit;
+
   const body = await request.json();
   const targetUserId = body.userId || userId;
   const sendEmailNotification = body.sendEmail === true;
@@ -107,6 +112,10 @@ export async function PATCH(request: Request) {
   if (!userId) {
     return apiUnauthorized();
   }
+
+  // Rate limit: 60 notification create/modify operations per minute per user
+  const rateLimit = rateLimitByUser(userId, { windowMs: 60_000, maxRequests: 60 });
+  if (rateLimit) return rateLimit;
 
   const body = await request.json();
 
