@@ -1,8 +1,3 @@
-import { identityRouter } from '@entities/identity';
-import { router } from '@api/trpc/server';
-
-export const appRouter = router({
-  identity: identityRouter,
-});
-
-export type AppRouter = typeof appRouter;
+// Re-export from canonical server router location
+export { appRouter } from '@server/routers';
+export type { AppRouter } from '@server/routers';

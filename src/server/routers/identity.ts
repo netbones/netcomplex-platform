@@ -1,7 +1,3 @@
-// @deprecated Moved to src/server/routers/identity.ts
-// New routers should be added to src/server/routers/
-// This file will be removed once all routers are migrated
-
 import { z } from 'zod';
 import { router, publicProcedure, protectedProcedure, adminProcedure } from '@api/trpc/server';
 import { TRPCError } from '@trpc/server';
