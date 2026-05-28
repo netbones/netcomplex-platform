@@ -1,7 +1,7 @@
 import { db, invitations, tenants, users } from '@api/db';
 import { eq, and, gt } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 
+import { apiError, apiSuccess, apiNotFound } from '@api/api-response';
 /**
  * GET /api/invitations/validate?token=<token>
  * Validates an invitation token and returns invitation details.
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const token = searchParams.get('token');
 
   if (!token) {
-    return NextResponse.json({ error: 'Token is required' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'Token is required', 400);
   }
 
   // Find the invitation by token
@@ -33,17 +33,17 @@ export async function GET(request: Request) {
     .limit(1);
 
   if (!invitation) {
-    return NextResponse.json({ error: 'Invalid invitation token' }, { status: 404 });
+    return apiNotFound('Invalid invitation token');
   }
 
   // Check if expired
   if (new Date() > invitation.expiresAt) {
-    return NextResponse.json({ error: 'Invitation has expired' }, { status: 410 });
+    return apiError('VALIDATION_ERROR', 'Invitation has expired', 410);
   }
 
   // Check if already accepted or revoked
   if (invitation.status !== 'PENDING') {
-    return NextResponse.json(
+    return apiSuccess(
       { error: `Invitation is no longer pending (status: ${invitation.status})` },
       { status: 400 }
     );
@@ -70,7 +70,7 @@ export async function GET(request: Request) {
     .where(eq(users.email, invitation.email))
     .limit(1);
 
-  return NextResponse.json({
+  return apiSuccess({
     invitation: {
       ...invitation,
       tenantName: tenant?.name || 'Soralia Village',

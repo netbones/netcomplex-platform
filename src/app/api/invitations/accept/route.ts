@@ -1,9 +1,9 @@
 import { db, invitations, users } from '@api/db';
 import { eq, and, gt } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { auth } from '@api/auth';
 import { apiLogger } from '@shared/lib';
 
+import { apiError, apiSuccess, apiNotFound } from '@api/api-response';
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 /**
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const { token, userId } = body;
 
     if (!token) {
-      return NextResponse.json({ error: 'Token is required' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'Token is required', 400);
     }
 
     // Find the invitation by token
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (!invitation) {
-      return NextResponse.json({ error: 'Invalid invitation token' }, { status: 404 });
+      return apiNotFound('Invalid invitation token');
     }
 
     // Check if expired
@@ -39,12 +39,12 @@ export async function POST(request: Request) {
         .update(invitations)
         .set({ status: 'EXPIRED' })
         .where(eq(invitations.id, invitation.id));
-      return NextResponse.json({ error: 'Invitation has expired' }, { status: 410 });
+      return apiError('VALIDATION_ERROR', 'Invitation has expired', 410);
     }
 
     // Check if already processed
     if (invitation.status !== 'PENDING') {
-      return NextResponse.json(
+      return apiSuccess(
         { error: `Invitation is no longer pending (status: ${invitation.status})` },
         { status: 400 }
       );
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
           { userId: existingUser.id, invitationId: invitation.id },
           'Failed to update user role via Better Auth'
         );
-        return NextResponse.json(
+        return apiSuccess(
           { error: 'Failed to apply invitation role. Please contact support.' },
           { status: 500 }
         );
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
         .set({ status: 'ACCEPTED' })
         .where(eq(invitations.id, invitation.id));
 
-      return NextResponse.json({
+      return apiSuccess({
         success: true,
         message: 'Invitation accepted. You have been added to the community.',
         role: invitation.role,
@@ -97,7 +97,7 @@ export async function POST(request: Request) {
     }
 
     // User doesn't exist — return invitation details for token-based signup
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       requiresSignup: true,
       invitation: {
@@ -110,9 +110,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     apiLogger.error({ operation: 'accept_invitation' }, 'Failed to accept invitation', error);
-    return NextResponse.json(
-      { error: 'Failed to accept invitation. Please try again.' },
-      { status: 500 }
-    );
+    return apiSuccess({ error: 'Failed to accept invitation. Please try again.' }, { status: 500 });
   }
 }

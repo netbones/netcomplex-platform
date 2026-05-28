@@ -1,11 +1,11 @@
 import { db, invitations, tenants, users } from '@api/db';
 import { eq, desc } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { sendEmail } from '@shared/api/email/resend';
 import { templates } from '@shared/api/email/templates';
 import { apiLogger } from '@shared/lib';
 
+import { apiCreated, apiError, apiSuccess } from '@api/api-response';
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 export async function GET() {
@@ -15,7 +15,7 @@ export async function GET() {
     .from(invitations)
     .where(eq(invitations.tenantId, tenantId))
     .orderBy(desc(invitations.createdAt));
-  return NextResponse.json(invitationList);
+  return apiSuccess(invitationList);
 }
 
 export async function POST(request: Request) {
@@ -77,5 +77,5 @@ export async function POST(request: Request) {
     apiLogger.error({ invitationId: invitation.id, error }, 'Failed to send invitation email');
   });
 
-  return NextResponse.json(invitation, { status: 201 });
+  return apiCreated(invitation);
 }

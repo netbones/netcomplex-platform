@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 import { db, properties, households, standardSeats, profiles, contents, users } from '@api/db';
 import { eq, asc, and } from 'drizzle-orm';
@@ -6,6 +6,14 @@ import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 import { hasPermission } from '@entities/tenant/api/permissions';
 
+import {
+  apiError,
+  apiForbidden,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+  apiNotFound,
+} from '@api/api-response';
 /**
  * GET /api/households/[id] - Get household profile with occupants and aggregated content
  */
@@ -32,7 +40,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .limit(1);
 
     if (!householdData) {
-      return NextResponse.json({ error: 'Household not found' }, { status: 404 });
+      return apiNotFound('Household not found');
     }
 
     // Get standard seats (members) with user data linked to the property
@@ -231,10 +239,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       },
     };
 
-    return NextResponse.json(response);
+    return apiSuccess(response);
   } catch (error) {
     logError({ component: 'households-api', operation: 'GET' }, 'Error fetching household', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -251,7 +259,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     // Get user role
@@ -274,7 +282,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       .limit(1);
 
     if (!householdData) {
-      return NextResponse.json({ error: 'Household not found' }, { status: 404 });
+      return apiNotFound('Household not found');
     }
 
     // Check if user is an owner of the property linked to this household
@@ -293,7 +301,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const canManageHouseholds = hasPermission(role, 'households');
 
     if (!isPropertyOwner && !canManageHouseholds) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return apiForbidden();
     }
 
     const body = await request.json();
@@ -307,13 +315,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         .where(and(eq(properties.id, householdData.propertyId), eq(properties.tenantId, tenantId)));
     }
 
-    return NextResponse.json({ success: true });
+    return apiSuccess({ success: true });
   } catch (error) {
     logError(
       { component: 'households-api', operation: 'PATCH' },
       'Error updating household',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

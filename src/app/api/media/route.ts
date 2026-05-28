@@ -1,9 +1,9 @@
 import { auth } from '@api/auth';
 import { listUserImages, deleteImage } from '@api/storage';
-import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import { apiError, apiSuccess, apiUnauthorized, apiInternalError } from '@api/api-response';
 export async function GET(request: Request) {
   const { tenantId } = await withTenant();
   const session = await auth.api.getSession({
@@ -11,15 +11,15 @@ export async function GET(request: Request) {
   });
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   try {
     const images = await listUserImages(session.user.id);
-    return NextResponse.json({ images });
+    return apiSuccess({ images });
   } catch (error) {
     logError({ component: 'media-api', operation: 'LIST' }, 'List images error', error);
-    return NextResponse.json({ error: 'Failed to list images' }, { status: 500 });
+    return apiInternalError('Failed to list images');
   }
 }
 
@@ -30,7 +30,7 @@ export async function DELETE(request: Request) {
   });
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   try {
@@ -38,18 +38,18 @@ export async function DELETE(request: Request) {
     const key = searchParams.get('key');
 
     if (!key) {
-      return NextResponse.json({ error: 'No key provided' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'No key provided', 400);
     }
 
     const result = await deleteImage(key, session.user.id);
 
     if (result.error) {
-      return NextResponse.json({ error: result.error }, { status: 400 });
+      return apiError('VALIDATION_ERROR', String(result.error), 400);
     }
 
-    return NextResponse.json({ success: true });
+    return apiSuccess({ success: true });
   } catch (error) {
     logError({ component: 'media-api', operation: 'DELETE' }, 'Delete image error', error);
-    return NextResponse.json({ error: 'Failed to delete image' }, { status: 500 });
+    return apiInternalError('Failed to delete image');
   }
 }

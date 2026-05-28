@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 import { db, households, properties, standardSeats, profiles, users } from '@api/db';
 import { eq, and, count, desc } from 'drizzle-orm';
@@ -6,6 +6,13 @@ import { withTenant } from '@entities/tenant/api/with-tenant';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { logError } from '@shared/lib';
 
+import {
+  apiError,
+  apiForbidden,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/api-response';
 export const maxDuration = 8;
 
 /**
@@ -20,7 +27,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const [user] = await db
@@ -33,7 +40,7 @@ export async function GET(request: NextRequest) {
     const canManageHouseholds = hasPermission(role, 'households');
 
     if (!canManageHouseholds) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return apiForbidden();
     }
 
     const { searchParams } = new URL(request.url);
@@ -125,7 +132,7 @@ export async function GET(request: NextRequest) {
         )
       : householdsWithOccupants;
 
-    return NextResponse.json({
+    return apiSuccess({
       households: filtered,
       total: search ? filtered.length : total,
       page,
@@ -133,6 +140,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     logError({ component: 'households-api', operation: 'LIST' }, 'Error listing households', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
