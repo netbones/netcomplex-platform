@@ -4,7 +4,7 @@
 
 - **Phase:** 33-user-suspension
 - **Plan:** 33-02 complete
-- **Status:** In Progress
+- **Status:** Ready to plan
 - **Last Updated:** 2026-05-28
 - **Last Session:** Completed 33-02 — suspension UI form, UserRow badge, UsersListSection wiring, i18n
 - **Last Session (prev):** Executed 33-01 — suspension API routes (suspend/unsuspend/suspensions suspension-status) + auth guards + auto-unsuspension logic
