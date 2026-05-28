@@ -1,6 +1,5 @@
 import { auth } from '@api/auth';
 import { db, notifications, users } from '@api/db';
-import { NextResponse } from 'next/server';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { sendEmail } from '@shared/api/email/resend';
@@ -8,6 +7,7 @@ import { templates } from '@shared/api/email/templates';
 import { logError } from '@shared/lib';
 import { createLogger } from '@shared/lib';
 
+import { apiCreated, apiError, apiSuccess, apiUnauthorized } from '@api/api-response';
 const notifyLogger = createLogger('notifications');
 
 async function getSessionAndUserId(request: Request) {
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
   const userId = await getSessionAndUserId(request);
 
   if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const { searchParams } = new URL(request.url);
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
 
   const filtered = unreadOnly ? results.filter(n => !n.read) : results;
 
-  return NextResponse.json(filtered);
+  return apiSuccess(filtered);
 }
 
 /**
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
   const userId = await getSessionAndUserId(request);
 
   if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const body = await request.json();
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     });
   }
 
-  return NextResponse.json(newNotification, { status: 201 });
+  return apiCreated(newNotification);
 }
 
 /**
@@ -105,7 +105,7 @@ export async function PATCH(request: Request) {
   const userId = await getSessionAndUserId(request);
 
   if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const body = await request.json();
@@ -122,7 +122,7 @@ export async function PATCH(request: Request) {
       .where(and(eq(notifications.id, body.id), eq(notifications.tenantId, tenantId)));
   }
 
-  return NextResponse.json({ success: true });
+  return apiSuccess({ success: true });
 }
 
 /**

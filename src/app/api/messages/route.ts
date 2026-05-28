@@ -1,7 +1,6 @@
 import { auth } from '@api/auth';
 
 import { createClient } from '@supabase/supabase-js';
-import { NextResponse } from 'next/server';
 import { messageSchema } from '@api/schemas';
 import { revalidateConversations } from '@api/revalidation';
 import { apiLogger } from '@shared/lib';
@@ -12,6 +11,15 @@ import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { sanitizeHtml } from '@/lib/sanitization';
 
+import {
+  apiCreated,
+  apiError,
+  apiForbidden,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+  apiValidationError,
+} from '@api/api-response';
 /** Supabase client for real-time message broadcasting */
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -55,14 +63,14 @@ export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const { searchParams } = new URL(request.url);
   const conversationId = searchParams.get('conversationId');
 
   if (!conversationId) {
-    return NextResponse.json({ error: 'Conversation ID required' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'Conversation ID required', 400);
   }
 
   // Enforce tenant isolation
@@ -82,7 +90,7 @@ export async function GET(request: Request) {
     .limit(1);
 
   if (!participant && authData.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    return apiForbidden('Access denied');
   }
 
   // Drizzle query with relation join for sender
@@ -114,7 +122,7 @@ export async function GET(request: Request) {
     )
     .orderBy(asc(messages.createdAt));
 
-  return NextResponse.json(result);
+  return apiSuccess(result);
 }
 
 /**
@@ -128,7 +136,7 @@ export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   try {
@@ -137,7 +145,7 @@ export async function POST(request: Request) {
     // Validate input with Zod schema
     const validationResult = messageSchema.safeParse(body);
     if (!validationResult.success) {
-      return NextResponse.json(
+      return apiSuccess(
         { error: 'Invalid input', details: validationResult.error.issues },
         { status: 400 }
       );
@@ -162,7 +170,7 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (!participant && authData.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+      return apiForbidden('Access denied');
     }
 
     // Check for PremiumSeat to determine retention period (using Drizzle)
@@ -216,10 +224,10 @@ export async function POST(request: Request) {
       payload: message,
     });
 
-    return NextResponse.json(message, { status: 201 });
+    return apiCreated(message);
   } catch (error) {
     apiLogger.error({ err: error, path: '/api/messages' }, 'Message creation error');
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -231,11 +239,11 @@ export async function DELETE(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   if (authData.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   try {
@@ -247,9 +255,9 @@ export async function DELETE(request: Request) {
 
     revalidateConversations();
 
-    return NextResponse.json({ deleted: expiredMessages.length });
+    return apiSuccess({ deleted: expiredMessages.length });
   } catch (error) {
     apiLogger.error({ err: error, path: '/api/messages' }, 'Message pruning error');
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

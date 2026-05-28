@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 
 // Drizzle imports - use individual exports from db.ts
@@ -7,6 +7,7 @@ import { eq, and, gt, desc, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
+import { apiError, apiInternalError, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
  * GET /api/messages/unread - Get unread message counts for current user
  */
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     // Get all conversations where user is a participant (Drizzle)
@@ -108,7 +109,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    return apiSuccess({
       unreadCounts,
       totalUnread,
     });
@@ -118,7 +119,7 @@ export async function GET(request: NextRequest) {
       'Unread messages fetch error',
       error
     );
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }
 
@@ -133,13 +134,13 @@ export async function POST(request: NextRequest) {
     });
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiUnauthorized();
     }
 
     const { conversationId, messageId } = await request.json();
 
     if (!conversationId) {
-      return NextResponse.json({ error: 'Conversation ID required' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'Conversation ID required', 400);
     }
 
     // Drizzle update for participant's last read info
@@ -157,9 +158,9 @@ export async function POST(request: NextRequest) {
         )
       );
 
-    return NextResponse.json({ success: true });
+    return apiSuccess({ success: true });
   } catch (error) {
     logError({ component: 'unread-messages-api', operation: 'POST' }, 'Mark read error', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

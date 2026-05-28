@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { db, settings } from '@api/db';
 import { eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { logError } from '@shared/lib';
 
+import { apiError, apiSuccess, apiInternalError } from '@api/api-response';
 interface OnboardingRequest {
   tenantId: string;
   step: number;
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
     const { tenantId, step, data } = body;
 
     if (!tenantId || step === undefined || !data) {
-      return NextResponse.json(
+      return apiSuccess(
         { error: 'Missing required fields: tenantId, step, data' },
         { status: 400 }
       );
@@ -74,13 +75,13 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ success: true, step });
+    return apiSuccess({ success: true, step });
   } catch (error) {
     logError(
       { component: 'platform-onboarding-api', operation: 'SAVE' },
       'Failed to save onboarding progress',
       error
     );
-    return NextResponse.json({ error: 'Failed to save onboarding progress' }, { status: 500 });
+    return apiInternalError('Failed to save onboarding progress');
   }
 }

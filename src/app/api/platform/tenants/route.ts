@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { TIERS, type TierLevel } from '@entities/tenant/api/features/registry';
 import { createTenant, getTenantById } from '@entities/tenant/api/base';
 import { db, users, tenants } from '@api/db';
 import { eq } from 'drizzle-orm';
 import { logError } from '@shared/lib';
 
+import { apiCreated, apiError, apiSuccess } from '@api/api-response';
 interface SignupRequest {
   name: string;
   slug: string;
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     // Validate the plan is a valid tier
     if (!['foundation', 'depth', 'core'].includes(body.plan)) {
-      return NextResponse.json({ error: 'Invalid subscription plan' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'Invalid subscription plan', 400);
     }
 
     // Check if subdomain is already taken
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (existingTenant.length > 0) {
-      return NextResponse.json({ error: 'Subdomain is already taken' }, { status: 409 });
+      return apiError('VALIDATION_ERROR', 'Subdomain is already taken', 409);
     }
 
     // Check if email is already taken
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (existingUser.length > 0) {
-      return NextResponse.json({ error: 'Email address is already registered' }, { status: 409 });
+      return apiError('VALIDATION_ERROR', 'Email address is already registered', 409);
     }
 
     // Get tier configuration
@@ -69,9 +70,9 @@ export async function POST(request: NextRequest) {
     if (!authResponse.ok) {
       const authError = await authResponse.json();
       if (authResponse.status === 422) {
-        return NextResponse.json({ error: 'Email address is already registered' }, { status: 409 });
+        return apiError('VALIDATION_ERROR', 'Email address is already registered', 409);
       }
-      return NextResponse.json(
+      return apiSuccess(
         { error: authError.error || 'Failed to create user account' },
         { status: authResponse.status }
       );
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
     const userId = authData.user?.id;
 
     if (!userId) {
-      return NextResponse.json(
+      return apiSuccess(
         { error: 'Failed to retrieve user id from auth response' },
         { status: 500 }
       );
@@ -138,7 +139,7 @@ export async function POST(request: NextRequest) {
     // Fetch the fully-linked tenant for response
     const linkedTenant = await getTenantById(tenantId!);
 
-    return NextResponse.json(
+    return apiSuccess(
       {
         tenantId: tenantId,
         tenant: {
@@ -162,9 +163,6 @@ export async function POST(request: NextRequest) {
       'Failed to create tenant and user',
       error
     );
-    return NextResponse.json(
-      { error: 'Failed to create community. Please try again.' },
-      { status: 500 }
-    );
+    return apiSuccess({ error: 'Failed to create community. Please try again.' }, { status: 500 });
   }
 }
