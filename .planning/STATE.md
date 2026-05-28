@@ -2,11 +2,11 @@
 
 ## Current Position
 
-- **Phase:** 31-dashboard-tab-removal
-- **Plan:** Planning complete (3 plans created)
-- **Status:** Planning Complete
-- **Last Updated:** 2026-05-27
-- **Last Session:** Created Phase 31 plans to remove tab-mode dashboard code
+- **Phase:** 32-users-list-refactor
+- **Plan:** 32-01 complete
+- **Status:** Phase Complete
+- **Last Updated:** 2026-05-28
+- **Last Session:** Refactored 1,431-line UsersListSection into 13 focused sub-components (all under 500 lines)
 
 ## Decisions Made
 
@@ -145,3 +145,8 @@
 - **30-03:** Complete — Widget manifest spaces field (required) + SpaceLayout + AddWidgetModal filtering (2 commits)
 - **30-04:** Complete — Admin sub-launcher + MyHomeSpace + announcements in Messages + NAV_REGISTRY (2 commits)
 - **30-05:** Complete — MobileSpaceBar + responsive layout + 5 checkpoint bug fixes (2 commits)
+- **32-01:** Complete — UsersListSection 1,431→462 lines, 13 new files, ModalOverlay shared primitive, backward-compat re-export shim (1 commit)
+- [Phase 32-users-list-refactor]: AdminUser/SeatInfo/Invitation types extracted to @entities/user/model/types
+- [Phase 32-users-list-refactor]: resolveAddress/resolveType/resolveSeatInfo extracted to lib/resolve-user-helpers
+- [Phase 32-users-list-refactor]: ModalOverlay shared primitive replaces 5 duplicate overlay patterns
+- [Phase 32-users-list-refactor]: Old UsersListSection.tsx path preserved via re-export shim
