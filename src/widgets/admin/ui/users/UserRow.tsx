@@ -136,16 +136,34 @@ export function UserRow({
         </select>
       </td>
       <td className="px-4 py-3">
-        <button
-          onClick={e => {
-            e.stopPropagation();
-            onStatusToggle(user);
-          }}
-          className={`px-2 py-1 rounded text-sm ${user.isActive === true ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
-          type="button"
-        >
-          {user.isActive === true ? t('active') : t('suspended')}
-        </button>
+        {user.isActive === true ? (
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              onStatusToggle(user);
+            }}
+            className="px-2 py-1 rounded text-sm bg-green-100 text-green-800"
+            type="button"
+          >
+            {t('active')}
+          </button>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-1 rounded text-sm bg-red-100 text-red-800">
+              {t('suspended')}
+            </span>
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                onStatusToggle(user);
+              }}
+              className="text-xs text-indigo-600 hover:text-indigo-800 underline"
+              type="button"
+            >
+              {t('unsuspend')}
+            </button>
+          </div>
+        )}
       </td>
       <td className="px-4 py-3">
         <button

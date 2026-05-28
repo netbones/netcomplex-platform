@@ -74,5 +74,23 @@
       "announcements": "Ukudalwa kwezimemezelo nokuphathwa",
       "system": "Ukumiswa kwesikhulumi nempilo"
     }
-  }
+  },
+  "unsuspend": "Buyisela uMsebenzisi",
+  "suspendFailed": "Kwehlulekile ukumisa umsebenzisi",
+  "unsuspendFailed": "Kwehlulekile ukubuyisela umsebenzisi",
+  "suspensionType": "Uhlobo Lokumisa",
+  "suspensionReason": "Isizathu",
+  "suspensionDescription": "Incazelo",
+  "suspensionDuration": "Ubude besikhathi",
+  "duration2days": "Izinsuku ezi-2",
+  "duration1week": "Iviki eli-1",
+  "duration30days": "Izinsuku ezingama-30",
+  "durationPermanent": "Kuhlale",
+  "endsOn": "Kuphela",
+  "noAutoEnd": "Kuhlale — akukho kuphela okuzenzakalelayo",
+  "typeNameToConfirm": "Bhala igama lomsebenzisi ukuqinisekisa:",
+  "reasonRequired": "Sicela ufake isizathu sokumisa",
+  "confirmNameRequired": "Sicela uthayiphe igama lomsebenzisi ukuqinisekisa",
+  "suspensionHistory": "Umlando Wokumisa",
+  "noSuspensions": "Awukho umlando wokumisa"
 }

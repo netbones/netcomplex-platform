@@ -74,5 +74,23 @@
       "announcements": "Announcement creation and management",
       "system": "Platform configuration and health"
     }
-  }
+  },
+  "unsuspend": "Unsuspend",
+  "suspendFailed": "Failed to suspend user",
+  "unsuspendFailed": "Failed to unsuspend user",
+  "suspensionType": "Suspension Type",
+  "suspensionReason": "Reason",
+  "suspensionDescription": "Description",
+  "suspensionDuration": "Duration",
+  "duration2days": "2 Days",
+  "duration1week": "1 Week",
+  "duration30days": "30 Days",
+  "durationPermanent": "Permanent",
+  "endsOn": "Ends",
+  "noAutoEnd": "Permanent — no automatic end",
+  "typeNameToConfirm": "Type the user's name to confirm:",
+  "reasonRequired": "Please enter a reason for suspension",
+  "confirmNameRequired": "Please type the user's name to confirm",
+  "suspensionHistory": "Suspension History",
+  "noSuspensions": "No suspension history"
 }

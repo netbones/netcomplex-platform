@@ -5,7 +5,12 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { ChevronDown, ChevronRight, UserPlus, X, Search } from 'lucide-react';
 import { ErrorBoundary } from '@shared/ui';
-import type { AdminUser, InviteFormData, AllocateSeatFormData } from '@entities/user/model/types';
+import type {
+  AdminUser,
+  InviteFormData,
+  AllocateSeatFormData,
+  SuspensionFormData,
+} from '@entities/user/model/types';
 import { roleOptions } from '@entities/user/model/types';
 import { resolveSeatInfo } from './lib/resolve-user-helpers';
 import { useUsersData } from './lib/use-users-data';
@@ -92,22 +97,27 @@ export function UsersListSection() {
     toast.success(t('userRemoved'));
   };
 
-  const handleSuspend = async () => {
+  const handleSuspend = async (formData: SuspensionFormData) => {
     if (!suspendUser) return;
-    const res = await fetch(`/api/users/${suspendUser.id}`, {
-      method: 'PATCH',
+    const durationDays = { '2days': 2, '1week': 7, '30days': 30, permanent: null } as const;
+    const days = durationDays[formData.duration];
+    const endDate = days ? new Date(Date.now() + days * 86400000).toISOString() : null;
+    const res = await fetch(`/api/users/${suspendUser.id}/suspend`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ residentType: 'SUSPENDED', isActive: 'false' }),
+      body: JSON.stringify({
+        suspensionType: formData.suspensionType,
+        reason: formData.reason,
+        description: formData.description || undefined,
+        endDate,
+      }),
     });
     if (res.ok) {
-      setUsers(
-        users.map(u =>
-          u.id === suspendUser.id
-            ? { ...u, residentType: 'SUSPENDED' as string, isActive: false }
-            : u
-        )
-      );
+      setUsers(users.map(u => (u.id === suspendUser.id ? { ...u, isActive: false } : u)));
       toast.success(t('userSuspended'));
+    } else {
+      const err = await res.json();
+      toast.error(err.error || t('suspendFailed'));
     }
     setSuspendUser(null);
   };
@@ -208,15 +218,21 @@ export function UsersListSection() {
     setSaving(null);
   };
 
-  const handleActivate = async (user: AdminUser) => {
-    const res = await fetch(`/api/users/${user.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ isActive: 'true' }),
-    });
-    if (res.ok) {
-      setUsers(users.map(u => (u.id === user.id ? { ...u, isActive: true } : u)));
-      toast.success(t('userActivated'));
+  const handleStatusToggle = async (user: AdminUser) => {
+    if (user.isActive === true) {
+      setSuspendUser(user);
+    } else {
+      const res = await fetch(`/api/users/${user.id}/unsuspend`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (res.ok) {
+        setUsers(users.map(u => (u.id === user.id ? { ...u, isActive: true } : u)));
+        toast.success(t('userActivated'));
+      } else {
+        const err = await res.json();
+        toast.error(err.error || t('unsuspendFailed'));
+      }
     }
   };
 
@@ -300,11 +316,6 @@ export function UsersListSection() {
     }
     setRemovingUser(null);
     setRemovingSeatAddress(null);
-  };
-
-  const handleStatusToggle = (user: AdminUser) => {
-    if (user.isActive === true) setSuspendUser(user);
-    else handleActivate(user);
   };
 
   // --- Render ---

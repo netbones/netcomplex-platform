@@ -74,5 +74,23 @@
       "announcements": "Aankondigingskepping en bestuur",
       "system": "Platformkonfigurasie en gesondheid"
     }
-  }
+  },
+  "unsuspend": "Ontskors",
+  "suspendFailed": "Kon nie gebruiker skors nie",
+  "unsuspendFailed": "Kon nie gebruiker ontskors nie",
+  "suspensionType": "Skorsingstipe",
+  "suspensionReason": "Rede",
+  "suspensionDescription": "Beskrywing",
+  "suspensionDuration": "Duur",
+  "duration2days": "2 Dae",
+  "duration1week": "1 Week",
+  "duration30days": "30 Dae",
+  "durationPermanent": "Permanent",
+  "endsOn": "Eindig",
+  "noAutoEnd": "Permanent — geen outomatiese einde",
+  "typeNameToConfirm": "Tik die gebruiker se naam om te bevestig:",
+  "reasonRequired": "Voer asseblief 'n rede vir skorsing in",
+  "confirmNameRequired": "Tik asseblief die gebruiker se naam om te bevestig",
+  "suspensionHistory": "Skorsinggeskiedenis",
+  "noSuspensions": "Geen skorsinggeskiedenis"
 }
