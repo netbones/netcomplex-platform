@@ -3,10 +3,10 @@
 ## Current Position
 
 - **Phase:** 33-user-suspension
-- **Plan:** 33-01 planned, 33-02 planned
-- **Status:** Planning Complete
+- **Plan:** 33-01 complete, 33-02 planned
+- **Status:** In Progress
 - **Last Updated:** 2026-05-28
-- **Last Session:** Planned Phase 33 — suspension API routes + auth guard + suspension UI + i18n (2 plans, 2 waves)
+- **Last Session:** Executed 33-01 — suspension API routes (suspend/unsuspend/suspensions suspension-status) + auth guards + auto-unsuspension logic
 
 ## Decisions Made
 
@@ -156,3 +156,13 @@
 - [Phase 33-user-suspension]: Suspension auth check via requireNotSuspended() helper — separate from getSessionAndRole() to avoid breaking existing callers
 - [Phase 33-user-suspension]: 4 duration presets (2 days, 1 week, 30 days, permanent) with end date calculation on the frontend
 - [Phase 33-user-suspension]: i18n-only frontend check — no Middleware interception for MVP; API-level enforcement via requireNotSuspended()
+- [Phase 33-user-suspension-01]: Auto-unsuspension on API request — timed suspensions expire on next request, no cron job needed
+- [Phase 33-user-suspension-01]: requireNotSuspended() as separate helper — independent or integrated into getSessionAndRole()
+- [Phase 33-user-suspension-01]: throwIfSuspended() convenience guard returns 403 NextResponse for clean early-return pattern
+- [Phase 33-user-suspension-01]: Drizzle transactions for atomic suspend/unsuspend — both operations succeed or fail together
+
+## Performance Metrics
+
+| Phase              | Plan | Duration | Tasks | Files |
+| ------------------ | ---- | -------- | ----- | ----- |
+| 33-user-suspension | 01   | 11min    | 4     | 6     |

@@ -371,14 +371,28 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Implement a proper admin suspension mechanism — admin can issue timed suspensions (2 days, 1 week, 30 days, permanent) with type (violation, disruption, behavior, property, non-payment, other), reason, and description. Suspended users are deactivated and blocked at the API level. Users can be unsuspended early. Suspension history is tracked in the existing platformSuspension table.
 
-**Status:** Planning Complete
+**Status:** In Progress
 
 **Requirements:** SUSP-01, SUSP-02, SUSP-03
 
 **Plans:** 2 plans
 
-- [ ] 33-01-PLAN.md — Backend: suspension API routes (suspend/unsuspend/history) + auth guard + suspension-status endpoint (Wave 1)
+- [x] 33-01-PLAN.md — Backend: suspension API routes (suspend/unsuspend/history) + auth guard + suspension-status endpoint (Wave 1) ✅
 - [ ] 33-02-PLAN.md — Frontend: types, rewrite SuspendUserModal with full form, update UserRow/UsersListSection, i18n translations (Wave 2)
+
+---
+
+## Phase: 34-admin-layer
+
+**Goal:** Replace the admin space widget-grid+sub-launcher hybrid with a purpose-built AdminLayer command panel that mirrors the HomeLayer architecture — command bar → domains grid → lazy activity stream → collapsible widget area, driven by urgency + activity APIs
+
+**Status:** Planning Complete
+
+**Requirements:** ADMIN-01, ADMIN-02, ADMIN-03, ADMIN-04
+
+**Plans:** 1 plan
+
+- [ ] 34-01-PLAN.md — AdminLayer command panel: urgency + activity APIs, AdminCommandBar, AdminActivityStream, AdminLayer component, admin space routing, widget cleanup (Wave 1)
 
 ---
 
