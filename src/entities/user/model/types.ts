@@ -84,3 +84,36 @@ export interface AllocateSeatFormData {
 export const roleOptions = ['RESIDENT', 'BOARD', 'ADMIN', 'COMMITTEE'] as const;
 
 export const PAGE_SIZE = 20;
+
+/** Suspension record as returned by the API */
+export interface AdminSuspension {
+  id: string;
+  userId: string;
+  suspensionType: string;
+  reason: string;
+  description: string | null;
+  startDate: string;
+  endDate: string | null;
+  isPermanent: boolean;
+  isActive: boolean;
+  createdById: string;
+  createdAt: string;
+}
+
+/** Form data for creating a suspension */
+export interface SuspensionFormData {
+  suspensionType: string;
+  reason: string;
+  description?: string;
+  duration: '2days' | '1week' | '30days' | 'permanent';
+  endDate?: string;
+}
+
+export const suspensionTypes = [
+  { value: 'VIOLATION', label: 'Code of Conduct Violation' },
+  { value: 'DISRUPTION', label: 'Disruptive Behavior' },
+  { value: 'BEHAVIOR', label: 'Inappropriate Behavior' },
+  { value: 'PROPERTY', label: 'Property Damage' },
+  { value: 'NON_PAYMENT', label: 'Non-Payment' },
+  { value: 'OTHER', label: 'Other' },
+] as const;
