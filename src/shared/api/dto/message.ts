@@ -1,0 +1,35 @@
+import type { InferSelectModel } from 'drizzle-orm';
+import { messages } from '@api/db';
+
+// API-safe message shape
+export interface MessageDTO {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  content: string;
+  type: string;
+  mediaUrl: string | null;
+  isDeleted: boolean;
+  createdAt: string;
+  expiresAt: string | null;
+}
+
+// Maps a Drizzle message row to MessageDTO
+export function toMessageDTO(message: InferSelectModel<typeof messages>): MessageDTO {
+  return {
+    id: message.id,
+    conversationId: message.conversationId,
+    senderId: message.senderId,
+    content: message.content,
+    type: message.type,
+    mediaUrl: message.mediaUrl || null,
+    isDeleted: message.isDeleted,
+    createdAt: message.createdAt?.toISOString() ?? new Date().toISOString(),
+    expiresAt: message.expiresAt?.toISOString() ?? null,
+  };
+}
+
+// Maps an array of Drizzle message rows to MessageDTO[]
+export function toMessageDTOs(messageRows: InferSelectModel<typeof messages>[]): MessageDTO[] {
+  return messageRows.map(toMessageDTO);
+}
