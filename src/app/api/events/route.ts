@@ -1,11 +1,11 @@
 import { auth } from '@api/auth';
 import { db, events, users } from '@api/db';
 import { eq, and, desc, asc, gte } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { revalidateContent } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { hasPermission } from '@entities/tenant/api/permissions';
 
+import { apiCreated, apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
  * Retrieves session and role from the request for API routes.
  * @param request - Incoming HTTP request
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   // Enforce tenant isolation
@@ -78,7 +78,7 @@ export async function GET(request: Request) {
     eventItems = limit ? await query.limit(limit) : await query;
   }
 
-  return NextResponse.json(eventItems);
+  return apiSuccess(eventItems);
 }
 
 /**
@@ -89,18 +89,18 @@ export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   if (!hasPermission(authData.role, 'content') && !hasPermission(authData.role, 'contentOwn')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const body = await request.json();
 
   // Validate required fields
   if (!body.title || !body.description || !body.date || !body.location || !body.organizer) {
-    return NextResponse.json(
+    return apiSuccess(
       { error: 'Missing required fields: title, description, date, location, organizer' },
       { status: 400 }
     );
@@ -131,5 +131,5 @@ export async function POST(request: Request) {
   // Revalidate content caches
   revalidateContent();
 
-  return NextResponse.json(event, { status: 201 });
+  return apiCreated(event);
 }

@@ -1,8 +1,8 @@
 import { db } from '@api/db';
-import { NextResponse } from 'next/server';
 import { sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import { apiCreated, apiError, apiSuccess } from '@api/api-response';
 interface ConversationResult {
   id: string;
   name: string | null;
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   const { participantIds } = body;
 
   if (!participantIds || participantIds.length < 2) {
-    return NextResponse.json({ error: 'Two participant IDs required' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'Two participant IDs required', 400);
   }
 
   // Check if direct conversation already exists with exactly these two participants
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
   const validConversation = (existing.rows?.length || 0) > 0 ? existing.rows[0] : null;
 
   if (validConversation) {
-    return NextResponse.json({ conversation: validConversation });
+    return apiSuccess({ conversation: validConversation });
   }
 
   // Create new direct conversation
@@ -81,5 +81,5 @@ export async function POST(request: Request) {
     GROUP BY c.id
   `)) as { rows: ConversationResult[] };
 
-  return NextResponse.json({ conversation: result.rows?.[0] }, { status: 201 });
+  return apiSuccess({ conversation: result.rows?.[0] }, { status: 201 });
 }

@@ -9,9 +9,9 @@ import {
   notifications,
 } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import { apiError, apiSuccess, apiUnauthorized } from '@api/api-response';
 export const maxDuration = 5;
 
 interface DashboardStats {
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
   const userId = await getUserId(request);
 
   if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   // Count maintenance requests for user
@@ -76,5 +76,5 @@ export async function GET(request: Request) {
     notifications: notificationsCount,
   };
 
-  return NextResponse.json(stats);
+  return apiSuccess(stats);
 }

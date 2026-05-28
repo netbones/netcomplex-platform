@@ -1,19 +1,18 @@
 import { auth } from '@api/auth';
 
-import { NextResponse } from 'next/server';
-
 // Drizzle imports - use db.ts exports
 import { db, conversations, conversationParticipants, messages, users } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import { apiCreated, apiError, apiSuccess, apiUnauthorized } from '@api/api-response';
 export async function GET(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,
   });
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const { tenantId } = await withTenant();
@@ -87,7 +86,7 @@ export async function GET(request: Request) {
     })
   );
 
-  return NextResponse.json(conversationsWithDetails);
+  return apiSuccess(conversationsWithDetails);
 }
 
 export async function POST(request: Request) {
@@ -96,7 +95,7 @@ export async function POST(request: Request) {
   });
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const body = await request.json();
@@ -162,7 +161,7 @@ export async function POST(request: Request) {
     .leftJoin(users, eq(conversationParticipants.userId, users.id))
     .where(eq(conversationParticipants.conversationId, conversationId));
 
-  return NextResponse.json(
+  return apiSuccess(
     {
       ...createdConversation,
       participants,
