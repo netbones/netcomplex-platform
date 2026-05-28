@@ -9,10 +9,25 @@ import {
   profiles,
   standardSeats,
   soloSeats,
+  premiumSeats,
   agentAccesses,
   users,
 } from '@api/db';
-import { eq, and, or, asc, desc, gt, ne, like, count, InferSelectModel } from 'drizzle-orm';
+import {
+  eq,
+  and,
+  or,
+  asc,
+  desc,
+  gt,
+  ne,
+  like,
+  count,
+  ilike,
+  sql,
+  InferSelectModel,
+} from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
 
 // Output Schemas
 const propertySchema = z.object({
@@ -351,6 +366,254 @@ export const identityRouter = router({
         .returning();
 
       return created;
+    }),
+
+  // ============ USERS (Directory) ============
+
+  listUsers: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/users',
+        tags: ['Identity'],
+        summary: 'List tenant users with optional filters',
+        protect: true,
+      },
+    })
+    .input(
+      z
+        .object({
+          search: z.string().optional(),
+          role: z.string().optional(),
+          page: z.number().min(1).default(1),
+          limit: z.number().min(1).max(50).default(20),
+        })
+        .optional()
+    )
+    .output(
+      z.object({
+        users: z.array(
+          z.object({
+            id: z.string(),
+            name: z.string(),
+            email: z.string(),
+            phone: z.string().nullable(),
+            interests: z.array(z.string()),
+            avatar: z.string().nullable(),
+            isPublic: z.boolean(),
+            isActive: z.boolean(),
+            role: z.string(),
+            profileSlug: z.string().nullable(),
+            standardSeats: z.array(
+              z.object({
+                property: z.object({
+                  id: z.string(),
+                  street: z.string(),
+                  unit: z.string(),
+                  homeImage: z.string().nullable(),
+                }),
+                isPrimaryOwner: z.boolean(),
+                platformAddress: z.string(),
+              })
+            ),
+            soloSeats: z.array(
+              z.object({
+                property: z
+                  .object({
+                    id: z.string(),
+                    street: z.string(),
+                    unit: z.string(),
+                    homeImage: z.string().nullable(),
+                  })
+                  .nullable(),
+                seatType: z.string(),
+                platformAddress: z.string(),
+              })
+            ),
+            premiumSeat: z
+              .object({
+                id: z.string(),
+                platformAddress: z.string(),
+                portfolioName: z.string().nullable(),
+                tier: z.string(),
+                isActive: z.boolean(),
+              })
+              .nullable(),
+            profiles: z.array(
+              z.object({
+                householdId: z.string(),
+                occupantType: z.string(),
+                residencyType: z.string(),
+                rentalImage: z.string().nullable(),
+                occupantImage: z.string().nullable(),
+                property: z.object({
+                  id: z.string(),
+                  street: z.string(),
+                  unit: z.string(),
+                  homeImage: z.string().nullable(),
+                  platformAddress: z.string(),
+                }),
+              })
+            ),
+          })
+        ),
+        total: z.number(),
+        page: z.number(),
+        limit: z.number(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const { search, role, page, limit } = input || {};
+      const pageVal = page || 1;
+      const limitVal = limit || 20;
+      const skip = (pageVal - 1) * limitVal;
+
+      const canViewAll = hasPermission(ctx.role, 'directory');
+
+      // Build base conditions — mirroring GET /api/users REST handler
+      const conditions: SQL<unknown>[] = [
+        eq(users.tenantId, ctx.tenantId!),
+        eq(users.isActive, true),
+        ne(users.role, 'AGENT'),
+        sql`(
+          EXISTS (SELECT 1 FROM "standardSeat" WHERE "userId" = ${users.id})
+          OR EXISTS (SELECT 1 FROM "soloSeat" WHERE "userId" = ${users.id})
+          OR EXISTS (SELECT 1 FROM "profile" WHERE "userId" = ${users.id} AND "status" = 'ACTIVE')
+        )`,
+      ];
+
+      if (!canViewAll) {
+        conditions.push(eq(users.isPublic, true));
+      }
+
+      if (search) {
+        const searchCondition = or(
+          ilike(users.name, `%${search}%`),
+          ilike(users.email, `%${search}%`)
+        );
+        if (searchCondition) conditions.push(searchCondition);
+      }
+
+      if (role) {
+        const validRoles = ['ADMIN', 'BOARD', 'COMMITTEE', 'RESIDENT'] as const;
+        type ValidRole = (typeof validRoles)[number];
+        if ((validRoles as readonly string[]).includes(role)) {
+          conditions.push(eq(users.role, role as ValidRole));
+        }
+      }
+
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+      // Get users with pagination
+      const userResults = await db
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          phone: users.phone,
+          interests: users.interests,
+          avatar: users.avatar,
+          isPublic: users.isPublic,
+          isActive: users.isActive,
+          role: users.role,
+          profileSlug: users.profileSlug,
+        })
+        .from(users)
+        .where(whereClause)
+        .orderBy(asc(users.name))
+        .limit(limitVal)
+        .offset(skip);
+
+      // Get total count
+      const totalResult = await db.select({ total: count() }).from(users).where(whereClause);
+      const total = totalResult[0]?.total || 0;
+
+      // Fetch related data for each user
+      const usersWithRelations = await Promise.all(
+        userResults.map(async user => {
+          // Get standardSeats with property
+          const seats = await db
+            .select({
+              property: {
+                id: properties.id,
+                street: properties.street,
+                unit: properties.unit,
+                homeImage: properties.homeImage,
+              },
+              isPrimaryOwner: standardSeats.isPrimaryOwner,
+              platformAddress: standardSeats.platformAddress,
+            })
+            .from(standardSeats)
+            .innerJoin(properties, eq(standardSeats.propertyId, properties.id))
+            .where(eq(standardSeats.userId, user.id));
+
+          // Get soloSeat with property
+          const soloSeatsResult = await db
+            .select({
+              property: {
+                id: properties.id,
+                street: properties.street,
+                unit: properties.unit,
+                homeImage: properties.homeImage,
+              },
+              seatType: soloSeats.seatType,
+              platformAddress: soloSeats.platformAddress,
+            })
+            .from(soloSeats)
+            .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
+            .where(eq(soloSeats.userId, user.id));
+
+          // Get premiumSeat
+          const premiumSeat = await db
+            .select({
+              id: premiumSeats.id,
+              platformAddress: premiumSeats.platformAddress,
+              portfolioName: premiumSeats.portfolioName,
+              tier: premiumSeats.tier,
+              isActive: premiumSeats.isActive,
+            })
+            .from(premiumSeats)
+            .where(eq(premiumSeats.userId, user.id))
+            .limit(1);
+
+          // Get active profiles with property
+          const userProfiles = await db
+            .select({
+              householdId: profiles.householdId,
+              occupantType: profiles.occupantType,
+              residencyType: profiles.residencyType,
+              rentalImage: profiles.rentalImage,
+              occupantImage: profiles.occupantImage,
+              property: {
+                id: properties.id,
+                street: properties.street,
+                unit: properties.unit,
+                homeImage: properties.homeImage,
+                platformAddress: properties.platformAddress,
+              },
+            })
+            .from(profiles)
+            .innerJoin(households, eq(profiles.householdId, households.id))
+            .innerJoin(properties, eq(households.propertyId, properties.id))
+            .where(
+              and(
+                eq(profiles.tenantId, ctx.tenantId!),
+                eq(profiles.userId, user.id),
+                eq(profiles.status, 'ACTIVE' as const)
+              )
+            );
+
+          return {
+            ...user,
+            standardSeats: seats,
+            soloSeats: soloSeatsResult,
+            premiumSeat: premiumSeat[0] || null,
+            profiles: userProfiles,
+          };
+        })
+      );
+
+      return { users: usersWithRelations, total, page: pageVal, limit: limitVal };
     }),
 
   // ============ HOUSEHOLDS (The Occupancies) ============
