@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!listingId || !description) {
-      return apiSuccess({ error: 'Listing ID and description are required' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'Listing ID and description are required', 400);
     }
 
     // Check if listing exists and is published using Drizzle

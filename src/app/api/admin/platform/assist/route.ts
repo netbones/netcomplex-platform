@@ -7,6 +7,7 @@ import { logError } from '@shared/lib';
 import {
   apiCreated,
   apiError,
+  apiForbidden,
   apiSuccess,
   apiUnauthorized,
   apiInternalError,
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (!user[0]?.isPlatformAdmin) {
-      return apiSuccess({ error: 'Forbidden - Platform Admin access required' }, { status: 403 });
+      return apiForbidden('Platform Admin access required');
     }
 
     const { searchParams } = new URL(request.url);
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!user[0]?.isPlatformAdmin) {
-      return apiSuccess({ error: 'Forbidden - Platform Admin access required' }, { status: 403 });
+      return apiForbidden('Platform Admin access required');
     }
 
     const body = await request.json();

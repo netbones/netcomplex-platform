@@ -6,7 +6,13 @@ import { hasPermission } from '@entities/tenant/api/permissions';
 import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
 import { apiLogger } from '@shared/lib';
 
-import { apiError, apiInternalError, apiSuccess, apiUnauthorized } from '@api/api-response';
+import {
+  apiError,
+  apiForbidden,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/api-response';
 /**
  * Retrieves session and role from the request for API routes.
  */
@@ -71,7 +77,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
   }
 
   if (!hasPermission(authData.role, 'admin')) {
-    return apiSuccess({ error: 'Not authorised — admin permission required' }, { status: 403 });
+    return apiForbidden('admin permission required');
   }
 
   // AssistSession scope guard: metadata-scoped staff can only read, not modify content/users/settings

@@ -59,7 +59,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const { action } = body;
 
   if (!action || (action !== 'approve' && action !== 'reject')) {
-    return apiSuccess({ error: 'Invalid action. Must be "approve" or "reject"' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'Invalid action. Must be "approve" or "reject"', 400);
   }
 
   // Enforce tenant isolation
@@ -79,7 +79,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   if (existingRequest.status !== 'PENDING') {
-    return apiSuccess({ error: 'Membership request has already been processed' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'Membership request has already been processed', 400);
   }
 
   const now = new Date();

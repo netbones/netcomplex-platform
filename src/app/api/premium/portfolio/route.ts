@@ -7,6 +7,7 @@ import { logError } from '@shared/lib';
 
 import {
   apiError,
+  apiForbidden,
   apiInternalError,
   apiNotFound,
   apiSuccess,
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
     `)) as { rows: { id: string }[] };
 
     if ((householdsResult.rows?.length || 0) !== householdIds.length) {
-      return apiSuccess({ error: 'You do not own all specified households' }, { status: 403 });
+      return apiForbidden('You do not own all specified households');
     }
 
     // Check if user already has a Premium Seat

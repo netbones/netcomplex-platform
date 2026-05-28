@@ -6,6 +6,7 @@ import { logError } from '@shared/lib';
 
 import {
   apiError,
+  apiForbidden,
   apiSuccess,
   apiUnauthorized,
   apiInternalError,
@@ -58,10 +59,7 @@ export async function DELETE(
     const isTenantOwner = tenant[0]?.ownerId === session.user.id;
 
     if (!isPlatformAdmin && !isTenantOwner) {
-      return apiSuccess(
-        { error: 'Forbidden - Platform Admin or tenant owner access required' },
-        { status: 403 }
-      );
+      return apiForbidden('Platform Admin or tenant owner access required');
     }
 
     await db
@@ -99,7 +97,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       .limit(1);
 
     if (!user[0]?.isPlatformAdmin) {
-      return apiSuccess({ error: 'Forbidden - Platform Admin access required' }, { status: 403 });
+      return apiForbidden('Platform Admin access required');
     }
 
     const assistSession = await getAssistSession(id);

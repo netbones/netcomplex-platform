@@ -181,7 +181,7 @@ export async function POST(
       .limit(1);
 
     if (existingReview) {
-      return apiSuccess({ error: 'You have already reviewed this service' }, { status: 400 });
+      return apiError('VALIDATION_ERROR', 'You have already reviewed this service', 400);
     }
 
     // Create review with Drizzle

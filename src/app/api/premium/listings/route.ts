@@ -5,7 +5,13 @@ import { eq, sql, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
-import { apiError, apiInternalError, apiSuccess, apiUnauthorized } from '@api/api-response';
+import {
+  apiError,
+  apiForbidden,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/api-response';
 /**
  * GET /api/premium/listings - Get property listings for premium user
  */
@@ -29,7 +35,7 @@ export async function GET(request: NextRequest) {
       .where(and(eq(premiumSeats.userId, session.user.id), eq(premiumSeats.tenantId, tenantId)));
 
     if (!linkedProperties.length) {
-      return apiSuccess({ error: 'Premium Seat required to access listings' }, { status: 403 });
+      return apiForbidden('Premium Seat required to access listings');
     }
 
     const propertyIds = linkedProperties.map(p => p.id);
@@ -91,7 +97,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!premiumSeatExists.length) {
-      return apiSuccess({ error: 'Premium Seat required to create listings' }, { status: 403 });
+      return apiForbidden('Premium Seat required to create listings');
     }
 
     const body = await request.json();
