@@ -2,9 +2,9 @@ import { auth } from '@api/auth';
 import { hasPermission, Permission } from '@entities/tenant/api/permissions';
 import { db, groups, users, userGroups } from '@api/db';
 import { eq, and, asc, sql } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import { apiCreated, apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 export const maxDuration = 8;
 
 /**
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const canView =
@@ -50,7 +50,7 @@ export async function GET(request: Request) {
     hasPermission(authData.role, 'groupsOwn') ||
     authData.role === 'RESIDENT';
   if (!canView) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const { tenantId } = await withTenant();
@@ -91,7 +91,7 @@ export async function GET(request: Request) {
     })
   );
 
-  return NextResponse.json(groupsWithCounts);
+  return apiSuccess(groupsWithCounts);
 }
 
 /**
@@ -107,13 +107,13 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const canCreateGroup =
     hasPermission(authData.role, 'groups') || hasPermission(authData.role, 'groupsOwn');
   if (!canCreateGroup) {
-    return NextResponse.json({ error: 'Forbidden - Insufficient permissions' }, { status: 403 });
+    return apiForbidden('Insufficient permissions');
   }
 
   const body = await request.json();
@@ -142,5 +142,5 @@ export async function POST(request: Request) {
     })
     .returning();
 
-  return NextResponse.json(group, { status: 201 });
+  return apiCreated(group);
 }

@@ -2,9 +2,9 @@ import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, groupMembershipRequests, users, groups } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import { apiError, apiSuccess, apiUnauthorized, apiForbidden } from '@api/api-response';
 /**
  * Retrieves session and role from the request for API routes.
  * @param request - Incoming HTTP request
@@ -41,11 +41,11 @@ export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   if (!hasPermission(authData.role, 'content')) {
-    return NextResponse.json({ error: 'Forbidden - Insufficient permissions' }, { status: 403 });
+    return apiForbidden('Insufficient permissions');
   }
 
   const { searchParams } = new URL(request.url);
@@ -96,5 +96,5 @@ export async function GET(request: Request) {
     .where(whereClause)
     .orderBy(desc(groupMembershipRequests.createdAt));
 
-  return NextResponse.json({ requests });
+  return apiSuccess({ requests });
 }

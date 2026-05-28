@@ -1,8 +1,8 @@
 import { db, groups, users, userGroups, contents } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import { apiError, apiNotFound, apiSuccess } from '@api/api-response';
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
@@ -30,7 +30,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .limit(1);
 
   if (!group) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return apiNotFound('Not found');
   }
 
   // Get owner info
@@ -86,7 +86,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .orderBy(desc(contents.publishedAt))
     .limit(10);
 
-  return NextResponse.json({
+  return apiSuccess({
     ...group,
     owner: owner ? { id: owner.id, name: owner.name } : null,
     members: membersWithUsers,
@@ -117,7 +117,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .where(and(eq(groups.id, id), eq(groups.tenantId, tenantId)))
     .returning();
 
-  return NextResponse.json(group);
+  return apiSuccess(group);
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -128,5 +128,5 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
   await db.delete(groups).where(and(eq(groups.id, id), eq(groups.tenantId, tenantId)));
 
-  return NextResponse.json({ success: true });
+  return apiSuccess({ success: true });
 }

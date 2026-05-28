@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getPlatformPageFlags } from '@entities/tenant/api/flags/platform-flags';
 import { getStatsigExperimentFlags } from '@entities/tenant/api/flags/statsig-flags';
 import { withTenantOptional } from '@entities/tenant/api/with-tenant';
 import { createComponentLogger } from '@shared/lib';
 
+import { apiError, apiSuccess } from '@api/api-response';
 const log = createComponentLogger('flags-api');
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     if (!flagParam && !experiments) {
       const allFlags = await getPlatformPageFlags(tenantId!);
-      return NextResponse.json({ flags: allFlags, tenantId });
+      return apiSuccess({ flags: allFlags, tenantId });
     }
 
     if (flagParam) {
@@ -39,22 +40,22 @@ export async function GET(request: NextRequest) {
         'headerEngagementFocus',
       ] as const;
       if (!validFlags.includes(flagParam as (typeof validFlags)[number])) {
-        return NextResponse.json({ error: 'Invalid flag parameter' }, { status: 400 });
+        return apiError('VALIDATION_ERROR', 'Invalid flag parameter', 400);
       }
       const allFlags = await getPlatformPageFlags(tenantId!);
       const value = allFlags[flagParam as keyof typeof allFlags];
-      return NextResponse.json({ flag: flagParam, value, tenantId });
+      return apiSuccess({ flag: flagParam, value, tenantId });
     }
 
     if (experiments === 'true') {
       const expFlags = await getStatsigExperimentFlags();
-      return NextResponse.json({ experiments: expFlags, tenantId });
+      return apiSuccess({ experiments: expFlags, tenantId });
     }
 
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'Invalid request', 400);
   } catch (error) {
     log.error({ operation: 'GET' }, 'Failed to evaluate flags', error);
-    return NextResponse.json(
+    return apiSuccess(
       { error: 'Failed to evaluate flags', detail: String(error) },
       { status: 500 }
     );

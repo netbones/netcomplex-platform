@@ -1,8 +1,8 @@
 import { db, userGroups } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import { apiCreated, apiError, apiSuccess } from '@api/api-response';
 export async function POST(request: Request) {
   const body = await request.json();
   const { userId, groupId, role = 'MEMBER' } = body;
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     .limit(1);
 
   if (existing) {
-    return NextResponse.json({ error: 'Already a member' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'Already a member', 400);
   }
 
   // Enforce tenant isolation
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     })
     .returning();
 
-  return NextResponse.json(membership, { status: 201 });
+  return apiCreated(membership);
 }
 
 export async function DELETE(request: Request) {
@@ -42,7 +42,7 @@ export async function DELETE(request: Request) {
   const groupId = searchParams.get('groupId');
 
   if (!userId || !groupId) {
-    return NextResponse.json({ error: 'Missing userId or groupId' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'Missing userId or groupId', 400);
   }
 
   const { tenantId } = await withTenant();
@@ -57,5 +57,5 @@ export async function DELETE(request: Request) {
       )
     );
 
-  return NextResponse.json({ success: true });
+  return apiSuccess({ success: true });
 }

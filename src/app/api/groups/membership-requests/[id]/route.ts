@@ -2,9 +2,15 @@ import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, groupMembershipRequests, userGroups, users, groups } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import {
+  apiError,
+  apiSuccess,
+  apiUnauthorized,
+  apiForbidden,
+  apiNotFound,
+} from '@api/api-response';
 /**
  * Retrieves session and role from the request for API routes.
  * @param request - Incoming HTTP request
@@ -42,21 +48,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   if (!hasPermission(authData.role, 'content')) {
-    return NextResponse.json({ error: 'Forbidden - Insufficient permissions' }, { status: 403 });
+    return apiForbidden('Insufficient permissions');
   }
 
   const body = await request.json();
   const { action } = body;
 
   if (!action || (action !== 'approve' && action !== 'reject')) {
-    return NextResponse.json(
-      { error: 'Invalid action. Must be "approve" or "reject"' },
-      { status: 400 }
-    );
+    return apiSuccess({ error: 'Invalid action. Must be "approve" or "reject"' }, { status: 400 });
   }
 
   // Enforce tenant isolation
@@ -72,14 +75,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .limit(1);
 
   if (!existingRequest) {
-    return NextResponse.json({ error: 'Membership request not found' }, { status: 404 });
+    return apiNotFound('Membership request not found');
   }
 
   if (existingRequest.status !== 'PENDING') {
-    return NextResponse.json(
-      { error: 'Membership request has already been processed' },
-      { status: 400 }
-    );
+    return apiSuccess({ error: 'Membership request has already been processed' }, { status: 400 });
   }
 
   const now = new Date();
@@ -139,7 +139,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       .where(eq(groupMembershipRequests.id, requestId))
       .limit(1);
 
-    return NextResponse.json({ request: fullRequest });
+    return apiSuccess({ request: fullRequest });
   }
 
   // action === 'reject'
@@ -172,5 +172,5 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .where(eq(groupMembershipRequests.id, requestId))
     .limit(1);
 
-  return NextResponse.json({ request: fullRequest });
+  return apiSuccess({ request: fullRequest });
 }

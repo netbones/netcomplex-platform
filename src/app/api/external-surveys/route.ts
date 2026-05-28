@@ -2,9 +2,9 @@ import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, externalSurveys, users } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import { apiCreated, apiError, apiForbidden, apiSuccess } from '@api/api-response';
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'content')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const { tenantId } = await withTenant();
@@ -42,14 +42,14 @@ export async function GET(request: Request) {
     .where(eq(externalSurveys.tenantId, tenantId))
     .orderBy(desc(externalSurveys.createdAt));
 
-  return NextResponse.json(surveyList);
+  return apiSuccess(surveyList);
 }
 
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'content')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   // Enforce tenant isolation
@@ -73,14 +73,14 @@ export async function POST(request: Request) {
     })
     .returning();
 
-  return NextResponse.json(survey, { status: 201 });
+  return apiCreated(survey);
 }
 
 export async function PATCH(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'content')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const { tenantId } = await withTenant();
@@ -96,14 +96,14 @@ export async function PATCH(request: Request) {
     .where(and(eq(externalSurveys.id, body.id), eq(externalSurveys.tenantId, tenantId)))
     .returning();
 
-  return NextResponse.json(survey);
+  return apiSuccess(survey);
 }
 
 export async function DELETE(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'content')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const { tenantId } = await withTenant();
@@ -111,12 +111,12 @@ export async function DELETE(request: Request) {
   const id = searchParams.get('id');
 
   if (!id) {
-    return NextResponse.json({ error: 'ID required' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'ID required', 400);
   }
 
   await db
     .delete(externalSurveys)
     .where(and(eq(externalSurveys.id, id), eq(externalSurveys.tenantId, tenantId)));
 
-  return NextResponse.json({ success: true });
+  return apiSuccess({ success: true });
 }
