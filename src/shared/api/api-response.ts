@@ -56,13 +56,15 @@ export interface ApiPaginatedResponse<T> {
 export function apiSuccess<T>(
   data: T,
   meta?: Record<string, unknown>,
-  status: number = 200
+  status: number = 200,
+  init?: ResponseInit
 ): NextResponse<ApiSuccessResponse<T>> {
   const body: ApiSuccessResponse<T> = { success: true, data };
   if (meta !== undefined) {
     body.meta = meta;
   }
-  return NextResponse.json(body, { status }) as NextResponse<ApiSuccessResponse<T>>;
+  const options: ResponseInit = { ...init, status };
+  return NextResponse.json(body, options) as NextResponse<ApiSuccessResponse<T>>;
 }
 
 /**
