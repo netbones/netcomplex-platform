@@ -5,14 +5,14 @@
 - **Phase:** 35-api-alignment
 - **Plans:** 10 plans across 4 waves
 - **Plan:** A01 (A01–A10 in current phase)
-- **Current Plan:** 9
+- **Current Plan:** 10
 - **Total Plans in Phase:** 10
 - **Status:** Ready to execute
 - **Last Updated:** 2026-05-28
-- **Current Plan complete — ready for next plan:** 35-A01 canonical API response envelope
+- **Current Plan complete — ready for next plan:** 35-F01 API test coverage and CI validation
 
-**Last Session:** 2026-05-28T14:12:15.240Z
-**Stopped at:** Completed 35-E01-PLAN.md
+**Last Session:** 2026-05-28T14:25:23.307Z
+**Stopped at:** Completed 35-F01-PLAN.md
 **Resume file:** None
 
 ## Decisions Made
@@ -77,6 +77,10 @@
 - [Phase 35-api-alignment]: Feature gate reuses existing DB-backed isModuleEnabled instead of simpler Tenant.modules check — already handles tier enforcement + platform_modules + tenant_modules
 - [Phase 35-api-alignment]: Rate limiter uses in-memory Map store (single-instance) — Redis upgrade flagged for multi-instance production
 - [Phase 35-api-alignment]: Entity DTOs re-export from @shared/api/dto (shared canonical layer) — avoids duplication during transition
+- [Phase 35-api-alignment]: API test infrastructure uses hoisted mock state pattern with per-file vi.hoisted() for route mocking
+- [Phase 35-api-alignment]: Shared helpers (makeSelectChain, createMockRequest) extracted to src/test/api/helpers.ts
+- [Phase 35-api-alignment]: Entity services mocked at module level (vi.mock) to avoid deep import chains during route testing
+- [Phase 35-api-alignment]: Redocly lint targets local public/openapi.json via --config .redocly.yaml
 
 ## Notes
 
@@ -187,20 +191,21 @@
 
 ## Performance Metrics
 
-| Phase                       | Plan  | Duration | Tasks    | Files |
-| --------------------------- | ----- | -------- | -------- | ----- |
-| Phase 33 P01                | 11min | 4 tasks  | 6 files  |
-| Phase 33 P02                | 1min  | 3 tasks  | 8 files  |
-| Phase 35 (Planning)         | —     | 20 gaps  | 11 files |
-| Phase 35 P01                | 22min | 3 tasks  | 87 files |
-| Phase 35 PA01               | 22min | 3 tasks  | 87 files |
-| Phase 35-api-alignment PB01 | 47m   | 2 tasks  | 6 files  |
-| Phase 35-api-alignment PB02 | 279s  | 2 tasks  | 4 files  |
-| Phase 35-api-alignment PC01 | 12min | 2 tasks  | 17 files |
-| Phase 35-api-alignment PC02 | 532   | 2 tasks  | 19 files |
-| Phase 35-api-alignment PD02 | 12min | 2 tasks  | 10 files |
-| Phase 35-api-alignment PD01 | 348   | 2 tasks  | 8 files  |
-| Phase 35-api-alignment PE01 | 12m   | 2 tasks  | 19 files |
+| Phase                       | Plan   | Duration | Tasks    | Files |
+| --------------------------- | ------ | -------- | -------- | ----- |
+| Phase 33 P01                | 11min  | 4 tasks  | 6 files  |
+| Phase 33 P02                | 1min   | 3 tasks  | 8 files  |
+| Phase 35 (Planning)         | —      | 20 gaps  | 11 files |
+| Phase 35 P01                | 22min  | 3 tasks  | 87 files |
+| Phase 35 PA01               | 22min  | 3 tasks  | 87 files |
+| Phase 35-api-alignment PB01 | 47m    | 2 tasks  | 6 files  |
+| Phase 35-api-alignment PB02 | 279s   | 2 tasks  | 4 files  |
+| Phase 35-api-alignment PC01 | 12min  | 2 tasks  | 17 files |
+| Phase 35-api-alignment PC02 | 532    | 2 tasks  | 19 files |
+| Phase 35-api-alignment PD02 | 12min  | 2 tasks  | 10 files |
+| Phase 35-api-alignment PD01 | 348    | 2 tasks  | 8 files  |
+| Phase 35-api-alignment PE01 | 12m    | 2 tasks  | 19 files |
+| Phase 35-api-alignment PF01 | 8m 51s | 2 tasks  | 7 files  |
 
 ## A01 Execution Decisions
 
