@@ -4,10 +4,16 @@
 
 - **Phase:** 35-api-alignment
 - **Plans:** 10 plans across 4 waves
-- **Status:** Planning Complete
+- **Plan:** A01 (A01–A10 in current phase)
+- **Current Plan:** 2
+- **Total Plans in Phase:** 10
+- **Status:** Ready to execute
 - **Last Updated:** 2026-05-28
-- **Last Session:** Phase 35 full planning — audit (20 gaps G1-G20) + 10 PLAN.md files (A01–F02) across 4 waves
-- **Last Session (prev):** Completed 33-02 — suspension UI form, UserRow badge, UsersListSection wiring, i18n
+- **Current Plan complete — ready for next plan:** 35-A01 canonical API response envelope
+
+**Last Session:** 2026-05-28T12:40:34.216Z
+**Stopped at:** Completed 35-A01-PLAN.md — canonical response envelope
+**Resume file:** None
 
 ## Decisions Made
 
@@ -172,8 +178,17 @@
 
 ## Performance Metrics
 
-| Phase                        | Plan | Duration | Tasks   | Files    |
-| ---------------------------- | ---- | -------- | ------- | -------- |
-| 33-user-suspension           | 01   | 11min    | 4       | 6        |
-| Phase 33-user-suspension P02 | 1min | 3 tasks  | 8 files |
-| 35-api-alignment (Planning)  | —    | —        | 20 gaps | 11 files |
+| Phase               | Plan  | Duration | Tasks    | Files |
+| ------------------- | ----- | -------- | -------- | ----- |
+| Phase 33 P01        | 11min | 4 tasks  | 6 files  |
+| Phase 33 P02        | 1min  | 3 tasks  | 8 files  |
+| Phase 35 (Planning) | —     | 20 gaps  | 11 files |
+| Phase 35 P01        | 22min | 3 tasks  | 87 files |
+| Phase 35 PA01       | 22min | 3 tasks  | 87 files |
+
+## A01 Execution Decisions
+
+- [Phase 35-A01]: apiPaginated hasMore uses page\*pageSize < total (not <=)
+- [Phase 35-A01]: apiNoContent returns new NextResponse(null, { status: 204 })
+- [Phase 35-A01]: Unused NextResponse import removed from 67 files post-conversion
+- [Phase 35-A01]: CONFLICT(409)/GONE(410) use apiError('VALIDATION_ERROR', msg, status) — no canonical codes exist yet
