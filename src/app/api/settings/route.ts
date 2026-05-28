@@ -1,10 +1,10 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, users, settings } from '@api/db';
-import { NextResponse } from 'next/server';
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import { apiError, apiForbidden, apiSuccess } from '@api/api-response';
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'settings')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const { searchParams } = new URL(request.url);
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
 
   if (!key) {
     const allSettings = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
-    return NextResponse.json(allSettings);
+    return apiSuccess(allSettings);
   }
 
   const settingResult = await db
@@ -50,14 +50,14 @@ export async function GET(request: Request) {
     .where(and(eq(settings.tenantId, tenantId), eq(settings.key, key)))
     .limit(1);
 
-  return NextResponse.json(settingResult[0] || { key, value: null });
+  return apiSuccess(settingResult[0] || { key, value: null });
 }
 
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'settings')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   interface SettingBody {
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
       .set({ value: body.value })
       .where(eq(settings.key, body.key))
       .returning();
-    return NextResponse.json(updated[0]);
+    return apiSuccess(updated[0]);
   } else {
     // Generate ID for new setting
     const newId = body.key.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
@@ -87,6 +87,6 @@ export async function POST(request: Request) {
       .insert(settings)
       .values({ id: newId, tenantId, key: body.key, value: body.value })
       .returning();
-    return NextResponse.json(created[0]);
+    return apiSuccess(created[0]);
   }
 }

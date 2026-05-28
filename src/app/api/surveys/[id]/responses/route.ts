@@ -2,9 +2,15 @@ import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, surveys, questions, responses, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import {
+  apiError,
+  apiForbidden,
+  apiSuccess,
+  apiUnauthorized,
+  apiNotFound,
+} from '@api/api-response';
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,
@@ -31,11 +37,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   if (!hasPermission(authData.role, 'content')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const { tenantId } = await withTenant();
@@ -49,7 +55,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .limit(1);
 
   if (survey.length === 0) {
-    return NextResponse.json({ error: 'Survey not found' }, { status: 404 });
+    return apiNotFound('Survey not found');
   }
 
   const surveyData = survey[0];
@@ -154,7 +160,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     };
   });
 
-  return NextResponse.json({
+  return apiSuccess({
     survey: {
       id: surveyData.id,
       title: surveyData.title,

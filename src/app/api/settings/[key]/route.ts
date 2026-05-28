@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { db, settings, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
@@ -7,6 +6,7 @@ import { hasPermission } from '@entities/tenant/api/permissions';
 import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
 import { apiLogger } from '@shared/lib';
 
+import { apiError, apiInternalError, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
  * Retrieves session and role from the request for API routes.
  */
@@ -40,7 +40,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ key:
   const settingKey = key || queryKey;
 
   if (!settingKey) {
-    return NextResponse.json({ error: 'Setting key is required' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'Setting key is required', 400);
   }
 
   const { tenantId } = await withTenant();
@@ -52,10 +52,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ key:
     .limit(1);
 
   if (result.length === 0) {
-    return NextResponse.json({ key: settingKey, value: null });
+    return apiSuccess({ key: settingKey, value: null });
   }
 
-  return NextResponse.json({ key: result[0].key, value: result[0].value });
+  return apiSuccess({ key: result[0].key, value: result[0].value });
 }
 
 /**
@@ -67,14 +67,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   if (!hasPermission(authData.role, 'admin')) {
-    return NextResponse.json(
-      { error: 'Not authorised — admin permission required' },
-      { status: 403 }
-    );
+    return apiSuccess({ error: 'Not authorised — admin permission required' }, { status: 403 });
   }
 
   // AssistSession scope guard: metadata-scoped staff can only read, not modify content/users/settings
@@ -86,7 +83,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
   const body = await request.json();
 
   if (body.value === undefined || body.value === null) {
-    return NextResponse.json({ error: 'value is required' }, { status: 400 });
+    return apiError('VALIDATION_ERROR', 'value is required', 400);
   }
 
   const value = typeof body.value === 'string' ? body.value : JSON.stringify(body.value);
@@ -111,9 +108,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
       await db.insert(settings).values({ id, tenantId, key, value });
     }
 
-    return NextResponse.json({ key, value });
+    return apiSuccess({ key, value });
   } catch (error) {
     apiLogger.error({ err: error, key, tenantId }, 'Settings upsert error');
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return apiInternalError();
   }
 }

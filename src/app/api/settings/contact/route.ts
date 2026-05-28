@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server';
 import { db, settings } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { withTenant, withTenantOptional } from '@entities/tenant/api/with-tenant';
 
+import { apiError, apiSuccess } from '@api/api-response';
 export async function GET() {
   // Allow reading settings without tenant (for public access)
   const { tenantId } = await withTenantOptional();
 
   if (!tenantId) {
-    return NextResponse.json({});
+    return apiSuccess({});
   }
 
   const contactSettings = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
@@ -21,7 +21,7 @@ export async function GET() {
     {} as Record<string, string>
   );
 
-  return NextResponse.json(settingsMap);
+  return apiSuccess(settingsMap);
 }
 
 export async function POST(request: Request) {
@@ -47,5 +47,5 @@ export async function POST(request: Request) {
     }
   }
 
-  return NextResponse.json({ success: true });
+  return apiSuccess({ success: true });
 }

@@ -1,8 +1,8 @@
 import { db, users, groups, contents } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import { apiError, apiSuccess } from '@api/api-response';
 // Fast stats endpoint - limit to 3 seconds
 export const maxDuration = 3;
 
@@ -40,5 +40,5 @@ export async function GET() {
     conservationArticles: contentCount,
   };
 
-  return NextResponse.json(stats);
+  return apiSuccess(stats);
 }

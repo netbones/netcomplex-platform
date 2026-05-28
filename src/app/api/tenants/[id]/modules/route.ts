@@ -4,12 +4,12 @@
  * Returns enabled modules for a tenant based on tier + explicit settings
  */
 
-import { NextResponse } from 'next/server';
 import { db, tenantModules, platformModules, tenants } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
 import type { TenantTier } from '@entities/tenant';
 import { apiLogger } from '@shared/lib';
 
+import { apiError, apiSuccess, apiInternalError, apiNotFound } from '@api/api-response';
 const TIER_ORDER: Record<TenantTier, number> = {
   STANDARD: 1,
   PREMIUM: 2,
@@ -24,7 +24,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     const [tenant] = await db.select().from(tenants).where(eq(tenants.id, tenantId)).limit(1);
 
     if (!tenant) {
-      return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });
+      return apiNotFound('Tenant not found');
     }
 
     const tenantTierLevel = TIER_ORDER[tenant.tier] ?? 0;
@@ -65,9 +65,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       };
     }
 
-    return NextResponse.json(enabled);
+    return apiSuccess(enabled);
   } catch (error) {
     apiLogger.error({ error }, 'Failed to fetch tenant modules');
-    return NextResponse.json({ error: 'Failed to fetch modules' }, { status: 500 });
+    return apiInternalError('Failed to fetch modules');
   }
 }

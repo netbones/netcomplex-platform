@@ -2,9 +2,9 @@ import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { db, surveys, users } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
+import { apiCreated, apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   const { tenantId } = await withTenant();
@@ -55,18 +55,18 @@ export async function GET(request: Request) {
         .where(eq(surveys.tenantId, tenantId))
         .orderBy(desc(surveys.createdAt));
 
-  return NextResponse.json(surveyList);
+  return apiSuccess(surveyList);
 }
 
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return apiUnauthorized();
   }
 
   if (!hasPermission(authData.role, 'content')) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return apiForbidden();
   }
 
   const body = await request.json();
@@ -91,5 +91,5 @@ export async function POST(request: Request) {
     })
     .returning();
 
-  return NextResponse.json(survey, { status: 201 });
+  return apiCreated(survey);
 }
