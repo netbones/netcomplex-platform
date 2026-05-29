@@ -16,7 +16,8 @@ export function usePageFlags() {
           throw new Error('Failed to fetch page flags');
         }
         const data = await response.json();
-        setFlags(data.flags);
+        const unwrapped = data?.data ?? data;
+        setFlags(unwrapped.flags);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error'));
       } finally {

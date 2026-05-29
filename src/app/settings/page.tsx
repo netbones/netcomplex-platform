@@ -41,7 +41,8 @@ export default function SettingsPage() {
     async function fetchUserSettings() {
       if (!session?.user?.id) return;
       const res = await fetch(`/api/users/${session.user.id}`);
-      const data = await res.json();
+      const body = await res.json();
+      const data = body?.data ?? body;
       if (data.showEmail !== undefined) setShowEmail(data.showEmail);
       if (data.showPhone !== undefined) setShowPhone(data.showPhone);
     }
@@ -52,14 +53,16 @@ export default function SettingsPage() {
       setLoadingHousehold(true);
       try {
         const res = await fetch(`/api/users/${session.user.id}`);
-        const data = await res.json();
-        const seat = data.standardSeats?.[0];
+        const body = await res.json();
+        const userData = body?.data ?? body;
+        const seat = userData.standardSeats?.[0];
         if (seat?.household?.id) {
           const hhId = seat.household.id;
           setHouseholdId(hhId);
           setIsOwner(seat.isPrimaryOwner === true);
           const hhRes = await fetch(`/api/households/${hhId}`);
-          const hhData = await hhRes.json();
+          const hhBody = await hhRes.json();
+          const hhData = hhBody?.data ?? hhBody;
           if (hhData.household?.homeImage) {
             setHouseholdImage(hhData.household.homeImage);
           }
@@ -76,9 +79,10 @@ export default function SettingsPage() {
       if (!session?.user?.id) return;
       try {
         const res = await fetch(`/api/users/${session.user.id}`);
-        const data = await res.json();
-        if (data.avatar || data.image) {
-          setUserAvatar(data.avatar || data.image);
+        const body = await res.json();
+        const userData = body?.data ?? body;
+        if (userData.avatar || userData.image) {
+          setUserAvatar(userData.avatar || userData.image);
         }
       } catch (e) {
         log.error({}, 'Failed to fetch user', e);
