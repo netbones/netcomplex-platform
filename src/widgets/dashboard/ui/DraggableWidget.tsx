@@ -141,7 +141,11 @@ export function DraggableWidget({
         <div className="flex items-center gap-2">
           {collapsible && (
             <button
-              onClick={handleToggleCollapsed}
+              onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                handleToggleCollapsed();
+              }}
               className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto"
               title={
                 layout.isCollapsed ? t('expandWidget', 'Expand') : t('collapseWidget', 'Collapse')
@@ -154,7 +158,11 @@ export function DraggableWidget({
           )}
           {isEditMode && removable && onRemove && (
             <button
-              onClick={onRemove}
+              onClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                onRemove();
+              }}
               className="p-1 rounded transition-colors pointer-events-auto"
               title={t('removeWidget', 'Remove widget')}
             >

@@ -47,7 +47,7 @@ function StatCard({
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-500 truncate">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{loading ? '...' : value}</p>
+          <p className="text-lg font-bold text-gray-900">{loading ? '...' : value}</p>
         </div>
         {href && (
           <i className="fas fa-chevron-right text-gray-300 group-hover:text-indigo-500 transition-colors"></i>

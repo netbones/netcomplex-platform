@@ -334,7 +334,8 @@ In order to minimise new page creation for a feature, follow these protocols:
 - Define all models in `prisma/schema.prisma`
 - Use enums for fixed values
 - Add relations with @relation
-- Run `npx prisma generate` after schema changes (generates Drizzle schema)
+- Run `npx prisma migrate dev` to evolve the database schema (creates and applies migration)
+- Run `npx prisma generate` after migration to regenerate the Drizzle schema sync
 - **Query layer**: Use Drizzle via `src/lib/db.ts` for all database queries (edge-compatible)
 
 ### Supabase

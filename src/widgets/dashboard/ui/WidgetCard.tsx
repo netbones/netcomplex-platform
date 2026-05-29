@@ -49,6 +49,7 @@ export function WidgetCard({
           <button
             onClick={e => {
               e.stopPropagation();
+              e.preventDefault();
               setIsLocalCollapsed(!isLocalCollapsed);
             }}
             className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto"
@@ -60,6 +61,7 @@ export function WidgetCard({
             <button
               onClick={e => {
                 e.stopPropagation();
+                e.preventDefault();
                 onRemove();
               }}
               className="p-1 rounded transition-colors pointer-events-auto"
