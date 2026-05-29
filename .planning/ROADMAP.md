@@ -406,12 +406,12 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Plans:**
 
-| Wave | Plan | Objective |
-|------|------|-----------|
-| 1 | [ ] 36-01-PLAN.md | Schema: LINEAR_SCALE, config columns, SurveySection model + migration |
-| 2 | [ ] 36-02-PLAN.md | API: Question/Section CRUD + reorder + survey GET/PUT |
-| 3 | [ ] 36-03-PLAN.md | UI: Builder page, 6 question type blocks, BlockPalette, SectionBlock |
-| 4 | [ ] 36-04-PLAN.md | Drag-and-drop, TipTap image embed, auto-save, responsive polish |
+| Wave | Plan              | Objective                                                             |
+| ---- | ----------------- | --------------------------------------------------------------------- |
+| 1    | [ ] 36-01-PLAN.md | Schema: LINEAR_SCALE, config columns, SurveySection model + migration |
+| 2    | [ ] 36-02-PLAN.md | API: Question/Section CRUD + reorder + survey GET/PUT                 |
+| 3    | [ ] 36-03-PLAN.md | UI: Builder page, 6 question type blocks, BlockPalette, SectionBlock  |
+| 4    | [ ] 36-04-PLAN.md | Drag-and-drop, TipTap image embed, auto-save, responsive polish       |
 
 ---
 
@@ -457,6 +457,20 @@ Plans:
 - [x] 35-E01-PLAN.md — Module ownership model rollout (Wave 3) ✅
 - [x] 35-F01-PLAN.md — API test suites + OpenAPI CI validation (Wave 4) ✅
 - [x] 35-F02-PLAN.md — Compliance sweep: schema ownership, role checks, error codes (Wave 4) ✅
+
+---
+
+## Phase: 37-admin-route-consolidation
+
+**Goal:** Consolidate dual admin routes (`/admin` + `/dashboard/admin`) into a single canonical `/admin` route — remove broken redirect, install AdminLayer as the `/admin` landing page, normalize all links
+
+**Status:** Planned
+
+**Requirements:** None (cleanup/housekeeping)
+
+**Plans:** 1 plan
+
+- [ ] 37-01-PLAN.md — Move AdminLayer to /admin + remove redirect + normalize all widget links + update navigation (Wave 1)
 
 ---
 
