@@ -64,14 +64,17 @@ export function useResidentFilter(options: UseResidentFilterOptions = {}): UseRe
       }
 
       const res = await fetch(`${apiEndpoint}?${params}`);
-      const data = await res.json();
+      const body = await res.json();
 
-      if (data.users) {
-        setResidents(data.users || []);
-        setTotal(data.total || 0);
-      } else if (Array.isArray(data)) {
-        setResidents(data);
-        setTotal(data.length);
+      if (body.success && Array.isArray(body.data)) {
+        setResidents(body.data as Resident[]);
+        setTotal(body.meta?.total ?? body.data.length);
+      } else if (body.users) {
+        setResidents(body.users as Resident[]);
+        setTotal(body.total || 0);
+      } else if (Array.isArray(body)) {
+        setResidents(body as Resident[]);
+        setTotal(body.length);
       } else {
         setResidents([]);
       }

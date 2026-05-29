@@ -213,7 +213,8 @@ function InterestContent() {
       fetch(`/api/users?interest=${groupId}`)
         .then(res => res.json())
         .then(data => {
-          setResidents(data.users || data || []);
+          const unwrapped = data?.data ?? data;
+          setResidents(unwrapped?.users ?? (Array.isArray(unwrapped) ? unwrapped : []));
           setLoading(false);
         })
         .catch(() => setLoading(false));

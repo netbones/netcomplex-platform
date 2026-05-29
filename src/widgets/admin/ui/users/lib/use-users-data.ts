@@ -51,8 +51,9 @@ export function useUsersData(): UseUsersDataReturn {
       fetch('/api/invitations').then(r => r.json()),
     ])
       .then(([usersData, invitesData]) => {
-        setUsers(usersData.users || []);
-        setTotal(usersData.total ?? 0);
+        const data = usersData?.data ?? usersData;
+        setUsers(data?.users ?? (Array.isArray(data) ? data : []));
+        setTotal(data?.total ?? usersData?.meta?.total ?? (Array.isArray(data) ? data.length : 0));
         setInvitations(invitesData);
         setLoading(false);
       })

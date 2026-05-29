@@ -85,7 +85,8 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
         const convData = await convRes.json();
         const usersData = await usersRes.json();
         setConversations(convData);
-        setUsers(usersData.users || usersData);
+        const unwrapped = usersData?.data ?? usersData;
+        setUsers(unwrapped?.users ?? (Array.isArray(unwrapped) ? unwrapped : []));
       } catch (error) {
         log.error({}, 'Failed to fetch data', error);
       } finally {

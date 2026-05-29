@@ -5,6 +5,17 @@ import Link from 'next/link';
 import { authClient } from '@shared/api/auth-client';
 import { AlertTriangle, Calendar, Bell, Wrench, Activity, Megaphone, Clock } from 'lucide-react';
 
+async function fetchJson<T>(url: string): Promise<T[]> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const body = await res.json();
+    return (body?.data ?? body) as T[];
+  } catch {
+    return [];
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════════════════
@@ -420,44 +431,35 @@ export function HomeLayer() {
     // Single Promise.all for all zone data — avoids sequential render cascade
     Promise.all([
       // Urgent announcements
-      fetch('/api/announcements?priority=urgent')
-        .then(r => (r.ok ? r.json() : []))
-        .catch(() => []),
+      fetchJson<Announcement>('/api/announcements?priority=urgent'),
 
       // Overdue maintenance (resident: own; admin: all)
-      fetch(
+      fetchJson<MaintenanceItem>(
         userId
           ? `/api/maintenance?overdue=true${role.toUpperCase() === 'RESIDENT' ? `&userId=${userId}` : ''}`
           : '/api/maintenance?overdue=true'
-      )
-        .then(r => (r.ok ? r.json() : []))
-        .catch(() => []),
+      ),
 
-      // Unread message count
+      // Unread message count (returns object, not array)
       fetch('/api/messages/unread')
         .then(r => (r.ok ? r.json() : { totalUnread: 0 }))
-        .then((data: { totalUnread?: number }) => data.totalUnread ?? 0)
+        .then(data => {
+          const unwrapped = (data as Record<string, unknown>)?.data ?? data;
+          return ((unwrapped as { totalUnread?: number })?.totalUnread ?? 0) as number;
+        })
         .catch(() => 0),
 
       // Upcoming events (filter today/tomorrow client-side)
-      fetch('/api/events?upcoming=true&limit=5')
-        .then(r => (r.ok ? r.json() : []))
-        .catch(() => []),
+      fetchJson<EventItem>('/api/events?upcoming=true&limit=5'),
 
       // Bookings today
-      fetch('/api/bookings?date=today')
-        .then(r => (r.ok ? r.json() : []))
-        .catch(() => []),
+      fetchJson<BookingItem>('/api/bookings?date=today'),
 
       // Recent activity
-      fetch('/api/announcements?limit=5')
-        .then(r => (r.ok ? r.json() : []))
-        .catch(() => []),
+      fetchJson<Announcement>('/api/announcements?limit=5'),
 
       // Community announcements (non-urgent)
-      fetch('/api/announcements?limit=5&priority=normal')
-        .then(r => (r.ok ? r.json() : []))
-        .catch(() => []),
+      fetchJson<Announcement>('/api/announcements?limit=5&priority=normal'),
     ])
       .then(
         ([

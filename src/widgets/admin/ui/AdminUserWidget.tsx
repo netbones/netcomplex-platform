@@ -29,8 +29,9 @@ export function AdminUserWidget() {
         const response = await fetch('/api/users');
         if (response.ok) {
           const data = await response.json();
-          const users = data.users || [];
-          const total = data.total || users.length || 0;
+          const unwrapped = data?.data ?? data;
+          const users = unwrapped?.users ?? (Array.isArray(unwrapped) ? unwrapped : []);
+          const total = unwrapped?.total ?? data?.meta?.total ?? (users.length || 0);
 
           // Ensure users is an array before calling filter
           const active = Array.isArray(users)
