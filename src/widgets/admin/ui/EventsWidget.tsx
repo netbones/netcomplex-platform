@@ -40,8 +40,8 @@ export function EventsWidget() {
         if (!response.ok) {
           throw new Error(`Failed to fetch events: ${response.status}`);
         }
-        const data = await response.json();
-        setEvents(data);
+        const body = await response.json();
+        setEvents(body?.data ?? body);
       } catch (err) {
         logError(
           { component: 'EventsWidget', operation: 'fetchUpcomingEvents' },
@@ -65,7 +65,7 @@ export function EventsWidget() {
         if (!res.ok) throw new Error(`Failed to fetch events: ${res.status}`);
         return res.json();
       })
-      .then(data => setEvents(data))
+      .then(body => setEvents(body?.data ?? body))
       .catch(err => {
         logError(
           { component: 'EventsWidget', operation: 'retryFetch' },
