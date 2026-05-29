@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
       return apiSuccess({ tags: [] });
     }
 
-    const content = await response.json();
+    const body = await response.json();
+    const content = body?.data ?? body;
 
     interface ContentItem {
       tags?: string[];
