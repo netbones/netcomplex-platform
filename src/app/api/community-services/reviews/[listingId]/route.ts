@@ -188,9 +188,6 @@ export async function POST(
     const reviewId = crypto.randomUUID();
     const now = new Date();
 
-    // Enforce tenant isolation
-    const { tenantId } = await withTenant();
-
     await db.insert(communityServiceReviews).values({
       id: reviewId,
       tenantId,
