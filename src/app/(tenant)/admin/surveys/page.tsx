@@ -10,7 +10,8 @@ interface Survey {
   description: string | null;
   status: string;
   type: string;
-  _count: { questions: number; responses: number };
+  questionCount: number;
+  responseCount: number;
   createdAt: string;
 }
 
@@ -101,8 +102,8 @@ export default function SurveysPage() {
                       {survey.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-500">{survey._count.questions}</td>
-                  <td className="px-6 py-4 text-gray-500">{survey._count.responses}</td>
+                  <td className="px-6 py-4 text-gray-500">{survey.questionCount}</td>
+                  <td className="px-6 py-4 text-gray-500">{survey.responseCount}</td>
                   <td className="px-6 py-4">
                     <Link
                       href={`/admin/surveys/${survey.id}`}

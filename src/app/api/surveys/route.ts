@@ -1,7 +1,7 @@
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
-import { db, surveys, users } from '@api/db';
-import { eq, and, desc } from 'drizzle-orm';
+import { db, surveys, users, questions, responses } from '@api/db';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 
 import { apiCreated, apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
@@ -40,7 +40,20 @@ export async function GET(request: Request) {
 
   const surveyList = status
     ? await db
-        .select()
+        .select({
+          id: surveys.id,
+          tenantId: surveys.tenantId,
+          title: surveys.title,
+          description: surveys.description,
+          type: surveys.type,
+          status: surveys.status,
+          startDate: surveys.startDate,
+          endDate: surveys.endDate,
+          createdAt: surveys.createdAt,
+          updatedAt: surveys.updatedAt,
+          questionCount: sql<number>`(SELECT COUNT(*) FROM ${questions} WHERE ${eq(questions.surveyId, surveys.id)})`,
+          responseCount: sql<number>`(SELECT COUNT(*) FROM ${responses} WHERE ${eq(responses.surveyId, surveys.id)})`,
+        })
         .from(surveys)
         .where(
           and(
@@ -50,7 +63,20 @@ export async function GET(request: Request) {
         )
         .orderBy(desc(surveys.createdAt))
     : await db
-        .select()
+        .select({
+          id: surveys.id,
+          tenantId: surveys.tenantId,
+          title: surveys.title,
+          description: surveys.description,
+          type: surveys.type,
+          status: surveys.status,
+          startDate: surveys.startDate,
+          endDate: surveys.endDate,
+          createdAt: surveys.createdAt,
+          updatedAt: surveys.updatedAt,
+          questionCount: sql<number>`(SELECT COUNT(*) FROM ${questions} WHERE ${eq(questions.surveyId, surveys.id)})`,
+          responseCount: sql<number>`(SELECT COUNT(*) FROM ${responses} WHERE ${eq(responses.surveyId, surveys.id)})`,
+        })
         .from(surveys)
         .where(eq(surveys.tenantId, tenantId))
         .orderBy(desc(surveys.createdAt));
