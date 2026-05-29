@@ -8,6 +8,7 @@ export interface UserDTO {
   email: string;
   image: string | null;
   role: string;
+  isActive: boolean;
   profileSlug: string | null;
   isPublic: boolean;
   createdAt: string;
@@ -31,6 +32,7 @@ export function toUserDTO(user: InferSelectModel<typeof users>): UserDTO {
     email: user.email,
     image: user.image || null,
     role: user.role,
+    isActive: user.isActive,
     profileSlug: user.profileSlug || null,
     isPublic: user.isPublic,
     createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),

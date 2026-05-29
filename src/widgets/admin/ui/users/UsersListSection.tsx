@@ -232,7 +232,7 @@ export function UsersListSection() {
         toast.success(t('userActivated'));
       } else {
         const err = await res.json();
-        toast.error(err.error || t('unsuspendFailed'));
+        toast.error(err.error?.message ?? err.error ?? t('unsuspendFailed'));
       }
     }
   };
