@@ -922,6 +922,7 @@ model Resource {
   externalUrl String?
   bodyContent Json?
   version     String?
+  downloadCount Int              @default(0)
   visibility  ResourceVisibility @default(ALL_RESIDENTS)
   authorId    String?
   publishedAt DateTime?
@@ -929,10 +930,27 @@ model Resource {
   updatedAt   DateTime           @updatedAt
   user        user?              @relation(fields: [authorId], references: [id])
 
+  versions    ResourceVersion[]
+
   @@index([tenantId])
   @@index([category])
   @@index([visibility])
   announcements Announcement[]
+}
+
+model ResourceVersion {
+  id         String   @id @default(cuid())
+  resourceId String
+  fileUrl    String?
+  fileType   String?
+  fileSize   Int?
+  version    String?
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@index([resourceId])
 }
 
 enum Tier {

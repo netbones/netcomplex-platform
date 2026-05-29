@@ -82,7 +82,8 @@ import { platformModules } from '@schema/platform-modules';
 import { tenantModules } from '@schema/tenant-modules';
 import { groupMembershipRequests } from '@schema/group-membership-requests';
 import { assistSessions } from '@schema/assist-sessions';
-import { resources, resourceVersions } from '@schema/resources';
+import { resources } from '@schema/resources';
+import { resourceVersions } from '@schema/resource-versions';
 import { competitions } from '@schema/competitions';
 
 import { ENV } from 'varlock/env';
