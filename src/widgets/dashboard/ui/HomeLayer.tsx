@@ -514,7 +514,7 @@ export function HomeLayer() {
 
   if (loading) {
     return (
-      <div className="p-6 max-w-4xl mx-auto">
+      <div>
         <ZoneSkeleton />
         <ZoneSkeleton />
         <ZoneSkeleton />
@@ -523,7 +523,7 @@ export function HomeLayer() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div>
       <UrgencyZone
         urgentAnnouncements={data.urgentAnnouncements}
         overdueMaintenance={data.overdueMaintenance}

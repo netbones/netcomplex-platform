@@ -14,7 +14,7 @@ const focusSpacesEnabled = process.env.NEXT_PUBLIC_FOCUS_SPACES === 'true';
 export default function DashboardHome() {
   if (focusSpacesEnabled) {
     return (
-      <div className="space-y-8">
+      <div className="max-w-4xl mx-auto space-y-8">
         <HomeLayer />
         <MyHomeSpaceWithErrorBoundary />
       </div>

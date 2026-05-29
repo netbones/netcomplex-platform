@@ -120,7 +120,7 @@ function MoreDropdown({
         <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-[60] py-1 border border-gray-200">
           {items.map(item => (
             <Link
-              key={item.href}
+              key={item.id}
               href={item.href}
               onClick={() => setOpen(false)}
               className={`block px-4 py-2 text-sm hover:bg-gray-100 ${
@@ -204,7 +204,7 @@ function AvatarDropdown({
         <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-[60] py-1 border border-gray-200">
           {workspaceItems.map(item => (
             <Link
-              key={item.href}
+              key={item.id}
               href={item.href}
               onClick={() => setOpen(false)}
               className={`block px-4 py-2 text-sm hover:bg-gray-100 ${

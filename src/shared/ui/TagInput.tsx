@@ -32,9 +32,12 @@ export function TagInput({
         // Get user's previous tags from their content
         const response = await fetch('/api/user/tags');
         if (response.ok) {
-          const data = await response.json();
+          const body = await response.json();
+          // Unwrap canonical apiSuccess envelope
+          const data = body?.data ?? body;
+          const tagList = data?.tags ?? [];
           // Filter out tags already used in current content
-          const availableSuggestions = data.tags.filter((tag: string) => !tags.includes(tag));
+          const availableSuggestions = tagList.filter((tag: string) => !tags.includes(tag));
           setSuggestions(availableSuggestions);
         }
       } catch (error) {
