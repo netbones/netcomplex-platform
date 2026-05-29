@@ -44,7 +44,8 @@ export default function HouseholdsPage() {
         `/api/households?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`
       );
       if (res.ok) {
-        const data = await res.json();
+        const body = await res.json();
+        const data = body?.data ?? body;
         setHouseholds(data.households || []);
         setTotal(data.total || 0);
       }

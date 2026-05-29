@@ -51,7 +51,8 @@ export default function NewsPage() {
       const categoryParam = selectedCategory !== 'ALL' ? `&category=${selectedCategory}` : '';
       const res = await fetch(`/api/content?published=true${categoryParam}`);
       if (res.ok) {
-        const data = await res.json();
+        const body = await res.json();
+        const data = body?.data ?? body;
         setContent(Array.isArray(data) ? data : []);
       }
     } catch (error) {

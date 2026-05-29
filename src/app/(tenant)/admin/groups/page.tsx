@@ -21,7 +21,8 @@ export default function GroupsPage() {
   useEffect(() => {
     fetch('/api/groups')
       .then(res => res.json())
-      .then(data => {
+      .then(body => {
+        const data = body?.data ?? body;
         setGroups(data.groups || []);
         setLoading(false);
       })

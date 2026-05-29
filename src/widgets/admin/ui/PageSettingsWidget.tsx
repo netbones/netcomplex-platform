@@ -42,7 +42,8 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
       try {
         const res = await fetch('/api/admin/settings/page-flags');
         if (res.ok) {
-          const data = await res.json();
+          const body = await res.json();
+          const data = body?.data ?? body;
           setFlags(prev => ({ ...prev, ...data }));
         }
       } catch (error) {

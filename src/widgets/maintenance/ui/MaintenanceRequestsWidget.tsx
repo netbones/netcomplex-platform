@@ -46,7 +46,8 @@ export function MaintenanceRequestsWidget() {
         const res = await fetch(
           '/api/maintenance?status=SUBMITTED&priority=EMERGENCY&priority=HIGH'
         );
-        const data = await res.json();
+        const body = await res.json();
+        const data = body?.data ?? body;
         setRequests(data.slice(0, 5));
       } catch (error) {
         log.error({}, 'Failed to fetch requests', error);

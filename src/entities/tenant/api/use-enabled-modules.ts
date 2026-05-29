@@ -12,7 +12,8 @@ async function fetchEnabledModules(tenantId: string): Promise<Record<string, Ten
   if (!res.ok) {
     throw new Error('Failed to fetch modules');
   }
-  return res.json();
+  const body = await res.json();
+  return body?.data ?? body;
 }
 
 export function useEnabledModules(tenantId: string) {

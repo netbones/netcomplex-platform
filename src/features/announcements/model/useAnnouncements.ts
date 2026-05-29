@@ -54,7 +54,8 @@ export function useAnnouncements(options: UseAnnouncementsOptions = {}): UseAnno
       if (!res.ok) {
         throw new Error(`Failed to fetch announcements: ${res.status}`);
       }
-      const data = await res.json();
+      const body = await res.json();
+      const data = body?.data ?? body;
       setAnnouncements(Array.isArray(data) ? data : []);
     } catch (err) {
       log.error({}, 'Failed to fetch announcements', err);
@@ -86,7 +87,8 @@ export function useAnnouncements(options: UseAnnouncementsOptions = {}): UseAnno
           throw new Error(errorData.error || 'Failed to create announcement');
         }
 
-        const result = await res.json();
+        const body = await res.json();
+        const result = body?.data ?? body;
         // Refresh list after creation
         await fetchAnnouncements();
         return result as AnnouncementWithResource;
@@ -120,7 +122,8 @@ export function useAnnouncements(options: UseAnnouncementsOptions = {}): UseAnno
           throw new Error(errorData.error || 'Failed to update announcement');
         }
 
-        const result = await res.json();
+        const body = await res.json();
+        const result = body?.data ?? body;
         // Refresh list after update
         await fetchAnnouncements();
         return result as AnnouncementWithResource;

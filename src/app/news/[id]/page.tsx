@@ -84,7 +84,8 @@ export default function NewsPostPage() {
       try {
         const res = await fetch(`/api/content/${id}?published=true`);
         if (res.ok) {
-          const data = await res.json();
+          const body = await res.json();
+          const data = body?.data ?? body;
           setPost(data);
         } else {
           setError('Post not found');

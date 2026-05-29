@@ -284,7 +284,8 @@ export const useWidgetStore = create<WidgetStore>()(
             return;
           }
 
-          const userData = await response.json();
+          const body = await response.json();
+          const userData = body?.data ?? body;
           const dashboardLayout = userData.dashboardLayout;
 
           if (dashboardLayout) {

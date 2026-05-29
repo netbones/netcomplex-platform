@@ -88,7 +88,8 @@ export default function ResourcesPage() {
         if (!res.ok) {
           throw new Error(`Failed to fetch resources: ${res.status}`);
         }
-        const data = await res.json();
+        const body = await res.json();
+        const data = body?.data ?? body;
         setResources(Array.isArray(data) ? data : []);
       } catch (err) {
         log.error({}, 'Failed to fetch resources', err);

@@ -65,7 +65,8 @@ function TagCloudWidgetForUser({ userId }: { userId: string }) {
         // Fetch user's published content and extract tags
         const response = await fetch(`/api/content?authorId=${userId}&published=true`);
         if (response.ok) {
-          const content = await response.json();
+          const body = await response.json();
+          const content = body?.data ?? body;
           interface ContentItem {
             tags?: string[];
           }
@@ -219,7 +220,8 @@ function ProfileContent() {
         }
         return res.json();
       })
-      .then(data => {
+      .then(body => {
+        const data = body?.data ?? body;
         if (!data.isPublic) {
           throw new Error('This profile is not public');
         }

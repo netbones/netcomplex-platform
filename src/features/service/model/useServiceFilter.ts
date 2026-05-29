@@ -84,7 +84,8 @@ export function useServiceFilter(options: ServiceFilterOptions = {}): UseService
       params.set('limit', String(limit));
 
       const res = await fetch(`${apiEndpoint}?${params}`);
-      const data = await res.json();
+      const body = await res.json();
+      const data = body?.data ?? body;
 
       if (data.listings) {
         setServices(data.listings || []);

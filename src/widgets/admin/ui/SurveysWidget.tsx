@@ -26,8 +26,8 @@ export function SurveysWidget() {
         if (!response.ok) {
           throw new Error(`Failed to fetch surveys: ${response.status}`);
         }
-        const data = await response.json();
-        setSurveys(data);
+        const body = await response.json();
+        setSurveys(body?.data ?? body);
       } catch (err) {
         logError(
           { component: 'SurveysWidget', operation: 'fetchSurveys' },
@@ -51,7 +51,7 @@ export function SurveysWidget() {
         if (!res.ok) throw new Error(`Failed to fetch surveys: ${res.status}`);
         return res.json();
       })
-      .then(data => setSurveys(data))
+      .then(body => setSurveys(body?.data ?? body))
       .catch(err => {
         logError(
           { component: 'SurveysWidget', operation: 'retryFetch' },
