@@ -65,7 +65,7 @@ export default function AdminUsersPage() {
       .then(([usersData, invitesData]) => {
         const data = usersData?.data ?? usersData;
         setUsers(data?.users ?? (Array.isArray(data) ? data : []));
-        setInvitations(invitesData);
+        setInvitations(invitesData?.data ?? invitesData);
         setLoading(false);
       })
       .catch(err => log.error({}, 'Failed to fetch users', err));
@@ -98,7 +98,8 @@ export default function AdminUsersPage() {
       body: JSON.stringify(inviteForm),
     });
     if (r.ok) {
-      setInvitations([await r.json(), ...invitations]);
+      const body = await r.json();
+      setInvitations([body?.data ?? body, ...invitations]);
       toast.success('Invitation sent successfully');
     } else {
       toast.error('Failed to send invitation');

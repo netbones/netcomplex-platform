@@ -65,7 +65,8 @@ export function UsersListSection() {
       body: JSON.stringify(form),
     });
     if (r.ok) {
-      setInvitations([await r.json(), ...invitations]);
+      const body = await r.json();
+      setInvitations([body?.data ?? body, ...invitations]);
       toast.success(t('inviteSent'));
     } else {
       toast.error(t('inviteFailed'));

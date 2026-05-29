@@ -54,7 +54,7 @@ export function useUsersData(): UseUsersDataReturn {
         const data = usersData?.data ?? usersData;
         setUsers(data?.users ?? (Array.isArray(data) ? data : []));
         setTotal(data?.total ?? usersData?.meta?.total ?? (Array.isArray(data) ? data.length : 0));
-        setInvitations(invitesData);
+        setInvitations(invitesData?.data ?? invitesData);
         setLoading(false);
       })
       .catch(() => setLoading(false));

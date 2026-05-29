@@ -19,7 +19,7 @@ export default function SettingsPage() {
     { label: 'Home', href: '/' },
     { label: 'Settings', href: '/settings' },
   ]);
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending: sessionLoading } = authClient.useSession();
   const [language, setLanguage] = useState<string>('en');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -106,7 +106,7 @@ export default function SettingsPage() {
     }
   };
 
-  if (!isReady) {
+  if (sessionLoading || !isReady) {
     return LoadingComponent;
   }
 
