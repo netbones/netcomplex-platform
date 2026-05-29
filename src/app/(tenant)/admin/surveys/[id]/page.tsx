@@ -215,7 +215,7 @@ export default function SurveyResultsPage({ params }: { params: Promise<{ id: st
           throw new Error(`Failed to fetch results: ${response.status}`);
         }
         const result = await response.json();
-        setData(result);
+        setData(result.success ? result.data : result);
       } catch (err) {
         logError(
           { component: 'SurveyResultsPage', operation: 'fetchResults' },
@@ -241,7 +241,7 @@ export default function SurveyResultsPage({ params }: { params: Promise<{ id: st
         return res.json();
       })
       .then(result => {
-        setData(result);
+        setData(result.success ? result.data : result);
         setLoading(false);
       })
       .catch(err => {
