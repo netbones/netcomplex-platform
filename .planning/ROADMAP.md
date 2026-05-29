@@ -396,6 +396,22 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase: 36-survey-builder
+
+**Goal:** Build a Google Forms-like survey/question builder in the admin panel — dedicated builder page, 6 question types, accordion sections, image support, drag-and-drop reordering, metadata tags
+
+**Status:** Context gathered (awaiting planning)
+
+**Requirements:** (to be assigned)
+
+**Plans:**
+
+- [ ] Discuss — 36-CONTEXT.md ✅
+- [ ] 36-01-PLAN.md — TBD
+- [ ] 36-02-PLAN.md — TBD
+
+---
+
 ## Future Phases (To Be Planned)
 
 ### Phase: Second Tenant
