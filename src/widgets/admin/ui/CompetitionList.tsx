@@ -31,8 +31,8 @@ export function CompetitionList() {
   useEffect(() => {
     fetch('/api/competitions')
       .then(res => res.json())
-      .then(data => {
-        setCompetitions(data);
+      .then(body => {
+        setCompetitions(body?.data ?? body);
         setLoading(false);
       })
       .catch(() => {
