@@ -65,8 +65,8 @@ export function ResourceList() {
 
       const res = await fetch(`/api/resources?${params.toString()}`);
       if (res.ok) {
-        const data = await res.json();
-        setResources(data);
+        const body = await res.json();
+        setResources(body?.data ?? body);
       }
     } catch {
       toast.error('Failed to load resources');
