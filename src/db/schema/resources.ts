@@ -14,9 +14,21 @@ export const resources = pgTable('Resource', {
   externalUrl: text('externalUrl'),
   bodyContent: jsonb('bodyContent'),
   version: text('version'),
+  downloadCount: integer('downloadCount').default(0).notNull(),
   visibility: resourceVisibilityEnum('visibility').default('ALL_RESIDENTS').notNull(),
   authorId: text('authorId'),
   publishedAt: timestamp('publishedAt', { mode: 'date', precision: 3 }),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
+});
+
+export const resourceVersions = pgTable('ResourceVersion', {
+  id: text('id').primaryKey(),
+  resourceId: text('resourceId').notNull().references(() => resources.id, { onDelete: 'cascade' }),
+  fileUrl: text('fileUrl'),
+  fileType: text('fileType'),
+  fileSize: integer('fileSize'),
+  version: text('version'),
+  notes: text('notes'),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
 });

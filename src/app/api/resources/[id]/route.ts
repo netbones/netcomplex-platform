@@ -1,6 +1,6 @@
 import { auth } from '@api/auth';
-import { db, resources, users } from '@api/db';
-import { eq, and } from 'drizzle-orm';
+import { db, resources, resourceVersions, users } from '@api/db';
+import { eq, desc, and } from 'drizzle-orm';
 import { revalidateContent } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { hasPermission } from '@entities/tenant/api/permissions';
@@ -102,7 +102,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
   // ADMIN/MANAGER/BOARD: see all
   if (hasPermission(role, 'admin') || role === 'MANAGER' || role === 'BOARD') {
-    return apiSuccess(resourceItem);
+    const versions = await db
+      .select()
+      .from(resourceVersions)
+      .where(eq(resourceVersions.resourceId, id))
+      .orderBy(desc(resourceVersions.createdAt));
+    return apiSuccess({ ...resourceItem, versions });
   }
 
   // COMMITTEE: cannot see BOARD_ONLY
@@ -115,7 +120,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     if (visibility === 'BOARD_ONLY' || visibility === 'COMMITTEE_ONLY') {
       return apiForbidden();
     }
-    return apiSuccess(resourceItem);
+    const versions = await db
+      .select()
+      .from(resourceVersions)
+      .where(eq(resourceVersions.resourceId, id))
+      .orderBy(desc(resourceVersions.createdAt));
+    return apiSuccess({ ...resourceItem, versions });
   }
 
   // RESIDENT (non-owner) or unauthenticated: only ALL_RESIDENTS
@@ -123,7 +133,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     return apiForbidden();
   }
 
-  return apiSuccess(resourceItem);
+  const versions = await db
+    .select()
+    .from(resourceVersions)
+    .where(eq(resourceVersions.resourceId, id))
+    .orderBy(desc(resourceVersions.createdAt));
+  return apiSuccess({ ...resourceItem, versions });
 }
 
 /**
@@ -149,12 +164,30 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   // Verify resource exists and belongs to tenant
   const [existing] = await db
-    .select({ id: resources.id })
+    .select()
     .from(resources)
     .where(and(eq(resources.id, id), eq(resources.tenantId, tenantId)));
 
   if (!existing) {
     return apiNotFound('Resource not found');
+  }
+
+  // Save version history if file or version changed
+  if (body.fileUrl || body.version) {
+    const oldFileUrl = body.fileUrl ? existing.fileUrl : undefined;
+    const oldVersion = body.version ? existing.version : undefined;
+    if (oldFileUrl || oldVersion) {
+      await db.insert(resourceVersions).values({
+        id: crypto.randomUUID(),
+        resourceId: id,
+        fileUrl: oldFileUrl,
+        fileType: body.fileUrl ? existing.fileType : undefined,
+        fileSize: body.fileUrl ? existing.fileSize : undefined,
+        version: oldVersion,
+        notes: body.versionNotes || null,
+        createdAt: new Date(),
+      });
+    }
   }
 
   const [updated] = await db
