@@ -9,6 +9,12 @@ import { ErrorBoundary } from '@shared/ui';
 import { AdminCommandBar, type CommandBarUrgency } from './AdminCommandBar';
 import { ADMIN_DOMAIN_DEFINITIONS, type AdminDomainDef } from './AdminSubLauncher';
 
+// Domain ID → actual admin route override for domains whose page name differs
+const ADMIN_ROUTE_OVERRIDES: Record<string, string> = {
+  maintenance: '/admin/requests',
+  system: '/admin/categories',
+};
+
 // Lazy-load activity stream (plan truth: lazy-loaded below domain grid)
 const AdminActivityStream = lazy(() =>
   import('./AdminActivityStream').then(m => ({ default: m.AdminActivityStream }))
@@ -33,7 +39,7 @@ function DomainCard({ domain, badge }: { domain: AdminDomainDef; badge: number }
 
   return (
     <Link
-      href={`/dashboard/admin/${domain.id}`}
+      href={ADMIN_ROUTE_OVERRIDES[domain.id] ?? `/admin/${domain.id}`}
       className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
     >
       <div className="flex-shrink-0 p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition">

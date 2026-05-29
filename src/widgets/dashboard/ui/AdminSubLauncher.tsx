@@ -152,7 +152,7 @@ export function AdminSubLauncher() {
           return (
             <Link
               key={domain.id}
-              href={`/dashboard/admin/${domain.id}`}
+              href={`/admin/${domain.id}`}
               className="group flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
             >
               <div className="flex-shrink-0 p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition">
