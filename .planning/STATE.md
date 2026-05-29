@@ -2,14 +2,14 @@
 
 ## Current Position
 
-- **Phase:** 34-admin-layer
-- **Status:** Complete — All 4 tasks in plan 34-01 executed
-- **Completed:** 2026-05-28
-- **Last Updated:** 2026-05-28
-- **Next Phase:** 99-build-fix
+- **Phase:** 37-admin-route-consolidation
+- **Status:** Complete — All 3 tasks in plan 37-01 executed
+- **Completed:** 2026-05-29
+- **Last Updated:** 2026-05-29
+- **Next Phase:** (planning)
 
-**Last Session:** 2026-05-28
-**Stopped at:** 34-01-PLAN.md complete
+**Last Session:** 2026-05-29T14:42:59.900Z
+**Stopped at:** Completed 37-01-PLAN.md
 **Resume file:** None
 
 ## Decisions Made
@@ -86,6 +86,8 @@
 - [Phase 35-api-alignment]: Schema ownership: Entity-owned schema.ts files created for 6 entities (booking, chat, content, events, maintenance, tenant), re-exported from shared
 - [Phase 35-api-alignment]: requireRole() helper added to permissions.ts for canonical role gating
 - [Phase 35-api-alignment]: CONFLICT (409) and GONE (410) added to canonical error taxonomy with apiConflict()/apiGone() wrappers
+- [Phase 37-admin-route-consolidation]: ADMIN_ROUTE_OVERRIDES map: maintenance→/admin/requests, system→/admin/categories — domain IDs that differ from their target admin page
+- [Phase 37-admin-route-consolidation]: Platform admin cross-links (/dashboard/admin/platform) preserved intentionally — these route through the separate platform route group and are out of scope
 
 ## Notes
 
@@ -196,22 +198,23 @@
 
 ## Performance Metrics
 
-| Phase                       | Plan   | Duration | Tasks    | Files |
-| --------------------------- | ------ | -------- | -------- | ----- |
-| Phase 33 P01                | 11min  | 4 tasks  | 6 files  |
-| Phase 33 P02                | 1min   | 3 tasks  | 8 files  |
-| Phase 35 (Planning)         | —      | 20 gaps  | 11 files |
-| Phase 35 P01                | 22min  | 3 tasks  | 87 files |
-| Phase 35 PA01               | 22min  | 3 tasks  | 87 files |
-| Phase 35-api-alignment PB01 | 47m    | 2 tasks  | 6 files  |
-| Phase 35-api-alignment PB02 | 279s   | 2 tasks  | 4 files  |
-| Phase 35-api-alignment PC01 | 12min  | 2 tasks  | 17 files |
-| Phase 35-api-alignment PC02 | 532    | 2 tasks  | 19 files |
-| Phase 35-api-alignment PD02 | 12min  | 2 tasks  | 10 files |
-| Phase 35-api-alignment PD01 | 348    | 2 tasks  | 8 files  |
-| Phase 35-api-alignment PE01 | 12m    | 2 tasks  | 19 files |
-| Phase 35-api-alignment PF01 | 8m 51s | 2 tasks  | 7 files  |
-| Phase 35-api-alignment PF02 | 1054   | 2 tasks  | 28 files |
+| Phase                                  | Plan   | Duration | Tasks    | Files |
+| -------------------------------------- | ------ | -------- | -------- | ----- |
+| Phase 33 P01                           | 11min  | 4 tasks  | 6 files  |
+| Phase 33 P02                           | 1min   | 3 tasks  | 8 files  |
+| Phase 35 (Planning)                    | —      | 20 gaps  | 11 files |
+| Phase 35 P01                           | 22min  | 3 tasks  | 87 files |
+| Phase 35 PA01                          | 22min  | 3 tasks  | 87 files |
+| Phase 35-api-alignment PB01            | 47m    | 2 tasks  | 6 files  |
+| Phase 35-api-alignment PB02            | 279s   | 2 tasks  | 4 files  |
+| Phase 35-api-alignment PC01            | 12min  | 2 tasks  | 17 files |
+| Phase 35-api-alignment PC02            | 532    | 2 tasks  | 19 files |
+| Phase 35-api-alignment PD02            | 12min  | 2 tasks  | 10 files |
+| Phase 35-api-alignment PD01            | 348    | 2 tasks  | 8 files  |
+| Phase 35-api-alignment PE01            | 12m    | 2 tasks  | 19 files |
+| Phase 35-api-alignment PF01            | 8m 51s | 2 tasks  | 7 files  |
+| Phase 35-api-alignment PF02            | 1054   | 2 tasks  | 28 files |
+| Phase 37-admin-route-consolidation P01 | 10min  | 3 tasks  | 22 files |
 
 ## A01 Execution Decisions
 

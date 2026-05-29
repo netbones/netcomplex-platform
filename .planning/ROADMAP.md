@@ -464,13 +464,13 @@ Plans:
 
 **Goal:** Consolidate dual admin routes (`/admin` + `/dashboard/admin`) into a single canonical `/admin` route — remove broken redirect, install AdminLayer as the `/admin` landing page, normalize all links
 
-**Status:** Planned
+**Status:** Complete (2026-05-29)
 
 **Requirements:** None (cleanup/housekeeping)
 
 **Plans:** 1 plan
 
-- [ ] 37-01-PLAN.md — Move AdminLayer to /admin + remove redirect + normalize all widget links + update navigation (Wave 1)
+- [x] 37-01-PLAN.md — Move AdminLayer to /admin + remove redirect + normalize all widget links + update navigation (Wave 1) ✅
 
 ---
 
