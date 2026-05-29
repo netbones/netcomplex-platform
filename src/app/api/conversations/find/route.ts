@@ -81,5 +81,5 @@ export async function POST(request: Request) {
     GROUP BY c.id
   `)) as { rows: ConversationResult[] };
 
-  return apiSuccess({ conversation: result.rows?.[0] }, { status: 201 });
+  return apiSuccess({ conversation: result.rows?.[0] }, undefined, 201);
 }

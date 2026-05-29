@@ -63,7 +63,8 @@ export function MyHomeSpace() {
     try {
       const res = await fetch(`/api/users/${userId}`);
       if (!res.ok) throw new Error('Failed to fetch profile');
-      const data = await res.json();
+      const body = await res.json();
+      const data = body.success ? body.data : body;
       setProfile(data);
       setEditName(data.name ?? '');
       setEditPhone(data.phone ?? '');

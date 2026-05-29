@@ -3,7 +3,7 @@ import { auth } from '@api/auth';
 
 // Drizzle imports - use individual exports from db.ts
 import { db, messages, conversations, conversationParticipants, users } from '@api/db';
-import { eq, and, gt, desc, sql } from 'drizzle-orm';
+import { eq, and, gt, desc, sql, ne } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
         .where(
           and(
             eq(messages.conversationId, conversationId),
-            eq(messages.senderId, session.user.id),
+            ne(messages.senderId, session.user.id),
             eq(messages.tenantId, tenantId),
             participant.lastReadAt ? gt(messages.createdAt, participant.lastReadAt) : undefined
           )

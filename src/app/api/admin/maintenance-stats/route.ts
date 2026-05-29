@@ -135,7 +135,7 @@ export async function GET(request: Request) {
     trend: trendResult.map(r => ({ month: r.month, count: Number(r.count) })),
   };
 
-  return apiSuccess(response, {
+  return apiSuccess(response, undefined, 200, {
     headers: {
       'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
     },

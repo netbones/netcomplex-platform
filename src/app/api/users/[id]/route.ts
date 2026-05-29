@@ -135,15 +135,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .where(eq(premiumSeats.userId, userId))
     .limit(1);
 
-  // Get profile-based address (for family members without seats)
-  const profileResult = await db
+  // Get active household with members and property
+  const activeHouseholdResult = await db
     .select({
+      household: {
+        id: households.id,
+        name: households.occupancyType, // Use occupancyType as name if no name field
+        status: households.status,
+      },
       property: {
         id: properties.id,
-        street: properties.street,
-        unit: properties.unit,
-        homeImage: properties.homeImage,
-        platformAddress: properties.platformAddress,
+        address: properties.street,
+        unitNumber: properties.unit,
+        type: properties.platformAddress, // Fallback if no type field
       },
     })
     .from(profiles)
@@ -151,6 +155,27 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .innerJoin(properties, eq(households.propertyId, properties.id))
     .where(and(eq(profiles.userId, userId), eq(profiles.status, 'ACTIVE')))
     .limit(1);
+
+  let householdWithMembers = null;
+  if (activeHouseholdResult[0]) {
+    const { household, property } = activeHouseholdResult[0];
+    const members = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+      })
+      .from(profiles)
+      .innerJoin(users, eq(profiles.userId, users.id))
+      .where(and(eq(profiles.householdId, household.id), eq(profiles.status, 'ACTIVE')));
+
+    householdWithMembers = {
+      ...household,
+      property,
+      members,
+    };
+  }
 
   // Get published contents
   const userContents = await db
@@ -181,7 +206,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     standardSeats: seats,
     soloSeats: soloSeatsResult,
     premiumSeat: premiumSeatResult[0] || null,
-    profileProperty: profileResult[0]?.property || null,
+    household: householdWithMembers,
     contents: localizedContents,
   });
 }

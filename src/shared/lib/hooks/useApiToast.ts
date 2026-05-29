@@ -88,6 +88,18 @@ export function useApiToast(options?: UseApiToastOptions): UseApiToastReturn {
       for (let attempt = 0; attempt <= retryCount; attempt++) {
         try {
           const data = await promise;
+
+          // Unwrap canonical apiSuccess envelope if detected
+          if (
+            data &&
+            typeof data === 'object' &&
+            'success' in data &&
+            'data' in data &&
+            data.success === true
+          ) {
+            return data.data as T;
+          }
+
           return data;
         } catch (error) {
           lastError = error;

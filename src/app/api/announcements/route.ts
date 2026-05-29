@@ -15,6 +15,8 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiInternalError,
+  apiForbidden,
+  apiValidationError,
 } from '@api/api-response';
 /** Maximum number of notification records to create in a single fanout */
 const FANOUT_CAP = 500;
@@ -124,10 +126,7 @@ export async function POST(request: Request) {
   }
 
   if (!canPublishAnnouncements(authData.role)) {
-    return apiSuccess(
-      { error: 'Forbidden — insufficient permissions to publish announcements' },
-      { status: 403 }
-    );
+    return apiForbidden('Insufficient permissions to publish announcements');
   }
 
   const body = await request.json();
@@ -135,10 +134,7 @@ export async function POST(request: Request) {
   // Validate with Zod schema
   const parsed = announcementSchema.safeParse(body);
   if (!parsed.success) {
-    return apiSuccess(
-      { error: 'Validation failed', details: parsed.error.flatten().fieldErrors },
-      { status: 400 }
-    );
+    return apiValidationError(parsed.error.flatten().fieldErrors);
   }
 
   const data = parsed.data;
@@ -163,10 +159,7 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (!resource) {
-      return apiSuccess(
-        { error: 'Resource not found or does not belong to this tenant' },
-        { status: 400 }
-      );
+      return apiValidationError('Resource not found or does not belong to this tenant');
     }
   }
 

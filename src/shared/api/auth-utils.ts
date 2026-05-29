@@ -2,6 +2,7 @@ import { auth } from '@api/auth';
 import { hasPermission, canManageOwnGroupOnly, Permission } from '@entities/tenant/api/permissions';
 import { db, users, platformSuspensions } from '@api/db';
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 import { eq, and } from 'drizzle-orm';
 import { apiUnauthorized, apiForbidden, apiSuspendedUser } from './api-response';
 
@@ -33,6 +34,7 @@ export interface SessionAndRole {
 /**
  * Retrieves the current user session and role from Better Auth.
  * If a request is provided, uses request headers for session lookup.
+ * Falls back to headers() from next/headers for App Router server context.
  * Also checks suspension status for the authenticated user.
  *
  * @param request - Optional incoming HTTP request for header-based auth
@@ -40,7 +42,7 @@ export interface SessionAndRole {
  */
 export async function getSessionAndRole(request?: Request): Promise<SessionAndRole | null> {
   const session = await auth.api.getSession({
-    headers: request?.headers ?? new Headers(),
+    headers: request?.headers ?? (await headers()),
   });
 
   if (!session?.user?.id) {

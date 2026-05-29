@@ -38,7 +38,8 @@ export function AnnouncementsStreamWidget() {
       try {
         const res = await fetch('/api/announcements?active=true&limit=5');
         if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
-        const data = await res.json();
+        const body = await res.json();
+        const data = body.success ? body.data : body;
         setAnnouncements(Array.isArray(data) ? data : []);
       } catch (err) {
         logError(
@@ -63,7 +64,10 @@ export function AnnouncementsStreamWidget() {
         if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
         return res.json();
       })
-      .then(data => setAnnouncements(Array.isArray(data) ? data : []))
+      .then(body => {
+        const data = body.success ? body.data : body;
+        setAnnouncements(Array.isArray(data) ? data : []);
+      })
       .catch(err => {
         logError(
           { component: 'AnnouncementsStreamWidget', operation: 'retry' },

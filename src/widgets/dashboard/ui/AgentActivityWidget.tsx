@@ -24,7 +24,8 @@ export function AgentActivityWidget() {
       try {
         const res = await fetch('/api/agents/activity');
         if (!res.ok) throw new Error('Failed to fetch');
-        const data = await res.json();
+        const body = await res.json();
+        const data = body.success ? body.data : body;
         setActivities(data.activities || []);
       } catch (err) {
         setError('Failed to load activity');

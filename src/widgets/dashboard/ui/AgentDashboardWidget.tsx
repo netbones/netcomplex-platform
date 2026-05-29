@@ -30,7 +30,8 @@ export function AgentDashboardWidget() {
       try {
         const res = await fetch('/api/agents/managed-properties');
         if (!res.ok) throw new Error('Failed to fetch');
-        const data = await res.json();
+        const body = await res.json();
+        const data = body.success ? body.data : body;
         setHouseholds(data.properties || []);
       } catch (err) {
         setError('Failed to load properties');
