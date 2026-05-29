@@ -60,37 +60,37 @@ const DEFAULT_SHORTCUTS: ShortcutDef[] = [
     id: 'invite-user',
     label: 'Invite User',
     icon: UserPlus,
-    href: '/dashboard/admin/users?action=invite',
+    href: '/admin/users?action=invite',
   },
   {
     id: 'new-announcement',
     label: 'New Announcement',
     icon: Megaphone,
-    href: '/dashboard/admin/announcements?action=new',
+    href: '/admin/announcements?action=new',
   },
   {
     id: 'new-event',
     label: 'New Event',
     icon: Calendar,
-    href: '/dashboard/admin/events?action=new',
+    href: '/admin/events?action=new',
   },
   {
     id: 'new-survey',
     label: 'New Survey',
     icon: BarChart2,
-    href: '/dashboard/admin/surveys?action=new',
+    href: '/admin/surveys?action=new',
   },
   {
     id: 'new-competition',
     label: 'New Competition',
     icon: Star,
-    href: '/dashboard/admin/competitions?action=new',
+    href: '/admin/competitions?action=new',
   },
   {
     id: 'add-resource',
     label: 'Add Resource',
     icon: FolderPlus,
-    href: '/dashboard/admin/resources?action=new',
+    href: '/admin/resources?action=new',
   },
 ];
 
@@ -99,40 +99,40 @@ const EXTENDED_SHORTCUTS: ShortcutDef[] = [
     id: 'new-group',
     label: 'New Group',
     icon: Users,
-    href: '/dashboard/admin/groups?action=new',
+    href: '/admin/groups?action=new',
     flag: 'groups',
   },
   {
     id: 'new-booking',
     label: 'New Booking',
     icon: CalendarPlus,
-    href: '/dashboard/admin/bookings?action=new',
+    href: '/admin/bookings?action=new',
     flag: 'bookings',
   },
   {
     id: 'external-survey',
     label: 'External Survey',
     icon: ExternalLink,
-    href: '/dashboard/admin/surveys?type=external',
+    href: '/admin/surveys?type=external',
   },
   {
     id: 'invite-board',
     label: 'Invite Board Member',
     icon: Shield,
-    href: '/dashboard/admin/users?role=board',
+    href: '/admin/users?role=board',
     adminOnly: true,
   },
   {
     id: 'new-category',
     label: 'New Category',
     icon: Tag,
-    href: '/dashboard/admin/categories',
+    href: '/admin/categories',
   },
   {
     id: 'manage-households',
     label: 'Manage Households',
     icon: Home,
-    href: '/dashboard/admin/households',
+    href: '/admin/households',
   },
 ];
 
@@ -305,7 +305,7 @@ export function AdminCommandBar({
           <div className="flex flex-wrap gap-2" role="region" aria-label="Items needing attention">
             {urgency.openMaintenance > 0 && (
               <UrgencyChip
-                href="/dashboard/admin/maintenance"
+                href="/admin/maintenance"
                 icon={<Wrench className="w-3.5 h-3.5" />}
                 label={`${urgency.openMaintenance} open ${urgency.openMaintenance === 1 ? 'request' : 'requests'}`}
                 colour="red"
@@ -313,7 +313,7 @@ export function AdminCommandBar({
             )}
             {urgency.pendingMembers > 0 && (
               <UrgencyChip
-                href="/dashboard/admin/users"
+                href="/admin/users"
                 icon={<Users className="w-3.5 h-3.5" />}
                 label={`${urgency.pendingMembers} pending ${urgency.pendingMembers === 1 ? 'member' : 'members'}`}
                 colour="amber"
@@ -321,7 +321,7 @@ export function AdminCommandBar({
             )}
             {urgency.closingSurveys > 0 && (
               <UrgencyChip
-                href="/dashboard/admin/surveys"
+                href="/admin/surveys"
                 icon={<BarChart2 className="w-3.5 h-3.5" />}
                 label={`${urgency.closingSurveys} closing ${urgency.closingSurveys === 1 ? 'survey' : 'surveys'}`}
                 colour="blue"
@@ -329,7 +329,7 @@ export function AdminCommandBar({
             )}
             {urgency.expiredAnnouncements > 0 && (
               <UrgencyChip
-                href="/dashboard/admin/announcements"
+                href="/admin/announcements"
                 icon={<Megaphone className="w-3.5 h-3.5" />}
                 label={`${urgency.expiredAnnouncements} expired ${urgency.expiredAnnouncements === 1 ? 'announcement' : 'announcements'}`}
                 colour="orange"
