@@ -66,7 +66,7 @@ export const NAV_REGISTRY: NavItem[] = [
     href: '/dashboard/messages',
     flag: 'messages',
   },
-  { id: 'dashboard-admin', nameKey: 'spaces.admin', href: '/dashboard/admin', permission: 'admin' },
+  { id: 'dashboard-admin', nameKey: 'spaces.admin', href: '/admin', permission: 'admin' },
 ];
 
 export const ADMIN_NAV_REGISTRY: NavItem[] = [
