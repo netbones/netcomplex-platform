@@ -22,7 +22,7 @@ export default function SurveysPage() {
     fetch('/api/surveys')
       .then(res => res.json())
       .then(data => {
-        setSurveys(data);
+        setSurveys(data.success ? data.data : data);
         setLoading(false);
       })
       .catch(() => setLoading(false));
