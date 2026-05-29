@@ -1,23 +1,23 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-05-28 (Session 5)
-> **Total remaining:** 24 issues (down from 54)
-> **Closed all sessions:** 35 issues total (22 in Session 1, 5 in Session 2, 8 in Session 3, 0 in Session 4)
-> **Created this session:** 2 issues (Phase 34 merits system, Phase 35 OpenAPI spec verification)
+> **Last updated:** 2026-05-29 (Session 6)
+> **Total remaining:** 14 issues
+> **Closed this session:** Phase 35 canonical API fixes + expandable resource rows
+> **Created this session:** 1 issue (seed.ts type errors)
 
 ## Summary by Priority
 
 | Priority | Open | Focus                                       |
 | -------- | ---- | ------------------------------------------- |
 | P2       | 4    | Core features, epics, bugs                  |
-| P3       | 13   | Tech debt, Phase 4/5 features, enhancements |
+| P3       | 14   | Tech debt, Phase 4/5 features, enhancements |
 | P4       | 6    | Backlog, blocked events                     |
 
 ## Summary by Status
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 21    |
+| ○ Open        | 22    |
 | ◐ In Progress | 1     |
 
 ---
@@ -52,7 +52,13 @@
 
 ---
 
-## P3 — Medium Priority (13 issues)
+## P3 — Medium Priority (14 issues)
+
+### Bugs
+
+| ID    | Type | Title                                                                   | Status |
+| ----- | ---- | ----------------------------------------------------------------------- | ------ |
+| `tc4` | bug  | prisma/seed.ts type errors: missing id, tenantId in user creates        | ○      |
 
 ### Features
 
