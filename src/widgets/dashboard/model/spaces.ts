@@ -290,5 +290,37 @@ export function getAdminDomainWidgets(domain: string): string[] {
 // ═══════════════════════════════════════════════════════════════
 
 /** Sub-routes within the Messages space (e.g., /dashboard/messages/announcements) */
-export const MESSAGES_SUB_ROUTES = ['announcements'] as const;
+export const MESSAGES_SUB_ROUTES = ['conversations', 'announcements', 'notifications'] as const;
 export type MessagesSubRoute = (typeof MESSAGES_SUB_ROUTES)[number];
+
+// ═══════════════════════════════════════════════════════════════
+// SERVICES SUB-DOMAINS (Phase 38)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Service domains within the Services space.
+ * These mirror the domain definitions in ServicesSubLauncher.
+ * When adding a new service domain, update this constant AND ServicesSubLauncher.
+ */
+export const SERVICES_DOMAINS = [
+  'maintenance',
+  'bookings',
+  'amenities',
+  'my-services',
+  'events',
+] as const;
+
+export type ServicesDomain = (typeof SERVICES_DOMAINS)[number];
+
+// ═══════════════════════════════════════════════════════════════
+// MESSAGES SUB-DOMAINS (Phase 38)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Communication domains within the Messages space.
+ * These mirror the domain definitions in MessagesSubLauncher.
+ * When adding a new messages domain, update this constant AND MessagesSubLauncher.
+ */
+export const MESSAGES_DOMAINS = ['conversations', 'announcements', 'notifications'] as const;
+
+export type MessagesDomain = (typeof MESSAGES_DOMAINS)[number];

@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 import { SPACE_SLUGS, type SpaceId } from '@widgets/dashboard/model/spaces';
 import { SpaceLayoutWithErrorBoundary } from '@widgets/dashboard/ui/SpaceLayout';
 import { AdminLayer } from '@widgets/dashboard/ui/AdminLayer';
+import { ServicesLayer } from '@widgets/dashboard/ui/ServicesLayer';
+import { MessagesLayer } from '@widgets/dashboard/ui/MessagesLayer';
 
 interface SpacePageProps {
   params: Promise<{ space: string }>;
@@ -20,10 +22,21 @@ export default function SpacePage({ params }: SpacePageProps) {
 
   const spaceId = space as SpaceId;
 
-  // Admin space uses AdminLayer (command panel) instead of SpaceLayout (widget grid)
+  // Admin space uses AdminLayer (command panel + domain grid)
   if (spaceId === 'admin') {
     return <AdminLayer />;
   }
 
+  // Services space uses ServicesLayer (urgency zone + domain grid)
+  if (spaceId === 'services') {
+    return <ServicesLayer />;
+  }
+
+  // Messages space uses MessagesLayer (urgency zone + domain grid)
+  if (spaceId === 'messages') {
+    return <MessagesLayer />;
+  }
+
+  // All other spaces (home, community) use SpaceLayout (DnD widget grid)
   return <SpaceLayoutWithErrorBoundary spaceId={spaceId} />;
 }
