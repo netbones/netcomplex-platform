@@ -2,13 +2,13 @@
 
 ## Current Position
 
-- **Phase:** 40-maintenance-ticketing
-- **Status:** Planning Complete — 4 plans written (40-01 through 40-04), ready for execution
+- **Phase:** 38-space-layers
+- **Status:** Plan 03 Complete — MessagesLayer + MessagesCommandBar + MessagesSubLauncher created
 - **Last Updated:** 2026-05-30
-- **Next Phase:** Execute 40-01 (Schema + Migration) via `/gsd-execute-phase 40-maintenance-ticketing`
+- **Next Phase:** Execute 38-04 (Routing integration) via `/gsd-execute-phase 38-space-layers`
 
-**Last Session:** 2026-05-30T19:42:34.460Z
-**Stopped at:** Completed 38-02-PLAN.md
+**Last Session:** 2026-05-30T20:00:26.633Z
+**Stopped at:** Completed 38-03-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -97,6 +97,9 @@
 - [Phase 38]: Used ClipboardPlus instead of WrenchPlus for New Request shortcut — WrenchPlus not in installed lucide-react — WrenchPlus doesn't exist in current lucide-react version, ClipboardPlus fits form/request creation semantic
 - [Phase 38]: No AddShortcutPopover in ServicesCommandBar — keeping resident UI simple for MVP — AdminCommandBar has extensibility via AddShortcutPopover; residents don't need custom shortcut management
 - [Phase 38]: No activity stream in ServicesLayer — not needed for MVP, may add later — AdminLayer has AdminActivityStream but services space doesn't need real-time activity for initial launch
+- [Phase 38]: MessagesLayer skips activity stream — conversations list IS the activity — Plan truth: messages doesn't need separate stream, conversations serve as activity
+- [Phase 38]: MessagesCommandBar simplified for all users — no AddShortcutPopover, no adminOnly flags — MVP: keep messages simple, all users see same command bar
+- [Phase 38]: Domain grid heading 'Communication' hardcoded — i18n deferred to Plan 04 — Follows plan spec: i18n integration happens in routing plan
 
 ## Notes
 
@@ -225,6 +228,7 @@
 | Phase 35-api-alignment PF02            | 1054   | 2 tasks  | 28 files |
 | Phase 37-admin-route-consolidation P01 | 10min  | 3 tasks  | 22 files |
 | Phase 38 P02                           | 51min  | 2 tasks  | 3 files  |
+| Phase 38 P03                           | 76min  | 2 tasks  | 3 files  |
 
 ## A01 Execution Decisions
 
