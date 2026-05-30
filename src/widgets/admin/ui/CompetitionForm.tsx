@@ -146,7 +146,7 @@ export function CompetitionForm({ initialData }: CompetitionFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6 max-w-2xl">
       {/* Title */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">

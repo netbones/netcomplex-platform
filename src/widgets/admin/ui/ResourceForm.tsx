@@ -214,7 +214,7 @@ export function ResourceForm({ initialData }: ResourceFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6 max-w-4xl">
       {/* Title */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">

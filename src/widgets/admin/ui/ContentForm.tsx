@@ -183,7 +183,7 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
   const hasContentForActiveLocale = !!formValues.content?.[activeLocale]?.trim();
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-4xl">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6 max-w-4xl">
       <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-700">Editing Language:</span>
