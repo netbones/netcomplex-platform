@@ -33,5 +33,19 @@
   "internet": "Internet/Cable",
   "waste": "Waste Management",
   "amenities": "Amenities",
-  "other": "Other"
+  "other": "Other",
+  "domains": {
+    "maintenance": "Maintenance",
+    "bookings": "Bookings",
+    "amenities": "Amenities",
+    "myServices": "My Services",
+    "events": "Events",
+    "descriptions": {
+      "maintenance": "Submit and track maintenance requests",
+      "bookings": "Book community facilities and amenities",
+      "amenities": "Community amenities and shared spaces",
+      "myServices": "Community services you offer",
+      "events": "Upcoming community events and activities"
+    }
+  }
 }

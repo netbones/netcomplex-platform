@@ -10,5 +10,15 @@
   "groupLeft": "You have left the group",
   "requestSubmitted": "Your request has been submitted",
   "bookingConfirmed": "Your booking has been confirmed",
-  "error": "An error occurred. Please try again."
+  "error": "An error occurred. Please try again.",
+  "domains": {
+    "conversations": "Conversations",
+    "announcements": "Announcements",
+    "notifications": "Notifications",
+    "descriptions": {
+      "conversations": "Direct and group conversations",
+      "announcements": "Community announcements and broadcasts",
+      "notifications": "System notifications and alerts"
+    }
+  }
 }
