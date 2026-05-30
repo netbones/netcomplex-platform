@@ -510,6 +510,25 @@ Plans:
 
 ---
 
+## Phase: 40-maintenance-ticketing
+
+**Goal:** Transform maintenance requests into a proper ticketing system — admin-configurable categories, in-house maintenance teams and third-party service providers with assignment/reassignment, 7-status workflow, ticket numbering, progress timeline, user tracking with activity zone integration, and seed data.
+
+**Status:** Planning Complete — 4 plans in 2 waves
+
+**Requirements:** MAINT-TICKET-01, MAINT-TICKET-02, MAINT-TICKET-03, MAINT-TICKET-04, MAINT-TICKET-05, MAINT-TICKET-06, MAINT-TICKET-07, MAINT-TICKET-08, MAINT-TICKET-09, MAINT-TICKET-10, MAINT-TICKET-11, MAINT-TICKET-12
+
+**Plans:**
+
+| Wave | Plan              | Objective                                                                                                                      |
+| ---- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 1    | [ ] 40-01-PLAN.md | Schema: 7-status enum, MaintenanceTeam/ServiceProvider/MaintenanceCategory models, migrate orphan tables to Prisma             |
+| 2    | [ ] 40-02-PLAN.md | API: CRUD for teams/providers/categories, assignment endpoint, ticket number generation, fix activity zone/notes/priority bugs |
+| 2    | [ ] 40-03-PLAN.md | Admin UI: inline category management, assignment panel, handoff flow, progress timeline, workflow status controls              |
+| 2    | [ ] 40-04-PLAN.md | User tracking: enhanced /maintenance page, HomeLayer activity zone integration, 7 seed requests                                |
+
+---
+
 ## Module Architecture (Phase 08 Design)
 
 ### Tier Model
