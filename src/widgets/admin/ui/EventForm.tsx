@@ -24,9 +24,9 @@ interface EventFormProps {
 }
 
 /**
- * Convert Date objects or ISO strings to datetime-local format for inputs.
+ * Convert Date objects or ISO strings to YYYY-MM-DD format for date inputs.
  */
-function formatForInput(value: unknown): string {
+function formatForDatePicker(value: unknown): string {
   if (!value) return '';
   const d =
     typeof value === 'string'
@@ -34,15 +34,14 @@ function formatForInput(value: unknown): string {
       : value instanceof Date
         ? value
         : new Date(String(value));
-  // datetime-local expects YYYY-MM-DDTHH:MM format
-  return d.toISOString().slice(0, 16);
+  return d.toISOString().slice(0, 10);
 }
 
 function getInitialDefaultValues(initialData?: EventFormProps['initialData']): AdminEventFormData {
   return {
     title: initialData?.title || '',
     description: initialData?.description || '',
-    date: initialData?.date ? formatForInput(initialData.date) : '',
+    date: initialData?.date ? formatForDatePicker(initialData.date) + 'T00:00' : '',
     location: initialData?.location || '',
     organizer: initialData?.organizer || '',
     image: initialData?.image || '',
@@ -58,12 +57,18 @@ export function EventForm({ initialData }: EventFormProps) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setValue,
   } = useForm<AdminEventFormData>({
     resolver: zodResolver(adminEventSchema),
     defaultValues: getInitialDefaultValues(initialData),
   });
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+
+  // Controlled state for date input (type="date" doesn't support partial selection)
+  const [dateDisplay, setDateDisplay] = useState(
+    initialData?.date ? formatForDatePicker(initialData.date) : ''
+  );
 
   const onSubmit = async (data: AdminEventFormData) => {
     const loadingToast = toast.loading(isEditing ? 'Updating event...' : 'Creating event...');
@@ -164,11 +169,16 @@ export function EventForm({ initialData }: EventFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Date & Time <span className="text-red-500">*</span>
+            Date <span className="text-red-500">*</span>
           </label>
           <input
-            type="datetime-local"
-            {...register('date')}
+            type="date"
+            value={dateDisplay}
+            onChange={e => {
+              const val = e.target.value;
+              setDateDisplay(val);
+              setValue('date', val ? `${val}T00:00` : '', { shouldValidate: true });
+            }}
             className={`w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
               errors.date ? 'border-red-300' : 'border-gray-300'
             }`}

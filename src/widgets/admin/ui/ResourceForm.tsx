@@ -116,6 +116,11 @@ export function ResourceForm({ initialData }: ResourceFormProps) {
   const [uploading, setUploading] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
+  // Controlled state for date input (type="date" doesn't support partial selection)
+  const [publishDateDisplay, setPublishDateDisplay] = useState(
+    initialData?.publishedAt ? new Date(initialData.publishedAt).toISOString().slice(0, 10) : ''
+  );
+
   const bodyContent = watch('bodyContent');
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -356,8 +361,13 @@ export function ResourceForm({ initialData }: ResourceFormProps) {
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Published Date</label>
         <input
-          type="datetime-local"
-          {...register('publishedAt')}
+          type="date"
+          value={publishDateDisplay}
+          onChange={e => {
+            const val = e.target.value;
+            setPublishDateDisplay(val);
+            setValue('publishedAt', val ? val + 'T00:00' : null, { shouldValidate: false });
+          }}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         />
       </div>

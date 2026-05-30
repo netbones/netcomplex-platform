@@ -25,9 +25,9 @@ interface CompetitionFormProps {
 }
 
 /**
- * Convert Date objects or ISO strings to datetime-local format for inputs.
+ * Convert Date objects or ISO strings to YYYY-MM-DD format for date inputs.
  */
-function formatForInput(value: unknown): string {
+function formatForDatePicker(value: unknown): string {
   if (!value) return '';
   const d =
     typeof value === 'string'
@@ -35,8 +35,7 @@ function formatForInput(value: unknown): string {
       : value instanceof Date
         ? value
         : new Date(String(value));
-  // datetime-local expects YYYY-MM-DDTHH:MM format
-  return d.toISOString().slice(0, 16);
+  return d.toISOString().slice(0, 10);
 }
 
 function getInitialDefaultValues(
@@ -47,8 +46,8 @@ function getInitialDefaultValues(
     description: initialData?.description || '',
     rules: initialData?.rules || '',
     prizeInfo: initialData?.prizeInfo || '',
-    startDate: initialData?.startDate ? formatForInput(initialData.startDate) : '',
-    endDate: initialData?.endDate ? formatForInput(initialData.endDate) : '',
+    startDate: initialData?.startDate ? formatForDatePicker(initialData.startDate) + 'T00:00' : '',
+    endDate: initialData?.endDate ? formatForDatePicker(initialData.endDate) + 'T00:00' : '',
     image: initialData?.image || '',
     status: (initialData?.status as 'DRAFT' | 'ACTIVE' | 'ENDED' | 'CANCELLED') || 'DRAFT',
   };
@@ -63,12 +62,21 @@ export function CompetitionForm({ initialData }: CompetitionFormProps) {
     handleSubmit,
     formState: { errors, isSubmitting },
     watch,
+    setValue,
   } = useForm<AdminCompetitionFormData>({
     resolver: zodResolver(adminCompetitionSchema),
     defaultValues: getInitialDefaultValues(initialData),
   });
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+
+  // Controlled state for date inputs (type="date" doesn't support partial selection)
+  const [startDateDisplay, setStartDateDisplay] = useState(
+    initialData?.startDate ? formatForDatePicker(initialData.startDate) : ''
+  );
+  const [endDateDisplay, setEndDateDisplay] = useState(
+    initialData?.endDate ? formatForDatePicker(initialData.endDate) : ''
+  );
 
   // Watch status for conditional UI (e.g., color coding)
   const currentStatus = watch('status');
@@ -237,11 +245,16 @@ export function CompetitionForm({ initialData }: CompetitionFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Start Date & Time <span className="text-red-500">*</span>
+            Start Date <span className="text-red-500">*</span>
           </label>
           <input
-            type="datetime-local"
-            {...register('startDate')}
+            type="date"
+            value={startDateDisplay}
+            onChange={e => {
+              const val = e.target.value;
+              setStartDateDisplay(val);
+              setValue('startDate', val ? `${val}T00:00` : '', { shouldValidate: true });
+            }}
             className={`w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
               errors.startDate ? 'border-red-300' : 'border-gray-300'
             }`}
@@ -253,11 +266,16 @@ export function CompetitionForm({ initialData }: CompetitionFormProps) {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            End Date & Time <span className="text-red-500">*</span>
+            End Date <span className="text-red-500">*</span>
           </label>
           <input
-            type="datetime-local"
-            {...register('endDate')}
+            type="date"
+            value={endDateDisplay}
+            onChange={e => {
+              const val = e.target.value;
+              setEndDateDisplay(val);
+              setValue('endDate', val ? `${val}T00:00` : '', { shouldValidate: true });
+            }}
             className={`w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
               errors.endDate ? 'border-red-300' : 'border-gray-300'
             }`}

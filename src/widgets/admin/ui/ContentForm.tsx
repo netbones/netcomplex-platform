@@ -325,9 +325,19 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
           Publish Date (optional)
         </label>
         <input
-          type="datetime-local"
-          value={formValues.publishedAt || ''}
-          onChange={e => setValue('publishedAt', e.target.value || null, { shouldValidate: false })}
+          type="date"
+          value={
+            formValues.publishedAt
+              ? typeof formValues.publishedAt === 'string'
+                ? formValues.publishedAt.slice(0, 10)
+                : ''
+              : ''
+          }
+          onChange={e =>
+            setValue('publishedAt', e.target.value ? e.target.value + 'T00:00' : null, {
+              shouldValidate: false,
+            })
+          }
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
         />
         <p className="mt-1 text-xs text-gray-500">
@@ -341,9 +351,19 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
           Expiry Date (optional)
         </label>
         <input
-          type="datetime-local"
-          value={formValues.expiresAt || ''}
-          onChange={e => setValue('expiresAt', e.target.value || null, { shouldValidate: false })}
+          type="date"
+          value={
+            formValues.expiresAt
+              ? typeof formValues.expiresAt === 'string'
+                ? formValues.expiresAt.slice(0, 10)
+                : ''
+              : ''
+          }
+          onChange={e =>
+            setValue('expiresAt', e.target.value ? e.target.value + 'T00:00' : null, {
+              shouldValidate: false,
+            })
+          }
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
         />
         <p className="mt-1 text-xs text-gray-500">
