@@ -3,12 +3,12 @@
 ## Current Position
 
 - **Phase:** 38-space-layers
-- **Status:** Plan 03 Complete — MessagesLayer + MessagesCommandBar + MessagesSubLauncher created
+- **Status:** Phase Complete — All 4 plans done (routing integration + i18n wired)
 - **Last Updated:** 2026-05-30
-- **Next Phase:** Execute 38-04 (Routing integration) via `/gsd-execute-phase 38-space-layers`
+- **Next Phase:** Phase 39-competition-entries via `/gsd-execute-phase 39-competition-entries`
 
-**Last Session:** 2026-05-30T20:00:26.633Z
-**Stopped at:** Completed 38-03-PLAN.md
+**Last Session:** 2026-05-30T21:35:50.279Z
+**Stopped at:** Completed 38-04-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -100,6 +100,9 @@
 - [Phase 38]: MessagesLayer skips activity stream — conversations list IS the activity — Plan truth: messages doesn't need separate stream, conversations serve as activity
 - [Phase 38]: MessagesCommandBar simplified for all users — no AddShortcutPopover, no adminOnly flags — MVP: keep messages simple, all users see same command bar
 - [Phase 38]: Domain grid heading 'Communication' hardcoded — i18n deferred to Plan 04 — Follows plan spec: i18n integration happens in routing plan
+- [Phase 38-04]: SERVICES_DOMAINS and MESSAGES_DOMAINS placed in spaces.ts mirroring ADMIN_DOMAINS pattern
+- [Phase 38-04]: Routing order: admin → services → messages → SpaceLayout fallback preserves community as only DnD space
+- [Phase 38-04]: myServices (camelCase) in JSON keys matches ServicesSubLauncher labelKey — i18n libraries don't support hyphens well
 
 ## Notes
 
@@ -229,6 +232,7 @@
 | Phase 37-admin-route-consolidation P01 | 10min  | 3 tasks  | 22 files |
 | Phase 38 P02                           | 51min  | 2 tasks  | 3 files  |
 | Phase 38 P03                           | 76min  | 2 tasks  | 3 files  |
+| Phase 38 P04                           | 37min  | 2 tasks  | 4 files  |
 
 ## A01 Execution Decisions
 
