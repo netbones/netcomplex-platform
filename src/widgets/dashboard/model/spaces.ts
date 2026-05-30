@@ -312,6 +312,23 @@ export const SERVICES_DOMAINS = [
 
 export type ServicesDomain = (typeof SERVICES_DOMAINS)[number];
 
+/** Widget mapping for service domains — maps each domain to its widget IDs */
+const SERVICES_DOMAIN_WIDGET_MAP: Record<ServicesDomain, string[]> = {
+  maintenance: ['maintenance-list'],
+  bookings: ['booking-list'],
+  amenities: [],
+  'my-services': [],
+  events: ['events-upcoming'],
+};
+
+/**
+ * Get widget IDs for a service domain.
+ * Returns empty array for invalid or widget-less domains.
+ */
+export function getServicesDomainWidgets(domain: string): string[] {
+  return SERVICES_DOMAIN_WIDGET_MAP[domain as ServicesDomain] ?? [];
+}
+
 // ═══════════════════════════════════════════════════════════════
 // MESSAGES SUB-DOMAINS (Phase 38)
 // ═══════════════════════════════════════════════════════════════
@@ -324,3 +341,18 @@ export type ServicesDomain = (typeof SERVICES_DOMAINS)[number];
 export const MESSAGES_DOMAINS = ['conversations', 'announcements', 'notifications'] as const;
 
 export type MessagesDomain = (typeof MESSAGES_DOMAINS)[number];
+
+/** Widget mapping for message domains — maps each domain to its widget IDs */
+const MESSAGES_DOMAIN_WIDGET_MAP: Record<MessagesDomain, string[]> = {
+  conversations: [],
+  announcements: ['admin-announcements'],
+  notifications: [],
+};
+
+/**
+ * Get widget IDs for a messages domain.
+ * Returns empty array for invalid or widget-less domains.
+ */
+export function getMessagesDomainWidgets(domain: string): string[] {
+  return MESSAGES_DOMAIN_WIDGET_MAP[domain as MessagesDomain] ?? [];
+}
