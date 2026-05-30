@@ -474,6 +474,25 @@ Plans:
 
 ---
 
+## Phase: 38-space-layers
+
+**Goal:** Convert /dashboard/services and /dashboard/messages from SpaceLayout widget grids into purpose-built zoned layers (urgency zone + domain grid) following the AdminLayer/HomeLayer architecture. /dashboard/community remains the only true DnD widget space.
+
+**Status:** Planning Complete
+
+**Requirements:** LAYER-01, LAYER-02, LAYER-03, LAYER-04
+
+**Plans:** 4 plans
+
+| Wave | Plan              | Objective                                                  |
+| ---- | ----------------- | ---------------------------------------------------------- |
+| 1    | [ ] 38-01-PLAN.md | Backend: services urgency API + messages urgency API       |
+| 2    | [ ] 38-02-PLAN.md | ServicesLayer: command bar + 5-domain sub-launcher grid    |
+| 2    | [ ] 38-03-PLAN.md | MessagesLayer: command bar + 3-domain sub-launcher grid    |
+| 3    | [ ] 38-04-PLAN.md | Routing switch + domain constants in spaces.ts + i18n keys |
+
+---
+
 ## Module Architecture (Phase 08 Design)
 
 ### Tier Model
