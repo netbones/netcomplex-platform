@@ -7,8 +7,8 @@
 - **Last Updated:** 2026-05-30
 - **Next Phase:** Execute 40-01 (Schema + Migration) via `/gsd-execute-phase 40-maintenance-ticketing`
 
-**Last Session:** 2026-05-30
-**Stopped at:** Created PLANS 39-01 through 39-04, ROADMAP updated, STATE updated
+**Last Session:** 2026-05-30T19:42:34.460Z
+**Stopped at:** Completed 38-02-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -94,6 +94,9 @@
 - [Phase 35-api-alignment]: CONFLICT (409) and GONE (410) added to canonical error taxonomy with apiConflict()/apiGone() wrappers
 - [Phase 37-admin-route-consolidation]: ADMIN_ROUTE_OVERRIDES map: maintenance→/admin/requests, system→/admin/categories — domain IDs that differ from their target admin page
 - [Phase 37-admin-route-consolidation]: Platform admin cross-links (/dashboard/admin/platform) preserved intentionally — these route through the separate platform route group and are out of scope
+- [Phase 38]: Used ClipboardPlus instead of WrenchPlus for New Request shortcut — WrenchPlus not in installed lucide-react — WrenchPlus doesn't exist in current lucide-react version, ClipboardPlus fits form/request creation semantic
+- [Phase 38]: No AddShortcutPopover in ServicesCommandBar — keeping resident UI simple for MVP — AdminCommandBar has extensibility via AddShortcutPopover; residents don't need custom shortcut management
+- [Phase 38]: No activity stream in ServicesLayer — not needed for MVP, may add later — AdminLayer has AdminActivityStream but services space doesn't need real-time activity for initial launch
 
 ## Notes
 
@@ -221,6 +224,7 @@
 | Phase 35-api-alignment PF01            | 8m 51s | 2 tasks  | 7 files  |
 | Phase 35-api-alignment PF02            | 1054   | 2 tasks  | 28 files |
 | Phase 37-admin-route-consolidation P01 | 10min  | 3 tasks  | 22 files |
+| Phase 38 P02                           | 51min  | 2 tasks  | 3 files  |
 
 ## A01 Execution Decisions
 
