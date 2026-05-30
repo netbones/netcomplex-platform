@@ -2,15 +2,21 @@
 
 ## Current Position
 
-- **Phase:** 37-admin-route-consolidation
-- **Status:** Complete — All 3 tasks in plan 37-01 executed
-- **Completed:** 2026-05-29
-- **Last Updated:** 2026-05-29
-- **Next Phase:** (planning)
+- **Phase:** 39-competition-entries
+- **Status:** Planning phase — 4 plans written (39-01 through 39-04), ready for execution
+- **Last Updated:** 2026-05-30
+- **Next Phase:** Execute 39-01 (Database + DTOs) via `/gsd-execute-phase 39-competition-entries`
 
-**Last Session:** 2026-05-29T14:42:59.900Z
-**Stopped at:** Completed 37-01-PLAN.md
+**Last Session:** 2026-05-30
+**Stopped at:** Created PLANS 39-01 through 39-04, ROADMAP updated, STATE updated
 **Resume file:** None
+
+## Active Phase Decisions
+
+- [Phase 39-competition-entries]: CompetitionEntry model + DTOs + Prisma migration (39-01)
+- [Phase 39-competition-entries]: tRPC competition router with 9 procedures (39-02)
+- [Phase 39-competition-entries]: Public UI — cards grid at /competition, detail page at /competition/[id] (39-03)
+- [Phase 39-competition-entries]: Admin UI — expandable rows, per-type actions, type selector (39-04)
 
 ## Decisions Made
 
