@@ -46,7 +46,8 @@ async function getSessionAndRole(request: Request) {
 /**
  * GET /api/maintenance - List maintenance requests
  * Admins see all requests, residents see only their own
- * @query status - Filter by SUBMITTED, IN_PROGRESS, COMPLETED, CANCELLED
+ * @query status - Filter by any of the 7 statuses
+ * @query priority - Comma-separated priorities (e.g., "EMERGENCY,HIGH")
  */
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
@@ -79,11 +80,13 @@ export async function GET(request: Request) {
     dateTo,
   });
 
-  // Transform results using DTO
+  // Transform results using DTO + team/provider details
   const transformed = results.map(row => {
     const mr = row.MaintenanceRequest;
     const u = row.user;
     const prop = row.property;
+    const team = row.team;
+    const provider = row.provider;
 
     const address = prop ? { street: prop.street, unit: prop.unit } : null;
 
@@ -96,10 +99,14 @@ export async function GET(request: Request) {
             address: address,
           }
         : null,
+      assignedTeam: team ? { id: team.id, name: team.name, trade: team.trade } : null,
+      assignedProvider: provider
+        ? { id: provider.id, companyName: provider.companyName, trade: provider.trade }
+        : null,
     };
   });
 
-  // Apply search filter in memory (for description search)
+  // Apply search filter in memory (for description/ticketNumber search)
   let filteredResults = transformed;
   if (search && canViewAll) {
     const searchLower = search.toLowerCase();
@@ -110,7 +117,8 @@ export async function GET(request: Request) {
         r.user?.email?.toLowerCase().includes(searchLower) ||
         r.user?.address?.street?.toLowerCase().includes(searchLower) ||
         r.user?.address?.unit?.toLowerCase().includes(searchLower) ||
-        r.category?.toLowerCase().includes(searchLower)
+        r.category?.toLowerCase().includes(searchLower) ||
+        r.ticketNumber?.toLowerCase().includes(searchLower)
     );
   }
 
@@ -125,6 +133,8 @@ export async function GET(request: Request) {
  * @body priority - Priority level (LOW, MEDIUM, HIGH, EMERGENCY)
  * @body description - Detailed description
  * @body images - Optional array of image URLs
+ * @body preferredDate - Optional preferred service date (YYYY-MM-DD)
+ * @body preferredTime - Optional preferred service time (HH:MM)
  */
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
@@ -142,14 +152,14 @@ export async function POST(request: Request) {
       return apiValidationError(validationResult.error.issues);
     }
 
-    const { category, priority, description } = validationResult.data;
+    const { category, priority, description, preferredDate, preferredTime } = validationResult.data;
     const userId = body.userId || authData.userId;
     const propertyId = body.propertyId || null;
 
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
 
-    // Delegate to entity service for creation
+    // Delegate to entity service for creation (includes ticket number generation)
     const [maintenanceRequest] = await maintenanceService.createMaintenanceRequest({
       id: crypto.randomUUID(),
       tenantId,
@@ -159,6 +169,8 @@ export async function POST(request: Request) {
       priority,
       description,
       images: body.images || [],
+      preferredDate,
+      preferredTime,
     });
 
     // Revalidate dashboard caches immediately when new request is created

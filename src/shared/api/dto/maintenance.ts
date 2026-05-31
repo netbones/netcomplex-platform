@@ -20,6 +20,12 @@ export interface MaintenanceRequestDTO {
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  // New fields for ticketing system
+  ticketNumber: string;
+  preferredDate: string | null;
+  preferredTime: string | null;
+  assignedTeamId: string | null;
+  assignedProviderId: string | null;
 }
 
 // Lightweight maintenance summary for dashboard lists
@@ -29,6 +35,7 @@ export interface MaintenanceSummaryDTO {
   priority: string;
   status: string;
   createdAt: string;
+  ticketNumber: string;
 }
 
 // Maps a Drizzle maintenance request row to MaintenanceRequestDTO
@@ -53,6 +60,12 @@ export function toMaintenanceRequestDTO(
     completedAt: mr.completedAt?.toISOString() ?? null,
     createdAt: mr.createdAt?.toISOString() ?? new Date().toISOString(),
     updatedAt: mr.updatedAt?.toISOString() ?? new Date().toISOString(),
+    // New fields
+    ticketNumber: mr.ticketNumber || '',
+    preferredDate: mr.preferredDate?.toISOString()?.split('T')[0] ?? null,
+    preferredTime: mr.preferredTime || null,
+    assignedTeamId: mr.assignedTeamId || null,
+    assignedProviderId: mr.assignedProviderId || null,
   };
 }
 
@@ -73,5 +86,6 @@ export function toMaintenanceSummaryDTO(
     priority: mr.priority,
     status: mr.status,
     createdAt: mr.createdAt?.toISOString() ?? new Date().toISOString(),
+    ticketNumber: mr.ticketNumber || '',
   };
 }

@@ -1,10 +1,29 @@
-import { db, maintenanceRequests, users, properties, requestHistories } from '@api/db';
+import {
+  db,
+  maintenanceRequests,
+  users,
+  properties,
+  maintenanceTeams,
+  serviceProviders,
+  requestHistories,
+} from '@api/db';
 import { auth } from '@api/auth';
 import { hasPermission } from '@entities/tenant/api/permissions';
 import { eq, and } from 'drizzle-orm';
 import { revalidateDashboard } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { apiSuccess, apiUnauthorized, apiForbidden, apiNotFound } from '@api/api-response';
+
+// Valid status transitions for the 7-value lifecycle
+const VALID_STATUSES = [
+  'SUBMITTED',
+  'ASSIGNED',
+  'SCHEDULED',
+  'IN_PROGRESS',
+  'PENDING_PARTS',
+  'COMPLETED',
+  'CANCELLED',
+] as const;
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -26,6 +45,7 @@ async function getSessionAndRole(request: Request) {
 
 /**
  * GET /api/maintenance/[id] - Get a single maintenance request by ID
+ * Includes team and provider assignment details.
  */
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -71,6 +91,35 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
   }
 
+  // Get team and provider details if assigned
+  let assignedTeam = null;
+  if (mrRow.assignedTeamId) {
+    const [teamRow] = await db
+      .select({
+        id: maintenanceTeams.id,
+        name: maintenanceTeams.name,
+        trade: maintenanceTeams.trade,
+      })
+      .from(maintenanceTeams)
+      .where(eq(maintenanceTeams.id, mrRow.assignedTeamId))
+      .limit(1);
+    assignedTeam = teamRow || null;
+  }
+
+  let assignedProvider = null;
+  if (mrRow.assignedProviderId) {
+    const [providerRow] = await db
+      .select({
+        id: serviceProviders.id,
+        companyName: serviceProviders.companyName,
+        trade: serviceProviders.trade,
+      })
+      .from(serviceProviders)
+      .where(eq(serviceProviders.id, mrRow.assignedProviderId))
+      .limit(1);
+    assignedProvider = providerRow || null;
+  }
+
   return apiSuccess({
     id: mrRow.id,
     userId: mrRow.userId,
@@ -89,6 +138,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     completedAt: mrRow.completedAt,
     createdAt: mrRow.createdAt,
     updatedAt: mrRow.updatedAt,
+    // New ticketing fields
+    ticketNumber: mrRow.ticketNumber,
+    preferredDate: mrRow.preferredDate?.toISOString()?.split('T')[0] ?? null,
+    preferredTime: mrRow.preferredTime,
+    assignedTeamId: mrRow.assignedTeamId,
+    assignedProviderId: mrRow.assignedProviderId,
+    // Resolved assignment details
+    assignedTeam,
+    assignedProvider,
     user: uRow
       ? {
           name: uRow.name,
@@ -101,6 +159,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
 /**
  * PATCH /api/maintenance/[id] - Update a maintenance request
+ * Supports all 7 status values and tracks team/provider assignment changes.
  */
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -136,8 +195,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     updatedAt: now,
   };
 
-  // Track changes for history
+  // Track status changes — validate against 7-value enum
   if (body.status && body.status !== existing.status) {
+    if (!VALID_STATUSES.includes(body.status)) {
+      return apiForbidden(
+        `Invalid status: ${body.status}. Valid values: ${VALID_STATUSES.join(', ')}`
+      );
+    }
     updates.status = body.status;
     if (body.status === 'COMPLETED') {
       updates.completedAt = now;
@@ -196,6 +260,81 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     });
   }
 
+  // Track assignedTeamId changes
+  if (body.assignedTeamId !== undefined && body.assignedTeamId !== existing.assignedTeamId) {
+    updates.assignedTeamId = body.assignedTeamId || null;
+
+    let oldLabel = 'Unassigned';
+    let newLabel = 'Unassigned';
+
+    if (existing.assignedTeamId) {
+      const [oldTeam] = await db
+        .select({ name: maintenanceTeams.name })
+        .from(maintenanceTeams)
+        .where(eq(maintenanceTeams.id, existing.assignedTeamId))
+        .limit(1);
+      oldLabel = oldTeam?.name || existing.assignedTeamId;
+    }
+
+    if (body.assignedTeamId) {
+      const [newTeam] = await db
+        .select({ name: maintenanceTeams.name })
+        .from(maintenanceTeams)
+        .where(eq(maintenanceTeams.id, body.assignedTeamId))
+        .limit(1);
+      newLabel = newTeam?.name || body.assignedTeamId;
+    }
+
+    await db.insert(requestHistories).values({
+      id: crypto.randomUUID(),
+      requestId: id,
+      userId: authData.userId,
+      field: 'assignedTeam',
+      oldValue: oldLabel,
+      newValue: newLabel,
+      comment: body.comment || null,
+    });
+  }
+
+  // Track assignedProviderId changes
+  if (
+    body.assignedProviderId !== undefined &&
+    body.assignedProviderId !== existing.assignedProviderId
+  ) {
+    updates.assignedProviderId = body.assignedProviderId || null;
+
+    let oldLabel = 'Unassigned';
+    let newLabel = 'Unassigned';
+
+    if (existing.assignedProviderId) {
+      const [oldProvider] = await db
+        .select({ companyName: serviceProviders.companyName })
+        .from(serviceProviders)
+        .where(eq(serviceProviders.id, existing.assignedProviderId))
+        .limit(1);
+      oldLabel = oldProvider?.companyName || existing.assignedProviderId;
+    }
+
+    if (body.assignedProviderId) {
+      const [newProvider] = await db
+        .select({ companyName: serviceProviders.companyName })
+        .from(serviceProviders)
+        .where(eq(serviceProviders.id, body.assignedProviderId))
+        .limit(1);
+      newLabel = newProvider?.companyName || body.assignedProviderId;
+    }
+
+    await db.insert(requestHistories).values({
+      id: crypto.randomUUID(),
+      requestId: id,
+      userId: authData.userId,
+      field: 'assignedProvider',
+      oldValue: oldLabel,
+      newValue: newLabel,
+      comment: body.comment || null,
+    });
+  }
+
   if (body.scheduledDate !== undefined) {
     const newDate = body.scheduledDate ? new Date(body.scheduledDate) : null;
     const oldDate = existing.scheduledDate ? existing.scheduledDate.toISOString() : null;
@@ -238,7 +377,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 /**
- * DELETE /api/maintenance/[id] - Not implemented (would need separate endpoint)
+ * DELETE /api/maintenance/[id] - Delete a maintenance request
  */
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

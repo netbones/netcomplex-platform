@@ -1,9 +1,11 @@
-import { db, users, properties } from '@api/db';
+import { db, users, properties, maintenanceTeams, serviceProviders } from '@api/db';
 import * as maintenanceService from '../services';
 import { toMaintenanceRequestDTO } from '@api/dto/maintenance';
+import { eq } from 'drizzle-orm';
 
 /**
  * Lists maintenance requests for a tenant with optional filtering.
+ * Includes team and provider assignment details for admin view.
  */
 export async function listMaintenanceRequests(params: {
   tenantId: string;
@@ -18,11 +20,13 @@ export async function listMaintenanceRequests(params: {
 }) {
   const results = await maintenanceService.listMaintenanceRequests(params);
 
-  // Transform results using DTO
+  // Transform results using DTO + resolve team/provider details
   let transformed = results.map(row => {
     const mr = row.MaintenanceRequest;
     const u = row.user;
     const prop = row.property;
+    const team = row.team;
+    const provider = row.provider;
 
     const address = prop ? { street: prop.street, unit: prop.unit } : null;
 
@@ -34,6 +38,10 @@ export async function listMaintenanceRequests(params: {
             email: u.email,
             address: address,
           }
+        : null,
+      assignedTeam: team ? { id: team.id, name: team.name, trade: team.trade } : null,
+      assignedProvider: provider
+        ? { id: provider.id, companyName: provider.companyName, trade: provider.trade }
         : null,
     };
   });
@@ -48,7 +56,8 @@ export async function listMaintenanceRequests(params: {
         t.user?.email?.toLowerCase().includes(searchLower) ||
         t.user?.address?.street?.toLowerCase().includes(searchLower) ||
         t.user?.address?.unit?.toLowerCase().includes(searchLower) ||
-        t.category?.toLowerCase().includes(searchLower)
+        t.category?.toLowerCase().includes(searchLower) ||
+        t.ticketNumber?.toLowerCase().includes(searchLower)
     );
   }
 
@@ -56,7 +65,7 @@ export async function listMaintenanceRequests(params: {
 }
 
 /**
- * Creates a new maintenance request.
+ * Creates a new maintenance request with ticket number generation.
  */
 export async function createMaintenanceRequest(data: {
   tenantId: string;
@@ -66,6 +75,8 @@ export async function createMaintenanceRequest(data: {
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'EMERGENCY';
   description: string;
   images?: string[];
+  preferredDate?: string | null;
+  preferredTime?: string | null;
 }) {
   const [request] = await maintenanceService.createMaintenanceRequest({
     id: crypto.randomUUID(),
@@ -76,6 +87,8 @@ export async function createMaintenanceRequest(data: {
     priority: data.priority,
     description: data.description,
     images: data.images || [],
+    preferredDate: data.preferredDate || null,
+    preferredTime: data.preferredTime || null,
   });
 
   return request;

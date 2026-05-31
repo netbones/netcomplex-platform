@@ -56,52 +56,28 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return apiNotFound('Not found');
   }
 
-  let notes;
-  if (canViewAll) {
-    notes = await db
-      .select({
-        id: requestNotes.id,
-        requestId: requestNotes.requestId,
-        content: requestNotes.content,
-        isInternal: requestNotes.isInternal,
-        createdAt: requestNotes.createdAt,
-        user: {
-          id: users.id,
-          name: users.name,
-        },
-      })
-      .from(requestNotes)
-      .leftJoin(users, eq(requestNotes.userId, users.id))
-      .where(eq(requestNotes.requestId, id))
-      .orderBy(desc(requestNotes.createdAt));
-  } else {
-    const [existing] = await db
-      .select()
-      .from(requestNotes)
-      .where(and(eq(requestNotes.requestId, id), eq(requestNotes.isInternal, true)))
-      .limit(1);
+  // Admin sees all notes; residents see only non-internal notes
+  // Fixed: previously returned 403 if ANY internal note existed (bug)
+  const noteConditions = canViewAll
+    ? eq(requestNotes.requestId, id)
+    : and(eq(requestNotes.requestId, id), eq(requestNotes.isInternal, false));
 
-    if (existing) {
-      return apiForbidden();
-    }
-
-    notes = await db
-      .select({
-        id: requestNotes.id,
-        requestId: requestNotes.requestId,
-        content: requestNotes.content,
-        isInternal: requestNotes.isInternal,
-        createdAt: requestNotes.createdAt,
-        user: {
-          id: users.id,
-          name: users.name,
-        },
-      })
-      .from(requestNotes)
-      .leftJoin(users, eq(requestNotes.userId, users.id))
-      .where(and(eq(requestNotes.requestId, id), eq(requestNotes.isInternal, false)))
-      .orderBy(desc(requestNotes.createdAt));
-  }
+  const notes = await db
+    .select({
+      id: requestNotes.id,
+      requestId: requestNotes.requestId,
+      content: requestNotes.content,
+      isInternal: requestNotes.isInternal,
+      createdAt: requestNotes.createdAt,
+      user: {
+        id: users.id,
+        name: users.name,
+      },
+    })
+    .from(requestNotes)
+    .leftJoin(users, eq(requestNotes.userId, users.id))
+    .where(noteConditions)
+    .orderBy(desc(requestNotes.createdAt));
 
   return apiSuccess(notes);
 }
