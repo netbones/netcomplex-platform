@@ -161,7 +161,7 @@ export async function POST(request: Request) {
       bodyContent: body.bodyContent || null,
       version: body.version || null,
       visibility: body.visibility || 'ALL_RESIDENTS',
-      authorId: authData.userId,
+      authorId: authData.role === 'ADMIN' ? null : authData.userId,
       publishedAt: body.publishedAt ? new Date(body.publishedAt) : null,
       createdAt: now,
       updatedAt: now,

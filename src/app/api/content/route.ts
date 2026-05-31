@@ -120,7 +120,7 @@ export async function POST(request: Request) {
     content: body.content || { [defaultLanguage]: '' },
     excerpt: body.excerpt || null,
     category: body.category,
-    authorId: authData.userId,
+    authorId: authData.role === 'ADMIN' ? null : authData.userId,
     groupId: body.groupId || null,
     featured: body.featured || false,
     published: body.published || false,
