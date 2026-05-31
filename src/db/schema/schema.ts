@@ -15,6 +15,11 @@ import * as externalSurveys from './external-surveys';
 import * as groups from './groups';
 import * as groupMembershipRequests from './group-membership-requests';
 import * as maintenanceRequests from './maintenance-requests';
+import * as maintenanceTeams from './maintenance-teams';
+import * as serviceProviders from './service-providers';
+import * as maintenanceCategories from './maintenance-categories';
+import * as requestNotes from './request-notes';
+import * as requestHistories from './request-histories';
 import * as messages from './messages';
 import * as notifications from './notifications';
 import * as questions from './questions';
@@ -63,6 +68,10 @@ import * as eventAttendeesRelations from './event-attendees-relations';
 import * as groupsRelations from './groups-relations';
 import * as groupMembershipRequestsRelations from './group-membership-requests-relations';
 import * as maintenanceRequestsRelations from './maintenance-requests-relations';
+import * as maintenanceTeamsRelations from './maintenance-teams-relations';
+import * as serviceProvidersRelations from './service-providers-relations';
+import * as requestNotesRelations from './request-notes-relations';
+import * as requestHistoriesRelations from './request-histories-relations';
 import * as messagesRelations from './messages-relations';
 import * as notificationsRelations from './notifications-relations';
 import * as questionsRelations from './questions-relations';
@@ -114,6 +123,11 @@ export const schema = {
   ...groups,
   ...groupMembershipRequests,
   ...maintenanceRequests,
+  ...maintenanceTeams,
+  ...serviceProviders,
+  ...maintenanceCategories,
+  ...requestNotes,
+  ...requestHistories,
   ...messages,
   ...notifications,
   ...questions,
@@ -162,6 +176,10 @@ export const schema = {
   ...groupsRelations,
   ...groupMembershipRequestsRelations,
   ...maintenanceRequestsRelations,
+  ...maintenanceTeamsRelations,
+  ...serviceProvidersRelations,
+  ...requestNotesRelations,
+  ...requestHistoriesRelations,
   ...messagesRelations,
   ...notificationsRelations,
   ...questionsRelations,

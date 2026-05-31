@@ -21,4 +21,9 @@ export const maintenanceRequests = pgTable('MaintenanceRequest', {
   completedAt: timestamp('completedAt', { mode: 'date', precision: 3 }),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  ticketNumber: text('ticketNumber').notNull(),
+  preferredDate: timestamp('preferredDate', { mode: 'date', precision: 3 }),
+  preferredTime: text('preferredTime'),
+  assignedTeamId: text('assignedTeamId'),
+  assignedProviderId: text('assignedProviderId'),
 });

@@ -1,34 +1,9 @@
 import 'server-only';
 
-import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 import { sql, eq } from 'drizzle-orm';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
-// Request notes table (for maintenance request notes)
-const requestNotes = pgTable('RequestNote', {
-  id: text('id').primaryKey(),
-  requestId: text('requestId').notNull(),
-  userId: text('userId').notNull(),
-  content: text('content').notNull(),
-  isInternal: boolean('isInternal').default(false).notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-});
-
-// Request histories table (for maintenance request history/audit trail)
-const requestHistories = pgTable('RequestHistory', {
-  id: text('id').primaryKey(),
-  requestId: text('requestId').notNull(),
-  userId: text('userId').notNull(),
-  field: text('field').notNull(),
-  oldValue: text('oldValue'),
-  newValue: text('newValue'),
-  comment: text('comment'),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-});
-
-export { requestNotes, requestHistories };
 
 export type RLSContext = {
   userId: string;
@@ -87,6 +62,11 @@ import { resources } from '@schema/resources';
 import { resourceVersions } from '@schema/resource-versions';
 import { competitions } from '@schema/competitions';
 import { competitionEntries } from '@schema/competition-entries';
+import { maintenanceTeams } from '@schema/maintenance-teams';
+import { serviceProviders } from '@schema/service-providers';
+import { maintenanceCategories } from '@schema/maintenance-categories';
+import { requestNotes } from '@schema/request-notes';
+import { requestHistories } from '@schema/request-histories';
 
 import { ENV } from 'varlock/env';
 
@@ -141,6 +121,11 @@ const dbSchema = {
   resourceVersions,
   competitions,
   competitionEntries,
+  maintenanceTeams,
+  serviceProviders,
+  maintenanceCategories,
+  requestNotes,
+  requestHistories,
 } as const;
 
 type DbSchema = typeof dbSchema;
@@ -281,4 +266,9 @@ export {
   resourceVersions,
   competitions,
   competitionEntries,
+  maintenanceTeams,
+  serviceProviders,
+  maintenanceCategories,
+  requestNotes,
+  requestHistories,
 };

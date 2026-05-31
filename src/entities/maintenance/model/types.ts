@@ -6,6 +6,11 @@ export interface MaintenanceRequest {
   status: MaintenanceStatus;
   createdAt: string;
   images?: string[];
+  ticketNumber?: string;
+  preferredDate?: string | null;
+  preferredTime?: string | null;
+  assignedTeam?: { id: string; name: string; trade: string } | null;
+  assignedProvider?: { id: string; companyName: string; trade: string } | null;
 }
 
 export interface MaintenanceRequestForm {
@@ -13,6 +18,8 @@ export interface MaintenanceRequestForm {
   priority: MaintenancePriority;
   description: string;
   images: string[];
+  preferredDate?: string;
+  preferredTime?: string;
 }
 
 export type MaintenanceStatus =
@@ -25,3 +32,34 @@ export type MaintenanceStatus =
   | 'CANCELLED';
 
 export type MaintenancePriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'EMERGENCY';
+
+export interface MaintenanceTeam {
+  id: string;
+  name: string;
+  trade: string;
+  contactName: string | null;
+  isActive: boolean;
+}
+
+export interface ServiceProvider {
+  id: string;
+  companyName: string;
+  contactName: string | null;
+  phone: string | null;
+  email: string | null;
+  trade: string;
+  isActive: boolean;
+}
+
+export interface MaintenanceCategory {
+  id: string;
+  value: string;
+  label: string;
+  description?: string | null;
+  isActive: boolean;
+}
+
+export interface TicketAssignment {
+  team?: { id: string; name: string; trade: string } | null;
+  provider?: { id: string; companyName: string; trade: string } | null;
+}
