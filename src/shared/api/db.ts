@@ -86,6 +86,7 @@ import { assistSessions } from '@schema/assist-sessions';
 import { resources } from '@schema/resources';
 import { resourceVersions } from '@schema/resource-versions';
 import { competitions } from '@schema/competitions';
+import { competitionEntries } from '@schema/competition-entries';
 
 import { ENV } from 'varlock/env';
 
@@ -139,6 +140,7 @@ const dbSchema = {
   resources,
   resourceVersions,
   competitions,
+  competitionEntries,
 } as const;
 
 type DbSchema = typeof dbSchema;
@@ -278,4 +280,5 @@ export {
   resources,
   resourceVersions,
   competitions,
+  competitionEntries,
 };
