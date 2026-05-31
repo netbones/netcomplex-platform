@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm';
 import { users } from './users';
 import { assistSessions } from './assist-sessions';
 import { bookings } from './bookings';
+import { competitionEntries } from './competition-entries';
 import { contents } from './contents';
 import { eventAttendees } from './event-attendees';
 import { conversationParticipants } from './conversation-participants';
@@ -36,6 +37,7 @@ import { twoFactors } from './two-factors';
 export const usersRelations = relations(users, helpers => ({
   assistSessions: helpers.many(assistSessions, { relationName: 'AssistSessionTouser' }),
   Booking: helpers.many(bookings, { relationName: 'BookingTouser' }),
+  CompetitionEntry: helpers.many(competitionEntries, { relationName: 'CompetitionEntryTouser' }),
   Content: helpers.many(contents, { relationName: 'ContentTouser' }),
   EventAttendee: helpers.many(eventAttendees, { relationName: 'EventAttendeeTouser' }),
   ConversationParticipant: helpers.many(conversationParticipants, {

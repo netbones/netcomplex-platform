@@ -54,8 +54,8 @@ function getInitialDefaultValues(
     image: initialData?.image || '',
     status: (initialData?.status as 'DRAFT' | 'ACTIVE' | 'ENDED' | 'CANCELLED') || 'DRAFT',
     type: (initialData?.type as 'RAFFLE' | 'PHOTO' | 'SCORE') || 'RAFFLE',
-    winnersCount: initialData?.winnersCount || 1,
-    maxParticipants: initialData?.maxParticipants || null,
+    winnersCount: initialData?.winnersCount ?? 1,
+    maxParticipants: initialData?.maxParticipants ?? null,
   };
 }
 

@@ -8,6 +8,7 @@ import * as contents from './contents';
 import * as conversations from './conversations';
 import * as conversationParticipants from './conversation-participants';
 import * as competitions from './competitions';
+import * as competitionEntries from './competition-entries';
 import * as events from './events';
 import * as eventAttendees from './event-attendees';
 import * as externalSurveys from './external-surveys';
@@ -55,6 +56,8 @@ import * as bookingsRelations from './bookings-relations';
 import * as contentsRelations from './contents-relations';
 import * as conversationsRelations from './conversations-relations';
 import * as conversationParticipantsRelations from './conversation-participants-relations';
+import * as competitionsRelations from './competitions-relations';
+import * as competitionEntriesRelations from './competition-entries-relations';
 import * as eventsRelations from './events-relations';
 import * as eventAttendeesRelations from './event-attendees-relations';
 import * as groupsRelations from './groups-relations';
@@ -104,6 +107,7 @@ export const schema = {
   ...conversations,
   ...conversationParticipants,
   ...competitions,
+  ...competitionEntries,
   ...events,
   ...eventAttendees,
   ...externalSurveys,
@@ -151,6 +155,8 @@ export const schema = {
   ...contentsRelations,
   ...conversationsRelations,
   ...conversationParticipantsRelations,
+  ...competitionsRelations,
+  ...competitionEntriesRelations,
   ...eventsRelations,
   ...eventAttendeesRelations,
   ...groupsRelations,
