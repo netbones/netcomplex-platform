@@ -33,3 +33,6 @@ prisma/*.db
 
 # Build
 dist/next-env.d.ts
+
+# Build artifacts
+tsconfig.tsbuildinfo
