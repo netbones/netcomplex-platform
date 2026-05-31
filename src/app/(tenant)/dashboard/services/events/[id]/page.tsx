@@ -77,7 +77,7 @@ export default function EventDetailPage({ params }: EventPageProps) {
             This event may have been removed or is no longer available.
           </p>
           <Link
-            href="/dashboard/services"
+            href="/dashboard/services/events"
             className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -138,7 +138,7 @@ export default function EventDetailPage({ params }: EventPageProps) {
 
         <div className="mt-6">
           <Link
-            href="/dashboard/services"
+            href="/dashboard/services/events"
             className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition"
           >
             <ArrowLeft className="w-4 h-4" />
