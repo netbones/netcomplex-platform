@@ -314,11 +314,11 @@ export type ServicesDomain = (typeof SERVICES_DOMAINS)[number];
 
 /** Widget mapping for service domains — maps each domain to its widget IDs */
 const SERVICES_DOMAIN_WIDGET_MAP: Record<ServicesDomain, string[]> = {
-  maintenance: ['maintenance-list'],
-  bookings: ['booking-list'],
+  maintenance: ['maintenance-requests'],
+  bookings: [],
   amenities: [],
   'my-services': [],
-  events: ['events-upcoming'],
+  events: ['events'],
 };
 
 /**
