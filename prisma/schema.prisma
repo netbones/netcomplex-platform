@@ -296,26 +296,110 @@ model GroupMembershipRequest {
 }
 
 model MaintenanceRequest {
-  id            String        @id
-  tenantId      String
-  propertyId    String?
-  userId        String
-  category      String
-  priority      Priority
-  description   String
-  status        RequestStatus @default(SUBMITTED)
-  images        String[]
-  assignedTo    String?
-  vendor        String?
-  scheduledDate DateTime?
-  estimatedCost Decimal?      @db.Decimal(10, 2)
-  actualCost    Decimal?      @db.Decimal(10, 2)
-  resolution    String?
-  completedAt   DateTime?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @default(now()) @updatedAt
-  property      Property?     @relation(fields: [propertyId], references: [id])
-  user          user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String         @id
+  tenantId             String
+  propertyId           String?
+  userId               String
+  category             String
+  priority             Priority
+  description          String
+  status               RequestStatus  @default(SUBMITTED)
+  images               String[]
+  assignedTo           String?
+  vendor               String?
+  scheduledDate        DateTime?
+  estimatedCost        Decimal?       @db.Decimal(10, 2)
+  actualCost           Decimal?       @db.Decimal(10, 2)
+  resolution           String?
+  completedAt          DateTime?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @default(now()) @updatedAt
+  ticketNumber         String
+  preferredDate        DateTime?
+  preferredTime        String?
+  assignedTeamId       String?
+  assignedProviderId   String?
+  property             Property?      @relation(fields: [propertyId], references: [id])
+  user                 user           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedTeam         MaintenanceTeam?   @relation("TeamAssignments", fields: [assignedTeamId], references: [id])
+  assignedProvider     ServiceProvider?   @relation("ProviderAssignments", fields: [assignedProviderId], references: [id])
+  histories            RequestHistory[]
+  notes                RequestNote[]
+
+  @@index([tenantId])
+  @@index([assignedTeamId])
+  @@index([assignedProviderId])
+}
+
+model MaintenanceTeam {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  trade       String
+  contactName String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  assignments MaintenanceRequest[] @relation("TeamAssignments")
+
+  @@index([tenantId])
+}
+
+model ServiceProvider {
+  id          String   @id @default(cuid())
+  tenantId    String
+  companyName String
+  contactName String?
+  phone       String?
+  email       String?
+  trade       String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  assignments MaintenanceRequest[] @relation("ProviderAssignments")
+
+  @@index([tenantId])
+}
+
+model MaintenanceCategory {
+  id          String   @id @default(cuid())
+  tenantId    String
+  value       String
+  label       String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@unique([tenantId, value])
+  @@index([tenantId])
+}
+
+model RequestNote {
+  id         String   @id @default(cuid())
+  requestId  String
+  userId     String
+  content    String
+  isInternal Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  request    MaintenanceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user       user @relation(fields: [userId], references: [id])
+
+  @@index([requestId])
+}
+
+model RequestHistory {
+  id        String   @id @default(cuid())
+  requestId String
+  userId    String
+  field     String
+  oldValue  String?
+  newValue  String?
+  comment   String?
+  createdAt DateTime @default(now())
+  request   MaintenanceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user      user @relation(fields: [userId], references: [id])
+
+  @@index([requestId])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -913,8 +997,10 @@ model user {
   ConversationParticipant                               ConversationParticipant[]
   Group                                                 Group[]
   GroupMembershipRequest                                GroupMembershipRequest[]
-  MaintenanceRequest                                    MaintenanceRequest[]
-  Message                                               Message[]
+  MaintenanceRequest MaintenanceRequest[]
+  RequestNote RequestNote[]
+  RequestHistory RequestHistory[]
+  Message Message[]
   Notification                                          Notification[]
   ownedProperties                                       Property[]                @relation("PropertyOwner")
   Resource                                              Resource[]
@@ -1144,7 +1230,10 @@ enum QuestionType {
 
 enum RequestStatus {
   SUBMITTED
+  ASSIGNED
+  SCHEDULED
   IN_PROGRESS
+  PENDING_PARTS
   COMPLETED
   CANCELLED
 }
