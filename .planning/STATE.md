@@ -2,21 +2,21 @@
 
 ## Current Position
 
-- **Phase:** 38-space-layers
-- **Status:** Ready to plan
-- **Last Updated:** 2026-05-30
-- **Next Phase:** Phase 39-competition-entries via `/gsd-execute-phase 39-competition-entries`
+- **Phase:** 39-competition-entries
+- **Status:** Complete (4/4 plans)
+- **Last Updated:** 2026-05-31
+- **Next Phase:** Phase 40-maintenance-ticketing via `/gsd-plan-phase 40-maintenance-ticketing`
 
-**Last Session:** 2026-05-30T21:35:50.279Z
-**Stopped at:** Completed 38-04-PLAN.md
+**Last Session:** 2026-05-31T16:00:00.000Z
+**Stopped at:** Completed 39-04-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
 
-- [Phase 39-competition-entries]: CompetitionEntry model + DTOs + Prisma migration (39-01)
-- [Phase 39-competition-entries]: tRPC competition router with 9 procedures (39-02)
-- [Phase 39-competition-entries]: Public UI — cards grid at /competition, detail page at /competition/[id] (39-03)
-- [Phase 39-competition-entries]: Admin UI — expandable rows, per-type actions, type selector (39-04)
+- [x] [Phase 39-competition-entries]: CompetitionEntry model + DTOs + Prisma migration (39-01)
+- [x] [Phase 39-competition-entries]: tRPC competition router with 9 procedures (39-02)
+- [x] [Phase 39-competition-entries]: Public UI — cards grid at /competition, detail page at /competition/[id] (39-03)
+- [x] [Phase 39-competition-entries]: Admin UI — expandable rows, per-type actions, type selector (39-04)
 
 ## Decisions Made
 
@@ -103,6 +103,15 @@
 - [Phase 38-04]: SERVICES_DOMAINS and MESSAGES_DOMAINS placed in spaces.ts mirroring ADMIN_DOMAINS pattern
 - [Phase 38-04]: Routing order: admin → services → messages → SpaceLayout fallback preserves community as only DnD space
 - [Phase 38-04]: myServices (camelCase) in JSON keys matches ServicesSubLauncher labelKey — i18n libraries don't support hyphens well
+- [Phase 39-01]: CompetitionEntry id uses crypto.randomUUID() for server-side ID generation
+- [Phase 39-01]: Three competition types (RAFFLE, PHOTO, SCORE) with different winner mechanics
+- [Phase 39-02]: `inArray` from drizzle-orm used directly (not dynamic import) for performance
+- [Phase 39-02]: Winner notifications create records via db.insert(notifications) using existing Notification model
+- [Phase 39-02]: Fisher-Yates shuffle for fair RAFFLE winner selection
+- [Phase 39-03]: Responsive card grid at /competition with type badges and participant count avatars
+- [Phase 39-03]: Detail page uses hero + info grid + collapsible rules + type-specific action section
+- [Phase 39-04]: Removed .default() from adminCompetitionSchema to avoid react-hook-form type inference issues
+- [Phase 39-04]: Winners count hidden for PHOTO type (manual selection only); auto-select uses top N scores for SCORE type
 
 ## Notes
 
@@ -233,6 +242,10 @@
 | Phase 38 P02                           | 51min  | 2 tasks  | 3 files  |
 | Phase 38 P03                           | 76min  | 2 tasks  | 3 files  |
 | Phase 38 P04                           | 37min  | 2 tasks  | 4 files  |
+| Phase 39 P01                           | ~15min | 3 tasks  | 8 files  |
+| Phase 39 P02                           | ~20min | 3 tasks  | 2 files  |
+| Phase 39 P03                           | ~15min | 2 tasks  | 4 files  |
+| Phase 39 P04                           | ~25min | 2 tasks  | 3 files  |
 
 ## A01 Execution Decisions
 

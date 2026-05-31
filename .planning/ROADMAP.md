@@ -419,7 +419,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Complete the competition system with user entry management, three winner selection mechanics (raffle, photo contest, score-based), public cards-based listing/detail pages with winners gallery, and winner notifications via the existing Notification system.
 
-**Status:** Planned (4 plans in 3 waves)
+**Status:** Complete (2026-05-31)
 
 **Requirements:** COMP-ENTRY-01, COMP-ENTRY-02, COMP-ENTRY-03, COMP-ENTRY-04, COMP-ENTRY-05, COMP-ENTRY-06
 
@@ -427,10 +427,10 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 | Wave | Plan              | Objective                                                                       |
 | ---- | ----------------- | ------------------------------------------------------------------------------- |
-| 1    | [ ] 39-01-PLAN.md | Database: CompetitionType + EntryStatus enums, CompetitionEntry model, DTOs     |
-| 2    | [ ] 39-02-PLAN.md | API: tRPC competition router — join, submit, participants, winners, draw        |
-| 3    | [ ] 39-03-PLAN.md | Public UI: cards grid listing at /competition, detail page at /competition/[id] |
-| 3    | [ ] 39-04-PLAN.md | Admin UI: expandable rows, per-type actions, competition type selector          |
+| 1    | [x] 39-01-PLAN.md | Database: CompetitionType + EntryStatus enums, CompetitionEntry model, DTOs     |
+| 2    | [x] 39-02-PLAN.md | API: tRPC competition router — join, submit, participants, winners, draw        |
+| 3    | [x] 39-03-PLAN.md | Public UI: cards grid listing at /competition, detail page at /competition/[id] |
+| 3    | [x] 39-04-PLAN.md | Admin UI: expandable rows, per-type actions, competition type selector          |
 
 ---
 
