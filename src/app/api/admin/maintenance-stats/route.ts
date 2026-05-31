@@ -129,6 +129,7 @@ export async function GET(request: Request) {
         ? Math.round(avgResolutionResult[0].avgDays * 10) / 10
         : 0,
     },
+    // byStatus now includes all 7 statuses: SUBMITTED, ASSIGNED, SCHEDULED, IN_PROGRESS, PENDING_PARTS, COMPLETED, CANCELLED
     byStatus: byStatusResult.map(r => ({ status: r.status, count: Number(r.count) })),
     byPriority: byPriorityResult.map(r => ({ priority: r.priority, count: Number(r.count) })),
     byCategory: byCategoryResult.map(r => ({ category: r.category, count: Number(r.count) })),

@@ -2,6 +2,8 @@
  * Preset catalog of all possible maintenance category options.
  * Used by the onboarding wizard and admin settings to let tenants pick their categories.
  * Tenants select from these presets and can add custom categories.
+ *
+ * Fallback for tenants that haven't configured categories yet — prefer reading from MaintenanceCategory table.
  */
 export const PRESET_CATEGORIES: TenantCategory[] = [
   { value: 'plumbing', label: 'Plumbing' },
@@ -23,6 +25,8 @@ export const PRESET_CATEGORIES: TenantCategory[] = [
 /**
  * Default categories for backward compatibility — the 8 original ones.
  * Used when a tenant has no custom category configuration.
+ *
+ * Fallback for tenants that haven't configured categories yet — prefer reading from MaintenanceCategory table.
  */
 export const DEFAULT_CATEGORIES: TenantCategory[] = [
   { value: 'plumbing', label: 'Plumbing' },

@@ -62,22 +62,26 @@ export async function GET(request: NextRequest) {
             id: maintenanceRequests.id,
             domain: sql<string>`'maintenance'`,
             action: sql<string>`
-              CASE status
-              WHEN 'SUBMITTED' THEN 'submitted'
-              WHEN 'IN_PROGRESS' THEN 'started'
-              WHEN 'COMPLETED' THEN 'completed'
-              WHEN 'CANCELLED' THEN 'cancelled'
-              ELSE 'updated'
-              END
-            `,
+  CASE status
+  WHEN 'SUBMITTED' THEN 'submitted'
+  WHEN 'ASSIGNED' THEN 'assigned'
+  WHEN 'SCHEDULED' THEN 'scheduled'
+  WHEN 'IN_PROGRESS' THEN 'started'
+  WHEN 'PENDING_PARTS' THEN 'pending_parts'
+  WHEN 'COMPLETED' THEN 'completed'
+  WHEN 'CANCELLED' THEN 'cancelled'
+  ELSE 'updated'
+  END
+  `,
             resourceLabel: maintenanceRequests.description,
             actorId: maintenanceRequests.userId,
             createdAt: maintenanceRequests.updatedAt,
             metadata: sql<string>`json_build_object(
-              'status', status,
-              'category', category,
-              'priority', priority
-            )`,
+  'status', status,
+  'category', category,
+  'priority', priority,
+  'ticketNumber', ticket_number
+  )`,
           })
           .from(maintenanceRequests)
           .where(
