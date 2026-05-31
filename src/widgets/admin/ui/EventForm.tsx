@@ -11,6 +11,7 @@ import { createComponentLogger } from '@shared/lib';
 const log = createComponentLogger('EventForm');
 
 interface EventFormProps {
+  redirectPath?: string;
   initialData?: {
     id?: string;
     title?: string;
@@ -49,7 +50,7 @@ function getInitialDefaultValues(initialData?: EventFormProps['initialData']): A
   };
 }
 
-export function EventForm({ initialData }: EventFormProps) {
+export function EventForm({ redirectPath = '/admin/events', initialData }: EventFormProps) {
   const router = useRouter();
   const isEditing = !!initialData?.id;
 
@@ -90,7 +91,7 @@ export function EventForm({ initialData }: EventFormProps) {
 
       if (res.ok) {
         toast.success(isEditing ? 'Event updated!' : 'Event created!');
-        router.push('/admin/events');
+        router.push(redirectPath);
         router.refresh();
       } else {
         const error = await res.json();
@@ -114,7 +115,7 @@ export function EventForm({ initialData }: EventFormProps) {
 
       if (res.ok) {
         toast.success('Event deleted');
-        router.push('/admin/events');
+        router.push(redirectPath);
         router.refresh();
       } else {
         const error = await res.json();

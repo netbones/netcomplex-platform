@@ -1,6 +1,6 @@
 import { auth } from '@api/auth';
-import { db, users } from '@api/db';
-import { eq } from 'drizzle-orm';
+import { db, users, eventAttendees } from '@api/db';
+import { eq, inArray, and, sql } from 'drizzle-orm';
 import { revalidateContent } from '@api/revalidation';
 import { withTenant } from '@entities/tenant/api/with-tenant';
 import { hasPermission } from '@entities/tenant/api/permissions';
@@ -35,6 +35,58 @@ async function getSessionAndRole(request: Request) {
 }
 
 /**
+ * Enriches an event list with attendee info and registration status.
+ */
+async function enrichWithAttendees(events: Array<Record<string, unknown>>, userId: string) {
+  if (events.length === 0) return events;
+
+  const eventIds = events.map(e => e.id as string);
+
+  const attendeeCounts = await db
+    .select({
+      eventId: eventAttendees.eventId,
+      count: sql<number>`cast(count(*) as int)`,
+    })
+    .from(eventAttendees)
+    .where(inArray(eventAttendees.eventId, eventIds))
+    .groupBy(eventAttendees.eventId);
+
+  const countMap = new Map(attendeeCounts.map(a => [a.eventId, a.count]));
+
+  const userRegistrations = await db
+    .select({ eventId: eventAttendees.eventId })
+    .from(eventAttendees)
+    .where(and(inArray(eventAttendees.eventId, eventIds), eq(eventAttendees.userId, userId)));
+
+  const registeredSet = new Set(userRegistrations.map(r => r.eventId));
+
+  const attendees = await db
+    .select({
+      eventId: eventAttendees.eventId,
+      name: users.name,
+      avatar: users.avatar,
+    })
+    .from(eventAttendees)
+    .innerJoin(users, eq(users.id, eventAttendees.userId))
+    .where(inArray(eventAttendees.eventId, eventIds))
+    .orderBy(eventAttendees.createdAt);
+
+  const attendeesByEvent = new Map<string, { name: string; avatar: string | null }[]>();
+  for (const a of attendees) {
+    const list = attendeesByEvent.get(a.eventId) ?? [];
+    if (list.length < 3) list.push({ name: a.name, avatar: a.avatar });
+    attendeesByEvent.set(a.eventId, list);
+  }
+
+  return events.map(event => ({
+    ...event,
+    registered: registeredSet.has(event.id as string),
+    attendeeCount: countMap.get(event.id as string) ?? 0,
+    attendees: attendeesByEvent.get(event.id as string) ?? [],
+  }));
+}
+
+/**
  * GET /api/events - List all events for the tenant
  * Returns events ordered by date descending.
  * Query params:
@@ -61,7 +113,12 @@ export async function GET(request: Request) {
   // Delegate to entity service
   const eventItems = await eventsService.listEvents({ tenantId, limit, upcoming });
 
-  return apiSuccess(eventItems);
+  const enriched = await enrichWithAttendees(
+    eventItems as Array<Record<string, unknown>>,
+    authData.userId
+  );
+
+  return apiSuccess(enriched);
 }
 
 /**
