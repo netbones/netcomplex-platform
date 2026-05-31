@@ -2,16 +2,23 @@
 
 ## Current Position
 
-- **Phase:** 39-competition-entries
-- **Status:** Complete (4/4 plans)
-- **Last Updated:** 2026-05-31
-- **Next Phase:** Phase 40-maintenance-ticketing via `/gsd-plan-phase 40-maintenance-ticketing`
+- **Phase:** 40-maintenance-ticketing
+- **Status:** In Progress (2/4 plans)
+- **Current Plan:** 40-02 (complete) → next: 40-03
+- **Last Updated:** 2026-06-01
+- **Next Step:** Execute 40-03-PLAN.md via `/gsd-execute-phase 40-maintenance-ticketing`
 
-**Last Session:** 2026-05-31T16:00:00.000Z
-**Stopped at:** Completed 39-04-PLAN.md
+**Last Session:** 2026-05-31T23:33:20.096Z
+**Stopped at:** Completed 40-02-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
+
+- [x] [Phase 40-01]: Prisma 7-status enum + 5 new models + Drizzle schema imports
+- [x] [Phase 40-02]: CRUD API for teams, providers, categories + assignment with history tracking
+- [x] [Phase 40-02]: Ticket number generation SRV-{YYYY}-{NNNN} + comma-separated priority filter
+- [x] [Phase 40-02]: Resident notes bug fix — filter isInternal instead of 403 on any internal note
+- [x] [Phase 40-02]: Admin activity 7-status CASE + ticketNumber in metadata
 
 - [x] [Phase 39-competition-entries]: CompetitionEntry model + DTOs + Prisma migration (39-01)
 - [x] [Phase 39-competition-entries]: tRPC competition router with 9 procedures (39-02)
