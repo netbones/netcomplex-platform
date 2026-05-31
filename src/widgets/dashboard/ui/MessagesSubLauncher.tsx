@@ -31,22 +31,22 @@ export interface MessagesDomainDef {
 export const MESSAGES_DOMAIN_DEFINITIONS: MessagesDomainDef[] = [
   {
     id: 'conversations',
-    labelKey: 'messages.domains.conversations',
-    descriptionKey: 'messages.domains.descriptions.conversations',
+    labelKey: 'domains.conversations',
+    descriptionKey: 'domains.descriptions.conversations',
     icon: MessageSquare,
     description: 'Direct and group conversations',
   },
   {
     id: 'announcements',
-    labelKey: 'messages.domains.announcements',
-    descriptionKey: 'messages.domains.descriptions.announcements',
+    labelKey: 'domains.announcements',
+    descriptionKey: 'domains.descriptions.announcements',
     icon: Megaphone,
     description: 'Community announcements and broadcasts',
   },
   {
     id: 'notifications',
-    labelKey: 'messages.domains.notifications',
-    descriptionKey: 'messages.domains.descriptions.notifications',
+    labelKey: 'domains.notifications',
+    descriptionKey: 'domains.descriptions.notifications',
     icon: Bell,
     description: 'System notifications and alerts',
   },
