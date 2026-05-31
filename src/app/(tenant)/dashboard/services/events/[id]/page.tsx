@@ -5,6 +5,7 @@ import { use } from 'react';
 import Link from 'next/link';
 import { Calendar, MapPin, User, ArrowLeft } from 'lucide-react';
 import { ErrorBoundary, LoadingSpinner, Breadcrumbs } from '@shared/ui';
+import { EventAttendance } from '@features/events';
 
 interface EventDetail {
   id: string;
@@ -134,6 +135,10 @@ export default function EventDetailPage({ params }: EventPageProps) {
               ))}
             </div>
           </div>
+        </div>
+
+        <div className="mt-6">
+          <EventAttendance eventId={event.id} />
         </div>
 
         <div className="mt-6">

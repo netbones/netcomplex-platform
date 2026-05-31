@@ -3,6 +3,7 @@ import { users } from './users';
 import { assistSessions } from './assist-sessions';
 import { bookings } from './bookings';
 import { contents } from './contents';
+import { eventAttendees } from './event-attendees';
 import { conversationParticipants } from './conversation-participants';
 import { groups } from './groups';
 import { groupMembershipRequests } from './group-membership-requests';
@@ -36,6 +37,7 @@ export const usersRelations = relations(users, helpers => ({
   assistSessions: helpers.many(assistSessions, { relationName: 'AssistSessionTouser' }),
   Booking: helpers.many(bookings, { relationName: 'BookingTouser' }),
   Content: helpers.many(contents, { relationName: 'ContentTouser' }),
+  EventAttendee: helpers.many(eventAttendees, { relationName: 'EventAttendeeTouser' }),
   ConversationParticipant: helpers.many(conversationParticipants, {
     relationName: 'ConversationParticipantTouser',
   }),

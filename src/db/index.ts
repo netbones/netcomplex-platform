@@ -11,6 +11,7 @@ export * from '@schema/community-service-reviews';
 export * from '@schema/contents';
 export * from '@schema/conversations';
 export * from '@schema/conversation-participants';
+export * from '@schema/event-attendees';
 export * from '@schema/events';
 export * from '@schema/external-surveys';
 export * from '@schema/groups';

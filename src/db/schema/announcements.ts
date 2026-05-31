@@ -10,12 +10,9 @@ export const announcements = pgTable('Announcement', {
   author: text('author').notNull(),
   priority: text('priority').default('normal').notNull(),
   targetFilter: residentFilterEnum('targetFilter').default('ALL').notNull(),
-  targetRoles: roleEnum('targetRoles').array().default([]).notNull(),
+  targetRoles: roleEnum('targetRoles').array().notNull(),
   resourceId: text('resourceId'),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 })
-    .defaultNow()
-    .notNull()
-    .$onUpdate(() => new Date()),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   expiresAt: timestamp('expiresAt', { mode: 'date', precision: 3 }),
 });

@@ -75,6 +75,7 @@ import { members } from '@schema/members';
 import { organizations } from '@schema/organizations';
 import { tenants } from '@schema/tenants';
 import { events } from '@schema/events';
+import { eventAttendees } from '@schema/event-attendees';
 import { announcements } from '@schema/announcements';
 import { agentAccesses } from '@schema/agent-accesses';
 import { platformSuspensions } from '@schema/platform-suspensions';
@@ -127,6 +128,7 @@ const dbSchema = {
   organizations,
   tenants,
   events,
+  eventAttendees,
   announcements,
   agentAccesses,
   platformSuspensions,
@@ -265,6 +267,7 @@ export {
   organizations,
   tenants,
   events,
+  eventAttendees,
   announcements,
   agentAccesses,
   platformSuspensions,

@@ -189,7 +189,7 @@ model Competition {
 }
 
 model Event {
-  id          String   @id
+  id          String           @id
   tenantId    String
   title       String
   description String
@@ -197,9 +197,26 @@ model Event {
   location    String
   organizer   String
   image       String?
-  isPublic    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  isPublic    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @default(now()) @updatedAt
+  attendees   EventAttendee[]
+
+  @@index([tenantId])
+}
+
+model EventAttendee {
+  id        String   @id
+  tenantId  String
+  eventId   String
+  userId    String
+  createdAt DateTime @default(now())
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
 }
 
 model ExternalSurvey {
@@ -865,6 +882,7 @@ model user {
   assistSessions                                        AssistSession[]
   Booking                                               Booking[]
   Content                                               Content[]
+  EventAttendee                                         EventAttendee[]
   ConversationParticipant                               ConversationParticipant[]
   Group                                                 Group[]
   GroupMembershipRequest                                GroupMembershipRequest[]

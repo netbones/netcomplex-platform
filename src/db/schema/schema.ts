@@ -9,6 +9,7 @@ import * as conversations from './conversations';
 import * as conversationParticipants from './conversation-participants';
 import * as competitions from './competitions';
 import * as events from './events';
+import * as eventAttendees from './event-attendees';
 import * as externalSurveys from './external-surveys';
 import * as groups from './groups';
 import * as groupMembershipRequests from './group-membership-requests';
@@ -44,6 +45,7 @@ import * as twoFactors from './two-factors';
 import * as users from './users';
 import * as verifications from './verifications';
 import * as resources from './resources';
+import * as resourceVersions from './resource-versions';
 import * as platformModulesRelations from './platform-modules-relations';
 import * as tenantModulesRelations from './tenant-modules-relations';
 import * as assistSessionsRelations from './assist-sessions-relations';
@@ -53,6 +55,8 @@ import * as bookingsRelations from './bookings-relations';
 import * as contentsRelations from './contents-relations';
 import * as conversationsRelations from './conversations-relations';
 import * as conversationParticipantsRelations from './conversation-participants-relations';
+import * as eventsRelations from './events-relations';
+import * as eventAttendeesRelations from './event-attendees-relations';
 import * as groupsRelations from './groups-relations';
 import * as groupMembershipRequestsRelations from './group-membership-requests-relations';
 import * as maintenanceRequestsRelations from './maintenance-requests-relations';
@@ -85,6 +89,7 @@ import * as standardSeatsRelations from './standard-seats-relations';
 import * as twoFactorsRelations from './two-factors-relations';
 import * as usersRelations from './users-relations';
 import * as resourcesRelations from './resources-relations';
+import * as resourceVersionsRelations from './resource-versions-relations';
 import * as propertiesTopremiumSeats from './properties-topremium-seats';
 import * as propertiesTopremiumSeatsRelations from './properties-topremium-seats-relations';
 
@@ -100,6 +105,7 @@ export const schema = {
   ...conversationParticipants,
   ...competitions,
   ...events,
+  ...eventAttendees,
   ...externalSurveys,
   ...groups,
   ...groupMembershipRequests,
@@ -135,6 +141,7 @@ export const schema = {
   ...users,
   ...verifications,
   ...resources,
+  ...resourceVersions,
   ...platformModulesRelations,
   ...tenantModulesRelations,
   ...assistSessionsRelations,
@@ -144,6 +151,8 @@ export const schema = {
   ...contentsRelations,
   ...conversationsRelations,
   ...conversationParticipantsRelations,
+  ...eventsRelations,
+  ...eventAttendeesRelations,
   ...groupsRelations,
   ...groupMembershipRequestsRelations,
   ...maintenanceRequestsRelations,
@@ -176,6 +185,7 @@ export const schema = {
   ...twoFactorsRelations,
   ...usersRelations,
   ...resourcesRelations,
+  ...resourceVersionsRelations,
   ...propertiesTopremiumSeats,
   ...propertiesTopremiumSeatsRelations,
 };
