@@ -103,7 +103,7 @@ function UpgradePrompt({
         {widget && `The "${widget}" requires a higher tier.`}
       </p>
       <a
-        href="/admin/upgrade"
+        href="/dashboard/admin/upgrade"
         className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
       >
         Upgrade to {nextTier}

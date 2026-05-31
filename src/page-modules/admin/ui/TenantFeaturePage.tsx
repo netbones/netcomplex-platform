@@ -47,7 +47,7 @@ async function FeatureManager({ id }: { id: string }) {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-8">
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-          <Link href="/admin/platform" className="hover:text-gray-700">
+          <Link href="/dashboard/admin/platform" className="hover:text-gray-700">
             Platform
           </Link>
           <span>/</span>
