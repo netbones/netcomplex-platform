@@ -29,8 +29,8 @@ export function MaintenancePage() {
     async function fetchRequests() {
       try {
         const res = await fetch('/api/maintenance');
-        const data = await res.json();
-        setRequests(data);
+        const json = await res.json();
+        setRequests(json.data);
       } catch (error) {
         log.error({}, 'Failed to fetch requests', error);
       } finally {

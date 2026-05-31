@@ -150,8 +150,8 @@ export default function AdminRequestsPage() {
       if (search) params.set('search', search);
 
       const res = await fetch(`/api/maintenance?${params}`);
-      const data = await res.json();
-      setRequests(data);
+      const json = await res.json();
+      setRequests(json.data);
     } catch (error) {
       log.error({}, 'Failed to fetch requests', error);
     } finally {
@@ -163,8 +163,8 @@ export default function AdminRequestsPage() {
     setLoadingHistory(true);
     try {
       const res = await fetch(`/api/maintenance/${requestId}/history`);
-      const data = await res.json();
-      setHistory(data);
+      const json = await res.json();
+      setHistory(json.data);
     } catch (error) {
       log.error({}, 'Failed to fetch history', error);
     } finally {
@@ -176,8 +176,8 @@ export default function AdminRequestsPage() {
     setLoadingNotes(true);
     try {
       const res = await fetch(`/api/maintenance/${requestId}/notes`);
-      const data = await res.json();
-      setNotes(data);
+      const json = await res.json();
+      setNotes(json.data);
     } catch (error) {
       log.error({}, 'Failed to fetch notes', error);
     } finally {
@@ -203,8 +203,8 @@ export default function AdminRequestsPage() {
     async function fetchBoardMembers() {
       try {
         const res = await fetch('/api/admin/board-members');
-        const data = await res.json();
-        setBoardMembers(data);
+        const json = await res.json();
+        setBoardMembers(json.data);
       } catch (error) {
         log.error({}, 'Failed to fetch board members', error);
       }
