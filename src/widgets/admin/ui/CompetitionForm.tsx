@@ -21,6 +21,9 @@ interface CompetitionFormProps {
     endDate?: string;
     status?: string;
     image?: string | null;
+    type?: string;
+    winnersCount?: number;
+    maxParticipants?: number | null;
   };
 }
 
@@ -50,6 +53,9 @@ function getInitialDefaultValues(
     endDate: initialData?.endDate ? formatForDatePicker(initialData.endDate) + 'T00:00' : '',
     image: initialData?.image || '',
     status: (initialData?.status as 'DRAFT' | 'ACTIVE' | 'ENDED' | 'CANCELLED') || 'DRAFT',
+    type: (initialData?.type as 'RAFFLE' | 'PHOTO' | 'SCORE') || 'RAFFLE',
+    winnersCount: initialData?.winnersCount || 1,
+    maxParticipants: initialData?.maxParticipants || null,
   };
 }
 
@@ -104,6 +110,9 @@ export function CompetitionForm({ initialData }: CompetitionFormProps) {
         prizeInfo: data.prizeInfo || null,
         image: data.image || null,
         status: data.status,
+        type: data.type,
+        winnersCount: data.winnersCount,
+        maxParticipants: data.maxParticipants || null,
       };
 
       const res = await fetch(url, {
@@ -169,6 +178,82 @@ export function CompetitionForm({ initialData }: CompetitionFormProps) {
           placeholder="Competition title"
         />
         {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
+      </div>
+
+      {/* Competition Type */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Competition Type</label>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {(
+            [
+              {
+                value: 'RAFFLE',
+                label: 'Raffle Draw',
+                desc: 'Participants join, winners drawn randomly',
+              },
+              {
+                value: 'PHOTO',
+                label: 'Photo Contest',
+                desc: 'Participants submit photos, admin judges',
+              },
+              { value: 'SCORE', label: 'Score-Based', desc: 'Admin assigns scores, highest wins' },
+            ] as const
+          ).map(opt => (
+            <label
+              key={opt.value}
+              className={`relative flex flex-col border rounded-lg p-3 cursor-pointer transition-colors ${
+                watch('type') === opt.value
+                  ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-500'
+                  : 'border-gray-200 hover:border-gray-300 bg-white'
+              }`}
+            >
+              <input
+                type="radio"
+                className="sr-only"
+                value={opt.value}
+                checked={watch('type') === opt.value}
+                onChange={() => setValue('type', opt.value as 'RAFFLE' | 'PHOTO' | 'SCORE')}
+              />
+              <span className="text-sm font-medium text-gray-900">{opt.label}</span>
+              <span className="text-xs text-gray-500 mt-1">{opt.desc}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Winners Count + Max Participants */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {watch('type') !== 'PHOTO' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Number of Winners
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={100}
+              value={watch('winnersCount')}
+              onChange={e => setValue('winnersCount', parseInt(e.target.value) || 1)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+        )}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Max Participants <span className="text-gray-400 font-normal">(optional)</span>
+          </label>
+          <input
+            type="number"
+            min={1}
+            value={watch('maxParticipants') ?? ''}
+            onChange={e =>
+              setValue('maxParticipants', e.target.value ? parseInt(e.target.value) : null)
+            }
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="Leave empty for unlimited"
+          />
+          <p className="mt-1 text-xs text-gray-500">Limits how many can join</p>
+        </div>
       </div>
 
       {/* Description */}

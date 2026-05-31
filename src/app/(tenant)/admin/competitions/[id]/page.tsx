@@ -16,6 +16,9 @@ interface Competition {
   status: string;
   entryCount: number;
   image: string | null;
+  type?: string;
+  winnersCount?: number;
+  maxParticipants?: number | null;
 }
 
 export default function EditCompetitionPage() {
@@ -71,6 +74,9 @@ export default function EditCompetitionPage() {
           endDate: competition.endDate,
           status: competition.status,
           image: competition.image,
+          type: competition.type,
+          winnersCount: competition.winnersCount,
+          maxParticipants: competition.maxParticipants,
         }}
       />
     </div>
