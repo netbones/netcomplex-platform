@@ -76,8 +76,8 @@ export const adminCompetitionSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, 'Date must be YYYY-MM-DDTHH:MM'),
   image: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   status: z.enum(['DRAFT', 'ACTIVE', 'ENDED', 'CANCELLED']),
-  type: z.enum(['RAFFLE', 'PHOTO', 'SCORE']).default('RAFFLE'),
-  winnersCount: z.number().int().min(1).max(100).default(1),
+  type: z.enum(['RAFFLE', 'PHOTO', 'SCORE']),
+  winnersCount: z.number().int().min(1).max(100),
   maxParticipants: z.number().int().min(1).optional().nullable(),
 });
 
