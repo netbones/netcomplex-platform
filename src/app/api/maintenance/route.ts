@@ -65,6 +65,9 @@ export async function GET(request: Request) {
   const search = searchParams.get('search');
   const dateFrom = searchParams.get('dateFrom');
   const dateTo = searchParams.get('dateTo');
+  const scopeParam = searchParams.get('scope');
+  const scope: 'mine' | 'all' | null =
+    scopeParam === 'mine' ? 'mine' : scopeParam === 'all' ? 'all' : null;
 
   const { tenantId } = await withTenant();
 
@@ -73,6 +76,7 @@ export async function GET(request: Request) {
     tenantId,
     userId: authData.userId,
     canViewAll,
+    scope,
     status,
     priority,
     category,

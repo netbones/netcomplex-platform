@@ -477,8 +477,8 @@ export function HomeLayer() {
       // Community announcements (non-urgent)
       fetchJson<Announcement>('/api/announcements?limit=5&priority=normal'),
 
-      // User's own maintenance requests for activity zone
-      fetchJson<MaintenanceActivityRow>('/api/maintenance?limit=5'),
+      // User's own maintenance requests for activity zone (scope=mine forces user-scoped view)
+      fetchJson<MaintenanceActivityRow>('/api/maintenance?limit=5&scope=mine'),
     ])
       .then(
         ([

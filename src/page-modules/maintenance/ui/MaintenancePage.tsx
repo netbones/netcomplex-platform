@@ -172,7 +172,8 @@ export function MaintenancePage() {
 
   const fetchRequests = useCallback(async () => {
     try {
-      const res = await fetch('/api/maintenance');
+      // scope=mine forces user-scoped view even for admins viewing user-facing page
+      const res = await fetch('/api/maintenance?scope=mine');
       const json = await res.json();
       // API returns { success, data } envelope — unwrap
       setRequests(Array.isArray(json.data) ? json.data : Array.isArray(json) ? json : []);

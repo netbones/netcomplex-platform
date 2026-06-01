@@ -38,6 +38,7 @@ export function buildMaintenanceConditions(params: {
   tenantId: string;
   userId: string;
   canViewAll: boolean;
+  scope?: 'mine' | 'all' | null;
   status?: string | null;
   priority?: string | null;
   category?: string | null;
@@ -50,7 +51,8 @@ export function buildMaintenanceConditions(params: {
     | ReturnType<typeof inArray>
   )[] = [eq(maintenanceRequests.tenantId, params.tenantId)];
 
-  if (!params.canViewAll) {
+  // Force user-scoping if scope=mine OR if user lacks view-all permission
+  if (params.scope === 'mine' || !params.canViewAll) {
     conditions.push(eq(maintenanceRequests.userId, params.userId));
   }
 
@@ -108,6 +110,7 @@ export async function listMaintenanceRequests(params: {
   tenantId: string;
   userId: string;
   canViewAll: boolean;
+  scope?: 'mine' | 'all' | null;
   status?: string | null;
   priority?: string | null;
   category?: string | null;
@@ -117,7 +120,10 @@ export async function listMaintenanceRequests(params: {
   const conditions = buildMaintenanceConditions(params);
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-  if (params.canViewAll) {
+  // Effective view: when scope=mine is requested, treat as resident view even for admins
+  const effectiveCanViewAll = params.canViewAll && params.scope !== 'mine';
+
+  if (effectiveCanViewAll) {
     // Admin view: join with properties, teams, providers for full context
     return db
       .select({

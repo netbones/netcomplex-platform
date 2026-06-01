@@ -33,7 +33,9 @@ export function MaintenanceRequestsWidget() {
   useEffect(() => {
     async function fetchRequests() {
       try {
-        const res = await fetch('/api/maintenance');
+        // scope=mine forces user-scoped view even for admins — this widget is rendered
+        // on the user-facing services space, so it should always show the user's own requests
+        const res = await fetch('/api/maintenance?scope=mine');
         const body = await res.json();
         const data = body?.data ?? body;
         setRequests(data.slice(0, 5));
