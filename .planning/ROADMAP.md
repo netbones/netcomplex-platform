@@ -563,3 +563,25 @@ tenant_modules           → What each tenant has
 1. **Middleware**: Coarse-grained route protection (redirect if tier insufficient)
 2. **FeatureGate**: Reads resolved module list from tables (tier check implicit)
 3. **API Layer**: `assertModuleEnabled()` helper — server-side enforcement
+
+---
+
+## Phase: 41-feature-gate-consolidation
+
+**Goal:** Consolidate the three overlapping feature gating systems (TierGuard/FeatureRegistry, Module Gate, PlatformPageFlags) into a single `canAccess()` entry point with explicit 5-layer precedence. Adds server `canAccess()`, client `canAccessClient()` + `useGateContext()` + `GateGuard` component, CI test for mapping completeness, and `revalidateGate()` cache invalidation helper. **Phase 1 is purely additive — no existing callsites change.**
+
+**Status:** Planning Complete — 3 plans in 1 wave
+
+**Requirements:** GATE-01, GATE-02, GATE-03, GATE-04, GATE-05, GATE-06, GATE-07, GATE-08
+
+**Plans:**
+
+| Wave | Plan              | Objective                                                                                        |
+| ---- | ----------------- | ------------------------------------------------------------------------------------------------ |
+| 1    | [ ] 41-01-PLAN.md | Server `canAccess()` + 3 mapping tables (FEATURE_TO_MODULE/FLAG/REGISTRY) + GATE_REASON_TO_ERROR |
+| 1    | [ ] 41-02-PLAN.md | Client `canAccessClient()` + `useGateContext()` hook + `GateGuard` component                     |
+| 1    | [ ] 41-03-PLAN.md | CI test for mapping completeness + `revalidateGate()` cache invalidation helper                  |
+
+**References:** `docs/GATE_DISCUSSION.md`, `docs/GATE_ADDENDUM.md`, `docs/GATE_PLAN.md`
+
+**Out of scope (Phase 2-3 migration):** Migrating existing callsites from `isModuleEnabled`/`TierGuard`/`usePageFlags` → `canAccess()` (Phase 2 opportunistic); removing legacy public exports (Phase 3 cleanup); unifying the two tier systems (separate workstream, tracked by UBIQUITOUS_LANGUAGE.md C4).

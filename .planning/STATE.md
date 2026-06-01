@@ -2,11 +2,11 @@
 
 ## Current Position
 
-- **Phase:** 40-maintenance-ticketing
-- **Status:** In Progress (3/4 plans)
-- **Current Plan:** 40-03 (complete) → next: 40-04
+- **Phase:** 41-feature-gate-consolidation
+- **Status:** Planning Complete — 3 plans in 1 wave
+- **Current Plan:** Ready to execute 41-01, 41-02, 41-03 (all in parallel)
 - **Last Updated:** 2026-06-01
-- **Next Step:** Execute 40-04-PLAN.md via `/gsd-execute-phase 40-maintenance-ticketing`
+- **Next Step:** Execute 41-01-PLAN.md via `/gsd-execute-phase 41-feature-gate-consolidation`
 
 **Last Session:** 2026-06-01T07:54:09.981Z
 **Stopped at:** Completed 40-03-PLAN.md
@@ -19,6 +19,13 @@
 - [x] [Phase 40-02]: Ticket number generation SRV-{YYYY}-{NNNN} + comma-separated priority filter
 - [x] [Phase 40-02]: Resident notes bug fix — filter isInternal instead of 403 on any internal note
 - [x] [Phase 40-02]: Admin activity 7-status CASE + ticketNumber in metadata
+
+- [x] [Phase 41]: Module key as canonical FeatureKey namespace (most stable of the three systems' key formats)
+- [x] [Phase 41]: Role as Layer 0 (prerequisite) — runs before tier; synchronous in-memory lookup against ROLE_PERMISSIONS
+- [x] [Phase 41]: Two-tier-system bridge — server uses TenantTier (STANDARD/PREMIUM/ENTERPRISE), client uses TierLevel (foundation/depth/core); conversion via tenantTierToTierLevel() helper
+- [x] [Phase 41]: Explicit null values in mapping tables (load-bearing — documents "no gate at this layer")
+- [x] [Phase 41]: Client skips Module layer check (server is source of truth; client relies on server 403 + Flag layer)
+- [x] [Phase 41]: Phase 1 is purely additive — no existing callsites change; CI test prevents future drift
 
 - [x] [Phase 39-competition-entries]: CompetitionEntry model + DTOs + Prisma migration (39-01)
 - [x] [Phase 39-competition-entries]: tRPC competition router with 9 procedures (39-02)
