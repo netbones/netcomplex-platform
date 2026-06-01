@@ -1,10 +1,7 @@
 'use client';
 
-import {
-  useMaintenanceFilter,
-  type MaintenanceStatus,
-  type MaintenancePriority,
-} from '../model/useMaintenanceFilter';
+import { useMaintenanceFilter } from '../model/useMaintenanceFilter';
+import type { MaintenanceStatus, MaintenancePriority } from '@entities/maintenance';
 
 interface MaintenanceStatusFilterProps {
   onFiltersChange?: (filters: ReturnType<typeof useMaintenanceFilter>['filters']) => void;
@@ -28,8 +25,15 @@ const priorityOptions: { value: MaintenancePriority; label: string; color: strin
 ];
 
 export function MaintenanceStatusFilter({ onFiltersChange }: MaintenanceStatusFilterProps) {
-  const { filters, toggleStatus, togglePriority, setSearch, clearFilters, hasActiveFilters } =
-    useMaintenanceFilter();
+  const {
+    filters,
+    toggleStatus,
+    togglePriority,
+    setSearch,
+    setTicketNumber,
+    clearFilters,
+    hasActiveFilters,
+  } = useMaintenanceFilter();
 
   const handleStatusToggle = (status: MaintenanceStatus) => {
     toggleStatus(status);
@@ -56,9 +60,14 @@ export function MaintenanceStatusFilter({ onFiltersChange }: MaintenanceStatusFi
     onFiltersChange?.({ ...filters, search });
   };
 
+  const handleTicketNumberChange = (ticketNumber: string) => {
+    setTicketNumber(ticketNumber);
+    onFiltersChange?.({ ...filters, ticketNumber });
+  };
+
   const handleClearFilters = () => {
     clearFilters();
-    onFiltersChange?.({ status: [], priority: [], category: [], search: '' });
+    onFiltersChange?.({ status: [], priority: [], category: [], search: '', ticketNumber: '' });
   };
 
   return (
@@ -72,6 +81,18 @@ export function MaintenanceStatusFilter({ onFiltersChange }: MaintenanceStatusFi
           value={filters.search || ''}
           onChange={e => handleSearchChange(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-soralia-primary"
+        />
+      </div>
+
+      {/* Ticket Number Search */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Ticket Number</label>
+        <input
+          type="text"
+          placeholder="e.g. SRV-2026-0001"
+          value={filters.ticketNumber || ''}
+          onChange={e => handleTicketNumberChange(e.target.value)}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-soralia-primary font-mono text-sm"
         />
       </div>
 

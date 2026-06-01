@@ -1,22 +1,16 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import type { MaintenanceStatus, MaintenancePriority } from '@entities/maintenance';
 
-export type MaintenanceStatus =
-  | 'SUBMITTED'
-  | 'ASSIGNED'
-  | 'IN_PROGRESS'
-  | 'PENDING_PARTS'
-  | 'SCHEDULED'
-  | 'COMPLETED'
-  | 'CANCELLED';
-export type MaintenancePriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'EMERGENCY';
+export type { MaintenanceStatus, MaintenancePriority };
 
 export interface MaintenanceFilters {
   status?: MaintenanceStatus[];
   priority?: MaintenancePriority[];
   category?: string[];
   search?: string;
+  ticketNumber?: string;
 }
 
 const defaultFilters: MaintenanceFilters = {
@@ -24,6 +18,7 @@ const defaultFilters: MaintenanceFilters = {
   priority: [],
   category: [],
   search: '',
+  ticketNumber: '',
 };
 
 export function useMaintenanceFilter(initialFilters: Partial<MaintenanceFilters> = {}) {
@@ -67,12 +62,16 @@ export function useMaintenanceFilter(initialFilters: Partial<MaintenanceFilters>
     setFilters(prev => ({ ...prev, search }));
   }, []);
 
+  const setTicketNumber = useCallback((ticketNumber: string) => {
+    setFilters(prev => ({ ...prev, ticketNumber }));
+  }, []);
+
   const clearFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
 
   const hasActiveFilters = Object.entries(filters).some(([key, value]) => {
-    if (key === 'search') return value && value.length > 0;
+    if (key === 'search' || key === 'ticketNumber') return value && value.length > 0;
     return Array.isArray(value) && value.length > 0;
   });
 
@@ -83,6 +82,7 @@ export function useMaintenanceFilter(initialFilters: Partial<MaintenanceFilters>
     togglePriority,
     toggleCategory,
     setSearch,
+    setTicketNumber,
     clearFilters,
     hasActiveFilters,
   };
