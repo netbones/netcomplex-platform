@@ -3,13 +3,13 @@
 ## Current Position
 
 - **Phase:** 40-maintenance-ticketing
-- **Status:** In Progress (2/4 plans)
-- **Current Plan:** 40-02 (complete) → next: 40-03
+- **Status:** In Progress (3/4 plans)
+- **Current Plan:** 40-03 (complete) → next: 40-04
 - **Last Updated:** 2026-06-01
-- **Next Step:** Execute 40-03-PLAN.md via `/gsd-execute-phase 40-maintenance-ticketing`
+- **Next Step:** Execute 40-04-PLAN.md via `/gsd-execute-phase 40-maintenance-ticketing`
 
-**Last Session:** 2026-05-31T23:33:20.096Z
-**Stopped at:** Completed 40-02-PLAN.md
+**Last Session:** 2026-06-01T07:54:09.981Z
+**Stopped at:** Completed 40-03-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -119,6 +119,10 @@
 - [Phase 39-03]: Detail page uses hero + info grid + collapsible rules + type-specific action section
 - [Phase 39-04]: Removed .default() from adminCompetitionSchema to avoid react-hook-form type inference issues
 - [Phase 39-04]: Winners count hidden for PHOTO type (manual selection only); auto-select uses top N scores for SCORE type
+- [Phase 40]: Workflow transitions defined as UI constant map for MVP simplicity (not API-driven)
+- [Phase 40]: Category filter falls back to hardcoded list when DB categories empty
+- [Phase 40]: Handoff flow unassigns team + assigns provider in single assign API call with reason field
+- [Phase 40]: Ticket number shown as #--- fallback for pre-ticketing data in UI cards
 
 ## Notes
 
@@ -253,6 +257,7 @@
 | Phase 39 P02                           | ~20min | 3 tasks  | 2 files  |
 | Phase 39 P03                           | ~15min | 2 tasks  | 4 files  |
 | Phase 39 P04                           | ~25min | 2 tasks  | 3 files  |
+| Phase 40 P03                           | 88     | 3 tasks  | 4 files  |
 
 ## A01 Execution Decisions
 
