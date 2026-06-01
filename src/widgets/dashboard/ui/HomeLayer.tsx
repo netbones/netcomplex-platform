@@ -34,6 +34,16 @@ interface MaintenanceItem {
   dueDate?: string;
 }
 
+/** Maintenance request shape returned by /api/maintenance for activity zone */
+interface MaintenanceActivityRow {
+  id: string;
+  ticketNumber?: string;
+  category: string;
+  status: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 interface EventItem {
   id: string;
   title: string;
@@ -280,8 +290,14 @@ function ActivityZone({
           {recentActivity.map(a => (
             <ActivityCard
               key={a.id}
-              href="/dashboard/community"
-              icon={<Activity className="w-4 h-4 text-gray-400" />}
+              href={a.type === 'Maintenance' ? '/maintenance' : '/dashboard/community'}
+              icon={
+                a.type === 'Maintenance' ? (
+                  <Wrench className="w-4 h-4 text-indigo-500" />
+                ) : (
+                  <Activity className="w-4 h-4 text-gray-400" />
+                )
+              }
               title={a.title}
               date={a.createdAt}
               type={a.type}
@@ -455,11 +471,14 @@ export function HomeLayer() {
       // Bookings today
       fetchJson<BookingItem>('/api/bookings?date=today'),
 
-      // Recent activity
+      // Recent announcements (used for activity + community section)
       fetchJson<Announcement>('/api/announcements?limit=5'),
 
       // Community announcements (non-urgent)
       fetchJson<Announcement>('/api/announcements?limit=5&priority=normal'),
+
+      // User's own maintenance requests for activity zone
+      fetchJson<MaintenanceActivityRow>('/api/maintenance?limit=5'),
     ])
       .then(
         ([
@@ -470,21 +489,35 @@ export function HomeLayer() {
           todayBookings,
           recentAnnouncements,
           communityAnnouncements,
+          maintenanceRows,
         ]) => {
           // Filter events to today/tomorrow
           const todayEvents = (upcomingEvents as EventItem[]).filter(
             e => isToday(e.startDate) || isTomorrow(e.startDate)
           );
 
-          // Use recentAnnouncements as recent activity if no dedicated activity API
-          const recentActivity = (recentAnnouncements as Announcement[])
+          // Transform maintenance items into activity items
+          const maintenanceActivity = (maintenanceRows as MaintenanceActivityRow[]).map(m => ({
+            id: m.id,
+            title: `${m.ticketNumber || 'Request'} — ${m.status.replace('_', ' ')}`,
+            type: 'Maintenance',
+            createdAt: m.updatedAt || m.createdAt,
+            summary: m.category,
+          }));
+
+          // Merge announcements + maintenance, sort by date, take top 5
+          const announcementActivity = (recentAnnouncements as Announcement[])
             .filter(a => a.priority !== 'urgent')
             .map(a => ({
               id: a.id,
               title: a.title,
-              type: 'Announcement',
+              type: 'Announcement' as const,
               createdAt: a.createdAt,
             }));
+
+          const recentActivity = [...announcementActivity, ...maintenanceActivity]
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+            .slice(0, 5);
 
           setData({
             urgentAnnouncements: urgentAnnouncements as Announcement[],
