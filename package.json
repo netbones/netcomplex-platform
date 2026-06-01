@@ -12,6 +12,7 @@
     "format": "prettier --write .",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
+    "db:check": "prisma generate && git diff --exit-code src/db/schema/",
     "db:seed": "pnpm exec tsx scripts/seed-drizzle.ts",
     "db:studio": "drizzle-kit studio",
     "prepare": "husky",

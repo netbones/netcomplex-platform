@@ -7,14 +7,42 @@ on:
       - 'src/shared/api/**'
       - 'src/server/**'
       - 'src/entities/**/api/**'
+      - 'prisma/schema.prisma'
   push:
     branches: [main]
     paths:
       - 'src/app/api/**'
       - 'src/shared/api/**'
       - 'src/server/**'
+      - 'prisma/schema.prisma'
 
 jobs:
+  schema-drift:
+    name: Schema Drift Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Regenerate Drizzle schema from Prisma source
+        run: pnpm db:generate
+
+      - name: Check for drift
+        run: |
+          if ! git diff --stat --exit-code src/db/schema/; then
+            echo "::error::Generated Drizzle schema is out of sync with Prisma schema."
+            echo "::error::Run 'pnpm db:generate' and commit the changes."
+            exit 1
+          fi
+          echo "✓ No schema drift detected"
+
   openapi-lint:
     name: OpenAPI Specification Lint
     runs-on: ubuntu-latest
