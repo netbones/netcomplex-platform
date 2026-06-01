@@ -5,6 +5,7 @@ export interface MaintenanceRequest {
   description: string;
   status: MaintenanceStatus;
   createdAt: string;
+  updatedAt?: string;
   images?: string[];
   ticketNumber?: string;
   preferredDate?: string | null;
