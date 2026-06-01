@@ -289,7 +289,7 @@ Four different TypeScript shapes exist for the same concept:
 
 `ModuleKey` (tier-gated access), `FeatureRegistry` (fine-grained UI toggles), and `PlatformPageFlags` (DB-stored per-tenant flags) all control visibility of the same features (e.g., `maintenance` appears in all three).
 
-**Resolution needed:** Document the precedence rule: TierLevel → ModuleKey → PlatformPageFlag → FeatureRegistry. Each layer refines the decision of the previous.
+**Resolution plan:** `docs/GATE_PLAN.md` — 5-layer precedence model with `canAccess()` single entry point, 3-phase migration (foundation → incremental → cleanup), CI-enforced mapping completeness test.
 
 ### C3: Tab → Space Migration Incomplete (Medium Priority)
 

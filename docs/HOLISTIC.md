@@ -182,9 +182,10 @@ Audit Logger: Pino → structured JSON
 
 ## Progress Log
 
-| Date       | Update                                                                                                                                                                  |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-06-01 | Initial holistic view created                                                                                                                                           |
-| 2026-06-01 | Created CONTEXT_MAP.md (12 bounded contexts, cross-cutting concerns, relationship patterns)                                                                             |
-| 2026-06-01 | Created UBIQUITOUS_LANGUAGE.md (50+ domain terms, 7 conflict resolutions, decision log)                                                                                 |
-| 2026-06-01 | Created docs/contexts/ with 12 per-entity CONTEXT.md files (tenant, user, directory, maintenance, booking, chat, content, events, service, widget, admin, competitions) |
+| Date       | Update                                                                                                                                                                                                   |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-06-01 | Initial holistic view created                                                                                                                                                                            |
+| 2026-06-01 | Created CONTEXT_MAP.md (12 bounded contexts, cross-cutting concerns, relationship patterns)                                                                                                              |
+| 2026-06-01 | Created UBIQUITOUS_LANGUAGE.md (50+ domain terms, 7 conflict resolutions, decision log)                                                                                                                  |
+| 2026-06-01 | Created docs/contexts/ with 12 per-entity CONTEXT.md files (tenant, user, directory, maintenance, booking, chat, content, events, service, widget, admin, competitions)                                  |
+| 2026-06-01 | Evaluated feature gate consolidation proposal (GATE_DISCUSSION + GATE_ADDENDUM) — created docs/GATE_PLAN.md with 3-phase migration (foundation → incremental → cleanup) for the 5-layer precedence model |
