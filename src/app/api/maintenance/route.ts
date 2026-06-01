@@ -66,8 +66,17 @@ export async function GET(request: Request) {
   const dateFrom = searchParams.get('dateFrom');
   const dateTo = searchParams.get('dateTo');
   const scopeParam = searchParams.get('scope');
-  const scope: 'mine' | 'all' | null =
-    scopeParam === 'mine' ? 'mine' : scopeParam === 'all' ? 'all' : null;
+  // 'mine' = user-scoped (own requests only)
+  // 'all' = role-gated view-all (requires canViewAll permission)
+  // 'community' = tenant-wide basic log, no PII, no assignment details (open to all authenticated users)
+  const scope: 'mine' | 'all' | 'community' | null =
+    scopeParam === 'mine'
+      ? 'mine'
+      : scopeParam === 'all'
+        ? 'all'
+        : scopeParam === 'community'
+          ? 'community'
+          : null;
 
   const { tenantId } = await withTenant();
 
@@ -75,8 +84,8 @@ export async function GET(request: Request) {
   const results = await maintenanceService.listMaintenanceRequests({
     tenantId,
     userId: authData.userId,
-    canViewAll,
-    scope,
+    canViewAll: canViewAll || scope === 'community',
+    scope: scope === 'community' ? 'all' : scope,
     status,
     priority,
     category,
@@ -110,20 +119,50 @@ export async function GET(request: Request) {
     };
   });
 
-  // Apply search filter in memory (for description/ticketNumber search)
+  // Community scope: strip PII and internal fields. Anyone in the tenant can
+  // see the request flow (ticket number, category, priority, status, dates)
+  // but not who submitted it, descriptions, or assignment details.
+  if (scope === 'community') {
+    type CommunityMaintenanceLog = {
+      id: string;
+      ticketNumber: string | null | undefined;
+      category: string;
+      priority: string;
+      status: string;
+      createdAt: string;
+      updatedAt: string | null | undefined;
+    };
+    const communityOutput: CommunityMaintenanceLog[] = transformed.map(r => ({
+      id: r.id,
+      ticketNumber: r.ticketNumber,
+      category: r.category,
+      priority: r.priority,
+      status: r.status,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+    }));
+    return apiSuccess(communityOutput);
+  }
+
+  // Apply search filter in memory (for description/ticketNumber search).
+  // Community scope is handled above and never reaches this branch, so the
+  // user/address fields are guaranteed to exist on `r` here.
   let filteredResults = transformed;
   if (search && canViewAll) {
     const searchLower = search.toLowerCase();
-    filteredResults = transformed.filter(
-      r =>
+    filteredResults = transformed.filter(r => {
+      const user = r.user;
+      const address = user?.address;
+      return (
         r.description?.toLowerCase().includes(searchLower) ||
-        r.user?.name?.toLowerCase().includes(searchLower) ||
-        r.user?.email?.toLowerCase().includes(searchLower) ||
-        r.user?.address?.street?.toLowerCase().includes(searchLower) ||
-        r.user?.address?.unit?.toLowerCase().includes(searchLower) ||
+        user?.name?.toLowerCase().includes(searchLower) ||
+        user?.email?.toLowerCase().includes(searchLower) ||
+        address?.street?.toLowerCase().includes(searchLower) ||
+        address?.unit?.toLowerCase().includes(searchLower) ||
         r.category?.toLowerCase().includes(searchLower) ||
         r.ticketNumber?.toLowerCase().includes(searchLower)
-    );
+      );
+    });
   }
 
   return apiSuccess(filteredResults);

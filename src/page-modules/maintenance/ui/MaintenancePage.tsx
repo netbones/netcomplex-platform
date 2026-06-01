@@ -4,12 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { MaintenanceForm } from '@features/maintenance';
-import {
-  MaintenanceRequest,
-  MaintenanceCard,
-  StatusBadge,
-  PriorityBadge,
-} from '@entities/maintenance';
+import { MaintenanceRequest, StatusBadge, PriorityBadge } from '@entities/maintenance';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import {
@@ -58,8 +53,8 @@ function ExpandedCard({ request }: { request: MaintenanceRequest }) {
 
   return (
     <div className="mt-3 pt-3 border-t border-gray-100 space-y-4">
-      {/* Full description */}
-      <p className="text-gray-700 text-sm">{request.description}</p>
+      {/* Full description — omitted on community-scoped /maintenance where it's redacted */}
+      {request.description && <p className="text-gray-700 text-sm">{request.description}</p>}
 
       {/* Assignment info */}
       {(request.assignedTeam || request.assignedProvider) && (
@@ -172,8 +167,13 @@ export function MaintenancePage() {
 
   const fetchRequests = useCallback(async () => {
     try {
-      // scope=mine forces user-scoped view even for admins viewing user-facing page
-      const res = await fetch('/api/maintenance?scope=mine');
+      // scope=community returns the tenant-wide basic log (ticket number,
+      // category, priority, status, dates) to any authenticated user, with
+      // PII (submitter, description, images, assignments) redacted. The
+      // widget on /dashboard/services/maintenance uses ?scope=mine for the
+      // user-facing per-resident view, and /dashboard/admin/requests uses
+      // the default admin-scoped view-all.
+      const res = await fetch('/api/maintenance?scope=community');
       const json = await res.json();
       // API returns { success, data } envelope — unwrap
       setRequests(Array.isArray(json.data) ? json.data : Array.isArray(json) ? json : []);
@@ -226,7 +226,22 @@ export function MaintenancePage() {
               <div className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-xl font-semibold mb-6">{t('maintenance:submitNewRequest')}</h2>
                 <MaintenanceForm
-                  onSubmit={async () => {
+                  onSubmit={async data => {
+                    // POST the form data to /api/maintenance. The hook's
+                    // handleSubmit only fetches when no onSubmit is provided,
+                    // so the page must do it. On success, close the form and
+                    // refresh the list.
+                    const res = await fetch('/api/maintenance', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(data),
+                    });
+                    if (!res.ok) {
+                      const body = await res.json().catch(() => ({}));
+                      const message =
+                        body?.message ?? body?.error ?? 'Failed to submit maintenance request';
+                      throw new Error(message);
+                    }
                     setShowForm(false);
                     fetchRequests();
                   }}
@@ -285,9 +300,11 @@ export function MaintenancePage() {
                           <StatusBadge status={request.status} />
                           <PriorityBadge priority={request.priority} />
                         </div>
-                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                          {request.description}
-                        </p>
+                        {request.description && (
+                          <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                            {request.description}
+                          </p>
+                        )}
                         {(request.assignedTeam || request.assignedProvider) && (
                           <p className="text-xs text-gray-500 mt-1.5">
                             <Wrench className="w-3 h-3 inline mr-1" />
