@@ -1,0 +1,19 @@
+{
+  "skill_name": "netcomplex-notebooklm",
+  "evals": [
+    {
+      "id": 1,
+      "name": "happy-path-urls-bundle",
+      "prompt": "Package a Netcomplex Resource Hub knowledge bundle on the topic 'geyser maintenance for Soralia Village residents'. Use these two sources: https://en.wikipedia.org/wiki/Water_heating and https://www.youtube.com/watch?v=dQw4w9WgXcQ. I want the full bundle: audio podcast, mind map, flashcards, and infographic. Save everything to /tmp/opencode-skills/netcomplex-notebooklm-workspace/iteration-1/eval-1/agent-output/ following the netcomplex-notebooklm workflow.",
+      "expected_output": "Agent follows the workflow: auth check first, then create notebook, add 2 sources (both --json), fire 4 generations (audio, mindmap, flashcards, infographic) all with --json in one batch, then spawn ONE subagent to wait+download all four. Output dir contains audio.mp3, mindmap.json, flashcards.md, infographic.png, plus notebook.json and tasks.json.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "missing-source-recovery",
+      "prompt": "Build a knowledge bundle for the Netcomplex Hub on 'load-shedding prep for Soralia Village'. I have these three sources: https://en.wikipedia.org/wiki/Load_shedding, https://en.wikipedia.org/wiki/Electricity_sector_in_South_Africa, and a PDF at /tmp/opencode-skills/netcomplex-notebooklm-workspace/fixtures/composting-basics.pdf. The PDF is on composting (unrelated on purpose) — handle this gracefully. Generate all 4 artifacts to /tmp/opencode-skills/netcomplex-notebooklm-workspace/iteration-1/eval-2/agent-output/.",
+      "expected_output": "Agent detects the irrelevant PDF, reports it to the user, and proceeds with the relevant sources. Workflow otherwise follows the netcomplex-notebooklm pattern: auth check, create, add 3 sources, fire 4 generations, single subagent for waits+downloads.",
+      "files": []
+    }
+  ]
+}
