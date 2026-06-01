@@ -4,6 +4,7 @@ import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
+import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { notFound } from 'next/navigation';
 import { SERVICES_DOMAINS, getServicesDomainWidgets } from '@widgets/dashboard/model/spaces';
@@ -73,7 +74,7 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
           ]}
         />
 
-        <div className="flex items-center justify-between mt-6 mb-6">
+        <div className="flex items-center justify-between mt-6 mb-6 gap-3 flex-wrap">
           <div className="flex items-center gap-3">
             {DomainIcon && <DomainIcon className="w-8 h-8 text-indigo-600" />}
             <div>
@@ -90,12 +91,23 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
               </p>
             </div>
           </div>
-          <Link
-            href="/dashboard/services"
-            className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
-          >
-            &larr; {tx('domains.back', 'Back to Services')}
-          </Link>
+          <div className="flex items-center gap-2">
+            {domain === 'maintenance' && !showNewForm && (
+              <Link
+                href="/dashboard/services/maintenance?action=new"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-soralia-primary text-white text-sm rounded-lg hover:bg-indigo-700 transition"
+              >
+                <Plus className="w-4 h-4" />
+                {tx('maintenance:newRequest', 'New Request')}
+              </Link>
+            )}
+            <Link
+              href="/dashboard/services"
+              className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
+            >
+              &larr; {tx('domains.back', 'Back to Services')}
+            </Link>
+          </div>
         </div>
 
         {/* New maintenance request form — shown when ?action=new is set on maintenance domain */}

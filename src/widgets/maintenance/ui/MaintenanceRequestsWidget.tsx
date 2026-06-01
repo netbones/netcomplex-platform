@@ -93,12 +93,18 @@ export function MaintenanceRequestsWidget() {
                 </div>
               </div>
             ))}
-            <Link
-              href="/dashboard/services/maintenance"
-              className="block text-center text-sm text-indigo-600 hover:text-indigo-800 py-2 border-t border-gray-100 mt-2"
-            >
-              View All Requests →
-            </Link>
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 mt-2">
+              <Link href="/maintenance" className="text-sm text-indigo-600 hover:text-indigo-800">
+                View All Requests →
+              </Link>
+              <Link
+                href="/dashboard/services/maintenance?action=new"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white text-xs rounded-md hover:bg-indigo-700 transition"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                New Request
+              </Link>
+            </div>
           </>
         )}
       </div>
