@@ -12,6 +12,8 @@ import {
   ServiceCategory,
   PriceType,
   ListingStatus,
+  Priority,
+  RequestStatus,
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -1212,6 +1214,408 @@ async function main() {
   ]);
 
   console.log(`Created ${reviews.length} sample reviews`);
+
+  // ═══════════════════════════════════════════════════════════════
+  // MAINTENANCE CATEGORIES
+  // ═══════════════════════════════════════════════════════════════
+
+  const maintenanceCategories = await Promise.all([
+    prisma.maintenanceCategory.upsert({
+      where: { id: 'cat-plumbing' },
+      update: {},
+      create: {
+        id: 'cat-plumbing',
+        tenantId: 'soralia',
+        value: 'PLUMBING',
+        label: 'Plumbing',
+        description: 'Water supply, drainage, and pipe systems',
+        isActive: true,
+      },
+    }),
+    prisma.maintenanceCategory.upsert({
+      where: { id: 'cat-electrical' },
+      update: {},
+      create: {
+        id: 'cat-electrical',
+        tenantId: 'soralia',
+        value: 'ELECTRICAL',
+        label: 'Electrical',
+        description: 'Power supply, wiring, and electrical fixtures',
+        isActive: true,
+      },
+    }),
+    prisma.maintenanceCategory.upsert({
+      where: { id: 'cat-hvac' },
+      update: {},
+      create: {
+        id: 'cat-hvac',
+        tenantId: 'soralia',
+        value: 'HVAC',
+        label: 'HVAC',
+        description: 'Heating, ventilation, and air conditioning',
+        isActive: true,
+      },
+    }),
+    prisma.maintenanceCategory.upsert({
+      where: { id: 'cat-landscaping' },
+      update: {},
+      create: {
+        id: 'cat-landscaping',
+        tenantId: 'soralia',
+        value: 'LANDSCAPING',
+        label: 'Landscaping',
+        description: 'Gardens, irrigation, trees, and outdoor areas',
+        isActive: true,
+      },
+    }),
+    prisma.maintenanceCategory.upsert({
+      where: { id: 'cat-structural' },
+      update: {},
+      create: {
+        id: 'cat-structural',
+        tenantId: 'soralia',
+        value: 'STRUCTURAL',
+        label: 'Structural',
+        description: 'Building structure, walls, doors, windows',
+        isActive: true,
+      },
+    }),
+    prisma.maintenanceCategory.upsert({
+      where: { id: 'cat-network' },
+      update: {},
+      create: {
+        id: 'cat-network',
+        tenantId: 'soralia',
+        value: 'NETWORK',
+        label: 'Network',
+        description: 'Internet, fibre, and network infrastructure',
+        isActive: true,
+      },
+    }),
+    prisma.maintenanceCategory.upsert({
+      where: { id: 'cat-waste' },
+      update: {},
+      create: {
+        id: 'cat-waste',
+        tenantId: 'soralia',
+        value: 'WASTE',
+        label: 'Waste Management',
+        description: 'Rubbish removal, recycling, and bulk waste',
+        isActive: true,
+      },
+    }),
+    prisma.maintenanceCategory.upsert({
+      where: { id: 'cat-security' },
+      update: {},
+      create: {
+        id: 'cat-security',
+        tenantId: 'soralia',
+        value: 'SECURITY',
+        label: 'Security',
+        description: 'Alarm systems, CCTV, and access control',
+        isActive: true,
+      },
+    }),
+    prisma.maintenanceCategory.upsert({
+      where: { id: 'cat-other' },
+      update: {},
+      create: {
+        id: 'cat-other',
+        tenantId: 'soralia',
+        value: 'OTHER',
+        label: 'Other',
+        description: "Requests that don't fit other categories",
+        isActive: true,
+      },
+    }),
+  ]);
+
+  console.log(`Created ${maintenanceCategories.length} maintenance categories`);
+
+  // ═══════════════════════════════════════════════════════════════
+  // MAINTENANCE TEAMS
+  // ═══════════════════════════════════════════════════════════════
+
+  const maintenanceTeams = await Promise.all([
+    prisma.maintenanceTeam.upsert({
+      where: { id: 'team-plumbing' },
+      update: {},
+      create: {
+        id: 'team-plumbing',
+        tenantId: 'soralia',
+        name: 'Plumbing Team',
+        trade: 'PLUMBING',
+        contactName: 'Thabo Mokoena',
+        isActive: true,
+      },
+    }),
+    prisma.maintenanceTeam.upsert({
+      where: { id: 'team-electrical' },
+      update: {},
+      create: {
+        id: 'team-electrical',
+        tenantId: 'soralia',
+        name: 'Electrical Team',
+        trade: 'ELECTRICAL',
+        contactName: 'Sarah van der Merwe',
+        isActive: true,
+      },
+    }),
+    prisma.maintenanceTeam.upsert({
+      where: { id: 'team-landscaping' },
+      update: {},
+      create: {
+        id: 'team-landscaping',
+        tenantId: 'soralia',
+        name: 'Landscaping Team',
+        trade: 'LANDSCAPING',
+        contactName: 'David Nkosi',
+        isActive: true,
+      },
+    }),
+  ]);
+
+  console.log(`Created ${maintenanceTeams.length} maintenance teams`);
+
+  // ═══════════════════════════════════════════════════════════════
+  // SERVICE PROVIDERS
+  // ═══════════════════════════════════════════════════════════════
+
+  const serviceProviders = await Promise.all([
+    prisma.serviceProvider.upsert({
+      where: { id: 'prov-pipe-burst' },
+      update: {},
+      create: {
+        id: 'prov-pipe-burst',
+        tenantId: 'soralia',
+        companyName: 'PipeBurst Solutions Inc.',
+        trade: 'PLUMBING',
+        phone: '+27 82 555 0101',
+        isActive: true,
+      },
+    }),
+    prisma.serviceProvider.upsert({
+      where: { id: 'prov-tree-felling' },
+      update: {},
+      create: {
+        id: 'prov-tree-felling',
+        tenantId: 'soralia',
+        companyName: 'TreeCare Pros',
+        trade: 'LANDSCAPING',
+        phone: '+27 82 555 0102',
+        isActive: true,
+      },
+    }),
+    prisma.serviceProvider.upsert({
+      where: { id: 'prov-electrical' },
+      update: {},
+      create: {
+        id: 'prov-electrical',
+        tenantId: 'soralia',
+        companyName: 'VoltSafe Electrical',
+        trade: 'ELECTRICAL',
+        phone: '+27 82 555 0103',
+        isActive: true,
+      },
+    }),
+    prisma.serviceProvider.upsert({
+      where: { id: 'prov-network' },
+      update: {},
+      create: {
+        id: 'prov-network',
+        tenantId: 'soralia',
+        companyName: 'FibreConnect ISP',
+        trade: 'NETWORK',
+        phone: '+27 82 555 0104',
+        isActive: true,
+      },
+    }),
+    prisma.serviceProvider.upsert({
+      where: { id: 'prov-waste' },
+      update: {},
+      create: {
+        id: 'prov-waste',
+        tenantId: 'soralia',
+        companyName: 'WasteWise Collectors',
+        trade: 'WASTE',
+        phone: '+27 82 555 0105',
+        isActive: true,
+      },
+    }),
+  ]);
+
+  console.log(`Created ${serviceProviders.length} service providers`);
+
+  // ═══════════════════════════════════════════════════════════════
+  // MAINTENANCE REQUESTS (7 seed entries)
+  // ═══════════════════════════════════════════════════════════════
+
+  const now = new Date();
+  const residentUserIds = users.filter(u => u.role === Role.RESIDENT).map(u => u.id);
+
+  const maintenanceRequests = await Promise.all([
+    // 1. Lawn irrigation malfunction — SUBMITTED
+    prisma.maintenanceRequest.upsert({
+      where: { id: 'mr-irrigation-01' },
+      update: {},
+      create: {
+        id: 'mr-irrigation-01',
+        tenantId: 'soralia',
+        userId: residentUserIds[0] || users[0].id,
+        category: 'LANDSCAPING',
+        priority: Priority.MEDIUM,
+        status: RequestStatus.SUBMITTED,
+        ticketNumber: 'SRV-2026-0001',
+        description:
+          "The automated sprinkler system in the common garden area has been malfunctioning for the past week. Zones 3 and 4 aren't turning on, and zone 2 runs continuously.",
+        images: [],
+        createdAt: new Date(now.getTime() - 3 * 86400000),
+        updatedAt: new Date(now.getTime() - 3 * 86400000),
+      },
+    }),
+
+    // 2. Burst pipe in unit 12B — IN_PROGRESS (assigned to Plumbing Team)
+    prisma.maintenanceRequest.upsert({
+      where: { id: 'mr-burst-pipe' },
+      update: {},
+      create: {
+        id: 'mr-burst-pipe',
+        tenantId: 'soralia',
+        userId: residentUserIds[1] || users[1].id,
+        category: 'PLUMBING',
+        priority: Priority.EMERGENCY,
+        status: RequestStatus.IN_PROGRESS,
+        ticketNumber: 'SRV-2026-0002',
+        assignedTeamId: 'team-plumbing',
+        description:
+          'Water pipe burst in the kitchen wall. Water damage spreading to ground floor. Need immediate shutdown of water supply to building B.',
+        images: [],
+        createdAt: new Date(now.getTime() - 12 * 3600000),
+        updatedAt: new Date(now.getTime() - 2 * 3600000),
+      },
+    }),
+
+    // 3. Tree felling request — SUBMITTED
+    prisma.maintenanceRequest.upsert({
+      where: { id: 'mr-tree-felling' },
+      update: {},
+      create: {
+        id: 'mr-tree-felling',
+        tenantId: 'soralia',
+        userId: residentUserIds[2] || users[2].id,
+        category: 'LANDSCAPING',
+        priority: Priority.HIGH,
+        status: RequestStatus.SUBMITTED,
+        ticketNumber: 'SRV-2026-0003',
+        description:
+          "The old oak tree near the children's playground has a large dead branch hanging over the play area. Risk of it falling during the next storm.",
+        images: [],
+        createdAt: new Date(now.getTime() - 1 * 86400000),
+        updatedAt: new Date(now.getTime() - 1 * 86400000),
+      },
+    }),
+
+    // 4. Network outage — IN_PROGRESS (assigned to FibreConnect ISP)
+    prisma.maintenanceRequest.upsert({
+      where: { id: 'mr-network-outage' },
+      update: {},
+      create: {
+        id: 'mr-network-outage',
+        tenantId: 'soralia',
+        userId: residentUserIds[0] || users[0].id,
+        category: 'NETWORK',
+        priority: Priority.HIGH,
+        status: RequestStatus.IN_PROGRESS,
+        ticketNumber: 'SRV-2026-0004',
+        assignedProviderId: 'prov-network',
+        description:
+          'Fiber optic cable cut by contractors during roadworks on the main access road. All units in Blocks A and B have no internet connectivity since yesterday. FibreConnect has been notified.',
+        images: [],
+        createdAt: new Date(now.getTime() - 2 * 86400000),
+        updatedAt: new Date(now.getTime() - 6 * 3600000),
+      },
+    }),
+
+    // 5. Electrical mains problem — ASSIGNED (to Electrical Team)
+    prisma.maintenanceRequest.upsert({
+      where: { id: 'mr-electrical-mains' },
+      update: {},
+      create: {
+        id: 'mr-electrical-mains',
+        tenantId: 'soralia',
+        userId: residentUserIds[3] || users[3].id,
+        category: 'ELECTRICAL',
+        priority: Priority.HIGH,
+        status: RequestStatus.ASSIGNED,
+        ticketNumber: 'SRV-2026-0005',
+        assignedTeamId: 'team-electrical',
+        description:
+          'Flickering lights and intermittent power surges in Block C units 20-30. Affects all rooms. Neighbors in adjacent units report similar issues. Seems to be related to the main supply line.',
+        images: [],
+        createdAt: new Date(now.getTime() - 4 * 86400000),
+        updatedAt: new Date(now.getTime() - 1 * 86400000),
+      },
+    }),
+
+    // 6. Bin removal request — CANCELLED
+    prisma.maintenanceRequest.upsert({
+      where: { id: 'mr-bin-removal' },
+      update: {},
+      create: {
+        id: 'mr-bin-removal',
+        tenantId: 'soralia',
+        userId: residentUserIds[1] || users[1].id,
+        category: 'WASTE',
+        priority: Priority.LOW,
+        status: RequestStatus.CANCELLED,
+        ticketNumber: 'SRV-2026-0006',
+        description:
+          "Requesting removal of bulky waste (old furniture, mattresses) from unit 8. Normal bin collection can't handle these items.",
+        images: [],
+        createdAt: new Date(now.getTime() - 14 * 86400000),
+        updatedAt: new Date(now.getTime() - 12 * 86400000),
+      },
+    }),
+
+    // 7. Garage door stuck (longstanding) — SUBMITTED
+    prisma.maintenanceRequest.upsert({
+      where: { id: 'mr-garage-door' },
+      update: {},
+      create: {
+        id: 'mr-garage-door',
+        tenantId: 'soralia',
+        userId: residentUserIds[2] || users[2].id,
+        category: 'STRUCTURAL',
+        priority: Priority.LOW,
+        status: RequestStatus.SUBMITTED,
+        ticketNumber: 'SRV-2026-0007',
+        description:
+          'The garage door at unit 17B has been sticking intermittently for the past 3 months. It makes a loud grinding noise when opening and sometimes gets stuck halfway. Have reported twice before but issue persists.',
+        images: [],
+        createdAt: new Date(now.getTime() - 90 * 86400000),
+        updatedAt: new Date(now.getTime() - 5 * 86400000),
+      },
+    }),
+  ]);
+
+  console.log(`Created ${maintenanceRequests.length} maintenance requests`);
+
+  // ═══════════════════════════════════════════════════════════════
+  // TICKET NUMBER FORMAT SETTING
+  // ═══════════════════════════════════════════════════════════════
+
+  await prisma.setting.upsert({
+    where: { id: 'setting-ticket-format' },
+    update: {},
+    create: {
+      id: 'setting-ticket-format',
+      tenantId: 'soralia',
+      key: 'ticket_number_format',
+      value: 'SRV-{YYYY}-{NNNN}',
+    },
+  });
+
+  console.log('Created ticket_number_format setting');
 
   console.log('Seeding complete!');
 }

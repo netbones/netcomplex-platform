@@ -26,6 +26,11 @@ import { surveys } from '@schema/surveys';
 import { questions } from '@schema/questions';
 import { responses } from '@schema/responses';
 import { competitions } from '@schema/competitions';
+import { maintenanceCategories } from '@schema/maintenance-categories';
+import { maintenanceTeams } from '@schema/maintenance-teams';
+import { serviceProviders } from '@schema/service-providers';
+import { maintenanceRequests } from '@schema/maintenance-requests';
+import { settings } from '@schema/settings';
 
 const connectionString = (process.env.DATABASE_URL ?? '').replace(
   'sslmode=require',
@@ -2732,6 +2737,260 @@ const COMPETITIONS = [
 }));
 
 // ---------------------------------------------------------------------------
+// Maintenance seed data
+// ---------------------------------------------------------------------------
+
+const MAINTENANCE_CATEGORIES = [
+  {
+    id: 'cat-plumbing',
+    value: 'PLUMBING',
+    label: 'Plumbing',
+    description: 'Water supply, drainage, and pipe systems',
+    isActive: true,
+  },
+  {
+    id: 'cat-electrical',
+    value: 'ELECTRICAL',
+    label: 'Electrical',
+    description: 'Power supply, wiring, and electrical fixtures',
+    isActive: true,
+  },
+  {
+    id: 'cat-hvac',
+    value: 'HVAC',
+    label: 'HVAC',
+    description: 'Heating, ventilation, and air conditioning',
+    isActive: true,
+  },
+  {
+    id: 'cat-landscaping',
+    value: 'LANDSCAPING',
+    label: 'Landscaping',
+    description: 'Gardens, irrigation, trees, and outdoor areas',
+    isActive: true,
+  },
+  {
+    id: 'cat-structural',
+    value: 'STRUCTURAL',
+    label: 'Structural',
+    description: 'Building structure, walls, doors, windows',
+    isActive: true,
+  },
+  {
+    id: 'cat-network',
+    value: 'NETWORK',
+    label: 'Network',
+    description: 'Internet, fibre, and network infrastructure',
+    isActive: true,
+  },
+  {
+    id: 'cat-waste',
+    value: 'WASTE',
+    label: 'Waste Management',
+    description: 'Rubbish removal, recycling, and bulk waste',
+    isActive: true,
+  },
+  {
+    id: 'cat-security',
+    value: 'SECURITY',
+    label: 'Security',
+    description: 'Alarm systems, CCTV, and access control',
+    isActive: true,
+  },
+  {
+    id: 'cat-other',
+    value: 'OTHER',
+    label: 'Other',
+    description: "Requests that don't fit other categories",
+    isActive: true,
+  },
+].map(c => ({
+  ...c,
+  tenantId: TENANT_ID,
+  createdAt: now,
+}));
+
+const MAINTENANCE_TEAMS = [
+  {
+    id: 'team-plumbing',
+    name: 'Plumbing Team',
+    trade: 'PLUMBING',
+    contactName: 'Thabo Mokoena',
+    isActive: true,
+  },
+  {
+    id: 'team-electrical',
+    name: 'Electrical Team',
+    trade: 'ELECTRICAL',
+    contactName: 'Sarah van der Merwe',
+    isActive: true,
+  },
+  {
+    id: 'team-landscaping',
+    name: 'Landscaping Team',
+    trade: 'LANDSCAPING',
+    contactName: 'David Nkosi',
+    isActive: true,
+  },
+].map(t => ({
+  ...t,
+  tenantId: TENANT_ID,
+  createdAt: now,
+  updatedAt: now,
+}));
+
+const SERVICE_PROVIDERS = [
+  {
+    id: 'prov-pipe-burst',
+    companyName: 'PipeBurst Solutions Inc.',
+    trade: 'PLUMBING',
+    phone: '+27 82 555 0101',
+    isActive: true,
+  },
+  {
+    id: 'prov-tree-felling',
+    companyName: 'TreeCare Pros',
+    trade: 'LANDSCAPING',
+    phone: '+27 82 555 0102',
+    isActive: true,
+  },
+  {
+    id: 'prov-electrical',
+    companyName: 'VoltSafe Electrical',
+    trade: 'ELECTRICAL',
+    phone: '+27 82 555 0103',
+    isActive: true,
+  },
+  {
+    id: 'prov-network',
+    companyName: 'FibreConnect ISP',
+    trade: 'NETWORK',
+    phone: '+27 82 555 0104',
+    isActive: true,
+  },
+  {
+    id: 'prov-waste',
+    companyName: 'WasteWise Collectors',
+    trade: 'WASTE',
+    phone: '+27 82 555 0105',
+    isActive: true,
+  },
+].map(p => ({
+  ...p,
+  tenantId: TENANT_ID,
+  createdAt: now,
+  updatedAt: now,
+}));
+
+const MAINTENANCE_REQUESTS = [
+  {
+    id: 'mr-irrigation-01',
+    userId: 'user-john-smith',
+    category: 'LANDSCAPING',
+    priority: 'MEDIUM' as const,
+    status: 'SUBMITTED' as const,
+    ticketNumber: 'SRV-2026-0001',
+    description:
+      "The automated sprinkler system in the common garden area has been malfunctioning for the past week. Zones 3 and 4 aren't turning on, and zone 2 runs continuously.",
+    images: [] as string[],
+    createdAt: new Date(now.getTime() - 3 * 86400000),
+    updatedAt: new Date(now.getTime() - 3 * 86400000),
+  },
+  {
+    id: 'mr-burst-pipe',
+    userId: 'user-sarah-mitchell',
+    category: 'PLUMBING',
+    priority: 'EMERGENCY' as const,
+    status: 'IN_PROGRESS' as const,
+    ticketNumber: 'SRV-2026-0002',
+    assignedTeamId: 'team-plumbing',
+    description:
+      'Water pipe burst in the kitchen wall. Water damage spreading to ground floor. Need immediate shutdown of water supply to building B.',
+    images: [] as string[],
+    createdAt: new Date(now.getTime() - 12 * 3600000),
+    updatedAt: new Date(now.getTime() - 2 * 3600000),
+  },
+  {
+    id: 'mr-tree-felling',
+    userId: 'user-michael-chen',
+    category: 'LANDSCAPING',
+    priority: 'HIGH' as const,
+    status: 'SUBMITTED' as const,
+    ticketNumber: 'SRV-2026-0003',
+    description:
+      "The old oak tree near the children's playground has a large dead branch hanging over the play area. Risk of it falling during the next storm.",
+    images: [] as string[],
+    createdAt: new Date(now.getTime() - 1 * 86400000),
+    updatedAt: new Date(now.getTime() - 1 * 86400000),
+  },
+  {
+    id: 'mr-network-outage',
+    userId: 'user-john-smith',
+    category: 'NETWORK',
+    priority: 'HIGH' as const,
+    status: 'IN_PROGRESS' as const,
+    ticketNumber: 'SRV-2026-0004',
+    assignedProviderId: 'prov-network',
+    description:
+      'Fiber optic cable cut by contractors during roadworks on the main access road. All units in Blocks A and B have no internet connectivity since yesterday. FibreConnect has been notified.',
+    images: [] as string[],
+    createdAt: new Date(now.getTime() - 2 * 86400000),
+    updatedAt: new Date(now.getTime() - 6 * 3600000),
+  },
+  {
+    id: 'mr-electrical-mains',
+    userId: 'user-anna-patel',
+    category: 'ELECTRICAL',
+    priority: 'HIGH' as const,
+    status: 'ASSIGNED' as const,
+    ticketNumber: 'SRV-2026-0005',
+    assignedTeamId: 'team-electrical',
+    description:
+      'Flickering lights and intermittent power surges in Block C units 20-30. Affects all rooms. Neighbors in adjacent units report similar issues. Seems to be related to the main supply line.',
+    images: [] as string[],
+    createdAt: new Date(now.getTime() - 4 * 86400000),
+    updatedAt: new Date(now.getTime() - 1 * 86400000),
+  },
+  {
+    id: 'mr-bin-removal',
+    userId: 'user-sarah-mitchell',
+    category: 'WASTE',
+    priority: 'LOW' as const,
+    status: 'CANCELLED' as const,
+    ticketNumber: 'SRV-2026-0006',
+    description:
+      "Requesting removal of bulky waste (old furniture, mattresses) from unit 8. Normal bin collection can't handle these items.",
+    images: [] as string[],
+    createdAt: new Date(now.getTime() - 14 * 86400000),
+    updatedAt: new Date(now.getTime() - 12 * 86400000),
+  },
+  {
+    id: 'mr-garage-door',
+    userId: 'user-michael-chen',
+    category: 'STRUCTURAL',
+    priority: 'LOW' as const,
+    status: 'SUBMITTED' as const,
+    ticketNumber: 'SRV-2026-0007',
+    description:
+      'The garage door at unit 17B has been sticking intermittently for the past 3 months. It makes a loud grinding noise when opening and sometimes gets stuck halfway. Have reported twice before but issue persists.',
+    images: [] as string[],
+    createdAt: new Date(now.getTime() - 90 * 86400000),
+    updatedAt: new Date(now.getTime() - 5 * 86400000),
+  },
+].map(r => ({
+  ...r,
+  tenantId: TENANT_ID,
+  images: r.images,
+}));
+
+const MAINTENANCE_SETTINGS = [
+  { id: 'setting-ticket-format', key: 'ticket_number_format', value: 'SRV-{YYYY}-{NNNN}' },
+].map(s => ({
+  ...s,
+  tenantId: TENANT_ID,
+}));
+
+// ---------------------------------------------------------------------------
 // Seed
 // ---------------------------------------------------------------------------
 
@@ -2775,7 +3034,24 @@ async function seed() {
     .set({ tenantId: TENANT_ID })
     .where(eq(standardSeats.tenantId, 'soralia'));
   await db.update(profiles).set({ tenantId: TENANT_ID }).where(eq(profiles.tenantId, 'soralia'));
-  console.log('  ✓ Fixed tenantId on existing records');
+  await db
+    .update(maintenanceCategories)
+    .set({ tenantId: TENANT_ID })
+    .where(eq(maintenanceCategories.tenantId, 'soralia'));
+  await db
+    .update(maintenanceTeams)
+    .set({ tenantId: TENANT_ID })
+    .where(eq(maintenanceTeams.tenantId, 'soralia'));
+  await db
+    .update(serviceProviders)
+    .set({ tenantId: TENANT_ID })
+    .where(eq(serviceProviders.tenantId, 'soralia'));
+  await db
+    .update(maintenanceRequests)
+    .set({ tenantId: TENANT_ID })
+    .where(eq(maintenanceRequests.tenantId, 'soralia'));
+  await db.update(settings).set({ tenantId: TENANT_ID }).where(eq(settings.tenantId, 'soralia'));
+  console.log(' ✓ Fixed tenantId on existing records');
 
   console.log('Users...');
   for (const user of USERS) {
@@ -2877,7 +3153,52 @@ async function seed() {
   for (const competition of COMPETITIONS) {
     await db.insert(competitions).values(competition).onConflictDoNothing();
   }
-  console.log(`  ✓ ${COMPETITIONS.length} competitions`);
+  console.log(` ✓ ${COMPETITIONS.length} competitions`);
+
+  console.log('Maintenance categories...');
+  for (const cat of MAINTENANCE_CATEGORIES) {
+    await db
+      .insert(maintenanceCategories)
+      .values({ ...cat, tenantId: TENANT_ID })
+      .onConflictDoNothing();
+  }
+  console.log(` ✓ ${MAINTENANCE_CATEGORIES.length} maintenance categories`);
+
+  console.log('Maintenance teams...');
+  for (const team of MAINTENANCE_TEAMS) {
+    await db
+      .insert(maintenanceTeams)
+      .values({ ...team, tenantId: TENANT_ID })
+      .onConflictDoNothing();
+  }
+  console.log(` ✓ ${MAINTENANCE_TEAMS.length} maintenance teams`);
+
+  console.log('Service providers...');
+  for (const prov of SERVICE_PROVIDERS) {
+    await db
+      .insert(serviceProviders)
+      .values({ ...prov, tenantId: TENANT_ID })
+      .onConflictDoNothing();
+  }
+  console.log(` ✓ ${SERVICE_PROVIDERS.length} service providers`);
+
+  console.log('Maintenance requests...');
+  for (const req of MAINTENANCE_REQUESTS) {
+    await db
+      .insert(maintenanceRequests)
+      .values({ ...req, tenantId: TENANT_ID })
+      .onConflictDoNothing();
+  }
+  console.log(` ✓ ${MAINTENANCE_REQUESTS.length} maintenance requests`);
+
+  console.log('Maintenance settings...');
+  for (const setting of MAINTENANCE_SETTINGS) {
+    await db
+      .insert(settings)
+      .values({ ...setting, tenantId: TENANT_ID })
+      .onConflictDoNothing();
+  }
+  console.log(` ✓ ${MAINTENANCE_SETTINGS.length} maintenance settings`);
 
   console.log('\n✅ Seed complete!');
 }
