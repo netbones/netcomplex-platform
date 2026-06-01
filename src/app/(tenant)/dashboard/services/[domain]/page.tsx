@@ -2,12 +2,14 @@
 
 import { use } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { notFound } from 'next/navigation';
 import { SERVICES_DOMAINS, getServicesDomainWidgets } from '@widgets/dashboard/model/spaces';
 import { SERVICES_DOMAIN_DEFINITIONS } from '@widgets/dashboard/ui/ServicesSubLauncher';
 import { WidgetRenderer } from '@widgets/dashboard';
 import { ErrorBoundary, Breadcrumbs } from '@shared/ui';
+import { MaintenanceForm } from '@features/maintenance';
 
 interface ServicesDomainPageProps {
   params: Promise<{ domain: string }>;
@@ -16,6 +18,8 @@ interface ServicesDomainPageProps {
 export default function ServicesDomainPage({ params }: ServicesDomainPageProps) {
   const { t } = useTranslation('common');
   const { domain } = use(params);
+  const searchParams = useSearchParams();
+  const showNewForm = domain === 'maintenance' && searchParams.get('action') === 'new';
 
   // Validate domain
   if (!SERVICES_DOMAINS.includes(domain as (typeof SERVICES_DOMAINS)[number])) {
@@ -63,6 +67,29 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
             &larr; {t('domains.back', { ns: 'services', defaultValue: 'Back to Services' })}
           </Link>
         </div>
+
+        {/* New maintenance request form — shown when ?action=new is set on maintenance domain */}
+        {showNewForm && (
+          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Submit Maintenance Request</h2>
+              <Link
+                href="/dashboard/services/maintenance"
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                ✕ Cancel
+              </Link>
+            </div>
+            <ErrorBoundary>
+              <MaintenanceForm
+                onSubmit={async () => {
+                  // After successful submit, navigate back to the list
+                  window.location.href = '/dashboard/services/maintenance';
+                }}
+              />
+            </ErrorBoundary>
+          </div>
+        )}
 
         {/* Render service widgets for this domain */}
         <div className="space-y-6">
