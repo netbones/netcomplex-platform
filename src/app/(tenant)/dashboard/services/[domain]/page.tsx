@@ -1,6 +1,6 @@
 'use client';
 
-import { use } from 'react';
+import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,13 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
   const { t } = useTranslation('common');
   const { domain } = use(params);
   const searchParams = useSearchParams();
-  const showNewForm = domain === 'maintenance' && searchParams.get('action') === 'new';
+  // Defer the action=new form render until after mount to avoid SSR/hydration
+  // mismatches from useSearchParams returning null on the server.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  const showNewForm = mounted && domain === 'maintenance' && searchParams.get('action') === 'new';
 
   // Validate domain
   if (!SERVICES_DOMAINS.includes(domain as (typeof SERVICES_DOMAINS)[number])) {
