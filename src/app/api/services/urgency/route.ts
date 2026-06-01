@@ -22,8 +22,6 @@ export async function GET() {
 
     const { tenantId } = await withTenant();
     const userId = session.user.id;
-    const role = (session.user as Record<string, unknown>).role as string | undefined;
-    const isAdminOrBoard = role === 'ADMIN' || role === 'BOARD';
 
     const today = new Date();
     const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -31,7 +29,8 @@ export async function GET() {
     const [openMaintenanceResult, upcomingBookingsResult, overdueMaintenanceResult] =
       await Promise.all([
         // Open maintenance requests (SUBMITTED status)
-        // Residents see only their own; admins/board see all for tenant
+        // Always user-scoped — the badge represents the user's own open requests
+        // on the user-facing services dashboard, regardless of role
         db
           .select({ count: count() })
           .from(maintenanceRequests)
@@ -39,7 +38,7 @@ export async function GET() {
             and(
               eq(maintenanceRequests.tenantId, tenantId),
               eq(maintenanceRequests.status, 'SUBMITTED'),
-              ...(isAdminOrBoard ? [] : [eq(maintenanceRequests.userId, userId)])
+              eq(maintenanceRequests.userId, userId)
             )
           ),
 
