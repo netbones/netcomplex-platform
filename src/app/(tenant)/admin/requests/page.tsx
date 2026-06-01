@@ -6,14 +6,21 @@ import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('admin-requests-page');
 
+/* ── Types ─────────────────────────────────────────────── */
+
 interface MaintenanceRequest {
   id: string;
+  ticketNumber?: string | null;
   category: string;
   priority: string;
   description: string;
   status: string;
   images: string[];
   assignedTo: string | null;
+  assignedTeamId?: string | null;
+  assignedProviderId?: string | null;
+  assignedTeam?: { id: string; name: string; trade: string } | null;
+  assignedProvider?: { id: string; companyName: string; trade: string } | null;
   vendor: string | null;
   scheduledDate: string | null;
   estimatedCost: string | null;
@@ -22,6 +29,8 @@ interface MaintenanceRequest {
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  preferredDate?: string | null;
+  preferredTime?: string | null;
   user: {
     name: string;
     email: string;
@@ -64,6 +73,34 @@ interface NoteEntry {
   } | null;
 }
 
+interface MaintenanceTeam {
+  id: string;
+  name: string;
+  trade: string;
+  contactName: string | null;
+  isActive: boolean;
+}
+
+interface ServiceProvider {
+  id: string;
+  companyName: string;
+  contactName: string | null;
+  phone: string | null;
+  email: string | null;
+  trade: string;
+  isActive: boolean;
+}
+
+interface MaintenanceCategory {
+  id: string;
+  value: string;
+  label: string;
+  description?: string | null;
+  isActive: boolean;
+}
+
+/* ── Constants ─────────────────────────────────────────── */
+
 const statusOptions = [
   'SUBMITTED',
   'ASSIGNED',
@@ -74,15 +111,6 @@ const statusOptions = [
   'CANCELLED',
 ];
 const priorityOptions = ['LOW', 'MEDIUM', 'HIGH', 'EMERGENCY'];
-const categoryOptions = [
-  'PLUMBING',
-  'ELECTRICAL',
-  'HVAC',
-  'APPLIANCE',
-  'STRUCTURAL',
-  'LANDSCAPING',
-  'OTHER',
-];
 
 const priorityColors: Record<string, string> = {
   LOW: 'bg-green-100 text-green-800',
@@ -100,6 +128,29 @@ const statusColors: Record<string, string> = {
   COMPLETED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-gray-100 text-gray-800',
 };
+
+const statusDotColors: Record<string, string> = {
+  SUBMITTED: 'bg-yellow-500',
+  ASSIGNED: 'bg-purple-500',
+  IN_PROGRESS: 'bg-blue-500',
+  PENDING_PARTS: 'bg-orange-500',
+  SCHEDULED: 'bg-indigo-500',
+  COMPLETED: 'bg-green-500',
+  CANCELLED: 'bg-gray-500',
+};
+
+/** Valid next statuses from each current status */
+const workflowTransitions: Record<string, string[]> = {
+  SUBMITTED: ['ASSIGNED', 'CANCELLED'],
+  ASSIGNED: ['SCHEDULED', 'IN_PROGRESS', 'CANCELLED'],
+  SCHEDULED: ['IN_PROGRESS', 'CANCELLED'],
+  IN_PROGRESS: ['PENDING_PARTS', 'COMPLETED', 'CANCELLED'],
+  PENDING_PARTS: ['IN_PROGRESS', 'CANCELLED'],
+  COMPLETED: [],
+  CANCELLED: [],
+};
+
+/* ── Helpers ───────────────────────────────────────────── */
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-US', {
@@ -125,7 +176,14 @@ function getDaysOld(dateStr: string): number {
   return Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
 }
 
+function friendlyStatus(status: string): string {
+  return status.replace('_', ' ');
+}
+
+/* ── Component ─────────────────────────────────────────── */
+
 export default function AdminRequestsPage() {
+  /* ── State ─────────────────────────────────────────── */
   const [requests, setRequests] = useState<MaintenanceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -139,6 +197,23 @@ export default function AdminRequestsPage() {
   const [loadingNotes, setLoadingNotes] = useState(false);
   const [boardMembers, setBoardMembers] = useState<BoardMember[]>([]);
   const [newNote, setNewNote] = useState('');
+
+  // New ticketing state
+  const [teams, setTeams] = useState<MaintenanceTeam[]>([]);
+  const [providers, setProviders] = useState<ServiceProvider[]>([]);
+  const [categories, setCategories] = useState<MaintenanceCategory[]>([]);
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [newCategoryValue, setNewCategoryValue] = useState('');
+  const [newCategoryLabel, setNewCategoryLabel] = useState('');
+  const [newCategoryDesc, setNewCategoryDesc] = useState('');
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [editCategoryLabel, setEditCategoryLabel] = useState('');
+  const [editCategoryDesc, setEditCategoryDesc] = useState('');
+  const [handoffMode, setHandoffMode] = useState(false);
+  const [handoffProviderId, setHandoffProviderId] = useState('');
+  const [handoffReason, setHandoffReason] = useState('');
+
+  /* ── Data Fetching ─────────────────────────────────── */
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
@@ -185,6 +260,38 @@ export default function AdminRequestsPage() {
     }
   }, []);
 
+  const fetchTeams = useCallback(async () => {
+    try {
+      const res = await fetch('/api/maintenance/teams');
+      const json = await res.json();
+      setTeams(json.data || []);
+    } catch (error) {
+      log.error({}, 'Failed to fetch teams', error);
+    }
+  }, []);
+
+  const fetchProviders = useCallback(async () => {
+    try {
+      const res = await fetch('/api/maintenance/providers');
+      const json = await res.json();
+      setProviders(json.data || []);
+    } catch (error) {
+      log.error({}, 'Failed to fetch providers', error);
+    }
+  }, []);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await fetch('/api/maintenance/categories');
+      const json = await res.json();
+      setCategories(json.data || []);
+    } catch (error) {
+      log.error({}, 'Failed to fetch categories', error);
+    }
+  }, []);
+
+  /* ── Effects ───────────────────────────────────────── */
+
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchRequests();
@@ -211,6 +318,14 @@ export default function AdminRequestsPage() {
     }
     fetchBoardMembers();
   }, []);
+
+  useEffect(() => {
+    fetchTeams();
+    fetchProviders();
+    fetchCategories();
+  }, [fetchTeams, fetchProviders, fetchCategories]);
+
+  /* ── Handlers ──────────────────────────────────────── */
 
   const handleStatusChange = async (requestId: string, newStatus: string) => {
     try {
@@ -260,6 +375,73 @@ export default function AdminRequestsPage() {
       fetchHistory(requestId);
     } catch (error) {
       log.error({}, 'Failed to update assignee', error);
+    }
+  };
+
+  const handleAssignment = async (requestId: string, teamId?: string, providerId?: string) => {
+    try {
+      await fetch(`/api/maintenance/${requestId}/assign`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          teamId: teamId || null,
+          providerId: providerId || null,
+        }),
+      });
+      // Refresh the request data
+      fetchRequests();
+      if (selectedRequest?.id === requestId) {
+        fetchHistory(requestId);
+        // Update local selected request with new assignment
+        const team = teamId ? teams.find(t => t.id === teamId) : null;
+        const provider = providerId ? providers.find(p => p.id === providerId) : null;
+        setSelectedRequest({
+          ...selectedRequest,
+          assignedTeamId: teamId || null,
+          assignedProviderId: providerId || null,
+          assignedTeam: team ? { id: team.id, name: team.name, trade: team.trade } : null,
+          assignedProvider: provider
+            ? { id: provider.id, companyName: provider.companyName, trade: provider.trade }
+            : null,
+          status: selectedRequest.status === 'SUBMITTED' ? 'ASSIGNED' : selectedRequest.status,
+        });
+      }
+    } catch (error) {
+      log.error({}, 'Failed to assign', error);
+    }
+  };
+
+  const handleHandoff = async (requestId: string) => {
+    if (!handoffProviderId) return;
+    try {
+      await fetch(`/api/maintenance/${requestId}/assign`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          teamId: null,
+          providerId: handoffProviderId,
+          reason: handoffReason,
+        }),
+      });
+      setHandoffMode(false);
+      setHandoffProviderId('');
+      setHandoffReason('');
+      fetchRequests();
+      if (selectedRequest?.id === requestId) {
+        fetchHistory(requestId);
+        const provider = providers.find(p => p.id === handoffProviderId);
+        setSelectedRequest({
+          ...selectedRequest,
+          assignedTeamId: null,
+          assignedProviderId: handoffProviderId,
+          assignedTeam: null,
+          assignedProvider: provider
+            ? { id: provider.id, companyName: provider.companyName, trade: provider.trade }
+            : null,
+        });
+      }
+    } catch (error) {
+      log.error({}, 'Failed to hand off to provider', error);
     }
   };
 
@@ -345,6 +527,84 @@ export default function AdminRequestsPage() {
     }
   };
 
+  /* ── Category Management Handlers ─────────────────── */
+
+  const handleAddCategory = async () => {
+    if (!newCategoryValue.trim() || !newCategoryLabel.trim()) return;
+    try {
+      const res = await fetch('/api/maintenance/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          value: newCategoryValue.toUpperCase().replace(/\s+/g, '_'),
+          label: newCategoryLabel,
+          description: newCategoryDesc || null,
+        }),
+      });
+      if (res.ok) {
+        setNewCategoryValue('');
+        setNewCategoryLabel('');
+        setNewCategoryDesc('');
+        fetchCategories();
+      }
+    } catch (error) {
+      log.error({}, 'Failed to add category', error);
+    }
+  };
+
+  const handleEditCategory = async (categoryId: string) => {
+    try {
+      await fetch(`/api/maintenance/categories/${categoryId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          label: editCategoryLabel,
+          description: editCategoryDesc || null,
+        }),
+      });
+      setEditingCategory(null);
+      setEditCategoryLabel('');
+      setEditCategoryDesc('');
+      fetchCategories();
+    } catch (error) {
+      log.error({}, 'Failed to edit category', error);
+    }
+  };
+
+  const handleDeleteCategory = async (categoryId: string) => {
+    try {
+      await fetch(`/api/maintenance/categories/${categoryId}`, {
+        method: 'DELETE',
+      });
+      fetchCategories();
+    } catch (error) {
+      log.error({}, 'Failed to delete category', error);
+    }
+  };
+
+  /* ── Category filter source ───────────────────────── */
+
+  const categoryFilterOptions =
+    categories.length > 0
+      ? categories.filter(c => c.isActive).map(c => ({ value: c.value, label: c.label }))
+      : [
+          { value: 'PLUMBING', label: 'Plumbing' },
+          { value: 'ELECTRICAL', label: 'Electrical' },
+          { value: 'HVAC', label: 'HVAC' },
+          { value: 'APPLIANCE', label: 'Appliance' },
+          { value: 'STRUCTURAL', label: 'Structural' },
+          { value: 'LANDSCAPING', label: 'Landscaping' },
+          { value: 'OTHER', label: 'Other' },
+        ];
+
+  /* ── Status timeline entries ──────────────────────── */
+
+  const statusTimeline = history
+    .filter(entry => entry.field === 'status')
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+  /* ── Render ────────────────────────────────────────── */
+
   return (
     <ErrorBoundary>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -359,7 +619,7 @@ export default function AdminRequestsPage() {
           </div>
         </div>
 
-        {/* Search and Filters */}
+        {/* ── Search and Filters ────────────────────────────── */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
@@ -367,7 +627,7 @@ export default function AdminRequestsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
               <input
                 type="text"
-                placeholder="Search by name, email, address, description..."
+                placeholder="Search by name, email, address, description, ticket #..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
@@ -385,7 +645,7 @@ export default function AdminRequestsPage() {
                 <option value="all">All Statuses</option>
                 {statusOptions.map(status => (
                   <option key={status} value={status}>
-                    {status.replace('_', ' ')}
+                    {friendlyStatus(status)}
                   </option>
                 ))}
               </select>
@@ -409,9 +669,17 @@ export default function AdminRequestsPage() {
             </div>
           </div>
 
-          {/* Category Filter */}
+          {/* Category Filter + Manage Button */}
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-medium text-gray-700">Category</label>
+              <button
+                onClick={() => setShowCategoryManager(!showCategoryManager)}
+                className="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+              >
+                {showCategoryManager ? 'Close' : 'Manage Categories'}
+              </button>
+            </div>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setCategoryFilter('all')}
@@ -423,24 +691,154 @@ export default function AdminRequestsPage() {
               >
                 All
               </button>
-              {categoryOptions.map(cat => (
+              {categoryFilterOptions.map(cat => (
                 <button
-                  key={cat}
-                  onClick={() => setCategoryFilter(cat)}
+                  key={cat.value}
+                  onClick={() => setCategoryFilter(cat.value)}
                   className={`px-3 py-1 rounded-full text-sm ${
-                    categoryFilter === cat
+                    categoryFilter === cat.value
                       ? 'bg-indigo-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {cat}
+                  {cat.label}
                 </button>
               ))}
             </div>
+
+            {/* ── Inline Category Manager ─────────────────────── */}
+            {showCategoryManager && (
+              <div className="mt-3 border rounded-lg p-4 bg-gray-50">
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">Manage Categories</h4>
+
+                {/* Existing categories */}
+                {categories.length === 0 ? (
+                  <p className="text-sm text-gray-500 mb-3">No categories yet. Add one below.</p>
+                ) : (
+                  <div className="space-y-2 mb-4">
+                    {categories.map(cat => (
+                      <div
+                        key={cat.id}
+                        className="flex items-center gap-2 bg-white rounded px-3 py-2"
+                      >
+                        {editingCategory === cat.id ? (
+                          <>
+                            <input
+                              type="text"
+                              value={editCategoryLabel}
+                              onChange={e => setEditCategoryLabel(e.target.value)}
+                              placeholder="Label"
+                              className="flex-1 px-2 py-1 border rounded text-sm"
+                            />
+                            <input
+                              type="text"
+                              value={editCategoryDesc}
+                              onChange={e => setEditCategoryDesc(e.target.value)}
+                              placeholder="Description"
+                              className="flex-1 px-2 py-1 border rounded text-sm"
+                            />
+                            <button
+                              onClick={() => handleEditCategory(cat.id)}
+                              className="px-2 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => setEditingCategory(null)}
+                              className="px-2 py-1 bg-gray-200 text-gray-700 rounded text-xs hover:bg-gray-300"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-mono text-xs text-gray-500">{cat.value}</span>
+                            <span className="text-sm font-medium text-gray-900 flex-1">
+                              {cat.label}
+                            </span>
+                            {cat.description && (
+                              <span className="text-xs text-gray-500 truncate max-w-[120px]">
+                                {cat.description}
+                              </span>
+                            )}
+                            <span
+                              className={`px-1.5 py-0.5 rounded text-xs ${
+                                cat.isActive
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-gray-100 text-gray-600'
+                              }`}
+                            >
+                              {cat.isActive ? 'Active' : 'Archived'}
+                            </span>
+                            <button
+                              onClick={() => {
+                                setEditingCategory(cat.id);
+                                setEditCategoryLabel(cat.label);
+                                setEditCategoryDesc(cat.description || '');
+                              }}
+                              className="text-indigo-600 hover:text-indigo-800 text-xs"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteCategory(cat.id)}
+                              className="text-red-600 hover:text-red-800 text-xs"
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Add Category form */}
+                <div className="flex items-end gap-2">
+                  <div className="flex-1">
+                    <label className="block text-xs text-gray-600 mb-1">Value (slug)</label>
+                    <input
+                      type="text"
+                      value={newCategoryValue}
+                      onChange={e => setNewCategoryValue(e.target.value)}
+                      placeholder="e.g. PLUMBING"
+                      className="w-full px-2 py-1.5 border rounded text-sm"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs text-gray-600 mb-1">Label</label>
+                    <input
+                      type="text"
+                      value={newCategoryLabel}
+                      onChange={e => setNewCategoryLabel(e.target.value)}
+                      placeholder="e.g. Plumbing"
+                      className="w-full px-2 py-1.5 border rounded text-sm"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs text-gray-600 mb-1">Description</label>
+                    <input
+                      type="text"
+                      value={newCategoryDesc}
+                      onChange={e => setNewCategoryDesc(e.target.value)}
+                      placeholder="Optional"
+                      className="w-full px-2 py-1.5 border rounded text-sm"
+                    />
+                  </div>
+                  <button
+                    onClick={handleAddCategory}
+                    disabled={!newCategoryValue.trim() || !newCategoryLabel.trim()}
+                    className="px-3 py-1.5 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Requests List */}
+        {/* ── Requests List ─────────────────────────────────── */}
         {loading ? (
           <div className="flex justify-center py-12">
             <LoadingSpinner />
@@ -472,13 +870,28 @@ export default function AdminRequestsPage() {
               return (
                 <div
                   key={request.id}
-                  onClick={() => setSelectedRequest(request)}
+                  onClick={() => {
+                    setSelectedRequest(request);
+                    setHandoffMode(false);
+                    setHandoffProviderId('');
+                    setHandoffReason('');
+                  }}
                   className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">{request.category}</h3>
+                        {/* Ticket Number */}
+                        {request.ticketNumber ? (
+                          <span className="text-sm font-mono text-indigo-600 font-semibold">
+                            #{request.ticketNumber}
+                          </span>
+                        ) : (
+                          <span className="text-sm font-mono text-gray-400">#---</span>
+                        )}
+                        <h3 className="text-lg font-semibold text-gray-900 capitalize">
+                          {request.category.replace('_', ' ')}
+                        </h3>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[request.priority]}`}
                         >
@@ -487,7 +900,7 @@ export default function AdminRequestsPage() {
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[request.status]}`}
                         >
-                          {request.status.replace('_', ' ')}
+                          {friendlyStatus(request.status)}
                         </span>
                         {daysOld > 7 &&
                           request.status !== 'COMPLETED' &&
@@ -497,6 +910,16 @@ export default function AdminRequestsPage() {
                             </span>
                           )}
                       </div>
+                      {/* Assignment info */}
+                      {(request.assignedTeam || request.assignedProvider) && (
+                        <p className="text-xs text-gray-500 mb-1">
+                          Assigned:{' '}
+                          {request.assignedTeam?.name || request.assignedProvider?.companyName}
+                          {request.assignedTeam?.trade && ` (${request.assignedTeam.trade})`}
+                          {request.assignedProvider?.trade &&
+                            ` (${request.assignedProvider.trade})`}
+                        </p>
+                      )}
                       <p className="text-sm text-gray-500 mb-2">
                         <span className="font-medium text-gray-700">
                           {request.user?.name || 'Unknown'}
@@ -525,7 +948,7 @@ export default function AdminRequestsPage() {
           </div>
         )}
 
-        {/* Detail Drawer */}
+        {/* ── Detail Drawer ─────────────────────────────────── */}
         {selectedRequest && (
           <div className="fixed inset-0 z-50 flex justify-end">
             <div
@@ -535,7 +958,14 @@ export default function AdminRequestsPage() {
             <div className="relative w-full max-w-lg bg-white h-full overflow-y-auto">
               <div className="p-6">
                 <div className="flex justify-between items-start mb-6">
-                  <h2 className="text-xl font-bold text-gray-900">Request Details</h2>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">Request Details</h2>
+                    {selectedRequest.ticketNumber && (
+                      <span className="text-sm font-mono text-indigo-600 font-semibold">
+                        #{selectedRequest.ticketNumber}
+                      </span>
+                    )}
+                  </div>
                   <button
                     onClick={() => setSelectedRequest(null)}
                     className="text-gray-400 hover:text-gray-600"
@@ -544,79 +974,86 @@ export default function AdminRequestsPage() {
                   </button>
                 </div>
 
-                {/* Status & Priority */}
+                {/* ── Workflow-Aware Status Controls ──────────── */}
                 <div className="mb-6">
-                  <div className="flex items-center gap-3 mb-4">
+                  <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
+                    Status Workflow
+                  </h3>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[selectedRequest.status]}`}
+                    >
+                      {friendlyStatus(selectedRequest.status)}
+                    </span>
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[selectedRequest.priority]}`}
                     >
                       {selectedRequest.priority}
                     </span>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[selectedRequest.status]}`}
+                  </div>
+
+                  {/* Valid transition buttons */}
+                  {workflowTransitions[selectedRequest.status]?.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {workflowTransitions[selectedRequest.status].map(nextStatus => (
+                        <button
+                          key={nextStatus}
+                          onClick={() => handleStatusChange(selectedRequest.id, nextStatus)}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${statusColors[nextStatus]} border-transparent hover:opacity-80`}
+                        >
+                          → {friendlyStatus(nextStatus)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {(selectedRequest.status === 'COMPLETED' ||
+                    selectedRequest.status === 'CANCELLED') && (
+                    <p className="text-xs text-gray-500 italic">
+                      This request is in a terminal state.
+                    </p>
+                  )}
+
+                  {/* Priority selector */}
+                  <div className="mt-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                    <select
+                      value={selectedRequest.priority}
+                      onChange={e => handlePriorityChange(selectedRequest.id, e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                     >
-                      {selectedRequest.status.replace('_', ' ')}
-                    </span>
+                      {priorityOptions.map(p => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Priority
-                      </label>
-                      <select
-                        value={selectedRequest.priority}
-                        onChange={e => handlePriorityChange(selectedRequest.id, e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                      >
-                        {priorityOptions.map(p => (
-                          <option key={p} value={p}>
-                            {p}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                      <select
-                        value={selectedRequest.status}
-                        onChange={e => handleStatusChange(selectedRequest.id, e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                      >
-                        {statusOptions.map(status => (
-                          <option key={status} value={status}>
-                            {status.replace('_', ' ')}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        onClick={async () => {
-                          try {
-                            const res = await fetch(
-                              `/api/maintenance/${selectedRequest.id}/notify`,
-                              {
-                                method: 'POST',
-                              }
-                            );
-                            const data = await res.json();
-                            if (data.success) {
-                              alert(`Notification sent to ${data.recipient}`);
-                            } else {
-                              alert('Failed to send notification');
-                            }
-                          } catch (error) {
-                            log.error({}, 'Failed to send notification', error);
-                            alert('Error sending notification');
-                          }
-                        }}
-                        className="mt-2 text-sm text-indigo-600 hover:text-indigo-800"
-                      >
-                        📧 Notify Resident
-                      </button>
-                    </div>
-                  </div>
+
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/maintenance/${selectedRequest.id}/notify`, {
+                          method: 'POST',
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                          alert(`Notification sent to ${data.recipient}`);
+                        } else {
+                          alert('Failed to send notification');
+                        }
+                      } catch (error) {
+                        log.error({}, 'Failed to send notification', error);
+                        alert('Error sending notification');
+                      }
+                    }}
+                    className="mt-2 text-sm text-indigo-600 hover:text-indigo-800"
+                  >
+                    📧 Notify Resident
+                  </button>
                 </div>
 
-                {/* Resident Info */}
+                {/* ── Resident Info ───────────────────────────── */}
                 <div className="mb-6">
                   <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
                     Resident Information
@@ -634,7 +1071,7 @@ export default function AdminRequestsPage() {
                   </div>
                 </div>
 
-                {/* Request Details */}
+                {/* ── Request Details ─────────────────────────── */}
                 <div className="mb-6">
                   <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
                     Request Details
@@ -642,23 +1079,148 @@ export default function AdminRequestsPage() {
                   <div className="bg-gray-50 rounded-lg p-4">
                     <p className="text-sm text-gray-500 mb-1">
                       Category:{' '}
-                      <span className="font-medium text-gray-900">{selectedRequest.category}</span>
+                      <span className="font-medium text-gray-900 capitalize">
+                        {selectedRequest.category.replace('_', ' ')}
+                      </span>
                     </p>
+                    {(selectedRequest.preferredDate || selectedRequest.preferredTime) && (
+                      <p className="text-sm text-gray-500 mb-1">
+                        Preferred:{' '}
+                        <span className="font-medium text-gray-900">
+                          {selectedRequest.preferredDate &&
+                            formatDate(selectedRequest.preferredDate)}
+                          {selectedRequest.preferredTime && ` at ${selectedRequest.preferredTime}`}
+                        </span>
+                      </p>
+                    )}
                     <p className="text-gray-700 whitespace-pre-wrap">
                       {selectedRequest.description}
                     </p>
                   </div>
                 </div>
 
-                {/* Assignment & Scheduling */}
+                {/* ── Assignment Panel ────────────────────────── */}
                 <div className="mb-6">
                   <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
                     Assignment & Scheduling
                   </h3>
                   <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                    {/* In-house Team */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Assigned To
+                        In-house Team
+                      </label>
+                      <select
+                        value={selectedRequest.assignedTeamId || ''}
+                        onChange={e => {
+                          const teamId = e.target.value;
+                          handleAssignment(selectedRequest.id, teamId || undefined, undefined);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                      >
+                        <option value="">No team assigned</option>
+                        {teams
+                          .filter(t => t.isActive)
+                          .map(team => (
+                            <option key={team.id} value={team.id}>
+                              {team.name} ({team.trade})
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+
+                    {/* Service Provider */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Service Provider
+                      </label>
+                      <select
+                        value={selectedRequest.assignedProviderId || ''}
+                        onChange={e => {
+                          const providerId = e.target.value;
+                          handleAssignment(selectedRequest.id, undefined, providerId || undefined);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                      >
+                        <option value="">No provider assigned</option>
+                        {providers
+                          .filter(p => p.isActive)
+                          .map(provider => (
+                            <option key={provider.id} value={provider.id}>
+                              {provider.companyName} ({provider.trade})
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+
+                    {/* Hand off to Provider */}
+                    {selectedRequest.assignedTeamId && !handoffMode && (
+                      <button
+                        onClick={() => setHandoffMode(true)}
+                        className="px-3 py-1.5 bg-amber-100 text-amber-800 rounded-lg text-sm font-medium hover:bg-amber-200 transition-colors"
+                      >
+                        Hand off to Provider
+                      </button>
+                    )}
+
+                    {handoffMode && (
+                      <div className="border border-amber-300 rounded-lg p-3 bg-amber-50">
+                        <h4 className="text-sm font-semibold text-amber-900 mb-2">
+                          Hand off to Provider
+                        </h4>
+                        <p className="text-xs text-amber-700 mb-3">
+                          This will unassign the current team and assign a provider instead. A
+                          history entry will record the reason.
+                        </p>
+                        <div className="space-y-2">
+                          <select
+                            value={handoffProviderId}
+                            onChange={e => setHandoffProviderId(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                          >
+                            <option value="">Select a provider...</option>
+                            {providers
+                              .filter(p => p.isActive)
+                              .map(provider => (
+                                <option key={provider.id} value={provider.id}>
+                                  {provider.companyName} ({provider.trade})
+                                </option>
+                              ))}
+                          </select>
+                          <textarea
+                            value={handoffReason}
+                            onChange={e => setHandoffReason(e.target.value)}
+                            placeholder="Reason for handoff (e.g., scope issue, specialized repair needed)..."
+                            rows={2}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleHandoff(selectedRequest.id)}
+                              disabled={!handoffProviderId}
+                              className="px-3 py-1.5 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              Confirm Handoff
+                            </button>
+                            <button
+                              onClick={() => {
+                                setHandoffMode(false);
+                                setHandoffProviderId('');
+                                setHandoffReason('');
+                              }}
+                              className="px-3 py-1.5 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Legacy assignee (board member) */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Assigned To (Board Member)
                       </label>
                       <select
                         value={selectedRequest.assignedTo || ''}
@@ -673,6 +1235,8 @@ export default function AdminRequestsPage() {
                         ))}
                       </select>
                     </div>
+
+                    {/* Vendor (legacy) */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
                       <input
@@ -683,6 +1247,8 @@ export default function AdminRequestsPage() {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                       />
                     </div>
+
+                    {/* Scheduled Date */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Scheduled Date
@@ -701,7 +1267,7 @@ export default function AdminRequestsPage() {
                   </div>
                 </div>
 
-                {/* Cost Tracking */}
+                {/* ── Cost Tracking ───────────────────────────── */}
                 <div className="mb-6">
                   <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
                     Cost Tracking
@@ -744,7 +1310,56 @@ export default function AdminRequestsPage() {
                   </div>
                 </div>
 
-                {/* Images */}
+                {/* ── Progress Timeline ───────────────────────── */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
+                    Progress Timeline
+                  </h3>
+                  {loadingHistory ? (
+                    <p className="text-gray-500 text-sm">Loading timeline...</p>
+                  ) : statusTimeline.length === 0 ? (
+                    <p className="text-gray-500 text-sm">No status changes yet.</p>
+                  ) : (
+                    <div className="relative">
+                      {/* Vertical line */}
+                      <div className="absolute left-3 top-2 bottom-2 w-0.5 bg-gray-200" />
+                      <div className="space-y-4">
+                        {statusTimeline.map((entry, idx) => (
+                          <div key={entry.id} className="relative pl-8">
+                            {/* Dot */}
+                            <div
+                              className={`absolute left-1.5 top-1.5 w-3 h-3 rounded-full border-2 border-white ${statusDotColors[entry.newValue] || 'bg-gray-400'}`}
+                            />
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[entry.newValue] || ''}`}
+                                >
+                                  {friendlyStatus(entry.newValue)}
+                                </span>
+                                {entry.oldValue && (
+                                  <span className="text-xs text-gray-400">
+                                    from {friendlyStatus(entry.oldValue)}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                {entry.user?.name || 'System'} • {formatDateTime(entry.createdAt)}
+                              </p>
+                              {entry.comment && (
+                                <p className="text-xs text-gray-600 mt-0.5 italic">
+                                  &ldquo;{entry.comment}&rdquo;
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ── Images ──────────────────────────────────── */}
                 {selectedRequest.images && selectedRequest.images.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
@@ -767,7 +1382,7 @@ export default function AdminRequestsPage() {
                   </div>
                 )}
 
-                {/* Timestamps */}
+                {/* ── Timestamps ──────────────────────────────── */}
                 <div className="text-sm text-gray-500 mb-6">
                   <p>Created: {formatDateTime(selectedRequest.createdAt)}</p>
                   <p>
@@ -776,7 +1391,7 @@ export default function AdminRequestsPage() {
                   </p>
                 </div>
 
-                {/* History */}
+                {/* ── Full History ────────────────────────────── */}
                 <div className="mb-6">
                   <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">History</h3>
                   {loadingHistory ? (
@@ -804,7 +1419,9 @@ export default function AdminRequestsPage() {
                           <div className="text-gray-500 text-xs">
                             {entry.user?.name || 'Unknown'} • {formatDateTime(entry.createdAt)}
                             {entry.comment && (
-                              <p className="text-gray-600 mt-1 italic">"{entry.comment}"</p>
+                              <p className="text-gray-600 mt-1 italic">
+                                &ldquo;{entry.comment}&rdquo;
+                              </p>
                             )}
                           </div>
                         </div>
@@ -813,7 +1430,7 @@ export default function AdminRequestsPage() {
                   )}
                 </div>
 
-                {/* Internal Notes */}
+                {/* ── Internal Notes ──────────────────────────── */}
                 <div className="mb-6">
                   <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">
                     Internal Notes
