@@ -568,19 +568,26 @@ tenant_modules           → What each tenant has
 
 ## Phase: 41-feature-gate-consolidation
 
-**Goal:** Consolidate the three overlapping feature gating systems (TierGuard/FeatureRegistry, Module Gate, PlatformPageFlags) into a single `canAccess()` entry point with explicit 5-layer precedence. Adds server `canAccess()`, client `canAccessClient()` + `useGateContext()` + `GateGuard` component, CI test for mapping completeness, and `revalidateGate()` cache invalidation helper. **Phase 1 is purely additive — no existing callsites change.**
+**Goal:** Consolidate the three overlapping feature gating systems (TierGuard/FeatureRegistry, Module Gate, PlatformPageFlags) into a single `canAccess()` entry point with explicit 5-layer precedence. Adds server `canAccess()`, client `canAccessClient()` (skips tier/module — server is source of truth) + `useGateContext()` + `GateGuard` component, CI test for mapping completeness, `revalidateGate()` cache invalidation helper, and removal of all 8 legacy tier string occurrences. **Phase 1 is purely additive — no existing callsites change.**
 
-**Status:** Planning Complete — 3 plans in 1 wave
+**Status:** Planning Complete — 3 plans in 1 wave (narrow scope, post-advisory audit)
 
 **Requirements:** GATE-01, GATE-02, GATE-03, GATE-04, GATE-05, GATE-06, GATE-07, GATE-08
 
+**Scope decisions:**
+
+- **Advisory at .planning/ADVISORY.md is STALE** — verified 2026-06-01. References `getTenantTier`/`getModuleDefinition`/`getTenantModule` helpers that don't exist; `unstable_cache`+`revalidateTag` pattern not used; `/api/flags` doesn't return `tier`; pseudocode has dead-code bug. Only "no legacy tier strings" signal is authoritative.
+- **Client skips Tier and Module layers** (Q1=A) — server is source of truth; client `useGateContext()` provides `{ role, flags }` only, no tier
+- **Remove all 8 legacy tier string occurrences** (Q2=A) — `tiers.ts:261-275` (3 cases), `tenants.ts:17` (Drizzle default), `prisma/schema.prisma:72` (Prisma default), `TenantFeaturePage.tsx:111-113` (3 `<option>` lines), `base.ts:6` (comment)
+- **Slug file `src/shared/api/slug.ts:67` `'forest'` is a nature-word list** — NOT a tier reference; do not touch
+
 **Plans:**
 
-| Wave | Plan              | Objective                                                                                        |
-| ---- | ----------------- | ------------------------------------------------------------------------------------------------ |
-| 1    | [ ] 41-01-PLAN.md | Server `canAccess()` + 3 mapping tables (FEATURE_TO_MODULE/FLAG/REGISTRY) + GATE_REASON_TO_ERROR |
-| 1    | [ ] 41-02-PLAN.md | Client `canAccessClient()` + `useGateContext()` hook + `GateGuard` component                     |
-| 1    | [ ] 41-03-PLAN.md | CI test for mapping completeness + `revalidateGate()` cache invalidation helper                  |
+| Wave | Plan              | Objective                                                                                                                                  |
+| ---- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1    | [ ] 41-01-PLAN.md | Server `canAccess()` + 3 mapping tables (FEATURE_TO_MODULE/FLAG/REGISTRY) + GATE_REASON_TO_ERROR + 8 legacy tier string removals           |
+| 1    | [ ] 41-02-PLAN.md | Client `canAccessClient()` (skips tier/module) + `useGateContext()` hook + `GateGuard` component (3 render patterns)                       |
+| 1    | [ ] 41-03-PLAN.md | CI test for mapping completeness (Vitest) + `revalidateGate(tenantId)` using `revalidatePath()` (matches existing revalidation.ts pattern) |
 
 **References:** `docs/GATE_DISCUSSION.md`, `docs/GATE_ADDENDUM.md`, `docs/GATE_PLAN.md`
 

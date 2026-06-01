@@ -3,7 +3,7 @@
 ## Current Position
 
 - **Phase:** 41-feature-gate-consolidation
-- **Status:** Planning Complete — 3 plans in 1 wave
+- **Status:** Planning Complete — 3 plans in 1 wave (narrow scope)
 - **Current Plan:** Ready to execute 41-01, 41-02, 41-03 (all in parallel)
 - **Last Updated:** 2026-06-01
 - **Next Step:** Execute 41-01-PLAN.md via `/gsd-execute-phase 41-feature-gate-consolidation`
@@ -30,6 +30,10 @@
 - [x] [Phase 41]: Explicit null values in mapping tables (load-bearing — documents "no gate at this layer")
 - [x] [Phase 41]: Client skips Module layer check (server is source of truth; client relies on server 403 + Flag layer)
 - [x] [Phase 41]: Phase 1 is purely additive — no existing callsites change; CI test prevents future drift
+- [x] [Phase 41]: Advisory at .planning/ADVISORY.md is STALE — references helpers (`getTenantTier`/`getModuleDefinition`/`getTenantModule`) and patterns (`unstable_cache`+`revalidateTag`) that don't exist; `/api/flags` doesn't return `tier`; pseudocode has dead-code bug (line 261 uses `result` before defined). Only "no legacy tier strings" signal is authoritative.
+- [x] [Phase 41]: Q1=A — Client skips Tier and Module layers; server is source of truth. Client `useGateContext()` provides `{ role, flags }` only (no tier); Layer 4 (FeatureToggle) degrades gracefully when tier absent
+- [x] [Phase 41]: Q2=A — Remove ALL 8 legacy tier string occurrences: `tiers.ts:261-275` (3 cases in switch), `tenants.ts:17` (Drizzle default `'sprout'`→`'basic'`), `prisma/schema.prisma:72` (default `"sprout"`→`"basic"`), `TenantFeaturePage.tsx:111-113` (3 `<option>` lines), `base.ts:6` (comment "subscriptionTier: 'forest'"→"'flagship'")
+- [x] [Phase 41]: Slug file `src/shared/api/slug.ts:67` `'forest'` is a NATURE-WORD LIST (sky, sun, tree, flower, forest, mountain, ...) — NOT a tier reference. DO NOT touch.
 
 - [x] [Phase 39-competition-entries]: CompetitionEntry model + DTOs + Prisma migration (39-01)
 - [x] [Phase 39-competition-entries]: tRPC competition router with 9 procedures (39-02)

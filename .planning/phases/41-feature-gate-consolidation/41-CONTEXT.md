@@ -1,113 +1,130 @@
 # Phase 41 Context: Feature Gate Consolidation
 
 > **Created:** 2026-06-01
+> **Revised:** 2026-06-01 (narrowed to verified scope)
 > **Status:** Planning
-> **Phase goal:** Consolidate the three overlapping feature gating systems (TierGuard/FeatureRegistry, Module Gate, PlatformPageFlags) into a single `canAccess()` entry point with explicit 5-layer precedence.
+> **Phase goal:** Consolidate the three overlapping feature gating systems behind a single `canAccess()` entry point with explicit 5-layer precedence. Remove all legacy tier string handling (`sprout`, `grove`, `forest`) — the DB is clean, the code is not.
 
 ## Background
 
 Tracked as UBIQUITOUS_LANGUAGE.md conflict **C2** (medium priority). Three systems answer "can this user see this feature?" with undocumented precedence:
 
-1. **TierGuard / FeatureRegistry** — 30+ fine-grained toggles keyed as `page.*`, `feature.*`, `widget.*`, evaluated client-side against `TierLevel` (`foundation`/`depth`/`core`)
-2. **Module Gate** — `isModuleEnabled(tenantId, moduleKey)` DB-backed, 18 module keys, tier-aware via `platform_modules.minTier` (uses old `TenantTier` = `STANDARD`/`PREMIUM`/`ENTERPRISE`)
-3. **PlatformPageFlags** — 15 boolean DB-stored flags per tenant, set via admin settings UI
+1. **TierGuard / FeatureRegistry** — 30+ fine-grained toggles keyed as `page.*`, `feature.*`, `widget.*`
+2. **Module Gate** — `isModuleEnabled(tenantId, moduleKey)` DB-backed, 18 module keys
+3. **PlatformPageFlags** — 15 boolean DB-stored flags per tenant
 
-`maintenance` appears in all three. Every developer adding a feature must grep three files to understand the full gate chain.
+The advisory at `.planning/ADVISORY.md` is partially stale (verified against actual codebase, see "Advisory Status" below). The core signal — "no legacy tier strings" — is authoritative.
+
+## Advisory Status (verified 2026-06-01)
+
+| Advisory Claim                                                                     | Reality                                                                                                                | Action                                        |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| DB has no legacy values                                                            | **Confirmed** — 9 STANDARD, 3 PREMIUM, 2 ENTERPRISE; no `sprout`/`grove`/`forest`                                      | None                                          |
+| `getTierLevel()` should become `normalizeTier()` that throws on unknown            | Advisory's pseudocode is for a refactored future; codebase has 3 `getTierLevel()` functions and 2 `TIER_ORDER` records | **Out of scope** — separate refactor          |
+| `isModuleEnabled()` should be "updated" to use canonical types                     | The current function works; the advisory's suggested changes are for a different architectural goal                    | **Out of scope** — leave as-is, consume as-is |
+| `getTenantTier`, `getModuleDefinition`, `getTenantModule` should be cached helpers | These don't exist as separate functions; the inline queries work and are not a performance problem                     | **Out of scope** — premature optimization     |
+| `revalidateTag()` should replace `revalidatePath`                                  | Existing `revalidation.ts` is consistently `revalidatePath`-based                                                      | **Out of scope** — match existing pattern     |
+| `getPageFlags` should replace `getPlatformPageFlags`                               | Cosmetic rename, no functional impact                                                                                  | **Out of scope**                              |
+| `useGateContext()` reads `flags?.tier`                                             | **Not true** — `/api/flags` does not return `tier`                                                                     | **Scope decision: client skips tier check**   |
+| Remove `sprout`/`grove`/`forest` from code                                         | **True** — 8 occurrences across 6 files                                                                                | **In scope**                                  |
+
+## Core Invariant (advisory's authoritative signal)
+
+> `sprout`, `grove`, `forest` are deprecated. They do not appear in the database. They should not appear in the codebase.
+
+The DB schema defaults `subscriptionTier` to `'sprout'` and `<option value="sprout">` exists in the admin form — these are dormant legacy, removed in Phase 1.
 
 ## Solution
 
-A single `canAccess()` function with explicit 5-layer precedence, two mapping tables as the core artefact, and a CI test that prevents future drift. **No existing callsites change in Phase 1** — purely additive.
+A single `canAccess()` function with explicit 5-layer precedence, three mapping tables as the core artefact, and a CI test that prevents future drift. Phase 1 is **purely additive for the gate system** (no existing callsites change). Phase 1 **does** remove the legacy tier string handling (8 surgical edits, no functional change since DB has no legacy data).
 
 ```
 Role → Tier → Module → PageFlag → FeatureToggle
   0      1       2         3            4
 ```
 
+| Layer      | Mechanism                                   | Update Cadence       | Set By        |
+| ---------- | ------------------------------------------- | -------------------- | ------------- |
+| 0 Role     | `ROLE_PERMISSIONS` map (in-memory)          | Deploy               | Platform team |
+| 1 Tier     | `tenants.tier` + `platform_modules.minTier` | Quarterly            | Platform team |
+| 2 Module   | `tenant_modules.enabled`                    | Onboarding / upgrade | Tenant admin  |
+| 3 PageFlag | `settings` table, 15 keys                   | Weekly               | Tenant admin  |
+| 4 Feature  | `FeatureRegistry` (in-memory)               | Deploy               | Platform team |
+
 ## Key Design Decisions (locked)
 
-- **Module key as canonical `FeatureKey` namespace** — most stable, least ambiguous of the three systems' key formats
-- **Role as Layer 0 (prerequisite)** — runs before tier; no point checking tier if role can't access regardless
-- **Two variants of `canAccess()`** — server (async, DB access) and client (sync, pre-fetched data); same `GateResult` shape
-- **Explicit `null` values in mapping tables** — load-bearing; documents "no gate at this layer" rather than leaving implicit
-- **`GateContext` resolved once per request** — fetched at middleware/layout level, not per feature check
-- **3-tier caching matching update frequency** — tier (10min TTL via GateContext), module (5min existing), page flag (existing usePageFlags)
+- **DB layer keeps `TenantTier` (`STANDARD`/`PREMIUM`/`ENTERPRISE`)** — no DB migration
+- **Application layer uses `TenantTier` directly** — no `normalizeTier()` rename, no canonical boundary creation
+- **Client skips Tier and Module layers** — `canAccessClient()` evaluates only Role (0), PageFlag (3), FeatureToggle (4). Server returns 403 on tier/module denials; client renders null/upgrade prompt based on what server allows
+- **`GateContext` carries `TenantTier`** — same type as DB column, no conversion
+- **No new cached helpers** — consume `isModuleEnabled()` and `getPlatformPageFlags()` as-is
+- **No `unstable_cache` with tags** — use existing `revalidatePath()` pattern
 - **One log per `false` result, zero on `allowed`** — structured `event: 'gate.denied'`
-- **`GATE_REASON_TO_ERROR` for API routes** — standardises HTTP semantics (fixes current `403`/`404`/`200-empty` inconsistency)
+- **`GATE_REASON_TO_ERROR` for API routes** — standardises HTTP semantics
+- **Legacy tier string removal is in-scope** — 8 occurrences across 6 files
 
-## Critical Codebase Findings
+## Concrete Removal Targets (legacy tier strings)
 
-### Two Tier Systems Coexist
-
-The codebase has **two tier systems** that need to be unified or explicitly bridged:
-
-| System  | Values                                  | Location                                        | Used By                                  |
-| ------- | --------------------------------------- | ----------------------------------------------- | ---------------------------------------- |
-| **Old** | `STANDARD` \| `PREMIUM` \| `ENTERPRISE` | `TenantTier` in `@entities/tenant`              | `isModuleEnabled()`, `tenants.tier` (DB) |
-| **New** | `foundation` \| `depth` \| `core`       | `TierLevel` in `@shared/lib/constants/tiers.ts` | `FeatureRegistry`, `MODULES`, `TIERS`    |
-
-The `isModuleEnabled()` function uses the old system with `TIER_LEVELS: Record<TenantTier, number>`. The `FeatureRegistry` uses the new system. **Phase 1 must bridge these** so the gate can evaluate both layers consistently.
-
-The DB column `tenants.tier` is `TenantTier` (old). The conversion happens implicitly via `TIER_LEVELS[tier]` mapping.
-
-### Existing Test Patterns
-
-- Tests use **Vitest** (`npm test` runs `vitest`, `npm run test:run` runs `vitest run` for CI)
-- `src/entities/tenant/api/flags/platform-flags.test.ts` mocks `@api/db` with hoisted `vi.fn()` pattern
-- Test files colocated next to source: `foo.ts` → `foo.test.ts`
-- 20+ existing test files across the project
-
-### Existing Hook: `usePageFlags`
-
-`src/shared/lib/hooks/usePageFlags.ts` already exists — fetches from `/api/flags` and returns `PlatformPageFlags`. The `useGateContext()` hook will extend this to also carry tier.
-
-### Existing API: `/api/flags`
-
-`usePageFlags` calls `/api/flags` which returns `{ flags, tier, tenantId }` (already includes tier per `flags.test.ts`). Good — no API change needed for `useGateContext()`.
-
-### TierGuard Exists at Entity Layer
-
-`src/entities/tenant/ui/TierGuard.tsx` — the current client-side wrapper. Takes `feature`/`page`/`widget` string + `tier` prop. `GateGuard` will replace this, but **not in Phase 1** (Phase 2 opportunistic migration).
+| File                                              | Line    | What                                                           | Action                                                                                                                                                                                                                                              |
+| ------------------------------------------------- | ------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/shared/lib/constants/tiers.ts`               | 261-275 | `getTierLevel()` switch with `sprout`/`grove`/`forest` cases   | Remove cases; default branch returns `'foundation'` for unknown (back-compat with non-legacy unknowns like `'gold'`) — or throws. **Decision: keep returning `'foundation'` as fallback** so existing callers don't break. Just delete the 3 cases. |
+| `src/db/schema/tenants.ts`                        | 17      | `subscriptionTier: text('subscriptionTier').default('sprout')` | Change default to `'basic'` (matches Prisma line 816)                                                                                                                                                                                               |
+| `prisma/schema.prisma`                            | 72      | `subscriptionTier String @default("sprout")`                   | Change default to `"basic"`                                                                                                                                                                                                                         |
+| `src/page-modules/admin/ui/TenantFeaturePage.tsx` | 111-113 | `<option value="sprout">` etc.                                 | Remove the 3 `<option>` lines                                                                                                                                                                                                                       |
+| `src/shared/api/slug.ts`                          | 67      | `'forest'` reference                                           | Audit: is it a tier name or a generic word? **Verify before removing.**                                                                                                                                                                             |
+| `src/entities/tenant/api/base.ts`                 | 6       | Comment mentioning `forest`                                    | Update comment to remove tier reference                                                                                                                                                                                                             |
 
 ## Phase Plan (3 plans in 1 wave)
 
-| Plan      | Objective                                                     | Files Created                                                            | Risk |
-| --------- | ------------------------------------------------------------- | ------------------------------------------------------------------------ | ---- |
-| **41-01** | Server `canAccess()` + mapping tables                         | 1 (`src/shared/api/gate.ts`)                                             | Low  |
-| **41-02** | Client `canAccessClient()` + `useGateContext()` + `GateGuard` | 2 (`src/shared/lib/gate-client.ts`, `src/shared/ui/GateGuard.tsx`)       | Low  |
-| **41-03** | CI test for mapping completeness + `revalidateGate()` helper  | 2 (`src/shared/api/gate.test.ts`, edit `src/shared/api/revalidation.ts`) | Low  |
+| Plan      | Objective                                                     | Files Created                                                      | Files Modified                             |
+| --------- | ------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------ |
+| **41-01** | Legacy string removal + Server `canAccess()` + mapping tables | 1 (`src/shared/api/gate.ts`)                                       | 6 (legacy removal)                         |
+| **41-02** | Client `canAccessClient()` + `useGateContext()` + `GateGuard` | 2 (`src/shared/lib/gate-client.ts`, `src/shared/ui/GateGuard.tsx`) | 1 (`src/shared/lib/hooks/usePageFlags.ts`) |
+| **41-03** | CI test for mapping completeness + `revalidateGate()`         | 1 (`src/shared/api/gate.test.ts`)                                  | 1 (`src/shared/api/revalidation.ts`)       |
 
-All three plans can run **in parallel** (Wave 1) — no inter-plan dependencies:
+**Sequential concern:** Plan 41-01 modifies `tiers.ts` (removes legacy cases) and 4 other files. The `tiers.ts` change must NOT break callers of `getTierLevel()`. The change is purely deleting 3 cases from a switch — existing callers passing `STANDARD`/`PREMIUM`/`ENTERPRISE` or `foundation`/`depth`/`core` still work.
 
-- Plan 41-01 creates `gate.ts` (server)
-- Plan 41-02 creates `gate-client.ts` + `GateGuard.tsx` (client); consumes types from `gate.ts`
-- Plan 41-03 creates `gate.test.ts` + `revalidateGate()` helper; tests both `gate.ts` exports
+**Cascade impact:** Plan 41-01's legacy removal touches:
 
-**Sequential concern:** Plan 41-02 imports types from `gate.ts` (FeatureKey, GateResult, GateReason). Must be **executed after** Plan 41-01 (or in parallel with awareness).
+- `src/entities/tenant/lib/modules/index.ts` — re-exports `getTierLevel`, no breakage
+- `src/entities/tenant/lib/modules/require-module.ts` — has its own `getTierLevel` (different signature), not affected
+- `src/entities/tenant/api/features/registry.ts` — uses `getTierLevel` from tiers.ts, works after edit
 
-## Out of Scope (Phase 2-3 work)
+Plan 41-01 task 1 must run a `grep` audit post-edit to confirm no breakage.
+
+## Out of Scope (deferred to later phases)
 
 - Migrating existing callsites from `isModuleEnabled`/`TierGuard`/`usePageFlags` → `canAccess()` (Phase 2 opportunistic)
 - Removing `TierGuard`/`isModuleEnabled` public exports (Phase 3 cleanup)
-- Unifying the two tier systems (separate phase; bridge is enough for Phase 1)
-- Changing `MODULES.tier` from `TierLevel` to use the old `TenantTier` system
-- Resolving UBIQUITOUS_LANGUAGE.md C4 (tier naming mismatch) — separate workstream
+- Consolidating the 3 `getTierLevel()` functions into one (separate refactor)
+- Renaming `getPlatformPageFlags` → `getPageFlags` (cosmetic)
+- Switching `revalidation.ts` to `revalidateTag()` (architectural change)
+- Adding `tier` to `/api/flags` response (server-only tier check, client skips)
+- Unifying the two tier systems (`TenantTier` vs `TierLevel`) — tracked by UBIQUITOUS_LANGUAGE.md C4
 
 ## Success Criteria
 
-- [ ] `canAccess()` is exported and callable but unused in production code
-- [ ] `canAccessClient()` works in client components
-- [ ] `GateGuard` renders `children`/`fallback`/`render` correctly
-- [ ] `useGateContext()` provides `{ role, tier, flags }` from `/api/flags`
-- [ ] CI test catches drift: every `FeatureKey` must map to a valid entry in all three tables
-- [ ] No existing callsites modified
+- [ ] All 8 legacy tier string occurrences removed (6 files)
 - [ ] `npm run typecheck` passes
-- [ ] `npm run test:run` passes
 - [ ] `npm run lint` passes
+- [ ] `npm run test:run` passes
+- [ ] `grep -r "sprout\|grove\|forest" src/ --include="*.ts" --include="*.tsx"` returns no results
+- [ ] `grep "sprout" prisma/schema.prisma` returns no results
+- [ ] Server `canAccess()` is callable and returns correct `GateResult` for all 5 layer combinations
+- [ ] All 3 mapping tables have entries for all 14 `FeatureKey` values
+- [ ] `canAccessClient()` works in client components (layers 0, 3, 4 only)
+- [ ] `GateGuard` renders `children`/`fallback`/`render` correctly
+- [ ] `useGateContext()` provides `{ role, flags }` from `/api/flags` (no tier)
+- [ ] `revalidateGate(tenantId)` uses `revalidatePath()` (matches existing pattern)
+- [ ] CI test catches drift: every `FeatureKey` must map to a valid entry in all three tables
+- [ ] No existing callsites of `TierGuard`/`isModuleEnabled` modified
+- [ ] No `normalizeTier()` rename, no `TIER_LEVELS` removal, no new cached helpers
 
 ## References
 
+- `.planning/ADVISORY.md` — partially stale; only the "no legacy tier strings" signal is authoritative
 - `docs/GATE_DISCUSSION.md` — original 4-layer proposal
-- `docs/GATE_ADDENDUM.md` — revised design with 5 layers, server/client split, observability
-- `docs/GATE_PLAN.md` — consolidated 3-phase migration roadmap
-- `docs/UBIQUITOUS_LANGUAGE.md` C2 — conflict origin
+- `docs/GATE_ADDENDUM.md` — revised design (5 layers, observability, caching)
+- `docs/GATE_PLAN.md` — consolidated 3-phase migration roadmap (Phase 1 of 3)
+- `docs/UBIQUITOUS_LANGUAGE.md` C2, C4 — conflict origins
 - `docs/HOLISTIC.md` — cross-context impact, decision log
