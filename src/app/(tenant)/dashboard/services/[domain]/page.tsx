@@ -4,6 +4,7 @@ import { use, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { notFound } from 'next/navigation';
 import { SERVICES_DOMAINS, getServicesDomainWidgets } from '@widgets/dashboard/model/spaces';
 import { SERVICES_DOMAIN_DEFINITIONS } from '@widgets/dashboard/ui/ServicesSubLauncher';
@@ -16,7 +17,10 @@ interface ServicesDomainPageProps {
 }
 
 export default function ServicesDomainPage({ params }: ServicesDomainPageProps) {
-  const { t } = useTranslation('common');
+  // Load both common + services namespaces so all t() calls resolve on the
+  // first render (otherwise the services namespace lazy-loads after hydration
+  // and the page flashes the raw key like "domains.maintenance").
+  const { t, ready } = useTranslation(['common', 'services']);
   const { domain } = use(params);
   const searchParams = useSearchParams();
   // Defer the action=new form render until after mount to avoid SSR/hydration
@@ -26,6 +30,16 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
     setMounted(true);
   }, []);
   const showNewForm = mounted && domain === 'maintenance' && searchParams.get('action') === 'new';
+
+  // Helper that returns the English fallback until i18n is mounted + ready.
+  // Without this, the server renders the raw key (e.g. "nav.home") but the
+  // client renders the translation after hydration — producing a hydration
+  // mismatch. With this helper both first renders show the fallback and the
+  // translated value swaps in once i18n is ready.
+  const tx = (key: string, fallback: string, options?: Record<string, unknown>): string => {
+    if (!mounted || !ready) return fallback;
+    return t(key, { ...options, defaultValue: fallback });
+  };
 
   // Validate domain
   if (!SERVICES_DOMAINS.includes(domain as (typeof SERVICES_DOMAINS)[number])) {
@@ -41,14 +55,19 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Breadcrumbs
           items={[
-            { label: t('nav.home'), href: '/' },
-            { label: t('nav.dashboard'), href: '/dashboard' },
+            { label: tx('nav.home', 'Home'), href: '/' },
+            { label: tx('nav.dashboard', 'Dashboard'), href: '/dashboard' },
             {
-              label: t('spaces.services', { defaultValue: 'Services' }),
+              label: tx('spaces.services', 'Services'),
               href: '/dashboard/services',
             },
             {
-              label: t(domainDef?.labelKey ?? domain, { ns: 'services' }),
+              label: tx(
+                domainDef?.labelKey ?? domain,
+                domainDef?.id
+                  ? domainDef.id.charAt(0).toUpperCase() + domainDef.id.slice(1)
+                  : domain
+              ),
               href: `/dashboard/services/${domain}`,
             },
           ]}
@@ -59,10 +78,15 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
             {DomainIcon && <DomainIcon className="w-8 h-8 text-indigo-600" />}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {t(domainDef?.labelKey ?? domain, { ns: 'services' })}
+                {tx(
+                  domainDef?.labelKey ?? domain,
+                  domainDef?.id
+                    ? domainDef.id.charAt(0).toUpperCase() + domainDef.id.slice(1)
+                    : domain
+                )}
               </h1>
               <p className="text-sm text-gray-500">
-                {domainDef ? t(domainDef.descriptionKey, { ns: 'services' }) : ''}
+                {domainDef ? tx(domainDef.descriptionKey, domainDef.description) : ''}
               </p>
             </div>
           </div>
@@ -70,7 +94,7 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
             href="/dashboard/services"
             className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
           >
-            &larr; {t('domains.back', { ns: 'services', defaultValue: 'Back to Services' })}
+            &larr; {tx('domains.back', 'Back to Services')}
           </Link>
         </div>
 
@@ -101,8 +125,10 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
                     const body = await res.json().catch(() => ({}));
                     const message =
                       body?.message ?? body?.error ?? 'Failed to submit maintenance request';
+                    toast.error(message);
                     throw new Error(message);
                   }
+                  toast.success('Maintenance request submitted');
                   window.location.href = '/dashboard/services/maintenance';
                 }}
               />
@@ -126,13 +152,15 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             {DomainIcon && <DomainIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />}
             <h2 className="text-lg font-semibold text-gray-900 mb-2">
-              {t(domainDef?.labelKey ?? domain, { ns: 'services' })}
+              {tx(
+                domainDef?.labelKey ?? domain,
+                domainDef?.id
+                  ? domainDef.id.charAt(0).toUpperCase() + domainDef.id.slice(1)
+                  : domain
+              )}
             </h2>
             <p className="text-gray-500">
-              {t('domains.comingSoon', {
-                ns: 'services',
-                defaultValue: 'This section is coming soon.',
-              })}
+              {tx('domains.comingSoon', 'This section is coming soon.')}
             </p>
           </div>
         )}
