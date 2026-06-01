@@ -8,8 +8,8 @@
 - **Last Updated:** 2026-06-01
 - **Next Step:** Execute 41-01-PLAN.md via `/gsd-execute-phase 41-feature-gate-consolidation`
 
-**Last Session:** 2026-06-01T07:54:09.981Z
-**Stopped at:** Completed 40-03-PLAN.md
+**Last Session:** 2026-06-01T18:54:43Z
+**Stopped at:** Completed 40-04-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -19,8 +19,12 @@
 - [x] [Phase 40-02]: Ticket number generation SRV-{YYYY}-{NNNN} + comma-separated priority filter
 - [x] [Phase 40-02]: Resident notes bug fix — filter isInternal instead of 403 on any internal note
 - [x] [Phase 40-02]: Admin activity 7-status CASE + ticketNumber in metadata
+  - [x] [Phase 40-04]: Status timeline uses 5-step vertical layout; PENDING_PARTS at IN_PROGRESS level; CANCELLED rendered separately
+  - [x] [Phase 40-04]: ActivityZone merges announcement + maintenance items sorted by date, top 5; Maintenance type uses Wrench icon + /maintenance link
+  - [x] [Phase 40-04]: 7 seed requests covering lawn irrigation, burst pipe, tree felling, network outage, electrical mains, bin removal, garage door
 
-- [x] [Phase 41]: Module key as canonical FeatureKey namespace (most stable of the three systems' key formats)
+  - [x] [Phase 41]: Module key as canonical FeatureKey namespace (most stable of the three systems' key formats)
+
 - [x] [Phase 41]: Role as Layer 0 (prerequisite) — runs before tier; synchronous in-memory lookup against ROLE_PERMISSIONS
 - [x] [Phase 41]: Two-tier-system bridge — server uses TenantTier (STANDARD/PREMIUM/ENTERPRISE), client uses TierLevel (foundation/depth/core); conversion via tenantTierToTierLevel() helper
 - [x] [Phase 41]: Explicit null values in mapping tables (load-bearing — documents "no gate at this layer")
@@ -265,6 +269,7 @@
 | Phase 39 P03                           | ~15min | 2 tasks  | 4 files  |
 | Phase 39 P04                           | ~25min | 2 tasks  | 3 files  |
 | Phase 40 P03                           | 88     | 3 tasks  | 4 files  |
+| Phase 40 P04                           | 259min | 3 tasks  | 5 files  |
 
 ## A01 Execution Decisions
 
