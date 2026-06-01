@@ -88,8 +88,21 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
             </div>
             <ErrorBoundary>
               <MaintenanceForm
-                onSubmit={async () => {
-                  // After successful submit, navigate back to the list
+                onSubmit={async data => {
+                  // Perform the actual POST to /api/maintenance, then reload the page
+                  // to show the new request in the widget. A full reload is used so the
+                  // client-side widget refetches and the form state is cleared.
+                  const res = await fetch('/api/maintenance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                  });
+                  if (!res.ok) {
+                    const body = await res.json().catch(() => ({}));
+                    const message =
+                      body?.message ?? body?.error ?? 'Failed to submit maintenance request';
+                    throw new Error(message);
+                  }
                   window.location.href = '/dashboard/services/maintenance';
                 }}
               />
