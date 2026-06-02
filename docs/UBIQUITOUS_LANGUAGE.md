@@ -291,6 +291,8 @@ Four different TypeScript shapes exist for the same concept:
 
 **Resolution plan:** `docs/GATE_PLAN.md` — 5-layer precedence model with `canAccess()` single entry point, 3-phase migration (foundation → incremental → cleanup), CI-enforced mapping completeness test.
 
+**Status (2026-06-01):** **Open — Phase 1 infrastructure complete.** `canAccess()`, `canAccessClient()`, `useGateContext()`, and `GateGuard` exist in `.planning/phases/41-feature-gate-consolidation/41-{01,02,03}-PLAN.md` and will land in Phase 41 execution. The 3 legacy systems (`isModuleEnabled`, `TierGuard`, `usePageFlags` direct reads) remain public and continue to operate in parallel until Phase 2 migrates callsites opportunistically. C2 fully resolved when Phase 3 restricts legacy exports to `@internal`. See 41-CONTEXT.md "Trajectory" and "Phase 2/3 Deferrals" sections.
+
 ### C3: Tab → Space Migration Incomplete (Medium Priority)
 
 `widget-store.ts` still uses `tabId` as map keys; `admin-config.ts` still has `DashboardTab[]` type.
@@ -324,10 +326,11 @@ The model is `MaintenanceRequest`; users see "Ticket Number" in the UI. This is 
 
 ## Term Decision Log
 
-| Date       | Decision                                                                | Rationale                                                   |
-| ---------- | ----------------------------------------------------------------------- | ----------------------------------------------------------- |
-| 2026-06-01 | Established "Tenant" as technical term, "Community" as user-facing term | Consistent with codebase convention; no breaking change     |
-| 2026-06-01 | Established "Space" as canonical, "Tab" as deprecated                   | Phase 30 completed the migration; Phase 31 will clean up    |
-| 2026-06-01 | Documented Property shape inconsistency as C1                           | Four incompatible shapes need unification                   |
-| 2026-06-01 | Documented triple gating system as C2                                   | Overlap between Module/Feature/Flag systems is undocumented |
-| 2026-06-01 | Documented tier naming mismatch as C4                                   | 3 technical tiers vs 4 business tiers is an open gap        |
+| Date       | Decision                                                                | Rationale                                                                         |
+| ---------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| 2026-06-01 | Established "Tenant" as technical term, "Community" as user-facing term | Consistent with codebase convention; no breaking change                           |
+| 2026-06-01 | Established "Space" as canonical, "Tab" as deprecated                   | Phase 30 completed the migration; Phase 31 will clean up                          |
+| 2026-06-01 | Documented Property shape inconsistency as C1                           | Four incompatible shapes need unification                                         |
+| 2026-06-01 | Documented triple gating system as C2                                   | Overlap between Module/Feature/Flag systems is undocumented                       |
+| 2026-06-01 | Documented tier naming mismatch as C4                                   | 3 technical tiers vs 4 business tiers is an open gap                              |
+| 2026-06-01 | Updated C2 status: Phase 1 infrastructure complete (Plan 41-01..03)     | Foundation in flight; callsite migration is Phase 2; C2 fully Resolved in Phase 3 |

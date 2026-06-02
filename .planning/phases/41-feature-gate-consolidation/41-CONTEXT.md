@@ -141,18 +141,20 @@ These are the public API shapes that Phase 1 ships. Once committed, Phase 2/3 mu
 
 These are deliberate omissions. Phase 2/3 will pick them up. Listing them explicitly so a future contributor doesn't pick a different direction.
 
-| Deferral                                       | Description                                                                                                                              | Phase                           | Notes                                                                                 |
-| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------- |
-| Client tier in `useGateContext()`              | `/api/flags` doesn't return `tier`; client `ctx.tier` is always `undefined` in Phase 1; Layer 4 (FeatureToggle) is permissive without it | Phase 2                         | Add `tier` to `/api/flags` response; populate `useGateContext().tier`                 |
-| Cached helpers                                 | `getTenantTier`, `getModuleDefinition`, `getTenantModule` as separate `unstable_cache`-wrapped functions                                 | Phase 2                         | Extract from `canAccess()`; tagged for invalidation                                   |
-| Tag-based revalidation                         | `revalidateTag('tenant-tier-{id}')` instead of `revalidatePath()`                                                                        | Phase 2 (with cached helpers)   | Requires tag-based cache to be useful                                                 |
-| Real-system integration tests                  | Tests currently mock `isModuleEnabled` and `getPlatformPageFlags`                                                                        | Phase 2                         | Mock-only is fine for drift detection; real integration tests catch signature changes |
-| Callsite migration                             | Migrate `assertModuleEnabled`, `TierGuard`, direct `isModuleEnabled` calls, direct `usePageFlags` reads                                  | Phase 2 (opportunistic)         | Mechanical, per-pattern replacement                                                   |
-| Restrict `isModuleEnabled`/`TierGuard` exports | Move to `@internal` or delete                                                                                                            | Phase 3                         | Only after all callsites migrated                                                     |
-| Consolidate 3 `getTierLevel()` functions       | One canonical function; remove the other two                                                                                             | Separate workstream             | Tracked by UBIQUITOUS_LANGUAGE.md C4                                                  |
-| Unify the two tier systems                     | `TenantTier` (DB) ↔ `TierLevel` (application) bridge                                                                                     | Separate workstream             | Tracked by UBIQUITOUS_LANGUAGE.md C4                                                  |
-| Update `docs/UBIQUITOUS_LANGUAGE.md` C2 status | Mark C2 "Open (Phase 1 infrastructure complete)" or "Resolved"                                                                           | Phase 1 (this phase) or Phase 3 | Decision deferred — see "Open Questions"                                              |
-| Per-entity context doc updates                 | Add "Migration Status" section to each `docs/contexts/*.md`                                                                              | Phase 2                         | Track per-entity migration progress                                                   |
+| Deferral                                       | Description                                                                                                                              | Phase                         | Notes                                                                                                                                        |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Client tier in `useGateContext()`              | `/api/flags` doesn't return `tier`; client `ctx.tier` is always `undefined` in Phase 1; Layer 4 (FeatureToggle) is permissive without it | Phase 2                       | Add `tier` to `/api/flags` response; populate `useGateContext().tier`                                                                        |
+| Cached helpers                                 | `getTenantTier`, `getModuleDefinition`, `getTenantModule` as separate `unstable_cache`-wrapped functions                                 | Phase 2                       | Extract from `canAccess()`; tagged for invalidation                                                                                          |
+| Tag-based revalidation                         | `revalidateTag('tenant-tier-{id}')` instead of `revalidatePath()`                                                                        | Phase 2 (with cached helpers) | Requires tag-based cache to be useful                                                                                                        |
+| Real-system integration tests                  | Tests currently mock `isModuleEnabled` and `getPlatformPageFlags`                                                                        | Phase 2                       | Mock-only is fine for drift detection; real integration tests catch signature changes                                                        |
+| Callsite migration                             | Migrate `assertModuleEnabled`, `TierGuard`, direct `isModuleEnabled` calls, direct `usePageFlags` reads                                  | Phase 2 (opportunistic)       | Mechanical, per-pattern replacement                                                                                                          |
+| Restrict `isModuleEnabled`/`TierGuard` exports | Move to `@internal` or delete                                                                                                            | Phase 3                       | Only after all callsites migrated                                                                                                            |
+| Consolidate 3 `getTierLevel()` functions       | One canonical function; remove the other two                                                                                             | Separate workstream           | Tracked by UBIQUITOUS_LANGUAGE.md C4                                                                                                         |
+| Unify the two tier systems                     | `TenantTier` (DB) ↔ `TierLevel` (application) bridge                                                                                     | Separate workstream           | Tracked by UBIQUITOUS_LANGUAGE.md C4                                                                                                         |
+| Update `docs/UBIQUITOUS_LANGUAGE.md` C2 status | **Done 2026-06-01** — C2 marked "Open — Phase 1 infrastructure complete"                                                                 | Phase 1 ✓                     | Full resolution in Phase 3 when legacy exports are restricted                                                                                |
+| Per-entity context doc updates                 | Add "Migration Status" section to each `docs/contexts/*.md`                                                                              | Phase 2                       | Track per-entity migration progress                                                                                                          |
+| `revalidateGate()` callers                     | Function added in Phase 1; mutation routes (tier change, module install/uninstall, page flag toggle) call it in Phase 2                  | Phase 2                       | Intentional: ships as integration point, exercised in tests only                                                                             |
+| Optimistic `useGateContext()` loading          | Hook returns `null` while session/flags resolve; `<GateGuard>` renders `loadingFallback` (default `null`)                                | Phase 2 (if needed)           | Trade-off accepted (2026-06-01): conservative (deny while loading) is safer than optimistically rendering gated content the server might 403 |
 
 ## Out of Scope (deferred to later phases)
 
@@ -166,25 +168,41 @@ These are deliberate omissions. Phase 2/3 will pick them up. Listing them explic
 
 ## Success Criteria
 
-- [ ] All 8 legacy tier string occurrences removed (6 files)
+- [ ] All 7 legacy tier string occurrences removed (5 files)
 - [ ] `npm run typecheck` passes
 - [ ] `npm run lint` passes
 - [ ] `npm run test:run` passes
-- [ ] `grep -r "sprout\|grove\|forest" src/ --include="*.ts" --include="*.tsx"` returns no results
+- [ ] `grep -r "sprout\|grove\|forest" src/ --include="*.ts" --include="*.tsx"` returns no results (except `src/shared/api/slug.ts:67` — nature word, not tier)
 - [ ] `grep "sprout" prisma/schema.prisma` returns no results
 - [ ] Server `canAccess()` is callable and returns correct `GateResult` for all 5 layer combinations
 - [ ] All 3 mapping tables have entries for all 14 `FeatureKey` values
 - [ ] `canAccessClient()` works in client components (layers 0, 3, 4 only)
 - [ ] `GateGuard` renders `children`/`fallback`/`render` correctly
-- [ ] `useGateContext()` provides `{ role, flags }` from `/api/flags` (no tier)
+- [ ] `useGateContext()` provides `{ role, flags }` from real session + `/api/flags` (no tier)
+- [ ] `resolveGateContext()` reads role from `getSessionAndRole()` (real session, not hardcoded)
 - [ ] `revalidateGate(tenantId)` uses `revalidatePath()` (matches existing pattern)
 - [ ] CI test catches drift: every `FeatureKey` must map to a valid entry in all three tables
 - [ ] No existing callsites of `TierGuard`/`isModuleEnabled` modified
 - [ ] No `normalizeTier()` rename, no `TIER_LEVELS` removal, no new cached helpers
 
+## Mapping Verification (audit 2026-06-01)
+
+The CI test in Plan 41-03 validates **structural** correctness (every key present, every value is a valid enum value). This audit validates **semantic** correctness (the mapping encodes the right truth).
+
+| Feature                   | Module        | Verified? | Source                                                                                                                                                                                                                                                                               |
+| ------------------------- | ------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `services`                | `marketplace` | ✓         | `marketplace` module in `src/shared/lib/constants/tiers.ts:120-125` is described as "**Services directory**". Dashboard config also maps `'services-widget'`/`'my-services'`/`'service-inquiries'` → `page.marketplace` in `src/entities/widget/model/dashboard-config.ts:22,44,45`. |
+| `messages`                | `chat`        | ✓         | Both the "messages" UI and the "chat" UI share the `conversations` table (via `src/entities/chat/`).                                                                                                                                                                                 |
+| `competitions`            | `null`        | ✓         | No module gate — competitions are always available if the page flag is on. Confirmed: `competitions` is a standalone entity with its own `CompetitionEntry` model (Phase 39).                                                                                                        |
+| `dashboard`               | `null`        | ✓         | No module gate — dashboard is always available to authenticated users. Module gating happens at the per-space level (Phase 30).                                                                                                                                                      |
+| All other `null` mappings | `null`        | ✓         | Each verified: the feature has no module-level access control today; the gate must also not block on modules.                                                                                                                                                                        |
+
+**Audit result:** All 14 FeatureKey → ModuleKey mappings are semantically correct. No adjustments needed before execution.
+
 ## References
 
-- `.planning/ADVISORY.md` — partially stale; only the "no legacy tier strings" signal is authoritative
+- `.planning/ADVISORY.md` and `.planning/GATE_ADVISORY.md` — both kept as historical record (now with top-of-document sequence notices)
+- `docs/UBIQUITOUS_LANGUAGE.md` C2 — updated 2026-06-01 to "Open — Phase 1 infrastructure complete"
 - `docs/GATE_DISCUSSION.md` — original 4-layer proposal
 - `docs/GATE_ADDENDUM.md` — revised design (5 layers, observability, caching)
 - `docs/GATE_PLAN.md` — consolidated 3-phase migration roadmap (Phase 1 of 3)

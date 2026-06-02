@@ -1,267 +1,610 @@
-# Advisory — Phase 30: Dashboard Phase B (Focus Spaces)
+# Feature Gating Unification — Agent Advisory
 
-**Reviewed:** 2026-05-24  
-**Plans:** 30-01 through 30-05  
-**Status:** Pre-execution review
-
----
-
-## Summary
-
-The five plans are well-structured and the dependency chain is sound. The feature flag coexistence strategy (Q5) and the Q1–Q4 user decisions are applied consistently throughout. The sequencing (01 → 02/03 → 04 → 05) is correct and the autonomous/checkpoint gating is appropriate.
-
-The risks below are not blockers. They are targeted improvements — primarily around data source ambiguity, type safety surface area, safe-area CSS, and a cross-phase dependency gap. Address them before or during execution.
-
----
-
-## Risk Register
-
-| ID  | Plan  | Severity | Area                                                   |
-| --- | ----- | -------- | ------------------------------------------------------ |
-| A1  | 30-03 | High     | Mass breaking change to widget manifests               |
-| A2  | 30-04 | High     | MyHomeSpace data source is ambiguous                   |
-| A3  | 30-05 | Medium   | Safe-area inset not applied to content padding         |
-| A4  | 30-02 | Medium   | Promise.all fetch pattern may not be followed          |
-| A5  | 30-02 | Medium   | Key mapping inconsistency risk across two files        |
-| A6  | 30-03 | Medium   | Registry populated at runtime, not module init         |
-| A7  | 30-04 | Low      | ADMIN_DOMAINS duplicates governance doc                |
-| A8  | 30-05 | Low      | Misleading truth statement about DashboardTabs removal |
-| A9  | 30-05 | Low      | Mobile overflow (>5 spaces) not scoped                 |
-| A10 | Cross | Low      | Phase 11 widget IDs referenced before they may exist   |
-
----
-
-## Detailed Recommendations
-
----
-
-### A1 — Mass breaking change to widget manifests (30-03, High)
-
-**Issue:** Making `spaces: SpaceId[]` required on `WidgetManifest` is a breaking change across all ~30 `registry.register()` calls in `widgets.ts`. This is the correct final state, but the surface area for silent mistakes is large. A missed widget won't fail silently — TypeScript will catch it — but a wrongly-assigned widget (e.g. `spaces: ['home']` instead of `spaces: ['services']`) will not be caught by the type checker and will only surface as a UI bug.
-
-**Recommendation:** Add a smoke-test assertion to the verify step for 30-03 Task 1. After the TypeScript check, run a node snippet that imports the registry and asserts each of the 5 spaces has at least one widget assigned. Something like:
-
-```bash
-node -e "
-const widgets = require('./src/widgets/dashboard/model/widgets-test-helper');
-const spaces = ['home','services','community','messages','admin'];
-spaces.forEach(s => {
-  const count = widgets.filter(w => w.spaces.includes(s)).length;
-  if (count === 0) throw new Error('Space ' + s + ' has no widgets');
-  console.log(s + ': ' + count + ' widgets');
-});
-"
-```
-
-Add the space assignments table from the plan as an inline comment block at the top of `widgets.ts` so the intent is explicit and reviewable alongside the code.
-
----
-
-### A2 — MyHomeSpace data source is ambiguous (30-04, High)
-
-**Issue:** The plan says to fetch from `/api/directory` or user profile for property/household data. `/api/directory` returns all residents (a listing endpoint) — it is not appropriate for fetching a single user's household. This will cause either an over-fetch or a 404 depending on the actual implementation.
-
-**Recommendation:** Clarify the correct endpoints before the agent starts Task 1 of 30-04. Based on the schema and existing API structure, the correct sources are:
-
-| Data                 | Endpoint                                                  |
-| -------------------- | --------------------------------------------------------- |
-| Current user profile | `/api/users/[id]` (already exists)                        |
-| Household info       | `/api/households/[id]` (already exists)                   |
-| Property details     | via household → `propertyId` → `/api/households` relation |
-
-Update the task action to read:
-
-> Fetch user data from `/api/users/[id]` using the session userId. The response includes household and property relations. Do not use `/api/directory` — that endpoint returns all residents and is not scoped to the current user.
-
----
-
-### A3 — Safe-area inset not applied to content padding (30-05, Medium)
-
-**Issue:** The layout sets `pb-20 md:pb-0` on the main content area to avoid overlap with the mobile bottom bar. This hardcodes 80px (5rem) of bottom padding. On iPhone notch/Dynamic Island devices, `env(safe-area-inset-bottom)` adds 20–34px on top of the bar height, meaning content will still be clipped.
-
-**Recommendation:** Replace the hardcoded padding with a CSS custom property that accounts for the safe area:
-
-```tsx
-// In layout.tsx
-<main
-  className="flex-1 md:pb-0"
-  style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
+> **DOCUMENT SEQUENCE NOTICE (2026-06-01)**
 >
-  {children}
-</main>
-```
-
-And in `MobileSpaceBar.tsx`, ensure the bar itself has:
-
-```tsx
-<nav className="fixed bottom-0 left-0 right-0 h-16 pb-[env(safe-area-inset-bottom,0px)] md:hidden ...">
-```
-
-The `manifest` meta tag `viewport-fit=cover` must also be set in the root layout for `env(safe-area-inset-bottom)` to return a non-zero value on iOS. Check `src/app/layout.tsx` and add if missing:
-
-```tsx
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-```
-
----
-
-### A4 — Promise.all pattern may not be followed (30-02, Medium)
-
-**Issue:** The HomeLayer plan says "combine fetches where possible to avoid waterfall" but also says "same pattern as existing widgets like EventsWidget." Existing widgets use separate `useEffect` calls, which will cause three sequential renders and a visible cascade of loading skeletons.
-
-**Recommendation:** Make the fetch strategy explicit and non-ambiguous. Update the task action to specify:
-
-> Use a single `useEffect` with `Promise.all` for all three fetches (announcements, maintenance, events). Do NOT use the per-widget pattern of separate useEffect calls. Structure:
+> This advisory is part of a 5-document sequence for the Feature Gate Consolidation. Read in this order:
 >
-> ```ts
-> useEffect(() => {
->   Promise.all([
->     fetch('/api/announcements?priority=urgent').then(r => r.json()),
->     fetch('/api/maintenance?overdue=true').then(r => r.json()),
->     fetch('/api/events?upcoming=true&limit=5').then(r => r.json()),
->   ])
->     .then(([announcements, maintenance, events]) => {
->       setUrgent(announcements);
->       setOverdue(maintenance);
->       setEvents(events);
->       setLoading(false);
->     })
->     .catch(() => setError(true));
-> }, []);
-> ```
+> 1. **`docs/GATE_DISCUSSION.md`** — Original 4-layer proposal (the problem statement)
+> 2. **`docs/GATE_ADDENDUM.md`** — Revised 5-layer design with gap resolutions
+> 3. **`docs/GATE_PLAN.md`** — Consolidated 3-phase migration roadmap
+> 4. **`.planning/GATE_ADVISORY.md`** — First advisory, focused on the tier-system bridge (`normalizeTier()`)
+> 5. **`.planning/ADVISORY.md`** (this file) — Comprehensive second advisory (full `canAccess()` design)
+>
+> **Authoritative current state:** `.planning/phases/41-feature-gate-consolidation/41-{CONTEXT,01,02,03}-PLAN.md`
+>
+> The two advisories (4 and 5) describe the same problem from different angles. Both have implementation details that are **stale relative to the actual codebase** (verified 2026-06-01): they reference `getTenantTier`/`getModuleDefinition`/`getTenantModule` cached helpers that don't exist, suggest `unstable_cache`+`revalidateTag` patterns not used, and assume `/api/flags` returns `tier` (it doesn't). The plans in `phases/41-feature-gate-consolidation/` are the verified, executable version. **Keep both advisories as historical record of the design discussion.**
+
+> **Scope:** Phase 1 implementation of `canAccess()` unified gate
+> **Last updated:** 2026-06-01
+> **Status:** Ready to execute — all design decisions resolved
 
 ---
 
-### A5 — Key mapping inconsistency risk across two files (30-02, Medium)
+## Context Summary
 
-**Issue:** Plan 30-02 Task 2 updates both `default-layouts.ts` and `widget-store.ts` with tab-to-space key remapping. If the mapping differs between the two files (e.g. one maps `bookings → services`, the other maps `bookings → home`), hydrated layouts will silently assign widgets to wrong spaces. There is no automated check for this.
+The platform has three overlapping feature gating systems that lack documented precedence and a single resolution path. This advisory describes the complete, verified design for unifying them behind a single `canAccess()` function.
 
-**Recommendation:** Extract the mapping into a single shared constant rather than duplicating it in two files:
+**Systems being unified:**
 
-```ts
-// src/entities/widget/model/tab-migration-map.ts
-export const TAB_TO_SPACE_MAP: Record<string, string> = {
-  overview: 'home',
-  maintenance: 'services',
-  bookings: 'services',
-  services: 'services',
-  content: 'community',
-  premium: 'community',
-} as const;
+| System                      | Values                                 | Location                            |
+| --------------------------- | -------------------------------------- | ----------------------------------- |
+| TierGuard / FeatureRegistry | `foundation` \| `depth` \| `core`      | `src/shared/lib/constants/tiers.ts` |
+| Module Gate                 | `isModuleEnabled(tenantId, moduleKey)` | `src/entities/tenant/api/`          |
+| PlatformPageFlags           | 15 DB-stored booleans per tenant       | `settings` table                    |
+
+---
+
+## Tier System: Verified Clean State
+
+**DB audit result (2026-06-01):**
+
+| tier       | count |
+| ---------- | ----- |
+| STANDARD   | 9     |
+| PREMIUM    | 3     |
+| ENTERPRISE | 2     |
+
+| minTier    | count |
+| ---------- | ----- |
+| STANDARD   | 9     |
+| PREMIUM    | 3     |
+| ENTERPRISE | 2     |
+
+**Conclusion:** No legacy values (`sprout`, `grove`, `forest`) exist in the database. No data migration script is needed. The code change can be deployed directly.
+
+**Do not add handling for legacy tier strings.** If `normalizeTier()` encounters an unknown value, it must throw — not fall back silently.
+
+---
+
+## Canonical Types
+
+```typescript
+// src/shared/lib/constants/tiers.ts
+
+// DB layer — matches tenants.tier and platform_modules.minTier columns exactly
+export type TenantTier = 'STANDARD' | 'PREMIUM' | 'ENTERPRISE';
+
+// Application layer — canonical, used everywhere in logic
+export type TierLevel = 'foundation' | 'depth' | 'core';
+
+export const TIER_ORDER: Record<TierLevel, number> = {
+  foundation: 1,
+  depth: 2,
+  core: 3,
+};
+
+export const DB_TIER_TO_LEVEL: Record<TenantTier, TierLevel> = {
+  STANDARD: 'foundation',
+  PREMIUM: 'depth',
+  ENTERPRISE: 'core',
+};
 ```
 
-Import this constant in both `default-layouts.ts` and `widget-store.ts`. The mapping is then defined exactly once and both files are guaranteed to be consistent. Add this as an explicit deliverable in the 30-02 Task 2 action.
+The bridge boundary is exactly `resolveGateContext()`. Anything that flows through `GateContext` is already canonical `TierLevel`. Nothing downstream touches `TenantTier` directly.
 
 ---
 
-### A6 — Registry populated at runtime, not module init (30-03, Medium)
+## `normalizeTier()` — Throws on Unknown
 
-**Issue:** `getSpaceWidgets(spaceId)` filters `registry.list()`, but the registry is populated by `registerAllWidgets()` which is called at component mount time. If `getSpaceWidgets` is invoked at module level (e.g. in a `const` outside a function or hook), it will return an empty array because the registry hasn't been populated yet.
+```typescript
+export function normalizeTier(raw: string): TierLevel {
+  if (raw in DB_TIER_TO_LEVEL) {
+    return DB_TIER_TO_LEVEL[raw as TenantTier];
+  }
+  if (raw === 'foundation' || raw === 'depth' || raw === 'core') {
+    return raw;
+  }
+  // Unknown = data corruption or bug. Surface loudly.
+  logger.error({ event: 'tier.invalid', raw });
+  throw new Error(`Invalid tier value: "${raw}". Expected STANDARD, PREMIUM, or ENTERPRISE.`);
+}
 
-**Recommendation:** Add an explicit constraint to the 30-03 Task 1 action:
-
-> `getSpaceWidgets` and `getSpaceWidgetIds` must only be called inside React components or hooks (not at module initialization). Add a JSDoc comment to the exported functions:
->
-> ```ts
-> /**
->  * Call only inside React components or hooks — registry is populated at runtime.
->  * Module-level calls will return an empty array.
->  */
-> export function getSpaceWidgets(spaceId: SpaceId): WidgetManifest[] {
-> ```
-
-Also add a runtime guard:
-
-```ts
-if (registry.list().length === 0) {
-  console.warn('getSpaceWidgets called before registerAllWidgets()');
+export function tierAtLeast(tenant: TierLevel, required: TierLevel): boolean {
+  return TIER_ORDER[tenant] >= TIER_ORDER[required];
 }
 ```
 
 ---
 
-### A7 — ADMIN_DOMAINS duplicates governance documentation (30-04, Low)
+## Five-Layer Gate Model
 
-**Issue:** The `ADMIN_DOMAINS` constant in `spaces.ts` will list the same domains as the Admin Dashboard tab inventory in `NAVIGATION_GOVERNANCE.md`. Two sources of truth for the same list will drift over time.
+Gates evaluate in this order, short-circuiting at the first `false`:
 
-**Recommendation:** Add a comment in `spaces.ts` citing the governance doc:
+```
+Role (0) → Tier (1) → Module (2) → PageFlag (3) → FeatureToggle (4)
+```
 
-```ts
-/**
- * Admin management domains. These mirror the Admin Dashboard tab inventory
- * defined in docs/architecture/NAVIGATION_GOVERNANCE.md.
- * When adding a new admin domain, update both this constant AND the governance doc.
- */
-export const ADMIN_DOMAINS = [
-  'users',
-  'maintenance',
-  'content',
-  'events',
-  'competitions',
-  'resources',
-  'surveys',
-  'announcements',
-  'system',
-] as const;
+| Layer      | Mechanism                                   | Update Cadence       | Set By        |
+| ---------- | ------------------------------------------- | -------------------- | ------------- |
+| 0 Role     | `ROLE_PERMISSIONS` map (in-memory)          | Deploy               | Platform team |
+| 1 Tier     | `tenants.tier` + `platform_modules.minTier` | Quarterly            | Platform team |
+| 2 Module   | `tenant_modules.enabled`                    | Onboarding / upgrade | Tenant admin  |
+| 3 PageFlag | `settings` table, 15 keys                   | Weekly               | Tenant admin  |
+| 4 Feature  | `FeatureRegistry` (in-memory)               | Deploy               | Platform team |
+
+---
+
+## Mapping Tables
+
+These are the core artifact. Every `FeatureKey` must have an explicit entry (or `null`) in all three tables. `null` means no gate at that layer — it is intentional and load-bearing, not a missing value.
+
+```typescript
+// src/shared/api/gate.ts
+
+export type FeatureKey =
+  | 'maintenance'
+  | 'bookings'
+  | 'events'
+  | 'surveys'
+  | 'competitions'
+  | 'groups'
+  | 'chat'
+  | 'news'
+  | 'directory'
+  | 'resources'
+  | 'conservation'
+  | 'services'
+  | 'dashboard'
+  | 'messages';
+
+export const FEATURE_TO_MODULE: Record<FeatureKey, ModuleKey | null> = {
+  maintenance: 'maintenance',
+  bookings: 'bookings',
+  surveys: 'surveys',
+  events: 'events',
+  groups: 'groups',
+  chat: 'chat',
+  news: 'news',
+  directory: 'directory',
+  resources: 'resources',
+  conservation: 'conservation',
+  services: 'marketplace',
+  messages: 'chat', // shares the chat module
+  competitions: null, // no module gate
+  dashboard: null, // no module gate
+};
+
+export const FEATURE_TO_FLAG: Record<FeatureKey, PlatformPageFlagKey | null> = {
+  maintenance: 'maintenance',
+  bookings: 'bookings',
+  surveys: 'surveys',
+  events: 'events',
+  groups: 'groups',
+  chat: 'chat',
+  news: 'news',
+  directory: 'directory',
+  resources: 'resources',
+  conservation: 'conservation',
+  services: 'services',
+  competitions: 'competitions',
+  dashboard: 'dashboard',
+  messages: 'messages',
+};
+
+export const FEATURE_TO_REGISTRY: Record<FeatureKey, string | null> = {
+  maintenance: 'page.maintenance',
+  bookings: 'page.bookings',
+  surveys: 'page.surveys',
+  events: 'page.events',
+  groups: 'page.groups',
+  chat: 'page.chat',
+  news: 'page.news',
+  directory: 'page.directory',
+  resources: 'page.resources',
+  conservation: 'page.conservation',
+  services: 'page.services',
+  messages: 'page.messages',
+  competitions: null,
+  dashboard: null,
+};
 ```
 
 ---
 
-### A8 — Misleading truth statement about DashboardTabs removal (30-05, Low)
+## `GateContext` and Resolution
 
-**Issue:** The `must_haves.truths` in 30-05 states "DashboardTabs is removed when focus spaces flag is permanently enabled." Task 1 does not implement this removal — it only implements the flag toggle. The truth statement creates an expectation that isn't met by the plan's tasks, which could cause confusion in SUMMARY.md or progress tracking.
+```typescript
+export interface GateContext {
+  tenantId: string;
+  role: Role;
+  tier: TierLevel; // always canonical — normalized at resolution time
+}
 
-**Recommendation:** Revise the truth statement to accurately reflect what Task 1 delivers:
+export type GateReason = 'role' | 'tier' | 'module' | 'flag' | 'feature' | 'allowed';
 
-> "DashboardTabs is deprecated and scheduled for removal once the focus spaces flag is permanently enabled. The flag toggle in layout.tsx is the mechanism that will enable this removal."
-
-Or add an explicit cleanup task (even if it's just a comment + BD issue creation) so the removal is tracked.
-
----
-
-### A9 — Mobile overflow (>5 spaces) not scoped (30-05, Low)
-
-**Issue:** The plan mentions a "More" sheet for overflow when more than 5 spaces are visible, but with the current 5-space model this path is never triggered. The overflow implementation is unscoped — if it's not built, silently dropping a 6th space will be the failure mode.
-
-**Recommendation:** Either:
-
-1. **Implement a simple guard** — if `getVisibleSpaces()` returns more than 5 items, log a warning and slice to 5. Add a TODO comment for the overflow sheet. This prevents silent data loss.
-
-2. **Or remove the mention entirely** — if the 5-space model is stable and a 6th space requires governance review anyway, the overflow path is speculative. Remove the "More" sheet mention from the plan to avoid scope creep.
-
-Option 1 is preferred.
-
----
-
-### A10 — Phase 11 widget IDs referenced before they may exist (Cross-cutting, Low)
-
-**Issue:** Plans 30-03 and 30-04 reference `admin-announcements` in space `widgetIds` arrays. This widget is created in Phase 11 (11-02 specifically). If Phase 30 executes before Phase 11 is complete, the `admin-announcements` ID will be in the registry's `widgetIds` arrays but not in the actual widget registry. The widget won't render — no error, just a silent empty slot.
-
-**Recommendation:** Add Phase 11 completion as a soft dependency in the 30-03 and 30-04 front matter:
-
-```yaml
-depends_on: ['30-01', '11-01', '11-02'] # 11-xx for admin-announcements widget
+export interface GateResult {
+  allowed: boolean;
+  reason: GateReason;
+}
 ```
 
-If Phase 11 is already complete, no change needed. If not, the space widgetIds for `admin-announcements` should be commented out with a TODO until Phase 11 lands:
+`resolveGateContext()` is called **once per request**, not per feature check:
 
-```ts
-// TODO: uncomment after Phase 11 (admin-announcements widget) lands
-// 'admin-announcements',
+```typescript
+export async function resolveGateContext(
+  tenantId: string,
+  session: Session | null
+): Promise<GateContext> {
+  const tenant = await getTenantTier(tenantId); // cached 10 min
+  return {
+    tenantId,
+    role: (session?.user?.role as Role) ?? 'RESIDENT',
+    tier: normalizeTier(tenant.tier),
+  };
+}
 ```
 
 ---
 
-## Unrelated Observation — Navigation Governance Compliance
+## `canAccess()` — Server Variant
 
-The SpaceLauncher (in-dashboard sidebar) and MobileSpaceBar (bottom nav) are correctly scoped as workspace navigation. The nav-registry entries added in 30-04 Task 2 for `/dashboard/services`, `/dashboard/community`, etc. are internal workspace links — they should NOT appear in the public burger menu's Community or Explore sections. Verify that `getBurgerSections()` in `navigation-config.ts` does not inadvertently surface these entries. The nav-registry pattern used by the existing community items (events, surveys, etc.) may auto-include new entries depending on how the registry is queried.
+```typescript
+export async function canAccess(
+  ctx: GateContext,
+  feature: FeatureKey,
+  opts?: { skipFlag?: boolean }
+): Promise<GateResult> {
+  // Layer 0: Role
+  const roleOk = ROLE_PERMISSIONS[ctx.role]?.includes(feature) ?? false;
+  if (!roleOk) return { allowed: false, reason: 'role' };
+
+  // Layer 1: Tier
+  const moduleKey = FEATURE_TO_MODULE[feature];
+  if (moduleKey !== null) {
+    const moduleDef = await getModuleDefinition(moduleKey); // cached 10 min
+    const required = normalizeTier(moduleDef.minTier);
+    if (!tierAtLeast(ctx.tier, required)) {
+      return { allowed: false, reason: 'tier' };
+    }
+
+    // Layer 2: Module installed
+    const installed = await getTenantModule(ctx.tenantId, moduleKey); // cached 5 min
+    const enabled = installed?.enabled ?? moduleDef.defaultEnabled;
+    if (!enabled) return { allowed: false, reason: 'module' };
+  }
+
+  // Layer 3: Page flag
+  if (!opts?.skipFlag) {
+    const flagKey = FEATURE_TO_FLAG[feature];
+    if (flagKey !== null) {
+      const flags = await getPageFlags(ctx.tenantId); // cached, tagged
+      if (!flags[flagKey]) return { allowed: false, reason: 'flag' };
+    }
+  }
+
+  // Layer 4: Feature registry
+  const registryKey = FEATURE_TO_REGISTRY[feature];
+  if (registryKey !== null) {
+    const ok =
+      registry.canAccessPage(ctx.role, registryKey) && registry.hasFeature(ctx.tier, registryKey);
+    if (!ok) return { allowed: false, reason: 'feature' };
+  }
+
+  if (!result.allowed) {
+    logger.info({
+      event: 'gate.denied',
+      tenantId: ctx.tenantId,
+      feature,
+      reason: result.reason,
+      role: ctx.role,
+      tier: ctx.tier,
+    });
+  }
+
+  return { allowed: true, reason: 'allowed' };
+}
+```
+
+`skipFlag: true` is for admin-panel routes that bypass tenant operator toggles — an admin should be able to manage surveys even if the tenant has the surveys page flag off.
 
 ---
 
-## Checklist Before Execution
+## `canAccessClient()` — Client Variant
 
-- [ ] Confirm Phase 11 (admin-announcements widget) is complete or handle A10
-- [ ] Clarify MyHomeSpace data sources (A2) before 30-04 starts
-- [ ] Add `viewport-fit=cover` to root layout.tsx (A3 prerequisite)
-- [ ] Extract `TAB_TO_SPACE_MAP` constant before 30-02 Task 2 (A5)
-- [ ] Verify `getBurgerSections()` won't surface space nav-registry entries in public nav
+```typescript
+// src/shared/lib/gate-client.ts
+
+export interface ClientGateContext {
+  role: Role;
+  tier: TierLevel;
+  flags: Record<PlatformPageFlagKey, boolean>;
+}
+
+export function canAccessClient(ctx: ClientGateContext, feature: FeatureKey): GateResult {
+  // Layers 0, 3, 4 only — module/tier checks require DB, handled server-side
+  const roleOk = ROLE_PERMISSIONS[ctx.role]?.includes(feature) ?? false;
+  if (!roleOk) return { allowed: false, reason: 'role' };
+
+  const flagKey = FEATURE_TO_FLAG[feature];
+  if (flagKey !== null && !ctx.flags[flagKey]) {
+    return { allowed: false, reason: 'flag' };
+  }
+
+  const registryKey = FEATURE_TO_REGISTRY[feature];
+  if (registryKey !== null) {
+    const ok =
+      registry.canAccessPage(ctx.role, registryKey) && registry.hasFeature(ctx.tier, registryKey);
+    if (!ok) return { allowed: false, reason: 'feature' };
+  }
+
+  return { allowed: true, reason: 'allowed' };
+}
+
+export function useGateContext(): ClientGateContext {
+  const { data: flags } = usePageFlags();
+  const session = useSession();
+  return {
+    role: (session?.user?.role as Role) ?? 'RESIDENT',
+    tier: normalizeTier(flags?.tier ?? 'STANDARD'),
+    flags: flags?.pages ?? {},
+  };
+}
+```
+
+The client variant intentionally skips layers 1 and 2 (tier ceiling and module install). Those require DB access and are enforced server-side. The client uses pre-fetched flag data from `usePageFlags()`.
+
+---
+
+## `GateGuard` Component
+
+Replaces `TierGuard`. Accepts either a simple fallback or a render prop when the denial reason matters.
+
+```typescript
+// src/shared/ui/GateGuard.tsx
+'use client';
+
+interface GateGuardProps {
+  feature:   FeatureKey;
+  children:  React.ReactNode;
+  fallback?: React.ReactNode;
+  render?:   (result: GateResult) => React.ReactNode;
+}
+
+export function GateGuard({ feature, children, fallback = null, render }: GateGuardProps) {
+  const ctx    = useGateContext();
+  const result = canAccessClient(ctx, feature);
+
+  if (render) return <>{render(result)}</>;
+  return result.allowed ? <>{children}</> : <>{fallback}</>;
+}
+```
+
+Usage for upgrade prompt vs hidden:
+
+```tsx
+<GateGuard
+  feature="surveys"
+  render={({ result }) =>
+    result.allowed ? <SurveysTab /> : result.reason === 'tier' ? <UpgradePrompt /> : null
+  }
+/>
+```
+
+---
+
+## API Route Consumer Pattern
+
+```typescript
+// Canonical error code mapping
+export const GATE_REASON_TO_ERROR: Record<GateReason, string> = {
+  role: 'INSUFFICIENT_ROLE',
+  tier: 'TIER_REQUIRED',
+  module: 'MODULE_DISABLED',
+  flag: 'PAGE_DISABLED',
+  feature: 'FEATURE_UNAVAILABLE',
+  allowed: 'OK',
+};
+
+// In a route handler:
+const ctx = await resolveGateContext(tenantId, session);
+const result = await canAccess(ctx, 'surveys');
+if (!result.allowed) {
+  return apiError(GATE_REASON_TO_ERROR[result.reason], 403);
+}
+```
+
+---
+
+## Caching Strategy
+
+| Data               | Cache Duration            | Invalidation Tag            | Invalidated By                  |
+| ------------------ | ------------------------- | --------------------------- | ------------------------------- |
+| `tenants.tier`     | 10 min                    | `tenant-tier-{tenantId}`    | Tier upgrade                    |
+| `platform_modules` | 10 min                    | `platform-modules`          | Deploy only                     |
+| `tenant_modules`   | 5 min                     | `tenant-modules-{tenantId}` | Module install/uninstall        |
+| Page flags         | 5 min                     | `flags-{tenantId}`          | `revalidatePageFlags(tenantId)` |
+| Role permissions   | None (in-memory constant) | —                           | Deploy                          |
+| FeatureRegistry    | None (in-memory constant) | —                           | Deploy                          |
+
+Add `revalidateGate(tenantId)` to `src/shared/api/revalidation.ts` — calls all four tagged invalidations for a tenant at once. Call it after any module install, tier change, or flag toggle.
+
+---
+
+## Updated `isModuleEnabled()` Internals
+
+The existing function is updated to use canonical types internally. External call signature is unchanged — no callsite migration needed.
+
+```typescript
+async function isModuleEnabled(tenantId: string, moduleKey: ModuleKey): Promise<boolean> {
+  const [tenant, moduleDef] = await Promise.all([
+    getTenantTier(tenantId),
+    getModuleDefinition(moduleKey),
+  ]);
+
+  const tenantLevel = normalizeTier(tenant.tier);
+  const requiredLevel = normalizeTier(moduleDef.minTier);
+
+  if (!tierAtLeast(tenantLevel, requiredLevel)) return false;
+
+  const installed = await getTenantModule(tenantId, moduleKey);
+  return installed?.enabled ?? moduleDef.defaultEnabled;
+}
+```
+
+The old `TIER_LEVELS: Record<TenantTier, number>` map is removed from this file. `TIER_ORDER` from `tiers.ts` replaces it via `tierAtLeast()`.
+
+---
+
+## Phase 1 File Checklist
+
+| File                                | Action | Notes                                                                                                        |
+| ----------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------ |
+| `src/shared/lib/constants/tiers.ts` | Modify | Add `normalizeTier()`, `tierAtLeast()`, `DB_TIER_TO_LEVEL`, `TIER_ORDER`. Remove any legacy string handling. |
+| `src/shared/api/gate.ts`            | Create | `FeatureKey`, mapping tables, `GateContext`, `GateResult`, `resolveGateContext()`, `canAccess()`             |
+| `src/shared/lib/gate-client.ts`     | Create | `ClientGateContext`, `canAccessClient()`, `useGateContext()`                                                 |
+| `src/shared/ui/GateGuard.tsx`       | Create | Replaces `TierGuard`. Export both `GateGuard` and `GATE_REASON_TO_ERROR`.                                    |
+| `src/shared/api/revalidation.ts`    | Modify | Add `revalidateGate(tenantId)`                                                                               |
+| `src/entities/tenant/api/`          | Modify | Update `isModuleEnabled()` internals to use `normalizeTier()` + `tierAtLeast()`. Remove `TIER_LEVELS` map.   |
+| `src/shared/api/gate.test.ts`       | Create | See test suite below.                                                                                        |
+
+No existing callsites change in Phase 1. `canAccess()` is additive. New routes and new pages call it; existing routes migrate opportunistically in Phase 2.
+
+---
+
+## Test Suite
+
+```typescript
+// src/shared/api/gate.test.ts
+
+describe('normalizeTier', () => {
+  it('maps all TenantTier DB values to canonical TierLevel', () => {
+    expect(normalizeTier('STANDARD')).toBe('foundation');
+    expect(normalizeTier('PREMIUM')).toBe('depth');
+    expect(normalizeTier('ENTERPRISE')).toBe('core');
+  });
+
+  it('passes through valid TierLevel values unchanged', () => {
+    expect(normalizeTier('foundation')).toBe('foundation');
+    expect(normalizeTier('depth')).toBe('depth');
+    expect(normalizeTier('core')).toBe('core');
+  });
+
+  it('throws on legacy tier strings — not silently handled', () => {
+    expect(() => normalizeTier('sprout')).toThrow();
+    expect(() => normalizeTier('grove')).toThrow();
+    expect(() => normalizeTier('forest')).toThrow();
+  });
+
+  it('throws on unknown tier strings', () => {
+    expect(() => normalizeTier('gold')).toThrow();
+    expect(() => normalizeTier('')).toThrow();
+  });
+});
+
+describe('tierAtLeast', () => {
+  it('returns true when tenant tier meets requirement', () => {
+    expect(tierAtLeast('core', 'foundation')).toBe(true);
+    expect(tierAtLeast('depth', 'depth')).toBe(true);
+    expect(tierAtLeast('core', 'core')).toBe(true);
+  });
+
+  it('returns false when tenant tier is below requirement', () => {
+    expect(tierAtLeast('foundation', 'depth')).toBe(false);
+    expect(tierAtLeast('foundation', 'core')).toBe(false);
+    expect(tierAtLeast('depth', 'core')).toBe(false);
+  });
+});
+
+describe('mapping table completeness', () => {
+  const ALL_FEATURE_KEYS: FeatureKey[] = [
+    'maintenance',
+    'bookings',
+    'events',
+    'surveys',
+    'competitions',
+    'groups',
+    'chat',
+    'news',
+    'directory',
+    'resources',
+    'conservation',
+    'services',
+    'dashboard',
+    'messages',
+  ];
+
+  it('every FeatureKey has an explicit FEATURE_TO_MODULE entry', () => {
+    for (const key of ALL_FEATURE_KEYS) {
+      expect(FEATURE_TO_MODULE).toHaveProperty(key);
+    }
+  });
+
+  it('every FeatureKey has an explicit FEATURE_TO_FLAG entry', () => {
+    for (const key of ALL_FEATURE_KEYS) {
+      expect(FEATURE_TO_FLAG).toHaveProperty(key);
+    }
+  });
+
+  it('every FeatureKey has an explicit FEATURE_TO_REGISTRY entry', () => {
+    for (const key of ALL_FEATURE_KEYS) {
+      expect(FEATURE_TO_REGISTRY).toHaveProperty(key);
+    }
+  });
+
+  it('every non-null ModuleKey in FEATURE_TO_MODULE is a valid ModuleKey', () => {
+    const VALID_MODULE_KEYS = new Set<string>([
+      'directory',
+      'news',
+      'events',
+      'groups',
+      'chat',
+      'resources',
+      'conservation',
+      'adminBasic',
+      'adminIntermediate',
+      'bookings',
+      'surveys',
+      'marketplace',
+      'externalSurveys',
+      'maintenance',
+      'property',
+      'agentGateway',
+      'analytics',
+      'adminAdvanced',
+    ]);
+    for (const [feature, moduleKey] of Object.entries(FEATURE_TO_MODULE)) {
+      if (moduleKey !== null) {
+        expect(VALID_MODULE_KEYS).toContain(moduleKey);
+      }
+    }
+  });
+});
+
+describe('GATE_REASON_TO_ERROR', () => {
+  it('covers all GateReason values', () => {
+    const ALL_REASONS: GateReason[] = ['role', 'tier', 'module', 'flag', 'feature', 'allowed'];
+    for (const reason of ALL_REASONS) {
+      expect(GATE_REASON_TO_ERROR).toHaveProperty(reason);
+    }
+  });
+});
+```
+
+---
+
+## Grep Checklist — Run Before Closing Phase 1
+
+```bash
+# Confirm no legacy tier strings remain in source
+grep -r "sprout\|grove\|forest" src/ --include="*.ts" --include="*.tsx"
+
+# Confirm old TIER_LEVELS map is removed
+grep -r "TIER_LEVELS" src/
+
+# Confirm TierGuard callsites (migrate in Phase 2, but know the count)
+grep -r "TierGuard" src/ --include="*.tsx" | wc -l
+
+# Confirm isModuleEnabled still compiles and has no TIER_LEVELS reference
+grep -r "TIER_LEVELS" src/entities/tenant/
+```
+
+---
+
+## What Phase 2 Looks Like (Not Blocking Phase 1)
+
+- New routes call `canAccess()` instead of individual gate functions
+- Existing routes migrate when touched for other reasons
+- `TierGuard` callsites migrate to `GateGuard` opportunistically
+- `isModuleEnabled()` direct calls in routes are replaced by `canAccess()` layer 2
+
+Phase 2 has no deadline — the system is correct and consistent after Phase 1. Phase 2 is cleanup, not correctness.
