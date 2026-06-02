@@ -4,13 +4,13 @@
 
 - **Phase:** 36-survey-builder
 - **Status:** Ready to execute
-- **Current Plan:** 3
+- **Current Plan:** 4
 - **Total Plans in Phase:** 4
 - **Last Updated:** 2026-06-02
 - **Next Step:** Execute 36-03-PLAN.md (survey builder UI)
 
-**Last Session:** 2026-06-02T08:23:11.066Z
-**Stopped at:** Completed 31-01-PLAN.md
+**Last Session:** 2026-06-02T08:48:51.416Z
+**Stopped at:** Completed 36-03-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -148,6 +148,9 @@
 - [Phase 31]: Inlined TAB_TO_SPACE_MAP in widget-store.ts instead of importing from tab-migration-map.ts
 - [Phase 31]: Simplified hydrateFromServer by removing runtime old-key check since persist v5 migration handles it
 - [Phase 31]: Left DashboardPage.tsx broken with old method names as it is deleted in plan 31-02
+- [Phase 36-survey-builder]: [36-03] Edit Survey button only for DRAFT — ACTIVE/CLOSED immutable from admin UI (live responses would be invalidated by edits); closing/reopening is the correct flow
+- [Phase 36-survey-builder]: [36-03] Type-specific modules export { Preview, ConfigPanel } — QuestionBlock dispatches via Record<QuestionType, Component> registry; new types added in one switch-equivalent place
+- [Phase 36-survey-builder]: [36-03] Optimistic updates with rollback — adds feel instant; failures restore previous state and logError() for observability
 
 ## Notes
 
@@ -287,6 +290,7 @@
 | Phase 36 P01                           | 9min   | 2 tasks  | 11 files |
 | Phase 36-survey-builder P02            | 11min  | 3 tasks  | 7 files  |
 | Phase 31 P01                           | 100    | 2 tasks  | 2 files  |
+| Phase 36-survey-builder P03            | 25min  | 3 tasks  | 17 files |
 
 ## A01 Execution Decisions
 
