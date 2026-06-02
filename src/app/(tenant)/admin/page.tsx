@@ -1,6 +1,5 @@
-'use client';
-import { AdminLayer } from '@widgets/dashboard/ui/AdminLayer';
+import { redirect } from 'next/navigation';
 
-export default function AdminPage() {
-  return <AdminLayer />;
+export default function AdminRedirect() {
+  redirect('/dashboard/admin');
 }
