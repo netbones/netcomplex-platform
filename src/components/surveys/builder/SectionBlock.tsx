@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { GripVertical, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { GripVertical, Trash2, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import type { SurveySection, SurveyQuestion, QuestionType } from './survey-types';
 import { QuestionBlock } from './QuestionBlock';
+import { BlockPalette } from './BlockPalette';
 
 interface SectionBlockProps {
   section: SurveySection;
@@ -16,8 +17,16 @@ interface SectionBlockProps {
 }
 
 /**
- * Placeholder SectionBlock — Task 1 scaffolding.
- * Inline question palette and full accordion UI is added in Task 3.
+ * Collapsible accordion section in the survey builder.
+ *
+ * - Indigo-400 left accent border for visual grouping
+ * - Inline-editable title and description (PATCH on blur)
+ * - Expand/collapse chevron toggles the question list
+ * - Drag handle is a placeholder for Plan 04 (reorder wiring)
+ * - Delete: requires a second click within 3s; questions are ungrouped
+ *   (sectionId → null) by the parent's onDeleteSection handler — never lost
+ * - "Add question to this section" inline palette posts to the same
+ *   /api/surveys/:id/questions endpoint with the sectionId in the body
  */
 export function SectionBlock({
   section,
@@ -33,6 +42,7 @@ export function SectionBlock({
   const [descDraft, setDescDraft] = useState(section.description ?? '');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // Keep local drafts in sync when the section changes externally
   useEffect(() => {
     setTitleDraft(section.title ?? '');
     setDescDraft(section.description ?? '');
@@ -150,9 +160,21 @@ export function SectionBlock({
             </div>
           )}
 
-          <p className="text-xs text-gray-400 italic text-center pt-2">
-            Add-question-to-section palette wired in Plan 03 Task 3
-          </p>
+          <div className="pt-2">
+            {isTempId ? (
+              <p className="text-xs text-gray-400 italic text-center">Saving section…</p>
+            ) : (
+              <div className="border-t border-gray-100 pt-3">
+                <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+                  <Plus size={14} />
+                  <span>Add a question to this section</span>
+                </div>
+                <div className="mt-2">
+                  <BlockPalette onSelect={onAddQuestion} compact />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </section>

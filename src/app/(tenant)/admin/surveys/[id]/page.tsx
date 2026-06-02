@@ -85,18 +85,12 @@ function RatingResult({
         <div className="flex gap-0.5 ml-2">
           {Array.from({ length: totalStars }).map((_, i) => {
             if (i < fullStars) {
-              return (
-                <i key={i} className="fas fa-star text-yellow-400 text-lg" />
-              );
+              return <i key={i} className="fas fa-star text-yellow-400 text-lg" />;
             }
             if (i === fullStars && hasHalf) {
-              return (
-                <i key={i} className="fas fa-star-half-alt text-yellow-400 text-lg" />
-              );
+              return <i key={i} className="fas fa-star-half-alt text-yellow-400 text-lg" />;
             }
-            return (
-              <i key={i} className="far fa-star text-gray-300 text-lg" />
-            );
+            return <i key={i} className="far fa-star text-gray-300 text-lg" />;
           })}
         </div>
       </div>
@@ -171,10 +165,7 @@ function QuestionCard({ question }: { question: QuestionResult }) {
             question.type === 'MULTIPLE_CHOICE' ||
             question.type === 'YES_NO') &&
             question.responses.distribution && (
-              <BarChart
-                distribution={question.responses.distribution}
-                options={question.options}
-              />
+              <BarChart distribution={question.responses.distribution} options={question.options} />
             )}
 
           {question.type === 'RATING' &&
@@ -288,12 +279,22 @@ export default function SurveyResultsPage({ params }: { params: Promise<{ id: st
             </span>
           </div>
         </div>
-        <Link
-          href="/admin/surveys"
-          className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-        >
-          ← Back to Surveys
-        </Link>
+        <div className="flex items-center gap-3">
+          {data?.survey.status === 'DRAFT' && (
+            <Link
+              href={`/admin/surveys/${surveyId}/edit`}
+              className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            >
+              Edit Survey
+            </Link>
+          )}
+          <Link
+            href="/admin/surveys"
+            className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+          >
+            ← Back to Surveys
+          </Link>
+        </div>
       </div>
 
       {loading ? (

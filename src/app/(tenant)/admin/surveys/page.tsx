@@ -105,12 +105,20 @@ export default function SurveysPage() {
                   <td className="px-6 py-4 text-gray-500">{survey.questionCount}</td>
                   <td className="px-6 py-4 text-gray-500">{survey.responseCount}</td>
                   <td className="px-6 py-4">
-                    <Link
-                      href={`/admin/surveys/${survey.id}`}
-                      className="text-indigo-600 hover:underline"
-                    >
-                      View
-                    </Link>
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/admin/surveys/${survey.id}`}
+                        className="text-indigo-600 hover:underline"
+                      >
+                        View
+                      </Link>
+                      <Link
+                        href={`/admin/surveys/${survey.id}/edit`}
+                        className="text-indigo-600 hover:underline"
+                      >
+                        Edit
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}
