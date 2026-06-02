@@ -58,8 +58,8 @@ export function SpaceLayout({ spaceId }: SpaceLayoutProps) {
 
   const {
     userWidgets,
-    addWidgetToTab,
-    removeWidgetFromTab,
+    addWidgetToSpace,
+    removeWidgetFromSpace,
     resetToRoleDefaults,
     isHydratedFromDb,
     setUserWidgets,
@@ -102,8 +102,8 @@ export function SpaceLayout({ spaceId }: SpaceLayoutProps) {
   const spaceDefaults = getSpaceDefaultLayout(role);
   const currentWidgets = userWidgets[spaceId] || spaceDefaults.userWidgets[spaceId] || [];
 
-  const handleRemoveWidget = (widgetId: string) => removeWidgetFromTab(widgetId, spaceId);
-  const handleAddWidget = (widgetId: string) => addWidgetToTab(widgetId, spaceId);
+  const handleRemoveWidget = (widgetId: string) => removeWidgetFromSpace(spaceId, widgetId);
+  const handleAddWidget = (widgetId: string) => addWidgetToSpace(spaceId, widgetId);
 
   if (!isReady) {
     return LoadingComponent;
