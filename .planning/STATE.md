@@ -3,14 +3,14 @@
 ## Current Position
 
 - **Phase:** 36-survey-builder
-- **Status:** Phase complete — ready for verification
-- **Current Plan:** 1
-- **Total Plans in Phase:** 1
+- **Status:** Plan 2 complete — ready for next plan or verification
+- **Current Plan:** 2
+- **Total Plans in Phase:** 4
 - **Last Updated:** 2026-06-02
-- **Next Step:** Execute 36-02-PLAN.md (survey builder API + question type system)
+- **Next Step:** Execute 36-03-PLAN.md (survey builder UI)
 
-**Last Session:** 2026-06-02T07:41:05.684Z
-**Stopped at:** Completed 36-01-PLAN.md
+**Last Session:** 2026-06-02T08:02:16.337Z
+**Stopped at:** Completed 36-02-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -142,6 +142,9 @@
 - [Phase 36]: JSON config column pattern for type-specific question settings (displayAs, charLimit, minValue/maxValue, maxStars) — Avoid schema migrations when adding new question type features; config: Json? @default('{}') prevents NULL handling
 - [Phase 36]: Question.sectionId uses SetNull on Section delete (preserves questions if section removed) — Questions are content, sections are organizational groupings — losing section context shouldn't cascade-delete questions
 - [Phase 36]: SurveySection cascades on Survey delete (sections are owned by survey) — Sections only have meaning within their parent survey — no orphan sections needed
+- [Phase 36-survey-builder]: [36-02] QuestionType validation uses const-tuple (VALID_QUESTION_TYPES as const) — single source of truth for runtime + compile-time enum — Avoids drift between pgEnum and TS types
+- [Phase 36-survey-builder]: [36-02] Reorder endpoints pre-verify all IDs in single inArray query before starting transaction — fails fast with 404 if any ID is wrong — Avoids partial updates from misrouted IDs
+- [Phase 36-survey-builder]: [36-02] GET-survey returns flat {survey, questions, sections} shape — builder UI groups questions client-side using sectionId — Matches builder mental model; one request for full hydration
 
 ## Notes
 
@@ -279,6 +282,7 @@
 | Phase 40 P03                           | 88     | 3 tasks  | 4 files  |
 | Phase 40 P04                           | 259min | 3 tasks  | 5 files  |
 | Phase 36 P01                           | 9min   | 2 tasks  | 11 files |
+| Phase 36-survey-builder P02            | 11min  | 3 tasks  | 7 files  |
 
 ## A01 Execution Decisions
 
