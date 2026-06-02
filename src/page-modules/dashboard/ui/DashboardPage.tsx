@@ -64,8 +64,8 @@ function DashboardContent() {
   const { t } = useTranslation(['common', 'dashboard']);
   const {
     userWidgets,
-    addWidgetToTab,
-    removeWidgetFromTab,
+    addWidgetToSpace,
+    removeWidgetFromSpace,
     resetToRoleDefaults,
     isHydratedFromDb,
     setUserWidgets,
@@ -111,8 +111,8 @@ function DashboardContent() {
   const roleDefaults = getDefaultLayout(role);
   const tabWidgets = userWidgets[activeTab] || roleDefaults.userWidgets[activeTab] || [];
 
-  const handleRemoveWidget = (widgetId: string) => removeWidgetFromTab(widgetId, activeTab);
-  const handleAddWidget = (widgetId: string) => addWidgetToTab(widgetId, activeTab);
+  const handleRemoveWidget = (widgetId: string) => removeWidgetFromSpace(activeTab, widgetId);
+  const handleAddWidget = (widgetId: string) => addWidgetToSpace(activeTab, widgetId);
 
   return (
     <div className="min-h-screen bg-gray-50">
