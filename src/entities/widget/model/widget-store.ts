@@ -2,18 +2,9 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createComponentLogger } from '@shared/lib';
 import { getDefaultLayout } from './default-layouts';
+import { TAB_TO_SPACE_MAP } from './tab-migration-map';
 
 const log = createComponentLogger('WidgetStore');
-
-// Inline map for persist migration — avoids importing from deleted tab-migration-map.ts
-const TAB_TO_SPACE_MAP: Record<string, string> = {
-  overview: 'home',
-  maintenance: 'services',
-  bookings: 'services',
-  services: 'services',
-  content: 'community',
-  premium: 'community',
-};
 
 export interface WidgetLayout {
   x: number;
@@ -25,51 +16,54 @@ export interface WidgetLayout {
 }
 
 export interface WidgetLayouts {
-  [spaceId: string]: {
+  [tabId: string]: {
     [widgetId: string]: WidgetLayout;
   };
 }
 
 export interface UserWidgets {
-  [spaceId: string]: string[];
+  [tabId: string]: string[];
 }
 
 interface WidgetStore {
   layouts: WidgetLayouts;
   userWidgets: UserWidgets;
 
-  // Get layout for a specific widget in a specific space
-  getWidgetLayout: (spaceId: string, widgetId: string) => WidgetLayout | undefined;
+  // Get layout for a specific widget in a specific tab
+  getWidgetLayout: (tabId: string, widgetId: string) => WidgetLayout | undefined;
 
   // Update widget layout
-  updateWidgetLayout: (spaceId: string, widgetId: string, layout: Partial<WidgetLayout>) => void;
+  updateWidgetLayout: (tabId: string, widgetId: string, layout: Partial<WidgetLayout>) => void;
 
   // Toggle widget collapsed state
-  toggleWidgetCollapsed: (spaceId: string, widgetId: string) => void;
+  toggleWidgetCollapsed: (tabId: string, widgetId: string) => void;
 
-  // Reset layout for a space
-  resetSpaceLayout: (spaceId: string) => void;
+  // Reset layout for a tab
+  resetTabLayout: (tabId: string) => void;
 
   // Reset all layouts
   resetAllLayouts: () => void;
 
-  // Set user widgets (which widgets are active per space)
+  // Set user widgets (which widgets are active per tab)
   setUserWidgets: (widgets: UserWidgets) => void;
 
-  // Add a widget to a space
-  addWidgetToSpace: (spaceId: string, widgetId: string) => void;
+  // Add a widget to a tab
+  addWidgetToTab: (tabId: string, widgetId: string) => void;
 
-  // Remove a widget from a space
-  removeWidgetFromSpace: (spaceId: string, widgetId: string) => void;
+  // Remove a widget from a tab
+  removeWidgetFromTab: (tabId: string, widgetId: string) => void;
 
   // Reset user widgets to defaults (clears all custom widget selections)
   resetLayout: () => void;
 
-  // Reset a specific space to its default widget configuration
-  resetSpaceToDefaults: (spaceId: string, defaultWidgets: string[]) => void;
+  // Reset a specific tab to its default widget configuration
+  resetTabToDefaults: (tabId: string, defaultWidgets: string[]) => void;
 
-  // Reset all spaces to role-seeded defaults and persist to DB
+  // Reset all tabs to role-seeded defaults and persist to DB
   resetToRoleDefaults: (role: string, userId: string) => void;
+
+  // Migrate old tab-keyed layouts to space-keyed layouts
+  migrateToSpaceLayouts: () => void;
 
   // Database synchronization
   hydrateFromDatabase: (layout: string | null) => void;
@@ -98,25 +92,25 @@ export const useWidgetStore = create<WidgetStore>()(
       userWidgets: {},
       isHydratedFromDb: false,
 
-      getWidgetLayout: (spaceId: string, widgetId: string) => {
-        const spaceLayouts = get().layouts[spaceId];
-        return spaceLayouts?.[widgetId] || { ...defaultWidgetLayout };
+      getWidgetLayout: (tabId: string, widgetId: string) => {
+        const tabLayouts = get().layouts[tabId];
+        return tabLayouts?.[widgetId] || { ...defaultWidgetLayout };
       },
 
       updateWidgetLayout: (
-        spaceId: string,
+        tabId: string,
         widgetId: string,
         layoutUpdate: Partial<WidgetLayout>
       ) => {
         set(state => {
-          const spaceLayouts = state.layouts[spaceId] || {};
-          const currentLayout = spaceLayouts[widgetId] || defaultWidgetLayout;
+          const tabLayouts = state.layouts[tabId] || {};
+          const currentLayout = tabLayouts[widgetId] || defaultWidgetLayout;
 
           return {
             layouts: {
               ...state.layouts,
-              [spaceId]: {
-                ...spaceLayouts,
+              [tabId]: {
+                ...tabLayouts,
                 [widgetId]: {
                   ...currentLayout,
                   ...layoutUpdate,
@@ -127,17 +121,17 @@ export const useWidgetStore = create<WidgetStore>()(
         });
       },
 
-      toggleWidgetCollapsed: (spaceId: string, widgetId: string) => {
+      toggleWidgetCollapsed: (tabId: string, widgetId: string) => {
         set(state => {
-          const spaceLayouts = state.layouts[spaceId];
-          const currentLayout = spaceLayouts?.[widgetId] || defaultWidgetLayout;
+          const tabLayouts = state.layouts[tabId];
+          const currentLayout = tabLayouts?.[widgetId] || defaultWidgetLayout;
           const isCollapsing = !currentLayout.isCollapsed;
 
           return {
             layouts: {
               ...state.layouts,
-              [spaceId]: {
-                ...spaceLayouts,
+              [tabId]: {
+                ...tabLayouts,
                 [widgetId]: {
                   ...currentLayout,
                   isCollapsed: isCollapsing,
@@ -150,12 +144,12 @@ export const useWidgetStore = create<WidgetStore>()(
         });
       },
 
-      resetSpaceLayout: (spaceId: string) => {
+      resetTabLayout: (tabId: string) => {
         set(state => {
           const newLayouts = { ...state.layouts };
-          delete newLayouts[spaceId];
+          delete newLayouts[tabId];
           const newUserWidgets = { ...state.userWidgets };
-          delete newUserWidgets[spaceId];
+          delete newUserWidgets[tabId];
           return { layouts: newLayouts, userWidgets: newUserWidgets };
         });
       },
@@ -168,26 +162,26 @@ export const useWidgetStore = create<WidgetStore>()(
         set({ userWidgets: widgets });
       },
 
-      addWidgetToSpace: (spaceId: string, widgetId: string) => {
+      addWidgetToTab: (tabId: string, widgetId: string) => {
         set(state => {
-          const spaceWidgets = state.userWidgets[spaceId] || [];
-          if (spaceWidgets.includes(widgetId)) return state;
+          const tabWidgets = state.userWidgets[tabId] || [];
+          if (tabWidgets.includes(widgetId)) return state;
           return {
             userWidgets: {
               ...state.userWidgets,
-              [spaceId]: [...spaceWidgets, widgetId],
+              [tabId]: [...tabWidgets, widgetId],
             },
           };
         });
       },
 
-      removeWidgetFromSpace: (spaceId: string, widgetId: string) => {
+      removeWidgetFromTab: (tabId: string, widgetId: string) => {
         set(state => {
-          const spaceWidgets = state.userWidgets[spaceId] || [];
+          const tabWidgets = state.userWidgets[tabId] || [];
           return {
             userWidgets: {
               ...state.userWidgets,
-              [spaceId]: spaceWidgets.filter(id => id !== widgetId),
+              [tabId]: tabWidgets.filter(id => id !== widgetId),
             },
           };
         });
@@ -197,15 +191,15 @@ export const useWidgetStore = create<WidgetStore>()(
         set({ layouts: {}, userWidgets: {} });
       },
 
-      resetSpaceToDefaults: (spaceId: string, defaultWidgets: string[]) => {
+      resetTabToDefaults: (tabId: string, defaultWidgets: string[]) => {
         set(state => ({
           userWidgets: {
             ...state.userWidgets,
-            [spaceId]: [...defaultWidgets],
+            [tabId]: [...defaultWidgets],
           },
           layouts: {
             ...state.layouts,
-            [spaceId]: {},
+            [tabId]: {},
           },
         }));
       },
@@ -218,6 +212,43 @@ export const useWidgetStore = create<WidgetStore>()(
         });
         // Persist to DB after reset
         get().saveToDatabase(userId);
+      },
+
+      /**
+       * Migrate old tab-keyed layout to space-keyed layout.
+       * Converts keys using TAB_TO_SPACE_MAP and merges widgets from
+       * multiple old tabs into their new space keys.
+       * Called during hydrateFromServer if the stored layout uses old tab keys.
+       */
+      migrateToSpaceLayouts: () => {
+        const { userWidgets, layouts } = get();
+        const oldTabKeys = Object.keys(TAB_TO_SPACE_MAP);
+        const hasOldKeys = Object.keys(userWidgets).some(k => oldTabKeys.includes(k));
+
+        if (!hasOldKeys) return; // Already space-keyed, no migration needed
+
+        const newUserWidgets: UserWidgets = {};
+        const newLayouts: WidgetLayouts = {};
+
+        // Remap userWidgets
+        for (const [key, widgets] of Object.entries(userWidgets)) {
+          const spaceKey = TAB_TO_SPACE_MAP[key] || key;
+          const existing = newUserWidgets[spaceKey] || [];
+          newUserWidgets[spaceKey] = [...new Set([...existing, ...widgets])];
+        }
+
+        // Remap layouts
+        for (const [key, widgetLayouts] of Object.entries(layouts)) {
+          const spaceKey = TAB_TO_SPACE_MAP[key] || key;
+          const existing = newLayouts[spaceKey] || {};
+          newLayouts[spaceKey] = { ...existing, ...widgetLayouts };
+        }
+
+        log.info(
+          { oldKeys: Object.keys(userWidgets), newKeys: Object.keys(newUserWidgets) },
+          'Migrated tab-keyed layouts to space-keyed'
+        );
+        set({ userWidgets: newUserWidgets, layouts: newLayouts });
       },
 
       hydrateFromDatabase: (layout: string | null) => {
@@ -253,19 +284,29 @@ export const useWidgetStore = create<WidgetStore>()(
             return;
           }
 
-          const body = await response.json();
-          const userData = body?.data ?? body;
+          const userData = await response.json();
           const dashboardLayout = userData.dashboardLayout;
 
           if (dashboardLayout) {
+            // Server is source of truth — merge with localStorage, server wins on conflict
             const parsed =
               typeof dashboardLayout === 'string' ? JSON.parse(dashboardLayout) : dashboardLayout;
+
+            // Check if layout uses old tab keys and auto-migrate
+            const oldTabKeys = Object.keys(TAB_TO_SPACE_MAP);
+            const widgetKeys = Object.keys(parsed.userWidgets || {});
+            const hasOldKeys = widgetKeys.some(k => oldTabKeys.includes(k));
 
             set({
               layouts: parsed.layouts || {},
               userWidgets: parsed.userWidgets || {},
               isHydratedFromDb: true,
             });
+
+            // Auto-migrate old tab-keyed layouts to space-keyed
+            if (hasOldKeys) {
+              get().migrateToSpaceLayouts();
+            }
           } else {
             // No server layout — keep localStorage as-is
             set({ isHydratedFromDb: true });
@@ -305,47 +346,13 @@ export const useWidgetStore = create<WidgetStore>()(
     }),
     {
       name: 'widget-layouts',
-      version: 5,
+      version: 4,
       migrate: (persistedState: unknown, version: number) => {
         const persisted = persistedState as Record<string, unknown>;
-        let state = { ...persisted };
-
         if (version < 2) {
-          state = { ...state, userWidgets: {} };
+          return { ...persisted, userWidgets: {} };
         }
-
-        // v4→v5: Migrate old tab keys to space keys
-        if (version < 5) {
-          const userWidgets = state.userWidgets as Record<string, string[]> | undefined;
-          const layouts = state.layouts as Record<string, Record<string, unknown>> | undefined;
-
-          const hasOldKeys =
-            userWidgets &&
-            Object.keys(userWidgets).some(k => Object.keys(TAB_TO_SPACE_MAP).includes(k));
-
-          if (hasOldKeys && userWidgets) {
-            const newUserWidgets: Record<string, string[]> = {};
-            const newLayouts: Record<string, Record<string, unknown>> = {};
-
-            for (const [key, widgets] of Object.entries(userWidgets)) {
-              const spaceKey = TAB_TO_SPACE_MAP[key] || key;
-              const existing = newUserWidgets[spaceKey] || [];
-              newUserWidgets[spaceKey] = [...new Set([...existing, ...widgets])];
-            }
-
-            if (layouts) {
-              for (const [key, widgetLayouts] of Object.entries(layouts)) {
-                const spaceKey = TAB_TO_SPACE_MAP[key] || key;
-                const existing = newLayouts[spaceKey] || {};
-                newLayouts[spaceKey] = { ...existing, ...widgetLayouts };
-              }
-            }
-
-            state = { ...state, userWidgets: newUserWidgets, layouts: newLayouts };
-          }
-        }
-
-        return state;
+        return persisted;
       },
     }
   )
