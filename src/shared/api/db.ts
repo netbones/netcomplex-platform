@@ -34,6 +34,7 @@ import { userGroups } from '@schema/user-groups';
 import { surveys } from '@schema/surveys';
 import { questions } from '@schema/questions';
 import { responses } from '@schema/responses';
+import { surveySections } from '@schema/survey-sections';
 import { externalSurveys } from '@schema/external-surveys';
 import { invitations } from '@schema/invitations';
 import { bookings } from '@schema/bookings';
@@ -93,6 +94,7 @@ const dbSchema = {
   surveys,
   questions,
   responses,
+  surveySections,
   externalSurveys,
   invitations,
   bookings,
@@ -238,6 +240,7 @@ export {
   surveys,
   questions,
   responses,
+  surveySections,
   externalSurveys,
   invitations,
   bookings,

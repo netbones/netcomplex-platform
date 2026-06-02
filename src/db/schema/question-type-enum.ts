@@ -6,4 +6,5 @@ export const questionTypeEnum = pgEnum('QuestionType', [
   'TEXT',
   'RATING',
   'YES_NO',
+  'LINEAR_SCALE',
 ]);

@@ -25,6 +25,7 @@ import * as notifications from './notifications';
 import * as questions from './questions';
 import * as responses from './responses';
 import * as settings from './settings';
+import * as surveySections from './survey-sections';
 import * as surveys from './surveys';
 import * as userGroups from './user-groups';
 import * as accounts from './accounts';
@@ -76,6 +77,7 @@ import * as messagesRelations from './messages-relations';
 import * as notificationsRelations from './notifications-relations';
 import * as questionsRelations from './questions-relations';
 import * as responsesRelations from './responses-relations';
+import * as surveySectionsRelations from './survey-sections-relations';
 import * as surveysRelations from './surveys-relations';
 import * as userGroupsRelations from './user-groups-relations';
 import * as accountsRelations from './accounts-relations';
@@ -133,6 +135,7 @@ export const schema = {
   ...questions,
   ...responses,
   ...settings,
+  ...surveySections,
   ...surveys,
   ...userGroups,
   ...accounts,
@@ -184,6 +187,7 @@ export const schema = {
   ...notificationsRelations,
   ...questionsRelations,
   ...responsesRelations,
+  ...surveySectionsRelations,
   ...surveysRelations,
   ...userGroupsRelations,
   ...accountsRelations,

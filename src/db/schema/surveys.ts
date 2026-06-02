@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, jsonb } from 'drizzle-orm/pg-core';
 import { surveyTypeEnum } from './survey-type-enum';
 import { surveyStatusEnum } from './survey-status-enum';
 
@@ -11,6 +11,7 @@ export const surveys = pgTable('Survey', {
   status: surveyStatusEnum('status').default('DRAFT').notNull(),
   startDate: timestamp('startDate', { mode: 'date', precision: 3 }),
   endDate: timestamp('endDate', { mode: 'date', precision: 3 }),
+  config: jsonb('config').default({}).notNull(),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
 });
