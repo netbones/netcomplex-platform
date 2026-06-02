@@ -592,3 +592,23 @@ tenant_modules           → What each tenant has
 **References:** `docs/GATE_DISCUSSION.md`, `docs/GATE_ADDENDUM.md`, `docs/GATE_PLAN.md`
 
 **Out of scope (Phase 2-3 migration):** Migrating existing callsites from `isModuleEnabled`/`TierGuard`/`usePageFlags` → `canAccess()` (Phase 2 opportunistic); removing legacy public exports (Phase 3 cleanup); unifying the two tier systems (separate workstream, tracked by UBIQUITOUS_LANGUAGE.md C4).
+
+---
+
+## Phase: 42-i18n-hydration-fix
+
+**Goal:** Execute systemic i18n hydration fix across tenant routes — add I18nextProvider to tenant layout, create shared `useSafeTranslation` hook with `tx(key, fallback)`, migrate high-risk pages (messages, admin domains) and medium-risk shared UI (Bookshelf, TagCloud, LocaleSelector, CreateListingForm, UnifiedResidentCard), consolidate services domain page's local tx() helper into shared hook.
+
+**Status:** Planning Complete — 3 plans in 2 waves
+
+**Requirements:** I18N-01, I18N-02, I18N-03, I18N-04, I18N-05, I18N-06, I18N-07, I18N-08
+
+**Plans:**
+
+| Wave | Plan              | Objective                                                                          | Tasks |
+| ---- | ----------------- | ---------------------------------------------------------------------------------- | ----- |
+| 1    | [ ] 42-01-PLAN.md | I18nextProvider in tenant layout + useSafeTranslation hook + usePageLoading update | 3     |
+| 2    | [ ] 42-02-PLAN.md | Migrate high-risk pages: messages domain + admin domain                            | 2     |
+| 2    | [ ] 42-03-PLAN.md | Migrate medium-risk shared UI (5 components) + services page (remove local tx())   | 3     |
+
+**Out of scope (bd issue):** 37 widget files batch migration (lower risk, rendered inside guarded pages via usePageLoading)
