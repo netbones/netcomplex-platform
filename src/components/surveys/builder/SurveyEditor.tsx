@@ -1,6 +1,24 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+  type DragEndEvent,
+  type DragStartEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  sortableKeyboardCoordinates,
+  arrayMove,
+} from '@dnd-kit/sortable';
 import { LoadingSpinner } from '@shared/ui';
 import { logError } from '@shared/lib';
 import { Plus } from 'lucide-react';
@@ -15,9 +33,16 @@ import { SurveyEditorHeader } from './SurveyEditorHeader';
 import { QuestionBlock } from './QuestionBlock';
 import { SectionBlock } from './SectionBlock';
 import { BlockPalette } from './BlockPalette';
+import { QuestionList } from './QuestionList';
 
 interface SurveyEditorProps {
   surveyId: string;
+}
+
+interface ReorderItem {
+  id: string;
+  order: number;
+  sectionId?: string | null;
 }
 
 export function SurveyEditor({ surveyId }: SurveyEditorProps) {
@@ -26,6 +51,8 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
   const [sections, setSections] = useState<SurveySection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const [activeDragKind, setActiveDragKind] = useState<'section' | 'question' | null>(null);
 
   const loadSurvey = useCallback(async () => {
     setLoading(true);
@@ -266,7 +293,107 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
     [questions, sections, surveyId]
   );
 
+  /**
+   * Persist a new order for questions. Optimistic: update local state
+   * first, then call the reorder endpoint. Failure logs and leaves the
+   * server state authoritative on the next load.
+   */
+  const persistQuestionOrder = useCallback(
+    async (items: ReorderItem[]) => {
+      // Optimistic local update
+      setQuestions(prev => {
+        const map = new Map(items.map(i => [i.id, i]));
+        return prev.map(q => {
+          const item = map.get(q.id);
+          if (!item) return q;
+          return {
+            ...q,
+            order: item.order,
+            sectionId: item.sectionId !== undefined ? item.sectionId : q.sectionId,
+          };
+        });
+      });
+      try {
+        const res = await fetch(`/api/surveys/${surveyId}/questions/reorder`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items }),
+        });
+        if (!res.ok) throw new Error(`Reorder failed: ${res.status}`);
+      } catch (err) {
+        logError(
+          { component: 'SurveyEditor', operation: 'reorderQuestions' },
+          'Failed to reorder questions',
+          err
+        );
+      }
+    },
+    [surveyId]
+  );
+
+  /**
+   * Persist a new order for sections. Same optimistic-first pattern.
+   */
+  const persistSectionOrder = useCallback(
+    async (items: { id: string; order: number }[]) => {
+      setSections(prev => {
+        const map = new Map(items.map(i => [i.id, i.order]));
+        return prev.map(s => (map.has(s.id) ? { ...s, order: map.get(s.id)! } : s));
+      });
+      try {
+        const res = await fetch(`/api/surveys/${surveyId}/sections/reorder`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items }),
+        });
+        if (!res.ok) throw new Error(`Section reorder failed: ${res.status}`);
+      } catch (err) {
+        logError(
+          { component: 'SurveyEditor', operation: 'reorderSections' },
+          'Failed to reorder sections',
+          err
+        );
+      }
+    },
+    [surveyId]
+  );
+
+  // DnD sensors for the section-level context
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleSectionDragStart = (event: DragStartEvent) => {
+    setActiveDragId(String(event.active.id));
+    setActiveDragKind('section');
+  };
+
+  const handleSectionDragEnd = (event: DragEndEvent) => {
+    setActiveDragId(null);
+    setActiveDragKind(null);
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = sections.findIndex(s => s.id === active.id);
+    const newIndex = sections.findIndex(s => s.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const reordered = arrayMove(sections, oldIndex, newIndex).map((s, idx) => ({
+      id: s.id,
+      order: idx,
+    }));
+    void persistSectionOrder(reordered);
+  };
+
+  const handleSectionDragCancel = () => {
+    setActiveDragId(null);
+    setActiveDragKind(null);
+  };
+
   const ungroupedQuestions = useMemo(() => questions.filter(q => !q.sectionId), [questions]);
+
+  const activeSection =
+    activeDragKind === 'section' ? (sections.find(s => s.id === activeDragId) ?? null) : null;
 
   if (loading) {
     return (
@@ -298,42 +425,66 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
       <div className="space-y-4">
         {sections.length === 0 ? (
           ungroupedQuestions.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-300">
-              <i className="fas fa-poll-h text-4xl text-gray-300 mb-3"></i>
-              <p className="text-gray-500 mb-1">This survey is empty</p>
-              <p className="text-sm text-gray-400">
-                Click the + button below to add your first question
-              </p>
-            </div>
+            <EmptySurvey onAdd={type => void onAddQuestion(type)} />
           ) : (
-            <QuestionsGroup
+            <QuestionList
               questions={ungroupedQuestions}
+              sectionIds={[]}
+              currentSectionId={null}
               onUpdateQuestion={onUpdateQuestion}
               onDeleteQuestion={onDeleteQuestion}
+              onReorder={items => void persistQuestionOrder(items)}
             />
           )
         ) : (
-          <>
-            {sections.map(section => (
-              <SectionBlock
-                key={section.id}
-                section={section}
-                questions={questions.filter(q => q.sectionId === section.id)}
-                onUpdateSection={onUpdateSection}
-                onDeleteSection={onDeleteSection}
-                onAddQuestion={type => void onAddQuestion(type, section.id)}
-                onUpdateQuestion={onUpdateQuestion}
-                onDeleteQuestion={onDeleteQuestion}
-              />
-            ))}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleSectionDragStart}
+            onDragEnd={handleSectionDragEnd}
+            onDragCancel={handleSectionDragCancel}
+          >
+            <SortableContext items={sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
+              {sections.map(section => (
+                <SectionBlock
+                  key={section.id}
+                  section={section}
+                  questions={questions.filter(q => q.sectionId === section.id)}
+                  onUpdateSection={onUpdateSection}
+                  onDeleteSection={onDeleteSection}
+                  onAddQuestion={type => void onAddQuestion(type, section.id)}
+                  onUpdateQuestion={onUpdateQuestion}
+                  onDeleteQuestion={onDeleteQuestion}
+                  sortable
+                />
+              ))}
+            </SortableContext>
+            <DragOverlay>
+              {activeSection ? (
+                <div className="opacity-90 shadow-2xl">
+                  <SectionBlock
+                    section={activeSection}
+                    questions={questions.filter(q => q.sectionId === activeSection.id)}
+                    onUpdateSection={() => {}}
+                    onDeleteSection={() => {}}
+                    onAddQuestion={() => {}}
+                    onUpdateQuestion={() => {}}
+                    onDeleteQuestion={() => {}}
+                  />
+                </div>
+              ) : null}
+            </DragOverlay>
 
             {ungroupedQuestions.length > 0 && (
               <div className="bg-white border border-dashed border-gray-300 rounded-lg p-4">
                 <h3 className="text-sm font-medium text-gray-500 mb-3">Ungrouped questions</h3>
-                <QuestionsGroup
+                <QuestionList
                   questions={ungroupedQuestions}
+                  sectionIds={sections.map(s => s.id)}
+                  currentSectionId={null}
                   onUpdateQuestion={onUpdateQuestion}
                   onDeleteQuestion={onDeleteQuestion}
+                  onReorder={items => void persistQuestionOrder(items)}
                 />
               </div>
             )}
@@ -345,7 +496,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
             >
               <Plus size={16} /> Add section
             </button>
-          </>
+          </DndContext>
         )}
       </div>
 
@@ -354,25 +505,17 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
   );
 }
 
-function QuestionsGroup({
-  questions,
-  onUpdateQuestion,
-  onDeleteQuestion,
-}: {
-  questions: SurveyQuestion[];
-  onUpdateQuestion: (questionId: string, changes: Partial<SurveyQuestion>) => void;
-  onDeleteQuestion: (questionId: string) => void;
-}) {
+function EmptySurvey({ onAdd }: { onAdd: (type: QuestionType) => void }) {
   return (
-    <div className="space-y-3">
-      {questions.map(question => (
-        <QuestionBlock
-          key={question.id}
-          question={question}
-          onUpdate={changes => onUpdateQuestion(question.id, changes)}
-          onDelete={() => onDeleteQuestion(question.id)}
-        />
-      ))}
+    <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-300">
+      <i className="fas fa-poll-h text-4xl text-gray-300 mb-3"></i>
+      <p className="text-gray-500 mb-1 font-medium">This survey has no questions yet</p>
+      <p className="text-sm text-gray-400 mb-4">
+        Click the + button below to add your first question
+      </p>
+      <div className="flex justify-center">
+        <BlockPalette onSelect={onAdd} />
+      </div>
     </div>
   );
 }

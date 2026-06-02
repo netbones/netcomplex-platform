@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { GripVertical, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import type { SurveyQuestion, QuestionType } from './survey-types';
 import { getTypeMeta } from './survey-types';
 import { SingleChoiceBlock } from './question-types/SingleChoiceBlock';
@@ -74,16 +74,6 @@ export function QuestionBlock({ question, onUpdate, onDelete }: QuestionBlockPro
   return (
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
       <div className="px-4 py-3 border-b border-gray-100 flex items-start gap-3">
-        <button
-          type="button"
-          className="mt-1 text-gray-400 cursor-grab"
-          aria-label="Drag to reorder"
-          disabled
-          title="Drag handle (wired in Plan 04)"
-        >
-          <GripVertical size={16} />
-        </button>
-
         <div className="flex-1 min-w-0">
           <input
             type="text"
@@ -94,6 +84,7 @@ export function QuestionBlock({ question, onUpdate, onDelete }: QuestionBlockPro
               if (e.key === 'Enter') e.currentTarget.blur();
             }}
             placeholder="Question text"
+            data-no-dnd="true"
             className="w-full text-base font-medium text-gray-900 bg-transparent border-b border-transparent hover:border-gray-300 focus:border-indigo-500 outline-none px-1"
             disabled={isTempId}
           />
@@ -110,6 +101,7 @@ export function QuestionBlock({ question, onUpdate, onDelete }: QuestionBlockPro
             checked={question.required}
             onChange={e => onUpdate({ required: e.target.checked })}
             disabled={isTempId}
+            data-no-dnd="true"
             className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
           />
         </label>
@@ -117,6 +109,7 @@ export function QuestionBlock({ question, onUpdate, onDelete }: QuestionBlockPro
         <button
           type="button"
           onClick={handleDelete}
+          data-no-dnd="true"
           className={`p-1 rounded transition-colors ${
             confirmingDelete
               ? 'bg-red-100 text-red-700'
