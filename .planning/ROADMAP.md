@@ -572,14 +572,34 @@ tenant_modules           → What each tenant has
 
 **Status:** Planning Complete — 3 plans in 1 wave (narrow scope, post-advisory audit)
 
-**Requirements:** GATE-01, GATE-02, GATE-03, GATE-04, GATE-05, GATE-06, GATE-07, GATE-08
+**Requirements:** GATE-01, GATE-02, GATE-03, GATE-04, GATE-05, GATE-06, GATE-07, GATE-08, GATE-09, GATE-10, GATE-11
+
+| Requirement | Plan  | Description                                                |
+| ----------- | ----- | ---------------------------------------------------------- |
+| GATE-01     | 41-01 | `canAccess()` server function with 5-layer precedence      |
+| GATE-02     | 41-01 | `FeatureKey` canonical type (14 keys)                      |
+| GATE-03     | 41-01 | 3 mapping tables (FEATURE_TO_MODULE/FLAG/REGISTRY)         |
+| GATE-04     | 41-02 | `canAccessClient()` client function (skips tier/module)    |
+| GATE-05     | 41-02 | `useGateContext()` hook (reads real session)               |
+| GATE-06     | 41-02 | `GateGuard` component (children/fallback/render)           |
+| GATE-07     | 41-03 | CI test for mapping completeness (drift detection)         |
+| GATE-08     | 41-03 | `revalidateGate(tenantId)` cache invalidation helper       |
+| GATE-09     | 41-01 | Remove 7 legacy tier string occurrences (5 files)          |
+| GATE-10     | 41-01 | `resolveGateContext()` reads role from real session (Q2=A) |
+| GATE-11     | 41-01 | `getTierLevel()` soft-fallback to `foundation` (Q3=B)      |
 
 **Scope decisions:**
 
+- **Q1=A: Phase 1 is foundation only** — additive, no callsite migration. 9 gate-related symbols run in parallel temporarily; Phase 2/3 migrates to consolidate.
+- **Q2=A: Real session integration** — `resolveGateContext()` and `useGateContext()` read role from `getSessionAndRole()` / `useSession()` (no hardcoded `'RESIDENT'`).
+- **Q3=B: `getTierLevel()` soft-fallback** — unknown inputs return `'foundation'` (back-compat with non-legacy unknowns; advisory's "throw on unknown" deferred).
+- **Q4=A: GATE-09/10/11 added** to address requirement ID gap (8 → 11 requirements).
 - **Advisory at .planning/ADVISORY.md is STALE** — verified 2026-06-01. References `getTenantTier`/`getModuleDefinition`/`getTenantModule` helpers that don't exist; `unstable_cache`+`revalidateTag` pattern not used; `/api/flags` doesn't return `tier`; pseudocode has dead-code bug. Only "no legacy tier strings" signal is authoritative.
-- **Client skips Tier and Module layers** (Q1=A) — server is source of truth; client `useGateContext()` provides `{ role, flags }` only, no tier
-- **Remove all 8 legacy tier string occurrences** (Q2=A) — `tiers.ts:261-275` (3 cases), `tenants.ts:17` (Drizzle default), `prisma/schema.prisma:72` (Prisma default), `TenantFeaturePage.tsx:111-113` (3 `<option>` lines), `base.ts:6` (comment)
-- **Slug file `src/shared/api/slug.ts:67` `'forest'` is a nature-word list** — NOT a tier reference; do not touch
+- **Client skips Tier and Module layers** — server is source of truth; client `useGateContext()` provides `{ role, flags, tier? }` (tier optional; `tier?: TierLevel` in `ClientGateContext`).
+- **Remove all 7 legacy tier string occurrences** — `tiers.ts:261-275` (3 cases), `tenants.ts:17` (Drizzle default), `prisma/schema.prisma:72` (Prisma default), `TenantFeaturePage.tsx:111-113` (3 `<option>` lines), `base.ts:6` (comment).
+- **Slug file `src/shared/api/slug.ts:67` `'forest'` is a nature-word list** — NOT a tier reference; do not touch.
+
+**Trajectory:** Phase 1 ships a foundation, not consolidation. Phase 2 migrates callsites opportunistically. Phase 3 restricts legacy exports and marks `UBIQUITOUS_LANGUAGE.md` C2 as Resolved. See "Trajectory" and "Phase 2/3 Deferrals" sections in `41-CONTEXT.md` for what each phase owns.
 
 **Plans:**
 
