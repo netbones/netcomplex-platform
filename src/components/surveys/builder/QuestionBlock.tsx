@@ -4,6 +4,12 @@ import { useState } from 'react';
 import { GripVertical, Trash2 } from 'lucide-react';
 import type { SurveyQuestion, QuestionType } from './survey-types';
 import { getTypeMeta } from './survey-types';
+import { SingleChoiceBlock } from './question-types/SingleChoiceBlock';
+import { MultipleChoiceBlock } from './question-types/MultipleChoiceBlock';
+import { TextBlock } from './question-types/TextBlock';
+import { RatingBlock } from './question-types/RatingBlock';
+import { YesNoBlock } from './question-types/YesNoBlock';
+import { LinearScaleBlock } from './question-types/LinearScaleBlock';
 
 export interface QuestionBlockPreviewProps {
   question: SurveyQuestion;
@@ -20,15 +26,33 @@ interface QuestionBlockProps {
   onDelete: () => void;
 }
 
-/**
- * Placeholder QuestionBlock — Task 1 scaffolding.
- * Real preview/config wiring is added in Task 2 once the question-type
- * modules exist.
- */
+const PREVIEW_MAP: Record<QuestionType, React.ComponentType<QuestionBlockPreviewProps>> = {
+  SINGLE_CHOICE: SingleChoiceBlock.Preview,
+  MULTIPLE_CHOICE: MultipleChoiceBlock.Preview,
+  TEXT: TextBlock.Preview,
+  RATING: RatingBlock.Preview,
+  YES_NO: YesNoBlock.Preview,
+  LINEAR_SCALE: LinearScaleBlock.Preview,
+};
+
+const CONFIG_MAP: Record<QuestionType, React.ComponentType<QuestionBlockConfigProps>> = {
+  SINGLE_CHOICE: SingleChoiceBlock.ConfigPanel,
+  MULTIPLE_CHOICE: MultipleChoiceBlock.ConfigPanel,
+  TEXT: TextBlock.ConfigPanel,
+  RATING: RatingBlock.ConfigPanel,
+  YES_NO: YesNoBlock.ConfigPanel,
+  LINEAR_SCALE: LinearScaleBlock.ConfigPanel,
+};
+
 export function QuestionBlock({ question, onUpdate, onDelete }: QuestionBlockProps) {
+  const [expanded, setExpanded] = useState(false);
   const [textDraft, setTextDraft] = useState(question.text);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+
   const meta = getTypeMeta(question.type);
+  const Preview = PREVIEW_MAP[question.type];
+  const ConfigPanel = CONFIG_MAP[question.type];
+
   const isTempId = question.id.startsWith('temp-');
 
   const commitText = () => {
@@ -105,12 +129,15 @@ export function QuestionBlock({ question, onUpdate, onDelete }: QuestionBlockPro
         </button>
       </div>
 
-      <div className="px-4 py-4 text-sm text-gray-400 italic">
-        Preview will appear here (configured in Plan 03 Task 2)
+      <div className="px-4 py-4 cursor-pointer" onClick={() => setExpanded(v => !v)}>
+        <Preview question={question} />
       </div>
+
+      {expanded && (
+        <div className="border-t border-gray-100 px-4 py-4 bg-gray-50">
+          <ConfigPanel question={question} onUpdate={onUpdate} />
+        </div>
+      )}
     </div>
   );
 }
-
-// Re-export types used by question-type modules
-export type { QuestionType };
