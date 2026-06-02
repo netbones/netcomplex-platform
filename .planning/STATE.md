@@ -3,14 +3,14 @@
 ## Current Position
 
 - **Phase:** 36-survey-builder
-- **Status:** Plan 2 complete — ready for next plan or verification
-- **Current Plan:** 2
+- **Status:** Ready to execute
+- **Current Plan:** 3
 - **Total Plans in Phase:** 4
 - **Last Updated:** 2026-06-02
 - **Next Step:** Execute 36-03-PLAN.md (survey builder UI)
 
-**Last Session:** 2026-06-02T08:02:16.337Z
-**Stopped at:** Completed 36-02-PLAN.md
+**Last Session:** 2026-06-02T08:23:11.066Z
+**Stopped at:** Completed 31-01-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -145,6 +145,9 @@
 - [Phase 36-survey-builder]: [36-02] QuestionType validation uses const-tuple (VALID_QUESTION_TYPES as const) — single source of truth for runtime + compile-time enum — Avoids drift between pgEnum and TS types
 - [Phase 36-survey-builder]: [36-02] Reorder endpoints pre-verify all IDs in single inArray query before starting transaction — fails fast with 404 if any ID is wrong — Avoids partial updates from misrouted IDs
 - [Phase 36-survey-builder]: [36-02] GET-survey returns flat {survey, questions, sections} shape — builder UI groups questions client-side using sectionId — Matches builder mental model; one request for full hydration
+- [Phase 31]: Inlined TAB_TO_SPACE_MAP in widget-store.ts instead of importing from tab-migration-map.ts
+- [Phase 31]: Simplified hydrateFromServer by removing runtime old-key check since persist v5 migration handles it
+- [Phase 31]: Left DashboardPage.tsx broken with old method names as it is deleted in plan 31-02
 
 ## Notes
 
@@ -283,6 +286,7 @@
 | Phase 40 P04                           | 259min | 3 tasks  | 5 files  |
 | Phase 36 P01                           | 9min   | 2 tasks  | 11 files |
 | Phase 36-survey-builder P02            | 11min  | 3 tasks  | 7 files  |
+| Phase 31 P01                           | 100    | 2 tasks  | 2 files  |
 
 ## A01 Execution Decisions
 
