@@ -9,8 +9,6 @@ import { SpaceLauncher } from '@widgets/dashboard/ui/SpaceLauncher';
 import { MobileSpaceBar } from '@widgets/dashboard/ui/MobileSpaceBar';
 import { getVisibleSpaces, resolveSpace } from '@widgets/dashboard/model/spaces';
 
-const FOCUS_SPACES_ENABLED = process.env.NEXT_PUBLIC_FOCUS_SPACES === 'true';
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(true);
   const pathname = usePathname();
@@ -29,12 +27,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // Navigation handled by Link href — this callback is for future extensibility
   };
 
-  // Feature flag OFF: old layout (no sidebar, no bottom bar)
-  if (!FOCUS_SPACES_ENABLED) {
-    return <ErrorBoundary>{children}</ErrorBoundary>;
-  }
-
-  // Feature flag ON: new Focus Space layout with sidebar + bottom bar
   return (
     <ErrorBoundary>
       <div className="flex min-h-screen bg-gray-50">
@@ -62,15 +54,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   );
 }
 
-/**
- * Derive the active space ID from the current pathname.
- * /dashboard → 'home'
- * /dashboard/services → 'services'
- * /dashboard/admin/users → 'admin' (sub-routes belong to admin space)
- */
 function getActiveSpaceId(pathname: string): string {
   if (!pathname) return 'home';
-
   const match = pathname.match(/^\/dashboard\/([^/]+)/);
   if (match) {
     const slug = match[1];
@@ -78,6 +63,5 @@ function getActiveSpaceId(pathname: string): string {
       return slug;
     }
   }
-
   return 'home';
 }
