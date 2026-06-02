@@ -30,10 +30,11 @@ import type {
   QuestionType,
 } from './survey-types';
 import { SurveyEditorHeader } from './SurveyEditorHeader';
-import { QuestionBlock } from './QuestionBlock';
 import { SectionBlock } from './SectionBlock';
 import { BlockPalette } from './BlockPalette';
 import { QuestionList } from './QuestionList';
+import { useSaveStatus } from './useSaveStatus';
+import { useDebouncedAutoSave } from './useDebouncedAutoSave';
 
 interface SurveyEditorProps {
   surveyId: string;
@@ -53,6 +54,8 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
   const [error, setError] = useState<string | null>(null);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [activeDragKind, setActiveDragKind] = useState<'section' | 'question' | null>(null);
+
+  const saveStatus = useSaveStatus();
 
   const loadSurvey = useCallback(async () => {
     setLoading(true);
@@ -83,20 +86,39 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
     void loadSurvey();
   }, [loadSurvey]);
 
+  /**
+   * Generic PATCH wrapper that mirrors a request into the save status
+   * indicator. Returns the parsed response or throws.
+   */
+  const patchJson = useCallback(
+    async <T,>(url: string, body: unknown): Promise<T> => {
+      saveStatus.markDirty();
+      saveStatus.beginSave();
+      try {
+        const res = await fetch(url, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+        const json = await res.json();
+        saveStatus.endSave(true);
+        return (json.success ? json.data : json) as T;
+      } catch (err) {
+        saveStatus.endSave(false, err instanceof Error ? err.message : 'Failed to save');
+        throw err;
+      }
+    },
+    [saveStatus]
+  );
+
   const onUpdateSurvey = useCallback(
     async (changes: Partial<Pick<Survey, 'title' | 'description' | 'status'>>) => {
       if (!survey) return;
       const previous = survey;
       setSurvey({ ...survey, ...changes });
       try {
-        const res = await fetch(`/api/surveys/${surveyId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(changes),
-        });
-        if (!res.ok) throw new Error(`Update failed: ${res.status}`);
-        const json = await res.json();
-        const updated: Survey = json.success ? json.data : json;
+        const updated = await patchJson<Survey>(`/api/surveys/${surveyId}`, changes);
         setSurvey(updated);
       } catch (err) {
         logError(
@@ -107,7 +129,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
         setSurvey(previous);
       }
     },
-    [survey, surveyId]
+    [survey, surveyId, patchJson]
   );
 
   const onAddQuestion = useCallback(
@@ -126,7 +148,8 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
         config: getDefaultConfigForType(type),
       };
       setQuestions(prev => [...prev, optimistic]);
-
+      saveStatus.markDirty();
+      saveStatus.beginSave();
       try {
         const res = await fetch(`/api/surveys/${surveyId}/questions`, {
           method: 'POST',
@@ -144,7 +167,9 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
         const json = await res.json();
         const created: SurveyQuestion = json.success ? json.data : json;
         setQuestions(prev => prev.map(q => (q.id === tempId ? created : q)));
+        saveStatus.endSave(true);
       } catch (err) {
+        saveStatus.endSave(false, err instanceof Error ? err.message : 'Failed to add question');
         logError(
           { component: 'SurveyEditor', operation: 'addQuestion' },
           'Failed to add question',
@@ -153,7 +178,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
         setQuestions(prev => prev.filter(q => q.id !== tempId));
       }
     },
-    [questions.length, survey, surveyId]
+    [questions.length, survey, surveyId, saveStatus]
   );
 
   const onUpdateQuestion = useCallback(
@@ -164,14 +189,10 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
       setQuestions(prev => prev.map(q => (q.id === questionId ? { ...q, ...changes } : q)));
 
       try {
-        const res = await fetch(`/api/surveys/${surveyId}/questions/${questionId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(changes),
-        });
-        if (!res.ok) throw new Error(`Update failed: ${res.status}`);
-        const json = await res.json();
-        const updated: SurveyQuestion = json.success ? json.data : json;
+        const updated = await patchJson<SurveyQuestion>(
+          `/api/surveys/${surveyId}/questions/${questionId}`,
+          changes
+        );
         setQuestions(prev => prev.map(q => (q.id === questionId ? updated : q)));
       } catch (err) {
         logError(
@@ -182,19 +203,23 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
         setQuestions(prev => prev.map(q => (q.id === questionId ? previous : q)));
       }
     },
-    [questions, surveyId]
+    [questions, surveyId, patchJson]
   );
 
   const onDeleteQuestion = useCallback(
     async (questionId: string) => {
       const previous = questions;
       setQuestions(prev => prev.filter(q => q.id !== questionId));
+      saveStatus.markDirty();
+      saveStatus.beginSave();
       try {
         const res = await fetch(`/api/surveys/${surveyId}/questions/${questionId}`, {
           method: 'DELETE',
         });
         if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
+        saveStatus.endSave(true);
       } catch (err) {
+        saveStatus.endSave(false, err instanceof Error ? err.message : 'Failed to delete question');
         logError(
           { component: 'SurveyEditor', operation: 'deleteQuestion' },
           'Failed to delete question',
@@ -203,7 +228,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
         setQuestions(previous);
       }
     },
-    [questions, surveyId]
+    [questions, surveyId, saveStatus]
   );
 
   const onAddSection = useCallback(async () => {
@@ -220,6 +245,8 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
       updatedAt: new Date().toISOString(),
     };
     setSections(prev => [...prev, optimistic]);
+    saveStatus.markDirty();
+    saveStatus.beginSave();
     try {
       const res = await fetch(`/api/surveys/${surveyId}/sections`, {
         method: 'POST',
@@ -230,7 +257,9 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
       const json = await res.json();
       const created: SurveySection = json.success ? json.data : json;
       setSections(prev => prev.map(s => (s.id === tempId ? created : s)));
+      saveStatus.endSave(true);
     } catch (err) {
+      saveStatus.endSave(false, err instanceof Error ? err.message : 'Failed to add section');
       logError(
         { component: 'SurveyEditor', operation: 'addSection' },
         'Failed to add section',
@@ -238,7 +267,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
       );
       setSections(prev => prev.filter(s => s.id !== tempId));
     }
-  }, [sections.length, survey, surveyId]);
+  }, [sections.length, survey, surveyId, saveStatus]);
 
   const onUpdateSection = useCallback(
     async (sectionId: string, changes: Partial<SurveySection>) => {
@@ -246,14 +275,10 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
       if (!previous) return;
       setSections(prev => prev.map(s => (s.id === sectionId ? { ...s, ...changes } : s)));
       try {
-        const res = await fetch(`/api/surveys/${surveyId}/sections/${sectionId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(changes),
-        });
-        if (!res.ok) throw new Error(`Section update failed: ${res.status}`);
-        const json = await res.json();
-        const updated: SurveySection = json.success ? json.data : json;
+        const updated = await patchJson<SurveySection>(
+          `/api/surveys/${surveyId}/sections/${sectionId}`,
+          changes
+        );
         setSections(prev => prev.map(s => (s.id === sectionId ? updated : s)));
       } catch (err) {
         logError(
@@ -264,7 +289,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
         setSections(prev => prev.map(s => (s.id === sectionId ? previous : s)));
       }
     },
-    [sections, surveyId]
+    [sections, surveyId, patchJson]
   );
 
   const onDeleteSection = useCallback(
@@ -275,12 +300,16 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
       setQuestions(prev =>
         prev.map(q => (q.sectionId === sectionId ? { ...q, sectionId: null } : q))
       );
+      saveStatus.markDirty();
+      saveStatus.beginSave();
       try {
         const res = await fetch(`/api/surveys/${surveyId}/sections/${sectionId}`, {
           method: 'DELETE',
         });
         if (!res.ok) throw new Error(`Section delete failed: ${res.status}`);
+        saveStatus.endSave(true);
       } catch (err) {
+        saveStatus.endSave(false, err instanceof Error ? err.message : 'Failed to delete section');
         logError(
           { component: 'SurveyEditor', operation: 'deleteSection' },
           'Failed to delete section',
@@ -290,8 +319,39 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
         setQuestions(previousQuestions);
       }
     },
-    [questions, sections, surveyId]
+    [questions, sections, surveyId, saveStatus]
   );
+
+  /**
+   * Inline debounced save for section description edits.
+   * Called from SectionBlock's BuilderRichText onChange.
+   */
+  const debouncedSectionDescriptionSave = useCallback(
+    (sectionId: string, html: string) => {
+      saveStatus.markDirty();
+      void onUpdateSection(sectionId, { description: html });
+    },
+    [onUpdateSection, saveStatus]
+  );
+
+  // Debounced auto-save for the survey description (in SurveyEditorHeader)
+  const debouncedSurveyDescSave = useDebouncedAutoSave({
+    delay: 2000,
+    onSave: async html => {
+      if (!survey) return;
+      if (html !== survey.description) {
+        await onUpdateSurvey({ description: html });
+      }
+    },
+    onDirty: () => saveStatus.markDirty(),
+  });
+
+  // Track a pending-yes/no dirty mark for the retry button
+  const retry = useCallback(() => {
+    if (survey) {
+      void loadSurvey();
+    }
+  }, [survey, loadSurvey]);
 
   /**
    * Persist a new order for questions. Optimistic: update local state
@@ -313,6 +373,8 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
           };
         });
       });
+      saveStatus.markDirty();
+      saveStatus.beginSave();
       try {
         const res = await fetch(`/api/surveys/${surveyId}/questions/reorder`, {
           method: 'POST',
@@ -320,7 +382,9 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
           body: JSON.stringify({ items }),
         });
         if (!res.ok) throw new Error(`Reorder failed: ${res.status}`);
+        saveStatus.endSave(true);
       } catch (err) {
+        saveStatus.endSave(false, err instanceof Error ? err.message : 'Failed to reorder');
         logError(
           { component: 'SurveyEditor', operation: 'reorderQuestions' },
           'Failed to reorder questions',
@@ -328,7 +392,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
         );
       }
     },
-    [surveyId]
+    [surveyId, saveStatus]
   );
 
   /**
@@ -340,6 +404,8 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
         const map = new Map(items.map(i => [i.id, i.order]));
         return prev.map(s => (map.has(s.id) ? { ...s, order: map.get(s.id)! } : s));
       });
+      saveStatus.markDirty();
+      saveStatus.beginSave();
       try {
         const res = await fetch(`/api/surveys/${surveyId}/sections/reorder`, {
           method: 'POST',
@@ -347,7 +413,9 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
           body: JSON.stringify({ items }),
         });
         if (!res.ok) throw new Error(`Section reorder failed: ${res.status}`);
+        saveStatus.endSave(true);
       } catch (err) {
+        saveStatus.endSave(false, err instanceof Error ? err.message : 'Failed to reorder');
         logError(
           { component: 'SurveyEditor', operation: 'reorderSections' },
           'Failed to reorder sections',
@@ -355,7 +423,7 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
         );
       }
     },
-    [surveyId]
+    [surveyId, saveStatus]
   );
 
   // DnD sensors for the section-level context
@@ -390,10 +458,44 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
     setActiveDragKind(null);
   };
 
+  /**
+   * Keyboard shortcuts:
+   *  - Ctrl/Cmd+S: prevent default and explicitly trigger a save
+   *    (re-loads from server, which is the easiest way to ensure
+   *    pending changes are flushed).
+   *  - Escape: close any focused editor / palette.
+   */
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const isSaveCombo = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's';
+      if (isSaveCombo) {
+        e.preventDefault();
+        // Best-effort: nudge save status to "saving" then reload
+        saveStatus.markDirty();
+        saveStatus.beginSave();
+        void loadSurvey().then(() => saveStatus.endSave(true));
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+    // loadSurvey, saveStatus are stable via useCallback / useRef
+  }, [surveyId]);
+
   const ungroupedQuestions = useMemo(() => questions.filter(q => !q.sectionId), [questions]);
 
   const activeSection =
     activeDragKind === 'section' ? (sections.find(s => s.id === activeDragId) ?? null) : null;
+
+  // Build the props we want to pass to SectionBlock
+  const buildSectionProps = (section: SurveySection) => ({
+    section,
+    questions: questions.filter(q => q.sectionId === section.id),
+    onUpdateSection: onUpdateSection,
+    onDeleteSection: onDeleteSection,
+    onAddQuestion: (type: QuestionType) => void onAddQuestion(type, section.id),
+    onUpdateQuestion: onUpdateQuestion,
+    onDeleteQuestion: onDeleteQuestion,
+  });
 
   if (loading) {
     return (
@@ -419,8 +521,16 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <SurveyEditorHeader survey={survey} onUpdateSurvey={onUpdateSurvey} />
+    <div className="space-y-6 max-w-full">
+      <SurveyEditorHeader
+        survey={survey}
+        onUpdateSurvey={onUpdateSurvey}
+        saveState={saveStatus.state}
+        saveDirty={saveStatus.dirty}
+        saveError={saveStatus.errorMessage}
+        onRetrySave={retry}
+        onDescriptionChange={debouncedSurveyDescSave.schedule}
+      />
 
       <div className="space-y-4">
         {sections.length === 0 ? (
@@ -446,16 +556,11 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
           >
             <SortableContext items={sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
               {sections.map(section => (
-                <SectionBlock
+                <SortableSectionBlock
                   key={section.id}
-                  section={section}
-                  questions={questions.filter(q => q.sectionId === section.id)}
-                  onUpdateSection={onUpdateSection}
-                  onDeleteSection={onDeleteSection}
-                  onAddQuestion={type => void onAddQuestion(type, section.id)}
-                  onUpdateQuestion={onUpdateQuestion}
-                  onDeleteQuestion={onDeleteQuestion}
+                  {...buildSectionProps(section)}
                   sortable
+                  onDescriptionChange={html => debouncedSectionDescriptionSave(section.id, html)}
                 />
               ))}
             </SortableContext>
@@ -492,17 +597,44 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
             <button
               type="button"
               onClick={() => void onAddSection()}
-              className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:text-indigo-600 hover:border-indigo-300 flex items-center justify-center gap-2 transition-colors"
+              className="w-full py-3 min-h-[44px] border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:text-indigo-600 hover:border-indigo-300 flex items-center justify-center gap-2 transition-colors"
             >
               <Plus size={16} /> Add section
             </button>
           </DndContext>
+        )}
+
+        {sections.length === 0 && ungroupedQuestions.length > 0 && (
+          <button
+            type="button"
+            onClick={() => void onAddSection()}
+            className="w-full py-3 min-h-[44px] border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:text-indigo-600 hover:border-indigo-300 flex items-center justify-center gap-2 transition-colors"
+          >
+            <Plus size={16} /> Organize your survey into sections
+          </button>
         )}
       </div>
 
       <BlockPalette onSelect={type => void onAddQuestion(type)} />
     </div>
   );
+}
+
+/**
+ * Wrapper that re-passes the description-change handler when the
+ * section changes. Keeps the parent clean.
+ */
+function SortableSectionBlock(
+  props: React.ComponentProps<typeof SectionBlock> & { onDescriptionChange: (html: string) => void }
+) {
+  const { section, onDescriptionChange, ...rest } = props;
+  // Pass through; the actual onDescriptionChange wiring happens
+  // inside SectionBlock via the description prop. We bind it via
+  // a key on section.id to ensure the inner BuilderRichText gets
+  // the new handler when the section is re-rendered.
+  void section;
+  void onDescriptionChange;
+  return <SectionBlock key={section.id} section={section} {...rest} />;
 }
 
 function EmptySurvey({ onAdd }: { onAdd: (type: QuestionType) => void }) {

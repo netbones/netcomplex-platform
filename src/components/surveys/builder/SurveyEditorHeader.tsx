@@ -5,10 +5,21 @@ import Link from 'next/link';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { Survey, SurveyStatus } from './survey-types';
 import { BuilderRichText } from './BuilderRichText';
+import { SaveIndicator } from './SaveIndicator';
+import type { SaveState } from './useSaveStatus';
 
 interface SurveyEditorHeaderProps {
   survey: Survey;
   onUpdateSurvey: (changes: Partial<Pick<Survey, 'title' | 'description' | 'status'>>) => void;
+  saveState: SaveState;
+  saveDirty: boolean;
+  saveError: string | null;
+  onRetrySave: () => void;
+  /**
+   * Debounced change handler for the survey description.
+   * Fires on every TipTap edit; the parent debounces the actual save.
+   */
+  onDescriptionChange: (html: string) => void;
 }
 
 const STATUS_COLORS: Record<SurveyStatus, string> = {
@@ -17,7 +28,15 @@ const STATUS_COLORS: Record<SurveyStatus, string> = {
   CLOSED: 'bg-red-100 text-red-800',
 };
 
-export function SurveyEditorHeader({ survey, onUpdateSurvey }: SurveyEditorHeaderProps) {
+export function SurveyEditorHeader({
+  survey,
+  onUpdateSurvey,
+  saveState,
+  saveDirty,
+  saveError,
+  onRetrySave,
+  onDescriptionChange,
+}: SurveyEditorHeaderProps) {
   const [titleDraft, setTitleDraft] = useState(survey.title);
   const [editingTitle, setEditingTitle] = useState(false);
   const [descriptionOpen, setDescriptionOpen] = useState(Boolean(survey.description));
@@ -40,12 +59,6 @@ export function SurveyEditorHeader({ survey, onUpdateSurvey }: SurveyEditorHeade
     const next: SurveyStatus =
       survey.status === 'DRAFT' ? 'ACTIVE' : survey.status === 'ACTIVE' ? 'CLOSED' : 'DRAFT';
     onUpdateSurvey({ status: next });
-  };
-
-  const commitDescription = (html: string) => {
-    if (html !== survey.description) {
-      onUpdateSurvey({ description: html });
-    }
   };
 
   return (
@@ -90,6 +103,13 @@ export function SurveyEditorHeader({ survey, onUpdateSurvey }: SurveyEditorHeade
           {survey.status}
         </button>
 
+        <SaveIndicator
+          state={saveState}
+          dirty={saveDirty}
+          errorMessage={saveError}
+          onRetry={onRetrySave}
+        />
+
         <Link
           href={`/surveys/${survey.id}`}
           target="_blank"
@@ -122,7 +142,7 @@ export function SurveyEditorHeader({ survey, onUpdateSurvey }: SurveyEditorHeade
           <div className="px-6 pb-4" data-no-dnd="true">
             <BuilderRichText
               value={survey.description ?? ''}
-              onChange={commitDescription}
+              onChange={onDescriptionChange}
               placeholder="Describe what this survey is for. You can include images and basic formatting."
               ariaLabel="Survey description"
             />

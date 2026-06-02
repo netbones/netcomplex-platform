@@ -24,6 +24,11 @@ interface SectionBlockProps {
    * placeholder.
    */
   sortable?: boolean;
+  /**
+   * Debounced change handler for the section description.
+   * Falls back to immediate save via onUpdateSection if not provided.
+   */
+  onDescriptionChange?: (html: string) => void;
 }
 
 interface SortableSectionWrapperProps {
@@ -86,6 +91,7 @@ export const SectionBlock = forwardRef<HTMLElement, SectionBlockProps>(function 
     onUpdateQuestion,
     onDeleteQuestion,
     sortable = false,
+    onDescriptionChange,
   },
   ref
 ) {
@@ -107,7 +113,10 @@ export const SectionBlock = forwardRef<HTMLElement, SectionBlockProps>(function 
   };
 
   const commitDescription = (html: string) => {
-    if (html !== section.description) {
+    if (html === section.description) return;
+    if (onDescriptionChange) {
+      onDescriptionChange(html);
+    } else {
       onUpdateSection(section.id, { description: html });
     }
   };
