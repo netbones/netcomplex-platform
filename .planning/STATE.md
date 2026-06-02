@@ -3,8 +3,8 @@
 ## Current Position
 
 - **Phase:** 36-survey-builder
-- **Status:** Phase complete — ready for verification
-- **Current Plan:** 4
+- **Status:** Ready to plan
+- **Current Plan:** Not started
 - **Total Plans in Phase:** 4
 - **Last Updated:** 2026-06-02
 - **Next Step:** Execute 36-03-PLAN.md (survey builder UI)
