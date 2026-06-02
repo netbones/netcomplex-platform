@@ -7,6 +7,7 @@ import { GripVertical, Trash2, ChevronDown, ChevronUp, Plus } from 'lucide-react
 import type { SurveySection, SurveyQuestion, QuestionType } from './survey-types';
 import { QuestionBlock } from './QuestionBlock';
 import { BlockPalette } from './BlockPalette';
+import { BuilderRichText } from './BuilderRichText';
 
 interface SectionBlockProps {
   section: SurveySection;
@@ -90,14 +91,12 @@ export const SectionBlock = forwardRef<HTMLElement, SectionBlockProps>(function 
 ) {
   const [expanded, setExpanded] = useState(true);
   const [titleDraft, setTitleDraft] = useState(section.title ?? '');
-  const [descDraft, setDescDraft] = useState(section.description ?? '');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Keep local drafts in sync when the section changes externally
+  // Keep local title draft in sync when the section changes externally
   useEffect(() => {
     setTitleDraft(section.title ?? '');
-    setDescDraft(section.description ?? '');
-  }, [section.id, section.title, section.description]);
+  }, [section.id, section.title]);
 
   const isTempId = section.id.startsWith('temp-');
 
@@ -107,9 +106,9 @@ export const SectionBlock = forwardRef<HTMLElement, SectionBlockProps>(function 
     }
   };
 
-  const commitDescription = () => {
-    if (descDraft !== section.description) {
-      onUpdateSection(section.id, { description: descDraft });
+  const commitDescription = (html: string) => {
+    if (html !== section.description) {
+      onUpdateSection(section.id, { description: html });
     }
   };
 
@@ -176,16 +175,15 @@ export const SectionBlock = forwardRef<HTMLElement, SectionBlockProps>(function 
               </button>
             </div>
 
-            <textarea
-              value={descDraft}
-              onChange={e => setDescDraft(e.target.value)}
-              onBlur={commitDescription}
-              placeholder="Optional description for this section"
-              rows={1}
-              data-no-dnd="true"
-              className="mt-1 w-full text-sm text-gray-600 bg-transparent border-b border-transparent hover:border-gray-300 focus:border-indigo-500 outline-none px-1 resize-none"
-              disabled={isTempId}
-            />
+            <div className="mt-2">
+              <BuilderRichText
+                value={section.description ?? ''}
+                onChange={commitDescription}
+                placeholder="Optional description for this section (supports images and formatting)"
+                ariaLabel={`Section ${section.title ?? 'Untitled'} description`}
+                compact
+              />
+            </div>
           </div>
 
           <button

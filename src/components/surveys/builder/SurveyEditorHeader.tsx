@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { Survey, SurveyStatus } from './survey-types';
+import { BuilderRichText } from './BuilderRichText';
 
 interface SurveyEditorHeaderProps {
   survey: Survey;
@@ -18,6 +20,7 @@ const STATUS_COLORS: Record<SurveyStatus, string> = {
 export function SurveyEditorHeader({ survey, onUpdateSurvey }: SurveyEditorHeaderProps) {
   const [titleDraft, setTitleDraft] = useState(survey.title);
   const [editingTitle, setEditingTitle] = useState(false);
+  const [descriptionOpen, setDescriptionOpen] = useState(Boolean(survey.description));
 
   // Keep local draft in sync if the survey changes externally
   if (!editingTitle && titleDraft !== survey.title) {
@@ -37,6 +40,12 @@ export function SurveyEditorHeader({ survey, onUpdateSurvey }: SurveyEditorHeade
     const next: SurveyStatus =
       survey.status === 'DRAFT' ? 'ACTIVE' : survey.status === 'ACTIVE' ? 'CLOSED' : 'DRAFT';
     onUpdateSurvey({ status: next });
+  };
+
+  const commitDescription = (html: string) => {
+    if (html !== survey.description) {
+      onUpdateSurvey({ description: html });
+    }
   };
 
   return (
@@ -69,7 +78,6 @@ export function SurveyEditorHeader({ survey, onUpdateSurvey }: SurveyEditorHeade
               {survey.title}
             </h1>
           )}
-          {survey.description && <p className="text-sm text-gray-500 mt-1">{survey.description}</p>}
         </div>
 
         <button
@@ -96,6 +104,30 @@ export function SurveyEditorHeader({ survey, onUpdateSurvey }: SurveyEditorHeade
         >
           Back to results
         </Link>
+      </div>
+
+      <div className="border-t border-gray-100">
+        <button
+          type="button"
+          onClick={() => setDescriptionOpen(v => !v)}
+          className="w-full px-6 py-2 flex items-center justify-between text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors"
+          data-no-dnd="true"
+        >
+          <span className="font-medium">
+            {descriptionOpen ? 'Hide description' : 'Add / edit description'}
+          </span>
+          {descriptionOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </button>
+        {descriptionOpen && (
+          <div className="px-6 pb-4" data-no-dnd="true">
+            <BuilderRichText
+              value={survey.description ?? ''}
+              onChange={commitDescription}
+              placeholder="Describe what this survey is for. You can include images and basic formatting."
+              ariaLabel="Survey description"
+            />
+          </div>
+        )}
       </div>
     </header>
   );
