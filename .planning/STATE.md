@@ -3,14 +3,14 @@
 ## Current Position
 
 - **Phase:** 36-survey-builder
-- **Status:** Ready to plan
-- **Current Plan:** Not started
+- **Status:** Plan 2 complete — ready for next plan or verification
+- **Current Plan:** 2
 - **Total Plans in Phase:** 4
 - **Last Updated:** 2026-06-02
 - **Next Step:** Execute 36-03-PLAN.md (survey builder UI)
 
-**Last Session:** 2026-06-02T09:26:50.760Z
-**Stopped at:** Completed 36-04-PLAN.md
+**Last Session:** 2026-06-02T08:02:16.337Z
+**Stopped at:** Completed 36-02-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -35,10 +35,6 @@
 - [x] [Phase 41]: Q1=A — Client skips Tier and Module layers; server is source of truth. Client `useGateContext()` provides `{ role, flags }` only (no tier); Layer 4 (FeatureToggle) degrades gracefully when tier absent
 - [x] [Phase 41]: Q2=A — Remove ALL 8 legacy tier string occurrences: `tiers.ts:261-275` (3 cases in switch), `tenants.ts:17` (Drizzle default `'sprout'`→`'basic'`), `prisma/schema.prisma:72` (default `"sprout"`→`"basic"`), `TenantFeaturePage.tsx:111-113` (3 `<option>` lines), `base.ts:6` (comment "subscriptionTier: 'forest'"→"'flagship'")
 - [x] [Phase 41]: Slug file `src/shared/api/slug.ts:67` `'forest'` is a NATURE-WORD LIST (sky, sun, tree, flower, forest, mountain, ...) — NOT a tier reference. DO NOT touch.
-- [x] [Phase 41 Q1=A]: Phase 1 is foundation only — additive, no callsite migration. 9 gate-related symbols run in parallel temporarily; Phase 2/3 migrates to consolidate. See 41-CONTEXT.md "Trajectory" section.
-- [x] [Phase 41 Q2=A]: Real session integration — `resolveGateContext()` reads role from `getSessionAndRole()` and `useGateContext()` reads role from `useSession()` (Better Auth `additionalFields.role`). NO hardcoded `'RESIDENT'`.
-- [x] [Phase 41 Q3=B]: `getTierLevel()` soft-fallback to `'foundation'` on unknown input. Advisory's "throw on unknown" deferred to separate refactor. Back-compat with non-legacy unknowns preserved.
-- [x] [Phase 41 Q4=A]: GATE-09/10/11 added to ROADMAP.md (requirement ID gap: 8 → 11). GATE-09 = legacy removal, GATE-10 = real session, GATE-11 = soft-fallback.
 
 - [x] [Phase 39-competition-entries]: CompetitionEntry model + DTOs + Prisma migration (39-01)
 - [x] [Phase 39-competition-entries]: tRPC competition router with 9 procedures (39-02)
@@ -149,14 +145,6 @@
 - [Phase 36-survey-builder]: [36-02] QuestionType validation uses const-tuple (VALID_QUESTION_TYPES as const) — single source of truth for runtime + compile-time enum — Avoids drift between pgEnum and TS types
 - [Phase 36-survey-builder]: [36-02] Reorder endpoints pre-verify all IDs in single inArray query before starting transaction — fails fast with 404 if any ID is wrong — Avoids partial updates from misrouted IDs
 - [Phase 36-survey-builder]: [36-02] GET-survey returns flat {survey, questions, sections} shape — builder UI groups questions client-side using sectionId — Matches builder mental model; one request for full hydration
-- [Phase 31]: Inlined TAB_TO_SPACE_MAP in widget-store.ts instead of importing from tab-migration-map.ts
-- [Phase 31]: Simplified hydrateFromServer by removing runtime old-key check since persist v5 migration handles it
-- [Phase 31]: Left DashboardPage.tsx broken with old method names as it is deleted in plan 31-02
-- [Phase 36-survey-builder]: [36-03] Edit Survey button only for DRAFT — ACTIVE/CLOSED immutable from admin UI (live responses would be invalidated by edits); closing/reopening is the correct flow
-- [Phase 36-survey-builder]: [36-03] Type-specific modules export { Preview, ConfigPanel } — QuestionBlock dispatches via Record<QuestionType, Component> registry; new types added in one switch-equivalent place
-- [Phase 36-survey-builder]: [36-03] Optimistic updates with rollback — adds feel instant; failures restore previous state and logError() for observability
-- [Phase 36-survey-builder]: BuilderRichText is a focused, slim TipTap wrapper (Bold/Italic/Underline/lists/image-by-URL) — distinct from the global RichTextEditor; survey/section descriptions don't need fonts/colors/code blocks/media library — Smaller surface area is faster to render, easier to learn, and avoids the dependency creep of pulling in the full editor for simple description fields
-- [Phase 36-survey-builder]: useSaveStatus tracks an in-flight counter (not boolean) — multiple parallel PATCHes (bulk reorders) don't flicker the indicator — Counter-based state avoids false-idle transitions during multi-request workflows
 
 ## Notes
 
@@ -295,9 +283,6 @@
 | Phase 40 P04                           | 259min | 3 tasks  | 5 files  |
 | Phase 36 P01                           | 9min   | 2 tasks  | 11 files |
 | Phase 36-survey-builder P02            | 11min  | 3 tasks  | 7 files  |
-| Phase 31 P01                           | 100    | 2 tasks  | 2 files  |
-| Phase 36-survey-builder P03            | 25min  | 3 tasks  | 17 files |
-| Phase 36-survey-builder P04            | 30min  | 3 tasks  | 11 files |
 
 ## A01 Execution Decisions
 

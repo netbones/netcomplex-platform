@@ -14,7 +14,7 @@ interface DraggableWidgetProps {
   removable?: boolean;
   onRemove?: () => void;
   collapsible?: boolean;
-  spaceId: string;
+  tabId: string;
   isEditMode?: boolean;
 }
 
@@ -26,7 +26,7 @@ export function DraggableWidget({
   removable = false,
   onRemove,
   collapsible = true,
-  spaceId,
+  tabId,
   isEditMode = false,
 }: DraggableWidgetProps) {
   const { t } = useTranslation('dashboard');
@@ -46,8 +46,8 @@ export function DraggableWidget({
 
   // Subscribe to the specific widget layout
   const layout = useWidgetStore(state => {
-    const spaceLayouts = state.layouts[spaceId];
-    return spaceLayouts?.[id] || defaultLayout;
+    const tabLayouts = state.layouts[tabId];
+    return tabLayouts?.[id] || defaultLayout;
   });
 
   // Local state for immediate updates (position/size)
@@ -62,7 +62,7 @@ export function DraggableWidget({
 
   const handleDragStop = (_e: unknown, d: { x: number; y: number }) => {
     setPosition(d);
-    updateWidgetLayout(spaceId, id, { x: d.x, y: d.y });
+    updateWidgetLayout(tabId, id, { x: d.x, y: d.y });
   };
 
   const handleResizeStart = () => {
@@ -80,7 +80,7 @@ export function DraggableWidget({
     const newHeight = ref.offsetHeight;
     setSize({ width: newWidth, height: newHeight });
     setPosition(position);
-    updateWidgetLayout(spaceId, id, {
+    updateWidgetLayout(tabId, id, {
       x: position.x,
       y: position.y,
       width: newWidth,
@@ -95,7 +95,7 @@ export function DraggableWidget({
 
   const handleToggleCollapsed = () => {
     // Use the store method which properly handles height transitions
-    toggleWidgetCollapsed(spaceId, id);
+    toggleWidgetCollapsed(tabId, id);
   };
 
   return (

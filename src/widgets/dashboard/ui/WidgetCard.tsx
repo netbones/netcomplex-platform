@@ -10,7 +10,7 @@ interface WidgetCardProps {
   id: string;
   title: string;
   icon: string;
-  spaceId: string;
+  tabId: string;
   isEditMode?: boolean;
   onRemove?: () => void;
 }
@@ -19,7 +19,7 @@ export function WidgetCard({
   id,
   title,
   icon,
-  spaceId,
+  tabId,
   isEditMode = false,
   onRemove,
 }: WidgetCardProps) {
@@ -27,8 +27,8 @@ export function WidgetCard({
   const { layouts } = useWidgetStore();
   const [isLocalCollapsed, setIsLocalCollapsed] = useState(false);
 
-  const spaceLayouts = layouts[spaceId] || {};
-  const widgetLayout = spaceLayouts[id] || {};
+  const tabLayouts = layouts[tabId] || {};
+  const widgetLayout = tabLayouts[id] || {};
   const isCollapsedState = widgetLayout.isCollapsed ?? false;
 
   const isCollapsed = isLocalCollapsed || isCollapsedState;

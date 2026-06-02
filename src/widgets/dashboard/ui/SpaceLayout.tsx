@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { useWidgetStore, getDefaultLayout } from '@entities/widget';
+import { useWidgetStore, getSpaceDefaultLayout } from '@entities/widget';
 import { ErrorBoundary, usePageLoading } from '@shared/ui';
 import { DraggableWidget, WidgetCard, WidgetRenderer } from '@widgets/dashboard';
 import { registry } from '@widgets/dashboard';
@@ -81,7 +81,7 @@ export function SpaceLayout({ spaceId }: SpaceLayoutProps) {
   // Seed default widgets when store is empty after DB hydration
   useEffect(() => {
     if (isHydratedFromDb && Object.keys(userWidgets).length === 0) {
-      const defaults = getDefaultLayout(role);
+      const defaults = getSpaceDefaultLayout(role);
       setUserWidgets(defaults.userWidgets);
     }
   }, [isHydratedFromDb, userWidgets, role, setUserWidgets]);
@@ -99,7 +99,7 @@ export function SpaceLayout({ spaceId }: SpaceLayoutProps) {
   }, [spaceId]);
 
   // Widgets currently on this space
-  const spaceDefaults = getDefaultLayout(role);
+  const spaceDefaults = getSpaceDefaultLayout(role);
   const currentWidgets = userWidgets[spaceId] || spaceDefaults.userWidgets[spaceId] || [];
 
   const handleRemoveWidget = (widgetId: string) => removeWidgetFromSpace(spaceId, widgetId);
@@ -191,7 +191,7 @@ export function SpaceLayout({ spaceId }: SpaceLayoutProps) {
                   id={widgetId}
                   title={getWidgetTitle(widgetId)}
                   icon={getWidgetIcon(widgetId)}
-                  spaceId={spaceId}
+                  tabId={spaceId}
                   isEditMode={isEditMode}
                   onRemove={() => handleRemoveWidget(widgetId)}
                 />
@@ -208,7 +208,7 @@ export function SpaceLayout({ spaceId }: SpaceLayoutProps) {
                   icon={getWidgetIcon(widgetId)}
                   removable={isEditMode}
                   onRemove={() => handleRemoveWidget(widgetId)}
-                  spaceId={spaceId}
+                  tabId={spaceId}
                   isEditMode={isEditMode}
                 >
                   <WidgetRenderer widgetId={widgetId} />
