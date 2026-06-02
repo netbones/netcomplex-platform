@@ -346,13 +346,47 @@ export const useWidgetStore = create<WidgetStore>()(
     }),
     {
       name: 'widget-layouts',
-      version: 4,
+      version: 5,
       migrate: (persistedState: unknown, version: number) => {
         const persisted = persistedState as Record<string, unknown>;
+        let state = { ...persisted };
+
         if (version < 2) {
-          return { ...persisted, userWidgets: {} };
+          state = { ...state, userWidgets: {} };
         }
-        return persisted;
+
+        // v4→v5: Migrate old tab keys to space keys
+        if (version < 5) {
+          const userWidgets = state.userWidgets as Record<string, string[]> | undefined;
+          const layouts = state.layouts as Record<string, Record<string, unknown>> | undefined;
+
+          const hasOldKeys =
+            userWidgets &&
+            Object.keys(userWidgets).some(k => Object.keys(TAB_TO_SPACE_MAP).includes(k));
+
+          if (hasOldKeys && userWidgets) {
+            const newUserWidgets: Record<string, string[]> = {};
+            const newLayouts: Record<string, Record<string, unknown>> = {};
+
+            for (const [key, widgets] of Object.entries(userWidgets)) {
+              const spaceKey = TAB_TO_SPACE_MAP[key] || key;
+              const existing = newUserWidgets[spaceKey] || [];
+              newUserWidgets[spaceKey] = [...new Set([...existing, ...widgets])];
+            }
+
+            if (layouts) {
+              for (const [key, widgetLayouts] of Object.entries(layouts)) {
+                const spaceKey = TAB_TO_SPACE_MAP[key] || key;
+                const existing = newLayouts[spaceKey] || {};
+                newLayouts[spaceKey] = { ...existing, ...widgetLayouts };
+              }
+            }
+
+            state = { ...state, userWidgets: newUserWidgets, layouts: newLayouts };
+          }
+        }
+
+        return state;
       },
     }
   )
