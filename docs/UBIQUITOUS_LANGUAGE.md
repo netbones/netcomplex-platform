@@ -272,18 +272,34 @@ A priority-classified communication with audience targeting and fanout delivery 
 
 ## Conflict Register
 
-### C1: Property Shape Inconsistency (High Priority)
+### C1: Property Shape Inconsistency (High Priority) — _Deferred to post-Phase 41_
 
-Four different TypeScript shapes exist for the same concept:
+Four (now five) different TypeScript shapes exist for the same concept. **All current shapes use `street`/`unit` field names (matching Prisma schema).** The actual inconsistency is in field set and shape boundaries, not in field names. The previously proposed resolution (renaming to `streetAddress`/`unitNumber`) was retracted because it would have _created_ the inconsistency it was trying to fix.
 
-| Shape                         | Source                                  | Key Differences                                 |
-| ----------------------------- | --------------------------------------- | ----------------------------------------------- |
-| `Property` (tenant entity)    | `src/entities/tenant/model/types.ts`    | `streetAddress`, `unitNumber`, `id`, `tenantId` |
-| `Property` (directory entity) | `src/entities/directory/model/types.ts` | `street`, `unit`, no `id`, no `tenantId`        |
-| `PropertyDTO`                 | `src/shared/api/dto/property.ts`        | `address`, `unit`, `id`, `tenantId`             |
-| `PropertyInfo`                | `src/entities/user/model/types.ts`      | `propertyId`, `address`, `unit`, `type`         |
+| Shape                         | Source                                  | Scope                | Notable Fields                                                                              |
+| ----------------------------- | --------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------- |
+| `PropertyDTO`                 | `src/shared/api/dto/property.ts`        | **Canonical (API)**  | `id`, `street`, `unit`, `platformAddress`, `homeImage?`, `ownerId?`, dates as ISO `string`  |
+| `PropertySummaryDTO`          | `src/shared/api/dto/property.ts`        | **Canonical (lite)** | `id`, `street`, `unit`, `platformAddress`, `homeImage?`                                     |
+| `Property` (tenant entity)    | `src/entities/tenant/model/types.ts`    | Local domain model   | Adds `tenantId`, `activeHousehold?`, `households?`; dates as `Date` (not API-safe for tRPC) |
+| `Property` (directory entity) | `src/entities/directory/model/types.ts` | Local view type      | Only `street`, `unit`, `homeImage?`; no `id` (display-only)                                 |
+| `PropertyInfo`                | `src/entities/user/model/types.ts`      | Local view type      | `id`, `street`, `unit`, `platformAddress?` (admin lite)                                     |
 
-**Resolution needed:** Standardize on `PropertyDTO` shape as canonical, with `streetAddress` and `unitNumber` as field names to match Prisma schema. Directory and User entities should consume the DTO.
+**Audit (2026-06-01):** Verified all 5 shapes use `street`/`unit` consistently. Prisma `model Property` (the source of truth) uses `street` and `unit` (`prisma/schema.prisma:Property`).
+
+**Actual scope of inconsistency:**
+
+1. `tenant.Property` ↔ `PropertyDTO`: `tenant.Property` includes `tenantId` and `households` relations (not API-safe); the DTO is the correct shape for external consumption. Identity tRPC router (`src/entities/identity/api/router.ts:20`) already uses `toPropertyDTO()`.
+2. `directory.Property` ↔ `PropertySummaryDTO`: Both are 3–4 fields, both local-scope. Directory's shape is a display-only view (no `id`); could unify with `PropertySummaryDTO` or leave as local view type.
+3. `user.PropertyInfo` ↔ `PropertySummaryDTO`: Both are 4 fields. Could unify or leave as local view type.
+
+**Resolution plan (deferred to post-Phase 41):**
+
+- `PropertyDTO` and `PropertySummaryDTO` remain canonical API shapes.
+- `tenant.Property` stays as the internal domain model (load-bearing for relations and tenant scoping).
+- Consolidate `directory.Property` and `user.PropertyInfo` → `PropertySummaryDTO` _only_ if a shared lite type is needed; otherwise leave as local view types.
+- **No field renames.** Current `street`/`unit` already match Prisma.
+
+**Status (2026-06-01):** Open — Phase 41 in flight. Code work deferred until Phase 41 ships. Phase 41 is orthogonal to C1: gate code (`src/shared/api/gate.ts`, `src/shared/lib/gate-client.ts`, `src/shared/ui/GateGuard.tsx`) does not consume any Property shape, and the consumed-as-is functions (`isModuleEnabled`, `getPlatformPageFlags`) also do not touch properties.
 
 ### C2: Three Overlapping Gating Systems (Medium Priority)
 
@@ -326,11 +342,12 @@ The model is `MaintenanceRequest`; users see "Ticket Number" in the UI. This is 
 
 ## Term Decision Log
 
-| Date       | Decision                                                                | Rationale                                                                         |
-| ---------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| 2026-06-01 | Established "Tenant" as technical term, "Community" as user-facing term | Consistent with codebase convention; no breaking change                           |
-| 2026-06-01 | Established "Space" as canonical, "Tab" as deprecated                   | Phase 30 completed the migration; Phase 31 will clean up                          |
-| 2026-06-01 | Documented Property shape inconsistency as C1                           | Four incompatible shapes need unification                                         |
-| 2026-06-01 | Documented triple gating system as C2                                   | Overlap between Module/Feature/Flag systems is undocumented                       |
-| 2026-06-01 | Documented tier naming mismatch as C4                                   | 3 technical tiers vs 4 business tiers is an open gap                              |
-| 2026-06-01 | Updated C2 status: Phase 1 infrastructure complete (Plan 41-01..03)     | Foundation in flight; callsite migration is Phase 2; C2 fully Resolved in Phase 3 |
+| Date       | Decision                                                                                         | Rationale                                                                                                                                                                                  |
+| ---------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-06-01 | Established "Tenant" as technical term, "Community" as user-facing term                          | Consistent with codebase convention; no breaking change                                                                                                                                    |
+| 2026-06-01 | Established "Space" as canonical, "Tab" as deprecated                                            | Phase 30 completed the migration; Phase 31 will clean up                                                                                                                                   |
+| 2026-06-01 | Updated C1: field names are consistent (`street`/`unit`); real inconsistency is shape boundaries | All 5 shapes verified to use `street`/`unit` matching Prisma; original proposed resolution (`streetAddress`/`unitNumber`) retracted — would have created the inconsistency it tried to fix |
+| 2026-06-01 | C1 code work deferred to post-Phase 41                                                           | Phase 41 is orthogonal; gate code does not consume any Property shape                                                                                                                      |
+| 2026-06-01 | Documented triple gating system as C2                                                            | Overlap between Module/Feature/Flag systems is undocumented                                                                                                                                |
+| 2026-06-01 | Documented tier naming mismatch as C4                                                            | 3 technical tiers vs 4 business tiers is an open gap                                                                                                                                       |
+| 2026-06-01 | Updated C2 status: Phase 1 infrastructure complete (Plan 41-01..03)                              | Foundation in flight; callsite migration is Phase 2; C2 fully Resolved in Phase 3                                                                                                          |
