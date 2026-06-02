@@ -3,14 +3,14 @@
 ## Current Position
 
 - **Phase:** 36-survey-builder
-- **Status:** Ready to execute
+- **Status:** Phase complete — ready for verification
 - **Current Plan:** 4
 - **Total Plans in Phase:** 4
 - **Last Updated:** 2026-06-02
 - **Next Step:** Execute 36-03-PLAN.md (survey builder UI)
 
-**Last Session:** 2026-06-02T08:48:51.416Z
-**Stopped at:** Completed 36-03-PLAN.md
+**Last Session:** 2026-06-02T09:26:50.760Z
+**Stopped at:** Completed 36-04-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -155,6 +155,8 @@
 - [Phase 36-survey-builder]: [36-03] Edit Survey button only for DRAFT — ACTIVE/CLOSED immutable from admin UI (live responses would be invalidated by edits); closing/reopening is the correct flow
 - [Phase 36-survey-builder]: [36-03] Type-specific modules export { Preview, ConfigPanel } — QuestionBlock dispatches via Record<QuestionType, Component> registry; new types added in one switch-equivalent place
 - [Phase 36-survey-builder]: [36-03] Optimistic updates with rollback — adds feel instant; failures restore previous state and logError() for observability
+- [Phase 36-survey-builder]: BuilderRichText is a focused, slim TipTap wrapper (Bold/Italic/Underline/lists/image-by-URL) — distinct from the global RichTextEditor; survey/section descriptions don't need fonts/colors/code blocks/media library — Smaller surface area is faster to render, easier to learn, and avoids the dependency creep of pulling in the full editor for simple description fields
+- [Phase 36-survey-builder]: useSaveStatus tracks an in-flight counter (not boolean) — multiple parallel PATCHes (bulk reorders) don't flicker the indicator — Counter-based state avoids false-idle transitions during multi-request workflows
 
 ## Notes
 
@@ -295,6 +297,7 @@
 | Phase 36-survey-builder P02            | 11min  | 3 tasks  | 7 files  |
 | Phase 31 P01                           | 100    | 2 tasks  | 2 files  |
 | Phase 36-survey-builder P03            | 25min  | 3 tasks  | 17 files |
+| Phase 36-survey-builder P04            | 30min  | 3 tasks  | 11 files |
 
 ## A01 Execution Decisions
 
