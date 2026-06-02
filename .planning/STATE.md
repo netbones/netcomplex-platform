@@ -2,14 +2,15 @@
 
 ## Current Position
 
-- **Phase:** 41-feature-gate-consolidation
-- **Status:** Planning Complete — 3 plans in 1 wave (narrow scope)
-- **Current Plan:** Ready to execute 41-01, 41-02, 41-03 (all in parallel)
-- **Last Updated:** 2026-06-01
-- **Next Step:** Execute 41-01-PLAN.md via `/gsd-execute-phase 41-feature-gate-consolidation`
+- **Phase:** 36-survey-builder
+- **Status:** Phase complete — ready for verification
+- **Current Plan:** 1
+- **Total Plans in Phase:** 1
+- **Last Updated:** 2026-06-02
+- **Next Step:** Execute 36-02-PLAN.md (survey builder API + question type system)
 
-**Last Session:** 2026-06-01T18:54:43Z
-**Stopped at:** Completed 40-04-PLAN.md
+**Last Session:** 2026-06-02T07:41:05.684Z
+**Stopped at:** Completed 36-01-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -138,6 +139,9 @@
 - [Phase 40]: Category filter falls back to hardcoded list when DB categories empty
 - [Phase 40]: Handoff flow unassigns team + assigns provider in single assign API call with reason field
 - [Phase 40]: Ticket number shown as #--- fallback for pre-ticketing data in UI cards
+- [Phase 36]: JSON config column pattern for type-specific question settings (displayAs, charLimit, minValue/maxValue, maxStars) — Avoid schema migrations when adding new question type features; config: Json? @default('{}') prevents NULL handling
+- [Phase 36]: Question.sectionId uses SetNull on Section delete (preserves questions if section removed) — Questions are content, sections are organizational groupings — losing section context shouldn't cascade-delete questions
+- [Phase 36]: SurveySection cascades on Survey delete (sections are owned by survey) — Sections only have meaning within their parent survey — no orphan sections needed
 
 ## Notes
 
@@ -274,6 +278,7 @@
 | Phase 39 P04                           | ~25min | 2 tasks  | 3 files  |
 | Phase 40 P03                           | 88     | 3 tasks  | 4 files  |
 | Phase 40 P04                           | 259min | 3 tasks  | 5 files  |
+| Phase 36 P01                           | 9min   | 2 tasks  | 11 files |
 
 ## A01 Execution Decisions
 

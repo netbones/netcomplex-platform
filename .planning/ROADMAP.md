@@ -400,7 +400,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Build a Google Forms-like survey/question builder in the admin panel — dedicated builder page, 6 question types, accordion sections, image support, drag-and-drop reordering, metadata tags
 
-**Status:** Planned (4 plans in 4 waves)
+**Status:** In Progress (1/4 plans complete)
 
 **Requirements:** SURVEY-BUILD-01, SURVEY-BUILD-02, SURVEY-BUILD-03, SURVEY-BUILD-04, SURVEY-BUILD-05, SURVEY-BUILD-06
 
@@ -408,7 +408,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 | Wave | Plan              | Objective                                                             |
 | ---- | ----------------- | --------------------------------------------------------------------- |
-| 1    | [ ] 36-01-PLAN.md | Schema: LINEAR_SCALE, config columns, SurveySection model + migration |
+| 1    | [x] 36-01-PLAN.md | Schema: LINEAR_SCALE, config columns, SurveySection model + migration |
 | 2    | [ ] 36-02-PLAN.md | API: Question/Section CRUD + reorder + survey GET/PUT                 |
 | 3    | [ ] 36-03-PLAN.md | UI: Builder page, 6 question type blocks, BlockPalette, SectionBlock  |
 | 4    | [ ] 36-04-PLAN.md | Drag-and-drop, TipTap image embed, auto-save, responsive polish       |
