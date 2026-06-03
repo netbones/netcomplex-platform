@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
   'status', status,
   'category', category,
   'priority', priority,
-  'ticketNumber', ticket_number
+  'ticketNumber', "ticketNumber"
   )`,
           })
           .from(maintenanceRequests)
