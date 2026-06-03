@@ -441,14 +441,14 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 **Goal:** Implement a proper admin suspension mechanism — admin can issue timed suspensions (2 days, 1 week, 30 days, permanent) with type (violation, disruption, behavior, property, non-payment, other), reason, and description. Suspended users are deactivated and blocked at the API level. Users can be unsuspended early. Suspension history is tracked in the existing platformSuspension table.
 
-**Status:** In Progress
+**Status:** Complete (verified 14/14 must-haves, 2026-05-28)
 
 **Requirements:** SUSP-01, SUSP-02, SUSP-03
 
 **Plans:** 2 plans
 
 - [x] 33-01-PLAN.md — Backend: suspension API routes (suspend/unsuspend/history) + auth guard + suspension-status endpoint (Wave 1) ✅
-- [ ] 33-02-PLAN.md — Frontend: types, rewrite SuspendUserModal with full form, update UserRow/UsersListSection, i18n translations (Wave 2)
+- [x] 33-02-PLAN.md — Frontend: types, rewrite SuspendUserModal with full form, update UserRow/UsersListSection, i18n translations (Wave 2) ✅
 
 ---
 
@@ -557,18 +557,18 @@ Plans:
 
 **Goal:** Convert /dashboard/services and /dashboard/messages from SpaceLayout widget grids into purpose-built zoned layers (urgency zone + domain grid) following the AdminLayer/HomeLayer architecture. /dashboard/community remains the only true DnD widget space.
 
-**Status:** Planning Complete
+**Status:** Complete (verified, 2026-05-30)
 
 **Requirements:** LAYER-01, LAYER-02, LAYER-03, LAYER-04
 
 **Plans:** 4 plans
 
-| Wave | Plan              | Objective                                                  |
-| ---- | ----------------- | ---------------------------------------------------------- |
-| 1    | [ ] 38-01-PLAN.md | Backend: services urgency API + messages urgency API       |
-| 2    | [ ] 38-02-PLAN.md | ServicesLayer: command bar + 5-domain sub-launcher grid    |
-| 2    | [ ] 38-03-PLAN.md | MessagesLayer: command bar + 3-domain sub-launcher grid    |
-| 3    | [ ] 38-04-PLAN.md | Routing switch + domain constants in spaces.ts + i18n keys |
+| Wave | Plan              | Objective                                                     |
+| ---- | ----------------- | ------------------------------------------------------------- |
+| 1    | [x] 38-01-PLAN.md | Backend: services urgency API + messages urgency API ✅       |
+| 2    | [x] 38-02-PLAN.md | ServicesLayer: command bar + 5-domain sub-launcher grid ✅    |
+| 2    | [x] 38-03-PLAN.md | MessagesLayer: command bar + 3-domain sub-launcher grid ✅    |
+| 3    | [x] 38-04-PLAN.md | Routing switch + domain constants in spaces.ts + i18n keys ✅ |
 
 ---
 
@@ -576,18 +576,18 @@ Plans:
 
 **Goal:** Transform maintenance requests into a proper ticketing system — admin-configurable categories, in-house maintenance teams and third-party service providers with assignment/reassignment, 7-status workflow, ticket numbering, progress timeline, user tracking with activity zone integration, and seed data.
 
-**Status:** Planning Complete — 4 plans in 2 waves
+**Status:** Complete (4/4 plans, 2026-05-31 → 2026-06-01)
 
 **Requirements:** MAINT-TICKET-01, MAINT-TICKET-02, MAINT-TICKET-03, MAINT-TICKET-04, MAINT-TICKET-05, MAINT-TICKET-06, MAINT-TICKET-07, MAINT-TICKET-08, MAINT-TICKET-09, MAINT-TICKET-10, MAINT-TICKET-11, MAINT-TICKET-12
 
 **Plans:**
 
-| Wave | Plan              | Objective                                                                                                                      |
-| ---- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| 1    | [ ] 40-01-PLAN.md | Schema: 7-status enum, MaintenanceTeam/ServiceProvider/MaintenanceCategory models, migrate orphan tables to Prisma             |
-| 2    | [ ] 40-02-PLAN.md | API: CRUD for teams/providers/categories, assignment endpoint, ticket number generation, fix activity zone/notes/priority bugs |
-| 2    | [ ] 40-03-PLAN.md | Admin UI: inline category management, assignment panel, handoff flow, progress timeline, workflow status controls              |
-| 2    | [ ] 40-04-PLAN.md | User tracking: enhanced /maintenance page, HomeLayer activity zone integration, 7 seed requests                                |
+| Wave | Plan              | Objective                                                                                                                         |
+| ---- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | [x] 40-01-PLAN.md | Schema: 7-status enum, MaintenanceTeam/ServiceProvider/MaintenanceCategory models, migrate orphan tables to Prisma ✅             |
+| 2    | [x] 40-02-PLAN.md | API: CRUD for teams/providers/categories, assignment endpoint, ticket number generation, fix activity zone/notes/priority bugs ✅ |
+| 2    | [x] 40-03-PLAN.md | Admin UI: inline category management, assignment panel, handoff flow, progress timeline, workflow status controls ✅              |
+| 2    | [x] 40-04-PLAN.md | User tracking: enhanced /maintenance page, HomeLayer activity zone integration, 7 seed requests ✅                                |
 
 ---
 

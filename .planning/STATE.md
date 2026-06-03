@@ -2,15 +2,13 @@
 
 ## Current Position
 
-- **Phase:** 36-survey-builder
-- **Status:** Phase complete — ready for verification
-- **Current Plan:** 4
-- **Total Plans in Phase:** 4
-- **Last Updated:** 2026-06-02
-- **Next Step:** Execute 36-03-PLAN.md (survey builder UI)
+- **Phase:** Ready to start Phase 41 or Phase 42
+- **Status:** No active phase — all 36 prior phases either complete or planning-only
+- **Last Updated:** 2026-06-03
+- **Next Step:** Pick up Phase 41-feature-gate-consolidation (3 plans, ready) or Phase 42-i18n-hydration-fix (3 plans, ready). See `.planning/CADENCE.md` for backlog analysis.
 
 **Last Session:** 2026-06-03T09:10:21.001Z
-**Stopped at:** Completed Phase 31 — all 3 plans done, ready for verification
+**Stopped at:** Completed Phase 31 (verified 2026-06-03). Phases 33, 38, 40 status discrepancies corrected in ROADMAP. Health check passes (healthy, 0 errors, 0 warnings). CADENCE.md generated.
 **Resume file:** None
 
 ## Active Phase Decisions
