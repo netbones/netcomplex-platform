@@ -151,6 +151,7 @@
 - [Phase 31]: dashboard/layout.tsx simplified to always render SpaceLauncher + MobileSpaceBar (no conditional flag branch)
 - [Phase 31]: NEXT_PUBLIC_FOCUS_SPACES was not present in .env.local — no env cleanup needed
 - [Phase 31]: admin-config.ts safe to delete — not exported from entities/admin barrel, only used DashboardTab type from deleted DashboardTabs.tsx
+- [Phase 31]: Dropped SPACE\_ prefix from constants — DEFAULT_USER_WIDGETS/DEFAULT_LAYOUTS are canonical (no migration prefix needed)
 
 ## Notes
 
@@ -290,6 +291,7 @@
 | Phase 36 P01                           | 9min   | 2 tasks  | 11 files |
 | Phase 36-survey-builder P02            | 11min  | 3 tasks  | 7 files  |
 | Phase 31 P02                           | 281m   | 2 tasks  | 8 files  |
+| Phase 31 P03                           | 12min  | 2 tasks  | 4 files  |
 
 ## A01 Execution Decisions
 
