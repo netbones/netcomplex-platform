@@ -94,6 +94,15 @@ forward-looking.
 
 **Verifiable:** All 5 audit issues closed with tests, audit document `docs/cleaner_react_architecture.md` marked "all chapters resolved", Soralia admin can invite 180 homes via batch import, anchor-tenant launch checklist (TBD) green.
 
+**Decomposition (added 2026-06-03 per Section 7 Gap C1):** M5 has 10 work items with no priority or scope. Proposed split:
+
+- **M5a — Audit Closure (5 items).** qig, fpc, 9xr, 5u2, 1ei. Verifiable: `docs/cleaner_react_architecture.md` marked "all chapters resolved" + 5 unit-test suites.
+- **M5b — Anchor Tenant Features (5 items).** 2at, l23, 0f7, cs5, 0tb + the missing i18n router extension phase. Verifiable: Soralia admin can invite 180 homes via batch import + the M5 launch checklist (Gap η) is green.
+
+M5a is "we cleaned up", M5b is "we shipped launch features". Different verifiables, different stakeholders. M5a unblocks future work; M5b unblocks anchor-tenant traffic.
+
+**M5 ready signal (added 2026-06-03 per Section 7 Gap N2):** M5 planning begins when (a) M4 is complete (Phases 41 and 42 shipped) AND (b) the M5 launch checklist (`.planning/M5-LAUNCH-CHECKLIST.md`, Gap η) is drafted. Without both, M5 has no done-state and no launch criteria.
+
 ### M6+ — Post-Launch (📋 PARTIALLY PLANNED)
 
 **Goal:** Post-deployment validation tests, content i18n adoption, multi-instance rate limiting (Redis), plugin/extension system, event sourcing evaluation, external API consumer onboarding.
@@ -101,8 +110,7 @@ forward-looking.
 
 - `03-second-tenant` — post-deployment validation test (requires production deployment + willing second tenant)
 - `04-content-i18n` — TipTap content localization (blocked on i18n router being extended to tenant routes; currently platform-only at `/[lng]/`)
-- `99-build-fix` — completed housekeeping (here only by convention)
-- Future: TBD
+- Future: TBD (Phase 99 Build Fix moved to a Housekeeping appendix on 2026-06-03 per Section 7 Gap C3)
 
 ---
 
@@ -205,5 +213,128 @@ I have made structural recommendations. Three are call/response:
 
 ---
 
-_Last updated: 2026-06-03. Supersedes the implicit "no milestone" assumption
-that has been the project's working assumption since GSD was adopted in W14._
+## 7. Milestone Review (2026-06-03 — Second Pass)
+
+**Purpose:** Re-examine the milestone structure now that M0–M3 are
+declared "shipped" and find what is still missing for milestone
+discipline to actually hold. Distinguish structural gaps (fixable
+now) from aspirational gaps (need user input).
+
+### 7.1 Inconsistencies between MILESTONES.md and ROADMAP.md — **FIXED THIS SESSION**
+
+| Item                              | Was                                                         | Now                                       |
+| --------------------------------- | ----------------------------------------------------------- | ----------------------------------------- |
+| Phase 18 (Toast Unification)      | M2 in ROADMAP, M1 in MILESTONES                             | **M1 in both** — moved to align with spec |
+| Phase 21 (Content Events)         | Listed in M3 in ROADMAP, not in any milestone in MILESTONES | **M3 in both** — MILESTONES updated       |
+| Phase 23 (Competitions Resources) | Same as Phase 21                                            | **M3 in both** — MILESTONES updated       |
+
+**Result:** All 4 shipped milestones (M0–M3) now have phase ranges that agree between the two docs. Total phase counts per milestone: M0=9, M1=5, M2=9, M3=10, M4=3, M5=0, M6+=3. Total = 39 phase entries (matches ROADMAP's 39 `## Phase` headers).
+
+### 7.2 Structural gaps in milestone discipline
+
+These are the "the milestone is declared but the artifacts don't exist" gaps.
+
+**Gap S1 — No milestone-level VERIFICATION docs.**
+
+Evidence: `find .planning/phases -name VERIFICATION.md` returns **1 file** (Phase 22 only). For 4 shipped milestones (M0, M1, M2, M3) we have **0 milestone-level VERIFICATION.md** files. The "9/9 phases verified" claims in §2 are aspirational — they reference phase-level SUMMARYs (which exist) but not milestone-level verification (which doesn't).
+
+Remedy: Write a one-page `.planning/retros/M{N}-verification.md` per shipped milestone, enumerating the milestone's "Verifiable" criteria (the line under each milestone in §2) and confirming pass/fail with evidence (test output, URL check, manual test). This is the discipline gap that lets the M0-M3 "shipped" claim be auditable.
+
+**Gap S2 — `.planning/retros/` does not exist.**
+
+Evidence: directory absent. AGENTS.md §4b references writing `.planning/retros/M{N}-retro.md` but no such directory or files exist. 4 milestones shipped without retro.
+
+Remedy: `mkdir .planning/retros/` and write 4 retro docs (M0, M1, M2, M3) using the template at Gap S3. Each retro is ~10 min if the Verifiable criteria are clear.
+
+**Gap S3 — `.planning/templates/retro.md` does not exist.**
+
+Evidence: directory absent. AGENTS.md §4b references the template but it's not on disk.
+
+Remedy: Create `.planning/templates/retro.md` with a 5-section template: (1) What we said we'd deliver, (2) What we actually delivered, (3) Velocity data, (4) What worked / what didn't, (5) Carry-over to next milestone. ~15 min.
+
+**Gap S4 — No pre-commit hook for status drift.**
+
+Evidence: Gap β from §3 still recommended but not implemented. The 3 status drift fixes in commit `d11d8f2` were manual; nothing prevents the next one.
+
+Remedy: Add a `lint-staged` rule in `package.json` that runs `gsd-sdk query validate.health --strict` on `.planning/**/*.md` changes. Fails the commit if status drift is detected.
+
+### 7.3 Scope gaps — milestones that are too big or too undefined
+
+**Gap C1 — M5 has 10 work items with no priority ranking or scope estimate.**
+
+Evidence: MILESTONES.md §2 M5 lists 9 BD issues + 1 missing i18n router phase = 10 work items. No priority order, no effort estimate, no dependency graph. The "Verifiable" line is vague ("audit document marked 'all chapters resolved'") — it's a single binary signal, not the 10 separate verifications we'd actually need.
+
+Remedy: Decompose M5 into M5a (audit closure — qig, fpc, 9xr, 5u2, 1ei) and M5b (anchor-tenant features — 2at, l23, 0f7, cs5, 0tb, i18n router). M5a is "we cleaned up", M5b is "we shipped the launch features". Different verifiables. Different stakeholders.
+
+**Gap C2 — M3 is the largest single milestone (10 phases) in retrospect.**
+
+Evidence: M3 shipped 10 phases (32, 33, 34, 36, 37, 38, 39, 40, 21, 23) in ~3 weeks. That's 3.3 phases/week sustained — the project median. In hindsight, M3 could have been M3a (admin tools: 32, 33, 34, 37) and M3b (engagement: 21, 23, 36, 38, 39, 40). The split is moot now (work is done) but is a learning for M5.
+
+Remedy: Note in M5 retro that 10 phases per milestone is the upper limit; aim for 5–7 next time.
+
+**Gap C3 — M6+ has an orphan (Phase 99 — Build Fix).**
+
+Evidence: Phase 99 is in M6+ "by convention" but is complete. It's not a future work item.
+
+Remedy: Move Phase 99 to a "Housekeeping" appendix at the end of ROADMAP.md, or annotate it as a closed M0 housekeeping phase.
+
+**Gap C4 — No "between M4 and M5" milestone.**
+
+Evidence: After M4 ships (Phases 41 + 42), we jump to M5 with 10 work items. There's no stabilization or "M4 done, what now?" pause.
+
+Remedy: Define M4.5 (Stabilization) with criteria like: (a) 7 days of production telemetry with no P0/P1, (b) OpenAPI spec consumed by external test, (c) `canAccess()` migration complete, (d) i18n hydration clean across all tenant routes. Or skip M4.5 and merge it into M5a (audit closure, which already includes stabilization-style work).
+
+### 7.4 Conceptual gaps — milestone discipline without enforcement
+
+**Gap N1 — M0–M3 "shipped" claims are informal.**
+
+Evidence: The "9/9 verified" and "10/10 plans shipped" lines in §2 are author assertions, not artifacts. There's no audit trail linking the claim to evidence.
+
+Remedy: Gap S1 (milestone-level VERIFICATION docs) addresses this. Until then, treat the "shipped" claim as the author's working assumption, not audited fact.
+
+**Gap N2 — No "ready signal" for M5.**
+
+Evidence: M5 has 10 work items, all sourced from BD. None are "in flight" (no plans drafted, no phase numbers assigned). M5's start trigger is implicit ("when M4 is done").
+
+Remedy: Define an explicit M5 start signal: "M5 planning begins when M4 is complete AND the M5 launch checklist is drafted." The M5 launch checklist is Gap η from §3.
+
+**Gap N3 — No version tags or release branches.**
+
+Evidence: `git branch` shows `main` and `dev` only. No `release/v0.1`, no `git tag`. The "shipped" milestones have no artifact-level marker.
+
+Remedy: Tag each shipped milestone on the main branch (`git tag v0.1.0 M0` for example). This is a 30-second per-milestone task and gives the audit trail a concrete anchor.
+
+### 7.5 Summary of Gaps Located in This Review
+
+| ID  | Gap                                  | Severity | Effort to fix      | Owner           |
+| --- | ------------------------------------ | -------- | ------------------ | --------------- |
+| S1  | No milestone-level VERIFICATION docs | High     | 4 × 10 min         | This session    |
+| S2  | No `.planning/retros/` directory     | High     | 5 min              | This session    |
+| S3  | No `.planning/templates/retro.md`    | Medium   | 15 min             | This session    |
+| S4  | No pre-commit hook for status drift  | Medium   | 20 min             | Next session    |
+| C1  | M5 has 10 unscoped items             | High     | 30 min (decompose) | This session    |
+| C2  | M3 was 10 phases (post-hoc learning) | Low      | Note only          | Already shipped |
+| C3  | Phase 99 orphan in M6+               | Low      | 2 min              | This session    |
+| C4  | No M4.5 stabilization milestone      | Medium   | 15 min (decide)    | This session    |
+| N1  | M0-M3 "shipped" claims informal      | High     | Resolved by S1     | —               |
+| N2  | No M5 ready signal                   | Medium   | 10 min             | This session    |
+| N3  | No version tags or release branches  | Low      | 4 × 30 sec         | This session    |
+
+### 7.6 Action Plan (in order)
+
+1. **Create `.planning/templates/retro.md`** (S3) — template is a precondition for S1, S2.
+2. **Create `.planning/retros/` directory** (S2) — empty for now.
+3. **Write 4 retro docs** (S1) — one per shipped milestone. Uses template.
+4. **Decompose M5 into M5a/M5b** (C1) — update §2 M5 to reflect the split.
+5. **Add M5 ready signal** (N2) — one sentence in §2 M5.
+6. **Tag shipped milestones** (N3) — 4 `git tag` commands.
+7. **Move Phase 99 out of M6+** (C3) — 1-line edit.
+8. **Decide on M4.5** (C4) — yes/no/merge decision.
+9. **Add pre-commit hook** (S4) — deferred to next session, after M4 is underway.
+
+---
+
+_Last updated: 2026-06-03 — second-pass milestone review. Section 7 added
+with 11 newly-located gaps (S1–S4, C1–C4, N1–N3) and an action plan.
+Phase 18 placement inconsistency fixed (M2 → M1 in ROADMAP). MILESTONES.md
+and ROADMAP.md now agree on all phase placements._

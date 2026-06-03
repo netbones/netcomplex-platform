@@ -259,12 +259,6 @@ _Real-time chat, transactional email, schema hardening, self-service onboarding.
 
 ---
 
-## M2 — Dashboard & Navigation
-
-_Focus Spaces architecture, single-source navigation, widget system, tenant config. Verifiable: a resident on /dashboard sees a 3-zone Home with widgets; tab legacy code is gone._
-
----
-
 ## Phase 18: Toast Unification
 
 **Goal:** Unify on Sonner as the single toast notification system, remove Zustand Toast
@@ -274,6 +268,12 @@ _Focus Spaces architecture, single-source navigation, widget system, tenant conf
 **Plans:**
 
 - [x] 18-01-PLAN.md — Remove Zustand Toast, migrate admin/users to Sonner, add ADR-018 ✅
+
+---
+
+## M2 — Dashboard & Navigation
+
+_Focus Spaces architecture, single-source navigation, widget system, tenant config. Verifiable: a resident on /dashboard sees a 3-zone Home with widgets; tab legacy code is gone._
 
 ---
 
@@ -744,6 +744,12 @@ _Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md 
 **Plans:**
 
 - [ ] 04-01-PLAN.md — Content i18n with TipTap editor (deferred — see BD issue `l23`; needs `/[lng]/` router extended to tenant routes first)
+
+---
+
+## Housekeeping Phases
+
+_Out-of-band maintenance phases that don't fit the milestone structure. Moved out of M6+ on 2026-06-03 (Section 7 Gap C3)._
 
 ---
 
