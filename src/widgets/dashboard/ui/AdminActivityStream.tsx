@@ -129,11 +129,26 @@ function ActivityFeedItem({
   item: ActivityItem;
   isPlatformAdmin: boolean;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const DomainIcon = DOMAIN_ICONS[item.domain] ?? Settings;
   const colourClass = domainColour(item.domain);
+  const hasDetails = item.metadata && Object.keys(item.metadata).length > 0;
 
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-gray-100 last:border-0">
+    <div
+      className={`flex items-start gap-3 py-3 border-b border-gray-100 last:border-0 cursor-pointer transition-colors hover:bg-gray-50 ${
+        expanded ? 'bg-gray-50' : ''
+      }`}
+      onClick={() => setExpanded(!expanded)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setExpanded(!expanded);
+        }
+      }}
+    >
       {/* Domain icon in a coloured circle */}
       <div
         className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${colourClass}`}
@@ -142,17 +157,29 @@ function ActivityFeedItem({
       </div>
 
       <div className="flex-1 min-w-0">
-        {/* Action description */}
-        <p className="text-sm text-gray-900">
+        {/* Action description — truncated when collapsed */}
+        <p className={`text-sm text-gray-900 ${expanded ? '' : 'line-clamp-1'}`}>
           <span className="font-medium">{item.actorName ?? 'System'}</span>{' '}
           {actionLabel(item.action)}{' '}
-          {item.resourceLabel && <span className="font-medium truncate">{item.resourceLabel}</span>}
+          {item.resourceLabel && <span className="font-medium">{item.resourceLabel}</span>}
         </p>
+
         {/* Metadata line */}
-        {item.metadata && Object.keys(item.metadata).length > 0 && (
+        {hasDetails && (
           <p className="text-xs text-gray-500 mt-0.5">
-            {formatMetadata(item.domain, item.metadata)}
+            {formatMetadata(item.domain, item.metadata!)}
           </p>
+        )}
+
+        {/* Expanded detail area */}
+        {expanded && hasDetails && (
+          <div className="mt-2 pt-2 border-t border-gray-200 text-xs text-gray-500 space-y-1">
+            {Object.entries(item.metadata!).map(([key, value]) => (
+              <div key={key}>
+                <span className="font-medium text-gray-600 capitalize">{key}:</span> {String(value)}
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
@@ -163,10 +190,15 @@ function ActivityFeedItem({
         </span>
       )}
 
-      {/* Timestamp */}
-      <time className="flex-shrink-0 text-xs text-gray-400 whitespace-nowrap">
-        {formatRelativeTime(item.createdAt)}
-      </time>
+      {/* Timestamp + expand indicator */}
+      <div className="flex flex-col items-end gap-1 flex-shrink-0">
+        <time className="text-xs text-gray-400 whitespace-nowrap">
+          {formatRelativeTime(item.createdAt)}
+        </time>
+        <ChevronRight
+          className={`w-3 h-3 text-gray-300 transition-transform ${expanded ? 'rotate-90' : ''}`}
+        />
+      </div>
     </div>
   );
 }
