@@ -69,7 +69,7 @@ model Tenant {
   fontFamily       String?
   customCss        String?
   active           Boolean         @default(true)
-  subscriptionTier String          @default("sprout")
+  subscriptionTier String          @default("basic")
   modules          Json?
   maxPages         Int             @default(5)
   pageCount        Int             @default(0)

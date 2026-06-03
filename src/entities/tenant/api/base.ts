@@ -3,7 +3,7 @@
  *
  * Soralia Village is the flagship tenant (#1):
  * - slug: "soralia" (or "soralia-village" for new setups)
- * - subscriptionTier: "forest" (flagship tenant gets all features)
+ * - subscriptionTier: "flagship" (Soralia Village gets all features)
  * - primaryColor: "#4F46E5"
  * - accentColor: "#F59E0B"
  *

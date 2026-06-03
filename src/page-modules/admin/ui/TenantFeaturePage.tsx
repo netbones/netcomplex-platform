@@ -108,9 +108,6 @@ async function FeatureManager({ id }: { id: string }) {
               defaultValue={tenantTier}
               className="border rounded-md px-3 py-2 text-sm"
             >
-              <option value="sprout">🌱 Sprout</option>
-              <option value="grove">🌳 Grove</option>
-              <option value="forest">🌲 Forest</option>
             </select>
             <button
               type="submit"

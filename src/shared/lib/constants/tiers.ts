@@ -255,17 +255,9 @@ export function getTierModules(tier: TierLevel): ModuleKey[] {
   return TIERS[tier].modules;
 }
 
-/**
- * Get tier level from tier string (handles legacy tiers)
- */
+// Note: Legacy tier names are no longer accepted. DB has no legacy data. See git history for removed cases.
 export function getTierLevel(tier: string): TierLevel {
   switch (tier) {
-    case 'sprout':
-      return 'foundation';
-    case 'grove':
-      return 'depth';
-    case 'forest':
-      return 'core';
     case 'foundation':
     case 'depth':
     case 'core':

@@ -91,3 +91,41 @@ export function revalidateUserData(userId: string) {
   revalidatePath(`/member/${userId}`);
   revalidatePath('/directory');
 }
+
+/**
+ * Revalidate gate-related caches when tier/module/flag changes.
+ * Called after:
+ * - Tenant tier change (upgrade/downgrade)
+ * - Module install/uninstall (onboarding or settings)
+ * - Page flag toggle (admin settings UI)
+ *
+ * Uses revalidatePath() for consistency with the rest of this file.
+ * Phase 1 is additive — this is the integration point for future
+ * tier/module/flag mutation routes.
+ *
+ * @param tenantId - The tenant whose gate state changed (currently unused;
+ *                   included for forward-compat with per-tenant caching)
+ */
+export function revalidateGate(tenantId: string): void {
+  // Invalidate flag endpoint (carries platform flags used by Layer 3)
+  revalidatePath('/api/flags');
+
+  // Invalidate all gated page paths
+  revalidatePath('/dashboard');
+  revalidatePath('/admin');
+  revalidatePath('/maintenance');
+  revalidatePath('/bookings');
+  revalidatePath('/events');
+  revalidatePath('/surveys');
+  revalidatePath('/competitions');
+  revalidatePath('/directory');
+  revalidatePath('/resources');
+  revalidatePath('/chat');
+  revalidatePath('/news');
+  revalidatePath('/groups');
+  revalidatePath('/services');
+  revalidatePath('/messages');
+
+  // Suppress unused parameter warning — used in Phase 2 for per-tenant targeting
+  void tenantId;
+}
