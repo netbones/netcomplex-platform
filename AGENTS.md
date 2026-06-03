@@ -45,6 +45,37 @@ Use GSD workflow for:
 
 **Structure:** `.planning/` directory with ROADMAP.md, phases/, PLAN.md files.
 
+#### Git Worktree Isolation (MANDATORY)
+
+All GSD phase execution MUST happen inside a dedicated **git worktree** to prevent collisions with the working tree and avoid introducing problems into working code. Never execute a GSD phase directly in the main working directory.
+
+**Worktree lifecycle per phase:**
+
+```bash
+# 1. Create a worktree for the phase (from the repo root, before starting)
+GSD_PHASE="phase-N-name"
+git worktree add ../worktrees/${GSD_PHASE} -b ${GSD_PHASE}
+
+# 2. Copy .env and any other local config files into the worktree
+cp .env ../worktrees/${GSD_PHASE}/.env
+
+# 3. Run all GSD commands inside the worktree directory
+#    (use the workdir parameter, or cd into ../worktrees/${GSD_PHASE})
+
+# 4. After phase completes and is merged/pushed, clean up the worktree
+git worktree remove ../worktrees/${GSD_PHASE}
+```
+
+**Rules:**
+
+- **One worktree per phase** — never reuse a worktree across phases
+- **Branch name must match the worktree directory name** (e.g., `phase-3-auth-migration`)
+- **Copy `.env` immediately** after creating the worktree, before running any commands
+- **Run quality gates inside the worktree** before merging back
+- **Clean up worktrees** after the phase branch is merged and pushed: `git worktree remove ../worktrees/<phase>`
+- **Never delete** a worktree directory manually — always use `git worktree remove`
+- List active worktrees with: `git worktree list`
+
 ### When to Use Which
 
 | Work Type                            | Use |
