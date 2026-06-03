@@ -1,23 +1,23 @@
 # BD Issue Tracker
 
 > **Last updated:** 2026-06-03 (Session 8)
-> **Total remaining:** 19 issues
+> **Total remaining:** 25 issues
 > **Closed this session:** 1 (e0w)
-> **Created this session:** 1 (22a — connection pool config) + 5 architecture issues (qig, fpc, 9xr, 5u2, 1ei) carried from Session 7
+> **Created this session:** 6 REPORT.md gaps (b5d, zjm, 6i9, 8re, 7cp, hfy)
 
 ## Summary by Priority
 
 | Priority | Open | Focus                                        |
 | -------- | ---- | -------------------------------------------- |
 | P2       | 6    | Core features, epics, bugs, **architecture** |
-| P3       | 17   | Tech debt, Phase 4/5 features, enhancements  |
+| P3       | 23   | Tech debt, Phase 4/5 features, enhancements  |
 | P4       | 6    | Backlog, blocked events                      |
 
 ## Summary by Status
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 27    |
+| ○ Open        | 33    |
 | ◐ In Progress | 1     |
 
 ---
@@ -54,7 +54,7 @@
 
 ---
 
-## P3 — Medium Priority (14 issues)
+## P3 — Medium Priority (20 issues)
 
 ### Bugs
 
@@ -86,6 +86,12 @@
 | `5u2` | Architecture: De-duplicate maintenance API transform logic                  | ○      | cleaner_react_architecture audit |
 | `9xr` | Architecture: Extract pure domain helpers (useIdentity, ticketNumber, etc.) | ○      | cleaner_react_architecture audit |
 | `1ei` | Architecture: Migrate widget useEffect+fetch to useQuery/useMutation        | ○      | cleaner_react_architecture audit |
+| `b5d` | Standardize ID strategy across all models (cuid/uuid/plain String mix)      | ○      | REPORT.md schema audit           |
+| `zjm` | Extract high-frequency JSON fields into proper columns                      | ○      | REPORT.md schema audit           |
+| `6i9` | Add soft deletes (deletedAt) across all entities                            | ○      | REPORT.md schema audit           |
+| `8re` | Verify Preact compatibility with TipTap, charts, maps, and React Flow       | ○      | REPORT.md schema audit           |
+| `7cp` | Complete formal POPIA compliance audit for South Africa tenant              | ○      | REPORT.md schema audit           |
+| `hfy` | Implement per-tenant and per-module usage analytics                         | ○      | REPORT.md schema audit           |
 
 ### In Progress
 
@@ -110,11 +116,22 @@
 
 ## Closed This Session (30 issues)
 
-### Session 8 - Cross-Tenant Data Leakage Audit (1 closed)
+### Session 8 - Cross-Tenant Data Leakage Audit (1 closed, 6 created)
 
 | ID    | Title                                                           | Reason                                                                                                         |
 | ----- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `e0w` | Fix route-level cross-tenant data leakage (20 remaining routes) | Fixed: commit `7579ac9` + live fix for `resources/[id]/download/route.ts`. All routes now have `withTenant()`. |
+
+#### Created
+
+| ID    | Title                                                                 | Priority |
+| ----- | --------------------------------------------------------------------- | -------- |
+| `b5d` | Standardize ID strategy across all models                             | P3       |
+| `zjm` | Extract high-frequency JSON fields into proper columns                | P3       |
+| `6i9` | Add soft deletes (deletedAt) across all entities                      | P3       |
+| `8re` | Verify Preact compatibility with TipTap, charts, maps, and React Flow | P3       |
+| `7cp` | Complete formal POPIA compliance audit for South Africa tenant        | P3       |
+| `hfy` | Implement per-tenant and per-module usage analytics                   | P3       |
 
 ### Session 5 - Phase 35 API Alignment (1 created, 0 closed)
 
