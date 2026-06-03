@@ -39,9 +39,10 @@ forward-looking.
 
 **Goal:** Multi-tenant substrate + base modules. Nothing user-facing.
 **Phase range:** 00, 01, 02, 03 (Localization), 05, 06, 07, 08, 11 (Announcements)
-**Status:** Complete. 10/10 phases verified.
+**Status:** Complete. 9/9 phases verified.
 **Verifiable:** `pnpm tsc --noEmit` passes, `pnpm test` green, RLS policies in place.
 **What's NOT in M0:** Chat, email, onboarding, dashboard, admin UI, mobile.
+**Historical (verified 2026-06-03):** `11-prisma-to-drizzle` was originally listed as a deferred M6+ planning-only phase but verified complete via incremental delivery (179 Drizzle imports, 0 Prisma imports, `src/shared/api/prisma.ts` removed). The original `11-01-PLAN.md` is historical; the duplicate phase number `11` is the artifact. See ROADMAP.md M0 historical note.
 
 ### M1 — Core Communication & Auth (✅ SHIPPED)
 
@@ -93,10 +94,15 @@ forward-looking.
 
 **Verifiable:** All 5 audit issues closed with tests, audit document `docs/cleaner_react_architecture.md` marked "all chapters resolved", Soralia admin can invite 180 homes via batch import, anchor-tenant launch checklist (TBD) green.
 
-### M6+ — Post-Launch (NOT YET PLANNED)
+### M6+ — Post-Launch (📋 PARTIALLY PLANNED)
 
-**Goal:** Second-tenant onboarding, multi-instance rate limiting (Redis), plugin/extension system, event sourcing evaluation, external API consumer onboarding.
-**Phase range:** TBD. Currently the 3 deferred planning-only phases (`03-second-tenant`, `04-content-i18n`, `11-prisma-to-drizzle`) live here as future opportunities.
+**Goal:** Post-deployment validation tests, content i18n adoption, multi-instance rate limiting (Redis), plugin/extension system, event sourcing evaluation, external API consumer onboarding.
+**Phase range:**
+
+- `03-second-tenant` — post-deployment validation test (requires production deployment + willing second tenant)
+- `04-content-i18n` — TipTap content localization (blocked on i18n router being extended to tenant routes; currently platform-only at `/[lng]/`)
+- `99-build-fix` — completed housekeeping (here only by convention)
+- Future: TBD
 
 ---
 
@@ -135,11 +141,9 @@ named, located, and remediable.
 **Symptom:** Two "03", two "11", "01" after "04", "35" after "39", "99" for housekeeping. Anyone reading the doc has to context-switch to figure out the sequence.
 **Remedy (low-cost):** Re-order ROADMAP.md by logical sequence (M0→M5) and add a "Created in this order" appendix for historical reference. **Do NOT renumber the phases themselves** — that would break git blame and the plan IDs. Just reorder the doc.
 
-### Gap ζ — Status drift can recur silently
+### Gap ζ — ~~Status drift can recur silently~~ ✅ PARTIALLY RESOLVED 2026-06-03
 
-**Where:** Working tree → ROADMAP.md.
-**Symptom:** We just fixed 3 status discrepancies; nothing prevents the next one.
-**Remedy:** Add a CI step that compares on-disk PLAN/SUMMARY pairs against ROADMAP status line. If a SUMMARY exists for plan N but ROADMAP says "Planning Complete" for phase N, fail the check.
+**Status:** Phase 11 (Prisma To Drizzle) verified complete and removed from M6+. Phases 03 and 04 retained in M6+ with explicit blockers (post-deployment validation test; i18n router extension). 3 status drift fixes (Phase 33, 38, 40) in d11d8f2 commit. The CI step (compare on-disk SUMMARYs against ROADMAP status) is still recommended for full resolution.
 
 ### Gap η — Anchor-tenant launch criteria are unstated
 

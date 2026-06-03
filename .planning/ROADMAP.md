@@ -20,7 +20,7 @@ Phases are grouped into milestones (M0–M6+). See `.planning/MILESTONES.md` for
 | **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, MyHomeSpace      | (new, sources from BD backlog)         | 📋 Planning |
 | **M6+ Post-Launch**               | Second tenant, multi-instance, plugins, event sourcing | 99 (housekeeping) + future             | Deferred    |
 
-**Phase numbering note:** IDs are stable (not renumbered on re-order). Duplicates exist: `03` (Localization vs Second Tenant), `11` (Announcements vs Prisma→Drizzle). The duplicate pair always has a "Planning Complete (deferred)" status on the second one. Out-of-order numeric IDs (01 after 04; 35 after 39; 99 last) reflect creation sequence, not logical order. See MILESTONES.md Gap ε.
+**Phase numbering note:** IDs are stable (not renumbered on re-order). Duplicates exist: `03` (Localization vs Second Tenant), `11` (Announcements vs Prisma→Drizzle). The duplicate pair has a "Planning Complete (deferred)" status on the second one, except `11-prisma-to-drizzle` which was verified complete (2026-06-03) and moved to M0. Out-of-order numeric IDs (01 after 04; 35 after 39; 99 last) reflect creation sequence, not logical order. See MILESTONES.md Gap ε.
 
 ---
 
@@ -187,6 +187,8 @@ tenant_modules           → What each tenant has
 
 - [x] 11-01-PLAN.md — Schema migration + priority taxonomy + API with targeting/fanout/priority enforcement ✅
 - [x] 11-02-PLAN.md — Admin form (role-gated priority + targeting + resource link) + stream widget + /news embed ✅
+
+> **Historical note (2026-06-03):** The phase number `11` was originally shared with a second "Phase 11: Prisma To Drizzle" entry listed in M6+ as a deferred planning-only phase. That phase was verified complete on 2026-06-03 (179 files using `drizzle-orm`, 0 files using `@prisma/client`, `src/shared/api/prisma.ts` removed) and removed from M6+. The original `11-01-PLAN.md` (now historical) proposed a big-bang migration; the actual delivery was incremental across many subsequent phases. The duplicate phase number `11` is therefore not a bug — it's the historical artifact of the deferred planning phase.
 
 ---
 
@@ -709,21 +711,23 @@ _Close the 5 architecture-audit issues, ship Community Merits, OTP password rese
 
 ## M6+ — Post-Launch / Deferred
 
-_Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md and were superseded by alternative workstreams. See "Q2 archival" decision (held back per session 2026-06-03)._
+_Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md and depend on real-world preconditions (production deployment, second tenant, or upstream phases). See MILESTONES.md Section 2 (M6+) for context. Note: `11-prisma-to-drizzle` was previously listed here but was verified complete (incremental delivery) on 2026-06-03 and removed — see M0 historical note._
 
 ---
 
 ## Phase 03: Second Tenant
 
-**Goal:** Onboard a second tenant to validate the multi-tenant model — exercise tenant resolution, RLS, and isolation under load
+**Goal:** Validate the multi-tenant onboarding + adoption system with a real second tenant — exercise tenant resolution, RLS, and isolation under live production conditions
 
-**Status:** Planning Complete (not executed; superseded by Phase 20 self-service inception)
+**Status:** Planning Complete (deferred — post-deployment validation test)
 
-**Requirements:** (none specified)
+**Blocker (2026-06-03):** Requires production deployment + a willing second tenant to onboard. Cannot run against a synthetic tenant — the test is specifically about validating the onboarding flow under real adoption conditions. Tracked under M6+ for post-launch execution.
+
+**Requirements:** TENANT-VALIDATE-01, TENANT-VALIDATE-02, TENANT-VALIDATE-03
 
 **Plans:**
 
-- [ ] 03-01-PLAN.md — Second tenant onboarding + RLS + isolation test (deferred to Phase 20)
+- [ ] 03-01-PLAN.md — Second tenant onboarding + RLS + isolation test (deferred to M6+ post-deployment)
 
 ---
 
@@ -731,27 +735,15 @@ _Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md 
 
 **Goal:** Localize content authored via TipTap editor — store translations per locale, render in user's active language
 
-**Status:** Planning Complete (not executed; related work tracked in BD epic `l23` and task `0f7`)
+**Status:** Planning Complete (deferred — blocked on i18n router extension)
 
-**Requirements:** (none specified)
+**Blocker (2026-06-03):** The i18n router currently exists at `src/app/[lng]/` for **platform routes only** (3 files: layout, platform/layout, platform/home/page). Tenant routes (the bulk of the app — `(dashboard)`, `(tenant)`, services, maintenance, messages, etc.) do NOT route through the dynamic locale segment; they rely on client-side i18next. Phase 04 (TipTap content localization per locale) requires the i18n router to be extended to tenant routes first. This is upstream work — likely a new phase (43+) that introduces `/[lng]/(tenant)/...` routing, after which Phase 04 can execute. Related work is tracked in BD epic `l23` and task `0f7`.
 
-**Plans:**
-
-- [ ] 04-01-PLAN.md — Content i18n with TipTap editor (deferred — see BD issue `l23`)
-
----
-
-## Phase 11: Prisma To Drizzle
-
-**Goal:** Migrate query layer from Prisma to Drizzle for edge-runtime compatibility — Prisma retained for schema/migrations, Drizzle becomes the canonical query layer via `src/lib/db.ts`
-
-**Status:** Planning Complete (not executed; superseded by gradual Drizzle adoption across subsequent phases)
-
-**Requirements:** (none specified)
+**Requirements:** CONTENT-I18N-01, CONTENT-I18N-02, CONTENT-I18N-03
 
 **Plans:**
 
-- [ ] 11-01-PLAN.md — Migrate query layer from Prisma to Drizzle (deferred — adopted incrementally per `AGENTS.md` "Prisma + Drizzle" guidance)
+- [ ] 04-01-PLAN.md — Content i18n with TipTap editor (deferred — see BD issue `l23`; needs `/[lng]/` router extended to tenant routes first)
 
 ---
 
