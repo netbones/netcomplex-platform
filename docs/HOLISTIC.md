@@ -154,7 +154,7 @@ Audit Logger: Pino → structured JSON
 ### Opportunities
 
 1. ~~**Phase 31 (tab removal)** would eliminate 1,500 lines of dead code and simplify the widget architecture~~
-2. **tRPC migration** of remaining 150 REST routes would give end-to-end type safety and reduce boilerplate
+2. **tRPC migration** — Only 2 tRPC routers exist vs 150 REST routes. Tracked in BD issue `fpc` (P2, M5a). Prerequisite shared HTTP client in `qig` (P2, M5a)
 3. **RLS expansion** — Most routes use the superuser connection bypassing RLS. `runWithRLS()` wraps provide DB-level defense but are only used in a few places. Tracked in BD issue `oqw` (P3, security)
 4. **Redis rate limiter** is a small change with outsized production safety impact
 
