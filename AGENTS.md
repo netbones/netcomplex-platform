@@ -593,6 +593,43 @@ NEXT_PUBLIC_VERCEL_URL=""
 
 ## Workflow Model
 
+### Cadence & Milestone Discipline
+
+**The project uses a milestone structure (M0–M6+) defined in `.planning/MILESTONES.md`.** Phases are grouped into milestones; each milestone has a verifiable done state. The current map:
+
+- **M0 Foundation** — multi-tenant substrate, base modules (✅ shipped)
+- **M1 Core Comm & Auth** — chat, email, schema hardening, onboarding (✅ shipped)
+- **M2 Dashboard & Navigation** — focus spaces, nav, widgets, defaults (✅ shipped)
+- **M3 Trust, Safety & Engagement** — admin, suspension, surveys, ticketing (✅ shipped)
+- **M4 Production-Ready** — API governance, gate consolidation, i18n hydration (🟡 1/3 done)
+- **M5 Anchor Tenant Launch** — audit closure, Community Merits, OTP, MyHomeSpace (📋 planning)
+- **M6+ Post-Launch** — second tenant, multi-instance, plugins, event sourcing (deferred)
+
+**Three rituals, all under 30 minutes per week:**
+
+#### 4a. Weekly check-in (15 min, every Monday)
+
+- Open `.planning/STATE.md`, scan for stale entries.
+- Run `gsd-sdk query validate.health`. If any errors → fix in this session.
+- Run `bd ready`. Pick the top 1–2 items.
+- If you finished a phase last week: run `gsd-tools state complete-phase`.
+- Commit STATE.md + ROADMAP.md if anything changed (single commit, no other changes).
+
+#### 4b. Bi-weekly milestone boundary (30 min, every other Monday)
+
+- For each phase shipped in the last 2 weeks: confirm SUMMARY exists, requirements validated, ROADMAP status = "Complete", STATE.md points to next ready item.
+- If a milestone's last phase is verified: run `gsd-tools state complete-milestone` and write `.planning/retros/M{N}-retro.md`.
+- Update `.planning/CADENCE.md` with the last 2 weeks' actual velocity.
+
+#### 4c. End-of-session housekeeping (2 min, every session)
+
+- `git status` clean
+- ROADMAP status accurate for any phase completed this session
+- STATE.md current position points to the _next_ ready item
+- If a phase was finished: `gsd-tools state complete-phase` was called
+
+**Status drift rule:** A phase is "Complete" in ROADMAP only when its SUMMARY.md exists and (where applicable) VERIFICATION.md exists. Run `gsd-sdk query validate.health` before committing any ROADMAP.md change. The GSD pre-commit hook enforces this.
+
 ### Task Workflow
 
 1. **Pick up task** - `bd ready` shows unblocked tasks

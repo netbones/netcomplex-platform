@@ -6,6 +6,30 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Milestone Map
+
+Phases are grouped into milestones (M0–M6+). See `.planning/MILESTONES.md` for full structure, gap analysis, and cadence ritual.
+
+| Milestone                         | Goal                                                   | Phases                                 | Status      |
+| --------------------------------- | ------------------------------------------------------ | -------------------------------------- | ----------- |
+| **M0 Foundation**                 | Multi-tenant substrate + base modules                  | 00, 01, 02, 03, 05, 06, 07, 08, 11     | ✅ Shipped  |
+| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding    | 09, 10, 19, 20                         | ✅ Shipped  |
+| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system         | 18, 22, 24, 25, 26, 27, 28, 29, 30, 31 | ✅ Shipped  |
+| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing  | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40 | ✅ Shipped  |
+| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration     | 35, 41, 42                             | 🟡 1/3 done |
+| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, MyHomeSpace      | (new, sources from BD backlog)         | 📋 Planning |
+| **M6+ Post-Launch**               | Second tenant, multi-instance, plugins, event sourcing | 99 (housekeeping) + future             | Deferred    |
+
+**Phase numbering note:** IDs are stable (not renumbered on re-order). Duplicates exist: `03` (Localization vs Second Tenant), `11` (Announcements vs Prisma→Drizzle). The duplicate pair always has a "Planning Complete (deferred)" status on the second one. Out-of-order numeric IDs (01 after 04; 35 after 39; 99 last) reflect creation sequence, not logical order. See MILESTONES.md Gap ε.
+
+---
+
+## M0 — Foundation
+
+_Multi-tenant substrate + base modules. Nothing user-facing. Verifiable: `pnpm tsc --noEmit` passes, `pnpm test` green, RLS policies in place._
+
+---
+
 ## Phase 00: Multi Tenant Foundation
 
 **Goal:** Establish core multi-tenant infrastructure — tenant resolution, enforcement helpers, seed data
@@ -17,6 +41,20 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 **Plans:**
 
 - [x] 00-01-PLAN.md — Phase 0 Foundation (7 tasks) ✅
+
+---
+
+## Phase 01: Enforcement
+
+**Goal:** Apply tenant enforcement to API routes, wire dynamic theming, integrate FeatureGate, consolidate locales
+
+**Status:** Complete
+
+**Requirements:** MULTI-04
+
+**Plans:**
+
+- [x] 01-01-PLAN.md — Phase 1 Enforcement (4 tasks) ✅
 
 ---
 
@@ -45,48 +83,6 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 **Plans:**
 
 - [x] 03-01-PLAN.md — Platform i18n routing + locale files + LanguageSwitcher + platform landing translations ✅
-
----
-
-## Phase 03: Second Tenant
-
-**Goal:** Onboard a second tenant to validate the multi-tenant model — exercise tenant resolution, RLS, and isolation under load
-
-**Status:** Planning Complete (not executed; superseded by Phase 20 self-service inception)
-
-**Requirements:** (none specified)
-
-**Plans:**
-
-- [ ] 03-01-PLAN.md — Second tenant onboarding + RLS + isolation test (deferred to Phase 20)
-
----
-
-## Phase 04: Content I18n
-
-**Goal:** Localize content authored via TipTap editor — store translations per locale, render in user's active language
-
-**Status:** Planning Complete (not executed; related work tracked in BD epic `l23` and task `0f7`)
-
-**Requirements:** (none specified)
-
-**Plans:**
-
-- [ ] 04-01-PLAN.md — Content i18n with TipTap editor (deferred — see BD issue `l23`)
-
----
-
-## Phase 01: Enforcement
-
-**Goal:** Apply tenant enforcement to API routes, wire dynamic theming, integrate FeatureGate, consolidate locales
-
-**Status:** Complete
-
-**Requirements:** MULTI-04
-
-**Plans:**
-
-- [x] 01-01-PLAN.md — Phase 1 Enforcement (4 tasks) ✅
 
 ---
 
@@ -144,6 +140,60 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 - [x] 08-01-PLAN.md — Module Architecture Foundation ✅
 
+### Tier Model
+
+| Tier           | Modules                                                                |
+| -------------- | ---------------------------------------------------------------------- |
+| **Standard**   | Dashboard, Directory, Groups, Maintenance, Community Services, Content |
+| **Premium**    | Bookings, Premium Seats, Property Listings                             |
+| **Enterprise** | Agent Marketplace, White Label                                         |
+
+_Marketing picks display labels. Internal tier names: standard | premium | enterprise_
+
+### Two-Table Schema
+
+```
+platform_modules          → What NetComplex offers
+├── key (text unique)     → 'bookings', 'maintenance', etc.
+├── minTier              → Enforces tier-gating
+├── label               → Display name
+└── defaultEnabled      → Boolean
+
+tenant_modules           → What each tenant has
+├── tenantId             → FK → tenants
+├── moduleKey            → FK → platform_modules.key
+├── enabled             → Boolean
+├── config (jsonb)       → Per-module overrides
+└── enabledAt           → Audit trail
+```
+
+### Enforcement Gates
+
+1. **Middleware**: Coarse-grained route protection (redirect if tier insufficient)
+2. **FeatureGate**: Reads resolved module list from tables (tier check implicit)
+3. **API Layer**: `assertModuleEnabled()` helper — server-side enforcement
+
+---
+
+## Phase 11: Announcements
+
+**Goal:** Implement governed announcements layer — role-gated priority taxonomy, audience targeting with fanout, document attachment, admin CRUD UI, stream widget + /news embed (no new nav items)
+
+**Status:** Complete
+
+**Requirements:** ANN-01, ANN-02, ANN-03, R1, R2, R3, R6, R7, R8
+
+**Plans:** 2 plans
+
+- [x] 11-01-PLAN.md — Schema migration + priority taxonomy + API with targeting/fanout/priority enforcement ✅
+- [x] 11-02-PLAN.md — Admin form (role-gated priority + targeting + resource link) + stream widget + /news embed ✅
+
+---
+
+## M1 — Core Communication & Auth
+
+_Real-time chat, transactional email, schema hardening, self-service onboarding. Verifiable: a new resident can sign up, verify email, join a tenant, and send a chat message that arrives in <2s._
+
 ---
 
 ## Phase 09: Real Time Chat
@@ -171,47 +221,6 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 **Plans:**
 
 - [x] 10-01-PLAN.md — MailerSend email integration ✅
-
----
-
-## Phase 11: Announcements
-
-**Goal:** Implement governed announcements layer — role-gated priority taxonomy, audience targeting with fanout, document attachment, admin CRUD UI, stream widget + /news embed (no new nav items)
-
-**Status:** Complete
-
-**Requirements:** ANN-01, ANN-02, ANN-03, R1, R2, R3, R6, R7, R8
-
-**Plans:** 2 plans
-
-- [ ] 11-01-PLAN.md — Schema migration + priority taxonomy + API with targeting/fanout/priority enforcement
-- [ ] 11-02-PLAN.md — Admin form (role-gated priority + targeting + resource link) + stream widget + /news embed
-
----
-
-## Phase 11: Prisma To Drizzle
-
-**Goal:** Migrate query layer from Prisma to Drizzle for edge-runtime compatibility — Prisma retained for schema/migrations, Drizzle becomes the canonical query layer via `src/lib/db.ts`
-
-**Status:** Planning Complete (not executed; superseded by gradual Drizzle adoption across subsequent phases)
-
-**Requirements:** (none specified)
-
-**Plans:**
-
-- [ ] 11-01-PLAN.md — Migrate query layer from Prisma to Drizzle (deferred — adopted incrementally per `AGENTS.md` "Prisma + Drizzle" guidance)
-
----
-
-## Phase 18: Toast Unification
-
-**Goal:** Unify on Sonner as the single toast notification system, remove Zustand Toast
-
-**Status:** Complete
-
-**Plans:**
-
-- [x] 18-01-PLAN.md — Remove Zustand Toast, migrate admin/users to Sonner, add ADR-018 ✅
 
 ---
 
@@ -248,19 +257,21 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase 21: Content Events
+## M2 — Dashboard & Navigation
 
-**Goal:** Content scheduling UI, Events CRUD admin pages, Events dashboard tab
+_Focus Spaces architecture, single-source navigation, widget system, tenant config. Verifiable: a resident on /dashboard sees a 3-zone Home with widgets; tab legacy code is gone._
 
-**Status:** Complete (3/3 plans)
+---
 
-**Requirements:** CONTENT-01, CONTENT-02, EVENTS-01, EVENTS-02, EVENTS-03
+## Phase 18: Toast Unification
+
+**Goal:** Unify on Sonner as the single toast notification system, remove Zustand Toast
+
+**Status:** Complete
 
 **Plans:**
 
-- [x] 21-01-PLAN.md — Content scheduling: date pickers, API date filtering ✅
-- [x] 21-02-PLAN.md — Events CRUD: admin pages, EventForm, EventList, API routes ✅
-- [x] 21-03-PLAN.md — Events dashboard tab and upcoming events widget ✅
+- [x] 18-01-PLAN.md — Remove Zustand Toast, migrate admin/users to Sonner, add ADR-018 ✅
 
 ---
 
@@ -277,23 +288,6 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 - [x] 22-01-PLAN.md — Foundation: Enums, Flag Logic, API, and Hook ✅
 - [x] 22-02-PLAN.md — Configuration UI: Admin Widget and Locales ✅
 - [x] 22-03-PLAN.md — Navigation: Header, Footer, and Mobile Menu ✅
-
----
-
-## Phase 23: Competitions Resources
-
-**Goal:** Competitions model + admin CRUD + dynamic public page, Resources standalone model with file uploads/visibility/migration
-
-**Status:** Complete (4/4 plans)
-
-**Requirements:** COMP-01, COMP-02, RES-01, RES-02, RES-03, RES-04, RES-05
-
-**Plans:**
-
-- [x] 23-01-PLAN.md — Competition model, API, admin CRUD, dynamic public page ✅
-- [x] 23-02-PLAN.md — Resource model, API with visibility, admin CRUD with file upload ✅
-- [x] 23-03-PLAN.md — Public resources page rewrite, Content migration, enum cleanup ✅
-- [x] 23-04-PLAN.md — Gap closure: Competition status UI, public auth fix, resource edit auth forwarding ✅
 
 ---
 
@@ -423,6 +417,45 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## M3 — Trust, Safety & Engagement
+
+_Admin command surface, user suspension, surveys, competitions, maintenance ticketing, space layers. Verifiable: a board member can suspend a user with reason+duration, file a maintenance ticket, run a survey, and manage competitions from `/admin`._
+
+---
+
+## Phase 21: Content Events
+
+**Goal:** Content scheduling UI, Events CRUD admin pages, Events dashboard tab
+
+**Status:** Complete (3/3 plans)
+
+**Requirements:** CONTENT-01, CONTENT-02, EVENTS-01, EVENTS-02, EVENTS-03
+
+**Plans:**
+
+- [x] 21-01-PLAN.md — Content scheduling: date pickers, API date filtering ✅
+- [x] 21-02-PLAN.md — Events CRUD: admin pages, EventForm, EventList, API routes ✅
+- [x] 21-03-PLAN.md — Events dashboard tab and upcoming events widget ✅
+
+---
+
+## Phase 23: Competitions Resources
+
+**Goal:** Competitions model + admin CRUD + dynamic public page, Resources standalone model with file uploads/visibility/migration
+
+**Status:** Complete (4/4 plans)
+
+**Requirements:** COMP-01, COMP-02, RES-01, RES-02, RES-03, RES-04, RES-05
+
+**Plans:**
+
+- [x] 23-01-PLAN.md — Competition model, API, admin CRUD, dynamic public page ✅
+- [x] 23-02-PLAN.md — Resource model, API with visibility, admin CRUD with file upload ✅
+- [x] 23-03-PLAN.md — Public resources page rewrite, Content migration, enum cleanup ✅
+- [x] 23-04-PLAN.md — Gap closure: Competition status UI, public auth fix, resource edit auth forwarding ✅
+
+---
+
 ## Phase 32: Users List Refactor
 
 **Goal:** Break the 1,431-line UsersListSection.tsx into maintainable sub-components each under 500 lines — extract types to entity layer, pure helpers to lib/, data fetch to custom hook, 5 modal dialogs to separate components using shared ModalOverlay, table into row/edit-row/table components, slim orchestrator under 300 lines
@@ -485,6 +518,39 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
+## Phase 37: Admin Route Consolidation
+
+**Goal:** Consolidate dual admin routes (`/admin` + `/dashboard/admin`) into a single canonical `/admin` route — remove broken redirect, install AdminLayer as the `/admin` landing page, normalize all links
+
+**Status:** Complete (2026-05-29)
+
+**Requirements:** None (cleanup/housekeeping)
+
+**Plans:** 1 plan
+
+- [x] 37-01-PLAN.md — Move AdminLayer to /admin + remove redirect + normalize all widget links + update navigation (Wave 1) ✅
+
+---
+
+## Phase 38: Space Layers
+
+**Goal:** Convert /dashboard/services and /dashboard/messages from SpaceLayout widget grids into purpose-built zoned layers (urgency zone + domain grid) following the AdminLayer/HomeLayer architecture. /dashboard/community remains the only true DnD widget space.
+
+**Status:** Complete (verified, 2026-05-30)
+
+**Requirements:** LAYER-01, LAYER-02, LAYER-03, LAYER-04
+
+**Plans:** 4 plans
+
+| Wave | Plan              | Objective                                                     |
+| ---- | ----------------- | ------------------------------------------------------------- |
+| 1    | [x] 38-01-PLAN.md | Backend: services urgency API + messages urgency API ✅       |
+| 2    | [x] 38-02-PLAN.md | ServicesLayer: command bar + 5-domain sub-launcher grid ✅    |
+| 2    | [x] 38-03-PLAN.md | MessagesLayer: command bar + 3-domain sub-launcher grid ✅    |
+| 3    | [x] 38-04-PLAN.md | Routing switch + domain constants in spaces.ts + i18n keys ✅ |
+
+---
+
 ## Phase 39: Competition Entries
 
 **Goal:** Complete the competition system with user entry management, three winner selection mechanics (raffle, photo contest, score-based), public cards-based listing/detail pages with winners gallery, and winner notifications via the existing Notification system.
@@ -501,6 +567,31 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 | 2    | [x] 39-02-PLAN.md | API: tRPC competition router — join, submit, participants, winners, draw        |
 | 3    | [x] 39-03-PLAN.md | Public UI: cards grid listing at /competition, detail page at /competition/[id] |
 | 3    | [x] 39-04-PLAN.md | Admin UI: expandable rows, per-type actions, competition type selector          |
+
+---
+
+## Phase 40: Maintenance Ticketing
+
+**Goal:** Transform maintenance requests into a proper ticketing system — admin-configurable categories, in-house maintenance teams and third-party service providers with assignment/reassignment, 7-status workflow, ticket numbering, progress timeline, user tracking with activity zone integration, and seed data.
+
+**Status:** Complete (4/4 plans, 2026-05-31 → 2026-06-01)
+
+**Requirements:** MAINT-TICKET-01, MAINT-TICKET-02, MAINT-TICKET-03, MAINT-TICKET-04, MAINT-TICKET-05, MAINT-TICKET-06, MAINT-TICKET-07, MAINT-TICKET-08, MAINT-TICKET-09, MAINT-TICKET-10, MAINT-TICKET-11, MAINT-TICKET-12
+
+**Plans:**
+
+| Wave | Plan              | Objective                                                                                                                         |
+| ---- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | [x] 40-01-PLAN.md | Schema: 7-status enum, MaintenanceTeam/ServiceProvider/MaintenanceCategory models, migrate orphan tables to Prisma ✅             |
+| 2    | [x] 40-02-PLAN.md | API: CRUD for teams/providers/categories, assignment endpoint, ticket number generation, fix activity zone/notes/priority bugs ✅ |
+| 2    | [x] 40-03-PLAN.md | Admin UI: inline category management, assignment panel, handoff flow, progress timeline, workflow status controls ✅              |
+| 2    | [x] 40-04-PLAN.md | User tracking: enhanced /maintenance page, HomeLayer activity zone integration, 7 seed requests ✅                                |
+
+---
+
+## M4 — Production-Ready
+
+_API governance, feature gate consolidation, i18n hydration fix. Verifiable: OpenAPI spec generated and committed; `canAccess()` is the canonical gate; no console hydration errors on tenant routes. Status: 1/3 done._
 
 ---
 
@@ -536,95 +627,6 @@ Plans:
 - [x] 35-E01-PLAN.md — Module ownership model rollout (Wave 3) ✅
 - [x] 35-F01-PLAN.md — API test suites + OpenAPI CI validation (Wave 4) ✅
 - [x] 35-F02-PLAN.md — Compliance sweep: schema ownership, role checks, error codes (Wave 4) ✅
-
----
-
-## Phase 37: Admin Route Consolidation
-
-**Goal:** Consolidate dual admin routes (`/admin` + `/dashboard/admin`) into a single canonical `/admin` route — remove broken redirect, install AdminLayer as the `/admin` landing page, normalize all links
-
-**Status:** Complete (2026-05-29)
-
-**Requirements:** None (cleanup/housekeeping)
-
-**Plans:** 1 plan
-
-- [x] 37-01-PLAN.md — Move AdminLayer to /admin + remove redirect + normalize all widget links + update navigation (Wave 1) ✅
-
----
-
-## Phase 38: Space Layers
-
-**Goal:** Convert /dashboard/services and /dashboard/messages from SpaceLayout widget grids into purpose-built zoned layers (urgency zone + domain grid) following the AdminLayer/HomeLayer architecture. /dashboard/community remains the only true DnD widget space.
-
-**Status:** Complete (verified, 2026-05-30)
-
-**Requirements:** LAYER-01, LAYER-02, LAYER-03, LAYER-04
-
-**Plans:** 4 plans
-
-| Wave | Plan              | Objective                                                     |
-| ---- | ----------------- | ------------------------------------------------------------- |
-| 1    | [x] 38-01-PLAN.md | Backend: services urgency API + messages urgency API ✅       |
-| 2    | [x] 38-02-PLAN.md | ServicesLayer: command bar + 5-domain sub-launcher grid ✅    |
-| 2    | [x] 38-03-PLAN.md | MessagesLayer: command bar + 3-domain sub-launcher grid ✅    |
-| 3    | [x] 38-04-PLAN.md | Routing switch + domain constants in spaces.ts + i18n keys ✅ |
-
----
-
-## Phase 40: Maintenance Ticketing
-
-**Goal:** Transform maintenance requests into a proper ticketing system — admin-configurable categories, in-house maintenance teams and third-party service providers with assignment/reassignment, 7-status workflow, ticket numbering, progress timeline, user tracking with activity zone integration, and seed data.
-
-**Status:** Complete (4/4 plans, 2026-05-31 → 2026-06-01)
-
-**Requirements:** MAINT-TICKET-01, MAINT-TICKET-02, MAINT-TICKET-03, MAINT-TICKET-04, MAINT-TICKET-05, MAINT-TICKET-06, MAINT-TICKET-07, MAINT-TICKET-08, MAINT-TICKET-09, MAINT-TICKET-10, MAINT-TICKET-11, MAINT-TICKET-12
-
-**Plans:**
-
-| Wave | Plan              | Objective                                                                                                                         |
-| ---- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | [x] 40-01-PLAN.md | Schema: 7-status enum, MaintenanceTeam/ServiceProvider/MaintenanceCategory models, migrate orphan tables to Prisma ✅             |
-| 2    | [x] 40-02-PLAN.md | API: CRUD for teams/providers/categories, assignment endpoint, ticket number generation, fix activity zone/notes/priority bugs ✅ |
-| 2    | [x] 40-03-PLAN.md | Admin UI: inline category management, assignment panel, handoff flow, progress timeline, workflow status controls ✅              |
-| 2    | [x] 40-04-PLAN.md | User tracking: enhanced /maintenance page, HomeLayer activity zone integration, 7 seed requests ✅                                |
-
----
-
-## Module Architecture (Phase 08 Design)
-
-### Tier Model
-
-| Tier           | Modules                                                                |
-| -------------- | ---------------------------------------------------------------------- |
-| **Standard**   | Dashboard, Directory, Groups, Maintenance, Community Services, Content |
-| **Premium**    | Bookings, Premium Seats, Property Listings                             |
-| **Enterprise** | Agent Marketplace, White Label                                         |
-
-_Marketing picks display labels. Internal tier names: standard | premium | enterprise_
-
-### Two-Table Schema
-
-```
-platform_modules          → What NetComplex offers
-├── key (text unique)     → 'bookings', 'maintenance', etc.
-├── minTier              → Enforces tier-gating
-├── label               → Display name
-└── defaultEnabled      → Boolean
-
-tenant_modules           → What each tenant has
-├── tenantId             → FK → tenants
-├── moduleKey            → FK → platform_modules.key
-├── enabled             → Boolean
-├── config (jsonb)       → Per-module overrides
-└── enabledAt           → Audit trail
-```
-
-### Enforcement Gates
-
-1. **Middleware**: Coarse-grained route protection (redirect if tier insufficient)
-2. **FeatureGate**: Reads resolved module list from tables (tier check implicit)
-3. **API Layer**: `assertModuleEnabled()` helper — server-side enforcement
 
 ---
 
@@ -694,6 +696,62 @@ tenant_modules           → What each tenant has
 | 2    | [ ] 42-03-PLAN.md | Migrate medium-risk shared UI (5 components) + services page (remove local tx())   | 3     |
 
 **Out of scope (bd issue):** 37 widget files batch migration (lower risk, rendered inside guarded pages via usePageLoading)
+
+---
+
+## M5 — Anchor Tenant Launch (Planning)
+
+_Close the 5 architecture-audit issues, ship Community Merits, OTP password reset, MyHomeSpace bug, and the 37-widget i18n batch. Ready for Soralia Village (180 homes) production traffic. Source backlog: BD issues `qig`, `fpc`, `9xr`, `5u2`, `1ei`, `2at`, `l23`, `0f7`, `cs5`, `0tb`. Verifiable: all 5 audit issues closed with tests, audit document `docs/cleaner_react_architecture.md` marked "all chapters resolved", Soralia admin can invite 180 homes via batch import, M5 launch checklist (TBD) green._
+
+**No phase entries yet.** Phase numbers will be assigned (43+) when planning begins. See `.planning/MILESTONES.md` Section 2 (M5) for the source backlog.
+
+---
+
+## M6+ — Post-Launch / Deferred
+
+_Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md and were superseded by alternative workstreams. See "Q2 archival" decision (held back per session 2026-06-03)._
+
+---
+
+## Phase 03: Second Tenant
+
+**Goal:** Onboard a second tenant to validate the multi-tenant model — exercise tenant resolution, RLS, and isolation under load
+
+**Status:** Planning Complete (not executed; superseded by Phase 20 self-service inception)
+
+**Requirements:** (none specified)
+
+**Plans:**
+
+- [ ] 03-01-PLAN.md — Second tenant onboarding + RLS + isolation test (deferred to Phase 20)
+
+---
+
+## Phase 04: Content I18n
+
+**Goal:** Localize content authored via TipTap editor — store translations per locale, render in user's active language
+
+**Status:** Planning Complete (not executed; related work tracked in BD epic `l23` and task `0f7`)
+
+**Requirements:** (none specified)
+
+**Plans:**
+
+- [ ] 04-01-PLAN.md — Content i18n with TipTap editor (deferred — see BD issue `l23`)
+
+---
+
+## Phase 11: Prisma To Drizzle
+
+**Goal:** Migrate query layer from Prisma to Drizzle for edge-runtime compatibility — Prisma retained for schema/migrations, Drizzle becomes the canonical query layer via `src/lib/db.ts`
+
+**Status:** Planning Complete (not executed; superseded by gradual Drizzle adoption across subsequent phases)
+
+**Requirements:** (none specified)
+
+**Plans:**
+
+- [ ] 11-01-PLAN.md — Migrate query layer from Prisma to Drizzle (deferred — adopted incrementally per `AGENTS.md` "Prisma + Drizzle" guidance)
 
 ---
 
