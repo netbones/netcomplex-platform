@@ -26,8 +26,9 @@ export default function NewSurveyPage() {
         body: JSON.stringify(form),
       });
       if (res.ok) {
-        const survey = await res.json();
-        router.push(`/admin/surveys/${survey.id}`);
+        const body = await res.json();
+        const survey = body.success ? body.data : body;
+        router.push(`/admin/surveys/${survey.id}/edit`);
       }
     } catch (error) {
       log.error({}, 'Failed to create survey', error);
