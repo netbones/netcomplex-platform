@@ -2,7 +2,7 @@
 
 import { use } from 'react';
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@features/i18n/model/useTranslation';
 import { notFound } from 'next/navigation';
 import { MESSAGES_DOMAINS, getMessagesDomainWidgets } from '@widgets/dashboard/model/spaces';
 import { MESSAGES_DOMAIN_DEFINITIONS } from '@widgets/dashboard/ui/MessagesSubLauncher';
@@ -14,7 +14,7 @@ interface MessagesDomainPageProps {
 }
 
 export default function MessagesDomainPage({ params }: MessagesDomainPageProps) {
-  const { t } = useTranslation('common');
+  const { tx } = useSafeTranslation(['common', 'messages']);
   const { domain } = use(params);
 
   // Validate domain — redirects to existing announcements page if applicable
@@ -26,19 +26,24 @@ export default function MessagesDomainPage({ params }: MessagesDomainPageProps) 
   const DomainIcon = domainDef?.icon;
   const widgets = getMessagesDomainWidgets(domain);
 
+  // Compute domain label fallback (used by tx() multiple times)
+  const domainLabelFallback = domainDef?.id
+    ? domainDef.id.charAt(0).toUpperCase() + domainDef.id.slice(1)
+    : domain;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Breadcrumbs
           items={[
-            { label: t('nav.home'), href: '/' },
-            { label: t('nav.dashboard'), href: '/dashboard' },
+            { label: tx('nav.home', 'Home'), href: '/' },
+            { label: tx('nav.dashboard', 'Dashboard'), href: '/dashboard' },
             {
-              label: t('spaces.messages', { defaultValue: 'Messages' }),
+              label: tx('spaces.messages', 'Messages'),
               href: '/dashboard/messages',
             },
             {
-              label: t(domainDef?.labelKey ?? domain, { ns: 'messages' }),
+              label: tx(domainDef?.labelKey ?? domain, domainLabelFallback, { ns: 'messages' }),
               href: `/dashboard/messages/${domain}`,
             },
           ]}
@@ -49,10 +54,12 @@ export default function MessagesDomainPage({ params }: MessagesDomainPageProps) 
             {DomainIcon && <DomainIcon className="w-8 h-8 text-indigo-600" />}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {t(domainDef?.labelKey ?? domain, { ns: 'messages' })}
+                {tx(domainDef?.labelKey ?? domain, domainLabelFallback, { ns: 'messages' })}
               </h1>
               <p className="text-sm text-gray-500">
-                {domainDef ? t(domainDef.descriptionKey, { ns: 'messages' }) : ''}
+                {domainDef
+                  ? tx(domainDef.descriptionKey, domainDef?.description ?? '', { ns: 'messages' })
+                  : ''}
               </p>
             </div>
           </div>
@@ -60,7 +67,7 @@ export default function MessagesDomainPage({ params }: MessagesDomainPageProps) 
             href="/dashboard/messages"
             className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
           >
-            &larr; {t('domains.back', { ns: 'messages', defaultValue: 'Back to Messages' })}
+            &larr; {tx('domains.back', 'Back to Messages', { ns: 'messages' })}
           </Link>
         </div>
 
@@ -80,13 +87,10 @@ export default function MessagesDomainPage({ params }: MessagesDomainPageProps) 
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             {DomainIcon && <DomainIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />}
             <h2 className="text-lg font-semibold text-gray-900 mb-2">
-              {t(domainDef?.labelKey ?? domain, { ns: 'messages' })}
+              {tx(domainDef?.labelKey ?? domain, domainLabelFallback, { ns: 'messages' })}
             </h2>
             <p className="text-gray-500">
-              {t('domains.comingSoon', {
-                ns: 'messages',
-                defaultValue: 'This section is coming soon.',
-              })}
+              {tx('domains.comingSoon', 'This section is coming soon.', { ns: 'messages' })}
             </p>
           </div>
         )}
