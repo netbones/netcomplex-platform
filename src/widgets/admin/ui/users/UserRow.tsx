@@ -33,7 +33,22 @@ export function UserRow({
 
   return (
     <tr className="hover:bg-gray-50 cursor-pointer" onClick={onToggle}>
-      <td className="px-4 py-3 text-sm">{user.name}</td>
+      <td className="px-4 py-3 text-sm">
+        <div className="flex items-center gap-2">
+          {user.image ? (
+            <img
+              src={user.image}
+              alt=""
+              className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-medium flex-shrink-0">
+              {user.name.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <span>{user.name}</span>
+        </div>
+      </td>
       <td className="px-4 py-3 text-sm text-gray-500">{user.email}</td>
       <td className="px-4 py-3 text-sm text-gray-500">{resolveAddress(user) || '-'}</td>
       <td className="px-4 py-3 text-sm">

@@ -31,6 +31,7 @@ export interface AdminUser {
   id: string;
   name: string;
   email: string;
+  image: string | null;
   phone: string | null;
   role: string;
   isActive: boolean;
