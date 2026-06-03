@@ -7,6 +7,7 @@ import { roleOptions } from '@entities/user/model/types';
 import { resolveSeatInfo, resolveAddress, resolveType } from './lib/resolve-user-helpers';
 
 interface UserRowProps {
+  index: number;
   user: AdminUser;
   onToggle: () => void;
   onRoleChange: (id: string, data: Record<string, string>) => void;
@@ -17,6 +18,7 @@ interface UserRowProps {
 }
 
 export function UserRow({
+  index,
   user,
   onToggle,
   onRoleChange,
@@ -32,7 +34,10 @@ export function UserRow({
     `${u.name.toLowerCase().replace(/\s+/g, '.')}@soralia.org`;
 
   return (
-    <tr className="hover:bg-gray-50 cursor-pointer" onClick={onToggle}>
+    <tr
+      className={`hover:bg-gray-100 cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
+      onClick={onToggle}
+    >
       <td className="px-4 py-3 text-sm">
         <div className="flex items-center gap-2">
           {user.image ? (

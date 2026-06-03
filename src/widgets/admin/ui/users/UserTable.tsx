@@ -85,9 +85,10 @@ export function UserTable({
                 </td>
               </tr>
             ) : (
-              filteredUsers.map(u => (
+              filteredUsers.map((u, idx) => (
                 <Fragment key={u.id}>
                   <UserRow
+                    index={idx}
                     user={u}
                     onToggle={() => onToggleRow(u)}
                     onRoleChange={onRoleChange}
