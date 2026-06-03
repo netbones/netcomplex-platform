@@ -13,12 +13,13 @@ Phases are grouped into milestones (M0–M6+). See `.planning/MILESTONES.md` for
 | Milestone                         | Goal                                                   | Phases                                 | Status      |
 | --------------------------------- | ------------------------------------------------------ | -------------------------------------- | ----------- |
 | **M0 Foundation**                 | Multi-tenant substrate + base modules                  | 00, 01, 02, 03, 05, 06, 07, 08, 11     | ✅ Shipped  |
-| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding    | 09, 10, 19, 20                         | ✅ Shipped  |
-| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system         | 18, 22, 24, 25, 26, 27, 28, 29, 30, 31 | ✅ Shipped  |
+| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding    | 09, 10, 18, 19, 20                     | ✅ Shipped  |
+| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system         | 22, 24, 25, 26, 27, 28, 29, 30, 31     | ✅ Shipped  |
 | **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing  | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40 | ✅ Shipped  |
 | **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration     | 35, 41, 42                             | 🟡 1/3 done |
+| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check | (no new phases)                        | 🟡 Planned  |
 | **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, MyHomeSpace      | (new, sources from BD backlog)         | 📋 Planning |
-| **M6+ Post-Launch**               | Second tenant, multi-instance, plugins, event sourcing | 99 (housekeeping) + future             | Deferred    |
+| **M6+ Post-Launch**               | Second tenant, multi-instance, plugins, event sourcing | (deferred phases only)                 | Deferred    |
 
 **Phase numbering note:** IDs are stable (not renumbered on re-order). Duplicates exist: `03` (Localization vs Second Tenant), `11` (Announcements vs Prisma→Drizzle). The duplicate pair has a "Planning Complete (deferred)" status on the second one, except `11-prisma-to-drizzle` which was verified complete (2026-06-03) and moved to M0. Out-of-order numeric IDs (01 after 04; 35 after 39; 99 last) reflect creation sequence, not logical order. See MILESTONES.md Gap ε.
 
@@ -698,6 +699,29 @@ Plans:
 | 2    | [ ] 42-03-PLAN.md | Migrate medium-risk shared UI (5 components) + services page (remove local tx())   | 3     |
 
 **Out of scope (bd issue):** 37 widget files batch migration (lower risk, rendered inside guarded pages via usePageLoading)
+
+---
+
+## M4.5 — Stabilization (Planned)
+
+_Buffer between M4 (code-complete) and M5 (production-traffic). No new phases. Pure verification, soak, and sign-off. See `.planning/MILESTONES.md` Section 2 (M4.5) for full criteria._
+
+**Activates when:** M4 is complete (Phases 35, 41, 42 all ✅).
+
+**Verifiable (all must pass to declare M4.5 done):**
+
+- **7-day production soak** with zero P0/P1 incidents (P2/P3 acceptable, tracked).
+- **OpenAPI spec published** to a staging URL or package; at least one external test client (or internal smoke test) consumes it successfully.
+- **Performance baseline captured:** p50/p95/p99 latency for chat send, dashboard load, maintenance ticket create. Documented in `.planning/perf-baseline-M4.5.md`.
+- **All 4 locales (en, af, xh, zu) render** without console errors on every tenant route.
+- **`canAccess()` migration timeline documented** — if Phase 41's legacy export removal isn't done, write a dated plan; if done, write the migration log.
+- **Rollback procedure tested** — verified that we can revert to M3 in <5 minutes (DB migration, env flags, traffic shift).
+
+**Duration:** ~1 week. The 7-day soak is the longest single item; the others can run in parallel during the soak.
+
+**Failure mode:** If any verifiable criterion fails, M4.5 is "blocked on \<criterion\>". M5 does not start until M4.5 is green. No exceptions.
+
+**What's NOT in M4.5:** New features, new phases, code changes beyond what M4 requires.
 
 ---
 

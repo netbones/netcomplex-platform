@@ -76,6 +76,29 @@ forward-looking.
 **Verifiable:** OpenAPI spec generated and committed; `canAccess()` is the canonical gate; no console hydration errors on tenant routes.
 **Blockers:** None. Per GSD worktree protocol (mandated 2026-06-03), execute in a worktree.
 
+### M4.5 — Stabilization (🟡 PLANNED)
+
+**Goal:** Verify the production-ready state is actually stable before launching M5 work. Buffer between M4 (code-complete) and M5 (production-traffic).
+
+**Phase range:** No new phases. This is a verification + observation milestone — no new code beyond what M4 requires.
+
+**Status:** Planned. Activates when M4 is complete (Phases 35, 41, 42 all ✅).
+
+**Verifiable (all must pass to declare M4.5 done):**
+
+- **7-day production soak** with zero P0/P1 incidents (P2/P3 acceptable, tracked).
+- **OpenAPI spec published** to a staging URL or package; at least one external test client (or internal smoke test) consumes it successfully.
+- **Performance baseline captured:** p50/p95/p99 latency for chat send, dashboard load, maintenance ticket create. Documented in `.planning/perf-baseline-M4.5.md`.
+- **All 4 locales (en, af, xh, zu) render** without console errors on every tenant route.
+- **`canAccess()` migration timeline documented** — if Phase 41's legacy export removal isn't done, write a dated plan; if done, write the migration log.
+- **Rollback procedure tested** — verified that we can revert to M3 in <5 minutes (DB migration, env flags, traffic shift).
+
+**Duration:** ~1 week. The 7-day soak is the longest single item; the others can run in parallel during the soak.
+
+**What's NOT in M4.5:** New features, new phases, code changes beyond what M4 requires. Pure verification + soak + sign-off.
+
+**Failure mode:** If any verifiable criterion fails, M4.5 is "blocked on <criterion>". M5 does not start until M4.5 is green. No exceptions — this is the buffer that prevents M5 from being launched on a broken foundation.
+
 ### M5 — Anchor Tenant Launch (📋 PLANNED)
 
 **Goal:** Close the 5 architecture-audit issues, ship Community Merits, OTP password reset, MyHomeSpace bug, and the 37-widget i18n batch. Ready for Soralia Village (180 homes) production traffic.
@@ -252,11 +275,11 @@ Evidence: directory absent. AGENTS.md §4b references the template but it's not 
 
 Remedy: Create `.planning/templates/retro.md` with a 5-section template: (1) What we said we'd deliver, (2) What we actually delivered, (3) Velocity data, (4) What worked / what didn't, (5) Carry-over to next milestone. ~15 min.
 
-**Gap S4 — No pre-commit hook for status drift.**
+**Gap S4 — No pre-commit hook for status drift.** ~~Open~~ (✅ **Resolved 2026-06-03**)
 
-Evidence: Gap β from §3 still recommended but not implemented. The 3 status drift fixes in commit `d11d8f2` were manual; nothing prevents the next one.
+Evidence (was): Gap β from §3 still recommended but not implemented. The 3 status drift fixes in commit `d11d8f2` were manual; nothing prevents the next one.
 
-Remedy: Add a `lint-staged` rule in `package.json` that runs `gsd-sdk query validate.health --strict` on `.planning/**/*.md` changes. Fails the commit if status drift is detected.
+Resolution: Added `lint-staged` rule in `package.json` that runs `gsd-sdk query validate.health` (via `.husky/gsd-status-check.sh`) on `.planning/**/*.md` changes. The check parses the JSON output: any `errors` or `warnings` count fails the commit. INFO items (currently 9 I001) pass — they are advisory, not errors. This makes the discipline in §3 a hard gate, not a soft guideline.
 
 ### 7.3 Scope gaps — milestones that are too big or too undefined
 
@@ -278,11 +301,11 @@ Evidence: Phase 99 is in M6+ "by convention" but is complete. It's not a future 
 
 Remedy: Move Phase 99 to a "Housekeeping" appendix at the end of ROADMAP.md, or annotate it as a closed M0 housekeeping phase.
 
-**Gap C4 — No "between M4 and M5" milestone.**
+**Gap C4 — No "between M4 and M5" milestone.** ~~Open~~ (✅ **Resolved 2026-06-03**)
 
-Evidence: After M4 ships (Phases 41 + 42), we jump to M5 with 10 work items. There's no stabilization or "M4 done, what now?" pause.
+Evidence (was): After M4 ships (Phases 41 + 42), we jump to M5 with 10 work items. There's no stabilization or "M4 done, what now?" pause.
 
-Remedy: Define M4.5 (Stabilization) with criteria like: (a) 7 days of production telemetry with no P0/P1, (b) OpenAPI spec consumed by external test, (c) `canAccess()` migration complete, (d) i18n hydration clean across all tenant routes. Or skip M4.5 and merge it into M5a (audit closure, which already includes stabilization-style work).
+Resolution: Defined M4.5 (Stabilization) with 6 verifiable criteria: 7-day production soak with zero P0/P1, OpenAPI spec consumed by external test client, p50/p95/p99 performance baseline captured, all 4 locales render without console errors on tenant routes, `canAccess()` migration timeline documented, rollback procedure tested in <5 min. ~1 week duration. Activates when M4 is complete; M5 does not start until M4.5 is green. Documented in §2 (M4.5) and in ROADMAP.md.
 
 ### 7.4 Conceptual gaps — milestone discipline without enforcement
 
