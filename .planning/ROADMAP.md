@@ -6,7 +6,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 00-multi-tenant-foundation
+## Phase 00: Multi Tenant Foundation
 
 **Goal:** Establish core multi-tenant infrastructure — tenant resolution, enforcement helpers, seed data
 
@@ -20,7 +20,63 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 01-enforcement
+## Phase 02: Admin Ui
+
+**Goal:** Admin UI for tenant management — tenant list, branding edit page, per-tenant feature toggle overrides, backfill migration script
+
+**Status:** Complete
+
+**Requirements:** MULTI-05, MULTI-06
+
+**Plans:**
+
+- [x] 02-01-PLAN.md — Tenant branding + feature toggle UI + backfill script ✅
+
+---
+
+## Phase 03: Localization
+
+**Goal:** Platform-level i18n — `/[lng]/platform/` route group, language switcher, 4 locale files (en, af, xh, zu), translated platform landing sections
+
+**Status:** Complete
+
+**Requirements:** (none specified at planning time)
+
+**Plans:**
+
+- [x] 03-01-PLAN.md — Platform i18n routing + locale files + LanguageSwitcher + platform landing translations ✅
+
+---
+
+## Phase 03: Second Tenant
+
+**Goal:** Onboard a second tenant to validate the multi-tenant model — exercise tenant resolution, RLS, and isolation under load
+
+**Status:** Planning Complete (not executed; superseded by Phase 20 self-service inception)
+
+**Requirements:** (none specified)
+
+**Plans:**
+
+- [ ] 03-01-PLAN.md — Second tenant onboarding + RLS + isolation test (deferred to Phase 20)
+
+---
+
+## Phase 04: Content I18n
+
+**Goal:** Localize content authored via TipTap editor — store translations per locale, render in user's active language
+
+**Status:** Planning Complete (not executed; related work tracked in BD epic `l23` and task `0f7`)
+
+**Requirements:** (none specified)
+
+**Plans:**
+
+- [ ] 04-01-PLAN.md — Content i18n with TipTap editor (deferred — see BD issue `l23`)
+
+---
+
+## Phase 01: Enforcement
 
 **Goal:** Apply tenant enforcement to API routes, wire dynamic theming, integrate FeatureGate, consolidate locales
 
@@ -34,7 +90,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 05-widget-registry-alignment
+## Phase 05: Widget Registry Alignment
 
 **Goal:** Align widget registry with NetComplex architecture — convert from plain object to WidgetRegistry class
 
@@ -48,7 +104,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 06-maintenance-requests
+## Phase 06: Maintenance Requests
 
 **Goal:** Implement maintenance request system — submit requests with category, priority, description, photo upload, status tracking
 
@@ -62,7 +118,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 07-facility-booking
+## Phase 07: Facility Booking
 
 **Goal:** Implement facility booking as NetComplex module — feature flag gated, tenant-configurable
 
@@ -76,7 +132,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 08-module-architecture
+## Phase 08: Module Architecture
 
 **Goal:** Establish module architecture — platform_modules + tenant_modules tables, tier on tenants, enforcement helpers, FeatureGate update. Foundation for all future module work.
 
@@ -90,7 +146,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 09-real-time-chat
+## Phase 09: Real Time Chat
 
 **Goal:** Wire Supabase Realtime for chat — real-time message delivery, typing indicators, online presence
 
@@ -104,7 +160,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 10-email-notifications
+## Phase 10: Email Notifications
 
 **Goal:** Wire MailerSend for transactional emails — signup welcome, password reset, user-enabled notifications
 
@@ -118,7 +174,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 11-announcements
+## Phase 11: Announcements
 
 **Goal:** Implement governed announcements layer — role-gated priority taxonomy, audience targeting with fanout, document attachment, admin CRUD UI, stream widget + /news embed (no new nav items)
 
@@ -133,7 +189,21 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 18-toast-unification
+## Phase 11: Prisma To Drizzle
+
+**Goal:** Migrate query layer from Prisma to Drizzle for edge-runtime compatibility — Prisma retained for schema/migrations, Drizzle becomes the canonical query layer via `src/lib/db.ts`
+
+**Status:** Planning Complete (not executed; superseded by gradual Drizzle adoption across subsequent phases)
+
+**Requirements:** (none specified)
+
+**Plans:**
+
+- [ ] 11-01-PLAN.md — Migrate query layer from Prisma to Drizzle (deferred — adopted incrementally per `AGENTS.md` "Prisma + Drizzle" guidance)
+
+---
+
+## Phase 18: Toast Unification
 
 **Goal:** Unify on Sonner as the single toast notification system, remove Zustand Toast
 
@@ -145,7 +215,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 19-schema-corrections
+## Phase 19: Schema Corrections
 
 **Goal:** Critical schema fixes and Platform Admin API wiring — Setting uniqueness, Tenant ownerId, user isPlatformAdmin, Header role bug, tenant CRUD routes
 
@@ -161,7 +231,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 20-self-service-inception
+## Phase 20: Self Service Inception
 
 **Goal:** Self-service tenant signup + onboarding wizard — atomic user+tenant creation, 5-step guided setup, assisted provisioning
 
@@ -178,7 +248,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 21-content-events
+## Phase 21: Content Events
 
 **Goal:** Content scheduling UI, Events CRUD admin pages, Events dashboard tab
 
@@ -194,7 +264,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 22-page-flag-expansion
+## Phase 22: Page Flag Expansion
 
 **Goal:** Expand page visibility flags for Groups, Services, Resources, Maintenance, Surveys, and Competitions.
 
@@ -210,7 +280,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 23-competitions-resources
+## Phase 23: Competitions Resources
 
 **Goal:** Competitions model + admin CRUD + dynamic public page, Resources standalone model with file uploads/visibility/migration
 
@@ -227,7 +297,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 24-dashboard-enhancement
+## Phase 24: Dashboard Enhancement
 
 **Goal:** Add surveys tab with results visualisation, group moderation queue widget, fix widget state persistence
 
@@ -243,7 +313,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 25-gap-closure
+## Phase 25: Gap Closure
 
 **Goal:** Close remaining gaps from GAPS.md — platform admin auth guards, MobileMenu role fix, onboarding transaction, widget deduplication, test coverage
 
@@ -259,7 +329,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 26-navigation-alignment
+## Phase 26: Navigation Alignment
 
 **Goal:** Align all navigation surfaces with NAVIGATION_GOVERNANCE.md — single source of truth, More dropdown, 4-section burger, Conservation/Campaign mutual exclusion, role-aware admin isolation
 
@@ -275,7 +345,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 27-tenant-config-and-gaps
+## Phase 27: Tenant Config And Gaps
 
 **Goal:** Make booking facilities and maintenance categories tenant-configurable via onboarding + settings API; close remaining GAPS.md items (GAP-05, GAP-10, GAP-13, GAP-15, GAP-16)
 
@@ -290,7 +360,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 28-proxy-consolidation
+## Phase 28: Proxy Consolidation
 
 **Goal:** Consolidate split proxy.ts + middleware.ts into single src/middleware.ts aligned with Next.js 15.5 (current Vercel deployment); correct architecture docs
 
@@ -304,7 +374,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 29-dashboard-defaults
+## Phase 29: Dashboard Defaults
 
 **Goal:** Register missing maintenance + admin widgets, implement role-seeded default dashboard layouts per tab, integrate defaults into loading path, add reset-to-default action
 
@@ -319,7 +389,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 30-dashboard-phase-b
+## Phase 30: Dashboard Phase B
 
 **Goal:** Replace tab-based dashboard with Focus Space architecture — 5 spaces (Home, Services, Community, Messages, Admin), HomeLayer landing screen, widget-to-space migration, admin sub-launcher, My Home consolidation, mobile bottom bar, feature-flag controlled rollout
 
@@ -337,7 +407,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 31-dashboard-tab-removal
+## Phase 31: Dashboard Tab Removal
 
 **Goal:** Remove all tab-mode dashboard code after Phase 30 Focus Space architecture is proven — delete old DashboardPage/DashboardTabs, strip tab-keyed defaults, remove feature flag. /admin route is NOT in scope (consolidated in Phase 37).
 
@@ -353,7 +423,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 32-users-list-refactor
+## Phase 32: Users List Refactor
 
 **Goal:** Break the 1,431-line UsersListSection.tsx into maintainable sub-components each under 500 lines — extract types to entity layer, pure helpers to lib/, data fetch to custom hook, 5 modal dialogs to separate components using shared ModalOverlay, table into row/edit-row/table components, slim orchestrator under 300 lines
 
@@ -367,7 +437,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 33-user-suspension
+## Phase 33: User Suspension
 
 **Goal:** Implement a proper admin suspension mechanism — admin can issue timed suspensions (2 days, 1 week, 30 days, permanent) with type (violation, disruption, behavior, property, non-payment, other), reason, and description. Suspended users are deactivated and blocked at the API level. Users can be unsuspended early. Suspension history is tracked in the existing platformSuspension table.
 
@@ -382,7 +452,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 34-admin-layer
+## Phase 34: Admin Layer
 
 **Goal:** Replace the admin space widget-grid+sub-launcher hybrid with a purpose-built AdminLayer command panel that mirrors the HomeLayer architecture — command bar → domains grid → lazy activity stream → collapsible widget area, driven by urgency + activity APIs
 
@@ -396,7 +466,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 36-survey-builder
+## Phase 36: Survey Builder
 
 **Goal:** Build a Google Forms-like survey/question builder in the admin panel — dedicated builder page, 6 question types, accordion sections, image support, drag-and-drop reordering, metadata tags
 
@@ -415,7 +485,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-## Phase: 39-competition-entries
+## Phase 39: Competition Entries
 
 **Goal:** Complete the competition system with user entry management, three winner selection mechanics (raffle, photo contest, score-based), public cards-based listing/detail pages with winners gallery, and winner notifications via the existing Notification system.
 
@@ -434,15 +504,7 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 ---
 
-### Phase: Second Tenant
-
-- Onboard second tenant
-- Enable RLS
-- Test isolation
-
----
-
-## Phase: 35-api-alignment
+## Phase 35: Api Alignment
 
 **Goal:** Audit current API infrastructure against adopted governance standards (API.md, tRPC.md, API_ARCHITECTURE.md) and implement phased remediation across response envelopes, tRPC adoption, route structure, DTO layer, observability, rate limiting, module ownership, and compliance sweep
 
@@ -477,7 +539,7 @@ Plans:
 
 ---
 
-## Phase: 37-admin-route-consolidation
+## Phase 37: Admin Route Consolidation
 
 **Goal:** Consolidate dual admin routes (`/admin` + `/dashboard/admin`) into a single canonical `/admin` route — remove broken redirect, install AdminLayer as the `/admin` landing page, normalize all links
 
@@ -491,7 +553,7 @@ Plans:
 
 ---
 
-## Phase: 38-space-layers
+## Phase 38: Space Layers
 
 **Goal:** Convert /dashboard/services and /dashboard/messages from SpaceLayout widget grids into purpose-built zoned layers (urgency zone + domain grid) following the AdminLayer/HomeLayer architecture. /dashboard/community remains the only true DnD widget space.
 
@@ -510,7 +572,7 @@ Plans:
 
 ---
 
-## Phase: 40-maintenance-ticketing
+## Phase 40: Maintenance Ticketing
 
 **Goal:** Transform maintenance requests into a proper ticketing system — admin-configurable categories, in-house maintenance teams and third-party service providers with assignment/reassignment, 7-status workflow, ticket numbering, progress timeline, user tracking with activity zone integration, and seed data.
 
@@ -566,7 +628,7 @@ tenant_modules           → What each tenant has
 
 ---
 
-## Phase: 41-feature-gate-consolidation
+## Phase 41: Feature Gate Consolidation
 
 **Goal:** Consolidate the three overlapping feature gating systems (TierGuard/FeatureRegistry, Module Gate, PlatformPageFlags) into a single `canAccess()` entry point with explicit 5-layer precedence. Adds server `canAccess()`, client `canAccessClient()` (skips tier/module — server is source of truth) + `useGateContext()` + `GateGuard` component, CI test for mapping completeness, `revalidateGate()` cache invalidation helper, and removal of all 8 legacy tier string occurrences. **Phase 1 is purely additive — no existing callsites change.**
 
@@ -615,7 +677,7 @@ tenant_modules           → What each tenant has
 
 ---
 
-## Phase: 42-i18n-hydration-fix
+## Phase 42: I18n Hydration Fix
 
 **Goal:** Execute systemic i18n hydration fix across tenant routes — add I18nextProvider to tenant layout, create shared `useSafeTranslation` hook with `tx(key, fallback)`, migrate high-risk pages (messages, admin domains) and medium-risk shared UI (Bookshelf, TagCloud, LocaleSelector, CreateListingForm, UnifiedResidentCard), consolidate services domain page's local tx() helper into shared hook.
 
@@ -632,3 +694,17 @@ tenant_modules           → What each tenant has
 | 2    | [ ] 42-03-PLAN.md | Migrate medium-risk shared UI (5 components) + services page (remove local tx())   | 3     |
 
 **Out of scope (bd issue):** 37 widget files batch migration (lower risk, rendered inside guarded pages via usePageLoading)
+
+---
+
+## Phase 99: Build Fix
+
+**Goal:** Fix build errors caused by the multi-tenant refactor — broken import paths in 6 API routes, centralize imports via `@/lib/db`, inline Drizzle table definitions for non-generated tables
+
+**Status:** Complete (housekeeping; out-of-band maintenance phase)
+
+**Requirements:** BUILD-01
+
+**Plans:**
+
+- [x] 99-01-PLAN.md — Import path fixes for 6 API routes (bookings, maintenance/[id|notify|notes|history], admin/board-members) ✅
