@@ -14,7 +14,7 @@ export const tenants = pgTable('Tenant', {
   fontFamily: text('fontFamily'),
   customCss: text('customCss'),
   active: boolean('active').default(true).notNull(),
-  subscriptionTier: text('subscriptionTier').default('sprout').notNull(),
+  subscriptionTier: text('subscriptionTier').default('basic').notNull(),
   modules: jsonb('modules'),
   maxPages: integer('maxPages').default(5).notNull(),
   pageCount: integer('pageCount').default(0).notNull(),
