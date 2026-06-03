@@ -2,7 +2,7 @@
 
 import { use } from 'react';
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@features/i18n/model/useTranslation';
 import { notFound } from 'next/navigation';
 import { ADMIN_DOMAINS, getAdminDomainWidgets } from '@widgets/dashboard/model/spaces';
 import { ADMIN_DOMAIN_DEFINITIONS } from '@widgets/dashboard/ui/AdminSubLauncher';
@@ -15,7 +15,7 @@ interface AdminDomainPageProps {
 }
 
 export default function AdminDomainPage({ params }: AdminDomainPageProps) {
-  const { t } = useTranslation('common');
+  const { tx } = useSafeTranslation(['common', 'admin']);
   const { domain } = use(params);
 
   // Validate domain
@@ -27,16 +27,21 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
   const DomainIcon = domainDef?.icon;
   const widgets = getAdminDomainWidgets(domain);
 
+  // Compute domain label fallback (used by tx() multiple times)
+  const domainLabelFallback = domainDef?.id
+    ? domainDef.id.charAt(0).toUpperCase() + domainDef.id.slice(1)
+    : domain;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Breadcrumbs
           items={[
-            { label: t('nav.home'), href: '/' },
-            { label: t('nav.dashboard'), href: '/dashboard' },
-            { label: t('nav.admin'), href: '/dashboard/admin' },
+            { label: tx('nav.home', 'Home'), href: '/' },
+            { label: tx('nav.dashboard', 'Dashboard'), href: '/dashboard' },
+            { label: tx('nav.admin', 'Admin'), href: '/dashboard/admin' },
             {
-              label: t(domainDef?.labelKey ?? domain, { ns: 'admin' }),
+              label: tx(domainDef?.labelKey ?? domain, domainLabelFallback, { ns: 'admin' }),
               href: `/dashboard/admin/${domain}`,
             },
           ]}
@@ -47,10 +52,12 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
             {DomainIcon && <DomainIcon className="w-8 h-8 text-indigo-600" />}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {t(domainDef?.labelKey ?? domain, { ns: 'admin' })}
+                {tx(domainDef?.labelKey ?? domain, domainLabelFallback, { ns: 'admin' })}
               </h1>
               <p className="text-sm text-gray-500">
-                {domainDef ? t(domainDef.descriptionKey, { ns: 'admin' }) : ''}
+                {domainDef
+                  ? tx(domainDef.descriptionKey, domainDef?.description ?? '', { ns: 'admin' })
+                  : ''}
               </p>
             </div>
           </div>
@@ -58,7 +65,7 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
             href="/dashboard/admin"
             className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
           >
-            &larr; {t('domains.back', { ns: 'admin' })}
+            &larr; {tx('domains.back', 'Back to Admin', { ns: 'admin' })}
           </Link>
         </div>
 
