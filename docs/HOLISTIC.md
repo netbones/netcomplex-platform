@@ -1,6 +1,6 @@
 # NetComplex / Soralia Village — Holistic View
 
-> **Last updated:** 2026-06-01
+> **Last updated:** 2026-06-03
 > **Purpose:** Living document tracking project architecture, cross-context impact, systemic risks, and progress.
 
 ---
@@ -120,7 +120,7 @@ Audit Logger: Pino → structured JSON
 | ------ | --------------------------------------------------------------- | ---------------- | ------- |
 | GAP-04 | MobileMenu lowercase `'board'` bug                              | P1 (minor)       | Partial |
 | GAP-08 | Missing visibility badge on resource cards                      | P2 (minor)       | Partial |
-| GAP-09 | Self-service signup NOT atomic                                  | P2 (significant) | Open    |
+| GAP-09 | Self-service signup NOT atomic                                  | P2 (significant) | Closed  |
 | GAP-11 | Missing widget registrations (competitions, resources, surveys) | P3               | Open    |
 
 ### Open BD Issues (22 remaining)
@@ -143,12 +143,12 @@ Audit Logger: Pino → structured JSON
 2. **Superuser DB connection** — Most routes use the privileged `DATABASE_URL` connection, bypassing RLS. Only routes explicitly wrapped in `runWithRLS()` get DB-level defense. The security model is primarily application-layer.
 3. **In-memory rate limiter** — Works for single-instance Vercel but will silently fail to rate-limit across multiple instances. Redis upgrade is flagged but not implemented.
 4. **tRPC vs REST split** — Only 2 tRPC routers exist (identity, competitions). 150 REST routes remain. The API governance docs prescribe tRPC for internal APIs, but the migration is incremental. Dual API surface adds maintenance burden.
-5. **Widget space architecture is mid-migration** — Phase 30 (Focus Spaces) is complete, but Phase 31 (tab removal) and Phase 38 (purpose-built layers) are not. Old tab code coexists with new space code.
+5. **Widget space architecture is mid-migration** — Phase 30 (Focus Spaces) is complete, but ~Phase 31 (tab removal)~ and Phase 38 (purpose-built layers) are not. Old tab code coexists with new space code.
 
 ### Systemic Risks
 
-1. **20 routes without tenant filters** (`e0w`) — real cross-tenant data leakage risk in production
-2. **Non-atomic signup** (GAP-09) — user creation without tenant+role creates orphaned accounts
+1. ~~**20 routes without tenant filters** (`e0w`) — real cross-tenant data leakage risk in production~~
+2. ~~**Non-atomic signup** (GAP-09) — user creation without tenant+role creates orphaned accounts~~ Resolved by Phase 20: `POST /api/platform/tenants` atomically creates tenant + user + ADMIN role in a single transaction.
 3. **Single Drizzle connection** — ~~no connection pooling, no retry logic; Supabase connection limits could be hit under load~~ Fixed in BD issue `22a`: pool now configured with `max: 1`, `idleTimeoutMillis: 10000`, `connectionTimeoutMillis: 5000`. Retry deferred to Supabase pooler layer. 4.~~**No automated schema drift detection** — Prisma→Drizzle generation is manual; CI doesn't verify generated schemas match source~~ 8ffb071
 
 ### Opportunities
@@ -192,3 +192,4 @@ Audit Logger: Pino → structured JSON
 | 2026-06-01 | Created docs/contexts/ with 12 per-entity CONTEXT.md files (tenant, user, directory, maintenance, booking, chat, content, events, service, widget, admin, competitions)                                      |
 | 2026-06-01 | Evaluated feature gate consolidation proposal (GATE_DISCUSSION + GATE_ADDENDUM) — created docs/GATE_PLAN.md with 3-phase migration (foundation → incremental → cleanup) for the 5-layer precedence model     |
 | 2026-06-03 | Audited route-level withTenant() coverage. Closed BD issue `e0w`, fixed `resources/[id]/download/route.ts` gap. Created BD issue `22a` — added pool config to Drizzle singleton. Created docs/API_ROUTES.md. |
+| 2026-06-03 | Updated GAP-09 from Open → Closed (resolved by Phase 20). Updated HOLISTIC.md GAPS table and systemic risks to match.                                                                                        |

@@ -167,24 +167,7 @@ Prefix your commit message with the gap ID (e.g. `fix(GAP-01): enforce tenantId 
 
 ### GAP-09 · Verify the onboarding wizard completes the signup transaction atomically
 
-> ❌ **OPEN** (2026-05-16 audit) — `src/app/api/auth/signup/route.ts` simply forwards to Better Auth's `/api/auth/sign-up/email` endpoint and sends a welcome email. There is NO tenant creation, NO role assignment, and NO atomic transaction in the signup flow. The onboarding route (`/api/platform/onboarding`) only saves settings progress — it does not create users or tenants. This gap requires a new self-service signup endpoint that wraps user creation + tenant creation + role assignment in a single DB transaction.
-
-**What:** The self-service signup flow must create the user, tenant, and ADMIN role assignment in a single atomic operation. Currently, signup only creates a user via Better Auth — no tenant or role is created.
-
-**Files to read first:**
-
-- `src/app/api/auth/signup/route.ts`
-- `src/app/api/platform/onboarding/route.ts`
-- `src/app/api/platform/tenants/route.ts`
-- `src/entities/tenant/api/tenant.ts`
-
-**Instructions:**
-
-1. Locate where the signup flow creates the Tenant record and assigns the ADMIN role to the new user.
-2. Confirm this happens inside a database transaction. In Drizzle this looks like `db.transaction(async (tx) => { ... })`. In Prisma it's `prisma.$transaction([...])`.
-3. If the three operations (create user, create tenant, assign role) are sequential `await` calls without a wrapping transaction, wrap them.
-4. Add error handling: if the transaction fails, return a clear error and do not leave the user in a partial state.
-5. Confirm the `ownerId` on the newly created `Tenant` is set to the new user's `id` within the same transaction.
+> ✅ **CLOSED** (resolved by Phase 20: Self-Service Inception) — `POST /api/platform/tenants` (route.ts) now atomically creates the tenant, user (via Better Auth), and ADMIN role assignment inside a single Drizzle `db.transaction()` with `ownerId` linkage. Verfied 2026-05-15 in `20-VERIFICATION.md` — 15/15 truths passed, `INCEPT-01` satisfied. 5. Confirm the `ownerId` on the newly created `Tenant` is set to the new user's `id` within the same transaction.
 
 **Acceptance criteria:**
 
