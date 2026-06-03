@@ -4,13 +4,13 @@
 
 - **Phase:** 36-survey-builder
 - **Status:** Ready to execute
-- **Current Plan:** 3
+- **Current Plan:** 4
 - **Total Plans in Phase:** 4
 - **Last Updated:** 2026-06-02
 - **Next Step:** Execute 36-03-PLAN.md (survey builder UI)
 
-**Last Session:** 2026-06-02T08:02:16.337Z
-**Stopped at:** Completed 36-02-PLAN.md
+**Last Session:** 2026-06-03T00:49:38.752Z
+**Stopped at:** Completed 31-02-PLAN.md
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -147,6 +147,10 @@
 - [Phase 36-survey-builder]: [36-02] GET-survey returns flat {survey, questions, sections} shape — builder UI groups questions client-side using sectionId — Matches builder mental model; one request for full hydration
 - [Phase 31]: Inlined TAB_TO_SPACE_MAP in widget-store.ts instead of importing from tab-migration-map.ts (file deleted in Plan 31-02)
 - [Phase 31]: Renamed resetTabLayout→resetSpaceLayout for API consistency (plan missed this 4th method with Tab in name)
+- [Phase 31]: dashboard/page.tsx simplified to always render HomeLayer + MyHomeSpace (no conditional flag branch)
+- [Phase 31]: dashboard/layout.tsx simplified to always render SpaceLauncher + MobileSpaceBar (no conditional flag branch)
+- [Phase 31]: NEXT_PUBLIC_FOCUS_SPACES was not present in .env.local — no env cleanup needed
+- [Phase 31]: admin-config.ts safe to delete — not exported from entities/admin barrel, only used DashboardTab type from deleted DashboardTabs.tsx
 
 ## Notes
 
@@ -285,6 +289,7 @@
 | Phase 40 P04                           | 259min | 3 tasks  | 5 files  |
 | Phase 36 P01                           | 9min   | 2 tasks  | 11 files |
 | Phase 36-survey-builder P02            | 11min  | 3 tasks  | 7 files  |
+| Phase 31 P02                           | 281m   | 2 tasks  | 8 files  |
 
 ## A01 Execution Decisions
 
