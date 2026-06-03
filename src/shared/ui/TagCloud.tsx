@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@features/i18n/model/useTranslation';
 
 interface TagCloudProps {
   tags: string[];
@@ -10,7 +10,7 @@ interface TagCloudProps {
 }
 
 export function TagCloud({ tags, maxDisplay = 5, className = '', size = 'small' }: TagCloudProps) {
-  const { t } = useTranslation('common');
+  const { tx } = useSafeTranslation('common');
 
   if (!tags || tags.length === 0) {
     return null;
@@ -40,7 +40,7 @@ export function TagCloud({ tags, maxDisplay = 5, className = '', size = 'small' 
       ))}
       {remainingCount > 0 && (
         <span className={`${sizeClasses[size]} text-gray-500`}>
-          +{remainingCount} {t('more', 'more')}
+          +{remainingCount} {tx('more', 'more')}
         </span>
       )}
     </div>
