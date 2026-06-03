@@ -1,6 +1,7 @@
 # Cadence & Velocity Analysis — Soralia Village
 
 **Generated:** 2026-06-03
+**Last updated:** 2026-06-03 (status corrections applied — Phase 33, 38, 40 reconciled)
 **Window analyzed:** 2026-04-05 → 2026-06-03 (8.5 weeks, 60 days)
 **Source data:** `.planning/phases/*/*-SUMMARY.md` completion dates, ROADMAP.md statuses, STATE.md
 
@@ -18,9 +19,9 @@
 | Worst stretch            | W15, W16, W18, W19 (4 weeks of zero)    |
 | Currently in flight      | 0 (last SUMMARY is 31-03 on 2026-06-03) |
 | Ready-to-execute backlog | 6 plans (Phase 41 × 3, Phase 42 × 3)    |
-| Status discrepancies     | 3 (Phase 33, 38, 40)                    |
+| Status discrepancies     | 0 (was 3 — fixed in this revision)      |
 
-**Velocity health:** 7/10. Strong execution when active, but burst-then-plateau pattern + status drift + 6-plan ready backlog = ~25% of total plan count is in some form of limbo (planning-only, status drift, or queued).
+**Velocity health:** 8/10. Strong execution when active, with 102 plans shipped across 16 active days. Burst-then-plateau pattern (W20/W22 mega-weeks bracketing 4 weeks of zero) and 6-plan ready backlog remain, but status drift has been cleared.
 
 ---
 
@@ -93,17 +94,21 @@ This is **a quarter of the project window with no GSD-tracked work.** Either:
 - (a) GSD pipeline was adopted later than W14, or
 - (b) meaningful work happened but wasn't recorded
 
-### 🔴 Gap B: 3 ROADMAP/STATE status discrepancies
+### 🔴 Gap B: ~~3 ROADMAP/STATE status discrepancies~~ ✅ RESOLVED 2026-06-03
 
-Phases marked as "In Progress" or "Planning Complete" on disk, but actually fully executed and verified:
+**Status:** Corrected in this revision. ROADMAP.md and STATE.md both updated.
 
-| Phase                        | ROADMAP says        | Reality (on disk)                                         |
-| ---------------------------- | ------------------- | --------------------------------------------------------- |
-| **33-user-suspension**       | "In Progress"       | 2/2 plans shipped, VERIFIED 14/14 must-haves (2026-05-28) |
-| **38-space-layers**          | "Planning Complete" | 4/4 plans shipped, VERIFIED (2026-05-30)                  |
-| **40-maintenance-ticketing** | "Planning Complete" | 4/4 plans shipped, all 5/31–6/1                           |
+Phases that were marked as "In Progress" or "Planning Complete" on disk, but were actually fully executed and verified:
 
-These are **bookkeeping bugs** — work is done but tracking says otherwise. STATE.md also shows Phase 33 as still in flight, suggesting `/gsd-complete-milestone` was never called. This makes it hard to know what "in progress" actually means right now.
+| Phase                        | Was                                        | Now (corrected)                                                      |
+| ---------------------------- | ------------------------------------------ | -------------------------------------------------------------------- |
+| **33-user-suspension**       | "In Progress" (33-02 row unchecked)        | Complete (verified 14/14 must-haves, 2026-05-28) — 33-02 row checked |
+| **38-space-layers**          | "Planning Complete" (all 4 rows unchecked) | Complete (verified, 2026-05-30) — all 4 rows checked                 |
+| **40-maintenance-ticketing** | "Planning Complete" (all 4 rows unchecked) | Complete (4/4 plans, 2026-05-31 → 2026-06-01) — all 4 rows checked   |
+
+STATE.md "Current Position" also corrected: was pointing to Phase 36 execution (already done); now correctly points to ready-to-execute backlog (Phase 41 or 42).
+
+**Lesson:** This was bookkeeping debt from sessions that didn't run `/gsd-complete-milestone` after the last plan in a phase shipped. Process fix: always run `gsd-tools state complete-phase` after the final plan in a phase, not just after the final plan in the last plan.
 
 ### 🟡 Gap C: 2 ready-to-execute phases, not started (6 plans)
 
@@ -139,11 +144,13 @@ These pollute the `bd ready` and `/gsd-progress` output. **Recommended: archive 
 
 ```
 Real "in flight" work:
-  - Nothing actually in flight. Last SUMMARY is 31-03 on 2026-06-03.
-  - STATE.md says "Phase 36 complete — ready for verification" but
-    Phase 36 is on-disk complete+verified already.
-  - STATE.md says "Next Step: Execute 36-03-PLAN.md" but 36-03 is
-    already done.
+  - Nothing in flight. Last SUMMARY is 31-03 on 2026-06-03.
+  - All 3 status discrepancies resolved in this revision:
+    - STATE.md no longer says "Phase 36 complete — ready for
+      verification" (it was correct, but pointed to wrong next step).
+    - STATE.md no longer says "Next Step: Execute 36-03-PLAN.md"
+      (36-03 is already done, and Phase 36 itself is done).
+    - ROADMAP now correctly marks Phases 33, 38, 40 as Complete.
   - The real next step is: pick up 41 or 42 (both ready-to-execute).
 
 What "Ready to execute" means here:
@@ -158,12 +165,9 @@ What "Ready to execute" means here:
 
 ## 5. Recommendations (priority order)
 
-1. **Fix status discrepancies** (Gap B) — quick win. Update ROADMAP.md and STATE.md to reflect reality:
-   - Phase 33 → "Complete" (verified 14/14)
-   - Phase 38 → "Complete" (verified)
-   - Phase 40 → "Complete" (4/4 plans shipped)
-2. **Pick up Phase 41 or Phase 42 next** — both ready, both unblock downstream work. Per GSD worktree protocol (mandated 2026-06-03), do this in a worktree.
-3. **Archive the 3 deferred planning-only phases** (Gap D) — `03-second-tenant`, `04-content-i18n`, `11-prisma-to-drizzle`. (Deferred per session 2026-06-03.)
+1. **~~Fix status discrepancies~~ (Gap B)** — ✅ **DONE 2026-06-03.** Phases 33, 38, 40 reconciled in ROADMAP and STATE.md (see Section 2 above).
+2. **Pick up Phase 41 or Phase 42 next** — both ready, both unblock downstream work. Per GSD worktree protocol (mandated 2026-06-03), do this in a worktree. **This is now the #1 actionable item.**
+3. **Archive the 3 deferred planning-only phases** (Gap D) — `03-second-tenant`, `04-content-i18n`, `11-prisma-to-drizzle`. (Held back per session 2026-06-03.)
 4. **Address the W15–W19 silence** — if the work was done but not tracked, retro-fill the SUMMARY frontmatter with actual completion dates; if it was never done, the work is in `done` state and not at risk.
 5. **Set a cadence baseline** — the burst pattern (21+10+21 in 3 weeks) is unsustainable. Aim for 5–7 plans/week sustained, which is 50% of the burst rate but 3× the median.
 
@@ -171,10 +175,12 @@ What "Ready to execute" means here:
 
 ## 6. Velocity Health Verdict
 
-**Score: 7/10**
+**Score: 8/10 (was 7/10 — +1 for Gap B resolution)**
 
-Execution velocity is strong when active, but the burst pattern + status drift + ready backlog of 6 plans means ~25% of total plans (29 of 110 across all phases) are either in planning limbo, marked "in progress" when shipped, or about to start. None of this is blocking, but it's accounting debt that compounds.
+Execution velocity is strong when active: 102 plans shipped across 16 active days, peak 11 plans/day, median 4 plans/day. The two remaining concerns are (1) the burst-then-plateau cadence (4 weeks of zero between two 21-plan weeks) and (2) a 6-plan ready backlog queued since 2026-06-02. Neither is blocking, but the W22 burst suggests the team may benefit from a more sustained execution rhythm.
+
+Status drift (Gap B) is now resolved, so the accounting-debt penalty is removed. The 4-week zero stretch (Gap A) and 3 deferred planning phases (Gap D) remain on the radar.
 
 ---
 
-_Last updated: 2026-06-03 after health check (E002 resolved) and ROADMAP format reconciliation. Will be regenerated at milestone boundaries._
+_Last updated: 2026-06-03 — status corrections applied for Phases 33, 38, 40. Health check still passes (healthy, 0 errors, 0 warnings). Velocity health bumped 7 → 8 after Gap B resolution. Will be regenerated at milestone boundaries._
