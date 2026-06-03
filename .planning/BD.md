@@ -1,23 +1,23 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-05-29 (Session 6)
-> **Total remaining:** 14 issues
-> **Closed this session:** Phase 35 canonical API fixes + expandable resource rows
-> **Created this session:** 1 issue (seed.ts type errors)
+> **Last updated:** 2026-06-02 (Session 7)
+> **Total remaining:** 19 issues
+> **Closed this session:** — (no closures; new architecture work queued)
+> **Created this session:** 5 architecture issues from `docs/cleaner_react_architecture.md` audit
 
 ## Summary by Priority
 
-| Priority | Open | Focus                                       |
-| -------- | ---- | ------------------------------------------- |
-| P2       | 4    | Core features, epics, bugs                  |
-| P3       | 14   | Tech debt, Phase 4/5 features, enhancements |
-| P4       | 6    | Backlog, blocked events                     |
+| Priority | Open | Focus                                        |
+| -------- | ---- | -------------------------------------------- |
+| P2       | 6    | Core features, epics, bugs, **architecture** |
+| P3       | 17   | Tech debt, Phase 4/5 features, enhancements  |
+| P4       | 6    | Backlog, blocked events                      |
 
 ## Summary by Status
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 22    |
+| ○ Open        | 27    |
 | ◐ In Progress | 1     |
 
 ---
@@ -39,10 +39,12 @@
 
 ### Features & Tasks
 
-| ID    | Type    | Title                                                     | Status |
-| ----- | ------- | --------------------------------------------------------- | ------ |
-| `2at` | feature | Phase 35: Community Merits & Standing System              | ○      |
-| `k3h` | task    | Verify external API consumers can access the OpenAPI spec | ○      |
+| ID    | Type    | Title                                                             | Status |
+| ----- | ------- | ----------------------------------------------------------------- | ------ |
+| `2at` | feature | Phase 35: Community Merits & Standing System                      | ○      |
+| `k3h` | task    | Verify external API consumers can access the OpenAPI spec         | ○      |
+| `qig` | task    | Architecture: Build shared HTTP client (src/shared/api/client.ts) | ○      |
+| `fpc` | task    | Architecture: Expand tRPC coverage from 2 to all entities         | ○      |
 
 ### Blocked Tasks
 
@@ -56,9 +58,9 @@
 
 ### Bugs
 
-| ID    | Type | Title                                                                   | Status |
-| ----- | ---- | ----------------------------------------------------------------------- | ------ |
-| `tc4` | bug  | prisma/seed.ts type errors: missing id, tenantId in user creates        | ○      |
+| ID    | Type | Title                                                            | Status |
+| ----- | ---- | ---------------------------------------------------------------- | ------ |
+| `tc4` | bug  | prisma/seed.ts type errors: missing id, tenantId in user creates | ○      |
 
 ### Features
 
@@ -70,17 +72,20 @@
 
 ### Tasks
 
-| ID    | Title                                                 | Status | Source              |
-| ----- | ----------------------------------------------------- | ------ | ------------------- |
-| `ka6` | Design decision: widget placement across Focus Spaces | ○      | Phase 30 checkpoint |
-| `jc1` | Implement cookie management for privacy compliance    | ○      |                     |
-| `6d8` | Migrate React imports to Preact and remove dead code  | ○      |
-| `gtm` | Phase 5: Notification system                          | ○      |
-| `cp8` | Phase 5: Payment processing                           | ○      |
-| `qx7` | Phase 5: Booking calendar integration                 | ○      |
-| `kia` | Phase 4: Advanced analytics                           | ○      |
-| `9e8` | Phase 4: Provider dashboard                           | ○      |
-| `69c` | Phase 4: Third party registration flow                | ○      |
+| ID    | Title                                                                       | Status | Source                           |
+| ----- | --------------------------------------------------------------------------- | ------ | -------------------------------- |
+| `ka6` | Design decision: widget placement across Focus Spaces                       | ○      | Phase 30 checkpoint              |
+| `jc1` | Implement cookie management for privacy compliance                          | ○      |                                  |
+| `6d8` | Migrate React imports to Preact and remove dead code                        | ○      |
+| `gtm` | Phase 5: Notification system                                                | ○      |
+| `cp8` | Phase 5: Payment processing                                                 | ○      |
+| `qx7` | Phase 5: Booking calendar integration                                       | ○      |
+| `kia` | Phase 4: Advanced analytics                                                 | ○      |
+| `9e8` | Phase 4: Provider dashboard                                                 | ○      |
+| `69c` | Phase 4: Third party registration flow                                      | ○      |
+| `5u2` | Architecture: De-duplicate maintenance API transform logic                  | ○      | cleaner_react_architecture audit |
+| `9xr` | Architecture: Extract pure domain helpers (useIdentity, ticketNumber, etc.) | ○      | cleaner_react_architecture audit |
+| `1ei` | Architecture: Migrate widget useEffect+fetch to useQuery/useMutation        | ○      | cleaner_react_architecture audit |
 
 ### In Progress
 
@@ -198,3 +203,13 @@
 6. **`byj`** — AddWidgetModal search/filter enhancement
 7. **`bgb`** — Epic: Interests Visualization (in-progress)
 8. **`7td`** — Enable One Tap passkey login (security)
+
+### Architecture Roadmap (from `docs/cleaner_react_architecture.md` audit, 2026-06-02)
+
+9. **`qig`** — Build shared HTTP client (Chapter 1) — unblocks Chapters 2, 3
+10. **`fpc`** — Expand tRPC coverage from 2 routers to all entities (Chapter 8)
+11. **`9xr`** — Extract pure domain helpers (Chapter 7) — `getEffectiveRole`, `generateTicketNumber`, permission functions
+12. **`5u2`** — De-duplicate maintenance transform logic between `src/app/api/maintenance/route.ts` and `src/entities/maintenance/api/route.ts` (Chapter 3)
+13. **`1ei`** — Migrate widget `useEffect`+`fetch` to `useQuery`/`useMutation` (Chapters 6, 8) — start with `DashboardStats`, `EventsWidget`, `AdminStatsWidget`
+
+Full audit and recommended order in `docs/cleaner_react_architecture.md` (Codebase Audit section).
