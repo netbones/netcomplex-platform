@@ -1,11 +1,26 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: executing
+stopped_at: Completed Phase 41 (feature-gate-consolidation, 3/3 plans). 7 legacy tier strings removed, server canAccess() + client canAccessClient() + GateGuard shipped, CI test for mapping completeness live, revalidateGate() helper added. Ready to start Phase 42 (i18n-hydration-fix, 3 plans).
+last_updated: '2026-06-03T14:20:00.000Z'
+progress:
+  total_phases: 42
+  completed_phases: 36
+  total_plans: 97
+  completed_plans: 91
+  percent: 90
+---
+
 # Project State
 
 ## Current Position
 
-- **Phase:** Ready to start Phase 41 or Phase 42
-- **Status:** No active phase — all 36 prior phases either complete or planning-only
+- **Phase:** Phase 41 complete (3/3 plans). Next: Phase 42 (i18n-hydration-fix, 3/3 plans ready)
+- **Status:** M4 in progress (2/3 done — Phase 35, 41 complete; Phase 42 planned)
 - **Last Updated:** 2026-06-03
-- **Next Step:** Pick up Phase 41-feature-gate-consolidation (3 plans, ready) or Phase 42-i18n-hydration-fix (3 plans, ready). See `.planning/CADENCE.md` for backlog analysis.
+- **Next Step:** Pick up Phase 42-i18n-hydration-fix (3 plans, ready). See `.planning/CADENCE.md` for backlog analysis.
 
 **Last Session:** 2026-06-03T09:10:21.001Z
 **Stopped at:** Completed Phase 31 (verified 2026-06-03). Phases 33, 38, 40 status discrepancies corrected in ROADMAP. Health check passes (healthy, 0 errors, 0 warnings). CADENCE.md generated.
@@ -69,6 +84,15 @@
 - [Phase 21-content-events]: Extended events API with limit and upcoming query params for efficient widget data fetching — Client-side filtering would be inefficient; API should support server-side filtering
 - [Phase 22-page-flag-expansion]: Expanding page visibility flags to Groups, Services, Resources, Maintenance, Surveys, and Competitions.
 - [Phase 22-page-flag-expansion]: Centralized flag fetching via `usePageFlags` hook to ensure consistency across Header, Footer, and Mobile Menu.
+- [Phase 41-feature-gate-consolidation]: Phase 1 ships infrastructure only — `canAccess()` callable but no existing callsite migrations. Two gate systems run in parallel temporarily; zero risk of breaking production gates.
+- [Phase 41-feature-gate-consolidation]: Q1=A — Client skips Tier and Module layers. `useGateContext()` returns `{ role, flags }` only; server 403 is source of truth.
+- [Phase 41-feature-gate-consolidation]: Q2=A — Real session role, not hardcoded. Both server (`resolveGateContext`) and client (`useGateContext`) read role from Better Auth session. Default `'RESIDENT'` if unauthenticated.
+- [Phase 41-feature-gate-consolidation]: No `normalizeTier()` bridge in Phase 1 — `TenantTier` flows directly into `GateContext.tier`; conversion to `TierLevel` happens only at FeatureToggle layer.
+- [Phase 41-feature-gate-consolidation]: Deny by default while loading — `useGateContext()` returns `null` when loading, `useCanAccess` converts to `{ allowed: false, reason: 'role' }`. `GateGuard` renders `loadingFallback` (default `null`).
+- [Phase 41-feature-gate-consolidation]: Explicit `null` in mapping tables is load-bearing — `competitions` and `dashboard` map to `null` at module/registry layers. CI test (Plan 41-03) enforces no missing keys.
+- [Phase 41-feature-gate-consolidation]: Tri-state flag handling — `true` constant for non-boolean branch (TypeScript narrows `flagValue` to non-boolean in false branch). UI consumes the value, gate layer treats tri-state as enabled.
+- [Phase 41-feature-gate-consolidation]: Mapping test count assertion is `toHaveLength(14)` — explicit count catches silent inflation from duplicate or extra keys.
+- [Phase 41-feature-gate-consolidation]: `revalidateGate()` uses `revalidatePath()` (matches existing pattern), NOT `revalidateTag()`. Phase 2 mutation routes will provide call-site coverage.
 - [Phase 22-page-flag-expansion]: Added 6 new page visibility flags to PlatformPageFlags interface with default value 'true'
 - [Phase 22-page-flag-expansion]: Implemented a simple client-side hook 'usePageFlags' using native fetch
 - [Phase 22]: Added Page Settings toggle and localized navigation labels.
