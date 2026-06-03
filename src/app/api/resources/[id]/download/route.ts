@@ -1,9 +1,13 @@
 import { db, resources } from '@api/db';
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant/api/with-tenant';
 import { apiSuccess, apiNotFound } from '@api/api-response';
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+
+  // Enforce tenant isolation
+  const { tenantId } = await withTenant();
 
   const [updated] = await db
     .update(resources)
@@ -11,7 +15,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       downloadCount: sql`${resources.downloadCount} + 1`,
       updatedAt: new Date(),
     })
-    .where(eq(resources.id, id))
+    .where(and(eq(resources.id, id), eq(resources.tenantId, tenantId)))
     .returning({ downloadCount: resources.downloadCount });
 
   if (!updated) {
