@@ -124,9 +124,11 @@ function formatRelativeTime(dateStr: string): string {
 
 function ActivityFeedItem({
   item,
+  index,
   isPlatformAdmin,
 }: {
   item: ActivityItem;
+  index: number;
   isPlatformAdmin: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
@@ -136,8 +138,8 @@ function ActivityFeedItem({
 
   return (
     <div
-      className={`flex items-start gap-3 py-3 border-b border-gray-100 last:border-0 cursor-pointer transition-colors hover:bg-gray-50 ${
-        expanded ? 'bg-gray-50' : ''
+      className={`flex items-start gap-3 py-3 border-b border-gray-100 last:border-0 cursor-pointer transition-colors hover:bg-gray-100 ${
+        expanded ? 'bg-gray-100' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
       }`}
       onClick={() => setExpanded(!expanded)}
       role="button"
@@ -365,10 +367,11 @@ export function AdminActivityStream({ isPlatformAdmin = false }: AdminActivitySt
         </div>
       ) : (
         <div className="px-4 py-2">
-          {items.map(item => (
+          {items.map((item, index) => (
             <ActivityFeedItem
               key={`${item.domain}-${item.id}`}
               item={item}
+              index={index}
               isPlatformAdmin={isPlatformAdmin}
             />
           ))}

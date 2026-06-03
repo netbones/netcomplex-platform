@@ -12,6 +12,12 @@ export type RLSContext = {
   isPlatformAdmin: boolean;
 };
 
+const POOL_CONFIG = {
+  max: 1,
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 5000,
+};
+
 import { messages } from '@schema/messages';
 import { conversations } from '@schema/conversations';
 import { conversationParticipants } from '@schema/conversation-participants';
@@ -145,7 +151,7 @@ function getDb() {
   }
 
   const connectionString = envUrl.replace('sslmode=require', 'sslmode=no-verify');
-  const pool = new Pool({ connectionString });
+  const pool = new Pool({ connectionString, ...POOL_CONFIG });
 
   dbInstance = drizzle(pool, { schema: dbSchema });
 

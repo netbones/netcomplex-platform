@@ -1,9 +1,9 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-06-02 (Session 7)
+> **Last updated:** 2026-06-03 (Session 8)
 > **Total remaining:** 19 issues
-> **Closed this session:** — (no closures; new architecture work queued)
-> **Created this session:** 5 architecture issues from `docs/cleaner_react_architecture.md` audit
+> **Closed this session:** 1 (e0w)
+> **Created this session:** 1 (22a — connection pool config) + 5 architecture issues (qig, fpc, 9xr, 5u2, 1ei) carried from Session 7
 
 ## Summary by Priority
 
@@ -22,14 +22,13 @@
 
 ---
 
-## P2 — High Priority (3 issues)
+## P2 — High Priority (2 issues)
 
 ### Bugs
 
 | ID    | Type | Title                                                                         | Status | Source              |
 | ----- | ---- | ----------------------------------------------------------------------------- | ------ | ------------------- |
 | `cs5` | bug  | MyHomeSpace: Property not linked despite user having property (183 Pagoda Rd) | ○      | Phase 30 checkpoint |
-| `e0w` | task | Fix route-level cross-tenant data leakage (20 remaining routes)               | ○      | Security audit      |
 
 ### Features & Tasks
 
@@ -45,6 +44,7 @@
 | `k3h` | task    | Verify external API consumers can access the OpenAPI spec         | ○      |
 | `qig` | task    | Architecture: Build shared HTTP client (src/shared/api/client.ts) | ○      |
 | `fpc` | task    | Architecture: Expand tRPC coverage from 2 to all entities         | ○      |
+| `22a` | task    | Add connection pool config + retry to Drizzle singleton           | ○      |
 
 ### Blocked Tasks
 
@@ -108,7 +108,13 @@
 
 ---
 
-## Closed This Session (29 issues)
+## Closed This Session (30 issues)
+
+### Session 8 - Cross-Tenant Data Leakage Audit (1 closed)
+
+| ID    | Title                                                           | Reason                                                                                                         |
+| ----- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `e0w` | Fix route-level cross-tenant data leakage (20 remaining routes) | Fixed: commit `7579ac9` + live fix for `resources/[id]/download/route.ts`. All routes now have `withTenant()`. |
 
 ### Session 5 - Phase 35 API Alignment (1 created, 0 closed)
 

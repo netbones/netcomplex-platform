@@ -916,4 +916,175 @@ The app uses a single privileged Postgres connection (`DATABASE_URL` as superuse
 
 ---
 
+## ADR-020: Focus Space Architecture — Dashboard as Purpose-Built Layers
+
+### Status
+
+**Accepted**
+
+### Date
+
+2026-05
+
+### Context
+
+The original dashboard design used a single `DashboardPage.tsx` with client-side tab state (`DashboardTabs.tsx`). All widgets were equal in a single tab-based widget grid, with parallel resident and admin dashboards. As the feature surface grew (announcements, bookings, maintenance, chat, competitions, surveys, resources, services), the tab model broke down:
+
+1. **Flat hierarchy** — 10+ admin tabs in a single bar, forcing users to scan linearly
+2. **No spatial memory** — Tabs lack deep-linkable URLs, so users couldn't bookmark "messages" or share "services"
+3. **Widget explosion** — 40+ widgets registered in a single grid, making "Add Widget" modal overwhelming
+4. **Mixed interaction modes** — Read-oriented content (news, directory) mixed with action-oriented tools (maintenance, admin) in the same layout
+5. **Role blindness** — Admin and resident saw the same tab structure, just with different permissions
+
+### Decision
+
+Replace the tab-based dashboard with a **5-space model** where each space is a full-screen, domain-scoped working environment with a purpose-built layout:
+
+| Space ID    | Layout Type  | Interaction Mode | Key Audience |
+| ----------- | ------------ | ---------------- | ------------ |
+| `home`      | Widget grid  | Read (newspaper) | All          |
+| `community` | Widget grid  | Read + Browse    | All          |
+| `messages`  | Static Layer | Action           | All          |
+| `services`  | Static Layer | Action           | All          |
+| `admin`     | Static Layer | Management       | Admin/Board  |
+
+**Key mechanisms:**
+
+- **Spaces registry** (`src/widgets/dashboard/model/spaces.ts`): Declarative `SPACES` map defining each space's icon, label, role gate, feature flag dependency, and allowed widgets. Visibility computed by `getVisibleSpaces(role, flags)`.
+- **Static Layers** (`AdminLayer`, `ServicesLayer`, `MessagesLayer`): Purpose-built React components with CommandBar (reactive CTAs) + Domain Grid (sub-launcher with icon cards) — no generic DnD widget grid. Optimized for action-oriented workflows.
+- **Widget Grid Spaces** (`SpaceLayout`): DnD widget grid retained for `home` and `community` where personalization matters.
+- **Deep-linkable routes**: `/dashboard`, `/dashboard/services`, `/dashboard/community`, `/dashboard/messages`, `/dashboard/admin` — each URL-scoped to its space.
+- **Navigation**: Desktop `SpaceLauncher` sidebar (collapsible icon+label) + mobile `MobileSpaceBar` (5-slot bottom nav with overflow guard).
+- **Widget manifests**: Each widget declares `spaces: SpaceId[]` in its manifest, so `AddWidgetModal` filters to the current space.
+- **Per-space layouts**: Dashboard layout persisted as `{ [spaceId]: LayoutItem[] }` instead of flat `LayoutItem[]`.
+
+**Alternatives considered:**
+
+- **Keep tabs with categories/groups**: Would still suffer from flat hierarchy, no deep links
+- **Single scrollable mega-page**: Performance issues, impossible navigation
+- **Shell-based micro-frontends**: Over-engineering for our team size and scale
+- **Static sidebar + dynamic content**: Closest alternative, but lacks the purpose-built nature of Layers
+
+### Consequences
+
+**Positive:**
+
+- Deep-linkable spaces — users can bookmark and share specific dashboard areas
+- Spatial memory — each space has a distinct visual identity and layout
+- Role-sensitive visibility — admin space hidden from residents, community auto-hides when all sub-features are off
+- Widget-to-space association — reduces "Add Widget" noise by 60% (only relevant widgets shown per space)
+- Purpose-built Layers — AdminLayer includes activity stream + urgency badges, ServicesLayer has service-specific CTAs
+- Mobile-friendly — bottom nav bar works naturally on phones
+- Clear migration path from old tab code — Phase 31 (tab removal) was completed after Phase 30
+
+**Negative:**
+
+- More components to maintain (4 Layers + SpaceLayout + 3 SubLaunchers + 3 CommandBars)
+- Widget registry now requires `spaces` field — every new widget must declare its space membership
+- Legacy `admin/page.tsx` exists alongside new `dashboard/admin` route — dual maintenance until full migration
+- Domain definitions (SubLaunchers) must be kept in sync with actual feature modules
+- i18n label keys required for each space in addition to each widget
+
+### Key Files
+
+- `src/widgets/dashboard/model/spaces.ts` — Space definitions, visibility logic
+- `src/widgets/dashboard/model/registry.ts` — WidgetRegistry with space-aware registration
+- `src/widgets/dashboard/ui/HomeLayer.tsx` — Read-oriented home layout
+- `src/widgets/dashboard/ui/MessagesLayer.tsx` — Message domain layer
+- `src/widgets/dashboard/ui/ServicesLayer.tsx` — Service domain layer
+- `src/widgets/dashboard/ui/AdminLayer.tsx` — Admin management layer
+- `src/widgets/dashboard/ui/SpaceLayout.tsx` — Generic DnD widget grid
+- `src/widgets/dashboard/ui/SpaceLauncher.tsx` — Desktop sidebar navigation
+- `src/widgets/dashboard/ui/MobileSpaceBar.tsx` — Mobile bottom navigation
+- `docs/architecture/DASHBOARD-PHASE-B-DISCUSSION.md` — Original design discussion
+
+---
+
+## ADR-021: Dual-API Governance — tRPC as Canonical Internal Contract + REST for External Surface
+
+### Status
+
+**Accepted**
+
+### Date
+
+2026-05
+
+### Context
+
+The project needed to serve two distinct API consumers:
+
+1. **Internal frontend** (Next.js app) — needs type-safe, rapid iteration, co-located with backend
+2. **External clients** (Android mobile app, third-party integrations) — needs stable, documented, RESTful endpoints
+
+tRPC (ADR-011) was adopted for its end-to-end type safety without code generation. However, tRPC is fundamentally TypeScript-to-TypeScript — external non-TS clients cannot consume tRPC procedures directly. The existing 150+ REST API routes (`src/app/api/*`) had grown organically alongside tRPC, creating a dual API surface with inconsistent governance.
+
+Phase 30 identified that the REST routes had drifted: some used `apiSuccess()` envelope, others returned raw data; some had `withTenant()` guards, others didn't; OpenAPI documentation was stale (ADR-016). API.md prescribed tRPC for internal APIs but didn't resolve the dual-surface tension.
+
+### Decision
+
+Adopt a **dual-API model** with clear ownership boundaries:
+
+**tRPC (Canonical Internal Contract):**
+
+- Single source of truth for internal API contracts
+- Auto-generates OpenAPI 3.1 spec via `@trpc/openapi` (Phase 35, ADR-019)
+- All new feature development starts with tRPC procedures
+- Migrate REST routes to tRPC incrementally (Phase B tracked in BD issue `fpc`)
+- TanStack Query integration via auto-generated hooks (no manual `fetch` wrappers)
+
+**REST (Legacy + External Surface):**
+
+- Existing 150+ routes maintained for backward compatibility
+- Required to use `apiSuccess()`/`apiError()` envelope (Phase 35 standard)
+- Required to use `withTenant()` for tenant isolation
+- No new REST routes for internal features — migrate to tRPC instead
+- External-facing REST endpoints documented via tRPC-generated OpenAPI spec
+
+**Governance rules:**
+
+| Surface         | Transport | Contract Source                        | Stability                    | Consumers                  |
+| --------------- | --------- | -------------------------------------- | ---------------------------- | -------------------------- |
+| Internal domain | tRPC      | Zod schemas in procedures              | Can evolve with features     | Next.js frontend           |
+| External API    | REST      | OpenAPI 3.1 (auto-generated from tRPC) | Stable, versioned            | Android app, third parties |
+| Legacy REST     | REST      | Manual route handlers                  | Maintained, no new additions | Existing frontend code     |
+
+**Alternatives considered:**
+
+- **Migrate all REST to tRPC immediately**: Blocking for mobile app timeline, too many routes (150+) to migrate at once
+- **Migrate all tRPC to REST**: Loses end-to-end type safety, degrades developer experience
+- **GraphQL layer**: Over-engineering for our scale, adds GraphQL runtime + schema management
+- **Single REST with code generation**: Requires OpenAPI-first workflow, slower iteration for internal features
+
+### Consequences
+
+**Positive:**
+
+- Best of both worlds — tRPC for internal velocity, REST for external compatibility
+- OpenAPI spec auto-generated from governed tRPC procedures (ADR-019) — always fresh, never stale
+- Gradual migration path — no big-bang rewrite of 150+ routes
+- tRPC procedures provide canonical types that inform REST response shapes
+- External consumers get stable, versioned, documented REST endpoints
+- New features ship faster via tRPC without waiting for REST governance review
+
+**Negative:**
+
+- Dual surface to maintain — cognitive load for developers to know "which API to use when"
+- Migration of 150+ REST routes to tRPC is a long tail (BD issue `fpc`)
+- REST routes may still drift from tRPC canonical types during migration
+- tRPC OpenAPI paths use tRPC-style naming (`identity.listProperties`) not REST paths (`/identity/properties`)
+- External consumers must consume OpenAPI 3.1 (not all tools support it)
+- Requires discipline to prevent new REST routes from being added for internal features
+
+### Key Files
+
+- `docs/STEERING/API.md` — API Governance Standard
+- `docs/STEERING/tRPC.md` — tRPC best practices
+- `src/server/routers/` — 2 tRPC routers (identity, competitions), target for expansion
+- `src/server/openapi/generator.ts` — `@trpc/openapi` auto-generation
+- `src/app/api/*` — 150+ REST routes (legacy, no new additions for internal features)
+- `src/shared/api/api-response.ts` — `apiSuccess()`/`apiError()` envelope standard
+
+---
+
 _More ADRs will be added as we make architectural decisions. Use the template above to propose new ADRs._

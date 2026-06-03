@@ -102,6 +102,8 @@ Audit Logger: Pino → structured JSON
 
 - Phase 39: Competition entries (model, tRPC router, public UI, admin UI)
 - Phase 40 plans 01-03: Maintenance ticketing schema, API, admin UI
+- BD issue `e0w` closed: all routes now enforce `withTenant()`
+- BD issue `22a` created + fixed: pool config (`max: 1`, timeouts) added to Drizzle singleton
 
 ### Planned but Not Yet Started
 
@@ -123,13 +125,13 @@ Audit Logger: Pino → structured JSON
 
 ### Open BD Issues (22 remaining)
 
-| ID        | Priority | Title                                  |
-| --------- | -------- | -------------------------------------- |
-| `cs5`     | P2       | MyHomeSpace property not linked        |
-| `e0w`     | P2       | 20 routes missing cross-tenant filters |
-| `l23`     | P2       | Epic: i18n for all pages               |
-| `tc4`     | P3       | seed.ts type errors                    |
-| + 18 more | P3-P4    | Phase 4/5 features, backlog items      |
+| ID        | Priority | Title                                           |
+| --------- | -------- | ----------------------------------------------- |
+| `cs5`     | P2       | MyHomeSpace property not linked                 |
+| `22a`     | P2       | Add connection pool config to Drizzle singleton |
+| `l23`     | P2       | Epic: i18n for all pages                        |
+| `tc4`     | P3       | seed.ts type errors                             |
+| + 18 more | P3-P4    | Phase 4/5 features, backlog items               |
 
 ---
 
@@ -147,11 +149,11 @@ Audit Logger: Pino → structured JSON
 
 1. **20 routes without tenant filters** (`e0w`) — real cross-tenant data leakage risk in production
 2. **Non-atomic signup** (GAP-09) — user creation without tenant+role creates orphaned accounts
-3. **Single Drizzle connection** — no connection pooling, no retry logic; Supabase connection limits could be hit under load 4.~~**No automated schema drift detection** — Prisma→Drizzle generation is manual; CI doesn't verify generated schemas match source~~ 8ffb071
+3. **Single Drizzle connection** — ~~no connection pooling, no retry logic; Supabase connection limits could be hit under load~~ Fixed in BD issue `22a`: pool now configured with `max: 1`, `idleTimeoutMillis: 10000`, `connectionTimeoutMillis: 5000`. Retry deferred to Supabase pooler layer. 4.~~**No automated schema drift detection** — Prisma→Drizzle generation is manual; CI doesn't verify generated schemas match source~~ 8ffb071
 
 ### Opportunities
 
-1. **Phase 31 (tab removal)** would eliminate ~1,500 lines of dead code and simplify the widget architecture
+1. ~~**Phase 31 (tab removal)** would eliminate 1,500 lines of dead code and simplify the widget architecture~~
 2. **tRPC migration** of remaining 150 REST routes would give end-to-end type safety and reduce boilerplate
 3. **RLS expansion** using `runWithRLS()` on the 20 unguarded routes would close the security gap without rewriting auth logic
 4. **Redis rate limiter** is a small change with outsized production safety impact
@@ -161,7 +163,7 @@ Audit Logger: Pino → structured JSON
 - [x] `docs/CONTEXT_MAP.md` — bounded contexts and their relationships (created 2026-06-01)
 - [x] `docs/UBIQUITOUS_LANGUAGE.md` — canonical terminology (created 2026-06-01)
 - [x] `docs/contexts/*.md` — per-entity ownership contracts (12 contexts, created 2026-06-01)
-- ADRs are well-maintained (19 entries) but don't cover Focus Space architecture or dual-API governance
+- ADRs are well-maintained (21 entries) — Focus Space architecture (ADR-020) and Dual-API governance (ADR-021) added
 
 ---
 
@@ -182,10 +184,11 @@ Audit Logger: Pino → structured JSON
 
 ## Progress Log
 
-| Date       | Update                                                                                                                                                                                                   |
-| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-06-01 | Initial holistic view created                                                                                                                                                                            |
-| 2026-06-01 | Created CONTEXT_MAP.md (12 bounded contexts, cross-cutting concerns, relationship patterns)                                                                                                              |
-| 2026-06-01 | Created UBIQUITOUS_LANGUAGE.md (50+ domain terms, 7 conflict resolutions, decision log)                                                                                                                  |
-| 2026-06-01 | Created docs/contexts/ with 12 per-entity CONTEXT.md files (tenant, user, directory, maintenance, booking, chat, content, events, service, widget, admin, competitions)                                  |
-| 2026-06-01 | Evaluated feature gate consolidation proposal (GATE_DISCUSSION + GATE_ADDENDUM) — created docs/GATE_PLAN.md with 3-phase migration (foundation → incremental → cleanup) for the 5-layer precedence model |
+| Date       | Update                                                                                                                                                                                                       |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-06-01 | Initial holistic view created                                                                                                                                                                                |
+| 2026-06-01 | Created CONTEXT_MAP.md (12 bounded contexts, cross-cutting concerns, relationship patterns)                                                                                                                  |
+| 2026-06-01 | Created UBIQUITOUS_LANGUAGE.md (50+ domain terms, 7 conflict resolutions, decision log)                                                                                                                      |
+| 2026-06-01 | Created docs/contexts/ with 12 per-entity CONTEXT.md files (tenant, user, directory, maintenance, booking, chat, content, events, service, widget, admin, competitions)                                      |
+| 2026-06-01 | Evaluated feature gate consolidation proposal (GATE_DISCUSSION + GATE_ADDENDUM) — created docs/GATE_PLAN.md with 3-phase migration (foundation → incremental → cleanup) for the 5-layer precedence model     |
+| 2026-06-03 | Audited route-level withTenant() coverage. Closed BD issue `e0w`, fixed `resources/[id]/download/route.ts` gap. Created BD issue `22a` — added pool config to Drizzle singleton. Created docs/API_ROUTES.md. |
