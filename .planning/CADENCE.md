@@ -23,6 +23,8 @@
 
 **Velocity health:** 8/10. Strong execution when active, with 102 plans shipped across 16 active days. Burst-then-plateau pattern (W20/W22 mega-weeks bracketing 4 weeks of zero) and 6-plan ready backlog remain, but status drift has been cleared.
 
+**See also:** `.planning/MILESTONES.md` for the milestone structure (M0–M5) retroactively grouping these 102 plans, the 7 gaps in our haphazard development cycle, and the cadence ritual proposal. This doc covers _velocity_; MILESTONES.md covers _structure_.
+
 ---
 
 ## 1. Velocity Timeline (W14–W23, 2026)
