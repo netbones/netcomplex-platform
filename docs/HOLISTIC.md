@@ -125,13 +125,13 @@ Audit Logger: Pino → structured JSON
 
 ### Open BD Issues (22 remaining)
 
-| ID        | Priority | Title                                           |
-| --------- | -------- | ----------------------------------------------- |
-| `cs5`     | P2       | MyHomeSpace property not linked                 |
-| `22a`     | P2       | Add connection pool config to Drizzle singleton |
-| `l23`     | P2       | Epic: i18n for all pages                        |
-| `tc4`     | P3       | seed.ts type errors                             |
-| + 18 more | P3-P4    | Phase 4/5 features, backlog items               |
+| ID        | Priority | Title                             |
+| --------- | -------- | --------------------------------- |
+| `cs5`     | P2       | MyHomeSpace property not linked   |
+| `oqw`     | P3       | Wrap API routes with runWithRLS() |
+| `l23`     | P2       | Epic: i18n for all pages          |
+| `tc4`     | P3       | seed.ts type errors               |
+| + 18 more | P3-P4    | Phase 4/5 features, backlog items |
 
 ---
 
@@ -155,7 +155,7 @@ Audit Logger: Pino → structured JSON
 
 1. ~~**Phase 31 (tab removal)** would eliminate 1,500 lines of dead code and simplify the widget architecture~~
 2. **tRPC migration** of remaining 150 REST routes would give end-to-end type safety and reduce boilerplate
-3. **RLS expansion** using `runWithRLS()` on the 20 unguarded routes would close the security gap without rewriting auth logic
+3. **RLS expansion** — Most routes use the superuser connection bypassing RLS. `runWithRLS()` wraps provide DB-level defense but are only used in a few places. Tracked in BD issue `oqw` (P3, security)
 4. **Redis rate limiter** is a small change with outsized production safety impact
 
 ### Missing Documentation
