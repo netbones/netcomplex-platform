@@ -2,28 +2,28 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed Phase 42 (i18n-hydration-fix, 3/3 plans). I18nextProvider in tenant layout, useSafeTranslation hook with tx(key, fallback) method, usePageLoading delegates to hook, messages + admin domain pages migrated, 5 shared UI components + services page consolidated (local tx() helper removed). M4 Production-Ready 3/3 done — ready for M4.5 Stabilization (7-day soak, perf baseline, rollback test, locale check).
-last_updated: '2026-06-03T17:55:00.000Z'
+status: planning
+stopped_at: Completed Phase 42 (i18n-hydration-fix, 3/3 plans) and triaged 35 open BD issues into 5 new planning phases (43-47). M4 Production-Ready 3/3 done. M4.5 Stabilization is BLOCKED on Phase 43 (M4.5 Blockers): 5 issues (cs5, tc4, e0w, oqw, ltn) would surface as P0/P1 incidents during the 7-day soak and must be resolved first. Bucket A (5) → Phase 43, Bucket B (9) → Phase 44/45, Bucket C (10) → Phase 46, dWallet (2) → Phase 47. All 35 issues tagged with phase labels and re-titled. Ready to plan Phase 43 (m4-5-blockers) via /gsd-plan-phase.
+last_updated: '2026-06-04T00:00:00.000Z'
 progress:
-  total_phases: 42
+  total_phases: 47
   completed_phases: 37
   total_plans: 97
   completed_plans: 94
-  percent: 91
+  percent: 79
 ---
 
 # Project State
 
 ## Current Position
 
-- **Phase:** Phase 42 complete (3/3 plans). M4 Production-Ready 3/3 done.
-- **Status:** M4 complete (Phase 35, 41, 42 all shipped). Ready for M4.5 Stabilization.
-- **Last Updated:** 2026-06-03
-- **Next Step:** Begin M4.5 Stabilization period (no new phases, 7-day soak, perf baseline, rollback test, locale check). See `.planning/MILESTONES.md` §2 for criteria.
+- **Phase:** Phase 42 complete (3/3 plans). M4 Production-Ready 3/3 done. BD triage done; 5 new planning phases (43-47) created.
+- **Status:** M4 complete. M4.5 BLOCKED on Phase 43 (5 soak-blocking issues must be resolved first).
+- **Last Updated:** 2026-06-04
+- **Next Step:** Plan Phase 43 (m4-5-blockers) via `/gsd-plan-phase 43-m4-5-blockers`. Once Phase 43 ships, M4.5 Stabilization (7-day soak) begins. See `.planning/MILESTONES.md` §2 for M4.5 criteria.
 
-**Last Session:** 2026-06-03T09:10:21.001Z
-**Stopped at:** Completed Phase 31 (verified 2026-06-03). Phases 33, 38, 40 status discrepancies corrected in ROADMAP. Health check passes (healthy, 0 errors, 0 warnings). CADENCE.md generated.
+**Last Session:** 2026-06-04T00:00:00.000Z
+**Stopped at:** Triaged 35 open BD issues; amended Bucket C (10 issues) to remove "Phase 4/5" references; deferred 7cp+1jc1 to dWallet phase; tagged all 35 with phase labels; created 5 new phase directories with CONTEXT.md stubs (43-47); updated ROADMAP.md and STATE.md.
 **Resume file:** None
 
 ## Active Phase Decisions

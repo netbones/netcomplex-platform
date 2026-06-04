@@ -10,16 +10,16 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 Phases are grouped into milestones (M0–M6+). See `.planning/MILESTONES.md` for full structure, gap analysis, and cadence ritual.
 
-| Milestone                         | Goal                                                   | Phases                                 | Status      |
-| --------------------------------- | ------------------------------------------------------ | -------------------------------------- | ----------- |
-| **M0 Foundation**                 | Multi-tenant substrate + base modules                  | 00, 01, 02, 03, 05, 06, 07, 08, 11     | ✅ Shipped  |
-| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding    | 09, 10, 18, 19, 20                     | ✅ Shipped  |
-| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system         | 22, 24, 25, 26, 27, 28, 29, 30, 31     | ✅ Shipped  |
-| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing  | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40 | ✅ Shipped  |
-| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration     | 35, 41, 42                             | ✅ Complete |
-| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check | (no new phases)                        | 🟡 Planned  |
-| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, MyHomeSpace      | (new, sources from BD backlog)         | 📋 Planning |
-| **M6+ Post-Launch**               | Second tenant, multi-instance, plugins, event sourcing | (deferred phases only)                 | Deferred    |
+| Milestone                         | Goal                                                   | Phases                                  | Status           |
+| --------------------------------- | ------------------------------------------------------ | --------------------------------------- | ---------------- |
+| **M0 Foundation**                 | Multi-tenant substrate + base modules                  | 00, 01, 02, 03, 05, 06, 07, 08, 11      | ✅ Shipped       |
+| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding    | 09, 10, 18, 19, 20                      | ✅ Shipped       |
+| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system         | 22, 24, 25, 26, 27, 28, 29, 30, 31      | ✅ Shipped       |
+| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing  | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40  | ✅ Shipped       |
+| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration     | 35, 41, 42                              | ✅ Complete      |
+| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check | 43 (blockers), then (no new phases)     | 🚧 Blocked on 43 |
+| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, MyHomeSpace      | 44 (M5a), 45 (M5b)                      | 📋 Planning      |
+| **M5+ Post-Launch**               | Future features, dWallet integration, second tenant    | 46 (bucket-c), 47 (dWallet), + deferred | Deferred         |
 
 **Phase numbering note:** IDs are stable (not renumbered on re-order). Duplicates exist: `03` (Localization vs Second Tenant), `11` (Announcements vs Prisma→Drizzle). The duplicate pair has a "Planning Complete (deferred)" status on the second one, except `11-prisma-to-drizzle` which was verified complete (2026-06-03) and moved to M0. Out-of-order numeric IDs (01 after 04; 35 after 39; 99 last) reflect creation sequence, not logical order. See MILESTONES.md Gap ε.
 
@@ -702,11 +702,13 @@ Plans:
 
 ---
 
-## M4.5 — Stabilization (Planned)
+## M4.5 — Stabilization (Blocked on Triage)
 
 _Buffer between M4 (code-complete) and M5 (production-traffic). No new phases. Pure verification, soak, and sign-off. See `.planning/MILESTONES.md` Section 2 (M4.5) for full criteria._
 
-**Activates when:** M4 is complete (Phases 35, 41, 42 all ✅).
+**Status (2026-06-04):** **Blocked on Phase 43 (M4.5 Blockers).** Per the 35-issue BD triage, 5 issues would surface as P0/P1 incidents during the 7-day soak. These must be resolved in Phase 43 before M4.5 begins. After Phase 43 ships, M4.5 is the 7-day soak + verification.
+
+**Activates when:** M4 is complete (Phases 35, 41, 42 all ✅) AND Phase 43 ships. Phase 43 is the precondition for M4.5.
 
 **Verifiable (all must pass to declare M4.5 done):**
 
@@ -725,11 +727,101 @@ _Buffer between M4 (code-complete) and M5 (production-traffic). No new phases. P
 
 ---
 
+## Phase 43: M4.5 Blockers
+
+**Goal:** Resolve the 5 BD issues that would surface as P0/P1 incidents during the 7-day soak. Each must be closed (or have a documented deferral) before soak begins.
+
+**Status:** Planning
+
+**BD sources (5):** `cs5` (MyHomeSpace), `tc4` (prisma/seed), `e0w` (80-route audit), `oqw` (RLS), `ltn` (request validation)
+
+**Why this phase exists:** M4.5 stabilization requires 7 days of zero P0/P1 incidents. Without resolving these 5 issues, the soak would surface them as production incidents. Better to fix in a focused phase than during the soak itself.
+
+**Acceptance:** All 5 BD issues closed with a fix commit; `pnpm db:seed` works; MyHomeSpace correctly links user to property; all audited routes have withTenant() OR documented RLS escape; `runWithRLS()` wraps sensitive routes; request validation plugin wired to /api/auth/\*.
+
+**Plans:** TBD. Run `/gsd-plan-phase 43-m4-5-blockers` when ready to plan execution.
+
+**Out of scope:** M5a/M5b work (different phases). 7cp + jc1 (deferred to dWallet, phase 47).
+
+---
+
 ## M5 — Anchor Tenant Launch (Planning)
 
-_Close the 5 architecture-audit issues, ship Community Merits, OTP password reset, MyHomeSpace bug, and the 37-widget i18n batch. Ready for Soralia Village (180 homes) production traffic. Source backlog: BD issues `qig`, `fpc`, `9xr`, `5u2`, `1ei`, `2at`, `l23`, `0f7`, `cs5`, `0tb`. Verifiable: all 5 audit issues closed with tests, audit document `docs/cleaner_react_architecture.md` marked "all chapters resolved", Soralia admin can invite 180 homes via batch import, M5 launch checklist (TBD) green._
+_Close the architecture-audit issues, ship Community Merits, OTP password reset, MyHomeSpace bug, and the 37-widget i18n batch. Ready for Soralia Village (180 homes) production traffic. Decomposed into M5a (audit closure) and M5b (anchor tenant features)._
 
-**No phase entries yet.** Phase numbers will be assigned (43+) when planning begins. See `.planning/MILESTONES.md` Section 2 (M5) for the source backlog.
+**Source backlog:** BD issues from `docs/cleaner_react_architecture.md` audit (5 issues) + Soralia launch features (5 issues). See Phase 44 and 45 for breakdown.
+
+**Activates when:** M4.5 is green.
+
+---
+
+## Phase 44: M5a Audit Closure
+
+**Goal:** Close the 5 architecture-audit gaps identified in `docs/cleaner_react_architecture.md` so the codebase is ready for Soralia Village's 180-home production launch.
+
+**Status:** Planning
+
+**BD sources (5):** `fpc` (tRPC coverage), `qig` (shared HTTP client), `1ei` (useQuery migration), `9xr` (pure helpers), `5u2` (maintenance dedup)
+
+**Acceptance:** All 5 BD issues closed with a fix commit; `docs/cleaner_react_architecture.md` Chapters 6-9 marked as "Closed"; zero `useEffect+fetch` patterns in `src/widgets/`; `src/shared/api/http-client.ts` is the single import point for fetch in widgets; all maintenance API routes use a single transform function.
+
+**Plans:** TBD. Run `/gsd-plan-phase 44-m5a-audit-closure` when ready to plan execution.
+
+**Out of scope:** M4.5 fixes (phase 43), M5b launch features (phase 45), M5+ post-launch (phase 46).
+
+---
+
+## Phase 45: M5b Anchor Tenant Launch
+
+**Goal:** Ship the 5 launch-blocking features for Soralia Village's 180-home rollout. Each is a feature, not a fix — the system functions without it, but the anchor tenant experience is incomplete.
+
+**Status:** Planning
+
+**BD sources (5):** `2at` (Community Merits), `l23` (i18n epic), `0f7` (Tiptap i18n), `0tb` (OTP reset), `cs5` (MyHomeSpace — also M4.5 blocker)
+
+**Acceptance:** All 5 BD issues closed with a feature commit; Community Merits live in production 1+ week; all widget/page content available in 4 locales; Tiptap editors can save/load in any locale; OTP password reset works end-to-end; MyHomeSpace correctly links user to property.
+
+**Dependencies:** l23 blocks 0f7 (Tiptap localization needs i18n router extension to tenant routes — same blocker as deferred Phase 04). cs5 ideally resolved in phase 43 to avoid duplicating fix work.
+
+**Plans:** TBD. Run `/gsd-plan-phase 45-m5b-anchor-tenant` when ready to plan execution.
+
+---
+
+## M5+ — Post-Launch Features (Deferred)
+
+_Features explicitly deferred to post-M5b. These are real product ideas but not prerequisites for the Soralia anchor tenant launch. Includes 10 issues from the BD backlog triage + dWallet integration. See Phase 46 and 47 for breakdown._
+
+---
+
+## Phase 46: Bucket C Future Features
+
+**Goal:** Defer and document 10 post-launch features (originally mislabeled as "Phase 4/5") so they remain visible in the backlog but don't block M4.5 → M5b.
+
+**Status:** Planning (deferral + documentation)
+
+**BD sources (10):** 8 features (notifications, payments, booking calendar, provider analytics, provider dashboard, third-party registration, mobile optimization, billing) + 2 orphan FSD migration state-change events
+
+**Acceptance:** All 10 BD issues re-titled (done in triage); all tagged with `m5-plus,post-launch,phase-46`; issues remain open; future: scope each into a sub-phase.
+
+**Plans:** None. This is a deferral + documentation phase.
+
+**Out of scope:** M4.5/M5a/M5b work (different phases). dWallet (phase 47).
+
+---
+
+## Phase 47: dWallet Planning & Build
+
+**Goal:** Plan and implement dWallet (digital wallet) integration for Soralia Village, dependent on NetBones Privacy-as-a-Service for legal/privacy foundation.
+
+**Status:** Planning (external dependency)
+
+**BD sources (2):** `7cp` (POPIA compliance), `jc1` (cookie management)
+
+**Acceptance:** POPIA compliance audit with sign-off; cookie management UI + backend deployed; NetBones Privacy-as-a-Service integrated (or explicit deferral); dWallet PRD created; dWallet implementation plan created.
+
+**Plans:** TBD. Run `/gsd-plan-phase 47-dwallet-planning-build` when ready.
+
+**Out of scope:** M4.5/M5a/M5b work (different phases). M5+ other post-launch (phase 46).
 
 ---
 
