@@ -1,5 +1,5 @@
 import { CARD_HEADER_COLORS, CARD_ANIMATIONS, INTEREST_COLORS } from '@shared/lib';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@features/i18n/model/useTranslation';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Resident } from '../model/types';
@@ -27,7 +27,7 @@ export function UnifiedResidentCard({
   unreadCount = 0,
   isCurrentUser = false,
 }: UnifiedResidentCardProps) {
-  const { t } = useTranslation(['common', 'home']);
+  const { tx } = useSafeTranslation(['common', 'home']);
 
   const finalHeaderColor = headerColor || CARD_HEADER_COLORS[index % CARD_HEADER_COLORS.length];
 
@@ -60,12 +60,12 @@ export function UnifiedResidentCard({
 
   const getResidentLabel = () => {
     if (resident.standardSeats?.[0]?.isPrimaryOwner) {
-      return t ? t('home.owner', { defaultValue: 'Owner' }) : 'Owner';
+      return tx('home.owner', 'Owner');
     }
     if (resident.soloSeat) {
       return 'Board Member';
     }
-    return t ? t('home.renter', { defaultValue: 'Renter' }) : 'Renter';
+    return tx('home.renter', 'Renter');
   };
 
   const isRenter = () => {
