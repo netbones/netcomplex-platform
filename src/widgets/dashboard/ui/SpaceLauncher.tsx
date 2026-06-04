@@ -33,7 +33,7 @@ export function SpaceLauncher({
         {spaces.map(space => {
           const Icon = space.icon;
           const isActive = space.id === activeSpaceId;
-          const href = space.id === 'home' ? '/dashboard' : `/dashboard/${space.id}`;
+          const href = space.href;
           const label = t(space.labelKey);
 
           return (
