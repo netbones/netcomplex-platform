@@ -16,7 +16,7 @@ Phases are grouped into milestones (M0–M6+). See `.planning/MILESTONES.md` for
 | **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding    | 09, 10, 18, 19, 20                     | ✅ Shipped  |
 | **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system         | 22, 24, 25, 26, 27, 28, 29, 30, 31     | ✅ Shipped  |
 | **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing  | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40 | ✅ Shipped  |
-| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration     | 35, 41, 42                             | 🟡 1/3 done |
+| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration     | 35, 41, 42                             | ✅ Complete |
 | **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check | (no new phases)                        | 🟡 Planned  |
 | **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, MyHomeSpace      | (new, sources from BD backlog)         | 📋 Planning |
 | **M6+ Post-Launch**               | Second tenant, multi-instance, plugins, event sourcing | (deferred phases only)                 | Deferred    |
@@ -594,7 +594,7 @@ _Admin command surface, user suspension, surveys, competitions, maintenance tick
 
 ## M4 — Production-Ready
 
-_API governance, feature gate consolidation, i18n hydration fix. Verifiable: OpenAPI spec generated and committed; `canAccess()` is the canonical gate; no console hydration errors on tenant routes. Status: 1/3 done._
+_API governance, feature gate consolidation, i18n hydration fix. Verifiable: OpenAPI spec generated and committed; `canAccess()` is the canonical gate; no console hydration errors on tenant routes. Status: 3/3 done (M4 complete)._
 
 ---
 
@@ -686,17 +686,17 @@ Plans:
 
 **Goal:** Execute systemic i18n hydration fix across tenant routes — add I18nextProvider to tenant layout, create shared `useSafeTranslation` hook with `tx(key, fallback)`, migrate high-risk pages (messages, admin domains) and medium-risk shared UI (Bookshelf, TagCloud, LocaleSelector, CreateListingForm, UnifiedResidentCard), consolidate services domain page's local tx() helper into shared hook.
 
-**Status:** Planning Complete — 3 plans in 2 waves
+**Status:** Complete — 3/3 plans shipped (M4 Production-Ready now 3/3 done)
 
-**Requirements:** I18N-01, I18N-02, I18N-03, I18N-04, I18N-05, I18N-06, I18N-07, I18N-08
+**Requirements:** I18N-01, I18N-02, I18N-03, I18N-04, I18N-05, I18N-06, I18N-07, I18N-08 (all 8 complete)
 
 **Plans:**
 
 | Wave | Plan              | Objective                                                                          | Tasks |
 | ---- | ----------------- | ---------------------------------------------------------------------------------- | ----- |
-| 1    | [ ] 42-01-PLAN.md | I18nextProvider in tenant layout + useSafeTranslation hook + usePageLoading update | 3     |
-| 2    | [ ] 42-02-PLAN.md | Migrate high-risk pages: messages domain + admin domain                            | 2     |
-| 2    | [ ] 42-03-PLAN.md | Migrate medium-risk shared UI (5 components) + services page (remove local tx())   | 3     |
+| 1    | [x] 42-01-PLAN.md | I18nextProvider in tenant layout + useSafeTranslation hook + usePageLoading update | 3     |
+| 2    | [x] 42-02-PLAN.md | Migrate high-risk pages: messages domain + admin domain                            | 2     |
+| 2    | [x] 42-03-PLAN.md | Migrate medium-risk shared UI (5 components) + services page (remove local tx())   | 3     |
 
 **Out of scope (bd issue):** 37 widget files batch migration (lower risk, rendered inside guarded pages via usePageLoading)
 
