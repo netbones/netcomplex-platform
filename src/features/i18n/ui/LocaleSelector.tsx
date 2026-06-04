@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@features/i18n/model/useTranslation';
 import { supportedLanguages, languageNames, type SupportedLanguage } from '@/shared/lib/i18n';
 import { ChevronDown, Languages, Copy, Check } from 'lucide-react';
 
@@ -20,7 +20,7 @@ export function LocaleSelector({
   onCopyToLocale,
   disabled = false,
 }: LocaleSelectorProps) {
-  const { t } = useTranslation();
+  const { tx } = useSafeTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [copiedLocale, setCopiedLocale] = useState<SupportedLanguage | null>(null);
 
@@ -115,7 +115,7 @@ export function LocaleTabs({
   showAddLocale = false,
   onAddLocale,
 }: LocaleTabsProps) {
-  const { t } = useTranslation();
+  const { tx } = useSafeTranslation();
 
   return (
     <div className="flex items-center gap-1 border-b border-gray-200">

@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@features/i18n/model/useTranslation';
 import { Breadcrumbs } from '@shared/ui';
 
 interface BreadcrumbItem {
@@ -17,25 +16,18 @@ interface PageLoadingSkeletonProps {
 }
 
 /**
- * Hook to check if i18n is ready and component is mounted
+ * Hook to check if i18n is ready (delegates to useSafeTranslation for hydration safety)
  * @param additionalLoading - Optional additional loading state to combine
- * @returns Object with ready state and loading component
+ * @returns Object with ready state, additional loading flag, and tx() function for hydration-safe translations
  */
 export function useI18nReady(additionalLoading = false) {
-  const { ready } = useTranslation();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const isReady = mounted && ready && !additionalLoading;
+  const { isReady: i18nReady, tx } = useSafeTranslation();
+  const isReady = i18nReady && !additionalLoading;
 
   return {
     isReady,
-    mounted,
-    ready,
     additionalLoading,
+    tx,
   };
 }
 
@@ -60,7 +52,8 @@ export function PageLoadingSkeleton({
 }
 
 /**
- * Hook that provides both ready state and loading skeleton
+ * Hook that provides both ready state and loading skeleton.
+ * Also exposes tx() from useSafeTranslation for hydration-safe breadcrumb labels.
  */
 export function usePageLoading(
   breadcrumbs: BreadcrumbItem[],
@@ -71,7 +64,7 @@ export function usePageLoading(
     additionalLoading?: boolean;
   } = {}
 ) {
-  const { isReady } = useI18nReady(options.additionalLoading);
+  const { isReady, tx } = useI18nReady(options.additionalLoading);
 
   const LoadingComponent = !isReady ? (
     <PageLoadingSkeleton
@@ -85,5 +78,6 @@ export function usePageLoading(
   return {
     isReady,
     LoadingComponent,
+    tx,
   };
 }

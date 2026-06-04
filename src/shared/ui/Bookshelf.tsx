@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@features/i18n/model/useTranslation';
 
 interface Book {
   id: string;
@@ -22,7 +22,7 @@ export function Bookshelf({
   editable = false,
   viewMode: initialViewMode = 'grid',
 }: BookshelfProps) {
-  const { t } = useTranslation();
+  const { tx } = useSafeTranslation();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -104,7 +104,7 @@ export function Bookshelf({
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-900">{t('bookshelf', 'My Bookshelf')}</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{tx('bookshelf', 'My Bookshelf')}</h2>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
             <button
@@ -127,7 +127,7 @@ export function Bookshelf({
               onClick={() => setIsEditing(true)}
               className="text-sm text-indigo-600 hover:text-indigo-800"
             >
-              {books.length > 0 ? t('edit', 'Edit') : t('addBook', 'Add Books')}
+              {books.length > 0 ? tx('edit', 'Edit') : tx('addBook', 'Add Books')}
             </button>
           )}
         </div>
@@ -135,32 +135,32 @@ export function Bookshelf({
 
       {isEditing && (
         <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">{t('addBook', 'Add a Book')}</h3>
+          <h3 className="text-sm font-medium text-gray-700 mb-3">{tx('addBook', 'Add a Book')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
             <input
               type="text"
-              placeholder={t('title', 'Title')}
+              placeholder={tx('title', 'Title')}
               value={newBook.title}
               onChange={e => setNewBook({ ...newBook, title: e.target.value })}
               className="px-3 py-2 border border-gray-300 rounded-md text-sm"
             />
             <input
               type="text"
-              placeholder={t('author', 'Author')}
+              placeholder={tx('author', 'Author')}
               value={newBook.author}
               onChange={e => setNewBook({ ...newBook, author: e.target.value })}
               className="px-3 py-2 border border-gray-300 rounded-md text-sm"
             />
             <input
               type="url"
-              placeholder={t('coverUrl', 'Cover Image URL')}
+              placeholder={tx('coverUrl', 'Cover Image URL')}
               value={newBook.coverUrl}
               onChange={e => setNewBook({ ...newBook, coverUrl: e.target.value })}
               className="px-3 py-2 border border-gray-300 rounded-md text-sm"
             />
             <input
               type="url"
-              placeholder={t('bookUrl', 'Book Link (optional)')}
+              placeholder={tx('bookUrl', 'Book Link (optional)')}
               value={newBook.url}
               onChange={e => setNewBook({ ...newBook, url: e.target.value })}
               className="px-3 py-2 border border-gray-300 rounded-md text-sm"
@@ -172,13 +172,13 @@ export function Bookshelf({
               disabled={saving || !newBook.title.trim() || !newBook.author.trim()}
               className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700 disabled:opacity-50"
             >
-              {saving ? t('saving', 'Saving...') : t('add', 'Add')}
+              {saving ? tx('saving', 'Saving...') : tx('add', 'Add')}
             </button>
             <button
               onClick={() => setIsEditing(false)}
               className="px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded-md hover:bg-gray-300"
             >
-              {t('done', 'Done')}
+              {tx('done', 'Done')}
             </button>
           </div>
         </div>
@@ -186,13 +186,15 @@ export function Bookshelf({
 
       {books.length === 0 ? (
         <div className="text-center py-4">
-          <p className="text-gray-500 text-sm mb-4">{t('noBooks', 'No books on the shelf yet.')}</p>
+          <p className="text-gray-500 text-sm mb-4">
+            {tx('noBooks', 'No books on the shelf yet.')}
+          </p>
           {editable && !isEditing && (
             <button
               onClick={() => setIsEditing(true)}
               className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-md hover:bg-indigo-700"
             >
-              {t('addFirstBook', 'Add Your First Book')}
+              {tx('addFirstBook', 'Add Your First Book')}
             </button>
           )}
         </div>
