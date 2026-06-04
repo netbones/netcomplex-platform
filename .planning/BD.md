@@ -1,9 +1,9 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-06-03 (Session 8)
-> **Total remaining:** 25 issues
-> **Closed this session:** 1 (e0w)
-> **Created this session:** 6 REPORT.md gaps (b5d, zjm, 6i9, 8re, 7cp, hfy)
+> **Last updated:** 2026-06-04 (Session 9)
+> **Total remaining:** 28 issues
+> **Closed this session:** 0
+> **Created this session:** 3 RLS issues (4a6, t78, 57d) — prerequisite for Phase 43 plan 43-04 (oqw)
 
 ## Summary by Priority
 
@@ -38,19 +38,38 @@
 
 ### Features & Tasks
 
-| ID    | Type    | Title                                                             | Status |
-| ----- | ------- | ----------------------------------------------------------------- | ------ |
-| `2at` | feature | Phase 35: Community Merits & Standing System                      | ○      |
-| `k3h` | task    | Verify external API consumers can access the OpenAPI spec         | ○      |
-| `qig` | task    | Architecture: Build shared HTTP client (src/shared/api/client.ts) | ○      |
-| `fpc` | task    | Architecture: Expand tRPC coverage from 2 to all entities         | ○      |
-| `22a` | task    | Add connection pool config + retry to Drizzle singleton           | ○      |
+| ID    | Type    | Title                                                                                           | Status |
+| ----- | ------- | ----------------------------------------------------------------------------------------------- | ------ |
+| `2at` | feature | Phase 35: Community Merits & Standing System                                                    | ○      |
+| `k3h` | task    | Verify external API consumers can access the OpenAPI spec                                       | ○      |
+| `qig` | task    | Architecture: Build shared HTTP client (src/shared/api/client.ts)                               | ○      |
+| `fpc` | task    | Architecture: Expand tRPC coverage from 2 to all entities                                       | ○      |
+| `22a` | task    | Add connection pool config + retry to Drizzle singleton                                         | ○      |
+| `4a6` | task    | **RLS migration: move add_rls.sql into proper Prisma migration, narrow to 14 tables, fix bugs** | ○      |
 
 ### Blocked Tasks
 
 | ID    | Title                                          | Blocked By | Status |
 | ----- | ---------------------------------------------- | ---------- | ------ |
 | `0f7` | i18n: Database content localization for Tiptap | `l23`      | ○      |
+| `oqw` | Phase 3: Wrap API routes with runWithRLS()     | `4a6`      | ○      |
+
+---
+
+## RLS Work (cross-phase)
+
+The RLS work spans three issues. The migration (`4a6`) is a Phase 43 prerequisite; the expansion (`t78`) and enforcement (`57d`) are deferred.
+
+| ID    | Priority | Type | Title                                                                           | Blocked By | Phase    |
+| ----- | -------- | ---- | ------------------------------------------------------------------------------- | ---------- | -------- |
+| `4a6` | P2       | task | RLS migration: move add_rls.sql, narrow to 14 tables, fix GUC name + WITH CHECK | —          | 43 (now) |
+| `oqw` | P2       | task | Phase 3: Wrap API routes with runWithRLS() for RLS enforcement                  | `4a6`      | 43 (now) |
+| `t78` | P3       | task | RLS expansion: extend policies to 33 non-sensitive tenant tables                | `4a6`      | M6+      |
+| `57d` | P3       | task | RLS enforcement: wrap remaining ~100 tenant-scoped routes in runWithRLS()       | `4a6`      | post-43  |
+
+**Dependency chain:** `4a6` → `oqw` (Phase 43 43-04) → `57d` (Stage C rollout). `t78` is parallel to `57d`, deferred to M6+.
+
+**Plan:** `.commandcode/plans/rls-migration.md`
 
 ---
 
