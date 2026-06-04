@@ -61,11 +61,13 @@ None specified in CONTEXT.md — planner can choose plan structure, ordering, an
 
 ### New Package (ltn only)
 
-| Package                  | Version                      | Peer Dep              | Purpose                                               | slopcheck | Disposition |
-| ------------------------ | ---------------------------- | --------------------- | ----------------------------------------------------- | --------- | ----------- |
-| `validation-better-auth` | `1.3.4` (latest, 2025-05-13) | `better-auth: ^1.2.0` | Request validation plugin for `/api/auth/*` endpoints | `[OK]`    | Approved    |
+| Package                  | Version                      | Peer Dep              | Purpose                                               | slopcheck   | Disposition                 |
+| ------------------------ | ---------------------------- | --------------------- | ----------------------------------------------------- | ----------- | --------------------------- |
+| `validation-better-auth` | `1.3.4` (latest, 2025-05-13) | `better-auth: ^1.2.0` | Request validation plugin for `/api/auth/*` endpoints | `[ASSUMED]` | Human-verify before install |
 
 **Version verification:** Confirmed via `npm view validation-better-auth version 1.3.4` published 2025-05-13. Compatible with project's `better-auth@^1.5.6` (peer `^1.2.0` allows `1.5.6`).
+
+**Disposition note (revised after plan-checker feedback):** Although `npm view` reports 0 dependencies, a 1-maintainer package that is ~13 months old with 26 versions does not yet meet the bar for an automated `[OK]` verdict. The GSD security policy requires a human verifier to confirm the package's legitimacy (license, maintainer identity, GitHub repo activity, recent security advisories) before install. The plan 43-05 Task 0 is a `checkpoint:human-verify` gate that must pass before `pnpm add validation-better-auth` runs.
 
 **Installation (ltn only):**
 
@@ -77,9 +79,11 @@ No other packages need installation for this phase.
 
 ## Package Legitimacy Audit
 
-| Package                  | Registry | Age                     | Source Repo                                           | slopcheck | Disposition |
-| ------------------------ | -------- | ----------------------- | ----------------------------------------------------- | --------- | ----------- |
-| `validation-better-auth` | npm      | ~13 months (2025-05-13) | https://github.com/Daanish2003/validation-better-auth | [OK]      | Approved    |
+| Package                  | Registry | Age                     | Source Repo                                           | slopcheck   | Disposition                 |
+| ------------------------ | -------- | ----------------------- | ----------------------------------------------------- | ----------- | --------------------------- |
+| `validation-better-auth` | npm      | ~13 months (2025-05-13) | https://github.com/Daanish2003/validation-better-auth | `[ASSUMED]` | Human-verify before install |
+
+**Disposition rationale (revised):** The automated slopcheck initially returned `[OK]` based on (a) `npm view` reporting 0 dependencies, (b) a registered license (MIT), and (c) the maintainer having a real GitHub account. However, the package is owned by a single maintainer, is only ~13 months old, and has a small install base. Per the AGENTS.md security policy and the plan-checker feedback on 43-05, an automated `[OK]` verdict for a 1-maintainer package of this maturity does NOT bypass the human-verify gate. Downgrading to `[ASSUMED]` ensures the executor pauses for human approval at the Task 0 checkpoint rather than auto-installing. If the human verifier confirms the package's legitimacy at execution time, the install proceeds; if concerns are found, the executor files a new BD issue and the plan is BLOCKED.
 
 **Packages removed due to slopcheck [SLOP] verdict:** None
 **Packages flagged as suspicious [SUS]:** None
