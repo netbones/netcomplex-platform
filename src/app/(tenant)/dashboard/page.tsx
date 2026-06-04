@@ -5,7 +5,7 @@ import { MyHomeSpaceWithErrorBoundary } from '@widgets/dashboard/ui/MyHomeSpace'
 
 export default function DashboardHome() {
   return (
-    <div className="space-y-8">
+    <div className="p-6 max-w-5xl mx-auto space-y-8">
       <HomeLayer />
       <MyHomeSpaceWithErrorBoundary />
     </div>
