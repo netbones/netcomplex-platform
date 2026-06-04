@@ -757,17 +757,30 @@ _Close the architecture-audit issues, ship Community Merits, OTP password reset,
 
 ## Phase 44: M5a Audit Closure
 
-**Goal:** Close the 5 architecture-audit gaps identified in `docs/cleaner_react_architecture.md` so the codebase is ready for Soralia Village's 180-home production launch.
+**Goal:** Close the 5 architecture-audit gaps identified in `docs/cleaner_react_architecture.md` AND resolve 4 of the 7 open conflict register entries from `docs/UBIQUITOUS_LANGUAGE.md` (C1, C2, C5, C6) so the codebase is ready for Soralia Village's 180-home production launch.
 
-**Status:** Planning
+**Status:** Planning (expanded 2026-06-04 to include conflict closure work)
 
-**BD sources (5):** `fpc` (tRPC coverage), `qig` (shared HTTP client), `1ei` (useQuery migration), `9xr` (pure helpers), `5u2` (maintenance dedup)
+**BD sources (5 audit + 4 conflicts = 9 total):**
 
-**Acceptance:** All 5 BD issues closed with a fix commit; `docs/cleaner_react_architecture.md` Chapters 6-9 marked as "Closed"; zero `useEffect+fetch` patterns in `src/widgets/`; `src/shared/api/http-client.ts` is the single import point for fetch in widgets; all maintenance API routes use a single transform function.
+**Audit closure (5):** `fpc` (tRPC coverage), `qig` (shared HTTP client), `1ei` (useQuery migration), `9xr` (pure helpers), `5u2` (maintenance dedup)
 
-**Plans:** TBD. Run `/gsd-plan-phase 44-m5a-audit-closure` when ready to plan execution.
+**Conflict register closure (4):** `2z4` (C1 Property shape), `1eh` (C2 gating migration Phase 2+3), `brp` (C5 residencyType alignment), `huo` (C6 occupantType → householdRole)
 
-**Out of scope:** M4.5 fixes (phase 43), M5b launch features (phase 45), M5+ post-launch (phase 46).
+**Conflicts deferred:**
+
+- **C3 (Tab→Space):** RESOLVED (2026-06-04 audit; 0 hits for `tabId`/`DashboardTab`). Phase 31 closed it.
+- **C4 (Tier Naming):** DEFERRED to Phase 47 (dWallet). 3 vs 4 tier mismatch only matters when dWallet ships tier-gated features.
+
+**Acceptance:** All 9 BD issues closed with a fix commit; `docs/cleaner_react_architecture.md` Chapters 6-9 marked as "Closed"; `docs/UBIQUITOUS_LANGUAGE.md` C1, C2, C5, C6 marked as "Closed"; zero `useEffect+fetch` patterns in `src/widgets/`; `src/shared/api/http-client.ts` is the single import point for fetch in widgets; all maintenance API routes use a single transform function; 5 Property shapes consolidated per C1 resolution plan; 4+ `usePageFlags` callsites migrated to `useGateContext()`; legacy exports restricted to `@internal`; `Profile.occupantType` renamed to `householdRole`; `Profile.residencyType` and `Invitation.residentType` aligned on a single enum.
+
+**Plans:** TBD. Run `/gsd-plan-phase 44-m5a-audit-closure` when ready to plan execution. Suggested plan structure:
+
+- **Plan A (foundation):** `qig` + `9xr` + `2z4`
+- **Plan B (gating migration):** `fpc` + `1eh` (usePageFlags → useGateContext + restrict legacy exports)
+- **Plan C (cleanup):** `1ei` + `5u2` + `brp` + `huo`
+
+**Out of scope:** M4.5 fixes (phase 43), M5b launch features (phase 45), M5+ post-launch (phase 46), dWallet (phase 47, where C4 lives), C3 (already resolved).
 
 ---
 

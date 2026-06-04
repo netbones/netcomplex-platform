@@ -1,6 +1,6 @@
 # Ubiquitous Language — NetComplex / Soralia Village
 
-> **Last updated:** 2026-06-01
+> **Last updated:** 2026-06-04
 > **Purpose:** Canonical definitions for all domain terms. When in doubt, this document is the authority.
 
 ---
@@ -276,13 +276,15 @@ A priority-classified communication with audience targeting and fanout delivery 
 
 Four (now five) different TypeScript shapes exist for the same concept. **All current shapes use `street`/`unit` field names (matching Prisma schema).** The actual inconsistency is in field set and shape boundaries, not in field names. The previously proposed resolution (renaming to `streetAddress`/`unitNumber`) was retracted because it would have _created_ the inconsistency it was trying to fix.
 
-| Shape                         | Source                                  | Scope                | Notable Fields                                                                              |
-| ----------------------------- | --------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------- |
-| `PropertyDTO`                 | `src/shared/api/dto/property.ts`        | **Canonical (API)**  | `id`, `street`, `unit`, `platformAddress`, `homeImage?`, `ownerId?`, dates as ISO `string`  |
-| `PropertySummaryDTO`          | `src/shared/api/dto/property.ts`        | **Canonical (lite)** | `id`, `street`, `unit`, `platformAddress`, `homeImage?`                                     |
-| `Property` (tenant entity)    | `src/entities/tenant/model/types.ts`    | Local domain model   | Adds `tenantId`, `activeHousehold?`, `households?`; dates as `Date` (not API-safe for tRPC) |
-| `Property` (directory entity) | `src/entities/directory/model/types.ts` | Local view type      | Only `street`, `unit`, `homeImage?`; no `id` (display-only)                                 |
-| `PropertyInfo`                | `src/entities/user/model/types.ts`      | Local view type      | `id`, `street`, `unit`, `platformAddress?` (admin lite)                                     |
+| Shape                         | Source                                                   | Scope                | Notable Fields                                                                              |
+| ----------------------------- | -------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------- |
+| `PropertyDTO`                 | `src/shared/api/dto/property.ts`                         | **Canonical (API)**  | `id`, `street`, `unit`, `platformAddress`, `homeImage?`, `ownerId?`, dates as ISO `string`  |
+| `PropertySummaryDTO`          | `src/shared/api/dto/property.ts`                         | **Canonical (lite)** | `id`, `street`, `unit`, `platformAddress`, `homeImage?`                                     |
+| `Property` (tenant entity)    | `src/entities/tenant/model/types.ts`                     | Local domain model   | Adds `tenantId`, `activeHousehold?`, `households?`; dates as `Date` (not API-safe for tRPC) |
+| `Property` (directory entity) | `src/entities/directory/model/types.ts`                  | Local view type      | Only `street`, `unit`, `homeImage?`; no `id` (display-only)                                 |
+| `PropertyInfo`                | `src/entities/user/model/types.ts`                       | Local view type      | `id`, `street`, `unit`, `platformAddress?` (admin lite)                                     |
+| `PropertyListing` (agent)     | `src/widgets/dashboard/ui/AgentWidget.tsx:25`            | Widget-local view    | Agent dashboard property listing shape; not in original register                            |
+| `PropertyListing` (premium)   | `src/widgets/dashboard/ui/PremiumPortfolioWidget.tsx:41` | Widget-local view    | Premium portfolio property listing shape; not in original register                          |
 
 **Audit (2026-06-01):** Verified all 5 shapes use `street`/`unit` consistently. Prisma `model Property` (the source of truth) uses `street` and `unit` (`prisma/schema.prisma:Property`).
 
@@ -292,14 +294,15 @@ Four (now five) different TypeScript shapes exist for the same concept. **All cu
 2. `directory.Property` ↔ `PropertySummaryDTO`: Both are 3–4 fields, both local-scope. Directory's shape is a display-only view (no `id`); could unify with `PropertySummaryDTO` or leave as local view type.
 3. `user.PropertyInfo` ↔ `PropertySummaryDTO`: Both are 4 fields. Could unify or leave as local view type.
 
-**Resolution plan (deferred to post-Phase 41):**
+**Resolution plan (added to Phase 44):**
 
 - `PropertyDTO` and `PropertySummaryDTO` remain canonical API shapes.
 - `tenant.Property` stays as the internal domain model (load-bearing for relations and tenant scoping).
 - Consolidate `directory.Property` and `user.PropertyInfo` → `PropertySummaryDTO` _only_ if a shared lite type is needed; otherwise leave as local view types.
+- Audit and align the 2 widget-local `PropertyListing` types (`AgentWidget.tsx:25`, `PremiumPortfolioWidget.tsx:41`) — either consolidate with `PropertySummaryDTO` or document as widget-specific view types.
 - **No field renames.** Current `street`/`unit` already match Prisma.
 
-**Status (2026-06-01):** Open — Phase 41 in flight. Code work deferred until Phase 41 ships. Phase 41 is orthogonal to C1: gate code (`src/shared/api/gate.ts`, `src/shared/lib/gate-client.ts`, `src/shared/ui/GateGuard.tsx`) does not consume any Property shape, and the consumed-as-is functions (`isModuleEnabled`, `getPlatformPageFlags`) also do not touch properties.
+**Status (2026-06-04):** **Open — Now actionable.** Phase 41 is complete; code work is no longer deferred. Resolution work added to Phase 44 (M5a Audit Closure) as BD issue `2z4` (P2). Audit also found 2 additional local `PropertyListing` types in `src/widgets/dashboard/ui/AgentWidget.tsx:25` and `src/widgets/dashboard/ui/PremiumPortfolioWidget.tsx:41` — these should be either aligned with `PropertySummaryDTO` or documented as local view types.
 
 ### C2: Three Overlapping Gating Systems (Medium Priority)
 
@@ -307,32 +310,47 @@ Four (now five) different TypeScript shapes exist for the same concept. **All cu
 
 **Resolution plan:** `docs/GATE_PLAN.md` — 5-layer precedence model with `canAccess()` single entry point, 3-phase migration (foundation → incremental → cleanup), CI-enforced mapping completeness test.
 
-**Status (2026-06-01):** **Open — Phase 1 infrastructure complete.** `canAccess()`, `canAccessClient()`, `useGateContext()`, and `GateGuard` exist in `.planning/phases/41-feature-gate-consolidation/41-{01,02,03}-PLAN.md` and will land in Phase 41 execution. The 3 legacy systems (`isModuleEnabled`, `TierGuard`, `usePageFlags` direct reads) remain public and continue to operate in parallel until Phase 2 migrates callsites opportunistically. C2 fully resolved when Phase 3 restricts legacy exports to `@internal`. See 41-CONTEXT.md "Trajectory" and "Phase 2/3 Deferrals" sections.
+**Status (2026-06-04):** **Phase 1 complete; Phase 2 + 3 added to Phase 44 (M5a Audit Closure).** `canAccess()`, `canAccessClient()`, `useGateContext()`, and `GateGuard` shipped in Phase 41. **2026-06-04 audit found 4 production callsites still using `usePageFlags` directly** (must migrate to `useGateContext()` in Phase 2):
 
-### C3: Tab → Space Migration Incomplete (Medium Priority)
+- `src/widgets/dashboard/ui/MobileSpaceBar.tsx:7, 32`
+- `src/shared/ui/Header.tsx:9, 241`
+- `src/shared/ui/SideDrawer.tsx:9, 29`
+- `src/shared/ui/Footer.tsx:7, 16`
+
+Phase 2 (call-site migration) and Phase 3 (restrict legacy exports to `@internal` with CI guard) work added to Phase 44 as BD issue `1eh` (P2). C2 fully resolved when Phase 3 ships.
+
+### C3: Tab → Space Migration Incomplete (Medium Priority) — _Closed 2026-06-04_
 
 `widget-store.ts` still uses `tabId` as map keys; `admin-config.ts` still has `DashboardTab[]` type.
 
 **Resolution:** Phase 31 (planned, not yet executed) will remove all Tab references and migrate to `spaceId`.
 
-### C4: Tier Naming Mismatch (Medium Priority)
+**Status (2026-06-04):** **CLOSED.** Phase 31 work was executed (commits `c905558`, `e1e2d69`, and earlier 31-01..31-03). 2026-06-04 audit: zero hits for `tabId` or `DashboardTab` in `src/` or `tests/`. Migration is complete.
+
+### C4: Tier Naming Mismatch (Medium Priority) — _Open, deferred to dWallet phase_
 
 Technical tiers (`foundation`/`depth`/`core`) don't map to business tiers in PRD (`Anchor`/`Premium`/`Standard`/`Starter`). 3 technical tiers vs 4 business tiers.
 
 **Resolution needed:** Add a mapping table in `tiers.ts` or create a business-tier abstraction layer.
 
-### C5: residencyType vs residentType (Low Priority)
+**Status (2026-06-04):** **Open — Deferred to Phase 47 (dWallet).** Tier naming only matters when dWallet ships tier-gated features; before then, technical tiers suffice. Code locations confirmed: `src/shared/lib/constants/tiers.ts:8` defines the 3-tier union; `src/entities/tenant/api/features/registry.ts:465-499` uses them in 4 places. Will be picked up when dWallet surfaces the need.
+
+### C5: residencyType vs residentType (Low Priority) — _Open, in flight in Phase 44_
 
 - Profile's `residencyType`: `FAMILY`, `RENTER`, `OWNER_RESIDENT`
 - Invitation's `residentType`: `OWNER`, `RENTER`
 
 **Resolution needed:** Align on `OWNER_RESIDENT` → `OWNER` mapping, or rename Invitation's field to `residencyType` and reuse the same enum.
 
-### C6: OccupancyType vs occupantType (Low Priority)
+**Status (2026-06-04):** **Open — Added to Phase 44 (M5a Audit Closure) as BD issue `brp` (P3).** 2026-06-04 audit confirmed 4 files affected: `src/shared/api/dto/invitation.ts:11,28`, `src/features/onboarding/ui/steps/InviteStep.tsx:79`, `src/features/directory/model/useResidentFilter.ts:60,62`, `src/widgets/admin/ui/users/InviteModal.tsx:21,91,93,94`, plus `src/test/api/invitations.test.ts:50`. Proposed resolution: align on `residencyType` with enum `{FAMILY, RENTER, OWNER}` (drop `OWNER_RESIDENT`, map to `OWNER`).
+
+### C6: OccupancyType vs occupantType (Low Priority) — _Open, in flight in Phase 44_
 
 Both exist in the same entity. `OccupancyType` is property-level; `occupantType` is person-level. Near-identical naming causes confusion.
 
 **Resolution needed:** Rename `occupantType` to `householdRole` or `personRole` to disambiguate.
+
+**Status (2026-06-04):** **Open — Added to Phase 44 (M5a Audit Closure) as BD issue `huo` (P3).** 2026-06-04 audit confirmed 14+ script references in `scripts/seed-drizzle.ts`, `scripts/migrate-renter-relationships.ts`, and `prisma/seed.ts:776-819`. Proposed: rename to `householdRole` (matches `Household` entity context).
 
 ### C7: "Ticket" as Sub-Brand of MaintenanceRequest (Informational)
 
@@ -351,3 +369,9 @@ The model is `MaintenanceRequest`; users see "Ticket Number" in the UI. This is 
 | 2026-06-01 | Documented triple gating system as C2                                                            | Overlap between Module/Feature/Flag systems is undocumented                                                                                                                                |
 | 2026-06-01 | Documented tier naming mismatch as C4                                                            | 3 technical tiers vs 4 business tiers is an open gap                                                                                                                                       |
 | 2026-06-01 | Updated C2 status: Phase 1 infrastructure complete (Plan 41-01..03)                              | Foundation in flight; callsite migration is Phase 2; C2 fully Resolved in Phase 3                                                                                                          |
+| 2026-06-04 | Closed C3: Tab → Space migration                                                                 | Phase 31 work executed; 0 hits for tabId/DashboardTab in audit                                                                                                                             |
+| 2026-06-04 | Updated C1: Now actionable (Phase 41 complete) + 2 new local PropertyListing types               | Code work added to Phase 44 as `2z4`; no field renames — shape boundary clarification only                                                                                                 |
+| 2026-06-04 | Updated C2: Phase 2 + 3 added to Phase 44                                                        | 4 production callsites still use `usePageFlags` (MobileSpaceBar, Header, SideDrawer, Footer); migrate to `useGateContext()`; restrict legacy exports to `@internal`                        |
+| 2026-06-04 | C4 (Tier Naming) deferred to Phase 47 (dWallet)                                                  | 3 vs 4 tier mismatch only matters when dWallet ships tier-gated features; track as open conflict until dWallet surfaces the need                                                           |
+| 2026-06-04 | C5 (residencyType vs residentType) added to Phase 44                                             | Align on `residencyType` with enum `{FAMILY, RENTER, OWNER}`; drop `OWNER_RESIDENT` (map to `OWNER`); update Invitation DTO + 4 UI files                                                   |
+| 2026-06-04 | C6 (OccupancyType vs occupantType) added to Phase 44                                             | Rename `occupantType` → `householdRole`; update Profile model + 14+ script references; Prisma + Drizzle schema migration required                                                          |
