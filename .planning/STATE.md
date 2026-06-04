@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Phase 42 complete; BD triage done (5 new phases 43-47 created); conflict register audited and 4 conflicts (C1, C2, C5, C6) added to Phase 44 per user direction. C3 (Tab→Space) closed (Phase 31 work resolved it; 0 hits in audit). C4 (Tier Naming) deferred to Phase 47 (dWallet) since it only matters when dWallet ships tier-gated features. Phase 44 expanded from 5 BD issues to 9 (5 audit + 4 conflicts). All 4 new conflict BD issues (2z4, 1eh, brp, huo) created and tagged. M4 complete. M4.5 BLOCKED on Phase 43. Ready to plan Phase 43 (m4-5-blockers) via /gsd-plan-phase.
-last_updated: '2026-06-04T01:00:00.000Z'
+stopped_at: Phase 43 (m4-5-blockers) planned and verified. 5 PLAN.md files in 3 waves. Round 1 plan-checker found 0 blockers + 8 warnings; round 2 verified all 8 fixes correctly applied. Plans ready to execute. Phase 43 must complete BEFORE M4.5 stabilization (7-day soak) begins.
+last_updated: '2026-06-04T11:00:00.000Z'
 progress:
   total_phases: 47
   completed_phases: 37
-  total_plans: 97
+  total_plans: 102
   completed_plans: 94
   percent: 79
 ---
@@ -17,13 +17,13 @@ progress:
 
 ## Current Position
 
-- **Phase:** Phase 42 complete (3/3 plans). M4 Production-Ready 3/3 done. BD triage done; 5 new planning phases (43-47) created. Conflict register audited; 4 conflicts (C1, C2, C5, C6) added to Phase 44 scope. C3 closed. C4 deferred to dWallet.
-- **Status:** M4 complete. M4.5 BLOCKED on Phase 43 (5 soak-blocking issues must be resolved first). Phase 44 expanded to 9 issues (5 audit + 4 conflicts).
+- **Phase:** Phase 43 (m4-5-blockers) PLANNED (5/5 plans, 3 waves, verification passed). M4 complete; M4.5 blocked on Phase 43 execution.
+- **Status:** Phase 43 plans ready to execute. After Phase 43 ships, M4.5 Stabilization (7-day soak) begins.
 - **Last Updated:** 2026-06-04
-- **Next Step:** Plan Phase 43 (m4-5-blockers) via `/gsd-plan-phase 43-m4-5-blockers`. Once Phase 43 ships, M4.5 Stabilization (7-day soak) begins. See `.planning/MILESTONES.md` §2 for M4.5 criteria.
+- **Next Step:** Execute Phase 43 in worktree: `git worktree add ../worktrees/phase-43-m4-5-blockers -b phase-43-m4-5-blockers`, then `/gsd-execute-phase 43`. See `.planning/MILESTONES.md` §2 for M4.5 criteria.
 
-**Last Session:** 2026-06-04T01:00:00.000Z
-**Stopped at:** Triaged 35 open BD issues into 5 new planning phases (43-47). Audited conflict register; found C1 actionable (Phase 41 done), C2 Phase 2+3 pending, C3 resolved by Phase 31, C4-C6 still open. Created 4 BD issues for conflict closure (2z4, 1eh, brp, huo). Updated Phase 44 CONTEXT.md and ROADMAP.md to reflect expanded 9-issue scope. Updated UBIQUITOUS_LANGUAGE.md to reflect C3 closed, C1/C2/C5/C6 in-flight, C4 deferred.
+**Last Session:** 2026-06-04T11:00:00.000Z
+**Stopped at:** Phase 43 planned end-to-end. 5 PLAN.md files (43-01..43-05) across 3 waves: Wave 1 = 43-01 (tc4 prisma seed shim) + 43-02 (cs5 MyHomeSpace standardSeats fallback); Wave 2 = 43-03 (e0w 80-route audit); Wave 3 = 43-04 (oqw admin route RLS wrap) + 43-05 (ltn validation-better-auth, with blocking-human checkpoint for package legitimacy). Plan-checker round 1 found 0 blockers + 8 warnings; round 2 verified all 8 fixes correctly applied. 43-05 is `autonomous: false` due to package legitimacy human-verify gate.
 **Resume file:** None
 
 ## Active Phase Decisions
