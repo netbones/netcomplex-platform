@@ -64,6 +64,12 @@ cp .env ../worktrees/${GSD_PHASE}/.env
 
 # 4. After phase completes and is merged/pushed, clean up the worktree
 git worktree remove ../worktrees/${GSD_PHASE}
+
+# 5. Delete the merged phase branch (local + remote) once the merge is on dev
+#    Verify first: `git branch -a --merged dev` must list the phase branch.
+#    `git branch -d` refuses to delete unmerged branches — safer than -D.
+git branch -d ${GSD_PHASE}
+git push origin --delete ${GSD_PHASE}
 ```
 
 **Rules:**
@@ -73,6 +79,8 @@ git worktree remove ../worktrees/${GSD_PHASE}
 - **Copy `.env` immediately** after creating the worktree, before running any commands
 - **Run quality gates inside the worktree** before merging back
 - **Clean up worktrees** after the phase branch is merged and pushed: `git worktree remove ../worktrees/<phase>`
+- **Delete merged phase branches** (local + remote) after the worktree is removed — `git branch -d` and `git push origin --delete`. Never use `-D` (force) without verifying `git branch -a --merged dev` first.
+- **NEVER delete `dev`, `main`, or any non-phase branch** from the local repo or origin. If a phase accidentally targets one of these, abort the merge and reset. Phase branches are the only branches the cleanup protocol may delete.
 - **Never delete** a worktree directory manually — always use `git worktree remove`
 - List active worktrees with: `git worktree list`
 
