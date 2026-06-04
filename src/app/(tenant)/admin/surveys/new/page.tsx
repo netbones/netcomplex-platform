@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Breadcrumbs, LoadingSpinner } from '@shared/ui';
 import { SurveyEditor } from '@/components/surveys/builder/SurveyEditor';
@@ -12,8 +12,12 @@ export default function NewSurveyPage() {
   const router = useRouter();
   const [surveyId, setSurveyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const hasCreatedRef = useRef(false);
 
   useEffect(() => {
+    if (hasCreatedRef.current) return;
+    hasCreatedRef.current = true;
+
     let cancelled = false;
 
     fetch('/api/surveys', {

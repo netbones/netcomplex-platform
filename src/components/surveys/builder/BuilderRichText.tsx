@@ -3,7 +3,6 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
-import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
 import { useEffect, useState } from 'react';
 import {
@@ -21,6 +20,8 @@ interface BuilderRichTextProps {
   value: string;
   /** Fires on every edit with the new HTML. */
   onChange: (html: string) => void;
+  /** Fires when the editor loses focus. */
+  onBlur?: () => void;
   /** Placeholder shown when the editor is empty. */
   placeholder?: string;
   /** Optional aria-label for the editor surface. */
@@ -45,6 +46,7 @@ interface BuilderRichTextProps {
 export function BuilderRichText({
   value,
   onChange,
+  onBlur,
   placeholder = 'Add a description...',
   ariaLabel,
   compact = false,
@@ -60,7 +62,6 @@ export function BuilderRichText({
         horizontalRule: false,
         blockquote: false,
       }),
-      Underline,
       Image.configure({
         inline: false,
         allowBase64: false,
@@ -73,6 +74,7 @@ export function BuilderRichText({
     content: value,
     immediatelyRender: false,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
+    onBlur: () => onBlur?.(),
     editorProps: {
       attributes: {
         class: `focus:outline-none prose prose-sm max-w-none ${compact ? 'min-h-[60px] px-2 py-1' : 'min-h-[100px] px-3 py-2'}`,

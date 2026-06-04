@@ -58,16 +58,16 @@ function SortableQuestion({ question, onUpdate, onDelete }: SortableQuestionProp
       ref={setNodeRef}
       style={style}
       className={`group ${isDragging ? 'z-10' : ''}`}
-      data-no-dnd="false"
+      {...attributes}
     >
       <div className="relative">
         <button
           type="button"
-          {...attributes}
           {...listeners}
           className="absolute left-[-28px] top-3 text-gray-300 hover:text-gray-600 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
           aria-label="Drag to reorder"
           title="Drag to reorder"
+          data-no-dnd="true"
         >
           <GripVertical size={18} />
         </button>

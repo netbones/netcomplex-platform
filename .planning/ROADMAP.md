@@ -739,7 +739,15 @@ _Buffer between M4 (code-complete) and M5 (production-traffic). No new phases. P
 
 **Acceptance:** All 5 BD issues closed with a fix commit; `pnpm db:seed` works; MyHomeSpace correctly links user to property; all audited routes have withTenant() OR documented RLS escape; `runWithRLS()` wraps sensitive routes; request validation plugin wired to /api/auth/\*.
 
-**Plans:** TBD. Run `/gsd-plan-phase 43-m4-5-blockers` when ready to plan execution.
+**Plans:** 5 plans in 3 waves.
+
+Plans:
+
+- [ ] 43-01-PLAN.md — Wave 1 — tc4: Prisma seed shim (export `seed()` from seed-drizzle, replace prisma/seed.ts with ≤40-line shim)
+- [ ] 43-02-PLAN.md — Wave 1 — cs5: MyHomeSpace standardSeats fallback (synthetic household from seat/property join when no profiles row)
+- [ ] 43-03-PLAN.md — Wave 2 — e0w: 80-route tenant-isolation audit (regex-based audit script + per-route report at docs/SECURITY_AUDIT_M4.5.md)
+- [ ] 43-04-PLAN.md — Wave 3 — oqw: Wrap 5 admin routes in runWithRLS() (defense-in-depth; replace db._ with tx._ inside the wrap)
+- [ ] 43-05-PLAN.md — Wave 3 — ltn: Install + wire validation-better-auth (4 Zod schemas for critical auth endpoints)
 
 **Out of scope:** M5a/M5b work (different phases). 7cp + jc1 (deferred to dWallet, phase 47).
 

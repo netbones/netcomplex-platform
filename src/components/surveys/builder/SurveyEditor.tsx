@@ -34,7 +34,6 @@ import { SectionBlock } from './SectionBlock';
 import { BlockPalette } from './BlockPalette';
 import { QuestionList } from './QuestionList';
 import { useSaveStatus } from './useSaveStatus';
-import { useDebouncedAutoSave } from './useDebouncedAutoSave';
 
 interface SurveyEditorProps {
   surveyId: string;
@@ -326,27 +325,6 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
    * Inline debounced save for section description edits.
    * Called from SectionBlock's BuilderRichText onChange.
    */
-  const debouncedSectionDescriptionSave = useCallback(
-    (sectionId: string, html: string) => {
-      saveStatus.markDirty();
-      void onUpdateSection(sectionId, { description: html });
-    },
-    [onUpdateSection, saveStatus]
-  );
-
-  // Debounced auto-save for the survey description (in SurveyEditorHeader)
-  const debouncedSurveyDescSave = useDebouncedAutoSave({
-    delay: 2000,
-    onSave: async html => {
-      if (!survey) return;
-      if (html !== survey.description) {
-        await onUpdateSurvey({ description: html });
-      }
-    },
-    onDirty: () => saveStatus.markDirty(),
-  });
-
-  // Track a pending-yes/no dirty mark for the retry button
   const retry = useCallback(() => {
     if (survey) {
       void loadSurvey();
@@ -529,7 +507,6 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
         saveDirty={saveStatus.dirty}
         saveError={saveStatus.errorMessage}
         onRetrySave={retry}
-        onDescriptionChange={debouncedSurveyDescSave.schedule}
       />
 
       <div className="space-y-4">
@@ -560,7 +537,9 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
                   key={section.id}
                   {...buildSectionProps(section)}
                   sortable
-                  onDescriptionChange={html => debouncedSectionDescriptionSave(section.id, html)}
+                  onDescriptionChange={html =>
+                    void onUpdateSection(section.id, { description: html })
+                  }
                 />
               ))}
             </SortableContext>
@@ -625,14 +604,11 @@ export function SurveyEditor({ surveyId }: SurveyEditorProps) {
  * section changes. Keeps the parent clean.
  */
 function SortableSectionBlock(
-  props: React.ComponentProps<typeof SectionBlock> & { onDescriptionChange: (html: string) => void }
+  props: React.ComponentProps<typeof SectionBlock> & {
+    onDescriptionChange?: (html: string) => void;
+  }
 ) {
   const { section, onDescriptionChange, ...rest } = props;
-  // Pass through; the actual onDescriptionChange wiring happens
-  // inside SectionBlock via the description prop. We bind it via
-  // a key on section.id to ensure the inner BuilderRichText gets
-  // the new handler when the section is re-rendered.
-  void section;
   void onDescriptionChange;
   return <SectionBlock key={section.id} section={section} {...rest} />;
 }

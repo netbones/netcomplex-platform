@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, forwardRef } from 'react';
+import { useState, useEffect, forwardRef, createContext, useContext } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Trash2, ChevronDown, ChevronUp, Plus } from 'lucide-react';
@@ -8,6 +8,15 @@ import type { SurveySection, SurveyQuestion, QuestionType } from './survey-types
 import { QuestionBlock } from './QuestionBlock';
 import { BlockPalette } from './BlockPalette';
 import { BuilderRichText } from './BuilderRichText';
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+type DragListeners = Record<string, Function> | undefined;
+
+const SortableListenersContext = createContext<DragListeners>(undefined);
+
+function useSortableListeners() {
+  return useContext(SortableListenersContext);
+}
 
 interface SectionBlockProps {
   section: SurveySection;
@@ -54,16 +63,17 @@ function SortableSectionWrapper({ id, children }: SortableSectionWrapperProps) {
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      data-section-id={id}
-      className={isDragging ? 'z-10' : ''}
-      {...attributes}
-      {...listeners}
-    >
-      {children}
-    </div>
+    <SortableListenersContext.Provider value={listeners}>
+      <div
+        ref={setNodeRef}
+        style={style}
+        data-section-id={id}
+        className={isDragging ? 'z-10' : ''}
+        {...attributes}
+      >
+        {children}
+      </div>
+    </SortableListenersContext.Provider>
   );
 }
 
@@ -97,12 +107,16 @@ export const SectionBlock = forwardRef<HTMLElement, SectionBlockProps>(function 
 ) {
   const [expanded, setExpanded] = useState(true);
   const [titleDraft, setTitleDraft] = useState(section.title ?? '');
+  const [descDraft, setDescDraft] = useState(section.description ?? '');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Keep local title draft in sync when the section changes externally
   useEffect(() => {
     setTitleDraft(section.title ?? '');
   }, [section.id, section.title]);
+
+  useEffect(() => {
+    setDescDraft(section.description ?? '');
+  }, [section.id, section.description]);
 
   const isTempId = section.id.startsWith('temp-');
 
@@ -112,12 +126,13 @@ export const SectionBlock = forwardRef<HTMLElement, SectionBlockProps>(function 
     }
   };
 
-  const commitDescription = (html: string) => {
-    if (html === section.description) return;
-    if (onDescriptionChange) {
-      onDescriptionChange(html);
-    } else {
-      onUpdateSection(section.id, { description: html });
+  const commitDescription = () => {
+    if (descDraft !== (section.description ?? '')) {
+      if (onDescriptionChange) {
+        onDescriptionChange(descDraft);
+      } else {
+        onUpdateSection(section.id, { description: descDraft });
+      }
     }
   };
 
@@ -131,6 +146,8 @@ export const SectionBlock = forwardRef<HTMLElement, SectionBlockProps>(function 
     }
   };
 
+  const sortableListeners = useSortableListeners();
+
   const content = (
     <section
       ref={ref}
@@ -141,10 +158,11 @@ export const SectionBlock = forwardRef<HTMLElement, SectionBlockProps>(function 
           {sortable ? (
             <button
               type="button"
+              {...sortableListeners}
               className="mt-1 text-gray-300 hover:text-gray-600 cursor-grab active:cursor-grabbing"
               aria-label="Drag section to reorder"
               title="Drag section to reorder"
-              data-no-dnd="false"
+              data-no-dnd="true"
             >
               <GripVertical size={18} />
             </button>
@@ -186,8 +204,9 @@ export const SectionBlock = forwardRef<HTMLElement, SectionBlockProps>(function 
 
             <div className="mt-2">
               <BuilderRichText
-                value={section.description ?? ''}
-                onChange={commitDescription}
+                value={descDraft}
+                onChange={setDescDraft}
+                onBlur={commitDescription}
                 placeholder="Optional description for this section (supports images and formatting)"
                 ariaLabel={`Section ${section.title ?? 'Untitled'} description`}
                 compact

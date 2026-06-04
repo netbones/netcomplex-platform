@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Save } from 'lucide-react';
 import type { Survey, SurveyStatus } from './survey-types';
 import { BuilderRichText } from './BuilderRichText';
 import { SaveIndicator } from './SaveIndicator';
@@ -15,11 +15,6 @@ interface SurveyEditorHeaderProps {
   saveDirty: boolean;
   saveError: string | null;
   onRetrySave: () => void;
-  /**
-   * Debounced change handler for the survey description.
-   * Fires on every TipTap edit; the parent debounces the actual save.
-   */
-  onDescriptionChange: (html: string) => void;
 }
 
 const STATUS_COLORS: Record<SurveyStatus, string> = {
@@ -35,24 +30,44 @@ export function SurveyEditorHeader({
   saveDirty,
   saveError,
   onRetrySave,
-  onDescriptionChange,
 }: SurveyEditorHeaderProps) {
   const [titleDraft, setTitleDraft] = useState(survey.title);
+  const [descDraft, setDescDraft] = useState(survey.description ?? '');
   const [editingTitle, setEditingTitle] = useState(false);
   const [descriptionOpen, setDescriptionOpen] = useState(Boolean(survey.description));
+  const prevSaveStateRef = useRef(saveState);
 
-  // Keep local draft in sync if the survey changes externally
-  if (!editingTitle && titleDraft !== survey.title) {
-    setTitleDraft(survey.title);
-  }
+  useEffect(() => {
+    if (prevSaveStateRef.current === 'saving' && saveState === 'saved') {
+      setTitleDraft(survey.title);
+      setDescDraft(survey.description ?? '');
+    }
+    prevSaveStateRef.current = saveState;
+  }, [saveState, survey.title, survey.description]);
+
+  const hasPendingTitleChange = titleDraft.trim() !== '' && titleDraft !== survey.title;
+  const hasPendingDescChange = descDraft !== (survey.description ?? '');
+  const hasPendingChanges = hasPendingTitleChange || hasPendingDescChange;
+
+  const handleSave = useCallback(() => {
+    const changes: Partial<Pick<Survey, 'title' | 'description' | 'status'>> = {};
+    if (titleDraft.trim() && titleDraft !== survey.title) {
+      changes.title = titleDraft.trim();
+    }
+    if (descDraft !== (survey.description ?? '')) {
+      changes.description = descDraft;
+    }
+    if (Object.keys(changes).length > 0) {
+      onUpdateSurvey(changes);
+    }
+    setEditingTitle(false);
+  }, [titleDraft, descDraft, survey.title, survey.description, onUpdateSurvey]);
 
   const commitTitle = () => {
-    setEditingTitle(false);
-    if (titleDraft.trim() && titleDraft !== survey.title) {
-      onUpdateSurvey({ title: titleDraft.trim() });
-    } else {
+    if (!titleDraft.trim()) {
       setTitleDraft(survey.title);
     }
+    setEditingTitle(false);
   };
 
   const cycleStatus = () => {
@@ -88,7 +103,7 @@ export function SurveyEditorHeader({
               className="text-2xl font-bold text-gray-900 cursor-text hover:bg-gray-50 px-1 -mx-1 rounded"
               title="Click to edit"
             >
-              {survey.title}
+              {titleDraft || survey.title}
             </h1>
           )}
         </div>
@@ -105,13 +120,28 @@ export function SurveyEditorHeader({
 
         <SaveIndicator
           state={saveState}
-          dirty={saveDirty}
+          dirty={saveDirty || hasPendingChanges}
           errorMessage={saveError}
           onRetry={onRetrySave}
         />
 
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={!hasPendingChanges && saveState === 'saving'}
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md font-medium transition-colors ${
+            hasPendingChanges
+              ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          }`}
+          title={hasPendingChanges ? 'Save changes' : 'No pending changes'}
+        >
+          <Save size={14} />
+          Save
+        </button>
+
         <Link
-          href={`/surveys/${survey.id}`}
+          href={`/admin/surveys/${survey.id}/preview`}
           target="_blank"
           className="px-3 py-1.5 text-sm text-indigo-600 border border-indigo-200 rounded-md hover:bg-indigo-50"
         >
@@ -141,8 +171,9 @@ export function SurveyEditorHeader({
         {descriptionOpen && (
           <div className="px-6 pb-4" data-no-dnd="true">
             <BuilderRichText
-              value={survey.description ?? ''}
-              onChange={onDescriptionChange}
+              value={descDraft}
+              onChange={setDescDraft}
+              onBlur={handleSave}
               placeholder="Describe what this survey is for. You can include images and basic formatting."
               ariaLabel="Survey description"
             />
