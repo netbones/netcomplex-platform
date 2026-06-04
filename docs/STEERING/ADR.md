@@ -914,6 +914,20 @@ The app uses a single privileged Postgres connection (`DATABASE_URL` as superuse
 - `src/app/api/admin/maintenance-stats/route.ts` — fixed cross-tenant leak
 - `src/app/api/surveys/route.ts` — fixed cross-tenant leak
 
+### Update 2026-06-04 (BD `4a6`)
+
+The original "6 sensitive tables" target was implemented in a loose `prisma/migrations/add_rls.sql` and a Supabase migration `enable_rls_on_sensitive_tables`. The Supabase migration never landed in the Prisma migration directory, and the loose SQL had 5 correctness bugs (wrong GUC name `app.role` vs `app.user_role`, missing `is_platform_admin` helper, no `WITH CHECK` clauses, non-idempotent `CREATE POLICY` for 30 of 32 tables, and a literal placeholder password in `CREATE ROLE`).
+
+This ADR is **confirmed in effect** for the Phase 43 (m4-5-blockers) blocker phase, with the following refinements:
+
+- **Scope narrowed to 15 tables:** 6 ADR-019 sensitive (user, session, account, passkey, twoFactor, profile) + 9 tables read by the 5 Phase 43 43-04 admin routes (Notification, MaintenanceRequest, Content, Survey, Event, GroupMembershipRequest, Announcement, Competition, Setting). 30 non-sensitive tables deferred to M6+ (BD `t78`).
+- **Implemented in `prisma/migrations/20260604000000_add_rls_policies/migration.sql`** as a proper Prisma migration, with all 5 bugs fixed, plus a `WITH CHECK` clause on every policy, idempotent `DROP POLICY IF EXISTS` before every `CREATE POLICY`, and an `is_platform_admin()` helper for cross-tenant reads during support.
+- **Connection-role model corrected.** The original `add_rls_note.md` claim _"Your DATABASE_URL in production uses app_user"_ is **wrong**. The connection uses the **owner role**; `app_user` is only active inside `runWithRLS` transactions via `SET LOCAL ROLE app_user`. Changing `DATABASE_URL` to `app_user` would break Better Auth login and `getRLSContext`. See `docs/STEERING/RLS.md` step 0.
+- **Operational runbook at `docs/STEERING/RLS.md`** — single source of truth for the connection-role model, role setup, application verification, and rollback.
+- **Plan at `.commandcode/plans/rls-migration.md`** — full design rationale and follow-up BD tracking.
+
+The Stage B wiring (wrapping 5 admin routes in `runWithRLS`) is tracked in BD `oqw` and Phase 43 plan 43-04. Stages C (rollout to ~100 more routes) and M6+ (RLS on 30 more tables) are tracked in BD `57d` and `t78` respectively.
+
 ---
 
 ## ADR-020: Focus Space Architecture — Dashboard as Purpose-Built Layers

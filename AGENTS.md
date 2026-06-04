@@ -47,14 +47,26 @@ Use GSD workflow for:
 
 #### Git Worktree Isolation (MANDATORY)
 
-All GSD phase execution MUST happen inside a dedicated **git worktree** to prevent collisions with the working tree and avoid introducing problems into working code. Never execute a GSD phase directly in the main working directory.
+All GSD phase execution MUST happen inside a dedicated **git worktree** to prevent
+collisions with the working tree and avoid introducing problems into working code.
+Never execute a GSD phase directly in the main working directory.
+
+This project uses **[Worktrunk](https://worktrunk.dev/)** (`wt`) to manage worktrees.
+Worktrees are created as siblings of the main repo:
+`../soralia-village.<phase-name>` — configured via `~/.config/worktrunk/config.toml`:
+
+```toml
+worktree-path = "../worktrees/{{ branch | sanitize }}"
+```
+
+This preserves the existing `../worktrees/<phase>` layout.
 
 **Worktree lifecycle per phase:**
 
 ```bash
-# 1. Create a worktree for the phase (from the repo root, before starting)
+# 1. Create and switch to a worktree for the phase (from the repo root, before starting)
 GSD_PHASE="phase-N-name"
-git worktree add ../worktrees/${GSD_PHASE} -b ${GSD_PHASE}
+wt switch --create ${GSD_PHASE}
 
 # 2. Copy .env and any other local config files into the worktree
 cp .env ../worktrees/${GSD_PHASE}/.env
@@ -63,26 +75,38 @@ cp .env ../worktrees/${GSD_PHASE}/.env
 #    (use the workdir parameter, or cd into ../worktrees/${GSD_PHASE})
 
 # 4. After phase completes and is merged/pushed, clean up the worktree
-git worktree remove ../worktrees/${GSD_PHASE}
+wt remove ${GSD_PHASE}
 
 # 5. Delete the merged phase branch (local + remote) once the merge is on dev
 #    Verify first: `git branch -a --merged dev` must list the phase branch.
 #    `git branch -d` refuses to delete unmerged branches — safer than -D.
 git branch -d ${GSD_PHASE}
 git push origin --delete ${GSD_PHASE}
+
+# 6. Confirm no stale agent markers remain
+wt list
 ```
 
 **Rules:**
 
+- **NEVER use `git stash` in a worktree.** Stash is global to the repo and shared
+  across all worktrees — stash entries created in one worktree can be accidentally
+  applied in another, corrupting working trees and causing file loss. Use WIP commits
+  instead: `git commit -m "wip: ..."` to checkpoint, and `git reset HEAD~1` to undo.
 - **One worktree per phase** — never reuse a worktree across phases
 - **Branch name must match the worktree directory name** (e.g., `phase-3-auth-migration`)
 - **Copy `.env` immediately** after creating the worktree, before running any commands
 - **Run quality gates inside the worktree** before merging back
-- **Clean up worktrees** after the phase branch is merged and pushed: `git worktree remove ../worktrees/<phase>`
-- **Delete merged phase branches** (local + remote) after the worktree is removed — `git branch -d` and `git push origin --delete`. Never use `-D` (force) without verifying `git branch -a --merged dev` first.
-- **NEVER delete `dev`, `main`, or any non-phase branch** from the local repo or origin. If a phase accidentally targets one of these, abort the merge and reset. Phase branches are the only branches the cleanup protocol may delete.
-- **Never delete** a worktree directory manually — always use `git worktree remove`
-- List active worktrees with: `git worktree list`
+- **Clean up worktrees** after the phase branch is merged and pushed: `wt remove <phase>`
+- **Delete merged phase branches** (local + remote) after the worktree is removed —
+  `git branch -d` and `git push origin --delete`. Never use `-D` (force) without
+  verifying `git branch -a --merged dev` first.
+- **NEVER delete `dev`, `main`, or any non-phase branch** from the local repo or origin.
+  If a phase accidentally targets one of these, abort the merge and reset. Phase branches
+  are the only branches the cleanup protocol may delete.
+- **Never delete a worktree directory manually** — always use `wt remove`
+- **List active worktrees with:** `wt list` — confirm no stale 🤖 markers before
+  starting a new phase
 
 ### When to Use Which
 
@@ -119,24 +143,25 @@ Project documentation lives in `docs/STEERING/`:
 
 ### Tech Stack
 
-| Layer      | Technology                                 |
-| ---------- | ------------------------------------------ |
-| Frontend   | Next.js 14 (App Router) + Preact           |
-| Language   | TypeScript                                 |
-| Styling    | Tailwind CSS                               |
-| Auth       | Better Auth                                |
-| Database   | PostgreSQL via Supabase                    |
-| ORM        | Prisma + Drizzle                           |
-| Real-time  | Supabase Realtime (chat)                   |
-| State      | TanStack Query (server) + Zustand (client) |
-| Forms      | React Hook Form + Zod                      |
-| Maps       | Leaflet + react-leaflet                    |
-| API        | tRPC (internal) + OpenAPI (external)       |
-| Commerce   | UCP & AP2                                  |
-| CMS Editor | TipTap                                     |
-| Logging    | Pino                                       |
-| Deployment | Vercel                                     |
-| Features   | Vercel Feature Flags                       |
+| Layer      | Technology                                                                                                                                                                                                                                                                                    |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend   | Next.js 14 (App Router) + Preact                                                                                                                                                                                                                                                              |
+| Language   | TypeScript                                                                                                                                                                                                                                                                                    |
+| Styling    | Tailwind CSS                                                                                                                                                                                                                                                                                  |
+| Auth       | Better Auth                                                                                                                                                                                                                                                                                   |
+| Database   | PostgreSQL via Supabase                                                                                                                                                                                                                                                                       |
+| ORM        | Prisma + Drizzle                                                                                                                                                                                                                                                                              |
+| RLS        | `prisma/migrations/20260604000000_add_rls_policies/` — 15 tables (6 ADR-019 sensitive + 9 admin-route). Dormant until `runWithRLS` is used. See `docs/STEERING/RLS.md` for connection-role model. **Never change `DATABASE_URL` to use `app_user` directly** — that breaks Better Auth login. |
+| Real-time  | Supabase Realtime (chat)                                                                                                                                                                                                                                                                      |
+| State      | TanStack Query (server) + Zustand (client)                                                                                                                                                                                                                                                    |
+| Forms      | React Hook Form + Zod                                                                                                                                                                                                                                                                         |
+| Maps       | Leaflet + react-leaflet                                                                                                                                                                                                                                                                       |
+| API        | tRPC (internal) + OpenAPI (external)                                                                                                                                                                                                                                                          |
+| Commerce   | UCP & AP2                                                                                                                                                                                                                                                                                     |
+| CMS Editor | TipTap                                                                                                                                                                                                                                                                                        |
+| Logging    | Pino                                                                                                                                                                                                                                                                                          |
+| Deployment | Vercel                                                                                                                                                                                                                                                                                        |
+| Features   | Vercel Feature Flags                                                                                                                                                                                                                                                                          |
 
 ---
 

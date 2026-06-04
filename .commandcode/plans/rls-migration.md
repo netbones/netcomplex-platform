@@ -24,7 +24,7 @@ The remaining 31 tables from the original `add_rls.sql` (45 unique policies, min
 
 ## Critical findings (from exploration)
 
-1. **GUC name mismatch — silently breaks admin/manager access.** `src/shared/api/db.ts:189-198` sets `app.user_role`, but `add_rls.sql:107` reads `app.role`. If this migration is applied as-is, the `is_tenant_admin()` helper returns `false` for every user, and `ADMIN`/`MANAGER`/`BOARD`/`COMMITTEE` lose read access to all their staff-scoped data (`Notification`, `MaintenanceRequest`, `RequestNote`, `RequestHistory`, `Booking`, `Conversation`, `Message`, `ConversationParticipant`). Plan 43-04 depends on this working.
+1. **GUC name mismatch — silently breaks admin/manager access.** `src/shared/api/db.ts:189-198` sets `app.user_role`, but `add_rls.sql:107` reads `app.role`. If this migration is applied as-is, the `is_tenant_admin()` helper returns `false` for every user, and `ADMIN`/`MANAGER`/`BOARD`/`COMMITTEE` lose read access to all staff-scoped data. Within this migration's 15-table scope, the user-scoped `Notification` table is the one affected. Phase 43 plan 43-04 depends on this working.
 
 2. **`app.is_platform_admin` is set by the app but never read by the SQL.** Platform admins lose cross-tenant access. The `AssistSession` and platform admin flows in `src/app/api/admin/platform/**` rely on this.
 
@@ -36,7 +36,7 @@ The remaining 31 tables from the original `add_rls.sql` (45 unique policies, min
 
 6. **No `WITH CHECK` clauses.** Every policy defines only `USING`, so `INSERT`/`UPDATE` are not validated against the predicate. A user can write rows that the same transaction can no longer read. This is a correctness bug, not just a smell.
 
-7. **Missing composite indexes.** `Notification`, `MaintenanceRequest`, `Booking`, `Message` have `@@index([userId])` but not `@@index([tenantId, userId])`. Once the RLS predicate filters by both, planner choices will degrade.
+7. **Missing composite index on `Notification`.** `Notification` has no `@@index` block — its RLS predicate filters by `("tenantId", "userId")`, and a composite index matches it exactly. `MaintenanceRequest` already has `@@index([tenantId])` which is sufficient for its tenant-only RLS predicate. `Booking` and `Message` are out of scope (deferred to M6+).
 
 8. **Schema comment error.** `add_rls.sql` says "no tenantId — isolated via survey" for `SurveySection` and `Question` but the policy uses `"tenantId" = ...`. Schema has `tenantId` on both, so the comment is wrong (not a bug). Fix the comment.
 
@@ -44,11 +44,11 @@ The remaining 31 tables from the original `add_rls.sql` (45 unique policies, min
 
 10. **`EventAttendee`, `GroupMembershipRequest`, `agentProfile`, `agentAccess` are tenant-only in the SQL** but the app's `withTenant()` does not constrain by `userId`. Consistent with today's app behavior, but worth flagging for product review.
 
-11. **ADR-019 scope mismatch.** The current `add_rls.sql` covers 45 unique tables; ADR-019 limits RLS to 6 sensitive tables + 5 admin routes (the 43-04 set). The plan narrows the migration to 14 tables (6 sensitive + 8 admin-route-unique, with `user` overlapping) and defers the remaining 31 (= 45 − 14).
+11. **ADR-019 scope mismatch.** The current `add_rls.sql` covers 45 unique tables; ADR-019 limits RLS to 6 sensitive tables + 5 admin routes (the 43-04 set). The plan narrows the migration to 15 tables (6 sensitive + 9 admin-route, with 1 overlap on `user`), with `user` overlapping) and defers the remaining 30 (= 45 − 15).
 
 ## Scope (revised based on ADR-019 + Phase 43)
 
-The migration covers exactly the tables ADR-019 calls out as "sensitive" (PII + auth credentials) plus the unique tables the Phase 43 43-04 admin routes actually read. **Total: 14 tables, not 45.** Counted by reading the 5 route files in 43-04-PLAN.md:
+The migration covers exactly the tables ADR-019 calls out as "sensitive" (PII + auth credentials) plus the unique tables the Phase 43 43-04 admin routes actually read. **Total: 15 tables, not 45.** Counted by reading the 5 route files in 43-04-PLAN.md:
 
 ### ADR-019 sensitive tables (6)
 
@@ -69,9 +69,9 @@ The migration covers exactly the tables ADR-019 calls out as "sensitive" (PII + 
 | `src/app/api/admin/urgency/route.ts`             | `maintenanceRequests`, `groupMembershipRequests`, `surveys`, `announcements`, `contents`, `competitions` |
 | `src/app/api/admin/settings/page-flags/route.ts` | `settings` (via `src/entities/tenant/api/flags/platform-flags.ts:1-2`)                                   |
 
-**Unique admin-route set (8):** `maintenanceRequests`, `users` (dup with sensitive), `contents`, `surveys`, `events`, `groupMembershipRequests`, `announcements`, `competitions`, `settings`. After de-dup against the 6 sensitive tables (`users`), the net new is 8.
+**Unique admin-route set (9):** `maintenanceRequests`, `users` (dup with sensitive `user`), `contents`, `surveys`, `events`, `groupMembershipRequests`, `announcements`, `competitions`, `settings`. After de-dup against the 6 sensitive tables (`users` → `user`), the net new is 8.
 
-**Final scoped set = 6 + 8 = 14 tables.**
+**Final scoped set = 6 + 9 = 15 tables (with 1 overlap: `user`/`users`).**
 
 ### Auth tables (4) — out of scope, by design
 
@@ -192,7 +192,7 @@ Note the asymmetry: `is_platform_admin` is in the `USING` clause (read across te
 
 ### Step 5 — Make every `CREATE POLICY` idempotent
 
-Prepend each `CREATE POLICY` with `DROP POLICY IF EXISTS tenant_isolation ON "<Table>";`. Apply to all 14 tables.
+Prepend each `CREATE POLICY` with `DROP POLICY IF EXISTS tenant_isolation ON "<Table>";`. Apply to all 15 tables.
 
 ### Step 6 — Fix the misleading comments on `SurveySection` and `Question`
 
@@ -200,12 +200,7 @@ These are not in the scoped set, so this is a no-op. If a future phase adds them
 
 ### Step 7 — Add composite indexes to the Prisma schema
 
-Edit `prisma/schema.prisma` to add `@@index([tenantId, userId])` on:
-
-- `Notification` (already a `@@index([userId])` exists; add the composite)
-- `MaintenanceRequest` (already a `@@index([userId])` exists; add the composite)
-
-(User already has `@@index([tenantId, id])` and other indexes; verify with `prisma generate` whether a composite is needed for the RLS predicate plan. Out of the user-scoped tables in scope, only Notification and MaintenanceRequest have a `userId` column with a `@@index([userId])` but no composite.)
+Edit `prisma/schema.prisma` to add `@@index([tenantId, userId])` on `Notification` only. The composite covers the user-scoped RLS predicate on that table. `MaintenanceRequest`'s RLS policy is tenant-only — the existing `@@index([tenantId])` is sufficient.
 
 This requires a separate Prisma migration: `20260604000001_add_rls_composite_indexes/`. The DDL should match the format Prisma generates.
 
@@ -270,14 +265,14 @@ Create a new document covering:
   - `set_config(..., true)` is transaction-scoped; the GUC values reset on commit/rollback. Safe by construction.
   - The "skipped" auth tables (`session`, `account`, `verification`, `passkey`) are explicitly out of scope. Better Auth connects as the owner role.
   - 33 non-sensitive tenant tables (Announcement, Booking, Content, Competition, etc.) are deliberately not in this migration. They follow ADR-019's application-layer auth model. A future phase (likely M6+ second-tenant onboarding) should revisit this.
-  - If a new sensitive table is added to the schema, a follow-up migration must add the matching RLS policy. Add a CI check that diffs `pg_tables WHERE rowsecurity = false` against the 14-table whitelist.
+  - If a new sensitive table is added to the schema, a follow-up migration must add the matching RLS policy. Add a CI check that diffs `pg_tables WHERE rowsecurity = false` against the 15-table whitelist.
 
 ### Step 11 — Update AGENTS.md with the new RLS note
 
 Add a short pointer under "Tech Stack → Database" in `AGENTS.md`:
 
 ```
-- RLS lives in `prisma/migrations/20260604000000_add_rls_policies/`. Scope is the 14 tables
+- RLS lives in `prisma/migrations/20260604000000_add_rls_policies/`. Scope is the 15 tables
   from ADR-019 (6 sensitive) + Phase 43 43-04 admin routes (8). Stage A applied at rest;
   app connects as the table owner so policies are dormant. Stage B (Phase 43 plan 43-04)
   wires runWithRLS() to the first 5 admin routes. Stage C is deferred.
@@ -289,9 +284,9 @@ Add a short pointer under "Tech Stack → Database" in `AGENTS.md`:
 | -------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | `prisma/migrations/add_rls.sql`                                            | Delete (moved into proper migration directory, narrowed)                   |
 | `prisma/migrations/add_rls_note.md`                                        | Delete (replaced by `docs/STEERING/RLS.md`)                                |
-| `prisma/migrations/20260604000000_add_rls_policies/migration.sql`          | **New** — fixed, narrowed RLS DDL (14 tables, not 45)                      |
-| `prisma/migrations/20260604000001_add_rls_composite_indexes/migration.sql` | **New** — composite index DDL on `Notification`, `MaintenanceRequest`      |
-| `prisma/schema.prisma`                                                     | Add `@@index([tenantId, userId])` on `Notification`, `MaintenanceRequest`  |
+| `prisma/migrations/20260604000000_add_rls_policies/migration.sql`          | **New** — fixed, narrowed RLS DDL (15 tables, not 45)                      |
+| `prisma/migrations/20260604000001_add_rls_composite_indexes/migration.sql` | **New** — composite index DDL on `Notification` only                       |
+| `prisma/schema.prisma`                                                     | Add `@@index([tenantId, userId])` on `Notification` only                   |
 | `docs/STEERING/RLS.md`                                                     | **New** — rollout runbook aligned with ADR-019 + Phase 43                  |
 | `AGENTS.md`                                                                | One-line pointer under Tech Stack → Database                               |
 | `docs/STEERING/ADR.md`                                                     | Append a note to ADR-019 linking to the new migration and confirming scope |
@@ -329,5 +324,5 @@ Tracked in BD:
 - **BD `57d` (Stage C):** Wrapping the remaining ~100 routes in `runWithRLS()`. Future phase, post-43. Blocked by `4a6`.
 - **BD `t78` (M6+):** Adding RLS to the 33 non-sensitive tenant tables (Booking, Group, Resource, Household, Property, etc.). Re-evaluate when second-tenant onboarding begins. Blocked by `4a6`.
 - **Better Auth tables** (`session`, `account`, `verification`, `passkey`): Better Auth needs cross-tenant `email` lookups for login; solving this requires either a `SECURITY DEFINER` function or a separate auth database. Not currently tracked in BD; raise a P3 issue if it becomes a priority.
-- **CI check** that diffs `pg_tables WHERE rowsecurity = false` against the 14-table whitelist. Should land in a follow-up phase to prevent new sensitive tables from shipping without RLS. Not currently tracked in BD.
+- **CI check** that diffs `pg_tables WHERE rowsecurity = false` against the 15-table whitelist. Should land in a follow-up phase to prevent new sensitive tables from shipping without RLS. Not currently tracked in BD.
   ut RLS. Not currently tracked in BD.
