@@ -1,9 +1,9 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
+import { use } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@features/i18n/model/useTranslation';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { notFound } from 'next/navigation';
@@ -21,26 +21,14 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
   // Load both common + services namespaces so all t() calls resolve on the
   // first render (otherwise the services namespace lazy-loads after hydration
   // and the page flashes the raw key like "domains.maintenance").
-  const { t, ready } = useTranslation(['common', 'services']);
+  // isReady combines mounted + ready into a single flag from the hook.
+  const { tx, isReady } = useSafeTranslation(['common', 'services']);
   const { domain } = use(params);
   const searchParams = useSearchParams();
-  // Defer the action=new form render until after mount to avoid SSR/hydration
-  // mismatches from useSearchParams returning null on the server.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  const showNewForm = mounted && domain === 'maintenance' && searchParams.get('action') === 'new';
-
-  // Helper that returns the English fallback until i18n is mounted + ready.
-  // Without this, the server renders the raw key (e.g. "nav.home") but the
-  // client renders the translation after hydration — producing a hydration
-  // mismatch. With this helper both first renders show the fallback and the
-  // translated value swaps in once i18n is ready.
-  const tx = (key: string, fallback: string, options?: Record<string, unknown>): string => {
-    if (!mounted || !ready) return fallback;
-    return t(key, { ...options, defaultValue: fallback });
-  };
+  // Defer the action=new form render until i18n is mounted + ready to avoid
+  // SSR/hydration mismatches from useSearchParams returning null on the server
+  // and to ensure breadcrumbs above have rendered with stable text.
+  const showNewForm = isReady && domain === 'maintenance' && searchParams.get('action') === 'new';
 
   // Validate domain
   if (!SERVICES_DOMAINS.includes(domain as (typeof SERVICES_DOMAINS)[number])) {
