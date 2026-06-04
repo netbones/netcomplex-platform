@@ -18,9 +18,9 @@ Phase 43 (`m4-5-blockers`) is the in-flight blocker phase for the M4.5 soak. It 
 
 **The `add_rls.sql` file is a precursor that was created ahead of the phase and never integrated.** It is referenced in 43-04-PLAN.md (line 54) as if it already exists in the proper migration directory: _"RLS policies (defined in `prisma/migrations/.../rls-policies.sql`)"_. It does not. 43-04 is **dependent on this work** — the 5-route wrap will be a no-op against the current DB because (a) the policy file isn't in the proper migration directory, (b) it has bugs that would silently lock out staff, and (c) the GUC names don't match what `runWithRLS` actually sets.
 
-**ADR-019** ("Focused RLS on Sensitive Tables + Application-Layer Audit") explicitly says _"No full RLS: Deliberately not implementing RLS on all 47 tables."_ The original `add_rls.sql` covers 32 tables — that's the full-table RLS approach ADR-019 rejected. We need to reconcile this. **The plan below scopes the migration to the 6 sensitive tables from ADR-019 + the 8 unique tables the Phase 43 43-04 routes actually touch.** This stays within the ADR's "focused" mandate and is the only set the 43-04 work depends on.
+**ADR-019** ("Focused RLS on Sensitive Tables + Application-Layer Audit") explicitly says _"No full RLS: Deliberately not implementing RLS on all 47 tables."_ The original `add_rls.sql` covers **45** unique `CREATE POLICY` statements (every table with a `tenantId` column) — that's the full-table RLS approach ADR-019 rejected. We need to reconcile this. **The plan below scopes the migration to the 6 sensitive tables from ADR-019 + the 8 unique tables the Phase 43 43-04 routes actually touch.** This stays within the ADR's "focused" mandate and is the only set the 43-04 work depends on.
 
-The remaining 33 tables from the system (47 total per ADR-019, minus the 14 in scope) `add_rls.sql` (after removing the 6 sensitive + 8 admin-route + 8 already-shadowed) can be reviewed as a separate future phase (likely M6+ Post-Launch) once second-tenant onboarding makes the "second tenant" trigger from `netcomplex_migration_planv1.md:198` relevant.
+The remaining 31 tables from the original `add_rls.sql` (45 unique policies, minus the 14 in scope) can be reviewed as a separate future phase (likely M6+ Post-Launch) once second-tenant onboarding makes the "second tenant" trigger from `netcomplex_migration_planv1.md:198` relevant.
 
 ## Critical findings (from exploration)
 
@@ -32,7 +32,7 @@ The remaining 33 tables from the system (47 total per ADR-019, minus the 14 in s
 
 4. **`Role` enum** (`prisma/schema.prisma:1284`) is `RESIDENT | GROUP_ADMIN | COMMITTEE | BOARD | ADMIN | AGENT | MANAGER | ASSOCIATE`. The SQL's `is_tenant_admin()` checks `['ADMIN','MANAGER','BOARD','COMMITTEE']`, missing `GROUP_ADMIN`. The plan adds `GROUP_ADMIN` (group management) and documents the deliberate exclusions of `AGENT` and `ASSOCIATE`.
 
-5. **`CREATE POLICY` is not idempotent** for ~30 of 32 tables (only `Booking` is dropped first). Re-runs will fail.
+5. **`CREATE POLICY` is not idempotent** for ~44 of 45 tables (only `Booking` is dropped first). Re-runs will fail.
 
 6. **No `WITH CHECK` clauses.** Every policy defines only `USING`, so `INSERT`/`UPDATE` are not validated against the predicate. A user can write rows that the same transaction can no longer read. This is a correctness bug, not just a smell.
 
@@ -44,11 +44,11 @@ The remaining 33 tables from the system (47 total per ADR-019, minus the 14 in s
 
 10. **`EventAttendee`, `GroupMembershipRequest`, `agentProfile`, `agentAccess` are tenant-only in the SQL** but the app's `withTenant()` does not constrain by `userId`. Consistent with today's app behavior, but worth flagging for product review.
 
-11. **ADR-019 scope mismatch.** The current `add_rls.sql` covers 32 tables; ADR-019 limits RLS to 6 sensitive tables + 5 admin routes (the 43-04 set). The plan narrows the migration to 14 tables (6 sensitive + 8 admin-route-unique, with `user` overlapping) and defers the remaining 18.
+11. **ADR-019 scope mismatch.** The current `add_rls.sql` covers 45 unique tables; ADR-019 limits RLS to 6 sensitive tables + 5 admin routes (the 43-04 set). The plan narrows the migration to 14 tables (6 sensitive + 8 admin-route-unique, with `user` overlapping) and defers the remaining 31 (= 45 − 14).
 
 ## Scope (revised based on ADR-019 + Phase 43)
 
-The migration covers exactly the tables ADR-019 calls out as "sensitive" (PII + auth credentials) plus the unique tables the Phase 43 43-04 admin routes actually read. **Total: 14 tables, not 32.** Counted by reading the 5 route files in 43-04-PLAN.md:
+The migration covers exactly the tables ADR-019 calls out as "sensitive" (PII + auth credentials) plus the unique tables the Phase 43 43-04 admin routes actually read. **Total: 14 tables, not 45.** Counted by reading the 5 route files in 43-04-PLAN.md:
 
 ### ADR-019 sensitive tables (6)
 
@@ -76,7 +76,7 @@ The migration covers exactly the tables ADR-019 calls out as "sensitive" (PII + 
 ### Auth tables (4) — out of scope, by design
 
 - `session`, `account`, `verification`, `passkey` — Better Auth manages these. **Better Auth needs to connect as the owner role**, so RLS on these tables is incompatible with the library's connection model. The existing `app_user` setup grants these tables SELECT/INSERT/UPDATE/DELETE to `app_user`, but policies are deliberately not enabled. Document this in `docs/STEERING/RLS.md`.
-- `user` is in scope (admin routes read it) and is _not_ in this exclusion list. The owner connection's RLS bypass keeps Better Auth's login flow working.
+- `user` is in scope (admin routes read it) and is _not_ in this exclusion list. The owner connection's RLS bypass keeps Better Auth's login flow working. **Critical:** the `getRLSContext` function at `src/shared/api/db.ts:214` does `db.select().from(users)` outside any `runWithRLS` transaction. This read is safe _only_ because the pool's connection role is the table owner (BYPASSRLS). If `DATABASE_URL` is ever changed to use `app_user` directly, this read fails. Document this constraint in `docs/STEERING/RLS.md` step 0 and in `AGENTS.md`.
 
 ### Tables deliberately not in this migration (deferred)
 
@@ -87,6 +87,33 @@ The 33 tables in the system `add_rls.sql` that are neither sensitive (per ADR-01
 ADR-019 calls these "non-sensitive from a privilege-leak standpoint; the application-layer auth is robust." Re-affirm this in the RLS runbook.
 
 **Note on the count:** The 14 in-scope + 33 deferred = 47, which matches the 47 tables ADR-019 cites as the total. The original `add_rls.sql` was a 32-table partial subset. The 33-deferred list above is the exhaustive set of tables in the system that are neither sensitive nor read by the 5 admin routes.
+
+## Connection role model (CRITICAL — supersedes `add_rls_note.md`)
+
+Two roles coexist in this system. They are **not interchangeable**.
+
+- **Owner role** (the role in `DATABASE_URL`): full table access, `BYPASSRLS`. Used for:
+  - Prisma migrations (`prisma migrate deploy`)
+  - Better Auth reads/writes (login, session, account, passkey, twoFactor, verification)
+  - `getRLSContext`'s user lookup at `src/shared/api/db.ts:214` (runs **outside** any `runWithRLS` transaction)
+  - Any code path that does NOT go through `runWithRLS`
+
+- **`app_user` role**: created by the runbook, has `GRANT`s to all tables but is subject to RLS policies. Used for:
+  - All queries inside `runWithRLS(ctx, async (tx) => { ... })` — the `tx` parameter
+  - Activated via `SET LOCAL ROLE app_user` at the start of the transaction in `src/shared/api/db.ts:191`
+
+**Rules:**
+
+1. `DATABASE_URL` continues to use the **owner role**. Do not change `DATABASE_URL` to use `app_user` directly.
+2. `app_user` is only active inside transactions started by `runWithRLS`. Outside those transactions, the connection is always the owner role.
+3. The `app_user` switch is transaction-scoped (`SET LOCAL` + `set_config`). It auto-resets on commit/rollback.
+4. Breaking rule #1 by changing `DATABASE_URL` to `app_user` will:
+   - Break Better Auth login (no RLS bypass, policies reject unauthenticated reads)
+   - Break `getRLSContext` (its `db.select().from(users)` is outside `runWithRLS`)
+   - Break Prisma migrations (`app_user` lacks `CREATE`/`ALTER` privileges)
+5. `add_rls_note.md` contradicts this with _"Your DATABASE_URL in production uses app_user"_. That note is **wrong** and must be replaced.
+
+This section is the single source of truth for the connection-role model. It must be reproduced verbatim in `docs/STEERING/RLS.md` step 0 and referenced from `AGENTS.md` and `ADR-019`.
 
 ## What we are NOT doing in this plan
 
@@ -108,7 +135,7 @@ Timestamp chosen: 2026-06-04 is today's date; `00:00:00` keeps it cleanly later 
 
 ### Step 2 — Narrow the migration to the 14 scoped tables
 
-Remove the 33 tables in the "deferred" section above. Keep the structure (sections 1-4) but only for the scoped set. The 47 → 14 reduction is the most consequential change and the one that aligns with ADR-019.
+Remove the 33 tables in the "deferred" section above. Keep the structure (sections 1-4) but only for the scoped set. The 45 → 14 reduction is the most consequential change and the one that aligns with ADR-019.
 
 ### Step 3 — Fix the GUC name and add platform-admin bypass
 
@@ -262,7 +289,7 @@ Add a short pointer under "Tech Stack → Database" in `AGENTS.md`:
 | -------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | `prisma/migrations/add_rls.sql`                                            | Delete (moved into proper migration directory, narrowed)                   |
 | `prisma/migrations/add_rls_note.md`                                        | Delete (replaced by `docs/STEERING/RLS.md`)                                |
-| `prisma/migrations/20260604000000_add_rls_policies/migration.sql`          | **New** — fixed, narrowed RLS DDL (14 tables, not 32)                      |
+| `prisma/migrations/20260604000000_add_rls_policies/migration.sql`          | **New** — fixed, narrowed RLS DDL (14 tables, not 45)                      |
 | `prisma/migrations/20260604000001_add_rls_composite_indexes/migration.sql` | **New** — composite index DDL on `Notification`, `MaintenanceRequest`      |
 | `prisma/schema.prisma`                                                     | Add `@@index([tenantId, userId])` on `Notification`, `MaintenanceRequest`  |
 | `docs/STEERING/RLS.md`                                                     | **New** — rollout runbook aligned with ADR-019 + Phase 43                  |
