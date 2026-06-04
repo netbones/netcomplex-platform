@@ -3,24 +3,24 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed Phase 41 (feature-gate-consolidation, 3/3 plans). 7 legacy tier strings removed, server canAccess() + client canAccessClient() + GateGuard shipped, CI test for mapping completeness live, revalidateGate() helper added. Ready to start Phase 42 (i18n-hydration-fix, 3 plans).
-last_updated: '2026-06-03T14:20:00.000Z'
+stopped_at: Completed Phase 42 (i18n-hydration-fix, 3/3 plans). I18nextProvider in tenant layout, useSafeTranslation hook with tx(key, fallback) method, usePageLoading delegates to hook, messages + admin domain pages migrated, 5 shared UI components + services page consolidated (local tx() helper removed). M4 Production-Ready 3/3 done — ready for M4.5 Stabilization (7-day soak, perf baseline, rollback test, locale check).
+last_updated: '2026-06-03T17:55:00.000Z'
 progress:
   total_phases: 42
-  completed_phases: 36
+  completed_phases: 37
   total_plans: 97
-  completed_plans: 91
-  percent: 90
+  completed_plans: 94
+  percent: 91
 ---
 
 # Project State
 
 ## Current Position
 
-- **Phase:** Phase 41 complete (3/3 plans). Next: Phase 42 (i18n-hydration-fix, 3/3 plans ready)
-- **Status:** M4 in progress (2/3 done — Phase 35, 41 complete; Phase 42 planned)
+- **Phase:** Phase 42 complete (3/3 plans). M4 Production-Ready 3/3 done.
+- **Status:** M4 complete (Phase 35, 41, 42 all shipped). Ready for M4.5 Stabilization.
 - **Last Updated:** 2026-06-03
-- **Next Step:** Pick up Phase 42-i18n-hydration-fix (3 plans, ready). See `.planning/CADENCE.md` for backlog analysis.
+- **Next Step:** Begin M4.5 Stabilization period (no new phases, 7-day soak, perf baseline, rollback test, locale check). See `.planning/MILESTONES.md` §2 for criteria.
 
 **Last Session:** 2026-06-03T09:10:21.001Z
 **Stopped at:** Completed Phase 31 (verified 2026-06-03). Phases 33, 38, 40 status discrepancies corrected in ROADMAP. Health check passes (healthy, 0 errors, 0 warnings). CADENCE.md generated.
