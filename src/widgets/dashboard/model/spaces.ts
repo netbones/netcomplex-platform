@@ -27,6 +27,11 @@ export type SpaceId = 'home' | 'services' | 'community' | 'messages' | 'admin';
 export interface SpaceDefinition {
   /** URL slug and registry key — matches SpaceId */
   id: SpaceId;
+  /**
+   * Canonical URL for this space — single source of truth for sidebar/mobile hrefs.
+   * Note: `admin` points to `/admin` (Phase 37 canonical), not `/dashboard/admin`.
+   */
+  href: string;
   /** i18n key for display name (e.g. 'spaces.home') */
   labelKey: string;
   /** Lucide icon for sidebar / mobile bar */
@@ -55,6 +60,7 @@ export interface SpaceDefinition {
 export const SPACES: Record<SpaceId, SpaceDefinition> = {
   home: {
     id: 'home',
+    href: '/dashboard',
     labelKey: 'spaces.home',
     icon: Home,
     isCore: true,
@@ -70,6 +76,7 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
   },
   services: {
     id: 'services',
+    href: '/dashboard/services',
     labelKey: 'spaces.services',
     icon: Briefcase,
     isCore: false,
@@ -87,6 +94,7 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
   },
   community: {
     id: 'community',
+    href: '/dashboard/community',
     labelKey: 'spaces.community',
     icon: Users,
     isCore: false,
@@ -111,6 +119,7 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
   },
   messages: {
     id: 'messages',
+    href: '/dashboard/messages',
     labelKey: 'spaces.messages',
     icon: MessageSquare,
     isCore: true,
@@ -118,6 +127,7 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
   },
   admin: {
     id: 'admin',
+    href: '/admin',
     labelKey: 'spaces.admin',
     icon: Shield,
     isCore: true,
@@ -206,6 +216,43 @@ export function getVisibleSpaces(role: string, flags: PlatformPageFlags): SpaceD
  */
 export function resolveSpace(slug: string): SpaceDefinition | undefined {
   return SPACES[slug as SpaceId];
+}
+
+/**
+ * Derive the active space ID from the current pathname.
+ *
+ * Recognises both the legacy `/dashboard/<slug>` pattern AND the canonical
+ * `/admin/*` prefix (Phase 37 normalised admin links to `/admin`; this
+ * function preserves the legacy `/dashboard/admin` route for back-compat).
+ *
+ * The `/admin` prefix MUST be followed by `/` or end-of-string — `/adminusers`
+ * is intentionally NOT a match (avoids the false-positive on slug-less paths).
+ *
+ * Returns `'home'` for empty, unknown, or non-matching pathnames.
+ *
+ * Phase 48: extracted from `(tenant)/dashboard/layout.tsx` into the model
+ * layer so it can be unit-tested and shared by the new `SpaceChrome` client
+ * component (mounted by both dashboard and admin layouts).
+ */
+export function getActiveSpaceId(pathname: string): SpaceId | 'home' {
+  if (!pathname) return 'home';
+
+  // /admin and /admin/... → admin space (canonical route, Phase 37)
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    return 'admin';
+  }
+
+  // /dashboard/<slug> → matched space (includes legacy /dashboard/admin back-compat)
+  const match = pathname.match(/^\/dashboard\/([^/]+)/);
+  if (match) {
+    const slug = match[1];
+    const resolved = resolveSpace(slug);
+    if (resolved) {
+      return resolved.id;
+    }
+  }
+
+  return 'home';
 }
 
 // ═══════════════════════════════════════════════════════════════
