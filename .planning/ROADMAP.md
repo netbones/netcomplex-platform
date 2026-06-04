@@ -846,6 +846,32 @@ _Features explicitly deferred to post-M5b. These are real product ideas but not 
 
 ---
 
+## Phase 48: Admin Chrome Parity
+
+**Goal:** Extend SpaceLauncher (desktop sidebar) and MobileSpaceBar (bottom bar) — currently only mounted under `/dashboard/*` via `(tenant)/dashboard/layout.tsx` — to all admin routes under `/admin/*`, so ADMIN users retain space-level navigation when traversing admin sub-pages (requests, surveys, events, content, households, groups, categories, resources, competitions, announcements, users, external-surveys). Research the cleanest mount approach (shared layout component, route group restructure, or middleware-driven chrome) before planning.
+
+**Status:** Planning
+
+**Requirements:** ADMIN-CHROME-01 (SpaceLauncher visible on all `/admin/*` routes for ADMIN users), ADMIN-CHROME-02 (MobileSpaceBar visible on mobile breakpoint for `/admin/*`), ADMIN-CHROME-03 (active-space derivation works from `/admin/*` pathnames — admin space stays highlighted), ADMIN-CHROME-04 (no duplicate chrome when nested admin pages already render layer components like AdminLayer), ADMIN-CHROME-05 (no breakage of existing `/dashboard/*` chrome)
+
+**Plans:** 3 plans in 2 waves.
+
+| Wave | Plan          | Objective                                                                                                                                                                                                                                                                  |
+| ---- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | 48-01-PLAN.md | Foundation: add `href` to `SpaceDefinition` + centralize `getActiveSpaceId` (with /admin prefix branch) + create shared `SpaceChrome` client component + update `SpaceLauncher` and `MobileSpaceBar` to consume `space.href`                                               |
+| 2    | 48-02-PLAN.md | Refactor `(tenant)/dashboard/layout.tsx` to consume `SpaceChrome` (67 → ≤12 lines) — validates Wave 1 foundation is behavior-equivalent                                                                                                                                    |
+| 2    | 48-03-PLAN.md | Create `(tenant)/admin/layout.tsx` consuming `SpaceChrome` + blocking-human visual verification on /admin, /admin/users, /admin/requests, /admin/surveys/[id]/edit (collapsed-sidebar collision check), /admin/surveys/[id]/preview + final `pnpm typecheck && pnpm build` |
+
+**Approach:** Approach 1 from 48-RESEARCH.md (shared layout component) — extract `SpaceChrome` client component, create `admin/layout.tsx`, refactor `dashboard/layout.tsx` to consume the same component. Zero file moves, zero URL changes, zero impact on any of the 27 existing admin sub-pages.
+
+**Dependency:** Wave 2 (48-02 + 48-03) depends on Wave 1 (48-01). Within Wave 2, 48-02 and 48-03 touch different files and can run in parallel.
+
+**Depends on:** Phase 30 (Focus Spaces — SpaceLauncher), Phase 34 (AdminLayer), Phase 37 (Admin Route Consolidation — moved AdminLayer to `/admin`).
+
+**Out of scope:** Restructuring AdminLayer internals; changing the space model in `widgets/dashboard/model/spaces.ts`; platform admin routes (`(platform)/admin/platform/*` — separate route group, different chrome contract).
+
+---
+
 ## M6+ — Post-Launch / Deferred
 
 _Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md and depend on real-world preconditions (production deployment, second tenant, or upstream phases). See MILESTONES.md Section 2 (M6+) for context. Note: `11-prisma-to-drizzle` was previously listed here but was verified complete (incremental delivery) on 2026-06-03 and removed — see M0 historical note._
