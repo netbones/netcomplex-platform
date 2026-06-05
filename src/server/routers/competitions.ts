@@ -3,7 +3,12 @@ import { router, publicProcedure, protectedProcedure, adminProcedure } from '@ap
 import { TRPCError } from '@trpc/server';
 import { db, competitions, competitionEntries, users, notifications } from '@api/db';
 import { eq, and, desc, asc, count, lte, gte, inArray, InferSelectModel } from 'drizzle-orm';
-import { CompetitionTypeEnum, ParticipantDTO, WinnerDTO } from '@shared/api/dto/competition';
+import {
+  CompetitionTypeEnum,
+  EntryStatusEnum,
+  ParticipantDTO,
+  WinnerDTO,
+} from '@shared/api/dto/competition';
 
 // ──────────────────────────────────────────
 // Input schemas
@@ -236,6 +241,16 @@ export const competitionRouter = router({
             })
           )
           .optional(),
+        currentUserEntry: z
+          .object({
+            id: z.string(),
+            status: EntryStatusEnum,
+            submissionUrl: z.string().nullable(),
+            submissionText: z.string().nullable(),
+            joinedAt: z.string(),
+          })
+          .nullable()
+          .optional(),
       })
     )
     .query(async ({ input, ctx }) => {
@@ -285,6 +300,29 @@ export const competitionRouter = router({
             .where(inArray(users.id, userIds))
         : [];
 
+      let currentUserEntry = null;
+      if (ctx.userId) {
+        const [entry] = await db
+          .select()
+          .from(competitionEntries)
+          .where(
+            and(
+              eq(competitionEntries.competitionId, comp.id),
+              eq(competitionEntries.userId, ctx.userId)
+            )
+          )
+          .limit(1);
+        if (entry) {
+          currentUserEntry = {
+            id: entry.id,
+            status: entry.status,
+            submissionUrl: entry.submissionUrl || null,
+            submissionText: entry.submissionText || null,
+            joinedAt: entry.joinedAt.toISOString(),
+          };
+        }
+      }
+
       return {
         id: comp.id,
         title: comp.title,
@@ -305,6 +343,7 @@ export const competitionRouter = router({
           name: u.name,
           avatar: u.avatar || null,
         })),
+        currentUserEntry,
       };
     }),
 

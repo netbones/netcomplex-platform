@@ -156,6 +156,8 @@ function CompetitionDetailContent() {
   const isWithinDateRange =
     new Date() >= new Date(competition.startDate) && new Date() <= new Date(competition.endDate);
   const canParticipate = competition.status === 'ACTIVE' && isWithinDateRange && !!session;
+  const hasJoined = !!competition.currentUserEntry;
+  const entryStatus = competition.currentUserEntry?.status;
 
   // ── Render ──
   return (
@@ -240,6 +242,24 @@ function CompetitionDetailContent() {
               <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
                 {!session ? (
                   <p className="text-gray-500">Please sign in to join this competition.</p>
+                ) : hasJoined ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-full">
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="font-medium">You&apos;re in the draw!</span>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Winners will be drawn at random when the competition ends. Good luck!
+                    </p>
+                  </div>
                 ) : joinMutation.isPending ? (
                   <button
                     disabled
@@ -262,6 +282,35 @@ function CompetitionDetailContent() {
               <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
                 {!session ? (
                   <p className="text-gray-500">Please sign in to submit an entry.</p>
+                ) : hasJoined && competition.currentUserEntry ? (
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-full">
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="font-medium">Entry submitted!</span>
+                    </div>
+                    {competition.currentUserEntry.submissionUrl && (
+                      <div className="mt-2">
+                        <img
+                          src={competition.currentUserEntry.submissionUrl}
+                          alt="Your submission"
+                          className="max-w-xs mx-auto rounded-lg shadow-sm border border-gray-100"
+                        />
+                      </div>
+                    )}
+                    {competition.currentUserEntry.submissionText && (
+                      <p className="text-sm text-gray-600 max-w-md">
+                        &ldquo;{competition.currentUserEntry.submissionText}&rdquo;
+                      </p>
+                    )}
+                  </div>
                 ) : submitMutation.isPending ? (
                   <button
                     disabled
@@ -339,9 +388,26 @@ function CompetitionDetailContent() {
 
             {competition.type === 'SCORE' && (
               <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
-                <p className="text-gray-600">
-                  This competition is score-based — participants are evaluated by judges.
-                </p>
+                {!session ? (
+                  <p className="text-gray-500">Please sign in to participate.</p>
+                ) : hasJoined ? (
+                  <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-full">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="font-medium">You&apos;re registered!</span>
+                  </div>
+                ) : (
+                  <p className="text-gray-600">
+                    This competition is score-based — participants are evaluated by judges.
+                  </p>
+                )}
               </div>
             )}
           </>
