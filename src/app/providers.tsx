@@ -8,6 +8,7 @@ import { authClient } from '@api/auth-client';
 import { TooltipProvider } from '@shared/ui';
 import { trpc } from '@api/trpc/client';
 import '@shared/lib/i18n';
+import * as React from 'react';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -22,22 +23,24 @@ export function Providers({ children }: { children: React.ReactNode }) {
       })
   );
 
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
+  const [trpcClient] = useState(() => {
+    return trpc.createClient({
       links: [
         httpBatchLink({
           url: '/api/trpc',
           transformer: superjson,
           async headers() {
-            const { data } = await authClient.useSession();
+            const session = await authClient.getSession();
             return {
-              Authorization: data?.session ? `Bearer ${data.session.token}` : undefined,
+              Authorization: session?.data?.session
+                ? `Bearer ${session.data.session.token}`
+                : undefined,
             };
           },
         }),
       ],
-    })
-  );
+    });
+  });
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
