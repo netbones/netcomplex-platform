@@ -93,6 +93,44 @@ wt list
   across all worktrees — stash entries created in one worktree can be accidentally
   applied in another, corrupting working trees and causing file loss. Use WIP commits
   instead: `git commit -m "wip: ..."` to checkpoint, and `git reset HEAD~1` to undo.
+
+### Stash Ownership Protocol (Required)
+
+`git stash` is global and has no scope. Stashes outlive sessions, worktrees, and
+branches — an orphan stash is invisible noise. **Every stash MUST carry an `owner=`
+field in its message** so a human (or another agent) can resolve it later.
+
+**Required message format:**
+
+```bash
+git stash push -m "owner=<id>:<intent>:<expiry>"
+```
+
+| Field      | Required | Meaning                                                                                   |
+| ---------- | -------- | ----------------------------------------------------------------------------------------- |
+| `owner=`   | yes      | Agent id (e.g., `claude`, `claude/abc123`), human name, or `human:<name>`                 |
+| `<intent>` | yes      | One-line description — what work is parked and why                                        |
+| `<expiry>` | yes      | `session-end` (drop before next session), `manual` (keep until reviewed), or `YYYY-MM-DD` |
+
+**Examples:**
+
+```bash
+git stash push -m "owner=claude:phase-48-preflight stash:session-end"
+git stash push -m "owner=claude:hotfix-WIP for BD-1234:manual"
+git stash push -m "owner=human:marcus:experiment on tailwind plugin:2026-07-01"
+```
+
+**Rules:**
+
+- A stash message without `owner=` is a protocol violation. Drop or rewrite it.
+- Stashes with `expiry=session-end` MUST be dropped (or promoted to a WIP commit
+  on a phase branch) before ending the session.
+- Stashes with `expiry=manual` MUST be reviewed at the next milestone boundary
+  (`.planning/MILESTONES.md` ritual 4b) and either dropped, applied, or have their
+  expiry extended.
+- `git stash drop` requires the owner to have signed off (or be the same agent).
+- `.husky/gsd-status-check.sh` is the integration point for a future
+  `git stash list | grep -v 'owner='` warning — not yet implemented.
 - **One worktree per phase** — never reuse a worktree across phases
 - **Branch name must match the worktree directory name** (e.g., `phase-3-auth-migration`)
 - **Copy `.env` immediately** after creating the worktree, before running any commands
@@ -402,6 +440,36 @@ In order to minimise new page creation for a feature, follow these protocols:
 - Run `npx prisma generate` after migration to regenerate the Drizzle schema sync
 - **Query layer**: Use Drizzle via `src/lib/db.ts` for all database queries (edge-compatible)
 
+### Migration Status & Ad-Hoc SQL
+
+**Formal migrations (Prisma / Drizzle) are tracked by tooling — never rename files.**
+
+Both Prisma and Drizzle maintain their own state and will break if filenames are
+changed after a migration is applied:
+
+- **Prisma** — `npx prisma migrate status` reports applied / pending / drift.
+  The `_prisma_migrations` table in the database is the source of truth.
+  `prisma migrate resolve --applied <name>` / `--rolled-back <name>` expects
+  the directory `prisma/migrations/<timestamp>_<name>/migration.sql` to exist
+  under its original name.
+- **Drizzle** — `npx drizzle-kit migrate` (or read `drizzle/meta/_journal.json`)
+  reports applied state. Renaming `drizzle/<number>_<name>.sql` will break
+  journal lookups and cause drift on the next migrate.
+
+**Ad-hoc SQL scripts** (one-off `.sql` files in `scripts/sql/`, `docs/sql/`,
+`scripts/seed-data/`, or anywhere **not** under `prisma/migrations/` or
+`drizzle/`) MAY use a `.DONE` marker once manually run:
+
+```bash
+# After running a one-off SQL against the dev DB:
+mv scripts/sql/20260605-fix-stale-index.sql scripts/sql/20260605-fix-stale-index.DONE.sql
+git add -A
+git commit -m "chore(sql): mark 20260605-fix-stale-index as run (DONE)"
+```
+
+The `.DONE` suffix is a local convention for visibility; it is **not** understood
+by any migration tool. Do not apply it to formal migrations.
+
 ### Supabase
 
 - Use Supabase client for real-time subscriptions
@@ -697,7 +765,8 @@ NEXT_PUBLIC_VERCEL_URL=""
    git status  # MUST show "up to date with origin"
 ```
 
-5. **Clean up** - Clear stashes, prune branches
+5. **Clean up** - Drop session-end stashes (see "Stash Ownership Protocol"),
+   prune branches. Stashes with `expiry=manual` require owner sign-off before drop.
 6. **Verify** - All changes committed AND pushed
 
 **CRITICAL RULES:**
