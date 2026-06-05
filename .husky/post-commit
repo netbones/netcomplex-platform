@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Auto-drop lint-staged's "automatic backup" stashes — AGENTS.md §"Stash Ownership Protocol"
+#
+# Lint-staged stashes a file's pre-fix state before running prettier/eslint
+# auto-fixes. Once the commit succeeds, that pre-fix state is in git
+# history, so the stash is provably dead — drop it.
+#
+# Triggered by .husky/post-commit on every commit.
+
+set +e
+
+stash_list=$(git stash list 2>/dev/null)
+[ -z "$stash_list" ] && exit 0
+
+# Find stashes matching lint-staged's auto-backup message and drop them.
+# xargs -r = no-op if no input; -I{} = substitute stash ref.
+echo "$stash_list" | grep 'lint-staged automatic backup' | \
+  grep -oE 'stash@\{[0-9]+\}' | \
+  xargs -r -I{} git stash drop {} >/dev/null 2>&1
+
+exit 0
