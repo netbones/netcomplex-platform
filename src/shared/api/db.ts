@@ -12,8 +12,26 @@ export type RLSContext = {
   isPlatformAdmin: boolean;
 };
 
+/**
+ * Postgres connection-pool sizing.
+ *
+ * Why `max: 10` (not 1): Better Auth's `auth.api.getSession()` issues a
+ * session-table lookup on every authenticated request. With `max: 1`, a
+ * single Node.js process can only run one session lookup at a time; the
+ * second concurrent request waits for the first to release the connection,
+ * and the 5s `connectionTimeoutMillis` fires under any modest load
+ * (reported in BD `03kz` during Phase 48 visual verification — intermittent
+ * "timeout exceeded when trying to connect" from getSessionAndRole on
+ * /api/admin/urgency). 10 is safe for Supabase's pgbouncer transaction-mode
+ * pooler (each Node.js process is independent; the pooler multiplexes
+ * across processes), and matches Vercel's serverless-function concurrency
+ * budget for typical Next.js routes.
+ *
+ * If you lower this, also lower the 5s `connectionTimeoutMillis` so
+ * exhausted-pool requests fail fast instead of blocking for the full timeout.
+ */
 const POOL_CONFIG = {
-  max: 1,
+  max: 10,
   idleTimeoutMillis: 10000,
   connectionTimeoutMillis: 5000,
 };
