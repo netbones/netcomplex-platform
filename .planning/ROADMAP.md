@@ -850,11 +850,11 @@ _Features explicitly deferred to post-M5b. These are real product ideas but not 
 
 **Goal:** Extend SpaceLauncher (desktop sidebar) and MobileSpaceBar (bottom bar) — currently only mounted under `/dashboard/*` via `(tenant)/dashboard/layout.tsx` — to all admin routes under `/admin/*`, so ADMIN users retain space-level navigation when traversing admin sub-pages (requests, surveys, events, content, households, groups, categories, resources, competitions, announcements, users, external-surveys). Research the cleanest mount approach (shared layout component, route group restructure, or middleware-driven chrome) before planning.
 
-**Status:** Planning
+**Status:** Complete (verified 2026-06-05; visual gate passed on 15 routes)
 
-**Requirements:** ADMIN-CHROME-01 (SpaceLauncher visible on all `/admin/*` routes for ADMIN users), ADMIN-CHROME-02 (MobileSpaceBar visible on mobile breakpoint for `/admin/*`), ADMIN-CHROME-03 (active-space derivation works from `/admin/*` pathnames — admin space stays highlighted), ADMIN-CHROME-04 (no duplicate chrome when nested admin pages already render layer components like AdminLayer), ADMIN-CHROME-05 (no breakage of existing `/dashboard/*` chrome)
+**Requirements:** ADMIN-CHROME-01 (SpaceLauncher visible on all `/admin/*` routes for ADMIN users), ADMIN-CHROME-02 (MobileSpaceBar visible on mobile breakpoint for `/admin/*`), ADMIN-CHROME-03 (active-space derivation works from `/admin/*` pathnames — admin space stays highlighted), ADMIN-CHROME-04 (no duplicate chrome when nested admin pages already render layer components like AdminLayer), ADMIN-CHROME-05 (no breakage of existing `/dashboard/*` chrome) — **all 5 complete**
 
-**Plans:** 3 plans in 2 waves.
+**Plans:** 3 plans in 2 waves, all shipped.
 
 | Wave | Plan          | Objective                                                                                                                                                                                                                                                                  |
 | ---- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
