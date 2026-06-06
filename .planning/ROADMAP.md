@@ -739,7 +739,7 @@ _Buffer between M4 (code-complete) and M5 (production-traffic). No new phases. P
 
 **Acceptance:** All 5 BD issues closed with a fix commit; `pnpm db:seed` works; MyHomeSpace correctly links user to property; all audited routes have withTenant() OR documented RLS escape; `runWithRLS()` wraps sensitive routes; request validation plugin wired to /api/auth/\*.
 
-**Plans:** 4/5 plans executed (43-05 deferred — requires human verification of validation-better-auth@1.3.4 package)
+**Plans:** 4/5 plans executed
 
 **VERIFICATION.md verdict:** 4/5 PASS, 1 DEFERRED. M4.5 soak CONDITIONAL pending BD mls9+n0rh (tc4) and 43-05 ltn.
 
