@@ -739,7 +739,7 @@ _Buffer between M4 (code-complete) and M5 (production-traffic). No new phases. P
 
 **Acceptance:** All 5 BD issues closed with a fix commit; `pnpm db:seed` works; MyHomeSpace correctly links user to property; all audited routes have withTenant() OR documented RLS escape; `runWithRLS()` wraps sensitive routes; request validation plugin wired to /api/auth/\*.
 
-**Plans:** 5 plans in 3 waves.
+**Plans:** 0/5 plans executed
 
 Plans:
 

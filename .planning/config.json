@@ -2,7 +2,6 @@
   "model_profile": "balanced",
   "commit_docs": true,
   "search_gitignored": false,
-  "branching_strategy": "none",
   "phase_branch_template": "gsd/phase-{phase}-{slug}",
   "milestone_branch_template": "gsd/{milestone}-{slug}",
   "workflow": {
@@ -13,5 +12,8 @@
   },
   "parallelization": true,
   "brave_search": true,
-  "resolve_model_ids": "omit"
+  "resolve_model_ids": "omit",
+  "git": {
+    "branching_strategy": "none"
+  }
 }

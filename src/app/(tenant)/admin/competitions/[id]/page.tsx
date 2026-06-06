@@ -33,8 +33,8 @@ export default function EditCompetitionPage() {
         if (!res.ok) throw new Error('Not found');
         return res.json();
       })
-      .then(data => {
-        setCompetition(data);
+      .then(body => {
+        setCompetition(body?.data ?? body);
         setLoading(false);
       })
       .catch(() => {

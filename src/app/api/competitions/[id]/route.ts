@@ -83,6 +83,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (body.endDate !== undefined) updateData.endDate = new Date(body.endDate);
   if (body.status !== undefined) updateData.status = body.status;
   if (body.image !== undefined) updateData.image = body.image || null;
+  if (body.type !== undefined) updateData.type = body.type;
+  if (body.winnersCount !== undefined) updateData.winnersCount = body.winnersCount;
+  if (body.maxParticipants !== undefined) updateData.maxParticipants = body.maxParticipants || null;
 
   const [competition] = await db
     .update(competitions)
