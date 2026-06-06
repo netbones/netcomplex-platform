@@ -1,6 +1,6 @@
 import { db, contents, users, groups } from '@api/db';
 import { eq, and, desc, or, isNull, lte, gt, type SQL } from 'drizzle-orm';
-import { ContentCategoryEnum, type ContentCategory } from '@shared/api/types';
+import { ContentCategoryEnum, type ContentCategory } from '@shared/api';
 import { getLocalizedValue, defaultLanguage, supportedLanguages } from '@shared/lib';
 
 /**

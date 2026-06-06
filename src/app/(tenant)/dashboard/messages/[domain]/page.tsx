@@ -4,8 +4,8 @@ import { use } from 'react';
 import Link from 'next/link';
 import { useSafeTranslation } from '@shared/lib';
 import { notFound } from 'next/navigation';
-import { MESSAGES_DOMAINS, getMessagesDomainWidgets } from '@widgets/dashboard/spaces';
-import { MESSAGES_DOMAIN_DEFINITIONS } from '@widgets/dashboard/MessagesSubLauncher';
+import { MESSAGES_DOMAINS, getMessagesDomainWidgets } from '@widgets/dashboard';
+import { MESSAGES_DOMAIN_DEFINITIONS } from '@widgets/dashboard';
 import { WidgetRenderer } from '@widgets/dashboard';
 import { ErrorBoundary, Breadcrumbs } from '@shared/ui';
 

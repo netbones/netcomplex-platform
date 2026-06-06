@@ -1,7 +1,7 @@
 'use client';
 
 import React, { use } from 'react';
-import { OnboardingWizard } from '@features/onboarding/OnboardingWizard';
+import { OnboardingWizard } from '@features/onboarding';
 
 interface Props {
   params: Promise<{ tenantId: string }>;

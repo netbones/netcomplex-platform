@@ -2,8 +2,8 @@
 
 import { Users } from 'lucide-react';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { AdminUserWidget } from '@widgets/admin/AdminUserWidget';
-import { UsersListSection } from '@widgets/admin/UsersListSection';
+import { AdminUserWidget } from '@widgets/admin';
+import { UsersListSection } from '@widgets/admin';
 
 export default function AdminUsersPage() {
   return (

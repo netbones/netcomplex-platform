@@ -4,11 +4,11 @@ import { use } from 'react';
 import Link from 'next/link';
 import { useSafeTranslation } from '@shared/lib';
 import { notFound } from 'next/navigation';
-import { ADMIN_DOMAINS, getAdminDomainWidgets } from '@widgets/dashboard/spaces';
-import { ADMIN_DOMAIN_DEFINITIONS } from '@widgets/dashboard/AdminSubLauncher';
+import { ADMIN_DOMAINS, getAdminDomainWidgets } from '@widgets/dashboard';
+import { ADMIN_DOMAIN_DEFINITIONS } from '@widgets/dashboard';
 import { WidgetRenderer } from '@widgets/dashboard';
 import { ErrorBoundary, Breadcrumbs } from '@shared/ui';
-import { UsersListSection } from '@widgets/admin/UsersListSection';
+import { UsersListSection } from '@widgets/admin';
 
 interface AdminDomainPageProps {
   params: Promise<{ domain: string }>;

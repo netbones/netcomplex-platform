@@ -16,10 +16,10 @@ import {
   organizations,
 } from '@api/db';
 import { tenantConfig } from '@entities/tenant';
-import { sendEmail } from '@shared/api/email/resend';
-import { templates } from '@shared/api/email/templates';
+import { sendEmail } from '@shared/api';
+import { templates } from '@shared/api';
 import { authLogger } from '@shared/lib';
-import { generateProfileSlug } from '@shared/api/slug';
+import { generateProfileSlug } from '@shared/api';
 
 /**
  * Better Auth configuration for Soralia Village.

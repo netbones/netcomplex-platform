@@ -5,7 +5,7 @@ import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { LocaleSelector } from '@features/i18n/ui';
+import { LocaleSelector } from '@features/i18n';
 import { RichTextEditor, TagInput } from '@shared/ui';
 import { authClient } from '@api/auth-client';
 import {

@@ -6,7 +6,7 @@ import { apiLogger } from '@shared/lib';
 import { db, bookings, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
-import * as bookingService from '@entities/booking/services';
+import * as bookingService from '@entities/booking';
 
 import {
   apiCreated,
@@ -46,7 +46,7 @@ async function getSessionAndRole(request: Request) {
   };
 }
 
-/** getTenantFacilities moved to @entities/booking/services */
+/** getTenantFacilities moved to @entities/booking */
 
 /**
  * GET /api/bookings - List facility bookings

@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { createComponentLogger } from '@shared/lib';
 import type { AnnouncementWithResource } from './types';
-import type { AnnouncementFormData } from '@shared/api/schemas';
+import type { AnnouncementFormData } from '@shared/api';
 
 const log = createComponentLogger('useAnnouncements');
 

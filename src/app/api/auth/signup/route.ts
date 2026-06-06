@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { logError, apiLogger } from '@shared/lib';
-import { verifyTurnstile } from '@shared/api/turnstile';
+import { verifyTurnstile } from '@shared/api';
 import { db, invitations, users } from '@api/db';
 import { eq, and, gt } from 'drizzle-orm';
 
@@ -187,8 +187,8 @@ async function processInvitation(
  */
 async function sendWelcomeEmail(email: string, name: string) {
   try {
-    const { sendEmail } = await import('@shared/api/email/resend');
-    const { templates } = await import('@shared/api/email/templates');
+    const { sendEmail } = await import('@shared/api');
+    const { templates } = await import('@shared/api');
 
     const html = templates.welcome.getHtml(name);
 

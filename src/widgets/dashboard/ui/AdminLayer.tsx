@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { useLocalStorage } from 'usehooks-ts';
-import { authClient } from '@shared/api/auth-client';
+import { authClient } from '@shared/api';
 import { ErrorBoundary } from '@shared/ui';
 import { AdminCommandBar, type CommandBarUrgency } from './AdminCommandBar';
 import { ADMIN_DOMAIN_DEFINITIONS, type AdminDomainDef } from './AdminSubLauncher';

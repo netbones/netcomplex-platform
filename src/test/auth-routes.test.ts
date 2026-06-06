@@ -57,11 +57,11 @@ vi.mock('@entities/tenant', () => ({
 }));
 
 // Mock email
-vi.mock('@shared/api/email/resend', () => ({
+vi.mock('@shared/api', () => ({
   sendEmail: vi.fn().mockResolvedValue({}),
 }));
 
-vi.mock('@shared/api/email/templates', () => ({
+vi.mock('@shared/api', () => ({
   templates: {
     passwordReset: {
       subject: 'Reset Password',

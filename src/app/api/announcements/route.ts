@@ -7,7 +7,7 @@ import { hasPermission } from '@entities/tenant';
 import { canPublishAnnouncements } from '@entities/tenant';
 import { validatePriorityForRole } from '@features/announcements';
 import type { AnnouncementPriority } from '@features/announcements';
-import { announcementSchema } from '@shared/api/schemas';
+import { announcementSchema } from '@shared/api';
 
 import {
   apiCreated,

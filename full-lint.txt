@@ -1,0 +1,674 @@
+
+> soralia-village@1.0.0 lint /home/ubuntupunk/Projects/soralia-village
+> eslint src/ --no-color
+
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(platform)/admin/platform/[id]/features/components.tsx
+   78:11  warning  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  131:21  warning  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(platform)/onboarding/[tenantId]/page.tsx
+  4:1  error  '@features/onboarding/OnboardingWizard' import is restricted from being used by a pattern. Use public API from @features/<slice> instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/admin/announcements/page.tsx
+  12:1  error    '@shared/api/schemas' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+  15:9  warning  'router' is assigned a value but never used                                                                                   @typescript-eslint/no-unused-vars
+  23:5  warning  'submitting' is assigned a value but never used                                                                               @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/admin/categories/page.tsx
+   6:11  warning  'Setting' is defined but never used  @typescript-eslint/no-unused-vars
+  46:14  warning  'error' is defined but never used    @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/admin/external-surveys/page.tsx
+  4:8  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/admin/layout.tsx
+  3:1  error  '@widgets/dashboard/SpaceChrome' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/admin/page.tsx
+  2:1  error  '@widgets/dashboard/AdminLayer' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/admin/requests/page.tsx
+  1327:53  warning  'idx' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/admin/users/page.tsx
+  5:1  error  '@widgets/admin/AdminUserWidget' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports   no-restricted-imports
+  6:1  error  '@widgets/admin/UsersListSection' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/dashboard/[space]/page.tsx
+  5:1  error  '@widgets/dashboard/spaces' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports         no-restricted-imports
+  6:1  error  '@widgets/dashboard/SpaceLayout' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports    no-restricted-imports
+  7:1  error  '@widgets/dashboard/AdminLayer' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports     no-restricted-imports
+  8:1  error  '@widgets/dashboard/ServicesLayer' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports  no-restricted-imports
+  9:1  error  '@widgets/dashboard/MessagesLayer' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/dashboard/admin/[domain]/page.tsx
+   7:1  error  '@widgets/dashboard/spaces' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports            no-restricted-imports
+   8:1  error  '@widgets/dashboard/AdminSubLauncher' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports  no-restricted-imports
+  11:1  error  '@widgets/admin/UsersListSection' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports      no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/dashboard/layout.tsx
+  3:1  error  '@widgets/dashboard/SpaceChrome' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/dashboard/messages/[domain]/page.tsx
+  7:1  error  '@widgets/dashboard/spaces' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports               no-restricted-imports
+  8:1  error  '@widgets/dashboard/MessagesSubLauncher' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/dashboard/page.tsx
+  3:1  error  '@widgets/dashboard/HomeLayer' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports    no-restricted-imports
+  4:1  error  '@widgets/dashboard/MyHomeSpace' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/dashboard/services/[domain]/page.tsx
+  10:1  error  '@widgets/dashboard/spaces' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports               no-restricted-imports
+  11:1  error  '@widgets/dashboard/ServicesSubLauncher' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/dashboard/services/events/[id]/page.tsx
+  7:10  warning  'ErrorBoundary' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/(tenant)/page.tsx
+  15:36  warning  'Resident' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/admin/platform/tenants/[id]/route.ts
+  6:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/admin/platform/tenants/route.ts
+  6:22  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/agents/activity/route.ts
+  8:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/agents/managed-properties/route.ts
+  4:25  warning  'sql' is defined but never used       @typescript-eslint/no-unused-vars
+  8:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/agents/marketplace/route.ts
+   8:10  warning  'apiError' is defined but never used          @typescript-eslint/no-unused-vars
+  75:13  warning  'agentId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/announcements/[id]/route.ts
+  10:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/announcements/route.ts
+   3:25  warning  'lte' is defined but never used                                                                                               @typescript-eslint/no-unused-vars
+   3:30  warning  'gte' is defined but never used                                                                                               @typescript-eslint/no-unused-vars
+   6:10  warning  'hasPermission' is defined but never used                                                                                     @typescript-eslint/no-unused-vars
+  10:1   error    '@shared/api/schemas' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+  14:3   warning  'apiError' is defined but never used                                                                                          @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/auth/signup/route.ts
+    3:1   error    '@shared/api/turnstile' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+    5:19  warning  'gt' is defined but never used                                                                                                  @typescript-eslint/no-unused-vars
+   14:3   warning  'apiSuccess' is defined but never used                                                                                          @typescript-eslint/no-unused-vars
+  200:12  warning  '_error' is defined but never used                                                                                              @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/auth/suspension-status/route.ts
+  3:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/bookings/route.ts
+   6:14  warning  'bookings' is defined but never used                                                                                                           @typescript-eslint/no-unused-vars
+   7:14  warning  'and' is defined but never used                                                                                                                @typescript-eslint/no-unused-vars
+   9:1   error    '@entities/booking/services' import is restricted from being used by a pattern. Use public API from @entities/<slice> instead of deep imports  no-restricted-imports
+  13:3   warning  'apiError' is defined but never used                                                                                                           @typescript-eslint/no-unused-vars
+  17:3   warning  'apiValidationError' is defined but never used                                                                                                 @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/campaign/route.ts
+   6:10  warning  'apiError' is defined but never used                                       @typescript-eslint/no-unused-vars
+  27:27  warning  'request' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/community-services/analytics/route.ts
+  17:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/community-services/listings/[id]/publish/route.ts
+  11:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/community-services/listings/[id]/route.ts
+  17:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/community-services/listings/route.ts
+  13:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/community-services/moderation/listings/[id]/route.ts
+  11:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/community-services/provider/inquiries/[id]/route.ts
+  11:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/competitions/[id]/route.ts
+  9:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/competitions/route.ts
+  8:22  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/conservation/route.ts
+  6:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/content/[id]/route.ts
+  14:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/content/route.ts
+  49:9  warning  'authData' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/conversations/find/route.ts
+  5:10  warning  'apiCreated' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/conversations/route.ts
+  8:10  warning  'apiCreated' is defined but never used  @typescript-eslint/no-unused-vars
+  8:22  warning  'apiError' is defined but never used    @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/dashboard/stats/route.ts
+   4:3   warning  'users' is defined but never used          @typescript-eslint/no-unused-vars
+   7:3   warning  'conversations' is defined but never used  @typescript-eslint/no-unused-vars
+  14:10  warning  'apiError' is defined but never used       @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/events/[id]/register/route.ts
+  5:22  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/events/[id]/route.ts
+  9:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/events/route.ts
+  7:1   error    '@entities/events/services' import is restricted from being used by a pattern. Use public API from @entities/<slice> instead of deep imports  no-restricted-imports
+  9:22  warning  'apiError' is defined but never used                                                                                                          @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/groups/[id]/route.ts
+  8:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/groups/membership-requests/route.ts
+  7:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/groups/route.ts
+  2:25  warning  'Permission' is defined but never used  @typescript-eslint/no-unused-vars
+  4:24  warning  'sql' is defined but never used         @typescript-eslint/no-unused-vars
+  7:22  warning  'apiError' is defined but never used    @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/households/[id]/route.ts
+  10:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/households/route.ts
+  10:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/invitations/[id]/route.ts
+  5:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/invitations/accept/route.ts
+   2:14  warning  'and' is defined but never used              @typescript-eslint/no-unused-vars
+   2:19  warning  'gt' is defined but never used               @typescript-eslint/no-unused-vars
+   3:10  warning  'auth' is defined but never used             @typescript-eslint/no-unused-vars
+  18:20  warning  'userId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/invitations/route.ts
+  4:1   error    '@shared/api/email/resend' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports     no-restricted-imports
+  5:1   error    '@shared/api/email/templates' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+  8:22  warning  'apiError' is defined but never used                                                                                                  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/invitations/validate/route.ts
+  2:14  warning  'and' is defined but never used  @typescript-eslint/no-unused-vars
+  2:19  warning  'gt' is defined but never used   @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/maintenance/[id]/notify/route.ts
+  6:1  error  '@shared/api/email/resend' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/maintenance/categories/[id]/route.ts
+  4:35  warning  'apiConflict' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/maintenance/providers/[id]/route.ts
+  4:35  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/maintenance/route.ts
+  17:1  error  '@entities/maintenance/services' import is restricted from being used by a pattern. Use public API from @entities/<slice> instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/media/route.ts
+  8:11  warning  'tenantId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/messages/unread/route.ts
+  5:65  warning  'users' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/messages/urgency/route.ts
+  12:34  warning  'desc' is defined but never used  @typescript-eslint/no-unused-vars
+  12:45  warning  'lte' is defined but never used   @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/notifications/route.ts
+   5:1   error    '@shared/api/email/resend' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports     no-restricted-imports
+   6:1   error    '@shared/api/email/templates' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+  10:22  warning  'apiError' is defined but never used                                                                                                  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/platform/onboarding/route.ts
+  7:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/platform/tenants/route.ts
+    3:10  warning  'createTenant' is defined but never used           @typescript-eslint/no-unused-vars
+    8:10  warning  'apiCreated' is defined but never used             @typescript-eslint/no-unused-vars
+  138:11  warning  'linkedTenant' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/premium/portfolio/route.ts
+  9:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/pricing/route.ts
+  5:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/resources/[id]/route.ts
+   9:3   warning  'apiError' is defined but never used               @typescript-eslint/no-unused-vars
+  57:10  warning  'buildVisibilityFilter' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/resources/route.ts
+  3:34  warning  'or' is defined but never used      @typescript-eslint/no-unused-vars
+  3:38  warning  'isNull' is defined but never used  @typescript-eslint/no-unused-vars
+  7:15  warning  'Role' is defined but never used    @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/seats/route.ts
+  5:3  warning  'apiCreated' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/services/urgency/route.ts
+  74:11  warning  'overdueMaintenance' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/settings/contact/route.ts
+  5:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/settings/route.ts
+  7:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/stats/route.ts
+  5:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/surveys/[id]/questions/reorder/route.ts
+  8:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/surveys/[id]/questions/route.ts
+  4:29  warning  'inArray' is defined but never used   @typescript-eslint/no-unused-vars
+  9:3   warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/surveys/[id]/responses/route.ts
+  8:3  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/surveys/route.ts
+  7:22  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/tenants/[id]/modules/route.ts
+   8:14  warning  'and' is defined but never used       @typescript-eslint/no-unused-vars
+  12:10  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/trpc/[trpc]/route.ts
+  2:1  error  '@shared/api/trpc/routers' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/user/albums/route.ts
+  37:15  warning  'newAlbum' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  62:15  warning  'updatedAlbum' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/users/[id]/books/route.ts
+  4:35  warning  'apiError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/api/users/route.ts
+  18:15  warning  'InferSelectModel' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/competition/[id]/page.tsx
+  158:9  warning  'canParticipate' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  160:9  warning  'entryStatus' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/competition/page.tsx
+    6:10  warning  'LoadingCard' is defined but never used     @typescript-eslint/no-unused-vars
+  187:5   warning  'error' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/groups/[id]/page.tsx
+  5:8  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/groups/page.tsx
+  29:17  warning  'session' is assigned a value but never used              @typescript-eslint/no-unused-vars
+  73:9   warning  'residentFilterLabel' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/invite/[token]/page.tsx
+  33:18  warning  'apiFetch' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  39:10  warning  'existingUser' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/news/page.tsx
+   8:10  warning  'sanitizeHtml' is defined but never used                                                                                                                        @typescript-eslint/no-unused-vars
+  10:1   error    '@widgets/dashboard/AnnouncementsStreamWidget' import is restricted from being used by a pattern. Use public API from @widgets/<slice> instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/app/resident/[id]/page.tsx
+    8:38  warning  'TagCloud' is defined but never used               @typescript-eslint/no-unused-vars
+   10:10  warning  'sanitizeHtml' is defined but never used           @typescript-eslint/no-unused-vars
+  203:9   warning  'isOwnProfile' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/services/[id]/page.tsx
+  56:16  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/settings/page.tsx
+    8:50  warning  'SupportedLanguage' is defined but never used   @typescript-eslint/no-unused-vars
+   15:26  warning  'tSettings' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  165:30  warning  'e' is defined but never used                   @typescript-eslint/no-unused-vars
+  234:28  warning  'e' is defined but never used                   @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/unit/[id]/member/[profileId]/page.tsx
+  7:10  warning  'authClient' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/app/unit/[id]/page.tsx
+   70:17  warning  'session' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  153:9   warning  'otherOccupants' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/entities/booking/api/route.ts
+  1:10  warning  'db' is defined but never used     @typescript-eslint/no-unused-vars
+  4:10  warning  'eq' is defined but never used     @typescript-eslint/no-unused-vars
+  5:10  warning  'users' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/entities/booking/model/constants.ts
+  1:30  warning  'Facility' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/entities/chat/ui/EmojiPickerButton.tsx
+  11:10  warning  'isOpen' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/entities/content/api/route.ts
+  43:9  warning  'now' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/entities/content/services/index.ts
+  3:1  error  '@shared/api/types' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/entities/directory/ui/CommunityMap.tsx
+  3:21  warning  'useRef' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/entities/identity/api/router.ts
+  20:21  warning  'toPropertyDTO' is defined but never used   @typescript-eslint/no-unused-vars
+  20:36  warning  'toProfileDTO' is defined but never used    @typescript-eslint/no-unused-vars
+  20:50  warning  'toHouseholdDTO' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/entities/maintenance/api/route.ts
+  1:10  warning  'db' is defined but never used                @typescript-eslint/no-unused-vars
+  1:14  warning  'users' is defined but never used             @typescript-eslint/no-unused-vars
+  1:21  warning  'properties' is defined but never used        @typescript-eslint/no-unused-vars
+  1:33  warning  'maintenanceTeams' is defined but never used  @typescript-eslint/no-unused-vars
+  1:51  warning  'serviceProviders' is defined but never used  @typescript-eslint/no-unused-vars
+  4:10  warning  'eq' is defined but never used                @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/entities/tenant/api/assist-scope-guard.ts
+  17:30  warning  'users' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/entities/tenant/api/flags/statsig-flags.ts
+  7:11  warning  'FlagEntities' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/entities/tenant/lib/modules/require-module.ts
+  14:10  warning  'eq' is defined but never used   @typescript-eslint/no-unused-vars
+  14:14  warning  'and' is defined but never used  @typescript-eslint/no-unused-vars
+  14:19  warning  'gte' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/entities/tenant/ui/FeatureGate.tsx
+  4:10  warning  'useModuleEnabled' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/entities/widget/model/dashboard-config.ts
+  2:28  warning  'TierLevel' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/features/admin/ui/FeaturesForm.tsx
+   59:11  warning  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  111:21  warning  'status' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/features/announcements/model/useAnnouncements.ts
+  6:1  error  '@shared/api/schemas' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/features/announcements/ui/AnnouncementForm.tsx
+    8:1  error    '@shared/api/schemas' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+  101:5  warning  'watch' is assigned a value but never used                                                                                    @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/features/announcements/ui/AnnouncementList.tsx
+  3:8  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/features/auth/ui/SignupCTA.tsx
+  1:10  warning  'PrimaryCTA' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/features/booking/ui/BookingForm.tsx
+  5:10  warning  'FACILITY_LABELS' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/features/i18n/ui/LocaleAwareEditor.tsx
+    9:3  warning  'getLocalizedValue' is defined but never used          @typescript-eslint/no-unused-vars
+  146:9  warning  'availableLocales' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/features/i18n/ui/LocaleSelector.tsx
+   23:11  warning  'tx' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  118:11  warning  'tx' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/features/maintenance/model/useMaintenanceForm.ts
+    4:1   error    '@shared/api/supabase' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+    7:3   warning  'MaintenancePriority' is defined but never used                                                                                @typescript-eslint/no-unused-vars
+    8:3   warning  'PRESET_CATEGORIES' is defined but never used                                                                                  @typescript-eslint/no-unused-vars
+  171:14  warning  'err' is defined but never used                                                                                                @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/features/onboarding/ui/OnboardingWizard.tsx
+  3:30  warning  'OnboardingStep' is defined but never used  @typescript-eslint/no-unused-vars
+  4:28  warning  'StepWrapper' is defined but never used     @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/features/service/ui/CreateListingForm.tsx
+  22:11  warning  'tx' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/middleware.ts
+  27:10  warning  'isTenantHost' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/page-modules/chat/ui/MessagesPage.tsx
+   5:8   warning  'Link' is defined but never used                     @typescript-eslint/no-unused-vars
+  14:3   warning  'EmojiPickerButton' is defined but never used        @typescript-eslint/no-unused-vars
+  59:23  warning  'setTypingUsers' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  60:23  warning  'setOnlineCount' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/server/routers/competitions.ts
+  6:1  error  '@shared/api/dto/competition' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/api/auth.ts
+  19:1  error  '@shared/api/email/resend' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports     no-restricted-imports
+  20:1  error  '@shared/api/email/templates' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+  22:1  error  '@shared/api/slug' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports             no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/api/data-fetching.ts
+  6:10  warning  'cache' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/api/gate.test.ts
+   24:19  warning  'ModuleKey' is defined but never used         @typescript-eslint/no-unused-vars
+  101:19  warning  'feature' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  142:19  warning  'feature' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  162:19  warning  'feature' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  388:10  error    Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  413:10  error    Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  431:10  error    Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/api/schemas.ts
+  16:1  error  '@entities/booking/schema' import is restricted from being used by a pattern. Use public API from @entities/<slice> instead of deep imports      no-restricted-imports
+  17:1  error  '@entities/booking/schema' import is restricted from being used by a pattern. Use public API from @entities/<slice> instead of deep imports      no-restricted-imports
+  19:1  error  '@entities/events/schema' import is restricted from being used by a pattern. Use public API from @entities/<slice> instead of deep imports       no-restricted-imports
+  20:1  error  '@entities/events/schema' import is restricted from being used by a pattern. Use public API from @entities/<slice> instead of deep imports       no-restricted-imports
+  26:1  error  '@entities/maintenance/schema' import is restricted from being used by a pattern. Use public API from @entities/<slice> instead of deep imports  no-restricted-imports
+  27:1  error  '@entities/maintenance/schema' import is restricted from being used by a pattern. Use public API from @entities/<slice> instead of deep imports  no-restricted-imports
+  29:1  error  '@entities/tenant/schema' import is restricted from being used by a pattern. Use public API from @entities/<slice> instead of deep imports       no-restricted-imports
+  30:1  error  '@entities/tenant/schema' import is restricted from being used by a pattern. Use public API from @entities/<slice> instead of deep imports       no-restricted-imports
+  32:1  error  '@entities/chat/schema' import is restricted from being used by a pattern. Use public API from @entities/<slice> instead of deep imports         no-restricted-imports
+  33:1  error  '@entities/chat/schema' import is restricted from being used by a pattern. Use public API from @entities/<slice> instead of deep imports         no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/lib/gate-client.ts
+  24:1  error  '@shared/api/gate' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports         no-restricted-imports
+  25:1  error  '@shared/api/gate' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports         no-restricted-imports
+  30:1  error  '@shared/api/auth-client' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/lib/hooks/useApiToast.ts
+    6:10  warning  'authClient' is defined but never used                                  @typescript-eslint/no-unused-vars
+  105:11  warning  'lastError' is assigned a value but never used                          @typescript-eslint/no-unused-vars
+  305:24  warning  'data' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/lib/hooks/usePageLoading.tsx
+  39:3  warning  'title' is assigned a value but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/lib/logging.ts
+  1:10  warning  'createLogger' is defined but never used  @typescript-eslint/no-unused-vars
+  3:6   warning  'LogLevel' is defined but never used      @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/ui/Bookshelf.tsx
+   3:31  warning  'useRef' is defined but never used  @typescript-eslint/no-unused-vars
+  67:14  warning  'e' is defined but never used       @typescript-eslint/no-unused-vars
+  83:14  warning  'e' is defined but never used       @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/ui/Footer.tsx
+  15:21  warning  'loading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/ui/FrimoussePicker.tsx
+  40:10  warning  'activeEmoji' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/ui/GateGuard.tsx
+  4:1  error  '@shared/api/gate' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/ui/Loading.tsx
+  73:42  warning  'titleLines' is assigned a value but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/ui/MediaLibrary.tsx
+   77:16  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  103:14  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/ui/RichTextEditor.tsx
+  179:14  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/ui/RichTextRenderer.tsx
+  37:33  warning  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  44:33  warning  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/ui/SectionLayout.tsx
+  47:9  warning  'Container' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/shared/ui/SideDrawer.tsx
+  95:58  warning  'useAdminLabel' is assigned a value but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/test/api-response.test.ts
+  35:3  warning  'ApiSuccessResponse' is defined but never used    @typescript-eslint/no-unused-vars
+  36:3  warning  'ApiErrorResponse' is defined but never used      @typescript-eslint/no-unused-vars
+  37:3  warning  'ApiPaginatedResponse' is defined but never used  @typescript-eslint/no-unused-vars
+  38:3  warning  'ApiPaginatedMeta' is defined but never used      @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/test/api/invitations.test.ts
+  114:13  warning  'request' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/test/api/maintenance.test.ts
+  79:27  warning  'makeInsertChain' is defined but never used    @typescript-eslint/no-unused-vars
+  79:44  warning  'createMockRequest' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/test/chat-hooks.test.tsx
+  2:22  warning  'act' is defined but never used      @typescript-eslint/no-unused-vars
+  2:27  warning  'waitFor' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/test/competitions.test.ts
+  114:10  warning  'COMPETITION_GET' is defined but never used  @typescript-eslint/no-unused-vars
+  118:38  warning  'TENANTS_POST' is defined but never used     @typescript-eslint/no-unused-vars
+  122:12  warning  'ASSIST_EXTEND' is defined but never used    @typescript-eslint/no-unused-vars
+  188:13  warning  'data' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  375:13  warning  'data' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  441:13  warning  'data' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  461:13  warning  'data' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/test/content-routes.test.ts
+  1:32  warning  'vi' is defined but never used          @typescript-eslint/no-unused-vars
+  1:36  warning  'beforeEach' is defined but never used  @typescript-eslint/no-unused-vars
+  1:48  warning  'afterEach' is defined but never used   @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/test/platform-admin.test.ts
+  102:12  warning  'ASSIST_EXTEND' is defined but never used    @typescript-eslint/no-unused-vars
+  130:10  warning  'makeUpdateChain' is defined but never used  @typescript-eslint/no-unused-vars
+  280:13  warning  'data' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  350:13  warning  'data' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/test/platform-flags.test.ts
+  1:32  warning  'vi' is defined but never used          @typescript-eslint/no-unused-vars
+  1:36  warning  'beforeEach' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/test/resources.test.ts
+  219:13  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  300:13  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  436:13  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/test/ui-components.test.tsx
+  2:26  warning  'fireEvent' is defined but never used  @typescript-eslint/no-unused-vars
+  2:37  warning  'act' is defined but never used        @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/admin/ui/AdminActivityWidget.tsx
+  18:11  warning  't' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/admin/ui/AdminAnnouncementsWidget.tsx
+  4:8  warning  'Link' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/admin/ui/AdminContentWidget.tsx
+  16:11  warning  't' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/admin/ui/AdminStatsWidget.tsx
+  61:11  warning  't' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/admin/ui/AdminSystemWidget.tsx
+  19:11  warning  't' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/admin/ui/CompetitionList.tsx
+    7:1   error    '@shared/api/dto/competition' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+    7:15  warning  'ParticipantDTO' is defined but never used                                                                                            @typescript-eslint/no-unused-vars
+  138:10  warning  'scoreThreshold' is assigned a value but never used                                                                                   @typescript-eslint/no-unused-vars
+  138:26  warning  'setScoreThreshold' is assigned a value but never used                                                                                @typescript-eslint/no-unused-vars
+  149:9   warning  'updateEntryMutation' is assigned a value but never used                                                                              @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/admin/ui/ContentForm.tsx
+  8:1  error  '@features/i18n/ui' import is restricted from being used by a pattern. Use public API from @features/<slice> instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/chat/ui/MessagesWidget.tsx
+  12:11  warning  't' is assigned a value but never used                               @typescript-eslint/no-unused-vars
+  67:64  warning  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/model/types.ts
+  2:15  warning  'ComponentType' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/AdminLayer.tsx
+  7:1  error  '@shared/api/auth-client' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/AgentActivityWidget.tsx
+  30:16  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/AgentDashboardWidget.tsx
+  36:16  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/AgentWidget.tsx
+  37:11  warning  't' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/CommunityGraphWidget.tsx
+   26:3   warning  'TrendingUp' is defined but never used         @typescript-eslint/no-unused-vars
+  196:17  warning  'setNodes' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  197:17  warning  'setEdges' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/DraggableWidget.tsx
+  7:10  warning  'Tooltip' is defined but never used         @typescript-eslint/no-unused-vars
+  7:19  warning  'TooltipContent' is defined but never used  @typescript-eslint/no-unused-vars
+  7:35  warning  'TooltipTrigger' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/HomeLayer.tsx
+  5:1  error  '@shared/api/auth-client' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/MessagesLayer.tsx
+  91:11  warning  't' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/MessagesWidget.tsx
+  20:11  warning  't' is assigned a value but never used                               @typescript-eslint/no-unused-vars
+  74:64  warning  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/PremiumPortfolioWidget.tsx
+   61:11  warning  't' is assigned a value but never used                                         @typescript-eslint/no-unused-vars
+  156:31  warning  'householdId' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/SpaceChrome.tsx
+  23:1  error  '@shared/api/auth-client' import is restricted from being used by a pattern. Use public API from @shared instead of deep imports  no-restricted-imports
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/SpaceLayout.tsx
+  15:18  warning  'getWidgetsForSpace' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/TagCloudWidget.tsx
+  23:34  warning  'widgetId' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  24:11  warning  't' is assigned a value but never used                                      @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/WidgetCard.tsx
+  7:10  warning  'Tooltip' is defined but never used         @typescript-eslint/no-unused-vars
+  7:19  warning  'TooltipContent' is defined but never used  @typescript-eslint/no-unused-vars
+  7:35  warning  'TooltipTrigger' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/dashboard/ui/WidgetRenderer.tsx
+  32:10  warning  '_canRenderWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/service/ui/MyServicesWidget.tsx
+  20:11  warning  't' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ubuntupunk/Projects/soralia-village/src/widgets/service/ui/ServiceInquiriesWidget.tsx
+  27:11  warning  't' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 318 problems (63 errors, 255 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.

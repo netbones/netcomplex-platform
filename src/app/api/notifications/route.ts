@@ -2,8 +2,8 @@ import { auth } from '@api/auth';
 import { db, notifications, users } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
-import { sendEmail } from '@shared/api/email/resend';
-import { templates } from '@shared/api/email/templates';
+import { sendEmail } from '@shared/api';
+import { templates } from '@shared/api';
 import { logError } from '@shared/lib';
 import { createLogger } from '@shared/lib';
 

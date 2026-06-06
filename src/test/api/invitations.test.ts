@@ -69,11 +69,11 @@ vi.mock('@api/rate-limit', () => ({
 }));
 
 // Mock email
-vi.mock('@shared/api/email/resend', () => ({
+vi.mock('@shared/api', () => ({
   sendEmail: (...args: unknown[]) => mocks.sendEmail(...args),
 }));
 
-vi.mock('@shared/api/email/templates', () => ({
+vi.mock('@shared/api', () => ({
   templates: {
     teamInvitation: {
       subject: 'You have been invited',

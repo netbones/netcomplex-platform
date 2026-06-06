@@ -60,7 +60,7 @@ vi.mock('@entities/tenant', () => ({
 }));
 
 // Mock maintenance services
-vi.mock('@entities/maintenance/services', () => ({
+vi.mock('@entities/maintenance', () => ({
   listMaintenanceRequests: (...args: unknown[]) => mocks.listMaintenanceRequests(...args),
   createMaintenanceRequest: (...args: unknown[]) => mocks.createMaintenanceRequest(...args),
 }));

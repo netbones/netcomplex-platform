@@ -1,7 +1,7 @@
 'use client';
 
-import { HomeLayer } from '@widgets/dashboard/HomeLayer';
-import { MyHomeSpaceWithErrorBoundary } from '@widgets/dashboard/MyHomeSpace';
+import { HomeLayer } from '@widgets/dashboard';
+import { MyHomeSpaceWithErrorBoundary } from '@widgets/dashboard';
 
 export default function DashboardHome() {
   return (

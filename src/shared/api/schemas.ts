@@ -6,31 +6,23 @@ import { z } from 'zod';
 
 export { contentSchema, groupSchema, announcementSchema } from '@entities/content';
 export { surveySchema } from '@entities/survey';
-export type {
-  ContentFormData,
-  GroupFormData,
-  AnnouncementFormData,
-} from '@entities/content';
+export type { ContentFormData, GroupFormData, AnnouncementFormData } from '@entities/content';
 export type { SurveyFormData } from '@entities/survey';
 
-export { bookingSchema } from '@entities/booking/schema';
-export type { BookingFormData } from '@entities/booking/schema';
+export { bookingSchema } from '@entities/booking';
+export type { BookingFormData } from '@entities/booking';
 
-export { eventSchema, adminEventSchema, adminCompetitionSchema } from '@entities/events/schema';
-export type {
-  EventFormData,
-  AdminEventFormData,
-  AdminCompetitionFormData,
-} from '@entities/events/schema';
+export { eventSchema, adminEventSchema, adminCompetitionSchema } from '@entities/events';
+export type { EventFormData, AdminEventFormData, AdminCompetitionFormData } from '@entities/events';
 
-export { maintenanceRequestSchema } from '@entities/maintenance/schema';
-export type { MaintenanceRequestFormData } from '@entities/maintenance/schema';
+export { maintenanceRequestSchema } from '@entities/maintenance';
+export type { MaintenanceRequestFormData } from '@entities/maintenance';
 
-export { signupSchema } from '@entities/tenant/schema';
-export type { SignupFormData } from '@entities/tenant/schema';
+export { signupSchema } from '@entities/tenant';
+export type { SignupFormData } from '@entities/tenant';
 
-export { messageSchema, conversationSchema } from '@entities/chat/schema';
-export type { MessageFormData, ConversationFormData } from '@entities/chat/schema';
+export { messageSchema, conversationSchema } from '@entities/chat';
+export type { MessageFormData, ConversationFormData } from '@entities/chat';
 
 // ─── Shared Schemas (no entity module yet) ────────────────────────────────
 

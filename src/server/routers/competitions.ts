@@ -3,12 +3,7 @@ import { router, publicProcedure, protectedProcedure, adminProcedure } from '@ap
 import { TRPCError } from '@trpc/server';
 import { db, competitions, competitionEntries, users, notifications } from '@api/db';
 import { eq, and, desc, asc, count, lte, gte, inArray, InferSelectModel } from 'drizzle-orm';
-import {
-  CompetitionTypeEnum,
-  EntryStatusEnum,
-  ParticipantDTO,
-  WinnerDTO,
-} from '@shared/api/dto/competition';
+import { CompetitionTypeEnum, EntryStatusEnum, ParticipantDTO, WinnerDTO } from '@shared/api';
 
 // ──────────────────────────────────────────
 // Input schemas

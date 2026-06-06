@@ -1,5 +1,5 @@
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
-import { appRouter } from '@shared/api/trpc/routers';
+import { appRouter } from '@shared/api';
 import { createContext } from '@api/trpc/server';
 
 const handler = (req: Request) =>

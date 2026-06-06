@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { announcementSchema, type AnnouncementFormData } from '@shared/api/schemas';
+import { announcementSchema, type AnnouncementFormData } from '@shared/api';
 import {
   PRIORITY_TAXONOMY,
   getAllowedPriorities,

@@ -1,8 +1,8 @@
 import { db, invitations, tenants, users } from '@api/db';
 import { eq, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
-import { sendEmail } from '@shared/api/email/resend';
-import { templates } from '@shared/api/email/templates';
+import { sendEmail } from '@shared/api';
+import { templates } from '@shared/api';
 import { apiLogger } from '@shared/lib';
 
 import { apiCreated, apiError, apiSuccess } from '@api/api-response';

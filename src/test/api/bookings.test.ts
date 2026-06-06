@@ -63,7 +63,7 @@ vi.mock('@entities/tenant', () => ({
 }));
 
 // Mock booking services
-vi.mock('@entities/booking/services', () => ({
+vi.mock('@entities/booking', () => ({
   listBookings: (...args: unknown[]) => mocks.listBookings(...args),
   createBooking: (...args: unknown[]) => mocks.createBooking(...args),
   validateFacility: (...args: unknown[]) => mocks.validateFacility(...args),

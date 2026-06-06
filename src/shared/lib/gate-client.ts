@@ -21,13 +21,13 @@
 
 'use client';
 
-import type { FeatureKey, GateResult } from '@shared/api/gate';
-import { FEATURE_TO_FLAG, FEATURE_TO_REGISTRY } from '@shared/api/gate';
+import type { FeatureKey, GateResult } from '@shared/api';
+import { FEATURE_TO_FLAG, FEATURE_TO_REGISTRY } from '@shared/api';
 import { type PlatformPageFlags } from '@entities/tenant';
 import { canAccessPage, hasFeature, type TierLevel } from '@entities/tenant';
 import { ROLE_PERMISSIONS, type Role } from '@entities/tenant';
 
-import { useSession } from '@shared/api/auth-client';
+import { useSession } from '@shared/api';
 import { usePageFlags } from './hooks/usePageFlags';
 
 // ============================================
@@ -137,7 +137,8 @@ export function canAccessClient(
   const registryKey = (FEATURE_TO_REGISTRY as Record<FeatureKey, string | null>)[feature];
   if (registryKey !== null && ctx.tier) {
     const featureOk =
-      hasFeature(registryKey, ctx.tier) && canAccessPage(registryKey.replace(/^page\./, ''), ctx.tier);
+      hasFeature(registryKey, ctx.tier) &&
+      canAccessPage(registryKey.replace(/^page\./, ''), ctx.tier);
     if (!featureOk) {
       return { allowed: false, reason: 'feature' };
     }

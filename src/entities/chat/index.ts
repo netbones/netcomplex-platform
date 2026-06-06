@@ -5,3 +5,4 @@ export * from './ui/OnlineIndicator';
 export * from './ui/TypingIndicator';
 export * from './ui/ParticipantAvatar';
 export * from './ui/EmojiPickerButton';
+export * from './schema';

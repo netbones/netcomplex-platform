@@ -14,7 +14,7 @@ import { db, users } from '@api/db';
 import { eq } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
 import { toMaintenanceRequestDTO } from '@api/dto/maintenance';
-import * as maintenanceService from '@entities/maintenance/services';
+import * as maintenanceService from '@entities/maintenance';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;

@@ -9,7 +9,7 @@ import { useAnnouncements } from '@/features/announcements/model/useAnnouncement
 import { AnnouncementForm } from '@/features/announcements/ui/AnnouncementForm';
 import { AnnouncementList } from '@/features/announcements/ui/AnnouncementList';
 import type { AnnouncementWithResource } from '@/features/announcements/model/types';
-import type { AnnouncementFormData } from '@shared/api/schemas';
+import type { AnnouncementFormData } from '@shared/api';
 import { toast } from 'sonner';
 export default function AnnouncementsAdminPage() {
   const router = useRouter();

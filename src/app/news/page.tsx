@@ -7,7 +7,7 @@ import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import { sanitizeHtml } from '@shared/lib';
 import { usePageLoading } from '@shared/ui';
-import { AnnouncementsStreamWidget } from '@widgets/dashboard/AnnouncementsStreamWidget';
+import { AnnouncementsStreamWidget } from '@widgets/dashboard';
 
 const log = createComponentLogger('news-page');
 
