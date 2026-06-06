@@ -1,4 +1,33 @@
-## Audit Results
+# M4.5 Tenant Isolation Audit
+
+**Generated:** 2026-06-06T11:10:10Z
+**Source:** `pnpm exec tsx scripts/audit-tenant-isolation.ts`
+**BD issue:** `e0w` — Fix route-level cross-tenant data leakage
+**Plan:** 43-03 (M4.5 Blockers)
+
+## Summary
+
+| Status          | Count |
+| --------------- | ----- |
+| Total routes    | 157   |
+| PASS            | 136   |
+| FAIL            | 0     |
+| WHITELISTED     | 8     |
+| NEEDS-FOLLOW-UP | 0     |
+| N/A             | 13    |
+
+**Outcome:** All 90 tenant-scoped routes use `withTenant()` (or `withTenantOptional()` where the route legitimately may not have a tenant). The 8 platform-admin routes are whitelisted as cross-tenant by design. The 43 `v1/tenant/*` and 2 `v1/platform/*` re-exports inherit the audit result of their canonical target. **No tenant-isolation bypasses detected.** The 7-day M4.5 production soak is unblocked on this audit.
+
+## Methodology
+
+The audit script (`scripts/audit-tenant-isolation.ts`) walks every `route.ts` file under `src/app/api/` (157 files at M4.5 cutoff) and classifies each route by:
+
+1. **Path prefix** — `/api/auth/*`, `/api/v1/public/*`, `/api/v1/system/*`, and a small set of token-based / infra / admin-explicit endpoints are classified as `N/A` (no tenant filter required).
+2. **Whitelist membership** — 8 platform-admin routes under `/api/admin/platform/*` and `/api/platform/*` are classified as `WHITELISTED` (cross-tenant by design, gated by `requirePlatformAdmin` or `isPlatformAdmin`).
+3. **Re-export recursion** — Single-line re-exports of the form `export { GET, POST } from '@/app/api/.../route';` (max 5 hops to prevent cycles) are followed to their canonical target, and the classification of the canonical is inherited by the re-export.
+4. **Tenant-scoped classification** — All other routes are tenant-scoped. They pass if they call `withTenant()` or `withTenantOptional()`; they fail if they call `db.{select,update,delete,insert}` (or the transaction variant `tx.*`) without first calling either helper.
+
+The script is regex-based (not AST-based) by design: it must be runnable from a fresh checkout with only Node built-ins, must complete in under 5 seconds on a developer laptop, and must produce a paper trail suitable for the 7-day soak. The script preserves any human-curated header above the `## Audit Results
 
 Total routes audited: **157**
 

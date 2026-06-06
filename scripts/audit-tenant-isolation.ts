@@ -2,13 +2,12 @@
 /**
  * Tenant Isolation Audit Script — M4.5 (BD e0w)
  *
- * Walks every route file under src/app/api/, identifies all
- * db.{select,update,delete,insert} (and tx.*) calls, and verifies each
- * route is either (a) inside a route that uses withTenant() /
- * withTenantOptional(), or (b) explicitly whitelisted as cross-tenant
- * by design. Re-export routes under src/app/api/v1/tenant/* and
- * src/app/api/v1/platform/* are recursed into their canonical target
- * (up to 5 hops).
+ * Walks every route.ts under src/app/api/, identifies db.{select,update,delete,insert}
+ * (and tx.*) calls, and verifies each route is either (a) inside a route that uses
+ * withTenant() / withTenantOptional(), or (b) explicitly whitelisted as cross-tenant.
+ * v1/tenant and v1/platform re-exports are recursed (max 5 hops) to inherit the
+ * canonical's classification. The script preserves any human-curated header above
+ * the "## Audit Results" marker across re-runs.
  *
  * Usage: pnpm exec tsx scripts/audit-tenant-isolation.ts
  * Exits 0 on no FAIL results, 1 if any FAIL.
@@ -20,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
 const API_ROOT = join(REPO_ROOT, 'src', 'app', 'api');
-const REPORT_PATH = join(REPO_ROOT, 'docs', 'SECURITY_AUDIT_M4.5.md');
+const REPORT = join(REPO_ROOT, 'docs', 'SECURITY_AUDIT_M4.5.md');
 
 /** Whitelisted cross-tenant platform-admin routes — keep in sync with docs/API_ROUTES.md §5. */
 const WHITELISTED = new Set([
@@ -50,7 +49,6 @@ const NA_EXACT = new Set([
   '/api/trpc/[trpc]',
   '/api/tenants/[id]/modules',
 ]);
-
 const RE_EXPORT_RE = /^export\s+\{[^}]+\}\s+from\s+['"]([^'"]+)['"];?\s*$/m;
 const DB_CALL_RE = /\b(?:db|tx)\.(?:select|update|delete|insert)\b/;
 const WT_RE = /\bwithTenant(?:Optional)?\s*\(/;
@@ -66,7 +64,6 @@ type Type =
   | 'system'
   | 'auth'
   | 'other-na';
-
 interface R {
   path: string;
   type: Type;
@@ -86,50 +83,42 @@ function findRouteFiles(dir: string): string[] {
   }
   return out;
 }
-
-function pathFromFile(f: string): string {
-  return (
-    '/api/' +
-    relative(API_ROOT, f)
-      .replace(/\\/g, '/')
-      .replace(/\/route\.ts$/, '')
-  );
-}
+const pathFromFile = (f: string): string =>
+  '/api/' +
+  relative(API_ROOT, f)
+    .replace(/\\/g, '/')
+    .replace(/\/route\.ts$/, '');
 
 function parseReExport(c: string): string | null {
   const m = c.match(RE_EXPORT_RE);
   if (!m) return null;
   const imp = m[1];
-  if (imp.startsWith('@/')) return join(REPO_ROOT, 'src', imp.slice(2)) + '.ts';
-  return null;
+  return imp.startsWith('@/') ? join(REPO_ROOT, 'src', imp.slice(2)) + '.ts' : null;
 }
 
-function isAuthRoute(p: string): boolean {
-  return p === '/api/auth' || p === '/api/auth/[...all]' || p.startsWith('/api/auth/');
-}
+const isAuthRoute = (p: string): boolean =>
+  p === '/api/auth' || p === '/api/auth/[...all]' || p.startsWith('/api/auth/');
 
-function inspect(file: string, depth = 0, chain: string[] = []): R {
+function inspect(file: string, depth = 0): R {
   const path = pathFromFile(file);
   const c = readFileSync(file, 'utf-8');
-  const hasDb = DB_CALL_RE.test(c);
-  const hasWt = WT_RE.test(c);
-  const isPlat = PLAT_RE.test(c);
+  const hasDb = DB_CALL_RE.test(c),
+    hasWt = WT_RE.test(c),
+    isPlat = PLAT_RE.test(c);
 
-  // Re-export recursion (max 5 hops).
   if (depth < 5) {
     const target = parseReExport(c);
     if (target) {
-      const inner = inspect(resolve(target), depth + 1, [...chain, path]);
+      const i = inspect(resolve(target), depth + 1);
       return {
         path,
         type: 'v1-reexport',
-        status: inner.status,
-        source: inner.source === 'N/A' ? 'N/A' : 'inherited',
-        notes: `Re-export → ${inner.path} (${inner.status})`,
+        status: i.status,
+        source: i.source === 'N/A' ? 'N/A' : 'inherited',
+        notes: `Re-export → ${i.path} (${i.status})`,
       };
     }
   }
-
   if (WHITELISTED.has(path))
     return {
       path,
@@ -154,7 +143,6 @@ function inspect(file: string, depth = 0, chain: string[] = []): R {
       source: 'N/A',
       notes: 'Token-based, infra, or admin outside tenant scope',
     };
-
   if (hasWt)
     return {
       path,
@@ -230,8 +218,17 @@ function main(): void {
   const files = findRouteFiles(API_ROOT).sort();
   const results = files.map(f => inspect(f));
   const { md, counts } = buildReport(results);
-  mkdirSync(dirname(REPORT_PATH), { recursive: true });
-  writeFileSync(REPORT_PATH, md, 'utf-8');
+  mkdirSync(dirname(REPORT), { recursive: true });
+  // Preserve any human-curated header above "## Audit Results" across re-runs.
+  let prefix = '';
+  try {
+    const e = readFileSync(REPORT, 'utf-8');
+    const i = e.indexOf('## Audit Results');
+    if (i > 0) prefix = e.slice(0, i);
+  } catch {
+    /* new file */
+  }
+  writeFileSync(REPORT, prefix + md, 'utf-8');
   console.log(
     `Total: ${results.length} | PASS: ${counts.PASS} | FAIL: ${counts.FAIL} | WHITELISTED: ${counts.WHITELISTED} | NEEDS-FOLLOW-UP: ${counts['NEEDS-FOLLOW-UP']} | N/A: ${counts['N/A']}`
   );
