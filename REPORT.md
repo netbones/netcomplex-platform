@@ -87,3 +87,11 @@ Next.js version: 15.5.18 (Webpack)
 ```
 
 15 Non-ADMIN user (RESIDENT) at /admin No chrome (redirect or 403) — must NOT show admin chrome to non-admins [x]
+
+---
+
+## FSD Architectural Audit (Post-Migration)
+
+- [x] Survey Module: Successfully migrated to FSD (entities/survey, features/survey-builder) [x]
+- [x] Boundary Enforcement: Strict `no-restricted-imports` linting rules enabled and verified [x]
+- [x] Legacy Buckets: `src/lib`, `src/hooks`, `src/components/surveys` successfully removed/consolidated [x]
