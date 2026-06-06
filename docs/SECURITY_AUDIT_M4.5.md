@@ -27,7 +27,19 @@ The audit script (`scripts/audit-tenant-isolation.ts`) walks every `route.ts` fi
 3. **Re-export recursion** — Single-line re-exports of the form `export { GET, POST } from '@/app/api/.../route';` (max 5 hops to prevent cycles) are followed to their canonical target, and the classification of the canonical is inherited by the re-export.
 4. **Tenant-scoped classification** — All other routes are tenant-scoped. They pass if they call `withTenant()` or `withTenantOptional()`; they fail if they call `db.{select,update,delete,insert}` (or the transaction variant `tx.*`) without first calling either helper.
 
-The script is regex-based (not AST-based) by design: it must be runnable from a fresh checkout with only Node built-ins, must complete in under 5 seconds on a developer laptop, and must produce a paper trail suitable for the 7-day soak. The script preserves any human-curated header above the `## Audit Results
+The script is regex-based (not AST-based) by design: it must be runnable from a fresh checkout with only Node built-ins, must complete in under 5 seconds on a developer laptop, and must produce a paper trail suitable for the 7-day soak. The script preserves any human-curated header above the auto-generated per-route section across re-runs (line-anchored marker detection).
+
+## Follow-up Required
+
+_None — all routes are PASS, WHITELISTED, or N/A at M4.5 cutoff._
+
+### Known Stubs (not tenant-isolation failures)
+
+The audit also surfaced one v1 stub route that has placeholder handlers (not a tenant-isolation failure, but tracked here for awareness):
+
+- `/api/v1/tenant/community-services/reviews` — GET returns a hardcoded empty `data: []` list; POST returns `501 NOT_IMPLEMENTED` with a pointer to the canonical `/api/community-services/reviews/[listingId]`. This route has no DB calls, so the audit correctly classifies it as PASS, but the implementation is a known stub from the v1 migration (see the file's comment: "_The [listingId]-scoped handlers cannot be re-exported here because this path has no [listingId] dynamic segment._"). Out of scope for the tenant-isolation audit; deferred to the v1 → tRPC migration (BD `fpc`).
+
+## Audit Results
 
 Total routes audited: **157**
 

@@ -1,28 +1,24 @@
 #!/usr/bin/env tsx
 /**
  * Tenant Isolation Audit Script — M4.5 (BD e0w)
- *
  * Walks every route.ts under src/app/api/, identifies db.{select,update,delete,insert}
- * (and tx.*) calls, and verifies each route is either (a) inside a route that uses
- * withTenant() / withTenantOptional(), or (b) explicitly whitelisted as cross-tenant.
- * v1/tenant and v1/platform re-exports are recursed (max 5 hops) to inherit the
- * canonical's classification. The script preserves any human-curated header above
- * the "## Audit Results" marker across re-runs.
- *
- * Usage: pnpm exec tsx scripts/audit-tenant-isolation.ts
- * Exits 0 on no FAIL results, 1 if any FAIL.
+ * and tx.* calls, and verifies each route is either (a) inside a route that uses
+ * withTenant() / withTenantOptional(), or (b) whitelisted as cross-tenant. v1/tenant
+ * and v1/platform re-exports are recursed (max 5 hops) to inherit the canonical's
+ * classification. The script preserves any human-curated header above the auto-generated
+ * "## Audit Results" line across re-runs.
+ * Usage: pnpm exec tsx scripts/audit-tenant-isolation.ts  |  Exits 0 on no FAIL.
  */
 import { readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(__dirname, '..');
-const API_ROOT = join(REPO_ROOT, 'src', 'app', 'api');
-const REPORT = join(REPO_ROOT, 'docs', 'SECURITY_AUDIT_M4.5.md');
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const API = join(ROOT, 'src/app/api');
+const REPORT = join(ROOT, 'docs/SECURITY_AUDIT_M4.5.md');
 
 /** Whitelisted cross-tenant platform-admin routes — keep in sync with docs/API_ROUTES.md §5. */
-const WHITELISTED = new Set([
+const WHITELISTED_PATHS = new Set([
   '/api/admin/platform/assist',
   '/api/admin/platform/assist/[id]',
   '/api/admin/platform/tenants',
@@ -72,20 +68,20 @@ interface R {
   notes: string;
 }
 
-function findRouteFiles(dir: string): string[] {
-  const out: string[] = [];
-  for (const e of readdirSync(dir)) {
+function findRouteFiles(d: string): string[] {
+  const o: string[] = [];
+  for (const e of readdirSync(d)) {
     if (e === 'node_modules' || e === '.next' || e === 'dist') continue;
-    const p = join(dir, e);
-    const s = statSync(p);
-    if (s.isDirectory()) out.push(...findRouteFiles(p));
-    else if (s.isFile() && e === 'route.ts') out.push(p);
+    const p = join(d, e),
+      s = statSync(p);
+    if (s.isDirectory()) o.push(...findRouteFiles(p));
+    else if (s.isFile() && e === 'route.ts') o.push(p);
   }
-  return out;
+  return o;
 }
 const pathFromFile = (f: string): string =>
   '/api/' +
-  relative(API_ROOT, f)
+  relative(API, f)
     .replace(/\\/g, '/')
     .replace(/\/route\.ts$/, '');
 
@@ -93,10 +89,9 @@ function parseReExport(c: string): string | null {
   const m = c.match(RE_EXPORT_RE);
   if (!m) return null;
   const imp = m[1];
-  return imp.startsWith('@/') ? join(REPO_ROOT, 'src', imp.slice(2)) + '.ts' : null;
+  return imp.startsWith('@/') ? join(ROOT, 'src', imp.slice(2)) + '.ts' : null;
 }
-
-const isAuthRoute = (p: string): boolean =>
+const isAuth = (p: string): boolean =>
   p === '/api/auth' || p === '/api/auth/[...all]' || p.startsWith('/api/auth/');
 
 function inspect(file: string, depth = 0): R {
@@ -105,11 +100,10 @@ function inspect(file: string, depth = 0): R {
   const hasDb = DB_CALL_RE.test(c),
     hasWt = WT_RE.test(c),
     isPlat = PLAT_RE.test(c);
-
   if (depth < 5) {
-    const target = parseReExport(c);
-    if (target) {
-      const i = inspect(resolve(target), depth + 1);
+    const t = parseReExport(c);
+    if (t) {
+      const i = inspect(resolve(t), depth + 1);
       return {
         path,
         type: 'v1-reexport',
@@ -119,7 +113,7 @@ function inspect(file: string, depth = 0): R {
       };
     }
   }
-  if (WHITELISTED.has(path))
+  if (WHITELISTED_PATHS.has(path))
     return {
       path,
       type: 'platform-cross-tenant',
@@ -133,7 +127,7 @@ function inspect(file: string, depth = 0): R {
     return { path, type: 'public', status: 'N/A', source: 'N/A', notes: 'Public v1 route' };
   if (SYSTEM.has(path))
     return { path, type: 'system', status: 'N/A', source: 'N/A', notes: 'System v1 route' };
-  if (isAuthRoute(path))
+  if (isAuth(path))
     return { path, type: 'auth', status: 'N/A', source: 'N/A', notes: 'Better Auth flow' };
   if (NA_EXACT.has(path))
     return {
@@ -168,41 +162,39 @@ function inspect(file: string, depth = 0): R {
   };
 }
 
-function buildReport(results: R[]): { md: string; counts: Record<Status, number> } {
-  const counts: Record<Status, number> = {
+function buildReport(rs: R[]): { md: string; counts: Record<Status, number> } {
+  const c: Record<Status, number> = {
     PASS: 0,
     FAIL: 0,
     WHITELISTED: 0,
     'NEEDS-FOLLOW-UP': 0,
     'N/A': 0,
   };
-  for (const r of results) counts[r.status]++;
-  const order: Record<Status, number> = {
+  for (const r of rs) c[r.status]++;
+  const o: Record<Status, number> = {
     FAIL: 0,
     'NEEDS-FOLLOW-UP': 1,
     WHITELISTED: 2,
     PASS: 3,
     'N/A': 4,
   };
-  const sorted = [...results].sort(
-    (a, b) => order[a.status] - order[b.status] || a.path.localeCompare(b.path)
-  );
-  const rows = sorted.map(
+  const s = [...rs].sort((a, b) => o[a.status] - o[b.status] || a.path.localeCompare(b.path));
+  const rows = s.map(
     r =>
       `| \`${r.path}\` | ${r.type} | ${r.status} | ${r.source} | ${r.notes.replace(/\|/g, '\\|')} |`
   );
   const md = [
     '## Audit Results',
     '',
-    `Total routes audited: **${results.length}**`,
+    `Total routes audited: **${rs.length}**`,
     '',
     '| Status | Count |',
     '| --- | --- |',
-    `| PASS | ${counts.PASS} |`,
-    `| FAIL | ${counts.FAIL} |`,
-    `| WHITELISTED | ${counts.WHITELISTED} |`,
-    `| NEEDS-FOLLOW-UP | ${counts['NEEDS-FOLLOW-UP']} |`,
-    `| N/A | ${counts['N/A']} |`,
+    `| PASS | ${c.PASS} |`,
+    `| FAIL | ${c.FAIL} |`,
+    `| WHITELISTED | ${c.WHITELISTED} |`,
+    `| NEEDS-FOLLOW-UP | ${c['NEEDS-FOLLOW-UP']} |`,
+    `| N/A | ${c['N/A']} |`,
     '',
     '### Per-Route Compliance Table',
     '',
@@ -211,26 +203,26 @@ function buildReport(results: R[]): { md: string; counts: Record<Status, number>
     ...rows,
     '',
   ].join('\n');
-  return { md, counts };
+  return { md, counts: c };
 }
 
 function main(): void {
-  const files = findRouteFiles(API_ROOT).sort();
-  const results = files.map(f => inspect(f));
-  const { md, counts } = buildReport(results);
+  const fs = findRouteFiles(API).sort();
+  const rs = fs.map(f => inspect(f));
+  const { md, counts } = buildReport(rs);
   mkdirSync(dirname(REPORT), { recursive: true });
-  // Preserve any human-curated header above "## Audit Results" across re-runs.
+  // Preserve any human-curated header above "## Audit Results" across re-runs (line-anchored to avoid paragraph collisions).
   let prefix = '';
   try {
     const e = readFileSync(REPORT, 'utf-8');
-    const i = e.indexOf('## Audit Results');
-    if (i > 0) prefix = e.slice(0, i);
+    const m = e.match(/^## Audit Results$/m);
+    if (m?.index) prefix = e.slice(0, m.index);
   } catch {
     /* new file */
   }
   writeFileSync(REPORT, prefix + md, 'utf-8');
   console.log(
-    `Total: ${results.length} | PASS: ${counts.PASS} | FAIL: ${counts.FAIL} | WHITELISTED: ${counts.WHITELISTED} | NEEDS-FOLLOW-UP: ${counts['NEEDS-FOLLOW-UP']} | N/A: ${counts['N/A']}`
+    `Total: ${rs.length} | PASS: ${counts.PASS} | FAIL: ${counts.FAIL} | WHITELISTED: ${counts.WHITELISTED} | NEEDS-FOLLOW-UP: ${counts['NEEDS-FOLLOW-UP']} | N/A: ${counts['N/A']}`
   );
   console.log('Report: docs/SECURITY_AUDIT_M4.5.md');
   if (counts.FAIL > 0) process.exit(1);
