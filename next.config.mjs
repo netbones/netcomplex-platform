@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  turbopack: {},
 
   // Pino uses worker threads for transports (pino-pretty).
   // Bundling it causes "Cannot find module lib/worker.js" at runtime.
