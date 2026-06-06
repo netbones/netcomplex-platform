@@ -706,9 +706,9 @@ Plans:
 
 _Buffer between M4 (code-complete) and M5 (production-traffic). No new phases. Pure verification, soak, and sign-off. See `.planning/MILESTONES.md` Section 2 (M4.5) for full criteria._
 
-**Status (2026-06-04):** **Blocked on Phase 43 (M4.5 Blockers).** Per the 35-issue BD triage, 5 issues would surface as P0/P1 incidents during the 7-day soak. These must be resolved in Phase 43 before M4.5 begins. After Phase 43 ships, M4.5 is the 7-day soak + verification.
+**Status (2026-06-06):** **Phase 43 (M4.5 Blockers) 4/5 SHIPPED.** Soak activation is CONDITIONAL — pending BD mls9+n0rh (tc4 end-to-end seed) and human-verify of validation-better-auth@1.3.4 (43-05 ltn).
 
-**Activates when:** M4 is complete (Phases 35, 41, 42 all ✅) AND Phase 43 ships. Phase 43 is the precondition for M4.5.
+**Activates when:** M4 is complete (Phases 35, 41, 42 all ✅) AND Phase 43 fully ships (4/5 done; 43-05 deferred for human-verify). Phase 43 is the precondition for M4.5.
 
 **Verifiable (all must pass to declare M4.5 done):**
 
@@ -731,7 +731,7 @@ _Buffer between M4 (code-complete) and M5 (production-traffic). No new phases. P
 
 **Goal:** Resolve the 5 BD issues that would surface as P0/P1 incidents during the 7-day soak. Each must be closed (or have a documented deferral) before soak begins.
 
-**Status:** Planning
+**Status:** 4/5 plans shipped — COMPLETE with 1 deferral (43-05)
 
 **BD sources (5):** `cs5` (MyHomeSpace), `tc4` (prisma/seed), `e0w` (80-route audit), `oqw` (RLS), `ltn` (request validation)
 
@@ -739,15 +739,17 @@ _Buffer between M4 (code-complete) and M5 (production-traffic). No new phases. P
 
 **Acceptance:** All 5 BD issues closed with a fix commit; `pnpm db:seed` works; MyHomeSpace correctly links user to property; all audited routes have withTenant() OR documented RLS escape; `runWithRLS()` wraps sensitive routes; request validation plugin wired to /api/auth/\*.
 
-**Plans:** 0/5 plans executed
+**Plans:** 4/5 plans executed (43-05 deferred — requires human verification of validation-better-auth@1.3.4 package)
+
+**VERIFICATION.md verdict:** 4/5 PASS, 1 DEFERRED. M4.5 soak CONDITIONAL pending BD mls9+n0rh (tc4) and 43-05 ltn.
 
 Plans:
 
-- [ ] 43-01-PLAN.md — Wave 1 — tc4: Prisma seed shim (export `seed()` from seed-drizzle, replace prisma/seed.ts with ≤40-line shim)
-- [ ] 43-02-PLAN.md — Wave 1 — cs5: MyHomeSpace standardSeats fallback (synthetic household from seat/property join when no profiles row)
-- [ ] 43-03-PLAN.md — Wave 2 — e0w: 80-route tenant-isolation audit (regex-based audit script + per-route report at docs/SECURITY_AUDIT_M4.5.md)
-- [ ] 43-04-PLAN.md — Wave 3 — oqw: Wrap 5 admin routes in runWithRLS() (defense-in-depth; replace db._ with tx._ inside the wrap)
-- [ ] 43-05-PLAN.md — Wave 3 — ltn: Install + wire validation-better-auth (4 Zod schemas for critical auth endpoints)
+- [x] 43-01-PLAN.md — Wave 1 — tc4: Prisma seed shim (replaced prisma/seed.ts with 18-line side-effect shim; rebased to import new multi-tenant orchestrator for side effects). Soak AC blocked on BD mls9 + n0rh.
+- [x] 43-02-PLAN.md — Wave 1 — cs5: MyHomeSpace standardSeats fallback (added to /api/users/[id]/route.ts:180-199; verified all 3 user states on live Soralia tenant)
+- [x] 43-03-PLAN.md — Wave 2 — e0w: 157-route tenant-isolation audit (script at scripts/audit-tenant-isolation.ts, 109 lines; report at docs/SECURITY_AUDIT_M4.5.md; PASS 136, FAIL 0, WHITELISTED 8, N/A 13)
+- [x] 43-04-PLAN.md — Wave 3 — oqw: 5 admin routes wrapped in runWithRLS() (activity, board-members, maintenance-stats, urgency, settings/page-flags; tx-aware sibling helpers at platform-flags.ts:167, 246)
+- [ ] 43-05-PLAN.md — Wave 3 — ltn: Install + wire validation-better-auth (4 Zod schemas for critical auth endpoints) — **DEFERRED** pending `autonomous: false` checkpoint:human-verify on validation-better-auth@1.3.4
 
 **Out of scope:** M5a/M5b work (different phases). 7cp + jc1 (now part of M5b dWallet, phase 47).
 
