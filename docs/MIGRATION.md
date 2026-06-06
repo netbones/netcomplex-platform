@@ -281,3 +281,9 @@ For each domain:
 - [ ] Phase 1.3: Add lint guardrails (no-restricted-imports rules)
 - [ ] Phase 3.5: Enforce lint boundaries for dashboard slices
 - [ ] Phase 2.2: Complete shared/api/\* infrastructure
+
+## FSD Architectural Audit (Post-Migration)
+
+- [x] Survey Module: Successfully migrated to FSD (entities/survey, features/survey-builder) [x]
+- [x] Boundary Enforcement: Strict `no-restricted-imports` linting rules enabled and verified [x]
+- [x] Legacy Buckets: `src/lib`, `src/hooks`, `src/components/surveys` successfully removed/consolidated [x]
