@@ -1,5 +1,7 @@
 import { db } from '@api/db';
 import { settings } from '@api/db';
+import type { DbSchema } from '@api/db';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import { SETTINGS_KEYS } from '../settings';
 import { v4 as uuidv4 } from 'uuid';
@@ -152,6 +154,128 @@ export async function setPlatformPageFlag(
     return true;
   } catch (error) {
     log.error({ operation: 'setPageFlag' }, 'Failed to set platform page flag', error);
+    return false;
+  }
+}
+
+/**
+ * Tx-aware sibling of getPlatformPageFlags; used by routes that wrap
+ * in runWithRLS() so the query executes under the app_user role.
+ * Original getPlatformPageFlags(tenantId) is kept UNCHANGED for callers
+ * outside RLS (src/app/api/flags/route.ts, src/shared/api/gate.ts, tests).
+ */
+export async function getPlatformPageFlagsWithTx(
+  tx: NodePgDatabase<DbSchema>,
+  tenantId: string
+): Promise<PlatformPageFlags> {
+  try {
+    const tenantSettings = await tx.select().from(settings).where(eq(settings.tenantId, tenantId));
+
+    const flags: PlatformPageFlags = { ...DEFAULT_PAGE_FLAGS };
+
+    for (const setting of tenantSettings) {
+      switch (setting.key) {
+        case SETTINGS_KEYS.PAGE_CAMPAIGN_ENABLED:
+          flags.campaign = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_CONSERVATION_MODE:
+          if (['default', 'managed', 'external'].includes(setting.value)) {
+            flags.conservation = setting.value as PlatformPageFlags['conservation'];
+          }
+          break;
+        case SETTINGS_KEYS.PAGE_CONSERVATION_URL:
+          flags.conservationExternalUrl = setting.value;
+          break;
+        case SETTINGS_KEYS.PAGE_CHAT_ENABLED:
+          flags.chat = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_NEWS_ENABLED:
+          flags.news = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_EVENTS_ENABLED:
+          flags.events = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_DIRECTORY_ENABLED:
+          flags.directory = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_GROUPS_ENABLED:
+          flags.groups = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_SERVICES_ENABLED:
+          flags.services = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_RESOURCES_ENABLED:
+          flags.resources = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_MAINTENANCE_ENABLED:
+          flags.maintenance = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_SURVEYS_ENABLED:
+          flags.surveys = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_COMPETITIONS_ENABLED:
+          flags.competitions = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED:
+          flags.dashboard = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED:
+          flags.bookings = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.PAGE_MESSAGES_ENABLED:
+          flags.messages = setting.value === 'true';
+          break;
+        case SETTINGS_KEYS.HEADER_ENGAGEMENT_FOCUS:
+          if (['conservation', 'campaign'].includes(setting.value)) {
+            flags.headerEngagementFocus = setting.value as 'conservation' | 'campaign';
+          }
+          break;
+      }
+    }
+
+    return flags;
+  } catch (error) {
+    log.error({ operation: 'getPageFlagsWithTx' }, 'Failed to get platform page flags', error);
+    return DEFAULT_PAGE_FLAGS;
+  }
+}
+
+/**
+ * Tx-aware sibling of setPlatformPageFlag; see comment on getPlatformPageFlagsWithTx.
+ */
+export async function setPlatformPageFlagWithTx(
+  tx: NodePgDatabase<DbSchema>,
+  tenantId: string,
+  key: keyof PlatformPageFlags,
+  value: string | boolean
+): Promise<boolean> {
+  try {
+    const settingKey = mapFlagToSettingKey(key);
+    if (!settingKey) return false;
+
+    const existing = await tx
+      .select()
+      .from(settings)
+      .where(eq(settings.tenantId, tenantId))
+      .then(rows => rows.find(s => s.key === settingKey));
+
+    if (existing) {
+      await tx
+        .update(settings)
+        .set({ value: String(value) })
+        .where(eq(settings.id, existing.id));
+    } else {
+      await tx.insert(settings).values({
+        id: uuidv4(),
+        tenantId,
+        key: settingKey,
+        value: String(value),
+      });
+    }
+
+    return true;
+  } catch (error) {
+    log.error({ operation: 'setPageFlagWithTx' }, 'Failed to set platform page flag', error);
     return false;
   }
 }

@@ -154,7 +154,7 @@ const dbSchema = {
   requestHistories,
 } as const;
 
-type DbSchema = typeof dbSchema;
+export type DbSchema = typeof dbSchema;
 
 let dbInstance: ReturnType<typeof drizzle> | undefined;
 
