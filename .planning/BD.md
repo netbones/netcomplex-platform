@@ -1,14 +1,15 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-06-04 (Session 9)
-> **Total remaining:** 28 issues
+> **Last updated:** 2026-06-06 (Session 10)
+> **Total remaining:** 29 issues
 > **Closed this session:** 0
-> **Created this session:** 3 RLS issues (4a6, t78, 57d) — prerequisite for Phase 43 plan 43-04 (oqw)
+> **Created this session:** `nn39` (P1, 19 high-severity pnpm audit findings) — follow-up to ADVISORY-003 / phase-15-supply-chain
 
 ## Summary by Priority
 
 | Priority | Open | Focus                                        |
 | -------- | ---- | -------------------------------------------- |
+| **P1**   | **1**| **Supply-chain: pnpm audit high-severity cleanup** |
 | P2       | 6    | Core features, epics, bugs, **architecture** |
 | P3       | 23   | Tech debt, Phase 4/5 features, enhancements  |
 | P4       | 6    | Backlog, blocked events                      |

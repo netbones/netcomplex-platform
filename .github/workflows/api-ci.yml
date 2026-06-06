@@ -29,7 +29,14 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # Initial gate at --audit-level critical. The repo currently has 19
+      # high-severity advisories in transitive deps; failing on those would
+      # block all PRs. See docs/advisories/ADVISORY-003.md and the
+      # follow-up BD issue tracking cleanup. Bump to "high" once resolved.
+      - name: Audit dependencies
+        run: pnpm audit --audit-level critical
 
       - name: Regenerate Drizzle schema from Prisma source
         run: pnpm db:generate
@@ -55,7 +62,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Generate and lint OpenAPI spec
         run: pnpm api:ci
@@ -72,7 +79,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Run API tests
         run: pnpm vitest run src/test/api/ --reporter=verbose
