@@ -71,11 +71,3 @@ I've reviewed the current **Prisma schema**, project tree, and supporting docs (
 - Component organization is thoughtful (entities/, features/, widgets/, page-modules/).
 
 **Overall Assessment**: The architecture is **mature for an MVP-to-Scale phase**. You're past the chaotic startup stage and into "professional SaaS platform" territory. Main risks are around **consistency** (IDs, scoping, soft deletes) and **operational maturity** (RLS, monitoring, audit).
-
-Would you like me to:
-
-- Dive deeper into a specific domain (e.g., Maintenance, Chat, Multi-tenancy)?
-- Help design a specific refactor (e.g., ID standardization migration)?
-- Review a particular file or proposed feature?
-
-Happy to zoom in.
