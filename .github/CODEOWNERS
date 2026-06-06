@@ -1,0 +1,26 @@
+# CODEOWNERS — required reviewers for protected paths
+# See docs/advisories/ADVISORY-003.md for the supply-chain rationale
+# behind pinning dependency files behind mandatory review.
+#
+# Adjust `@netbones/platform` to the actual team that owns the
+# supply-chain / platform surface. If a per-path owner is more
+# appropriate (e.g. `@netbones/frontend` for `package.json`), split
+# the rules below.
+
+# Default — every change needs eyes
+*                                       @netbones/platform
+
+# Supply-chain critical paths
+# package.json + pnpm-lock.yaml are the highest-blast-radius files
+# in the repo. A malicious entry here lands in every install.
+/package.json                           @netbones/platform
+/pnpm-lock.yaml                         @netbones/platform
+/.npmrc                                 @netbones/platform
+/pnpm-workspace.yaml                    @netbones/platform
+
+# CI workflows that gate supply
+/.github/workflows/                     @netbones/platform
+/.github/CODEOWNERS                     @netbones/platform
+/.github/dependabot.yml                 @netbones/platform
+/renovate.json                          @netbones/platform
+/.github/renovate.json                  @netbones/platform

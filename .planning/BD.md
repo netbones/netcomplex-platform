@@ -1,18 +1,20 @@
 # BD Issue Tracker
 
 > **Last updated:** 2026-06-06 (Session 10)
-> **Total remaining:** 29 issues
+> **Total remaining:** 30 issues
 > **Closed this session:** 0
 > **Created this session:** 1 issue (`5m7l` — Schedule F Table 2 confirmation, dWallet M5b launch-readiness blocker)
 > **Phase 47 reclassified:** M6+ → M5b (dWallet is the anchor-tenant headline selling point)
+> **Also created:** `nn39` (P1, 19 high-severity pnpm audit findings) — follow-up to ADVISORY-003 / phase-15-supply-chain
 
 ## Summary by Priority
 
-| Priority | Open | Focus                                        |
-| -------- | ---- | -------------------------------------------- |
-| P2       | 7    | Core features, epics, bugs, **architecture** |
-| P3       | 22   | Tech debt, Phase 4/5 features, enhancements  |
-| P4       | 6    | Backlog, blocked events                      |
+| Priority | Open  | Focus                                              |
+| -------- | ----- | -------------------------------------------------- |
+| **P1**   | **1** | **Supply-chain: pnpm audit high-severity cleanup** |
+| P2       | 7     | Core features, epics, bugs, **architecture**       |
+| P3       | 22    | Tech debt, Phase 4/5 features, enhancements        |
+| P4       | 6     | Backlog, blocked events                            |
 
 ## Summary by Status
 
