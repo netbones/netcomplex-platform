@@ -29,7 +29,7 @@ milestone: M5b (anchor tenant launch)
 - OTP password reset works end-to-end (Better Auth + email)
 - MyHomeSpace correctly links user → property (closes cs5 from phase 43 if not already)
 
-**Out of scope:** M5a architecture work (phase 44), M5+ post-launch (phase 46), dWallet (phase 47).
+**Out of scope:** M5a architecture work (phase 44), M5+ post-launch (phase 46). dWallet (phase 47) is a **sibling** in M5b, not out of scope here — it's the headline selling point that makes the M5b bundle cohere. Track phase 47 as a parallel execution track; consider running 45 and 47 in separate worktrees concurrently.
 
 **Plans:** TBD. Run `/gsd-plan-phase 45-m5b-anchor-tenant` when ready to plan execution.
 

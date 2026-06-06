@@ -10,16 +10,16 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 Phases are grouped into milestones (M0–M6+). See `.planning/MILESTONES.md` for full structure, gap analysis, and cadence ritual.
 
-| Milestone                         | Goal                                                   | Phases                                  | Status           |
-| --------------------------------- | ------------------------------------------------------ | --------------------------------------- | ---------------- |
-| **M0 Foundation**                 | Multi-tenant substrate + base modules                  | 00, 01, 02, 03, 05, 06, 07, 08, 11      | ✅ Shipped       |
-| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding    | 09, 10, 18, 19, 20                      | ✅ Shipped       |
-| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system         | 22, 24, 25, 26, 27, 28, 29, 30, 31      | ✅ Shipped       |
-| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing  | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40  | ✅ Shipped       |
-| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration     | 35, 41, 42                              | ✅ Complete      |
-| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check | 43 (blockers), then (no new phases)     | 🚧 Blocked on 43 |
-| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, MyHomeSpace      | 44 (M5a), 45 (M5b)                      | 📋 Planning      |
-| **M5+ Post-Launch**               | Future features, dWallet integration, second tenant    | 46 (bucket-c), 47 (dWallet), + deferred | Deferred         |
+| Milestone                         | Goal                                                                      | Phases                                 | Status           |
+| --------------------------------- | ------------------------------------------------------------------------- | -------------------------------------- | ---------------- |
+| **M0 Foundation**                 | Multi-tenant substrate + base modules                                     | 00, 01, 02, 03, 05, 06, 07, 08, 11     | ✅ Shipped       |
+| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding                       | 09, 10, 18, 19, 20                     | ✅ Shipped       |
+| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system                            | 22, 24, 25, 26, 27, 28, 29, 30, 31     | ✅ Shipped       |
+| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing                     | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40 | ✅ Shipped       |
+| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration                        | 35, 41, 42                             | ✅ Complete      |
+| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                    | 43 (blockers), then (no new phases)    | 🚧 Blocked on 43 |
+| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, MyHomeSpace, **dWallet** (headline) | 44 (M5a), 45 (M5b), 47 (dWallet)       | 📋 Planning      |
+| **M5+ Post-Launch**               | Future features, second tenant                                            | 46 (bucket-c) + deferred               | Deferred         |
 
 **Phase numbering note:** IDs are stable (not renumbered on re-order). Duplicates exist: `03` (Localization vs Second Tenant), `11` (Announcements vs Prisma→Drizzle). The duplicate pair has a "Planning Complete (deferred)" status on the second one, except `11-prisma-to-drizzle` which was verified complete (2026-06-03) and moved to M0. Out-of-order numeric IDs (01 after 04; 35 after 39; 99 last) reflect creation sequence, not logical order. See MILESTONES.md Gap ε.
 
@@ -749,13 +749,13 @@ Plans:
 - [ ] 43-04-PLAN.md — Wave 3 — oqw: Wrap 5 admin routes in runWithRLS() (defense-in-depth; replace db._ with tx._ inside the wrap)
 - [ ] 43-05-PLAN.md — Wave 3 — ltn: Install + wire validation-better-auth (4 Zod schemas for critical auth endpoints)
 
-**Out of scope:** M5a/M5b work (different phases). 7cp + jc1 (deferred to dWallet, phase 47).
+**Out of scope:** M5a/M5b work (different phases). 7cp + jc1 (now part of M5b dWallet, phase 47).
 
 ---
 
 ## M5 — Anchor Tenant Launch (Planning)
 
-_Close the architecture-audit issues, ship Community Merits, OTP password reset, MyHomeSpace bug, and the 37-widget i18n batch. Ready for Soralia Village (180 homes) production traffic. Decomposed into M5a (audit closure) and M5b (anchor tenant features)._
+_Close the architecture-audit issues, ship the launch-blocking features: Community Merits, OTP password reset, MyHomeSpace bug, 37-widget i18n batch, **and dWallet (the headline data-rights + revenue-share selling point)**. Ready for Soralia Village (180 homes) production traffic. Decomposed into M5a (audit closure) and M5b (anchor tenant features)._
 
 **Source backlog:** BD issues from `docs/cleaner_react_architecture.md` audit (5 issues) + Soralia launch features (5 issues). See Phase 44 and 45 for breakdown.
 
@@ -788,7 +788,7 @@ _Close the architecture-audit issues, ship Community Merits, OTP password reset,
 - **Plan B (gating migration):** `fpc` + `1eh` (usePageFlags → useGateContext + restrict legacy exports)
 - **Plan C (cleanup):** `1ei` + `5u2` + `brp` + `huo`
 
-**Out of scope:** M4.5 fixes (phase 43), M5b launch features (phase 45), M5+ post-launch (phase 46), dWallet (phase 47, where C4 lives), C3 (already resolved).
+**Out of scope:** M4.5 fixes (phase 43), M5b launch features (phase 45, 47), M5+ post-launch (phase 46), C3 (already resolved). C4 (Tier Naming) re-elevated — see phase 47.
 
 ---
 
@@ -810,7 +810,7 @@ _Close the architecture-audit issues, ship Community Merits, OTP password reset,
 
 ## M5+ — Post-Launch Features (Deferred)
 
-_Features explicitly deferred to post-M5b. These are real product ideas but not prerequisites for the Soralia anchor tenant launch. Includes 10 issues from the BD backlog triage + dWallet integration. See Phase 46 and 47 for breakdown._
+_Features explicitly deferred to post-M5b. These are real product ideas but not prerequisites for the Soralia anchor tenant launch. Includes 10 issues from the BD backlog triage. See Phase 46 for breakdown. **dWallet is NOT here — it was elevated into M5b on 2026-06-06 as the headline anchor-tenant selling point (see phase 47).**_
 
 ---
 
@@ -826,23 +826,42 @@ _Features explicitly deferred to post-M5b. These are real product ideas but not 
 
 **Plans:** None. This is a deferral + documentation phase.
 
-**Out of scope:** M4.5/M5a/M5b work (different phases). dWallet (phase 47).
+**Out of scope:** M4.5/M5a/M5b work (different phases). dWallet is in M5b (phase 47), not here.
 
 ---
 
 ## Phase 47: dWallet Planning & Build
 
-**Goal:** Plan and implement dWallet (digital wallet) integration for Soralia Village, dependent on NetBones Privacy-as-a-Service for legal/privacy foundation.
+**Goal:** Implement the dWallet module — per-resident data rights, granular consent, and revenue-share rewards — as defined in `docs/architecture/DWALLET_SPEC.md` (Schedule G of the Soralia Village v10 SaaS agreement). **The headline anchor-tenant selling point:** "You own your data, you grant consent per use, you earn revenue share." Without dWallet, the Soralia pitch collapses to a generic community portal.
 
-**Status:** Planning (external dependency)
+**Status:** Planning (elevated from M6+ to M5b on 2026-06-06 — see `.planning/phases/47-dwallet-planning-build/47-CONTEXT.md` for the full sub-phase breakdown)
 
-**BD sources (2):** `7cp` (POPIA compliance), `jc1` (cookie management)
+**BD sources (3):**
 
-**Acceptance:** POPIA compliance audit with sign-off; cookie management UI + backend deployed; NetBones Privacy-as-a-Service integrated (or explicit deferral); dWallet PRD created; dWallet implementation plan created.
+- `7cp` — Complete formal POPIA compliance audit for South Africa tenant (dWallet elevates this from "should do" to launch-readiness)
+- `jc1` — Implement cookie management for privacy compliance (re-scoped — no longer a NetBones integration blocker; dWallet is the privacy module)
+- Schedule F Table 2 revenue share percentages — to be created (placeholder values 30/40/20/35% in spec, must be confirmed before production seeding)
 
-**Plans:** TBD. Run `/gsd-plan-phase 47-dwallet-planning-build` when ready.
+**Sub-phases (per spec's Implementation Order):**
 
-**Out of scope:** M4.5/M5a/M5b work (different phases). M5+ other post-launch (phase 46).
+| Sub | Objective                                                                                                  | Plan target |
+| --- | ---------------------------------------------------------------------------------------------------------- | ----------- |
+| A   | Schema & migration — 6 new Prisma models + 4 enums + `PlatformModule` seed + `DataRevenueStream` seed      | TBD         |
+| B   | API layer — 10 resident + 7 admin routes, Zod, Drizzle transactions, Vitest coverage                       | TBD         |
+| C   | Entity FSD structure — `src/entities/dwallet/` (schema, types, hooks, helpers)                             | TBD         |
+| D   | Widgets — `dwallet-summary` (resident) + `admin-dwallet` (admin), registered in `widgets.ts`               | TBD         |
+| E   | Feature gate integration — `dWallet` PlatformModule + 6 FeatureRegistry keys + `canAccess()` on all routes | TBD         |
+| F   | Full page + navigation — `/dashboard/wallet`, header dropdown, mobile burger, admin sidebar                | TBD         |
+
+**Hard constraints (per spec, non-negotiable):** immutable `WalletTransaction`; append-only `DataConsent`; `balanceAfter = balanceBefore + amount` invariant; atomic batch ops via Drizzle `.transaction()`; no admin PII access (aggregate counts only); Pino audit on every consent change; `tenantId` on every model.
+
+**Acceptance:** 6 sub-phase PLAN.md files created and executed; 6 new Prisma models migrated; all 17 API routes auth-guarded with `canAccess('page.dWallet')`; both widgets registered and visually verified (admin widget never shows individual balances); full `/dashboard/wallet` page exists; UBIQUITOUS_LANGUAGE.md updated with 7 new terms; integration-verification grep commands pass (no `prisma.` in routes, `tenantId` on every query, `apiSuccess`/`apiError` envelope in every route); POPIA audit complete (7cp); M5 launch checklist can flip to green once Schedule F Table 2 is confirmed.
+
+**Plans:** TBD. Run `/gsd-plan-phase 47-dwallet-planning-build` when ready. Suggested wave structure: Wave 1 = A + C (parallel), Wave 2 = B + E (parallel), Wave 3 = D, Wave 4 = F.
+
+**Out of scope (deferred to phase 2):** actual EFT / PayFast disbursement integration; Community Benefit Fund as separate ledger model (counter in `Tenant.featureFlags` for now); push notifications on reward receipt; multi-currency (ZAR only).
+
+**Out of scope (other phases):** M4.5 fixes (phase 43), M5a audit closure (phase 44), M5b other launch features (phase 45), M5+ post-launch (phase 46).
 
 ---
 

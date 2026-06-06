@@ -1,23 +1,24 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-06-04 (Session 9)
-> **Total remaining:** 28 issues
+> **Last updated:** 2026-06-06 (Session 10)
+> **Total remaining:** 29 issues
 > **Closed this session:** 0
-> **Created this session:** 3 RLS issues (4a6, t78, 57d) — prerequisite for Phase 43 plan 43-04 (oqw)
+> **Created this session:** 1 issue (`5m7l` — Schedule F Table 2 confirmation, dWallet M5b launch-readiness blocker)
+> **Phase 47 reclassified:** M6+ → M5b (dWallet is the anchor-tenant headline selling point)
 
 ## Summary by Priority
 
 | Priority | Open | Focus                                        |
 | -------- | ---- | -------------------------------------------- |
-| P2       | 6    | Core features, epics, bugs, **architecture** |
-| P3       | 23   | Tech debt, Phase 4/5 features, enhancements  |
+| P2       | 7    | Core features, epics, bugs, **architecture** |
+| P3       | 22   | Tech debt, Phase 4/5 features, enhancements  |
 | P4       | 6    | Backlog, blocked events                      |
 
 ## Summary by Status
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 33    |
+| ○ Open        | 34    |
 | ◐ In Progress | 1     |
 
 ---
@@ -38,14 +39,15 @@
 
 ### Features & Tasks
 
-| ID    | Type    | Title                                                                                           | Status |
-| ----- | ------- | ----------------------------------------------------------------------------------------------- | ------ |
-| `2at` | feature | Phase 35: Community Merits & Standing System                                                    | ○      |
-| `k3h` | task    | Verify external API consumers can access the OpenAPI spec                                       | ○      |
-| `qig` | task    | Architecture: Build shared HTTP client (src/shared/api/client.ts)                               | ○      |
-| `fpc` | task    | Architecture: Expand tRPC coverage from 2 to all entities                                       | ○      |
-| `22a` | task    | Add connection pool config + retry to Drizzle singleton                                         | ○      |
-| `4a6` | task    | **RLS migration: move add_rls.sql into proper Prisma migration, narrow to 14 tables, fix bugs** | ○      |
+| ID     | Type    | Title                                                                                           | Status |
+| ------ | ------- | ----------------------------------------------------------------------------------------------- | ------ |
+| `2at`  | feature | Phase 35: Community Merits & Standing System                                                    | ○      |
+| `k3h`  | task    | Verify external API consumers can access the OpenAPI spec                                       | ○      |
+| `qig`  | task    | Architecture: Build shared HTTP client (src/shared/api/client.ts)                               | ○      |
+| `fpc`  | task    | Architecture: Expand tRPC coverage from 2 to all entities                                       | ○      |
+| `22a`  | task    | Add connection pool config + retry to Drizzle singleton                                         | ○      |
+| `4a6`  | task    | **RLS migration: move add_rls.sql into proper Prisma migration, narrow to 14 tables, fix bugs** | ○      |
+| `5m7l` | task    | Confirm Schedule F Table 2 revenue share percentages with anchor tenant (Soralia Village)       | ○      |
 
 ### Blocked Tasks
 
@@ -70,6 +72,26 @@ The RLS work spans three issues. The migration (`4a6`) is a Phase 43 prerequisit
 **Dependency chain:** `4a6` → `oqw` (Phase 43 43-04) → `57d` (Stage C rollout). `t78` is parallel to `57d`, deferred to M6+.
 
 **Plan:** `.commandcode/plans/rls-migration.md`
+
+---
+
+## dWallet (Phase 47, M5b — reclassified 2026-06-06)
+
+Phase 47 was originally classified as M6+ (post-launch) on the assumption that dWallet depended on an external NetBones Privacy-as-a-Service product. The `docs/architecture/DWALLET_SPEC.md` (written 2026-06-06) reframes this: **dWallet IS the privacy module.** The append-only `DataConsent` + `WalletTransaction` models are themselves the consent ledger and rights-of-data-subject surface (POPIA / LGPD principles).
+
+Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline selling point** for the Soralia Village anchor tenant. Without dWallet, the pitch collapses to "another community portal." Execution is launch-blocking, alongside Community Merits (phase 45) and the other M5b features.
+
+### Related BD issues
+
+| ID     | Title                                                                   | Status | Note                                                                                                                                                           |
+| ------ | ----------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `7cp`  | Complete formal POPIA compliance audit for South Africa tenant          | ○      | Elevated from "should do" to launch-readiness by dWallet. Original M4.5 deferral re-scoped.                                                                    |
+| `jc1`  | Implement cookie management for privacy compliance                      | ○      | Re-scoped. dWallet's `DataConsent` is consent of record — cookie management may still be useful for general privacy hygiene but is not a dWallet prerequisite. |
+| `5m7l` | Confirm Schedule F Table 2 revenue share percentages with anchor tenant | ○      | **NEW.** dWallet M5b launch-readiness blocker. Production `DataRevenueStream` seed is gated on this. Development (Sub-phases A-F) proceeds in parallel.        |
+
+**Spec source of truth:** `docs/architecture/DWALLET_SPEC.md`
+
+**Sub-phase decomposition (per spec §Implementation Order):** A (schema), B (API), C (FSD entity), D (widgets), E (feature gates), F (page + nav). 6 separate PLAN.md files to be created when planning starts.
 
 ---
 
@@ -237,14 +259,15 @@ The RLS work spans three issues. The migration (`4a6`) is a Phase 43 prerequisit
 
 ## Recommended Next Actions
 
-1. **`cs5`** — MyHomeSpace property linking bug (user has property but shows "No property linked")
-2. **`ka6`** — Design decision: widget placement across Focus Spaces (UX call needed)
-3. **`6d8`** — Migrate React imports to Preact (performance)
-4. **`l23`** — Epic: i18n for all pages (large scope)
-5. **`ltn`** — Add request validation plugin (security)
-6. **`byj`** — AddWidgetModal search/filter enhancement
-7. **`bgb`** — Epic: Interests Visualization (in-progress)
-8. **`7td`** — Enable One Tap passkey login (security)
+1. **`5m7l`** — Confirm Schedule F Table 2 revenue share percentages with anchor tenant (dWallet M5b launch-readiness — see "dWallet" section above)
+2. **`cs5`** — MyHomeSpace property linking bug (user has property but shows "No property linked")
+3. **`ka6`** — Design decision: widget placement across Focus Spaces (UX call needed)
+4. **`6d8`** — Migrate React imports to Preact (performance)
+5. **`l23`** — Epic: i18n for all pages (large scope)
+6. **`ltn`** — Add request validation plugin (security)
+7. **`byj`** — AddWidgetModal search/filter enhancement
+8. **`bgb`** — Epic: Interests Visualization (in-progress)
+9. **`7td`** — Enable One Tap passkey login (security)
 
 ### Architecture Roadmap (from `docs/cleaner_react_architecture.md` audit, 2026-06-02)
 
