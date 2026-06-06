@@ -1,0 +1,3 @@
+# Audit scripts: kept compact to satisfy plan ≤200-line cap (43-03)
+# Prettier's printWidth=100 expansion would push the set definitions past the cap.
+scripts/audit-tenant-isolation.ts

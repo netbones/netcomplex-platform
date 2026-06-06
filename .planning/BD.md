@@ -161,9 +161,9 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 
 ### Session 8 - Cross-Tenant Data Leakage Audit (1 closed, 6 created)
 
-| ID    | Title                                                           | Reason                                                                                                         |
-| ----- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `e0w` | Fix route-level cross-tenant data leakage (20 remaining routes) | Fixed: commit `7579ac9` + live fix for `resources/[id]/download/route.ts`. All routes now have `withTenant()`. |
+| ID    | Title                                                           | Reason                                                                                                                                                                                                                                                                                                              |
+| ----- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `e0w` | Fix route-level cross-tenant data leakage (20 remaining routes) | Fixed: commit `7579ac9` + live fix for `resources/[id]/download/route.ts`. M4.5 systematic 90-route audit complete in plan 43-03 (see `docs/SECURITY_AUDIT_M4.5.md`): 157 routes audited, 0 FAIL, 8 WHITELISTED, 13 N/A. All tenant-scoped routes use `withTenant()`; v1 re-exports inherit the canonical's status. |
 
 #### Created
 

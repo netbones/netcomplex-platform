@@ -177,6 +177,27 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     };
   }
 
+  // Fallback: if no profile-based household exists, build a household shape from
+  // the primary standardSeats entry. This covers property owners who own a property
+  // via standardSeats but have no profiles.householdId link. (BD issue cs5)
+  if (!householdWithMembers && seats.length > 0) {
+    const primarySeat = seats.find(s => s.isPrimaryOwner) ?? seats[0];
+    if (primarySeat) {
+      householdWithMembers = {
+        id: `seat-derived-${primarySeat.platformAddress}`,
+        name: primarySeat.platformAddress,
+        status: 'ACTIVE',
+        property: {
+          id: primarySeat.household.id,
+          address: primarySeat.household.street,
+          unitNumber: primarySeat.household.unit,
+          type: primarySeat.platformAddress,
+        },
+        members: [],
+      };
+    }
+  }
+
   // Get published contents
   const userContents = await db
     .select({
