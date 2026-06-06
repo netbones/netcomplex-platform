@@ -1,12 +1,12 @@
 import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant/api/permissions';
-import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
+import { hasPermission } from '@entities/tenant';
+import { requireAssistScope } from '@entities/tenant';
 import { db, users } from '@api/db';
 import { eq } from 'drizzle-orm';
 import { revalidateContent } from '@api/revalidation';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { defaultLanguage } from '@shared/lib';
-import * as contentService from '@entities/content/services';
+import * as contentService from '@entities/content';
 
 import { apiCreated, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**

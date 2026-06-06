@@ -27,7 +27,7 @@ describe('usePresence hook', () => {
   });
 
   it('returns initial state with empty online users', async () => {
-    const { usePresence } = await import('@features/chat/hooks/use-presence');
+    const { usePresence } = await import('@features/chat');
 
     const { result } = renderHook(() => usePresence('conv-123', 'user-1'));
 
@@ -37,7 +37,7 @@ describe('usePresence hook', () => {
 
   it('does not track presence without conversationId', async () => {
     const { createClient } = await import('@supabase/supabase-js');
-    const { usePresence } = await import('@features/chat/hooks/use-presence');
+    const { usePresence } = await import('@features/chat');
 
     renderHook(() => usePresence(null, 'user-1'));
 
@@ -56,7 +56,7 @@ describe('useMessageSend hook', () => {
   });
 
   it('returns sendMessage function', async () => {
-    const { useMessageSend } = await import('@features/chat/model/useMessageSend');
+    const { useMessageSend } = await import('@features/chat/useMessageSend');
 
     const { result } = renderHook(() =>
       useMessageSend({
@@ -71,7 +71,7 @@ describe('useMessageSend hook', () => {
   });
 
   it('returns sendTypingIndicator function', async () => {
-    const { useMessageSend } = await import('@features/chat/model/useMessageSend');
+    const { useMessageSend } = await import('@features/chat/useMessageSend');
 
     const { result } = renderHook(() =>
       useMessageSend({
@@ -89,7 +89,7 @@ describe('useMessageSend hook', () => {
     const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'));
     global.fetch = mockFetch;
 
-    const { useMessageSend } = await import('@features/chat/model/useMessageSend');
+    const { useMessageSend } = await import('@features/chat/useMessageSend');
 
     const { result } = renderHook(() =>
       useMessageSend({
@@ -110,7 +110,7 @@ describe('useMessageSend hook', () => {
     });
     global.fetch = mockFetch;
 
-    const { useMessageSend } = await import('@features/chat/model/useMessageSend');
+    const { useMessageSend } = await import('@features/chat/useMessageSend');
 
     const { result } = renderHook(() =>
       useMessageSend({
@@ -139,7 +139,7 @@ describe('useMessageSend hook', () => {
 
     const onMessageSent = vi.fn();
 
-    const { useMessageSend } = await import('@features/chat/model/useMessageSend');
+    const { useMessageSend } = await import('@features/chat/useMessageSend');
 
     const { result } = renderHook(() =>
       useMessageSend({

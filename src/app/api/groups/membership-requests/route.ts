@@ -1,8 +1,8 @@
 import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { hasPermission } from '@entities/tenant';
 import { db, groupMembershipRequests, users, groups } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 import { apiError, apiSuccess, apiUnauthorized, apiForbidden } from '@api/api-response';
 /**

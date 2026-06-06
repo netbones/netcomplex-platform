@@ -2,8 +2,8 @@ import './globals.css';
 import { Providers } from './providers';
 import { Suspense } from 'react';
 import { Metadata, Viewport } from 'next';
-import { Header } from '@shared/ui/Header';
-import { Footer } from '@shared/ui/Footer';
+import { Header } from '@shared/ui';
+import { Footer } from '@shared/ui';
 
 export const dynamic = 'force-dynamic';
 

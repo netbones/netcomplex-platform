@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 import { db, albums } from '@api/db';
 import { eq, desc, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 import { apiSuccess, apiUnauthorized, apiInternalError, apiError } from '@api/api-response';
 

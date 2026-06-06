@@ -2,11 +2,11 @@
 
 import { use } from 'react';
 import { notFound } from 'next/navigation';
-import { SPACE_SLUGS, type SpaceId } from '@widgets/dashboard/model/spaces';
-import { SpaceLayoutWithErrorBoundary } from '@widgets/dashboard/ui/SpaceLayout';
-import { AdminLayer } from '@widgets/dashboard/ui/AdminLayer';
-import { ServicesLayer } from '@widgets/dashboard/ui/ServicesLayer';
-import { MessagesLayer } from '@widgets/dashboard/ui/MessagesLayer';
+import { SPACE_SLUGS, type SpaceId } from '@widgets/dashboard/spaces';
+import { SpaceLayoutWithErrorBoundary } from '@widgets/dashboard/SpaceLayout';
+import { AdminLayer } from '@widgets/dashboard/AdminLayer';
+import { ServicesLayer } from '@widgets/dashboard/ServicesLayer';
+import { MessagesLayer } from '@widgets/dashboard/MessagesLayer';
 
 interface SpacePageProps {
   params: Promise<{ space: string }>;

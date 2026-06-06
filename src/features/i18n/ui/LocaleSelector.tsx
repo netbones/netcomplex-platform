@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useSafeTranslation } from '@features/i18n/model/useTranslation';
+import { useSafeTranslation } from '@shared/lib';
 import { supportedLanguages, languageNames, type SupportedLanguage } from '@/shared/lib/i18n';
 import { ChevronDown, Languages, Copy, Check } from 'lucide-react';
 

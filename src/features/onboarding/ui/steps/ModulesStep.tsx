@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { OnboardingStep } from '../OnboardingStep';
 import type { OnboardingFormData } from '../../model/useOnboarding';
-import { MODULES, type ModuleKey, hasModuleAccess } from '@shared/lib/constants/tiers';
+import { MODULES, type ModuleKey, hasModuleAccess } from '@shared/lib';
 
 interface StepProps {
   loading: boolean;

@@ -1,6 +1,6 @@
 import { db, contents, users, settings } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenantOptional } from '@entities/tenant/api/with-tenant';
+import { withTenantOptional } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
 import { apiError, apiSuccess, apiInternalError } from '@api/api-response';

@@ -3,12 +3,12 @@
 import { use } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useSafeTranslation } from '@features/i18n/model/useTranslation';
+import { useSafeTranslation } from '@shared/lib';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { notFound } from 'next/navigation';
-import { SERVICES_DOMAINS, getServicesDomainWidgets } from '@widgets/dashboard/model/spaces';
-import { SERVICES_DOMAIN_DEFINITIONS } from '@widgets/dashboard/ui/ServicesSubLauncher';
+import { SERVICES_DOMAINS, getServicesDomainWidgets } from '@widgets/dashboard/spaces';
+import { SERVICES_DOMAIN_DEFINITIONS } from '@widgets/dashboard/ServicesSubLauncher';
 import { WidgetRenderer } from '@widgets/dashboard';
 import { ErrorBoundary, Breadcrumbs } from '@shared/ui';
 import { MaintenanceForm } from '@features/maintenance';

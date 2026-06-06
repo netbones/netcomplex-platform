@@ -8,10 +8,10 @@ import { apiLogger } from '@shared/lib';
 // Drizzle imports - use db.ts exports
 import { db, messages, users, premiumSeats, conversationParticipants } from '@api/db';
 import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
-import { sanitizeHtml } from '@/lib/sanitization';
+import { withTenant } from '@entities/tenant';
+import { sanitizeHtml } from '@shared/lib';
 
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { hasPermission } from '@entities/tenant';
 import {
   apiCreated,
   apiError,

@@ -1,4 +1,4 @@
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { hasPermission } from '@entities/tenant';
 
 /**
  * Checks if the role can manage content (all content).

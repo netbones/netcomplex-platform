@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { type PlatformPageFlags } from '@entities/tenant/api/flags/platform-flags';
+import { type PlatformPageFlags } from '@entities/tenant';
 
 export function usePageFlags() {
   const [flags, setFlags] = useState<PlatformPageFlags | null>(null);

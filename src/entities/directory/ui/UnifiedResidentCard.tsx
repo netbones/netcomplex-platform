@@ -1,5 +1,5 @@
 import { CARD_HEADER_COLORS, CARD_ANIMATIONS, INTEREST_COLORS } from '@shared/lib';
-import { useSafeTranslation } from '@features/i18n/model/useTranslation';
+import { useSafeTranslation } from '@shared/lib';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Resident } from '../model/types';

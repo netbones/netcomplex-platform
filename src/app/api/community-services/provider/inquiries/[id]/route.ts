@@ -4,7 +4,7 @@ import { auth } from '@api/auth';
 // Drizzle imports
 import { db, communityServiceInquiries, communityServiceListings, users } from '@api/db';
 import { eq, and, sql, inArray, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
 import {

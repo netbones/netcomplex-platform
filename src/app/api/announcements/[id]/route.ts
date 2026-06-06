@@ -1,11 +1,11 @@
 import { db, announcements, users, resources } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { revalidateDashboard } from '@api/revalidation';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { auth } from '@api/auth';
-import { canPublishAnnouncements } from '@entities/tenant/api/permissions';
-import { validatePriorityForRole } from '@features/announcements/model/priority-taxonomy';
-import type { AnnouncementPriority } from '@features/announcements/model/priority-taxonomy';
+import { canPublishAnnouncements } from '@entities/tenant';
+import { validatePriorityForRole } from '@features/announcements';
+import type { AnnouncementPriority } from '@features/announcements';
 
 import { apiError, apiNotFound, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**

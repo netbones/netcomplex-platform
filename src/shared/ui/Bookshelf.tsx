@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useSafeTranslation } from '@features/i18n/model/useTranslation';
+import { useSafeTranslation } from '@shared/lib';
 
 interface Book {
   id: string;

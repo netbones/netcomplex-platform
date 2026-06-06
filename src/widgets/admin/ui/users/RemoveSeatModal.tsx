@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { ModalOverlay } from '@shared/ui';
-import type { AdminUser } from '@entities/user/model/types';
+import type { AdminUser } from '@entities/user';
 
 interface RemoveSeatModalProps {
   user: AdminUser | null;

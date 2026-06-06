@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslation } from 'react-i18next';
-import { SectionLayout } from '@shared/ui/SectionLayout';
+import { SectionLayout } from '@shared/ui';
 import { Target, Lightbulb } from 'lucide-react';
 
 export function MissionSection() {

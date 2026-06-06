@@ -22,7 +22,7 @@
  * Hydrated via widget-store.ts hydrateFromDatabase(), persisted via saveToDatabase()
  */
 
-import type { WidgetLayouts, UserWidgets } from '@entities/widget/model/widget-store';
+import type { WidgetLayouts, UserWidgets } from '@entities/widget';
 
 // ═══════════════════════════════════════════════════════════════
 // RESIDENT DEFAULT LAYOUT

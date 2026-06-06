@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useSignupForm } from '@/features/auth/model/useSignupForm';
 import type { PricingPlan } from '@/app/api/pricing/route';
-import { PageLayout } from '@shared/ui/PageLayout';
-import { SignupHeader, SignupFormSection, SignupCTA } from '@features/auth/ui';
+import { PageLayout } from '@shared/ui';
+import { SignupHeader, SignupFormSection, SignupCTA } from '@features/auth';
 
-import { PlatformFooter } from '@features/platform/ui';
+import { PlatformFooter } from '@features/platform';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('signup-page');

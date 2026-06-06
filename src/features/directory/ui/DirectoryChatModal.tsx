@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { authClient } from '@api/auth-client';
 import type { ConversationMessage } from '@entities/chat';
-import { usePresence } from '@features/chat/hooks/use-presence';
+import { usePresence } from '@features/chat';
 import { OnlineIndicator } from '@entities/chat';
 
 const supabase = createClient(

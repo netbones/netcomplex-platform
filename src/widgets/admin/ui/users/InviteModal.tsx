@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { ModalOverlay } from '@shared/ui';
-import { roleOptions } from '@entities/user/model/types';
-import type { InviteFormData } from '@entities/user/model/types';
+import { roleOptions } from '@entities/user';
+import type { InviteFormData } from '@entities/user';
 
 interface InviteModalProps {
   open: boolean;

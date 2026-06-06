@@ -3,7 +3,7 @@
 import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pagination } from '@shared/ui';
-import type { AdminUser } from '@entities/user/model/types';
+import type { AdminUser } from '@entities/user';
 import { UserRow } from './UserRow';
 import { UserEditRow } from './UserEditRow';
 

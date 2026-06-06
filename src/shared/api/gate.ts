@@ -22,19 +22,19 @@
 
 import { eq } from 'drizzle-orm';
 
-import { isModuleEnabled } from '@entities/tenant/lib/modules/assert-module-enabled';
+import { isModuleEnabled } from '@entities/tenant-module-enabled';
 import type { TenantTier } from '@entities/tenant';
 import {
   getPlatformPageFlags,
   type PlatformPageFlags,
-} from '@entities/tenant/api/flags/platform-flags';
+} from '@entities/tenant';
 import {
   canAccessPage,
   hasFeature,
   type TierLevel,
-} from '@entities/tenant/api/features/registry';
-import { ROLE_PERMISSIONS, type Role } from '@entities/tenant/api/permissions';
-import { MODULES, type ModuleKey } from '@shared/lib/constants/tiers';
+} from '@entities/tenant';
+import { ROLE_PERMISSIONS, type Role } from '@entities/tenant';
+import { MODULES, type ModuleKey } from '@shared/lib';
 
 import { db, tenants } from '@api/db';
 import { getSessionAndRole } from '@api/auth-utils';

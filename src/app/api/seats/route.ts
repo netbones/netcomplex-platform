@@ -8,8 +8,8 @@ import {
   apiError,
 } from '@api/api-response';
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { withTenant } from '@entities/tenant';
+import { hasPermission } from '@entities/tenant';
 import { auth } from '@api/auth';
 
 export const maxDuration = 8;

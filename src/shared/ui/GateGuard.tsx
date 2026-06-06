@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import type { FeatureKey, GateResult } from '@shared/api/gate';
-import { useGateContext, canAccessClient } from '@shared/lib/gate-client';
+import { useGateContext, canAccessClient } from '@shared/lib-client';
 
 // ============================================
 // GateGuard — client component wrapper

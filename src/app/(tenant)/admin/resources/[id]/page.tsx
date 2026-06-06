@@ -3,7 +3,7 @@ import { Breadcrumbs } from '@shared/ui';
 import { ResourceForm } from '@/widgets/admin/ui/ResourceForm';
 import { db, resources } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 interface EditResourcePageProps {
   params: Promise<{ id: string }>;

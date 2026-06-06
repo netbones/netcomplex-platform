@@ -1,6 +1,6 @@
 import { db, userGroups } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 import { apiCreated, apiError, apiSuccess } from '@api/api-response';
 export async function POST(request: Request) {

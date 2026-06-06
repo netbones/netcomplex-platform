@@ -1,5 +1,5 @@
 import { apiSuccess, apiInternalError, apiUnauthorized } from '@api/api-response';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import {
   db,
   conversations,

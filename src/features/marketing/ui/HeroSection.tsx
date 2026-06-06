@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { PrimaryCTA } from './PrimaryCTA';
-import { SectionLayout } from '@shared/ui/SectionLayout';
+import { SectionLayout } from '@shared/ui';
 import { Network } from 'lucide-react';
 
 export function HeroSection() {

@@ -1,9 +1,9 @@
 import { db, settings, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant/api/permissions';
-import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
+import { hasPermission } from '@entities/tenant';
+import { requireAssistScope } from '@entities/tenant';
 import { apiLogger } from '@shared/lib';
 
 import {

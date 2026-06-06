@@ -1,5 +1,5 @@
 import { apiSuccess, apiInternalError, apiUnauthorized } from '@api/api-response';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { db, maintenanceRequests, bookings } from '@api/db';
 import { auth } from '@api/auth';
 import { count, eq, and, gte, lte, notInArray } from 'drizzle-orm';

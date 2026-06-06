@@ -2,8 +2,8 @@ import { auth } from '@api/auth';
 import { db, resources, resourceVersions, users } from '@api/db';
 import { eq, desc, and } from 'drizzle-orm';
 import { revalidateContent } from '@api/revalidation';
-import { withTenant } from '@entities/tenant/api/with-tenant';
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { withTenant } from '@entities/tenant';
+import { hasPermission } from '@entities/tenant';
 
 import {
   apiError,

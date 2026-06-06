@@ -2,7 +2,7 @@
  * Module enforcement helpers for API routes
  *
  * Usage in API routes:
- *   import { assertModuleEnabled } from '@/lib/modules/assert-module-enabled';
+ *   import { assertModuleEnabled } from '@entities/tenant-module-enabled';
  *
  *   // At start of handler
  *   await assertModuleEnabled(tenantId, 'maintenance');

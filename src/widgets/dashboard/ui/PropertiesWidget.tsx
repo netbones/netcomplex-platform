@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { Property } from '@entities/tenant/model/types';
+import { Property } from '@entities/tenant';
 
 interface PropertiesWidgetProps {
   properties: Property[];

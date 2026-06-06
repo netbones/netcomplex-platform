@@ -1,9 +1,9 @@
 'use client';
 
-import { PricingHeader, PricingCards, PricingFAQ, PricingCTA } from '@features/pricing/ui';
+import { PricingHeader, PricingCards, PricingFAQ, PricingCTA } from '@features/pricing';
 
-import { PlatformFooter } from '@features/platform/ui';
-import { PageLayout } from '@shared/ui/PageLayout';
+import { PlatformFooter } from '@features/platform';
+import { PageLayout } from '@shared/ui';
 
 export default function PricingPage() {
   return (

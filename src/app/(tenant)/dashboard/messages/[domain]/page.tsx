@@ -2,10 +2,10 @@
 
 import { use } from 'react';
 import Link from 'next/link';
-import { useSafeTranslation } from '@features/i18n/model/useTranslation';
+import { useSafeTranslation } from '@shared/lib';
 import { notFound } from 'next/navigation';
-import { MESSAGES_DOMAINS, getMessagesDomainWidgets } from '@widgets/dashboard/model/spaces';
-import { MESSAGES_DOMAIN_DEFINITIONS } from '@widgets/dashboard/ui/MessagesSubLauncher';
+import { MESSAGES_DOMAINS, getMessagesDomainWidgets } from '@widgets/dashboard/spaces';
+import { MESSAGES_DOMAIN_DEFINITIONS } from '@widgets/dashboard/MessagesSubLauncher';
 import { WidgetRenderer } from '@widgets/dashboard';
 import { ErrorBoundary, Breadcrumbs } from '@shared/ui';
 

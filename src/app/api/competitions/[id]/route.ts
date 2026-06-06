@@ -1,9 +1,9 @@
 import { db, competitions, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import { revalidateContent } from '@api/revalidation';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { hasPermission } from '@entities/tenant';
 
 import {
   apiError,

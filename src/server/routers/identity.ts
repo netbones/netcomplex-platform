@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { router, publicProcedure, protectedProcedure, adminProcedure } from '@api/trpc/server';
 import { TRPCError } from '@trpc/server';
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { hasPermission } from '@entities/tenant';
 import {
   db,
   properties,

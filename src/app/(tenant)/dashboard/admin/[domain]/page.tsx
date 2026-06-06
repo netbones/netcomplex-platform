@@ -2,13 +2,13 @@
 
 import { use } from 'react';
 import Link from 'next/link';
-import { useSafeTranslation } from '@features/i18n/model/useTranslation';
+import { useSafeTranslation } from '@shared/lib';
 import { notFound } from 'next/navigation';
-import { ADMIN_DOMAINS, getAdminDomainWidgets } from '@widgets/dashboard/model/spaces';
-import { ADMIN_DOMAIN_DEFINITIONS } from '@widgets/dashboard/ui/AdminSubLauncher';
+import { ADMIN_DOMAINS, getAdminDomainWidgets } from '@widgets/dashboard/spaces';
+import { ADMIN_DOMAIN_DEFINITIONS } from '@widgets/dashboard/AdminSubLauncher';
 import { WidgetRenderer } from '@widgets/dashboard';
 import { ErrorBoundary, Breadcrumbs } from '@shared/ui';
-import { UsersListSection } from '@widgets/admin/ui/UsersListSection';
+import { UsersListSection } from '@widgets/admin/UsersListSection';
 
 interface AdminDomainPageProps {
   params: Promise<{ domain: string }>;

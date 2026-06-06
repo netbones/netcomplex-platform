@@ -12,7 +12,7 @@ import {
   canAccessDirectory,
   canManageSettings,
   getPermissions,
-} from '@entities/tenant/api/permissions';
+} from '@entities/tenant';
 
 describe('permissions', () => {
   describe('hasPermission', () => {

@@ -7,7 +7,7 @@ import { authClient } from '@api/auth-client';
 import { useIsMounted } from 'usehooks-ts';
 import { NAV_REGISTRY, ADMIN_NAV_REGISTRY } from '@/shared/lib/navigation';
 import { isNavItemVisible } from '@/shared/lib/nav-utils';
-import type { PlatformPageFlags } from '@entities/tenant/api/flags/platform-flags';
+import type { PlatformPageFlags } from '@entities/tenant';
 import {
   Accordion,
   AccordionItem,

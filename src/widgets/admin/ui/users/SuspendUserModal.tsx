@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { ModalOverlay } from '@shared/ui';
-import type { AdminUser, SuspensionFormData } from '@entities/user/model/types';
-import { suspensionTypes } from '@entities/user/model/types';
+import type { AdminUser, SuspensionFormData } from '@entities/user';
+import { suspensionTypes } from '@entities/user';
 
 type DurationValue = '2days' | '1week' | '30days' | 'permanent';
 

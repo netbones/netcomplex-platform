@@ -3,7 +3,7 @@ import { auth } from '@api/auth';
 // Drizzle imports - use db.ts exports
 import { db, conversations, conversationParticipants, messages, users } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 import { apiCreated, apiError, apiSuccess, apiUnauthorized } from '@api/api-response';
 export async function GET(request: Request) {

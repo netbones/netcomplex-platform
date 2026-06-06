@@ -6,7 +6,7 @@ import DOMPurify from 'dompurify';
  * Sanitizes HTML content to prevent XSS attacks.
  * Removes dangerous tags, attributes, and event handlers.
  * NOTE: This is client-only (DOMPurify requires a DOM environment).
- * Import directly: import { sanitizeHtml } from '@shared/lib/sanitize'
+ * Import directly: import { sanitizeHtml } from '@shared/lib'
  * @param dirty - The potentially unsafe HTML string
  * @returns Sanitized HTML string safe for rendering
  */

@@ -8,9 +8,9 @@
  * Conservation/Campaign mutual exclusion is encoded here, not in components.
  */
 
-import type { PlatformPageFlags } from '@entities/tenant/api/flags/platform-flags';
-import { hasPermission } from '@entities/tenant/api/permissions';
-import type { Permission } from '@entities/tenant/api/permissions';
+import type { PlatformPageFlags } from '@entities/tenant';
+import { hasPermission } from '@entities/tenant';
+import type { Permission } from '@entities/tenant';
 
 export interface NavItem {
   href: string;

@@ -2,9 +2,9 @@
 
 import { ReactNode, Suspense } from 'react';
 // import { lazy } from 'react';
-// import { useTenant } from '@entities/tenant/api/context';
+// import { useTenant } from '@entities/tenant';
 import type { Tenant } from '@entities/tenant';
-import { isFeatureEnabled } from '@entities/tenant/api/features/registry';
+import { isFeatureEnabled } from '@entities/tenant';
 import { ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import { registry } from '../model/registry';

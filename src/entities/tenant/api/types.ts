@@ -1,4 +1,4 @@
-import type { TierLevel } from '@shared/lib/constants/tiers';
+import type { TierLevel } from '@shared/lib';
 
 export type TenantTier = 'STANDARD' | 'PREMIUM' | 'ENTERPRISE';
 

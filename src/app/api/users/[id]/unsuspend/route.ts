@@ -1,5 +1,5 @@
 import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { hasPermission } from '@entities/tenant';
 import { db, users, platformSuspensions } from '@api/db';
 import { eq, and } from 'drizzle-orm';
 import {
@@ -9,8 +9,8 @@ import {
   apiSuccess,
   apiConflict,
 } from '@api/api-response';
-import { withTenant } from '@entities/tenant/api/with-tenant';
-import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
+import { withTenant } from '@entities/tenant';
+import { requireAssistScope } from '@entities/tenant';
 import { writeAuditLog } from '@api/audit-log';
 
 export const maxDuration = 8;

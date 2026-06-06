@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
-import { sanitizeHtml } from '@shared/lib/sanitize';
+import { sanitizeHtml } from '@shared/lib';
 import { usePageLoading } from '@shared/ui';
-import { AnnouncementsStreamWidget } from '@widgets/dashboard/ui/AnnouncementsStreamWidget';
+import { AnnouncementsStreamWidget } from '@widgets/dashboard/AnnouncementsStreamWidget';
 
 const log = createComponentLogger('news-page');
 

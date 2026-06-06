@@ -67,7 +67,7 @@ vi.mock('@api/db', () => ({
 }));
 
 // Mock withTenant
-vi.mock('@entities/tenant/api/with-tenant', () => ({
+vi.mock('@entities/tenant', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
 }));
 

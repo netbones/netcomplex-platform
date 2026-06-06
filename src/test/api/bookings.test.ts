@@ -49,12 +49,12 @@ vi.mock('@api/db', () => ({
 }));
 
 // Mock withTenant
-vi.mock('@entities/tenant/api/with-tenant', () => ({
+vi.mock('@entities/tenant', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
 }));
 
 // Mock permissions
-vi.mock('@entities/tenant/api/permissions', () => ({
+vi.mock('@entities/tenant', () => ({
   hasPermission: vi.fn((role: string | null | undefined, permission: string) => {
     if (!role) return false;
     if (permission === 'bookings') return role === 'ADMIN' || role === 'MANAGER';

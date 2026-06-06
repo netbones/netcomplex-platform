@@ -1,4 +1,4 @@
-import type { AdminUser, SeatInfo } from '@entities/user/model/types';
+import type { AdminUser, SeatInfo } from '@entities/user';
 
 /** Derive a display address from a user's seat/profile chain */
 export function resolveAddress(u: AdminUser): string {

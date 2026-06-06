@@ -1,7 +1,7 @@
 'use client';
 
-import { HeroSection, MissionSection, FeaturesSection, CTASection } from '@features/marketing/ui';
-import { PlatformFooter, PlatformHeader } from '@features/platform/ui';
+import { HeroSection, MissionSection, FeaturesSection, CTASection } from '@features/marketing';
+import { PlatformFooter, PlatformHeader } from '@features/platform';
 
 export default function PlatformHomePage() {
   return (

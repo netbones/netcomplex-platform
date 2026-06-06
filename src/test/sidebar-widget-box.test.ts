@@ -27,13 +27,13 @@ vi.mock('@api/auth-client', () => ({
   },
 }));
 
-vi.mock('@shared/lib/hooks/useApiToast', () => ({
+vi.mock('@shared/libApiToast', () => ({
   useApiToast: () => ({
     fetch: vi.fn(),
   }),
 }));
 
-vi.mock('@entities/tenant/api/tenant', () => ({
+vi.mock('@entities/tenant', () => ({
   tenantConfig: {
     location: {
       latitude: 26.6619,

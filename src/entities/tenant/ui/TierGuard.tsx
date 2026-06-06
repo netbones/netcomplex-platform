@@ -6,7 +6,7 @@ import {
   hasFeature,
   canAccessPage,
   canUseWidget,
-} from '@entities/tenant/api/features/registry';
+} from '@entities/tenant';
 
 interface TierGuardProps {
   children: ReactNode;

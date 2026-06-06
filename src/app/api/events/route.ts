@@ -2,8 +2,8 @@ import { auth } from '@api/auth';
 import { db, users, eventAttendees } from '@api/db';
 import { eq, inArray, and, sql } from 'drizzle-orm';
 import { revalidateContent } from '@api/revalidation';
-import { withTenant } from '@entities/tenant/api/with-tenant';
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { withTenant } from '@entities/tenant';
+import { hasPermission } from '@entities/tenant';
 import * as eventsService from '@entities/events/services';
 
 import { apiCreated, apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';

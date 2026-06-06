@@ -11,7 +11,7 @@ describe('TurnstileWidget component', () => {
   });
 
   it('renders Turnstile widget container', async () => {
-    const { TurnstileWidget } = await import('@shared/ui/Turnstile');
+    const { TurnstileWidget } = await import('@shared/ui');
 
     const { container } = render(
       <TurnstileWidget siteKey="test-site-key" theme="auto" onTokenChange={vi.fn()} />
@@ -25,7 +25,7 @@ describe('TurnstileWidget component', () => {
 
 describe('LoadingSpinner component', () => {
   it('renders loading spinner', async () => {
-    const { LoadingSpinner } = await import('@shared/ui/Loading');
+    const { LoadingSpinner } = await import('@shared/ui');
 
     render(<LoadingSpinner />);
 
@@ -33,7 +33,7 @@ describe('LoadingSpinner component', () => {
   });
 
   it('renders with custom size', async () => {
-    const { LoadingSpinner } = await import('@shared/ui/Loading');
+    const { LoadingSpinner } = await import('@shared/ui');
 
     render(<LoadingSpinner size="lg" />);
 
@@ -41,7 +41,7 @@ describe('LoadingSpinner component', () => {
   });
 
   it('renders with custom className', async () => {
-    const { LoadingSpinner } = await import('@shared/ui/Loading');
+    const { LoadingSpinner } = await import('@shared/ui');
 
     render(<LoadingSpinner className="custom-class" />);
 
@@ -138,7 +138,7 @@ describe('ErrorBoundary component', () => {
 
 describe('Tooltip component', () => {
   it('renders tooltip trigger', async () => {
-    const { Tooltip, TooltipProvider } = await import('@shared/ui/tooltip');
+    const { Tooltip, TooltipProvider } = await import('@shared/ui');
 
     render(
       <TooltipProvider>

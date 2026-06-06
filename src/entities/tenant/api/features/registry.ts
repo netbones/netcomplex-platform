@@ -12,7 +12,7 @@ import {
   type ModuleKey,
   hasModuleAccess,
   getTierModules,
-} from '@shared/lib/constants/tiers';
+} from '@shared/lib';
 import type { Tenant } from '../types';
 
 export type { TierLevel, ModuleKey };

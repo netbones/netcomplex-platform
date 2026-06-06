@@ -1,4 +1,4 @@
-import { SectionLayout } from '@shared/ui/SectionLayout';
+import { SectionLayout } from '@shared/ui';
 
 export function PricingFAQ() {
   const faqs = [

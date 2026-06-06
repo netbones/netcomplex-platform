@@ -2,7 +2,7 @@
 
 import { X, Save, Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { AdminUser } from '@entities/user/model/types';
+import type { AdminUser } from '@entities/user';
 import { resolveSeatInfo } from './lib/resolve-user-helpers';
 
 interface UserEditRowProps {

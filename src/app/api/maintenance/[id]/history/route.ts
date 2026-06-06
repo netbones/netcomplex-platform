@@ -1,9 +1,9 @@
 import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { hasPermission } from '@entities/tenant';
 import { db, requestHistories, users, maintenanceRequests } from '@api/db';
 import { eq, desc, and } from 'drizzle-orm';
 import { revalidateDashboard } from '@api/revalidation';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import {
   apiSuccess,
   apiCreated,

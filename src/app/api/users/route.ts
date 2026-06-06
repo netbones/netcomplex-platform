@@ -1,5 +1,5 @@
 import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { hasPermission } from '@entities/tenant';
 import {
   db,
   users,
@@ -13,7 +13,7 @@ import {
 import { eq, and, or, asc, ilike, count, ne, sql } from 'drizzle-orm';
 import { apiPaginated, apiCreated, apiForbidden } from '@api/api-response';
 import type { SQL } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { toUserDTO } from '@api/dto/user';
 import type { InferSelectModel } from 'drizzle-orm';
 

@@ -2,8 +2,8 @@ import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
 import { db, households, properties, standardSeats, profiles, users } from '@api/db';
 import { eq, and, count, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { withTenant } from '@entities/tenant';
+import { hasPermission } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
 import {

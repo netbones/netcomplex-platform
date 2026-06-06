@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import type { AdminUser, Invitation } from '@entities/user/model/types';
-import { PAGE_SIZE } from '@entities/user/model/types';
+import type { AdminUser, Invitation } from '@entities/user';
+import { PAGE_SIZE } from '@entities/user';
 import { resolveType } from './resolve-user-helpers';
 
 interface UseUsersDataReturn {

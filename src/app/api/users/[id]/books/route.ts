@@ -1,6 +1,6 @@
 import { db, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { apiSuccess, apiNotFound, apiError } from '@api/api-response';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {

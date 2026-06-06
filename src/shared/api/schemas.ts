@@ -4,18 +4,14 @@ import { z } from 'zod';
 // Schemas are now defined in their respective entity modules.
 // This file re-exports them for backward compatibility during migration.
 
-export {
-  contentSchema,
-  groupSchema,
-  surveySchema,
-  announcementSchema,
-} from '@entities/content/schema';
+export { contentSchema, groupSchema, announcementSchema } from '@entities/content';
+export { surveySchema } from '@entities/survey';
 export type {
   ContentFormData,
   GroupFormData,
-  SurveyFormData,
   AnnouncementFormData,
-} from '@entities/content/schema';
+} from '@entities/content';
+export type { SurveyFormData } from '@entities/survey';
 
 export { bookingSchema } from '@entities/booking/schema';
 export type { BookingFormData } from '@entities/booking/schema';

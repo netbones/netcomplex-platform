@@ -1,6 +1,6 @@
 import { db, settings } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { withTenant, withTenantOptional } from '@entities/tenant/api/with-tenant';
+import { withTenant, withTenantOptional } from '@entities/tenant';
 
 import { apiError, apiSuccess } from '@api/api-response';
 export async function GET() {

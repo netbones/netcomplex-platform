@@ -146,7 +146,7 @@ function AvatarDropdown({
   pathname,
 }: {
   session: NonNullable<ReturnType<typeof authClient.useSession>['data']>;
-  flags: import('@entities/tenant/api/flags/platform-flags').PlatformPageFlags;
+  flags: import('@entities/tenant').PlatformPageFlags;
   onSignOut: () => void;
   t: (key: string) => string;
   pathname: string;

@@ -1,6 +1,6 @@
 import { db, maintenanceTeams } from '@api/db';
 import { requireAnyPermission } from '@api/auth-utils';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { apiSuccess, apiCreated, apiError } from '@api/api-response';
 import { eq, and, desc } from 'drizzle-orm';
 

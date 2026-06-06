@@ -1,6 +1,6 @@
 import { apiSuccess, apiInternalError, apiUnauthorized } from '@api/api-response';
 import { requireAnyPermission } from '@api/auth-utils';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import {
   runWithRLS,
   getRLSContext,

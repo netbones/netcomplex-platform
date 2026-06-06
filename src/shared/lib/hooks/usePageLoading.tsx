@@ -1,6 +1,6 @@
 'use client';
 
-import { useSafeTranslation } from '@features/i18n/model/useTranslation';
+import { useSafeTranslation } from '@shared/lib';
 import { Breadcrumbs } from '@shared/ui';
 
 interface BreadcrumbItem {

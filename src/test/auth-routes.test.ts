@@ -40,7 +40,7 @@ vi.mock('@api/db', () => ({
 }));
 
 // Mock tenant config
-vi.mock('@entities/tenant/api/tenant', () => ({
+vi.mock('@entities/tenant', () => ({
   tenantConfig: {
     defaultSlug: 'soralia',
     auth: {
@@ -52,7 +52,7 @@ vi.mock('@entities/tenant/api/tenant', () => ({
 }));
 
 // Mock withTenant
-vi.mock('@entities/tenant/api/with-tenant', () => ({
+vi.mock('@entities/tenant', () => ({
   withTenant: vi.fn().mockResolvedValue({ tenantId: '00000000-0000-0000-0000-000000000001' }),
 }));
 

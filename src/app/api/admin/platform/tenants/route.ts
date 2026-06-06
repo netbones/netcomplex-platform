@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { listTenants, createTenant } from '@entities/tenant/api/base';
-import { requirePlatformAdmin } from '@entities/tenant/api/guards';
+import { listTenants, createTenant } from '@entities/tenant';
+import { requirePlatformAdmin } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
 import { apiCreated, apiError, apiSuccess, apiInternalError } from '@api/api-response';

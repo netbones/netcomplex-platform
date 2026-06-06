@@ -7,7 +7,7 @@ import { authClient } from '@api/auth-client';
 import { ErrorBoundary } from '@shared/ui';
 import { AgentWidget } from './AgentWidget';
 import { CreateListingForm } from '@features/service';
-import { useApiToast } from '@shared/lib/hooks/useApiToast';
+import { useApiToast } from '@shared/lib';
 
 interface PortfolioHousehold {
   id: string;

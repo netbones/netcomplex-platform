@@ -1,6 +1,6 @@
 import { db, invitations, tenants, users } from '@api/db';
 import { eq, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { sendEmail } from '@shared/api/email/resend';
 import { templates } from '@shared/api/email/templates';
 import { apiLogger } from '@shared/lib';

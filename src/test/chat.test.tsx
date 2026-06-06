@@ -212,7 +212,7 @@ describe('DirectoryChatModal component', () => {
       json: async () => [],
     });
 
-    const { DirectoryChatModal } = await import('@features/directory/ui/DirectoryChatModal');
+    const { DirectoryChatModal } = await import('@features/directory/DirectoryChatModal');
 
     await act(async () => {
       render(
@@ -242,7 +242,7 @@ describe('DirectoryChatModal component', () => {
       )
     );
 
-    const { DirectoryChatModal } = await import('@features/directory/ui/DirectoryChatModal');
+    const { DirectoryChatModal } = await import('@features/directory/DirectoryChatModal');
 
     await act(async () => {
       render(
@@ -268,7 +268,7 @@ describe('DirectoryChatModal component', () => {
       json: async () => [],
     });
 
-    const { DirectoryChatModal } = await import('@features/directory/ui/DirectoryChatModal');
+    const { DirectoryChatModal } = await import('@features/directory/DirectoryChatModal');
 
     await act(async () => {
       render(
@@ -310,7 +310,7 @@ describe('DirectoryChatModal component', () => {
       ],
     });
 
-    const { DirectoryChatModal } = await import('@features/directory/ui/DirectoryChatModal');
+    const { DirectoryChatModal } = await import('@features/directory/DirectoryChatModal');
 
     await act(async () => {
       render(
@@ -349,7 +349,7 @@ describe('DirectoryChatModal component', () => {
       }),
     });
 
-    const { DirectoryChatModal } = await import('@features/directory/ui/DirectoryChatModal');
+    const { DirectoryChatModal } = await import('@features/directory/DirectoryChatModal');
 
     await act(async () => {
       render(
@@ -410,7 +410,7 @@ describe('DirectoryChatModal component', () => {
       }),
     });
 
-    const { DirectoryChatModal } = await import('@features/directory/ui/DirectoryChatModal');
+    const { DirectoryChatModal } = await import('@features/directory/DirectoryChatModal');
 
     await act(async () => {
       render(
@@ -455,7 +455,7 @@ describe('DirectoryChatModal component', () => {
       json: async () => [],
     });
 
-    const { DirectoryChatModal } = await import('@features/directory/ui/DirectoryChatModal');
+    const { DirectoryChatModal } = await import('@features/directory/DirectoryChatModal');
 
     await act(async () => {
       render(
@@ -501,7 +501,7 @@ describe('DirectoryChatModal component', () => {
       json: async () => [],
     });
 
-    const { DirectoryChatModal } = await import('@features/directory/ui/DirectoryChatModal');
+    const { DirectoryChatModal } = await import('@features/directory/DirectoryChatModal');
 
     await act(async () => {
       render(
@@ -535,7 +535,7 @@ describe('DirectoryChatModal component', () => {
       json: async () => [],
     });
 
-    const { DirectoryChatModal } = await import('@features/directory/ui/DirectoryChatModal');
+    const { DirectoryChatModal } = await import('@features/directory/DirectoryChatModal');
 
     await act(async () => {
       render(
@@ -567,7 +567,7 @@ describe('DirectoryChatModal component', () => {
       json: async () => [],
     });
 
-    const { DirectoryChatModal } = await import('@features/directory/ui/DirectoryChatModal');
+    const { DirectoryChatModal } = await import('@features/directory/DirectoryChatModal');
 
     await act(async () => {
       render(

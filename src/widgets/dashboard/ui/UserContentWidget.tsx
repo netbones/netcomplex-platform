@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@api/auth-client';
-import { sanitizeHtml } from '@shared/lib/sanitize';
+import { sanitizeHtml } from '@shared/lib';
 import { ErrorBoundary, TagCloud } from '@shared/ui';
-import { useApiToast } from '@shared/lib/hooks/useApiToast';
+import { useApiToast } from '@shared/lib';
 
 interface ContentItem {
   id: string;

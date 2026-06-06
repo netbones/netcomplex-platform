@@ -1,6 +1,6 @@
 import { auth } from '@api/auth';
 import { listUserImages, deleteImage } from '@api/storage';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
 import { apiError, apiSuccess, apiUnauthorized, apiInternalError } from '@api/api-response';

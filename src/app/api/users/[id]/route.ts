@@ -11,8 +11,8 @@ import {
 } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
 import { apiSuccess, apiNotFound, apiUnauthorized } from '@api/api-response';
-import { withTenant } from '@entities/tenant/api/with-tenant';
-import { requireAssistScope } from '@entities/tenant/api/assist-scope-guard';
+import { withTenant } from '@entities/tenant';
+import { requireAssistScope } from '@entities/tenant';
 import { throwIfSuspended } from '@api/auth-utils';
 import { getLocalizedValue, getLocalizedContent, defaultLanguage } from '@shared/lib';
 import { writeAuditLog } from '@api/audit-log';

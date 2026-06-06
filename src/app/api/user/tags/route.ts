@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { auth } from '@api/auth';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 import { apiSuccess, apiUnauthorized, apiInternalError } from '@api/api-response';
 

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authClient } from '@api/auth-client';
-import { useApiToast } from '@shared/lib/hooks/useApiToast';
+import { useApiToast } from '@shared/lib';
 
 interface InvitationData {
   id: string;

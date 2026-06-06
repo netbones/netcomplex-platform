@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server';
 import { db, communityServiceListings, users } from '@api/db';
 import { eq, desc, and, or, sql } from 'drizzle-orm';
 import { communityServiceReviews } from '@api/db';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
 import { apiError, apiInternalError, apiSuccess, apiNotFound } from '@api/api-response';

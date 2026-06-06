@@ -1,6 +1,6 @@
 import { db, invitations } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 import { apiError, apiSuccess } from '@api/api-response';
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {

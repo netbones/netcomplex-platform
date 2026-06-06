@@ -1,6 +1,6 @@
 // Admin user management types — used by UsersListSection and related components
 
-import type { StandardSeat, SoloSeat } from '@entities/tenant/model/types';
+import type { StandardSeat, SoloSeat } from '@entities/tenant';
 
 /** Lightweight property info as returned by admin users API */
 export interface PropertyInfo {

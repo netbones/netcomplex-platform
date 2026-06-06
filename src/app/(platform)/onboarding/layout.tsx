@@ -1,5 +1,5 @@
 import { PageLayout } from '@shared/ui';
-import { PlatformFooter } from '@features/platform/ui';
+import { PlatformFooter } from '@features/platform';
 
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return (

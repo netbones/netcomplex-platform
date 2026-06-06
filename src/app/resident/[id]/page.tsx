@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { authClient } from '@api/auth-client';
 import { Breadcrumbs, ErrorBoundary, TagCloud, RichTextRenderer } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
-import { sanitizeHtml } from '@shared/lib/sanitize';
+import { sanitizeHtml } from '@shared/lib';
 
 const log = createComponentLogger('resident-profile');
 

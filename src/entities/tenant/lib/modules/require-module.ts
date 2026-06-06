@@ -2,7 +2,7 @@
  * Drizzle helpers for module queries
  *
  * Usage:
- *   import { requireModule, tierSatisfies } from '@/lib/modules/require-module';
+ *   import { requireModule, tierSatisfies } from '@entities/tenant-module';
  *
  *   // In queries
  *   const modules = await db

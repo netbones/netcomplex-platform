@@ -221,31 +221,27 @@ npm run typecheck        # Run TypeScript type checking
 npm run format           # Format code with Prettier
 ```
 
-### Project Structure
+### Project Structure (FSD)
+
+The project follows [Feature-Sliced Design (FSD)](https://feature-sliced.design/) architecture:
 
 ```
 soralia-village/
 ├── src/
-│   ├── app/                    # Next.js app router
-│   │   ├── api/               # API routes
-│   │   ├── auth/              # Authentication pages
-│   │   ├── dashboard/         # User dashboard
-│   │   ├── directory/         # Community directory
-│   │   └── messages/          # Messaging interface
-│   ├── components/            # React components
-│   │   ├── shared/            # Reusable components
-│   │   ├── directory/         # Directory-specific components
-│   │   ├── services/          # Service marketplace components
-│   │   └── chat/              # Chat components
-│   └── lib/                   # Utilities and configurations
-│       ├── auth.ts            # Authentication setup
-│       ├── prisma.ts          # Database client
-│       └── schemas.ts         # Validation schemas
-├── prisma/
-│   ├── schema.prisma          # Database schema
-│   └── seed.ts               # Database seeding
-├── docs/                      # Documentation
-├── public/                    # Static assets
+│   ├── app/                    # Next.js App Router (thin composition layer)
+│   ├── processes/              # Cross-slice workflows (auth init, tenant bootstrap)
+│   ├── page-modules/           # Route-level page components (aliased as @pages)
+│   ├── widgets/                # Large page sections composed from features/entities
+│   ├── features/               # Interactive user actions and forms
+│   ├── entities/               # Domain models, types, and read-only UI
+│   └── shared/                 # Reusable UI kit, generic libs, and infra
+│       ├── api/                # DB clients, tRPC, Auth, Supabase
+│       ├── ui/                 # Atomic UI components (buttons, inputs, etc.)
+│       └── lib/                # Generic utilities and hooks
+├── prisma/                     # Database schema and migrations
+├── drizzle/                    # Drizzle migrations and metadata
+├── scripts/                    # Maintenance and seeding scripts
+├── public/                     # Static assets and locales
 └── package.json
 ```
 

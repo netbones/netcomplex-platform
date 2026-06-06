@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { authClient } from '@api/auth-client';
-import { canPublishAnnouncements } from '@entities/tenant/api/permissions';
+import { canPublishAnnouncements } from '@entities/tenant';
 import { useAnnouncements } from '@/features/announcements/model/useAnnouncements';
 import { AnnouncementForm } from '@/features/announcements/ui/AnnouncementForm';
 import { AnnouncementList } from '@/features/announcements/ui/AnnouncementList';

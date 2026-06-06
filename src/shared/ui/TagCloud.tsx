@@ -1,6 +1,6 @@
 'use client';
 
-import { useSafeTranslation } from '@features/i18n/model/useTranslation';
+import { useSafeTranslation } from '@shared/lib';
 
 interface TagCloudProps {
   tags: string[];

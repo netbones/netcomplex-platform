@@ -9,7 +9,7 @@ import {
   notifications,
 } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 import { apiError, apiSuccess, apiUnauthorized } from '@api/api-response';
 export const maxDuration = 5;

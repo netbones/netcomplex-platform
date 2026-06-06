@@ -1,4 +1,4 @@
-import { canManageRequests } from '@entities/tenant/api/permissions';
+import { canManageRequests } from '@entities/tenant';
 
 /**
  * Checks if the role can view all maintenance requests.

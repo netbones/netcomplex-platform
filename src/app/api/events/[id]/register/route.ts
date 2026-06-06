@@ -1,7 +1,7 @@
 import { auth } from '@api/auth';
 import { db, eventAttendees, users } from '@api/db';
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { apiSuccess, apiError, apiUnauthorized, apiNotFound, apiConflict } from '@api/api-response';
 
 /**

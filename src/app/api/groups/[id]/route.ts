@@ -1,8 +1,8 @@
 import { auth } from '@api/auth';
 import { db, groups, users, userGroups, contents } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { withTenant } from '@entities/tenant';
+import { hasPermission } from '@entities/tenant';
 
 import {
   apiError,

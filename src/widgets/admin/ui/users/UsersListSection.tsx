@@ -10,8 +10,8 @@ import type {
   InviteFormData,
   AllocateSeatFormData,
   SuspensionFormData,
-} from '@entities/user/model/types';
-import { roleOptions } from '@entities/user/model/types';
+} from '@entities/user';
+import { roleOptions } from '@entities/user';
 import { resolveSeatInfo } from './lib/resolve-user-helpers';
 import { useUsersData } from './lib/use-users-data';
 import { UserTable } from './UserTable';

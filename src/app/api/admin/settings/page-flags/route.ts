@@ -3,10 +3,10 @@ import {
   setPlatformPageFlagWithTx,
   getPlatformPageFlagsWithTx,
   type PlatformPageFlags,
-} from '@entities/tenant/api/flags/platform-flags';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+} from '@entities/tenant';
+import { withTenant } from '@entities/tenant';
 import { getSessionAndRole } from '@api/auth-utils';
-import { isAdmin } from '@entities/tenant/api/permissions';
+import { isAdmin } from '@entities/tenant';
 import { createComponentLogger } from '@shared/lib';
 import { runWithRLS, getRLSContext } from '@api/db';
 

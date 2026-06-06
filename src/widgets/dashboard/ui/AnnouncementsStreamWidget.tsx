@@ -7,7 +7,7 @@ import { logError } from '@shared/lib';
 import {
   PRIORITY_TAXONOMY,
   type AnnouncementPriority,
-} from '@features/announcements/model/priority-taxonomy';
+} from '@features/announcements';
 
 interface StreamAnnouncement {
   id: string;

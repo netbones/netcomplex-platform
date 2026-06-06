@@ -8,8 +8,8 @@
  */
 
 import { apiError, ERROR_CODES } from './api-response';
-import { withTenant } from '@entities/tenant/api/with-tenant';
-import { isModuleEnabled } from '@entities/tenant/lib/modules';
+import { withTenant } from '@entities/tenant';
+import { isModuleEnabled } from '@entities/tenant';
 
 /**
  * Assert that a module is enabled for the current tenant.

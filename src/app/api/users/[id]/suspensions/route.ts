@@ -1,9 +1,9 @@
 import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { hasPermission } from '@entities/tenant';
 import { db, users, platformSuspensions } from '@api/db';
 import { eq, desc, and } from 'drizzle-orm';
 import { apiUnauthorized, apiForbidden, apiSuccess } from '@api/api-response';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 export const maxDuration = 8;
 

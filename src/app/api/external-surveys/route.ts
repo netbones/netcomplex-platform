@@ -1,8 +1,8 @@
 import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant/api/permissions';
+import { hasPermission } from '@entities/tenant';
 import { db, externalSurveys, users } from '@api/db';
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 import { apiCreated, apiError, apiForbidden, apiSuccess } from '@api/api-response';
 async function getSessionAndRole(request: Request) {

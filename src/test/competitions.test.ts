@@ -74,14 +74,14 @@ vi.mock('@api/db', () => ({
 }));
 
 // Mock withTenant
-vi.mock('@entities/tenant/api/with-tenant', () => ({
+vi.mock('@entities/tenant', () => ({
   withTenant: vi.fn(() =>
     Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' })
   ),
 }));
 
 // Mock permissions
-vi.mock('@entities/tenant/api/permissions', () => ({
+vi.mock('@entities/tenant', () => ({
   hasPermission: vi.fn((role: string | null | undefined, permission: string) => {
     if (!role) return false;
     if (permission === 'content')
@@ -93,12 +93,12 @@ vi.mock('@entities/tenant/api/permissions', () => ({
 
 // Mock guards for platform admin
 const mockRequirePlatformAdmin = vi.fn();
-vi.mock('@entities/tenant/api/guards', () => ({
+vi.mock('@entities/tenant', () => ({
   requirePlatformAdmin: () => mockRequirePlatformAdmin(),
 }));
 
 // Mock base tenant API
-vi.mock('@entities/tenant/api/base', () => ({
+vi.mock('@entities/tenant', () => ({
   listTenants: vi.fn(() => Promise.resolve([{ id: 'tenant-1', name: 'Test Tenant' }])),
   createTenant: vi.fn(() => Promise.resolve({ id: 'new-tenant', name: 'New Tenant' })),
 }));

@@ -1,6 +1,6 @@
 import { runWithRLS, getRLSContext, maintenanceRequests } from '@api/db';
 import { eq, count, and, gte, sql } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 import { apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 export const dynamic = 'force-dynamic';
