@@ -1,0 +1,33 @@
+diff --git a/dist/index.js b/dist/index.js
+index a03d73f3931c12d761ee9acc223b6b8da2771f82..d2dd25de73f22b937a1008c2a2a44857640b4f23 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -28,7 +28,7 @@ __export(index_exports, {
+ module.exports = __toCommonJS(index_exports);
+ 
+ // src/core/validator.ts
+-var import_plugins = require("better-auth/plugins");
++var import_api_mw = require("better-auth/api");
+ var import_api = require("better-auth/api");
+ 
+ // src/core/adapters/standard-validator-adapter.ts
+@@ -102,7 +102,7 @@ var validator = (configs) => {
+     id: "validator",
+     middlewares: configs.map(({ path, schema, before, after, adapter }) => ({
+       path,
+-      middleware: (0, import_plugins.createAuthMiddleware)(async (ctx) => {
++      middleware: (0, import_api_mw.createAuthMiddleware)(async (ctx) => {
+         try {
+           if (before) {
+             try {
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 162637e01658fb3e7ca07d8bb9cbc5ae59ca8df9..e9fb63c5c49a91effebc9d55c0fbd6a1a749e86d 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -1,5 +1,5 @@
+ // src/core/validator.ts
+-import { createAuthMiddleware } from "better-auth/plugins";
++import { createAuthMiddleware } from "better-auth/api";
+ import { APIError } from "better-auth/api";
+ 
+ // src/core/adapters/standard-validator-adapter.ts
