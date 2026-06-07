@@ -1,3 +1,4 @@
 npx lint-staged
 .husky/stash-protocol.sh
+bash scripts/steiger-staged.sh
 

@@ -410,6 +410,49 @@ In order to minimise new page creation for a feature, follow these protocols:
 - **Self-review** before requesting review
 - **Automated checks** pass before review
 
+### FSD Architecture (Steiger)
+
+The project enforces Feature-Sliced Design boundaries with two complementary tools:
+
+| Tool          | Scope                                                                                                       | Where it runs            |
+| ------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------ |
+| **ESLint**    | Deep imports — catches `@shared/*/*`, `@entities/*/*`, etc. (no FSD slice bypass via path)                   | Editor + pre-commit      |
+| **Steiger**   | Layer hierarchy, public API sidestep, public API presence, slice hygiene, segment conventions, naming typos | Pre-commit + CI          |
+
+**Commands:**
+
+```bash
+pnpm fsd:check              # Run Steiger on ./src
+bash scripts/steiger-staged.sh   # Run Steiger only when FSD-relevant files are staged
+```
+
+**Configuration:**
+
+- `steiger.config.js` at repo root — FSD rule severities + `no-public-api-sidestep` allow-list
+- `eslint.config.js` — `no-restricted-imports` patterns + cross-reference comment to Steiger
+
+**Tuning policy:**
+
+- Rules start at `warn` when first introduced to surface debt without breaking CI.
+- A rule is tightened to `error` only when the corresponding debt cluster has been
+  fully closed in a Phase 44 follow-up plan.
+- Baseline (582 findings) lives at `.planning/phases/44-m5a-hardening/44-01-baseline-report.txt`
+  and is the source of truth for progress on FSD debt.
+
+**Adding a sidestep (allowed import bypass):**
+
+1. Open `steiger.config.js`.
+2. Add the import to the `noPublicApiSidestep` allow-list with a justification
+   linking to a BD issue (e.g. `// soralia-village-de8x: ...`).
+3. Commit the BD issue ID in the comment so the sidestep is auditable.
+4. Sidesteps MUST be reviewed at the milestone boundary (`.planning/MILESTONES.md`
+   ritual 4b); any sidestep without a linked BD issue is a protocol violation.
+
+**Why two tools?** ESLint gives inline editor feedback on deep imports; Steiger
+gives architectural feedback (cross-slice imports, missing public APIs, dead
+slices, layer typos) that ESLint cannot express. They overlap on deep imports
+deliberately — belt and suspenders.
+
 ### Next.js
 
 - Use App Router (src/app)

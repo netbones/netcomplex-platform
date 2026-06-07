@@ -1,0 +1,45 @@
+name: FSD Lint
+
+on:
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - 'src/**'
+      - 'steiger.config.js'
+      - '.github/workflows/fsd-lint.yml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  push:
+    branches: [dev, main]
+    paths:
+      - 'src/**'
+      - 'steiger.config.js'
+
+concurrency:
+  group: fsd-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  steiger:
+    name: Steiger FSD architecture check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install deps
+        run: pnpm install --no-frozen-lockfile --config.minimum-release-age=0
+
+      - name: Run Steiger
+        run: pnpm fsd:check

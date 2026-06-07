@@ -23,7 +23,8 @@
     "test:coverage": "vitest run --coverage",
     "api:generate": "tsx src/server/openapi/generator.ts public/openapi.json",
     "api:lint": "redocly lint --config .redocly.yaml --format=stylish",
-    "api:ci": "pnpm api:generate && pnpm api:lint"
+    "api:ci": "pnpm api:generate && pnpm api:lint",
+    "fsd:check": "steiger ./src"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
@@ -44,6 +45,7 @@
     "@better-auth/cli": "^1.4.21",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
+    "@feature-sliced/steiger-plugin": "0.5.8",
     "@next/eslint-plugin-next": "^16.2.6",
     "@playwright/test": "^1.60.0",
     "@testing-library/jest-dom": "^6.9.1",
@@ -74,6 +76,7 @@
     "prisma": "5.22.0",
     "prisma-generator-drizzle": "^0.7.6",
     "shadcn": "^4.1.1",
+    "steiger": "0.5.12",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.59.3",

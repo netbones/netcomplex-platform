@@ -10,6 +10,12 @@ export default [
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       'prefer-const': 'error',
       // FSD guardrails: Re-enabled for audit.
+      // Note: ESLint catches deep imports (@shared/*/*) inside the editor.
+      // Steiger (steiger.config.js) is the source of truth for FSD architecture
+      // rules — layer hierarchy, public API sidestep, public API presence, slice
+      // hygiene, segment conventions. ESLint and Steiger share the same goal
+      // (enforce FSD boundaries) but report different violation classes.
+      // See AGENTS.md "FSD Architecture" for the split of responsibilities.
       'no-restricted-imports': [
         'error',
         {
