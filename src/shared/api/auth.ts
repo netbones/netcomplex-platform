@@ -19,7 +19,14 @@ import { tenantConfig } from '@entities/tenant';
 import { sendEmail } from '@shared/api';
 import { templates } from '@shared/api';
 import { authLogger } from '@shared/lib';
-import { generateProfileSlug } from '@shared/api';
+import { generateProfileSlug } from '@shared/api/slug';
+import { validator } from 'validation-better-auth';
+import {
+  signUpEmailSchema,
+  signInEmailSchema,
+  forgetPasswordSchema,
+  resetPasswordSchema,
+} from './auth-schemas';
 
 /**
  * Better Auth configuration for Soralia Village.
@@ -117,7 +124,18 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [twoFactor({ issuer: tenantConfig.auth.issuer }), organization(), bearer(), passkey()],
+  plugins: [
+    twoFactor({ issuer: tenantConfig.auth.issuer }),
+    organization(),
+    bearer(),
+    passkey(),
+    validator([
+      { path: '/sign-up/email', schema: signUpEmailSchema },
+      { path: '/sign-in/email', schema: signInEmailSchema },
+      { path: '/forget-password', schema: forgetPasswordSchema },
+      { path: '/reset-password', schema: resetPasswordSchema },
+    ]),
+  ],
   advanced: {
     cookiePrefix: tenantConfig.auth.cookiePrefix,
   },
