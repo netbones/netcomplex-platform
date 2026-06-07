@@ -7,7 +7,8 @@ import superjson from 'superjson';
 import { authClient } from '@api/auth-client';
 import { TooltipProvider } from '@shared/ui';
 import { trpc } from '@api/trpc/client';
-import '@shared/lib18n';
+// eslint-disable-next-line no-restricted-imports -- barrel deliberately excludes client-only i18n
+import '@shared/lib/i18n';
 import * as React from 'react';
 
 export function Providers({ children }: { children: React.ReactNode }) {

@@ -27,7 +27,7 @@ vi.mock('@api/auth-client', () => ({
   },
 }));
 
-vi.mock('@shared/libApiToast', () => ({
+vi.mock('@shared/lib/hooks/useApiToast', () => ({
   useApiToast: () => ({
     fetch: vi.fn(),
   }),

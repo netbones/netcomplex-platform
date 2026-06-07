@@ -2,7 +2,8 @@
 
 import '../globals.css';
 import { I18nextProvider } from 'react-i18next';
-import i18n from '@shared/lib18n';
+// eslint-disable-next-line no-restricted-imports -- barrel deliberately excludes client-only i18n
+import i18n from '@shared/lib/i18n';
 import { Toaster } from 'sonner';
 import { Suspense } from 'react';
 

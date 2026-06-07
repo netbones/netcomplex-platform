@@ -153,13 +153,16 @@ $ grep "patch_hash" pnpm-lock.yaml | head -1
 
 ## Follow-ups
 
-- [ ] File upstream issue on `Daanish2003/better-auth-validator`
+- [x] File upstream issue on `Daanish2003/better-auth-validator`
       documenting the `createAuthMiddleware` import path bug.
+      (Filed as https://github.com/Daanish2003/validation-better-auth/issues/45
+      on 2026-06-07.)
 - [ ] Watch for `validation-better-auth@1.3.5` or later that fixes this
       upstream; drop the patch when available.
 - [ ] Consider extending the validator to cover other Better Auth
       endpoints (organization plugin routes, twoFactor setup, etc.) in a
       future plan.
-- [ ] Pre-existing dev regression (unrelated): `src/app/providers.tsx`
-      has `import '@shared/lib18n'` (typo) — should be
-      `import '@shared/lib/i18n'`. Track separately; out of scope for 43-05.
+- [x] Pre-existing dev regression (unrelated): `@shared/lib18n` typo in
+      `src/app/providers.tsx` (and 4 other locations). Fixed in
+      separate commit on 2026-06-07; see
+      `soralia-village-de8x` for context.

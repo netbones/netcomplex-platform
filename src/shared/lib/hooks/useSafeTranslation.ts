@@ -2,7 +2,8 @@
 
 import { useTranslation as useI18nextTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import { defaultLanguage } from '@shared/lib18n';
+// eslint-disable-next-line no-restricted-imports -- barrel deliberately excludes client-only i18n
+import { defaultLanguage } from '@shared/lib/i18n';
 
 /**
  * Hydration-safe translation hook. Drop-in replacement for react-i18next's useTranslation.
