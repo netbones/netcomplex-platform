@@ -702,28 +702,31 @@ Plans:
 
 ---
 
-## M4.5 — Stabilization (Blocked on Triage)
+## M4.5 — Stabilization (Code-Complete)
 
-_Buffer between M4 (code-complete) and M5 (production-traffic). No new phases. Pure verification, soak, and sign-off. See `.planning/MILESTONES.md` Section 2 (M4.5) for full criteria._
+_Buffer between M4 (code-complete) and M5 (launch). M4.5 ships the BLOCKER fixes that would surface as P0/P1 production incidents. The 7-day soak was originally scoped here but is REPOSITIONED to M5b Launch as of 2026-06-07 — a soak is a launch verification activity, not a production-readiness deliverable. Running it before the system is stable (no known critical bugs, FSD boundaries enforced, pnpm advisories resolved) would produce noise, not signal._
 
-**Status (2026-06-07):** **Phase 43 (M4.5 Blockers) 5/5 SHIPPED — COMPLETE.** Soak activation is CONDITIONAL — pending BD mls9+n0rh (tc4 end-to-end seed). 43-05 (ltn) shipped with on-the-fly upstream patch.
+**Status (2026-06-07):** **Phase 43 (M4.5 Blockers) 5/5 SHIPPED — COMPLETE.** Out-of-band fixes landed: soralia-village-de8x (lib18n typo, 6 files, closed), soralia-village-r13u (tenantConfig barrel export, 2 files, open — moved to Phase 44 hardening). Phase 44 (renamed M5a Hardening) is the next active work.
 
-**Activates when:** M4 is complete (Phases 35, 41, 42 all ✅) AND Phase 43 fully ships (5/5 done). Phase 43 is the precondition for M4.5.
+**Activates when:** M4 is complete (Phases 35, 41, 42 all ✅) AND Phase 43 fully ships (5/5 done). Phase 43 is the precondition for M4.5. ✅
 
-**Verifiable (all must pass to declare M4.5 done):**
+**Done state for M4.5:**
 
-- **7-day production soak** with zero P0/P1 incidents (P2/P3 acceptable, tracked).
-- **OpenAPI spec published** to a staging URL or package; at least one external test client (or internal smoke test) consumes it successfully.
-- **Performance baseline captured:** p50/p95/p99 latency for chat send, dashboard load, maintenance ticket create. Documented in `.planning/perf-baseline-M4.5.md`.
-- **All 4 locales (en, af, xh, zu) render** without console errors on every tenant route.
-- **`canAccess()` migration timeline documented** — if Phase 41's legacy export removal isn't done, write a dated plan; if done, write the migration log.
-- **Rollback procedure tested** — verified that we can revert to M3 in <5 minutes (DB migration, env flags, traffic shift).
+- All 5 Phase 43 plans shipped (43-01/02/03/04/05) with VERIFICATION.md verdict PASS.
+- Out-of-band critical bugs from pre-launch hardening landed (de8x, r13u planned for Phase 44).
 
-**Duration:** ~1 week. The 7-day soak is the longest single item; the others can run in parallel during the soak.
+**What M4.5 does NOT do (repositioned to M5b):**
 
-**Failure mode:** If any verifiable criterion fails, M4.5 is "blocked on \<criterion\>". M5 does not start until M4.5 is green. No exceptions.
+- 7-day production soak — moved to M5b Launch (Phase 45).
+- OpenAPI spec publishing — moved to M5b (it serves the launch).
+- Performance baseline — moved to M5b (soak period generates the data).
+- 4-locale render check — moved to M5b (final pre-launch verification).
+- `canAccess()` migration timeline — Phase 41 already shipping 3 plans; legacy removal work tracked in Phase 44 (M5a) not here.
+- Rollback procedure test — moved to M5b (pre-launch drill).
 
-**What's NOT in M4.5:** New features, new phases, code changes beyond what M4 requires.
+**Failure mode for M4.5 done state:** None — M4.5 is a fixed-scope blocker-resolution phase. Failure to ship any of the 5 plans would block M5, not the soak itself.
+
+**What's NOT in M4.5:** New features, FSD hardening (Phase 44), pnpm advisory cleanup (Phase 44), monitoring infrastructure (Phase 44), launch verification (M5b).
 
 ---
 
@@ -735,78 +738,106 @@ _Buffer between M4 (code-complete) and M5 (production-traffic). No new phases. P
 
 **BD sources (5):** `cs5` (MyHomeSpace), `tc4` (prisma/seed), `e0w` (80-route audit), `oqw` (RLS), `ltn` (request validation)
 
-**Why this phase exists:** M4.5 stabilization requires 7 days of zero P0/P1 incidents. Without resolving these 5 issues, the soak would surface them as production incidents. Better to fix in a focused phase than during the soak itself.
+**Why this phase exists:** M5b launch verification (the 7-day soak) requires zero P0/P1 incidents. Without resolving these 5 issues, the soak would surface them as production incidents. Better to fix in a focused phase than during the soak itself.
 
 **Acceptance:** All 5 BD issues closed with a fix commit; `pnpm db:seed` works; MyHomeSpace correctly links user to property; all audited routes have withTenant() OR documented RLS escape; `runWithRLS()` wraps sensitive routes; request validation plugin wired to /api/auth/\*.
 
 **Plans:** 5/5 plans executed
 
-**VERIFICATION.md verdict:** 5/5 PASS. M4.5 soak CONDITIONAL pending BD mls9+n0rh (tc4); 43-05 ltn human-verify gate cleared (package approved 2026-06-06; upstream packaging bug patched 2026-06-07 via pnpm patchedDependencies).
+**VERIFICATION.md verdict:** 5/5 PASS. 43-05 ltn human-verify gate cleared (package approved 2026-06-06; upstream packaging bug patched 2026-06-07 via pnpm patchedDependencies).
 
 Plans:
 
 - [x] 43-01-PLAN.md — Wave 1 — tc4: Prisma seed shim (replaced prisma/seed.ts with 18-line side-effect shim; rebased to import new multi-tenant orchestrator for side effects). Soak AC blocked on BD mls9 + n0rh.
 - [x] 43-02-PLAN.md — Wave 1 — cs5: MyHomeSpace standardSeats fallback (added to /api/users/[id]/route.ts:180-199; verified all 3 user states on live Soralia tenant)
-- [x] 43-03-PLAN.md — Wave 2 — e0w: 157-route tenant-isolation audit (script at scripts/audit-tenant-isolation.ts, 109 lines; report at docs/SECURITY_AUDIT_M4.5.md; PASS 136, FAIL 0, WHITELISTED 8, N/A 13)
+- [x] 43-03-PLAN.md — Wave 2 — e0w: 157-route tenant-isolation audit (script at scripts/audit-tenant-isolation.ts, 109 lines; report at docs/SECURITY_AUDIT_M4.5.md; PASS 136, FAIL 0, WHITELISTED 8, NEEDS-FOLLOW-UP 0, N/A 13)
 - [x] 43-04-PLAN.md — Wave 3 — oqw: 5 admin routes wrapped in runWithRLS() (activity, board-members, maintenance-stats, urgency, settings/page-flags; tx-aware sibling helpers at platform-flags.ts:167, 246)
 - [x] 43-05-PLAN.md — Wave 3 — ltn: validation-better-auth@1.3.4 installed with 4 Zod schemas (signUpEmailSchema, signInEmailSchema, forgetPasswordSchema, resetPasswordSchema) wired into /api/auth/\* via `validator()` plugin. Discovered and patched an upstream packaging bug: package imports `createAuthMiddleware` from `better-auth/plugins` (wrong path) — fixed via pnpm patch (patches/validation-better-auth@1.3.4.patch) to use `better-auth/api` (correct path). All 3 smoke tests pass (400/400/200).
 
-**Out of scope:** M5a/M5b work (different phases). 7cp + jc1 (now part of M5b dWallet, phase 47).
+**Out of scope (moved to Phase 44):** Steiger FSD linter integration, FSD debt remediation (incl. soralia-village-r13u), pnpm advisories (nn39), monitoring infrastructure planning. M4.5 follow-up closeouts (tc4/mls9/n0rh seed regression, cs5 MyHomeSpace) move to Phase 44. M5b launch features (phase 45, 47). 7cp + jc1 (now part of M5b dWallet, phase 47).
 
 ---
 
 ## M5 — Anchor Tenant Launch (Planning)
 
-_Close the architecture-audit issues, ship the launch-blocking features: Community Merits, OTP password reset, MyHomeSpace bug, 37-widget i18n batch, **and dWallet (the headline data-rights + revenue-share selling point)**. Ready for Soralia Village (180 homes) production traffic. Decomposed into M5a (audit closure) and M5b (anchor tenant features)._
+_Harden the codebase to launch-readiness, run the 7-day production soak to verify, then ship the launch-blocking features: Community Merits, OTP password reset, MyHomeSpace bug, 37-widget i18n batch, **and dWallet (the headline data-rights + revenue-share selling point)**. Ready for Soralia Village (180 homes) production traffic. Decomposed into M5a (hardening & launch-readiness) and M5b (soak & launch)._
 
-**Source backlog:** BD issues from `docs/cleaner_react_architecture.md` audit (5 issues) + Soralia launch features (5 issues). See Phase 44 and 45 for breakdown.
+**Source backlog:** BD issues from `docs/cleaner_react_architecture.md` audit (5 issues) + Soralia launch features (5 issues) + M4.5 follow-ups + pnpm advisories + FSD debt + new monitoring infrastructure. See Phase 44 and 45 for breakdown.
 
-**Activates when:** M4.5 is green.
+**Activates when:** M4.5 is green (Phase 43 5/5 shipped + de8x closed + r13u planned). ✅
+
+**Milestone reshape rationale (2026-06-07):** The 7-day production soak was originally placed in M4.5 as a "stabilization" activity. This was a category error — the soak is a launch verification, not a production-readiness deliverable. The team is mid-journey in the dev cycle (just discovered lib18n typo + tenantConfig barrel gap + missing FSD linter) and would get noise rather than signal from a 7-day soak run before stability is achieved. M4.5 now correctly closes with "code-complete + blocker-fixes shipped" rather than "soak complete". The soak is the FIRST activity of M5b, not the LAST activity of M4.5. See `.planning/STATE.md` for the operational state machine.
 
 ---
 
-## Phase 44: M5a Audit Closure
+## Phase 44: M5a Hardening & Launch Readiness
 
-**Goal:** Close the 5 architecture-audit gaps identified in `docs/cleaner_react_architecture.md` AND resolve 4 of the 7 open conflict register entries from `docs/UBIQUITOUS_LANGUAGE.md` (C1, C2, C5, C6) so the codebase is ready for Soralia Village's 180-home production launch.
+**Goal:** Close all known critical bugs, enforce FSD architecture boundaries, resolve security advisories, plan monitoring infrastructure, and complete the audit-closure/conflict-register work so the system is ready for the 7-day soak and the Soralia Village (180-home) production launch. After Phase 44, the codebase should be "quiet" — no known P0/P1 bugs, no architectural debt to freeze around, no FSD violations, no security advisories that would block production traffic.
 
-**Status:** Planning (expanded 2026-06-04 to include conflict closure work)
+**Status:** Planning (renamed from "M5a Audit Closure" to "M5a Hardening & Launch Readiness" on 2026-06-07; expanded scope to include pre-soak hardening)
 
-**BD sources (5 audit + 4 conflicts = 9 total):**
+**BD sources (initial 9 audit/conflict + 5 M4.5 follow-ups + 1 FSD debt + 1 advisories = 16 total):**
 
 **Audit closure (5):** `fpc` (tRPC coverage), `qig` (shared HTTP client), `1ei` (useQuery migration), `9xr` (pure helpers), `5u2` (maintenance dedup)
 
 **Conflict register closure (4):** `2z4` (C1 Property shape), `1eh` (C2 gating migration Phase 2+3), `brp` (C5 residencyType alignment), `huo` (C6 occupantType → householdRole)
+
+**M4.5 follow-up closeouts (4):** `tc4` (prisma/seed schema type errors), `mls9` (prisma.seed config in package.json), `n0rh` (gen_random_uuid default on Tenant.id), `cs5` (MyHomeSpace — was Phase 43, blocked soak AC)
+
+**FSD debt (1):** `r13u` (tenantConfig barrel re-export — surfaced by lib18n fix on 2026-06-07; Steiger baseline scan expected to surface more)
+
+**Security advisories (1):** `nn39` (19 high-severity pnpm audit findings; defer to runtime-impact-only filter)
 
 **Conflicts deferred:**
 
 - **C3 (Tab→Space):** RESOLVED (2026-06-04 audit; 0 hits for `tabId`/`DashboardTab`). Phase 31 closed it.
 - **C4 (Tier Naming):** DEFERRED to Phase 47 (dWallet). 3 vs 4 tier mismatch only matters when dWallet ships tier-gated features.
 
-**Acceptance:** All 9 BD issues closed with a fix commit; `docs/cleaner_react_architecture.md` Chapters 6-9 marked as "Closed"; `docs/UBIQUITOUS_LANGUAGE.md` C1, C2, C5, C6 marked as "Closed"; zero `useEffect+fetch` patterns in `src/widgets/`; `src/shared/api/http-client.ts` is the single import point for fetch in widgets; all maintenance API routes use a single transform function; 5 Property shapes consolidated per C1 resolution plan; 4+ `usePageFlags` callsites migrated to `useGateContext()`; legacy exports restricted to `@internal`; `Profile.occupantType` renamed to `householdRole`; `Profile.residencyType` and `Invitation.residentType` aligned on a single enum.
+**Steiger FSD linter integration (NEW — Plan 44-01):** Install `@feature-sliced/steiger-plugin`, configure `steiger.config.js` with project-specific rules (e.g., allow `@shared/lib/i18n` as a documented sidestep), add a general web CI workflow (separate from the API-only `api-ci.yml`), wire a pre-commit hook for staged FSD files, and document in AGENTS.md. Baseline scan expected to surface FSD debt clusters — each cluster gets its own BD issue and Phase 44 plan.
 
-**Plans:** TBD. Run `/gsd-plan-phase 44-m5a-audit-closure` when ready to plan execution. Suggested plan structure:
+**Monitoring infrastructure planning (NEW — Plan 44-02 TBD):** Design the observability stack for the 7-day soak (Prometheus/Grafana vs. Sentry-only vs. Vercel Analytics — needs investigation). This was implicitly M4 work (Phase 35 D-01) but no soak-specific monitoring plan exists. Document in `.planning/observability-soak-M5.md`.
 
-- **Plan A (foundation):** `qig` + `9xr` + `2z4`
-- **Plan B (gating migration):** `fpc` + `1eh` (usePageFlags → useGateContext + restrict legacy exports)
-- **Plan C (cleanup):** `1ei` + `5u2` + `brp` + `huo`
+**Acceptance:** All initial 9 audit/conflict BD issues closed + all 4 M4.5 follow-ups closed + Steiger FSD linter integrated and running in CI + Steiger baseline findings filed as BD issues + pnpm advisory nn39 closed (or runtime-impact subset) + monitoring infra plan documented + 4+ `usePageFlags` callsites migrated to `useGateContext()` + legacy exports restricted to `@internal` + `Profile.occupantType` renamed to `householdRole` + `Profile.residencyType` and `Invitation.residentType` aligned + zero new FSD violations on dev (Steiger clean).
 
-**Out of scope:** M4.5 fixes (phase 43), M5b launch features (phase 45, 47), M5+ post-launch (phase 46), C3 (already resolved). C4 (Tier Naming) re-elevated — see phase 47.
+**Plans:** TBD. Run `/gsd-plan-phase 44-m5a-hardening` when ready to plan execution. Suggested plan structure (subject to Steiger triage):
+
+- **Plan 44-01:** Steiger FSD linter integration (install, config, baseline scan, CI, pre-commit, AGENTS.md docs)
+- **Plan 44-02 (TBD):** Monitoring infrastructure planning for soak
+- **Plan 44-03 (TBD):** Audit closure wave A — `qig` + `9xr` + `2z4` + `r13u` (foundation + conflict C1)
+- **Plan 44-04 (TBD):** Audit closure wave B — `fpc` + `1eh` (gating migration + restrict legacy exports)
+- **Plan 44-05 (TBD):** Audit closure wave C — `1ei` + `5u2` + `brp` + `huo` (cleanup + conflicts C5/C6)
+- **Plan 44-06 (TBD):** M4.5 follow-up closeouts — `tc4` + `mls9` + `n0rh` + `cs5` (seed regression + MyHomeSpace)
+- **Plan 44-07 (TBD):** pnpm advisory resolution — `nn39` (filter to runtime-impact subset)
+
+**Out of scope:** M4.5 fixes (phase 43, all done), M5b launch features (phase 45, 47), M5+ post-launch (phase 46), C3 (already resolved). C4 (Tier Naming) re-elevated — see phase 47. dWallet sub-phases (phase 47).
 
 ---
 
-## Phase 45: M5b Anchor Tenant Launch
+## Phase 45: M5b Soak & Launch
 
-**Goal:** Ship the 5 launch-blocking features for Soralia Village's 180-home rollout. Each is a feature, not a fix — the system functions without it, but the anchor tenant experience is incomplete.
+**Goal:** Run the 7-day production soak as launch verification, then ship the launch-blocking features for Soralia Village's 180-home rollout. The soak is the FIRST deliverable of M5b, not the last — it gates the feature rollout by proving the platform can sustain production traffic without surfacing the bugs that Phase 43/44 closed.
 
-**Status:** Planning
+**Status:** Planning (renamed from "M5b Anchor Tenant Launch" to "M5b Soak & Launch" on 2026-06-07; soak elevated to first deliverable)
 
-**BD sources (5):** `2at` (Community Merits), `l23` (i18n epic), `0f7` (Tiptap i18n), `0tb` (OTP reset), `cs5` (MyHomeSpace — also M4.5 blocker)
+**BD sources (5 features + 3 dWallet = 8 total):**
 
-**Acceptance:** All 5 BD issues closed with a feature commit; Community Merits live in production 1+ week; all widget/page content available in 4 locales; Tiptap editors can save/load in any locale; OTP password reset works end-to-end; MyHomeSpace correctly links user to property.
+**Anchor tenant features (5):** `2at` (Community Merits), `l23` (i18n epic), `0f7` (Tiptap i18n), `0tb` (OTP reset), `cs5` (MyHomeSpace — also M4.5 blocker; will be closed in Phase 44 if 44-06 ships)
 
-**Dependencies:** l23 blocks 0f7 (Tiptap localization needs i18n router extension to tenant routes — same blocker as deferred Phase 04). cs5 ideally resolved in phase 43 to avoid duplicating fix work.
+**dWallet headline (3):** `7cp` (POPIA compliance audit), `jc1` (cookie management), Schedule F Table 2 (revenue share % — `5m7l`)
 
-**Plans:** TBD. Run `/gsd-plan-phase 45-m5b-anchor-tenant` when ready to plan execution.
+**Soak verification (NEW — Plan 45-01):** 7-day production soak gated by criteria from `.planning/MILESTONES.md` Section 2.6. Plan defines start/stop gates, observability signals, abort criteria, success criteria, and rollback procedure. Soak is run only after Phase 44 acceptance criteria are met.
+
+**Acceptance:** 7-day soak completes with zero P0/P1 incidents (P2/P3 acceptable, tracked); all 5 anchor-tenant features shipped; Community Merits live in production 1+ week; all widget/page content available in 4 locales; Tiptap editors can save/load in any locale; OTP password reset works end-to-end; MyHomeSpace correctly links user to property; dWallet module live; POPIA audit complete; Schedule F Table 2 confirmed; OpenAPI spec published; perf baseline captured; rollback procedure tested (verified revert to M4.5 in <5 min).
+
+**Dependencies:** l23 blocks 0f7 (Tiptap localization needs i18n router extension to tenant routes — same blocker as deferred Phase 04). cs5 ideally resolved in Phase 44 to avoid duplicating fix work. **Soak (45-01) blocks all features** — feature rollout does not start until soak is green.
+
+**Plans:** TBD. Run `/gsd-plan-phase 45-m5b-soak-launch` when ready to plan execution. Suggested plan structure:
+
+- **Plan 45-01:** 7-day production soak (start/stop gates, observability, abort criteria, success criteria, rollback test)
+- **Plan 45-02+:** Feature waves (Community Merits, OTP reset, i18n batch, MyHomeSpace — order TBD)
+- **Plan 45-XX:** dWallet sub-phases (Phase 47 A–F) — interleaved with feature waves
+
+**Out of scope:** M4.5 fixes (phase 43), Phase 44 hardening (must complete before 45-01), M5+ post-launch (phase 46).
 
 ---
 

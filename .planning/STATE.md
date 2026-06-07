@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: 'Phase 43 (M4.5 Blockers) executed end-to-end. 5 of 5 plans shipped: 43-01 (tc4 prisma/seed.ts shim, soak blocked on mls9+n0rh), 43-02 (cs5 MyHomeSpace standardSeats fallback), 43-03 (e0w 157-route tenant isolation audit, 0 FAIL, 8 WHITELISTED, 13 N/A), 43-04 (oqw 5 admin routes wrapped in runWithRLS), 43-05 (ltn validation-better-auth@1.3.4 with 4 Zod schemas + pnpm patch for upstream import bug; 3/3 smoke tests pass). VERIFICATION.md: 5/5 PASS, M4.5 soak CONDITIONAL pending mls9+n0rh for tc4. Phase worktree rebased onto dev (b5c1c8b) and merged as 3402e48.'
-last_updated: '2026-06-07T08:25:00.000Z'
+stopped_at: 'Phase 43 (M4.5 Blockers) 5/5 SHIPPED, COMPLETE. Milestone reshape 2026-06-07: 7-day production soak repositioned from M4.5 to M5b Launch (was a category error — soak is a launch activity, not a production-readiness deliverable). New phase ordering: M4.5 ✅ code-complete; M5a = Phase 44 Hardening (Steiger FSD linter integration, FSD debt, pnpm advisories nn39, M4.5 follow-up closeouts tc4/mls9/n0rh/cs5, monitoring infra plan); M5b = Phase 45 Soak & Launch (7-day soak + MyHomeSpace + Community Merits + OTP). Phase 44-01 plan: install Steiger, configure, run baseline scan, file BD issues for findings, add CI workflow, pre-commit hook. Out-of-band fixes this session: soralia-village-de8x (lib18n typo, 6 files), soralia-village-r13u (tenantConfig barrel export gap, 2 files).'
+last_updated: '2026-06-07T09:30:00.000Z'
 progress:
   total_phases: 46
   completed_phases: 39
@@ -17,15 +17,15 @@ progress:
 
 ## Current Position
 
-Phase: 43 (m4-5-blockers) — 5/5 PLANS SHIPPED, COMPLETE
+Phase: 43 (m4-5-blockers) — 5/5 PLANS SHIPPED, COMPLETE; **milestone reshape complete** — soak moved to M5b.
 
-- **Phase:** Phase 43 (M4.5 Blockers) 5/5 complete. Plans 43-01/02/03/04/05 all shipped. Plan 43-05 (ltn validator) cleared human-verify gate and shipped with on-the-fly upstream patch. VERIFICATION.md: 5/5 PASS; M4.5 soak CONDITIONAL (still blocked on mls9+n0rh for tc4).
-- **Status:** Phase 43 complete. M4.5 soak can start once mls9+n0rh are resolved.
-- **Last Updated:** 2026-06-07
-- **Next Step:** M4.5 soak activation — pending mls9+n0rh (tc4 end-to-end seed fix). Then 7-day production soak, OpenAPI publish, perf baseline, 4-locale check, canAccess() migration doc, rollback test.
+- **Phase:** Phase 43 (M4.5 Blockers) 5/5 complete. Plans 43-01/02/03/04/05 all shipped. VERIFICATION.md: 5/5 PASS.
+- **Status:** Phase 43 complete. M4.5 code-complete and ready for hardening phase.
+- **Next Step:** Phase 44 (M5a Hardening) — first plan = Steiger FSD linter integration. Then close M4.5 follow-ups (tc4/mls9/n0rh seed regression, cs5 MyHomeSpace), pnpm advisory cleanup (nn39), monitoring infra plan, FSD debt remediation surfaced by Steiger.
+- **7-day soak:** REPOSITIONED to M5b Launch (Phase 45). Was a category error to include in M4.5 (production-readiness) — soak is a launch activity. System must be stable (no known critical bugs, no architectural debt to freeze around) before soak is meaningful. Pre-soak hardening goes in M5a.
 
-**Last Session:** 2026-06-07T08:25:00.000Z
-**Stopped at:** Phase 43 (M4.5 Blockers) executed end-to-end. 5 of 5 plans shipped: 43-01 (tc4 prisma/seed.ts shim, soak blocked on mls9+n0rh), 43-02 (cs5 MyHomeSpace standardSeats fallback), 43-03 (e0w 157-route tenant isolation audit, 0 FAIL, 8 WHITELISTED, 13 N/A), 43-04 (oqw 5 admin routes wrapped in runWithRLS), 43-05 (ltn validation-better-auth@1.3.4 with 4 Zod schemas + pnpm patch for upstream import bug; 3/3 smoke tests pass). VERIFICATION.md: 5/5 PASS, M4.5 soak CONDITIONAL pending mls9+n0rh for tc4. Phase worktree rebased onto dev (b5c1c8b) and merged as 3402e48.
+**Last Session:** 2026-06-07T09:30:00.000Z
+**Stopped at:** Phase 43 (M4.5 Blockers) 5/5 complete; milestone reshape executed (soak deferred M4.5→M5b); out-of-band fixes landed: soralia-village-de8x (lib18n typo, 6 files, closed), soralia-village-r13u (tenantConfig barrel export, 2 files, open — Phase 44 candidate). Phase 44 directory created; Phase 44-01 plan (Steiger integration) next.
 **Resume file:** None
 
 ## Active Phase Decisions
