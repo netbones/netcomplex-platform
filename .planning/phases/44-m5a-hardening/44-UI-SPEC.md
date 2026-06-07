@@ -1,11 +1,14 @@
 ---
 phase: 44
 slug: m5a-hardening
-status: draft
+status: approved
+reviewed_at: 2026-06-07
+reviewer: gsd-ui-checker
 shadcn_initialized: true
 preset: shadcn-default-slate-css-variables
 created: 2026-06-07
 ui_scope: no-new-ui
+checker_scorecard: 6/6
 ---
 
 # Phase 44 — UI Design Contract
