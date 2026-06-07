@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: 'Phase 44 (M5a Hardening) 1/1 plan shipped (44-01 Steiger integration COMPLETE). Steiger installed, configured, baseline scan run (582 FSD violations: 239 err + 343 warn), 8 BD issues filed (qjpa @api/* 461, 08st tenant fan-in 9, nf5r admin fan-in 26, znjo shared-to-entities 28, 3qio pricing-app 1, ohj8 missing public API 7, s50y src/types 1, 3a3v dead slices 12+). CI workflow .github/workflows/fsd-lint.yml created. Pre-commit hook steiger-staged.sh added. ESLint cross-reference comment + AGENTS.md FSD section documented. All rules start at warn to surface debt without blocking; cluster-by-cluster tightening deferred to follow-up plans. Worktree phase-44-hardening merged to dev and removed; HEAD=0fd3924. Phase 44-02 TBD (monitoring infra plan) is next.'
-last_updated: '2026-06-07T11:00:00.000Z'
+stopped_at: 'Phase 44 (M5a Hardening) 1/1 plan shipped (44-01 Steiger integration COMPLETE). 44-RESEARCH.md and 44-UI-SPEC.md also shipped (approved, 6/6 carry-forward dimensions, no-new-ui scope). Steiger installed, configured, baseline scan run (582 FSD violations: 239 err + 343 warn), 8 BD issues filed (qjpa @api/* 461, 08st tenant fan-in 9, nf5r admin fan-in 26, znjo shared-to-entities 28, 3qio pricing-app 1, ohj8 missing public API 7, s50y src/types 1, 3a3v dead slices 12+). CI workflow .github/workflows/fsd-lint.yml created. Pre-commit hook steiger-staged.sh added. ESLint cross-reference comment + AGENTS.md FSD section documented. All rules start at warn to surface debt without blocking; cluster-by-cluster tightening deferred to follow-up plans. Worktree phase-44-hardening merged to dev and removed; HEAD=a9c900a. Phase 44-02 TBD (monitoring infra plan) is next; UI-SPEC carry-forward contract covers any touched UI surfaces across 44-02..44-08+.'
+last_updated: '2026-06-07T12:30:00.000Z'
 progress:
   total_phases: 46
   completed_phases: 39
@@ -23,9 +23,9 @@ Phase: 44 (m5a-hardening) — 1/1 plan shipped (44-01 Steiger integration COMPLE
 - **Next Step:** Plan 44-02 TBD — monitoring infrastructure planning for the 7-day soak. Then close audit-closure waves A/B/C (44-03/04/05), M4.5 follow-ups (44-06), pnpm advisory nn39 (44-07), FSD debt clusters (44-08+, one per cluster).
 - **7-day soak:** REPOSITIONED to M5b Launch (Phase 45). Was a category error to include in M4.5 (production-readiness) — soak is a launch activity. System must be stable (no known critical bugs, no architectural debt to freeze around) before soak is meaningful. Pre-soak hardening goes in M5a.
 
-**Last Session:** 2026-06-07T11:00:00.000Z
-**Stopped at:** Phase 44 (M5a Hardening) — Plan 44-01 (Steiger integration) SHIPPED. 11 files, +3972/-7. Worktree merged to dev and removed. 8 new BD issues filed (qjpa, 08st, nf5r, znjo, 3qio, ohj8, s50y, 3a3v). HEAD=0fd3924, pushed to both remotes (github.com-soralia-platform, codeberg.org-netcomplex).
-**Resume file:** None
+**Last Session:** 2026-06-07T12:30:00.000Z
+**Stopped at:** Phase 44 (M5a Hardening) — Plan 44-01 (Steiger integration) SHIPPED + Phase 44-RESEARCH.md shipped + Phase 44-UI-SPEC.md APPROVED (6/6 carry-forward dimensions, no-new-ui scope). 3 commits this session: a9c900a (UI-SPEC approved), a999899 (RESEARCH), 11aeb13 (UI-SPEC initial). Next plan (44-02 monitoring infra) is ready to be planned against the RESEARCH + UI-SPEC contracts.
+**Resume file:** .planning/phases/44-m5a-hardening/44-UI-SPEC.md
 
 ## Active Phase Decisions
 
@@ -298,6 +298,9 @@ Phase: 44 (m5a-hardening) — 1/1 plan shipped (44-01 Steiger integration COMPLE
 - [Phase 44-01]: ESLint + Steiger are belt-and-suspenders — ESLint catches deep imports inline; Steiger is the architectural source of truth (layer hierarchy, public API presence, slice hygiene, segment conventions)
 - [Phase 44-01]: 8 BD issues filed (qjpa, 08st, nf5r, znjo, 3qio, ohj8, s50y, 3a3v) — one per FSD debt cluster; each cross-linked to the baseline report at .planning/phases/44-m5a-hardening/44-01-baseline-report.txt
 - [Phase 44-01]: Worktree protocol followed strictly — branch=phase-44-hardening, base=dev (NOT main, which is wt's default), .env copied, worktree merged via `wt merge` and removed in background
+- [Phase 44 UI-SPEC]: UI-SPEC approved as a "no-new-ui carry-forward" contract (6/6 carry-forward dimensions passed: D1 fidelity, D2 surface touch matrix, D3 regression checklist executability, D4 observability surfaces, D5 registry safety, D6 open questions). The phase is architectural hardening, not a feature phase — UI-SPEC documents the existing design system that any touched UI must respect, with a 38-item regression checklist for the executor. Touch matrix maps 44-01 (Steiger) through 44-08+ (FSD codemods) to existing UI surfaces (Header/Footer/SideDrawer/MobileMenu/SpaceChrome/MobileSpaceBar/GateGuard, ~10 admin widgets, MyHomeSpace). Sentry wiring must precede qjpa codemod (44-10) per RESEARCH §10.2.
+- [Phase 44 RESEARCH]: Pino + Sentry + @vercel/otel recommended as additive observability stack (not replacement). All 19 pnpm advisories (nn39) verified as dev/build-only paths; reclassify P1→P3 and add `pnpm audit:prod` script. FSD cluster `qjpa` (461 of 582 violations, 79%) is auto-fixable via jscodeshift codemod — highest-risk single item. Recommended execution order: 44-07 (pnpm, hours) → 44-06 (M4.5, days) → 44-02 (observability, ~1 week) → 44-03 (wave A) → 44-04 (wave B) → 44-05 (wave C) → 44-08/09/10/11 (FSD, ROI-ordered). 5 open questions: Sentry org, Vercel plan tier, Phase 47 collision on cs5, Property rename rollout safety, codemod test coverage.
+- [Phase 44 workflow note]: `gsd-sdk query state.record-session` is a low-level tool that overwrites STATE.md frontmatter fields without merging — clobbered the previous 44-01 completion content during UI-SPEC approval. Restored from git, manually re-applied planning note. Workflow should use `gsd-sdk query state.record-session` only for the "Last session" + "Resume File" fields, not for full state updates. Orchestrators should manually curate STATE.md for planning decisions.
 
 ## Performance Metrics
 
