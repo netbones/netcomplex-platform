@@ -802,7 +802,7 @@ _Harden the codebase to launch-readiness, run the 7-day production soak to verif
 **Plans:** 1/1 shipped (Plan 44-01 complete). Run `/gsd-plan-phase 44-m5a-hardening` for the next plan. Suggested plan structure (subject to Steiger triage):
 
 - [x] **Plan 44-01:** Steiger FSD linter integration (install, config, baseline scan, CI, pre-commit, AGENTS.md docs) — 11 files, +3972/-7, 8 BD issues filed, baseline 582 violations surfaced ✅
-- **Plan 44-02 (TBD):** Monitoring infrastructure planning for soak
+- [ ] **Plan 44-02:** Observability decision document + OPS runbook for the 7-day M5b soak — produces `.planning/observability-soak-M5.md` (200+ lines, 11 sections) and `docs/STEERING/OBSERVABILITY.md` (100+ lines, 10 sections). Ratifies Pino + Sentry + `@vercel/otel` stack from 44-RESEARCH.md §3; defines 7-row soak signal set, PII scrubbing rules, start/stop/abort criteria, on-call escalation. **Documentation-only** (no `pnpm add`, no code changes) — the Sentry install + OTel wiring is a separate 44-02b code plan gated on the 5 strategic decisions ratified in Task 3 (Sentry org, Vercel plan tier, abort criteria, on-call rotation, PII scrubbing scope). Autonomous: false (human-verify checkpoint at Task 3).
 - **Plan 44-03 (TBD):** Audit closure wave A — `qig` + `9xr` + `2z4` + `r13u` (foundation + conflict C1)
 - **Plan 44-04 (TBD):** Audit closure wave B — `fpc` + `1eh` (gating migration + restrict legacy exports)
 - **Plan 44-05 (TBD):** Audit closure wave C — `1ei` + `5u2` + `brp` + `huo` (cleanup + conflicts C5/C6)
