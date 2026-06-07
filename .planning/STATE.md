@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: 'Phase 43 (M4.5 Blockers) executed end-to-end. 4 of 5 plans shipped: 43-01 (tc4 prisma/seed.ts shim, soak blocked on mls9+n0rh), 43-02 (cs5 MyHomeSpace standardSeats fallback), 43-03 (e0w 157-route tenant isolation audit, 0 FAIL, 8 WHITELISTED, 13 N/A), 43-04 (oqw 5 admin routes wrapped in runWithRLS). Plan 43-05 (ltn validation-better-auth) DEFERRED — autonomous: false due to checkpoint:human-verify on validation-better-auth@1.3.4 npm package. VERIFICATION.md: 4/5 PASS, 1 DEFERRED, M4.5 soak CONDITIONAL pending mls9+n0rh for tc4 and ltn human-verify. Phase worktree rebased onto dev (1606cb0) and merged as 51f9678.'
-last_updated: '2026-06-06T14:55:00.000Z'
+stopped_at: 'Phase 43 (M4.5 Blockers) executed end-to-end. 5 of 5 plans shipped: 43-01 (tc4 prisma/seed.ts shim, soak blocked on mls9+n0rh), 43-02 (cs5 MyHomeSpace standardSeats fallback), 43-03 (e0w 157-route tenant isolation audit, 0 FAIL, 8 WHITELISTED, 13 N/A), 43-04 (oqw 5 admin routes wrapped in runWithRLS), 43-05 (ltn validation-better-auth@1.3.4 with 4 Zod schemas + pnpm patch for upstream import bug; 3/3 smoke tests pass). VERIFICATION.md: 5/5 PASS, M4.5 soak CONDITIONAL pending mls9+n0rh for tc4. Phase worktree rebased onto dev (b5c1c8b) and merged as 3402e48.'
+last_updated: '2026-06-07T08:25:00.000Z'
 progress:
   total_phases: 46
   completed_phases: 39
   total_plans: 106
-  completed_plans: 98
+  completed_plans: 99
   percent: 85
 ---
 
@@ -17,15 +17,15 @@ progress:
 
 ## Current Position
 
-Phase: 43 (m4-5-blockers) — 4/5 PLANS SHIPPED, 43-05 DEFERRED
+Phase: 43 (m4-5-blockers) — 5/5 PLANS SHIPPED, COMPLETE
 
-- **Phase:** Phase 43 (M4.5 Blockers) 4/5 complete. Plans 43-01/02/03/04 shipped. Plan 43-05 (ltn validator) deferred pending human-verify of validation-better-auth@1.3.4. VERIFICATION.md PASS-with-followups; M4.5 soak CONDITIONAL (blocked on mls9+n0rh for tc4).
-- **Status:** Phase 43 ready to close; 43-05 surface to user for human verification
-- **Last Updated:** 2026-06-06
-- **Next Step:** Surface 43-05 (BD ltn) human-verify gate to user. Once approved, execute 43-05. Then M4.5 soak can begin.
+- **Phase:** Phase 43 (M4.5 Blockers) 5/5 complete. Plans 43-01/02/03/04/05 all shipped. Plan 43-05 (ltn validator) cleared human-verify gate and shipped with on-the-fly upstream patch. VERIFICATION.md: 5/5 PASS; M4.5 soak CONDITIONAL (still blocked on mls9+n0rh for tc4).
+- **Status:** Phase 43 complete. M4.5 soak can start once mls9+n0rh are resolved.
+- **Last Updated:** 2026-06-07
+- **Next Step:** M4.5 soak activation — pending mls9+n0rh (tc4 end-to-end seed fix). Then 7-day production soak, OpenAPI publish, perf baseline, 4-locale check, canAccess() migration doc, rollback test.
 
-**Last Session:** 2026-06-06T14:55:00.000Z
-**Stopped at:** Phase 43 (M4.5 Blockers) executed end-to-end. 4 of 5 plans shipped: 43-01 (tc4 prisma/seed.ts shim, soak blocked on mls9+n0rh), 43-02 (cs5 MyHomeSpace standardSeats fallback), 43-03 (e0w 157-route tenant isolation audit, 0 FAIL, 8 WHITELISTED, 13 N/A), 43-04 (oqw 5 admin routes wrapped in runWithRLS). Plan 43-05 (ltn validation-better-auth) DEFERRED — autonomous: false due to checkpoint:human-verify on validation-better-auth@1.3.4 npm package. VERIFICATION.md: 4/5 PASS, 1 DEFERRED, M4.5 soak CONDITIONAL pending mls9+n0rh for tc4 and ltn human-verify. Phase worktree rebased onto dev (1606cb0) and merged as 51f9678.
+**Last Session:** 2026-06-07T08:25:00.000Z
+**Stopped at:** Phase 43 (M4.5 Blockers) executed end-to-end. 5 of 5 plans shipped: 43-01 (tc4 prisma/seed.ts shim, soak blocked on mls9+n0rh), 43-02 (cs5 MyHomeSpace standardSeats fallback), 43-03 (e0w 157-route tenant isolation audit, 0 FAIL, 8 WHITELISTED, 13 N/A), 43-04 (oqw 5 admin routes wrapped in runWithRLS), 43-05 (ltn validation-better-auth@1.3.4 with 4 Zod schemas + pnpm patch for upstream import bug; 3/3 smoke tests pass). VERIFICATION.md: 5/5 PASS, M4.5 soak CONDITIONAL pending mls9+n0rh for tc4. Phase worktree rebased onto dev (b5c1c8b) and merged as 3402e48.
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -283,12 +283,12 @@ Phase: 43 (m4-5-blockers) — 4/5 PLANS SHIPPED, 43-05 DEFERRED
 - [Phase 35-api-alignment]: Rate limiting: in-memory Map for now (single-instance), Redis upgrade flagged for multi-instance
 - [Phase 35-api-alignment]: Request IDs: middleware-set x-request-id header with crypto.randomUUID() fallback
 - [Phase 35-api-alignment]: All v1 canonical routes initially re-export from flat routes to keep logic DRY during transition
-- **43-m4-5-blockers:** 4/5 plans shipped (43-01/02/03/04). 43-05 DEFERRED for human-verify on validation-better-auth@1.3.4. VERIFICATION.md: 4/5 PASS, soak CONDITIONAL.
+- **43-m4-5-blockers:** 5/5 plans shipped (43-01/02/03/04/05). 43-05 cleared human-verify gate and shipped with pnpm patch for upstream import bug. VERIFICATION.md: 5/5 PASS, soak CONDITIONAL pending mls9+n0rh.
 - **43-01:** Complete — prisma/seed.ts now 18-line side-effect shim importing scripts/seed-drizzle orchestrator. Soak AC blocked on BD mls9 (package.json prisma.seed config) + BD n0rh (Tenant.id gen_random_uuid default) — pre-existing, both filed.
 - **43-02:** Complete — standardSeats-based household fallback in /api/users/[id]/route.ts (lines 180-199). All 3 user states verified on live Soralia tenant. BD cs5 still open pending `bd close` (1-line missing).
 - **43-03:** Complete — 157-route audit, 0 FAIL, 8 WHITELISTED, 13 N/A. Report at docs/SECURITY_AUDIT_M4.5.md. BD e0w closed.
 - **43-04:** Complete — 5 admin routes wrapped in runWithRLS(ctx, async tx => ...). Sibling-helper pattern (getPlatformPageFlagsWithTx / setPlatformPageFlagWithTx) added to platform-flags.ts:167, 246. BD oqw closed.
-- **43-05:** DEFERRED — `autonomous: false` due to checkpoint:human-verify Task 0 on validation-better-auth@1.3.4. User must verify package legitimacy on npmjs + GitHub before plan executes.
+- **43-05:** SHIPPED. validation-better-auth@1.3.4 installed with 4 Zod schemas wired into /api/auth/\*. Upstream packaging bug (createAuthMiddleware imported from better-auth/plugins instead of better-auth/api) patched via pnpm patchedDependencies. 3/3 smoke tests pass.
 - **43 rebase:** Phase branch rebased onto dev (1606cb0 → 51f9678 merge). Took HEAD (new multi-tenant orchestrator) for scripts/seed-drizzle.ts; updated prisma/seed.ts shim to import orchestrator for side effects (new orchestrator's main() auto-runs).
 - [Phase 43]: pre-existing regressions confirmed out of scope — 18 typecheck errors in test files, 3 lint in gate.test.ts, BD mls9/n0rh (separate fixes from 43-01 shim), BD fjq1 (announcements seed, from phase 48)
 
