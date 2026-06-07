@@ -3,29 +3,28 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: 'Phase 43 (M4.5 Blockers) 5/5 SHIPPED, COMPLETE. Milestone reshape 2026-06-07: 7-day production soak repositioned from M4.5 to M5b Launch (was a category error — soak is a launch activity, not a production-readiness deliverable). New phase ordering: M4.5 ✅ code-complete; M5a = Phase 44 Hardening (Steiger FSD linter integration, FSD debt, pnpm advisories nn39, M4.5 follow-up closeouts tc4/mls9/n0rh/cs5, monitoring infra plan); M5b = Phase 45 Soak & Launch (7-day soak + MyHomeSpace + Community Merits + OTP). Phase 44-01 plan: install Steiger, configure, run baseline scan, file BD issues for findings, add CI workflow, pre-commit hook. Out-of-band fixes this session: soralia-village-de8x (lib18n typo, 6 files), soralia-village-r13u (tenantConfig barrel export gap, 2 files).'
-last_updated: '2026-06-07T09:30:00.000Z'
+stopped_at: 'Phase 44 (M5a Hardening) 1/1 plan shipped (44-01 Steiger integration COMPLETE). Steiger installed, configured, baseline scan run (582 FSD violations: 239 err + 343 warn), 8 BD issues filed (qjpa @api/* 461, 08st tenant fan-in 9, nf5r admin fan-in 26, znjo shared-to-entities 28, 3qio pricing-app 1, ohj8 missing public API 7, s50y src/types 1, 3a3v dead slices 12+). CI workflow .github/workflows/fsd-lint.yml created. Pre-commit hook steiger-staged.sh added. ESLint cross-reference comment + AGENTS.md FSD section documented. All rules start at warn to surface debt without blocking; cluster-by-cluster tightening deferred to follow-up plans. Worktree phase-44-hardening merged to dev and removed; HEAD=0fd3924. Phase 44-02 TBD (monitoring infra plan) is next.'
+last_updated: '2026-06-07T11:00:00.000Z'
 progress:
   total_phases: 46
   completed_phases: 39
-  total_plans: 106
-  completed_plans: 99
+  total_plans: 107
+  completed_plans: 100
   percent: 85
 ---
 
 # Project State
-
 ## Current Position
 
-Phase: 43 (m4-5-blockers) — 5/5 PLANS SHIPPED, COMPLETE; **milestone reshape complete** — soak moved to M5b.
+Phase: 44 (m5a-hardening) — 1/1 plan shipped (44-01 Steiger integration COMPLETE). Phase 44-02 TBD (monitoring infra plan) is next.
 
-- **Phase:** Phase 43 (M4.5 Blockers) 5/5 complete. Plans 43-01/02/03/04/05 all shipped. VERIFICATION.md: 5/5 PASS.
-- **Status:** Phase 43 complete. M4.5 code-complete and ready for hardening phase.
-- **Next Step:** Phase 44 (M5a Hardening) — first plan = Steiger FSD linter integration. Then close M4.5 follow-ups (tc4/mls9/n0rh seed regression, cs5 MyHomeSpace), pnpm advisory cleanup (nn39), monitoring infra plan, FSD debt remediation surfaced by Steiger.
+- **Phase:** Phase 44 (M5a Hardening & Launch Readiness) — Plan 44-01 (Steiger FSD linter integration) SHIPPED. 11 files, +3972/-7. Baseline scan: 582 FSD violations across 9 rule types, all surfaced as `warn`. 8 BD issues filed, one per debt cluster. CI + pre-commit + AGENTS.md docs landed.
+- **Status:** Steiger is now a project-wide lint, runs locally via `pnpm fsd:check`, in pre-commit via `bash scripts/steiger-staged.sh`, in CI via `.github/workflows/fsd-lint.yml`. Debt is visible; rules stay at `warn` until each cluster is closed in a follow-up plan.
+- **Next Step:** Plan 44-02 TBD — monitoring infrastructure planning for the 7-day soak. Then close audit-closure waves A/B/C (44-03/04/05), M4.5 follow-ups (44-06), pnpm advisory nn39 (44-07), FSD debt clusters (44-08+, one per cluster).
 - **7-day soak:** REPOSITIONED to M5b Launch (Phase 45). Was a category error to include in M4.5 (production-readiness) — soak is a launch activity. System must be stable (no known critical bugs, no architectural debt to freeze around) before soak is meaningful. Pre-soak hardening goes in M5a.
 
-**Last Session:** 2026-06-07T09:30:00.000Z
-**Stopped at:** Phase 43 (M4.5 Blockers) 5/5 complete; milestone reshape executed (soak deferred M4.5→M5b); out-of-band fixes landed: soralia-village-de8x (lib18n typo, 6 files, closed), soralia-village-r13u (tenantConfig barrel export, 2 files, open — Phase 44 candidate). Phase 44 directory created; Phase 44-01 plan (Steiger integration) next.
+**Last Session:** 2026-06-07T11:00:00.000Z
+**Stopped at:** Phase 44 (M5a Hardening) — Plan 44-01 (Steiger integration) SHIPPED. 11 files, +3972/-7. Worktree merged to dev and removed. 8 new BD issues filed (qjpa, 08st, nf5r, znjo, 3qio, ohj8, s50y, 3a3v). HEAD=0fd3924, pushed to both remotes (github.com-soralia-platform, codeberg.org-netcomplex).
 **Resume file:** None
 
 ## Active Phase Decisions
@@ -291,6 +290,14 @@ Phase: 43 (m4-5-blockers) — 5/5 PLANS SHIPPED, COMPLETE; **milestone reshape c
 - **43-05:** SHIPPED. validation-better-auth@1.3.4 installed with 4 Zod schemas wired into /api/auth/\*. Upstream packaging bug (createAuthMiddleware imported from better-auth/plugins instead of better-auth/api) patched via pnpm patchedDependencies. 3/3 smoke tests pass.
 - **43 rebase:** Phase branch rebased onto dev (1606cb0 → 51f9678 merge). Took HEAD (new multi-tenant orchestrator) for scripts/seed-drizzle.ts; updated prisma/seed.ts shim to import orchestrator for side effects (new orchestrator's main() auto-runs).
 - [Phase 43]: pre-existing regressions confirmed out of scope — 18 typecheck errors in test files, 3 lint in gate.test.ts, BD mls9/n0rh (separate fixes from 43-01 shim), BD fjq1 (announcements seed, from phase 48)
+- [Phase 44-01]: Steiger chosen over abandoned @feature-sliced/eslint-config — latter is v0.1.1 (2025-05), Steiger is v0.5.12 (2026-05-14), actively maintained
+- [Phase 44-01]: All FSD rules start at `warn` to surface 582 baseline violations without blocking CI; tighten to `error` cluster-by-cluster as Phase 44 follow-up plans close each cluster
+- [Phase 44-01]: Steiger config documents `@shared/lib/i18n` as a sidestep (allow-listed in `noPublicApiSidestep` with comment linking to soralia-village-de8x) — barrel deliberately excludes client-only i18n to prevent react-i18next leakage into server bundles
+- [Phase 44-01]: `@api/*` tsconfig alias is the root cause of 461 Steiger violations; architectural decision deferred to a dedicated Phase 44 plan (cluster is the largest single source of debt)
+- [Phase 44-01]: Pre-commit hook runs full `pnpm fsd:check` (~10s per commit) — acceptable for now, Steiger does not yet support per-file scanning
+- [Phase 44-01]: ESLint + Steiger are belt-and-suspenders — ESLint catches deep imports inline; Steiger is the architectural source of truth (layer hierarchy, public API presence, slice hygiene, segment conventions)
+- [Phase 44-01]: 8 BD issues filed (qjpa, 08st, nf5r, znjo, 3qio, ohj8, s50y, 3a3v) — one per FSD debt cluster; each cross-linked to the baseline report at .planning/phases/44-m5a-hardening/44-01-baseline-report.txt
+- [Phase 44-01]: Worktree protocol followed strictly — branch=phase-44-hardening, base=dev (NOT main, which is wt's default), .env copied, worktree merged via `wt merge` and removed in background
 
 ## Performance Metrics
 

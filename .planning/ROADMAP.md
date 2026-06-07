@@ -799,15 +799,16 @@ _Harden the codebase to launch-readiness, run the 7-day production soak to verif
 
 **Acceptance:** All initial 9 audit/conflict BD issues closed + all 4 M4.5 follow-ups closed + Steiger FSD linter integrated and running in CI + Steiger baseline findings filed as BD issues + pnpm advisory nn39 closed (or runtime-impact subset) + monitoring infra plan documented + 4+ `usePageFlags` callsites migrated to `useGateContext()` + legacy exports restricted to `@internal` + `Profile.occupantType` renamed to `householdRole` + `Profile.residencyType` and `Invitation.residentType` aligned + zero new FSD violations on dev (Steiger clean).
 
-**Plans:** TBD. Run `/gsd-plan-phase 44-m5a-hardening` when ready to plan execution. Suggested plan structure (subject to Steiger triage):
+**Plans:** 1/1 shipped (Plan 44-01 complete). Run `/gsd-plan-phase 44-m5a-hardening` for the next plan. Suggested plan structure (subject to Steiger triage):
 
-- **Plan 44-01:** Steiger FSD linter integration (install, config, baseline scan, CI, pre-commit, AGENTS.md docs)
+- [x] **Plan 44-01:** Steiger FSD linter integration (install, config, baseline scan, CI, pre-commit, AGENTS.md docs) — 11 files, +3972/-7, 8 BD issues filed, baseline 582 violations surfaced ✅
 - **Plan 44-02 (TBD):** Monitoring infrastructure planning for soak
 - **Plan 44-03 (TBD):** Audit closure wave A — `qig` + `9xr` + `2z4` + `r13u` (foundation + conflict C1)
 - **Plan 44-04 (TBD):** Audit closure wave B — `fpc` + `1eh` (gating migration + restrict legacy exports)
 - **Plan 44-05 (TBD):** Audit closure wave C — `1ei` + `5u2` + `brp` + `huo` (cleanup + conflicts C5/C6)
 - **Plan 44-06 (TBD):** M4.5 follow-up closeouts — `tc4` + `mls9` + `n0rh` + `cs5` (seed regression + MyHomeSpace)
 - **Plan 44-07 (TBD):** pnpm advisory resolution — `nn39` (filter to runtime-impact subset)
+- **Plan 44-08+ (TBD):** FSD debt cluster remediation — one plan per cluster from Steiger baseline (`qjpa` + `08st` + `nf5r` + `znjo` + `3qio` + `ohj8` + `s50y` + `3a3v`)
 
 **Out of scope:** M4.5 fixes (phase 43, all done), M5b launch features (phase 45, 47), M5+ post-launch (phase 46), C3 (already resolved). C4 (Tier Naming) re-elevated — see phase 47. dWallet sub-phases (phase 47).
 
