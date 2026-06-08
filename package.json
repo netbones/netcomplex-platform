@@ -26,6 +26,9 @@
     "api:ci": "pnpm api:generate && pnpm api:lint",
     "fsd:check": "steiger ./src"
   },
+  "prisma": {
+    "seed": "pnpm exec tsx prisma/seed.ts"
+  },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
       "eslint --fix",
