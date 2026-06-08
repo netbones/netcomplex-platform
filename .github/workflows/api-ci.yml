@@ -31,12 +31,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      # Initial gate at --audit-level critical. The repo currently has 19
-      # high-severity advisories in transitive deps; failing on those would
-      # block all PRs. See docs/advisories/ADVISORY-003.md and the
-      # follow-up BD issue tracking cleanup. Bump to "high" once resolved.
+      # Gate at --audit-level high. All 19 high-severity advisories resolved
+      # via pnpm.overrides in package.json (see nn39 / docs/advisories/ADVISORY-003.md).
+      # Tracked as BD issue soralia-village-nn39.
       - name: Audit dependencies
-        run: pnpm audit --audit-level critical
+        run: pnpm audit --audit-level high
 
       - name: Regenerate Drizzle schema from Prisma source
         run: pnpm db:generate

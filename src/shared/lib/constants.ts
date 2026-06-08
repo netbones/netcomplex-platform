@@ -28,6 +28,9 @@ export const CONTENT_CATEGORIES = {
   NEWS: 'NEWS',
   EVENT: 'EVENT',
   BLOG: 'BLOG',
+  CONSERVATION: 'CONSERVATION',
+  SERVICES: 'SERVICES',
+  CAMPAIGN: 'CAMPAIGN',
 } as const;
 
 /** User role definitions */
@@ -61,7 +64,10 @@ export const MAINTENANCE_PRIORITIES = {
 /** Maintenance request status values */
 export const MAINTENANCE_STATUSES = {
   SUBMITTED: 'SUBMITTED',
+  ASSIGNED: 'ASSIGNED',
+  SCHEDULED: 'SCHEDULED',
   IN_PROGRESS: 'IN_PROGRESS',
+  PENDING_PARTS: 'PENDING_PARTS',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED',
 } as const;

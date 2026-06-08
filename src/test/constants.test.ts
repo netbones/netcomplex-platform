@@ -57,7 +57,10 @@ describe('constants', () => {
   describe('MAINTENANCE_STATUSES', () => {
     it('contains all statuses', () => {
       expect(MAINTENANCE_STATUSES.SUBMITTED).toBe('SUBMITTED');
+      expect(MAINTENANCE_STATUSES.ASSIGNED).toBe('ASSIGNED');
+      expect(MAINTENANCE_STATUSES.SCHEDULED).toBe('SCHEDULED');
       expect(MAINTENANCE_STATUSES.IN_PROGRESS).toBe('IN_PROGRESS');
+      expect(MAINTENANCE_STATUSES.PENDING_PARTS).toBe('PENDING_PARTS');
       expect(MAINTENANCE_STATUSES.COMPLETED).toBe('COMPLETED');
       expect(MAINTENANCE_STATUSES.CANCELLED).toBe('CANCELLED');
     });
@@ -77,6 +80,9 @@ describe('constants', () => {
       expect(CONTENT_CATEGORIES.NEWS).toBe('NEWS');
       expect(CONTENT_CATEGORIES.EVENT).toBe('EVENT');
       expect(CONTENT_CATEGORIES.BLOG).toBe('BLOG');
+      expect(CONTENT_CATEGORIES.CONSERVATION).toBe('CONSERVATION');
+      expect(CONTENT_CATEGORIES.SERVICES).toBe('SERVICES');
+      expect(CONTENT_CATEGORIES.CAMPAIGN).toBe('CAMPAIGN');
     });
   });
 

@@ -1,6 +1,6 @@
 # Ubiquitous Language — NetComplex / Soralia Village
 
-> **Last updated:** 2026-06-04
+> **Last updated:** 2026-06-08
 > **Purpose:** Canonical definitions for all domain terms. When in doubt, this document is the authority.
 
 ---
@@ -356,6 +356,22 @@ Both exist in the same entity. `OccupancyType` is property-level; `occupantType`
 
 The model is `MaintenanceRequest`; users see "Ticket Number" in the UI. This is intentional — the record is a "maintenance request"; its human-readable ID is a "ticket number." No action needed, but developers should be aware.
 
+### C8: MAINTENANCE_STATUSES Constants Out of Sync (High Priority) — _Closed 2026-06-08_
+
+`src/shared/lib/constants.ts:62` defined `MAINTENANCE_STATUSES` with 4 values (`SUBMITTED`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`), but Prisma `RequestStatus` enum has 7 values (also `ASSIGNED`, `SCHEDULED`, `PENDING_PARTS`).
+
+**Resolution:** Added missing statuses `ASSIGNED`, `SCHEDULED`, `PENDING_PARTS` to `MAINTENANCE_STATUSES` in the flow order matching Prisma. Updated `src/test/constants.test.ts` to verify all 7 values.
+
+**Status (2026-06-08):** **CLOSED.** Constants and tests updated in commit (TBD).
+
+### C9: CONTENT_CATEGORIES Constants Out of Sync (Medium Priority) — _Closed 2026-06-08_
+
+`src/shared/lib/constants.ts:26` defined `CONTENT_CATEGORIES` with 4 values (`ANNOUNCEMENT`, `NEWS`, `EVENT`, `BLOG`), but Prisma `ContentCategory` enum has 7 values (also `CONSERVATION`, `SERVICES`, `CAMPAIGN`).
+
+**Resolution:** Added missing categories `CONSERVATION`, `SERVICES`, `CAMPAIGN` to `CONTENT_CATEGORIES`. Updated `src/test/constants.test.ts` to verify all 7 values.
+
+**Status (2026-06-08):** **CLOSED.** Constants and tests updated in commit (TBD).
+
 ---
 
 ## Term Decision Log
@@ -375,3 +391,5 @@ The model is `MaintenanceRequest`; users see "Ticket Number" in the UI. This is 
 | 2026-06-04 | C4 (Tier Naming) deferred to Phase 47 (dWallet)                                                  | 3 vs 4 tier mismatch only matters when dWallet ships tier-gated features; track as open conflict until dWallet surfaces the need                                                           |
 | 2026-06-04 | C5 (residencyType vs residentType) added to Phase 44                                             | Align on `residencyType` with enum `{FAMILY, RENTER, OWNER}`; drop `OWNER_RESIDENT` (map to `OWNER`); update Invitation DTO + 4 UI files                                                   |
 | 2026-06-04 | C6 (OccupancyType vs occupantType) added to Phase 44                                             | Rename `occupantType` → `householdRole`; update Profile model + 14+ script references; Prisma + Drizzle schema migration required                                                          |
+| 2026-06-08 | Closed C8: MAINTENANCE_STATUSES synced to Prisma                                                   | Added ASSIGNED, SCHEDULED, PENDING_PARTS; constants + tests updated                                                                                                                        |
+| 2026-06-08 | Closed C9: CONTENT_CATEGORIES synced to Prisma                                                     | Added CONSERVATION, SERVICES, CAMPAIGN; constants + tests updated                                                                                                                          |
