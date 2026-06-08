@@ -1,6 +1,17 @@
-import { canManageRequests } from '@entities/tenant';
+import { hasPermission } from '@entities/tenant';
 
-/**
- * Checks if the role can view all maintenance requests.
- */
-export { canManageRequests as canViewAllRequests };
+export function canViewAllRequests(role: string | null | undefined): boolean {
+  return hasPermission(role, 'requests');
+}
+
+export function canAssignRequests(role: string | null | undefined): boolean {
+  return hasPermission(role, 'requests') || hasPermission(role, 'admin');
+}
+
+export function canResolveRequests(role: string | null | undefined): boolean {
+  return hasPermission(role, 'requests') || hasPermission(role, 'admin');
+}
+
+export function canDeleteRequests(role: string | null | undefined): boolean {
+  return hasPermission(role, 'admin');
+}

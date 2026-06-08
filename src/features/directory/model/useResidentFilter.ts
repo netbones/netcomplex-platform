@@ -3,9 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Resident, UseResidentFilterReturn, ViewMode } from '@entities/directory';
 import { DEBOUNCE_DELAY_MS, DEFAULT_PAGE_LIMIT } from '@entities/directory';
-import { createComponentLogger } from '@shared/lib';
-
-const log = createComponentLogger('useResidentFilter');
+import { apiGet } from '@shared/api';
 
 export interface UseResidentFilterOptions {
   defaultLimit?: number;
@@ -63,23 +61,20 @@ export function useResidentFilter(options: UseResidentFilterOptions = {}): UseRe
         }
       }
 
-      const res = await fetch(`${apiEndpoint}?${params}`);
-      const body = await res.json();
+      const queryStr = params.toString();
+      const url = queryStr ? `${apiEndpoint}?${queryStr}` : apiEndpoint;
+      const body = await apiGet<Record<string, unknown>>(url);
 
-      if (body.success && Array.isArray(body.data)) {
-        setResidents(body.data as Resident[]);
-        setTotal(body.meta?.total ?? body.data.length);
-      } else if (body.users) {
-        setResidents(body.users as Resident[]);
-        setTotal(body.total || 0);
+      if (body && typeof body === 'object' && 'users' in body) {
+        setResidents((body as { users: Resident[] }).users);
+        setTotal((body as { total?: number }).total ?? 0);
       } else if (Array.isArray(body)) {
         setResidents(body as Resident[]);
         setTotal(body.length);
       } else {
         setResidents([]);
       }
-    } catch (error) {
-      log.error({}, 'Failed to fetch residents', error);
+    } catch {
       setResidents([]);
     } finally {
       setLoading(false);

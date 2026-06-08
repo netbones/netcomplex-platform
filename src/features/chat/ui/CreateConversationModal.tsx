@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import { ParticipantAvatar, type ConversationListItem } from '@entities/chat';
-import { createComponentLogger } from '@shared/lib';
-
-const log = createComponentLogger('CreateConversationModal');
+import { apiPost } from '@shared/api';
 
 type ConversationType = 'DIRECT' | 'GROUP';
 
@@ -46,25 +44,15 @@ export function CreateConversationModal({
 
     setCreating(true);
     try {
-      const res = await fetch('/api/conversations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: chatType === 'GROUP' ? name : null,
-          type: chatType,
-          participantIds: [currentUserId, ...selectedUsers],
-        }),
+      const newConv = await apiPost<ConversationListItem>('/api/conversations', {
+        name: chatType === 'GROUP' ? name : null,
+        type: chatType,
+        participantIds: [currentUserId, ...selectedUsers],
       });
-
-      if (res.ok) {
-        const newConv = await res.json();
-        onCreated(newConv);
-        onClose();
-      } else {
-        log.error({}, 'Failed to create conversation');
-      }
-    } catch (error) {
-      log.error({}, 'Failed to create conversation', error);
+      onCreated(newConv);
+      onClose();
+    } catch {
+      // apiPost throws on error; user can retry
     } finally {
       setCreating(false);
     }

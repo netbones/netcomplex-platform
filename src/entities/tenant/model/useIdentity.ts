@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { authClient } from '@api/auth-client';
 import { trpc } from '@api/trpc/client';
+import { getEffectiveRole } from './roles';
 
 export interface IdentityState {
   isAgent: boolean;
@@ -45,10 +46,7 @@ export function useIdentityState(): IdentityState {
   const isPropertyOwner = !loadingProperties && ownedProperties.length > 0;
   const isSoloSeatHolder = !loadingSolo && !!SoloSeat;
 
-  let effectiveRole: 'AGENT' | 'OWNER' | 'SOLO' | 'RESIDENT' = 'RESIDENT';
-  if (isAgent) effectiveRole = 'AGENT';
-  else if (isPropertyOwner) effectiveRole = 'OWNER';
-  else if (isSoloSeatHolder) effectiveRole = 'SOLO';
+  const effectiveRole = getEffectiveRole(isAgent, isPropertyOwner, isSoloSeatHolder);
 
   return {
     isAgent,

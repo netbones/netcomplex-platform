@@ -1,6 +1,13 @@
 import type { InferSelectModel } from 'drizzle-orm';
 import { properties } from '@api/db';
 
+/** @property-consolidation-plan (44-03 findings)
+ * Canonical API shape (full). Per C1 resolution: STAYS as-is.
+ * Dates serialized as ISO strings (for portable API contracts).
+ * Fields: id, street, unit, platformAddress, homeImage?, ownerId?,
+ *         createdAt (ISO), updatedAt (ISO) — all match Prisma field names.
+ * Last audit: 2026-06-08
+ */
 // API-safe property shape
 export interface PropertyDTO {
   id: string;
@@ -13,6 +20,11 @@ export interface PropertyDTO {
   updatedAt: string;
 }
 
+/** @property-consolidation-plan (44-03 findings)
+ * Canonical API shape (lite). Per C1 resolution: STAYS as-is.
+ * Fields: id, street, unit, platformAddress, homeImage? — all match Prisma.
+ * Last audit: 2026-06-08
+ */
 // Lightweight property summary for listings
 export interface PropertySummaryDTO {
   id: string;

@@ -2,6 +2,13 @@
 
 import type { StandardSeat, SoloSeat } from '@entities/tenant';
 
+/** @property-consolidation-plan (44-03 findings)
+ * Admin user management lite view. Has `platformAddress?` as optional.
+ * Do NOT consolidate with PropertySummaryDTO (which requires platformAddress).
+ * Per C1 resolution: leave as-is unless nullability aligns.
+ * Fields: id, street, unit, platformAddress? — all match Prisma field names.
+ * Last audit: 2026-06-08
+ */
 /** Lightweight property info as returned by admin users API */
 export interface PropertyInfo {
   id: string;

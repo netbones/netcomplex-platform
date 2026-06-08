@@ -38,6 +38,12 @@ interface PremiumPortfolio {
   linkedHouseholds: PortfolioHousehold[];
 }
 
+/** @property-consolidation-plan (44-03 findings)
+ * This is a LISTING type, not a Property shape — it models premium
+ * portfolio listings with publishing/featured status.
+ * Per C1 resolution: leave as-is. Do NOT consolidate with PropertySummaryDTO.
+ * Last audit: 2026-06-08
+ */
 interface PropertyListing {
   id: string;
   householdId: string;

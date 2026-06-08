@@ -2,9 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { ConversationListItem } from '@entities/chat';
-import { createComponentLogger } from '@shared/lib';
-
-const log = createComponentLogger('useConversationList');
+import { apiGet } from '@shared/api';
 
 interface UseConversationListOptions {
   userId: string;
@@ -20,14 +18,9 @@ export function useConversationList({ userId, enabled = true }: UseConversationL
     if (!userId || !enabled) return;
 
     try {
-      const res = await fetch(`/api/conversations?userId=${userId}`);
-      if (!res.ok) {
-        throw new Error('Failed to fetch conversations');
-      }
-      const data = await res.json();
+      const data = await apiGet<ConversationListItem[]>(`/api/conversations`, { userId });
       setConversations(Array.isArray(data) ? data : []);
     } catch (err) {
-      log.error({}, 'Failed to fetch conversations', err);
       setError(err instanceof Error ? err : new Error('Unknown error'));
     } finally {
       setLoading(false);

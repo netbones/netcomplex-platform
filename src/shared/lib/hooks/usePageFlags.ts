@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { type PlatformPageFlags } from '@entities/tenant';
+import { apiGet } from '@shared/api';
 
 export function usePageFlags() {
   const [flags, setFlags] = useState<PlatformPageFlags | null>(null);
@@ -11,13 +12,8 @@ export function usePageFlags() {
   useEffect(() => {
     async function fetchFlags() {
       try {
-        const response = await fetch('/api/flags');
-        if (!response.ok) {
-          throw new Error('Failed to fetch page flags');
-        }
-        const data = await response.json();
-        const unwrapped = data?.data ?? data;
-        setFlags(unwrapped.flags);
+        const data = await apiGet<{ flags: PlatformPageFlags }>('/api/flags');
+        setFlags(data.flags);
       } catch (err) {
         setError(err instanceof Error ? err : new Error('Unknown error'));
       } finally {

@@ -1,12 +1,11 @@
 'use client';
 
-import { CARD_HEADER_COLORS, createComponentLogger } from '@shared/lib';
+import { CARD_HEADER_COLORS } from '@shared/lib';
 import { authClient } from '@api/auth-client';
 import { useState, useEffect } from 'react';
 import { DirectoryChatModal } from './DirectoryChatModal';
 import { UnifiedResidentCard, type Resident } from '@entities/directory';
-
-const log = createComponentLogger('DirectoryGrid');
+import { apiGet } from '@shared/api';
 
 interface DirectoryGridProps {
   residents: Resident[];
@@ -23,13 +22,12 @@ export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridPro
     if (currentUserId) {
       const fetchUnreadCounts = async () => {
         try {
-          const response = await fetch('/api/messages/unread');
-          if (response.ok) {
-            const data = await response.json();
-            setUnreadCounts(data.unreadCounts || {});
-          }
-        } catch (error) {
-          log.error({}, 'Failed to fetch unread counts', error);
+          const data = await apiGet<{ unreadCounts: Record<string, number> }>(
+            '/api/messages/unread'
+          );
+          setUnreadCounts(data.unreadCounts || {});
+        } catch {
+          // Silently fail
         }
       };
 

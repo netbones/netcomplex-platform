@@ -14,6 +14,7 @@ export * from './api-response';
 export * from './audit-log';
 export * from './feature-gate';
 export * from './gate';
+export * from './http-client';
 export * from './observability';
 export * from './rate-limit';
 

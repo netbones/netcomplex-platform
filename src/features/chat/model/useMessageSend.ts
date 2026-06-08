@@ -2,9 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import type { Message, MessageType } from '@entities/chat';
-import { createComponentLogger } from '@shared/lib';
-
-const log = createComponentLogger('useMessageSend');
+import { apiPost } from '@shared/api';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',
@@ -30,23 +28,15 @@ export function useMessageSend({
     mediaUrl?: string
   ): Promise<boolean> => {
     try {
-      const res = await fetch('/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversationId, content, type, mediaUrl }),
+      const newMessage = await apiPost<Message>('/api/messages', {
+        conversationId,
+        content,
+        type,
+        mediaUrl,
       });
-
-      if (!res.ok) {
-        log.error({}, 'Failed to send message', await res.json());
-        return false;
-      }
-
-      const newMessage: Message = await res.json();
       onMessageSent?.(newMessage);
-
       return true;
-    } catch (err) {
-      log.error({}, 'Failed to send message', err);
+    } catch {
       return false;
     }
   };

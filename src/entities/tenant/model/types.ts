@@ -3,6 +3,14 @@
 export type OccupancyType = 'OWNER_OCCUPIED' | 'RENTAL' | 'VACANT';
 export type HouseholdStatus = 'ACTIVE' | 'ARCHIVED';
 
+/** @property-consolidation-plan (44-03 findings)
+ * Full internal domain model — load-bearing for entity relations.
+ * Per C1 resolution: STAYS as-is (not consolidated with DTOs).
+ * Date objects (not ISO strings — intentional, tRPC handles serialization).
+ * Fields: id, tenantId, platformAddress, street, unit, ownerId?, homeImage?,
+ *         createdAt (Date), updatedAt (Date), activeHousehold?, households?
+ * Last audit: 2026-06-08
+ */
 export interface Property {
   id: string;
   tenantId: string;

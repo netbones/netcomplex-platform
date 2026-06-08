@@ -9,6 +9,17 @@ import {
 import { eq, desc, and, sql, inArray } from 'drizzle-orm';
 
 /**
+ * Pure function that formats a ticket number string.
+ * Does NOT query the database — callers pass the counter value.
+ * Default format: SRV-{YYYY}-{NNNN}
+ */
+export function formatTicketNumber(counter: number, prefix: string = 'SRV'): string {
+  const year = new Date().getFullYear();
+  const sequence = String(counter).padStart(4, '0');
+  return `${prefix}-${year}-${sequence}`;
+}
+
+/**
  * Generates a ticket number using the tenant-configured format.
  * Default format: SRV-{YYYY}-{NNNN} where NNNN is a sequential number within the year.
  * Queries the count of existing requests for this tenant this year and increments.
@@ -27,8 +38,8 @@ export async function generateTicketNumber(tenantId: string): Promise<string> {
       )
     );
 
-  const sequence = String(result?.count ?? 1).padStart(4, '0');
-  return `SRV-${year}-${sequence}`;
+  const counter = result?.count ?? 1;
+  return formatTicketNumber(counter);
 }
 
 /**

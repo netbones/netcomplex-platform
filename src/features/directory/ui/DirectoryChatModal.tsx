@@ -6,6 +6,7 @@ import { authClient } from '@api/auth-client';
 import type { ConversationMessage } from '@entities/chat';
 import { usePresence } from '@features/chat';
 import { OnlineIndicator } from '@entities/chat';
+import { apiGet, apiPost } from '@shared/api';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',
@@ -43,20 +44,11 @@ export function DirectoryChatModal({
 
     const initConversation = async () => {
       try {
-        // Use POST endpoint to find or create conversation
-        const res = await fetch('/api/conversations/find', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            participantIds: [currentUserId, recipientId],
-          }),
+        const data = await apiPost<{ conversation?: { id: string } }>('/api/conversations/find', {
+          participantIds: [currentUserId, recipientId],
         });
-
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.conversation?.id) {
-            setConversationId(data.conversation.id);
-          }
+        if (data?.conversation?.id) {
+          setConversationId(data.conversation.id);
         }
       } catch {
         // Silently fail - user will see empty state
@@ -74,11 +66,8 @@ export function DirectoryChatModal({
 
     const fetchMessages = async () => {
       try {
-        const res = await fetch(`/api/messages?conversationId=${conversationId}`);
-        if (res.ok) {
-          const data = await res.json();
-          setMessages(Array.isArray(data) ? data : []);
-        }
+        const data = await apiGet<ConversationMessage[]>(`/api/messages`, { conversationId });
+        setMessages(Array.isArray(data) ? data : []);
       } catch {
         // Silently fail
       }
@@ -137,22 +126,14 @@ export function DirectoryChatModal({
 
     setSending(true);
     try {
-      const res = await fetch('/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          conversationId,
-          content: input.trim(),
-          type: 'TEXT',
-        }),
+      const newMessage = await apiPost<ConversationMessage>('/api/messages', {
+        conversationId,
+        content: input.trim(),
+        type: 'TEXT',
       });
-
-      if (res.ok) {
-        const newMessage = await res.json();
-        setMessages(prev => [...prev, newMessage]);
-        setInput('');
-        inputRef.current?.focus();
-      }
+      setMessages(prev => [...prev, newMessage]);
+      setInput('');
+      inputRef.current?.focus();
     } catch {
       // Silently fail
     } finally {

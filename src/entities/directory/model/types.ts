@@ -1,3 +1,10 @@
+/** @property-consolidation-plan (44-03 findings)
+ * Directory-specific display view. No `id` field — intentionally minimal.
+ * Do NOT consolidate with PropertySummaryDTO unless directory consumers
+ * need the `id` field. Per C1 resolution: leave as-is (no shared lite type needed).
+ * Fields: street, unit, homeImage — all match Prisma field names.
+ * Last audit: 2026-06-08
+ */
 export interface Property {
   street: string;
   unit: string;
