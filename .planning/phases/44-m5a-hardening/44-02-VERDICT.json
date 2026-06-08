@@ -1,0 +1,78 @@
+{
+  "overall": "FLAG",
+  "dimensions": {
+    "1_goal_backward": {
+      "verdict": "PASS",
+      "finding": "Plan goal derives correctly from 44-CONTEXT.md acceptance criterion. must_haves are user-observable. Scope matches criterion."
+    },
+    "2_frontmatter": {
+      "verdict": "WARNING",
+      "finding": "next.config.mjs is modified by Task 3 (instrumentationHook: true) but missing from files_modified frontmatter. All other fields valid."
+    },
+    "3_posthog_correctness": {
+      "verdict": "PASS_WITH_WARNINGS",
+      "finding": "All PostHog init options are correct (defaults: 2026-01-30, capture_pageview: false, api_host: /ingest, maskAllInputs, maskTextSelector, autocapture). register() export correct. PostHogPageView inside Suspense. bootstrapFlags set. No hardcoded keys. Reverse-proxy implementation has no code task (see W2)."
+    },
+    "4_task_quality": {
+      "verdict": "BLOCKER",
+      "finding": "All tasks have required elements. BUT Task 1 signal set table line 190 says 'Check Sentry (post-migration) or Vercel Monitoring 5xx' — stale Sentry reference that survived the PostHog adaptation. Also: Task 3 verify doesn't check instrumentationHook: true though acceptance criteria lists it."
+    },
+    "5_threat_model": {
+      "verdict": "PASS",
+      "finding": "5-row ASVS L1 table covering PostHog-specific threats (PII in autocapture, reverse-proxy, dashboard RBAC, alert PII, CDN compromise). All mitigations concrete and code-level. Adapted for PostHog, not a Sentry copy."
+    },
+    "6_posthog_migration": {
+      "verdict": "BLOCKER",
+      "finding": "97% complete migration. Signal set row for server error rate still references 'Check Sentry (post-migration)'. This is the only stale Sentry reference. Threat model, code, and runbook instructions are all correctly adapted."
+    },
+    "7_context_compliance": {
+      "verdict": "WARNING",
+      "finding": "44-UI-SPEC.md D4 observability section references Sentry + @vercel/otel (skipOpenTelemetrySetup, sendDefaultPii: false). Plan supersedes this but doesn't document the override. No locked decisions contradicted. No deferred ideas included."
+    },
+    "7b_scope_reduction": {
+      "verdict": "PASS",
+      "finding": "No v1/simplified/static-for-now language. Deferred items properly listed in Out of scope with rationale. No scope reduction detected."
+    },
+    "7c_architectural_tier": {
+      "verdict": "PASS",
+      "finding": "No Architectural Responsibility Map in RESEARCH.md (original was Sentry-specific). Implicit tier mapping from signal set is correct: PostHog in Browser/Client, server errors through Vercel Monitoring, logs through Pino."
+    },
+    "8_nyquist": {
+      "verdict": "INFO",
+      "finding": "Verify blocks use shell commands (grep/wc), not <automated> test commands. Appropriate for config-only deliverables. pnpm typecheck included as quality gate. No Wave 0 test scaffolding needed."
+    },
+    "9_cross_plan_data": {
+      "verdict": "PASS_NA",
+      "finding": "No shared data pipelines with other plans in this phase."
+    },
+    "10_agents_compliance": {
+      "verdict": "PASS",
+      "finding": "pnpm usage correct. No hardcoded keys. FSD structure respected. Error boundaries referenced. Session protocol followed."
+    },
+    "11_research_resolution": {
+      "verdict": "PASS",
+      "finding": "RESEARCH.md §10.3 is 'Open questions for discuss-phase' (different heading format). Sentry questions resolved by stack change. N/A for strict (RESOLVED) marker requirement."
+    },
+    "12_pattern_compliance": {
+      "verdict": "SKIPPED",
+      "finding": "No PATTERNS.md exists for this phase."
+    }
+  },
+  "blocking_findings": [
+    "B1: Task 1 signal set table (line 190) references 'Check Sentry (post-migration) or Vercel Monitoring 5xx'. Stack is Pino + PostHog — Sentry was replaced. Change to 'Check Vercel Monitoring 5xx'."
+  ],
+  "flag_findings": [
+    "W1: next.config.mjs missing from files_modified frontmatter despite Task 3 modifying it",
+    "W2: Reverse proxy (/ingest) has no implementation task — punted to Open Question #1 with no code path",
+    "W3: UI-SPEC.md §D4 Observability Surfaces references Sentry stack — plan should document override"
+  ],
+  "pass_findings": [
+    "Goal-backward alignment clean. must_haves user-observable and specific.",
+    "PostHog init options all correct. Privacy-first defaults in place.",
+    "Threat model comprehensive and PostHog-specific.",
+    "Task structure sound — all tasks have read_first + action + verify + acceptance + done.",
+    "Human-verify checkpoint (Task 5) correctly typed with blocking gate.",
+    "No scope reduction, no hardcoded secrets, no schema changes, no FSD violations."
+  ],
+  "next_action": "revise"
+}

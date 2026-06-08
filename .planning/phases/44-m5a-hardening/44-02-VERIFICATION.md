@@ -1,275 +1,316 @@
----
-plan: 44-02
-phase: 44-m5a-hardening
-type: verification
-verdict: PASS
-verified_at: 2026-06-07
-verifier: gsd-plan-checker
-git_commit: b14cd90
-branch: phase-44-02-monitoring
-worktree: ../soralia-village.phase-44-02-monitoring
----
-
 # Plan 44-02 Verification Report
 
-## Overall Verdict: **PASS**
+**Phase:** 44 (m5a-hardening)
+**Plan:** 44-02 — PostHog Observability Stack + Soak Decision Doc
+**Adapted from:** Original Sentry + @vercel/otel plan → PostHog
+**Verified:** 2026-06-08
+**Verdict:** ISSUES FOUND — 1 blocker, 3 warnings, 1 info
 
-The plan is documentation-only, scoped correctly, with verifiable acceptance
-criteria, a complete threat model, and proper human-verify gating for the 5
-strategic decisions that block the 44-02b code follow-on. All 11 verification
-dimensions score PASS or FLAG (no BLOCKs). Two soft FLAGs are documented below
-for executor awareness.
+---
 
-## Coverage Summary
+## Summary
 
-| Requirement                                | Plans | Status   |
-|--------------------------------------------|-------|----------|
-| `.planning/observability-soak-M5.md` exists (CONTEXT AC line 76) | 44-02 | Covered — Task 1, 200+ lines, 11 sections |
-| `docs/STEERING/OBSERVABILITY.md` exists     | 44-02 | Covered — Task 2, 100+ lines, 10 sections |
-| Pino + Sentry + @vercel/otel stack ratified | 44-02 | Covered — §1 of decision doc |
-| 7-row soak signal set with SLOs            | 44-02 | Covered — §6 (replicates RESEARCH §3.4) |
-| PII scrubbing rules                        | 44-02 | Covered — §5 + threat model table |
-| Start/stop/abort criteria                  | 44-02 | Covered — §7 |
-| On-call escalation                         | 44-02 | Covered — §8 |
-| 5 open questions tracked with status       | 44-02 | Covered — §10 (must be RESOLVED at Task 3 for items 1-2) |
-| OPS runbook for M5b launch team            | 44-02 | Covered — `docs/STEERING/OBSERVABILITY.md` |
+The plan is well-structured and the PostHog adaptation is 95% coherent. However, one Sentry reference survived the adaptation in a critical location (the soak signal set table), which would confuse the M5b launch team and contradict the ratified stack. Additionally, the frontmatter is inconsistent about `next.config.mjs` modifications, the reverse-proxy implementation has no code path, and the UI-SPEC D4 contract is stale.
 
-## Dimension Scores
+---
 
-### 1. Goal-Backward Alignment — **PASS**
-- Plan goal (line 62-64) explicitly derives from Phase 44 goal: "Author the
-  canonical observability decision document ... and the operational runbook ...
-  that ratify the Pino + Sentry + @vercel/otel stack documented in
-  44-RESEARCH.md §3 and specify the 7-day soak signal set, alert thresholds,
-  PII scrubbing rules, and on-call escalation paths."
-- 44-CONTEXT.md acceptance criterion (line 76): ".planning/observability-soak-M5.md
-  documents the monitoring stack for the 7-day soak" — plan addresses this
-  directly via Task 1.
-- Scope is correct: docs only. Sentry install + OTel wiring correctly split to
-  44-02b (line 86-93, deferred).
-- must_haves.truths are user-observable (Pino stack ratified, SLOs defined,
-  PII rules documented, runbook exists, decisions recorded, open questions
-  addressed).
+## Dimension 1: Goal-Backward Alignment
 
-### 2. Frontmatter Validity — **PASS**
-- All required fields present: phase, plan, type, title, status, created,
-  updated, wave, depends_on, files_modified, autonomous, schema_push_required,
-  requirements, user_setup, must_haves.
-- `wave: 1` — correct. 44-01 is shipped (no real dependency).
-- `depends_on: []` — correct. Steiger baseline from 44-01 informs the design
-  but isn't a hard input dependency.
-- `files_modified` lists both outputs (lines 11-13). `files_modified` matches
-  Task 1+2 `<files>` elements and the "Files changed" table (lines 138-141).
-- `autonomous: false` — justified by Task 3 `checkpoint:human-verify` blocking
-  gate for the 5 strategic decisions.
-- `schema_push_required: false` — correct (docs only).
+**Verdict: PASS**
 
-### 3. Task Quality (deep_work_rules) — **PASS**
-- **Task 1** has `<read_first>` listing 11 source-of-truth files, all of which
-  exist in the worktree (verified). `<acceptance_criteria>` uses 11 specific
-  checkable assertions (line counts, section names, exact string presence).
-  `<action>` cites specific section numbers (§1-§11), version pins, file
-  paths. `<verify>` has 11 runnable bash checks.
-- **Task 2** mirrors Task 1's quality: 8 read_first files, 10 acceptance
-  criteria, runbook structure (§1-§10), 10 verify checks.
-- **Task 3** is a `checkpoint:human-verify` with `gate="blocking"`, includes
-  full `<how-to-verify>` procedure with 4 steps, and lists the 5 strategic
-  decisions with REQUIRED vs RECOMMENDED column.
-- Tasks are 2 auto + 1 checkpoint — well within scope budget.
+The plan's goal ("Ratify the Pino + PostHog observability stack...") derives correctly from Phase 44's acceptance criterion: "`.planning/observability-soak-M5.md` documents the monitoring stack for the 7-day soak" (44-CONTEXT.md line 76).
 
-### 4. Threat Model (ASVS L1) — **PASS**
-- `<threat_model>` block present (lines 119-133) with 8 trust boundaries:
-  Browser→Sentry SaaS, API route→Sentry SaaS, API route→Vercel Logs, App→OTel
-  collector→Sentry, Vercel Logs→Log Drain aggregator, Sentry dashboard→user
-  PII, soak alerting→on-call channel, decision doc→public read.
-- Mitigations are concrete and actionable: `sendDefaultPii: false`,
-  `beforeSend` scrubber for `user.email` / `body.content` / `property.address`,
-  `tracesSampleRate: 0.1` (10% sample), `level: 'info'` in production, RBAC
-  on Sentry org, `{{ issue.title }}`-only alert template, placeholder env
-  vars in the decision doc.
-- No severity column on each row, but disposition (mitigate) is explicit and
-  mitigations are documented in §5 of the decision doc. Adequate for a
-  documentation-only plan; the threats are realized when 44-02b installs the
-  code.
+- The decision doc §1 explains WHY PostHog was chosen over Sentry (lines 155-156: "all-in-one platform", "simpler setup", "autocapture means zero instrumentation", "open-source friendly and cheaper"). This ratifies the user's decision without re-litigating. ✓
+- `must_haves` are all user-observable truths, not implementation details. ✓
+- Scope (decision doc + runbook + PostHog code) correctly matches the acceptance criterion. ✓
 
-### 5. Schema Push Compliance — **PASS**
-- No Prisma, Drizzle, or Supabase changes.
-- `schema_push_required: false` in frontmatter (line 15).
-- "Files changed" table (lines 138-141) explicitly states: "No code files are
-  modified. No `package.json` changes. No env-var changes. No schema changes.
-  The plan is documentation-only."
-- No `pnpm add` commands anywhere in the plan.
+---
 
-### 6. Verification Criteria — **PASS**
-- Lines 379-396: 13 specific runnable checks (line counts, section counts,
-  specific grep patterns).
-- Lines 398-417: 16-item success criteria checklist with exact assertions.
-- All checks are objective (e.g., "11 sections", "200+ lines", "contains
-  `skipOpenTelemetrySetup: true`") — not subjective.
+## Dimension 2: Frontmatter Validity
 
-### 7. Wave & Dependency Graph — **PASS**
-- Wave 1, depends_on: []. No Wave 0 dependency.
-- 44-02b correctly NOT in scope (deferred; lines 86-93, 421-426).
-- 44-01 (Steiger) is shipped and merged to dev (per STATE.md and git log
-  `a9c900a`). De facto dep satisfied.
-- No circular dependencies.
+**Verdict: WARNING**
 
-### 8. BD Issue Coverage — **FLAG** (soft)
-- `requirements` field (lines 16-19) lists:
-  - `M5a-observability-decision-doc` (synthesised — no matching BD issue
-    in BD.md)
-  - `mls9-adjacent-soak-readiness` (mls9 is real; "adjacent" prefix is the
-    plan's own framing)
-  - `nn39-adjacent-runtime-audit-signal` (nn39 is real; "adjacent" prefix
-    is the plan's own framing)
-- The plan correctly does NOT claim to close mls9 or nn39. The "adjacent"
-  prefix is honest framing.
-- BD.md does not have a dedicated BD issue for "monitoring infra planning" —
-  the work is "NEW" per 44-CONTEXT.md line 52, so this is expected.
-- **No BLOCKER** — the requirements field is documentary, not load-bearing.
-  The plan delivers the CONTEXT.md acceptance criterion (line 76) directly
-  without needing a pre-existing BD issue.
-- **Recommendation for executor**: After Task 3, file a single BD issue
-  tracking the 5 strategic decisions and the 44-02b follow-on. Mention in
-  the SUMMARY.
+All required fields present: phase, plan, type, title, status, created, updated, wave, depends_on, files_modified, autonomous, schema_push_required, requirements. ✓
 
-### 9. Project Standards Compliance — **PASS**
-- Plan structure mirrors 44-01-PLAN.md (frontmatter, sections, file
-  table, success criteria, out of scope, follow-on plans).
-- AGENTS.md worktree protocol referenced in Task 3 `<done>` (line 331).
-- pnpm references use `pnpm dev | pino-pretty` pattern (line 273).
-- No hardcoded secrets; decision doc declares Sentry org, DSN, and
-  PagerDuty URL as **placeholders** (line 131).
-- FSD-aware: references existing `src/shared/lib/logger.ts` and
-  `src/shared/api/observability.ts` as the structured-log source — not
-  creating new shared/lib modules.
+| Field | Value | Status |
+|-------|-------|--------|
+| phase | 44-m5a-hardening | ✓ |
+| plan | 44-02 | ✓ |
+| type | execute | ✓ |
+| wave | 1 | ✓ |
+| depends_on | [] | ✓ |
+| autonomous | false | ✓ (Task 5 human-verify justifies) |
+| schema_push_required | false | ✓ (no schema changes) |
 
-### 10. Anti-Shallow Execution — **PASS**
-- Every `<action>` has concrete identifiers: section numbers (§1-§11, §1-§10),
-  specific file paths, version pins (pino 10.3.1, next 15.5.18, react
-  19.2.4), library names.
-- `<read_first>` references all exist in the worktree (verified via `ls`).
-- No "align with X" / "match to Y" / "be consistent with" hand-waves.
-- Searched for scope-reduction language ("v1", "static for now", "future
-  enhancement", "stub", "placeholder", "minimal", "not wired to") — none
-  found in action sections.
+**⚠️ `next.config.mjs` missing from `files_modified`:** Task 3's action (line 369) says: *"if `instrumentationHook: true` is not already present, add it to the Next.js config."* This modifies `next.config.mjs`, but the file is NOT listed in the frontmatter `files_modified` field (lines 11-15). The plan may modify 5 files but declares only 4. Fix: add `next.config.mjs` to `files_modified`.
 
-## Minor Line-Number Drift (warnings, not blockers)
+---
 
-| Reference in Plan | Claimed | Actual | Drift |
-|-------------------|---------|--------|-------|
-| `src/middleware.ts` `x-request-id` (line 104, 158) | 106-108 | 107-108 | -1 line |
-| `src/middleware.ts` context range (line 159) | 100-115 | 107-108 | range starts 7 lines early, ends 7 lines late — both x-request-id lines included |
-| `src/shared/api/observability.ts` `withTiming` (line 260) | line 60 | line 51 | -9 lines |
-| `next.config.mjs` `serverExternalPackages` (line 161, 239, 273) | line 8 | line 8 | exact match |
-| `.planning/MILESTONES.md` §2.6 (lines 101, 154, 182, 264, 271, 277, 396, 414, 449-450) | §2.6 | M4.5 — Stabilization (lines 79-100) | section heading is `### M4.5 — Stabilization`, not `§2.6` |
+## Dimension 3: PostHog-Specific Correctness
 
-**Impact**: None of the line-number drift affects executability. The
-MILESTONES.md §2.6 reference is the most repeated (10+ times) and is
-substantively correct (the plan correctly cites the "zero P0/P1" content)
-but the section identifier should be "M4.5 — Stabilization" or "lines
-79-100" rather than "§2.6". Recommend the executor use the line range
-or section name when writing the decision doc.
+**Verdict: PASS (with warnings — see other dimensions)**
 
-**Severity**: WARNING. The cited content is correct; the section label
-is mislabelled. This does not block execution; the executor will write
-the correct section reference in `.planning/observability-soak-M5.md` §11.
+### Code correctness checks:
 
-## Verified Source Files
+| Check | Expected | Actual | Status |
+|-------|----------|--------|--------|
+| `defaults: '2026-01-30'` | Present in instrumentation-client.ts | Yes (line 345) | ✓ |
+| `capture_pageview: false` | Present | Yes — prevents double-count with PostHogPageView | ✓ |
+| `api_host: '/ingest'` | Default in init + matching in layout | Yes (lines 343-344, 463) | ✓ |
+| `session_recording.maskAllInputs` | `true` | Yes (line 349) | ✓ |
+| `session_recording.maskTextSelector` | `'*'` | Yes (line 350) | ✓ |
+| `autocapture` | `true` | Yes (line 347) | ✓ |
+| `register()` export | Correct function name for instrumentation-client.ts | Yes (line 340) | ✓ |
+| `PostHogProvider` from `@posthog/next` | Imported | Yes (line 444) | ✓ |
+| `PostHogPageView` inside `<Suspense>` | Inside Suspense boundary | Yes (lines 466-468) | ✓ |
+| `bootstrapFlags` on Provider | Passed to PostHogProvider | Yes (line 464) | ✓ |
+| `api_host` consistency | Same value in init + layout | Both `/ingest` | ✓ |
+| No hardcoded API keys | Uses `process.env.NEXT_PUBLIC_POSTHOG_PROJECT_KEY` | Yes (lines 343, 487) | ✓ |
+| `typeof window !== 'undefined'` guard | Prevents SSR errors | Yes (line 341) | ✓ |
+| `instrumentationHook: true` in next.config.mjs | Task 3 checks and adds if missing | Mentioned in action (line 369) | ✓ |
 
-| File | Lines | Verification |
-|------|-------|--------------|
-| `src/middleware.ts` | 185 | `x-request-id` at lines 107-108 ✓ |
-| `next.config.mjs` | 79 | `serverExternalPackages: ['pino']` at line 8 ✓ |
-| `src/shared/lib/logger.ts` | 30 | `apiLogger`/`authLogger`/`dbLogger`/`uploadLogger` at lines 27-30 ✓ |
-| `src/shared/api/observability.ts` | 70 | `createLogContext` at line 30, `withTiming` at line 51 ✓ |
-| `package.json` | (json) | `pino: ^10.3.1`, `next: ^15.5.0`, `react: ^19.2.4` ✓ |
-| `.planning/MILESTONES.md` | (md) | M4.5 soak criteria at lines 79-100 ✓ (cited as §2.6 — see warning) |
-| `44-RESEARCH.md` §3 | (md) | Stack recommendation, signal set, integration pattern all present ✓ |
-| `44-CONTEXT.md` line 76 | (md) | Acceptance criterion for `.planning/observability-soak-M5.md` ✓ |
-| `docs/STEERING/` | (dir) | Directory exists; `OBSERVABILITY.md` is the natural sibling ✓ |
+### Recommended mkdocs consistency improvements (above threshold — see Dimension 6 for the critical one):
+
+None beyond what's flagged in Dimension 6.
+
+---
+
+## Dimension 4: Task Quality
+
+**Verdict: BLOCKER**
+
+All 5 tasks have `<read_first>`, `<action>`, `<verify>`, `<acceptance_criteria>`, and `<done>` elements. Task 5 is correctly typed `checkpoint:human-verify` with `gate="blocking"`.
+
+**❌ BLOCKER — Task 1 action contains stale Sentry reference in signal set table (line 190):**
+
+```
+| Server error rate | < 1% | > 1% for 5 min | Check Sentry (post-migration) or Vercel Monitoring 5xx | Vercel Monitoring |
+```
+
+This row references **Sentry**, which no longer exists in the stack. The PostHog adaptation replaced Sentry with PostHog Errors (client-side) and Vercel Monitoring (server-side). The `"post-migration"` parenthetical also implies an in-progress migration that doesn't apply. The "Client JS error rate" row correctly references PostHog, but this server-side row was not updated.
+
+**Impact:** The decision document §6 will be written with a non-existent tool reference. The M5b launch team will search for "Sentry" when responding to a server error alert and find nothing. This contradicts the ratified stack (Pino + PostHog).
+
+**Fix:** Change to: `"Check Vercel Monitoring 5xx"` (remove all Sentry references).
+
+### Other task quality observations:
+
+- **Task 1 action** — well-structured with 11 explicit sections, concrete requirements per section. ✓
+- **Task 1 action §6 signal set** — the "Check Sentry (post-migration)" is the only stale reference in an otherwise correct table (6/7 rows correctly reference PostHog/Vercel). ❌
+- **Task 3 action** — provides exact code, explains each init option. ✓
+- **Task 3 verify** — does NOT check for `instrumentationHook: true` in `next.config.mjs`. The acceptance criteria (line 401) lists it but the verify block (lines 376-387) doesn't check for it. ⚠️
+- **Task 5** — comprehensive `<how-to-verify>` with 5 clear steps. ✓
+
+---
+
+## Dimension 5: Threat Model (ASVS L1)
+
+**Verdict: PASS**
+
+The plan has a dedicated threat model section (lines 109-121) with a 5-row table covering PostHog-specific threats:
+
+| Threat | Mitigation | Status |
+|--------|-----------|--------|
+| PII leakage via autocapture | `maskAllInputs: true`, `maskTextSelector: '*'`, `.ph-no-capture` | ✓ |
+| Reverse-proxy misconfig | Env var verification | ✓ |
+| Unauthorized dashboard access | PostHog RBAC, no external links | ✓ |
+| PII in alert text | `$event_type` only alerts | ✓ |
+| CDN compromise | npm bundle, not CDN | ✓ |
+
+All mitigations are concrete, code-level (Tasks 3-4), and documented in decision doc §5. No high-severity blockers. The threat model was clearly adapted for PostHog (not a copy of a Sentry model) — it references `maskAllInputs`, `maskTextSelector`, `.ph-no-capture` which are PostHog-specific.
+
+---
+
+## Dimension 6: PostHog vs Sentry Migration Completeness
+
+**Verdict: BLOCKER**
+
+The adaptation from Sentry + @vercel/otel to PostHog is 97% complete. Here is the audit:
+
+| Artifact | Sentry references before fix | Status |
+|----------|------------------------------|--------|
+| Plan "Why this plan exists" | 1 (contextual — "PostHog replaces Sentry") | ✓ (correct — explains the switch) |
+| Plan §1 Decision Summary instructions | 1 (contextual — "rejected alternatives") | ✓ (correct — lists as rejected) |
+| **Task 1 signal set table** | **1 (operational — "Check Sentry")** | **❌ STALE** |
+| Task 2 runbook instructions | 0 | ✓ |
+| Task 3 code | 0 | ✓ |
+| Task 4 layout code | 0 | ✓ |
+| Threat model | 0 | ✓ (adapted for PostHog) |
+
+**❌ BLOCKER — Signal set table (line 190):** `"Check Sentry (post-migration)"` must be removed and replaced with the PostHog-equivalent or Vercel Monitoring-only reference.
+
+The RESEARCH.md §3 recommended Sentry + @vercel/otel — the plan acknowledges this is overridden (line 79: "PostHog replaces Sentry + @vercel/otel from the original 44-RESEARCH.md §3 research"). ✓
+
+---
+
+## Dimension 7: Context Compliance (44-CONTEXT.md)
+
+**Verdict: PASS**
+
+The locked decision from CONTEXT.md is: "`.planning/observability-soak-M5.md` documents the monitoring stack for the 7-day soak" (line 76). The plan directly delivers this. ✓
+
+No deferred ideas are included. ✓
+Discretion areas handled appropriately (monitoring stack choice → PostHog with rationale). ✓
+
+---
+
+## Dimension 7b: Scope Reduction Detection
+
+**Verdict: PASS**
+
+No scope reduction language detected. The plan does not use "v1", "simplified", "static for now", etc., to deliver a reduced version of any requirement. Deferred items (group analytics, feature flags) are properly listed in "Out of scope" and tagged as deferred/not needed for M5b.
+
+---
+
+## Dimension 7c: Architectural Tier Compliance
+
+**Verdict: PASS** (no Architectural Responsibility Map found in RESEARCH.md — original map from §3.1 was Sentry-specific and is overridden by the stack change)
+
+The plan correctly places PostHog in the Browser/Client tier (client-side analytics, session recording, autocapture) and acknowledges server-side gaps (server errors → Vercel Monitoring, server logs → Pino). This is consistent with the implicit tier mapping from the signal set.
+
+---
+
+## Dimension 8: Nyquist Compliance
+
+**Verdict: INFO**
+
+The plan has `<verify>` blocks with shell commands (`test -f`, `wc -l`, `grep -q`) but no `<automated>` test commands. The strategy is appropriate for configuration/documentation work — there's no application logic to unit test.
+
+- No Wave 0 test files needed (config-only deliverables). ✓
+- `pnpm typecheck` is listed as a plan-level quality gate. ✓
+- The grep-based verification is sufficient for code that is essentially initialization configuration.
+
+**Note:** If the project requires Nyquist Wave 0 test scaffolding for all plans, this plan would need a Wave 0 task for a PostHog init smoke test (`pnpm test` that verifies `posthog.init()` accepts the config). However, this is config wiring, not application logic.
+
+---
+
+## Dimension 9: Cross-Plan Data Contracts
+
+**Verdict: PASS** (N/A — no shared data pipelines with other plans in this phase)
+
+---
+
+## Dimension 10: AGENTS.md Compliance
+
+**Verdict: PASS**
+
+| Check | Status |
+|-------|--------|
+| pnpm commands (not npm) | ✓ |
+| No hardcoded API keys/secrets | ✓ (uses env vars) |
+| FSD file structure respected | ✓ (instrumentation-client.ts at src root, layout.tsx in app dir) |
+| Error boundaries referenced | ✓ (PostHogPageView in Suspense, prevents useSearchParams errors) |
+| TypeScript strict | ✓ (code shows full typing) |
+| Session completion protocol | ✓ (SUMMARY.md, merge, push per worktree lifecycle) |
+
+The plan uses `pnpm typecheck` while AGENTS.md quality gates section (line 861) says `npm run typecheck` — this is a pre-existing AGENTS.md inconsistency, not a plan issue. The plan correctly uses pnpm which is the project standard.
+
+---
+
+## Dimension 11: Research Resolution
+
+**Verdict: PASS**
+
+RESEARCH.md §10.3 has "Open questions for discuss-phase" — not a `## Open Questions` section with `(RESOLVED)` suffix. The section title differs from what the dimension checks for, so it's technically N/A. Practically, the Sentry-related questions (Sentry org setup, Vercel plan tier) are resolved by the stack change to PostHog, and the plan documents this.
+
+---
+
+## Dimension 12: Pattern Compliance
+
+**Verdict: SKIPPED** (no PATTERNS.md exists for this phase)
+
+---
 
 ## Blocking Findings
 
-**None.**
+### B1: Stale Sentry reference in soak signal set (Dimensions 4, 6)
+- **Location:** Plan line 190, Task 1 action §6 signal set table
+- **Text:** `"Check Sentry (post-migration) or Vercel Monitoring 5xx"`
+- **Severity:** BLOCKER
+- **Why:** The plan replaces Sentry with PostHog, but this server-error signal row still references Sentry. The decision document will be written with a non-existent tool. When a server error alert fires during the soak, the M5b launch team will look for a Sentry dashboard that doesn't exist. Contradicts the ratified stack (Pino + PostHog).
+- **Fix:** Change to `"Check Vercel Monitoring 5xx"`. Remove the Sentry + parenthetical entirely.
 
-## Flag Findings (non-blocking, for executor awareness)
+---
 
-1. **BD requirements field uses synthesised identifiers** (lines 16-19).
-   `M5a-observability-decision-doc` is not a BD issue. The "adjacent" prefix
-   on `mls9` and `nn39` is honest framing, not a claim to close them.
-   *Executor action*: After Task 3 ratification, file a single BD issue
-   `observability-soak-M5-decisions` linking the 5 ratified decisions and
-   the 44-02b follow-on. Cross-link in the SUMMARY.
+## Warning Findings
 
-2. **MILESTONES.md §2.6 reference is mislabelled** (10+ occurrences).
-   The actual section is `### M4.5 — Stabilization` (lines 79-100).
-   Content cited is correct.
-   *Executor action*: When writing `.planning/observability-soak-M5.md`
-   §7 (abort criteria) and §11 (references), cite "M4.5 — Stabilization"
-   or "lines 79-100" rather than "§2.6".
+### W1: `next.config.mjs` not in `files_modified` (Dimension 2)
+- **Location:** Plan frontmatter lines 11-15
+- **Severity:** WARNING
+- **Why:** Task 3 action (line 369) says to add `instrumentationHook: true` to `next.config.mjs` if missing, but this file is not listed in `files_modified`. The plan may modify 5 files but declares only 4.
+- **Fix:** Add `next.config.mjs` to the `files_modified` list.
 
-3. **`src/middleware.ts:106-108` and `:60` line drift**. Off by 1 and 9
-   lines respectively. The function references (`x-request-id` header,
-   `withTiming` function) are correct; only the line numbers drift.
-   *Executor action*: When citing these in the decision doc, the current
-   line numbers are 107-108 and 51 respectively. Or just cite the function
-   name without a line number.
+### W2: Reverse proxy implementation gap (Dimension 3)
+- **Location:** Plan must_haves line 34 + Task 3 action + decision doc §10 Open Question #1
+- **Severity:** WARNING
+- **Why:** The must_have says "PostHog reverse proxy is configured (api_host: '/ingest')" but no task implements the `next.config.mjs` rewrite rule for `/ingest` → PostHog cloud. The issue is deferred to Open Question #1 with no code path. If the human doesn't resolve it, events will fail to send when `NEXT_PUBLIC_POSTHOG_HOST` is unset and no rewrite exists.
+- **Fix:** Either (a) add a Task 3 sub-step to create the `/ingest` rewrite rule in `next.config.mjs`, or (b) document that the env var fallback (`NEXT_PUBLIC_POSTHOG_HOST`) is the primary path and `/ingest` is optional.
 
-4. **No 44-02b entry in ROADMAP.md**. The plan defers the Sentry install
-   to 44-02b (lines 86-93, 421-426, 436), but ROADMAP.md does not list
-   this follow-on plan (only 44-02..44-08+ appear). This is a ROADMAP
-   drift, not a plan defect.
-   *Executor action*: When writing the SUMMARY, note that 44-02b needs
-   to be added to ROADMAP.md as a follow-on plan before 44-10 (qjpa
-   codemod) starts.
+### W3: UI-SPEC D4 observability section is stale (Dimension 7)
+- **Location:** 44-UI-SPEC.md lines 196-221 (Observability Surfaces table)
+- **Severity:** WARNING
+- **Why:** The approved UI design contract references Sentry + @vercel/otel as the 44-02 stack. The D4 dimension lists `skipOpenTelemetrySetup` and `sendDefaultPii: false` as critical config — both Sentry-specific. The plan should document that D4 is superseded by the PostHog stack choice.
+- **Fix:** Add a note in the plan's "Why this plan exists" section: "The approved UI-SPEC.md §D4 references the original Sentry + @vercel/otel stack; this plan supersedes that section. See 44-02-PLAN.md for the ratified stack (Pino + PostHog)."
 
-## Pass Findings (what's good)
+---
 
-1. **Documentation-only scope is correct**. The plan reads as a clean
-   "ratification + runbook" deliverable; the actual Sentry install is
-   properly fenced to 44-02b.
+## Info Findings
 
-2. **Threat model is comprehensive for a docs-only plan**. 8 trust
-   boundaries with concrete mitigations, all of which are codified as
-   recommendations in §5 of the decision doc.
+### I1: Verify blocks lack `<automated>` commands (Dimension 8)
+- **Location:** All task `<verify>` blocks use shell commands, not `<automated>` test commands
+- **Severity:** INFO
+- **Why:** Appropriate for config-only work (no application logic to unit test), but technically fails Nyquist Check 8a. If Wave 0 test scaffolding is a project requirement, add a Task 0 to create a PostHog init smoke test.
+- **Fix (optional):** Add Wave 0 task for `pnpm test` that verifies `posthog.init()` accepts the config object without throwing.
 
-3. **Verification is fully runnable**. 13 grep/wc checks in the
-   verification section; all have deterministic pass/fail semantics.
+---
 
-4. **Task 3 human-verify gate is well-structured**. 4-step review
-   procedure, table of REQUIRED vs RECOMMENDED decisions with defaults,
-   explicit resume signal ("approved" + answers).
+## Structured Issues
 
-5. **Cross-references are consistent**. The plan cites 44-RESEARCH.md §3
-   (5 sub-sections), MILESTONES.md, CONTEXT.md, UI-SPEC.md, and existing
-   source files (`logger.ts`, `observability.ts`, `middleware.ts`,
-   `next.config.mjs`, `package.json`) in both the read_first and the
-   action sections.
+```yaml
+issues:
+  - dimension: posthog_migration_completeness
+    severity: blocker
+    description: "Signal set table in Task 1 action (line 190) references Sentry: 'Check Sentry (post-migration) or Vercel Monitoring 5xx'. Stack is Pino + PostHog — Sentry does not exist in the plan."
+    plan: "44-02"
+    task: 1
+    fix_hint: "Change to 'Check Vercel Monitoring 5xx'. Remove Sentry reference entirely."
 
-6. **Worktree discipline observed**. Branch = worktree directory name
-   (`phase-44-02-monitoring`), commit `b14cd90` is the plan commit,
-   working tree clean. Task 3 `<done>` references the AGENTS.md worktree
-   lifecycle (commit + merge + remove + branch delete).
+  - dimension: frontmatter_validity
+    severity: warning
+    description: "next.config.mjs is modified by Task 3 (add instrumentationHook: true) but is not listed in files_modified frontmatter."
+    plan: "44-02"
+    fix_hint: "Add next.config.mjs to files_modified list."
 
-7. **No code-touching tasks**. The plan is exactly what the CONTEXT.md
-   acceptance criterion asks for: documentation of the monitoring
-   stack, with the actual code work properly fenced to a follow-on.
+  - dimension: posthog_correctness
+    severity: warning
+    description: "Must_have claims 'PostHog reverse proxy is configured (api_host: /ingest)' but no task implements the next.config.mjs rewrite rule for /ingest → PostHog cloud. Defers to Open Question #1 with no code path."
+    plan: "44-02"
+    fix_hint: "Add /ingest rewrite to Task 3 action, or document env var fallback as primary path."
 
-8. **Out-of-scope section is well-bounded**. The plan explicitly defers
-   the Sentry install, the 4 unit tests (OBS-01..OBS-04), the Vercel
-   Log Drain config, and the `withTiming` span wiring to 44-02b. This
-   prevents the plan from drifting into a code plan.
+  - dimension: context_compliance
+    severity: warning
+    description: "44-UI-SPEC.md §D4 Observability Surfaces table references the original Sentry + @vercel/otel stack (skipOpenTelemetrySetup, sendDefaultPii). This plan replaces that stack with PostHog but doesn't document the override."
+    plan: "44-02"
+    fix_hint: "Add note in plan that UI-SPEC D4 is superseded by the PostHog stack choice."
+
+  - dimension: nyquist_compliance
+    severity: info
+    description: "Verify blocks use shell commands (grep/wc) not <automated> test commands. Appropriate for config-only work but technically fails Nyquist Check 8a."
+    plan: "44-02"
+    fix_hint: "Optional: add Wave 0 task for a PostHog init smoke test."
+```
+
+---
 
 ## Recommendation
 
-**MERGE.** The plan is ready to execute. The 4 flag findings are
-executor-facing, not plan-blocking:
+**REVISE** — 1 BLOCKER must be fixed before execution.
 
-1. Use "M4.5 — Stabilization" or "lines 79-100" when citing MILESTONES.md
-   in the decision doc (not "§2.6").
-2. File a single BD issue post-Task-3 for the 5 ratified decisions.
-3. Note the need to add 44-02b to ROADMAP.md in the SUMMARY.
-4. Use current line numbers (107-108, 51) when citing source files.
+The Sentry reference leak (B1) is a single-line fix: change `"Check Sentry (post-migration) or Vercel Monitoring 5xx"` to `"Check Vercel Monitoring 5xx"` on line 190 of the plan.
 
-No planner revision is required.
+The three warnings (W1-W3) should also be addressed:
+1. Add `next.config.mjs` to `files_modified`
+2. Either add the `/ingest` rewrite task or document the env var primary path
+3. Add a note about UI-SPEC D4 being superseded
+
+After these fixes, re-verify. Expected time: ~5 minutes for the planner to apply the fixes.
