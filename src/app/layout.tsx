@@ -1,4 +1,5 @@
 import './globals.css';
+import { PostHogProvider, PostHogPageView } from '@posthog/next';
 import { Providers } from './providers';
 import { Suspense } from 'react';
 import { Metadata, Viewport } from 'next';
@@ -28,11 +29,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="bg-soralia-light min-h-screen">
-        <Providers>
-          <Header />
-          <Suspense fallback={null}>{children}</Suspense>
-          <Footer />
-        </Providers>
+        <PostHogProvider
+          apiKey={process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN!}
+          clientOptions={{ api_host: '/ingest' }}
+          bootstrapFlags
+        >
+          <Suspense fallback={null}>
+            <PostHogPageView />
+          </Suspense>
+          <Providers>
+            <Header />
+            <Suspense fallback={null}>{children}</Suspense>
+            <Footer />
+          </Providers>
+        </PostHogProvider>
       </body>
     </html>
   );

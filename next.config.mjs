@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  instrumentationHook: true,
 
   // Pino uses worker threads for transports (pino-pretty).
   // Bundling it causes "Cannot find module lib/worker.js" at runtime.
@@ -71,6 +72,15 @@ const nextConfig = {
             value: 'public, s-maxage=180, stale-while-revalidate=300', // 3min cache + 5min stale
           },
         ],
+      },
+    ];
+  },
+
+  async rewrites() {
+    return [
+      {
+        source: '/ingest/:path*',
+        destination: `${process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://eu.posthog.com'}/:path*`,
       },
     ];
   },
