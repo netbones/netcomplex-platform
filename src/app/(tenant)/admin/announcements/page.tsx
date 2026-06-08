@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { authClient } from '@api/auth-client';
 import { canPublishAnnouncements } from '@entities/tenant';
-import { useAnnouncements } from '@/features/announcements/model/useAnnouncements';
-import { AnnouncementForm } from '@/features/announcements/ui/AnnouncementForm';
-import { AnnouncementList } from '@/features/announcements/ui/AnnouncementList';
-import type { AnnouncementWithResource } from '@/features/announcements/model/types';
+import {
+  useAnnouncements,
+  AnnouncementForm,
+  AnnouncementList,
+} from '@features/announcements';
+import type { AnnouncementWithResource } from '@features/announcements';
 import type { AnnouncementFormData } from '@shared/api';
 import { toast } from 'sonner';
 export default function AnnouncementsAdminPage() {

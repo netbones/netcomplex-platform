@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSignupForm } from '@/features/auth/model/useSignupForm';
+import { useSignupForm, SignupHeader, SignupFormSection, SignupCTA } from '@features/auth';
 import type { PricingPlan } from '@/app/api/pricing/route';
 import { PageLayout } from '@shared/ui';
-import { SignupHeader, SignupFormSection, SignupCTA } from '@features/auth';
 
 import { PlatformFooter } from '@features/platform';
 import { createComponentLogger } from '@shared/lib';
