@@ -1,11 +1,10 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-06-06 (Session 10)
+> **Last updated:** 2026-06-09 (Session 11)
 > **Total remaining:** 30 issues
-> **Closed this session:** 0
-> **Created this session:** 1 issue (`5m7l` — Schedule F Table 2 confirmation, dWallet M5b launch-readiness blocker)
-> **Phase 47 reclassified:** M6+ → M5b (dWallet is the anchor-tenant headline selling point)
-> **Also created:** `nn39` (P1, 19 high-severity pnpm audit findings) — follow-up to ADVISORY-003 / phase-15-supply-chain
+> **Closed this session:** 1 (`08st` — entities/tenant cross-slice fan-in)
+> **Created this session:** 0
+> **Lesson learned:** BD 08st (18 files, new shared directories, type architecture) should have been a GSD phase. BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
 ## Summary by Priority
 
@@ -57,6 +56,19 @@
 | ----- | ---------------------------------------------- | ---------- | ------ |
 | `0f7` | i18n: Database content localization for Tiptap | `l23`      | ○      |
 | `oqw` | Phase 3: Wrap API routes with runWithRLS()     | `4a6`      | ○      |
+
+---
+
+## FSD Cross-Slice Cleanup (from Phase 44 baseline)
+
+| ID | Priority | Title | Status | Scope | Note |
+| ------ | -------- | ------------------------------------------------- | ------ | ----- | ---- |
+| `08st` | P2 | entities/tenant cross-slice fan-in (9 violations) | ✅ | 18f | Should have been GSD — 18 files, new @shared/lib directories |
+| `nf5r` | P3 | entities/admin cross-slice fan-in (26 violations) | ○ | ~25f | **GSD candidate** — large scope |
+| `znjo` | P3 | shared layers importing entities (28 violations) | ○ | ~30f | **GSD candidate** — large scope |
+| `qjpa` | P3 | @api/* alias sidestep violations (461) | ○ | ~50f | **GSD candidate** — very large scope |
+
+**Sizing rule:** If a BD issue will touch 5+ files across multiple FSD slices, or requires new shared directories/types → escalate to GSD phase.
 
 ---
 
@@ -157,7 +169,13 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 
 ---
 
-## Closed This Session (30 issues)
+## Closed This Session (31 issues)
+
+### Session 11 - FSD Cross-Slice Cleanup (1 closed)
+
+| ID | Title | Reason |
+| ----- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `08st` | entities/tenant cross-slice fan-in (9 violations) | Fixed: moved RBAC to @shared/lib/permissions, tenant types to @shared/lib/types/tenant, updated 5 entity imports. 0 violations remaining. **Should have been GSD.** |
 
 ### Session 8 - Cross-Tenant Data Leakage Audit (1 closed, 6 created)
 
