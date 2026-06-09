@@ -61,13 +61,13 @@
 
 ## FSD Cross-Slice Cleanup (from Phase 44 baseline)
 
-| ID     | Priority | Title                                             | Status | Scope | Note                                                         |
-| ------ | -------- | ------------------------------------------------- | ------ | ----- | ------------------------------------------------------------ |
-| `08st` | P2       | entities/tenant cross-slice fan-in (9 violations) | ✅     | 18f   | Should have been GSD — 18 files, new @shared/lib directories |
-| `nf5r` | P3       | entities/admin cross-slice fan-in (26 violations) | ○      | ~25f  | **GSD candidate** — large scope                              |
-| `znjo` | P3       | shared layers importing entities (28 violations)  | ○      | ~30f  | **GSD candidate** — large scope                              |
-| `qjpa` | P3 | @api/* alias sidestep violations (461) | ○ | ~50f | **GSD candidate** — very large scope |
-| `bszk` | P3 | Remove entities/tenant re-export shims (permissions.ts, types.ts) | ○ | 2f | Blocked by: app/ + widgets/ consumer migration to @shared/lib |
+| ID | Priority | Title | Status | Scope | Approach | Note |
+| ------ | -------- | ------------------------------------------------- | ------ | ----- | -------- | ---- |
+| `08st` | P2 | entities/tenant cross-slice fan-in (9 violations) | ✅ | 18f | ~~BD~~ (should have been GSD) | Moved RBAC + tenant types to @shared/lib |
+| `nf5r` | P3 | entities/admin cross-slice fan-in (26 violations) | ○ | 1f | **BD** | Only 1 consumer file (widgets/dashboard/model/widgets.ts) — mechanical fix, extract to @shared/lib |
+| `znjo` | P3 | shared layers importing entities (41 violations) | ○ | 13f | **BD** (escalate if expands) | Same pattern as 08st — 13 files, all @shared→@entities. Extract shared types/fns. Escalate to GSD mid-work if scope grows. |
+| `qjpa` | P3 | @api/* alias sidestep violations (389 violations) | ○ | 51f | **GSD phase** | 51 files, 389 violations. Needs architectural decision on @api barrel design, sub-problems per @api package. Too large for BD. |
+| `bszk` | P3 | Remove entities/tenant re-export shims (permissions.ts, types.ts) | ○ | 2f | **BD** | Blocked by: app/ + widgets/ consumer migration to @shared/lib. Simple deletion once unblocked. |
 
 **Sizing rule:** If a BD issue will touch 5+ files across multiple FSD slices, or requires new shared directories/types → escalate to GSD phase.
 
