@@ -1,4 +1,4 @@
-import { hasPermission } from '@entities/tenant';
+import { hasPermission } from '@shared/lib';
 
 export function canViewAllRequests(role: string | null | undefined): boolean {
   return hasPermission(role, 'requests');

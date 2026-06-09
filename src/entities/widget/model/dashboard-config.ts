@@ -1,5 +1,4 @@
-import type { Tenant } from '@entities/tenant';
-import { isFeatureEnabled, TierLevel } from '@entities/tenant';
+import type { Tenant, FeatureCheckFn } from '@shared/lib';
 
 export interface DashboardWidget {
   id: string;
@@ -253,16 +252,16 @@ export function getWidgetIcon(widgetId: string): string {
   return widget?.icon || 'fa-widget';
 }
 
-export function getAvailableWidgets(activeWidgetIds: string[], tenant?: Tenant): DashboardWidget[] {
+export function getAvailableWidgets(
+  activeWidgetIds: string[],
+  tenant?: Tenant,
+  isFeatureEnabled?: FeatureCheckFn
+): DashboardWidget[] {
   return ALL_WIDGETS.filter(w => {
-    // If no tenant context, show all widgets (e.g., public pages)
     if (!tenant) return !activeWidgetIds.includes(w.id);
-
-    // Utility widgets available to all tenants (no feature restriction)
     const featureKey = WIDGET_FEATURE_MAP[w.id];
     if (!featureKey) return !activeWidgetIds.includes(w.id);
-
-    // Check if tenant has access to the feature
+    if (!isFeatureEnabled) return !activeWidgetIds.includes(w.id);
     return isFeatureEnabled(tenant, featureKey) && !activeWidgetIds.includes(w.id);
   });
 }

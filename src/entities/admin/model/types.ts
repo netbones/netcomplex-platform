@@ -1,5 +1,4 @@
-import type { Tenant } from '@entities/tenant';
-import type { TierLevel } from '@entities/tenant';
+import type { Tenant, TierLevel } from '@shared/lib';
 
 export type { Tenant, TierLevel };
 

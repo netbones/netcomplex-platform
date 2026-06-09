@@ -17,7 +17,6 @@ import type { Tenant } from '../types';
 
 export type { TierLevel, ModuleKey };
 export { TIERS, MODULES, hasModuleAccess, getTierModules };
-export { Tenant };
 
 export interface FeatureDefinition {
   key: string;

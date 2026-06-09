@@ -40,20 +40,18 @@ export interface Household {
   profiles?: Profile[];
 }
 
-export interface StandardSeat {
-  id: string;
-  userId: string;
-  propertyId: string;
-  isPrimaryOwner: boolean;
-  platformAddress: string;
-  createdAt: Date;
-  updatedAt: Date;
-  user?: {
-    id: string;
-    name: string;
-  };
+import type { StandardSeat, SoloSeat } from '@shared/lib';
+export type { StandardSeat, SoloSeat };
+
+export interface StandardSeatWithProperty extends StandardSeat {
   property?: Property;
 }
+
+export interface SoloSeatWithProperty extends SoloSeat {
+  property?: Property;
+}
+
+export type { SeatProperty } from '@shared/lib';
 
 export interface Profile {
   id: string;
@@ -78,18 +76,6 @@ export interface AgentAccess {
     id: string;
     name: string;
   };
-  property?: Property;
-}
-
-export interface SoloSeat {
-  id: string;
-  userId: string;
-  platformAddress: string;
-  propertyId?: string;
-  seatType: 'RESIDENT' | 'MEMBER';
-  isComplimentary: boolean;
-  createdAt: Date;
-  updatedAt: Date;
   property?: Property;
 }
 

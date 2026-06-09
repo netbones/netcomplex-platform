@@ -1,4 +1,4 @@
-import { hasPermission } from '@entities/tenant';
+import { hasPermission } from '@shared/lib';
 
 /**
  * Checks if the role can manage content (all content).

@@ -1,6 +1,6 @@
 // Admin user management types — used by UsersListSection and related components
 
-import type { StandardSeat, SoloSeat } from '@entities/tenant';
+import type { StandardSeat, SoloSeat } from '@shared/lib';
 
 /** @property-consolidation-plan (44-03 findings)
  * Admin user management lite view. Has `platformAddress?` as optional.

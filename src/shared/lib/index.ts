@@ -1,3 +1,23 @@
+export {
+  hasPermission,
+  isAdmin,
+  canManageUsers,
+  canManageRequests,
+  canManageContent,
+  canManageGroups,
+  canManageOwnGroupOnly,
+  canManageEvents,
+  canManageBookings,
+  canAccessDirectory,
+  canManageSettings,
+  canAccessHouseholds,
+  getPermissions,
+  canPublishAnnouncements,
+  requireRole,
+  ROLE_PERMISSIONS,
+  type Permission,
+} from './permissions';
+export * from './types';
 export * from './utils';
 export * from './logger';
 export * from './logging';

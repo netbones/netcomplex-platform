@@ -1,0 +1,237 @@
+import type { Role } from './constants';
+
+export interface Permission {
+  admin: boolean;
+  users: boolean;
+  households: boolean;
+  requests: boolean;
+  content: boolean;
+  groups: boolean;
+  groupsOwn: boolean;
+  contentOwn: boolean;
+  events: boolean;
+  bookings: boolean;
+  directory: boolean;
+  messages: boolean;
+  settings: boolean;
+  announcements: boolean;
+}
+
+export const ROLE_PERMISSIONS: Record<Role, Permission> = {
+  RESIDENT: {
+    admin: false,
+    users: false,
+    households: false,
+    requests: false,
+    content: false,
+    contentOwn: true,
+    groups: false,
+    groupsOwn: false,
+    events: true,
+    bookings: true,
+    directory: true,
+    messages: true,
+    settings: false,
+    announcements: false,
+  },
+  GROUP_ADMIN: {
+    admin: false,
+    users: false,
+    households: false,
+    requests: false,
+    content: false,
+    groups: false,
+    groupsOwn: true,
+    contentOwn: true,
+    events: true,
+    bookings: true,
+    directory: true,
+    messages: true,
+    settings: false,
+    announcements: false,
+  },
+  COMMITTEE: {
+    admin: false,
+    users: false,
+    households: false,
+    requests: true,
+    content: true,
+    groups: true,
+    groupsOwn: true,
+    contentOwn: true,
+    events: true,
+    bookings: true,
+    directory: true,
+    messages: true,
+    settings: true,
+    announcements: true,
+  },
+  BOARD: {
+    admin: false,
+    users: false,
+    households: true,
+    requests: true,
+    content: true,
+    groups: true,
+    groupsOwn: true,
+    contentOwn: true,
+    events: true,
+    bookings: true,
+    directory: true,
+    messages: true,
+    settings: true,
+    announcements: true,
+  },
+  ADMIN: {
+    admin: true,
+    users: true,
+    households: true,
+    requests: true,
+    content: true,
+    groups: true,
+    groupsOwn: true,
+    contentOwn: true,
+    events: true,
+    bookings: true,
+    directory: true,
+    messages: true,
+    settings: true,
+    announcements: true,
+  },
+  AGENT: {
+    admin: false,
+    users: false,
+    households: false,
+    requests: false,
+    content: false,
+    groups: false,
+    groupsOwn: false,
+    contentOwn: false,
+    events: false,
+    bookings: false,
+    directory: false,
+    messages: false,
+    settings: false,
+    announcements: false,
+  },
+  MANAGER: {
+    admin: false,
+    users: true,
+    households: true,
+    requests: true,
+    content: true,
+    groups: true,
+    groupsOwn: true,
+    contentOwn: true,
+    events: true,
+    bookings: true,
+    directory: true,
+    messages: true,
+    settings: true,
+    announcements: true,
+  },
+  ASSOCIATE: {
+    admin: false,
+    users: false,
+    households: false,
+    requests: false,
+    content: false,
+    groups: false,
+    groupsOwn: true,
+    contentOwn: true,
+    events: true,
+    bookings: true,
+    directory: true,
+    messages: true,
+    settings: false,
+    announcements: false,
+  },
+};
+
+const ZERO_PERMISSIONS: Permission = {
+  admin: false,
+  users: false,
+  households: false,
+  requests: false,
+  content: false,
+  groups: false,
+  groupsOwn: false,
+  contentOwn: false,
+  events: false,
+  bookings: false,
+  directory: false,
+  messages: false,
+  settings: false,
+  announcements: false,
+};
+
+export function hasPermission(
+  role: string | null | undefined,
+  permission: keyof Permission
+): boolean {
+  if (!role) return false;
+  const perms = ROLE_PERMISSIONS[role as Role];
+  return perms ? perms[permission] : false;
+}
+
+export function isAdmin(role: string | null | undefined): boolean {
+  return hasPermission(role, 'admin');
+}
+
+export function canManageUsers(role: string | null | undefined): boolean {
+  return hasPermission(role, 'users');
+}
+
+export function canManageRequests(role: string | null | undefined): boolean {
+  return hasPermission(role, 'requests');
+}
+
+export function canManageContent(role: string | null | undefined): boolean {
+  return hasPermission(role, 'content');
+}
+
+export function canManageGroups(role: string | null | undefined): boolean {
+  return hasPermission(role, 'groups');
+}
+
+export function canManageOwnGroupOnly(role: string | null | undefined): boolean {
+  return hasPermission(role, 'groupsOwn');
+}
+
+export function canManageEvents(role: string | null | undefined): boolean {
+  return hasPermission(role, 'events');
+}
+
+export function canManageBookings(role: string | null | undefined): boolean {
+  return hasPermission(role, 'bookings');
+}
+
+export function canAccessDirectory(role: string | null | undefined): boolean {
+  return hasPermission(role, 'directory');
+}
+
+export function canManageSettings(role: string | null | undefined): boolean {
+  return hasPermission(role, 'settings');
+}
+
+export function canAccessHouseholds(role: string | null | undefined): boolean {
+  return hasPermission(role, 'households');
+}
+
+export function getPermissions(role: string | null | undefined): Permission {
+  if (!role) return ZERO_PERMISSIONS;
+  return ROLE_PERMISSIONS[role as Role] ?? ZERO_PERMISSIONS;
+}
+
+export function canPublishAnnouncements(role: string | null | undefined): boolean {
+  return hasPermission(role, 'announcements');
+}
+
+export function requireRole(
+  role: string | null | undefined,
+  permissions: Array<keyof Permission>
+): { allowed: boolean; role: string | null } {
+  if (!role) return { allowed: false, role: null };
+  const allowed = permissions.some(p => hasPermission(role, p));
+  return { allowed, role };
+}
