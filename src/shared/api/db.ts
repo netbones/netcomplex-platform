@@ -225,7 +225,7 @@ export async function runWithRLS<T>(
  * Must be called within a route handler.
  */
 export async function getRLSContext(request: Request): Promise<RLSContext | null> {
-  const { auth } = await import('@api/auth');
+  const { auth } = await import('./auth');
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id) return null;
 

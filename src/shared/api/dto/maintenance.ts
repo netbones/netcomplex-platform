@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { maintenanceRequests } from '@api/db';
+import { maintenanceRequests } from '../db';
 
 // API-safe maintenance request shape
 export interface MaintenanceRequestDTO {

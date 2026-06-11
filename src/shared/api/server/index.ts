@@ -1,5 +1,5 @@
-export { db, runWithRLS, getRLSContext } from './db';
-export type { RLSContext, DbSchema } from './db';
+export { db, runWithRLS, getRLSContext } from '../db';
+export type { RLSContext, DbSchema } from '../db';
 export {
   messages,
   conversations,
@@ -57,15 +57,15 @@ export {
   maintenanceCategories,
   requestNotes,
   requestHistories,
-} from './db';
-export { auth } from './auth';
+} from '../db';
+export { auth } from '../auth';
 export {
   getSessionAndRole,
   requireNotSuspended,
   requireAnyPermission,
   throwIfSuspended,
-} from './auth-utils';
-export type { SuspensionInfo, SessionAndRole } from './auth-utils';
+} from '../auth-utils';
+export type { SuspensionInfo, SessionAndRole } from '../auth-utils';
 export {
   revalidateDashboard,
   revalidateDirectory,
@@ -74,41 +74,41 @@ export {
   revalidateAdminChanges,
   revalidateUserData,
   revalidateGate,
-} from './revalidation';
-export { CACHE_TAGS } from './revalidation';
-export { rateLimitByKey, rateLimitByIP, rateLimitByUser } from './rate-limit';
-export { DEFAULT_RATE_LIMITS } from './rate-limit';
-export type { RateLimitConfig } from './rate-limit';
-export { writeAuditLog } from './audit-log';
-export type { AuditAction, AuditLogEntry } from './audit-log';
-export { assertModuleEnabled } from './feature-gate';
+} from '../revalidation';
+export { CACHE_TAGS } from '../revalidation';
+export { rateLimitByKey, rateLimitByIP, rateLimitByUser } from '../rate-limit';
+export { DEFAULT_RATE_LIMITS } from '../rate-limit';
+export type { RateLimitConfig } from '../rate-limit';
+export { writeAuditLog } from '../audit-log';
+export type { AuditAction, AuditLogEntry } from '../audit-log';
+export { assertModuleEnabled } from '../feature-gate';
 export {
   resolveGateContext,
   canAccess,
-} from './gate';
+} from '../gate';
 export type {
   FeatureKey,
   GateReason,
   GateResult,
   GateContext,
-} from './gate';
-export { FEATURE_TO_MODULE, FEATURE_TO_FLAG, FEATURE_TO_REGISTRY, GATE_REASON_TO_ERROR } from './gate';
-export { supabase } from './supabase';
-export { getDashboardStats, getStaticStats, getUserContent } from './data-fetching';
+} from '../gate';
+export { FEATURE_TO_MODULE, FEATURE_TO_FLAG, FEATURE_TO_REGISTRY, GATE_REASON_TO_ERROR } from '../gate';
+export { supabase } from '../supabase';
+export { getDashboardStats, getStaticStats, getUserContent } from '../data-fetching';
 export {
   uploadImage,
   listUserImages,
   deleteImage,
   validateImage,
-} from './storage';
-export type { UploadResult, MediaItem } from './storage';
-export { verifyTurnstile } from './turnstile';
+} from '../storage';
+export type { UploadResult, MediaItem } from '../storage';
+export { verifyTurnstile } from '../turnstile';
 export {
   getRequestId,
   createLogContext,
   withTiming,
-} from './observability';
-export type { RequestLogContext } from './observability';
+} from '../observability';
+export type { RequestLogContext } from '../observability';
 export {
   ERROR_CODES,
   apiSuccess,
@@ -126,18 +126,18 @@ export {
   apiConflict,
   apiGone,
   apiInternalError,
-} from './api-response';
+} from '../api-response';
 export type {
   CanonicalErrorCode,
   ApiPaginatedMeta,
   ApiSuccessResponse,
   ApiErrorResponse,
   ApiPaginatedResponse,
-} from './api-response';
-export { createContext, router, publicProcedure, protectedProcedure, adminProcedure, agentProcedure } from './trpc/server';
-export type { Context } from './trpc/server';
-export { appRouter } from './trpc/routers';
-export type { AppRouter } from './trpc/routers';
-export { sendEmail } from './email/resend';
-export { templates } from './email/templates';
-export type { TemplateKey } from './email/templates';
+} from '../api-response';
+export { createContext, router, publicProcedure, protectedProcedure, adminProcedure, agentProcedure } from '../trpc/server';
+export type { Context } from '../trpc/server';
+export { appRouter } from '../trpc/routers';
+export type { AppRouter } from '../trpc/routers';
+export { sendEmail } from '../email/resend';
+export { templates } from '../email/templates';
+export type { TemplateKey } from '../email/templates';

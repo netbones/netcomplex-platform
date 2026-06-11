@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { messages } from '@api/db';
+import { messages } from '../db';
 
 // API-safe message shape
 export interface MessageDTO {

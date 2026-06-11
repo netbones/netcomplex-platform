@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { bookings } from '@api/db';
+import { bookings } from '../db';
 
 // API-safe booking shape
 export interface BookingDTO {

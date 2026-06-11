@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { announcements } from '@api/db';
+import { announcements } from '../db';
 
 // API-safe announcement shape
 export interface AnnouncementDTO {

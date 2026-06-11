@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { users } from '@api/db';
+import { users } from '../db';
 
 // API-safe user shape — never exposes internal fields
 export interface UserDTO {

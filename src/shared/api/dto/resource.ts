@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { resources } from '@api/db';
+import { resources } from '../db';
 
 // API-safe resource shape
 export interface ResourceDTO {

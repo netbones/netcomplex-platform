@@ -36,8 +36,8 @@ import {
 import { ROLE_PERMISSIONS, type Role } from '@entities/tenant';
 import { MODULES, type ModuleKey } from '@shared/lib';
 
-import { db, tenants } from '@api/db';
-import { getSessionAndRole } from '@api/auth-utils';
+import { db, tenants } from './db';
+import { getSessionAndRole } from './auth-utils';
 import { createComponentLogger } from '@shared/lib';
 
 const gateLogger = createComponentLogger('gate');

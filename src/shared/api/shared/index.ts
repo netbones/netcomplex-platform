@@ -3,7 +3,7 @@ export {
   signInEmailSchema,
   forgetPasswordSchema,
   resetPasswordSchema,
-} from './auth-schemas';
+} from '../auth-schemas';
 export {
   contentSchema,
   groupSchema,
@@ -18,7 +18,7 @@ export {
   messageSchema,
   conversationSchema,
   userProfileSchema,
-} from './schemas';
+} from '../schemas';
 export type {
   ContentFormData,
   GroupFormData,
@@ -33,16 +33,16 @@ export type {
   MessageFormData,
   ConversationFormData,
   UserProfileFormData,
-} from './schemas';
+} from '../schemas';
 export {
   generateWordSlug,
   generateNameSlug,
   generateUniqueNameSlug,
   generateHybridSlug,
   generateProfileSlug,
-} from './slug';
-export type { ContentCategory } from './types';
-export { ContentCategoryEnum } from './types';
-export { apiGet, apiPost, apiPatch, apiDelete } from './http-client';
-export { ApiClientError } from './http-client';
-export * from './dto';
+} from '../slug';
+export type { ContentCategory } from '../types';
+export { ContentCategoryEnum } from '../types';
+export { apiGet, apiPost, apiPatch, apiDelete } from '../http-client';
+export { ApiClientError } from '../http-client';
+export * from '../dto';

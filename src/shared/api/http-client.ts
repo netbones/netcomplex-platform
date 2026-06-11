@@ -1,6 +1,6 @@
 'use client';
 
-import { authClient } from '@api/auth-client';
+import { authClient } from './auth-client';
 import type { ApiSuccessResponse, ApiErrorResponse } from './api-response';
 
 export class ApiClientError extends Error {

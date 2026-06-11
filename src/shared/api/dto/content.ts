@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { contents } from '@api/db';
+import { contents } from '../db';
 
 // API-safe content shape
 export interface ContentDTO {

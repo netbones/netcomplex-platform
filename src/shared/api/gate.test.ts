@@ -28,7 +28,7 @@ import { PlatformPageFlags } from '@entities/tenant';
 // MOCKS
 // ============================================
 
-vi.mock('@api/db', () => ({
+vi.mock('./db', () => ({
   db: {
     select: vi.fn().mockReturnThis(),
     from: vi.fn().mockReturnThis(),
@@ -52,7 +52,7 @@ vi.mock('@entities/tenant', async () => {
   };
 });
 
-vi.mock('@api/auth-utils', () => ({
+vi.mock('./auth-utils', () => ({
   getSessionAndRole: vi.fn(),
 }));
 
@@ -376,8 +376,8 @@ describe('resolveGateContext()', () => {
   });
 
   it('should return GateContext with tenant tier and role from session', async () => {
-    const { db } = await import('@api/db');
-    const { getSessionAndRole } = await import('@api/auth-utils');
+    const { db } = await import('./db');
+    const { getSessionAndRole } = await import('./auth-utils');
 
     vi.mocked(db.select).mockReturnValue({
       from: vi.fn().mockReturnValue({
@@ -401,8 +401,8 @@ describe('resolveGateContext()', () => {
   });
 
   it('should default role to RESIDENT when session is null', async () => {
-    const { db } = await import('@api/db');
-    const { getSessionAndRole } = await import('@api/auth-utils');
+    const { db } = await import('./db');
+    const { getSessionAndRole } = await import('./auth-utils');
 
     vi.mocked(db.select).mockReturnValue({
       from: vi.fn().mockReturnValue({
@@ -419,8 +419,8 @@ describe('resolveGateContext()', () => {
   });
 
   it('should throw if tenant not found', async () => {
-    const { db } = await import('@api/db');
-    const { getSessionAndRole } = await import('@api/auth-utils');
+    const { db } = await import('./db');
+    const { getSessionAndRole } = await import('./auth-utils');
 
     vi.mocked(db.select).mockReturnValue({
       from: vi.fn().mockReturnValue({

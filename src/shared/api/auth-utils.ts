@@ -1,6 +1,6 @@
-import { auth } from '@api/auth';
+import { auth } from './auth';
 import { hasPermission, canManageOwnGroupOnly, Permission } from '@entities/tenant';
-import { db, users, platformSuspensions } from '@api/db';
+import { db, users, platformSuspensions } from './db';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { eq, and } from 'drizzle-orm';

@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { households, profiles } from '@api/db';
+import { households, profiles } from '../db';
 
 // API-safe household shape
 export interface HouseholdDTO {

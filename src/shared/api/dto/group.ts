@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { groups } from '@api/db';
+import { groups } from '../db';
 
 // API-safe group shape
 export interface GroupDTO {
