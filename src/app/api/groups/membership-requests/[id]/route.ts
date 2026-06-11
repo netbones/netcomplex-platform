@@ -1,16 +1,22 @@
-import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant';
-import { db, groupMembershipRequests, userGroups, users, groups } from '@api/db';
-import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-
 import {
+  auth,
+  db,
+  groupMembershipRequests,
+  userGroups,
+  users,
+  groups,
   apiError,
   apiSuccess,
   apiUnauthorized,
   apiForbidden,
   apiNotFound,
-} from '@api/api-response';
+} from '@api/server';
+
+import { hasPermission } from '@entities/tenant';
+
+import { eq, and } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant';
+
 /**
  * Retrieves session and role from the request for API routes.
  * @param request - Incoming HTTP request

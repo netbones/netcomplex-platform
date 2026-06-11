@@ -1,12 +1,22 @@
-import { auth } from '@api/auth';
-import { db, resources, users } from '@api/db';
+import {
+  auth,
+  db,
+  resources,
+  users,
+  revalidateContent,
+  apiCreated,
+  apiError,
+  apiForbidden,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/server';
+
 import { eq, and, desc, inArray, or, isNull } from 'drizzle-orm';
-import { revalidateContent } from '@api/revalidation';
+
 import { withTenant } from '@entities/tenant';
 import { hasPermission } from '@entities/tenant';
 import type { Role } from '@entities/tenant';
 
-import { apiCreated, apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
  * Retrieves session and role from the request for API routes.
  */
@@ -36,7 +46,7 @@ async function getSessionAndRole(request: Request) {
  * Checks if a user owns any property in the tenant.
  */
 async function checkUserOwnsProperty(userId: string, tenantId: string): Promise<boolean> {
-  const { households, profiles } = await import('@api/db');
+  const { households, profiles } = await import('@api/server');
   const result = await db
     .select({ id: households.id })
     .from(households)

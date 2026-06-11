@@ -1,17 +1,22 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@api/auth';
-import { db, premiumSeats, properties, propertyListings, propertiesTopremiumSeats } from '@api/db';
-import { eq, sql, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import { logError } from '@shared/lib';
-
 import {
+  auth,
+  db,
+  premiumSeats,
+  properties,
+  propertyListings,
+  propertiesTopremiumSeats,
   apiError,
   apiForbidden,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
-} from '@api/api-response';
+} from '@api/server';
+
+import { eq, sql, and, desc } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant';
+import { logError } from '@shared/lib';
+
 /**
  * GET /api/premium/listings - Get property listings for premium user
  */

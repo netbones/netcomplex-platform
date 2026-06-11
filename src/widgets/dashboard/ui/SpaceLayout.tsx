@@ -8,7 +8,7 @@ import { ErrorBoundary, usePageLoading } from '@shared/ui';
 import { DraggableWidget, WidgetCard, WidgetRenderer } from '@widgets/dashboard';
 import { registry } from '@widgets/dashboard';
 import { getWidgetTitle, getWidgetIcon } from '@entities/widget';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import { AddWidgetModal } from '@features/dashboard';
 import { Megaphone } from 'lucide-react';
 import type { SpaceId } from '../model/spaces';

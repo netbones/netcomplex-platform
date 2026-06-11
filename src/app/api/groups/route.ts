@@ -1,10 +1,21 @@
-import { auth } from '@api/auth';
+import {
+  auth,
+  db,
+  groups,
+  users,
+  userGroups,
+  apiCreated,
+  apiError,
+  apiForbidden,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/server';
+
 import { hasPermission, Permission } from '@entities/tenant';
-import { db, groups, users, userGroups } from '@api/db';
+
 import { eq, and, asc, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
 
-import { apiCreated, apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 export const maxDuration = 8;
 
 /**

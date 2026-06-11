@@ -1,5 +1,5 @@
-import { auth } from '@api/auth';
 import {
+  auth,
   db,
   users,
   maintenanceRequests,
@@ -7,11 +7,14 @@ import {
   conversations,
   conversationParticipants,
   notifications,
-} from '@api/db';
+  apiError,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/server';
+
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
 
-import { apiError, apiSuccess, apiUnauthorized } from '@api/api-response';
 export const maxDuration = 5;
 
 interface DashboardStats {

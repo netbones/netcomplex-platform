@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { signupSchema, type SignupFormData } from '@api/schemas';
+import { signupSchema, type SignupFormData } from '@api/shared';
 
 type Step = 1 | 2 | 3;
 

@@ -18,25 +18,44 @@ vi.mock('next/server', () => {
 });
 
 import {
+
   apiSuccess,
+
   apiError,
+
   apiPaginated,
+
   apiCreated,
+
   apiNoContent,
+
   apiUnauthorized,
+
   apiForbidden,
+
   apiTenantRequired,
+
   apiTenantForbidden,
+
   apiValidationError,
+
   apiNotFound,
+
   apiSuspendedUser,
+
   apiInternalError,
+
   ERROR_CODES,
+
   ApiSuccessResponse,
+
   ApiErrorResponse,
+
   ApiPaginatedResponse,
+
   ApiPaginatedMeta,
-} from '@api/api-response';
+
+} from '@api/server';
 
 describe('api-response', () => {
   describe('apiSuccess', () => {

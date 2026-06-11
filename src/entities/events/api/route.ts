@@ -1,5 +1,5 @@
 import * as eventsService from '../services';
-import { toEventDTO } from '@api/dto/event';
+import { toEventDTO } from '@api/shared';
 
 /**
  * Lists events for a tenant with optional limit and upcoming filter.

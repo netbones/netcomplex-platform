@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import { messageSchema, conversationSchema } from '@api/schemas';
+import { messageSchema, conversationSchema } from '@api/shared';
 
 // Mock Supabase
 vi.mock('@supabase/supabase-js', () => ({
@@ -19,7 +19,7 @@ vi.mock('@supabase/supabase-js', () => ({
 }));
 
 // Mock Better Auth client
-vi.mock('@api/auth-client', () => ({
+vi.mock('@api/client', () => ({
   authClient: {
     useSession: vi.fn(() => ({
       data: {

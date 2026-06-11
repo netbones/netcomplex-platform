@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { authClient } from '@api/auth-client';
-import { trpc } from '@api/trpc/client';
+import { authClient, trpc } from '@api/client';
 import { getEffectiveRole } from './roles';
 
 export interface IdentityState {

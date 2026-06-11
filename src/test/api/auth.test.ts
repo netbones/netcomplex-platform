@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 // Mock Better Auth
-vi.mock('@api/auth', () => ({
+vi.mock('@api/server', () => ({
   auth: {
     api: {
       getSession: mocks.mockGetSession,
@@ -30,7 +30,7 @@ vi.mock('better-auth/next-js', () => ({
 }));
 
 // Mock rate limit — by default don't rate limit
-vi.mock('@api/rate-limit', () => ({
+vi.mock('@api/server', () => ({
   rateLimitByIP: (...args: unknown[]) => mocks.mockRateLimitByIP(...args),
 }));
 

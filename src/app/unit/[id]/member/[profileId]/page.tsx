@@ -4,8 +4,7 @@ import { Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { authClient } from '@api/auth-client';
-import { trpc } from '@api/trpc/client';
+import { authClient, trpc } from '@api/client';
 import { Breadcrumbs } from '@shared/ui';
 
 function ProfileContent() {

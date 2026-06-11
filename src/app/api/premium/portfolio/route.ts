@@ -1,18 +1,20 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@api/auth';
-import { db, premiumSeats } from '@api/db';
-import { eq, sql, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import { logError } from '@shared/lib';
-
 import {
+  auth,
+  db,
+  premiumSeats,
   apiError,
   apiForbidden,
   apiInternalError,
   apiNotFound,
   apiSuccess,
   apiUnauthorized,
-} from '@api/api-response';
+} from '@api/server';
+
+import { eq, sql, and } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant';
+import { logError } from '@shared/lib';
+
 /**
  * POST /api/premium/upgrade-portfolio - Upgrade to Premium Seat with multi-property portfolio
  * Body: { householdIds: string[] } - Array of household IDs to include in portfolio

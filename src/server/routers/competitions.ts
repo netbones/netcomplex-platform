@@ -1,9 +1,20 @@
 import { z } from 'zod';
-import { router, publicProcedure, protectedProcedure, adminProcedure } from '@api/trpc/server';
+import {
+  router,
+  publicProcedure,
+  protectedProcedure,
+  adminProcedure,
+  db,
+  competitions,
+  competitionEntries,
+  users,
+  notifications,
+} from '@api/server';
+
 import { TRPCError } from '@trpc/server';
-import { db, competitions, competitionEntries, users, notifications } from '@api/db';
+
 import { eq, and, desc, asc, count, lte, gte, inArray, InferSelectModel } from 'drizzle-orm';
-import { CompetitionTypeEnum, EntryStatusEnum, ParticipantDTO, WinnerDTO } from '@shared/api';
+import { CompetitionTypeEnum, EntryStatusEnum, ParticipantDTO, WinnerDTO } from '@api/shared';
 
 // ──────────────────────────────────────────
 // Input schemas

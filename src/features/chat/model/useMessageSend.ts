@@ -2,7 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import type { Message, MessageType } from '@entities/chat';
-import { apiPost } from '@shared/api';
+import { apiPost } from '@api/shared';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',

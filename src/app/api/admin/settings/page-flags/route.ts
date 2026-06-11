@@ -5,18 +5,20 @@ import {
   type PlatformPageFlags,
 } from '@entities/tenant';
 import { withTenant } from '@entities/tenant';
-import { getSessionAndRole } from '@api/auth-utils';
-import { isAdmin } from '@entities/tenant';
-import { createComponentLogger } from '@shared/lib';
-import { runWithRLS, getRLSContext } from '@api/db';
-
 import {
+  getSessionAndRole,
+  runWithRLS,
+  getRLSContext,
   apiError,
   apiForbidden,
   apiSuccess,
   apiInternalError,
   apiUnauthorized,
-} from '@api/api-response';
+} from '@api/server';
+
+import { isAdmin } from '@entities/tenant';
+import { createComponentLogger } from '@shared/lib';
+
 const log = createComponentLogger('page-flags-api');
 
 export async function GET(request: NextRequest) {

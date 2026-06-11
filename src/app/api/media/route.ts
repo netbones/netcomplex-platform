@@ -1,9 +1,16 @@
-import { auth } from '@api/auth';
-import { listUserImages, deleteImage } from '@api/storage';
+import {
+  auth,
+  listUserImages,
+  deleteImage,
+  apiError,
+  apiSuccess,
+  apiUnauthorized,
+  apiInternalError,
+} from '@api/server';
+
 import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
-import { apiError, apiSuccess, apiUnauthorized, apiInternalError } from '@api/api-response';
 export async function GET(request: Request) {
   const { tenantId } = await withTenant();
   const session = await auth.api.getSession({

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Megaphone } from 'lucide-react';
 import { WidgetRenderer } from '@widgets/dashboard';
 import { ErrorBoundary, Breadcrumbs } from '@shared/ui';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 
 /**
  * Announcements management page within the Messages space.

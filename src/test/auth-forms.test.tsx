@@ -13,7 +13,7 @@ vi.mock('next/navigation', () => ({
 
 // Mock Better Auth client
 const mockSignInEmail = vi.fn();
-vi.mock('@api/auth-client', () => ({
+vi.mock('@api/client', () => ({
   authClient: {
     useSession: vi.fn(() => ({
       data: {

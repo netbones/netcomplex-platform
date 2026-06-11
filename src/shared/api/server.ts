@@ -1,5 +1,63 @@
 export { db, runWithRLS, getRLSContext } from './db';
 export type { RLSContext, DbSchema } from './db';
+export {
+  messages,
+  conversations,
+  conversationParticipants,
+  users,
+  profiles,
+  settings,
+  albums,
+  standardSeats,
+  soloSeats,
+  properties,
+  households,
+  premiumSeats,
+  contents,
+  propertyListings,
+  communityServiceListings,
+  communityServiceReviews,
+  communityServiceInquiries,
+  groups,
+  userGroups,
+  surveys,
+  questions,
+  responses,
+  surveySections,
+  externalSurveys,
+  invitations,
+  bookings,
+  maintenanceRequests,
+  notifications,
+  agentProfiles,
+  propertiesTopremiumSeats,
+  verifications,
+  accounts,
+  sessions,
+  passkeys,
+  twoFactors,
+  members,
+  organizations,
+  tenants,
+  events,
+  eventAttendees,
+  announcements,
+  agentAccesses,
+  platformSuspensions,
+  groupMembershipRequests,
+  platformModules,
+  tenantModules,
+  assistSessions,
+  resources,
+  resourceVersions,
+  competitions,
+  competitionEntries,
+  maintenanceTeams,
+  serviceProviders,
+  maintenanceCategories,
+  requestNotes,
+  requestHistories,
+} from './db';
 export { auth } from './auth';
 export {
   getSessionAndRole,
@@ -80,3 +138,6 @@ export { createContext, router, publicProcedure, protectedProcedure, adminProced
 export type { Context } from './trpc/server';
 export { appRouter } from './trpc/routers';
 export type { AppRouter } from './trpc/routers';
+export { sendEmail } from './email/resend';
+export { templates } from './email/templates';
+export type { TemplateKey } from './email/templates';

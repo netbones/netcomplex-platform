@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import { useIsMounted } from 'usehooks-ts';
 import { NAV_REGISTRY, ADMIN_NAV_REGISTRY } from '@/shared/lib/navigation';
 import { isNavItemVisible } from '@/shared/lib/nav-utils';

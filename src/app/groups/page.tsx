@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import { INTEREST_CATEGORIES } from '@shared/lib';
 import { usePageLoading } from '@shared/ui';
 

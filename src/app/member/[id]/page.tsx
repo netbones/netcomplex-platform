@@ -3,7 +3,7 @@
 import { Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { trpc } from '@api/trpc/client';
+import { trpc } from '@api/client';
 import { Breadcrumbs } from '@shared/ui';
 
 function MemberContent() {

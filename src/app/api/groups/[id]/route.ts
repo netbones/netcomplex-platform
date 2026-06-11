@@ -1,16 +1,21 @@
-import { auth } from '@api/auth';
-import { db, groups, users, userGroups, contents } from '@api/db';
-import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import { hasPermission } from '@entities/tenant';
-
 import {
+  auth,
+  db,
+  groups,
+  users,
+  userGroups,
+  contents,
   apiError,
   apiForbidden,
   apiNotFound,
   apiSuccess,
   apiUnauthorized,
-} from '@api/api-response';
+} from '@api/server';
+
+import { eq, and, desc } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant';
+import { hasPermission } from '@entities/tenant';
+
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 

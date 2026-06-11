@@ -1,7 +1,16 @@
-import { db, invitations, tenants, users } from '@api/db';
+import {
+  db,
+  invitations,
+  tenants,
+  users,
+  apiError,
+  apiGone,
+  apiSuccess,
+  apiNotFound,
+} from '@api/server';
+
 import { eq, and, gt } from 'drizzle-orm';
 
-import { apiError, apiGone, apiSuccess, apiNotFound } from '@api/api-response';
 /**
  * GET /api/invitations/validate?token=<token>
  * Validates an invitation token and returns invitation details.

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { ConversationListItem } from '@entities/chat';
-import { apiGet } from '@shared/api';
+import { apiGet } from '@api/shared';
 
 interface UseConversationListOptions {
   userId: string;

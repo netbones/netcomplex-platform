@@ -1,16 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Mock Better Auth
-vi.mock('@api/auth', () => ({
+// Mock @api/server (auth, db, email, templates)
+vi.mock('@api/server', () => ({
   auth: {
     api: {
       getSession: vi.fn(),
     },
   },
-}));
-
-// Mock Drizzle DB
-vi.mock('@api/db', () => ({
   db: {
     select: vi.fn().mockReturnValue({
       from: vi.fn().mockReturnValue({
@@ -37,6 +33,26 @@ vi.mock('@api/db', () => ({
   members: {},
   invitations: {},
   organizations: {},
+  sendEmail: vi.fn().mockResolvedValue({}),
+  templates: {
+    passwordReset: {
+      subject: 'Reset Password',
+      getHtml: vi.fn().mockReturnValue('<html>reset</html>'),
+    },
+    verifyEmail: {
+      subject: 'Verify Email',
+      getHtml: vi.fn().mockReturnValue('<html>verify</html>'),
+    },
+    securityAlert: {
+      subject: 'Security Alert',
+      getHtml: vi.fn().mockReturnValue('<html>alert</html>'),
+    },
+    welcome: {
+      subject: 'Welcome',
+      getHtml: vi.fn().mockReturnValue('<html>welcome</html>'),
+    },
+  },
+  verifyTurnstile: vi.fn().mockResolvedValue(true),
 }));
 
 // Mock tenant config
@@ -56,32 +72,6 @@ vi.mock('@entities/tenant', () => ({
   withTenant: vi.fn().mockResolvedValue({ tenantId: '00000000-0000-0000-0000-000000000001' }),
 }));
 
-// Mock email
-vi.mock('@shared/api', () => ({
-  sendEmail: vi.fn().mockResolvedValue({}),
-}));
-
-vi.mock('@shared/api', () => ({
-  templates: {
-    passwordReset: {
-      subject: 'Reset Password',
-      getHtml: vi.fn().mockReturnValue('<html>reset</html>'),
-    },
-    verifyEmail: {
-      subject: 'Verify Email',
-      getHtml: vi.fn().mockReturnValue('<html>verify</html>'),
-    },
-    securityAlert: {
-      subject: 'Security Alert',
-      getHtml: vi.fn().mockReturnValue('<html>alert</html>'),
-    },
-    welcome: {
-      subject: 'Welcome',
-      getHtml: vi.fn().mockReturnValue('<html>welcome</html>'),
-    },
-  },
-}));
-
 // Mock logger
 vi.mock('@shared/lib', () => ({
   authLogger: {
@@ -92,13 +82,8 @@ vi.mock('@shared/lib', () => ({
   logError: vi.fn(),
 }));
 
-// Mock Turnstile
-vi.mock('@shared/api/turnstile', () => ({
-  verifyTurnstile: vi.fn().mockResolvedValue(true),
-}));
-
 // Mock slug generator
-vi.mock('@shared/api/slug', () => ({
+vi.mock('@api/shared', () => ({
   generateProfileSlug: vi.fn().mockReturnValue('test-user-slug'),
 }));
 

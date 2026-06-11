@@ -1,9 +1,17 @@
-import { db, contents, users, settings } from '@api/db';
+import {
+  db,
+  contents,
+  users,
+  settings,
+  apiError,
+  apiSuccess,
+  apiInternalError,
+} from '@api/server';
+
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenantOptional } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
-import { apiError, apiSuccess, apiInternalError } from '@api/api-response';
 // Default campaign configuration
 const DEFAULT_CAMPAIGN_CONFIG = {
   linkLabel: { en: 'Campaign', af: 'Veldtog', xh: 'Icampaign', zu: 'I-Campaign' },

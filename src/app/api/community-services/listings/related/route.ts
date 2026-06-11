@@ -1,13 +1,22 @@
 import { NextRequest } from 'next/server';
 
 // Drizzle imports
-import { db, communityServiceListings, users } from '@api/db';
+import {
+  db,
+  communityServiceListings,
+  users,
+  communityServiceReviews,
+  apiError,
+  apiInternalError,
+  apiSuccess,
+  apiNotFound,
+} from '@api/server';
+
 import { eq, desc, and, or, sql } from 'drizzle-orm';
-import { communityServiceReviews } from '@api/db';
+
 import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
-import { apiError, apiInternalError, apiSuccess, apiNotFound } from '@api/api-response';
 export const maxDuration = 5;
 
 export async function GET(request: NextRequest) {

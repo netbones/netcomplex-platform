@@ -1,9 +1,19 @@
-import { db, invitations, users } from '@api/db';
+import {
+  db,
+  invitations,
+  users,
+  auth,
+  apiError,
+  apiGone,
+  apiInternalError,
+  apiSuccess,
+  apiNotFound,
+} from '@api/server';
+
 import { eq, and, gt } from 'drizzle-orm';
-import { auth } from '@api/auth';
+
 import { apiLogger } from '@shared/lib';
 
-import { apiError, apiGone, apiInternalError, apiSuccess, apiNotFound } from '@api/api-response';
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 /**

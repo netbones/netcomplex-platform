@@ -1,4 +1,5 @@
-import { router } from '@api/trpc/server';
+import { router } from '@api/server';
+
 import { identityRouter } from './identity';
 import { competitionRouter } from './competitions';
 

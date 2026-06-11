@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getPlatformPageFlags, mapFlagToSettingKey } from './platform-flags';
-import { db } from '@api/db';
+import { db } from '@api/server';
+
 import { SETTINGS_KEYS } from '../settings';
 
-vi.mock('@api/db', () => ({
+vi.mock('@api/server', () => ({
   db: {
     select: vi.fn().mockReturnThis(),
     from: vi.fn().mockReturnThis(),

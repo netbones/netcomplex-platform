@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Breadcrumbs, ErrorBoundary, ImageUpload } from '@shared/ui';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import { supportedLanguages, languageNames, type SupportedLanguage } from '@/shared/lib/i18n';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';

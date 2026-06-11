@@ -1,20 +1,24 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@api/auth';
-
-// Drizzle imports
-import { db, communityServiceInquiries, communityServiceListings, users } from '@api/db';
-import { eq, and, sql, inArray, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import { logError } from '@shared/lib';
-
 import {
+  auth,
+  db,
+  communityServiceInquiries,
+  communityServiceListings,
+  users,
   apiError,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
   apiForbidden,
   apiNotFound,
-} from '@api/api-response';
+} from '@api/server';
+
+// Drizzle imports
+
+import { eq, and, sql, inArray, desc } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant';
+import { logError } from '@shared/lib';
+
 type InquiryStatus = (typeof communityServiceInquiries.status.enumValues)[number];
 
 /**

@@ -8,7 +8,18 @@
  *   await assertModuleEnabled(tenantId, 'maintenance');
  */
 
-import { db, tenantModules, platformModules, tenants } from '@api/db';
+import {
+
+  db,
+
+  tenantModules,
+
+  platformModules,
+
+  tenants,
+
+} from '@api/server';
+
 import { eq, and } from 'drizzle-orm';
 import type { TenantTier } from '@entities/tenant';
 import { createComponentLogger } from '@shared/lib';

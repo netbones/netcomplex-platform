@@ -1,8 +1,9 @@
 import { z } from 'zod';
-import { router, publicProcedure, protectedProcedure, adminProcedure } from '@api/trpc/server';
-import { TRPCError } from '@trpc/server';
-import { hasPermission } from '@entities/tenant';
 import {
+  router,
+  publicProcedure,
+  protectedProcedure,
+  adminProcedure,
   db,
   properties,
   households,
@@ -12,7 +13,11 @@ import {
   premiumSeats,
   agentAccesses,
   users,
-} from '@api/db';
+} from '@api/server';
+
+import { TRPCError } from '@trpc/server';
+import { hasPermission } from '@entities/tenant';
+
 import {
   eq,
   and,

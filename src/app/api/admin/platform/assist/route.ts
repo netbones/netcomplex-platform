@@ -1,10 +1,10 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@api/auth';
-import { db, assistSessions, tenants, users } from '@api/db';
-import { eq, and, gt } from 'drizzle-orm';
-import { logError } from '@shared/lib';
-
 import {
+  auth,
+  db,
+  assistSessions,
+  tenants,
+  users,
   apiCreated,
   apiError,
   apiForbidden,
@@ -12,7 +12,11 @@ import {
   apiUnauthorized,
   apiInternalError,
   apiNotFound,
-} from '@api/api-response';
+} from '@api/server';
+
+import { eq, and, gt } from 'drizzle-orm';
+import { logError } from '@shared/lib';
+
 export async function GET(request: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });

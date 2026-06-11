@@ -1,12 +1,20 @@
-import { db, invitations, tenants, users } from '@api/db';
+import {
+  db,
+  invitations,
+  tenants,
+  users,
+  apiCreated,
+  apiError,
+  apiSuccess,
+  rateLimitByIP,
+  sendEmail,
+  templates,
+} from '@api/server';
+
 import { eq, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
-import { sendEmail } from '@shared/api';
-import { templates } from '@shared/api';
 import { apiLogger } from '@shared/lib';
 
-import { apiCreated, apiError, apiSuccess } from '@api/api-response';
-import { rateLimitByIP } from '@api/rate-limit';
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 export async function GET() {

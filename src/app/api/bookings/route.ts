@@ -1,23 +1,26 @@
-import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant';
-import { bookingSchema } from '@api/schemas';
-import { revalidateDashboard } from '@api/revalidation';
-import { apiLogger } from '@shared/lib';
-import { db, bookings, users } from '@api/db';
-import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import * as bookingService from '@entities/booking';
-
 import {
+  auth,
+  revalidateDashboard,
+  db,
+  bookings,
+  users,
   apiCreated,
   apiError,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
-} from '@api/api-response';
-import { toBookingDTO } from '@api/dto/booking';
-import { assertModuleEnabled } from '@api/feature-gate';
+  assertModuleEnabled,
+} from '@api/server';
+
+import { hasPermission } from '@entities/tenant';
+import { bookingSchema, toBookingDTO } from '@api/shared';
+
+import { apiLogger } from '@shared/lib';
+
+import { eq, and } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant';
+import * as bookingService from '@entities/booking';
 
 // Limit execution time to 8 seconds for booking operations
 export const maxDuration = 8;

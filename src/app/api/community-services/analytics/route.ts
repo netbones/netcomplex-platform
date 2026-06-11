@@ -1,25 +1,24 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@api/auth';
-
-// Drizzle imports
 import {
+  auth,
   db,
   communityServiceListings,
   communityServiceReviews,
   communityServiceInquiries,
   users,
-} from '@api/db';
-import { eq, desc, and, sql } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import { logError } from '@shared/lib';
-
-import {
   apiError,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
   apiForbidden,
-} from '@api/api-response';
+} from '@api/server';
+
+// Drizzle imports
+
+import { eq, desc, and, sql } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant';
+import { logError } from '@shared/lib';
+
 /**
  * GET /api/community-services/analytics - Get marketplace analytics
  */

@@ -1,4 +1,5 @@
-import { db, events } from '@api/db';
+import { db, events } from '@api/server';
+
 import { eq, and, desc, asc, gte } from 'drizzle-orm';
 
 /**

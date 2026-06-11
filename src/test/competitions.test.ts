@@ -18,12 +18,12 @@ vi.mock('next/headers', () => ({
 }));
 
 // Mock revalidation
-vi.mock('@api/revalidation', () => ({
+vi.mock('@api/server', () => ({
   revalidateContent: vi.fn(),
 }));
 
 // Mock auth
-vi.mock('@api/auth', () => ({
+vi.mock('@api/server', () => ({
   auth: {
     api: {
       getSession: vi.fn(() => Promise.resolve(null)),
@@ -41,7 +41,7 @@ const { dbMock } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@api/db', () => ({
+vi.mock('@api/server', () => ({
   db: dbMock,
   competitions: {
     tenantId: 'tenantId',
@@ -121,7 +121,7 @@ import {
   DELETE as ASSIST_REVOKE,
   PATCH as ASSIST_EXTEND,
 } from '@/app/api/admin/platform/assist/[id]/route';
-import { auth } from '@api/auth';
+import { auth } from '@api/server';
 
 // Helper: create a full chainable select
 function makeSelectChain(result: unknown[]) {

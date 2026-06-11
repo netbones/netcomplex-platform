@@ -4,12 +4,30 @@
  * Returns enabled modules for a tenant based on tier + explicit settings
  */
 
-import { db, tenantModules, platformModules, tenants } from '@api/db';
+import {
+
+  db,
+
+  tenantModules,
+
+  platformModules,
+
+  tenants,
+
+  apiError,
+
+  apiSuccess,
+
+  apiInternalError,
+
+  apiNotFound,
+
+} from '@api/server';
+
 import { eq, and, desc } from 'drizzle-orm';
 import type { TenantTier } from '@entities/tenant';
 import { apiLogger } from '@shared/lib';
 
-import { apiError, apiSuccess, apiInternalError, apiNotFound } from '@api/api-response';
 const TIER_ORDER: Record<TenantTier, number> = {
   STANDARD: 1,
   PREMIUM: 2,

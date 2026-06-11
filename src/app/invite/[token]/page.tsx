@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import { useApiToast } from '@shared/lib';
 
 interface InvitationData {

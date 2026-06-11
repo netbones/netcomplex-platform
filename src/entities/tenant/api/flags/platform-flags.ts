@@ -1,6 +1,6 @@
-import { db } from '@api/db';
-import { settings } from '@api/db';
-import type { DbSchema } from '@api/db';
+import { db, settings } from '@api/server';
+
+import type { DbSchema } from '@api/server';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import { SETTINGS_KEYS } from '../settings';

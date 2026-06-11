@@ -1,16 +1,20 @@
-import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant';
-import { db, surveySections, surveys, users } from '@api/db';
-import { eq, and, inArray } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-
 import {
+  auth,
+  db,
+  surveySections,
+  surveys,
+  users,
   apiForbidden,
   apiNotFound,
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
-} from '@api/api-response';
+} from '@api/server';
+
+import { hasPermission } from '@entities/tenant';
+
+import { eq, and, inArray } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant';
 
 export const maxDuration = 8;
 

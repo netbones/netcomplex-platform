@@ -1,6 +1,5 @@
-import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant';
 import {
+  auth,
   db,
   users,
   profiles,
@@ -9,12 +8,18 @@ import {
   premiumSeats,
   properties,
   households,
-} from '@api/db';
+  apiPaginated,
+  apiCreated,
+  apiForbidden,
+} from '@api/server';
+
+import { hasPermission } from '@entities/tenant';
+
 import { eq, and, or, asc, ilike, count, ne, sql } from 'drizzle-orm';
-import { apiPaginated, apiCreated, apiForbidden } from '@api/api-response';
+
 import type { SQL } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
-import { toUserDTO } from '@api/dto/user';
+import { toUserDTO } from '@api/shared';
 import type { InferSelectModel } from 'drizzle-orm';
 
 export const maxDuration = 8;

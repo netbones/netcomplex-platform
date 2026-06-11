@@ -1,8 +1,8 @@
-import { db } from '@api/db';
+import { db, users } from '@api/server';
+
 import * as bookingService from '../services';
-import { toBookingDTO } from '@api/dto/booking';
+import { toBookingDTO } from '@api/shared';
 import { eq } from 'drizzle-orm';
-import { users } from '@api/db';
 
 /**
  * Lists bookings for a tenant with optional filtering.

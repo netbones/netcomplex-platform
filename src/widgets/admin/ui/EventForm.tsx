@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { adminEventSchema, type AdminEventFormData } from '@api/schemas';
+import { adminEventSchema, type AdminEventFormData } from '@api/shared';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('EventForm');

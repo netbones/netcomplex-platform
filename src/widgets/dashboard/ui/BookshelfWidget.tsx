@@ -1,6 +1,6 @@
 'use client';
 
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import { Bookshelf, ErrorBoundary } from '@shared/ui';
 
 export function BookshelfWidget() {

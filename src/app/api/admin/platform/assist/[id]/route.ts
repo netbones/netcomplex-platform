@@ -1,17 +1,21 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@api/auth';
-import { db, assistSessions, tenants, users } from '@api/db';
-import { eq } from 'drizzle-orm';
-import { logError } from '@shared/lib';
-
 import {
+  auth,
+  db,
+  assistSessions,
+  tenants,
+  users,
   apiError,
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
   apiInternalError,
   apiNotFound,
-} from '@api/api-response';
+} from '@api/server';
+
+import { eq } from 'drizzle-orm';
+import { logError } from '@shared/lib';
+
 async function getAssistSession(id: string) {
   const [session] = await db
     .select()

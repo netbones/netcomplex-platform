@@ -1,6 +1,13 @@
-import { db, users, properties, maintenanceTeams, serviceProviders } from '@api/db';
+import {
+  db,
+  users,
+  properties,
+  maintenanceTeams,
+  serviceProviders,
+} from '@api/server';
+
 import * as maintenanceService from '../services';
-import { toMaintenanceRequestDTO } from '@api/dto/maintenance';
+import { toMaintenanceRequestDTO } from '@api/shared';
 import { eq } from 'drizzle-orm';
 
 /**

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { type PlatformPageFlags } from '@entities/tenant';
-import { apiGet } from '@shared/api';
+import { apiGet } from '@api/shared';
 
 export function usePageFlags() {
   const [flags, setFlags] = useState<PlatformPageFlags | null>(null);

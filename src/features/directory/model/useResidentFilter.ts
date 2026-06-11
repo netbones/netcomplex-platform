@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Resident, UseResidentFilterReturn, ViewMode } from '@entities/directory';
 import { DEBOUNCE_DELAY_MS, DEFAULT_PAGE_LIMIT } from '@entities/directory';
-import { apiGet } from '@shared/api';
+import { apiGet } from '@api/shared';
 
 export interface UseResidentFilterOptions {
   defaultLimit?: number;
