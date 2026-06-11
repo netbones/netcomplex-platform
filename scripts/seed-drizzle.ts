@@ -20,6 +20,8 @@ import { properties } from '@schema/properties';
 import { households } from '@schema/households';
 import { profiles } from '@schema/profiles';
 import { standardSeats } from '@schema/standard-seats';
+import { soloSeats } from '@schema/solo-seats';
+import { premiumSeats } from '@schema/premium-seats';
 import { communityServiceListings } from '@schema/community-service-listings';
 import { communityServiceReviews } from '@schema/community-service-reviews';
 import { groups } from '@schema/groups';
@@ -104,9 +106,7 @@ function withUserDefaults(
   })) as Array<UserInput & { isPublic: boolean; isActive: boolean; emailVerified: boolean }>;
 }
 
-function withProfileDefaults(
-  profiles: ProfileInput[]
-): Array<
+function withProfileDefaults(profiles: ProfileInput[]): Array<
   ProfileInput & {
     isPublic: boolean;
     showEmail: boolean;
@@ -235,6 +235,26 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
     await db.insert(standardSeats).values(s).onConflictDoNothing();
   }
   console.log(`  ✓ ${seatRows.length} standard seats`);
+
+  // Solo seats (depend on users, optional propertyId)
+  console.log('Solo seats...');
+  const soloRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.soloSeats ?? []))
+  );
+  for (const s of soloRows) {
+    await db.insert(soloSeats).values(s).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${soloRows.length} solo seats`);
+
+  // Premium seats (depend on users)
+  console.log('Premium seats...');
+  const premRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.premiumSeats ?? []))
+  );
+  for (const p of premRows) {
+    await db.insert(premiumSeats).values(p).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${premRows.length} premium seats`);
 
   // Service listings
   console.log('Service listings...');

@@ -257,6 +257,17 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
       phone: '+27 21 555 0200',
       interests: ['cleaning', 'common-areas'],
     },
+    // Solo seat user — family member living with Thandi
+    {
+      id: 'user-slh-buhle',
+      email: 'buhle.mokoena@example.com',
+      name: 'Buhle Mokoena',
+      role: 'RESIDENT',
+      phone: '+27 71 666 7777',
+      interests: ['music', 'student-life'],
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Buhle',
+      profileImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Buhle',
+    },
   ],
 
   // 12 demo units (representing 150 max). 3 blocks × 4 floors shown.
@@ -545,6 +556,17 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
       residencyType: 'OWNER_RESIDENT',
       occupantSince: new Date('2024-05-22'),
     },
+    // Solo seat profile — Buhle (family member in Thandi's household)
+    {
+      id: 'prof-buhle',
+      householdId: 'hh-a101',
+      userId: 'user-slh-buhle',
+      displayName: 'Buhle Mokoena',
+      profileAddress: 'buhle.a101@solarisheights.org',
+      occupantType: 'FAMILY',
+      residencyType: 'FAMILY',
+      occupantSince: new Date('2022-03-01'),
+    },
   ],
 
   standardSeats: [
@@ -624,6 +646,34 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
       propertyId: 'prop-c-301',
       isPrimaryOwner: true,
       platformAddress: 'c301@solarisheights.org',
+    },
+  ],
+
+  soloSeats: [
+    {
+      id: 'seat-buhle',
+      userId: 'user-slh-buhle',
+      platformAddress: 'buhle.mokoena@solarisheights.org',
+      propertyId: 'prop-a-101',
+      seatType: 'MEMBER',
+      isComplimentary: true,
+    },
+  ],
+
+  premiumSeats: [
+    {
+      id: 'prem-pieter',
+      userId: 'user-pieter-steyn',
+      platformAddress: 'pieter.steyn@solarisheights.org',
+      portfolioName: 'Steyn Holdings',
+      maxProperties: 3,
+    },
+    {
+      id: 'prem-johan',
+      userId: 'user-johan-botha',
+      platformAddress: 'johan.botha@solarisheights.org',
+      portfolioName: 'Botha Building Management',
+      maxProperties: 5,
     },
   ],
 

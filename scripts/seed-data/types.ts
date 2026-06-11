@@ -118,6 +118,26 @@ export interface StandardSeatInput {
   platformAddress: string;
 }
 
+export interface SoloSeatInput {
+  id: string;
+  userId: string;
+  platformAddress: string;
+  propertyId?: string;
+  seatType: 'RESIDENT' | 'MEMBER';
+  isComplimentary?: boolean;
+  linkedFromProfileId?: string;
+}
+
+export interface PremiumSeatInput {
+  id: string;
+  userId: string;
+  platformAddress: string;
+  portfolioName?: string;
+  subscriptionTier?: string;
+  maxProperties?: number;
+  isActive?: boolean;
+}
+
 // ---------------------------------------------------------------------------
 // Community services marketplace
 // ---------------------------------------------------------------------------
@@ -378,6 +398,8 @@ export interface TenantSeedData {
   households: HouseholdInput[];
   profiles: ProfileInput[];
   standardSeats: StandardSeatInput[];
+  soloSeats?: SoloSeatInput[];
+  premiumSeats?: PremiumSeatInput[];
   serviceListings: ServiceListingInput[];
   serviceReviews: ServiceReviewInput[];
   groups: GroupInput[];

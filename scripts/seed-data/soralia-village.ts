@@ -669,6 +669,58 @@ export const SORALIA_VILLAGE: TenantSeedData = {
     },
   ],
 
+  soloSeats: [
+    {
+      id: 'seat-emma',
+      userId: 'user-emma-williams',
+      platformAddress: 'emma.williams@soralia.org',
+      propertyId: 'prop-001',
+      seatType: 'MEMBER',
+      isComplimentary: true,
+    },
+    {
+      id: 'seat-lisa',
+      userId: 'user-lisa-chen',
+      platformAddress: 'lisa.chen@soralia.org',
+      propertyId: 'prop-003',
+      seatType: 'MEMBER',
+      isComplimentary: true,
+    },
+    {
+      id: 'seat-james',
+      userId: 'user-james-okonkwo',
+      platformAddress: 'james.okonkwo@soralia.org',
+      propertyId: 'prop-006',
+      seatType: 'MEMBER',
+      isComplimentary: true,
+    },
+    {
+      id: 'seat-fatima',
+      userId: 'user-fatima-hassan',
+      platformAddress: 'fatima.hassan@soralia.org',
+      propertyId: 'prop-005',
+      seatType: 'MEMBER',
+      isComplimentary: true,
+    },
+  ],
+
+  premiumSeats: [
+    {
+      id: 'prem-sarah',
+      userId: 'user-sarah-mitchell',
+      platformAddress: 'sarah.mitchell@soralia.org',
+      portfolioName: 'Mitchell Properties',
+      maxProperties: 3,
+    },
+    {
+      id: 'prem-david',
+      userId: 'user-david-vdm',
+      platformAddress: 'david.van.der.merwe@soralia.org',
+      portfolioName: 'VDM Holdings',
+      maxProperties: 5,
+    },
+  ],
+
   // -------------------------------------------------------------------------
   // Community services marketplace
   // -------------------------------------------------------------------------
