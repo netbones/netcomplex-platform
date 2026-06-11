@@ -414,10 +414,10 @@ In order to minimise new page creation for a feature, follow these protocols:
 
 The project enforces Feature-Sliced Design boundaries with two complementary tools:
 
-| Tool          | Scope                                                                                                       | Where it runs            |
-| ------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------ |
-| **ESLint**    | Deep imports — catches `@shared/*/*`, `@entities/*/*`, etc. (no FSD slice bypass via path)                   | Editor + pre-commit      |
-| **Steiger**   | Layer hierarchy, public API sidestep, public API presence, slice hygiene, segment conventions, naming typos | Pre-commit + CI          |
+| Tool        | Scope                                                                                                       | Where it runs       |
+| ----------- | ----------------------------------------------------------------------------------------------------------- | ------------------- |
+| **ESLint**  | Deep imports — catches `@shared/*/*`, `@entities/*/*`, etc. (no FSD slice bypass via path)                  | Editor + pre-commit |
+| **Steiger** | Layer hierarchy, public API sidestep, public API presence, slice hygiene, segment conventions, naming typos | Pre-commit + CI     |
 
 **Commands:**
 
@@ -889,3 +889,8 @@ Before implementing new features, ensure:
 4. Set up Supabase database
 5. Run `npx prisma db push` to create tables
 6. Run `npm run dev` to start dev server
+
+# DocHub
+
+Use `dh update` or `dh sync "message"`.
+All shared knowledge & playbook lives in `./.documents/`.
