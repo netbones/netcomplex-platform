@@ -1,7 +1,7 @@
 'use client';
 
 import { ErrorBoundary } from '@shared/ui';
-import { trpc } from '@api/trpc/client';
+import { trpc } from '@api/client';
 import { useRouter } from 'next/navigation';
 import { LoadingCard } from '@shared/ui';
 

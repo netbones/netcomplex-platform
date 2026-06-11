@@ -4,9 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { httpBatchLink } from '@trpc/client';
 import superjson from 'superjson';
-import { authClient } from '@api/auth-client';
+import { authClient, trpc } from '@api/client';
 import { TooltipProvider } from '@shared/ui';
-import { trpc } from '@api/trpc/client';
 // eslint-disable-next-line no-restricted-imports -- barrel deliberately excludes client-only i18n
 import '@shared/lib/i18n';
 import * as React from 'react';

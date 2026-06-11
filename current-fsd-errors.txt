@@ -1,0 +1,5 @@
+
+> soralia-village@1.0.0 fsd:check /home/ubuntupunk/Projects/soralia-village
+> steiger ./src
+
+ ELIFECYCLE  Command failed with exit code 1.

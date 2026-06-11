@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ErrorBoundary } from '@shared/ui';
-import { trpc } from '@api/trpc/client';
-import { authClient } from '@api/auth-client';
+import { authClient, trpc } from '@api/client';
 import { toast } from 'sonner';
 
 // ──────────────────────────────────────────

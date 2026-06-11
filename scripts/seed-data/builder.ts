@@ -41,6 +41,7 @@ const FOREIGN_KEY_FIELDS = new Set([
   'ownerId',
   'assignedTeamId',
   'assignedProviderId',
+  'providerId',
 ]);
 
 /**
