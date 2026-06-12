@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Breadcrumbs } from '@shared/ui';
-import { EventForm } from '@/widgets/admin/ui/EventForm';
+import { EventForm } from '@widgets/admin';
 
 export default function NewEventPage() {
   return (

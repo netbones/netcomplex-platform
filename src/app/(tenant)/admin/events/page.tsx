@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Breadcrumbs } from '@shared/ui';
-import { EventList } from '@/widgets/admin/ui/EventList';
+import { EventList } from '@widgets/admin';
 
 export default function EventsPage() {
   return (

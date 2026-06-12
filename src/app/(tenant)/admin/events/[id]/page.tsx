@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Breadcrumbs } from '@shared/ui';
-import { EventForm } from '@/widgets/admin/ui/EventForm';
+import { EventForm } from '@widgets/admin';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('edit-event-page');

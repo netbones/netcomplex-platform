@@ -1,4 +1,4 @@
-import { GroupForm } from '@/widgets/admin/ui/GroupForm';
+import { GroupForm } from '@widgets/admin';
 
 export default function NewGroupPage() {
   return (

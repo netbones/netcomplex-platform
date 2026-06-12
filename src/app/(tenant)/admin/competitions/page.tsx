@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Breadcrumbs } from '@shared/ui';
-import { CompetitionList } from '@/widgets/admin/ui/CompetitionList';
+import { CompetitionList } from '@widgets/admin';
 
 export default function CompetitionsPage() {
   return (

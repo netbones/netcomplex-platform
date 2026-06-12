@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Breadcrumbs } from '@shared/ui';
-import { ResourceList } from '@/widgets/admin/ui/ResourceList';
+import { ResourceList } from '@widgets/admin';
 
 export default function ResourcesPage() {
   return (

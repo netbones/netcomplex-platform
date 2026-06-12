@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Breadcrumbs } from '@shared/ui';
-import { CompetitionForm } from '@/widgets/admin/ui/CompetitionForm';
+import { CompetitionForm } from '@widgets/admin';
 
 interface Competition {
   id: string;

@@ -1,7 +1,7 @@
 'use client';
 
 import { Breadcrumbs } from '@shared/ui';
-import { CompetitionForm } from '@/widgets/admin/ui/CompetitionForm';
+import { CompetitionForm } from '@widgets/admin';
 
 export default function NewCompetitionPage() {
   return (

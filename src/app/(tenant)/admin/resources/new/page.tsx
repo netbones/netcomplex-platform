@@ -1,7 +1,7 @@
 'use client';
 
 import { Breadcrumbs } from '@shared/ui';
-import { ResourceForm } from '@/widgets/admin/ui/ResourceForm';
+import { ResourceForm } from '@widgets/admin';
 
 export default function NewResourcePage() {
   return (

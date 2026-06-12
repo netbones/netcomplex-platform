@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { ContentForm } from '@/widgets/admin/ui/ContentForm';
+import { ContentForm } from '@widgets/admin';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('edit-content-page');
