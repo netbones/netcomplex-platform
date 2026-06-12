@@ -1,8 +1,17 @@
-import { auth } from '@api/auth';
-import { db, eventAttendees, users } from '@api/db';
+import {
+  auth,
+  db,
+  eventAttendees,
+  users,
+  apiSuccess,
+  apiError,
+  apiUnauthorized,
+  apiNotFound,
+  apiConflict,
+} from '@api/server';
+
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
-import { apiSuccess, apiError, apiUnauthorized, apiNotFound, apiConflict } from '@api/api-response';
 
 /**
  * GET /api/events/[id]/register - List attendees for an event

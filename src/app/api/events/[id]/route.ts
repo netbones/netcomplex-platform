@@ -1,17 +1,22 @@
-import { db, events, users } from '@api/db';
-import { eq, and } from 'drizzle-orm';
-import { revalidateContent } from '@api/revalidation';
-import { withTenant } from '@entities/tenant';
-import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant';
-
 import {
+  db,
+  events,
+  users,
+  revalidateContent,
+  auth,
   apiError,
   apiForbidden,
   apiNotFound,
   apiSuccess,
   apiUnauthorized,
-} from '@api/api-response';
+} from '@api/server';
+
+import { eq, and } from 'drizzle-orm';
+
+import { withTenant } from '@entities/tenant';
+
+import { hasPermission } from '@entities/tenant';
+
 /**
  * GET /api/events/[id] - Get single event by ID
  */

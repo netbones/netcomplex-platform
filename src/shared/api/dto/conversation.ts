@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { conversations } from '@api/db';
+import { conversations } from '../db';
 
 // API-safe conversation shape
 export interface ConversationDTO {

@@ -1,12 +1,22 @@
-import { auth } from '@api/auth';
-import { db, users, eventAttendees } from '@api/db';
+import {
+  auth,
+  db,
+  users,
+  eventAttendees,
+  revalidateContent,
+  apiCreated,
+  apiError,
+  apiForbidden,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/server';
+
 import { eq, inArray, and, sql } from 'drizzle-orm';
-import { revalidateContent } from '@api/revalidation';
+
 import { withTenant } from '@entities/tenant';
 import { hasPermission } from '@entities/tenant';
 import * as eventsService from '@entities/events';
 
-import { apiCreated, apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
  * Retrieves session and role from the request for API routes.
  * @param request - Incoming HTTP request

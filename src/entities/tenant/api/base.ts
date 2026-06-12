@@ -55,7 +55,7 @@ import {
   conversationParticipants,
   questions,
   responses,
-} from '@api/db';
+} from '@api/server';
 
 export type { Tenant };
 

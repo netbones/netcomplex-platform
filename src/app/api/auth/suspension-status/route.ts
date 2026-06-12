@@ -1,6 +1,5 @@
-import { requireNotSuspended } from '@api/auth-utils';
+import { requireNotSuspended, apiError, apiSuccess } from '@api/server';
 
-import { apiError, apiSuccess } from '@api/api-response';
 export const maxDuration = 8;
 
 /**

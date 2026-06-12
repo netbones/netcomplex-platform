@@ -1,11 +1,11 @@
 'use client';
 
 import { CARD_HEADER_COLORS } from '@shared/lib';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import { useState, useEffect } from 'react';
 import { DirectoryChatModal } from './DirectoryChatModal';
 import { UnifiedResidentCard, type Resident } from '@entities/directory';
-import { apiGet } from '@shared/api';
+import { apiGet } from '@api/shared';
 
 interface DirectoryGridProps {
   residents: Resident[];

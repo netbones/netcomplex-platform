@@ -1,8 +1,15 @@
-import { runWithRLS, getRLSContext, users } from '@api/db';
+import {
+  runWithRLS,
+  getRLSContext,
+  users,
+  apiForbidden,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/server';
+
 import { eq, or, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
 
-import { apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 export const dynamic = 'force-dynamic';
 
 const BOARD_ROLES = ['BOARD', 'ADMIN', 'COMMITTEE'] as const;

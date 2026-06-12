@@ -5,7 +5,8 @@ import {
   serviceProviders,
   users,
   properties,
-} from '@api/db';
+} from '@api/server';
+
 import { eq, desc, and, sql, inArray } from 'drizzle-orm';
 
 /**

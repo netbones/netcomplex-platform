@@ -1,4 +1,15 @@
-import { db, contents, users, groups } from '@api/db';
+import {
+  db,
+  contents,
+  users,
+  groups,
+  revalidateContent,
+  auth,
+  apiError,
+  apiNotFound,
+  apiSuccess,
+} from '@api/server';
+
 import { eq, and, or, isNull, lte, gt, type SQL } from 'drizzle-orm';
 import {
   getLocalizedValue,
@@ -6,12 +17,11 @@ import {
   supportedLanguages,
   defaultLanguage,
 } from '@shared/lib';
-import { revalidateContent } from '@api/revalidation';
+
 import { withTenant } from '@entities/tenant';
-import { auth } from '@api/auth';
+
 import { hasPermission } from '@entities/tenant';
 
-import { apiError, apiNotFound, apiSuccess } from '@api/api-response';
 /**
  * Transform content item to include localized fields
  */

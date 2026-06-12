@@ -13,7 +13,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
  * =====================
  */
 
-vi.mock('@api/auth-client', () => ({
+vi.mock('@api/client', () => ({
   authClient: {
     useSession: () => ({
       data: {

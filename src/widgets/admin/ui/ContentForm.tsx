@@ -7,14 +7,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { LocaleSelector } from '@features/i18n';
 import { RichTextEditor, TagInput } from '@shared/ui';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import {
   supportedLanguages,
   languageNames,
   defaultLanguage,
   type SupportedLanguage,
 } from '@/shared/lib/i18n';
-import { contentSchema, type ContentFormData } from '@api/schemas';
+import { contentSchema, type ContentFormData } from '@api/shared';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('ContentForm');

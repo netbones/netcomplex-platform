@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
 import { sanitizeHtml } from '@shared/lib';
 import { usePageLoading } from '@shared/ui';

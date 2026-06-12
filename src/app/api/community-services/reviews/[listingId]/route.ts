@@ -1,19 +1,23 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@api/auth';
-
-// Drizzle imports
-import { db, communityServiceListings, communityServiceReviews, users } from '@api/db';
-import { eq, desc, and, sql } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import { logError } from '@shared/lib';
-
 import {
+  auth,
+  db,
+  communityServiceListings,
+  communityServiceReviews,
+  users,
   apiError,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
   apiNotFound,
-} from '@api/api-response';
+} from '@api/server';
+
+// Drizzle imports
+
+import { eq, desc, and, sql } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant';
+import { logError } from '@shared/lib';
+
 /**
  * GET /api/community-services/reviews/[listingId] - Get reviews for a listing
  */

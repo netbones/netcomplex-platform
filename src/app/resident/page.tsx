@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { auth } from '@api/auth';
-import { db, users } from '@api/db';
+import { auth, db, users } from '@api/server';
+
 import { eq } from 'drizzle-orm';
 
 export default async function ResidentPage() {

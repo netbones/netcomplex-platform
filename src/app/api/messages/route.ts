@@ -1,18 +1,11 @@
-import { auth } from '@api/auth';
-
-import { createClient } from '@supabase/supabase-js';
-import { messageSchema } from '@api/schemas';
-import { revalidateConversations } from '@api/revalidation';
-import { apiLogger } from '@shared/lib';
-
-// Drizzle imports - use db.ts exports
-import { db, messages, users, premiumSeats, conversationParticipants } from '@api/db';
-import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import { sanitizeHtml } from '@shared/lib';
-
-import { hasPermission } from '@entities/tenant';
 import {
+  auth,
+  revalidateConversations,
+  db,
+  messages,
+  users,
+  premiumSeats,
+  conversationParticipants,
   apiCreated,
   apiError,
   apiForbidden,
@@ -20,8 +13,22 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
-} from '@api/api-response';
-import { rateLimitByUser } from '@api/rate-limit';
+  rateLimitByUser,
+} from '@api/server';
+
+import { createClient } from '@supabase/supabase-js';
+import { messageSchema } from '@api/shared';
+
+import { apiLogger } from '@shared/lib';
+
+// Drizzle imports - use db.ts exports
+
+import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant';
+import { sanitizeHtml } from '@shared/lib';
+
+import { hasPermission } from '@entities/tenant';
+
 /** Supabase client for real-time message broadcasting */
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

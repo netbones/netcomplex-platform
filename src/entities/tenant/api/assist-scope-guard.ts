@@ -13,8 +13,13 @@
  */
 
 import { NextResponse } from 'next/server';
-import { auth } from '@api/auth';
-import { db, assistSessions, users } from '@api/db';
+import {
+  auth,
+  db,
+  assistSessions,
+  users,
+} from '@api/server';
+
 import { eq, and, gt } from 'drizzle-orm';
 
 export type AssistScope = 'full' | 'metadata';

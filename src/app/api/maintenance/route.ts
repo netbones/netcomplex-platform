@@ -1,19 +1,22 @@
-import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant';
-import { maintenanceRequestSchema } from '@api/schemas';
 import {
+  auth,
   apiSuccess,
   apiCreated,
   apiUnauthorized,
   apiInternalError,
   apiValidationError,
-} from '@api/api-response';
-import { revalidateDashboard } from '@api/revalidation';
+  revalidateDashboard,
+  db,
+  users,
+} from '@api/server';
+
+import { hasPermission } from '@entities/tenant';
+import { maintenanceRequestSchema, toMaintenanceRequestDTO } from '@api/shared';
+
 import { apiLogger } from '@shared/lib';
-import { db, users } from '@api/db';
+
 import { eq } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
-import { toMaintenanceRequestDTO } from '@api/dto/maintenance';
 import * as maintenanceService from '@entities/maintenance';
 
 // Limit execution time to 8 seconds to control costs

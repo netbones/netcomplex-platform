@@ -1,8 +1,13 @@
-import { db, invitations } from '@api/db';
+import {
+  db,
+  invitations,
+  apiError,
+  apiSuccess,
+} from '@api/server';
+
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
 
-import { apiError, apiSuccess } from '@api/api-response';
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { tenantId } = await withTenant();
   const { id } = await params;

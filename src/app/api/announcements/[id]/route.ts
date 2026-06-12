@@ -1,13 +1,24 @@
-import { db, announcements, users, resources } from '@api/db';
+import {
+  db,
+  announcements,
+  users,
+  resources,
+  revalidateDashboard,
+  auth,
+  apiError,
+  apiNotFound,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/server';
+
 import { eq, and } from 'drizzle-orm';
-import { revalidateDashboard } from '@api/revalidation';
+
 import { withTenant } from '@entities/tenant';
-import { auth } from '@api/auth';
+
 import { canPublishAnnouncements } from '@entities/tenant';
 import { validatePriorityForRole } from '@features/announcements';
 import type { AnnouncementPriority } from '@features/announcements';
 
-import { apiError, apiNotFound, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
  * GET /api/announcements/[id] - Get single announcement by ID
  */

@@ -1,18 +1,24 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@api/auth';
-import { db, households, properties, standardSeats, profiles, users } from '@api/db';
-import { eq, and, count, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import { hasPermission } from '@entities/tenant';
-import { logError } from '@shared/lib';
-
 import {
+  auth,
+  db,
+  households,
+  properties,
+  standardSeats,
+  profiles,
+  users,
   apiError,
   apiForbidden,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
-} from '@api/api-response';
+} from '@api/server';
+
+import { eq, and, count, desc } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant';
+import { hasPermission } from '@entities/tenant';
+import { logError } from '@shared/lib';
+
 export const maxDuration = 8;
 
 /**

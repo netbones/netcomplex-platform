@@ -1,7 +1,7 @@
 import 'server-only';
 
-import { auth } from '@api/auth';
-import { db, users } from '@api/db';
+import { auth, db, users } from '@api/server';
+
 import { eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 

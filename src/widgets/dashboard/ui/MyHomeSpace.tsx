@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
 import { Home as HomeIcon, Users, User, Pencil } from 'lucide-react';
 

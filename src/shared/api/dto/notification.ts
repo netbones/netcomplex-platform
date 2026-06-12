@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { notifications } from '@api/db';
+import { notifications } from '../db';
 
 // API-safe notification shape
 export interface NotificationDTO {

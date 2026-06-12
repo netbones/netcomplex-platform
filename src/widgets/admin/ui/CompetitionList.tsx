@@ -4,7 +4,7 @@ import { useState, useEffect, Fragment } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { trpc } from '@api/client';
-import type { ParticipantDTO } from '@shared/api';
+import type { ParticipantDTO } from '@api/shared';
 
 // ──────────────────────────────────────────
 // Types

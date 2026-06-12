@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import type { ConversationMessage } from '@entities/chat';
 import { usePresence } from '@features/chat';
 import { OnlineIndicator } from '@entities/chat';
-import { apiGet, apiPost } from '@shared/api';
+import { apiGet, apiPost } from '@api/shared';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',

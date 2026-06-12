@@ -3,10 +3,11 @@
 // This file will be removed once all routers are migrated
 
 import { z } from 'zod';
-import { router, publicProcedure, protectedProcedure, adminProcedure } from '@api/trpc/server';
-import { TRPCError } from '@trpc/server';
-import { hasPermission } from '@shared/lib';
 import {
+  router,
+  publicProcedure,
+  protectedProcedure,
+  adminProcedure,
   db,
   properties,
   households,
@@ -15,9 +16,13 @@ import {
   soloSeats,
   agentAccesses,
   users,
-} from '@api/db';
+} from '@api/server';
+
+import { TRPCError } from '@trpc/server';
+import { hasPermission } from '@shared/lib';
+
 import { eq, and, or, asc, desc, gt, ne, like, count, InferSelectModel } from 'drizzle-orm';
-import { toUserDTO, toPropertyDTO, toProfileDTO, toHouseholdDTO } from '@api/dto';
+import { toUserDTO, toPropertyDTO, toProfileDTO, toHouseholdDTO } from '@api/shared';
 
 // Output Schemas
 const propertySchema = z.object({

@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 import { Breadcrumbs } from '@shared/ui';
 import { ResourceForm } from '@/widgets/admin/ui/ResourceForm';
-import { db, resources } from '@api/db';
+import { db, resources } from '@api/server';
+
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
 

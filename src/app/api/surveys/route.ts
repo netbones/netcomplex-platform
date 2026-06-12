@@ -1,10 +1,22 @@
-import { auth } from '@api/auth';
+import {
+  auth,
+  db,
+  surveys,
+  users,
+  questions,
+  responses,
+  apiCreated,
+  apiError,
+  apiForbidden,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/server';
+
 import { hasPermission } from '@entities/tenant';
-import { db, surveys, users, questions, responses } from '@api/db';
+
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
 
-import { apiCreated, apiError, apiForbidden, apiSuccess, apiUnauthorized } from '@api/api-response';
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,

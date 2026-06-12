@@ -1,11 +1,20 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@api/auth';
-import { db, agentProfiles, users, premiumSeats } from '@api/db';
+import {
+  auth,
+  db,
+  agentProfiles,
+  users,
+  premiumSeats,
+  apiError,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/server';
+
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
-import { apiError, apiInternalError, apiSuccess, apiUnauthorized } from '@api/api-response';
 /**
  * GET /api/agents/marketplace - Get available agents for property investors
  */

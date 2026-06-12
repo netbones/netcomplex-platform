@@ -1,2 +1,2 @@
-export { toBookingDTO, toBookingDTOs } from '@api/dto/booking';
-export type { BookingDTO } from '@api/dto/booking';
+export { toBookingDTO, toBookingDTOs } from '@api/shared';
+export type { BookingDTO } from '@api/shared';

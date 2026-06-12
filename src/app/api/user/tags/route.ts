@@ -1,8 +1,13 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@api/auth';
+import {
+  auth,
+  apiSuccess,
+  apiUnauthorized,
+  apiInternalError,
+} from '@api/server';
+
 import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
-import { apiSuccess, apiUnauthorized, apiInternalError } from '@api/api-response';
 
 export async function GET(request: NextRequest) {
   try {

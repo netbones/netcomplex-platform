@@ -1,10 +1,16 @@
-import { auth } from '@api/auth';
-import { uploadImage } from '@api/storage';
+import {
+  auth,
+  uploadImage,
+  apiError,
+  apiSuccess,
+  apiUnauthorized,
+  apiInternalError,
+  rateLimitByIP,
+} from '@api/server';
+
 import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
-import { apiError, apiSuccess, apiUnauthorized, apiInternalError } from '@api/api-response';
-import { rateLimitByIP } from '@api/rate-limit';
 export async function POST(request: Request) {
   // Rate limit: 10 uploads per minute per IP
   const rateLimit = rateLimitByIP(request, { windowMs: 60_000, maxRequests: 10 });

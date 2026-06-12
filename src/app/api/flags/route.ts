@@ -4,7 +4,8 @@ import { getStatsigExperimentFlags } from '@entities/tenant';
 import { withTenantOptional } from '@entities/tenant';
 import { createComponentLogger } from '@shared/lib';
 
-import { apiError, apiSuccess } from '@api/api-response';
+import { apiError, apiSuccess } from '@api/server';
+
 const log = createComponentLogger('flags-api');
 
 export const dynamic = 'force-dynamic';

@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { events } from '@api/db';
+import { events } from '../db';
 
 // API-safe event shape
 export interface EventDTO {

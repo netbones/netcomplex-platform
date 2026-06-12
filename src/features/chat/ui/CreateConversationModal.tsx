@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ParticipantAvatar, type ConversationListItem } from '@entities/chat';
-import { apiPost } from '@shared/api';
+import { apiPost } from '@api/shared';
 
 type ConversationType = 'DIRECT' | 'GROUP';
 

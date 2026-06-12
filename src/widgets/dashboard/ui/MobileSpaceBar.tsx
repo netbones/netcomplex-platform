@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
 import { getVisibleSpaces, SPACES, type SpaceId } from '../model/spaces';
 

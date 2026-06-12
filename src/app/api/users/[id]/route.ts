@@ -8,15 +8,20 @@ import {
   contents,
   profiles,
   households,
-} from '@api/db';
+  apiSuccess,
+  apiNotFound,
+  apiUnauthorized,
+  throwIfSuspended,
+  writeAuditLog,
+  auth,
+} from '@api/server';
+
 import { eq, and, desc } from 'drizzle-orm';
-import { apiSuccess, apiNotFound, apiUnauthorized } from '@api/api-response';
+
 import { withTenant } from '@entities/tenant';
 import { requireAssistScope } from '@entities/tenant';
-import { throwIfSuspended } from '@api/auth-utils';
+
 import { getLocalizedValue, getLocalizedContent, defaultLanguage } from '@shared/lib';
-import { writeAuditLog } from '@api/audit-log';
-import { auth } from '@api/auth';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

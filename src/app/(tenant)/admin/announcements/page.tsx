@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import { canPublishAnnouncements } from '@entities/tenant';
 import {
   useAnnouncements,
@@ -11,7 +11,7 @@ import {
   AnnouncementList,
 } from '@features/announcements';
 import type { AnnouncementWithResource } from '@features/announcements';
-import type { AnnouncementFormData } from '@shared/api';
+import type { AnnouncementFormData } from '@api/shared';
 import { toast } from 'sonner';
 export default function AnnouncementsAdminPage() {
   const router = useRouter();

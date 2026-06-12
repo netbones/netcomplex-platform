@@ -6,13 +6,18 @@ import {
   maintenanceTeams,
   serviceProviders,
   requestHistories,
-} from '@api/db';
-import { auth } from '@api/auth';
+  auth,
+  revalidateDashboard,
+  apiSuccess,
+  apiUnauthorized,
+  apiForbidden,
+  apiNotFound,
+} from '@api/server';
+
 import { hasPermission } from '@entities/tenant';
 import { eq, and } from 'drizzle-orm';
-import { revalidateDashboard } from '@api/revalidation';
+
 import { withTenant } from '@entities/tenant';
-import { apiSuccess, apiUnauthorized, apiForbidden, apiNotFound } from '@api/api-response';
 
 // Valid status transitions for the 7-value lifecycle
 const VALID_STATUSES = [

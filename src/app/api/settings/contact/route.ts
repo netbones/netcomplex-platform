@@ -1,8 +1,13 @@
-import { db, settings } from '@api/db';
+import {
+  db,
+  settings,
+  apiError,
+  apiSuccess,
+} from '@api/server';
+
 import { eq, and } from 'drizzle-orm';
 import { withTenant, withTenantOptional } from '@entities/tenant';
 
-import { apiError, apiSuccess } from '@api/api-response';
 export async function GET() {
   // Allow reading settings without tenant (for public access)
   const { tenantId } = await withTenantOptional();

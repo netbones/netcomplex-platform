@@ -1,14 +1,18 @@
-import { apiSuccess, apiInternalError, apiUnauthorized } from '@api/api-response';
-import { withTenant } from '@entities/tenant';
 import {
+  apiSuccess,
+  apiInternalError,
+  apiUnauthorized,
   db,
   conversations,
   conversationParticipants,
   messages,
   announcements,
   notifications,
-} from '@api/db';
-import { auth } from '@api/auth';
+  auth,
+} from '@api/server';
+
+import { withTenant } from '@entities/tenant';
+
 import { count, eq, and, ne, gt, desc, sql, lte, or } from 'drizzle-orm';
 import { createComponentLogger } from '@shared/lib';
 import { headers } from 'next/headers';

@@ -1,11 +1,18 @@
 import { NextRequest } from 'next/server';
-import { auth } from '@api/auth';
-import { db, agentAccesses } from '@api/db';
+import {
+  auth,
+  db,
+  agentAccesses,
+  apiError,
+  apiSuccess,
+  apiUnauthorized,
+  apiInternalError,
+} from '@api/server';
+
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
 import { apiLogger } from '@shared/lib';
 
-import { apiError, apiSuccess, apiUnauthorized, apiInternalError } from '@api/api-response';
 export const maxDuration = 8;
 
 export async function GET(request: NextRequest) {

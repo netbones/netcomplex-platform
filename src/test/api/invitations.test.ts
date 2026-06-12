@@ -29,17 +29,13 @@ const mocks = vi.hoisted(() => ({
   sendEmail: vi.fn(),
 }));
 
-// Mock auth (invitations route doesn't directly use auth, but imports may need it)
-vi.mock('@api/auth', () => ({
+// Mock @api/server (auth, db, rate limit, email, templates)
+vi.mock('@api/server', () => ({
   auth: {
     api: {
       getSession: vi.fn(),
     },
   },
-}));
-
-// Mock db
-vi.mock('@api/db', () => ({
   db: mocks.dbMock,
   invitations: {
     id: 'id',
@@ -56,30 +52,19 @@ vi.mock('@api/db', () => ({
   },
   tenants: { id: 'id', name: 'name' },
   users: { id: 'id', name: 'name' },
-}));
-
-// Mock withTenant
-vi.mock('@entities/tenant', () => ({
-  withTenant: () => Promise.resolve(mocks.tenantResult),
-}));
-
-// Mock rate limit
-vi.mock('@api/rate-limit', () => ({
   rateLimitByIP: (...args: unknown[]) => mocks.rateLimitByIP(...args),
-}));
-
-// Mock email
-vi.mock('@shared/api', () => ({
   sendEmail: (...args: unknown[]) => mocks.sendEmail(...args),
-}));
-
-vi.mock('@shared/api', () => ({
   templates: {
     teamInvitation: {
       subject: 'You have been invited',
       getHtml: vi.fn().mockReturnValue('<html>invitation</html>'),
     },
   },
+}));
+
+// Mock withTenant
+vi.mock('@entities/tenant', () => ({
+  withTenant: () => Promise.resolve(mocks.tenantResult),
 }));
 
 // Mock logger

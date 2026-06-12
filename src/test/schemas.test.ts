@@ -5,7 +5,7 @@ import {
   maintenanceRequestSchema,
   bookingSchema,
   userProfileSchema,
-} from '@api/schemas';
+} from '@api/shared';
 
 describe('schemas', () => {
   describe('contentSchema', () => {

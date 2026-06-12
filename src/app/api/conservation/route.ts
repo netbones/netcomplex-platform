@@ -1,9 +1,16 @@
-import { db, contents, users } from '@api/db';
+import {
+  db,
+  contents,
+  users,
+  apiError,
+  apiSuccess,
+  apiInternalError,
+} from '@api/server';
+
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
-import { apiError, apiSuccess, apiInternalError } from '@api/api-response';
 export async function GET() {
   try {
     const { tenantId } = await withTenant();

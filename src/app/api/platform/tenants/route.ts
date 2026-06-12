@@ -1,11 +1,20 @@
 import { NextRequest } from 'next/server';
 import { TIERS, type TierLevel } from '@entities/tenant';
 import { createTenant, getTenantById } from '@entities/tenant';
-import { db, users, tenants } from '@api/db';
+import {
+  db,
+  users,
+  tenants,
+  apiCreated,
+  apiConflict,
+  apiError,
+  apiInternalError,
+  apiSuccess,
+} from '@api/server';
+
 import { eq } from 'drizzle-orm';
 import { logError } from '@shared/lib';
 
-import { apiCreated, apiConflict, apiError, apiInternalError, apiSuccess } from '@api/api-response';
 interface SignupRequest {
   name: string;
   slug: string;

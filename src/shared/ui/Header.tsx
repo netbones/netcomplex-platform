@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@shared/ui';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
 import { NAV_REGISTRY } from '@/shared/lib/navigation';
 import { isNavItemVisible } from '@/shared/lib/nav-utils';

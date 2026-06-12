@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { supabase } from '@shared/api';
+import { supabase } from '@api/server';
 import {
   MaintenanceRequestForm,
   MaintenancePriority,

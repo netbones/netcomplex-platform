@@ -29,12 +29,12 @@ vi.mock('next/headers', () => ({
 }));
 
 // Mock revalidation
-vi.mock('@api/revalidation', () => ({
+vi.mock('@api/server', () => ({
   revalidateContent: vi.fn(),
 }));
 
 // Mock auth
-vi.mock('@api/auth', () => ({
+vi.mock('@api/server', () => ({
   auth: {
     api: {
       getSession: () => Promise.resolve(mocks.sessionResult),
@@ -43,7 +43,7 @@ vi.mock('@api/auth', () => ({
 }));
 
 // Mock db
-vi.mock('@api/db', () => ({
+vi.mock('@api/server', () => ({
   db: mocks.dbMock,
   resources: {
     tenantId: 'tenantId',

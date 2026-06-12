@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { properties } from '@api/db';
+import { properties } from '../db';
 
 /** @property-consolidation-plan (44-03 findings)
  * Canonical API shape (full). Per C1 resolution: STAYS as-is.

@@ -1,6 +1,6 @@
-import { auth } from '@api/auth';
+import { auth, rateLimitByIP } from '@api/server';
+
 import { toNextJsHandler } from 'better-auth/next-js';
-import { rateLimitByIP } from '@api/rate-limit';
 
 const betterAuth = toNextJsHandler(auth);
 

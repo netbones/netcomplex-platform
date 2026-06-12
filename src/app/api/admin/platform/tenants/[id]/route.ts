@@ -3,9 +3,22 @@ import { getTenantById, updateTenant, deleteTenant } from '@entities/tenant';
 import { requirePlatformAdmin } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
-import { apiError, apiSuccess, apiInternalError, apiNotFound } from '@api/api-response';
-import { writeAuditLog } from '@api/audit-log';
-import { auth } from '@api/auth';
+import {
+
+  apiError,
+
+  apiSuccess,
+
+  apiInternalError,
+
+  apiNotFound,
+
+  writeAuditLog,
+
+  auth,
+
+} from '@api/server';
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const guard = await requirePlatformAdmin(request);
   if (guard) return guard;

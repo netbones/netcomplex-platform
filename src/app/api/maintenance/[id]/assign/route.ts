@@ -4,20 +4,20 @@ import {
   maintenanceTeams,
   serviceProviders,
   requestHistories,
-} from '@api/db';
-import { requireAnyPermission } from '@api/auth-utils';
-import { withTenant } from '@entities/tenant';
-import {
+  requireAnyPermission,
   apiSuccess,
   apiUnauthorized,
   apiNotFound,
   apiError,
   apiForbidden,
-} from '@api/api-response';
-import { auth } from '@api/auth';
+  auth,
+  revalidateDashboard,
+} from '@api/server';
+
+import { withTenant } from '@entities/tenant';
+
 import { hasPermission } from '@entities/tenant';
 import { eq, and } from 'drizzle-orm';
-import { revalidateDashboard } from '@api/revalidation';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -28,7 +28,7 @@ async function getSessionAndRole(request: Request) {
     return null;
   }
 
-  const { db: dbInstance, users } = await import('@api/db');
+  const { db: dbInstance, users } = await import('@api/server');
   const [userResult] = await dbInstance
     .select()
     .from(users)

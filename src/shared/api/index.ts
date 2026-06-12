@@ -1,26 +1,5 @@
-export * from './db';
-export * from './auth';
-export * from './auth-client';
-export * from './auth-utils';
-export * from './supabase';
-export * from './revalidation';
-export * from './storage';
-export * from './data-fetching';
-export * from './slug';
-export * from './schemas';
-export * from './types';
-export * from './turnstile';
-export * from './api-response';
-export * from './audit-log';
-export * from './feature-gate';
-export * from './gate';
-export * from './http-client';
-export * from './observability';
-export * from './rate-limit';
-
-// Modules
-export * from './email/resend';
-export * from './email/templates';
-export * from './trpc/server';
-export * from './trpc/client';
-export * from './trpc/routers';
+// Aggregated barrel for backward compat. Prefer @api/server, @api/client, or
+// @api/shared for explicit runtime context. See 44-04-PLAN.md for rationale.
+export * from './server';
+export * from './client';
+export * from './shared';

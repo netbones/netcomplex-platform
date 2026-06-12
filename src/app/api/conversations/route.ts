@@ -1,11 +1,21 @@
-import { auth } from '@api/auth';
+import {
+  auth,
+  db,
+  conversations,
+  conversationParticipants,
+  messages,
+  users,
+  apiCreated,
+  apiError,
+  apiSuccess,
+  apiUnauthorized,
+} from '@api/server';
 
 // Drizzle imports - use db.ts exports
-import { db, conversations, conversationParticipants, messages, users } from '@api/db';
+
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
 
-import { apiCreated, apiError, apiSuccess, apiUnauthorized } from '@api/api-response';
 export async function GET(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,

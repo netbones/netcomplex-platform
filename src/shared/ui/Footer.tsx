@@ -7,7 +7,7 @@ import { useContactSettings } from '@/shared/lib/useContactSettings';
 import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
 import { NAV_REGISTRY } from '@/shared/lib/navigation';
 import { isNavItemVisible } from '@/shared/lib/nav-utils';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 
 export function Footer() {
   const [mounted, setMounted] = useState(false);

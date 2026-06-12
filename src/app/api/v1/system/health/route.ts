@@ -1,4 +1,4 @@
-import { apiSuccess } from '@api/api-response';
+import { apiSuccess } from '@api/server';
 
 export async function GET() {
   return apiSuccess({

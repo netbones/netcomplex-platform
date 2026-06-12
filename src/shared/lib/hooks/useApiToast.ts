@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { logError, createComponentLogger } from '@shared/lib';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 
 const log = createComponentLogger('useApiToast');
 

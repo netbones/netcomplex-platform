@@ -1,10 +1,16 @@
 import { NextRequest } from 'next/server';
-import { db, settings } from '@api/db';
+import {
+  db,
+  settings,
+  apiError,
+  apiSuccess,
+  apiInternalError,
+} from '@api/server';
+
 import { eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { logError } from '@shared/lib';
 
-import { apiError, apiSuccess, apiInternalError } from '@api/api-response';
 interface OnboardingRequest {
   tenantId: string;
   step: number;

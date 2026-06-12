@@ -1,11 +1,20 @@
-import { auth } from '@api/auth';
+import {
+  auth,
+  db,
+  maintenanceRequests,
+  users,
+  apiSuccess,
+  apiUnauthorized,
+  apiForbidden,
+  apiNotFound,
+  sendEmail,
+} from '@api/server';
+
 import { hasPermission } from '@entities/tenant';
-import { db, maintenanceRequests, users } from '@api/db';
+
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
-import { sendEmail } from '@shared/api';
 import { createLogger } from '@shared/lib';
-import { apiSuccess, apiUnauthorized, apiForbidden, apiNotFound } from '@api/api-response';
 
 const notifyLogger = createLogger('maintenance-notify');
 

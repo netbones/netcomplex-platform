@@ -1,10 +1,8 @@
-import { auth } from '@api/auth';
-import { hasPermission } from '@entities/tenant';
-import { db, questions, users } from '@api/db';
-import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-
 import {
+  auth,
+  db,
+  questions,
+  users,
   apiError,
   apiForbidden,
   apiNoContent,
@@ -12,7 +10,12 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
-} from '@api/api-response';
+} from '@api/server';
+
+import { hasPermission } from '@entities/tenant';
+
+import { eq, and } from 'drizzle-orm';
+import { withTenant } from '@entities/tenant';
 
 const VALID_QUESTION_TYPES = [
   'SINGLE_CHOICE',

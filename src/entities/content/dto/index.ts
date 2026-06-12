@@ -1,2 +1,2 @@
-export { toContentDTO, toPublicContentDTO } from '@api/dto/content';
-export type { ContentDTO, PublicContentDTO } from '@api/dto/content';
+export { toContentDTO, toPublicContentDTO } from '@api/shared';
+export type { ContentDTO, PublicContentDTO } from '@api/shared';

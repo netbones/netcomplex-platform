@@ -14,7 +14,7 @@ import {
   members,
   invitations,
   organizations,
-} from '@api/db';
+} from './db';
 import { tenantConfig } from '@entities/tenant';
 import { sendEmail } from '@shared/api';
 import { templates } from '@shared/api';

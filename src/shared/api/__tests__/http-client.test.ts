@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ApiClientError, apiGet, apiPost, apiPatch, apiDelete } from '../http-client';
 
-vi.mock('@api/auth-client', () => ({
+vi.mock('../auth-client', () => ({
   authClient: {
     getSession: vi.fn().mockResolvedValue({
       data: { session: { token: 'test-token' } },

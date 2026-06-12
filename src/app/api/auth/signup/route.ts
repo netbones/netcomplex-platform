@@ -1,10 +1,9 @@
 import { NextRequest } from 'next/server';
 import { logError, apiLogger } from '@shared/lib';
-import { verifyTurnstile } from '@shared/api';
-import { db, invitations, users } from '@api/db';
-import { eq, and, gt } from 'drizzle-orm';
-
 import {
+  db,
+  invitations,
+  users,
   apiCreated,
   apiConflict,
   apiError,
@@ -12,8 +11,12 @@ import {
   apiGone,
   apiInternalError,
   apiSuccess,
-} from '@api/api-response';
-import { rateLimitByIP } from '@api/rate-limit';
+  rateLimitByIP,
+  verifyTurnstile,
+} from '@api/server';
+
+import { eq, and, gt } from 'drizzle-orm';
+
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 /**
@@ -187,8 +190,7 @@ async function processInvitation(
  */
 async function sendWelcomeEmail(email: string, name: string) {
   try {
-    const { sendEmail } = await import('@shared/api');
-    const { templates } = await import('@shared/api');
+const { sendEmail, templates } = await import('@api/server');
 
     const html = templates.welcome.getHtml(name);
 

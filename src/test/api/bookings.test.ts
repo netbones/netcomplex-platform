@@ -33,7 +33,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 // Mock auth
-vi.mock('@api/auth', () => ({
+vi.mock('@api/server', () => ({
   auth: {
     api: {
       getSession: () => Promise.resolve(mocks.sessionResult),
@@ -42,7 +42,7 @@ vi.mock('@api/auth', () => ({
 }));
 
 // Mock db
-vi.mock('@api/db', () => ({
+vi.mock('@api/server', () => ({
   db: mocks.dbMock,
   bookings: { id: 'id', tenantId: 'tenantId', facility: 'facility' },
   users: { id: 'id', role: 'role', name: 'name' },
@@ -70,12 +70,12 @@ vi.mock('@entities/booking', () => ({
 }));
 
 // Mock feature gate
-vi.mock('@api/feature-gate', () => ({
+vi.mock('@api/server', () => ({
   assertModuleEnabled: (...args: unknown[]) => mocks.assertModuleEnabled(...args),
 }));
 
 // Mock revalidation
-vi.mock('@api/revalidation', () => ({
+vi.mock('@api/server', () => ({
   revalidateDashboard: vi.fn(),
 }));
 

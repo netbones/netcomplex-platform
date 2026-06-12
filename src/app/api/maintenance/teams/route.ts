@@ -1,7 +1,14 @@
-import { db, maintenanceTeams } from '@api/db';
-import { requireAnyPermission } from '@api/auth-utils';
+import {
+  db,
+  maintenanceTeams,
+  requireAnyPermission,
+  apiSuccess,
+  apiCreated,
+  apiError,
+} from '@api/server';
+
 import { withTenant } from '@entities/tenant';
-import { apiSuccess, apiCreated, apiError } from '@api/api-response';
+
 import { eq, and, desc } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';

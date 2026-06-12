@@ -1,16 +1,20 @@
-import { db, users, soloSeats, premiumSeats } from '@api/db';
 import {
+  db,
+  users,
+  soloSeats,
+  premiumSeats,
   apiSuccess,
   apiConflict,
   apiCreated,
   apiForbidden,
   apiNotFound,
   apiError,
-} from '@api/api-response';
+  auth,
+} from '@api/server';
+
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
 import { hasPermission } from '@entities/tenant';
-import { auth } from '@api/auth';
 
 export const maxDuration = 8;
 

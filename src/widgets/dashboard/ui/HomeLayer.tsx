@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { authClient } from '@shared/api';
+import { authClient } from '@api/client';
 import { AlertTriangle, Calendar, Bell, Wrench, Activity, Megaphone, Clock } from 'lucide-react';
 
 async function fetchJson<T>(url: string): Promise<T[]> {

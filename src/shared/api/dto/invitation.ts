@@ -1,5 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
-import { invitations } from '@api/db';
+import { invitations } from '../db';
 
 // API-safe invitation shape — never exposes token
 export interface InvitationDTO {

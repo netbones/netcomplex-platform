@@ -20,7 +20,7 @@
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { authClient } from '@shared/api';
+import { authClient } from '@api/client';
 import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
 import { ErrorBoundary } from '@shared/ui';
 import { SpaceLauncher } from './SpaceLauncher';

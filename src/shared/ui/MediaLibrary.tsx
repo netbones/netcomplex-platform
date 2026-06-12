@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import { authClient } from '@api/auth-client';
+import { authClient } from '@api/client';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('MediaLibrary');
