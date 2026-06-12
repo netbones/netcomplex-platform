@@ -98,7 +98,7 @@ export function apiPaginated<T>(
   return apiSuccess(data, { page, pageSize, total, hasMore } as unknown as Record<
     string,
     unknown
-  >) as NextResponse<ApiPaginatedResponse<T>>;
+  >) as unknown as NextResponse<ApiPaginatedResponse<T>>;
 }
 
 /**

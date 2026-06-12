@@ -3,8 +3,8 @@ import {
   setPlatformPageFlagWithTx,
   getPlatformPageFlagsWithTx,
   type PlatformPageFlags,
-} from '@entities/tenant';
-import { withTenant } from '@entities/tenant';
+} from '@/entities/tenant/api/flags/platform-flags';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 import {
   getSessionAndRole,
   runWithRLS,
@@ -16,7 +16,7 @@ import {
   apiUnauthorized,
 } from '@api/server';
 
-import { isAdmin } from '@entities/tenant';
+import { isAdmin } from '@shared/lib';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('page-flags-api');

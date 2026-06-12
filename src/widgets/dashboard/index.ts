@@ -14,5 +14,6 @@ export * from './ui/MessagesSubLauncher';
 export * from './ui/HomeLayer';
 export * from './ui/MyHomeSpace';
 export * from './ui/SpaceChrome';
+export * from './ui/AnnouncementsStreamWidget';
 export * from './model/registry';
 export * from './model/spaces';

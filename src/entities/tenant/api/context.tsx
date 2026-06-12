@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Tenant } from './types';
+import type { Tenant } from '@shared/lib';
 
 interface TenantState {
   tenant: Tenant | null;
@@ -9,26 +9,24 @@ interface TenantState {
 }
 
 // SSR-compatible Zustand store for tenant state
-export const useTenantStore = create<TenantState>()(
-  (set) => ({
-    tenant: null,
-    isLoading: false,
-    setTenant: (tenant) => set({ tenant }),
-    setLoading: (isLoading) => set({ isLoading }),
-  })
-);
+export const useTenantStore = create<TenantState>()(set => ({
+  tenant: null,
+  isLoading: false,
+  setTenant: tenant => set({ tenant }),
+  setLoading: isLoading => set({ isLoading }),
+}));
 
 // React hooks for accessing tenant state
 export const useTenant = (): Tenant | null => {
-  return useTenantStore((state) => state.tenant);
+  return useTenantStore(state => state.tenant);
 };
 
 export const useTenantLoading = (): boolean => {
-  return useTenantStore((state) => state.isLoading);
+  return useTenantStore(state => state.isLoading);
 };
 
 export const useTenantActions = () => {
-  return useTenantStore((state) => ({
+  return useTenantStore(state => ({
     setTenant: state.setTenant,
     setLoading: state.setLoading,
   }));

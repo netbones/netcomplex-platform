@@ -16,7 +16,7 @@ import {
 } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
-import { hasPermission } from '@entities/tenant';
+import { hasPermission } from '@shared/lib';
 
 import {
   eq,

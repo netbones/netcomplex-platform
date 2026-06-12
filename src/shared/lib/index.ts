@@ -37,7 +37,9 @@ export * from './constants/tiers';
 //   import { supportedLanguages, ... } from '@shared/lib/i18n'
 // NOTE: useContactSettings and useApiToast are client-only hooks.
 export { useSafeTranslation } from './hooks/useSafeTranslation';
-export { sanitizeHtml } from './sanitization';
+// NOTE: Do NOT export sanitizeHtml here.
+// Client: import { sanitizeHtml } from '@shared/lib/sanitize'
+// Server: import { sanitizeHtml } from '@shared/lib/sanitization'
 // Import them directly from their source files to avoid pulling
 // client-side code (sonner, react context) into server bundles:
 //   import { useContactSettings } from '@shared/lib/useContactSettings'

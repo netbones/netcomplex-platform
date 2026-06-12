@@ -12,7 +12,7 @@ import {
   getContentLocales,
   getLocalizedValue,
   namespaces,
-} from '@shared/lib';
+} from './i18n-config';
 
 export {
   supportedLanguages,

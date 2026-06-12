@@ -27,7 +27,7 @@ bd sync           # Sync with git
 
 **Limitations:** BD lacks validation, extended dependency tracking, and phase structure.
 
-### GSD Phase Plans (Major Overhaul)
+### GSD Phase Plans (MANDATORY)
 
 Use GSD workflow for:
 
@@ -51,48 +51,158 @@ All GSD phase execution MUST happen inside a dedicated **git worktree** to preve
 collisions with the working tree and avoid introducing problems into working code.
 Never execute a GSD phase directly in the main working directory.
 
-This project uses **[Worktrunk](https://worktrunk.dev/)** (`wt`) to manage worktrees.
-Worktrees are created as siblings of the main repo:
-`../soralia-village.<phase-name>` — configured via `~/.config/worktrunk/config.toml`:
+This project uses **[Worktrunk](https://worktrunk.dev/)** (`wt`) to manage worktrees,
+configured via `~/.config/worktrunk/config.toml`:
 
 ```toml
 worktree-path = "../worktrees/{{ branch | sanitize }}"
 ```
 
-This preserves the existing `../worktrees/<phase>` layout.
+The worktree directory for a phase named `phase-N-name` will be
+`../worktrees/phase-N-name`. The branch name is always identical to `GSD_PHASE` —
+do not rely on `sanitize` to fix a bad input. Always use lowercase kebab-case:
+`phase-5-iot-monitor-schema`, never `Phase 5 IoT` or `phase-5`.
 
-**Worktree lifecycle per phase:**
+---
+
+##### Step 0 — Pre-flight: create or resume (ALWAYS run this first)
+
+Before doing anything else, run the pre-flight check. It determines whether to
+create a fresh worktree or resume an interrupted one.
 
 ```bash
-# 1. Create and switch to a worktree for the phase (from the repo root, before starting)
-GSD_PHASE="phase-N-name"
-wt switch --create ${GSD_PHASE}
+GSD_PHASE="phase-N-description"   # set this first
 
-# 2. Copy .env and any other local config files into the worktree
+if wt list 2>/dev/null | grep -q "${GSD_PHASE}"; then
+  # Worktree already exists — determine state
+  UNMERGED=$(git log dev..${GSD_PHASE} --oneline 2>/dev/null)
+  if [ -n "${UNMERGED}" ]; then
+    echo "RESUME: unmerged commits found on ${GSD_PHASE} — switching into existing worktree."
+    echo "${UNMERGED}"
+    wt switch ${GSD_PHASE}
+    # Continue from Step 3 (do NOT re-run Steps 1–2)
+  else
+    echo "RECREATE: branch exists but is fully merged or empty — removing and recreating."
+    wt remove ${GSD_PHASE}
+    git branch -d ${GSD_PHASE} 2>/dev/null || true
+    # Fall through to Step 1
+  fi
+else
+  echo "CREATE: no existing worktree found — proceeding to Step 1."
+  # Fall through to Step 1
+fi
+```
+
+---
+
+##### Lifecycle A — Create (fresh phase)
+
+```bash
+# 1. Create worktree and branch, switch into it
+GSD_PHASE="phase-N-description"
+wt switch --create ${GSD_PHASE} --base dev
+
+# 2. Copy environment and local config into the worktree immediately
+#    Do this before running ANY commands — missing .env causes silent failures.
 cp .env ../worktrees/${GSD_PHASE}/.env
+# Add other local-only files here if needed (e.g. .env.local)
 
-# 3. Run all GSD commands inside the worktree directory
-#    (use the workdir parameter, or cd into ../worktrees/${GSD_PHASE})
+# 3. Run all GSD commands inside the worktree
+#    Either cd into it or use the workdir parameter:
+cd ../worktrees/${GSD_PHASE}
+# ... execute phase steps ...
+```
 
-# 4. After phase completes and is merged/pushed, clean up the worktree
+---
+
+##### Lifecycle B — Resume (interrupted phase)
+
+Use this when Step 0 pre-flight determines an existing worktree has unmerged commits.
+
+```bash
+# 1. Switch into the existing worktree (no --create)
+wt switch ${GSD_PHASE}
+
+# 2. Verify .env is present — re-copy if missing
+[ -f ../worktrees/${GSD_PHASE}/.env ] || cp .env ../worktrees/${GSD_PHASE}/.env
+
+# 3. Inspect where the prior agent left off
+git log dev..${GSD_PHASE} --oneline   # see completed commits
+git status                             # check for uncommitted changes
+
+# 4. If uncommitted changes exist, they represent interrupted in-progress work.
+#    Do NOT discard them. Continue from where the prior agent stopped.
+#    If the state is ambiguous, create a WIP commit to checkpoint before proceeding:
+git add -A && git commit -m "wip: resume ${GSD_PHASE} — state at handoff"
+
+# 5. Continue executing remaining phase steps
+#    Do NOT re-run steps already represented by commits on the branch.
+```
+
+---
+
+##### Lifecycle C — Cleanup (phase merged)
+
+Run cleanup only after the phase branch is confirmed merged into `dev` after using `wt merge`.
+
+```bash
+# 1. Verify merged — MANDATORY before any deletion
+if ! git branch -a --merged dev | grep -q "${GSD_PHASE}"; then
+  echo "ERROR: ${GSD_PHASE} is NOT merged into dev. Aborting cleanup."
+  echo "Resolve: merge the branch, or explicitly abandon it (requires human sign-off)."
+  exit 1
+fi
+
+# 2. Remove the worktree
 wt remove ${GSD_PHASE}
 
-# 5. Delete the merged phase branch (local + remote) once the merge is on dev
-#    Verify first: `git branch -a --merged dev` must list the phase branch.
-#    `git branch -d` refuses to delete unmerged branches — safer than -D.
+# 3. Delete the branch locally and remotely
+#    git branch -d (safe) will refuse to delete unmerged branches.
+#    Never use -D without human sign-off.
 git branch -d ${GSD_PHASE}
 git push origin --delete ${GSD_PHASE}
 
-# 6. Confirm no stale agent markers remain
+# 4. Confirm no stale markers remain
 wt list
 ```
 
-**Rules:**
+---
+
+##### Stale worktree triage
+
+Run `wt list` at the start of any session. If you see a 🤖 marker for a phase
+you did not create, use this table before touching it:
+
+| `wt list` shows         | Unmerged commits on branch? | Action                                      |
+| ----------------------- | --------------------------- | ------------------------------------------- |
+| 🤖 marker, agent active | —                           | Leave it. Do not interfere.                 |
+| 🤖 marker, no agent     | Yes                         | Resume via Lifecycle B above.               |
+| 🤖 marker, no agent     | No                          | Safe to clean up via Lifecycle C above.     |
+| 🤖 marker, no agent     | Cannot determine            | Run `git log dev..<phase> --oneline` first. |
+| No marker               | Branch exists on remote     | Branch was orphaned — human triage needed.  |
+
+**Never delete a stale worktree or branch without first checking the table above.**
+
+---
+
+##### Rules
 
 - **NEVER use `git stash` in a worktree.** Stash is global to the repo and shared
-  across all worktrees — stash entries created in one worktree can be accidentally
-  applied in another, corrupting working trees and causing file loss. Use WIP commits
-  instead: `git commit -m "wip: ..."` to checkpoint, and `git reset HEAD~1` to undo.
+  across all worktrees — a stash created in one worktree can be accidentally applied
+  in another, corrupting working trees. Use WIP commits instead:
+  `git commit -m "wip: <description>"` to checkpoint, `git reset HEAD~1` to undo.
+- **One worktree per phase.** Never reuse a worktree across phases.
+- **Never work in the main repo directory** during a GSD phase. Always `cd` into
+  `../worktrees/${GSD_PHASE}` or use the workdir parameter.
+- **Copy `.env` immediately** after creating or resuming a worktree, before any
+  commands that could read environment variables.
+- **Run quality gates inside the worktree** before merging back to `dev`.
+- **Never delete a worktree directory manually.** Always use `wt remove`.
+- **Never delete `dev`, `main`, or any non-phase branch.** Cleanup only applies to
+  the `${GSD_PHASE}` branch. If a phase accidentally targets a protected branch,
+  abort and reset immediately.
+- **Never use `git branch -D`** (force delete) without human sign-off and
+  confirmation that `git branch -a --merged dev` lists the branch.
 
 ### Stash Ownership Protocol (Required)
 
@@ -181,8 +291,8 @@ Project documentation lives in `docs/STEERING/`:
 
 ### Tech Stack
 
-| Layer      | Technology                                                                                                                                                                                                                                                                                    |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Layer      | Technology                                                                                                                                                                                                                                                                                    | ---------- |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
 | Frontend   | Next.js 14 (App Router) + Preact                                                                                                                                                                                                                                                              |
 | Language   | TypeScript                                                                                                                                                                                                                                                                                    |
 | Styling    | Tailwind CSS                                                                                                                                                                                                                                                                                  |

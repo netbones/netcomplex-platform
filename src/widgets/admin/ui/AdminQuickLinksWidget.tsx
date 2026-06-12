@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
-import { ADMIN_ITEMS } from '@shared/lib-config';
+import { ADMIN_ITEMS } from '@entities/tenant';
 import { ErrorBoundary } from '@shared/ui';
 
 export function AdminQuickLinksWidget() {

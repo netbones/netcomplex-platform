@@ -10,14 +10,17 @@ import {
   users,
 } from '@api/server';
 
-import { hasPermission } from '@entities/tenant';
+import { hasPermission } from '@shared/lib';
 import { maintenanceRequestSchema, toMaintenanceRequestDTO } from '@api/shared';
 
 import { apiLogger } from '@shared/lib';
 
 import { eq } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import * as maintenanceService from '@entities/maintenance';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
+import {
+  listMaintenanceRequests,
+  createMaintenanceRequest,
+} from '../../../entities/maintenance/services';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;
@@ -84,7 +87,7 @@ export async function GET(request: Request) {
   const { tenantId } = await withTenant();
 
   // Delegate to entity service for query building and execution
-  const results = await maintenanceService.listMaintenanceRequests({
+  const results = await listMaintenanceRequests({
     tenantId,
     userId: authData.userId,
     canViewAll: canViewAll || scope === 'community',
@@ -206,7 +209,7 @@ export async function POST(request: Request) {
     const { tenantId } = await withTenant();
 
     // Delegate to entity service for creation (includes ticket number generation)
-    const [maintenanceRequest] = await maintenanceService.createMaintenanceRequest({
+    const [maintenanceRequest] = await createMaintenanceRequest({
       id: crypto.randomUUID(),
       tenantId,
       userId,

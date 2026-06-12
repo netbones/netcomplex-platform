@@ -11,10 +11,10 @@ import {
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 
-import { hasPermission } from '@entities/tenant';
-import { requireAssistScope } from '@entities/tenant';
+import { hasPermission } from '@shared/lib';
+import { requireAssistScope } from '@/entities/tenant/api/assist-scope-guard';
 import { apiLogger } from '@shared/lib';
 
 /**

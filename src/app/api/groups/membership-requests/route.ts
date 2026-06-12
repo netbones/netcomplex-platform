@@ -10,10 +10,10 @@ import {
   apiForbidden,
 } from '@api/server';
 
-import { hasPermission } from '@entities/tenant';
+import { hasPermission } from '@shared/lib';
 
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 
 /**
  * Retrieves session and role from the request for API routes.

@@ -13,7 +13,7 @@ import {
   hasModuleAccess,
   getTierModules,
 } from '@shared/lib';
-import type { Tenant } from '../types';
+import type { Tenant } from '@shared/lib';
 
 export type { TierLevel, ModuleKey };
 export { TIERS, MODULES, hasModuleAccess, getTierModules };

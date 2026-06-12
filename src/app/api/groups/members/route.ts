@@ -1,13 +1,7 @@
-import {
-  db,
-  userGroups,
-  apiCreated,
-  apiError,
-  apiSuccess,
-} from '@api/server';
+import { db, userGroups, apiCreated, apiError, apiSuccess } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 
 export async function POST(request: Request) {
   const body = await request.json();

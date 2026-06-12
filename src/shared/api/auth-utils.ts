@@ -1,5 +1,5 @@
 import { auth } from './auth';
-import { hasPermission, canManageOwnGroupOnly, Permission } from '@entities/tenant';
+import { hasPermission, canManageOwnGroupOnly, Permission } from '@shared/lib';
 import { db, users, platformSuspensions } from './db';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';

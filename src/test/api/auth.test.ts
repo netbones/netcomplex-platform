@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
   mockGetSession: vi.fn(),
   mockBetterAuthGet: vi.fn(),
   mockBetterAuthPost: vi.fn(),
-  mockRateLimitByIP: vi.fn(() => null),
+  mockRateLimitByIP: vi.fn<(...args: unknown[]) => Response | null>(() => null),
 }));
 
 // Mock Better Auth
@@ -31,7 +31,7 @@ vi.mock('better-auth/next-js', () => ({
 
 // Mock rate limit — by default don't rate limit
 vi.mock('@api/server', () => ({
-  rateLimitByIP: (...args: unknown[]) => mocks.mockRateLimitByIP(...args),
+  rateLimitByIP: (...args: unknown[]) => mocks.mockRateLimitByIP(...args) as Response | null,
 }));
 
 // Mock next/headers

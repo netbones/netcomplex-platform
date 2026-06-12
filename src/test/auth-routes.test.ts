@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import type { NextRequest } from 'next/server';
 
 // Mock @api/server (auth, db, email, templates)
 vi.mock('@api/server', () => ({
@@ -105,49 +106,49 @@ describe('POST /api/auth/signup', () => {
   });
 
   it('returns 400 when email is missing', async () => {
-    const { POST } = await import('@app/api/auth/signup/route');
+    const { POST } = await import('@/app/api/auth/signup/route');
     const request = new Request('http://localhost:3000/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: 'password123', name: 'Test' }),
     });
 
-    const response = await POST(request);
+    const response = await POST(request as unknown as NextRequest);
     expect(response.status).toBe(400);
     const data = await response.json();
     expect(data.error).toBe('Email, password, and name are required');
   });
 
   it('returns 400 when password is missing', async () => {
-    const { POST } = await import('@app/api/auth/signup/route');
+    const { POST } = await import('@/app/api/auth/signup/route');
     const request = new Request('http://localhost:3000/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: 'test@example.com', name: 'Test' }),
     });
 
-    const response = await POST(request);
+    const response = await POST(request as unknown as NextRequest);
     expect(response.status).toBe(400);
     const data = await response.json();
     expect(data.error).toBe('Email, password, and name are required');
   });
 
   it('returns 400 when name is missing', async () => {
-    const { POST } = await import('@app/api/auth/signup/route');
+    const { POST } = await import('@/app/api/auth/signup/route');
     const request = new Request('http://localhost:3000/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: 'test@example.com', password: 'password123' }),
     });
 
-    const response = await POST(request);
+    const response = await POST(request as unknown as NextRequest);
     expect(response.status).toBe(400);
     const data = await response.json();
     expect(data.error).toBe('Email, password, and name are required');
   });
 
   it('returns 400 when password is too short', async () => {
-    const { POST } = await import('@app/api/auth/signup/route');
+    const { POST } = await import('@/app/api/auth/signup/route');
     // Don't include turnstileToken to skip verification
     const request = new Request('http://localhost:3000/api/auth/signup', {
       method: 'POST',
@@ -159,7 +160,7 @@ describe('POST /api/auth/signup', () => {
       }),
     });
 
-    const response = await POST(request);
+    const response = await POST(request as unknown as NextRequest);
     const data = await response.json();
     expect([400, 403, 500]).toContain(response.status);
     if (response.status === 400) {

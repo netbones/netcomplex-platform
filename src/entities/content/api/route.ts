@@ -29,7 +29,7 @@ export async function createContent(data: {
   content: Record<string, string>;
   excerpt: Record<string, string> | null;
   category: 'ANNOUNCEMENT' | 'NEWS' | 'EVENT' | 'BLOG' | 'CONSERVATION' | 'SERVICES' | 'CAMPAIGN';
-  authorId: string;
+  authorId: string | null;
   groupId?: string | null;
   featured?: boolean;
   published?: boolean;

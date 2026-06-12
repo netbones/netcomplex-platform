@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@shared/ui';
-import { useApiToast } from '@shared/lib';
+import { useApiToast } from '@/shared/lib/hooks/useApiToast';
 
 interface DashboardStats {
   requests: number;

@@ -9,14 +9,15 @@ import {
   apiUnauthorized,
 } from '@api/server';
 
-import { hasPermission } from '@entities/tenant';
-import { requireAssistScope } from '@entities/tenant';
+import { hasPermission } from '@shared/lib';
+import { requireAssistScope } from '@/entities/tenant/api/assist-scope-guard';
 
 import { eq } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 import { defaultLanguage } from '@shared/lib';
-import * as contentService from '@entities/content';
+import { listContent, createContent } from '../../../entities/content/api/route';
+import { resolveLocale, transformContentForLocale } from '../../../entities/content/services';
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -69,7 +70,7 @@ export async function GET(request: Request) {
   const locale = searchParams.get('locale') || defaultLanguage;
 
   // Delegate to entity service for query building, execution, and localization
-  const contentItems = await contentService.listContent({
+  const contentItems = await listContent({
     tenantId,
     category,
     published,
@@ -80,9 +81,9 @@ export async function GET(request: Request) {
   });
 
   // Transform to localized content using entity service
-  const userLocale = contentService.resolveLocale(locale);
+  const userLocale = resolveLocale(locale);
   const localizedContent = contentItems.map(item =>
-    contentService.transformContentForLocale(item as unknown as Record<string, unknown>, userLocale)
+    transformContentForLocale(item as unknown as Record<string, unknown>, userLocale)
   );
 
   return apiSuccess(localizedContent);
@@ -122,8 +123,7 @@ export async function POST(request: Request) {
   const { tenantId } = await withTenant();
 
   // Delegate to entity service for creation
-  const content = await contentService.createContent({
-    id: crypto.randomUUID(),
+  const content = await createContent({
     tenantId,
     title: body.title || { [defaultLanguage]: 'Untitled' },
     content: body.content || { [defaultLanguage]: '' },
@@ -133,8 +133,8 @@ export async function POST(request: Request) {
     groupId: body.groupId || null,
     featured: body.featured || false,
     published: body.published || false,
-    publishedAt: body.publishedAt ? new Date(body.publishedAt) : null,
-    expiresAt: body.expiresAt ? new Date(body.expiresAt) : null,
+    publishedAt: body.publishedAt || null,
+    expiresAt: body.expiresAt || null,
     tags: body.tags || [],
     priority: body.priority || 'normal',
     defaultLocale: body.defaultLocale || defaultLanguage,

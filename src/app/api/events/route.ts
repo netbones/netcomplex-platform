@@ -13,9 +13,9 @@ import {
 
 import { eq, inArray, and, sql } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant';
-import { hasPermission } from '@entities/tenant';
-import * as eventsService from '@entities/events';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { hasPermission } from '@shared/lib';
+import { listEvents, createEvent, validateEventFields } from '../../../entities/events/services';
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -121,7 +121,7 @@ export async function GET(request: Request) {
   const upcoming = upcomingParam === 'true';
 
   // Delegate to entity service
-  const eventItems = await eventsService.listEvents({ tenantId, limit, upcoming });
+  const eventItems = await listEvents({ tenantId, limit, upcoming });
 
   const enriched = await enrichWithAttendees(
     eventItems as Array<Record<string, unknown>>,
@@ -149,7 +149,7 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   // Validate required fields using service
-  const validation = eventsService.validateEventFields(body);
+  const validation = validateEventFields(body);
   if (!validation.valid) {
     return apiSuccess(
       {
@@ -164,7 +164,7 @@ export async function POST(request: Request) {
   const { tenantId } = await withTenant();
 
   // Delegate to entity service for creation
-  const event = await eventsService.createEvent({
+  const event = await createEvent({
     id: crypto.randomUUID(),
     tenantId,
     title: body.title,

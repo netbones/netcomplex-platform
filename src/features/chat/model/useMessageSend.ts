@@ -3,6 +3,9 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Message, MessageType } from '@entities/chat';
 import { apiPost } from '@api/shared';
+import { createComponentLogger } from '@shared/lib';
+
+const log = createComponentLogger('useMessageSend');
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || '',

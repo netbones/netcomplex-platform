@@ -21,10 +21,11 @@
     "paths": {
       "@/*": ["./src/*"],
       "@shared/*": ["./src/shared/*"],
-"@api/server": ["./src/shared/api/server"],
-    "@api/client": ["./src/shared/api/client"],
-    "@api/shared": ["./src/shared/api/shared"],
+      "@api/server": ["./src/shared/api/server"],
+      "@api/client": ["./src/shared/api/client"],
+      "@api/shared": ["./src/shared/api/shared"],
       "@entities/*": ["./src/entities/*"],
+      "@entities/tenant-module-enabled": ["./src/entities/tenant/lib/modules"],
       "@features/*": ["./src/features/*"],
       "@widgets/*": ["./src/widgets/*"],
       "@pages/*": ["./src/page-modules/*"],
@@ -41,5 +42,5 @@
     ".next/dev/types/**/*.ts",
     "src/db/schema/**/*.ts"
   ],
-  "exclude": ["node_modules", "src/**/*.html", "migrate-*.ts"]
+  "exclude": ["node_modules", "src/**/*.html", "migrate-*.ts", "docs", "scripts"]
 }

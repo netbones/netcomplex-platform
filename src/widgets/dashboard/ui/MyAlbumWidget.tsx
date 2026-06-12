@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
-import { useApiToast } from '@shared/lib';
+import { useApiToast } from '@/shared/lib/hooks/useApiToast';
 
 interface AlbumItem {
   id: string;

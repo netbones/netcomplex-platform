@@ -13,14 +13,14 @@ import {
   assertModuleEnabled,
 } from '@api/server';
 
-import { hasPermission } from '@entities/tenant';
+import { hasPermission } from '@shared/lib';
 import { bookingSchema, toBookingDTO } from '@api/shared';
 
 import { apiLogger } from '@shared/lib';
 
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import * as bookingService from '@entities/booking';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { listBookings, validateFacility, createBooking } from '../../../entities/booking/services';
 
 // Limit execution time to 8 seconds for booking operations
 export const maxDuration = 8;
@@ -82,7 +82,7 @@ export async function GET(request: Request) {
   const { tenantId } = await withTenant();
 
   // Delegate to entity service for query building and execution
-  const bookingResults = await bookingService.listBookings({
+  const bookingResults = await listBookings({
     tenantId,
     userId: authData.userId,
     canViewAll,
@@ -148,7 +148,7 @@ export async function POST(request: Request) {
     const { tenantId } = await withTenant();
 
     // Validate facility against tenant's configured facilities using service
-    const validation = await bookingService.validateFacility(facility, tenantId);
+    const validation = await validateFacility(facility, tenantId);
     if (!validation.valid) {
       return apiSuccess(
         { error: `Invalid facility. Valid options: ${validation.validOptions.join(', ')}` },
@@ -158,7 +158,7 @@ export async function POST(request: Request) {
     }
 
     // Delegate to service for booking creation
-    const [booking] = await bookingService.createBooking({
+    const [booking] = await createBooking({
       tenantId,
       userId,
       facility,

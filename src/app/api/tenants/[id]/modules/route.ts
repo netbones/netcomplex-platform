@@ -5,27 +5,18 @@
  */
 
 import {
-
   db,
-
   tenantModules,
-
   platformModules,
-
   tenants,
-
   apiError,
-
   apiSuccess,
-
   apiInternalError,
-
   apiNotFound,
-
 } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
-import type { TenantTier } from '@entities/tenant';
+import type { TenantTier } from '@shared/lib';
 import { apiLogger } from '@shared/lib';
 
 const TIER_ORDER: Record<TenantTier, number> = {

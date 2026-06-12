@@ -11,7 +11,7 @@ import {
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 
 /**
  * GET /api/events/[id]/register - List attendees for an event

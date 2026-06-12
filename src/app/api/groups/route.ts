@@ -11,10 +11,10 @@ import {
   apiUnauthorized,
 } from '@api/server';
 
-import { hasPermission, Permission } from '@entities/tenant';
+import { hasPermission, Permission } from '@shared/lib';
 
 import { eq, and, asc, sql } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 
 export const maxDuration = 8;
 

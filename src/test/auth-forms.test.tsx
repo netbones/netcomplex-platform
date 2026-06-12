@@ -44,7 +44,7 @@ describe('SignInPage component', () => {
   });
 
   it('renders sign in form', async () => {
-    const { default: SignInPage } = await import('@app/(auth)/sign-in/page');
+    const { default: SignInPage } = await import('@/app/(auth)/sign-in/page');
 
     render(<SignInPage />);
 
@@ -57,7 +57,7 @@ describe('SignInPage component', () => {
   });
 
   it('shows forgot password link', async () => {
-    const { default: SignInPage } = await import('@app/(auth)/sign-in/page');
+    const { default: SignInPage } = await import('@/app/(auth)/sign-in/page');
 
     render(<SignInPage />);
 
@@ -65,7 +65,7 @@ describe('SignInPage component', () => {
   });
 
   it('shows sign up link', async () => {
-    const { default: SignInPage } = await import('@app/(auth)/sign-in/page');
+    const { default: SignInPage } = await import('@/app/(auth)/sign-in/page');
 
     render(<SignInPage />);
 
@@ -78,7 +78,7 @@ describe('SignInPage component', () => {
       error: null,
     });
 
-    const { default: SignInPage } = await import('@app/(auth)/sign-in/page');
+    const { default: SignInPage } = await import('@/app/(auth)/sign-in/page');
 
     render(<SignInPage />);
 
@@ -107,7 +107,7 @@ describe('SignInPage component', () => {
       error: { message: 'Invalid credentials', code: 'INVALID_EMAIL_OR_PASSWORD', status: 401 },
     });
 
-    const { default: SignInPage } = await import('@app/(auth)/sign-in/page');
+    const { default: SignInPage } = await import('@/app/(auth)/sign-in/page');
 
     render(<SignInPage />);
 
@@ -138,7 +138,7 @@ describe('ForgotPasswordPage component', () => {
   });
 
   it('renders forgot password form', async () => {
-    const { default: ForgotPasswordPage } = await import('@app/(auth)/forgot-password/page');
+    const { default: ForgotPasswordPage } = await import('@/app/(auth)/forgot-password/page');
 
     render(<ForgotPasswordPage />);
 
@@ -153,7 +153,7 @@ describe('ForgotPasswordPage component', () => {
       json: async () => ({}),
     });
 
-    const { default: ForgotPasswordPage } = await import('@app/(auth)/forgot-password/page');
+    const { default: ForgotPasswordPage } = await import('@/app/(auth)/forgot-password/page');
 
     render(<ForgotPasswordPage />);
 
@@ -176,7 +176,7 @@ describe('ForgotPasswordPage component', () => {
       json: async () => ({ message: 'User not found' }),
     });
 
-    const { default: ForgotPasswordPage } = await import('@app/(auth)/forgot-password/page');
+    const { default: ForgotPasswordPage } = await import('@/app/(auth)/forgot-password/page');
 
     render(<ForgotPasswordPage />);
 
@@ -205,7 +205,7 @@ describe('ResetPasswordPage component', () => {
   });
 
   it('renders reset password form', async () => {
-    const { default: ResetPasswordPage } = await import('@app/(auth)/reset-password/page');
+    const { default: ResetPasswordPage } = await import('@/app/(auth)/reset-password/page');
 
     render(<ResetPasswordPage />);
 
@@ -216,7 +216,7 @@ describe('ResetPasswordPage component', () => {
   });
 
   it('shows error when passwords do not match', async () => {
-    const { default: ResetPasswordPage } = await import('@app/(auth)/reset-password/page');
+    const { default: ResetPasswordPage } = await import('@/app/(auth)/reset-password/page');
 
     render(<ResetPasswordPage />);
 
@@ -234,7 +234,7 @@ describe('ResetPasswordPage component', () => {
   });
 
   it('shows error when password is too short', async () => {
-    const { default: ResetPasswordPage } = await import('@app/(auth)/reset-password/page');
+    const { default: ResetPasswordPage } = await import('@/app/(auth)/reset-password/page');
 
     render(<ResetPasswordPage />);
 
@@ -252,7 +252,7 @@ describe('ResetPasswordPage component', () => {
   });
 
   it('shows error when reset link is invalid (no token)', async () => {
-    const { default: ResetPasswordPage } = await import('@app/(auth)/reset-password/page');
+    const { default: ResetPasswordPage } = await import('@/app/(auth)/reset-password/page');
 
     render(<ResetPasswordPage />);
 
@@ -275,7 +275,7 @@ describe('ResetPasswordPage component', () => {
       json: async () => ({ message: 'Password reset successful' }),
     });
 
-    const { default: ResetPasswordPage } = await import('@app/(auth)/reset-password/page');
+    const { default: ResetPasswordPage } = await import('@/app/(auth)/reset-password/page');
 
     render(<ResetPasswordPage />);
 

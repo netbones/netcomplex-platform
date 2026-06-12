@@ -1,12 +1,7 @@
-import {
-  db,
-  resources,
-  apiSuccess,
-  apiNotFound,
-} from '@api/server';
+import { db, resources, apiSuccess, apiNotFound } from '@api/server';
 
 import { and, eq, sql } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

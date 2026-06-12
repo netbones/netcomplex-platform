@@ -294,7 +294,9 @@ describe('Invitations API', () => {
 
       await POST(request);
 
-      const valuesArg = insertMock.values.mock.calls[0][0];
+      const valuesArg = (insertMock.values as ReturnType<typeof vi.fn>).mock.calls[0][0] as {
+        expiresAt: Date;
+      };
       expect(valuesArg.expiresAt).toBeInstanceOf(Date);
       // Should be ~7 days in the future
       const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;

@@ -18,9 +18,9 @@ import {
   defaultLanguage,
 } from '@shared/lib';
 
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 
-import { hasPermission } from '@entities/tenant';
+import { hasPermission } from '@shared/lib';
 
 /**
  * Transform content item to include localized fields

@@ -1,13 +1,8 @@
-import {
-  db,
-  bookings,
-  settings,
-  users,
-} from '@api/server';
+import { db, bookings, settings, users } from '@api/server';
 
 import { eq, asc, gte, and, sql } from 'drizzle-orm';
-import { DEFAULT_FACILITIES } from '@entities/booking';
-import type { TenantFacility } from '@entities/booking';
+import { DEFAULT_FACILITIES } from '../model';
+import type { TenantFacility } from '../model';
 import { apiLogger } from '@shared/lib';
 
 /**

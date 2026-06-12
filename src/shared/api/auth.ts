@@ -19,7 +19,7 @@ import { tenantConfig } from '@entities/tenant';
 import { sendEmail } from '@shared/api';
 import { templates } from '@shared/api';
 import { authLogger } from '@shared/lib';
-import { generateProfileSlug } from '@shared/api/slug';
+import { generateProfileSlug } from './slug';
 import { validator } from 'validation-better-auth';
 import {
   signUpEmailSchema,

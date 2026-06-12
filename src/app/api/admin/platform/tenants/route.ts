@@ -1,22 +1,15 @@
 import { NextRequest } from 'next/server';
-import { listTenants, createTenant } from '@entities/tenant';
-import { requirePlatformAdmin } from '@entities/tenant';
+import { listTenants, createTenant } from '@/entities/tenant/api/base';
+import { requirePlatformAdmin } from '@/entities/tenant/api/guards';
 import { logError } from '@shared/lib';
 
 import {
-
   apiCreated,
-
   apiError,
-
   apiSuccess,
-
   apiInternalError,
-
   writeAuditLog,
-
   auth,
-
 } from '@api/server';
 
 export async function GET(request: NextRequest) {

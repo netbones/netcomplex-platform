@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getTenantById, updateTenant } from '@entities/tenant';
+import { getTenantById, updateTenant } from '@/entities/tenant/api/base';
 import { TIERS, FEATURE_REGISTRY, WIDGET_REGISTRY } from '@entities/tenant';
 import type { TierLevel } from '@entities/tenant';
 import { FeaturesForm } from '@features/admin';
@@ -107,8 +107,7 @@ async function FeatureManager({ id }: { id: string }) {
               name="tier"
               defaultValue={tenantTier}
               className="border rounded-md px-3 py-2 text-sm"
-            >
-            </select>
+            ></select>
             <button
               type="submit"
               className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700"

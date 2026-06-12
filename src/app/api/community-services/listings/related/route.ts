@@ -14,7 +14,7 @@ import {
 
 import { eq, desc, and, or, sql } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
 export const maxDuration = 5;

@@ -23,9 +23,9 @@
 
 import type { FeatureKey, GateResult } from '@api/server';
 import { FEATURE_TO_FLAG, FEATURE_TO_REGISTRY } from '@api/server';
-import { type PlatformPageFlags } from '@entities/tenant';
+import type { PlatformPageFlags } from '@/entities/tenant/api/flags/platform-flags';
 import { canAccessPage, hasFeature, type TierLevel } from '@entities/tenant';
-import { ROLE_PERMISSIONS, type Role } from '@entities/tenant';
+import { ROLE_PERMISSIONS, type Role } from '@shared/lib';
 
 import { useSession } from '@api/client';
 import { usePageFlags } from './hooks/usePageFlags';

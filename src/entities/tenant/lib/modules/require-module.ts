@@ -12,7 +12,7 @@
  */
 
 import { eq, and, gte } from 'drizzle-orm';
-import type { TenantTier } from '@entities/tenant';
+import type { TenantTier } from '@shared/lib';
 
 // ============================================
 // TIER HELPERS

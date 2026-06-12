@@ -56,7 +56,7 @@ describe('useMessageSend hook', () => {
   });
 
   it('returns sendMessage function', async () => {
-    const { useMessageSend } = await import('@features/chat/useMessageSend');
+    const { useMessageSend } = await import('@/features/chat/model/useMessageSend');
 
     const { result } = renderHook(() =>
       useMessageSend({
@@ -71,7 +71,7 @@ describe('useMessageSend hook', () => {
   });
 
   it('returns sendTypingIndicator function', async () => {
-    const { useMessageSend } = await import('@features/chat/useMessageSend');
+    const { useMessageSend } = await import('@/features/chat/model/useMessageSend');
 
     const { result } = renderHook(() =>
       useMessageSend({
@@ -89,7 +89,7 @@ describe('useMessageSend hook', () => {
     const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'));
     global.fetch = mockFetch;
 
-    const { useMessageSend } = await import('@features/chat/useMessageSend');
+    const { useMessageSend } = await import('@/features/chat/model/useMessageSend');
 
     const { result } = renderHook(() =>
       useMessageSend({
@@ -110,7 +110,7 @@ describe('useMessageSend hook', () => {
     });
     global.fetch = mockFetch;
 
-    const { useMessageSend } = await import('@features/chat/useMessageSend');
+    const { useMessageSend } = await import('@/features/chat/model/useMessageSend');
 
     const { result } = renderHook(() =>
       useMessageSend({
@@ -139,7 +139,7 @@ describe('useMessageSend hook', () => {
 
     const onMessageSent = vi.fn();
 
-    const { useMessageSend } = await import('@features/chat/useMessageSend');
+    const { useMessageSend } = await import('@/features/chat/model/useMessageSend');
 
     const { result } = renderHook(() =>
       useMessageSend({

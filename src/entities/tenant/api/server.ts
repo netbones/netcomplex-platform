@@ -1,4 +1,4 @@
 export * from './base';
 export * from './with-tenant';
 export * from './settings';
-export * from './types';
+// types.ts removed - use @shared/lib directly;

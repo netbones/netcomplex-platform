@@ -17,9 +17,9 @@ import {
 } from '@api/server';
 
 import { eq, asc, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
-import { hasPermission } from '@entities/tenant';
+import { hasPermission } from '@shared/lib';
 
 /**
  * GET /api/households/[id] - Get household profile with occupants and aggregated content

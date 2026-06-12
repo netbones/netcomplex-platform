@@ -4,12 +4,8 @@ import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { authClient } from '@api/client';
-import { canPublishAnnouncements } from '@entities/tenant';
-import {
-  useAnnouncements,
-  AnnouncementForm,
-  AnnouncementList,
-} from '@features/announcements';
+import { canPublishAnnouncements } from '@shared/lib';
+import { useAnnouncements, AnnouncementForm, AnnouncementList } from '@features/announcements';
 import type { AnnouncementWithResource } from '@features/announcements';
 import type { AnnouncementFormData } from '@api/shared';
 import { toast } from 'sonner';

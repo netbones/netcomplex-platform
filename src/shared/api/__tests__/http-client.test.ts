@@ -63,10 +63,10 @@ describe('envelope unwrapping', () => {
           error: { code: 'AUTH_REQUIRED', message: 'Auth required' },
         }),
     });
-    const err = await apiGet('/api/test').catch(e => e);
+    const err = await apiGet('/api/test').catch((e: unknown) => e);
     expect(err).toBeInstanceOf(ApiClientError);
-    expect(err.statusCode).toBe(401);
-    expect(err.errorCode).toBe('AUTH_REQUIRED');
+    expect((err as ApiClientError).statusCode).toBe(401);
+    expect((err as ApiClientError).errorCode).toBe('AUTH_REQUIRED');
   });
 
   it('uses generic error when response body is not parseable', async () => {

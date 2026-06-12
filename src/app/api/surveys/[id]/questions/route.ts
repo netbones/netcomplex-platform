@@ -13,10 +13,10 @@ import {
   apiValidationError,
 } from '@api/server';
 
-import { hasPermission } from '@entities/tenant';
+import { hasPermission } from '@shared/lib';
 
 import { eq, and, asc, sql, inArray } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 
 const VALID_QUESTION_TYPES = [
   'SINGLE_CHOICE',

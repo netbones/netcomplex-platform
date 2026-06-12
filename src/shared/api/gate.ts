@@ -23,17 +23,13 @@
 import { eq } from 'drizzle-orm';
 
 import { isModuleEnabled } from '@entities/tenant-module-enabled';
-import type { TenantTier } from '@entities/tenant';
+import type { TenantTier } from '@shared/lib';
 import {
   getPlatformPageFlags,
   type PlatformPageFlags,
-} from '@entities/tenant';
-import {
-  canAccessPage,
-  hasFeature,
-  type TierLevel,
-} from '@entities/tenant';
-import { ROLE_PERMISSIONS, type Role } from '@entities/tenant';
+} from '@/entities/tenant/api/flags/platform-flags';
+import { canAccessPage, hasFeature, type TierLevel } from '@entities/tenant';
+import { ROLE_PERMISSIONS, type Role } from '@shared/lib';
 import { MODULES, type ModuleKey } from '@shared/lib';
 
 import { db, tenants } from './db';

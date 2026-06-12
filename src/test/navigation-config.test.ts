@@ -5,8 +5,8 @@ import {
   getWorkspaceItems,
   getAdminItems,
   getBurgerSections,
-} from '@shared/lib-config';
-import type { PlatformPageFlags } from '@entities/tenant';
+} from '@entities/tenant';
+import type { PlatformPageFlags } from '@/entities/tenant/api/flags/platform-flags';
 
 const defaultFlags: PlatformPageFlags = {
   campaign: true,

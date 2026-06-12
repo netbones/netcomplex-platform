@@ -1,4 +1,4 @@
-import { Permission } from '@/entities/tenant/api/permissions';
+import type { Permission } from '@/shared/lib';
 import { PlatformPageFlags } from '@/entities/tenant/api/flags/platform-flags';
 
 export interface NavItem {

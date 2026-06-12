@@ -138,12 +138,15 @@ describe('ErrorBoundary component', () => {
 
 describe('Tooltip component', () => {
   it('renders tooltip trigger', async () => {
-    const { Tooltip, TooltipProvider } = await import('@shared/ui');
+    const { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } = await import('@shared/ui');
 
     render(
       <TooltipProvider>
-        <Tooltip content="Tooltip text">
-          <button>Hover me</button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button>Hover me</button>
+          </TooltipTrigger>
+          <TooltipContent>Tooltip text</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     );

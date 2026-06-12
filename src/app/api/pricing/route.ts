@@ -1,5 +1,5 @@
 import { TIERS, type TierLevel } from '@entities/tenant';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 
 import { apiError, apiSuccess, apiInternalError } from '@api/server';

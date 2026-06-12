@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@api/client';
 import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
-import { sanitizeHtml } from '@shared/lib';
+import { sanitizeHtml } from '@/shared/lib/sanitize';
 import { usePageLoading } from '@shared/ui';
 
 interface HouseholdData {

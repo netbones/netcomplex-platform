@@ -13,7 +13,7 @@ import {
 } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 import { logError } from '@shared/lib';
 import { createLogger } from '@shared/lib';
 

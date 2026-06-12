@@ -14,10 +14,10 @@ import {
   apiNotFound,
 } from '@api/server';
 
-import { hasPermission } from '@entities/tenant';
+import { hasPermission } from '@shared/lib';
 import { eq, and } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
 
 // Valid status transitions for the 7-value lifecycle
 const VALID_STATUSES = [

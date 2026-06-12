@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 
-const MapContent = dynamic(() => import('@shared/ui'), { ssr: false });
+const MapContent = dynamic(() => import('@/shared/ui/MapContent'), { ssr: false });
 
 export function CommunityMap() {
   const [isMounted, setIsMounted] = useState(false);

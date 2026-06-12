@@ -13,8 +13,8 @@ import {
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import { hasPermission } from '@entities/tenant';
+import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { hasPermission } from '@shared/lib';
 
 export const maxDuration = 8;
 
@@ -139,11 +139,11 @@ export async function DELETE(request: Request) {
       .where(and(...conditions))
       .limit(1);
 
-    if (!seat) {
+    if (!seat.length) {
       return apiNotFound('soloSeat not found');
     }
 
-    await db.delete(soloSeats).where(eq(soloSeats.id, seat.id));
+    await db.delete(soloSeats).where(eq(soloSeats.id, seat[0].id));
     return apiSuccess({ success: true });
   }
 

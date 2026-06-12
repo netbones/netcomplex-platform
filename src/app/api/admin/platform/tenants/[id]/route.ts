@@ -1,22 +1,15 @@
 import { NextRequest } from 'next/server';
-import { getTenantById, updateTenant, deleteTenant } from '@entities/tenant';
-import { requirePlatformAdmin } from '@entities/tenant';
+import { getTenantById, updateTenant, deleteTenant } from '@/entities/tenant/api/base';
+import { requirePlatformAdmin } from '@/entities/tenant/api/guards';
 import { logError } from '@shared/lib';
 
 import {
-
   apiError,
-
   apiSuccess,
-
   apiInternalError,
-
   apiNotFound,
-
   writeAuditLog,
-
   auth,
-
 } from '@api/server';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

@@ -8,22 +8,20 @@
  * Conservation/Campaign mutual exclusion is encoded here, not in components.
  */
 
-import type { PlatformPageFlags } from '@entities/tenant';
-import { hasPermission } from '@entities/tenant';
-import type { Permission } from '@entities/tenant';
+import type { PlatformPageFlags } from '../api/flags/platform-flags';
+import { hasPermission } from '@shared/lib';
+import type { Permission } from '@shared/lib';
 
 export interface NavItem {
   href: string;
-  labelKey: string; // i18n key, e.g. 'nav.home'
-  adminLabelKey?: string; // for admin labels, e.g. 'admin.users'
-  icon?: string; // icon name for SideDrawer
-  flagKey?: keyof PlatformPageFlags; // which page flag gates this item
+  labelKey: string;
+  adminLabelKey?: string;
+  icon?: string;
+  flagKey?: keyof PlatformPageFlags;
   section: 'explore' | 'community' | 'workspace' | 'admin';
-  requiresAuth?: boolean; // true = only show when logged in
-  permissionKey?: keyof Permission; // for admin items
+  requiresAuth?: boolean;
+  permissionKey?: keyof Permission;
 }
-
-// ─── PUBLIC HEADER ITEMS (max 5 nav items + More dropdown) ────────────────
 
 const STATIC_HEADER_ITEMS: NavItem[] = [
   { href: '/', labelKey: 'nav.home', section: 'explore', icon: 'home' },
@@ -66,12 +64,7 @@ const CAMPAIGN_NAV_ITEM: NavItem = {
   icon: 'tags',
 };
 
-export const PUBLIC_HEADER_ITEMS: NavItem[] = [
-  ...STATIC_HEADER_ITEMS,
-  CONSERVATION_NAV_ITEM, // default; getHeaderItems dynamically selects
-];
-
-// ─── MORE DROPDOWN ITEMS (Community items) ─────────────────────────────────
+export const PUBLIC_HEADER_ITEMS: NavItem[] = [...STATIC_HEADER_ITEMS, CONSERVATION_NAV_ITEM];
 
 const MORE_DROPDOWN_ITEMS: NavItem[] = [
   { href: '/news', labelKey: 'nav.news', section: 'community', flagKey: 'news', icon: 'mail' },
@@ -82,7 +75,6 @@ const MORE_DROPDOWN_ITEMS: NavItem[] = [
     flagKey: 'groups',
     icon: 'users',
   },
-  // Conservation/Campaign slot is dynamic — populated by getMoreDropdownItems
   {
     href: '/surveys',
     labelKey: 'nav.surveys',
@@ -105,8 +97,6 @@ const MORE_DROPDOWN_ITEMS: NavItem[] = [
     icon: 'calendar',
   },
 ];
-
-// ─── WORKSPACE ITEMS ────────────────────────────────────────────────────────
 
 export const WORKSPACE_ITEMS: NavItem[] = [
   {
@@ -157,11 +147,7 @@ export const WORKSPACE_ITEMS: NavItem[] = [
   },
 ];
 
-// ─── COMMUNITY ITEMS (alias for More dropdown — same items, used by burger) ─
-
 export const COMMUNITY_ITEMS = MORE_DROPDOWN_ITEMS;
-
-// ─── ADMIN ITEMS ────────────────────────────────────────────────────────────
 
 export const ADMIN_ITEMS: NavItem[] = [
   {
@@ -230,8 +216,6 @@ export const ADMIN_ITEMS: NavItem[] = [
   },
 ];
 
-// ─── BURGER MENU SECTIONS ───────────────────────────────────────────────────
-
 export interface BurgerSections {
   explore: NavItem[];
   community: NavItem[];
@@ -239,49 +223,32 @@ export interface BurgerSections {
   admin: NavItem[];
 }
 
-// ─── FILTERING FUNCTIONS ────────────────────────────────────────────────────
-
-/**
- * Check if a nav item is visible given the current page flags.
- * - If the item has no flagKey, it's always visible (e.g. Home).
- * - Conservation uses a special check: 'external' mode hides the local page.
- * - Boolean flags: false means hidden.
- */
 function isItemVisible(item: NavItem, flags?: PlatformPageFlags | null): boolean {
-  if (!item.flagKey) return true; // e.g. Home
+  if (!item.flagKey) return true;
   if (!flags) return false;
 
   const flagValue = flags[item.flagKey];
 
-  // Conservation uses a tri-state: 'default' | 'managed' | 'external'
   if (item.flagKey === 'conservation') {
     return flagValue !== 'external';
   }
 
-  // Campaign is a boolean flag
   if (item.flagKey === 'campaign') {
     return flagValue !== false;
   }
 
-  // All other flags are boolean
   return flagValue !== false;
 }
 
-/**
- * Returns the 4-5 header items (Home + 3 static + dynamic Conservation/Campaign).
- * Max 5 items — the 6th is the "More" dropdown trigger (rendered by Header, not a NavItem).
- */
 export function getHeaderItems(flags?: PlatformPageFlags | null): NavItem[] {
   const items: NavItem[] = [];
 
-  // Static items: Home, Directory, Services, Resources
   for (const item of STATIC_HEADER_ITEMS) {
     if (isItemVisible(item, flags)) {
       items.push(item);
     }
   }
 
-  // Dynamic 5th item: Conservation or Campaign based on headerEngagementFocus
   const focus = flags?.headerEngagementFocus ?? 'conservation';
 
   if (focus === 'conservation') {
@@ -294,32 +261,23 @@ export function getHeaderItems(flags?: PlatformPageFlags | null): NavItem[] {
     }
   }
 
-  // Enforce max 5 items (should naturally be 5 or fewer)
   return items.slice(0, 5);
 }
 
-/**
- * Returns community items for the More dropdown, including whichever
- * of Conservation/Campaign is NOT in the header.
- */
 export function getMoreDropdownItems(flags?: PlatformPageFlags | null): NavItem[] {
   const focus = flags?.headerEngagementFocus ?? 'conservation';
   const items: NavItem[] = [];
 
-  // Add the dynamic engagement item (the one NOT in header)
   if (focus === 'conservation') {
-    // Campaign goes to More dropdown
     if (isItemVisible(CAMPAIGN_NAV_ITEM, flags)) {
       items.push(CAMPAIGN_NAV_ITEM);
     }
   } else {
-    // Conservation goes to More dropdown
     if (isItemVisible(CONSERVATION_NAV_ITEM, flags)) {
       items.push(CONSERVATION_NAV_ITEM);
     }
   }
 
-  // Add static community items
   for (const item of MORE_DROPDOWN_ITEMS) {
     if (isItemVisible(item, flags)) {
       items.push(item);
@@ -329,10 +287,6 @@ export function getMoreDropdownItems(flags?: PlatformPageFlags | null): NavItem[
   return items;
 }
 
-/**
- * Returns workspace items filtered by flags and auth status.
- * Unauthenticated users see nothing.
- */
 export function getWorkspaceItems(
   flags?: PlatformPageFlags | null,
   isAuthenticated?: boolean
@@ -342,9 +296,6 @@ export function getWorkspaceItems(
   return WORKSPACE_ITEMS.filter(item => isItemVisible(item, flags));
 }
 
-/**
- * Returns admin items filtered by role permissions.
- */
 export function getAdminItems(role: string | null | undefined): NavItem[] {
   if (!role) return [];
 
@@ -354,10 +305,6 @@ export function getAdminItems(role: string | null | undefined): NavItem[] {
   });
 }
 
-/**
- * Returns the 4-section burger structure per NAVIGATION_GOVERNANCE.md.
- * Explore + Community are always shown; Workspace requires auth; Admin requires role.
- */
 export function getBurgerSections(
   flags?: PlatformPageFlags | null,
   isAuthenticated?: boolean,

@@ -1,7 +1,13 @@
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingRoot: resolve(__dirname),
   reactStrictMode: true,
-  instrumentationHook: true,
 
   // Pino uses worker threads for transports (pino-pretty).
   // Bundling it causes "Cannot find module lib/worker.js" at runtime.
