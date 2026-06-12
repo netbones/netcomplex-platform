@@ -14,7 +14,8 @@ import {
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
-import { bookingSchema, toBookingDTO } from '@api/shared';
+import { bookingSchema } from '@entities/booking';
+import { toBookingDTO } from '@api/shared';
 
 import { apiLogger } from '@shared/lib';
 

@@ -11,7 +11,8 @@ import {
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
-import { maintenanceRequestSchema, toMaintenanceRequestDTO } from '@api/shared';
+import { maintenanceRequestSchema } from '@entities/maintenance';
+import { toMaintenanceRequestDTO } from '@api/shared';
 
 import { apiLogger } from '@shared/lib';
 

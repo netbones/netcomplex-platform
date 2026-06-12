@@ -23,7 +23,7 @@ import { hasPermission } from '@shared/lib';
 import { canPublishAnnouncements } from '@shared/lib';
 import { validatePriorityForRole } from '@features/announcements';
 import type { AnnouncementPriority } from '@features/announcements';
-import { announcementSchema } from '@api/shared';
+import { announcementSchema } from '@entities/content';
 
 /** Maximum number of notification records to create in a single fanout */
 const FANOUT_CAP = 500;

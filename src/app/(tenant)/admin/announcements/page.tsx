@@ -7,7 +7,7 @@ import { authClient } from '@api/client';
 import { canPublishAnnouncements } from '@shared/lib';
 import { useAnnouncements, AnnouncementForm, AnnouncementList } from '@features/announcements';
 import type { AnnouncementWithResource } from '@features/announcements';
-import type { AnnouncementFormData } from '@api/shared';
+import type { AnnouncementFormData } from '@entities/content';
 import { toast } from 'sonner';
 export default function AnnouncementsAdminPage() {
   const router = useRouter();

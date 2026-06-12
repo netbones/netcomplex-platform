@@ -1,11 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import {
-  contentSchema,
-  groupSchema,
-  maintenanceRequestSchema,
-  bookingSchema,
-  userProfileSchema,
-} from '@api/shared';
+import { contentSchema, groupSchema } from '@entities/content';
+import { maintenanceRequestSchema } from '@entities/maintenance';
+import { bookingSchema } from '@entities/booking';
+import { userProfileSchema } from '@shared/lib';
 
 describe('schemas', () => {
   describe('contentSchema', () => {

@@ -14,7 +14,7 @@ import {
   defaultLanguage,
   type SupportedLanguage,
 } from '@/shared/lib/i18n';
-import { contentSchema, type ContentFormData } from '@api/shared';
+import { contentSchema, type ContentFormData } from '@entities/content';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('ContentForm');

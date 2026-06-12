@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import { messageSchema, conversationSchema } from '@api/shared';
+import { messageSchema, conversationSchema } from '@entities/chat';
 
 // Mock Supabase
 vi.mock('@supabase/supabase-js', () => ({

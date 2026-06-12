@@ -17,7 +17,7 @@ import {
 } from '@api/server';
 
 import { createClient } from '@supabase/supabase-js';
-import { messageSchema } from '@api/shared';
+import { messageSchema } from '@entities/chat';
 
 import { apiLogger } from '@shared/lib';
 

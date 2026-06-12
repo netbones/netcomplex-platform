@@ -37,6 +37,7 @@ export * from './constants/tiers';
 //   import { supportedLanguages, ... } from '@shared/lib/i18n'
 // NOTE: useContactSettings and useApiToast are client-only hooks.
 export { useSafeTranslation } from './hooks/useSafeTranslation';
+export { userProfileSchema, type UserProfileFormData } from './schemas/user-profile';
 // NOTE: Do NOT export sanitizeHtml here.
 // Client: import { sanitizeHtml } from '@shared/lib/sanitize'
 // Server: import { sanitizeHtml } from '@shared/lib/sanitization'
