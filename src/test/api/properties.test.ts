@@ -1,4 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { NextRequest } from 'next/server';
+
+const req = (url: string, init?: RequestInit): NextRequest =>
+  new Request(url, init) as unknown as NextRequest;
 
 // Mock server-only
 vi.mock('server-only', () => ({}));
@@ -209,7 +213,7 @@ import { GET as householdByIdGet } from '@/app/api/households/[id]/route';
 import { makeSelectChain, makeInsertChain } from './helpers';
 
 function createRequest(method = 'GET', url: string) {
-  return new Request(url, { method });
+  return req(url, { method });
 }
 
 describe('Properties API', () => {
