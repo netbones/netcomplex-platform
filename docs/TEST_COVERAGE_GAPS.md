@@ -1,16 +1,16 @@
 # Test Coverage Gaps
 
-> Generated 2026-06-13. Updated after FSD gate migration (commits `7908bb4`..`dc9d395`).
+> Generated 2026-06-13. Updated after FSD gate migration and P0 test expansion.
 
 ## Current State
 
-| Metric             | Before Fix | After Fix |
-| ------------------ | ---------- | --------- |
-| Test files passing | 15         | **30**    |
-| Test files failing | 15         | **0**     |
-| Total tests        | 301        | **388**   |
-| Tests passing      | 208        | **388**   |
-| Tests failing      | 93         | **0**     |
+| Metric             | Original | After Mock Fix | After P0 Tests |
+| ------------------ | -------- | -------------- | -------------- |
+| Test files passing | 15       | 30             | **33**         |
+| Test files failing | 15       | 0              | **0**          |
+| Total tests        | 301      | 388            | **595**        |
+| Tests passing      | 208      | 388            | **595**        |
+| Tests failing      | 93       | 0              | **0**          |
 
 ## Root Cause of Prior Failures
 
@@ -72,21 +72,25 @@ Other contributing issues fixed in this pass:
 
 ## Coverage Gaps by Layer
 
-### API Routes (`src/app/api/`) — 0% covered
+### API Routes (`src/app/api/`) — 31% covered (49/157)
 
-157 route files. Only 5 endpoints have indirect tests (auth, bookings, events, invitations, maintenance). Gaps include:
+49 endpoints now have handler-level tests across 7 test files. New P0 test suites:
 
-| Route                        | Risk   | Notes                                                          |
-| ---------------------------- | ------ | -------------------------------------------------------------- |
-| `/api/community-services/**` | High   | Marketplace listings, reviews, inquiries — core tenant feature |
-| `/api/surveys/**`            | High   | Surveys and responses — tenant engagement                      |
-| `/api/directory/**`          | Medium | Resident directory — used daily                                |
-| `/api/groups/**`             | Medium | Community groups                                               |
-| `/api/properties/**`         | Medium | Property management                                            |
-| `/api/conversations/**`      | Medium | Chat/messages — realtime dependent                             |
-| `/api/announcements/**`      | Medium | Community announcements                                        |
-| `/api/admin/**`              | High   | Tenant admin operations                                        |
-| `/api/platform/**`           | High   | Platform-level admin                                           |
+| Test File                                 | Tests | Endpoints | Added |
+| ----------------------------------------- | ----- | --------- | ----- |
+| `src/test/api/surveys.test.ts`            | 84    | 18        | P0    |
+| `src/test/api/community-services.test.ts` | 71    | 18        | P0    |
+| `src/test/api/admin.test.ts`              | 52    | 13        | P0    |
+
+Remaining gaps:
+
+| Route                   | Risk   | Notes                              |
+| ----------------------- | ------ | ---------------------------------- |
+| `/api/directory/**`     | Medium | Resident directory — used daily    |
+| `/api/groups/**`        | Medium | Community groups                   |
+| `/api/properties/**`    | Medium | Property management                |
+| `/api/conversations/**` | Medium | Chat/messages — realtime dependent |
+| `/api/announcements/**` | Medium | Community announcements            |
 
 ### Pages (`src/app/**/page.tsx`) — 0% covered
 
@@ -146,11 +150,11 @@ Other contributing issues fixed in this pass:
 
 ## Priority Recommendations
 
-### P0 — Critical (affects launch readiness)
+### P0 — Critical (affects launch readiness) — DONE 2026-06-13
 
-1. **Survey API tests** — core tenant engagement, complex routing (nested resources)
-2. **Community services API tests** — marketplace transactions
-3. **Admin platform API tests** — already partially covered by `platform-admin.test.ts` but missing individual admin operations
+1. **Survey API tests** — 84 tests, 18 endpoints ✅
+2. **Community services API tests** — 71 tests, 18 endpoints ✅
+3. **Admin platform API tests** — 52 tests, 13 endpoints ✅ (complements `platform-admin.test.ts`)
 
 ### P1 — High (affects user experience)
 
