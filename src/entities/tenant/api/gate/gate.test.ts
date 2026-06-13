@@ -401,7 +401,8 @@ describe('resolveGateContext()', () => {
           limit: vi.fn().mockResolvedValue([{ id: 'tenant-1', tier: 'PREMIUM' }]),
         }),
       }),
-    } as unknown as typeof db.select);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
 
     vi.mocked(getSessionAndRole).mockResolvedValue({
       session: { user: { id: 'user-1', email: 'admin@example.com', name: 'Admin' } },
@@ -426,7 +427,8 @@ describe('resolveGateContext()', () => {
           limit: vi.fn().mockResolvedValue([{ id: 'tenant-1', tier: 'STANDARD' }]),
         }),
       }),
-    } as unknown as typeof db.select);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
 
     vi.mocked(getSessionAndRole).mockResolvedValue(null);
 
@@ -444,7 +446,8 @@ describe('resolveGateContext()', () => {
           limit: vi.fn().mockResolvedValue([]),
         }),
       }),
-    } as unknown as typeof db.select);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
 
     vi.mocked(getSessionAndRole).mockResolvedValue({
       session: { user: { id: 'user-1', email: 'r@example.com', name: 'R' } },
