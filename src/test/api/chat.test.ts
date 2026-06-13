@@ -1,4 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { NextRequest } from 'next/server';
+
+const req = (url: string, init?: RequestInit): NextRequest =>
+  new Request(url, init) as unknown as NextRequest;
 
 vi.mock('server-only', () => ({}));
 
@@ -64,7 +68,7 @@ const mocks = vi.hoisted(() => ({
   apiError: vi.fn((code: string, message: string, status = 400) =>
     Response.json({ success: false, error: { code, message } }, { status })
   ),
-  rateLimitByUser: vi.fn(() => null),
+  rateLimitByUser: vi.fn(() => null as Response | null),
   revalidateConversations: vi.fn(),
 }));
 
@@ -190,7 +194,7 @@ describe('Chat/Conversations API', () => {
   // ---------------------------------------------------------------
   describe('GET /api/conversations', () => {
     it('returns 401 without auth', async () => {
-      const request = new Request('http://localhost:3000/api/conversations');
+      const request = req('http://localhost:3000/api/conversations');
       const response = await GETConversations(request);
       expect(response.status).toBe(401);
     });
@@ -200,7 +204,7 @@ describe('Chat/Conversations API', () => {
       const chain = makeSelectChain([]);
       mocks.dbMock.select.mockReturnValue(chain);
 
-      const request = new Request('http://localhost:3000/api/conversations');
+      const request = req('http://localhost:3000/api/conversations');
       const response = await GETConversations(request);
 
       expect(response.status).toBe(200);
@@ -242,7 +246,7 @@ describe('Chat/Conversations API', () => {
         .mockReturnValueOnce(makeSelectChain([participant]))
         .mockReturnValueOnce(makeSelectChain([latestMsg]));
 
-      const request = new Request('http://localhost:3000/api/conversations');
+      const request = req('http://localhost:3000/api/conversations');
       const response = await GETConversations(request);
 
       expect(response.status).toBe(200);
@@ -258,7 +262,7 @@ describe('Chat/Conversations API', () => {
   // ---------------------------------------------------------------
   describe('POST /api/conversations', () => {
     it('returns 401 without auth', async () => {
-      const request = new Request('http://localhost:3000/api/conversations', {
+      const request = req('http://localhost:3000/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: 'Test Group', type: 'GROUP', participantIds: ['user-2'] }),
@@ -291,7 +295,7 @@ describe('Chat/Conversations API', () => {
         .mockReturnValueOnce(makeSelectChain([createdConv]))
         .mockReturnValueOnce(makeSelectChain([participant]));
 
-      const request = new Request('http://localhost:3000/api/conversations', {
+      const request = req('http://localhost:3000/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'DIRECT', participantIds: ['user-2'] }),
@@ -326,7 +330,7 @@ describe('Chat/Conversations API', () => {
         .mockReturnValueOnce(makeSelectChain([createdConv]))
         .mockReturnValueOnce(makeSelectChain([participant]));
 
-      const request = new Request('http://localhost:3000/api/conversations', {
+      const request = req('http://localhost:3000/api/conversations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -346,7 +350,7 @@ describe('Chat/Conversations API', () => {
   // ---------------------------------------------------------------
   describe('POST /api/conversations/find', () => {
     it('returns 400 when fewer than 2 participantIds provided', async () => {
-      const request = new Request('http://localhost:3000/api/conversations/find', {
+      const request = req('http://localhost:3000/api/conversations/find', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ participantIds: ['user-1'] }),
@@ -367,7 +371,7 @@ describe('Chat/Conversations API', () => {
       };
       mocks.dbMock.execute.mockResolvedValue({ rows: [existing] });
 
-      const request = new Request('http://localhost:3000/api/conversations/find', {
+      const request = req('http://localhost:3000/api/conversations/find', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ participantIds: ['user-1', 'user-2'] }),
@@ -398,7 +402,7 @@ describe('Chat/Conversations API', () => {
         .mockResolvedValueOnce({ rows: [] })
         .mockResolvedValueOnce({ rows: [finalConv] });
 
-      const request = new Request('http://localhost:3000/api/conversations/find', {
+      const request = req('http://localhost:3000/api/conversations/find', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ participantIds: ['user-1', 'user-2'] }),
@@ -424,7 +428,7 @@ describe('Chat/Conversations API', () => {
       };
       mocks.dbMock.execute.mockResolvedValue({ rows: [existing] });
 
-      const request = new Request('http://localhost:3000/api/conversations/find', {
+      const request = req('http://localhost:3000/api/conversations/find', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ participantIds: ['user-1', 'user-2'] }),
@@ -441,7 +445,7 @@ describe('Chat/Conversations API', () => {
   // ---------------------------------------------------------------
   describe('GET /api/messages', () => {
     it('returns 401 without auth', async () => {
-      const request = new Request('http://localhost:3000/api/messages?conversationId=conv-1');
+      const request = req('http://localhost:3000/api/messages?conversationId=conv-1');
       const response = await GETMessages(request);
       expect(response.status).toBe(401);
     });
@@ -451,7 +455,7 @@ describe('Chat/Conversations API', () => {
       const userRoleChain = makeSelectChain([{ role: 'RESIDENT' }]);
       mocks.dbMock.select.mockReturnValue(userRoleChain);
 
-      const request = new Request('http://localhost:3000/api/messages');
+      const request = req('http://localhost:3000/api/messages');
       const response = await GETMessages(request);
       expect(response.status).toBe(400);
     });
@@ -476,7 +480,7 @@ describe('Chat/Conversations API', () => {
         .mockReturnValueOnce(makeSelectChain([{ id: 'cp-1' }]))
         .mockReturnValueOnce(makeSelectChain([mockMsg]));
 
-      const request = new Request('http://localhost:3000/api/messages?conversationId=conv-1');
+      const request = req('http://localhost:3000/api/messages?conversationId=conv-1');
       const response = await GETMessages(request);
 
       expect(response.status).toBe(200);
@@ -491,7 +495,7 @@ describe('Chat/Conversations API', () => {
         .mockReturnValueOnce(makeSelectChain([{ role: 'RESIDENT' }]))
         .mockReturnValueOnce(makeSelectChain([]));
 
-      const request = new Request('http://localhost:3000/api/messages?conversationId=conv-1');
+      const request = req('http://localhost:3000/api/messages?conversationId=conv-1');
       const response = await GETMessages(request);
 
       expect(response.status).toBe(403);
@@ -503,7 +507,7 @@ describe('Chat/Conversations API', () => {
   // ---------------------------------------------------------------
   describe('POST /api/messages', () => {
     it('returns 401 without auth', async () => {
-      const request = new Request('http://localhost:3000/api/messages', {
+      const request = req('http://localhost:3000/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ conversationId: 'conv-1', content: 'Hello' }),
@@ -517,7 +521,7 @@ describe('Chat/Conversations API', () => {
       const userRoleChain = makeSelectChain([{ role: 'RESIDENT' }]);
       mocks.dbMock.select.mockReturnValue(userRoleChain);
 
-      const request = new Request('http://localhost:3000/api/messages', {
+      const request = req('http://localhost:3000/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
@@ -551,7 +555,7 @@ describe('Chat/Conversations API', () => {
 
       mocks.dbMock.insert.mockReturnValue(makeInsertChain([newMsg]));
 
-      const request = new Request('http://localhost:3000/api/messages', {
+      const request = req('http://localhost:3000/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ conversationId: 'conv-1', content: 'Hello world', type: 'TEXT' }),
@@ -570,7 +574,7 @@ describe('Chat/Conversations API', () => {
         })
       );
 
-      const request = new Request('http://localhost:3000/api/messages', {
+      const request = req('http://localhost:3000/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ conversationId: 'conv-1', content: 'Hello' }),
@@ -590,7 +594,7 @@ describe('Chat/Conversations API', () => {
   // ---------------------------------------------------------------
   describe('DELETE /api/messages', () => {
     it('returns 401 without auth', async () => {
-      const request = new Request('http://localhost:3000/api/messages', { method: 'DELETE' });
+      const request = req('http://localhost:3000/api/messages', { method: 'DELETE' });
       const response = await DELETEMessages(request);
       expect(response.status).toBe(401);
     });
@@ -600,7 +604,7 @@ describe('Chat/Conversations API', () => {
       const userRoleChain = makeSelectChain([{ role: 'RESIDENT' }]);
       mocks.dbMock.select.mockReturnValue(userRoleChain);
 
-      const request = new Request('http://localhost:3000/api/messages', { method: 'DELETE' });
+      const request = req('http://localhost:3000/api/messages', { method: 'DELETE' });
       const response = await DELETEMessages(request);
 
       expect(response.status).toBe(403);
@@ -615,7 +619,7 @@ describe('Chat/Conversations API', () => {
         })),
       });
 
-      const request = new Request('http://localhost:3000/api/messages', { method: 'DELETE' });
+      const request = req('http://localhost:3000/api/messages', { method: 'DELETE' });
       const response = await DELETEMessages(request);
 
       expect(response.status).toBe(200);
@@ -677,7 +681,7 @@ describe('Chat/Conversations API', () => {
   // ---------------------------------------------------------------
   describe('GET /api/messages/unread', () => {
     it('returns 401 without auth', async () => {
-      const request = new Request('http://localhost:3000/api/messages/unread');
+      const request = req('http://localhost:3000/api/messages/unread');
       const response = await GETMessagesUnread(request);
       expect(response.status).toBe(401);
     });
@@ -701,7 +705,7 @@ describe('Chat/Conversations API', () => {
         .mockReturnValueOnce(makeSelectChain([{ count: 2 }]))
         .mockReturnValueOnce(makeSelectChain([{ userId: 'user-1' }, { userId: 'user-2' }]));
 
-      const request = new Request('http://localhost:3000/api/messages/unread');
+      const request = req('http://localhost:3000/api/messages/unread');
       const response = await GETMessagesUnread(request);
 
       expect(response.status).toBe(200);
@@ -724,7 +728,7 @@ describe('Chat/Conversations API', () => {
         .mockReturnValueOnce(makeSelectChain([participantData]))
         .mockReturnValueOnce(makeSelectChain([]));
 
-      const request = new Request('http://localhost:3000/api/messages/unread');
+      const request = req('http://localhost:3000/api/messages/unread');
       const response = await GETMessagesUnread(request);
 
       expect(response.status).toBe(200);
@@ -738,7 +742,7 @@ describe('Chat/Conversations API', () => {
   // ---------------------------------------------------------------
   describe('POST /api/messages/unread', () => {
     it('returns 401 without auth', async () => {
-      const request = new Request('http://localhost:3000/api/messages/unread', {
+      const request = req('http://localhost:3000/api/messages/unread', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ conversationId: 'conv-1' }),
@@ -750,7 +754,7 @@ describe('Chat/Conversations API', () => {
     it('returns 400 when conversationId is missing', async () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
 
-      const request = new Request('http://localhost:3000/api/messages/unread', {
+      const request = req('http://localhost:3000/api/messages/unread', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
@@ -765,7 +769,7 @@ describe('Chat/Conversations API', () => {
 
       mocks.dbMock.update.mockReturnValue(makeUpdateChain([]));
 
-      const request = new Request('http://localhost:3000/api/messages/unread', {
+      const request = req('http://localhost:3000/api/messages/unread', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ conversationId: 'conv-1', messageId: 'msg-10' }),
