@@ -21,6 +21,8 @@ export default defineConfig({
       '@pages': path.resolve(__dirname, './src/page-modules'),
       '@processes': path.resolve(__dirname, './src/processes'),
       '@prisma': path.resolve(__dirname, './prisma/drizzle'),
+      '@schema': path.resolve(__dirname, './src/db/schema'),
+      '@server': path.resolve(__dirname, './src/server'),
     },
   },
   test: {

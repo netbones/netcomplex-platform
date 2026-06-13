@@ -46,6 +46,7 @@ export function makeSelectChain(result: unknown[]) {
   chain.from = vi.fn(() => chain);
   chain.innerJoin = vi.fn(() => chain);
   chain.leftJoin = vi.fn(() => chain);
+  const groupByFn = vi.fn(() => Promise.resolve(result));
   chain.where = vi.fn(() => {
     const thenable = {
       then: (resolve: (v: unknown[]) => void, reject: (e: Error) => void) =>
@@ -53,12 +54,14 @@ export function makeSelectChain(result: unknown[]) {
       limit: limitFn,
       orderBy: orderByFn,
       offset: vi.fn(() => thenable),
+      groupBy: groupByFn,
     };
     return thenable;
   });
   chain.limit = limitFn;
   chain.orderBy = orderByFn;
   chain.offset = vi.fn(() => chain);
+  chain.groupBy = groupByFn;
 
   return chain;
 }
