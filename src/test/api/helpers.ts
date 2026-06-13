@@ -37,31 +37,32 @@ export function createMockRequest({
  * Supports: select().from().where(), select().from().innerJoin().where(), etc.
  * The chain returns the given result when awaited.
  */
+function makeThenable(result: unknown[]): Record<string, unknown> {
+  const p = Promise.resolve(result);
+  const recurse = () => thenable;
+  const thenable = {
+    then: (resolve: (v: unknown[]) => void, reject: (e: Error) => void) => p.then(resolve, reject),
+    limit: recurse,
+    orderBy: recurse,
+    offset: recurse,
+    groupBy: recurse,
+  };
+  return thenable;
+}
+
 export function makeSelectChain(result: unknown[]) {
   const chain: Record<string, unknown> = {};
-  const whereResult = Promise.resolve(result);
-  const limitFn = vi.fn(() => Promise.resolve(result));
-  const orderByFn = vi.fn(() => Promise.resolve(result));
 
   chain.from = vi.fn(() => chain);
   chain.innerJoin = vi.fn(() => chain);
   chain.leftJoin = vi.fn(() => chain);
-  const groupByFn = vi.fn(() => Promise.resolve(result));
-  chain.where = vi.fn(() => {
-    const thenable = {
-      then: (resolve: (v: unknown[]) => void, reject: (e: Error) => void) =>
-        whereResult.then(resolve, reject),
-      limit: limitFn,
-      orderBy: orderByFn,
-      offset: vi.fn(() => thenable),
-      groupBy: groupByFn,
-    };
-    return thenable;
-  });
-  chain.limit = limitFn;
-  chain.orderBy = orderByFn;
-  chain.offset = vi.fn(() => chain);
-  chain.groupBy = groupByFn;
+
+  const whereThenable = makeThenable(result);
+  chain.where = vi.fn(() => whereThenable);
+  chain.limit = vi.fn(() => makeThenable(result));
+  chain.orderBy = vi.fn(() => makeThenable(result));
+  chain.offset = vi.fn(() => makeThenable(result));
+  chain.groupBy = vi.fn(() => makeThenable(result));
 
   return chain;
 }
