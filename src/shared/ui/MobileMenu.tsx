@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { authClient } from '@api/client';
 import { useIsMounted } from 'usehooks-ts';
 import { NAV_REGISTRY, ADMIN_NAV_REGISTRY, isNavItemVisible } from '@/shared/lib/nav';
-import type { PlatformPageFlags } from '@entities/tenant';
+import { type PlatformPageFlags } from '@shared/lib';
 import {
   Accordion,
   AccordionItem,

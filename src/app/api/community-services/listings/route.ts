@@ -5,13 +5,13 @@ import {
   communityServiceListings,
   users,
   communityServiceReviews,
-  apiError,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
   apiNotFound,
-  assertModuleEnabled,
 } from '@api/server';
+
+import { assertModuleEnabled } from '@entities/tenant';
 
 import { apiLogger } from '@shared/lib';
 

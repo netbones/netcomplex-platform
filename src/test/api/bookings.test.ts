@@ -48,18 +48,15 @@ vi.mock('@api/server', () => ({
   users: { id: 'id', role: 'role', name: 'name' },
 }));
 
-// Mock withTenant
+// Mock withTenant and feature gate
 vi.mock('@entities/tenant', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
-}));
-
-// Mock permissions
-vi.mock('@entities/tenant', () => ({
   hasPermission: vi.fn((role: string | null | undefined, permission: string) => {
     if (!role) return false;
     if (permission === 'bookings') return role === 'ADMIN' || role === 'MANAGER';
     return false;
   }),
+  assertModuleEnabled: (...args: unknown[]) => mocks.assertModuleEnabled(...args),
 }));
 
 // Mock booking services
@@ -67,11 +64,6 @@ vi.mock('@entities/booking', () => ({
   listBookings: (...args: unknown[]) => mocks.listBookings(...args),
   createBooking: (...args: unknown[]) => mocks.createBooking(...args),
   validateFacility: (...args: unknown[]) => mocks.validateFacility(...args),
-}));
-
-// Mock feature gate
-vi.mock('@api/server', () => ({
-  assertModuleEnabled: (...args: unknown[]) => mocks.assertModuleEnabled(...args),
 }));
 
 // Mock revalidation

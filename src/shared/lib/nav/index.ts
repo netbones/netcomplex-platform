@@ -1,5 +1,5 @@
 import { getPermissions, type Permission } from '@/shared/lib';
-import { PlatformPageFlags } from '@entities/tenant';
+import { type PlatformPageFlags } from '../types';
 
 export interface NavItem {
   id: string;

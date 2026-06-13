@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { PlatformPageFlags } from '@entities/tenant';
+import type { PlatformPageFlags } from '../types';
 import { apiGet } from '@api/shared';
 
 export function usePageFlags() {

@@ -2,16 +2,14 @@ import {
   auth,
   revalidateDashboard,
   db,
-  bookings,
   users,
   apiCreated,
-  apiError,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
-  apiValidationError,
-  assertModuleEnabled,
 } from '@api/server';
+
+import { assertModuleEnabled } from '@entities/tenant';
 
 import { hasPermission } from '@shared/lib';
 import { bookingSchema } from '@entities/booking';
@@ -19,7 +17,7 @@ import { toBookingDTO } from '@api/shared';
 
 import { apiLogger } from '@shared/lib';
 
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
 import { listBookings, validateFacility, createBooking } from '@entities/booking';
 

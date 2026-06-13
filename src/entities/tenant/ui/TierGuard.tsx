@@ -1,12 +1,8 @@
 'use client';
 
 import { ReactNode } from 'react';
-import {
-  TierLevel,
-  hasFeature,
-  canAccessPage,
-  canUseWidget,
-} from '@entities/tenant';
+import { type TierLevel } from '@/shared/lib';
+import { hasFeature, canAccessPage, canUseWidget } from '../api/features/registry';
 
 interface TierGuardProps {
   children: ReactNode;
