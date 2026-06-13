@@ -12,8 +12,8 @@ import type {
   SuspensionFormData,
 } from '@entities/user';
 import { roleOptions } from '@entities/user';
-import { resolveSeatInfo } from './lib/resolve-user-helpers';
-import { useUsersData } from './lib/use-users-data';
+import { resolveSeatInfo } from './helpers/resolve-user-helpers';
+import { useUsersData } from './helpers/use-users-data';
 import { UserTable } from './UserTable';
 import { InviteModal } from './InviteModal';
 import { DeleteUserModal } from './DeleteUserModal';

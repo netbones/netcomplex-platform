@@ -1,1 +1,1 @@
-export const bookingWidgets = [];
+export { bookingWidgets } from './model';

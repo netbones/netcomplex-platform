@@ -36,7 +36,7 @@ export * from './constants/tiers';
 // i18next-browser-languagedetector which are client-only. Import directly:
 //   import { supportedLanguages, ... } from '@shared/lib/i18n'
 // NOTE: useContactSettings and useApiToast are client-only hooks.
-export { tenantConfig, type TenantConfig } from './config/tenant';
+export { tenantConfig, type TenantConfig } from './tenant-config/tenant';
 export { useSafeTranslation } from './hooks/useSafeTranslation';
 export { userProfileSchema, type UserProfileFormData } from './schemas/user-profile';
 // NOTE: Client-only hooks (useApiToast, usePageFlags, usePageLoading) are

@@ -4,7 +4,7 @@ import { X, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { AdminUser } from '@entities/user';
 import { roleOptions } from '@entities/user';
-import { resolveSeatInfo, resolveAddress, resolveType } from './lib/resolve-user-helpers';
+import { resolveSeatInfo, resolveAddress, resolveType } from './helpers/resolve-user-helpers';
 
 interface UserRowProps {
   index: number;
