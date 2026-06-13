@@ -1,11 +1,5 @@
 /**
  * Tests for the server feature gate system.
- *
- * Two test sections:
- *  1. Mapping completeness — static checks on the 3 mapping tables
- *     (catches drift if a FeatureKey is added without updating all tables)
- *  2. Gate function behaviour — dynamic checks on canAccess(), resolveGateContext(),
- *     and GATE_REASON_TO_ERROR
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -21,57 +15,120 @@ import {
   resolveGateContext,
   GATE_REASON_TO_ERROR,
 } from './gate';
-import { MODULES, ModuleKey } from '@shared/lib';
-import { PlatformPageFlags } from '@entities/tenant';
+import { MODULES } from '@/shared/lib';
+import type { PlatformPageFlags } from '../flags/platform-flags';
 
 // ============================================
 // MOCKS
 // ============================================
 
-vi.mock('./db', () => ({
+vi.mock('@/shared/api/db', () => ({
   db: {
     select: vi.fn().mockReturnThis(),
     from: vi.fn().mockReturnThis(),
-    where: vi.fn().mockResolvedValue([]),
+    where: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockResolvedValue([]),
   },
-  tenants: {
-    id: 'id',
-    tier: 'tier',
+  tenants: { id: 'id', tier: 'tier' },
+  users: { id: 'id', role: 'role' },
+  sessions: {},
+  accounts: {},
+  verifications: {},
+  passkeys: {},
+  twoFactors: {},
+  members: {},
+  invitations: {},
+  organizations: {},
+  messages: {},
+  conversations: {},
+  conversationParticipants: {},
+  profiles: {},
+  settings: {},
+  albums: {},
+  standardSeats: {},
+  soloSeats: {},
+  properties: {},
+  households: {},
+  premiumSeats: {},
+  contents: {},
+  propertyListings: {},
+  communityServiceListings: {},
+  communityServiceReviews: {},
+  communityServiceInquiries: {},
+  groups: {},
+  userGroups: {},
+  surveys: {},
+  questions: {},
+  responses: {},
+  surveySections: {},
+  externalSurveys: {},
+  bookings: {},
+  maintenanceRequests: {},
+  notifications: {},
+  agentProfiles: {},
+  propertiesTopremiumSeats: {},
+  events: {},
+  eventAttendees: {},
+  announcements: {},
+  agentAccesses: {},
+  platformSuspensions: {},
+  groupMembershipRequests: {},
+  platformModules: {},
+  tenantModules: {},
+  assistSessions: {},
+  resources: {},
+  resourceVersions: {},
+  competitions: {},
+  competitionEntries: {},
+  maintenanceTeams: {},
+  serviceProviders: {},
+  maintenanceCategories: {},
+  requestNotes: {},
+  requestHistories: {},
+}));
+
+vi.mock('@/shared/api/auth', () => ({
+  auth: {
+    api: {
+      getSession: vi.fn(),
+    },
   },
 }));
 
-vi.mock('@entities/tenant', () => ({
+vi.mock('../../lib/modules', () => ({
   isModuleEnabled: vi.fn(),
 }));
 
-vi.mock('@entities/tenant', async () => {
-  const actual = await vi.importActual('@entities/tenant');
+vi.mock('../flags/platform-flags', async () => {
+  const actual = await vi.importActual('../flags/platform-flags');
   return {
     ...actual,
     getPlatformPageFlags: vi.fn(),
   };
 });
 
-vi.mock('./auth-utils', () => ({
+vi.mock('@/shared/api/auth-utils', () => ({
   getSessionAndRole: vi.fn(),
 }));
 
-vi.mock('@shared/lib', () => ({
-  createComponentLogger: () => ({
-    error: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    debug: vi.fn(),
-  }),
-}));
+vi.mock('@shared/lib', async () => {
+  const actual = await vi.importActual('@shared/lib');
+  return {
+    ...actual,
+    createComponentLogger: () => ({
+      error: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+    }),
+  };
+});
 
 // ============================================
 // SECTION 1: MAPPING COMPLETENESS (static)
 // ============================================
 
 describe('Mapping completeness', () => {
-  // All 14 FeatureKey values (mirroring the type).
-  // If a new key is added, the test will fail until all 3 tables include it.
   const ALL_FEATURE_KEYS: FeatureKey[] = [
     'maintenance',
     'bookings',
@@ -98,7 +155,7 @@ describe('Mapping completeness', () => {
 
     it('should only reference valid ModuleKey values or null', () => {
       const validModuleKeys = new Set<string>(Object.keys(MODULES));
-      for (const [feature, moduleKey] of Object.entries(FEATURE_TO_MODULE)) {
+      for (const moduleKey of Object.values(FEATURE_TO_MODULE)) {
         if (moduleKey !== null) {
           expect(validModuleKeys.has(moduleKey as string)).toBe(true);
         }
@@ -118,7 +175,6 @@ describe('Mapping completeness', () => {
     });
 
     it('should only reference valid PlatformPageFlags keys or null', () => {
-      // Sample PlatformPageFlags to derive valid keys.
       const sampleFlags: PlatformPageFlags = {
         campaign: true,
         conservation: 'default',
@@ -139,7 +195,7 @@ describe('Mapping completeness', () => {
         headerEngagementFocus: 'conservation',
       };
       const validFlagKeys = new Set(Object.keys(sampleFlags));
-      for (const [feature, flagKey] of Object.entries(FEATURE_TO_FLAG)) {
+      for (const flagKey of Object.values(FEATURE_TO_FLAG)) {
         if (flagKey !== null) {
           expect(validFlagKeys.has(flagKey as string)).toBe(true);
         }
@@ -159,7 +215,7 @@ describe('Mapping completeness', () => {
     });
 
     it('registry keys should match page.<feature> or feature.<feature> or widget.<feature> format or be null', () => {
-      for (const [feature, registryKey] of Object.entries(FEATURE_TO_REGISTRY)) {
+      for (const [, registryKey] of Object.entries(FEATURE_TO_REGISTRY)) {
         if (registryKey !== null) {
           expect(typeof registryKey).toBe('string');
           expect(registryKey as string).toMatch(/^(page|feature|widget)\./);
@@ -187,10 +243,6 @@ describe('Mapping completeness', () => {
 // SECTION 2: GATE FUNCTION BEHAVIOUR (dynamic)
 // ============================================
 
-/**
- * Default mock flags — all enabled.
- * Used by canAccess() tests that need Layer 3 to pass.
- */
 const ALL_FLAGS_ENABLED: PlatformPageFlags = {
   campaign: true,
   conservation: 'default',
@@ -212,8 +264,6 @@ const ALL_FLAGS_ENABLED: PlatformPageFlags = {
 };
 
 describe('canAccess()', () => {
-  // baseCtx: PREMIUM tier (depth) — passes tier checks for any foundation/depth module.
-  // 'bookings' is a depth module — it passes tier check with PREMIUM.
   const baseCtx: GateContext = {
     tenantId: 'tenant-1',
     role: 'RESIDENT',
@@ -225,8 +275,8 @@ describe('canAccess()', () => {
   });
 
   it('should allow when all 5 layers pass (bookings — depth module)', async () => {
-    const { isModuleEnabled } = await import('@entities/tenant');
-    const { getPlatformPageFlags } = await import('@entities/tenant');
+    const { isModuleEnabled } = await import('../../lib/modules');
+    const { getPlatformPageFlags } = await import('../flags/platform-flags');
 
     vi.mocked(isModuleEnabled).mockResolvedValue(true);
     vi.mocked(getPlatformPageFlags).mockResolvedValue(ALL_FLAGS_ENABLED);
@@ -236,7 +286,6 @@ describe('canAccess()', () => {
   });
 
   it('should deny with reason="tier" when tenant tier is too low for the module', async () => {
-    // STANDARD = foundation (1); maintenance requires core (3).
     const lowTierCtx = { ...baseCtx, tier: 'STANDARD' as const };
 
     const result = await canAccess(lowTierCtx, 'maintenance');
@@ -245,23 +294,22 @@ describe('canAccess()', () => {
   });
 
   it('should deny with reason="module" when isModuleEnabled returns false', async () => {
-    const { isModuleEnabled } = await import('@entities/tenant');
+    const { isModuleEnabled } = await import('../../lib/modules');
     vi.mocked(isModuleEnabled).mockResolvedValue(false);
 
-    // 'bookings' = depth module — passes tier with PREMIUM; fails at module layer.
     const result = await canAccess(baseCtx, 'bookings');
     expect(result.allowed).toBe(false);
     expect(result.reason).toBe('module');
   });
 
   it('should deny with reason="flag" when page flag is false', async () => {
-    const { isModuleEnabled } = await import('@entities/tenant');
-    const { getPlatformPageFlags } = await import('@entities/tenant');
+    const { isModuleEnabled } = await import('../../lib/modules');
+    const { getPlatformPageFlags } = await import('../flags/platform-flags');
 
     vi.mocked(isModuleEnabled).mockResolvedValue(true);
     vi.mocked(getPlatformPageFlags).mockResolvedValue({
       ...ALL_FLAGS_ENABLED,
-      bookings: false, // ← denied here
+      bookings: false,
     });
 
     const result = await canAccess(baseCtx, 'bookings');
@@ -270,13 +318,13 @@ describe('canAccess()', () => {
   });
 
   it('should skip flag check when skipFlag=true', async () => {
-    const { isModuleEnabled } = await import('@entities/tenant');
-    const { getPlatformPageFlags } = await import('@entities/tenant');
+    const { isModuleEnabled } = await import('../../lib/modules');
+    const { getPlatformPageFlags } = await import('../flags/platform-flags');
 
     vi.mocked(isModuleEnabled).mockResolvedValue(true);
     vi.mocked(getPlatformPageFlags).mockResolvedValue({
       ...ALL_FLAGS_ENABLED,
-      bookings: false, // ← would normally deny
+      bookings: false,
     });
 
     const result = await canAccess(baseCtx, 'bookings', { skipFlag: true });
@@ -284,37 +332,34 @@ describe('canAccess()', () => {
   });
 
   it('should short-circuit on first failing layer (tier before module)', async () => {
-    const { isModuleEnabled } = await import('@entities/tenant');
+    const { isModuleEnabled } = await import('../../lib/modules');
     const lowTierCtx = { ...baseCtx, tier: 'STANDARD' as const };
 
     const result = await canAccess(lowTierCtx, 'maintenance');
     expect(result.reason).toBe('tier');
 
-    // isModuleEnabled should NOT be called (tier check failed first)
     expect(isModuleEnabled).not.toHaveBeenCalled();
   });
 
   it('should handle features with null module mapping (e.g., competitions)', async () => {
-    const { getPlatformPageFlags } = await import('@entities/tenant');
+    const { getPlatformPageFlags } = await import('../flags/platform-flags');
 
     vi.mocked(getPlatformPageFlags).mockResolvedValue(ALL_FLAGS_ENABLED);
 
-    // 'competitions' has moduleKey=null and registryKey=null; only layers 0 and 3 are checked.
     const result = await canAccess(baseCtx, 'competitions');
     expect(result.allowed).toBe(true);
   });
 
   it('should allow when tri-state flag is non-boolean (e.g. conservation: "managed")', async () => {
-    const { isModuleEnabled } = await import('@entities/tenant');
-    const { getPlatformPageFlags } = await import('@entities/tenant');
+    const { isModuleEnabled } = await import('../../lib/modules');
+    const { getPlatformPageFlags } = await import('../flags/platform-flags');
 
     vi.mocked(isModuleEnabled).mockResolvedValue(true);
     vi.mocked(getPlatformPageFlags).mockResolvedValue({
       ...ALL_FLAGS_ENABLED,
-      conservation: 'managed', // non-boolean — gate treats as enabled
+      conservation: 'managed',
     });
 
-    // 'conservation' = foundation module — passes tier with PREMIUM.
     const result = await canAccess(baseCtx, 'conservation');
     expect(result.allowed).toBe(true);
   });
@@ -347,8 +392,8 @@ describe('resolveGateContext()', () => {
   });
 
   it('should return GateContext with tenant tier and role from session', async () => {
-    const { db } = await import('./db');
-    const { getSessionAndRole } = await import('./auth-utils');
+    const { db } = await import('@/shared/api/db');
+    const { getSessionAndRole } = await import('@/shared/api/auth-utils');
 
     vi.mocked(db.select).mockReturnValue({
       from: vi.fn().mockReturnValue({
@@ -356,7 +401,7 @@ describe('resolveGateContext()', () => {
           limit: vi.fn().mockResolvedValue([{ id: 'tenant-1', tier: 'PREMIUM' }]),
         }),
       }),
-    } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+    } as unknown as typeof db.select);
 
     vi.mocked(getSessionAndRole).mockResolvedValue({
       session: { user: { id: 'user-1', email: 'admin@example.com', name: 'Admin' } },
@@ -372,8 +417,8 @@ describe('resolveGateContext()', () => {
   });
 
   it('should default role to RESIDENT when session is null', async () => {
-    const { db } = await import('./db');
-    const { getSessionAndRole } = await import('./auth-utils');
+    const { db } = await import('@/shared/api/db');
+    const { getSessionAndRole } = await import('@/shared/api/auth-utils');
 
     vi.mocked(db.select).mockReturnValue({
       from: vi.fn().mockReturnValue({
@@ -381,7 +426,7 @@ describe('resolveGateContext()', () => {
           limit: vi.fn().mockResolvedValue([{ id: 'tenant-1', tier: 'STANDARD' }]),
         }),
       }),
-    } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+    } as unknown as typeof db.select);
 
     vi.mocked(getSessionAndRole).mockResolvedValue(null);
 
@@ -390,8 +435,8 @@ describe('resolveGateContext()', () => {
   });
 
   it('should throw if tenant not found', async () => {
-    const { db } = await import('./db');
-    const { getSessionAndRole } = await import('./auth-utils');
+    const { db } = await import('@/shared/api/db');
+    const { getSessionAndRole } = await import('@/shared/api/auth-utils');
 
     vi.mocked(db.select).mockReturnValue({
       from: vi.fn().mockReturnValue({
@@ -399,7 +444,7 @@ describe('resolveGateContext()', () => {
           limit: vi.fn().mockResolvedValue([]),
         }),
       }),
-    } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+    } as unknown as typeof db.select);
 
     vi.mocked(getSessionAndRole).mockResolvedValue({
       session: { user: { id: 'user-1', email: 'r@example.com', name: 'R' } },

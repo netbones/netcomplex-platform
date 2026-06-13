@@ -7,9 +7,9 @@
  * Uses the DB-backed module enforcement system (platform_modules + tenant_modules + tier).
  */
 
-import { apiError, ERROR_CODES } from './api-response';
-import { withTenant } from '@entities/tenant';
-import { isModuleEnabled } from '@entities/tenant';
+import { apiError, ERROR_CODES } from '@/shared/api/api-response';
+import { withTenant } from '../with-tenant';
+import { isModuleEnabled } from '../../lib/modules';
 
 /**
  * Assert that a module is enabled for the current tenant.

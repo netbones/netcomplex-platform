@@ -15,23 +15,20 @@
  *   Layer 2: Module (DB-backed isModuleEnabled, which does its own tier check too)
  *   Layer 3: PageFlag (DB-backed getPlatformPageFlags)
  *   Layer 4: FeatureToggle (synchronous FEATURE_REGISTRY lookup via hasFeature/canAccessPage)
- *
- * The `isModuleEnabled` and `getPlatformPageFlags` helpers are consumed as-is —
- * we do not refactor them in Phase 1.
  */
 
 import { eq } from 'drizzle-orm';
 
-import { isModuleEnabled } from '@entities/tenant';
-import type { TenantTier } from '@shared/lib';
-import { getPlatformPageFlags, type PlatformPageFlags } from '@entities/tenant';
-import { canAccessPage, hasFeature, type TierLevel } from '@entities/tenant';
-import { ROLE_PERMISSIONS, type Role } from '@shared/lib';
-import { MODULES, type ModuleKey } from '@shared/lib';
+import { isModuleEnabled } from '../../lib/modules';
+import type { TenantTier } from '@/shared/lib';
+import { getPlatformPageFlags, type PlatformPageFlags } from '../flags/platform-flags';
+import { canAccessPage, hasFeature, type TierLevel } from '../features/registry';
+import { ROLE_PERMISSIONS, type Role } from '@/shared/lib';
+import { MODULES, type ModuleKey } from '@/shared/lib';
 
-import { db, tenants } from './db';
-import { getSessionAndRole } from './auth-utils';
-import { createComponentLogger } from '@shared/lib';
+import { db, tenants } from '@/shared/api/db';
+import { getSessionAndRole } from '@/shared/api/auth-utils';
+import { createComponentLogger } from '@/shared/lib';
 
 const gateLogger = createComponentLogger('gate');
 
@@ -70,9 +67,6 @@ export interface GateResult {
 
 /**
  * Server-side gate context.
- * - `tier` is the DB TenantTier (STANDARD | PREMIUM | ENTERPRISE) — the conversion
- *   to TierLevel happens only at the FeatureToggle layer where the registry requires it.
- * - `role` is read from the real session via getSessionAndRole() in resolveGateContext().
  */
 export interface GateContext {
   tenantId: string;
@@ -84,11 +78,6 @@ export interface GateContext {
 // MAPPING TABLES (canonical source of truth)
 // ============================================
 
-/**
- * Feature → Module. `null` means no module gate (feature is always available at module layer).
- * `services` shares the `marketplace` module; `messages` shares the `chat` module.
- * `competitions` and `dashboard` have no module gate (verified in 41-CONTEXT.md audit).
- */
 export const FEATURE_TO_MODULE: Record<FeatureKey, ModuleKey | null> = {
   maintenance: 'maintenance',
   bookings: 'bookings',
@@ -108,10 +97,6 @@ export const FEATURE_TO_MODULE: Record<FeatureKey, ModuleKey | null> = {
 
 type PlatformPageFlagKey = keyof PlatformPageFlags;
 
-/**
- * Feature → PlatformPageFlags key. Every FeatureKey has a flag entry
- * (no nulls in this table).
- */
 export const FEATURE_TO_FLAG: Record<FeatureKey, PlatformPageFlagKey | null> = {
   maintenance: 'maintenance',
   bookings: 'bookings',
@@ -129,15 +114,6 @@ export const FEATURE_TO_FLAG: Record<FeatureKey, PlatformPageFlagKey | null> = {
   messages: 'messages',
 };
 
-/**
- * Feature → FEATURE_REGISTRY key (e.g. 'page.maintenance').
- * `null` means no feature-toggle gate at this layer.
- * `competitions` and `dashboard` have no registry entry.
- *
- * Note: `services` maps to `page.marketplace` (canonical services page) and
- * `messages` maps to `page.chat` (canonical chat/messages page) — the literal
- * `page.services` / `page.messages` keys do not exist in FEATURE_REGISTRY.
- */
 export const FEATURE_TO_REGISTRY: Record<FeatureKey, string | null> = {
   maintenance: 'page.maintenance',
   bookings: 'page.bookings',
@@ -155,10 +131,6 @@ export const FEATURE_TO_REGISTRY: Record<FeatureKey, string | null> = {
   dashboard: null,
 };
 
-/**
- * Standardised HTTP error codes for each gate reason.
- * Use at API route boundaries: `apiForbidden(GATE_REASON_TO_ERROR[result.reason])`.
- */
 export const GATE_REASON_TO_ERROR: Record<GateReason, string> = {
   role: 'INSUFFICIENT_ROLE',
   tier: 'TIER_REQUIRED',
@@ -192,12 +164,10 @@ function tierAtLeast(tenant: TierLevel, required: TierLevel): boolean {
   return TIER_LEVEL_ORDER[tenant] >= TIER_LEVEL_ORDER[required];
 }
 
-// ModuleKey → required TierLevel (extracted from MODULES.tier).
 const MODULES_REQUIRED_TIER: Record<ModuleKey, TierLevel> = Object.fromEntries(
   Object.entries(MODULES).map(([k, v]) => [k, v.tier])
 ) as Record<ModuleKey, TierLevel>;
 
-/** Log a single denial event. Skipped for the success case. */
 function logDenial(ctx: GateContext, feature: FeatureKey, reason: GateReason): void {
   if (reason === 'allowed') return;
   gateLogger.info({
@@ -214,16 +184,6 @@ function logDenial(ctx: GateContext, feature: FeatureKey, reason: GateReason): v
 // resolveGateContext
 // ============================================
 
-/**
- * Resolve a GateContext from the real session.
- *
- * - Reads tenant.tier directly from the DB (TenantTier enum).
- * - Reads role from the real session via getSessionAndRole(); defaults to 'RESIDENT'
- *   if the request is unauthenticated (matches the existing helper's conservative default).
- *
- * The `request` parameter is optional and follows the same pattern as every other
- * authenticated API route (see src/app/api/surveys/[id]/route.ts and 30+ other routes).
- */
 export async function resolveGateContext(
   tenantId: string,
   request?: Request
@@ -248,17 +208,6 @@ export async function resolveGateContext(
 // canAccess — 5-layer precedence gate
 // ============================================
 
-/**
- * Evaluate a feature gate against the resolved context.
- *
- * Short-circuits on the first `false`. Each denial is logged exactly once
- * via the private logDenial() helper. Logs nothing for the success case.
- *
- * @param ctx  Resolved gate context (use resolveGateContext() to build this)
- * @param feature  The canonical FeatureKey being checked
- * @param opts  Optional flags — `skipFlag: true` skips the DB-backed PageFlag layer
- *              (used by callers that have already fetched flags)
- */
 export async function canAccess(
   ctx: GateContext,
   feature: FeatureKey,
@@ -294,9 +243,6 @@ export async function canAccess(
     if (flagKey !== null) {
       const flags = await getPlatformPageFlags(ctx.tenantId);
       const flagValue = flags[flagKey];
-      // Special case: tri-state flags (e.g. 'conservation': 'default' | 'managed' | 'external')
-      // are always enabled at the gate layer; the UI consumes the value to decide rendering.
-      // Boolean flags use their value directly.
       const flagOk = typeof flagValue === 'boolean' ? flagValue : true;
       if (!flagOk) {
         logDenial(ctx, feature, 'flag');
