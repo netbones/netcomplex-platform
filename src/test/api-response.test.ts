@@ -6,9 +6,7 @@ vi.mock('next/server', () => {
       super(body, init);
     }
     static json(body: unknown, init?: ResponseInit) {
-      const response = new MockNextResponse(JSON.stringify(body), init);
-      Object.defineProperty(response, 'status', { value: init?.status || 200, configurable: true });
-      return response;
+      return new MockNextResponse(JSON.stringify(body), init);
     }
   }
   return {
@@ -18,43 +16,24 @@ vi.mock('next/server', () => {
 });
 
 import {
-
   apiSuccess,
-
   apiError,
-
   apiPaginated,
-
   apiCreated,
-
   apiNoContent,
-
   apiUnauthorized,
-
   apiForbidden,
-
   apiTenantRequired,
-
   apiTenantForbidden,
-
   apiValidationError,
-
   apiNotFound,
-
   apiSuspendedUser,
-
   apiInternalError,
-
   ERROR_CODES,
-
   ApiSuccessResponse,
-
   ApiErrorResponse,
-
   ApiPaginatedResponse,
-
   ApiPaginatedMeta,
-
 } from '@api/server';
 
 describe('api-response', () => {

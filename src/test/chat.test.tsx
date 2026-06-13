@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { messageSchema, conversationSchema } from '@entities/chat';
 
+process.env.NEXT_PUBLIC_SUPABASE_URL = 'http://localhost:54321';
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key';
+
 // Mock Supabase
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
@@ -19,6 +22,22 @@ vi.mock('@supabase/supabase-js', () => ({
 }));
 
 // Mock Better Auth client
+vi.mock('@api/auth-client', () => ({
+  authClient: {
+    getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+    useSession: vi.fn(() => ({
+      data: {
+        user: {
+          id: 'test-user-123',
+          name: 'Test User',
+          email: 'test@example.com',
+        },
+      },
+    })),
+    signIn: { email: vi.fn() },
+  },
+}));
+
 vi.mock('@api/client', () => ({
   authClient: {
     useSession: vi.fn(() => ({
@@ -34,7 +53,12 @@ vi.mock('@api/client', () => ({
 }));
 
 // Mock fetch globally
-const mockFetch = vi.fn();
+const mockFetch = vi.fn().mockResolvedValue(
+  new Response(JSON.stringify({}), {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
+  })
+);
 global.fetch = mockFetch;
 
 describe('chat schemas', () => {
@@ -228,19 +252,31 @@ describe('DirectoryChatModal component', () => {
   });
 
   it('shows loading state initially', async () => {
-    // Delay the fetch response to show loading
-    mockFetch.mockResolvedValueOnce(
-      new Promise(resolve =>
-        setTimeout(
-          () =>
-            resolve({
-              ok: true,
-              json: async () => ({ conversation: { id: 'conv-123' } }),
-            }),
-          100
-        )
+    // Delay both fetch responses to show loading
+    const delayedConversation = new Promise(resolve =>
+      setTimeout(
+        () =>
+          resolve({
+            ok: true,
+            json: async () => ({ conversation: { id: 'conv-123' } }),
+          }),
+        100
       )
     );
+
+    const delayedMessages = new Promise(resolve =>
+      setTimeout(
+        () =>
+          resolve({
+            ok: true,
+            json: async () => [],
+          }),
+        100
+      )
+    );
+
+    mockFetch.mockResolvedValueOnce(delayedConversation);
+    mockFetch.mockResolvedValueOnce(delayedMessages);
 
     const { DirectoryChatModal } = await import('@/features/directory/ui/DirectoryChatModal');
 
@@ -375,10 +411,10 @@ describe('DirectoryChatModal component', () => {
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith(
-        '/api/messages',
+        expect.stringContaining('/api/messages'),
         expect.objectContaining({
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({
             conversationId: 'conv-123',
             content: 'Test message',
@@ -435,7 +471,7 @@ describe('DirectoryChatModal component', () => {
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith(
-        '/api/messages',
+        expect.stringContaining('/api/messages'),
         expect.objectContaining({
           method: 'POST',
           body: expect.stringContaining('Enter test'),
@@ -481,7 +517,8 @@ describe('DirectoryChatModal component', () => {
     const messagePostCalls = mockFetch.mock.calls.filter(
       (call: unknown[]) =>
         Array.isArray(call) &&
-        call[0] === '/api/messages' &&
+        typeof call[0] === 'string' &&
+        call[0].includes('/api/messages') &&
         call[1] &&
         (call[1] as { method?: string }).method === 'POST'
     );

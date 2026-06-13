@@ -1,5 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
+
+vi.mock('@api/auth-client', () => ({
+  authClient: {
+    getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+    useSession: vi.fn(() => ({ data: { user: { id: 'test-user' } } })),
+  },
+  getSession: vi.fn(() => Promise.resolve({ data: { session: { token: 'test-token' } } })),
+}));
+
 import { useResidentFilter } from '../features/directory/model/useResidentFilter';
 
 interface MockResponse {
@@ -7,8 +16,10 @@ interface MockResponse {
   json: () => Promise<{ users: unknown[]; total: number }>;
 }
 
-const createMockResponse = (data: { users: unknown[]; total: number }): MockResponse => ({
-  ok: true,
+const createMockResponse = (data: { users: unknown[]; total: number }, status = 200) => ({
+  ok: status >= 200 && status < 300,
+  status,
+  headers: new Headers({ 'Content-Type': 'application/json' }),
   json: () => Promise.resolve(data),
 });
 

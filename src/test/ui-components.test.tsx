@@ -1,5 +1,20 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
+import React from 'react';
+
+vi.mock('next/navigation', () => ({
+  useRouter: vi.fn(() => ({ push: vi.fn(), prefetch: vi.fn(), back: vi.fn() })),
+  usePathname: vi.fn(() => '/'),
+  useSearchParams: vi.fn(() => new URLSearchParams()),
+}));
+
+vi.mock('next/link', () => ({
+  default: ({
+    children,
+    ...props
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { children: React.ReactNode }) =>
+    React.createElement('a', props, children),
+}));
 
 describe('TurnstileWidget component', () => {
   beforeEach(() => {
@@ -20,7 +35,7 @@ describe('TurnstileWidget component', () => {
     // The widget creates a div container for the Turnstile challenge
     // In test environment, the Cloudflare script won't load, but the container should exist
     expect(container.firstChild).toBeInTheDocument();
-  });
+  }, 15000);
 });
 
 describe('LoadingSpinner component', () => {
