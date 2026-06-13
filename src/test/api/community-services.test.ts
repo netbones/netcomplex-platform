@@ -1,4 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { NextRequest } from 'next/server';
+
+const req = (url: string, init?: RequestInit): NextRequest =>
+  new Request(url, init) as unknown as NextRequest;
 
 vi.mock('server-only', () => ({}));
 
@@ -261,7 +265,7 @@ describe('GET /community-services/listings', () => {
       )
     );
 
-    const request = new Request('http://localhost:3000/api/community-services/listings');
+    const request = req('http://localhost:3000/api/community-services/listings');
     const response = await listingsGET(request);
     expect(response.status).toBe(403);
   });
@@ -276,7 +280,7 @@ describe('GET /community-services/listings', () => {
       return callIndex <= 1 ? chain : countChain;
     });
 
-    const request = new Request('http://localhost:3000/api/community-services/listings');
+    const request = req('http://localhost:3000/api/community-services/listings');
     const response = await listingsGET(request);
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -293,9 +297,7 @@ describe('GET /community-services/listings', () => {
       return callIndex <= 1 ? chain : countChain;
     });
 
-    const request = new Request(
-      'http://localhost:3000/api/community-services/listings?category=GARDENING'
-    );
+    const request = req('http://localhost:3000/api/community-services/listings?category=GARDENING');
     const response = await listingsGET(request);
     expect(response.status).toBe(200);
   });
@@ -310,9 +312,7 @@ describe('GET /community-services/listings', () => {
       return callIndex <= 1 ? chain : countChain;
     });
 
-    const request = new Request(
-      'http://localhost:3000/api/community-services/listings?id=listing-1'
-    );
+    const request = req('http://localhost:3000/api/community-services/listings?id=listing-1');
     const response = await listingsGET(request);
     expect(response.status).toBe(200);
   });
@@ -330,7 +330,7 @@ describe('POST /community-services/listings', () => {
       })
     );
 
-    const request = new Request('http://localhost:3000/api/community-services/listings', {
+    const request = req('http://localhost:3000/api/community-services/listings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: 'Test Service', category: 'GARDENING' }),
@@ -342,7 +342,7 @@ describe('POST /community-services/listings', () => {
   it('returns 401 without auth', async () => {
     mocks.assertModuleEnabled.mockResolvedValue(null);
 
-    const request = new Request('http://localhost:3000/api/community-services/listings', {
+    const request = req('http://localhost:3000/api/community-services/listings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: 'Test Service', category: 'GARDENING' }),
@@ -363,7 +363,7 @@ describe('POST /community-services/listings', () => {
     ]);
     mocks.dbMock.select.mockReturnValue(selectChain);
 
-    const request = new Request('http://localhost:3000/api/community-services/listings', {
+    const request = req('http://localhost:3000/api/community-services/listings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -390,7 +390,7 @@ describe('POST /community-services/listings', () => {
     ]);
     mocks.dbMock.select.mockReturnValue(selectChain);
 
-    const request = new Request('http://localhost:3000/api/community-services/listings', {
+    const request = req('http://localhost:3000/api/community-services/listings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -414,9 +414,7 @@ describe('GET /community-services/listings/[id]', () => {
     const chain = makeFullSelectChain([]);
     mocks.dbMock.select.mockReturnValue(chain);
 
-    const request = new Request(
-      'http://localhost:3000/api/community-services/listings/nonexistent'
-    );
+    const request = req('http://localhost:3000/api/community-services/listings/nonexistent');
     const response = await listingByIdGET(request, params('nonexistent'));
     expect(response.status).toBe(404);
   });
@@ -431,7 +429,7 @@ describe('GET /community-services/listings/[id]', () => {
       return chain;
     });
 
-    const request = new Request('http://localhost:3000/api/community-services/listings/listing-1');
+    const request = req('http://localhost:3000/api/community-services/listings/listing-1');
     const response = await listingByIdGET(request, params('listing-1'));
     expect(response.status).toBe(200);
   });
@@ -447,7 +445,7 @@ describe('GET /community-services/listings/[id]', () => {
       return chain;
     });
 
-    const request = new Request('http://localhost:3000/api/community-services/listings/listing-1');
+    const request = req('http://localhost:3000/api/community-services/listings/listing-1');
     const response = await listingByIdGET(request, params('listing-1'));
     expect(response.status).toBe(200);
   });
@@ -459,7 +457,7 @@ describe('GET /community-services/listings/[id]', () => {
     ]);
     mocks.dbMock.select.mockReturnValue(chain);
 
-    const request = new Request('http://localhost:3000/api/community-services/listings/listing-1');
+    const request = req('http://localhost:3000/api/community-services/listings/listing-1');
     const response = await listingByIdGET(request, params('listing-1'));
     expect(response.status).toBe(404);
   });
@@ -470,7 +468,7 @@ describe('GET /community-services/listings/[id]', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('PUT /community-services/listings/[id]', () => {
   it('returns 401 without auth', async () => {
-    const request = new Request('http://localhost:3000/api/community-services/listings/listing-1', {
+    const request = req('http://localhost:3000/api/community-services/listings/listing-1', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: 'Updated Title' }),
@@ -484,7 +482,7 @@ describe('PUT /community-services/listings/[id]', () => {
     const ownershipChain = makeFullSelectChain([{ providerId: 'provider-1' }]);
     mocks.dbMock.select.mockReturnValue(ownershipChain);
 
-    const request = new Request('http://localhost:3000/api/community-services/listings/listing-1', {
+    const request = req('http://localhost:3000/api/community-services/listings/listing-1', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: 'Updated Title' }),
@@ -498,14 +496,11 @@ describe('PUT /community-services/listings/[id]', () => {
     const chain = makeFullSelectChain([]);
     mocks.dbMock.select.mockReturnValue(chain);
 
-    const request = new Request(
-      'http://localhost:3000/api/community-services/listings/nonexistent',
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'Updated Title' }),
-      }
-    );
+    const request = req('http://localhost:3000/api/community-services/listings/nonexistent', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Updated Title' }),
+    });
     const response = await listingByIdPUT(request, params('nonexistent'));
     expect(response.status).toBe(404);
   });
@@ -523,7 +518,7 @@ describe('PUT /community-services/listings/[id]', () => {
     const updateChain = makeUpdateChain([]);
     mocks.dbMock.update.mockReturnValue(updateChain);
 
-    const request = new Request('http://localhost:3000/api/community-services/listings/listing-1', {
+    const request = req('http://localhost:3000/api/community-services/listings/listing-1', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: 'Updated Title' }),
@@ -538,7 +533,7 @@ describe('PUT /community-services/listings/[id]', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('DELETE /community-services/listings/[id]', () => {
   it('returns 401 without auth', async () => {
-    const request = new Request('http://localhost:3000/api/community-services/listings/listing-1', {
+    const request = req('http://localhost:3000/api/community-services/listings/listing-1', {
       method: 'DELETE',
     });
     const response = await listingByIdDELETE(request, params('listing-1'));
@@ -550,7 +545,7 @@ describe('DELETE /community-services/listings/[id]', () => {
     const chain = makeFullSelectChain([{ providerId: 'provider-1' }]);
     mocks.dbMock.select.mockReturnValue(chain);
 
-    const request = new Request('http://localhost:3000/api/community-services/listings/listing-1', {
+    const request = req('http://localhost:3000/api/community-services/listings/listing-1', {
       method: 'DELETE',
     });
     const response = await listingByIdDELETE(request, params('listing-1'));
@@ -562,12 +557,9 @@ describe('DELETE /community-services/listings/[id]', () => {
     const chain = makeFullSelectChain([]);
     mocks.dbMock.select.mockReturnValue(chain);
 
-    const request = new Request(
-      'http://localhost:3000/api/community-services/listings/nonexistent',
-      {
-        method: 'DELETE',
-      }
-    );
+    const request = req('http://localhost:3000/api/community-services/listings/nonexistent', {
+      method: 'DELETE',
+    });
     const response = await listingByIdDELETE(request, params('nonexistent'));
     expect(response.status).toBe(404);
   });
@@ -578,7 +570,7 @@ describe('DELETE /community-services/listings/[id]', () => {
     mocks.dbMock.select.mockReturnValue(chain);
     mocks.dbMock.delete.mockReturnValue(makeDeleteChain());
 
-    const request = new Request('http://localhost:3000/api/community-services/listings/listing-1', {
+    const request = req('http://localhost:3000/api/community-services/listings/listing-1', {
       method: 'DELETE',
     });
     const response = await listingByIdDELETE(request, params('listing-1'));
@@ -591,14 +583,11 @@ describe('DELETE /community-services/listings/[id]', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('POST /community-services/listings/[id]/publish', () => {
   it('returns 401 without auth', async () => {
-    const request = new Request(
-      'http://localhost:3000/api/community-services/listings/listing-1/publish',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ publish: true }),
-      }
-    );
+    const request = req('http://localhost:3000/api/community-services/listings/listing-1/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ publish: true }),
+    });
     const response = await publishPOST(request, params('listing-1'));
     expect(response.status).toBe(401);
   });
@@ -608,14 +597,11 @@ describe('POST /community-services/listings/[id]/publish', () => {
     const chain = makeFullSelectChain([{ providerId: 'provider-1' }]);
     mocks.dbMock.select.mockReturnValue(chain);
 
-    const request = new Request(
-      'http://localhost:3000/api/community-services/listings/listing-1/publish',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ publish: true }),
-      }
-    );
+    const request = req('http://localhost:3000/api/community-services/listings/listing-1/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ publish: true }),
+    });
     const response = await publishPOST(request, params('listing-1'));
     expect(response.status).toBe(403);
   });
@@ -625,7 +611,7 @@ describe('POST /community-services/listings/[id]/publish', () => {
     const chain = makeFullSelectChain([]);
     mocks.dbMock.select.mockReturnValue(chain);
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/listings/nonexistent/publish',
       {
         method: 'POST',
@@ -650,14 +636,11 @@ describe('POST /community-services/listings/[id]/publish', () => {
     const updateChain = makeUpdateChain([]);
     mocks.dbMock.update.mockReturnValue(updateChain);
 
-    const request = new Request(
-      'http://localhost:3000/api/community-services/listings/listing-1/publish',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ publish: true }),
-      }
-    );
+    const request = req('http://localhost:3000/api/community-services/listings/listing-1/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ publish: true }),
+    });
     const response = await publishPOST(request, params('listing-1'));
     expect(response.status).toBe(200);
   });
@@ -668,7 +651,7 @@ describe('POST /community-services/listings/[id]/publish', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('GET /community-services/listings/related', () => {
   it('returns 400 when serviceId query param is missing', async () => {
-    const request = new Request('http://localhost:3000/api/community-services/listings/related');
+    const request = req('http://localhost:3000/api/community-services/listings/related');
     const response = await relatedGET(request);
     expect(response.status).toBe(400);
   });
@@ -677,7 +660,7 @@ describe('GET /community-services/listings/related', () => {
     const chain = makeFullSelectChain([]);
     mocks.dbMock.select.mockReturnValue(chain);
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/listings/related?serviceId=nonexistent'
     );
     const response = await relatedGET(request);
@@ -694,7 +677,7 @@ describe('GET /community-services/listings/related', () => {
       return makeSelectChain([{ count: 1 }]);
     });
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/listings/related?serviceId=listing-1'
     );
     const response = await relatedGET(request);
@@ -709,7 +692,7 @@ describe('GET /community-services/listings/related', () => {
       return makeFullSelectChain([]);
     });
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/listings/related?serviceId=listing-1&limit=2'
     );
     const response = await relatedGET(request);
@@ -744,7 +727,7 @@ describe('GET /community-services/reviews/[listingId]', () => {
       return makeSelectChain([{ count: 1, avgRating: 4.5, avgResponse: 4.0 }]);
     });
 
-    const request = new Request('http://localhost:3000/api/community-services/reviews/listing-1');
+    const request = req('http://localhost:3000/api/community-services/reviews/listing-1');
     const response = await reviewsGET(request, listingIdParams('listing-1'));
     expect(response.status).toBe(200);
   });
@@ -757,7 +740,7 @@ describe('GET /community-services/reviews/[listingId]', () => {
       return makeSelectChain([{ count: 0, avgRating: null, avgResponse: null }]);
     });
 
-    const request = new Request('http://localhost:3000/api/community-services/reviews/listing-1');
+    const request = req('http://localhost:3000/api/community-services/reviews/listing-1');
     const response = await reviewsGET(request, listingIdParams('listing-1'));
     expect(response.status).toBe(200);
   });
@@ -770,7 +753,7 @@ describe('GET /community-services/reviews/[listingId]', () => {
       return makeSelectChain([{ count: 0, avgRating: null, avgResponse: null }]);
     });
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/reviews/listing-1?limit=5&offset=10'
     );
     const response = await reviewsGET(request, listingIdParams('listing-1'));
@@ -783,7 +766,7 @@ describe('GET /community-services/reviews/[listingId]', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('POST /community-services/reviews/[listingId]', () => {
   it('returns 401 without auth', async () => {
-    const request = new Request('http://localhost:3000/api/community-services/reviews/listing-1', {
+    const request = req('http://localhost:3000/api/community-services/reviews/listing-1', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rating: 4, title: 'Good', comment: 'Nice work' }),
@@ -799,7 +782,7 @@ describe('POST /community-services/reviews/[listingId]', () => {
     ]);
     mocks.dbMock.select.mockReturnValue(chain);
 
-    const request = new Request('http://localhost:3000/api/community-services/reviews/listing-1', {
+    const request = req('http://localhost:3000/api/community-services/reviews/listing-1', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rating: 0, title: 'Bad rating', comment: 'Test' }),
@@ -815,7 +798,7 @@ describe('POST /community-services/reviews/[listingId]', () => {
     ]);
     mocks.dbMock.select.mockReturnValue(chain);
 
-    const request = new Request('http://localhost:3000/api/community-services/reviews/listing-1', {
+    const request = req('http://localhost:3000/api/community-services/reviews/listing-1', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rating: 4, title: 'Good', comment: 'Nice work' }),
@@ -837,7 +820,7 @@ describe('POST /community-services/reviews/[listingId]', () => {
       return makeFullSelectChain([]);
     });
 
-    const request = new Request('http://localhost:3000/api/community-services/reviews/listing-1', {
+    const request = req('http://localhost:3000/api/community-services/reviews/listing-1', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rating: 4, title: 'Good', comment: 'Nice work' }),
@@ -852,7 +835,7 @@ describe('POST /community-services/reviews/[listingId]', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('GET /community-services/inquiries', () => {
   it('returns 401 without auth', async () => {
-    const request = new Request('http://localhost:3000/api/community-services/inquiries');
+    const request = req('http://localhost:3000/api/community-services/inquiries');
     const response = await inquiriesGET(request);
     expect(response.status).toBe(401);
   });
@@ -889,7 +872,7 @@ describe('GET /community-services/inquiries', () => {
       return makeSelectChain([{ count: 1 }]);
     });
 
-    const request = new Request('http://localhost:3000/api/community-services/inquiries');
+    const request = req('http://localhost:3000/api/community-services/inquiries');
     const response = await inquiriesGET(request);
     expect(response.status).toBe(200);
   });
@@ -903,9 +886,7 @@ describe('GET /community-services/inquiries', () => {
       return makeSelectChain([{ count: 0 }]);
     });
 
-    const request = new Request(
-      'http://localhost:3000/api/community-services/inquiries?status=PENDING'
-    );
+    const request = req('http://localhost:3000/api/community-services/inquiries?status=PENDING');
     const response = await inquiriesGET(request);
     expect(response.status).toBe(200);
   });
@@ -919,7 +900,7 @@ describe('GET /community-services/inquiries', () => {
       return makeSelectChain([{ count: 0 }]);
     });
 
-    const request = new Request('http://localhost:3000/api/community-services/inquiries');
+    const request = req('http://localhost:3000/api/community-services/inquiries');
     const response = await inquiriesGET(request);
     const body = await response.json();
     expect(response.status).toBe(200);
@@ -931,7 +912,7 @@ describe('GET /community-services/inquiries', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('POST /community-services/inquiries', () => {
   it('returns 401 without auth', async () => {
-    const request = new Request('http://localhost:3000/api/community-services/inquiries', {
+    const request = req('http://localhost:3000/api/community-services/inquiries', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ listingId: 'listing-1', description: 'I need this service' }),
@@ -943,7 +924,7 @@ describe('POST /community-services/inquiries', () => {
   it('returns 400 when listingId or description missing', async () => {
     mocks.sessionResult = { user: { id: 'user-1' } };
 
-    const request = new Request('http://localhost:3000/api/community-services/inquiries', {
+    const request = req('http://localhost:3000/api/community-services/inquiries', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ description: 'Missing listingId' }),
@@ -959,7 +940,7 @@ describe('POST /community-services/inquiries', () => {
     ]);
     mocks.dbMock.select.mockReturnValue(chain);
 
-    const request = new Request('http://localhost:3000/api/community-services/inquiries', {
+    const request = req('http://localhost:3000/api/community-services/inquiries', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ listingId: 'listing-1', description: 'Need my own service' }),
@@ -998,7 +979,7 @@ describe('POST /community-services/inquiries', () => {
     });
     mocks.dbMock.insert.mockReturnValue(makeInsertChain([]));
 
-    const request = new Request('http://localhost:3000/api/community-services/inquiries', {
+    const request = req('http://localhost:3000/api/community-services/inquiries', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ listingId: 'listing-1', description: 'I need this service' }),
@@ -1013,9 +994,7 @@ describe('POST /community-services/inquiries', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('GET /community-services/provider/inquiries', () => {
   it('returns 401 without auth', async () => {
-    const request = new Request(
-      'http://localhost:3000/api/community-services/provider/inquiries/some-id'
-    );
+    const request = req('http://localhost:3000/api/community-services/provider/inquiries/some-id');
     const response = await providerInquiriesGET(request);
     expect(response.status).toBe(401);
   });
@@ -1025,9 +1004,7 @@ describe('GET /community-services/provider/inquiries', () => {
     const chain = makeFullSelectChain([]);
     mocks.dbMock.select.mockReturnValue(chain);
 
-    const request = new Request(
-      'http://localhost:3000/api/community-services/provider/inquiries/some-id'
-    );
+    const request = req('http://localhost:3000/api/community-services/provider/inquiries/some-id');
     const response = await providerInquiriesGET(request);
     expect(response.status).toBe(200);
   });
@@ -1061,9 +1038,7 @@ describe('GET /community-services/provider/inquiries', () => {
       return makeSelectChain([{ count: 1 }]);
     });
 
-    const request = new Request(
-      'http://localhost:3000/api/community-services/provider/inquiries/some-id'
-    );
+    const request = req('http://localhost:3000/api/community-services/provider/inquiries/some-id');
     const response = await providerInquiriesGET(request);
     expect(response.status).toBe(200);
   });
@@ -1078,7 +1053,7 @@ describe('GET /community-services/provider/inquiries', () => {
       return makeSelectChain([{ count: 0 }]);
     });
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/provider/inquiries/some-id?status=RESPONDED'
     );
     const response = await providerInquiriesGET(request);
@@ -1091,7 +1066,7 @@ describe('GET /community-services/provider/inquiries', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('POST /community-services/provider/inquiries/[id]', () => {
   it('returns 401 without auth', async () => {
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/provider/inquiries/inquiry-1',
       {
         method: 'POST',
@@ -1113,7 +1088,7 @@ describe('POST /community-services/provider/inquiries/[id]', () => {
       return makeFullSelectChain([]);
     });
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/provider/inquiries/inquiry-1',
       {
         method: 'POST',
@@ -1130,7 +1105,7 @@ describe('POST /community-services/provider/inquiries/[id]', () => {
     const chain = makeSelectChain([]);
     mocks.dbMock.select.mockReturnValue(chain);
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/provider/inquiries/nonexistent',
       {
         method: 'POST',
@@ -1171,7 +1146,7 @@ describe('POST /community-services/provider/inquiries/[id]', () => {
     });
     mocks.dbMock.update.mockReturnValue(makeUpdateChain([]));
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/provider/inquiries/inquiry-1',
       {
         method: 'POST',
@@ -1189,9 +1164,7 @@ describe('POST /community-services/provider/inquiries/[id]', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('GET /community-services/moderation/listings', () => {
   it('returns 401 without auth', async () => {
-    const request = new Request(
-      'http://localhost:3000/api/community-services/moderation/listings/some-id'
-    );
+    const request = req('http://localhost:3000/api/community-services/moderation/listings/some-id');
     const response = await modGET(request);
     expect(response.status).toBe(401);
   });
@@ -1201,9 +1174,7 @@ describe('GET /community-services/moderation/listings', () => {
     const roleChain = makeFullSelectChain([{ role: 'RESIDENT' }]);
     mocks.dbMock.select.mockReturnValue(roleChain);
 
-    const request = new Request(
-      'http://localhost:3000/api/community-services/moderation/listings/some-id'
-    );
+    const request = req('http://localhost:3000/api/community-services/moderation/listings/some-id');
     const response = await modGET(request);
     expect(response.status).toBe(403);
   });
@@ -1218,9 +1189,7 @@ describe('GET /community-services/moderation/listings', () => {
       return makeSelectChain([{ count: 1 }]);
     });
 
-    const request = new Request(
-      'http://localhost:3000/api/community-services/moderation/listings/some-id'
-    );
+    const request = req('http://localhost:3000/api/community-services/moderation/listings/some-id');
     const response = await modGET(request);
     expect(response.status).toBe(200);
   });
@@ -1235,9 +1204,7 @@ describe('GET /community-services/moderation/listings', () => {
       return makeSelectChain([{ count: 0 }]);
     });
 
-    const request = new Request(
-      'http://localhost:3000/api/community-services/moderation/listings/some-id'
-    );
+    const request = req('http://localhost:3000/api/community-services/moderation/listings/some-id');
     const response = await modGET(request);
     expect(response.status).toBe(200);
   });
@@ -1248,7 +1215,7 @@ describe('GET /community-services/moderation/listings', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('POST /community-services/moderation/listings/[id] (approve)', () => {
   it('returns 401 without auth', async () => {
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/moderation/listings/listing-1',
       {
         method: 'POST',
@@ -1265,7 +1232,7 @@ describe('POST /community-services/moderation/listings/[id] (approve)', () => {
     const roleChain = makeFullSelectChain([{ role: 'RESIDENT' }]);
     mocks.dbMock.select.mockReturnValue(roleChain);
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/moderation/listings/listing-1',
       {
         method: 'POST',
@@ -1287,7 +1254,7 @@ describe('POST /community-services/moderation/listings/[id] (approve)', () => {
     });
     mocks.dbMock.update.mockReturnValue(makeUpdateChain([]));
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/moderation/listings/listing-1',
       {
         method: 'POST',
@@ -1309,7 +1276,7 @@ describe('POST /community-services/moderation/listings/[id] (approve)', () => {
     });
     mocks.dbMock.update.mockReturnValue(makeUpdateChain([]));
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/moderation/listings/listing-1',
       {
         method: 'POST',
@@ -1327,7 +1294,7 @@ describe('POST /community-services/moderation/listings/[id] (approve)', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('PUT /community-services/moderation/listings/[id] (reject)', () => {
   it('returns 401 without auth', async () => {
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/moderation/listings/listing-1',
       {
         method: 'PUT',
@@ -1344,7 +1311,7 @@ describe('PUT /community-services/moderation/listings/[id] (reject)', () => {
     const roleChain = makeFullSelectChain([{ role: 'RESIDENT' }]);
     mocks.dbMock.select.mockReturnValue(roleChain);
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/moderation/listings/listing-1',
       {
         method: 'PUT',
@@ -1366,7 +1333,7 @@ describe('PUT /community-services/moderation/listings/[id] (reject)', () => {
     });
     mocks.dbMock.update.mockReturnValue(makeUpdateChain([]));
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/moderation/listings/listing-1',
       {
         method: 'PUT',
@@ -1384,7 +1351,7 @@ describe('PUT /community-services/moderation/listings/[id] (reject)', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('DELETE /community-services/moderation/listings/[id] (remove)', () => {
   it('returns 401 without auth', async () => {
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/moderation/listings/listing-1',
       {
         method: 'DELETE',
@@ -1401,7 +1368,7 @@ describe('DELETE /community-services/moderation/listings/[id] (remove)', () => {
     const roleChain = makeFullSelectChain([{ role: 'COMMITTEE' }]);
     mocks.dbMock.select.mockReturnValue(roleChain);
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/moderation/listings/listing-1',
       {
         method: 'DELETE',
@@ -1419,7 +1386,7 @@ describe('DELETE /community-services/moderation/listings/[id] (remove)', () => {
     mocks.dbMock.select.mockReturnValue(roleChain);
     mocks.dbMock.update.mockReturnValue(makeUpdateChain([]));
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/moderation/listings/listing-1',
       {
         method: 'DELETE',
@@ -1437,7 +1404,7 @@ describe('DELETE /community-services/moderation/listings/[id] (remove)', () => {
     mocks.dbMock.select.mockReturnValue(roleChain);
     mocks.dbMock.update.mockReturnValue(makeUpdateChain([]));
 
-    const request = new Request(
+    const request = req(
       'http://localhost:3000/api/community-services/moderation/listings/listing-1',
       {
         method: 'DELETE',
@@ -1455,7 +1422,7 @@ describe('DELETE /community-services/moderation/listings/[id] (remove)', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 describe('GET /community-services/analytics', () => {
   it('returns 401 without auth', async () => {
-    const request = new Request('http://localhost:3000/api/community-services/analytics');
+    const request = req('http://localhost:3000/api/community-services/analytics');
     const response = await analyticsGET(request);
     expect(response.status).toBe(401);
   });
@@ -1465,7 +1432,7 @@ describe('GET /community-services/analytics', () => {
     const roleChain = makeFullSelectChain([{ role: 'RESIDENT' }]);
     mocks.dbMock.select.mockReturnValue(roleChain);
 
-    const request = new Request('http://localhost:3000/api/community-services/analytics');
+    const request = req('http://localhost:3000/api/community-services/analytics');
     const response = await analyticsGET(request);
     expect(response.status).toBe(403);
   });
@@ -1486,7 +1453,7 @@ describe('GET /community-services/analytics', () => {
       return makeFullSelectChain([{ avgRating: 4.2, count: 50 }]);
     });
 
-    const request = new Request('http://localhost:3000/api/community-services/analytics');
+    const request = req('http://localhost:3000/api/community-services/analytics');
     const response = await analyticsGET(request);
     expect(response.status).toBe(200);
   });
@@ -1507,7 +1474,7 @@ describe('GET /community-services/analytics', () => {
       return makeFullSelectChain([{ avgRating: null, count: 0 }]);
     });
 
-    const request = new Request('http://localhost:3000/api/community-services/analytics');
+    const request = req('http://localhost:3000/api/community-services/analytics');
     const response = await analyticsGET(request);
     expect(response.status).toBe(200);
   });
@@ -1528,7 +1495,7 @@ describe('GET /community-services/analytics', () => {
       return makeFullSelectChain([{ avgRating: 4.2, count: 50 }]);
     });
 
-    const request = new Request('http://localhost:3000/api/community-services/analytics?period=7d');
+    const request = req('http://localhost:3000/api/community-services/analytics?period=7d');
     const response = await analyticsGET(request);
     expect(response.status).toBe(200);
   });
