@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSafeTranslation } from '@shared/lib';
 import { ErrorBoundary } from '@shared/ui';
-import { useApiToast } from '@/shared/lib/hooks/useApiToast';
+import { useApiToast } from '@shared/lib/hooks';
 
 interface CreateListingFormProps {
   householdId?: string;

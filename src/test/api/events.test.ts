@@ -63,7 +63,7 @@ vi.mock('@entities/tenant', () => ({
 }));
 
 // Mock event services
-vi.mock('@entities/events', () => ({
+vi.mock('@entities/event', () => ({
   listEvents: (...args: unknown[]) => mocks.listEvents(...args),
   createEvent: (...args: unknown[]) => mocks.createEvent(...args),
   validateEventFields: (...args: unknown[]) => mocks.validateEventFields(...args),

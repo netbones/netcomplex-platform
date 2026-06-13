@@ -15,7 +15,7 @@ import { eq, inArray, and, sql } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant';
 import { hasPermission } from '@shared/lib';
-import { listEvents, createEvent, validateEventFields } from '@entities/events';
+import { listEvents, createEvent, validateEventFields } from '@entities/event';
 
 /**
  * Retrieves session and role from the request for API routes.

@@ -22,7 +22,7 @@ export default [
           patterns: [
             // Enforce slice public API (no deep imports)
             {
-              group: ['@shared/*/*'],
+              regex: '^@shared/(?!lib/hooks)[^/]+/[^/]+$',
               message: 'Use public API from @shared instead of deep imports.',
             },
             {

@@ -21,7 +21,7 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { authClient } from '@api/client';
-import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
+import { usePageFlags } from '@shared/lib/hooks';
 import { ErrorBoundary } from '@shared/ui';
 import { SpaceLauncher } from './SpaceLauncher';
 import { MobileSpaceBar } from './MobileSpaceBar';

@@ -44,6 +44,16 @@ export default defineConfig([
     },
   },
   {
+    // Admin widget registry, like the dashboard registry, cross-imports widgets
+    // from @widgets/service and @widgets/maintenance as the central composition
+    // point. Same design rationale as the dashboard exception above.
+    // See soralia-village-nf5r for context.
+    files: ['src/widgets/admin/ui/AdminWidgetRenderer.tsx'],
+    rules: {
+      'fsd/forbidden-imports': 'off',
+    },
+  },
+  {
     // Documented sidesteps (allow list). Add new entries here only when the
     // sidestep is intentional, justified, and documented in the linked BD
     // issue or commit message. Each entry should have a short comment.
@@ -64,6 +74,10 @@ export default defineConfig([
             '@api/server',
             '@api/client',
             '@api/shared',
+            // @shared/lib/hooks is a sub-barrel for client-only hooks that the
+            // main shared/lib barrel deliberately excludes to prevent server
+            // bundle contamination. Same justification as @shared/lib/i18n.
+            '@shared/lib/hooks',
           ],
         },
       ],

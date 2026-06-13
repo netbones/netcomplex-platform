@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { authClient } from '@api/client';
-import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
+import { usePageFlags } from '@shared/lib/hooks';
 import { getVisibleSpaces, SPACES, type SpaceId } from '../model/spaces';
 
 /**

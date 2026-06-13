@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { adminCompetitionSchema, type AdminCompetitionFormData } from '@entities/events';
+import { adminCompetitionSchema, type AdminCompetitionFormData } from '@entities/event';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('CompetitionForm');

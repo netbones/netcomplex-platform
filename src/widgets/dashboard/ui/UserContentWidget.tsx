@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { authClient } from '@api/client';
 import { sanitizeHtml } from '@/shared/lib/sanitize';
 import { ErrorBoundary, TagCloud } from '@shared/ui';
-import { useApiToast } from '@/shared/lib/hooks/useApiToast';
+import { useApiToast } from '@shared/lib/hooks';
 
 interface ContentItem {
   id: string;

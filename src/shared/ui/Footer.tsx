@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { useContactSettings } from '@/shared/lib/useContactSettings';
-import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
+import { usePageFlags } from '@shared/lib/hooks';
 import { NAV_REGISTRY } from '@/shared/lib/navigation';
 import { isNavItemVisible } from '@/shared/lib/nav-utils';
 import { authClient } from '@api/client';

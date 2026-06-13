@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { authClient } from '@api/client';
 import type { ConversationMessage } from '@entities/chat';
-import { usePresence } from '@features/chat';
+import { usePresence } from '@entities/chat';
 import { OnlineIndicator } from '@entities/chat';
 import { apiGet, apiPost } from '@api/shared';
 

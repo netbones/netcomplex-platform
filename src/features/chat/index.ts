@@ -1,4 +1,4 @@
 export * from './model/useConversationList';
 export * from './model/useMessageSend';
-export * from './hooks/use-presence';
+export { usePresence } from '@entities/chat';
 export * from './ui/CreateConversationModal';

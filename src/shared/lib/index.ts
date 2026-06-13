@@ -39,10 +39,13 @@ export * from './constants/tiers';
 export { tenantConfig, type TenantConfig } from './config/tenant';
 export { useSafeTranslation } from './hooks/useSafeTranslation';
 export { userProfileSchema, type UserProfileFormData } from './schemas/user-profile';
+// NOTE: Client-only hooks (useApiToast, usePageFlags, usePageLoading) are
+// in @shared/lib/hooks — import from that sub-barrel to avoid pulling
+// client-side code (sonner, react context) into server bundles:
+//   import { useApiToast } from '@shared/lib/hooks'
 // NOTE: Do NOT export sanitizeHtml here.
 // Client: import { sanitizeHtml } from '@shared/lib/sanitize'
 // Server: import { sanitizeHtml } from '@shared/lib/sanitization'
 // Import them directly from their source files to avoid pulling
 // client-side code (sonner, react context) into server bundles:
 //   import { useContactSettings } from '@shared/lib/useContactSettings'
-//   import { useApiToast } from '@shared/lib/hooks/useApiToast'
