@@ -4,13 +4,13 @@
 
 ## Current State
 
-| Metric             | Original | After Mock Fix | After P0 Tests |
-| ------------------ | -------- | -------------- | -------------- |
-| Test files passing | 15       | 30             | **33**         |
-| Test files failing | 15       | 0              | **0**          |
-| Total tests        | 301      | 388            | **595**        |
-| Tests passing      | 208      | 388            | **595**        |
-| Tests failing      | 93       | 0              | **0**          |
+| Metric             | Original | After Mock Fix | After P0 Tests | After P1 Tests |
+| ------------------ | -------- | -------------- | -------------- | -------------- |
+| Test files passing | 15       | 30             | 33             | **38**         |
+| Test files failing | 15       | 0              | 0              | **0**          |
+| Total tests        | 301      | 388            | 595            | **749**        |
+| Tests passing      | 208      | 388            | 595            | **749**        |
+| Tests failing      | 93       | 0              | 0              | **0**          |
 
 ## Root Cause of Prior Failures
 
@@ -72,9 +72,9 @@ Other contributing issues fixed in this pass:
 
 ## Coverage Gaps by Layer
 
-### API Routes (`src/app/api/`) — 31% covered (49/157)
+### API Routes (`src/app/api/`) — 62% covered (98/157)
 
-49 endpoints now have handler-level tests across 7 test files. New P0 test suites:
+98 endpoints now have handler-level tests across 11 test files. P0+P1 test suites added:
 
 | Test File                                 | Tests | Endpoints | Added |
 | ----------------------------------------- | ----- | --------- | ----- |
@@ -156,12 +156,12 @@ Remaining gaps:
 2. **Community services API tests** — 71 tests, 18 endpoints ✅
 3. **Admin platform API tests** — 52 tests, 13 endpoints ✅ (complements `platform-admin.test.ts`)
 
-### P1 — High (affects user experience)
+### P1 — High (affects user experience) — DONE 2026-06-13
 
-4. **Directory API tests** — daily resident use
-5. **Chat/conversations API tests** — realtime messaging
-6. **Groups API tests** — community interaction
-7. **Booking entity tests** — complement existing API tests with unit tests for business logic
+4. **Directory API tests** — 50 tests, 14 endpoints ✅
+5. **Chat/Conversations API tests** — 30 tests, 9 endpoints ✅
+6. **Groups API tests** — 44 tests, 9 endpoints ✅
+7. **Booking entity tests** — 30 tests (buildBookingConditions, DTO, services) ✅
 
 ### P2 — Medium (completes coverage)
 
