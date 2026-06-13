@@ -1,8 +1,8 @@
 # BD Issue Tracker
 
 > **Last updated:** 2026-06-13 (Session 12)
-> **Total remaining:** 33 issues
-> **Closed this session:** 2 (`nf5r`, `znjo` — FSD layer inversion complete)
+> **Total remaining:** 31 issues
+> **Closed this session:** 4 (`s50y`, `3qio`, `nf5r`, `znjo`)
 > **Created this session:** 0
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
@@ -12,14 +12,14 @@
 | -------- | ----- | -------------------------------------------------- |
 | **P1**   | **1** | **Supply-chain: pnpm audit high-severity cleanup** |
 | P2       | 7     | Core features, epics, bugs, **architecture**       |
-| P3       | 20    | Tech debt, Phase 4/5 features, enhancements        |
+| P3       | 18    | Tech debt, Phase 4/5 features, enhancements        |
 | P4       | 6     | Backlog, blocked events                            |
 
 ## Summary by Status
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 32    |
+| ○ Open        | 30    |
 | ◐ In Progress | 1     |
 
 ---
@@ -170,12 +170,14 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 
 ---
 
-## Closed This Session (33 issues)
+## Closed This Session (35 issues)
 
-### Session 12 - FSD Layer Inversion Complete (2 closed)
+### Session 12 - FSD Cleanup (4 closed)
 
 | ID     | Title                                                   | Reason                                                                                                                                    |
 | ------ | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `s50y` | src/types/ at wrong FSD layer (1 violation)             | Fixed: moved `css.d.ts` to `src/shared/types/css.d.ts`, deleted `src/types/` directory.                                                   |
+| `3qio` | features/pricing importing app layer (1 violation)      | Fixed: extracted `PricingPlan` type to `features/pricing/model/types.ts`. Updated 3 consumers to import from `@features/pricing` barrel.  |
 | `nf5r` | entities/admin cross-slice fan-in (26 violations)       | Fixed: barrel imports + Steiger config for widget registry. 0 cross-import.\*admin violations remaining. Phase 44-05 Task 4.              |
 | `znjo` | shared layers importing entities (41 violations)        | Fixed: schemas.ts deletion, tenantConfig move, PlatformPageFlags redirect. 0 shared→entities violations remaining. Phase 44-05 Tasks 1-3. |
 | `bszk` | Remove entities/tenant re-export shims (permissions.ts) | Fixed: shims deleted, 49 consumer files migrated to @shared/lib. Closed in prior session, BD.md was stale.                                |
