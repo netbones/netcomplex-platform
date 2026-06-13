@@ -25,7 +25,7 @@ import { apiLogger } from '@shared/lib';
 
 import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant';
-import { sanitizeHtml } from '@/shared/lib/sanitization';
+import { sanitizeHtml } from '@/shared/lib/sanitize/server';
 
 import { hasPermission } from '@shared/lib';
 

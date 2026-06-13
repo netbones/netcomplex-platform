@@ -7,8 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@shared/ui';
 import { authClient } from '@api/client';
 import { usePageFlags } from '@shared/lib/hooks';
-import { NAV_REGISTRY } from '@/shared/lib/navigation';
-import { isNavItemVisible } from '@/shared/lib/nav-utils';
+import { NAV_REGISTRY, isNavItemVisible } from '@/shared/lib/nav';
 import { MobileMenu } from './MobileMenu';
 
 function TeaserLink({
@@ -69,7 +68,7 @@ function MoreDropdown({
   t,
   pathname,
 }: {
-  items: import('@/shared/lib/navigation').NavItem[];
+  items: import('@/shared/lib/nav').NavItem[];
   t: (key: string) => string;
   pathname: string;
 }) {

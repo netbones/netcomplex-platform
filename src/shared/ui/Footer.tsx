@@ -3,10 +3,9 @@
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import { useContactSettings } from '@/shared/lib/useContactSettings';
+import { useContactSettings } from '@/shared/lib/hooks/useContactSettings';
 import { usePageFlags } from '@shared/lib/hooks';
-import { NAV_REGISTRY } from '@/shared/lib/navigation';
-import { isNavItemVisible } from '@/shared/lib/nav-utils';
+import { NAV_REGISTRY, isNavItemVisible } from '@/shared/lib/nav';
 import { authClient } from '@api/client';
 
 export function Footer() {

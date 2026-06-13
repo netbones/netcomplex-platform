@@ -28,7 +28,7 @@ import { canAccessPage, hasFeature, type TierLevel } from '@entities/tenant';
 import { ROLE_PERMISSIONS, type Role } from '@shared/lib';
 
 import { useSession } from '@api/client';
-import { usePageFlags } from './hooks/usePageFlags';
+import { usePageFlags } from '../hooks/usePageFlags';
 
 // ============================================
 // CONTEXT

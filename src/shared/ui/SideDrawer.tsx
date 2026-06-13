@@ -7,8 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useIsMounted } from 'usehooks-ts';
 import { authClient } from '@api/client';
 import { usePageFlags } from '@shared/lib/hooks';
-import { NAV_REGISTRY, ADMIN_NAV_REGISTRY } from '@/shared/lib/navigation';
-import { isNavItemVisible } from '@/shared/lib/nav-utils';
+import { NAV_REGISTRY, ADMIN_NAV_REGISTRY, isNavItemVisible } from '@/shared/lib/nav';
 import {
   Accordion,
   AccordionItem,

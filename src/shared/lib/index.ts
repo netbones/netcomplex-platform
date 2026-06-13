@@ -20,7 +20,6 @@ export {
 export * from './types';
 export * from './utils';
 export * from './logger';
-export * from './logging';
 export {
   supportedLanguages,
   defaultLanguage,
@@ -29,7 +28,7 @@ export {
   languageNames,
   getContentLocales,
   type SupportedLanguage,
-} from './i18n-config';
+} from './i18n/config';
 export * from './constants';
 export * from './constants/tiers';
 // NOTE: Do NOT export './i18n' here — it imports react-i18next (createContext) and
@@ -45,7 +44,7 @@ export { userProfileSchema, type UserProfileFormData } from './schemas/user-prof
 //   import { useApiToast } from '@shared/lib/hooks'
 // NOTE: Do NOT export sanitizeHtml here.
 // Client: import { sanitizeHtml } from '@shared/lib/sanitize'
-// Server: import { sanitizeHtml } from '@shared/lib/sanitization'
+// Server: import { sanitizeHtml } from '@shared/lib/sanitize/server'
 // Import them directly from their source files to avoid pulling
 // client-side code (sonner, react context) into server bundles:
-//   import { useContactSettings } from '@shared/lib/useContactSettings'
+//   import { useContactSettings } from '@shared/lib/hooks/useContactSettings'
