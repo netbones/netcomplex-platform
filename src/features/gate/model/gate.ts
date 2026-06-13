@@ -11,24 +11,18 @@
  *   - The CLIENT evaluates only 3 layers: Role (0), PageFlag (3), FeatureToggle (4).
  *   - The CLIENT skips Tier (1) and Module (2) — those are server-only.
  *   - The SERVER is the source of truth; the client is "best effort".
- *   - When /api/flags is extended to return `tier`, useGateContext() will populate
- *     ctx.tier and Layer 4 will be active.
- *
- * The mapping tables (FEATURE_TO_FLAG, FEATURE_TO_REGISTRY) are re-imported from
- * src/shared/api/gate.ts. The client does NOT import FEATURE_TO_MODULE because the
- * Module layer is skipped on the client.
  */
 
 'use client';
 
-import type { FeatureKey, GateResult } from '@api/server';
-import { FEATURE_TO_FLAG, FEATURE_TO_REGISTRY } from '@api/server';
-import type { PlatformPageFlags } from '@entities/tenant';
+import type { FeatureKey, GateResult } from '@entities/tenant';
+import { FEATURE_TO_FLAG, FEATURE_TO_REGISTRY } from '@entities/tenant';
+import { type PlatformPageFlags } from '@shared/lib';
 import { canAccessPage, hasFeature, type TierLevel } from '@entities/tenant';
 import { ROLE_PERMISSIONS, type Role } from '@shared/lib';
 
 import { useSession } from '@api/client';
-import { usePageFlags } from '../hooks/usePageFlags';
+import { usePageFlags } from '@/shared/lib/hooks/usePageFlags';
 
 // ============================================
 // CONTEXT
@@ -37,10 +31,9 @@ import { usePageFlags } from '../hooks/usePageFlags';
 /**
  * Client-side gate context.
  *
- * `tier` is OPTIONAL. /api/flags does not currently return it (Phase 1 decision,
- * Q1=A). When present, the FeatureToggle layer (Layer 4) uses it. When absent,
- * Layer 4 is permissive (returns true) — the server will still 403 if the
- * actual tier is insufficient.
+ * `tier` is OPTIONAL. /api/flags does not currently return it.
+ * When present, the FeatureToggle layer (Layer 4) uses it.
+ * When absent, Layer 4 is permissive (returns true).
  */
 export interface ClientGateContext {
   role: Role;
@@ -57,30 +50,21 @@ export interface ClientGateContext {
  * Resolve the client gate context from Better Auth session + /api/flags.
  *
  * Returns `null` while session or flags are still loading.
- *
- * Role is read from the real Better Auth session via useSession(). The role is
- * on `session.user.role` (set via additionalFields in src/shared/api/auth.ts).
- * Falls back to 'RESIDENT' for unauthenticated requests.
  */
 export function useGateContext(): ClientGateContext | null {
   const { flags, isLoading, error } = usePageFlags();
   const { data: session } = useSession();
 
-  // Both session and flags are required. If either is loading/erroring, return null.
   if (isLoading || error || !flags) {
     return null;
   }
 
-  // Defensive cast: Better Auth's TypeScript types may not include the
-  // additionalFields `role` augmentation in every code path. The additionalFields
-  // is configured in src/shared/api/auth.ts and is authoritative at runtime.
   const role = (session?.user as { role?: string } | undefined)?.role as Role | undefined;
   const resolvedRole: Role = role ?? 'RESIDENT';
 
   return {
     role: resolvedRole,
     flags,
-    // tier: undefined (not fetched from /api/flags in Phase 1)
   };
 }
 
@@ -91,14 +75,11 @@ export function useGateContext(): ClientGateContext | null {
 /**
  * Evaluate a feature gate against the resolved client context.
  *
- * Skips Layer 1 (Tier) and Layer 2 (Module) — those are server-only. Server
- * is the source of truth for those layers; client renders null/upgrade prompt
- * based on what server allows.
+ * Skips Layer 1 (Tier) and Layer 2 (Module) — those are server-only.
  *
- * @param ctx       Resolved client gate context (use useGateContext() to build this)
+ * @param ctx       Resolved client gate context
  * @param feature   The canonical FeatureKey being checked
  * @param opts      Optional flags — `skipFlag: true` skips the PageFlag layer
- *                  (used by callers that have already fetched flags)
  */
 export function canAccessClient(
   ctx: ClientGateContext,
@@ -111,21 +92,11 @@ export function canAccessClient(
     return { allowed: false, reason: 'role' };
   }
 
-  // Layer 1: Tier — SKIPPED on client
-  // Server is source of truth; client doesn't fetch tenant.tier from /api/flags
-
-  // Layer 2: Module — SKIPPED on client
-  // Server is source of truth; server returns 403 on module-disabled API calls
-
   // Layer 3: PageFlag
   if (!opts?.skipFlag) {
     const flagKey = (FEATURE_TO_FLAG as Record<FeatureKey, string | null>)[feature];
     if (flagKey !== null) {
       const flagValue = ctx.flags[flagKey as keyof PlatformPageFlags];
-      // Tri-state flags (e.g. 'conservation': 'default' | 'managed' | 'external')
-      // are always enabled at the gate layer; the UI consumes the value to decide
-      // rendering. Boolean flags use their value directly. Matches the server's
-      // behavior in src/shared/api/gate.ts (Phase 1 invariant).
       const flagOk = typeof flagValue === 'boolean' ? flagValue : true;
       if (!flagOk) {
         return { allowed: false, reason: 'flag' };
@@ -136,16 +107,12 @@ export function canAccessClient(
   // Layer 4: FeatureToggle (only if tier is available in context)
   const registryKey = (FEATURE_TO_REGISTRY as Record<FeatureKey, string | null>)[feature];
   if (registryKey !== null && ctx.tier) {
-    const featureOk =
-      hasFeature(registryKey, ctx.tier) &&
-      canAccessPage(registryKey.replace(/^page\./, ''), ctx.tier);
+    const pageKey = registryKey.replace(/^page\./, '');
+    const featureOk = hasFeature(registryKey, ctx.tier) && canAccessPage(pageKey, ctx.tier);
     if (!featureOk) {
       return { allowed: false, reason: 'feature' };
     }
   }
-  // If ctx.tier is not present, Layer 4 is permissive (returns true).
-  // This is the Phase 1 trade-off: client doesn't fetch tier; if the page flag
-  // is on (Layer 3), client renders. Server will still 403 if tier is wrong.
 
   return { allowed: true, reason: 'allowed' };
 }
@@ -156,16 +123,10 @@ export function canAccessClient(
 
 /**
  * Reactive hook combining useGateContext() + canAccessClient().
- *
- * Returns a conservative `{ allowed: false, reason: 'role' }` while the context
- * is still loading. This is the "deny by default while loading" trade-off
- * (decision 2026-06-01) — safer than optimistically rendering gated content
- * that the server might 403.
  */
 export function useCanAccess(feature: FeatureKey, opts?: { skipFlag?: boolean }): GateResult {
   const ctx = useGateContext();
   if (!ctx) {
-    // Conservative default while context is loading
     return { allowed: false, reason: 'role' };
   }
   return canAccessClient(ctx, feature, opts);
