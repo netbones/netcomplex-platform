@@ -15,4 +15,7 @@ export * from './ui/GroupForm';
 export * from './ui/PageSettingsWidget';
 export * from './ui/ResourceForm';
 export * from './ui/ResourceList';
+export * from './ui/AdminAnnouncementsWidget';
+export * from './ui/SurveysWidget';
+export * from './ui/GroupModerationWidget';
 export * from './ui/UsersListSection';

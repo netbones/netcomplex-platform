@@ -32,6 +32,18 @@ export default defineConfig([
     },
   },
   {
+    // Widget registry intentionally references cross-slice widgets (admin,
+    // maintenance, chat, service). This is a design decision — the registry
+    // is the central composition point and cannot be split without creating
+    // circular dependencies. The barrel imports (@widgets/admin etc.) satisfy
+    // the public API rule. Cross-import warnings are suppressed for this
+    // single file. See soralia-village-nf5r for context.
+    files: ['src/widgets/dashboard/model/widgets.ts'],
+    rules: {
+      'fsd/forbidden-imports': 'off',
+    },
+  },
+  {
     // Documented sidesteps (allow list). Add new entries here only when the
     // sidestep is intentional, justified, and documented in the linked BD
     // issue or commit message. Each entry should have a short comment.
@@ -40,19 +52,19 @@ export default defineConfig([
       'fsd/no-public-api-sidestep': [
         'warn',
         {
-        allow: [
-          // i18n is a client-only module that the barrel deliberately
-          // excludes (react-i18next would leak into server bundles). Each
-          // consumer has an eslint-disable-next-line with the same
-          // justification. See soralia-village-de8x for context.
-          '@shared/lib/i18n',
-          // Phase 44-04 (BD qjpa): @api sub-barrels are the official public
-          // APIs for the shared/api slice, split by runtime context to avoid
-          // merging server-only and client-only code in one barrel.
-          '@api/server',
-          '@api/client',
-          '@api/shared',
-        ],
+          allow: [
+            // i18n is a client-only module that the barrel deliberately
+            // excludes (react-i18next would leak into server bundles). Each
+            // consumer has an eslint-disable-next-line with the same
+            // justification. See soralia-village-de8x for context.
+            '@shared/lib/i18n',
+            // Phase 44-04 (BD qjpa): @api sub-barrels are the official public
+            // APIs for the shared/api slice, split by runtime context to avoid
+            // merging server-only and client-only code in one barrel.
+            '@api/server',
+            '@api/client',
+            '@api/shared',
+          ],
         },
       ],
     },

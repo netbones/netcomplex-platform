@@ -195,11 +195,11 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     category: 'core',
     icon: Wrench,
     component: lazy(() =>
-      import('../../maintenance/ui/MaintenanceRequestsWidget').then(m => ({
+      import('@widgets/maintenance').then(m => ({
         default: m.MaintenanceRequestsWidget,
       }))
     ),
-    loader: () => import('../../maintenance/ui/MaintenanceRequestsWidget'),
+    loader: () => import('@widgets/maintenance'),
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -216,11 +216,11 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: ClipboardList,
     permissions: ['admin', 'board'],
     component: lazy(() =>
-      import('../../maintenance/ui/MaintenanceList').then(m => ({
+      import('@widgets/maintenance').then(m => ({
         default: m.MaintenanceList,
       }))
     ),
-    loader: () => import('../../maintenance/ui/MaintenanceList'),
+    loader: () => import('@widgets/maintenance'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -237,11 +237,11 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: BarChart2,
     permissions: ['admin', 'board'],
     component: lazy(() =>
-      import('../../maintenance/ui/MaintenanceAnalyticsWidget').then(m => ({
+      import('@widgets/maintenance').then(m => ({
         default: m.MaintenanceAnalyticsWidget,
       }))
     ),
-    loader: () => import('../../maintenance/ui/MaintenanceAnalyticsWidget'),
+    loader: () => import('@widgets/maintenance'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -262,11 +262,11 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: BarChart2,
     permissions: ['admin'],
     component: lazy(() =>
-      import('../../admin/ui/AdminStatsWidget').then(m => ({
+      import('@widgets/admin').then(m => ({
         default: m.AdminStatsWidget,
       }))
     ),
-    loader: () => import('../../admin/ui/AdminStatsWidget'),
+    loader: () => import('@widgets/admin'),
     defaultSize: { width: 4, height: 2 },
     minSize: { width: 3, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -283,11 +283,11 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: Activity,
     permissions: ['admin'],
     component: lazy(() =>
-      import('../../admin/ui/AdminActivityWidget').then(m => ({
+      import('@widgets/admin').then(m => ({
         default: m.AdminActivityWidget,
       }))
     ),
-    loader: () => import('../../admin/ui/AdminActivityWidget'),
+    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -304,11 +304,11 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: Zap,
     permissions: ['admin'],
     component: lazy(() =>
-      import('../../admin/ui/AdminQuickLinksWidget').then(m => ({
+      import('@widgets/admin').then(m => ({
         default: m.AdminQuickLinksWidget,
       }))
     ),
-    loader: () => import('../../admin/ui/AdminQuickLinksWidget'),
+    loader: () => import('@widgets/admin'),
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -325,11 +325,11 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: FileText,
     permissions: ['admin'],
     component: lazy(() =>
-      import('../../admin/ui/AdminContentWidget').then(m => ({
+      import('@widgets/admin').then(m => ({
         default: m.AdminContentWidget,
       }))
     ),
-    loader: () => import('../../admin/ui/AdminContentWidget'),
+    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -346,11 +346,11 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: Users,
     permissions: ['admin'],
     component: lazy(() =>
-      import('../../admin/ui/AdminUserWidget').then(m => ({
+      import('@widgets/admin').then(m => ({
         default: m.AdminUserWidget,
       }))
     ),
-    loader: () => import('../../admin/ui/AdminUserWidget'),
+    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -367,11 +367,11 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: Settings,
     permissions: ['admin'],
     component: lazy(() =>
-      import('../../admin/ui/AdminSystemWidget').then(m => ({
+      import('@widgets/admin').then(m => ({
         default: m.AdminSystemWidget,
       }))
     ),
-    loader: () => import('../../admin/ui/AdminSystemWidget'),
+    loader: () => import('@widgets/admin'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -427,10 +427,8 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     category: 'core',
     icon: Calendar,
     permissions: ['admin'],
-    component: lazy(() =>
-      import('../../admin/ui/EventsWidget').then(m => ({ default: m.EventsWidget }))
-    ),
-    loader: () => import('../../admin/ui/EventsWidget'),
+    component: lazy(() => import('@widgets/admin').then(m => ({ default: m.EventsWidget }))),
+    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -446,10 +444,8 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     category: 'core',
     icon: FileText,
     permissions: ['admin'],
-    component: lazy(() =>
-      import('../../admin/ui/SurveysWidget').then(m => ({ default: m.SurveysWidget }))
-    ),
-    loader: () => import('../../admin/ui/SurveysWidget'),
+    component: lazy(() => import('@widgets/admin').then(m => ({ default: m.SurveysWidget }))),
+    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -466,11 +462,11 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: Megaphone,
     permissions: ['admin'],
     component: lazy(() =>
-      import('../../admin/ui/AdminAnnouncementsWidget').then(m => ({
+      import('@widgets/admin').then(m => ({
         default: m.AdminAnnouncementsWidget,
       }))
     ),
-    loader: () => import('../../admin/ui/AdminAnnouncementsWidget'),
+    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -487,11 +483,11 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: User,
     permissions: ['admin'],
     component: lazy(() =>
-      import('../../admin/ui/GroupModerationWidget').then(m => ({
+      import('@widgets/admin').then(m => ({
         default: m.GroupModerationWidgetWithErrorBoundary,
       }))
     ),
-    loader: () => import('../../admin/ui/GroupModerationWidget'),
+    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -507,10 +503,8 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     category: 'core',
     icon: Settings,
     permissions: ['admin'],
-    component: lazy(() =>
-      import('../../admin/ui/PageSettingsWidget').then(m => ({ default: m.PageSettingsWidget }))
-    ),
-    loader: () => import('../../admin/ui/PageSettingsWidget'),
+    component: lazy(() => import('@widgets/admin').then(m => ({ default: m.PageSettingsWidget }))),
+    loader: () => import('@widgets/admin'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -526,10 +520,8 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     category: 'core',
     icon: Star,
     permissions: ['admin'],
-    component: lazy(() =>
-      import('../../admin/ui/CompetitionList').then(m => ({ default: m.CompetitionList }))
-    ),
-    loader: () => import('../../admin/ui/CompetitionList'),
+    component: lazy(() => import('@widgets/admin').then(m => ({ default: m.CompetitionList }))),
+    loader: () => import('@widgets/admin'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -545,10 +537,8 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     category: 'core',
     icon: FileText,
     permissions: ['admin'],
-    component: lazy(() =>
-      import('../../admin/ui/ResourceList').then(m => ({ default: m.ResourceList }))
-    ),
-    loader: () => import('../../admin/ui/ResourceList'),
+    component: lazy(() => import('@widgets/admin').then(m => ({ default: m.ResourceList }))),
+    loader: () => import('@widgets/admin'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
