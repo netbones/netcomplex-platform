@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { SectionLayout } from '@shared/ui';
-import type { PricingPlan } from '@/app/api/pricing/route';
+import type { PricingPlan } from '../model/types';
 
 export function PricingCards() {
   const [plans, setPlans] = useState<PricingPlan[]>([]);

@@ -1,8 +1,8 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-06-09 (Session 11)
-> **Total remaining:** 30 issues
-> **Closed this session:** 1 (`08st` — entities/tenant cross-slice fan-in)
+> **Last updated:** 2026-06-13 (Session 12)
+> **Total remaining:** 33 issues
+> **Closed this session:** 2 (`nf5r`, `znjo` — FSD layer inversion complete)
 > **Created this session:** 0
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
@@ -12,14 +12,14 @@
 | -------- | ----- | -------------------------------------------------- |
 | **P1**   | **1** | **Supply-chain: pnpm audit high-severity cleanup** |
 | P2       | 7     | Core features, epics, bugs, **architecture**       |
-| P3       | 22    | Tech debt, Phase 4/5 features, enhancements        |
+| P3       | 20    | Tech debt, Phase 4/5 features, enhancements        |
 | P4       | 6     | Backlog, blocked events                            |
 
 ## Summary by Status
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 34    |
+| ○ Open        | 32    |
 | ◐ In Progress | 1     |
 
 ---
@@ -61,13 +61,13 @@
 
 ## FSD Cross-Slice Cleanup (from Phase 44 baseline)
 
-| ID | Priority | Title | Status | Scope | Approach | Note |
-| ------ | -------- | ------------------------------------------------- | ------ | ----- | -------- | ---- |
-| `08st` | P2 | entities/tenant cross-slice fan-in (9 violations) | ✅ | 18f | ~~BD~~ (should have been GSD) | Moved RBAC + tenant types to @shared/lib |
-| `nf5r` | P3 | entities/admin cross-slice fan-in (26 violations) | ○ | 1f | **BD** | Only 1 consumer file (widgets/dashboard/model/widgets.ts) — mechanical fix, extract to @shared/lib |
-| `znjo` | P3 | shared layers importing entities (41 violations) | ○ | 13f | **BD** (escalate if expands) | Same pattern as 08st — 13 files, all @shared→@entities. Extract shared types/fns. Escalate to GSD mid-work if scope grows. |
-| `qjpa` | P3 | @api/* deep-import sidestep violations (389) | ○ | 51f | **GSD phase 44-04** | Plan: `.planning/phases/44-m5a-hardening/44-04-PLAN.md` — split @api into server/client/shared sub-barrels, migrate 163 consumer files |
-| `bszk` | P3 | Remove entities/tenant re-export shims (permissions.ts, types.ts) | ○ | 2f | **BD** | Blocked by: app/ + widgets/ consumer migration to @shared/lib. Simple deletion once unblocked. |
+| ID     | Priority | Title                                             | Status | Scope | Approach                      | Note                                                                                                                                   |
+| ------ | -------- | ------------------------------------------------- | ------ | ----- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `08st` | P2       | entities/tenant cross-slice fan-in (9 violations) | ✅     | 18f   | ~~BD~~ (should have been GSD) | Moved RBAC + tenant types to @shared/lib                                                                                               |
+| `bszk` | P3       | Remove entities/tenant re-export shims (2 files)  | ✅     | 2f    | **BD**                        | Shim files deleted, 49 consumer files migrated to @shared/lib                                                                          |
+| `nf5r` | P3       | entities/admin cross-slice fan-in (26 violations) | ✅     | 1f    | **BD**                        | Barrel imports + Steiger config for widget registry. 0 remaining                                                                       |
+| `znjo` | P3       | shared layers importing entities (41 violations)  | ✅     | 13f   | **BD**                        | schemas.ts deletion, tenantConfig move, PlatformPageFlags redirect. 0 shared→entities violations                                       |
+| `qjpa` | P3       | @api/\* deep-import sidestep violations (389)     | ○      | 51f   | **GSD phase 44-04**           | Plan: `.planning/phases/44-m5a-hardening/44-04-PLAN.md` — split @api into server/client/shared sub-barrels, migrate 163 consumer files |
 
 **Sizing rule:** If a BD issue will touch 5+ files across multiple FSD slices, or requires new shared directories/types → escalate to GSD phase.
 
@@ -170,7 +170,15 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 
 ---
 
-## Closed This Session (31 issues)
+## Closed This Session (33 issues)
+
+### Session 12 - FSD Layer Inversion Complete (2 closed)
+
+| ID     | Title                                                   | Reason                                                                                                                                    |
+| ------ | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `nf5r` | entities/admin cross-slice fan-in (26 violations)       | Fixed: barrel imports + Steiger config for widget registry. 0 cross-import.\*admin violations remaining. Phase 44-05 Task 4.              |
+| `znjo` | shared layers importing entities (41 violations)        | Fixed: schemas.ts deletion, tenantConfig move, PlatformPageFlags redirect. 0 shared→entities violations remaining. Phase 44-05 Tasks 1-3. |
+| `bszk` | Remove entities/tenant re-export shims (permissions.ts) | Fixed: shims deleted, 49 consumer files migrated to @shared/lib. Closed in prior session, BD.md was stale.                                |
 
 ### Session 11 - FSD Cross-Slice Cleanup (1 closed)
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSignupForm, SignupHeader, SignupFormSection, SignupCTA } from '@features/auth';
-import type { PricingPlan } from '@/app/api/pricing/route';
+import type { PricingPlan } from '@features/pricing';
 import { PageLayout } from '@shared/ui';
 
 import { PlatformFooter } from '@features/platform';

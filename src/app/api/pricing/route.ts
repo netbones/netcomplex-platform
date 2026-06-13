@@ -4,18 +4,9 @@ import { logError } from '@shared/lib';
 
 import { apiError, apiSuccess, apiInternalError } from '@api/server';
 
-export interface PricingPlan {
-  id: TierLevel;
-  name: string;
-  price: string;
-  period: string;
-  description: string;
-  features: string[];
-  cta: string;
-  popular: boolean;
-  maxPages: number;
-  color: string;
-}
+import type { PricingPlan } from '@features/pricing';
+
+export type { PricingPlan };
 
 // Static pricing data aligned with Netcomplex tiers
 const PRICING_PLANS: Record<TierLevel, Omit<PricingPlan, 'id'>> = {
