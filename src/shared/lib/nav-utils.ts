@@ -1,5 +1,5 @@
 import { getPermissions, type Permission } from '@/shared/lib';
-import { PlatformPageFlags } from '@/entities/tenant/api/flags/platform-flags';
+import { PlatformPageFlags } from '@entities/tenant';
 import { NavItem } from './navigation';
 
 /**

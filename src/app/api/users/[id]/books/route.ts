@@ -1,7 +1,7 @@
 import { db, users, apiSuccess, apiNotFound, apiError } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

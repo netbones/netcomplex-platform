@@ -13,7 +13,7 @@ import {
 import { hasPermission } from '@shared/lib';
 
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 /**
  * Retrieves session and role from the request for API routes.

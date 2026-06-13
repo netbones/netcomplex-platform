@@ -1,9 +1,9 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-06-13 (Session 12)
-> **Total remaining:** 31 issues
-> **Closed this session:** 4 (`s50y`, `3qio`, `nf5r`, `znjo`)
-> **Created this session:** 0
+> **Last updated:** 2026-06-13 (Session 12b)
+> **Total remaining:** 29 issues
+> **Closed this session:** 6 (`s50y`, `3qio`, `nf5r`, `znjo`, `rnov`, `qjpa`)
+> **Created this session:** 1 (`rnov` — closed same session)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
 ## Summary by Priority
@@ -12,14 +12,14 @@
 | -------- | ----- | -------------------------------------------------- |
 | **P1**   | **1** | **Supply-chain: pnpm audit high-severity cleanup** |
 | P2       | 7     | Core features, epics, bugs, **architecture**       |
-| P3       | 18    | Tech debt, Phase 4/5 features, enhancements        |
+| P3       | 17    | Tech debt, Phase 4/5 features, enhancements        |
 | P4       | 6     | Backlog, blocked events                            |
 
 ## Summary by Status
 
 | Status        | Count |
 | ------------- | ----- |
-| ○ Open        | 30    |
+| ○ Open        | 29    |
 | ◐ In Progress | 1     |
 
 ---
@@ -61,13 +61,13 @@
 
 ## FSD Cross-Slice Cleanup (from Phase 44 baseline)
 
-| ID     | Priority | Title                                             | Status | Scope | Approach                      | Note                                                                                                                                   |
-| ------ | -------- | ------------------------------------------------- | ------ | ----- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `08st` | P2       | entities/tenant cross-slice fan-in (9 violations) | ✅     | 18f   | ~~BD~~ (should have been GSD) | Moved RBAC + tenant types to @shared/lib                                                                                               |
-| `bszk` | P3       | Remove entities/tenant re-export shims (2 files)  | ✅     | 2f    | **BD**                        | Shim files deleted, 49 consumer files migrated to @shared/lib                                                                          |
-| `nf5r` | P3       | entities/admin cross-slice fan-in (26 violations) | ✅     | 1f    | **BD**                        | Barrel imports + Steiger config for widget registry. 0 remaining                                                                       |
-| `znjo` | P3       | shared layers importing entities (41 violations)  | ✅     | 13f   | **BD**                        | schemas.ts deletion, tenantConfig move, PlatformPageFlags redirect. 0 shared→entities violations                                       |
-| `qjpa` | P3       | @api/\* deep-import sidestep violations (389)     | ○      | 51f   | **GSD phase 44-04**           | Plan: `.planning/phases/44-m5a-hardening/44-04-PLAN.md` — split @api into server/client/shared sub-barrels, migrate 163 consumer files |
+| ID     | Priority | Title                                             | Status | Scope | Approach                      | Note                                                                                                                                                                           |
+| ------ | -------- | ------------------------------------------------- | ------ | ----- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `08st` | P2       | entities/tenant cross-slice fan-in (9 violations) | ✅     | 18f   | ~~BD~~ (should have been GSD) | Moved RBAC + tenant types to @shared/lib                                                                                                                                       |
+| `bszk` | P3       | Remove entities/tenant re-export shims (2 files)  | ✅     | 2f    | **BD**                        | Shim files deleted, 49 consumer files migrated to @shared/lib                                                                                                                  |
+| `nf5r` | P3       | entities/admin cross-slice fan-in (26 violations) | ✅     | 1f    | **BD**                        | Barrel imports + Steiger config for widget registry. 0 remaining                                                                                                               |
+| `znjo` | P3       | shared layers importing entities (41 violations)  | ✅     | 13f   | **BD**                        | schemas.ts deletion, tenantConfig move, PlatformPageFlags redirect. 0 shared→entities violations                                                                               |
+| `qjpa` | P3       | @api/\* deep-import sidestep violations (389)     | ✅     | 51f   | **GSD phase 44-04**           | Sub-barrels created, aliases registered, all 163 consumers migrated. 185 cosmetic `⚠` remain (Steiger allow-list limitation — sub-barrels ARE the correct public API per plan) |
 
 **Sizing rule:** If a BD issue will touch 5+ files across multiple FSD slices, or requires new shared directories/types → escalate to GSD phase.
 
@@ -110,7 +110,7 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 
 ---
 
-## P3 — Medium Priority (20 issues)
+## P3 — Medium Priority (18 issues)
 
 ### Bugs
 
@@ -170,7 +170,14 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 
 ---
 
-## Closed This Session (35 issues)
+## Closed This Session (37 issues)
+
+### Session 12b — FSD Cleanup (2 closed)
+
+| ID     | Title                                                | Reason                                                                                                                                                                                                             |
+| ------ | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `rnov` | Pricing page pre-existing sidesteps and cross-import | Fixed: moved `PageCTA` to `shared/ui`, fixed `withTenant` to use `@entities/tenant` barrel                                                                                                                         |
+| `qjpa` | @api/\* deep-import sidestep violations (389)        | Sub-barrel architecture complete. All 163 consumers migrated to `@api/server`/`@api/client`/`@api/shared`. 185 cosmetic `⚠` remain (Steiger allow-list limitation). `@api/*` wildcard alias removed from tsconfig. |
 
 ### Session 12 - FSD Cleanup (4 closed)
 

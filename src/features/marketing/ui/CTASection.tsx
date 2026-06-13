@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslation } from 'react-i18next';
-import { PageCTA } from './PageCTA';
+import { PageCTA } from '@shared/ui';
 
 export function CTASection() {
   const { t, ready } = useTranslation('platform');

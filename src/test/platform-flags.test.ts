@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { SETTINGS_KEYS } from '../entities/tenant/api/settings';
+import { SETTINGS_KEYS } from '@entities/tenant';
 
 describe('Tenant Settings', () => {
   describe('SETTINGS_KEYS', () => {

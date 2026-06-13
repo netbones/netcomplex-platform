@@ -4,7 +4,7 @@ import { ResourceForm } from '@widgets/admin';
 import { db, resources } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 interface EditResourcePageProps {
   params: Promise<{ id: string }>;

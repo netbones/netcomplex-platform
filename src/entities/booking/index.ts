@@ -23,3 +23,4 @@ export type { BookingFormData } from './schema';
 export * from './ui/StatusBadge';
 export * from './ui/FacilityBadge';
 export * from './ui/BookingCard';
+export * from './services';

@@ -7,7 +7,7 @@ import { Carousel, Pagination } from '@shared/ui';
 import { STREETS, CARD_HEADER_COLORS } from '@shared/lib';
 import { useResidentFilter } from '@features/directory';
 
-const CommunityMap = dynamic(() => import('@entities/directory/ui').then(mod => mod.CommunityMap), {
+const CommunityMap = dynamic(() => import('@entities/directory').then(mod => mod.CommunityMap), {
   ssr: false,
   loading: () => <div className="h-96 w-full bg-gray-100 rounded-lg animate-pulse" />,
 });

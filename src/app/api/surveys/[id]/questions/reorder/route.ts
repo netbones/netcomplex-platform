@@ -15,7 +15,7 @@ import {
 import { hasPermission } from '@shared/lib';
 
 import { eq, and, inArray } from 'drizzle-orm';
-import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 export const maxDuration = 8;
 

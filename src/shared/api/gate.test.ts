@@ -22,7 +22,7 @@ import {
   GATE_REASON_TO_ERROR,
 } from './gate';
 import { MODULES, ModuleKey } from '@shared/lib';
-import { PlatformPageFlags } from '@/entities/tenant/api/flags/platform-flags';
+import { PlatformPageFlags } from '@entities/tenant';
 
 // ============================================
 // MOCKS
@@ -40,12 +40,12 @@ vi.mock('./db', () => ({
   },
 }));
 
-vi.mock('@entities/tenant-module-enabled', () => ({
+vi.mock('@entities/tenant', () => ({
   isModuleEnabled: vi.fn(),
 }));
 
-vi.mock('@/entities/tenant/api/flags/platform-flags', async () => {
-  const actual = await vi.importActual('@/entities/tenant/api/flags/platform-flags');
+vi.mock('@entities/tenant', async () => {
+  const actual = await vi.importActual('@entities/tenant');
   return {
     ...actual,
     getPlatformPageFlags: vi.fn(),
@@ -225,8 +225,8 @@ describe('canAccess()', () => {
   });
 
   it('should allow when all 5 layers pass (bookings — depth module)', async () => {
-    const { isModuleEnabled } = await import('@entities/tenant-module-enabled');
-    const { getPlatformPageFlags } = await import('@/entities/tenant/api/flags/platform-flags');
+    const { isModuleEnabled } = await import('@entities/tenant');
+    const { getPlatformPageFlags } = await import('@entities/tenant');
 
     vi.mocked(isModuleEnabled).mockResolvedValue(true);
     vi.mocked(getPlatformPageFlags).mockResolvedValue(ALL_FLAGS_ENABLED);
@@ -245,7 +245,7 @@ describe('canAccess()', () => {
   });
 
   it('should deny with reason="module" when isModuleEnabled returns false', async () => {
-    const { isModuleEnabled } = await import('@entities/tenant-module-enabled');
+    const { isModuleEnabled } = await import('@entities/tenant');
     vi.mocked(isModuleEnabled).mockResolvedValue(false);
 
     // 'bookings' = depth module — passes tier with PREMIUM; fails at module layer.
@@ -255,8 +255,8 @@ describe('canAccess()', () => {
   });
 
   it('should deny with reason="flag" when page flag is false', async () => {
-    const { isModuleEnabled } = await import('@entities/tenant-module-enabled');
-    const { getPlatformPageFlags } = await import('@/entities/tenant/api/flags/platform-flags');
+    const { isModuleEnabled } = await import('@entities/tenant');
+    const { getPlatformPageFlags } = await import('@entities/tenant');
 
     vi.mocked(isModuleEnabled).mockResolvedValue(true);
     vi.mocked(getPlatformPageFlags).mockResolvedValue({
@@ -270,8 +270,8 @@ describe('canAccess()', () => {
   });
 
   it('should skip flag check when skipFlag=true', async () => {
-    const { isModuleEnabled } = await import('@entities/tenant-module-enabled');
-    const { getPlatformPageFlags } = await import('@/entities/tenant/api/flags/platform-flags');
+    const { isModuleEnabled } = await import('@entities/tenant');
+    const { getPlatformPageFlags } = await import('@entities/tenant');
 
     vi.mocked(isModuleEnabled).mockResolvedValue(true);
     vi.mocked(getPlatformPageFlags).mockResolvedValue({
@@ -284,7 +284,7 @@ describe('canAccess()', () => {
   });
 
   it('should short-circuit on first failing layer (tier before module)', async () => {
-    const { isModuleEnabled } = await import('@entities/tenant-module-enabled');
+    const { isModuleEnabled } = await import('@entities/tenant');
     const lowTierCtx = { ...baseCtx, tier: 'STANDARD' as const };
 
     const result = await canAccess(lowTierCtx, 'maintenance');
@@ -295,7 +295,7 @@ describe('canAccess()', () => {
   });
 
   it('should handle features with null module mapping (e.g., competitions)', async () => {
-    const { getPlatformPageFlags } = await import('@/entities/tenant/api/flags/platform-flags');
+    const { getPlatformPageFlags } = await import('@entities/tenant');
 
     vi.mocked(getPlatformPageFlags).mockResolvedValue(ALL_FLAGS_ENABLED);
 
@@ -305,8 +305,8 @@ describe('canAccess()', () => {
   });
 
   it('should allow when tri-state flag is non-boolean (e.g. conservation: "managed")', async () => {
-    const { isModuleEnabled } = await import('@entities/tenant-module-enabled');
-    const { getPlatformPageFlags } = await import('@/entities/tenant/api/flags/platform-flags');
+    const { isModuleEnabled } = await import('@entities/tenant');
+    const { getPlatformPageFlags } = await import('@entities/tenant');
 
     vi.mocked(isModuleEnabled).mockResolvedValue(true);
     vi.mocked(getPlatformPageFlags).mockResolvedValue({

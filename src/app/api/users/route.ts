@@ -18,7 +18,7 @@ import { hasPermission } from '@shared/lib';
 import { eq, and, or, asc, ilike, count, ne, sql } from 'drizzle-orm';
 
 import type { SQL } from 'drizzle-orm';
-import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { toUserDTO } from '@api/shared';
 import type { InferSelectModel } from 'drizzle-orm';
 

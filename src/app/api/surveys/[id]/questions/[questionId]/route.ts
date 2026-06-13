@@ -15,7 +15,7 @@ import {
 import { hasPermission } from '@shared/lib';
 
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 const VALID_QUESTION_TYPES = [
   'SINGLE_CHOICE',

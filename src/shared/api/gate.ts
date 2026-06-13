@@ -22,12 +22,9 @@
 
 import { eq } from 'drizzle-orm';
 
-import { isModuleEnabled } from '@entities/tenant-module-enabled';
+import { isModuleEnabled } from '@entities/tenant';
 import type { TenantTier } from '@shared/lib';
-import {
-  getPlatformPageFlags,
-  type PlatformPageFlags,
-} from '@/entities/tenant/api/flags/platform-flags';
+import { getPlatformPageFlags, type PlatformPageFlags } from '@entities/tenant';
 import { canAccessPage, hasFeature, type TierLevel } from '@entities/tenant';
 import { ROLE_PERMISSIONS, type Role } from '@shared/lib';
 import { MODULES, type ModuleKey } from '@shared/lib';

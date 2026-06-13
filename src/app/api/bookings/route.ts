@@ -20,8 +20,8 @@ import { toBookingDTO } from '@api/shared';
 import { apiLogger } from '@shared/lib';
 
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@/entities/tenant/api/with-tenant';
-import { listBookings, validateFacility, createBooking } from '../../../entities/booking/services';
+import { withTenant } from '@entities/tenant';
+import { listBookings, validateFacility, createBooking } from '@entities/booking';
 
 // Limit execution time to 8 seconds for booking operations
 export const maxDuration = 8;

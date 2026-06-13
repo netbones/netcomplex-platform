@@ -19,7 +19,7 @@ import { apiLogger } from '@shared/lib';
 
 import { eq, desc, and, or, sql, ilike } from 'drizzle-orm';
 
-import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 type ListingStatus = (typeof communityServiceListings.status.enumValues)[number];
 type ServiceCategory = (typeof communityServiceListings.category.enumValues)[number];

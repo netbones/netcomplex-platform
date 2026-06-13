@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { getTenantById, updateTenant, deleteTenant } from '@/entities/tenant/api/base';
-import { requirePlatformAdmin } from '@/entities/tenant/api/guards';
+import { getTenantById, updateTenant, deleteTenant } from '@entities/tenant';
+import { requirePlatformAdmin } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
 import {

@@ -8,7 +8,7 @@ import {
 } from '@api/server';
 
 import { eq, or, and } from 'drizzle-orm';
-import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 export const dynamic = 'force-dynamic';
 

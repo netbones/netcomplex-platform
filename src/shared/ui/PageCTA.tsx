@@ -17,10 +17,6 @@ interface PageCTAProps {
   showAttribution?: boolean;
 }
 
-/**
- * PageCTA provides full-width call-to-action sections
- * for page endings. Follows NetComplex design patterns.
- */
 export function PageCTA({
   title,
   description,

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { TIERS, type TierLevel } from '@entities/tenant';
-import { createTenant, getTenantById } from '@/entities/tenant/api/base';
+import { createTenant, getTenantById } from '@entities/tenant';
 import {
   db,
   users,

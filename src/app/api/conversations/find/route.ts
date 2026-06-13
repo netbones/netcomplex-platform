@@ -1,7 +1,7 @@
 import { db, apiCreated, apiError, apiSuccess } from '@api/server';
 
 import { sql } from 'drizzle-orm';
-import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 
 interface ConversationResult {
   id: string;

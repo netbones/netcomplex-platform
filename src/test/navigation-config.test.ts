@@ -6,7 +6,7 @@ import {
   getAdminItems,
   getBurgerSections,
 } from '@entities/tenant';
-import type { PlatformPageFlags } from '@/entities/tenant/api/flags/platform-flags';
+import type { PlatformPageFlags } from '@entities/tenant';
 
 const defaultFlags: PlatformPageFlags = {
   campaign: true,

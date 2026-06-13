@@ -8,7 +8,7 @@ import {
   rateLimitByIP,
 } from '@api/server';
 
-import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { logError } from '@shared/lib';
 
 export async function POST(request: Request) {

@@ -19,6 +19,7 @@ export * from './RichTextRenderer';
 export * from './SideDrawer';
 export * from './TagCloud';
 export * from './Turnstile';
+export * from './PageCTA';
 export * from './tooltip';
 // Re-export from hooks for backward compatibility
 export { usePageLoading, useI18nReady, PageLoadingSkeleton } from '../lib/hooks/usePageLoading';

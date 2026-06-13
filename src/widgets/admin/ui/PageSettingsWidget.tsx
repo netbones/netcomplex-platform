@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
-import type { PlatformPageFlags } from '@/entities/tenant/api/flags/platform-flags';
+import type { PlatformPageFlags } from '@entities/tenant';
 
 const log = createComponentLogger('PageSettingsWidget');
 

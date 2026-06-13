@@ -10,7 +10,7 @@ import {
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { apiLogger } from '@shared/lib';
 
 export const maxDuration = 8;

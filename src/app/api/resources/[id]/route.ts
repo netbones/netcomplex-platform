@@ -14,7 +14,7 @@ import {
 
 import { eq, desc, and } from 'drizzle-orm';
 
-import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { hasPermission } from '@shared/lib';
 
 /**

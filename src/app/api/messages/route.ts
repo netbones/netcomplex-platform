@@ -24,7 +24,7 @@ import { apiLogger } from '@shared/lib';
 // Drizzle imports - use db.ts exports
 
 import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
-import { withTenant } from '@/entities/tenant/api/with-tenant';
+import { withTenant } from '@entities/tenant';
 import { sanitizeHtml } from '@/shared/lib/sanitization';
 
 import { hasPermission } from '@shared/lib';
