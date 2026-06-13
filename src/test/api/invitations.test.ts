@@ -60,6 +60,27 @@ vi.mock('@api/server', () => ({
       getHtml: vi.fn().mockReturnValue('<html>invitation</html>'),
     },
   },
+  apiSuccess: vi.fn(
+    (data: unknown) =>
+      new Response(JSON.stringify({ success: true, data }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  ),
+  apiError: vi.fn(
+    (code: string, message: string, status: number) =>
+      new Response(JSON.stringify({ success: false, error: { code, message } }), {
+        status,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  ),
+  apiCreated: vi.fn(
+    (data: unknown) =>
+      new Response(JSON.stringify({ success: true, data }), {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  ),
 }));
 
 // Mock withTenant

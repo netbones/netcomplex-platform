@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Mock server-only before any imports that use it
+// ── Mock server-only ──
 vi.mock('server-only', () => ({}));
 
-// Mock next/headers
+// ── Mock next/headers ──
 vi.mock('next/headers', () => ({
   headers: vi.fn(() =>
     Promise.resolve({
@@ -17,23 +17,14 @@ vi.mock('next/headers', () => ({
   ),
 }));
 
-// Mock revalidation
-vi.mock('@api/server', () => ({
-  revalidateContent: vi.fn(),
-}));
-
-// Mock auth
-vi.mock('@api/server', () => ({
+// ── Hoisted mutable mocks (shared state for test-level overrides) ──
+const apiServerMocks = vi.hoisted(() => ({
   auth: {
     api: {
       getSession: vi.fn(() => Promise.resolve(null)),
     },
   },
-}));
-
-// Mock db
-const mocks = vi.hoisted(() => ({
-  dbMock: {
+  db: {
     select: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
@@ -41,60 +32,94 @@ const mocks = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('@api/server', () => ({
-  db: mocks.dbMock,
-  users: {
-    id: 'id',
-    role: 'role',
-    isPlatformAdmin: 'isPlatformAdmin',
-  },
-  tenants: {
-    id: 'id',
-    ownerId: 'ownerId',
-    name: 'name',
-    slug: 'slug',
-  },
-  assistSessions: {
-    id: 'id',
-    tenantId: 'tenantId',
-    staffId: 'staffId',
-    scope: 'scope',
-    expiresAt: 'expiresAt',
-    isActive: 'isActive',
-    notes: 'notes',
-    createdAt: 'createdAt',
-    revokedAt: 'revokedAt',
-    revokedBy: 'revokedBy',
-  },
+const tenantMocks = vi.hoisted(() => ({
+  requirePlatformAdmin: vi.fn(),
+  listTenants: vi.fn(() => Promise.resolve([{ id: 'tenant-1', name: 'Test Tenant' }])),
+  createTenant: vi.fn((_data: unknown) =>
+    Promise.resolve({ id: 'new-tenant', name: 'New Tenant' })
+  ),
 }));
 
-// Mock withTenant
+// ── Mock @api/server (SINGLE consolidated call — covers ALL imports) ──
+vi.mock('@api/server', async () => {
+  const { NextResponse } = await import('next/server');
+  return {
+    // Auth
+    auth: apiServerMocks.auth,
+
+    // DB
+    db: apiServerMocks.db,
+
+    // Column name objects (Drizzle schema references)
+    users: {
+      id: 'id',
+      role: 'role',
+      isPlatformAdmin: 'isPlatformAdmin',
+    },
+    tenants: {
+      id: 'id',
+      ownerId: 'ownerId',
+      name: 'name',
+      slug: 'slug',
+    },
+    assistSessions: {
+      id: 'id',
+      tenantId: 'tenantId',
+      staffId: 'staffId',
+      scope: 'scope',
+      expiresAt: 'expiresAt',
+      isActive: 'isActive',
+      notes: 'notes',
+      createdAt: 'createdAt',
+      revokedAt: 'revokedAt',
+      revokedBy: 'revokedBy',
+    },
+
+    // Revalidation
+    revalidateContent: vi.fn(),
+
+    // Audit log
+    writeAuditLog: vi.fn(),
+
+    // ── API response helpers ──
+    apiSuccess: (data: unknown, meta?: Record<string, unknown>, status = 200) =>
+      NextResponse.json({ success: true, data, ...(meta && { meta }) }, { status }),
+    apiError: (code: string, message: string, status: number) =>
+      NextResponse.json({ success: false, error: { code, message } }, { status }),
+    apiCreated: (data: unknown) => NextResponse.json({ success: true, data }, { status: 201 }),
+    apiUnauthorized: (message = 'Authentication required') =>
+      NextResponse.json(
+        { success: false, error: { code: 'AUTH_REQUIRED', message } },
+        { status: 401 }
+      ),
+    apiForbidden: (message = 'Forbidden') =>
+      NextResponse.json({ success: false, error: { code: 'FORBIDDEN', message } }, { status: 403 }),
+    apiNotFound: (message = 'Not found') =>
+      NextResponse.json({ success: false, error: { code: 'NOT_FOUND', message } }, { status: 404 }),
+    apiInternalError: (message = 'Internal server error') =>
+      NextResponse.json(
+        { success: false, error: { code: 'INTERNAL_ERROR', message } },
+        { status: 500 }
+      ),
+  };
+});
+
+// ── Mock @entities/tenant (SINGLE consolidated call — covers ALL imports) ──
 vi.mock('@entities/tenant', () => ({
   withTenant: vi.fn(() =>
     Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' })
   ),
+  requirePlatformAdmin: (request: any) => tenantMocks.requirePlatformAdmin(request),
+  listTenants: () => tenantMocks.listTenants(),
+  createTenant: (data: unknown) => tenantMocks.createTenant(data),
 }));
 
-// Mock guards for platform admin
-const mockRequirePlatformAdmin = vi.fn();
-vi.mock('@entities/tenant', () => ({
-  requirePlatformAdmin: () => mockRequirePlatformAdmin(),
-}));
-
-// Mock base tenant API
-const mockListTenants = vi.fn(() => Promise.resolve([{ id: 'tenant-1', name: 'Test Tenant' }]));
-const mockCreateTenant = vi.fn((_data) => Promise.resolve({ id: 'new-tenant', name: 'New Tenant' }));
-vi.mock('@entities/tenant', () => ({
-  listTenants: () => mockListTenants(),
-  createTenant: (data: unknown) => mockCreateTenant(data),
-}));
-
-// Mock logError
+// ── Mock @shared/lib ──
 vi.mock('@shared/lib', () => ({
   logError: vi.fn(),
 }));
 
-// Import route handlers after mocking
+// ── Import route handlers after mocking ──
 import { GET as TENANTS_GET, POST as TENANTS_POST } from '@/app/api/admin/platform/tenants/route';
 import { GET as ASSIST_GET, POST as ASSIST_POST } from '@/app/api/admin/platform/assist/route';
 import {
@@ -103,7 +128,7 @@ import {
 } from '@/app/api/admin/platform/assist/[id]/route';
 import { auth } from '@api/server';
 
-// Helper: create a full chainable select
+// ── Helpers ──
 function makeSelectChain(result: unknown[]) {
   const chain: Record<string, unknown> = {};
   const whereResult = Promise.resolve(result);
@@ -136,11 +161,12 @@ function makeUpdateChain(result: unknown[]) {
   return chain;
 }
 
+// ── Tests ──
 describe('Platform Admin Tenant API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(auth.api.getSession).mockResolvedValue(null);
-    mockRequirePlatformAdmin.mockResolvedValue(null);
+    tenantMocks.requirePlatformAdmin.mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -149,7 +175,7 @@ describe('Platform Admin Tenant API', () => {
 
   describe('GET /api/admin/platform/tenants', () => {
     it('returns 403 for user with isPlatformAdmin: false', async () => {
-      mockRequirePlatformAdmin.mockResolvedValue(
+      tenantMocks.requirePlatformAdmin.mockResolvedValue(
         new Response(JSON.stringify({ error: 'Forbidden - Platform Admin access required' }), {
           status: 403,
           headers: { 'Content-Type': 'application/json' },
@@ -165,19 +191,19 @@ describe('Platform Admin Tenant API', () => {
     });
 
     it('returns 200 for user with isPlatformAdmin: true', async () => {
-      mockRequirePlatformAdmin.mockResolvedValue(null);
+      tenantMocks.requirePlatformAdmin.mockResolvedValue(null);
 
       const request = new Request('http://localhost/api/admin/platform/tenants');
       const response = await TENANTS_GET(request as never);
 
       expect(response.status).toBe(200);
-      expect(mockListTenants).toHaveBeenCalled();
+      expect(tenantMocks.listTenants).toHaveBeenCalled();
     });
   });
 
   describe('POST /api/admin/platform/tenants', () => {
     it('returns 403 for non-platform-admin', async () => {
-      mockRequirePlatformAdmin.mockResolvedValue(
+      tenantMocks.requirePlatformAdmin.mockResolvedValue(
         new Response(JSON.stringify({ error: 'Forbidden' }), {
           status: 403,
           headers: { 'Content-Type': 'application/json' },
@@ -195,7 +221,7 @@ describe('Platform Admin Tenant API', () => {
     });
 
     it('creates tenant for platform admin', async () => {
-      mockRequirePlatformAdmin.mockResolvedValue(null);
+      tenantMocks.requirePlatformAdmin.mockResolvedValue(null);
 
       const request = new Request('http://localhost/api/admin/platform/tenants', {
         method: 'POST',
@@ -205,7 +231,7 @@ describe('Platform Admin Tenant API', () => {
 
       const response = await TENANTS_POST(request as never);
       expect(response.status).toBe(201);
-      expect(mockCreateTenant).toHaveBeenCalled();
+      expect(tenantMocks.createTenant).toHaveBeenCalled();
     });
   });
 });
@@ -245,12 +271,12 @@ describe('Platform Admin Assist API', () => {
       };
 
       let callCount = 0;
-      mocks.dbMock.select.mockImplementation(() => {
+      apiServerMocks.db.select.mockImplementation(() => {
         callCount++;
         if (callCount === 1) return userChain;
         return tenantChain;
       });
-      mocks.dbMock.insert.mockImplementation(() => insertChain);
+      apiServerMocks.db.insert.mockImplementation(() => insertChain);
 
       const request = new Request('http://localhost/api/admin/platform/assist', {
         method: 'POST',
@@ -268,7 +294,7 @@ describe('Platform Admin Assist API', () => {
       } as any);
 
       const userChain = makeSelectChain([{ isPlatformAdmin: false }]);
-      mocks.dbMock.select.mockImplementation(() => userChain);
+      apiServerMocks.db.select.mockImplementation(() => userChain);
 
       const request = new Request('http://localhost/api/admin/platform/assist', {
         method: 'POST',
@@ -288,7 +314,7 @@ describe('Platform Admin Assist API', () => {
       } as any);
 
       const userChain = makeSelectChain([{ isPlatformAdmin: true }]);
-      mocks.dbMock.select.mockImplementation(() => userChain);
+      apiServerMocks.db.select.mockImplementation(() => userChain);
 
       const request = new Request('http://localhost/api/admin/platform/assist', {
         method: 'POST',
@@ -300,7 +326,7 @@ describe('Platform Admin Assist API', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error).toBe('tenantId is required');
+      expect(data.error.message).toBe('tenantId is required');
     });
 
     it('returns 404 if tenant does not exist', async () => {
@@ -312,7 +338,7 @@ describe('Platform Admin Assist API', () => {
       const tenantChain = makeSelectChain([]);
 
       let callCount = 0;
-      mocks.dbMock.select.mockImplementation(() => {
+      apiServerMocks.db.select.mockImplementation(() => {
         callCount++;
         if (callCount === 1) return userChain;
         return tenantChain;
@@ -328,7 +354,7 @@ describe('Platform Admin Assist API', () => {
       const data = await response.json();
 
       expect(response.status).toBe(404);
-      expect(data.error).toBe('Tenant not found');
+      expect(data.error.message).toBe('Tenant not found');
     });
   });
 
@@ -339,7 +365,7 @@ describe('Platform Admin Assist API', () => {
       } as any);
 
       const sessionChain = makeSelectChain([]);
-      mocks.dbMock.select.mockImplementation(() => sessionChain);
+      apiServerMocks.db.select.mockImplementation(() => sessionChain);
 
       const params = Promise.resolve({ id: 'nonexistent' });
       const request = new Request('http://localhost/api/admin/platform/assist/nonexistent', {
@@ -365,7 +391,7 @@ describe('Platform Admin Assist API', () => {
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         },
       ]);
-      mocks.dbMock.select.mockImplementation(() => sessionChain);
+      apiServerMocks.db.select.mockImplementation(() => sessionChain);
 
       const params = Promise.resolve({ id: 'assist-1' });
       const request = new Request('http://localhost/api/admin/platform/assist/assist-1', {
@@ -376,7 +402,7 @@ describe('Platform Admin Assist API', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error).toContain('already revoked');
+      expect(data.error.message).toContain('already revoked');
     });
   });
 
@@ -390,7 +416,7 @@ describe('Platform Admin Assist API', () => {
       const sessionChain = makeSelectChain([]);
 
       let callCount = 0;
-      mocks.dbMock.select.mockImplementation(() => {
+      apiServerMocks.db.select.mockImplementation(() => {
         callCount++;
         if (callCount === 1) return userChain;
         return sessionChain;

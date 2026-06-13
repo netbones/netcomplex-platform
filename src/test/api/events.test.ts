@@ -31,35 +31,59 @@ const mocks = vi.hoisted(() => ({
   validateEventFields: vi.fn(),
 }));
 
-// Mock auth
-vi.mock('@api/server', () => ({
-  auth: {
-    api: {
-      getSession: () => Promise.resolve(mocks.sessionResult),
+// Mock @api/server — consolidated single call with ALL exports the route imports
+vi.mock('@api/server', () => {
+  const jsonResponse = (data: unknown, status: number) =>
+    new Response(JSON.stringify(data), {
+      status,
+      headers: { 'content-type': 'application/json' },
+    });
+
+  return {
+    auth: {
+      api: {
+        getSession: () => Promise.resolve(mocks.sessionResult),
+      },
     },
-  },
-}));
+    db: mocks.dbMock,
+    users: { id: 'id', role: 'role' },
+    eventAttendees: {
+      id: 'id',
+      eventId: 'eventId',
+      userId: 'userId',
+      tenantId: 'tenantId',
+      createdAt: 'createdAt',
+    },
+    revalidateContent: vi.fn(),
+    apiSuccess: vi.fn((data: unknown, _meta?: unknown, status = 200) =>
+      jsonResponse({ success: true, data }, status)
+    ),
+    apiCreated: vi.fn((data: unknown) => jsonResponse({ success: true, data }, 201)),
+    apiError: vi.fn((_code: string, _message: string, status: number) =>
+      jsonResponse({ success: false, error: { code: _code, message: _message } }, status)
+    ),
+    apiUnauthorized: vi.fn(() =>
+      jsonResponse(
+        { success: false, error: { code: 'AUTH_REQUIRED', message: 'Authentication required' } },
+        401
+      )
+    ),
+    apiForbidden: vi.fn(() =>
+      jsonResponse({ success: false, error: { code: 'FORBIDDEN', message: 'Forbidden' } }, 403)
+    ),
+  };
+});
 
-// Mock db
-vi.mock('@api/server', () => ({
-  db: mocks.dbMock,
-  users: { id: 'id', role: 'role' },
-}));
-
-// Mock withTenant
+// Mock @entities/tenant
 vi.mock('@entities/tenant', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
-}));
-
-// Mock permissions
-vi.mock('@entities/tenant', () => ({
-  hasPermission: vi.fn((role: string | null | undefined, permission: string) => {
+  hasPermission: (role: string | null | undefined, permission: string) => {
     if (!role) return false;
     if (permission === 'content')
       return role === 'ADMIN' || role === 'MANAGER' || role === 'COMMITTEE';
     if (permission === 'contentOwn') return role === 'ADMIN' || role === 'COMMITTEE';
     return false;
-  }),
+  },
 }));
 
 // Mock event services
@@ -69,14 +93,16 @@ vi.mock('@entities/event', () => ({
   validateEventFields: (...args: unknown[]) => mocks.validateEventFields(...args),
 }));
 
-// Mock revalidation
-vi.mock('@api/server', () => ({
-  revalidateContent: vi.fn(),
-}));
-
-// Mock logger
+// Mock logger and permissions
 vi.mock('@shared/lib', () => ({
   apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
+  hasPermission: (role: string | null | undefined, permission: string) => {
+    if (!role) return false;
+    if (permission === 'content')
+      return role === 'ADMIN' || role === 'MANAGER' || role === 'COMMITTEE';
+    if (permission === 'contentOwn') return role === 'ADMIN' || role === 'COMMITTEE';
+    return false;
+  },
 }));
 
 import { GET, POST } from '@/app/api/events/route';

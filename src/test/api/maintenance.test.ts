@@ -30,49 +30,86 @@ const mocks = vi.hoisted(() => ({
   createMaintenanceRequest: vi.fn(),
 }));
 
-// Mock auth
+// Mock api/server — consolidated: auth, db, users, revalidation, and all API response helpers
 vi.mock('@api/server', () => ({
   auth: {
     api: {
       getSession: () => Promise.resolve(mocks.sessionResult),
     },
   },
-}));
-
-// Mock db
-vi.mock('@api/server', () => ({
   db: mocks.dbMock,
   users: { id: 'id', role: 'role', name: 'name', email: 'email' },
+  revalidateDashboard: vi.fn(),
+  apiSuccess: vi.fn(
+    (data: unknown) =>
+      new Response(JSON.stringify({ success: true, data }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  ),
+  apiCreated: vi.fn(
+    (data: unknown) =>
+      new Response(JSON.stringify({ success: true, data }), {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  ),
+  apiUnauthorized: vi.fn(
+    () =>
+      new Response(
+        JSON.stringify({
+          success: false,
+          error: { code: 'AUTH_REQUIRED', message: 'Authentication required' },
+        }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      )
+  ),
+  apiInternalError: vi.fn(
+    () =>
+      new Response(
+        JSON.stringify({
+          success: false,
+          error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      )
+  ),
+  apiValidationError: vi.fn(
+    (details?: unknown) =>
+      new Response(
+        JSON.stringify({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details },
+        }),
+        { status: 422, headers: { 'Content-Type': 'application/json' } }
+      )
+  ),
 }));
 
-// Mock withTenant
+// Mock withTenant (consolidated — was split across 2 separate vi.mock calls)
 vi.mock('@entities/tenant', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
 }));
 
-// Mock permissions
-vi.mock('@entities/tenant', () => ({
+// Mock maintenance services — keep real schema for validation, stub service fns
+vi.mock('@entities/maintenance', async () => {
+  const actual =
+    await vi.importActual<typeof import('@entities/maintenance')>('@entities/maintenance');
+  return {
+    ...actual,
+    listMaintenanceRequests: (...args: unknown[]) => mocks.listMaintenanceRequests(...args),
+    createMaintenanceRequest: (...args: unknown[]) => mocks.createMaintenanceRequest(...args),
+  };
+});
+
+// Mock logger + permissions
+vi.mock('@shared/lib', () => ({
+  apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
   hasPermission: vi.fn((role: string | null | undefined, permission: string) => {
     if (!role) return false;
     if (permission === 'requests') return role === 'ADMIN' || role === 'MANAGER';
     return false;
   }),
-}));
-
-// Mock maintenance services
-vi.mock('@entities/maintenance', () => ({
-  listMaintenanceRequests: (...args: unknown[]) => mocks.listMaintenanceRequests(...args),
-  createMaintenanceRequest: (...args: unknown[]) => mocks.createMaintenanceRequest(...args),
-}));
-
-// Mock revalidation
-vi.mock('@api/server', () => ({
-  revalidateDashboard: vi.fn(),
-}));
-
-// Mock logger
-vi.mock('@shared/lib', () => ({
-  apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
 }));
 
 import { GET, POST } from '@/app/api/maintenance/route';

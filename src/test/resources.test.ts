@@ -28,43 +28,68 @@ vi.mock('next/headers', () => ({
   ),
 }));
 
-// Mock revalidation
-vi.mock('@api/server', () => ({
-  revalidateContent: vi.fn(),
-}));
+// Mock @api/server — single consolidated call with ALL exports the resource routes import
+vi.mock('@api/server', () => {
+  const jsonResponse = (data: unknown, status: number) => Response.json(data, { status });
 
-// Mock auth
-vi.mock('@api/server', () => ({
-  auth: {
-    api: {
-      getSession: () => Promise.resolve(mocks.sessionResult),
+  return {
+    auth: {
+      api: {
+        getSession: () => Promise.resolve(mocks.sessionResult),
+      },
     },
-  },
-}));
-
-// Mock db
-vi.mock('@api/server', () => ({
-  db: mocks.dbMock,
-  resources: {
-    tenantId: 'tenantId',
-    visibility: 'visibility',
-    category: 'category',
-    id: 'id',
-    createdAt: 'createdAt',
-  },
-  users: {
-    id: 'id',
-    role: 'role',
-  },
-  households: {
-    id: 'id',
-    tenantId: 'tenantId',
-  },
-  profiles: {
-    householdId: 'householdId',
-    userId: 'userId',
-  },
-}));
+    db: mocks.dbMock,
+    resources: {
+      id: 'id',
+      tenantId: 'tenantId',
+      title: 'title',
+      description: 'description',
+      category: 'category',
+      visibility: 'visibility',
+      fileUrl: 'fileUrl',
+      fileType: 'fileType',
+      fileSize: 'fileSize',
+      externalUrl: 'externalUrl',
+      bodyContent: 'bodyContent',
+      version: 'version',
+      authorId: 'authorId',
+      publishedAt: 'publishedAt',
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt',
+    },
+    resourceVersions: {
+      id: 'id',
+      resourceId: 'resourceId',
+      fileUrl: 'fileUrl',
+      fileType: 'fileType',
+      fileSize: 'fileSize',
+      version: 'version',
+      notes: 'notes',
+      createdAt: 'createdAt',
+    },
+    users: {
+      id: 'id',
+      role: 'role',
+    },
+    households: {
+      id: 'id',
+      tenantId: 'tenantId',
+    },
+    profiles: {
+      householdId: 'householdId',
+      userId: 'userId',
+    },
+    revalidateContent: vi.fn(),
+    apiSuccess: vi.fn(data => jsonResponse(data, 200)),
+    apiCreated: vi.fn(data => jsonResponse(data, 201)),
+    apiError: vi.fn((_code: string, message: string, status: number) =>
+      jsonResponse({ error: message }, status)
+    ),
+    apiUnauthorized: vi.fn(() => jsonResponse({ error: 'Unauthorized' }, 401)),
+    apiForbidden: vi.fn(() => jsonResponse({ error: 'Forbidden' }, 403)),
+    apiNotFound: vi.fn((message?: string) => jsonResponse({ error: message || 'Not found' }, 404)),
+  };
+});
 
 // Mock withTenant
 vi.mock('@entities/tenant', () => ({

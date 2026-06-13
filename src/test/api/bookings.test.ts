@@ -30,22 +30,69 @@ const mocks = vi.hoisted(() => ({
   createBooking: vi.fn(),
   validateFacility: vi.fn(),
   assertModuleEnabled: vi.fn(),
+  revalidateDashboard: vi.fn(),
+  apiSuccess: vi.fn((data: unknown, _meta?: unknown, status = 200) =>
+    Response.json({ success: true, data }, { status })
+  ),
+  apiCreated: vi.fn((data: unknown) => Response.json({ success: true, data }, { status: 201 })),
+  apiUnauthorized: vi.fn((message?: string) =>
+    Response.json(
+      {
+        success: false,
+        error: { code: 'AUTH_REQUIRED', message: message || 'Authentication required' },
+      },
+      { status: 401 }
+    )
+  ),
+  apiInternalError: vi.fn((message?: string) =>
+    Response.json(
+      {
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: message || 'Internal server error' },
+      },
+      { status: 500 }
+    )
+  ),
+  apiNotFound: vi.fn((message?: string) =>
+    Response.json(
+      { success: false, error: { code: 'NOT_FOUND', message: message || 'Not found' } },
+      { status: 404 }
+    )
+  ),
+  apiForbidden: vi.fn((message?: string) =>
+    Response.json(
+      { success: false, error: { code: 'FORBIDDEN', message: message || 'Forbidden' } },
+      { status: 403 }
+    )
+  ),
+  apiValidationError: vi.fn((details?: unknown) =>
+    Response.json(
+      {
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details },
+      },
+      { status: 422 }
+    )
+  ),
 }));
 
-// Mock auth
 vi.mock('@api/server', () => ({
   auth: {
     api: {
       getSession: () => Promise.resolve(mocks.sessionResult),
     },
   },
-}));
-
-// Mock db
-vi.mock('@api/server', () => ({
   db: mocks.dbMock,
   bookings: { id: 'id', tenantId: 'tenantId', facility: 'facility' },
   users: { id: 'id', role: 'role', name: 'name' },
+  revalidateDashboard: mocks.revalidateDashboard,
+  apiSuccess: mocks.apiSuccess,
+  apiCreated: mocks.apiCreated,
+  apiUnauthorized: mocks.apiUnauthorized,
+  apiInternalError: mocks.apiInternalError,
+  apiNotFound: mocks.apiNotFound,
+  apiForbidden: mocks.apiForbidden,
+  apiValidationError: mocks.apiValidationError,
 }));
 
 // Mock withTenant and feature gate
@@ -59,22 +106,25 @@ vi.mock('@entities/tenant', () => ({
   assertModuleEnabled: (...args: unknown[]) => mocks.assertModuleEnabled(...args),
 }));
 
-// Mock booking services
-vi.mock('@entities/booking', () => ({
-  listBookings: (...args: unknown[]) => mocks.listBookings(...args),
-  createBooking: (...args: unknown[]) => mocks.createBooking(...args),
-  validateFacility: (...args: unknown[]) => mocks.validateFacility(...args),
-}));
+// Mock booking services (preserve real exports like bookingSchema, override service fns)
+vi.mock('@entities/booking', async importOriginal => {
+  const actual = await importOriginal<typeof import('@entities/booking')>();
+  return {
+    ...actual,
+    listBookings: (...args: unknown[]) => mocks.listBookings(...args),
+    createBooking: (...args: unknown[]) => mocks.createBooking(...args),
+    validateFacility: (...args: unknown[]) => mocks.validateFacility(...args),
+  };
+});
 
-// Mock revalidation
-vi.mock('@api/server', () => ({
-  revalidateDashboard: vi.fn(),
-}));
-
-// Mock logger
-vi.mock('@shared/lib', () => ({
-  apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
-}));
+// Mock logger (preserve real exports like hasPermission, override apiLogger)
+vi.mock('@shared/lib', async importOriginal => {
+  const actual = await importOriginal<typeof import('@shared/lib')>();
+  return {
+    ...actual,
+    apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
+  };
+});
 
 import { GET, POST } from '@/app/api/bookings/route';
 import { makeSelectChain } from './helpers';
@@ -186,7 +236,7 @@ describe('Bookings API', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           facility: 'POOL',
-          date: '2026-06-01',
+          date: '2026-12-31',
           startTime: '09:00',
           endTime: '10:00',
         }),
@@ -213,7 +263,7 @@ describe('Bookings API', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           facility: 'POOL',
-          date: '2026-06-01',
+          date: '2026-12-31',
           startTime: '09:00',
           endTime: '10:00',
         }),
@@ -253,7 +303,7 @@ describe('Bookings API', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           facility: 'INVALID',
-          date: '2026-06-01',
+          date: '2026-12-31',
           startTime: '09:00',
           endTime: '10:00',
         }),
@@ -277,7 +327,7 @@ describe('Bookings API', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           facility: 'POOL',
-          date: '2026-06-01',
+          date: '2026-12-31',
           startTime: '09:00',
           endTime: '10:00',
           purpose: 'Morning swim',
@@ -305,7 +355,7 @@ describe('Bookings API', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           facility: 'GYM',
-          date: '2026-06-01',
+          date: '2026-12-31',
           startTime: '10:00',
           endTime: '11:00',
         }),

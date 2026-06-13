@@ -17,32 +17,22 @@ vi.mock('next/headers', () => ({
   ),
 }));
 
-// Mock revalidation
-vi.mock('@api/server', () => ({
-  revalidateContent: vi.fn(),
-}));
-
-// Mock auth
-vi.mock('@api/server', () => ({
-  auth: {
-    api: {
-      getSession: vi.fn(() => Promise.resolve(null)),
-    },
-  },
-}));
-
-// Mock db - each test will configure the return values
-const { dbMock } = vi.hoisted(() => ({
+// ── Hoisted mocks (per-test configurable) ──
+const { dbMock, authSessionMock, requirePlatformAdminMock } = vi.hoisted(() => ({
   dbMock: {
     select: vi.fn(),
     insert: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
   },
+  authSessionMock: vi.fn(() => Promise.resolve(null)),
+  requirePlatformAdminMock: vi.fn(),
 }));
 
+// ── Single consolidated @api/server mock ──
 vi.mock('@api/server', () => ({
   db: dbMock,
+  auth: { api: { getSession: authSessionMock } },
   competitions: {
     tenantId: 'tenantId',
     status: 'status',
@@ -71,17 +61,72 @@ vi.mock('@api/server', () => ({
     revokedAt: 'revokedAt',
     revokedBy: 'revokedBy',
   },
+  revalidateContent: vi.fn(),
+  writeAuditLog: vi.fn(),
+  apiSuccess: vi.fn(
+    (data: unknown) =>
+      new Response(JSON.stringify(data), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  ),
+  apiCreated: vi.fn(
+    (data: unknown) =>
+      new Response(JSON.stringify(data), {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  ),
+  apiUnauthorized: vi.fn(
+    (message?: string) =>
+      new Response(JSON.stringify({ error: message || 'Unauthorized' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  ),
+  apiForbidden: vi.fn(
+    (message?: string) =>
+      new Response(JSON.stringify({ error: message || 'Forbidden' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  ),
+  apiNotFound: vi.fn(
+    (message?: string) =>
+      new Response(JSON.stringify({ error: message || 'Not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  ),
+  apiError: vi.fn(
+    (_code: string, message: string, status: number) =>
+      new Response(JSON.stringify({ error: message }), {
+        status,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  ),
+  apiInternalError: vi.fn(
+    (message?: string) =>
+      new Response(JSON.stringify({ error: message || 'Internal server error' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
+  ),
 }));
 
-// Mock withTenant
+// ── Single consolidated @entities/tenant mock ──
 vi.mock('@entities/tenant', () => ({
   withTenant: vi.fn(() =>
     Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' })
   ),
+  requirePlatformAdmin: () => requirePlatformAdminMock(),
+  listTenants: vi.fn(() => Promise.resolve([{ id: 'tenant-1', name: 'Test Tenant' }])),
+  createTenant: vi.fn(() => Promise.resolve({ id: 'new-tenant', name: 'New Tenant' })),
 }));
 
-// Mock permissions
-vi.mock('@entities/tenant', () => ({
+// ── @shared/lib mock (logError + hasPermission) ──
+vi.mock('@shared/lib', () => ({
+  logError: vi.fn(),
   hasPermission: vi.fn((role: string | null | undefined, permission: string) => {
     if (!role) return false;
     if (permission === 'content')
@@ -89,23 +134,6 @@ vi.mock('@entities/tenant', () => ({
     if (permission === 'contentOwn') return role === 'ADMIN' || role === 'COMMITTEE';
     return false;
   }),
-}));
-
-// Mock guards for platform admin
-const mockRequirePlatformAdmin = vi.fn();
-vi.mock('@entities/tenant', () => ({
-  requirePlatformAdmin: () => mockRequirePlatformAdmin(),
-}));
-
-// Mock base tenant API
-vi.mock('@entities/tenant', () => ({
-  listTenants: vi.fn(() => Promise.resolve([{ id: 'tenant-1', name: 'Test Tenant' }])),
-  createTenant: vi.fn(() => Promise.resolve({ id: 'new-tenant', name: 'New Tenant' })),
-}));
-
-// Mock logError
-vi.mock('@shared/lib', () => ({
-  logError: vi.fn(),
 }));
 
 // Import route handlers after mocking
@@ -354,7 +382,7 @@ describe('Platform Admin API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(auth.api.getSession).mockResolvedValue(null);
-    mockRequirePlatformAdmin.mockResolvedValue(null);
+    requirePlatformAdminMock.mockResolvedValue(null);
   });
 
   afterEach(() => {
@@ -363,7 +391,7 @@ describe('Platform Admin API', () => {
 
   describe('GET /api/admin/platform/tenants', () => {
     it('returns 403 for user with isPlatformAdmin: false', async () => {
-      mockRequirePlatformAdmin.mockResolvedValue(
+      requirePlatformAdminMock.mockResolvedValue(
         new Response(JSON.stringify({ error: 'Forbidden - Platform Admin access required' }), {
           status: 403,
           headers: { 'Content-Type': 'application/json' },
@@ -378,7 +406,7 @@ describe('Platform Admin API', () => {
     });
 
     it('returns 200 for user with isPlatformAdmin: true', async () => {
-      mockRequirePlatformAdmin.mockResolvedValue(null);
+      requirePlatformAdminMock.mockResolvedValue(null);
 
       const request = new Request('http://localhost/api/admin/platform/tenants');
       const response = await TENANTS_GET(request as never);

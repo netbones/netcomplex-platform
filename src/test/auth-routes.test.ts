@@ -1,7 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { NextRequest } from 'next/server';
 
-// Mock @api/server (auth, db, email, templates)
+function jsonMock(data: unknown, status: number) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'content-type': 'application/json' },
+  });
+}
+
+// Mock @api/server (auth, db, email, templates, API response helpers, rate limiting)
 vi.mock('@api/server', () => ({
   auth: {
     api: {
@@ -19,6 +26,11 @@ vi.mock('@api/server', () => ({
     insert: vi.fn().mockReturnValue({
       values: vi.fn().mockReturnValue({
         returning: vi.fn().mockResolvedValue([]),
+      }),
+    }),
+    update: vi.fn().mockReturnValue({
+      set: vi.fn().mockReturnValue({
+        where: vi.fn().mockResolvedValue({}),
       }),
     }),
     delete: vi.fn().mockReturnValue({
@@ -54,6 +66,25 @@ vi.mock('@api/server', () => ({
     },
   },
   verifyTurnstile: vi.fn().mockResolvedValue(true),
+  rateLimitByIP: vi.fn(() => null),
+  apiSuccess: vi.fn((data: unknown, _meta?: unknown, code?: number) => jsonMock(data, code || 200)),
+  apiCreated: vi.fn((data: unknown) => jsonMock(data, 201)),
+  apiError: vi.fn((_code: string, message: string, status: number) =>
+    jsonMock({ error: message }, status)
+  ),
+  apiConflict: vi.fn((message: string) => jsonMock({ error: message }, 409)),
+  apiForbidden: vi.fn((message = 'Forbidden') => jsonMock({ error: message }, 403)),
+  apiGone: vi.fn((message = 'Gone') => jsonMock({ error: message }, 410)),
+  apiInternalError: vi.fn((message = 'Internal server error') => jsonMock({ error: message }, 500)),
+  apiValidationError: vi.fn((details?: unknown) =>
+    jsonMock({ error: 'Validation failed', details }, 422)
+  ),
+  apiUnauthorized: vi.fn((message = 'Authentication required') =>
+    jsonMock({ error: message }, 401)
+  ),
+  apiSuspendedUser: vi.fn((details?: unknown) =>
+    jsonMock({ error: 'Account suspended', details }, 403)
+  ),
 }));
 
 // Mock tenant config
