@@ -1,6 +1,6 @@
 # Test Coverage Gaps
 
-> Generated 2026-06-13. Updated after FSD gate migration and P0 test expansion.
+> Generated 2026-06-13. Updated after P0+P1 test expansion.
 
 ## Current State
 
@@ -40,57 +40,65 @@ Other contributing issues fixed in this pass:
 | `shared/api/__tests__/http-client.test.ts`                       | 9     | shared   |
 | `shared/api/db.test.ts`                                          | 2     | shared   |
 
-### Bulk Tests in `src/test/` (25 files, 327 tests)
+### Bulk Tests in `src/test/` (32 files, 688 tests)
 
-| File                         | Tests | Domain                           |
-| ---------------------------- | ----- | -------------------------------- |
-| `navigation-config.test.ts`  | 32    | Navigation config                |
-| `chat.test.tsx`              | 28    | Chat UI + realtime               |
-| `api-response.test.ts`       | 25    | API response utilities           |
-| `schemas.test.ts`            | 22    | Zod validation schemas           |
-| `registry.test.ts`           | 21    | Module/feature registry          |
-| `permissions.test.ts`        | 20    | RBAC permissions                 |
-| `constants.test.ts`          | 17    | Shared constants                 |
-| `competitions.test.ts`       | 15    | Competition API + platform admin |
-| `content-i18n.test.ts`       | 15    | i18n content                     |
-| `resources.test.ts`          | 15    | Resources API                    |
-| `sidebar-widget-box.test.ts` | 15    | Sidebar widget box               |
-| `flags.test.ts`              | 14    | Feature flags                    |
-| `useResidentFilter.test.ts`  | 14    | Directory resident filter        |
-| `auth-forms.test.tsx`        | 13    | Auth form pages                  |
-| `platform-flags.test.ts`     | 12    | Platform flags                   |
-| `api/bookings.test.ts`       | 12    | Bookings API                     |
-| `api/events.test.ts`         | 11    | Events API                       |
-| `platform-admin.test.ts`     | 11    | Platform admin                   |
-| `ui-components.test.tsx`     | 11    | UI components                    |
-| `api/maintenance.test.ts`    | 10    | Maintenance API                  |
-| `content-routes.test.ts`     | 9     | Content API routes               |
-| `api/invitations.test.ts`    | 8     | Invitations API                  |
-| `chat-hooks.test.tsx`        | 7     | Chat hooks                       |
-| `api/auth.test.ts`           | 6     | Auth API                         |
-| `auth-routes.test.ts`        | 4     | Auth routes                      |
+| File                               | Tests | Domain                       |
+| ---------------------------------- | ----- | ---------------------------- |
+| `api/surveys.test.ts`              | 84    | Survey API (P0)              |
+| `api/community-services.test.ts`   | 71    | Community Services API (P0)  |
+| `api/admin.test.ts`                | 52    | Admin/Platform API (P0)      |
+| `api/directory.test.ts`            | 50    | Directory API (P1)           |
+| `api/groups.test.ts`               | 44    | Groups API (P1)              |
+| `navigation-config.test.ts`        | 32    | Navigation config            |
+| `api/chat.test.ts`                 | 30    | Chat/Conversations API (P1)  |
+| `chat.test.tsx`                    | 28    | Chat UI + realtime           |
+| `api-response.test.ts`             | 25    | API response utilities       |
+| `schemas.test.ts`                  | 22    | Zod validation schemas       |
+| `registry.test.ts`                 | 21    | Module/feature registry      |
+| `permissions.test.ts`              | 20    | RBAC permissions             |
+| `entity-bookings-services.test.ts` | 19    | Booking entity services (P1) |
+| `constants.test.ts`                | 17    | Shared constants             |
+| `competitions.test.ts`             | 15    | Competition API              |
+| `content-i18n.test.ts`             | 15    | i18n content                 |
+| `resources.test.ts`                | 15    | Resources API                |
+| `sidebar-widget-box.test.ts`       | 15    | Sidebar widget box           |
+| `flags.test.ts`                    | 14    | Feature flags                |
+| `useResidentFilter.test.ts`        | 14    | Directory resident filter    |
+| `auth-forms.test.tsx`              | 13    | Auth form pages              |
+| `platform-flags.test.ts`           | 12    | Platform flags               |
+| `api/bookings.test.ts`             | 12    | Bookings API                 |
+| `api/events.test.ts`               | 11    | Events API                   |
+| `platform-admin.test.ts`           | 11    | Platform admin               |
+| `ui-components.test.tsx`           | 11    | UI components                |
+| `dto-booking.test.ts`              | 11    | Booking DTO (P1)             |
+| `api/maintenance.test.ts`          | 10    | Maintenance API              |
+| `content-routes.test.ts`           | 9     | Content API routes           |
+| `api/invitations.test.ts`          | 8     | Invitations API              |
+| `chat-hooks.test.tsx`              | 7     | Chat hooks                   |
+| `api/auth.test.ts`                 | 6     | Auth API                     |
+| `auth-routes.test.ts`              | 4     | Auth routes                  |
 
 ## Coverage Gaps by Layer
 
 ### API Routes (`src/app/api/`) — 62% covered (98/157)
 
-98 endpoints now have handler-level tests across 11 test files. P0+P1 test suites added:
+98 endpoints now have handler-level tests across 11 test files.
 
-| Test File                                 | Tests | Endpoints | Added |
-| ----------------------------------------- | ----- | --------- | ----- |
-| `src/test/api/surveys.test.ts`            | 84    | 18        | P0    |
-| `src/test/api/community-services.test.ts` | 71    | 18        | P0    |
-| `src/test/api/admin.test.ts`              | 52    | 13        | P0    |
+| Test File                                 | Tests | Endpoints | Wave |
+| ----------------------------------------- | ----- | --------- | ---- |
+| `src/test/api/surveys.test.ts`            | 84    | 18        | P0   |
+| `src/test/api/community-services.test.ts` | 71    | 18        | P0   |
+| `src/test/api/admin.test.ts`              | 52    | 13        | P0   |
+| `src/test/api/directory.test.ts`          | 50    | 14        | P1   |
+| `src/test/api/groups.test.ts`             | 44    | 9         | P1   |
+| `src/test/api/chat.test.ts`               | 30    | 9         | P1   |
 
 Remaining gaps:
 
-| Route                   | Risk   | Notes                              |
-| ----------------------- | ------ | ---------------------------------- |
-| `/api/directory/**`     | Medium | Resident directory — used daily    |
-| `/api/groups/**`        | Medium | Community groups                   |
-| `/api/properties/**`    | Medium | Property management                |
-| `/api/conversations/**` | Medium | Chat/messages — realtime dependent |
-| `/api/announcements/**` | Medium | Community announcements            |
+| Route                   | Risk   | Notes                   |
+| ----------------------- | ------ | ----------------------- |
+| `/api/properties/**`    | Medium | Property management     |
+| `/api/announcements/**` | Medium | Community announcements |
 
 ### Pages (`src/app/**/page.tsx`) — 0% covered
 
@@ -117,21 +125,21 @@ Remaining gaps:
 | `tenant-selector/` | 3     | Tenant switcher         |
 | Others             | 26    | Various features        |
 
-### Entities (`src/entities/`) — 4% covered
+### Entities (`src/entities/`) — 6% covered
 
-105 files, only 3 domains tested (tenant, maintenance). Missing:
+105 files, 4 domains partially tested. Missing:
 
-| Asserted but untested | Files | Risk                  |
-| --------------------- | ----- | --------------------- |
-| `booking/`            | 18    | Core commerce flow    |
-| `chat/`               | 15    | Real-time messaging   |
-| `content/`            | 8     | CMS content APIs      |
-| `event/`              | 7     | Event management      |
-| `directory/`          | 5     | Resident directory    |
-| `survey/`             | 10    | Survey infrastructure |
-| `admin/`              | 6     | Admin operations      |
-| `user/`               | 5     | User management       |
-| `service/`            | 6     | Community services    |
+| Domain       | Files | Status                                            |
+| ------------ | ----- | ------------------------------------------------- |
+| `booking/`   | 18    | **Partially tested** — services, DTO, permissions |
+| `chat/`      | 15    | Real-time messaging                               |
+| `content/`   | 8     | CMS content APIs                                  |
+| `event/`     | 7     | Event management                                  |
+| `directory/` | 5     | Resident directory                                |
+| `survey/`    | 10    | Survey infrastructure                             |
+| `admin/`     | 6     | Admin operations                                  |
+| `user/`      | 5     | User management                                   |
+| `service/`   | 6     | Community services                                |
 
 ### Widgets (`src/widgets/`) — 2% covered
 
@@ -165,10 +173,14 @@ Remaining gaps:
 
 ### P2 — Medium (completes coverage)
 
-8. **Feature gate client tests** — `features/gate/model/gate.ts` was recently moved, has server tests but no client tests
-9. **Dashboard widget tests** — model layer tested, UI layer untested
-10. **Event entity + API tests** — already have API tests, add unit tests
-11. **Content CMS tests** — editing, versioning, publishing
+8. **Properties API tests** — property management CRUD
+9. **Announcements API tests** — community announcements
+10. **Event entity unit tests** — schema, permissions, services
+11. **Chat entity unit tests** — messageSchema, conversationSchema, constants
+12. **Groups entity unit tests** — groupSchema, toGroupDTO, permissions
+13. **Feature gate client tests** — `features/gate/model/gate.ts` server tests done, no client tests
+14. **Dashboard widget tests** — model layer tested, UI layer untested
+15. **Content CMS tests** — editing, versioning, publishing
 
 ### P3 — Nice to have
 
@@ -178,7 +190,8 @@ Remaining gaps:
 
 ## Remediation Notes
 
+- Added 8 new test suites: surveys, community-services, admin, directory, chat, groups, entity-bookings-services, dto-booking
 - Created `src/test/helpers/mock-api-server.ts` as a centralized mock helper to prevent the mock fragmentation that caused the 93 failures
-- All current test files pass with `pnpm test -- --run`
+- 749 tests across 38 files, all passing with `pnpm test -- --run`
 - Test infrastructure: Vitest with jsdom environment, configured in `vitest.config.ts`
 - Run tests: `pnpm test` (watch) or `pnpm test -- --run` (single run)
