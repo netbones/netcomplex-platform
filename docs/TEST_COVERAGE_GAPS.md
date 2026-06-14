@@ -1,16 +1,16 @@
 # Test Coverage Gaps
 
-> Generated 2026-06-13. Updated after P0+P1 test expansion.
+> Generated 2026-06-13. Updated after P0+P1+P2 test expansion.
 
 ## Current State
 
-| Metric             | Original | After Mock Fix | After P0 Tests | After P1 Tests |
-| ------------------ | -------- | -------------- | -------------- | -------------- |
-| Test files passing | 15       | 30             | 33             | **38**         |
-| Test files failing | 15       | 0              | 0              | **0**          |
-| Total tests        | 301      | 388            | 595            | **749**        |
-| Tests passing      | 208      | 388            | 595            | **749**        |
-| Tests failing      | 93       | 0              | 0              | **0**          |
+| Metric             | Original | After Mock Fix | After P0 Tests | After P1 Tests | After P2 Tests |
+| ------------------ | -------- | -------------- | -------------- | -------------- | -------------- |
+| Test files passing | 15       | 30             | 33             | 38             | **47**         |
+| Test files failing | 15       | 0              | 0              | 0              | **0**          |
+| Total tests        | 301      | 388            | 595            | 749            | **1016**       |
+| Tests passing      | 208      | 388            | 595            | 749            | **1016**       |
+| Tests failing      | 93       | 0              | 0              | 0              | **0**          |
 
 ## Root Cause of Prior Failures
 
@@ -40,7 +40,7 @@ Other contributing issues fixed in this pass:
 | `shared/api/__tests__/http-client.test.ts`                       | 9     | shared   |
 | `shared/api/db.test.ts`                                          | 2     | shared   |
 
-### Bulk Tests in `src/test/` (32 files, 688 tests)
+### Bulk Tests in `src/test/` (39 files, 955 tests)
 
 | File                               | Tests | Domain                       |
 | ---------------------------------- | ----- | ---------------------------- |
@@ -49,6 +49,15 @@ Other contributing issues fixed in this pass:
 | `api/admin.test.ts`                | 52    | Admin/Platform API (P0)      |
 | `api/directory.test.ts`            | 50    | Directory API (P1)           |
 | `api/groups.test.ts`               | 44    | Groups API (P1)              |
+| `entity-announcements.test.ts`     | 50    | Announcements entity (P2)    |
+| `entity-events.test.ts`            | 36    | Event entity (P2)            |
+| `entity-groups.test.ts`            | 44    | Groups entity (P2)           |
+| `entity-chat.test.ts`              | 40    | Chat entity (P2)             |
+| `feature-gate-client.test.tsx`     | 27    | Feature gate client (P2)     |
+| `api/announcements.test.ts`        | 23    | Announcements API (P2)       |
+| `api/properties.test.ts`           | 19    | Properties API (P2)          |
+| `dto-event.test.ts`                | 13    | Event DTO (P2)               |
+| `dto-property.test.ts`             | 15    | Property DTO (P2)            |
 | `navigation-config.test.ts`        | 32    | Navigation config            |
 | `api/chat.test.ts`                 | 30    | Chat/Conversations API (P1)  |
 | `chat.test.tsx`                    | 28    | Chat UI + realtime           |
@@ -80,9 +89,9 @@ Other contributing issues fixed in this pass:
 
 ## Coverage Gaps by Layer
 
-### API Routes (`src/app/api/`) — 62% covered (98/157)
+### API Routes (`src/app/api/`) — 69% covered (108/157)
 
-98 endpoints now have handler-level tests across 11 test files.
+108 endpoints now have handler-level tests across 13 test files.
 
 | Test File                                 | Tests | Endpoints | Wave |
 | ----------------------------------------- | ----- | --------- | ---- |
@@ -92,54 +101,51 @@ Other contributing issues fixed in this pass:
 | `src/test/api/directory.test.ts`          | 50    | 14        | P1   |
 | `src/test/api/groups.test.ts`             | 44    | 9         | P1   |
 | `src/test/api/chat.test.ts`               | 30    | 9         | P1   |
+| `src/test/api/announcements.test.ts`      | 23    | 5         | P2   |
+| `src/test/api/properties.test.ts`         | 19    | 5         | P2   |
 
-Remaining gaps:
-
-| Route                   | Risk   | Notes                   |
-| ----------------------- | ------ | ----------------------- |
-| `/api/properties/**`    | Medium | Property management     |
-| `/api/announcements/**` | Medium | Community announcements |
+No remaining gaps in the P0-P2 priority tiers. Remaining untested routes fall under P3 (shared infrastructure, utilities).
 
 ### Pages (`src/app/**/page.tsx`) — 0% covered
 
 81 page files. No page-level rendering tests except auth forms.
 
-### Features (`src/features/`) — 0% covered
+### Features (`src/features/`) — 1% covered
 
-95 files across 17 domains. Complete gap:
+95 files across 17 domains. Only `gate/` partially tested. Remaining gap:
 
-| Domain             | Files | Criticality             |
-| ------------------ | ----- | ----------------------- |
-| `admin/`           | 8     | Platform & tenant admin |
-| `booking/`         | 5     | Facility booking        |
-| `chat/`            | 7     | Real-time messaging     |
-| `content/`         | 6     | CMS content editing     |
-| `directory/`       | 4     | Resident directory      |
-| `event/`           | 4     | Community events        |
-| `gate/`            | 3     | Feature access control  |
-| `marketing/`       | 4     | Public-facing pages     |
-| `onboarding/`      | 6     | New resident onboarding |
-| `resources/`       | 5     | Knowledge base          |
-| `service/`         | 6     | Community services      |
-| `survey-builder/`  | 8     | Survey creation         |
-| `tenant-selector/` | 3     | Tenant switcher         |
-| Others             | 26    | Various features        |
+| Domain             | Files | Criticality             | Status                                        |
+| ------------------ | ----- | ----------------------- | --------------------------------------------- |
+| `gate/`            | 3     | Feature access control  | **Partially tested** — client gate unit tests |
+| `admin/`           | 8     | Platform & tenant admin |                                               |
+| `booking/`         | 5     | Facility booking        |                                               |
+| `chat/`            | 7     | Real-time messaging     |                                               |
+| `content/`         | 6     | CMS content editing     |                                               |
+| `directory/`       | 4     | Resident directory      |                                               |
+| `event/`           | 4     | Community events        |                                               |
+| `marketing/`       | 4     | Public-facing pages     |                                               |
+| `onboarding/`      | 6     | New resident onboarding |                                               |
+| `resources/`       | 5     | Knowledge base          |                                               |
+| `service/`         | 6     | Community services      |                                               |
+| `survey-builder/`  | 8     | Survey creation         |                                               |
+| `tenant-selector/` | 3     | Tenant switcher         |                                               |
+| Others             | 26    | Various features        |                                               |
 
-### Entities (`src/entities/`) — 6% covered
+### Entities (`src/entities/`) — 10% covered
 
-105 files, 4 domains partially tested. Missing:
+105 files, 6 domains partially tested. Missing:
 
-| Domain       | Files | Status                                            |
-| ------------ | ----- | ------------------------------------------------- |
-| `booking/`   | 18    | **Partially tested** — services, DTO, permissions |
-| `chat/`      | 15    | Real-time messaging                               |
-| `content/`   | 8     | CMS content APIs                                  |
-| `event/`     | 7     | Event management                                  |
-| `directory/` | 5     | Resident directory                                |
-| `survey/`    | 10    | Survey infrastructure                             |
-| `admin/`     | 6     | Admin operations                                  |
-| `user/`      | 5     | User management                                   |
-| `service/`   | 6     | Community services                                |
+| Domain       | Files | Status                                                |
+| ------------ | ----- | ----------------------------------------------------- |
+| `booking/`   | 18    | **Partially tested** — services, DTO, permissions     |
+| `chat/`      | 15    | **Partially tested** — schemas, constants, DTOs       |
+| `event/`     | 7     | **Partially tested** — schemas, permissions, DTOs     |
+| `content/`   | 8     | **Partially tested** — schemas, permissions, services |
+| `directory/` | 5     | Resident directory                                    |
+| `survey/`    | 10    | Survey infrastructure                                 |
+| `admin/`     | 6     | Admin operations                                      |
+| `user/`      | 5     | User management                                       |
+| `service/`   | 6     | Community services                                    |
 
 ### Widgets (`src/widgets/`) — 2% covered
 
@@ -171,27 +177,27 @@ Remaining gaps:
 6. **Groups API tests** — 44 tests, 9 endpoints ✅
 7. **Booking entity tests** — 30 tests (buildBookingConditions, DTO, services) ✅
 
-### P2 — Medium (completes coverage)
+### P2 — Medium (completes coverage) — DONE 2026-06-13
 
-8. **Properties API tests** — property management CRUD
-9. **Announcements API tests** — community announcements
-10. **Event entity unit tests** — schema, permissions, services
-11. **Chat entity unit tests** — messageSchema, conversationSchema, constants
-12. **Groups entity unit tests** — groupSchema, toGroupDTO, permissions
-13. **Feature gate client tests** — `features/gate/model/gate.ts` server tests done, no client tests
+8. **Properties API tests** — 19 tests, 5 endpoints ✅
+9. **Announcements API tests** — 23 tests, 5 endpoints ✅
+10. **Event entity unit tests** — 49 tests (schemas, permissions, services, DTOs) ✅
+11. **Chat entity unit tests** — 40 tests (schemas, constants, DTOs) ✅
+12. **Groups entity unit tests** — 44 tests (schemas, permissions, services, DTOs) ✅
+13. **Feature gate client tests** — 27 tests (canAccessClient, GateGuard, hooks) ✅
 14. **Dashboard widget tests** — model layer tested, UI layer untested
 15. **Content CMS tests** — editing, versioning, publishing
 
 ### P3 — Nice to have
 
-12. **Shared UI component tests** — `ui-components.test.tsx` covers basics, expand to all components
-13. **Page-level rendering tests** — at least smoke tests for key pages
-14. **i18n hook tests** — translation loading, language switching
+16. **Shared UI component tests** — `ui-components.test.tsx` covers basics, expand to all components
+17. **Page-level rendering tests** — at least smoke tests for key pages
+18. **i18n hook tests** — translation loading, language switching
 
 ## Remediation Notes
 
-- Added 8 new test suites: surveys, community-services, admin, directory, chat, groups, entity-bookings-services, dto-booking
+- Added 17 new test suites: surveys, community-services, admin, directory, chat, groups, announcements, properties, entity-bookings-services, entity-announcements, entity-events, entity-chat, entity-groups, feature-gate-client, dto-booking, dto-event, dto-property
 - Created `src/test/helpers/mock-api-server.ts` as a centralized mock helper to prevent the mock fragmentation that caused the 93 failures
-- 749 tests across 38 files, all passing with `pnpm test -- --run`
+- 1016 tests across 47 files, all passing with `pnpm test -- --run`
 - Test infrastructure: Vitest with jsdom environment, configured in `vitest.config.ts`
 - Run tests: `pnpm test` (watch) or `pnpm test -- --run` (single run)
