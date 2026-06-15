@@ -209,7 +209,7 @@ export async function runWithRLS<T>(
   fn: (tx: NodePgDatabase<DbSchema>) => Promise<T>
 ): Promise<T> {
   return getDb().transaction(async tx => {
-    await tx.execute(sql`SET ROLE app_user`);
+    await tx.execute(sql`SET LOCAL ROLE app_user`);
     await tx.execute(sql`SELECT set_config('app.user_id', ${ctx.userId}, true)`);
     await tx.execute(sql`SELECT set_config('app.tenant_id', ${ctx.tenantId}, true)`);
     await tx.execute(sql`SELECT set_config('app.user_role', ${ctx.role}, true)`);

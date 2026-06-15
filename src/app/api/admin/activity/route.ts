@@ -13,8 +13,6 @@ import {
   events,
 } from '@api/server';
 
-import { getSessionAndRole } from '@api/server';
-import { hasPermission } from '@shared/lib';
 import { withTenant } from '@entities/tenant/server';
 
 import { eq, and, lt, desc, inArray, sql } from 'drizzle-orm';
@@ -37,25 +35,8 @@ interface ActivityItemRaw {
 
 export async function GET(request: NextRequest) {
   try {
-    // Read the session cookie directly from the request to diagnose 401s.
-    const cookieHeader = request.headers.get('cookie');
-    log.info({ operation: 'GET', hasCookie: !!cookieHeader }, 'Auth check start');
-
-    // Try getSessionAndRole with the request headers passed explicitly.
-    // Falls back to the headers()-based call if the request-based call
-    // returns null (Better Auth may handle header formats differently).
-    let authData = await getSessionAndRole(request);
-    if (!authData) {
-      authData = await getSessionAndRole(); // fallback: use headers()
-    }
-    if (!authData) {
-      log.warn({ operation: 'GET', hasCookie: !!cookieHeader }, 'Auth failed — no session');
-      return apiUnauthorized();
-    }
-
-    const allowed =
-      hasPermission(authData.role, 'admin') || hasPermission(authData.role, 'settings');
-    if (!allowed) return apiUnauthorized();
+    const authError = await requireAnyPermission(['admin', 'settings']);
+    if (authError) return authError;
 
     const ctx = await getRLSContext(request);
     if (!ctx) return apiUnauthorized();
