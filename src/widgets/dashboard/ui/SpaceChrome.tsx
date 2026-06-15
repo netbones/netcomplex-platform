@@ -39,7 +39,9 @@ export function SpaceChrome({ children }: SpaceChromeProps) {
 
   const role = session?.user?.role || 'RESIDENT';
   const activeSpaceId = getActiveSpaceId(pathname);
-  const visibleSpaces = flags ? getVisibleSpaces(role, flags) : [];
+  const visibleSpaces = flags
+    ? getVisibleSpaces(role, flags)
+    : getVisibleSpaces(role, {} as Parameters<typeof getVisibleSpaces>[1]);
 
   // Navigation is handled by the Link href — callback is for future extensibility
   const handleNavigate = (_spaceId: string) => {};
@@ -65,7 +67,7 @@ export function SpaceChrome({ children }: SpaceChromeProps) {
         </main>
       </div>
 
-      {/* Mobile bottom bar — hidden on desktop */}
+      {/* Mobile bottom bar — rendered at body level via portal to avoid containing block issues */}
       <MobileSpaceBar />
     </ErrorBoundary>
   );

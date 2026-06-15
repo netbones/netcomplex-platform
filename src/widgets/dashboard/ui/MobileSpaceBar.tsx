@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -26,13 +28,18 @@ import { getVisibleSpaces, SPACES, type SpaceId } from '../model/spaces';
  * for env(safe-area-inset-bottom) to work on iOS.
  */
 export function MobileSpaceBar() {
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const { t } = useTranslation();
   const { data: session } = authClient.useSession();
   const { flags } = usePageFlags();
   const role = session?.user?.role || 'RESIDENT';
 
-  const visibleSpaces = flags ? getVisibleSpaces(role, flags) : [];
+  useEffect(() => setMounted(true), []);
+
+  const visibleSpaces = flags
+    ? getVisibleSpaces(role, flags)
+    : getVisibleSpaces(role, {} as Parameters<typeof getVisibleSpaces>[1]);
 
   // Overflow guard — max 5 slots on mobile
   const mobileSpaces = visibleSpaces.slice(0, 5);
@@ -53,39 +60,46 @@ export function MobileSpaceBar() {
     return pathname === base || pathname.startsWith(base + '/');
   };
 
-  return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 h-16 pb-[env(safe-area-inset-bottom,0px)] md:hidden bg-white border-t border-gray-200 z-40"
-      aria-label="Space navigation"
-    >
-      <div className="flex items-center justify-around h-16 px-2">
-        {mobileSpaces.map(space => {
-          const Icon = space.icon;
-          const active = isActive(space.id);
-          const label = t(space.labelKey);
+  if (!mounted) return null;
 
-          return (
-            <Link
-              key={space.id}
-              href={space.href}
-              className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-colors ${
-                active ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700'
-              }`}
-              aria-current={active ? 'page' : undefined}
-            >
-              <div className="relative">
-                <Icon className="w-5 h-5" />
-                {/* Badge: show indicator on Messages space */}
-                {space.id === 'messages' && <UnreadBadge />}
-              </div>
-              <span className="text-[10px] font-medium leading-tight truncate max-w-[64px]">
-                {label}
-              </span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+  return createPortal(
+    <>
+      <style>{`#mobile-space-bar{position:fixed!important;bottom:0!important;left:0!important;right:0!important}`}</style>
+      <nav
+        id="mobile-space-bar"
+        className="h-16 pb-[env(safe-area-inset-bottom,0px)] md:hidden bg-white border-t border-gray-200 z-40"
+        aria-label="Space navigation"
+      >
+        <div className="flex items-center justify-around h-16 px-2">
+          {mobileSpaces.map(space => {
+            const Icon = space.icon;
+            const active = isActive(space.id);
+            const label = t(space.labelKey);
+
+            return (
+              <Link
+                key={space.id}
+                href={space.href}
+                className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-colors ${
+                  active ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700'
+                }`}
+                aria-current={active ? 'page' : undefined}
+              >
+                <div className="relative">
+                  <Icon className="w-5 h-5" />
+                  {/* Badge: show indicator on Messages space */}
+                  {space.id === 'messages' && <UnreadBadge />}
+                </div>
+                <span className="text-[10px] font-medium leading-tight truncate max-w-[64px]">
+                  {label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </>,
+    document.body
   );
 }
 
