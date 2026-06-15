@@ -81,12 +81,17 @@ export function AdminStatsWidget() {
           throw new Error('Failed to fetch admin stats');
         }
 
-        const [users, requests, groups, content] = await Promise.all([
+        const [usersJson, requestsJson, groupsJson, contentJson] = await Promise.all([
           usersRes.json(),
           requestsRes.json(),
           groupsRes.json(),
           contentRes.json(),
         ]);
+
+        const users = usersJson?.data ?? usersJson;
+        const requests = requestsJson?.data ?? requestsJson;
+        const groups = groupsJson?.data ?? groupsJson;
+        const content = contentJson?.data ?? contentJson;
 
         setStats({
           totalUsers: Array.isArray(users) ? users.length : 0,

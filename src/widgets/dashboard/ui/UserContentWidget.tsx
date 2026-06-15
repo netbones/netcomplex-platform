@@ -42,7 +42,8 @@ export function UserContentWidget() {
     apiFetch(
       globalThis
         .fetch(`/api/content?authorId=${session.user.id}`)
-        .then(res => res.json() as Promise<ContentItem[] | unknown>),
+        .then(res => res.json())
+        .then(body => (body?.data ?? []) as ContentItem[]),
       {
         error: 'Failed to fetch user content',
         onSuccess: (data: ContentItem[] | unknown) => setContent(Array.isArray(data) ? data : []),

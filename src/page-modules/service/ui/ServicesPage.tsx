@@ -43,8 +43,9 @@ export function ServicesPage() {
       try {
         const res = await fetch('/api/content?category=SERVICES&published=true');
         if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
+          const body = await res.json();
+          const data = body?.data ?? [];
+          if (data.length > 0) {
             setServiceCategories(
               data.map((item: ContentItem) => ({
                 id: String(item.id),

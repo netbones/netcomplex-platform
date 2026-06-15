@@ -27,7 +27,8 @@ export function AdminContentWidget() {
       try {
         const response = await fetch('/api/content');
         if (response.ok) {
-          const content = await response.json();
+          const body = await response.json();
+          const content = body?.data ?? [];
           const total = content.length;
           const published = content.filter((c: ContentItem) => c.published).length;
           const draft = total - published;

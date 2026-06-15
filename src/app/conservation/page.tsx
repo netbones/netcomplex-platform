@@ -89,14 +89,14 @@ export default function ConservationPage() {
 
   useEffect(() => {
     if (conservationMode === 'managed') {
-      getContent().then(data => {
-        setContent(data);
+      getContent().then(body => {
+        setContent(body?.data ?? []);
         setLoading(false);
       });
     } else {
       // For default mode, we still fetch content for the dynamic articles section
-      getContent().then(data => {
-        setContent(data);
+      getContent().then(body => {
+        setContent(body?.data ?? []);
         setLoading(false);
       });
     }
