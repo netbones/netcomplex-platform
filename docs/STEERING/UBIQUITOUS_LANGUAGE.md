@@ -356,7 +356,7 @@ Both exist in the same entity. `OccupancyType` is property-level; `occupantType`
 
 The model is `MaintenanceRequest`; users see "Ticket Number" in the UI. This is intentional — the record is a "maintenance request"; its human-readable ID is a "ticket number." No action needed, but developers should be aware.
 
-### C8: MAINTENANCE_STATUSES Constants Out of Sync (High Priority) — _Closed 2026-06-08_
+### C8: MAINTENANCE*STATUSES Constants Out of Sync (High Priority) — \_Closed 2026-06-08*
 
 `src/shared/lib/constants.ts:62` defined `MAINTENANCE_STATUSES` with 4 values (`SUBMITTED`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`), but Prisma `RequestStatus` enum has 7 values (also `ASSIGNED`, `SCHEDULED`, `PENDING_PARTS`).
 
@@ -364,7 +364,7 @@ The model is `MaintenanceRequest`; users see "Ticket Number" in the UI. This is 
 
 **Status (2026-06-08):** **CLOSED.** Constants and tests updated in commit (TBD).
 
-### C9: CONTENT_CATEGORIES Constants Out of Sync (Medium Priority) — _Closed 2026-06-08_
+### C9: CONTENT*CATEGORIES Constants Out of Sync (Medium Priority) — \_Closed 2026-06-08*
 
 `src/shared/lib/constants.ts:26` defined `CONTENT_CATEGORIES` with 4 values (`ANNOUNCEMENT`, `NEWS`, `EVENT`, `BLOG`), but Prisma `ContentCategory` enum has 7 values (also `CONSERVATION`, `SERVICES`, `CAMPAIGN`).
 
@@ -391,5 +391,5 @@ The model is `MaintenanceRequest`; users see "Ticket Number" in the UI. This is 
 | 2026-06-04 | C4 (Tier Naming) deferred to Phase 47 (dWallet)                                                  | 3 vs 4 tier mismatch only matters when dWallet ships tier-gated features; track as open conflict until dWallet surfaces the need                                                           |
 | 2026-06-04 | C5 (residencyType vs residentType) added to Phase 44                                             | Align on `residencyType` with enum `{FAMILY, RENTER, OWNER}`; drop `OWNER_RESIDENT` (map to `OWNER`); update Invitation DTO + 4 UI files                                                   |
 | 2026-06-04 | C6 (OccupancyType vs occupantType) added to Phase 44                                             | Rename `occupantType` → `householdRole`; update Profile model + 14+ script references; Prisma + Drizzle schema migration required                                                          |
-| 2026-06-08 | Closed C8: MAINTENANCE_STATUSES synced to Prisma                                                   | Added ASSIGNED, SCHEDULED, PENDING_PARTS; constants + tests updated                                                                                                                        |
-| 2026-06-08 | Closed C9: CONTENT_CATEGORIES synced to Prisma                                                     | Added CONSERVATION, SERVICES, CAMPAIGN; constants + tests updated                                                                                                                          |
+| 2026-06-08 | Closed C8: MAINTENANCE_STATUSES synced to Prisma                                                 | Added ASSIGNED, SCHEDULED, PENDING_PARTS; constants + tests updated                                                                                                                        |
+| 2026-06-08 | Closed C9: CONTENT_CATEGORIES synced to Prisma                                                   | Added CONSERVATION, SERVICES, CAMPAIGN; constants + tests updated                                                                                                                          |
