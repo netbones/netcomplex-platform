@@ -5,6 +5,7 @@ import {
   questions,
   responses,
   users,
+  apiCreated,
   apiError,
   apiForbidden,
   apiSuccess,
@@ -176,4 +177,59 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     totalResponses,
     questions: aggregatedQuestions,
   });
+}
+
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const authData = await getSessionAndRole(request);
+
+  if (!authData) {
+    return apiUnauthorized();
+  }
+
+  const { tenantId } = await withTenant();
+  const { id: surveyId } = await params;
+
+  const [survey] = await db
+    .select({ status: surveys.status })
+    .from(surveys)
+    .where(and(eq(surveys.id, surveyId), eq(surveys.tenantId, tenantId)))
+    .limit(1);
+
+  if (!survey) {
+    return apiNotFound('Survey not found');
+  }
+
+  if (survey.status !== 'ACTIVE') {
+    return apiError('INVALID_STATUS', 'Survey is not active', 400);
+  }
+
+  const [existing] = await db
+    .select({ id: responses.id })
+    .from(responses)
+    .where(and(eq(responses.surveyId, surveyId), eq(responses.userId, authData.userId)))
+    .limit(1);
+
+  if (existing) {
+    return apiError('ALREADY_RESPONDED', 'You have already responded to this survey', 409);
+  }
+
+  const body = await request.json();
+
+  if (!body.answers || typeof body.answers !== 'object') {
+    return apiError('INVALID_BODY', 'answers object is required', 400);
+  }
+
+  const [response] = await db
+    .insert(responses)
+    .values({
+      id: crypto.randomUUID(),
+      tenantId,
+      surveyId,
+      userId: authData.userId,
+      answers: body.answers,
+      createdAt: new Date(),
+    })
+    .returning();
+
+  return apiCreated(response);
 }

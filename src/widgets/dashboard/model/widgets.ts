@@ -29,6 +29,7 @@ import {
   Megaphone,
   Wrench,
   ClipboardList,
+  Trophy,
 } from 'lucide-react';
 
 export function registerAllWidgets(registry: { register: (m: WidgetManifest) => void }) {
@@ -408,6 +409,24 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: FileText,
     component: lazy(() => import('../ui/SurveysWidget').then(m => ({ default: m.SurveysWidget }))),
     loader: () => import('../ui/SurveysWidget'),
+    defaultSize: { width: 3, height: 2 },
+    minSize: { width: 2, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['services'],
+  });
+
+  registry.register({
+    id: 'competitions',
+    version: '1.0.0',
+    name: 'Competitions',
+    description: 'Active community competitions you can join',
+    author: 'internal',
+    category: 'content',
+    icon: Trophy,
+    component: lazy(() =>
+      import('../ui/CompetitionsWidget').then(m => ({ default: m.CompetitionsWidget }))
+    ),
+    loader: () => import('../ui/CompetitionsWidget'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',

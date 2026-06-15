@@ -110,7 +110,7 @@ export function SurveysWidget() {
       {surveys.map(survey => (
         <Link
           key={survey.id}
-          href={`/admin/surveys/${survey.id}/preview`}
+          href={`/surveys/${survey.id}`}
           className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors group"
         >
           <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0">

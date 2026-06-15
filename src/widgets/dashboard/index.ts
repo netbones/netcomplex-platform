@@ -16,5 +16,6 @@ export * from './ui/MyHomeSpace';
 export * from './ui/SpaceChrome';
 export * from './ui/AnnouncementsStreamWidget';
 export * from './ui/SurveysWidget';
+export * from './ui/CompetitionsWidget';
 export * from './model/registry';
 export * from './model/spaces';

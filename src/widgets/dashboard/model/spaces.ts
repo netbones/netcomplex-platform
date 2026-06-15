@@ -89,6 +89,7 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
       'service-inquiries',
       'events',
       'surveys',
+      'competitions',
       'agent-dashboard',
       'agent-activity',
     ],
@@ -370,7 +371,7 @@ const SERVICES_DOMAIN_WIDGET_MAP: Record<ServicesDomain, string[]> = {
   'my-services': [],
   events: ['events'],
   surveys: ['surveys'],
-  competitions: [],
+  competitions: ['competitions'],
 };
 
 /**
