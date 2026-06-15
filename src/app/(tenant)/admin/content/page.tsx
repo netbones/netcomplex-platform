@@ -55,26 +55,26 @@ export default function ContentListPage() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
+      <div className="bg-white rounded-lg shadow overflow-x-auto">
+        <table className="min-w-[800px] w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                 Title
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                 Category
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                 Author
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                 Date
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase whitespace-nowrap">
                 Actions
               </th>
             </tr>
@@ -88,7 +88,7 @@ export default function ContentListPage() {
                     <div className="text-sm text-gray-500 truncate max-w-xs">{item.excerpt}</div>
                   )}
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 whitespace-nowrap">
                   <span
                     className={`inline-flex px-2 py-1 text-xs rounded-full ${
                       item.category === 'NEWS'
@@ -103,10 +103,10 @@ export default function ContentListPage() {
                     {item.category}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-500">
+                <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
                   {item.author?.name || 'Unknown'}
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex space-x-2">
                     {item.featured && (
                       <span className="px-2 py-1 text-xs bg-amber-100 text-amber-800 rounded">
@@ -120,12 +120,12 @@ export default function ContentListPage() {
                     </span>
                   </div>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-500">
+                <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
                   {item.publishedAt
                     ? new Date(item.publishedAt).toLocaleDateString()
                     : new Date(item.createdAt).toLocaleDateString()}
                 </td>
-                <td className="px-6 py-4 text-right space-x-2">
+                <td className="px-6 py-4 text-right space-x-2 whitespace-nowrap">
                   <Link
                     href={`/admin/content/${item.id}`}
                     className="text-indigo-600 hover:text-indigo-900"
