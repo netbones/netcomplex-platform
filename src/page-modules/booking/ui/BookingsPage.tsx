@@ -28,8 +28,8 @@ export function BookingsPage() {
     async function fetchBookings() {
       try {
         const res = await fetch('/api/bookings');
-        const data = await res.json();
-        setBookings(data);
+        const json = await res.json();
+        setBookings(json.data ?? []);
       } catch (error) {
         log.error({}, 'Failed to fetch bookings', error);
       } finally {
@@ -43,7 +43,7 @@ export function BookingsPage() {
     setShowForm(false);
     fetch('/api/bookings')
       .then(res => res.json())
-      .then(data => setBookings(data))
+      .then(data => setBookings(data.data ?? []))
       .catch(err => log.error({}, 'Failed to refresh bookings', err));
   };
 

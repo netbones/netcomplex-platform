@@ -84,7 +84,7 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
         ]);
         const convData = await convRes.json();
         const usersData = await usersRes.json();
-        setConversations(convData);
+        setConversations(convData?.data ?? []);
         const unwrapped = usersData?.data ?? usersData;
         setUsers(unwrapped?.users ?? (Array.isArray(unwrapped) ? unwrapped : []));
       } catch (error) {
@@ -104,7 +104,7 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
       try {
         const res = await fetch(`/api/messages?conversationId=${selectedConversation}`);
         const data = await res.json();
-        setMessages(data);
+        setMessages(data?.data ?? data);
       } catch (error) {
         log.error({}, 'Failed to fetch messages', error);
       } finally {
@@ -161,7 +161,8 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
       });
 
       if (res.ok) {
-        const sentMessage = await res.json();
+        const json = await res.json();
+        const sentMessage = json?.data ?? json;
         setMessages(prev => [
           ...prev,
           {

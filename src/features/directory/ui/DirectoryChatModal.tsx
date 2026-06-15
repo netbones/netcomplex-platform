@@ -6,6 +6,7 @@ import { authClient } from '@api/client';
 import type { ConversationMessage } from '@entities/chat';
 import { usePresence } from '@entities/chat';
 import { OnlineIndicator } from '@entities/chat';
+import { EmojiPickerButton } from '@entities/chat';
 import { apiGet, apiPost } from '@api/shared';
 
 const supabase = createClient(
@@ -148,6 +149,11 @@ export function DirectoryChatModal({
     }
   };
 
+  const insertEmoji = (emoji: string) => {
+    setInput(prev => prev + emoji);
+    inputRef.current?.focus();
+  };
+
   const formatTime = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -227,6 +233,7 @@ export function DirectoryChatModal({
         {/* Input */}
         <div className="p-3 border-t">
           <div className="flex gap-2">
+            <EmojiPickerButton onEmojiSelect={insertEmoji} />
             <input
               ref={inputRef}
               type="text"

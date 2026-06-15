@@ -128,8 +128,8 @@ export async function POST(request: Request) {
     updatedAt: now,
   });
 
-  // Add participants including the current user
-  const allParticipantIds = [session.user.id, ...(participantIds || [])];
+  // Add participants including the current user (deduplicate)
+  const allParticipantIds = [...new Set([session.user.id, ...(participantIds || [])])];
   await db.insert(conversationParticipants).values(
     allParticipantIds.map((userId: string) => ({
       id: crypto.randomUUID(),
