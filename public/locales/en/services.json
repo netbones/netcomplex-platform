@@ -40,12 +40,16 @@
     "amenities": "Amenities",
     "myServices": "My Services",
     "events": "Events",
+    "surveys": "Surveys",
+    "competitions": "Competitions",
     "descriptions": {
       "maintenance": "Submit and track maintenance requests",
       "bookings": "Book community facilities and amenities",
       "amenities": "Community amenities and shared spaces",
       "myServices": "Community services you offer",
-      "events": "Upcoming community events and activities"
+      "events": "Upcoming community events and activities",
+      "surveys": "Community surveys and questionnaires",
+      "competitions": "Community competitions and contests"
     }
   }
 }

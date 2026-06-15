@@ -33,5 +33,23 @@
   "internet": "Internet/Cable",
   "waste": "Ukulahlwa kwenkukuma",
   "amenities": "Izincedo",
-  "other": "Enye"
+  "other": "Enye",
+  "domains": {
+    "maintenance": "Ukugcinwa",
+    "bookings": "Ubuchule",
+    "amenities": "Izincedo",
+    "myServices": "Iinkonzo Zam",
+    "events": "Iziganeko",
+    "surveys": "Uphando",
+    "competitions": "Ukhuphiswano",
+    "descriptions": {
+      "maintenance": "Thumela kwaye ulandele isicelo sokugcinwa",
+      "bookings": "Buka iindawo zoluntu kunye nezincedo",
+      "amenities": "Izincedo zoluntu kunye nezithuba ezabelwengayo",
+      "myServices": "Iinkonzo zoluntu ozibonelelayo",
+      "events": "Iziganeko ezizayo zoluntu kunye nemisebenzi",
+      "surveys": "Uphando loluntu kunye nemibuzo",
+      "competitions": "Ukhuphiswano loluntu kunye nemingeni"
+    }
+  }
 }

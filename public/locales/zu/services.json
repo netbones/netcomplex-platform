@@ -33,5 +33,23 @@
   "internet": "Internet/Cable",
   "waste": "Ukulahlwa kwenkukuma",
   "amenities": "Izinto",
-  "other": "Okunye"
+  "other": "Okunye",
+  "domains": {
+    "maintenance": "Ukunakekelwa",
+    "bookings": "Ukubhukha",
+    "amenities": "Izinto",
+    "myServices": "Amasevisi Ami",
+    "events": "Izehlakalo",
+    "surveys": "Inhlolovo",
+    "competitions": "Imiqhudelwano",
+    "descriptions": {
+      "maintenance": "Thumela futhi ulandele izicelo zokunakekelwa",
+      "bookings": "Bhukha izindawo zomphakathi nezinto",
+      "amenities": "Izinto zomphakathi nezindawo ezabelwayo",
+      "myServices": "Amasevisi oMphakathi owahlinzekayo",
+      "events": "Izehlakalo ezizayo zomphakathi nemisebenzi",
+      "surveys": "Inhlolovo yomphakathi kanye nemibuzo",
+      "competitions": "Imiqhudelwano yomphakathi kanye nokuncintisana"
+    }
+  }
 }

@@ -33,5 +33,23 @@
   "internet": "Internet/Kabel",
   "waste": "Afvalbestuur",
   "amenities": "Geriefs",
-  "other": "Ander"
+  "other": "Ander",
+  "domains": {
+    "maintenance": "Instandhouding",
+    "bookings": "Besprekings",
+    "amenities": "Geriefs",
+    "myServices": "My Dienste",
+    "events": "Gebeure",
+    "surveys": "Opnames",
+    "competitions": "Kompetisies",
+    "descriptions": {
+      "maintenance": "Dien onderhoudsversoeke in en volg dit op",
+      "bookings": "Bespreek gemeenskap fasiliteite en geriefs",
+      "amenities": "Gemeenskap geriefs en gedeelde ruimtes",
+      "myServices": "Gemeenskap dienste wat jy aanbied",
+      "events": "Komende gemeenskap gebeure en aktiwiteite",
+      "surveys": "Gemeenskap opnames en vraelyste",
+      "competitions": "Gemeenskap kompetisies en wedstryde"
+    }
+  }
 }

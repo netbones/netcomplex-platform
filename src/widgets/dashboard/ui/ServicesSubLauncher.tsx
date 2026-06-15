@@ -1,6 +1,14 @@
 'use client';
 
-import { Wrench, Calendar, Building, Briefcase, CalendarDays } from 'lucide-react';
+import {
+  Wrench,
+  Calendar,
+  Building,
+  Briefcase,
+  CalendarDays,
+  FileText,
+  Trophy,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════
@@ -63,5 +71,19 @@ export const SERVICES_DOMAIN_DEFINITIONS: ServicesDomainDef[] = [
     descriptionKey: 'domains.descriptions.events',
     icon: CalendarDays,
     description: 'Upcoming community events and activities',
+  },
+  {
+    id: 'surveys',
+    labelKey: 'domains.surveys',
+    descriptionKey: 'domains.descriptions.surveys',
+    icon: FileText,
+    description: 'Community surveys and questionnaires',
+  },
+  {
+    id: 'competitions',
+    labelKey: 'domains.competitions',
+    descriptionKey: 'domains.descriptions.competitions',
+    icon: Trophy,
+    description: 'Community competitions and contests',
   },
 ];

@@ -399,6 +399,22 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   });
 
   registry.register({
+    id: 'surveys',
+    version: '1.0.0',
+    name: 'Surveys',
+    description: 'Active community surveys you can take',
+    author: 'internal',
+    category: 'content',
+    icon: FileText,
+    component: lazy(() => import('../ui/SurveysWidget').then(m => ({ default: m.SurveysWidget }))),
+    loader: () => import('../ui/SurveysWidget'),
+    defaultSize: { width: 3, height: 2 },
+    minSize: { width: 2, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['services'],
+  });
+
+  registry.register({
     id: 'announcements-stream',
     version: '1.0.0',
     name: 'Announcements',
