@@ -12,8 +12,8 @@ export {
   generateHybridSlug,
   generateProfileSlug,
 } from '../slug';
-export type { ContentCategory } from '../types';
-export { ContentCategoryEnum } from '../types';
+export type { ContentCategory, ContentLicense, ModerationStatus } from '../types';
+export { ContentCategoryEnum, ContentLicenseEnum, ModerationStatusEnum } from '../types';
 export { apiGet, apiPost, apiPatch, apiDelete } from '../http-client';
 export { ApiClientError } from '../http-client';
 export * from '../dto';

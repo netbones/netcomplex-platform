@@ -117,27 +117,31 @@ model Booking {
 }
 
 model Content {
-  id            String          @id
-  tenantId      String
-  title         Json
-  content       Json
-  excerpt       Json?
-  image         String?
-  category      ContentCategory
-  tags          String[]
-  authorId      String?
-  groupId       String?
-  published     Boolean         @default(false)
-  featured      Boolean         @default(false)
-  priority      String          @default("normal")
-  defaultLocale String          @default("en")
-  contentType   String          @default("article")
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @default(now()) @updatedAt
-  publishedAt   DateTime?
-  expiresAt     DateTime?
-  user          user?           @relation(fields: [authorId], references: [id])
-  Group         Group?          @relation(fields: [groupId], references: [id])
+  id               String            @id
+  tenantId         String
+  title            Json
+  content          Json
+  excerpt          Json?
+  image            String?
+  category         ContentCategory
+  tags             String[]
+  authorId         String?
+  groupId          String?
+  published        Boolean           @default(false)
+  featured         Boolean           @default(false)
+  priority         String            @default("normal")
+  defaultLocale    String            @default("en")
+  contentType      String            @default("article")
+  license          ContentLicense    @default(ALL_RIGHTS_RESERVED)
+  copyrightHolder  String?
+  moderationStatus ModerationStatus  @default(DRAFT)
+  viewCount        Int               @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @default(now()) @updatedAt
+  publishedAt      DateTime?
+  expiresAt        DateTime?
+  user             user?             @relation(fields: [authorId], references: [id])
+  Group            Group?            @relation(fields: [groupId], references: [id])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -1151,6 +1155,21 @@ enum ContentCategory {
   CONSERVATION
   SERVICES
   CAMPAIGN
+}
+
+enum ContentLicense {
+  CC0
+  CC_BY
+  CC_BY_SA
+  CC_BY_NC
+  ALL_RIGHTS_RESERVED
+}
+
+enum ModerationStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+  FLAGGED
 }
 
 enum ConversationType {

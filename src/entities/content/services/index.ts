@@ -1,7 +1,7 @@
 import { db, contents, users, groups } from '@api/server';
 
 import { eq, and, desc, or, isNull, lte, gt, type SQL } from 'drizzle-orm';
-import { ContentCategoryEnum, type ContentCategory } from '@api/shared';
+import { ContentCategoryEnum, type ContentCategory, type ContentLicense } from '@api/shared';
 import { getLocalizedValue, defaultLanguage, supportedLanguages } from '@shared/lib';
 
 /**
@@ -71,6 +71,10 @@ export async function listContent(params: {
       priority: contents.priority,
       defaultLocale: contents.defaultLocale,
       contentType: contents.contentType,
+      license: contents.license,
+      copyrightHolder: contents.copyrightHolder,
+      moderationStatus: contents.moderationStatus,
+      viewCount: contents.viewCount,
       createdAt: contents.createdAt,
       updatedAt: contents.updatedAt,
       publishedAt: contents.publishedAt,
@@ -129,6 +133,10 @@ export function transformContentForLocale(content: Record<string, unknown>, user
     updatedAt: content.updatedAt,
     publishedAt: content.publishedAt,
     expiresAt: content.expiresAt,
+    license: content.license,
+    copyrightHolder: content.copyrightHolder,
+    moderationStatus: content.moderationStatus,
+    viewCount: content.viewCount,
     author: content.authorName ? { name: content.authorName as string | null } : null,
     // Include raw JSON for admin editing
     _raw: {
@@ -159,6 +167,8 @@ export async function createContent(data: {
   priority: string;
   defaultLocale: string;
   contentType: string;
+  license?: string;
+  copyrightHolder?: string | null;
 }) {
   const now = new Date();
 
@@ -183,6 +193,8 @@ export async function createContent(data: {
       priority: data.priority,
       defaultLocale: data.defaultLocale,
       contentType: data.contentType,
+      license: (data.license ?? 'ALL_RIGHTS_RESERVED') as ContentLicense,
+      copyrightHolder: data.copyrightHolder ?? null,
       updatedAt: now,
       createdAt: now,
     })

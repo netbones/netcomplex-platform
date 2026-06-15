@@ -51,6 +51,10 @@ function transformContentForLocale(content: Record<string, unknown>, userLocale:
     priority: content.priority,
     defaultLocale: content.defaultLocale,
     contentType: content.contentType,
+    license: content.license,
+    copyrightHolder: content.copyrightHolder,
+    moderationStatus: content.moderationStatus,
+    viewCount: content.viewCount,
     createdAt: content.createdAt,
     updatedAt: content.updatedAt,
     publishedAt: content.publishedAt,
@@ -122,6 +126,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       priority: contents.priority,
       defaultLocale: contents.defaultLocale,
       contentType: contents.contentType,
+      license: contents.license,
+      copyrightHolder: contents.copyrightHolder,
+      moderationStatus: contents.moderationStatus,
+      viewCount: contents.viewCount,
       createdAt: contents.createdAt,
       updatedAt: contents.updatedAt,
       publishedAt: contents.publishedAt,
@@ -199,6 +207,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (body.contentType) updateData.contentType = body.contentType;
   if (body.tags) updateData.tags = body.tags;
   if (body.priority) updateData.priority = body.priority;
+  if (body.license) updateData.license = body.license;
+  if (body.copyrightHolder !== undefined) updateData.copyrightHolder = body.copyrightHolder || null;
 
   if (body.published && !body.publishedAt) {
     updateData.publishedAt = new Date();

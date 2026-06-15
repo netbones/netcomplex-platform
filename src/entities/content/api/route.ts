@@ -39,6 +39,8 @@ export async function createContent(data: {
   priority?: string;
   defaultLocale?: string;
   contentType?: string;
+  license?: string;
+  copyrightHolder?: string | null;
 }) {
   const now = new Date();
 
@@ -59,5 +61,7 @@ export async function createContent(data: {
     priority: data.priority || 'normal',
     defaultLocale: data.defaultLocale || 'en',
     contentType: data.contentType || 'article',
+    license: data.license,
+    copyrightHolder: data.copyrightHolder,
   });
 }

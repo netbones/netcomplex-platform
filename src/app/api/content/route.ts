@@ -131,6 +131,8 @@ export async function POST(request: Request) {
     priority: body.priority || 'normal',
     defaultLocale: body.defaultLocale || defaultLanguage,
     contentType: body.contentType || 'article',
+    license: body.license,
+    copyrightHolder: body.copyrightHolder,
   });
 
   // Revalidate content caches immediately when new content is created
