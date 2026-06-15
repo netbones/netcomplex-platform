@@ -15,9 +15,8 @@ import { requireAssistScope } from '@entities/tenant/server';
 import { eq } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
-import { defaultLanguage } from '@shared/lib';
-import { resolveLocale, transformContentForLocale } from '@entities/content/server';
 import { listContent, createContent } from '@entities/content/server';
+import { defaultLanguage } from '@shared/lib';
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -69,7 +68,6 @@ export async function GET(request: Request) {
   const authorId = searchParams.get('authorId');
   const locale = searchParams.get('locale') || defaultLanguage;
 
-  // Delegate to entity service for query building, execution, and localization
   const contentItems = await listContent({
     tenantId,
     category,
@@ -80,13 +78,7 @@ export async function GET(request: Request) {
     locale,
   });
 
-  // Transform to localized content using entity service
-  const userLocale = resolveLocale(locale);
-  const localizedContent = contentItems.map(item =>
-    transformContentForLocale(item as unknown as Record<string, unknown>, userLocale)
-  );
-
-  return apiSuccess(localizedContent);
+  return apiSuccess(contentItems);
 }
 
 /**

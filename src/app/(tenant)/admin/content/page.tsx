@@ -24,7 +24,7 @@ export default function ContentListPage() {
     fetch('/api/content')
       .then(res => res.json())
       .then(data => {
-        setContent(data);
+        setContent(data.data ?? []);
         setLoading(false);
       });
   }, []);

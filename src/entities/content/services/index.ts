@@ -75,6 +75,7 @@ export async function listContent(params: {
       updatedAt: contents.updatedAt,
       publishedAt: contents.publishedAt,
       expiresAt: contents.expiresAt,
+      authorName: users.name,
     })
     .from(contents)
     .leftJoin(users, eq(contents.authorId, users.id))
@@ -128,6 +129,7 @@ export function transformContentForLocale(content: Record<string, unknown>, user
     updatedAt: content.updatedAt,
     publishedAt: content.publishedAt,
     expiresAt: content.expiresAt,
+    author: content.authorName ? { name: content.authorName as string | null } : null,
     // Include raw JSON for admin editing
     _raw: {
       title: content.title,
