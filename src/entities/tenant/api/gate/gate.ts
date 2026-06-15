@@ -26,8 +26,7 @@ import { canAccessPage, hasFeature, type TierLevel } from '../features/registry'
 import { ROLE_PERMISSIONS, type Role } from '@/shared/lib';
 import { MODULES, type ModuleKey } from '@/shared/lib';
 
-import { db, tenants } from '@/shared/api/db';
-import { getSessionAndRole } from '@/shared/api/auth-utils';
+import { db, tenants, getSessionAndRole } from '@api/server';
 import { createComponentLogger } from '@/shared/lib';
 
 const gateLogger = createComponentLogger('gate');

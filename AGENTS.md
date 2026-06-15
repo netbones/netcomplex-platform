@@ -250,8 +250,7 @@ git stash push -m "owner=human:marcus:experiment on tailwind plugin:2026-07-01"
   `git branch -d` and `git push origin --delete`. Never use `-D` (force) without
   verifying `git branch -a --merged dev` first.
 - **NEVER delete `dev`, `main`, or any non-phase branch** from the local repo or origin.
-  If a phase accidentally targets one of these, abort the merge and reset. Phase branches
-  are the only branches the cleanup protocol may delete.
+  If a phase accidentally targets one of these, abort the merge and reset. Phase branches are the only branches the cleanup protocol may delete.
 - **Never delete a worktree directory manually** — always use `wt remove`
 - **List active worktrees with:** `wt list` — confirm no stale 🤖 markers before
   starting a new phase
@@ -291,29 +290,37 @@ Project documentation lives in `docs/STEERING/`:
 
 ### Tech Stack
 
-| Layer      | Technology                                                                                                                                                                                                                                                                                    | ---------- |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| Frontend   | Next.js 14 (App Router) + Preact                                                                                                                                                                                                                                                              |
-| Language   | TypeScript                                                                                                                                                                                                                                                                                    |
-| Styling    | Tailwind CSS                                                                                                                                                                                                                                                                                  |
-| Auth       | Better Auth                                                                                                                                                                                                                                                                                   |
-| Database   | PostgreSQL via Supabase                                                                                                                                                                                                                                                                       |
-| ORM        | Prisma + Drizzle                                                                                                                                                                                                                                                                              |
-| RLS        | `prisma/migrations/20260604000000_add_rls_policies/` — 15 tables (6 ADR-019 sensitive + 9 admin-route). Dormant until `runWithRLS` is used. See `docs/STEERING/RLS.md` for connection-role model. **Never change `DATABASE_URL` to use `app_user` directly** — that breaks Better Auth login. |
-| Real-time  | Supabase Realtime (chat)                                                                                                                                                                                                                                                                      |
-| State      | TanStack Query (server) + Zustand (client)                                                                                                                                                                                                                                                    |
-| Forms      | React Hook Form + Zod                                                                                                                                                                                                                                                                         |
-| Maps       | Leaflet + react-leaflet                                                                                                                                                                                                                                                                       |
-| API        | tRPC (internal) + OpenAPI (external)                                                                                                                                                                                                                                                          |
-| Commerce   | UCP & AP2                                                                                                                                                                                                                                                                                     |
-| CMS Editor | TipTap                                                                                                                                                                                                                                                                                        |
-| Logging    | Pino                                                                                                                                                                                                                                                                                          |
-| Deployment | Vercel                                                                                                                                                                                                                                                                                        |
-| Features   | Vercel Feature Flags                                                                                                                                                                                                                                                                          |
+| Layer | Technology --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| Frontend | Next.js 14 (App Router) + Preact |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| Auth | Better Auth |
+| Database | PostgreSQL via Supabase |
+| ORM | Prisma + Drizzle |
+| RLS | `prisma/migrations/20260604000000_add_rls_policies/` — 15 tables (6 ADR-019 sensitive + 9 admin-route). Dormant until `runWithRLS` is used. See `docs/STEERING/RLS.md` for connection-role model. **Never change `DATABASE_URL` to use `app_user` directly** — that breaks Better Auth login. |
+| Real-time | Supabase Realtime (chat) |
+| State | TanStack Query (server) + Zustand (client) |
+| Forms | React Hook Form + Zod |
+| Maps | Leaflet + react-leaflet |
+| API | tRPC (internal) + OpenAPI (external) |
+| Commerce | UCP & AP2 |
+| CMS Editor | TipTap |
+| Logging | Pino |
+| Deployment | Vercel |
+| Features | Vercel Feature Flags |
 
 ---
 
 ## Coding Standards
+
+Before writing code, stop at the first rung that holds:
+
+1. Does this need to exist? → no: skip it (YAGNI)
+2. Stdlib does it? → use it
+3. Native platform feature? → use it
+4. Installed dependency? → use it
+5. One line? → one line
+6. Only then: the minimum that works
 
 ### TypeScript
 

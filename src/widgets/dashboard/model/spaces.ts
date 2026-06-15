@@ -11,7 +11,7 @@
 
 import type { LucideIcon } from 'lucide-react';
 import { Home, Briefcase, Users, MessageSquare, Shield } from 'lucide-react';
-import type { PlatformPageFlags } from '@entities/tenant';
+import type { PlatformPageFlags } from '@entities/tenant/server';
 
 // ═══════════════════════════════════════════════════════════════
 // SPACE ID TYPE

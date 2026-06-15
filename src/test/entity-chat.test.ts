@@ -21,7 +21,7 @@ import {
 import { toConversationDTO, toConversationDTOs } from '@/shared/api/dto/conversation';
 import { toMessageDTO, toMessageDTOs } from '@/shared/api/dto/message';
 import type { InferSelectModel } from 'drizzle-orm';
-import type { conversations, messages } from '@/shared/api/db';
+import type { conversations, messages } from '@api/server';
 
 type ConversationRow = InferSelectModel<typeof conversations>;
 type MessageRow = InferSelectModel<typeof messages>;

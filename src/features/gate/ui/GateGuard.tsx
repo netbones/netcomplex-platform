@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import type { FeatureKey, GateResult } from '@entities/tenant';
+import type { FeatureKey, GateResult } from '@entities/tenant/server';
 import { useGateContext, canAccessClient } from '../model/gate';
 
 // ============================================

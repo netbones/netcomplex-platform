@@ -7,7 +7,7 @@ import {
   FileText,
   Calendar,
   BarChart2,
-  Settings,
+  Circle,
   ChevronRight,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -42,7 +42,6 @@ const DOMAIN_TABS = [
   { id: 'content', label: 'Content' },
   { id: 'events', label: 'Events' },
   { id: 'surveys', label: 'Surveys' },
-  { id: 'system', label: 'System' },
 ] as const;
 
 const DOMAIN_ICONS: Record<string, LucideIcon> = {
@@ -51,7 +50,6 @@ const DOMAIN_ICONS: Record<string, LucideIcon> = {
   content: FileText,
   events: Calendar,
   surveys: BarChart2,
-  system: Settings,
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -65,7 +63,6 @@ function domainColour(domain: string): string {
     content: 'bg-emerald-100 text-emerald-600',
     events: 'bg-purple-100 text-purple-600',
     surveys: 'bg-blue-100 text-blue-600',
-    system: 'bg-gray-100 text-gray-600',
   };
   return map[domain] ?? 'bg-gray-100 text-gray-600';
 }
@@ -132,7 +129,7 @@ function ActivityFeedItem({
   isPlatformAdmin: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const DomainIcon = DOMAIN_ICONS[item.domain] ?? Settings;
+  const DomainIcon = DOMAIN_ICONS[item.domain] ?? Circle;
   const colourClass = domainColour(item.domain);
   const hasDetails = item.metadata && Object.keys(item.metadata).length > 0;
 

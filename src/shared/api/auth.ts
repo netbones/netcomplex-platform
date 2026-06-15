@@ -142,7 +142,18 @@ export const auth = betterAuth({
   baseURL: {
     allowedHosts: tenantConfig.auth.allowedHosts,
   },
-  trustedOrigins: [ENV.BETTER_AUTH_URL || 'http://localhost:3000'],
+  trustedOrigins: [
+    ENV.BETTER_AUTH_URL || 'http://localhost:3000',
+    // Include NEXT_PUBLIC_APP_URL as fallback for environments where
+    // BETTER_AUTH_URL is not set separately.
+    ENV.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    // Include common dev and preview origins so session cookies are
+    // accepted from browsers accessing via different URLs (Vercel
+    // previews, localhost ports, custom domains).
+    ...(process.env.NODE_ENV === 'production'
+      ? []
+      : ['http://localhost:3001', 'https://localhost:3000']),
+  ],
   databaseHooks: {
     user: {
       create: {

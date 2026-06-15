@@ -2,13 +2,8 @@ import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('@api/server', () => ({}));
 
-import {
-  groupSchema,
-  canManageContent,
-  canManageOwnContent,
-  resolveLocale,
-  transformContentForLocale,
-} from '@entities/content';
+import { groupSchema, canManageContent, canManageOwnContent } from '@entities/content';
+import { resolveLocale, transformContentForLocale } from '@entities/content/server';
 import { toGroupDTO, toGroupDTOs } from '@shared/api/dto/group';
 
 describe('groupSchema', () => {
