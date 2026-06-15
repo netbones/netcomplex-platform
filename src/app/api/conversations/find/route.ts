@@ -29,8 +29,8 @@ export async function POST(request: Request) {
           'user', json_build_object('id', u.id, 'name', u.name, 'avatar', u.image)
         )
       ) FILTER (WHERE cp.id IS NOT NULL) as participants
-    FROM "conversation" c
-    JOIN "conversationParticipant" cp ON cp."conversationId" = c.id
+    FROM "Conversation" c
+    JOIN "ConversationParticipant" cp ON cp."conversationId" = c.id
     JOIN "user" u ON u.id = cp."userId"
     WHERE c.type = 'DIRECT'
     AND c."tenantId" = ${tenantId}
@@ -47,19 +47,18 @@ export async function POST(request: Request) {
   }
 
   // Create new direct conversation
+  const conversationId = crypto.randomUUID();
   const newConversation = (await db.execute(sql`
-    INSERT INTO "conversation" (name, type, "tenantId")
-    VALUES (NULL, 'DIRECT', ${tenantId})
+    INSERT INTO "Conversation" (id, name, type, "tenantId")
+    VALUES (${conversationId}, NULL, 'DIRECT', ${tenantId})
     RETURNING *
   `)) as { rows: ConversationResult[] };
-
-  const conversationId = newConversation.rows?.[0]?.id;
 
   // Create participants
   for (const userId of participantIds) {
     await db.execute(sql`
-      INSERT INTO "conversationParticipant" ("conversationId", "userId", "tenantId")
-      VALUES (${conversationId}, ${userId}, ${tenantId})
+      INSERT INTO "ConversationParticipant" (id, "conversationId", "userId", "tenantId")
+      VALUES (${crypto.randomUUID()}, ${conversationId}, ${userId}, ${tenantId})
     `);
   }
 
@@ -73,8 +72,8 @@ export async function POST(request: Request) {
           'user', json_build_object('id', u.id, 'name', u.name, 'avatar', u.image)
         )
       ) FILTER (WHERE cp.id IS NOT NULL) as participants
-    FROM "conversation" c
-    JOIN "conversationParticipant" cp ON cp."conversationId" = c.id
+    FROM "Conversation" c
+    JOIN "ConversationParticipant" cp ON cp."conversationId" = c.id
     JOIN "user" u ON u.id = cp."userId"
     WHERE c.id = ${conversationId}
     AND c."tenantId" = ${tenantId}

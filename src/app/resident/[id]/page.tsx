@@ -8,6 +8,7 @@ import { authClient } from '@api/client';
 import { Breadcrumbs, ErrorBoundary, TagCloud, RichTextRenderer } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import { sanitizeHtml } from '@/shared/lib/sanitize';
+import { DirectoryChatModal } from '@/features/directory/ui/DirectoryChatModal';
 
 const log = createComponentLogger('resident-profile');
 
@@ -198,6 +199,7 @@ function ProfileContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [chatRecipientId, setChatRecipientId] = useState<string | null>(null);
   const contentsPerPage = 3;
 
   const isOwnProfile = session?.user?.id === id;
@@ -348,6 +350,15 @@ function ProfileContent() {
                         <span>{user.phone}</span>
                       </a>
                     )}
+                    {!isOwnProfile && session && (
+                      <button
+                        onClick={() => setChatRecipientId(id ?? null)}
+                        className="flex items-center gap-2 text-soralia-primary hover:underline"
+                      >
+                        <i className="fas fa-comment" aria-hidden="true"></i>
+                        <span>Message</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -453,6 +464,14 @@ function ProfileContent() {
           <PublicSidebarWidgets userId={user.id} />
         </div>
       </div>
+
+      {chatRecipientId && user && (
+        <DirectoryChatModal
+          recipientId={chatRecipientId}
+          recipientName={user.name}
+          onClose={() => setChatRecipientId(null)}
+        />
+      )}
     </div>
   );
 }
