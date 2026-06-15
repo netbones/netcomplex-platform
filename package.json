@@ -48,7 +48,7 @@
     "@better-auth/cli": "^1.4.21",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
-    "@feature-sliced/steiger-plugin": "0.5.8",
+    "@feature-sliced/steiger-plugin": "0.6.0",
     "@next/eslint-plugin-next": "^16.2.6",
     "@playwright/test": "^1.60.0",
     "@testing-library/jest-dom": "^6.9.1",

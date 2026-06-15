@@ -53,34 +53,4 @@ export default defineConfig([
       'fsd/forbidden-imports': 'off',
     },
   },
-  {
-    // Documented sidesteps (allow list). Add new entries here only when the
-    // sidestep is intentional, justified, and documented in the linked BD
-    // issue or commit message. Each entry should have a short comment.
-    files: ['src/**/*.{ts,tsx}'],
-    rules: {
-      'fsd/no-public-api-sidestep': [
-        'warn',
-        {
-          allow: [
-            // i18n is a client-only module that the barrel deliberately
-            // excludes (react-i18next would leak into server bundles). Each
-            // consumer has an eslint-disable-next-line with the same
-            // justification. See soralia-village-de8x for context.
-            '@shared/lib/i18n',
-            // Phase 44-04 (BD qjpa): @api sub-barrels are the official public
-            // APIs for the shared/api slice, split by runtime context to avoid
-            // merging server-only and client-only code in one barrel.
-            '@api/server',
-            '@api/client',
-            '@api/shared',
-            // @shared/lib/hooks is a sub-barrel for client-only hooks that the
-            // main shared/lib barrel deliberately excludes to prevent server
-            // bundle contamination. Same justification as @shared/lib/i18n.
-            '@shared/lib/hooks',
-          ],
-        },
-      ],
-    },
-  },
 ]);
