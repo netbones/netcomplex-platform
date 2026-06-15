@@ -56,11 +56,23 @@ function ServicesLayerSkeleton() {
     <div className="p-6 max-w-5xl mx-auto space-y-6 animate-pulse">
       {/* CommandBar skeleton */}
       <div className="bg-white rounded-lg border border-gray-200 p-4 h-24" />
-      {/* Domain grid skeleton */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="bg-gray-100 rounded-lg h-20" />
-        ))}
+      {/* Service Areas skeleton */}
+      <div>
+        <div className="h-6 bg-gray-200 rounded w-32 mb-3" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="bg-gray-100 rounded-lg h-20" />
+          ))}
+        </div>
+      </div>
+      {/* Competitions & Surveys skeleton */}
+      <div>
+        <div className="h-6 bg-gray-200 rounded w-48 mb-3" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="bg-gray-100 rounded-lg h-20" />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -121,6 +133,13 @@ export function ServicesLayer() {
     return <ServicesLayerSkeleton />;
   }
 
+  const serviceDomains = SERVICES_DOMAIN_DEFINITIONS.filter(
+    d => d.id !== 'surveys' && d.id !== 'competitions'
+  );
+  const engagementDomains = SERVICES_DOMAIN_DEFINITIONS.filter(
+    d => d.id === 'surveys' || d.id === 'competitions'
+  );
+
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       {/* Section: Command Bar (reactive CTAs + creation shortcuts) */}
@@ -128,11 +147,11 @@ export function ServicesLayer() {
         <ServicesCommandBar urgency={urgency.commandBar} />
       </section>
 
-      {/* Section: Domain Grid (2-col → 5-col responsive) */}
+      {/* Section: Service Areas */}
       <section aria-label="Service areas">
         <h2 className="text-lg font-semibold text-gray-900 mb-3">Service Areas</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {SERVICES_DOMAIN_DEFINITIONS.map(domain => (
+          {serviceDomains.map(domain => (
             <DomainCard
               key={domain.id}
               domain={domain}
@@ -141,6 +160,22 @@ export function ServicesLayer() {
           ))}
         </div>
       </section>
+
+      {/* Section: Competitions & Surveys */}
+      {engagementDomains.length > 0 && (
+        <section aria-label="Competitions and surveys">
+          <h2 className="text-lg font-semibold text-gray-900 mb-3">Competitions &amp; Surveys</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {engagementDomains.map(domain => (
+              <DomainCard
+                key={domain.id}
+                domain={domain}
+                badge={urgency.domainBadges[domain.id] ?? 0}
+              />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
