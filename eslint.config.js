@@ -25,9 +25,13 @@ export default [
               regex: '^@shared/(?!lib/hooks)[^/]+/[^/]+$',
               message: 'Use public API from @shared instead of deep imports.',
             },
+            // Block deep imports from entities except for the server.ts
+            // sub-barrel pattern (ADR-020). @entities/*/server is the canonical
+            // public API for server-only entity exports.
             {
-              group: ['@entities/*/*'],
-              message: 'Use public API from @entities/<slice> instead of deep imports.',
+              regex: '^@entities/(?!.*/server$)[^/]+/[^/@]',
+              message:
+                'Use public API from @entities/<slice> instead of deep imports. For server-only exports, use @entities/<slice>/server.',
             },
             {
               group: ['@features/*/*'],

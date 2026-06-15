@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { listTenants, createTenant } from '@entities/tenant';
-import { requirePlatformAdmin } from '@entities/tenant';
+import { listTenants, createTenant } from '@entities/tenant/server';
+import { requirePlatformAdmin } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
 import {

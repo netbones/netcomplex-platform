@@ -17,7 +17,7 @@ import { hasPermission } from '@shared/lib';
 
 import { eq, desc, and } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({

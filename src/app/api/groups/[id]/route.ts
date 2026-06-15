@@ -13,7 +13,7 @@ import {
 } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {

@@ -1,10 +1,10 @@
 import { NextRequest } from 'next/server';
 import {
-  setPlatformPageFlagWithTx,
   getPlatformPageFlagsWithTx,
+  setPlatformPageFlagWithTx,
   type PlatformPageFlags,
-} from '@entities/tenant';
-import { withTenant } from '@entities/tenant';
+} from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
 import {
   getSessionAndRole,
   runWithRLS,

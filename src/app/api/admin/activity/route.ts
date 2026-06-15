@@ -13,7 +13,9 @@ import {
   events,
 } from '@api/server';
 
-import { withTenant } from '@entities/tenant';
+import { getSessionAndRole } from '@api/server';
+import { hasPermission } from '@shared/lib';
+import { withTenant } from '@entities/tenant/server';
 
 import { eq, and, lt, desc, inArray, sql } from 'drizzle-orm';
 import { createComponentLogger } from '@shared/lib';
@@ -35,8 +37,25 @@ interface ActivityItemRaw {
 
 export async function GET(request: NextRequest) {
   try {
-    const authError = await requireAnyPermission(['admin', 'settings']);
-    if (authError) return authError;
+    // Read the session cookie directly from the request to diagnose 401s.
+    const cookieHeader = request.headers.get('cookie');
+    log.info({ operation: 'GET', hasCookie: !!cookieHeader }, 'Auth check start');
+
+    // Try getSessionAndRole with the request headers passed explicitly.
+    // Falls back to the headers()-based call if the request-based call
+    // returns null (Better Auth may handle header formats differently).
+    let authData = await getSessionAndRole(request);
+    if (!authData) {
+      authData = await getSessionAndRole(); // fallback: use headers()
+    }
+    if (!authData) {
+      log.warn({ operation: 'GET', hasCookie: !!cookieHeader }, 'Auth failed — no session');
+      return apiUnauthorized();
+    }
+
+    const allowed =
+      hasPermission(authData.role, 'admin') || hasPermission(authData.role, 'settings');
+    if (!allowed) return apiUnauthorized();
 
     const ctx = await getRLSContext(request);
     if (!ctx) return apiUnauthorized();
@@ -210,8 +229,14 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      // Run all domain queries in parallel
-      const results = await Promise.all(domainQueries);
+      // Run domain queries sequentially — the transaction connection
+      // (single pg client) cannot safely handle concurrent queries.
+      // Concurrent queries on one client trigger the pg@8.x deprecation
+      // "client.query() when already executing" and can lose results.
+      const results: ActivityItemRaw[][] = [];
+      for (const q of domainQueries) {
+        results.push(await q);
+      }
 
       // Flatten, sort by createdAt desc, slice to limit
       const feed = results

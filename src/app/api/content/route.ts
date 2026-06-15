@@ -10,18 +10,14 @@ import {
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
-import { requireAssistScope } from '@entities/tenant';
+import { requireAssistScope } from '@entities/tenant/server';
 
 import { eq } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 import { defaultLanguage } from '@shared/lib';
-import {
-  listContent,
-  createContent,
-  resolveLocale,
-  transformContentForLocale,
-} from '@entities/content';
+import { resolveLocale, transformContentForLocale } from '@entities/content/server';
+import { listContent, createContent } from '@entities/content/server';
 
 /**
  * Retrieves session and role from the request for API routes.

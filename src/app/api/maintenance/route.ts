@@ -17,8 +17,8 @@ import { toMaintenanceRequestDTO } from '@api/shared';
 import { apiLogger } from '@shared/lib';
 
 import { eq } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import { listMaintenanceRequests, createMaintenanceRequest } from '@entities/maintenance';
+import { withTenant } from '@entities/tenant/server';
+import { listMaintenanceRequests, createMaintenanceRequest } from '@entities/maintenance/server';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;

@@ -1,7 +1,7 @@
 import { db, contents, users, settings, apiError, apiSuccess, apiInternalError } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenantOptional } from '@entities/tenant';
+import { withTenantOptional } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
 // Default campaign configuration

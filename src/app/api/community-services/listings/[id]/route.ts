@@ -17,7 +17,7 @@ import {
 // Drizzle imports
 
 import { eq, desc, and, sql } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
 /**

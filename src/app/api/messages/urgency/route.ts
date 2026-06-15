@@ -11,7 +11,7 @@ import {
   auth,
 } from '@api/server';
 
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 
 import { count, eq, and, ne, gt, desc, sql, lte, or } from 'drizzle-orm';
 import { createComponentLogger } from '@shared/lib';

@@ -15,7 +15,7 @@ import {
 } from '@api/server';
 
 import { eq, and, count, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import { logError } from '@shared/lib';
 

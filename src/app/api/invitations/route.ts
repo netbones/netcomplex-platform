@@ -12,7 +12,7 @@ import {
 } from '@api/server';
 
 import { eq, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 import { apiLogger } from '@shared/lib';
 
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';

@@ -7,7 +7,7 @@ import {
   apiNotFound,
 } from '@api/server';
 
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 
 import { eq, and, sql } from 'drizzle-orm';
 

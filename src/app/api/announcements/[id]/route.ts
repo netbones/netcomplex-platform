@@ -13,7 +13,7 @@ import {
 
 import { eq, and } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 
 import { canPublishAnnouncements } from '@shared/lib';
 import { validatePriorityForRole } from '@features/announcements';

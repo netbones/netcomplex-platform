@@ -13,7 +13,7 @@ import {
 
 import { eq, and, desc, inArray, or, isNull } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import type { Role } from '@shared/lib';
 

@@ -10,7 +10,7 @@ import {
 } from '@api/server';
 
 import { eq, desc, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
 export async function POST(request: NextRequest) {

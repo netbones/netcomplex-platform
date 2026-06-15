@@ -15,7 +15,7 @@ import {
 // Drizzle imports - use individual exports from db.ts
 
 import { eq, and, gt, desc, sql, ne } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
 /**

@@ -13,7 +13,7 @@ import {
   competitions,
 } from '@api/server';
 
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 
 import { count, eq, and, lte } from 'drizzle-orm';
 import { createComponentLogger } from '@shared/lib';

@@ -14,7 +14,7 @@ import {
 // Drizzle imports - use db.ts exports
 
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 
 export async function GET(request: Request) {
   const session = await auth.api.getSession({

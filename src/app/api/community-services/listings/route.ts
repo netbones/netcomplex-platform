@@ -11,7 +11,7 @@ import {
   apiNotFound,
 } from '@api/server';
 
-import { assertModuleEnabled } from '@entities/tenant';
+import { assertModuleEnabled } from '@entities/tenant/server';
 
 import { apiLogger } from '@shared/lib';
 
@@ -19,7 +19,7 @@ import { apiLogger } from '@shared/lib';
 
 import { eq, desc, and, or, sql, ilike } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 
 type ListingStatus = (typeof communityServiceListings.status.enumValues)[number];
 type ServiceCategory = (typeof communityServiceListings.category.enumValues)[number];

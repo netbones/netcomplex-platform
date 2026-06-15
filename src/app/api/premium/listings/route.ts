@@ -14,7 +14,7 @@ import {
 } from '@api/server';
 
 import { eq, sql, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
 /**

@@ -1,9 +1,7 @@
 import { NextRequest } from 'next/server';
-import {
-  getPlatformPageFlags,
-  getStatsigExperimentFlags,
-  withTenantOptional,
-} from '@entities/tenant';
+import { getPlatformPageFlags } from '@entities/tenant/server';
+import { getStatsigExperimentFlags } from '@entities/tenant/server';
+import { withTenantOptional } from '@entities/tenant/server';
 import { createComponentLogger } from '@shared/lib';
 
 import { apiError, apiSuccess } from '@api/server';

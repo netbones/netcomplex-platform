@@ -15,8 +15,8 @@ import { hasPermission } from '@shared/lib';
 
 import { eq, and } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant';
-import { requireAssistScope } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
+import { requireAssistScope } from '@entities/tenant/server';
 
 export const maxDuration = 8;
 

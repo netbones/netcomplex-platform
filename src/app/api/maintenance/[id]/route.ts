@@ -17,7 +17,7 @@ import {
 import { hasPermission } from '@shared/lib';
 import { eq, and } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant';
+import { withTenant } from '@entities/tenant/server';
 
 // Valid status transitions for the 7-value lifecycle
 const VALID_STATUSES = [

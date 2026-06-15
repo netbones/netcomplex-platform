@@ -9,7 +9,7 @@ import {
   apiUnauthorized,
 } from '@api/server';
 
-import { assertModuleEnabled } from '@entities/tenant';
+import { assertModuleEnabled } from '@entities/tenant/server';
 
 import { hasPermission } from '@shared/lib';
 import { bookingSchema } from '@entities/booking';
@@ -18,8 +18,8 @@ import { toBookingDTO } from '@api/shared';
 import { apiLogger } from '@shared/lib';
 
 import { eq } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant';
-import { listBookings, validateFacility, createBooking } from '@entities/booking';
+import { withTenant } from '@entities/tenant/server';
+import { listBookings, validateFacility, createBooking } from '@entities/booking/server';
 
 // Limit execution time to 8 seconds for booking operations
 export const maxDuration = 8;
