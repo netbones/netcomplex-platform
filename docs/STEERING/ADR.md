@@ -1099,6 +1099,96 @@ Adopt a **dual-API model** with clear ownership boundaries:
 - `src/app/api/*` — 150+ REST routes (legacy, no new additions for internal features)
 - `src/shared/api/api-response.ts` — `apiSuccess()`/`apiError()` envelope standard
 
+## ADR-020: Server-Only Modules Use `server.ts` Sub-Barrels in FSD Slices
+
+### Status
+
+Accepted (2026-06-14)
+
+### Context
+
+Phase 44 introduced strict FSD boundary enforcement via Steiger and ESLint `no-restricted-imports`. During enforcement, a latent architectural fault was exposed: entity slice barrels (`index.ts`) were re-exporting server-only modules (which import `server-only`, `next/headers`, `next/cache`, or `@api/db`) alongside client-safe exports. When a client component imported any client-safe export from the barrel, Next.js's bundler evaluated the entire barrel's module graph — including server-only modules — causing a hard build crash.
+
+The affected slices: `@entities/tenant`, `@entities/content`, `@entities/maintenance`, `@entities/event`, `@entities/booking`. The immediate fix (removing server-only exports from barrels and allowing deep imports via ESLint exceptions) resolved the build but violated the FSD principle that all consumers must import through public API barrels, not through internal file paths.
+
+The root cause is structural: `server-only` is a build-time execution-context marker, not an FSD layer boundary. A single barrel cannot safely serve both client and server execution contexts.
+
+### Decision
+
+**Each entity slice that contains server-only exports must provide a `server.ts` sub-barrel.** This is the same pattern already established at the `shared/api` level (`@api/server`, `@api/client`, `@api/shared` — see Steiger allow list at `steiger.config.js:74`).
+
+#### Barrel Structure (per affected slice)
+
+```
+src/entities/<slice>/
+├── index.ts        # Client-safe public API (types, constants, UI, schemas)
+├── server.ts       # Server-only public API (DB operations, guards, tenant resolution)
+├── api/
+├── model/
+├── ui/
+└── ...
+```
+
+#### Import Patterns
+
+```ts
+// ✅ Server component / API route
+import { withTenant, getCurrentTenant } from '@entities/tenant/server';
+
+// ✅ Client component (unchanged)
+import { ADMIN_ITEMS, TenantProvider } from '@entities/tenant';
+
+// ❌ Deep import — blocked by no-restricted-imports
+import { withTenant } from '@entities/tenant/api/with-tenant';
+```
+
+### Architectural Principle
+
+> **Any module that directly imports from `@api/db`, `next/headers`, `next/cache`, or `server-only` must not be re-exported from a slice's default barrel (`index.ts`). It must be re-exported exclusively from a `server.ts` sub-barrel.**
+
+This rule closes the _category_ of failure, not just the current instances, and is statically enforceable.
+
+### Scope
+
+- **Entity slices**: `server.ts` is required for slices with server-only exports. Not pre-emptively stamped across all slices.
+- **Feature slices**: Adopt the same pattern if and when a feature contains server-only exports.
+- **Widget slices**: Never use `server.ts`. Widgets are UI-layer consumers. If a widget needs server data, it receives it via props from a Server Component parent.
+
+### Consequences
+
+#### Positive
+
+- FSD public API principle is preserved — consumers always import from a barrel, never from internal files
+- Server-only and client-safe code are cleanly separated at the barrel level
+- Precedent already exists (`@api/server`, `@api/client`, `@api/shared`)
+- The pattern is discoverable — `@entities/<slice>/server` is self-documenting
+- Statically enforceable via ESLint (or future custom Steiger rule)
+
+### Negative
+
+- Two recognized import paths per affected slice (`index.ts` and `server.ts`) — small increase in cognitive load
+- Requires ~105 files to use `@entities/<slice>/server` instead of deep paths, but the migration is mechanical (find-replace)
+- New developers must learn the `server.ts` convention
+
+### Related
+
+- `docs/discussions/DISCUSSION-server-only-barrel.md` — problem framing and option analysis
+- `docs/advisories/ADVISORY-008.md` — implementation plan and execution checklist
+- `steiger.config.js:62-86` — `no-public-api-sidestep` allow list including `@api/server`
+- `eslint.config.js:19-61` — `no-restricted-imports` deep import blocking
+- Phase 44 (M5A hardening): FSD enforcement baseline
+- BD issue `de8x`: i18n sidestep precedent
+
+### Key Files
+
+- `src/entities/tenant/server.ts`
+- `src/entities/content/server.ts`
+- `src/entities/maintenance/server.ts`
+- `src/entities/event/server.ts`
+- `src/entities/booking/server.ts`
+
 ---
 
 _More ADRs will be added as we make architectural decisions. Use the template above to propose new ADRs._
+
+---

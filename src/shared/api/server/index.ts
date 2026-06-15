@@ -122,8 +122,9 @@ export {
   agentProcedure,
 } from '../trpc/server';
 export type { Context } from '../trpc/server';
-export { appRouter } from '../trpc/routers';
-export type { AppRouter } from '../trpc/routers';
+// appRouter/AppRouter NOT re-exported here to avoid circular dependency:
+//   identity.ts → @api/server → routers.ts → @server/routers → identity.ts
+// Import them directly from '@api/trpc/routers' instead.
 export { sendEmail } from '../email/resend';
 export { templates } from '../email/templates';
 export type { TemplateKey } from '../email/templates';
