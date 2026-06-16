@@ -294,14 +294,12 @@ function ProfileContent() {
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             {(user.standardSeats?.[0]?.household?.homeImage ||
-              user.soloSeat?.household?.homeImage ||
-              user.profileProperty?.homeImage) && (
+              user.soloSeats?.[0]?.household?.homeImage) && (
               <div className="h-48 w-full">
                 <img
                   src={
                     user.standardSeats?.[0]?.household?.homeImage ||
-                    user.soloSeat?.household?.homeImage ||
-                    user.profileProperty?.homeImage ||
+                    user.soloSeats?.[0]?.household?.homeImage ||
                     ''
                   }
                   alt={`${user.name}'s home`}
