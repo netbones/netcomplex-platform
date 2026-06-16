@@ -40,11 +40,11 @@ export default function MessagesDomainPage({ params }: MessagesDomainPageProps) 
             { label: tx('nav.dashboard', 'Dashboard'), href: '/dashboard' },
             {
               label: tx('spaces.messages', 'Messages'),
-              href: '/dashboard/messages',
+              href: '/dashboard/communication',
             },
             {
               label: tx(domainDef?.labelKey ?? domain, domainLabelFallback, { ns: 'messages' }),
-              href: `/dashboard/messages/${domain}`,
+              href: `/dashboard/communication/${domain}`,
             },
           ]}
         />
@@ -64,7 +64,7 @@ export default function MessagesDomainPage({ params }: MessagesDomainPageProps) 
             </div>
           </div>
           <Link
-            href="/dashboard/messages"
+            href="/dashboard/communication"
             className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
           >
             &larr; {tx('domains.back', 'Back to Messages', { ns: 'messages' })}

@@ -121,7 +121,7 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
   },
   messages: {
     id: 'messages',
-    href: '/dashboard/messages',
+    href: '/messages',
     labelKey: 'spaces.messages',
     icon: MessageSquare,
     isCore: true,
@@ -244,6 +244,11 @@ export function getActiveSpaceId(pathname: string): SpaceId | 'home' {
     return 'admin';
   }
 
+  // /dashboard/communication → messages space (Phase 49 rename)
+  if (pathname === '/dashboard/communication' || pathname.startsWith('/dashboard/communication/')) {
+    return 'messages';
+  }
+
   // /dashboard/<slug> → matched space (includes legacy /dashboard/admin back-compat)
   const match = pathname.match(/^\/dashboard\/([^/]+)/);
   if (match) {
@@ -338,7 +343,7 @@ export function getAdminDomainWidgets(domain: string): string[] {
 // MESSAGES SUB-ROUTES (Phase 30-B — Q4)
 // ═══════════════════════════════════════════════════════════════
 
-/** Sub-routes within the Messages space (e.g., /dashboard/messages/announcements) */
+/** Sub-routes within the Messages space (e.g., /dashboard/communication/announcements) */
 export const MESSAGES_SUB_ROUTES = ['conversations', 'announcements', 'notifications'] as const;
 export type MessagesSubRoute = (typeof MESSAGES_SUB_ROUTES)[number];
 
@@ -359,6 +364,7 @@ export const SERVICES_DOMAINS = [
   'events',
   'surveys',
   'competitions',
+  'communication',
 ] as const;
 
 export type ServicesDomain = (typeof SERVICES_DOMAINS)[number];
@@ -368,10 +374,11 @@ const SERVICES_DOMAIN_WIDGET_MAP: Record<ServicesDomain, string[]> = {
   maintenance: ['maintenance-requests'],
   bookings: [],
   amenities: [],
-  'my-services': [],
+  'my-services': ['my-services'],
   events: ['events'],
   surveys: ['surveys'],
   competitions: ['competitions'],
+  communication: ['my-services', 'messages'],
 };
 
 /**

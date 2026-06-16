@@ -30,7 +30,7 @@ export default function MessagesAnnouncementsPage() {
             You need admin or board permissions to manage announcements.
           </p>
           <Link
-            href="/dashboard/messages"
+            href="/dashboard/communication"
             className="mt-4 inline-block px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
           >
             &larr; Back to Messages
@@ -47,8 +47,8 @@ export default function MessagesAnnouncementsPage() {
           items={[
             { label: 'Home', href: '/' },
             { label: 'Dashboard', href: '/dashboard' },
-            { label: 'Messages', href: '/dashboard/messages' },
-            { label: 'Announcements', href: '/dashboard/messages/announcements' },
+            { label: 'Messages', href: '/dashboard/communication' },
+            { label: 'Announcements', href: '/dashboard/communication/announcements' },
           ]}
         />
 
@@ -61,7 +61,7 @@ export default function MessagesAnnouncementsPage() {
             </div>
           </div>
           <Link
-            href="/dashboard/messages"
+            href="/dashboard/communication"
             className="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
           >
             &larr; Back to Messages

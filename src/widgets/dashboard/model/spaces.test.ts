@@ -14,8 +14,8 @@ describe('SPACES href registry', () => {
     expect(SPACES.community.href).toBe('/dashboard/community');
   });
 
-  it('messages space has href /dashboard/messages', () => {
-    expect(SPACES.messages.href).toBe('/dashboard/messages');
+  it('messages space has href /messages', () => {
+    expect(SPACES.messages.href).toBe('/messages');
   });
 
   it('admin space has href /admin (canonical entry)', () => {

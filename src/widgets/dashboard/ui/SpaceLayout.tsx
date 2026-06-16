@@ -127,7 +127,7 @@ export function SpaceLayout({ spaceId }: SpaceLayoutProps) {
             {/* Messages space: show "Manage Announcements" link for admin users */}
             {spaceId === 'messages' && (
               <AdminOnlyLink
-                href="/dashboard/messages/announcements"
+                href="/dashboard/communication/announcements"
                 icon={<Megaphone className="w-4 h-4" />}
                 label="Manage Announcements"
               />

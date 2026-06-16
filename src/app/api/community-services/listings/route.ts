@@ -108,11 +108,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Build where conditions for list query
-    const conditions = [
-      eq(communityServiceListings.tenantId, tenantId),
-      eq(communityServiceListings.isPublished, true),
-      eq(communityServiceListings.status, 'ACTIVE' as ListingStatus),
-    ];
+    const conditions = [eq(communityServiceListings.tenantId, tenantId)];
+
+    // For public listing queries, only show published+active.
+    // For provider's own listings view, show all statuses.
+    if (!providerId) {
+      conditions.push(eq(communityServiceListings.isPublished, true));
+      conditions.push(eq(communityServiceListings.status, 'ACTIVE' as ListingStatus));
+    }
 
     if (category && category !== 'ALL') {
       conditions.push(eq(communityServiceListings.category, category as ServiceCategory));

@@ -42,6 +42,7 @@
     "events": "Gebeure",
     "surveys": "Opnames",
     "competitions": "Kompetisies",
+    "communication": "Kommunikasie",
     "descriptions": {
       "maintenance": "Dien onderhoudsversoeke in en volg dit op",
       "bookings": "Bespreek gemeenskap fasiliteite en geriefs",
@@ -49,7 +50,8 @@
       "myServices": "Gemeenskap dienste wat jy aanbied",
       "events": "Komende gemeenskap gebeure en aktiwiteite",
       "surveys": "Gemeenskap opnames en vraelyste",
-      "competitions": "Gemeenskap kompetisies en wedstryde"
+      "competitions": "Gemeenskap kompetisies en wedstryde",
+      "communication": "Klets, aankondigings en boodskappe"
     }
   }
 }

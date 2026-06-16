@@ -25,7 +25,7 @@ function DomainCard({ domain, badge }: { domain: MessagesDomainDef; badge: numbe
 
   return (
     <Link
-      href={`/dashboard/messages/${domain.id}`}
+      href={`/dashboard/communication/${domain.id}`}
       className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
     >
       <div className="flex-shrink-0 p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition">

@@ -42,6 +42,7 @@
     "events": "Events",
     "surveys": "Surveys",
     "competitions": "Competitions",
+    "communication": "Communication",
     "descriptions": {
       "maintenance": "Submit and track maintenance requests",
       "bookings": "Book community facilities and amenities",
@@ -49,7 +50,8 @@
       "myServices": "Community services you offer",
       "events": "Upcoming community events and activities",
       "surveys": "Community surveys and questionnaires",
-      "competitions": "Community competitions and contests"
+      "competitions": "Community competitions and contests",
+      "communication": "Chat, announcements, and messaging"
     }
   }
 }

@@ -121,7 +121,7 @@ function UrgencyZone({
         )}
         {unreadMessageCount > 0 && (
           <UrgencyCard
-            href="/dashboard/messages"
+            href="/dashboard/communication"
             icon={<Bell className="w-4 h-4 text-indigo-500" />}
             label={`${unreadMessageCount} unread message${unreadMessageCount !== 1 ? 's' : ''}`}
             priority="normal"

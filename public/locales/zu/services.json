@@ -42,14 +42,16 @@
     "events": "Izehlakalo",
     "surveys": "Inhlolovo",
     "competitions": "Imiqhudelwano",
+    "communication": "Ukuxhumana",
     "descriptions": {
       "maintenance": "Thumela futhi ulandele izicelo zokunakekelwa",
       "bookings": "Bhukha izindawo zomphakathi nezinto",
       "amenities": "Izinto zomphakathi nezindawo ezabelwayo",
       "myServices": "Amasevisi oMphakathi owahlinzekayo",
       "events": "Izehlakalo ezizayo zomphakathi nemisebenzi",
-      "surveys": "Inhlolovo yomphakathi kanye nemibuzo",
-      "competitions": "Imiqhudelwano yomphakathi kanye nokuncintisana"
+      "surveys": "Inhlolovo yomphakathi nemibuzo",
+      "competitions": "Imiqhudelwano yomphakathi nezincintiswano",
+      "communication": "Ingxoxo, izimemezelo, kanye nemiyalezo"
     }
   }
 }

@@ -8,6 +8,7 @@ import {
   CalendarDays,
   FileText,
   Trophy,
+  MessageSquare,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -85,5 +86,12 @@ export const SERVICES_DOMAIN_DEFINITIONS: ServicesDomainDef[] = [
     descriptionKey: 'domains.descriptions.competitions',
     icon: Trophy,
     description: 'Community competitions and contests',
+  },
+  {
+    id: 'communication',
+    labelKey: 'domains.communication',
+    descriptionKey: 'domains.descriptions.communication',
+    icon: MessageSquare,
+    description: 'Chat, announcements, and messaging',
   },
 ];

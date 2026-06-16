@@ -42,6 +42,7 @@
     "events": "Iziganeko",
     "surveys": "Uphando",
     "competitions": "Ukhuphiswano",
+    "communication": "Unxibelelwano",
     "descriptions": {
       "maintenance": "Thumela kwaye ulandele isicelo sokugcinwa",
       "bookings": "Buka iindawo zoluntu kunye nezincedo",
@@ -49,7 +50,8 @@
       "myServices": "Iinkonzo zoluntu ozibonelelayo",
       "events": "Iziganeko ezizayo zoluntu kunye nemisebenzi",
       "surveys": "Uphando loluntu kunye nemibuzo",
-      "competitions": "Ukhuphiswano loluntu kunye nemingeni"
+      "competitions": "Ukhuphiswano loluntu kunye nemiceli-mngeni",
+      "communication": "Incoko, izaziso, kunye nemiyalezo"
     }
   }
 }

@@ -9,7 +9,7 @@ import type { LucideIcon } from 'lucide-react';
 
 /**
  * Messages domain definition.
- * Each domain maps to a message sub-space rendered on /dashboard/messages/[domain].
+ * Each domain maps to a message sub-space rendered on /dashboard/communication/[domain].
  */
 export interface MessagesDomainDef {
   id: string;

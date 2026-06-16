@@ -88,7 +88,7 @@ export function MessagesCommandBar({ urgency }: MessagesCommandBarProps) {
           <div className="flex flex-wrap gap-2" role="region" aria-label="Items needing attention">
             {urgency.unreadDirect > 0 && (
               <UrgencyChip
-                href="/dashboard/messages/conversations"
+                href="/dashboard/communication/conversations"
                 icon={<MessageSquare className="w-3.5 h-3.5" />}
                 label={`${urgency.unreadDirect} unread direct ${urgency.unreadDirect === 1 ? 'message' : 'messages'}`}
                 colour="red"
@@ -96,7 +96,7 @@ export function MessagesCommandBar({ urgency }: MessagesCommandBarProps) {
             )}
             {urgency.unreadGroup > 0 && (
               <UrgencyChip
-                href="/dashboard/messages/conversations"
+                href="/dashboard/communication/conversations"
                 icon={<Users className="w-3.5 h-3.5" />}
                 label={`${urgency.unreadGroup} unread group ${urgency.unreadGroup === 1 ? 'message' : 'messages'}`}
                 colour="amber"
@@ -104,7 +104,7 @@ export function MessagesCommandBar({ urgency }: MessagesCommandBarProps) {
             )}
             {urgency.unreadAnnouncements > 0 && (
               <UrgencyChip
-                href="/dashboard/messages/announcements"
+                href="/dashboard/communication/announcements"
                 icon={<Megaphone className="w-3.5 h-3.5" />}
                 label={`${urgency.unreadAnnouncements} new ${urgency.unreadAnnouncements === 1 ? 'announcement' : 'announcements'}`}
                 colour="orange"
@@ -116,7 +116,7 @@ export function MessagesCommandBar({ urgency }: MessagesCommandBarProps) {
         {/* Row 2: Shortcuts — always visible */}
         <div className="flex flex-wrap items-center gap-2">
           <ShortcutButton
-            href="/dashboard/messages/conversations?action=new"
+            href="/dashboard/communication/conversations?action=new"
             icon={Send}
             label="New Message"
           />

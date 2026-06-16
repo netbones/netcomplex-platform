@@ -63,7 +63,7 @@ export const NAV_REGISTRY: NavItem[] = [
   {
     id: 'dashboard-messages',
     nameKey: 'spaces.messages',
-    href: '/dashboard/messages',
+    href: '/dashboard/communication',
     flag: 'messages',
   },
   { id: 'dashboard-admin', nameKey: 'spaces.admin', href: '/admin', permission: 'admin' },

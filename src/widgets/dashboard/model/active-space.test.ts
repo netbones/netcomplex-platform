@@ -22,12 +22,12 @@ describe('getActiveSpaceId', () => {
     expect(getActiveSpaceId('/dashboard/community')).toBe('community');
   });
 
-  it('returns "messages" for /dashboard/messages', () => {
-    expect(getActiveSpaceId('/dashboard/messages')).toBe('messages');
+  it('returns "messages" for /dashboard/communication', () => {
+    expect(getActiveSpaceId('/dashboard/communication')).toBe('messages');
   });
 
-  it('returns "messages" for nested /dashboard/messages/announcements', () => {
-    expect(getActiveSpaceId('/dashboard/messages/announcements')).toBe('messages');
+  it('returns "messages" for nested /dashboard/communication/announcements', () => {
+    expect(getActiveSpaceId('/dashboard/communication/announcements')).toBe('messages');
   });
 
   it('returns "admin" for legacy /dashboard/admin (back-compat)', () => {
