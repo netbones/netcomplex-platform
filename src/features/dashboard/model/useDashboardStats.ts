@@ -2,22 +2,21 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-interface DashboardStats {
-  totalUsers: number;
-  totalProperties: number;
-  totalMaintenanceRequests: number;
-  pendingRequests: number;
+export interface DashboardStats {
+  requests: number;
+  bookings: number;
+  messages: number;
+  notifications: number;
 }
 
 async function fetchDashboardStats(): Promise<DashboardStats> {
   const res = await fetch('/api/dashboard/stats');
   if (!res.ok) throw new Error('Failed to fetch dashboard stats');
-  const json = await res.json();
-  return json.success !== undefined ? json.data : json;
+  return res.json();
 }
 
 export function useDashboardStats() {
-  return useQuery({
+  return useQuery<DashboardStats>({
     queryKey: ['dashboard', 'stats'],
     queryFn: fetchDashboardStats,
     staleTime: 30_000,

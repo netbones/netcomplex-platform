@@ -2,24 +2,15 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-interface AdminUrgency {
-  pendingMaintenance: number;
-  pendingInquiries: number;
-  pendingApprovals: number;
-  totalAlerts: number;
-}
-
-async function fetchAdminUrgency(): Promise<AdminUrgency> {
-  const res = await fetch('/api/admin/urgency');
-  if (!res.ok) throw new Error('Failed to fetch admin urgency');
-  const json = await res.json();
-  return json.success !== undefined ? json.data : json;
-}
-
-export function useAdminUrgency() {
-  return useQuery({
+export function useAdminUrgency<T = Record<string, unknown>>() {
+  return useQuery<T>({
     queryKey: ['admin', 'urgency'],
-    queryFn: fetchAdminUrgency,
+    queryFn: async () => {
+      const res = await fetch('/api/admin/urgency');
+      if (!res.ok) throw new Error('Failed to fetch admin urgency');
+      const body = await res.json();
+      return (body.success ? body.data : body) as T;
+    },
     staleTime: 30_000,
   });
 }

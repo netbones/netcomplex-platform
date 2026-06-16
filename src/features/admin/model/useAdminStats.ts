@@ -2,9 +2,9 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-interface AdminStats {
+export interface AdminStats {
   totalUsers: number;
-  totalRequests: number;
+  activeRequests: number;
   totalGroups: number;
   totalContent: number;
 }
@@ -16,26 +16,29 @@ async function fetchAdminStats(): Promise<AdminStats> {
     fetch('/api/groups'),
     fetch('/api/content'),
   ]);
-
   const [users, requests, groups, content] = await Promise.all([
     usersRes.json(),
     requestsRes.json(),
     groupsRes.json(),
     contentRes.json(),
   ]);
+  const count = (v: unknown): number =>
+    Array.isArray(v)
+      ? v.length
+      : ((v as { total?: number; count?: number })?.total ??
+        (v as { total?: number; count?: number })?.count ??
+        0);
 
   return {
-    totalUsers: Array.isArray(users) ? users.length : (users?.total ?? users?.count ?? 0),
-    totalRequests: Array.isArray(requests)
-      ? requests.length
-      : (requests?.total ?? requests?.count ?? 0),
-    totalGroups: Array.isArray(groups) ? groups.length : (groups?.total ?? groups?.count ?? 0),
-    totalContent: Array.isArray(content) ? content.length : (content?.total ?? content?.count ?? 0),
+    totalUsers: count(users),
+    activeRequests: count(requests),
+    totalGroups: count(groups),
+    totalContent: count(content),
   };
 }
 
 export function useAdminStats() {
-  return useQuery({
+  return useQuery<AdminStats>({
     queryKey: ['admin', 'stats'],
     queryFn: fetchAdminStats,
     staleTime: 60_000,
