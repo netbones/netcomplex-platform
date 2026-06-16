@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { authClient } from '@api/client';
-import { ErrorBoundary } from '@shared/ui';
+import { ErrorBoundary, ImageUpload } from '@shared/ui';
 import { Home as HomeIcon, Users, User, Pencil } from 'lucide-react';
 
 /** User profile data shape from /api/users/[id] */
@@ -12,6 +12,8 @@ interface UserProfile {
   email?: string;
   phone?: string;
   image?: string;
+  avatar?: string;
+  platformAddress?: string;
   household?: {
     id: string;
     name?: string;
@@ -55,6 +57,7 @@ export function MyHomeSpace() {
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
+  const [editAvatar, setEditAvatar] = useState('');
 
   const fetchProfile = useCallback(async () => {
     if (!userId) return;
@@ -65,9 +68,15 @@ export function MyHomeSpace() {
       if (!res.ok) throw new Error('Failed to fetch profile');
       const body = await res.json();
       const data = body.success ? body.data : body;
-      setProfile(data);
+      const platformAddress =
+        data.premiumSeat?.platformAddress ??
+        data.soloSeats?.[0]?.platformAddress ??
+        data.standardSeats?.[0]?.platformAddress ??
+        '';
+      setProfile({ ...data, platformAddress });
       setEditName(data.name ?? '');
       setEditPhone(data.phone ?? '');
+      setEditAvatar(data.avatar ?? '');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
@@ -93,6 +102,18 @@ export function MyHomeSpace() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save');
     }
+  };
+
+  const handleAvatarChange = async (url: string) => {
+    if (!userId) return;
+    setEditAvatar(url);
+    await fetch(`/api/users/${userId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ avatar: url, image: url }),
+    });
+    await authClient.updateUser({ image: url });
+    fetchProfile();
   };
 
   if (isLoading) {
@@ -222,6 +243,7 @@ export function MyHomeSpace() {
         <div className="p-6">
           {editingSection === 'profile' ? (
             <div className="space-y-4">
+              <ImageUpload value={editAvatar} onChange={handleAvatarChange} label="Profile Photo" />
               <div>
                 <label className="block text-xs font-medium text-gray-500 uppercase mb-1">
                   Name
@@ -242,6 +264,17 @@ export function MyHomeSpace() {
                   value={profile?.email ?? ''}
                   disabled
                   className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md text-sm text-gray-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 uppercase mb-1">
+                  Platform Address
+                </label>
+                <input
+                  type="text"
+                  value={profile?.platformAddress ?? ''}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md text-sm text-gray-500 font-mono"
                 />
               </div>
               <div>
@@ -271,20 +304,39 @@ export function MyHomeSpace() {
               </div>
             </div>
           ) : (
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <dt className="text-xs font-medium text-gray-500 uppercase">Name</dt>
-                <dd className="mt-1 text-sm text-gray-900">{profile?.name ?? 'Not set'}</dd>
+            <div>
+              <div className="flex items-center gap-4 mb-4">
+                {profile?.avatar ? (
+                  <img
+                    src={profile.avatar}
+                    alt={profile.name ?? ''}
+                    className="w-16 h-16 rounded-full object-cover bg-gray-100"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center">
+                    <User className="w-8 h-8 text-indigo-600" />
+                  </div>
+                )}
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {profile?.name ?? 'Not set'}
+                  </p>
+                  <p className="text-xs text-gray-500">{profile?.email ?? 'Not set'}</p>
+                </div>
               </div>
-              <div>
-                <dt className="text-xs font-medium text-gray-500 uppercase">Email</dt>
-                <dd className="mt-1 text-sm text-gray-900">{profile?.email ?? 'Not set'}</dd>
-              </div>
-              <div>
-                <dt className="text-xs font-medium text-gray-500 uppercase">Phone</dt>
-                <dd className="mt-1 text-sm text-gray-900">{profile?.phone ?? 'Not set'}</dd>
-              </div>
-            </dl>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <dt className="text-xs font-medium text-gray-500 uppercase">Platform Address</dt>
+                  <dd className="mt-1 text-sm text-gray-900 font-mono">
+                    {profile?.platformAddress || 'Not set'}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs font-medium text-gray-500 uppercase">Phone</dt>
+                  <dd className="mt-1 text-sm text-gray-900">{profile?.phone ?? 'Not set'}</dd>
+                </div>
+              </dl>
+            </div>
           )}
         </div>
       </div>
