@@ -1,5 +1,7 @@
 {
   "owner": "Owner",
   "renter": "Renter",
-  "board": "Board Member"
+  "board": "Board Member",
+  "rentalProperty": "Rental Property",
+  "rental": "Rental"
 }

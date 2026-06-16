@@ -1,5 +1,7 @@
 {
   "owner": "Eienaar",
   "renter": "Huurder",
-  "board": "Raadslid"
+  "board": "Raadslid",
+  "rentalProperty": "Huur Eiendom",
+  "rental": "Huur"
 }

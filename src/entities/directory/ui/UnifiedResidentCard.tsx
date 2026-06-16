@@ -133,7 +133,7 @@ export function UnifiedResidentCard({
             <div className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center pl-4">
               <div className="flex items-center gap-2 text-white">
                 <i className="fas fa-home text-lg"></i>
-                <span className="text-sm font-medium">Rental Property</span>
+                <span className="text-sm font-medium">{tx('home.rentalProperty', 'Rental Property')}</span>
               </div>
             </div>
           )}
@@ -143,7 +143,7 @@ export function UnifiedResidentCard({
             <div className="w-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
               <div className="flex items-center gap-2 text-white px-4">
                 <i className="fas fa-home text-lg"></i>
-                <span className="text-sm font-medium">Rental Property</span>
+                <span className="text-sm font-medium">{tx('home.rentalProperty', 'Rental Property')}</span>
               </div>
             </div>
           )}
@@ -326,7 +326,7 @@ export function UnifiedResidentCard({
             <div className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
               <div className="flex items-center gap-2 text-white px-2">
                 <i className="fas fa-home text-sm"></i>
-                <span className="text-xs font-medium">Rental</span>
+                <span className="text-xs font-medium">{tx('home.rental', 'Rental')}</span>
               </div>
             </div>
           )}
@@ -336,7 +336,7 @@ export function UnifiedResidentCard({
             <div className="w-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
               <div className="flex items-center gap-2 text-white px-2">
                 <i className="fas fa-home text-sm"></i>
-                <span className="text-xs font-medium">Rental</span>
+                <span className="text-xs font-medium">{tx('home.rental', 'Rental')}</span>
               </div>
             </div>
           )}
