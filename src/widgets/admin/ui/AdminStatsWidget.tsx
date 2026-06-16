@@ -1,12 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
-import { createComponentLogger } from '@shared/lib';
-
-const log = createComponentLogger('AdminStatsWidget');
+import { useAdminStats } from '@features/admin';
 
 interface AdminStats {
   totalUsers: number;
@@ -59,93 +56,44 @@ function StatCard({ title, value, icon, href, color = 'bg-gray-500', loading }: 
 
 export function AdminStatsWidget() {
   const { t } = useTranslation('admin');
-  const [stats, setStats] = useState<AdminStats>({
-    totalUsers: 0,
-    activeRequests: 0,
-    totalGroups: 0,
-    totalContent: 0,
-  });
-  const [loading, setLoading] = useState(true);
+  const { data: stats, isLoading } = useAdminStats();
 
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const [usersRes, requestsRes, groupsRes, contentRes] = await Promise.all([
-          fetch('/api/users'),
-          fetch('/api/maintenance'),
-          fetch('/api/groups'),
-          fetch('/api/content'),
-        ]);
-
-        if (!usersRes.ok || !requestsRes.ok || !groupsRes.ok || !contentRes.ok) {
-          throw new Error('Failed to fetch admin stats');
-        }
-
-        const [usersJson, requestsJson, groupsJson, contentJson] = await Promise.all([
-          usersRes.json(),
-          requestsRes.json(),
-          groupsRes.json(),
-          contentRes.json(),
-        ]);
-
-        const users = usersJson?.data ?? usersJson;
-        const requests = requestsJson?.data ?? requestsJson;
-        const groups = groupsJson?.data ?? groupsJson;
-        const content = contentJson?.data ?? contentJson;
-
-        setStats({
-          totalUsers: Array.isArray(users) ? users.length : 0,
-          activeRequests: Array.isArray(requests)
-            ? requests.filter((r: { status: string }) => r.status !== 'COMPLETED').length
-            : 0,
-          totalGroups: Array.isArray(groups) ? groups.length : 0,
-          totalContent: Array.isArray(content) ? content.length : 0,
-        });
-      } catch (error) {
-        log.error({ operation: 'fetchStats' }, 'Failed to fetch admin stats', error);
-        // Keep default values on error
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchStats();
-  }, []);
+  const s = stats ?? { totalUsers: 0, activeRequests: 0, totalGroups: 0, totalContent: 0 };
 
   return (
     <ErrorBoundary>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Users"
-          value={stats.totalUsers}
+          value={s.totalUsers}
           icon="fa-users"
           color={STAT_COLORS.users}
           href="/admin/users"
-          loading={loading}
+          loading={isLoading}
         />
         <StatCard
           title="Active Requests"
-          value={stats.activeRequests}
+          value={s.activeRequests}
           icon="fa-tools"
           color={STAT_COLORS.requests}
           href="/admin/requests"
-          loading={loading}
+          loading={isLoading}
         />
         <StatCard
           title="Interest Groups"
-          value={stats.totalGroups}
+          value={s.totalGroups}
           icon="fa-people-roof"
           color={STAT_COLORS.groups}
           href="/admin/groups"
-          loading={loading}
+          loading={isLoading}
         />
         <StatCard
           title="Content Items"
-          value={stats.totalContent}
+          value={s.totalContent}
           icon="fa-file-alt"
           color={STAT_COLORS.content}
           href="/admin/content"
-          loading={loading}
+          loading={isLoading}
         />
       </div>
     </ErrorBoundary>

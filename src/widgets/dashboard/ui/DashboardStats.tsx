@@ -1,10 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@shared/ui';
-import { useApiToast } from '@shared/lib/hooks';
+import { useDashboardStats } from '@features/dashboard';
 
 interface DashboardStats {
   requests: number;
@@ -64,59 +63,41 @@ function StatCard({
 
 export function DashboardStats() {
   const { t } = useTranslation('dashboard');
-  const { fetch: apiFetch } = useApiToast({ component: 'DashboardStats' });
-  const [stats, setStats] = useState<DashboardStats>({
-    requests: 0,
-    bookings: 0,
-    messages: 0,
-    notifications: 0,
-  });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    apiFetch(
-      globalThis.fetch('/api/dashboard/stats').then(res => res.json() as Promise<DashboardStats>),
-      {
-        error: 'Failed to fetch dashboard stats',
-        onSuccess: (data: DashboardStats) => setStats(data),
-        onError: () => setLoading(false),
-      }
-    );
-  }, []);
+  const { data: stats, isLoading } = useDashboardStats();
 
   return (
     <ErrorBoundary>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <StatCard
           title={t('myRequests', 'My Requests')}
-          value={stats.requests}
+          value={stats?.requests ?? 0}
           icon="fa-wrench"
           color={STAT_COLORS.requests}
           href="/maintenance"
-          loading={loading}
+          loading={isLoading}
         />
         <StatCard
           title={t('myBookings', 'My Bookings')}
-          value={stats.bookings}
+          value={stats?.bookings ?? 0}
           icon="fa-calendar-check"
           color={STAT_COLORS.bookings}
           href="/bookings"
-          loading={loading}
+          loading={isLoading}
         />
         <StatCard
           title={t('messages', 'Messages')}
-          value={stats.messages}
+          value={stats?.messages ?? 0}
           icon="fa-comments"
           color={STAT_COLORS.messages}
           href="/messages"
-          loading={loading}
+          loading={isLoading}
         />
         <StatCard
           title={t('notifications', 'Notifications')}
-          value={stats.notifications}
+          value={stats?.notifications ?? 0}
           icon="fa-bell"
           color={STAT_COLORS.notifications}
-          loading={loading}
+          loading={isLoading}
         />
       </div>
     </ErrorBoundary>
