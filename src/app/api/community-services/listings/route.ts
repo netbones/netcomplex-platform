@@ -23,11 +23,20 @@ import { withTenant } from '@entities/tenant/server';
 import { generateNameSlug } from '@shared/api';
 
 function resolveLocaleText(
-  value: Record<string, string> | null | undefined,
+  value: Record<string, string> | string | null | undefined,
   preferredLocale: string
 ): string {
-  if (!value || typeof value !== 'object') return '';
-  return value[preferredLocale] || Object.values(value)[0] || '';
+  if (!value) return '';
+
+  let obj: Record<string, string> | null = null;
+  if (typeof value === 'string') {
+    try { obj = JSON.parse(value); } catch { return value; }
+  } else if (typeof value === 'object') {
+    obj = value as Record<string, string>;
+  }
+  if (!obj) return '';
+
+  return obj[preferredLocale] || Object.values(obj)[0] || '';
 }
 
 function getPreferredLocale(request: Request): string {

@@ -303,7 +303,9 @@ export default function ServiceDetailPage() {
                 )}
               </div>
             </div>
+          </div>
 
+          <div className="mt-8">
             <RelatedServices serviceId={serviceId} />
           </div>
         </div>
