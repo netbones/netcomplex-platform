@@ -117,4 +117,5 @@ export const namespaces = [
   'directory',
   'admin',
   'platform',
+  'home',
 ];

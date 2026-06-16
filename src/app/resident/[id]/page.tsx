@@ -164,7 +164,7 @@ interface ResidentUser {
     };
     isPrimaryOwner: boolean;
   }>;
-  soloSeat?: {
+  soloSeats?: Array<{
     seatType: string;
     household?: {
       id: string;
@@ -172,12 +172,21 @@ interface ResidentUser {
       unit: string;
       homeImage: string | null;
     };
-  };
-  profileProperty?: {
+  }>;
+  household?: {
     id: string;
-    street: string;
-    unit: string;
-    homeImage: string | null;
+    name: string;
+    property?: {
+      id: string;
+      address: string;
+      unitNumber: string;
+    };
+    members?: Array<{
+      id: string;
+      name: string;
+      email: string;
+      role: string;
+    }>;
   };
   contents: Array<{
     id: string;
