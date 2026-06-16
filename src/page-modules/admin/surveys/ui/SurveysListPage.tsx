@@ -97,7 +97,7 @@ export function SurveysListPage() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <Link
-                        href={`/admin/surveys/${survey.id}`}
+                        href={`/admin/surveys/${survey.id}/preview`}
                         className="text-indigo-600 hover:underline"
                       >
                         View
