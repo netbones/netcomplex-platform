@@ -264,9 +264,22 @@ export function Header() {
   const headerItems = visibleItems
     .filter(item => !['dashboard', 'bookings', 'messages', 'maintenance'].includes(item.id))
     .slice(0, 5);
-  // More items: Everything else public
+  // More items: public items that didn't fit in the header bar
   const moreItems = visibleItems.filter(
-    item => !['home', ...headerItems.map(i => i.id)].includes(item.id)
+    item =>
+      ![
+        'home',
+        'dashboard',
+        'bookings',
+        'messages',
+        'maintenance',
+        'dashboard-home',
+        'dashboard-services',
+        'dashboard-community',
+        'dashboard-messages',
+        'dashboard-admin',
+        ...headerItems.map(i => i.id),
+      ].includes(item.id)
   );
 
   return (
