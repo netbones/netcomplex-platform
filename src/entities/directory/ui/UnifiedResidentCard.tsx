@@ -63,7 +63,7 @@ export function UnifiedResidentCard({
       return tx('home.owner', 'Owner');
     }
     if (resident.soloSeats?.[0]) {
-      return 'Board Member';
+      return tx('home.board', 'Board Member');
     }
     return tx('home.renter', 'Renter');
   };
