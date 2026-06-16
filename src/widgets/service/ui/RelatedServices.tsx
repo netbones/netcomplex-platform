@@ -23,7 +23,7 @@ export function RelatedServices({ serviceId }: RelatedServicesProps) {
         );
         if (res.ok) {
           const data = await res.json();
-          setServices(data.relatedServices || []);
+          setServices(data?.data?.relatedServices ?? data?.relatedServices ?? []);
         }
       } catch (error) {
         log.error({}, 'Failed to fetch related services', error);

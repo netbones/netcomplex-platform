@@ -306,7 +306,7 @@ export default function ServiceDetailPage() {
           </div>
 
           <div className="mt-8">
-            <RelatedServices serviceId={serviceId} />
+            <RelatedServices serviceId={service.id} />
           </div>
         </div>
       </main>
