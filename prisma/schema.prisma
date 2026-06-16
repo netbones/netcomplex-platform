@@ -646,7 +646,7 @@ model communityServiceListing {
   providerType            ProviderType             @default(COMMUNITY)
   title                   String
   description             String?
-  category                ServiceCategory
+  category                String
   subcategory             String?
   priceType               PriceType
   price                   Decimal?                  @db.Decimal(10, 2)
@@ -1330,18 +1330,6 @@ enum ResourceVisibility {
   OWNERS_ONLY
   BOARD_ONLY
   COMMITTEE_ONLY
-}
-
-enum ServiceCategory {
-  GARDENING
-  MAINTENANCE
-  PLUMBING
-  ELECTRICAL
-  CLEANING
-  SECURITY
-  PEST_CONTROL
-  APPLIANCE_REPAIR
-  OTHER
 }
 
 enum ProviderType {

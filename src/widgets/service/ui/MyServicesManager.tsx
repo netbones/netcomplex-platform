@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
+import { SERVICE_MARKETPLACE_CATEGORIES } from '@entities/service';
 import { createComponentLogger } from '@shared/lib';
 import { Plus, MessageSquare, Briefcase, Clock, ExternalLink } from 'lucide-react';
 
@@ -89,18 +90,7 @@ export function MyServicesManager() {
     { code: 'xh', label: 'isiXhosa' },
   ];
 
-  const categories = [
-    'TUTORING',
-    'PET_CARE',
-    'CHILDCARE',
-    'TRANSPORT',
-    'HEALTH_WELLNESS',
-    'TECHNOLOGY',
-    'CREATIVE_ARTS',
-    'HOME_HELP',
-    'LEGAL_FINANCIAL',
-    'OTHER',
-  ];
+  const categories = [...SERVICE_MARKETPLACE_CATEGORIES.COMMUNITY];
 
   useEffect(() => {
     if (!session?.user?.id) return;

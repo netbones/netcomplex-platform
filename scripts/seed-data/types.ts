@@ -148,16 +148,7 @@ export interface ServiceListingInput {
   providerType?: 'COMMUNITY' | 'THIRD_PARTY';
   title: string;
   description: string;
-  category:
-    | 'GARDENING'
-    | 'PLUMBING'
-    | 'ELECTRICAL'
-    | 'CLEANING'
-    | 'MAINTENANCE'
-    | 'APPLIANCE_REPAIR'
-    | 'PEST_CONTROL'
-    | 'SECURITY'
-    | 'OTHER';
+  category: string;
   priceType: 'HOURLY' | 'FIXED' | 'QUOTE' | 'FREE';
   price?: string;
   serviceAreas: string[];

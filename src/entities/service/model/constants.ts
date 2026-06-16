@@ -1,3 +1,29 @@
+export const SERVICE_MARKETPLACE_CATEGORIES = {
+  COMMUNITY: [
+    'TUTORING',
+    'PET_CARE',
+    'CHILDCARE',
+    'TRANSPORT',
+    'HEALTH_WELLNESS',
+    'TECHNOLOGY',
+    'CREATIVE_ARTS',
+    'HOME_HELP',
+    'LEGAL_FINANCIAL',
+    'OTHER',
+  ],
+  THIRD_PARTY: [
+    'GARDENING',
+    'MAINTENANCE',
+    'PLUMBING',
+    'ELECTRICAL',
+    'CLEANING',
+    'SECURITY',
+    'PEST_CONTROL',
+    'APPLIANCE_REPAIR',
+    'OTHER',
+  ],
+} as const;
+
 export const defaultServiceCategories = [
   {
     id: 'maintenance',
