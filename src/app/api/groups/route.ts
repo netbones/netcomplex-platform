@@ -86,21 +86,29 @@ export async function GET(request: Request) {
     .where(and(eq(groups.isActive, true), eq(groups.tenantId, tenantId)))
     .orderBy(asc(groups.name));
 
-  // Get member counts for each group
-  const groupsWithCounts = await Promise.all(
-    groupList.map(async group => {
-      const members = await db
-        .select({ id: userGroups.id })
-        .from(userGroups)
-        .where(and(eq(userGroups.groupId, group.id), eq(userGroups.tenantId, tenantId)));
+  const groupIds = groupList.map(g => g.id);
 
-      return {
-        ...group,
-        owner: { id: group.ownerId, name: '' },
-        _count: { members: members.length },
-      };
-    })
-  );
+  const memberCounts =
+    groupIds.length > 0
+      ? await db
+          .select({
+            groupId: userGroups.groupId,
+            count: sql<number>`count(*)::int`,
+          })
+          .from(userGroups)
+          .where(
+            and(eq(userGroups.tenantId, tenantId), sql`${userGroups.groupId} = any(${groupIds})`)
+          )
+          .groupBy(userGroups.groupId)
+      : [];
+
+  const countByGroupId = new Map(memberCounts.map(r => [r.groupId, r.count]));
+
+  const groupsWithCounts = groupList.map(group => ({
+    ...group,
+    owner: { id: group.ownerId, name: '' },
+    _count: { members: countByGroupId.get(group.id) ?? 0 },
+  }));
 
   return apiSuccess(groupsWithCounts);
 }
