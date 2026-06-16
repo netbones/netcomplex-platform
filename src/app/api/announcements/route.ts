@@ -211,7 +211,7 @@ export async function POST(request: Request) {
         and(
           eq(users.tenantId, tenantId),
           eq(users.isActive, true),
-          inArray(profiles.residencyType, ['OWNER_RESIDENT', 'FAMILY'])
+          inArray(profiles.residencyType, ['OWNER', 'FAMILY'])
         )
       );
     targetUsers = ownerUserIds;

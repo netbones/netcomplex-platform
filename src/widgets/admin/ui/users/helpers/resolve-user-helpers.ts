@@ -21,7 +21,7 @@ export function resolveAddress(u: AdminUser): string {
 
 /** Derive occupant type label (Owner, Renter, Resident, Board) */
 export function resolveType(u: AdminUser): string {
-  const profileOccupant = u.profiles?.[0]?.occupantType;
+  const profileOccupant = u.profiles?.[0]?.householdRole;
   if (profileOccupant === 'OWNER') return 'Owner';
   if (profileOccupant === 'RENTER') return 'Renter';
   if (u.standardSeats?.length && u.standardSeats[0]?.isPrimaryOwner) return 'Owner';

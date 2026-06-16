@@ -75,8 +75,8 @@ const profileSchema = z.object({
   userId: z.string().nullable(),
   displayName: z.string(),
   profileAddress: z.string(),
-  occupantType: z.enum(['OCCUPANT', 'FAMILY', 'MINOR']),
-  residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER_RESIDENT']),
+  householdRole: z.enum(['OCCUPANT', 'FAMILY', 'MINOR']),
+  residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER']),
   avatar: z.string().nullable(),
   occupantSince: z.date(),
   status: z.enum(['ACTIVE', 'UPGRADED', 'REMOVED', 'EVICTED', 'LEASE_ENDED']),
@@ -447,7 +447,7 @@ export const identityRouter = router({
             profiles: z.array(
               z.object({
                 householdId: z.string(),
-                occupantType: z.string(),
+                householdRole: z.string(),
                 residencyType: z.string(),
                 rentalImage: z.string().nullable(),
                 occupantImage: z.string().nullable(),
@@ -585,7 +585,7 @@ export const identityRouter = router({
           const userProfiles = await db
             .select({
               householdId: profiles.householdId,
-              occupantType: profiles.occupantType,
+              householdRole: profiles.householdRole,
               residencyType: profiles.residencyType,
               rentalImage: profiles.rentalImage,
               occupantImage: profiles.occupantImage,
@@ -809,13 +809,13 @@ export const identityRouter = router({
       z.object({
         householdId: z.string(),
         displayName: z.string().min(1),
-        occupantType: z.enum(['OCCUPANT', 'FAMILY', 'MINOR']).default('OCCUPANT'),
-        residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER_RESIDENT']).default('FAMILY'),
+        householdRole: z.enum(['OCCUPANT', 'FAMILY', 'MINOR']).default('OCCUPANT'),
+        residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER']).default('FAMILY'),
       })
     )
     .output(profileSchema)
     .mutation(async ({ input, ctx }) => {
-      const { householdId, displayName, occupantType, residencyType } = input;
+      const { householdId, displayName, householdRole, residencyType } = input;
 
       const [household] = await db.select().from(households).where(eq(households.id, householdId));
       if (!household) throw new TRPCError({ code: 'NOT_FOUND', message: 'Household not found' });
@@ -855,7 +855,7 @@ export const identityRouter = router({
           householdId,
           displayName,
           profileAddress,
-          occupantType,
+          householdRole,
           residencyType,
           occupantSince: new Date(),
           status: 'ACTIVE',
@@ -922,8 +922,8 @@ export const identityRouter = router({
           userId: z.string().nullable(),
           displayName: z.string(),
           profileAddress: z.string(),
-          occupantType: z.enum(['OCCUPANT', 'FAMILY', 'MINOR']),
-          residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER_RESIDENT']),
+          householdRole: z.enum(['OCCUPANT', 'FAMILY', 'MINOR']),
+          residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER']),
           avatar: z.string().nullable(),
           occupantSince: z.date(),
           status: z.enum(['ACTIVE', 'UPGRADED', 'REMOVED', 'EVICTED', 'LEASE_ENDED']),

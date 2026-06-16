@@ -26,7 +26,7 @@ export interface ProfileDTO {
   profileAddress: string;
   userId: string | null;
   avatar: string | null;
-  occupantType: string;
+  householdRole: string;
   residencyType: string;
   isPublic: boolean;
   occupantSince: string;
@@ -56,7 +56,7 @@ export function toProfileDTO(profile: InferSelectModel<typeof profiles>): Profil
     profileAddress: profile.profileAddress,
     userId: profile.userId || null,
     avatar: profile.avatar || null,
-    occupantType: profile.occupantType,
+    householdRole: profile.householdRole,
     residencyType: profile.residencyType,
     isPublic: profile.isPublic,
     occupantSince: profile.occupantSince?.toISOString() ?? new Date().toISOString(),

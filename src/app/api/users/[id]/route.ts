@@ -314,8 +314,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     updateData.image = body.image;
     updateData.avatar = body.image;
   }
-  if (body.residentType !== undefined) {
-    updateData.residentType = String(body.residentType);
+  if (body.residencyType !== undefined) {
+    updateData.residencyType = String(body.residencyType);
   }
 
   const updatedUser = await db

@@ -22,7 +22,7 @@ interface Resident {
   homeImage?: string;
   isPublic: boolean;
   isActive: boolean;
-  residentType?: string;
+  residencyType?: string;
   role: string;
   standardSeats?: Array<{
     household: {

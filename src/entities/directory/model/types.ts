@@ -37,7 +37,7 @@ export interface Resident {
   }> | null;
   profiles?: Array<{
     householdId: string;
-    occupantType: string;
+    householdRole: string;
     residencyType: string;
     rentalImage: string | null;
     occupantImage: string | null;

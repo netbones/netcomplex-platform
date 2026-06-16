@@ -55,9 +55,9 @@ export function useResidentFilter(options: UseResidentFilterOptions = {}): UseRe
         } else if (filterValue === 'Committee') {
           params.set('role', 'COMMITTEE');
         } else if (filterValue === 'Owner') {
-          params.set('residentType', 'OWNER');
+          params.set('residencyType', 'OWNER');
         } else if (filterValue === 'Renter') {
-          params.set('residentType', 'RENTER');
+          params.set('residencyType', 'RENTER');
         }
       }
 

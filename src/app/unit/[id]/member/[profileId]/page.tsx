@@ -79,7 +79,7 @@ function ProfileContent() {
               <p className="text-sm text-gray-500 mt-1 font-mono">{profile.profileAddress}</p>
               <div className="flex items-center gap-3 mt-3">
                 <span className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-full capitalize">
-                  {profile.occupantType.toLowerCase()}
+                  {profile.householdRole.toLowerCase()}
                 </span>
                 <span className="text-sm text-gray-500">
                   Member since {tenantSince.getFullYear()}

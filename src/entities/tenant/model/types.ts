@@ -59,8 +59,8 @@ export interface Profile {
   displayName: string;
   profileAddress: string;
   status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
-  occupantType: 'OCCUPANT' | 'MINOR' | 'FAMILY';
-  residencyType: 'FAMILY' | 'RENTER' | 'OWNER_RESIDENT';
+  householdRole: 'OCCUPANT' | 'MINOR' | 'FAMILY';
+  residencyType: 'FAMILY' | 'RENTER' | 'OWNER';
   occupantSince: Date;
   household?: Household;
 }

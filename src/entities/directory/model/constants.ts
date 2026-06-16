@@ -12,8 +12,8 @@ export const FILTER_TYPE_TO_API_PARAMS: Record<FilterType, Record<string, string
   'All Residents': {},
   'Board Members': { role: 'BOARD' },
   'Committee Members': { role: 'COMMITTEE' },
-  Owners: { residentType: 'OWNER' },
-  Renters: { residentType: 'RENTER' },
+  Owners: { residencyType: 'OWNER' },
+  Renters: { residencyType: 'RENTER' },
 };
 
 export const DEFAULT_PAGE_LIMIT = 12;

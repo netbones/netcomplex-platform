@@ -758,7 +758,7 @@ model invitation {
   name           String
   street         String?
   unit           String?
-  residentType   ResidentType     @default(OWNER)
+  residencyType  ResidencyType   @default(OWNER)
   role           Role             @default(RESIDENT)
   token          String           @unique
   status         InvitationStatus @default(PENDING)
@@ -871,7 +871,7 @@ model profile {
   showEmail                     Boolean       @default(true)
   showPhone                     Boolean       @default(true)
   occupantSince                 DateTime      @default(now())
-  occupantType                  OccupantType  @default(OCCUPANT)
+  householdRole                HouseholdRole  @default(OCCUPANT)
   leaseStartDate                DateTime?
   leaseEndDate                  DateTime?
   status                        ProfileStatus @default(ACTIVE)
@@ -1238,7 +1238,7 @@ enum MessageType {
   SYSTEM
 }
 
-enum OccupantType {
+enum HouseholdRole {
   OCCUPANT
   MINOR
   FAMILY
@@ -1288,19 +1288,13 @@ enum RequestStatus {
 enum ResidencyType {
   FAMILY
   RENTER
-  OWNER_RESIDENT
+  OWNER
 }
 
 enum ResidentFilter {
   ALL
   OWNERS_ONLY
   RENTERS_ONLY
-}
-
-enum ResidentType {
-  OWNER
-  RENTER
-  SUSPENDED
 }
 
 enum Role {

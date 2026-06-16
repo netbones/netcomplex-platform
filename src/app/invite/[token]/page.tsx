@@ -11,7 +11,7 @@ interface InvitationData {
   email: string;
   name: string;
   role: string;
-  residentType: string;
+  residencyType: string;
   status: string;
   expiresAt: string;
   tenantId: string;

@@ -18,7 +18,7 @@ const defaultForm: InviteFormData = {
   name: '',
   street: '',
   unit: '',
-  residentType: 'OWNER',
+  residencyType: 'OWNER',
   role: 'RESIDENT',
 };
 
@@ -88,10 +88,10 @@ export function InviteModal({ open, onClose, onInvite }: InviteModalProps) {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-1">{t('residentType')}</label>
+            <label className="block text-sm font-medium mb-1">{t('residencyType')}</label>
             <select
-              value={form.residentType}
-              onChange={e => setForm({ ...form, residentType: e.target.value })}
+              value={form.residencyType}
+              onChange={e => setForm({ ...form, residencyType: e.target.value })}
               className="w-full border rounded-lg px-3 py-2"
             >
               <option value="OWNER">Owner</option>

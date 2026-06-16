@@ -8,7 +8,7 @@ export interface InvitationDTO {
   name: string;
   street: string | null;
   unit: string | null;
-  residentType: string;
+  residencyType: string;
   role: string;
   status: string;
   expiresAt: string;
@@ -25,7 +25,7 @@ export function toInvitationDTO(invitation: InferSelectModel<typeof invitations>
     name: invitation.name,
     street: invitation.street || null,
     unit: invitation.unit || null,
-    residentType: invitation.residentType,
+    residencyType: invitation.residencyType,
     role: invitation.role,
     status: invitation.status,
     expiresAt: invitation.expiresAt?.toISOString() ?? new Date().toISOString(),

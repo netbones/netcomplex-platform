@@ -76,7 +76,7 @@ export function InviteStep({
             email: invite.email,
             name: invite.email.split('@')[0],
             role: invite.role,
-            residentType: 'OWNER',
+            residencyType: 'OWNER',
           }),
         });
         if (!res.ok) {

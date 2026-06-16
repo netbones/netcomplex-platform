@@ -24,7 +24,7 @@ interface PortfolioHousehold {
   }>;
   profiles: Array<{
     displayName: string;
-    occupantType: string;
+    householdRole: string;
     user?: {
       name: string;
     } | null;

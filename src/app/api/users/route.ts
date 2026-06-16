@@ -121,66 +121,78 @@ export async function GET(request: Request) {
   const userIds = userResults.map(u => u.id);
 
   // Batch: fetch all related data in 4 queries instead of N*4
-  const [
-    allSeats,
-    allSoloSeats,
-    allPremiumSeats,
-    allProfiles,
-  ] = userIds.length > 0
-    ? await Promise.all([
-        db
-          .select({
-            userId: standardSeats.userId,
-            property: { id: properties.id, street: properties.street, unit: properties.unit, homeImage: properties.homeImage },
-            isPrimaryOwner: standardSeats.isPrimaryOwner,
-            platformAddress: standardSeats.platformAddress,
-          })
-          .from(standardSeats)
-          .innerJoin(properties, eq(standardSeats.propertyId, properties.id))
-          .where(inArray(standardSeats.userId, userIds)),
-        db
-          .select({
-            userId: soloSeats.userId,
-            property: { id: properties.id, street: properties.street, unit: properties.unit, homeImage: properties.homeImage },
-            seatType: soloSeats.seatType,
-            platformAddress: soloSeats.platformAddress,
-          })
-          .from(soloSeats)
-          .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
-          .where(inArray(soloSeats.userId, userIds)),
-        db
-          .select({
-            userId: premiumSeats.userId,
-            id: premiumSeats.id,
-            platformAddress: premiumSeats.platformAddress,
-            portfolioName: premiumSeats.portfolioName,
-            tier: premiumSeats.tier,
-            isActive: premiumSeats.isActive,
-          })
-          .from(premiumSeats)
-          .where(inArray(premiumSeats.userId, userIds)),
-        db
-          .select({
-            userId: profiles.userId,
-            householdId: profiles.householdId,
-            occupantType: profiles.occupantType,
-            residencyType: profiles.residencyType,
-            rentalImage: profiles.rentalImage,
-            occupantImage: profiles.occupantImage,
-            property: {
-              id: properties.id,
-              street: properties.street,
-              unit: properties.unit,
-              homeImage: properties.homeImage,
-              platformAddress: properties.platformAddress,
-            },
-          })
-          .from(profiles)
-          .innerJoin(households, eq(profiles.householdId, households.id))
-          .innerJoin(properties, eq(households.propertyId, properties.id))
-          .where(and(eq(profiles.tenantId, tenantId), inArray(profiles.userId, userIds), eq(profiles.status, 'ACTIVE' as const))),
-      ])
-    : [[], [], [], []];
+  const [allSeats, allSoloSeats, allPremiumSeats, allProfiles] =
+    userIds.length > 0
+      ? await Promise.all([
+          db
+            .select({
+              userId: standardSeats.userId,
+              property: {
+                id: properties.id,
+                street: properties.street,
+                unit: properties.unit,
+                homeImage: properties.homeImage,
+              },
+              isPrimaryOwner: standardSeats.isPrimaryOwner,
+              platformAddress: standardSeats.platformAddress,
+            })
+            .from(standardSeats)
+            .innerJoin(properties, eq(standardSeats.propertyId, properties.id))
+            .where(inArray(standardSeats.userId, userIds)),
+          db
+            .select({
+              userId: soloSeats.userId,
+              property: {
+                id: properties.id,
+                street: properties.street,
+                unit: properties.unit,
+                homeImage: properties.homeImage,
+              },
+              seatType: soloSeats.seatType,
+              platformAddress: soloSeats.platformAddress,
+            })
+            .from(soloSeats)
+            .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
+            .where(inArray(soloSeats.userId, userIds)),
+          db
+            .select({
+              userId: premiumSeats.userId,
+              id: premiumSeats.id,
+              platformAddress: premiumSeats.platformAddress,
+              portfolioName: premiumSeats.portfolioName,
+              tier: premiumSeats.tier,
+              isActive: premiumSeats.isActive,
+            })
+            .from(premiumSeats)
+            .where(inArray(premiumSeats.userId, userIds)),
+          db
+            .select({
+              userId: profiles.userId,
+              householdId: profiles.householdId,
+              householdRole: profiles.householdRole,
+              residencyType: profiles.residencyType,
+              rentalImage: profiles.rentalImage,
+              occupantImage: profiles.occupantImage,
+              property: {
+                id: properties.id,
+                street: properties.street,
+                unit: properties.unit,
+                homeImage: properties.homeImage,
+                platformAddress: properties.platformAddress,
+              },
+            })
+            .from(profiles)
+            .innerJoin(households, eq(profiles.householdId, households.id))
+            .innerJoin(properties, eq(households.propertyId, properties.id))
+            .where(
+              and(
+                eq(profiles.tenantId, tenantId),
+                inArray(profiles.userId, userIds),
+                eq(profiles.status, 'ACTIVE' as const)
+              )
+            ),
+        ])
+      : [[], [], [], []];
 
   const usersWithRelations = userResults.map(user => ({
     ...toUserDTO(user),

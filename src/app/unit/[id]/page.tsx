@@ -33,7 +33,7 @@ interface HouseholdData {
     profileId?: string;
     platformAddress: string;
     occupantSince: string;
-    occupantType?: string;
+    householdRole?: string;
   }>;
   content: Array<{
     id: string;

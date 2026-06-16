@@ -43,7 +43,7 @@ vi.mock('@api/server', () => ({
     email: 'email',
     name: 'name',
     role: 'role',
-    residentType: 'residentType',
+    residencyType: 'residencyType',
     inviterId: 'inviterId',
     token: 'token',
     status: 'status',

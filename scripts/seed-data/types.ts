@@ -101,8 +101,8 @@ export interface ProfileInput {
   userId: string;
   displayName: string;
   profileAddress: string;
-  occupantType: 'OCCUPANT' | 'MINOR' | 'FAMILY';
-  residencyType: 'OWNER_RESIDENT' | 'RENTER' | 'FAMILY';
+  householdRole: 'OCCUPANT' | 'MINOR' | 'FAMILY';
+  residencyType: 'OWNER' | 'RENTER' | 'FAMILY';
   occupantSince: Date;
   isPublic?: boolean;
   showEmail?: boolean;

@@ -85,7 +85,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         avatar: profiles.avatar,
         isPublic: profiles.isPublic,
         occupantSince: profiles.occupantSince,
-        occupantType: profiles.occupantType,
+        householdRole: profiles.householdRole,
         userId: profiles.userId,
       })
       .from(profiles)
@@ -230,7 +230,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         profileId: profile.id,
         platformAddress: profile.profileAddress,
         occupantSince: profile.occupantSince,
-        occupantType: profile.occupantType,
+        householdRole: profile.householdRole,
       })),
     ];
 

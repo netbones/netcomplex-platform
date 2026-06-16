@@ -65,7 +65,7 @@ export async function POST(request: Request) {
       email: body.email,
       name: body.name,
       role: body.role ?? 'RESIDENT',
-      residentType: body.residentType ?? 'OWNER',
+      residencyType: body.residencyType ?? 'OWNER',
       inviterId,
       organizationId: body.organizationId || 'placeholder-org-id',
       token,

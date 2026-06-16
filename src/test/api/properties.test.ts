@@ -160,7 +160,7 @@ vi.mock('@api/server', () => ({
     avatar: 'avatar',
     isPublic: 'isPublic',
     occupantSince: 'occupantSince',
-    occupantType: 'occupantType',
+    householdRole: 'householdRole',
     userId: 'userId',
   },
   contents: {
@@ -660,7 +660,7 @@ describe('Properties API', () => {
               avatar: null,
               isPublic: true,
               occupantSince: new Date('2025-06-01'),
-              occupantType: 'CHILD',
+              householdRole: 'CHILD',
               userId: null,
             },
           ]);

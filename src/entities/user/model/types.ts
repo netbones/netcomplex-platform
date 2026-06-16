@@ -28,7 +28,7 @@ export interface PremiumSeat {
 
 /** User profile with occupancy/residency info */
 export interface AdminUserProfile {
-  occupantType: string;
+  householdRole: string;
   residencyType: string;
   property: PropertyInfo;
 }
@@ -61,7 +61,7 @@ export interface Invitation {
   name: string;
   street: string | null;
   unit: string | null;
-  residentType: string;
+  residencyType: string;
   status: string;
 }
 
@@ -78,7 +78,7 @@ export interface InviteFormData {
   name: string;
   street: string;
   unit: string;
-  residentType: string;
+  residencyType: string;
   role: string;
 }
 

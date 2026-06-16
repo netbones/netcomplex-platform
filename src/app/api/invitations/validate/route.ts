@@ -31,7 +31,7 @@ export async function GET(request: Request) {
       email: invitations.email,
       name: invitations.name,
       role: invitations.role,
-      residentType: invitations.residentType,
+      residencyType: invitations.residencyType,
       status: invitations.status,
       expiresAt: invitations.expiresAt,
       tenantId: invitations.tenantId,
