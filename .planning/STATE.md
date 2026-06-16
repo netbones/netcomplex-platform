@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: 'Phase 44 (M5a Hardening) 1/1 plan shipped (44-01 Steiger integration COMPLETE). 44-RESEARCH.md and 44-UI-SPEC.md also shipped (approved, 6/6 carry-forward dimensions, no-new-ui scope). Steiger installed, configured, baseline scan run (582 FSD violations: 239 err + 343 warn), 8 BD issues filed (qjpa @api/* 461, 08st tenant fan-in 9, nf5r admin fan-in 26, znjo shared-to-entities 28, 3qio pricing-app 1, ohj8 missing public API 7, s50y src/types 1, 3a3v dead slices 12+). CI workflow .github/workflows/fsd-lint.yml created. Pre-commit hook steiger-staged.sh added. ESLint cross-reference comment + AGENTS.md FSD section documented. All rules start at warn to surface debt without blocking; cluster-by-cluster tightening deferred to follow-up plans. Worktree phase-44-hardening merged to dev and removed; HEAD=a9c900a. Phase 44-02 TBD (monitoring infra plan) is next; UI-SPEC carry-forward contract covers any touched UI surfaces across 44-02..44-08+.'
-last_updated: '2026-06-07T12:30:00.000Z'
+last_updated: '2026-06-16T00:00:00.000Z'
 progress:
   total_phases: 46
   completed_phases: 39
@@ -16,16 +16,16 @@ progress:
 # Project State
 ## Current Position
 
-Phase: 44 (m5a-hardening) — 1/1 plan shipped (44-01 Steiger integration COMPLETE). Phase 44-02 TBD (monitoring infra plan) is next.
+Phase: 45 (Anchor Tenant Features) — Context gathered. Ready for planning.
 
-- **Phase:** Phase 44 (M5a Hardening & Launch Readiness) — Plan 44-01 (Steiger FSD linter integration) SHIPPED. 11 files, +3972/-7. Baseline scan: 582 FSD violations across 9 rule types, all surfaced as `warn`. 8 BD issues filed, one per debt cluster. CI + pre-commit + AGENTS.md docs landed.
-- **Status:** Steiger is now a project-wide lint, runs locally via `pnpm fsd:check`, in pre-commit via `bash scripts/steiger-staged.sh`, in CI via `.github/workflows/fsd-lint.yml`. Debt is visible; rules stay at `warn` until each cluster is closed in a follow-up plan.
-- **Next Step:** Plan 44-02 TBD — monitoring infrastructure planning for the 7-day soak. Then close audit-closure waves A/B/C (44-03/04/05), M4.5 follow-ups (44-06), pnpm advisory nn39 (44-07), FSD debt clusters (44-08+, one per cluster).
-- **7-day soak:** REPOSITIONED to M5b Launch (Phase 45). Was a category error to include in M4.5 (production-readiness) — soak is a launch activity. System must be stable (no known critical bugs, no architectural debt to freeze around) before soak is meaningful. Pre-soak hardening goes in M5a.
+- **Phase:** Phase 45 (Anchor Tenant Features) — renamed from "M5b Soak & Launch". 7-day production soak deferred to its own phase (not ready yet). 4 features: Community Merits, OTP reset, i18n batch, Tiptap i18n.
+- **Status:** Context gathered 2026-06-16. 9 implementation decisions captured in 45-CONTEXT.md. Execution order: OTP → Merits → i18n → Tiptap. No existing plans.
+- **Next Step:** Run `/gsd-plan-phase 45` to create plans starting with Plan 45-01 (OTP password reset).
+- **7-day soak:** Deferred to its own phase. The repositioning to M5b was premature — user prefers to decide when the system is actually stable.
 
-**Last Session:** 2026-06-07T12:30:00.000Z
-**Stopped at:** Phase 44 (M5a Hardening) — Plan 44-01 (Steiger integration) SHIPPED + Phase 44-RESEARCH.md shipped + Phase 44-UI-SPEC.md APPROVED (6/6 carry-forward dimensions, no-new-ui scope). 3 commits this session: a9c900a (UI-SPEC approved), a999899 (RESEARCH), 11aeb13 (UI-SPEC initial). Next plan (44-02 monitoring infra) is ready to be planned against the RESEARCH + UI-SPEC contracts.
-**Resume file:** .planning/phases/44-m5a-hardening/44-UI-SPEC.md
+**Last Session:** 2026-06-16T00:00:00.000Z
+**Stopped at:** Phase 45 (Anchor Tenant Features) — Context gathered. Phase renamed from "M5b Soak & Launch" (soak deferred to its own phase). 4 features scoped: OTP reset, Community Merits, i18n batch, Tiptap i18n. Execution order locked: OTP → Merits → i18n → Tiptap. Ready for `/gsd-plan-phase 45`.
+**Resume file:** .planning/phases/45-m5b-anchor-tenant/45-CONTEXT.md
 
 ## Active Phase Decisions
 
