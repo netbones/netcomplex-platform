@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Resident, UseResidentFilterReturn, ViewMode } from '@entities/directory';
 import { DEBOUNCE_DELAY_MS, DEFAULT_PAGE_LIMIT } from '@entities/directory';
-import { apiGet } from '@api/shared';
 
 export interface UseResidentFilterOptions {
   defaultLimit?: number;
@@ -63,17 +62,20 @@ export function useResidentFilter(options: UseResidentFilterOptions = {}): UseRe
 
       const queryStr = params.toString();
       const url = queryStr ? `${apiEndpoint}?${queryStr}` : apiEndpoint;
-      const body = await apiGet<Record<string, unknown>>(url);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const envelope = await res.json();
+      const data = envelope?.data ?? envelope;
+      const meta = envelope?.meta;
 
-      if (body && typeof body === 'object' && 'users' in body) {
-        setResidents((body as { users: Resident[] }).users);
-        setTotal((body as { total?: number }).total ?? 0);
-      } else if (Array.isArray(body)) {
-        setResidents(body as Resident[]);
-        setTotal(body.length);
+      if (data && typeof data === 'object' && 'users' in data) {
+        setResidents((data as { users: Resident[] }).users);
+      } else if (Array.isArray(data)) {
+        setResidents(data as Resident[]);
       } else {
         setResidents([]);
       }
+      setTotal((meta as { total?: number })?.total ?? (Array.isArray(data) ? data.length : 0));
     } catch {
       setResidents([]);
     } finally {
