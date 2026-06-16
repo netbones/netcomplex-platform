@@ -53,14 +53,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Build search term from first word of title (handle JSON-encoded titles)
-    const rawTitle = currentService.title ?? '';
+    const rawTitle = (currentService.title as string) ?? '';
     let titleText = rawTitle;
     try {
       const parsed = JSON.parse(rawTitle);
       if (typeof parsed === 'object' && parsed !== null) {
         titleText = String(Object.values(parsed).find(Boolean) || '');
       }
-    } catch { /* not JSON, use as-is */ }
+    } catch {
+      /* not JSON, use as-is */
+    }
     const searchTerm = String(titleText).split(' ')[0] || '';
     const searchPattern = `%${searchTerm.toLowerCase()}%`;
 

@@ -104,6 +104,7 @@ export async function POST(request: NextRequest) {
         const [newTenant] = await tx
           .insert(tenants)
           .values({
+            id: crypto.randomUUID(),
             name: body.name,
             slug: body.slug,
             customDomain: null,

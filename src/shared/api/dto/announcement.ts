@@ -22,7 +22,7 @@ export function toAnnouncementDTO(
 ): AnnouncementDTO {
   return {
     id: announcement.id,
-    title: announcement.title,
+    title: announcement.title as string,
     content: announcement.content,
     author: announcement.author,
     priority: announcement.priority,

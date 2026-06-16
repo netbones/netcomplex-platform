@@ -131,11 +131,55 @@ export async function listTenants(): Promise<Tenant[]> {
   return result.map(toTenant);
 }
 
-export async function createTenant(
-  data: Omit<Tenant, 'id' | 'createdAt' | 'updatedAt'>
-): Promise<Tenant> {
-  const result = await db.insert(tenants).values(data).returning();
-  return toTenant(result[0]);
+export async function createTenant(data: {
+  id?: string;
+  name: string;
+  slug: string;
+  customDomain?: string | null;
+  logoUrl?: string | null;
+  faviconUrl?: string | null;
+  primaryColor?: string;
+  accentColor?: string | null;
+  secondaryColor?: string | null;
+  fontFamily?: string | null;
+  customCss?: string | null;
+  active?: boolean;
+  subscriptionTier?: string;
+  modules?: unknown;
+  maxPages?: number;
+  pageCount?: number;
+  featureFlags?: unknown;
+  tier?: TenantTier;
+  ownerId?: string | null;
+}): Promise<Tenant> {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const row = {
+    id: data.id ?? crypto.randomUUID(),
+    name: data.name,
+    slug: data.slug,
+    customDomain: data.customDomain ?? null,
+    logoUrl: data.logoUrl ?? null,
+    faviconUrl: data.faviconUrl ?? null,
+    primaryColor: data.primaryColor ?? '#4F46E5',
+    accentColor: data.accentColor ?? null,
+    secondaryColor: data.secondaryColor ?? null,
+    fontFamily: data.fontFamily ?? null,
+    customCss: data.customCss ?? null,
+    active: data.active ?? true,
+    subscriptionTier: data.subscriptionTier ?? 'foundation',
+    modules: data.modules ?? {},
+    maxPages: data.maxPages ?? 5,
+    pageCount: data.pageCount ?? 0,
+    featureFlags: data.featureFlags ?? {},
+    tier: data.tier ?? 'STANDARD',
+    ownerId: data.ownerId ?? null,
+  };
+  const result = await db
+    .insert(tenants)
+    .values(row as any)
+    .returning();
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+  return toTenant(result[0] as unknown as Record<string, unknown>);
 }
 
 export async function updateTenant(
