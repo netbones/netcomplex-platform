@@ -56,6 +56,7 @@ export function MyHomeSpace() {
   // Edit states
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editAvatar, setEditAvatar] = useState('');
 
@@ -75,6 +76,7 @@ export function MyHomeSpace() {
         '';
       setProfile({ ...data, platformAddress });
       setEditName(data.name ?? '');
+      setEditEmail(data.email ?? '');
       setEditPhone(data.phone ?? '');
       setEditAvatar(data.avatar ?? '');
     } catch (err) {
@@ -94,7 +96,7 @@ export function MyHomeSpace() {
       const res = await fetch(`/api/users/${userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: editName, phone: editPhone }),
+        body: JSON.stringify({ name: editName, email: editEmail, phone: editPhone }),
       });
       if (!res.ok) throw new Error('Failed to save profile');
       setEditingSection(null);
@@ -261,9 +263,9 @@ export function MyHomeSpace() {
                 </label>
                 <input
                   type="email"
-                  value={profile?.email ?? ''}
-                  disabled
-                  className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md text-sm text-gray-500"
+                  value={editEmail}
+                  onChange={e => setEditEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
               <div>
