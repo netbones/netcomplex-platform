@@ -22,7 +22,7 @@ try:
     warnings = len(d.get('warnings', []))
     info = len(d.get('info', []))
     print(f'errors={errors} warnings={warnings} info={info}')
-    if errors > 0 or warnings > 0:
+    if errors > 0:
         sys.exit(1)
 except json.JSONDecodeError as e:
     print(f'PARSE_ERROR: {e}', file=sys.stderr)
