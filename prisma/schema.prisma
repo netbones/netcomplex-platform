@@ -643,6 +643,7 @@ model communityServiceListing {
   id                      String                    @id
   tenantId                String
   providerId              String
+  providerType            ProviderType             @default(COMMUNITY)
   title                   String
   description             String?
   category                ServiceCategory
@@ -1341,6 +1342,11 @@ enum ServiceCategory {
   PEST_CONTROL
   APPLIANCE_REPAIR
   OTHER
+}
+
+enum ProviderType {
+  COMMUNITY
+  THIRD_PARTY
 }
 
 enum SoloSeatType {

@@ -145,6 +145,7 @@ export interface PremiumSeatInput {
 export interface ServiceListingInput {
   id: string;
   providerId: string;
+  providerType?: 'COMMUNITY' | 'THIRD_PARTY';
   title: string;
   description: string;
   category:
