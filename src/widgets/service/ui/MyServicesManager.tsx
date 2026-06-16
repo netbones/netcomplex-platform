@@ -25,6 +25,7 @@ interface ServiceListing {
   contactMethods?: string[];
   images?: string[];
   locale?: string;
+  translations?: Record<string, { title: string; description: string }>;
   rating: number;
   reviewCount: number;
   createdAt: string;
@@ -74,6 +75,10 @@ export function MyServicesManager() {
     images: [] as string[],
     locale: 'en',
   });
+
+  const [translations, setTranslations] = useState<
+    Record<string, { title: string; description: string }>
+  >({});
 
   const languages = [
     { code: 'en', label: 'English' },
@@ -167,6 +172,7 @@ export function MyServicesManager() {
           : [],
         contactMethods: [formData.contactMethods],
         images: formData.images,
+        translations,
       };
 
       const isEdit = !!editingId;
@@ -204,6 +210,7 @@ export function MyServicesManager() {
       images: listing.images || [],
       locale: listing.locale || 'en',
     });
+    setTranslations(listing.translations || {});
     setEditingId(listing.id);
     setShowCreateForm(true);
   };
@@ -220,6 +227,7 @@ export function MyServicesManager() {
       images: [],
       locale: 'en',
     });
+    setTranslations({});
     setEditingId(null);
     setShowCreateForm(false);
   };
@@ -312,6 +320,8 @@ export function MyServicesManager() {
               onEdit={handleEdit}
               onCancel={resetForm}
               languages={languages}
+              translations={translations}
+              setTranslations={setTranslations}
             />
           )}
           {activeTab === 'inquiries' && <InquiriesTab inquiries={inquiries} />}
@@ -339,6 +349,8 @@ function ListingsTab({
   onEdit,
   onCancel,
   languages,
+  translations,
+  setTranslations,
 }: {
   listings: ServiceListing[];
   showCreateForm: boolean;
@@ -376,6 +388,8 @@ function ListingsTab({
   onEdit: (listing: ServiceListing) => void;
   onCancel: () => void;
   languages: { code: string; label: string }[];
+  translations: Record<string, { title: string; description: string }>;
+  setTranslations: (t: Record<string, { title: string; description: string }>) => void;
 }) {
   return (
     <div className="space-y-3">
@@ -507,6 +521,54 @@ function ListingsTab({
                 {uploadingImage ? 'Uploading...' : '+ Add Image'}
               </label>
             </div>
+            {editingId && (
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Translations (optional)
+                </label>
+                <div className="space-y-2">
+                  {languages
+                    .filter(l => l.code !== formData.locale)
+                    .map(lang => (
+                      <div key={lang.code} className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500 w-16 shrink-0">{lang.label}</span>
+                        <input
+                          type="text"
+                          value={translations[lang.code]?.title || ''}
+                          onChange={e =>
+                            setTranslations({
+                              ...translations,
+                              [lang.code]: {
+                                ...translations[lang.code],
+                                title: e.target.value,
+                                description: translations[lang.code]?.description || '',
+                              },
+                            })
+                          }
+                          placeholder="Title"
+                          className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                        />
+                        <input
+                          type="text"
+                          value={translations[lang.code]?.description || ''}
+                          onChange={e =>
+                            setTranslations({
+                              ...translations,
+                              [lang.code]: {
+                                ...translations[lang.code],
+                                title: translations[lang.code]?.title || '',
+                                description: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="Description"
+                          className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                        />
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
             <div className="flex gap-2 pt-2">
               <button
                 onClick={handleCreateListing}

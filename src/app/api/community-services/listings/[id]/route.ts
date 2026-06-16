@@ -188,14 +188,28 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const body = await request.json();
     type ListingUpdate = Partial<typeof communityServiceListings.$inferInsert>;
+    // Build locale-keyed title/description from form data + translations
+    const locale = body.locale || 'en';
+    const translations = body.translations || {};
+    const titleObj: Record<string, string> = { [locale]: body.title || '' };
+    const descriptionObj: Record<string, string> = body.description
+      ? { [locale]: body.description }
+      : {};
+    for (const [lang, trans] of Object.entries(translations)) {
+      const t = trans as { title?: string; description?: string };
+      if (t.title) titleObj[lang] = t.title;
+      if (t.description) descriptionObj[lang] = t.description;
+    }
+
     const updateData: ListingUpdate = {
       updatedAt: new Date(),
+      title: titleObj,
+      description: descriptionObj,
+      locale,
     };
 
-    // Only allow updating certain fields
+    // Only allow updating certain fields (skip title/description/locale/translations — handled above)
     const allowedFields = [
-      'title',
-      'description',
       'subcategory',
       'priceType',
       'price',
