@@ -13,7 +13,7 @@ import {
 
 import { hasPermission, Permission } from '@shared/lib';
 
-import { eq, and, asc, sql } from 'drizzle-orm';
+import { eq, and, asc, inArray, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
 export const maxDuration = 8;
@@ -96,9 +96,7 @@ export async function GET(request: Request) {
             count: sql<number>`count(*)::int`,
           })
           .from(userGroups)
-          .where(
-            and(eq(userGroups.tenantId, tenantId), sql`${userGroups.groupId} = any(${groupIds})`)
-          )
+          .where(and(eq(userGroups.tenantId, tenantId), inArray(userGroups.groupId, groupIds)))
           .groupBy(userGroups.groupId)
       : [];
 
