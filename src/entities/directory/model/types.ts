@@ -34,7 +34,7 @@ export interface Resident {
   soloSeats?: Array<{
     seatType: string;
     property?: Property;
-  } | null;
+  }> | null;
   profiles?: Array<{
     householdId: string;
     occupantType: string;
