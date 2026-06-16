@@ -82,6 +82,8 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
           fetch(`/api/conversations?userId=${currentUserId}`),
           fetch('/api/users?limit=50'),
         ]);
+        if (!convRes.ok) throw new Error(`Conversations API ${convRes.status}`);
+        if (!usersRes.ok) throw new Error(`Users API ${usersRes.status}`);
         const convData = await convRes.json();
         const usersData = await usersRes.json();
         setConversations(convData?.data ?? []);
@@ -103,6 +105,7 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
       setMessagesLoading(true);
       try {
         const res = await fetch(`/api/messages?conversationId=${selectedConversation}`);
+        if (!res.ok) throw new Error(`Messages API ${res.status}`);
         const data = await res.json();
         setMessages(data?.data ?? data);
       } catch (error) {
