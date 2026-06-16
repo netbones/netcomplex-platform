@@ -760,7 +760,7 @@ Plans:
 
 ## M5 — Anchor Tenant Launch (Planning)
 
-_Harden the codebase to launch-readiness, run the 7-day production soak to verify, then ship the launch-blocking features: Community Merits, OTP password reset, MyHomeSpace bug, 37-widget i18n batch, **and dWallet (the headline data-rights + revenue-share selling point)**. Ready for Soralia Village (180 homes) production traffic. Decomposed into M5a (hardening & launch-readiness) and M5b (soak & launch)._
+_Harden the codebase to launch-readiness, ship the launch-blocking features: Community Merits, OTP password reset, 37-widget i18n batch, **and dWallet (the headline data-rights + revenue-share selling point)**. The 7-day production soak is deferred to its own phase when the system is stable and ready for launch verification. Ready for Soralia Village (180 homes) production traffic. Decomposed into M5a (hardening) and M5b (anchor tenant features)._
 
 **Source backlog:** BD issues from `docs/cleaner_react_architecture.md` audit (5 issues) + Soralia launch features (5 issues) + M4.5 follow-ups + pnpm advisories + FSD debt + new monitoring infrastructure. See Phase 44 and 45 for breakdown.
 
@@ -805,7 +805,7 @@ _Harden the codebase to launch-readiness, run the 7-day production soak to verif
 - [ ] **Plan 44-02:** Observability decision document + OPS runbook for the 7-day M5b soak — produces `.planning/observability-soak-M5.md` (200+ lines, 11 sections) and `docs/STEERING/OBSERVABILITY.md` (100+ lines, 10 sections). Ratifies Pino + Sentry + `@vercel/otel` stack from 44-RESEARCH.md §3; defines 7-row soak signal set, PII scrubbing rules, start/stop/abort criteria, on-call escalation. **Documentation-only** (no `pnpm add`, no code changes) — the Sentry install + OTel wiring is a separate 44-02b code plan gated on the 5 strategic decisions ratified in Task 3 (Sentry org, Vercel plan tier, abort criteria, on-call rotation, PII scrubbing scope). Autonomous: false (human-verify checkpoint at Task 3).
 - **Plan 44-03 (TBD):** Audit closure wave A — `qig` + `9xr` + `2z4` + `r13u` (foundation + conflict C1)
 - **Plan 44-04 (TBD):** Audit closure wave B — `fpc` + `1eh` (gating migration + restrict legacy exports)
-- **Plan 44-05 (TBD):** Audit closure wave C — `1ei` + `5u2` + `brp` + `huo` (cleanup + conflicts C5/C6)
+- **Plan 44-05:** Audit closure wave C — `1ei` + `5u2` + `brp` + `huo` (cleanup + conflicts C5/C6) — **FSD remediation goal achieved** (znjo/nf5r zero violations, schemas.ts deleted, tenantConfig moved, shims removed). Residual 3 @api/client sidesteps tracked as BD `29c7`. READY TO PLAN (audit-closure wave C scope).
 - **Plan 44-06 (TBD):** M4.5 follow-up closeouts — `tc4` + `mls9` + `n0rh` + `cs5` (seed regression + MyHomeSpace)
 - **Plan 44-07 (TBD):** pnpm advisory resolution — `nn39` (filter to runtime-impact subset)
 - **Plan 44-08+ (TBD):** FSD debt cluster remediation — one plan per cluster from Steiger baseline (`qjpa` + `08st` + `nf5r` + `znjo` + `3qio` + `ohj8` + `s50y` + `3a3v`)
@@ -814,31 +814,34 @@ _Harden the codebase to launch-readiness, run the 7-day production soak to verif
 
 ---
 
-## Phase 45: M5b Soak & Launch
+## Phase 45: Anchor Tenant Features
 
-**Goal:** Run the 7-day production soak as launch verification, then ship the launch-blocking features for Soralia Village's 180-home rollout. The soak is the FIRST deliverable of M5b, not the last — it gates the feature rollout by proving the platform can sustain production traffic without surfacing the bugs that Phase 43/44 closed.
+**Goal:** Ship the 4 launch-blocking features for Soralia Village's 180-home rollout. Community Merits drives engagement, i18n drives 4-locale adoption, OTP drives security posture. The 7-day production soak is NOT in this phase — deferred to a separate phase when the system is stable and you're ready for launch verification.
 
-**Status:** Planning (renamed from "M5b Anchor Tenant Launch" to "M5b Soak & Launch" on 2026-06-07; soak elevated to first deliverable)
+**Status:** Context gathered (discussion informed by Phase 44 hardening progress and prior context)
 
-**BD sources (5 features + 3 dWallet = 8 total):**
+**BD sources (4 features = 4 total):**
 
-**Anchor tenant features (5):** `2at` (Community Merits), `l23` (i18n epic), `0f7` (Tiptap i18n), `0tb` (OTP reset), `cs5` (MyHomeSpace — also M4.5 blocker; will be closed in Phase 44 if 44-06 ships)
+- `2at` (P2 feature) — Community Merits & Standing System (flagship)
+- `l23` (P2 epic) — i18n for all pages (37-widget batch, prioritized by visibility)
+- `0f7` (P2 feature) — Tiptap content localization (blocked by l23)
+- `0tb` (P4 feature) — OTP-based password reset
 
-**dWallet headline (3):** `7cp` (POPIA compliance audit), `jc1` (cookie management), Schedule F Table 2 (revenue share % — `5m7l`)
+**Execution order (locked):** OTP first (quickest win) → Community Merits (flagship, most complex) → i18n batch → Tiptap i18n (blocked on l23).
 
-**Soak verification (NEW — Plan 45-01):** 7-day production soak gated by criteria from `.planning/MILESTONES.md` Section 2.6. Plan defines start/stop gates, observability signals, abort criteria, success criteria, and rollback procedure. Soak is run only after Phase 44 acceptance criteria are met.
+**Acceptance:** Community Merits system live with `behaviorRecord` table, hardcoded tier thresholds, event-driven auto-escalation, admin page at `/admin/merits`, and standing badges on directory + profile. OTP password reset works end-to-end via Better Auth emailOTP plugin. Most visible widgets (HomeLayer, admin domain grids, navigation) available in 4 locales. Tiptap editors can save/load content in any locale.
 
-**Acceptance:** 7-day soak completes with zero P0/P1 incidents (P2/P3 acceptable, tracked); all 5 anchor-tenant features shipped; Community Merits live in production 1+ week; all widget/page content available in 4 locales; Tiptap editors can save/load in any locale; OTP password reset works end-to-end; MyHomeSpace correctly links user to property; dWallet module live; POPIA audit complete; Schedule F Table 2 confirmed; OpenAPI spec published; perf baseline captured; rollback procedure tested (verified revert to M4.5 in <5 min).
+**Dependencies:** l23 blocks 0f7. cs5 (MyHomeSpace) ideally resolved in Phase 44.
 
-**Dependencies:** l23 blocks 0f7 (Tiptap localization needs i18n router extension to tenant routes — same blocker as deferred Phase 04). cs5 ideally resolved in Phase 44 to avoid duplicating fix work. **Soak (45-01) blocks all features** — feature rollout does not start until soak is green.
+**Plans:** TBD. Suggested plan structure:
 
-**Plans:** TBD. Run `/gsd-plan-phase 45-m5b-soak-launch` when ready to plan execution. Suggested plan structure:
+- **Plan 45-01:** OTP password reset (Better Auth emailOTP plugin, MailerSend integration)
+- **Plan 45-02:** Community Merits schema + API (behaviorRecord model, standing calculation, event-driven auto-escalation)
+- **Plan 45-03:** Community Merits admin UI + resident badges (admin page, directory + profile standing)
+- **Plan 45-04:** i18n batch for visible widgets (HomeLayer, admin domains, navigation)
+- **Plan 45-05:** Tiptap content localization (after l23 completes)
 
-- **Plan 45-01:** 7-day production soak (start/stop gates, observability, abort criteria, success criteria, rollback test)
-- **Plan 45-02+:** Feature waves (Community Merits, OTP reset, i18n batch, MyHomeSpace — order TBD)
-- **Plan 45-XX:** dWallet sub-phases (Phase 47 A–F) — interleaved with feature waves
-
-**Out of scope:** M4.5 fixes (phase 43), Phase 44 hardening (must complete before 45-01), M5+ post-launch (phase 46).
+**Out of scope:** 7-day production soak (deferred to its own phase), dWallet (Phase 47), M4.5 fixes (Phase 43), Phase 44 hardening, M5+ post-launch (Phase 46).
 
 ---
 
