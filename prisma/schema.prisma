@@ -672,6 +672,8 @@ model communityServiceListing {
   termsAndConditions      String?
   cancellationPolicy      String?
   organizationId          String?
+  slug                    String?                   @unique
+  locale                  String                    @default("en")
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @default(now()) @updatedAt
   communityServiceInquiry communityServiceInquiry[]

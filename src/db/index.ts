@@ -40,6 +40,6 @@ export * from '@schema/surveys';
 export * from '@schema/tenant-modules';
 export * from '@schema/tenants';
 export * from '@schema/two-factors';
-export * from '@schema/user-groups';
+// user-groups types now exported via @schema/groups, @schema/group-members, @schema/group-membership-requests
 export * from '@schema/users';
 export * from '@schema/verifications';
