@@ -38,12 +38,12 @@ export function UnifiedResidentCard({
 
   const street =
     resident.standardSeats?.[0]?.property?.street ||
-    resident.soloSeat?.property?.street ||
+    resident.soloSeats?.[0]?.property?.street ||
     resident.profiles?.[0]?.property?.street ||
     '';
   const unit =
     resident.standardSeats?.[0]?.property?.unit ||
-    resident.soloSeat?.property?.unit ||
+    resident.soloSeats?.[0]?.property?.unit ||
     resident.profiles?.[0]?.property?.unit ||
     '';
   const address = [street, unit].filter(Boolean).join(', ');
@@ -52,7 +52,7 @@ export function UnifiedResidentCard({
 
   const hasHomeImage = !!(
     resident.standardSeats?.[0]?.property?.homeImage ||
-    resident.soloSeat?.property?.homeImage ||
+    resident.soloSeats?.[0]?.property?.homeImage ||
     resident.profiles?.[0]?.property?.homeImage ||
     resident.profiles?.[0]?.rentalImage ||
     resident.profiles?.[0]?.occupantImage
@@ -62,7 +62,7 @@ export function UnifiedResidentCard({
     if (resident.standardSeats?.[0]?.isPrimaryOwner) {
       return tx('home.owner', 'Owner');
     }
-    if (resident.soloSeat) {
+    if (resident.soloSeats?.[0]) {
       return 'Board Member';
     }
     return tx('home.renter', 'Renter');
@@ -71,7 +71,7 @@ export function UnifiedResidentCard({
   const isRenter = () => {
     return (
       !resident.standardSeats?.[0]?.isPrimaryOwner &&
-      !resident.soloSeat &&
+      !resident.soloSeats?.[0] &&
       !!resident.profiles?.length
     );
   };
@@ -96,7 +96,7 @@ export function UnifiedResidentCard({
               <Image
                 src={
                   resident.standardSeats?.[0]?.property?.homeImage ||
-                  resident.soloSeat?.property?.homeImage ||
+                  resident.soloSeats?.[0]?.property?.homeImage ||
                   resident.profiles?.[0]?.property?.homeImage ||
                   ''
                 }
@@ -290,7 +290,7 @@ export function UnifiedResidentCard({
               <Image
                 src={
                   resident.standardSeats?.[0]?.property?.homeImage ||
-                  resident.soloSeat?.property?.homeImage ||
+                  resident.soloSeats?.[0]?.property?.homeImage ||
                   resident.profiles?.[0]?.property?.homeImage ||
                   ''
                 }

@@ -31,7 +31,7 @@ export interface Resident {
     property: Property;
     isPrimaryOwner: boolean;
   }>;
-  soloSeat?: {
+  soloSeats?: Array<{
     seatType: string;
     property?: Property;
   } | null;
