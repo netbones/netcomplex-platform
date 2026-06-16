@@ -317,13 +317,13 @@ function ProfileContent() {
                   ) : (
                     <p className="text-gray-600 mt-1">
                       {user.standardSeats?.[0]?.household?.street ||
-                        user.soloSeat?.household?.street ||
-                        user.profileProperty?.street ||
+                        user.soloSeats?.[0]?.household?.street ||
+                        user.household?.property?.address ||
                         'Address not available'}
                       {(user.standardSeats?.[0]?.household?.unit ||
-                        user.soloSeat?.household?.unit ||
-                        user.profileProperty?.unit) &&
-                        `, ${user.standardSeats?.[0]?.household?.unit || user.soloSeat?.household?.unit || user.profileProperty?.unit}`}
+                        user.soloSeats?.[0]?.household?.unit ||
+                        user.household?.property?.unitNumber) &&
+                        `, ${user.standardSeats?.[0]?.household?.unit || user.soloSeats?.[0]?.household?.unit || user.household?.property?.unitNumber}`}
                     </p>
                   )}
                   <p className="text-sm text-gray-500 mt-1">
