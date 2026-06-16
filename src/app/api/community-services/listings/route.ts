@@ -17,7 +17,7 @@ import { apiLogger } from '@shared/lib';
 
 // Drizzle imports
 
-import { eq, desc, and, or, sql, ilike } from 'drizzle-orm';
+import { eq, desc, and, or, sql, ilike, inArray } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { generateNameSlug } from '@shared/api';
@@ -229,15 +229,26 @@ export async function GET(request: NextRequest) {
     const total = totalResult?.count || 0;
 
     // Get review counts for each listing
-    const listingsWithCounts = await Promise.all(
-      listings.map(async listing => {
-        const [countResult] = await db
-          .select({ count: sql<number>`count(*)` })
-          .from(communityServiceReviews)
-          .where(eq(communityServiceReviews.listingId, listing.id));
-        return { ...listing, _count: { reviews: countResult?.count || 0 } };
-      })
-    );
+    const listingIds = listings.map(l => l.id);
+
+    const reviewCounts =
+      listingIds.length > 0
+        ? await db
+            .select({
+              listingId: communityServiceReviews.listingId,
+              count: sql<number>`count(*)::int`,
+            })
+            .from(communityServiceReviews)
+            .where(inArray(communityServiceReviews.listingId, listingIds))
+            .groupBy(communityServiceReviews.listingId)
+        : [];
+
+    const countByListingId = new Map(reviewCounts.map(r => [r.listingId, r.count]));
+
+    const listingsWithCounts = listings.map(listing => ({
+      ...listing,
+      _count: { reviews: countByListingId.get(listing.id) ?? 0 },
+    }));
 
     const preferredLocale = getPreferredLocale(request);
     const localizedListings = listingsWithCounts.map(listing => ({
