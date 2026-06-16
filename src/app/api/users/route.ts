@@ -66,7 +66,7 @@ export async function GET(request: Request) {
   const search = searchParams.get('search') || '';
   const role = searchParams.get('role') || '';
   const page = parseInt(searchParams.get('page') || '1');
-  const limit = Math.min(parseInt(searchParams.get('limit') || '6'), 50);
+  const limit = Math.min(parseInt(searchParams.get('limit') || '12'), 50);
   const skip = (page - 1) * limit;
 
   // Build base conditions - always filter by tenant and active users only

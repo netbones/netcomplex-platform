@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Resident, UseResidentFilterReturn, ViewMode } from '@entities/directory';
 import { DEBOUNCE_DELAY_MS, DEFAULT_PAGE_LIMIT } from '@entities/directory';
+import { authClient } from '@api/client';
 
 export interface UseResidentFilterOptions {
   defaultLimit?: number;
@@ -62,7 +63,12 @@ export function useResidentFilter(options: UseResidentFilterOptions = {}): UseRe
 
       const queryStr = params.toString();
       const url = queryStr ? `${apiEndpoint}?${queryStr}` : apiEndpoint;
-      const res = await fetch(url);
+      const session = await authClient.getSession();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (session?.data?.session?.token) {
+        headers['Authorization'] = `Bearer ${session.data.session.token}`;
+      }
+      const res = await fetch(url, { headers });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const envelope = await res.json();
       const data = envelope?.data ?? envelope;
