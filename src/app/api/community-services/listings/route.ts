@@ -22,6 +22,22 @@ import { eq, desc, and, or, sql, ilike } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { generateNameSlug } from '@shared/api';
 
+function resolveLocaleText(
+  value: Record<string, string> | null | undefined,
+  preferredLocale: string
+): string {
+  if (!value || typeof value !== 'object') return '';
+  return value[preferredLocale] || Object.values(value)[0] || '';
+}
+
+function getPreferredLocale(request: Request): string {
+  return (
+    new URL(request.url).searchParams.get('locale') ||
+    request.headers.get('accept-language')?.split(',')[0]?.split('-')[0] ||
+    'en'
+  );
+}
+
 type ListingStatus = (typeof communityServiceListings.status.enumValues)[number];
 type ServiceCategory = (typeof communityServiceListings.category.enumValues)[number];
 
@@ -62,6 +78,7 @@ export async function GET(request: NextRequest) {
           providerId: communityServiceListings.providerId,
           title: communityServiceListings.title,
           description: communityServiceListings.description,
+          locale: communityServiceListings.locale,
           category: communityServiceListings.category,
           subcategory: communityServiceListings.subcategory,
           priceType: communityServiceListings.priceType,
@@ -103,6 +120,16 @@ export async function GET(request: NextRequest) {
         return apiNotFound('Service not found');
       }
 
+      const preferredLocale = getPreferredLocale(request);
+      const localizedListing = {
+        ...listing,
+        title: resolveLocaleText(listing.title as Record<string, string>, preferredLocale),
+        description: resolveLocaleText(
+          listing.description as Record<string, string> | null,
+          preferredLocale
+        ),
+      };
+
       // Get review count separately
       const listingId = listing.id;
       const [reviewCountResult] = await db
@@ -111,7 +138,7 @@ export async function GET(request: NextRequest) {
         .where(eq(communityServiceReviews.listingId, listingId));
 
       return apiSuccess({
-        listing: { ...listing, _count: { reviews: reviewCountResult?.count || 0 } },
+        listing: { ...localizedListing, _count: { reviews: reviewCountResult?.count || 0 } },
       });
     }
 
@@ -174,6 +201,7 @@ export async function GET(request: NextRequest) {
         images: communityServiceListings.images,
         createdAt: communityServiceListings.createdAt,
         slug: communityServiceListings.slug,
+        locale: communityServiceListings.locale,
         provider: {
           id: users.id,
           name: users.name,
@@ -211,8 +239,18 @@ export async function GET(request: NextRequest) {
       })
     );
 
+    const preferredLocale = getPreferredLocale(request);
+    const localizedListings = listingsWithCounts.map(listing => ({
+      ...listing,
+      title: resolveLocaleText(listing.title as Record<string, string>, preferredLocale),
+      description: resolveLocaleText(
+        listing.description as Record<string, string> | null,
+        preferredLocale
+      ),
+    }));
+
     return apiSuccess({
-      listings: listingsWithCounts,
+      listings: localizedListings,
       pagination: {
         total,
         limit,
@@ -264,7 +302,12 @@ export async function POST(request: NextRequest) {
       portfolio,
       termsAndConditions,
       cancellationPolicy,
+      locale = 'en',
     } = body;
+
+    const listingLocale = locale || 'en';
+    const titleJsonb = { [listingLocale]: title || '' };
+    const descriptionJsonb = description ? { [listingLocale]: description } : null;
 
     // Create listing with Drizzle
     const listingId = crypto.randomUUID();
@@ -288,8 +331,9 @@ export async function POST(request: NextRequest) {
       id: listingId,
       tenantId,
       providerId: session.user.id,
-      title,
-      description,
+      title: titleJsonb,
+      description: descriptionJsonb as Record<string, string>,
+      locale: listingLocale,
       category,
       subcategory,
       priceType,

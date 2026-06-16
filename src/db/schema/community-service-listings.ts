@@ -16,8 +16,8 @@ export const communityServiceListings = pgTable('communityServiceListing', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),
   providerId: text('providerId').notNull(),
-  title: text('title').notNull(),
-  description: text('description'),
+  title: jsonb('title').notNull().$type<Record<string, string>>(),
+  description: jsonb('description').$type<Record<string, string> | null>(),
   category: communityServiceCategoryEnum('category').notNull(),
   subcategory: text('subcategory'),
   priceType: priceTypeEnum('priceType').notNull(),
@@ -47,4 +47,5 @@ export const communityServiceListings = pgTable('communityServiceListing', {
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   slug: text('slug').unique(),
+  locale: text('locale').notNull().default('en'),
 });

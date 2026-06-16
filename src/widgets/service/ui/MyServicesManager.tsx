@@ -24,6 +24,7 @@ interface ServiceListing {
   serviceAreas?: string[];
   contactMethods?: string[];
   images?: string[];
+  locale?: string;
   rating: number;
   reviewCount: number;
   createdAt: string;
@@ -71,7 +72,15 @@ export function MyServicesManager() {
     serviceAreas: '',
     contactMethods: 'PLATFORM_MESSAGE',
     images: [] as string[],
+    locale: 'en',
   });
+
+  const languages = [
+    { code: 'en', label: 'English' },
+    { code: 'af', label: 'Afrikaans' },
+    { code: 'zu', label: 'isiZulu' },
+    { code: 'xh', label: 'isiXhosa' },
+  ];
 
   const categories = [
     'TUTORING',
@@ -149,6 +158,7 @@ export function MyServicesManager() {
       const body: Record<string, unknown> = {
         title: formData.title,
         description: formData.description,
+        locale: formData.locale,
         category: formData.category,
         priceType: formData.priceType,
         price: formData.price ? formData.price.replace(/[^0-9.]/g, '') : null,
@@ -192,6 +202,7 @@ export function MyServicesManager() {
       serviceAreas: (listing.serviceAreas || []).join(', '),
       contactMethods: listing.contactMethods?.[0] || 'PLATFORM_MESSAGE',
       images: listing.images || [],
+      locale: listing.locale || 'en',
     });
     setEditingId(listing.id);
     setShowCreateForm(true);
@@ -207,6 +218,7 @@ export function MyServicesManager() {
       serviceAreas: '',
       contactMethods: 'PLATFORM_MESSAGE',
       images: [],
+      locale: 'en',
     });
     setEditingId(null);
     setShowCreateForm(false);
@@ -299,6 +311,7 @@ export function MyServicesManager() {
               editingId={editingId}
               onEdit={handleEdit}
               onCancel={resetForm}
+              languages={languages}
             />
           )}
           {activeTab === 'inquiries' && <InquiriesTab inquiries={inquiries} />}
@@ -325,6 +338,7 @@ function ListingsTab({
   editingId,
   onEdit,
   onCancel,
+  languages,
 }: {
   listings: ServiceListing[];
   showCreateForm: boolean;
@@ -338,6 +352,7 @@ function ListingsTab({
     serviceAreas: string;
     contactMethods: string;
     images: string[];
+    locale: string;
   };
   setFormData: (data: {
     title: string;
@@ -348,6 +363,7 @@ function ListingsTab({
     serviceAreas: string;
     contactMethods: string;
     images: string[];
+    locale: string;
   }) => void;
   categories: string[];
   submitting: boolean;
@@ -359,6 +375,7 @@ function ListingsTab({
   editingId: string | null;
   onEdit: (listing: ServiceListing) => void;
   onCancel: () => void;
+  languages: { code: string; label: string }[];
 }) {
   return (
     <div className="space-y-3">
@@ -390,6 +407,22 @@ function ListingsTab({
                 placeholder="e.g. Professional Plumbing Services"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
               />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Listing Language
+              </label>
+              <select
+                value={formData.locale}
+                onChange={e => setFormData({ ...formData, locale: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              >
+                {languages.map(lang => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Description *</label>
