@@ -77,6 +77,19 @@ export async function GET(request: NextRequest) {
       .limit(limit)
       .offset(offset);
 
+    function resolveLocaleText(
+      value: Record<string, string> | null | undefined,
+      preferredLocale: string
+    ): string {
+      if (!value || typeof value !== 'object') return '';
+      return value[preferredLocale] || Object.values(value)[0] || '';
+    }
+
+    const preferredLocale =
+      new URL(request.url).searchParams.get('locale') ||
+      request.headers.get('accept-language')?.split(',')[0]?.split('-')[0] ||
+      'en';
+
     // Get listing and provider info separately
     const inquiriesWithDetails = await Promise.all(
       inquiries.map(async inquiry => {
@@ -108,7 +121,11 @@ export async function GET(request: NextRequest) {
         return {
           ...inquiry,
           listing: listing
-            ? { id: listing.id, title: listing.title, category: listing.category }
+            ? {
+                id: listing.id,
+                title: resolveLocaleText(listing.title as Record<string, string>, preferredLocale),
+                category: listing.category,
+              }
             : null,
           provider: providerInfo,
         };

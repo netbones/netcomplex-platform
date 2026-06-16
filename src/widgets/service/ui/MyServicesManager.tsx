@@ -123,12 +123,19 @@ export function MyServicesManager() {
       setListings(listingsData?.data?.listings ?? []);
       setInquiries(inquiriesData?.data?.inquiries ?? []);
       setPersonalInquiries(
-        (personalData?.data?.inquiries ?? []).map((i: Record<string, unknown>) => ({
-          ...i,
-          providerId: (i.provider as Record<string, string> | undefined)?.id,
-          providerName: (i.provider as Record<string, string> | undefined)?.name,
-          listingTitle: (i.listing as Record<string, string> | undefined)?.title,
-        }))
+        (personalData?.data?.inquiries ?? []).map((i: Record<string, unknown>) => {
+          const rawTitle = (i.listing as Record<string, string> | undefined)?.title;
+          const listingTitle =
+            rawTitle && typeof rawTitle === 'object'
+              ? (Object.values(rawTitle as Record<string, string>).find(Boolean) ?? '')
+              : rawTitle;
+          return {
+            ...i,
+            providerId: (i.provider as Record<string, string> | undefined)?.id,
+            providerName: (i.provider as Record<string, string> | undefined)?.name,
+            listingTitle,
+          };
+        })
       );
     } catch (err) {
       log.error({}, 'Failed to fetch my services data', err);

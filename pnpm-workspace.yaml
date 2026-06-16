@@ -1,5 +1,16 @@
 packages:
   - . # single-project workspace, set to '.' if not in a monorepo
+allowBuilds:
+  '-': true
+  a: true
+  c: true
+  d: true
+  e: true
+  i: true
+  n: true
+  o: true
+  p: true
+  supabase: true
 
 # Overrides moved from package.json#pnpm.overrides (deprecated in pnpm 10+).
 # See https://pnpm.io/settings for the authoritative config reference.
@@ -10,11 +21,11 @@ overrides:
   cross-spawn: 7.0.6
   defu: 6.1.5
   drizzle-orm: 0.45.2
+  fast-xml-builder: 1.1.7
   kysely: 0.28.17
   lodash: 4.18.0
   tar: 7.5.11
   tmp: 0.2.6
-  fast-xml-builder: 1.1.7
   undici: 7.24.6
   valibot: 1.2.0
   vite: 8.0.16

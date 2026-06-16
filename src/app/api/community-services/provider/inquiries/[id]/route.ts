@@ -21,6 +21,22 @@ import { logError } from '@shared/lib';
 
 type InquiryStatus = (typeof communityServiceInquiries.status.enumValues)[number];
 
+function resolveLocaleText(
+  value: Record<string, string> | null | undefined,
+  preferredLocale: string
+): string {
+  if (!value || typeof value !== 'object') return '';
+  return value[preferredLocale] || Object.values(value)[0] || '';
+}
+
+function getPreferredLocale(request: Request): string {
+  return (
+    new URL(request.url).searchParams.get('locale') ||
+    request.headers.get('accept-language')?.split(',')[0]?.split('-')[0] ||
+    'en'
+  );
+}
+
 /**
  * GET /api/community-services/provider/inquiries - Get inquiries for provider's listings
  */
@@ -108,6 +124,22 @@ export async function GET(request: NextRequest) {
       .limit(limit)
       .offset(offset);
 
+    // Resolve locale text for listing titles
+    const preferredLocale = getPreferredLocale(request);
+
+    const localizedInquiries = inquiries.map(inquiry => ({
+      ...inquiry,
+      listing: inquiry.listing
+        ? {
+            ...inquiry.listing,
+            title: resolveLocaleText(
+              inquiry.listing.title as Record<string, string>,
+              preferredLocale
+            ),
+          }
+        : null,
+    }));
+
     // Get total count
     const [totalResult] = await db
       .select({ count: sql<number>`count(*)` })
@@ -117,7 +149,7 @@ export async function GET(request: NextRequest) {
     const total = totalResult?.count || 0;
 
     return apiSuccess({
-      inquiries,
+      inquiries: localizedInquiries,
       pagination: {
         total,
         limit,
@@ -242,9 +274,23 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       )
       .limit(1);
 
+    const locale = getPreferredLocale(request);
+    const localizedUpdated = {
+      ...updatedInquiry,
+      listing: updatedInquiry?.listing
+        ? {
+            ...updatedInquiry.listing,
+            title: resolveLocaleText(
+              updatedInquiry.listing.title as Record<string, string>,
+              locale
+            ),
+          }
+        : updatedInquiry?.listing,
+    };
+
     return apiSuccess({
       success: true,
-      inquiry: updatedInquiry,
+      inquiry: localizedUpdated as Record<string, unknown>,
     });
   } catch (error) {
     logError(
