@@ -43,12 +43,13 @@ export default function GroupDetailPage() {
 
     fetch(`/api/groups/${id}`)
       .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          log.error({}, 'Failed to fetch group', data.error);
+      .then(body => {
+        if (body?.error) {
+          log.error({}, 'Failed to fetch group', body.error);
           return;
         }
-        setGroup(data);
+        const groupData = body?.data ?? body;
+        setGroup(groupData);
         setLoading(false);
       });
   }, [id]);
@@ -86,7 +87,7 @@ export default function GroupDetailPage() {
       <div className="bg-white rounded-lg shadow p-8 mb-8">
         <div className="flex items-center justify-between mb-4">
           <span className="px-3 py-1 text-sm font-medium bg-indigo-100 text-indigo-800 rounded-full capitalize">
-            {group.category.replace('-', ' ')}
+            {group.category?.replace('-', ' ')}
           </span>
           <button
             onClick={isMember ? handleLeave : handleJoin}
