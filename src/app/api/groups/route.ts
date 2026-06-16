@@ -81,8 +81,10 @@ export async function GET(request: Request) {
       createdAt: groups.createdAt,
       updatedAt: groups.updatedAt,
       ownerId: groups.ownerId,
+      ownerName: users.name,
     })
     .from(groups)
+    .leftJoin(users, eq(groups.ownerId, users.id))
     .where(and(eq(groups.isActive, true), eq(groups.tenantId, tenantId)))
     .orderBy(asc(groups.name));
 
@@ -104,7 +106,7 @@ export async function GET(request: Request) {
 
   const groupsWithCounts = groupList.map(group => ({
     ...group,
-    owner: { id: group.ownerId, name: '' },
+    owner: { id: group.ownerId, name: group.ownerName ?? 'Unknown' },
     _count: { members: countByGroupId.get(group.id) ?? 0 },
   }));
 
