@@ -12,7 +12,7 @@ import {
   apiNotFound,
 } from '@api/server';
 
-import { eq, desc, and, or, sql } from 'drizzle-orm';
+import { eq, desc, and, or, sql, inArray } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
@@ -52,8 +52,16 @@ export async function GET(request: NextRequest) {
       return apiNotFound('Service not found');
     }
 
-    // Build search term from first word of title
-    const searchTerm = currentService.title?.split(' ')[0] || '';
+    // Build search term from first word of title (handle JSON-encoded titles)
+    const rawTitle = currentService.title ?? '';
+    let titleText = rawTitle;
+    try {
+      const parsed = JSON.parse(rawTitle);
+      if (typeof parsed === 'object' && parsed !== null) {
+        titleText = String(Object.values(parsed).find(Boolean) || '');
+      }
+    } catch { /* not JSON, use as-is */ }
+    const searchTerm = String(titleText).split(' ')[0] || '';
     const searchPattern = `%${searchTerm.toLowerCase()}%`;
 
     // Get related services using Drizzle (with tenant filter)
@@ -96,15 +104,26 @@ export async function GET(request: NextRequest) {
       .limit(limit);
 
     // Get review counts for each listing
-    const relatedWithCounts = await Promise.all(
-      relatedServices.map(async service => {
-        const [countResult] = await db
-          .select({ count: sql<number>`count(*)` })
-          .from(communityServiceReviews)
-          .where(eq(communityServiceReviews.listingId, service.id));
-        return { ...service, _count: { reviews: countResult?.count || 0 } };
-      })
-    );
+    const relatedIds = relatedServices.map(s => s.id);
+
+    const reviewCounts =
+      relatedIds.length > 0
+        ? await db
+            .select({
+              listingId: communityServiceReviews.listingId,
+              count: sql<number>`count(*)::int`,
+            })
+            .from(communityServiceReviews)
+            .where(inArray(communityServiceReviews.listingId, relatedIds))
+            .groupBy(communityServiceReviews.listingId)
+        : [];
+
+    const countByListingId = new Map(reviewCounts.map(r => [r.listingId, r.count]));
+
+    const relatedWithCounts = relatedServices.map(service => ({
+      ...service,
+      _count: { reviews: countByListingId.get(service.id) ?? 0 },
+    }));
 
     return apiSuccess({ relatedServices: relatedWithCounts });
   } catch (error) {
