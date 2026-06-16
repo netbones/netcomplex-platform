@@ -86,7 +86,7 @@ model Tenant {
 model Announcement {
   id String @id
   tenantId String
-  title String
+  title                   Json
   content String
   author String
   priority String @default("normal")
@@ -644,8 +644,8 @@ model communityServiceListing {
   tenantId                String
   providerId              String
   providerType            ProviderType             @default(COMMUNITY)
-  title                   String
-  description             String?
+  title                   Json
+  description             Json?
   category                String
   subcategory             String?
   priceType               PriceType
