@@ -94,6 +94,7 @@ import { requestNotes } from '@schema/request-notes';
 import { requestHistories } from '@schema/request-histories';
 
 import { ENV } from 'varlock/env';
+import { dbLogger } from '@shared/lib';
 
 const dbSchema = {
   messages,
@@ -163,11 +164,22 @@ function getDb() {
     return dbInstance;
   }
 
-  const envUrl = ENV.DIRECT_URL || ENV.DATABASE_URL;
-  if (!envUrl) {
+  const pooledUrl = ENV.DATABASE_URL;
+  const directUrl = ENV.DIRECT_URL;
+
+  if (!pooledUrl && !directUrl) {
     throw new Error('DATABASE_URL or DIRECT_URL is not set');
   }
 
+  if (!pooledUrl) {
+    dbLogger.warn(
+      'DATABASE_URL is not set — falling back to DIRECT_URL (unpooled). ' +
+        'This bypasses Supavisor/pgbouncer and will exhaust the connection ' +
+        'ceiling under serverless concurrency. Set DATABASE_URL to the pooled connection string.'
+    );
+  }
+
+  const envUrl = pooledUrl || directUrl!;
   const connectionString = envUrl.replace('sslmode=require', 'sslmode=no-verify');
   const pool = new Pool({ connectionString, ...POOL_CONFIG });
 
