@@ -15,9 +15,15 @@ type Tab = 'listings' | 'inquiries' | 'requested';
 interface ServiceListing {
   id: string;
   title: string;
+  description?: string;
   category: string;
   status: string;
   isPublished: boolean;
+  priceType?: string;
+  price?: string | number;
+  serviceAreas?: string[];
+  contactMethods?: string[];
+  images?: string[];
   rating: number;
   reviewCount: number;
   createdAt: string;
@@ -55,6 +61,7 @@ export function MyServicesManager() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -140,44 +147,80 @@ export function MyServicesManager() {
     if (!formData.title.trim() || !formData.description.trim()) return;
     setSubmitting(true);
     try {
-      const res = await fetch('/api/community-services/listings', {
-        method: 'POST',
+      const body: Record<string, unknown> = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        priceType: formData.priceType,
+        price: formData.price ? formData.price.replace(/[^0-9.]/g, '') : null,
+        serviceAreas: formData.serviceAreas
+          ? formData.serviceAreas.split(',').map((s: string) => s.trim())
+          : [],
+        contactMethods: [formData.contactMethods],
+        images: formData.images,
+      };
+
+      const isEdit = !!editingId;
+      const url = isEdit
+        ? `/api/community-services/listings/${editingId}`
+        : '/api/community-services/listings';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: formData.title,
-          description: formData.description,
-          category: formData.category,
-          priceType: formData.priceType,
-          price: formData.price ? formData.price.replace(/[^0-9.]/g, '') : null,
-          serviceAreas: formData.serviceAreas
-            ? formData.serviceAreas.split(',').map((s: string) => s.trim())
-            : [],
-          contactMethods: [formData.contactMethods],
-          images: formData.images,
-        }),
+        body: JSON.stringify(body),
       });
+
       if (res.ok) {
-        setShowCreateForm(false);
-        setFormData({
-          title: '',
-          description: '',
-          category: 'OTHER',
-          priceType: 'FREE',
-          price: '',
-          serviceAreas: '',
-          contactMethods: 'PLATFORM_MESSAGE',
-          images: [],
-        });
+        resetForm();
         fetchData();
       }
     } catch (err) {
-      log.error({}, 'Failed to create listing', err);
+      log.error({}, editingId ? 'Failed to update listing' : 'Failed to create listing', err);
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleEdit = (listing: ServiceListing) => {
+    setFormData({
+      title: listing.title,
+      description: listing.description || '',
+      category: listing.category,
+      priceType: listing.priceType || 'FREE',
+      price: listing.price?.toString() || '',
+      serviceAreas: (listing.serviceAreas || []).join(', '),
+      contactMethods: listing.contactMethods?.[0] || 'PLATFORM_MESSAGE',
+      images: listing.images || [],
+    });
+    setEditingId(listing.id);
+    setShowCreateForm(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      category: 'OTHER',
+      priceType: 'FREE',
+      price: '',
+      serviceAreas: '',
+      contactMethods: 'PLATFORM_MESSAGE',
+      images: [],
+    });
+    setEditingId(null);
+    setShowCreateForm(false);
+  };
+
   const handlePublish = async (listingId: string, publish: boolean) => {
+    setListings(prev =>
+      prev.map(l =>
+        l.id === listingId
+          ? { ...l, isPublished: publish, status: publish ? 'ACTIVE' : 'DRAFT' }
+          : l
+      )
+    );
     try {
       await fetch(`/api/community-services/listings/${listingId}/publish`, {
         method: 'POST',
@@ -187,6 +230,7 @@ export function MyServicesManager() {
       fetchData();
     } catch (err) {
       log.error({}, 'Failed to update publish status', err);
+      fetchData();
     }
   };
 
@@ -253,6 +297,9 @@ export function MyServicesManager() {
               handleImageUpload={handleImageUpload}
               removeImage={removeImage}
               uploadingImage={uploadingImage}
+              editingId={editingId}
+              onEdit={handleEdit}
+              onCancel={resetForm}
             />
           )}
           {activeTab === 'inquiries' && <InquiriesTab inquiries={inquiries} />}
@@ -276,6 +323,9 @@ function ListingsTab({
   handleImageUpload,
   removeImage,
   uploadingImage,
+  editingId,
+  onEdit,
+  onCancel,
 }: {
   listings: ServiceListing[];
   showCreateForm: boolean;
@@ -307,6 +357,9 @@ function ListingsTab({
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   removeImage: (index: number) => void;
   uploadingImage: boolean;
+  editingId: string | null;
+  onEdit: (listing: ServiceListing) => void;
+  onCancel: () => void;
 }) {
   return (
     <div className="space-y-3">
@@ -325,7 +378,9 @@ function ListingsTab({
 
       {showCreateForm && (
         <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
-          <h4 className="text-sm font-semibold text-gray-900 mb-3">New Service Listing</h4>
+          <h4 className="text-sm font-semibold text-gray-900 mb-3">
+            {editingId ? 'Edit Service Listing' : 'New Service Listing'}
+          </h4>
           <div className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Title *</label>
@@ -426,10 +481,10 @@ function ListingsTab({
                 disabled={submitting || !formData.title.trim() || !formData.description.trim()}
                 className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {submitting ? 'Creating...' : 'Create Listing'}
+                {submitting ? 'Saving...' : editingId ? 'Update Listing' : 'Create Listing'}
               </button>
               <button
-                onClick={() => setShowCreateForm(false)}
+                onClick={onCancel}
                 className="px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300 transition-colors"
               >
                 Cancel
@@ -454,17 +509,39 @@ function ListingsTab({
               key={listing.id}
               className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 group"
             >
-              <Link href={`/services/${listing.id}`} className="min-w-0 flex-1">
-                <p className="font-medium text-gray-900 truncate group-hover:text-indigo-600 transition-colors">
-                  {listing.title}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {listing.category.replace(/_/g, ' ')} &middot;{' '}
-                  {listing.isPublished ? 'Published' : 'Draft'}
-                </p>
+              <Link
+                href={`/services/${listing.id}`}
+                className="min-w-0 flex-1 flex items-center gap-3"
+              >
+                {listing.images?.[0] && (
+                  <img
+                    src={listing.images[0]}
+                    alt=""
+                    className="w-10 h-10 rounded-lg object-cover border shrink-0"
+                  />
+                )}
+                <div className="min-w-0">
+                  <p className="font-medium text-gray-900 truncate group-hover:text-indigo-600 transition-colors">
+                    {listing.title}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {listing.category.replace(/_/g, ' ')} &middot;{' '}
+                    {listing.isPublished ? 'Published' : 'Draft'}
+                  </p>
+                </div>
               </Link>
               <div className="flex items-center gap-2 text-xs text-gray-500 shrink-0">
-                {!listing.isPublished && (
+                {listing.isPublished ? (
+                  <button
+                    onClick={e => {
+                      e.preventDefault();
+                      handlePublish(listing.id, false);
+                    }}
+                    className="px-2 py-1 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors"
+                  >
+                    Unpublish
+                  </button>
+                ) : (
                   <button
                     onClick={e => {
                       e.preventDefault();
@@ -492,6 +569,17 @@ function ListingsTab({
                   {listing.status}
                 </span>
                 <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-indigo-500" />
+                <Link
+                  href={`/services/${listing.id}`}
+                  onClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onEdit(listing);
+                  }}
+                  className="ml-1 px-2 py-1 bg-indigo-50 text-indigo-600 rounded hover:bg-indigo-100 transition-colors"
+                >
+                  Edit
+                </Link>
               </div>
             </div>
           ))}

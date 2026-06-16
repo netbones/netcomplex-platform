@@ -161,6 +161,8 @@ export async function GET(request: NextRequest) {
         rating: communityServiceListings.rating,
         reviewCount: communityServiceListings.reviewCount,
         isFeatured: communityServiceListings.isFeatured,
+        isPublished: communityServiceListings.isPublished,
+        status: communityServiceListings.status,
         images: communityServiceListings.images,
         createdAt: communityServiceListings.createdAt,
         provider: {
