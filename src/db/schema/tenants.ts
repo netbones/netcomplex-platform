@@ -1,27 +1,4 @@
 import { pgTable, text, boolean, jsonb, integer, timestamp } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
 import { tierEnum } from './tier-enum';
 
-export const tenants = pgTable('Tenant', {
-  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
-  name: text('name').notNull(),
-  slug: text('slug').notNull(),
-  customDomain: text('customDomain'),
-  logoUrl: text('logoUrl'),
-  faviconUrl: text('faviconUrl'),
-  primaryColor: text('primaryColor').default('#4F46E5').notNull(),
-  accentColor: text('accentColor'),
-  secondaryColor: text('secondaryColor'),
-  fontFamily: text('fontFamily'),
-  customCss: text('customCss'),
-  active: boolean('active').default(true).notNull(),
-  subscriptionTier: text('subscriptionTier').default('basic').notNull(),
-  modules: jsonb('modules'),
-  maxPages: integer('maxPages').default(5).notNull(),
-  pageCount: integer('pageCount').default(0).notNull(),
-  featureFlags: jsonb('featureFlags').default({}).notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }),
-  tier: tierEnum('tier').default('STANDARD').notNull(),
-  ownerId: text('ownerId'),
-});
+export const tenants = pgTable('Tenant', { id: text('id').primaryKey(), name: text('name').notNull(), slug: text('slug').notNull(), customDomain: text('customDomain'), logoUrl: text('logoUrl'), faviconUrl: text('faviconUrl'), primaryColor: text('primaryColor').default('#4F46E5').notNull(), accentColor: text('accentColor'), secondaryColor: text('secondaryColor'), fontFamily: text('fontFamily'), customCss: text('customCss'), active: boolean('active').default(true).notNull(), subscriptionTier: text('subscriptionTier').default('basic').notNull(), modules: jsonb('modules'), maxPages: integer('maxPages').default(5).notNull(), pageCount: integer('pageCount').default(0).notNull(), featureFlags: jsonb('featureFlags').default({}).notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }), tier: tierEnum('tier').default('STANDARD').notNull(), ownerId: text('ownerId') });

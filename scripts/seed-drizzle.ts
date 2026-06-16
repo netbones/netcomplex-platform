@@ -25,7 +25,7 @@ import { premiumSeats } from '@schema/premium-seats';
 import { communityServiceListings } from '@schema/community-service-listings';
 import { communityServiceReviews } from '@schema/community-service-reviews';
 import { groups } from '@schema/groups';
-import { userGroups } from '@schema/user-groups';
+import { groupMembers } from '@schema/group-members';
 import { resources } from '@schema/resources';
 import { contents } from '@schema/contents';
 import { events } from '@schema/events';
@@ -286,9 +286,9 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
 
   // Group memberships
   console.log('Group memberships...');
-  const ugRows = withTimestamps(withTenantId(tenantId, withTenantPrefix(slug, data.userGroups)));
+  const ugRows = withTimestamps(withTenantId(tenantId, withTenantPrefix(slug, data.groupMembers)));
   for (const ug of ugRows) {
-    await db.insert(userGroups).values(ug).onConflictDoNothing();
+    await db.insert(groupMembers).values(ug).onConflictDoNothing();
   }
   console.log(`  ✓ ${ugRows.length} group memberships`);
 

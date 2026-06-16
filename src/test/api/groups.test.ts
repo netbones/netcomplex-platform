@@ -105,7 +105,7 @@ vi.mock('@api/server', () => ({
     name: 'name',
     email: 'email',
   },
-  userGroups: {
+  groupMembers: {
     id: 'id',
     userId: 'userId',
     groupId: 'groupId',

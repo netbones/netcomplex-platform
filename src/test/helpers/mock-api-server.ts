@@ -57,7 +57,7 @@ export function mockApiServer(overrides: Record<string, unknown> = {}) {
     communityServiceReviews: mockTable('communityServiceReviews'),
     communityServiceInquiries: mockTable('communityServiceInquiries'),
     groups: mockTable('groups'),
-    userGroups: mockTable('userGroups'),
+    groupMembers: mockTable('groupMembers'),
     surveys: mockTable('surveys'),
     questions: mockTable('questions'),
     responses: mockTable('responses'),

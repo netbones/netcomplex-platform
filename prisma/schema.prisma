@@ -280,7 +280,7 @@ model Group {
   Content                Content[]
   user                   user                     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   GroupMembershipRequest GroupMembershipRequest[]
-  UserGroup              UserGroup[]
+  GroupMember            GroupMember[]
 }
 
 model GroupMembershipRequest {
@@ -510,7 +510,7 @@ model Survey {
   Section     SurveySection[]
 }
 
-model UserGroup {
+model GroupMember {
   id       String    @id
   tenantId String
   userId   String
@@ -1035,7 +1035,7 @@ model user {
   ownedProperties                                       Property[]                @relation("PropertyOwner")
   Resource                                              Resource[]
   ownedTenants                                          Tenant[]                  @relation("TenantOwner")
-  UserGroup                                             UserGroup[]
+  GroupMember                                           GroupMember[]
   account                                               account[]
   agentAccess_agentAccess_agentIdTouser                 agentAccess[]             @relation("agentAccess_agentIdTouser")
   agentAccess_agentAccess_grantedByIdTouser             agentAccess[]             @relation("agentAccess_grantedByIdTouser")

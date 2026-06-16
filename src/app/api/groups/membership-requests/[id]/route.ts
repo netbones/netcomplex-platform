@@ -2,7 +2,7 @@ import {
   auth,
   db,
   groupMembershipRequests,
-  userGroups,
+  groupMembers,
   users,
   groups,
   apiError,
@@ -97,21 +97,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       .set({ status: 'APPROVED', updatedAt: now })
       .where(eq(groupMembershipRequests.id, requestId));
 
-    // Create a UserGroup record with role=MEMBER
+    // Create a GroupMember record with role=MEMBER
     // Check for existing membership first (unique constraint on userId+groupId)
     const [existingMembership] = await db
-      .select({ id: userGroups.id })
-      .from(userGroups)
+      .select({ id: groupMembers.id })
+      .from(groupMembers)
       .where(
         and(
-          eq(userGroups.userId, existingRequest.userId),
-          eq(userGroups.groupId, existingRequest.groupId)
+          eq(groupMembers.userId, existingRequest.userId),
+          eq(groupMembers.groupId, existingRequest.groupId)
         )
       )
       .limit(1);
 
     if (!existingMembership) {
-      await db.insert(userGroups).values({
+      await db.insert(groupMembers).values({
         id: crypto.randomUUID(),
         tenantId,
         userId: existingRequest.userId,

@@ -1,12 +1,3 @@
 import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core';
 
-export const maintenanceTeams = pgTable('MaintenanceTeam', {
-  id: text('id').primaryKey(),
-  tenantId: text('tenantId').notNull(),
-  name: text('name').notNull(),
-  trade: text('trade').notNull(),
-  contactName: text('contactName'),
-  isActive: boolean('isActive').default(true).notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
-});
+export const maintenanceTeams = pgTable('MaintenanceTeam', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), name: text('name').notNull(), trade: text('trade').notNull(), contactName: text('contactName'), isActive: boolean('isActive').default(true).notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull() });

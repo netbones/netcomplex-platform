@@ -3,7 +3,7 @@ import {
   db,
   groups,
   users,
-  userGroups,
+  groupMembers,
   contents,
   apiError,
   apiForbidden,
@@ -56,14 +56,14 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   // Get members
   const membersList = await db
     .select({
-      id: userGroups.id,
-      userId: userGroups.userId,
-      groupId: userGroups.groupId,
-      role: userGroups.role,
-      joinedAt: userGroups.joinedAt,
+      id: groupMembers.id,
+      userId: groupMembers.userId,
+      groupId: groupMembers.groupId,
+      role: groupMembers.role,
+      joinedAt: groupMembers.joinedAt,
     })
-    .from(userGroups)
-    .where(eq(userGroups.groupId, id));
+    .from(groupMembers)
+    .where(eq(groupMembers.groupId, id));
 
   // Get member users
   const membersWithUsers = await Promise.all(

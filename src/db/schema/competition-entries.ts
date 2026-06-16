@@ -1,17 +1,4 @@
 import { pgTable, text, timestamp, doublePrecision } from 'drizzle-orm/pg-core';
 import { entryStatusEnum } from './entry-status-enum';
 
-export const competitionEntries = pgTable('CompetitionEntry', {
-  id: text('id').primaryKey(),
-  competitionId: text('competitionId').notNull(),
-  userId: text('userId').notNull(),
-  status: entryStatusEnum('status').default('JOINED').notNull(),
-  joinedAt: timestamp('joinedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  submissionUrl: text('submissionUrl'),
-  submissionText: text('submissionText'),
-  score: doublePrecision('score'),
-  winnerAt: timestamp('winnerAt', { mode: 'date', precision: 3 }),
-  prize: text('prize'),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
-});
+export const competitionEntries = pgTable('CompetitionEntry', { id: text('id').primaryKey(), competitionId: text('competitionId').notNull(), userId: text('userId').notNull(), status: entryStatusEnum('status').default('JOINED').notNull(), joinedAt: timestamp('joinedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), submissionUrl: text('submissionUrl'), submissionText: text('submissionText'), score: doublePrecision('score'), winnerAt: timestamp('winnerAt', { mode: 'date', precision: 3 }), prize: text('prize'), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull() });

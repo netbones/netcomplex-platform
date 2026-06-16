@@ -19,7 +19,7 @@ export {
   communityServiceReviews,
   communityServiceInquiries,
   groups,
-  userGroups,
+  groupMembers,
   surveys,
   questions,
   responses,

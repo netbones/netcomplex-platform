@@ -16,7 +16,7 @@ import { notifications } from './notifications';
 import { properties } from './properties';
 import { resources } from './resources';
 import { tenants } from './tenants';
-import { userGroups } from './user-groups';
+import { groupMembers } from './group-members';
 import { accounts } from './accounts';
 import { agentAccesses } from './agent-accesses';
 import { agentProfiles } from './agent-profiles';
@@ -36,67 +36,4 @@ import { soloSeats } from './solo-seats';
 import { standardSeats } from './standard-seats';
 import { twoFactors } from './two-factors';
 
-export const usersRelations = relations(users, helpers => ({
-  assistSessions: helpers.many(assistSessions, { relationName: 'AssistSessionTouser' }),
-  Booking: helpers.many(bookings, { relationName: 'BookingTouser' }),
-  CompetitionEntry: helpers.many(competitionEntries, { relationName: 'CompetitionEntryTouser' }),
-  Content: helpers.many(contents, { relationName: 'ContentTouser' }),
-  EventAttendee: helpers.many(eventAttendees, { relationName: 'EventAttendeeTouser' }),
-  ConversationParticipant: helpers.many(conversationParticipants, {
-    relationName: 'ConversationParticipantTouser',
-  }),
-  Group: helpers.many(groups, { relationName: 'GroupTouser' }),
-  GroupMembershipRequest: helpers.many(groupMembershipRequests, {
-    relationName: 'GroupMembershipRequestTouser',
-  }),
-  MaintenanceRequest: helpers.many(maintenanceRequests, {
-    relationName: 'MaintenanceRequestTouser',
-  }),
-  RequestNote: helpers.many(requestNotes, { relationName: 'RequestNoteTouser' }),
-  RequestHistory: helpers.many(requestHistories, { relationName: 'RequestHistoryTouser' }),
-  Message: helpers.many(messages, { relationName: 'MessageTouser' }),
-  Notification: helpers.many(notifications, { relationName: 'NotificationTouser' }),
-  ownedProperties: helpers.many(properties, { relationName: 'PropertyOwner' }),
-  Resource: helpers.many(resources, { relationName: 'ResourceTouser' }),
-  ownedTenants: helpers.many(tenants, { relationName: 'TenantOwner' }),
-  UserGroup: helpers.many(userGroups, { relationName: 'UserGroupTouser' }),
-  account: helpers.many(accounts, { relationName: 'accountTouser' }),
-  agentAccess_agentAccess_agentIdTouser: helpers.many(agentAccesses, {
-    relationName: 'agentAccess_agentIdTouser',
-  }),
-  agentAccess_agentAccess_grantedByIdTouser: helpers.many(agentAccesses, {
-    relationName: 'agentAccess_grantedByIdTouser',
-  }),
-  agentProfile: helpers.one(agentProfiles),
-  album: helpers.many(albums, { relationName: 'albumTouser' }),
-  communityServiceInquiry: helpers.many(communityServiceInquiries, {
-    relationName: 'communityServiceInquiryTouser',
-  }),
-  communityServiceListing: helpers.many(communityServiceListings, {
-    relationName: 'communityServiceListingTouser',
-  }),
-  communityServiceReview: helpers.many(communityServiceReviews, {
-    relationName: 'communityServiceReviewTouser',
-  }),
-  invitation: helpers.many(invitations, { relationName: 'invitationTouser' }),
-  member: helpers.many(members, { relationName: 'memberTouser' }),
-  passkey: helpers.many(passkeys, { relationName: 'passkeyTouser' }),
-  platformSuspension: helpers.many(platformSuspensions, {
-    relationName: 'platformSuspensionTouser',
-  }),
-  premiumSeat: helpers.one(premiumSeats),
-  profile_profile_landlordIdTouser: helpers.many(profiles, {
-    relationName: 'profile_landlordIdTouser',
-  }),
-  profile_profile_userIdTouser: helpers.many(profiles, { relationName: 'profile_userIdTouser' }),
-  propertyListing_propertyListing_assignedAgentIdTouser: helpers.many(propertyListings, {
-    relationName: 'propertyListing_assignedAgentIdTouser',
-  }),
-  propertyListing_propertyListing_ownerIdTouser: helpers.many(propertyListings, {
-    relationName: 'propertyListing_ownerIdTouser',
-  }),
-  session: helpers.many(sessions, { relationName: 'sessionTouser' }),
-  soloSeat: helpers.many(soloSeats, { relationName: 'soloSeatTouser' }),
-  standardSeat: helpers.many(standardSeats, { relationName: 'standardSeatTouser' }),
-  twoFactor: helpers.many(twoFactors, { relationName: 'twoFactorTouser' }),
-}));
+export const usersRelations = relations(users, (helpers) => ({ assistSessions: helpers.many(assistSessions, { relationName: 'AssistSessionTouser' }), Booking: helpers.many(bookings, { relationName: 'BookingTouser' }), CompetitionEntry: helpers.many(competitionEntries, { relationName: 'CompetitionEntryTouser' }), Content: helpers.many(contents, { relationName: 'ContentTouser' }), EventAttendee: helpers.many(eventAttendees, { relationName: 'EventAttendeeTouser' }), ConversationParticipant: helpers.many(conversationParticipants, { relationName: 'ConversationParticipantTouser' }), Group: helpers.many(groups, { relationName: 'GroupTouser' }), GroupMembershipRequest: helpers.many(groupMembershipRequests, { relationName: 'GroupMembershipRequestTouser' }), MaintenanceRequest: helpers.many(maintenanceRequests, { relationName: 'MaintenanceRequestTouser' }), RequestNote: helpers.many(requestNotes, { relationName: 'RequestNoteTouser' }), RequestHistory: helpers.many(requestHistories, { relationName: 'RequestHistoryTouser' }), Message: helpers.many(messages, { relationName: 'MessageTouser' }), Notification: helpers.many(notifications, { relationName: 'NotificationTouser' }), ownedProperties: helpers.many(properties, { relationName: 'PropertyOwner' }), Resource: helpers.many(resources, { relationName: 'ResourceTouser' }), ownedTenants: helpers.many(tenants, { relationName: 'TenantOwner' }), GroupMember: helpers.many(groupMembers, { relationName: 'GroupMemberTouser' }), account: helpers.many(accounts, { relationName: 'accountTouser' }), agentAccess_agentAccess_agentIdTouser: helpers.many(agentAccesses, { relationName: 'agentAccess_agentIdTouser' }), agentAccess_agentAccess_grantedByIdTouser: helpers.many(agentAccesses, { relationName: 'agentAccess_grantedByIdTouser' }), agentProfile: helpers.one(agentProfiles), album: helpers.many(albums, { relationName: 'albumTouser' }), communityServiceInquiry: helpers.many(communityServiceInquiries, { relationName: 'communityServiceInquiryTouser' }), communityServiceListing: helpers.many(communityServiceListings, { relationName: 'communityServiceListingTouser' }), communityServiceReview: helpers.many(communityServiceReviews, { relationName: 'communityServiceReviewTouser' }), invitation: helpers.many(invitations, { relationName: 'invitationTouser' }), member: helpers.many(members, { relationName: 'memberTouser' }), passkey: helpers.many(passkeys, { relationName: 'passkeyTouser' }), platformSuspension: helpers.many(platformSuspensions, { relationName: 'platformSuspensionTouser' }), premiumSeat: helpers.one(premiumSeats), profile_profile_landlordIdTouser: helpers.many(profiles, { relationName: 'profile_landlordIdTouser' }), profile_profile_userIdTouser: helpers.many(profiles, { relationName: 'profile_userIdTouser' }), propertyListing_propertyListing_assignedAgentIdTouser: helpers.many(propertyListings, { relationName: 'propertyListing_assignedAgentIdTouser' }), propertyListing_propertyListing_ownerIdTouser: helpers.many(propertyListings, { relationName: 'propertyListing_ownerIdTouser' }), session: helpers.many(sessions, { relationName: 'sessionTouser' }), soloSeat: helpers.many(soloSeats, { relationName: 'soloSeatTouser' }), standardSeat: helpers.many(standardSeats, { relationName: 'standardSeatTouser' }), twoFactor: helpers.many(twoFactors, { relationName: 'twoFactorTouser' }) }));

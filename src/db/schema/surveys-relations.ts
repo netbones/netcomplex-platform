@@ -4,8 +4,4 @@ import { questions } from './questions';
 import { responses } from './responses';
 import { surveySections } from './survey-sections';
 
-export const surveysRelations = relations(surveys, helpers => ({
-  Question: helpers.many(questions, { relationName: 'QuestionToSurvey' }),
-  Response: helpers.many(responses, { relationName: 'ResponseToSurvey' }),
-  Section: helpers.many(surveySections, { relationName: 'SurveyToSurveySection' }),
-}));
+export const surveysRelations = relations(surveys, (helpers) => ({ Question: helpers.many(questions, { relationName: 'QuestionToSurvey' }), Response: helpers.many(responses, { relationName: 'ResponseToSurvey' }), Section: helpers.many(surveySections, { relationName: 'SurveyToSurveySection' }) }));

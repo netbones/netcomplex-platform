@@ -54,7 +54,7 @@ import { communityServiceListings } from '@schema/community-service-listings';
 import { communityServiceReviews } from '@schema/community-service-reviews';
 import { communityServiceInquiries } from '@schema/community-service-inquiries';
 import { groups } from '@schema/groups';
-import { userGroups } from '@schema/user-groups';
+import { groupMembers } from '@schema/group-members';
 import { surveys } from '@schema/surveys';
 import { questions } from '@schema/questions';
 import { responses } from '@schema/responses';
@@ -115,7 +115,7 @@ const dbSchema = {
   communityServiceReviews,
   communityServiceInquiries,
   groups,
-  userGroups,
+  groupMembers,
   surveys,
   questions,
   responses,
@@ -272,7 +272,7 @@ export {
   communityServiceReviews,
   communityServiceInquiries,
   groups,
-  userGroups,
+  groupMembers,
   surveys,
   questions,
   responses,

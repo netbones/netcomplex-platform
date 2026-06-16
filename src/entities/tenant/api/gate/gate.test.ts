@@ -56,7 +56,7 @@ vi.mock('@api/server', () => ({
   communityServiceReviews: {},
   communityServiceInquiries: {},
   groups: {},
-  userGroups: {},
+  groupMembers: {},
   surveys: {},
   questions: {},
   responses: {},

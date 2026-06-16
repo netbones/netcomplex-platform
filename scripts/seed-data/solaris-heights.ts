@@ -869,7 +869,7 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
     },
   ],
 
-  userGroups: [
+  groupMembers: [
     {
       id: 'ug-slh-lerato-garden',
       userId: 'user-lerato-khumalo',

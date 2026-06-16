@@ -1051,7 +1051,7 @@ export const SORALIA_VILLAGE: TenantSeedData = {
     },
   ],
 
-  userGroups: [
+  groupMembers: [
     {
       id: 'ug-john-gardening',
       userId: 'user-john-smith',

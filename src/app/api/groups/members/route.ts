@@ -1,4 +1,4 @@
-import { db, userGroups, apiCreated, apiError, apiSuccess } from '@api/server';
+import { db, groupMembers, apiCreated, apiError, apiSuccess } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -9,9 +9,9 @@ export async function POST(request: Request) {
 
   // Check for existing membership
   const [existing] = await db
-    .select({ id: userGroups.id })
-    .from(userGroups)
-    .where(and(eq(userGroups.userId, userId), eq(userGroups.groupId, groupId)))
+    .select({ id: groupMembers.id })
+    .from(groupMembers)
+    .where(and(eq(groupMembers.userId, userId), eq(groupMembers.groupId, groupId)))
     .limit(1);
 
   if (existing) {
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   const { tenantId } = await withTenant();
 
   const [membership] = await db
-    .insert(userGroups)
+    .insert(groupMembers)
     .values({
       id: crypto.randomUUID(),
       tenantId,
@@ -48,12 +48,12 @@ export async function DELETE(request: Request) {
   const { tenantId } = await withTenant();
 
   await db
-    .delete(userGroups)
+    .delete(groupMembers)
     .where(
       and(
-        eq(userGroups.tenantId, tenantId),
-        eq(userGroups.userId, userId),
-        eq(userGroups.groupId, groupId)
+        eq(groupMembers.tenantId, tenantId),
+        eq(groupMembers.userId, userId),
+        eq(groupMembers.groupId, groupId)
       )
     );
 

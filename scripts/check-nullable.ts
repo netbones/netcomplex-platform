@@ -11,7 +11,7 @@ const db = drizzle(pool);
 async function main() {
   const TABLES = [
     'Household', 'Profile', 'StandardSeat', 'communityServiceListing', 'communityServiceReview',
-    'group', 'UserGroup', 'Resource', 'Content', 'Event',
+    'group',   'GroupMember', 'Resource', 'Content', 'Event',
     'Survey', 'Question', 'Response', 'Competition',
     'MaintenanceCategory', 'MaintenanceTeam', 'ServiceProvider',
     'MaintenanceRequest', 'Setting', 'user', 'Property',

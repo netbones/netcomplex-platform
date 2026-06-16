@@ -3,7 +3,7 @@ import {
   db,
   groups,
   users,
-  userGroups,
+  groupMembers,
   apiCreated,
   apiError,
   apiForbidden,
@@ -94,12 +94,12 @@ export async function GET(request: Request) {
     groupIds.length > 0
       ? await db
           .select({
-            groupId: userGroups.groupId,
+            groupId: groupMembers.groupId,
             count: sql<number>`count(*)::int`,
           })
-          .from(userGroups)
-          .where(and(eq(userGroups.tenantId, tenantId), inArray(userGroups.groupId, groupIds)))
-          .groupBy(userGroups.groupId)
+          .from(groupMembers)
+          .where(and(eq(groupMembers.tenantId, tenantId), inArray(groupMembers.groupId, groupIds)))
+          .groupBy(groupMembers.groupId)
       : [];
 
   const countByGroupId = new Map(memberCounts.map(r => [r.groupId, r.count]));

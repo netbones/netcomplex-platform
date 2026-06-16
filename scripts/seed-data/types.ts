@@ -202,7 +202,7 @@ export interface GroupInput {
   ownerId: string;
 }
 
-export interface UserGroupInput {
+export interface GroupMemberInput {
   id: string;
   userId: string;
   groupId: string;
@@ -403,7 +403,7 @@ export interface TenantSeedData {
   serviceListings: ServiceListingInput[];
   serviceReviews: ServiceReviewInput[];
   groups: GroupInput[];
-  userGroups: UserGroupInput[];
+  groupMembers: GroupMemberInput[];
   resources: ResourceInput[];
   content: ContentInput[];
   events: EventInput[];
