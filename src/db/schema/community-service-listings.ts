@@ -8,7 +8,6 @@ import {
   integer,
   doublePrecision,
 } from 'drizzle-orm/pg-core';
-import { serviceCategoryEnum } from './service-category-enum';
 import { communityServiceCategoryEnum } from './community-service-category-enum';
 import { priceTypeEnum } from './price-type-enum';
 import { listingStatusEnum } from './listing-status-enum';
@@ -47,4 +46,5 @@ export const communityServiceListings = pgTable('communityServiceListing', {
   organizationId: text('organizationId'),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  slug: text('slug').unique(),
 });

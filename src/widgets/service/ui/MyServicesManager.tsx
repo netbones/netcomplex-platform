@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
@@ -14,6 +13,7 @@ type Tab = 'listings' | 'inquiries' | 'requested';
 
 interface ServiceListing {
   id: string;
+  slug?: string;
   title: string;
   description?: string;
   category: string;
@@ -51,7 +51,6 @@ interface PersonalInquiry {
 }
 
 export function MyServicesManager() {
-  const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
   const [activeTab, setActiveTab] = useState<Tab>('listings');
   const [listings, setListings] = useState<ServiceListing[]>([]);
@@ -510,7 +509,7 @@ function ListingsTab({
               className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 group"
             >
               <Link
-                href={`/services/${listing.id}`}
+                href={`/services/${listing.slug || listing.id}`}
                 className="min-w-0 flex-1 flex items-center gap-3"
               >
                 {listing.images?.[0] && (
@@ -570,7 +569,7 @@ function ListingsTab({
                 </span>
                 <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-indigo-500" />
                 <Link
-                  href={`/services/${listing.id}`}
+                  href={`/services/${listing.slug || listing.id}`}
                   onClick={e => {
                     e.stopPropagation();
                     e.preventDefault();

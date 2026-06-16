@@ -48,12 +48,18 @@ export default function ServiceDetailPage() {
   useEffect(() => {
     async function fetchService() {
       try {
-        const res = await fetch(`/api/community-services/listings?id=${serviceId}`);
+        const isUuid = /^[0-9a-f-]{36}$/.test(serviceId);
+        const param = isUuid ? `id=${serviceId}` : `slug=${serviceId}`;
+        const res = await fetch(`/api/community-services/listings?${param}`);
         if (!res.ok) throw new Error('Service not found');
         const body = await res.json();
         const listing = body?.data?.listing ?? body?.listing;
         setService(listing);
-      } catch (err) {
+        // Redirect to slug-based URL if available
+        if (listing?.slug && isUuid) {
+          window.history.replaceState(null, '', `/services/${listing.slug}`);
+        }
+      } catch {
         setError('Failed to load service');
       } finally {
         setLoading(false);

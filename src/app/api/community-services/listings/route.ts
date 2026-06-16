@@ -20,6 +20,7 @@ import { apiLogger } from '@shared/lib';
 import { eq, desc, and, or, sql, ilike } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
+import { generateNameSlug } from '@shared/api';
 
 type ListingStatus = (typeof communityServiceListings.status.enumValues)[number];
 type ServiceCategory = (typeof communityServiceListings.category.enumValues)[number];
@@ -35,6 +36,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    const slug = searchParams.get('slug');
     const category = searchParams.get('category');
     const search = searchParams.get('search');
     const verified = searchParams.get('verified') === 'true';
@@ -45,8 +47,14 @@ export async function GET(request: NextRequest) {
 
     const { tenantId } = await withTenant();
 
-    // If id is provided, return single listing
-    if (id) {
+    // If id or slug provided, return single listing
+    if (id || slug) {
+      const whereCondition = id
+        ? and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+        : and(
+            eq(communityServiceListings.slug, slug!),
+            eq(communityServiceListings.tenantId, tenantId)
+          );
       // Drizzle query
       const [listing] = await db
         .select({
@@ -78,6 +86,7 @@ export async function GET(request: NextRequest) {
           cancellationPolicy: communityServiceListings.cancellationPolicy,
           createdAt: communityServiceListings.createdAt,
           updatedAt: communityServiceListings.updatedAt,
+          slug: communityServiceListings.slug,
           provider: {
             id: users.id,
             name: users.name,
@@ -87,20 +96,19 @@ export async function GET(request: NextRequest) {
         })
         .from(communityServiceListings)
         .leftJoin(users, eq(communityServiceListings.providerId, users.id))
-        .where(
-          and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
-        )
+        .where(whereCondition)
         .limit(1);
 
       if (!listing) {
         return apiNotFound('Service not found');
       }
 
-      // Get review count separately (Drizzle doesn't support count in select for relates)
+      // Get review count separately
+      const listingId = listing.id;
       const [reviewCountResult] = await db
         .select({ count: sql<number>`count(*)` })
         .from(communityServiceReviews)
-        .where(eq(communityServiceReviews.listingId, id));
+        .where(eq(communityServiceReviews.listingId, listingId));
 
       return apiSuccess({
         listing: { ...listing, _count: { reviews: reviewCountResult?.count || 0 } },
@@ -165,6 +173,7 @@ export async function GET(request: NextRequest) {
         status: communityServiceListings.status,
         images: communityServiceListings.images,
         createdAt: communityServiceListings.createdAt,
+        slug: communityServiceListings.slug,
         provider: {
           id: users.id,
           name: users.name,
@@ -264,6 +273,17 @@ export async function POST(request: NextRequest) {
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
 
+    // Generate unique slug from title
+    const baseSlug = generateNameSlug(title || 'service');
+    const [existingSlug] = await db
+      .select({ slug: communityServiceListings.slug })
+      .from(communityServiceListings)
+      .where(eq(communityServiceListings.slug, baseSlug))
+      .limit(1);
+    const slug = existingSlug
+      ? `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`
+      : baseSlug;
+
     await db.insert(communityServiceListings).values({
       id: listingId,
       tenantId,
@@ -284,6 +304,7 @@ export async function POST(request: NextRequest) {
       portfolio: portfolio || [],
       termsAndConditions,
       cancellationPolicy,
+      slug,
       status: 'DRAFT',
       isPublished: false,
       rating: 0,
