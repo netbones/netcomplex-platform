@@ -1,14 +1,4 @@
-import {
-  db,
-  users,
-  properties,
-  maintenanceTeams,
-  serviceProviders,
-} from '@api/server';
-
 import * as maintenanceService from '../services';
-import { toMaintenanceRequestDTO } from '@api/shared';
-import { eq } from 'drizzle-orm';
 
 /**
  * Lists maintenance requests for a tenant with optional filtering.
@@ -27,48 +17,11 @@ export async function listMaintenanceRequests(params: {
 }) {
   const results = await maintenanceService.listMaintenanceRequests(params);
 
-  // Transform results using DTO + resolve team/provider details
-  let transformed = results.map(row => {
-    const mr = row.MaintenanceRequest;
-    const u = row.user;
-    const prop = row.property;
-    const team = row.team;
-    const provider = row.provider;
-
-    const address = prop ? { street: prop.street, unit: prop.unit } : null;
-
-    return {
-      ...toMaintenanceRequestDTO(mr),
-      user: u
-        ? {
-            name: u.name,
-            email: u.email,
-            address: address,
-          }
-        : null,
-      assignedTeam: team ? { id: team.id, name: team.name, trade: team.trade } : null,
-      assignedProvider: provider
-        ? { id: provider.id, companyName: provider.companyName, trade: provider.trade }
-        : null,
-    };
-  });
-
-  // Apply search filter in memory (on DTO-transformed data)
-  if (params.search && params.canViewAll) {
-    const searchLower = params.search.toLowerCase();
-    transformed = transformed.filter(
-      t =>
-        t.description?.toLowerCase().includes(searchLower) ||
-        t.user?.name?.toLowerCase().includes(searchLower) ||
-        t.user?.email?.toLowerCase().includes(searchLower) ||
-        t.user?.address?.street?.toLowerCase().includes(searchLower) ||
-        t.user?.address?.unit?.toLowerCase().includes(searchLower) ||
-        t.category?.toLowerCase().includes(searchLower) ||
-        t.ticketNumber?.toLowerCase().includes(searchLower)
-    );
-  }
-
-  return transformed;
+  return maintenanceService.toMaintenanceRequestViewList(
+    results,
+    params.canViewAll ? 'all' : 'mine',
+    params.search
+  );
 }
 
 /**

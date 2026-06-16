@@ -12,13 +12,16 @@ import {
 
 import { hasPermission } from '@shared/lib';
 import { maintenanceRequestSchema } from '@entities/maintenance';
-import { toMaintenanceRequestDTO } from '@api/shared';
 
 import { apiLogger } from '@shared/lib';
 
 import { eq } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
-import { listMaintenanceRequests, createMaintenanceRequest } from '@entities/maintenance/server';
+import {
+  listMaintenanceRequests,
+  createMaintenanceRequest,
+  toMaintenanceRequestViewList,
+} from '@entities/maintenance/server';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;
@@ -97,79 +100,14 @@ export async function GET(request: Request) {
     dateTo,
   });
 
-  // Transform results using DTO + team/provider details
-  const transformed = results.map(row => {
-    const mr = row.MaintenanceRequest;
-    const u = row.user;
-    const prop = row.property;
-    const team = row.team;
-    const provider = row.provider;
+  // Transform and scope-filter via service function
+  const output = toMaintenanceRequestViewList(
+    results,
+    scope === 'community' ? 'community' : canViewAll ? 'all' : 'mine',
+    canViewAll ? search : null
+  );
 
-    const address = prop ? { street: prop.street, unit: prop.unit } : null;
-
-    return {
-      ...toMaintenanceRequestDTO(mr),
-      user: u
-        ? {
-            name: u.name,
-            email: u.email,
-            address: address,
-          }
-        : null,
-      assignedTeam: team ? { id: team.id, name: team.name, trade: team.trade } : null,
-      assignedProvider: provider
-        ? { id: provider.id, companyName: provider.companyName, trade: provider.trade }
-        : null,
-    };
-  });
-
-  // Community scope: strip PII and internal fields. Anyone in the tenant can
-  // see the request flow (ticket number, category, priority, status, dates)
-  // but not who submitted it, descriptions, or assignment details.
-  if (scope === 'community') {
-    type CommunityMaintenanceLog = {
-      id: string;
-      ticketNumber: string | null | undefined;
-      category: string;
-      priority: string;
-      status: string;
-      createdAt: string;
-      updatedAt: string | null | undefined;
-    };
-    const communityOutput: CommunityMaintenanceLog[] = transformed.map(r => ({
-      id: r.id,
-      ticketNumber: r.ticketNumber,
-      category: r.category,
-      priority: r.priority,
-      status: r.status,
-      createdAt: r.createdAt,
-      updatedAt: r.updatedAt,
-    }));
-    return apiSuccess(communityOutput);
-  }
-
-  // Apply search filter in memory (for description/ticketNumber search).
-  // Community scope is handled above and never reaches this branch, so the
-  // user/address fields are guaranteed to exist on `r` here.
-  let filteredResults = transformed;
-  if (search && canViewAll) {
-    const searchLower = search.toLowerCase();
-    filteredResults = transformed.filter(r => {
-      const user = r.user;
-      const address = user?.address;
-      return (
-        r.description?.toLowerCase().includes(searchLower) ||
-        user?.name?.toLowerCase().includes(searchLower) ||
-        user?.email?.toLowerCase().includes(searchLower) ||
-        address?.street?.toLowerCase().includes(searchLower) ||
-        address?.unit?.toLowerCase().includes(searchLower) ||
-        r.category?.toLowerCase().includes(searchLower) ||
-        r.ticketNumber?.toLowerCase().includes(searchLower)
-      );
-    });
-  }
-
-  return apiSuccess(filteredResults);
+  return apiSuccess(output);
 }
 
 /**

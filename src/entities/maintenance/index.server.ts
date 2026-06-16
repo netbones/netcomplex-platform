@@ -10,4 +10,5 @@ export {
   buildMaintenanceConditions,
   listMaintenanceRequests,
   createMaintenanceRequest,
+  toMaintenanceRequestViewList,
 } from './services';

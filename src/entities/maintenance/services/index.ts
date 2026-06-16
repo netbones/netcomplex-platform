@@ -8,6 +8,7 @@ import {
 } from '@api/server';
 
 import { eq, desc, and, sql, inArray } from 'drizzle-orm';
+import { toMaintenanceRequestDTO } from '@api/shared';
 
 /**
  * Pure function that formats a ticket number string.
@@ -208,4 +209,68 @@ export async function createMaintenanceRequest(data: {
       updatedAt: now,
     })
     .returning();
+}
+
+type MaintenanceRow = {
+  MaintenanceRequest: typeof maintenanceRequests.$inferSelect;
+  user: typeof users.$inferSelect | null;
+  property: typeof properties.$inferSelect | null;
+  team: typeof maintenanceTeams.$inferSelect | null;
+  provider: typeof serviceProviders.$inferSelect | null;
+};
+
+export function toMaintenanceRequestViewList(
+  rows: MaintenanceRow[],
+  scope: 'all' | 'mine' | 'community',
+  search?: string | null
+) {
+  const transformed = rows.map(row => {
+    const mr = row.MaintenanceRequest;
+    const u = row.user;
+    const prop = row.property;
+    const team = row.team;
+    const provider = row.provider;
+
+    const address = prop ? { street: prop.street, unit: prop.unit } : null;
+
+    return {
+      ...toMaintenanceRequestDTO(mr),
+      user: u ? { name: u.name, email: u.email, address } : null,
+      assignedTeam: team ? { id: team.id, name: team.name, trade: team.trade } : null,
+      assignedProvider: provider
+        ? { id: provider.id, companyName: provider.companyName, trade: provider.trade }
+        : null,
+    };
+  });
+
+  if (scope === 'community') {
+    return transformed.map(r => ({
+      id: r.id,
+      ticketNumber: r.ticketNumber,
+      category: r.category,
+      priority: r.priority,
+      status: r.status,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+    }));
+  }
+
+  if (search) {
+    const q = search.toLowerCase();
+    return transformed.filter(r => {
+      const user = r.user;
+      const address = user?.address;
+      return (
+        r.description?.toLowerCase().includes(q) ||
+        user?.name?.toLowerCase().includes(q) ||
+        user?.email?.toLowerCase().includes(q) ||
+        address?.street?.toLowerCase().includes(q) ||
+        address?.unit?.toLowerCase().includes(q) ||
+        r.category?.toLowerCase().includes(q) ||
+        r.ticketNumber?.toLowerCase().includes(q)
+      );
+    });
+  }
+
+  return transformed;
 }
