@@ -15,7 +15,7 @@ import {
 
 import { hasPermission } from '@shared/lib';
 
-import { eq, and, or, asc, ilike, count, ne, sql } from 'drizzle-orm';
+import { eq, and, or, asc, ilike, count, ne, sql, inArray } from 'drizzle-orm';
 
 import type { SQL } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -118,94 +118,77 @@ export async function GET(request: Request) {
   const total = totalResult[0]?.total || 0;
 
   // Now fetch related data for each user
-  const usersWithRelations = await Promise.all(
-    userResults.map(async user => {
-      // Get standardSeats with property
+  const userIds = userResults.map(u => u.id);
 
-      const seats = await db
-        .select({
-          property: {
-            id: properties.id,
-            street: properties.street,
-            unit: properties.unit,
-            homeImage: properties.homeImage,
-          },
-          isPrimaryOwner: standardSeats.isPrimaryOwner,
-          platformAddress: standardSeats.platformAddress,
-        })
-        .from(standardSeats)
-        .innerJoin(properties, eq(standardSeats.propertyId, properties.id))
-        .where(eq(standardSeats.userId, user.id));
+  // Batch: fetch all related data in 4 queries instead of N*4
+  const [
+    allSeats,
+    allSoloSeats,
+    allPremiumSeats,
+    allProfiles,
+  ] = userIds.length > 0
+    ? await Promise.all([
+        db
+          .select({
+            userId: standardSeats.userId,
+            property: { id: properties.id, street: properties.street, unit: properties.unit, homeImage: properties.homeImage },
+            isPrimaryOwner: standardSeats.isPrimaryOwner,
+            platformAddress: standardSeats.platformAddress,
+          })
+          .from(standardSeats)
+          .innerJoin(properties, eq(standardSeats.propertyId, properties.id))
+          .where(inArray(standardSeats.userId, userIds)),
+        db
+          .select({
+            userId: soloSeats.userId,
+            property: { id: properties.id, street: properties.street, unit: properties.unit, homeImage: properties.homeImage },
+            seatType: soloSeats.seatType,
+            platformAddress: soloSeats.platformAddress,
+          })
+          .from(soloSeats)
+          .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
+          .where(inArray(soloSeats.userId, userIds)),
+        db
+          .select({
+            userId: premiumSeats.userId,
+            id: premiumSeats.id,
+            platformAddress: premiumSeats.platformAddress,
+            portfolioName: premiumSeats.portfolioName,
+            tier: premiumSeats.tier,
+            isActive: premiumSeats.isActive,
+          })
+          .from(premiumSeats)
+          .where(inArray(premiumSeats.userId, userIds)),
+        db
+          .select({
+            userId: profiles.userId,
+            householdId: profiles.householdId,
+            occupantType: profiles.occupantType,
+            residencyType: profiles.residencyType,
+            rentalImage: profiles.rentalImage,
+            occupantImage: profiles.occupantImage,
+            property: {
+              id: properties.id,
+              street: properties.street,
+              unit: properties.unit,
+              homeImage: properties.homeImage,
+              platformAddress: properties.platformAddress,
+            },
+          })
+          .from(profiles)
+          .innerJoin(households, eq(profiles.householdId, households.id))
+          .innerJoin(properties, eq(households.propertyId, properties.id))
+          .where(and(eq(profiles.tenantId, tenantId), inArray(profiles.userId, userIds), eq(profiles.status, 'ACTIVE' as const))),
+      ])
+    : [[], [], [], []];
 
-      // Get soloSeat with property
-
-      const soloSeatsResult = await db
-        .select({
-          property: {
-            id: properties.id,
-            street: properties.street,
-            unit: properties.unit,
-            homeImage: properties.homeImage,
-          },
-          seatType: soloSeats.seatType,
-          platformAddress: soloSeats.platformAddress,
-        })
-        .from(soloSeats)
-        .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
-        .where(eq(soloSeats.userId, user.id));
-
-      // Get premiumSeat
-
-      const premiumSeat = await db
-        .select({
-          id: premiumSeats.id,
-          platformAddress: premiumSeats.platformAddress,
-          portfolioName: premiumSeats.portfolioName,
-          tier: premiumSeats.tier,
-          isActive: premiumSeats.isActive,
-        })
-        .from(premiumSeats)
-        .where(eq(premiumSeats.userId, user.id))
-        .limit(1);
-
-      // Get active profiles with household, property, and landlord
-
-      const userProfiles = await db
-        .select({
-          householdId: profiles.householdId,
-          occupantType: profiles.occupantType,
-          residencyType: profiles.residencyType,
-          rentalImage: profiles.rentalImage,
-          occupantImage: profiles.occupantImage,
-          property: {
-            id: properties.id,
-            street: properties.street,
-            unit: properties.unit,
-            homeImage: properties.homeImage,
-            platformAddress: properties.platformAddress,
-          },
-        })
-        .from(profiles)
-        .innerJoin(households, eq(profiles.householdId, households.id))
-        .innerJoin(properties, eq(households.propertyId, properties.id))
-        .leftJoin(users, eq(profiles.landlordId, users.id))
-        .where(
-          and(
-            eq(profiles.tenantId, tenantId),
-            eq(profiles.userId, user.id),
-            eq(profiles.status, 'ACTIVE' as const)
-          )
-        );
-
-      return {
-        ...toUserDTO(user),
-        standardSeats: seats,
-        soloSeats: soloSeatsResult,
-        premiumSeat: premiumSeat[0] || null,
-        profiles: userProfiles,
-      };
-    })
-  );
+  const usersWithRelations = userResults.map(user => ({
+    ...toUserDTO(user),
+    standardSeats: allSeats.filter(s => s.userId === user.id),
+    soloSeats: allSoloSeats.filter(s => s.userId === user.id),
+    premiumSeat: allPremiumSeats.find(s => s.userId === user.id) || null,
+    profiles: allProfiles.filter(p => p.userId === user.id),
+  }));
 
   return apiPaginated(usersWithRelations, page, limit, total);
 }
