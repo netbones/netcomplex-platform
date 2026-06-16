@@ -321,15 +321,15 @@ export function MyHomeSpace() {
                   <p className="text-sm font-semibold text-gray-900">
                     {profile?.name ?? 'Not set'}
                   </p>
-                  <p className="text-xs text-gray-500">{profile?.email ?? 'Not set'}</p>
+                  <p className="text-xs text-gray-500 font-mono">
+                    {profile?.platformAddress || 'Not set'}
+                  </p>
                 </div>
               </div>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <dt className="text-xs font-medium text-gray-500 uppercase">Platform Address</dt>
-                  <dd className="mt-1 text-sm text-gray-900 font-mono">
-                    {profile?.platformAddress || 'Not set'}
-                  </dd>
+                  <dt className="text-xs font-medium text-gray-500 uppercase">Email</dt>
+                  <dd className="mt-1 text-sm text-gray-900">{profile?.email ?? 'Not set'}</dd>
                 </div>
                 <div>
                   <dt className="text-xs font-medium text-gray-500 uppercase">Phone</dt>
