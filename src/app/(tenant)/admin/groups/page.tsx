@@ -23,7 +23,7 @@ export default function GroupsPage() {
       .then(res => res.json())
       .then(body => {
         const data = body?.data ?? body;
-        setGroups(data.groups || []);
+        setGroups(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch(() => setLoading(false));

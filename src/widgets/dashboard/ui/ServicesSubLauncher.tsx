@@ -64,7 +64,7 @@ export const SERVICES_DOMAIN_DEFINITIONS: ServicesDomainDef[] = [
     labelKey: 'domains.myServices',
     descriptionKey: 'domains.descriptions.myServices',
     icon: Briefcase,
-    description: 'Community services you offer or recieve',
+    description: 'Community services you offer or receive',
   },
   {
     id: 'events',

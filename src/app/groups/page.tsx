@@ -41,7 +41,8 @@ export default function GroupsHubPage() {
   useEffect(() => {
     fetch('/api/groups')
       .then(res => res.json())
-      .then(data => {
+      .then(body => {
+        const data = body?.data ?? body;
         if (Array.isArray(data)) {
           setGroups(data);
         }
@@ -56,10 +57,7 @@ export default function GroupsHubPage() {
     ? groups.filter(g => {
         const matchesCategory = selectedCategory === 'all' || g.category === selectedCategory;
         const matchesAccess = selectedAccess === 'all' || g.accessType === selectedAccess;
-
-        const isEligible = g.accessType === 'OPEN';
-
-        return matchesCategory && matchesAccess && isEligible;
+        return matchesCategory && matchesAccess;
       })
     : [];
 
