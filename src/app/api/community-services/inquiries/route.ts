@@ -4,6 +4,9 @@ import {
   db,
   communityServiceInquiries,
   communityServiceListings,
+  conversations,
+  conversationParticipants,
+  messages,
   users,
   apiError,
   apiInternalError,
@@ -211,6 +214,71 @@ export async function POST(request: NextRequest) {
       updatedAt: now,
     });
 
+    // Auto-create conversation if platform message is preferred
+    let conversationId: string | null = null;
+    if (contactMethod === 'PLATFORM_MESSAGE' && listing.providerId) {
+      const participantIds = [session.user.id, listing.providerId];
+      const [existingConv] = await db
+        .select({ id: conversations.id })
+        .from(conversations)
+        .innerJoin(
+          conversationParticipants,
+          eq(conversations.id, conversationParticipants.conversationId)
+        )
+        .where(
+          and(
+            eq(conversations.type, 'DIRECT'),
+            eq(conversations.tenantId, tenantId),
+            sql`${conversationParticipants.userId} IN ${participantIds}`
+          )
+        )
+        .having(sql`COUNT(DISTINCT ${conversationParticipants.userId}) = 2`)
+        .groupBy(conversations.id)
+        .limit(1);
+
+      if (!existingConv) {
+        conversationId = crypto.randomUUID();
+        await db.insert(conversations).values({
+          id: conversationId,
+          tenantId,
+          type: 'DIRECT',
+          createdAt: now,
+          updatedAt: now,
+        });
+        await db.insert(conversationParticipants).values([
+          {
+            id: crypto.randomUUID(),
+            tenantId,
+            conversationId,
+            userId: session.user.id,
+            joinedAt: now,
+          },
+          {
+            id: crypto.randomUUID(),
+            tenantId,
+            conversationId,
+            userId: listing.providerId,
+            joinedAt: now,
+          },
+        ]);
+      } else {
+        conversationId = existingConv.id;
+      }
+
+      // Insert initial inquiry message
+      if (conversationId) {
+        await db.insert(messages).values({
+          id: crypto.randomUUID(),
+          tenantId,
+          conversationId,
+          senderId: session.user.id,
+          content: description,
+          type: 'TEXT',
+          createdAt: now,
+        });
+      }
+    }
+
     // Fetch created inquiry
     const [inquiry] = await db
       .select()
@@ -260,6 +328,7 @@ export async function POST(request: NextRequest) {
       success: true,
       inquiry: {
         ...inquiry,
+        conversationId,
         listing: listingDetails
           ? {
               id: listingDetails.id,

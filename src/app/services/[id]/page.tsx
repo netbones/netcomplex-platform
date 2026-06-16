@@ -19,7 +19,7 @@ const log = createComponentLogger('service-detail-page');
 
 interface ServiceInquiryForm {
   message: string;
-  preferredContact: 'email' | 'phone';
+  preferredContact: 'platform_message' | 'email' | 'phone';
 }
 
 export default function ServiceDetailPage() {
@@ -30,7 +30,7 @@ export default function ServiceDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [inquiryForm, setInquiryForm] = useState<ServiceInquiryForm>({
     message: '',
-    preferredContact: 'email',
+    preferredContact: 'platform_message',
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -79,13 +79,21 @@ export default function ServiceDetailPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          serviceId,
-          message: inquiryForm.message,
-          preferredContact: inquiryForm.preferredContact,
+          listingId: service?.id ?? serviceId,
+          description: inquiryForm.message,
+          contactMethod:
+            inquiryForm.preferredContact === 'platform_message'
+              ? 'PLATFORM_MESSAGE'
+              : inquiryForm.preferredContact.toUpperCase(),
         }),
       });
       if (res.ok) {
+        const body = await res.json();
+        const data = body?.data ?? body;
         setSubmitted(true);
+        if (inquiryForm.preferredContact === 'platform_message' && data?.inquiry?.conversationId) {
+          window.location.href = `/messages?conversationId=${data.inquiry.conversationId}`;
+        }
       }
     } catch (err) {
       log.error({}, 'Failed to send inquiry', err);
@@ -273,11 +281,13 @@ export default function ServiceDetailPage() {
                         onChange={e =>
                           setInquiryForm({
                             ...inquiryForm,
-                            preferredContact: e.target.value as 'email' | 'phone',
+                            preferredContact: e.target
+                              .value as ServiceInquiryForm['preferredContact'],
                           })
                         }
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-soralia-primary"
                       >
+                        <option value="platform_message">Platform Message</option>
                         <option value="email">Email</option>
                         <option value="phone">Phone</option>
                       </select>

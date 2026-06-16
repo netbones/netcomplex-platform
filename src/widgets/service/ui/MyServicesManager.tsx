@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
@@ -48,6 +49,7 @@ interface PersonalInquiry {
   description: string;
   status: string;
   providerName?: string;
+  providerId?: string;
   providerResponse?: string;
   createdAt: string;
 }
@@ -120,7 +122,14 @@ export function MyServicesManager() {
 
       setListings(listingsData?.data?.listings ?? []);
       setInquiries(inquiriesData?.data?.inquiries ?? []);
-      setPersonalInquiries(personalData?.data?.inquiries ?? []);
+      setPersonalInquiries(
+        (personalData?.data?.inquiries ?? []).map((i: Record<string, unknown>) => ({
+          ...i,
+          providerId: (i.provider as Record<string, string> | undefined)?.id,
+          providerName: (i.provider as Record<string, string> | undefined)?.name,
+          listingTitle: (i.listing as Record<string, string> | undefined)?.title,
+        }))
+      );
     } catch (err) {
       log.error({}, 'Failed to fetch my services data', err);
     } finally {
@@ -325,7 +334,12 @@ export function MyServicesManager() {
             />
           )}
           {activeTab === 'inquiries' && <InquiriesTab inquiries={inquiries} />}
-          {activeTab === 'requested' && <PersonalInquiriesTab inquiries={personalInquiries} />}
+          {activeTab === 'requested' && (
+            <PersonalInquiriesTab
+              inquiries={personalInquiries}
+              currentUserId={session?.user?.id || ''}
+            />
+          )}
         </div>
       </div>
     </ErrorBoundary>
@@ -723,7 +737,30 @@ function InquiriesTab({ inquiries }: { inquiries: ServiceInquiry[] }) {
   );
 }
 
-function PersonalInquiriesTab({ inquiries }: { inquiries: PersonalInquiry[] }) {
+function PersonalInquiriesTab({
+  inquiries,
+  currentUserId,
+}: {
+  inquiries: PersonalInquiry[];
+  currentUserId: string;
+}) {
+  const router = useRouter();
+
+  const handleChat = async (inquiry: PersonalInquiry) => {
+    try {
+      const res = await fetch('/api/conversations/find', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ participantIds: [currentUserId, inquiry.providerId] }),
+      });
+      const body = await res.json();
+      const data = body?.data ?? body;
+      if (data?.conversation?.id) {
+        router.push(`/messages?conversationId=${data.conversation.id}`);
+      }
+    } catch {}
+  };
+
   return (
     <div className="space-y-3">
       <h3 className="font-medium text-gray-900">Services You Have Requested</h3>
@@ -755,17 +792,27 @@ function PersonalInquiriesTab({ inquiries }: { inquiries: PersonalInquiry[] }) {
                     </p>
                   )}
                 </div>
-                <span
-                  className={`text-xs px-2 py-1 rounded-full shrink-0 ${
-                    inquiry.status === 'PENDING'
-                      ? 'bg-yellow-100 text-yellow-700'
-                      : inquiry.status === 'RESPONDED'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-gray-100 text-gray-600'
-                  }`}
-                >
-                  {inquiry.status}
-                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  {inquiry.providerId && (
+                    <button
+                      onClick={() => handleChat(inquiry)}
+                      className="px-2 py-1 bg-indigo-50 text-indigo-600 text-xs rounded hover:bg-indigo-100 transition-colors"
+                    >
+                      Chat
+                    </button>
+                  )}
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      inquiry.status === 'PENDING'
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : inquiry.status === 'RESPONDED'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    {inquiry.status}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
