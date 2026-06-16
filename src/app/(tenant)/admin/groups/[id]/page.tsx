@@ -25,19 +25,20 @@ export default function EditGroupPage() {
 
     fetch(`/api/groups/${id}`)
       .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          log.error({}, 'Failed to fetch group', data.error);
+      .then(body => {
+        if (body?.error) {
+          log.error({}, 'Failed to fetch group', body.error);
           return;
         }
+        const data = body?.data ?? body;
         setGroup({
           name: data.name,
           description: data.description,
           category: data.category,
           isPublic: data.isPublic,
         });
-        setLoading(false);
-      });
+      })
+      .finally(() => setLoading(false));
   }, [id]);
 
   if (loading) {
