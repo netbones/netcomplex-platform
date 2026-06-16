@@ -50,8 +50,8 @@ export default function ServiceDetailPage() {
       try {
         const res = await fetch(`/api/community-services/listings?id=${serviceId}`);
         if (!res.ok) throw new Error('Service not found');
-        const data = await res.json();
-        const listing = data.listing || data;
+        const body = await res.json();
+        const listing = body?.data?.listing ?? body?.listing;
         setService(listing);
       } catch (err) {
         setError('Failed to load service');

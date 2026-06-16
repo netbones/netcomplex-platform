@@ -54,6 +54,7 @@ export function MyServicesManager() {
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -63,6 +64,7 @@ export function MyServicesManager() {
     price: '',
     serviceAreas: '',
     contactMethods: 'PLATFORM_MESSAGE',
+    images: [] as string[],
   });
 
   const categories = [
@@ -106,6 +108,34 @@ export function MyServicesManager() {
     }
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const body = await res.json();
+      const url = body?.data?.url ?? body?.url;
+      if (url) {
+        setFormData(prev => ({ ...prev, images: [...prev.images, url] }));
+      }
+    } catch (err) {
+      log.error({}, 'Failed to upload image', err);
+    } finally {
+      setUploadingImage(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleCreateListing = async () => {
     if (!formData.title.trim() || !formData.description.trim()) return;
     setSubmitting(true);
@@ -123,6 +153,7 @@ export function MyServicesManager() {
             ? formData.serviceAreas.split(',').map((s: string) => s.trim())
             : [],
           contactMethods: [formData.contactMethods],
+          images: formData.images,
         }),
       });
       if (res.ok) {
@@ -135,6 +166,7 @@ export function MyServicesManager() {
           price: '',
           serviceAreas: '',
           contactMethods: 'PLATFORM_MESSAGE',
+          images: [],
         });
         fetchData();
       }
@@ -142,6 +174,19 @@ export function MyServicesManager() {
       log.error({}, 'Failed to create listing', err);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handlePublish = async (listingId: string, publish: boolean) => {
+    try {
+      await fetch(`/api/community-services/listings/${listingId}/publish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ publish }),
+      });
+      fetchData();
+    } catch (err) {
+      log.error({}, 'Failed to update publish status', err);
     }
   };
 
@@ -204,6 +249,10 @@ export function MyServicesManager() {
               categories={categories}
               submitting={submitting}
               handleCreateListing={handleCreateListing}
+              handlePublish={handlePublish}
+              handleImageUpload={handleImageUpload}
+              removeImage={removeImage}
+              uploadingImage={uploadingImage}
             />
           )}
           {activeTab === 'inquiries' && <InquiriesTab inquiries={inquiries} />}
@@ -223,6 +272,10 @@ function ListingsTab({
   categories,
   submitting,
   handleCreateListing,
+  handlePublish,
+  handleImageUpload,
+  removeImage,
+  uploadingImage,
 }: {
   listings: ServiceListing[];
   showCreateForm: boolean;
@@ -235,11 +288,25 @@ function ListingsTab({
     price: string;
     serviceAreas: string;
     contactMethods: string;
+    images: string[];
   };
-  setFormData: (data: typeof formData) => void;
+  setFormData: (data: {
+    title: string;
+    description: string;
+    category: string;
+    priceType: string;
+    price: string;
+    serviceAreas: string;
+    contactMethods: string;
+    images: string[];
+  }) => void;
   categories: string[];
   submitting: boolean;
   handleCreateListing: () => void;
+  handlePublish: (listingId: string, publish: boolean) => void;
+  handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  removeImage: (index: number) => void;
+  uploadingImage: boolean;
 }) {
   return (
     <div className="space-y-3">
@@ -323,6 +390,36 @@ function ListingsTab({
                 />
               </div>
             )}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Images</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {formData.images.map((url, i) => (
+                  <div key={i} className="relative group">
+                    <img
+                      src={url}
+                      alt={`Upload ${i + 1}`}
+                      className="w-16 h-16 object-cover rounded-lg border"
+                    />
+                    <button
+                      onClick={() => removeImage(i)}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 cursor-pointer transition-colors">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploadingImage}
+                  className="hidden"
+                />
+                {uploadingImage ? 'Uploading...' : '+ Add Image'}
+              </label>
+            </div>
             <div className="flex gap-2 pt-2">
               <button
                 onClick={handleCreateListing}
@@ -353,12 +450,11 @@ function ListingsTab({
       ) : (
         <div className="space-y-2">
           {listings.map(listing => (
-            <Link
+            <div
               key={listing.id}
-              href={`/services/${listing.id}`}
-              className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 hover:border-indigo-200 transition-colors group"
+              className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 group"
             >
-              <div className="min-w-0 flex-1">
+              <Link href={`/services/${listing.id}`} className="min-w-0 flex-1">
                 <p className="font-medium text-gray-900 truncate group-hover:text-indigo-600 transition-colors">
                   {listing.title}
                 </p>
@@ -366,8 +462,19 @@ function ListingsTab({
                   {listing.category.replace(/_/g, ' ')} &middot;{' '}
                   {listing.isPublished ? 'Published' : 'Draft'}
                 </p>
-              </div>
-              <div className="flex items-center gap-3 text-xs text-gray-500 shrink-0">
+              </Link>
+              <div className="flex items-center gap-2 text-xs text-gray-500 shrink-0">
+                {!listing.isPublished && (
+                  <button
+                    onClick={e => {
+                      e.preventDefault();
+                      handlePublish(listing.id, true);
+                    }}
+                    className="px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
+                  >
+                    Publish
+                  </button>
+                )}
                 {listing.rating > 0 && (
                   <span>
                     {'★'.repeat(Math.round(listing.rating))} ({listing.reviewCount})
@@ -386,7 +493,7 @@ function ListingsTab({
                 </span>
                 <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-indigo-500" />
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}
