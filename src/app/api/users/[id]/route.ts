@@ -183,20 +183,41 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   }
 
   // Fallback: if no profile-based household exists, build a household shape from
-  // the primary standardSeats entry. This covers property owners who own a property
-  // via standardSeats but have no profiles.householdId link. (BD issue cs5)
-  if (!householdWithMembers && seats.length > 0) {
+  // seats. This covers property owners who own a property via seats but have no
+  // profiles.householdId link. (BD issue cs5)
+  if (!householdWithMembers) {
+    // Prefer standardSeats (primary owner), then soloSeats, then premiumSeats
     const primarySeat = seats.find(s => s.isPrimaryOwner) ?? seats[0];
-    if (primarySeat) {
+    const soloSeat = soloSeatsResult[0];
+    const premium = premiumSeatResult[0];
+
+    const source =
+      primarySeat ??
+      (soloSeat
+        ? { household: soloSeat.household, platformAddress: soloSeat.platformAddress }
+        : null) ??
+      (premium
+        ? {
+            household: {
+              id: premium.id,
+              street: premium.platformAddress ?? '',
+              unit: '',
+              homeImage: null,
+            },
+            platformAddress: premium.platformAddress,
+          }
+        : null);
+
+    if (source) {
       householdWithMembers = {
-        id: `seat-derived-${primarySeat.platformAddress}`,
-        name: primarySeat.platformAddress,
+        id: `seat-derived-${source.platformAddress ?? 'unknown'}`,
+        name: source.platformAddress ?? 'Unknown Address',
         status: 'ACTIVE',
         property: {
-          id: primarySeat.household.id,
-          address: primarySeat.household.street,
-          unitNumber: primarySeat.household.unit,
-          type: primarySeat.platformAddress,
+          id: source.household?.id ?? '',
+          address: source.household?.street ?? '',
+          unitNumber: source.household?.unit ?? '',
+          type: source.platformAddress ?? '',
         },
         members: [],
       };
