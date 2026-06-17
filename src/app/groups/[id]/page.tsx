@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { authClient } from '@api/client';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('group-detail-page');
@@ -17,7 +18,7 @@ interface Content {
 
 interface Member {
   role: string;
-  user: { id: string; name: string };
+  user: { id: string; name: string; image: string | null };
 }
 
 interface Group {
@@ -37,6 +38,7 @@ export default function GroupDetailPage() {
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
+  const { data: session } = authClient.useSession();
 
   useEffect(() => {
     if (!id) return;
@@ -55,10 +57,11 @@ export default function GroupDetailPage() {
   }, [id]);
 
   const handleJoin = async () => {
+    if (!session?.user?.id) return;
     const res = await fetch('/api/groups/members', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: 'demo-user', groupId: id }),
+      body: JSON.stringify({ userId: session.user.id, groupId: id }),
     });
     if (res.ok) {
       setIsMember(true);
@@ -66,7 +69,8 @@ export default function GroupDetailPage() {
   };
 
   const handleLeave = async () => {
-    const res = await fetch(`/api/groups/members?userId=demo-user&groupId=${id}`, {
+    if (!session?.user?.id) return;
+    const res = await fetch(`/api/groups/members?userId=${session.user.id}&groupId=${id}`, {
       method: 'DELETE',
     });
     if (res.ok) {
@@ -150,8 +154,12 @@ export default function GroupDetailPage() {
             <div className="space-y-3">
               {group.members.map(m => (
                 <div key={m.user.id} className="flex items-center">
-                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm font-medium mr-3">
-                    {m.user.name?.charAt(0)}
+                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm font-medium mr-3 overflow-hidden flex-shrink-0">
+                    {m.user.image ? (
+                      <img src={m.user.image} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      m.user.name?.charAt(0)
+                    )}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">{m.user.name}</p>

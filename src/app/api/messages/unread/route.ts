@@ -14,7 +14,7 @@ import {
 
 // Drizzle imports - use individual exports from db.ts
 
-import { eq, and, gt, desc, sql, ne } from 'drizzle-orm';
+import { eq, and, sql, ne, inArray } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
@@ -56,67 +56,102 @@ export async function GET(request: NextRequest) {
         )
       );
 
-    const unreadCounts: Record<string, number> = {};
-    let totalUnread = 0;
+    const conversationIds = userConversationsData.map(p => p.conversationId);
+    const lastReadMap = new Map(userConversationsData.map(p => [p.conversationId, p.lastReadAt]));
+    const typeMap = new Map(userConversationsData.map(p => [p.conversationId, p.conversationType]));
 
-    for (const participant of userConversationsData) {
-      const conversationId = participant.conversationId;
-      const conversationType = participant.conversationType;
-
-      // Get latest message in this conversation (Drizzle)
-      const [latestMessage] = await db
-        .select({
-          id: messages.id,
-          senderId: messages.senderId,
-          createdAt: messages.createdAt,
-        })
-        .from(messages)
-        .where(and(eq(messages.conversationId, conversationId), eq(messages.tenantId, tenantId)))
-        .orderBy(desc(messages.createdAt))
-        .limit(1);
-
-      if (!latestMessage) continue;
-
-      // Count unread messages - messages from others created after lastReadAt
-      const unreadResult = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(messages)
-        .where(
-          and(
-            eq(messages.conversationId, conversationId),
-            ne(messages.senderId, session.user.id),
-            eq(messages.tenantId, tenantId),
-            participant.lastReadAt ? gt(messages.createdAt, participant.lastReadAt) : undefined
+    // Batch 1: latest message per conversation via DISTINCT ON
+    const latestMessageRows =
+      conversationIds.length > 0
+        ? await db.execute<{
+            id: string;
+            sender_id: string;
+            created_at: Date;
+            conversation_id: string;
+          }>(
+            sql`
+            SELECT DISTINCT ON (m.conversation_id) m.id, m.sender_id, m.created_at, m.conversation_id
+            FROM messages m
+            WHERE m.conversation_id IN ${sql.join(
+              conversationIds.map(id => sql`${id}`),
+              sql`, `
+            )}
+              AND m.tenant_id = ${tenantId}
+            ORDER BY m.conversation_id, m.created_at DESC
+          `
           )
-        );
+        : { rows: [] };
+    const latestMessageMap = new Map<string, NonNullable<(typeof latestMessageRows.rows)[0]>>();
+    for (const row of latestMessageRows.rows) {
+      latestMessageMap.set(row.conversation_id, row);
+    }
 
-      const unreadCount = Number(unreadResult[0]?.count || 0);
-
-      if (unreadCount > 0) {
-        // Get participants for this conversation (for DIRECT conversations)
-        if (conversationType === 'DIRECT') {
-          const allParticipants = await db
+    // Batch 2: all unread messages from others (filter by lastReadAt in memory)
+    const unreadMessageRows =
+      conversationIds.length > 0
+        ? await db
             .select({
+              conversationId: messages.conversationId,
+              createdAt: messages.createdAt,
+            })
+            .from(messages)
+            .where(
+              and(
+                inArray(messages.conversationId, conversationIds),
+                ne(messages.senderId, session.user.id),
+                eq(messages.tenantId, tenantId)
+              )
+            )
+        : [];
+    const unreadCountMap = new Map<string, number>();
+    for (const msg of unreadMessageRows) {
+      const lastReadAt = lastReadMap.get(msg.conversationId);
+      if (lastReadAt && msg.createdAt <= lastReadAt) continue;
+      unreadCountMap.set(msg.conversationId, (unreadCountMap.get(msg.conversationId) || 0) + 1);
+    }
+
+    // Batch 3: participants for DIRECT conversations
+    const directConvIds = userConversationsData
+      .filter(p => p.conversationType === 'DIRECT')
+      .map(p => p.conversationId);
+    const directParticipantRows =
+      directConvIds.length > 0
+        ? await db
+            .select({
+              conversationId: conversationParticipants.conversationId,
               userId: conversationParticipants.userId,
             })
             .from(conversationParticipants)
             .where(
               and(
-                eq(conversationParticipants.conversationId, conversationId),
+                inArray(conversationParticipants.conversationId, directConvIds),
                 eq(conversationParticipants.tenantId, tenantId)
               )
-            );
+            )
+        : [];
+    const participantMap = new Map<string, { userId: string }[]>();
+    for (const p of directParticipantRows) {
+      const arr = participantMap.get(p.conversationId);
+      if (arr) arr.push(p);
+      else participantMap.set(p.conversationId, [p]);
+    }
 
-          const otherParticipant = allParticipants.find(p => p.userId !== session.user.id);
-          if (otherParticipant) {
-            unreadCounts[otherParticipant.userId] = unreadCount;
-          }
-        } else {
-          // For group conversations, use conversation ID
-          unreadCounts[conversationId] = unreadCount;
-        }
-        totalUnread += unreadCount;
+    const unreadCounts: Record<string, number> = {};
+    let totalUnread = 0;
+    for (const participant of userConversationsData) {
+      const conversationId = participant.conversationId;
+      if (!latestMessageMap.has(conversationId)) continue;
+      const unreadCount = unreadCountMap.get(conversationId) || 0;
+      if (unreadCount === 0) continue;
+      const conversationType = typeMap.get(conversationId);
+      if (conversationType === 'DIRECT') {
+        const participants = participantMap.get(conversationId) || [];
+        const otherParticipant = participants.find(p => p.userId !== session.user.id);
+        if (otherParticipant) unreadCounts[otherParticipant.userId] = unreadCount;
+      } else {
+        unreadCounts[conversationId] = unreadCount;
       }
+      totalUnread += unreadCount;
     }
 
     return apiSuccess({

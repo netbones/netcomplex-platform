@@ -776,32 +776,33 @@ export const competitionRouter = router({
 
       const selected = shuffled.slice(0, drawCount);
       const nowDate = new Date();
-      const updatedEntries: InferSelectModel<typeof competitionEntries>[] = [];
+      const selectedIds = selected.map(e => e.id);
 
-      for (const entry of selected) {
-        const [updated] = await db
-          .update(competitionEntries)
-          .set({
-            status: 'WINNER',
-            winnerAt: nowDate,
-            updatedAt: nowDate,
-          })
-          .where(eq(competitionEntries.id, entry.id))
-          .returning();
-        updatedEntries.push(updated);
+      // Batch UPDATE all winners in one query
+      const updatedEntries =
+        selectedIds.length > 0
+          ? await db
+              .update(competitionEntries)
+              .set({ status: 'WINNER', winnerAt: nowDate, updatedAt: nowDate })
+              .where(inArray(competitionEntries.id, selectedIds))
+              .returning()
+          : [];
 
-        // Create notification
-        await db.insert(notifications).values({
-          id: crypto.randomUUID(),
-          tenantId,
-          userId: entry.userId,
-          title: `You won ${comp.title}!`,
-          message: `Congratulations! You won ${comp.title}.`,
-          type: 'competition-winner',
-          link: `/competition/${comp.id}`,
-          read: false,
-          createdAt: nowDate,
-        });
+      // Batch INSERT all notifications in one query
+      if (selected.length > 0) {
+        await db.insert(notifications).values(
+          selected.map(entry => ({
+            id: crypto.randomUUID(),
+            tenantId,
+            userId: entry.userId,
+            title: `You won ${comp.title}!`,
+            message: `Congratulations! You won ${comp.title}.`,
+            type: 'competition-winner' as const,
+            link: `/competition/${comp.id}`,
+            read: false,
+            createdAt: nowDate,
+          }))
+        );
       }
 
       // Fetch user data for all winners

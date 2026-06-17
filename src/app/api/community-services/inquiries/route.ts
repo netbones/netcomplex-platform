@@ -17,7 +17,7 @@ import {
 
 // Drizzle imports
 
-import { eq, desc, and, sql } from 'drizzle-orm';
+import { eq, desc, and, sql, inArray } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
@@ -90,47 +90,57 @@ export async function GET(request: NextRequest) {
       request.headers.get('accept-language')?.split(',')[0]?.split('-')[0] ||
       'en';
 
-    // Get listing and provider info separately
-    const inquiriesWithDetails = await Promise.all(
-      inquiries.map(async inquiry => {
-        const [listing] = await db
-          .select({
-            id: communityServiceListings.id,
-            title: communityServiceListings.title,
-            category: communityServiceListings.category,
-            providerId: communityServiceListings.providerId,
-          })
-          .from(communityServiceListings)
-          .where(eq(communityServiceListings.id, inquiry.listingId))
-          .limit(1);
+    // Batch fetch listings and providers
+    const listingIds = inquiries.map(i => i.listingId).filter(Boolean);
+    const listingMap = new Map<
+      string,
+      { id: string; title: unknown; category: string; providerId: string | null }
+    >();
+    const providerIds = new Set<string>();
+    if (listingIds.length > 0) {
+      const listings = await db
+        .select({
+          id: communityServiceListings.id,
+          title: communityServiceListings.title,
+          category: communityServiceListings.category,
+          providerId: communityServiceListings.providerId,
+        })
+        .from(communityServiceListings)
+        .where(inArray(communityServiceListings.id, listingIds));
+      for (const l of listings) {
+        listingMap.set(l.id, l);
+        if (l.providerId) providerIds.add(l.providerId);
+      }
+    }
 
-        let providerInfo = null;
-        if (listing?.providerId) {
-          const [provider] = await db
-            .select({
-              id: users.id,
-              name: users.name,
-              email: users.email,
-            })
-            .from(users)
-            .where(eq(users.id, listing.providerId))
-            .limit(1);
-          providerInfo = provider;
-        }
+    const providerIdArr = [...providerIds];
+    const providerMap = new Map<string, { id: string; name: string; email: string }>();
+    if (providerIdArr.length > 0) {
+      const providers = await db
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+        })
+        .from(users)
+        .where(inArray(users.id, providerIdArr));
+      for (const p of providers) providerMap.set(p.id, p);
+    }
 
-        return {
-          ...inquiry,
-          listing: listing
-            ? {
-                id: listing.id,
-                title: resolveLocaleText(listing.title as Record<string, string>, preferredLocale),
-                category: listing.category,
-              }
-            : null,
-          provider: providerInfo,
-        };
-      })
-    );
+    const inquiriesWithDetails = inquiries.map(inquiry => {
+      const listing = listingMap.get(inquiry.listingId) || null;
+      return {
+        ...inquiry,
+        listing: listing
+          ? {
+              id: listing.id,
+              title: resolveLocaleText(listing.title as Record<string, string>, preferredLocale),
+              category: listing.category,
+            }
+          : null,
+        provider: listing?.providerId ? providerMap.get(listing.providerId) || null : null,
+      };
+    });
 
     // Get total count
     const [totalResult] = await db

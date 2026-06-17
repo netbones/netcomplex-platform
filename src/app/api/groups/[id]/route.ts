@@ -12,7 +12,7 @@ import {
   apiUnauthorized,
 } from '@api/server';
 
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, inArray } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 
@@ -65,17 +65,21 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     .from(groupMembers)
     .where(eq(groupMembers.groupId, id));
 
-  // Get member users
-  const membersWithUsers = await Promise.all(
-    membersList.map(async member => {
-      const [user] = await db
-        .select({ id: users.id, name: users.name })
-        .from(users)
-        .where(eq(users.id, member.userId))
-        .limit(1);
-      return { ...member, user: user ? { id: user.id, name: user.name } : null };
-    })
-  );
+  // Get member users (batched — avoids N+1 connection pool exhaustion)
+  const memberUserIds = membersList.map(m => m.userId);
+  const memberUsers =
+    memberUserIds.length > 0
+      ? await db
+          .select({ id: users.id, name: users.name, image: users.image })
+          .from(users)
+          .where(inArray(users.id, memberUserIds))
+      : [];
+  const userById = new Map(memberUsers.map(u => [u.id, u]));
+
+  const membersWithUsers = membersList.map(member => ({
+    ...member,
+    user: userById.get(member.userId) ?? null,
+  }));
 
   // Get published contents
   const contentList = await db

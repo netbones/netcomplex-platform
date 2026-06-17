@@ -6,14 +6,15 @@ status: executing
 stopped_at: 'Phase 44 (M5a Hardening) 1/1 plan shipped (44-01 Steiger integration COMPLETE). 44-RESEARCH.md and 44-UI-SPEC.md also shipped (approved, 6/6 carry-forward dimensions, no-new-ui scope). Steiger installed, configured, baseline scan run (582 FSD violations: 239 err + 343 warn), 8 BD issues filed (qjpa @api/* 461, 08st tenant fan-in 9, nf5r admin fan-in 26, znjo shared-to-entities 28, 3qio pricing-app 1, ohj8 missing public API 7, s50y src/types 1, 3a3v dead slices 12+). CI workflow .github/workflows/fsd-lint.yml created. Pre-commit hook steiger-staged.sh added. ESLint cross-reference comment + AGENTS.md FSD section documented. All rules start at warn to surface debt without blocking; cluster-by-cluster tightening deferred to follow-up plans. Worktree phase-44-hardening merged to dev and removed; HEAD=a9c900a. Phase 44-02 TBD (monitoring infra plan) is next; UI-SPEC carry-forward contract covers any touched UI surfaces across 44-02..44-08+.'
 last_updated: '2026-06-16T00:00:00.000Z'
 progress:
-  total_phases: 46
+  total_phases: 47
   completed_phases: 39
   total_plans: 107
   completed_plans: 100
-  percent: 85
+  percent: 83
 ---
 
 # Project State
+
 ## Current Position
 
 Phase: 45 (Anchor Tenant Features) — Context gathered. Ready for planning.
@@ -334,6 +335,12 @@ Phase: 45 (Anchor Tenant Features) — Context gathered. Ready for planning.
 | Phase 36-survey-builder P02            | 11min  | 3 tasks  | 7 files  |
 | Phase 31 P02                           | 281m   | 2 tasks  | 8 files  |
 | Phase 31 P03                           | 12min  | 2 tasks  | 4 files  |
+
+## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 100 added: plan 45
 
 ## A01 Execution Decisions
 
