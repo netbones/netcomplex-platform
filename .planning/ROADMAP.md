@@ -983,6 +983,20 @@ Plans:
 
 ---
 
+## Phase 101: Soft Deletes
+
+**Goal:** Add `deletedAt` timestamp columns across all entities for systematic soft-delete support, with query filters that exclude soft-deleted records by default and audit logging on delete.
+
+**Depends on:** Phase 99
+**Plans:** 0 plans
+**Context:** Gathered 2026-06-17. 18 decisions captured in 101-CONTEXT.md.
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 101 to break down)
+
+---
+
 ## Phase 99: Build Fix
 
 **Goal:** Fix build errors caused by the multi-tenant refactor — broken import paths in 6 API routes, centralize imports via `@/lib/db`, inline Drizzle table definitions for non-generated tables
