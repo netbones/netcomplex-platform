@@ -12,6 +12,8 @@ interface SpaceLauncherProps {
   onToggleCollapse: () => void;
 }
 
+import { useEffect, useState } from 'react';
+
 export function SpaceLauncher({
   spaces,
   activeSpaceId,
@@ -20,6 +22,10 @@ export function SpaceLauncher({
   onToggleCollapse,
 }: SpaceLauncherProps) {
   const { t } = useTranslation();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <nav
@@ -47,8 +53,8 @@ export function SpaceLauncher({
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
               aria-current={isActive ? 'page' : undefined}
-              aria-label={collapsed ? label : undefined}
-              title={collapsed ? label : undefined}
+              aria-label={mounted && collapsed ? label : undefined}
+              title={mounted && collapsed ? label : undefined}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
               {!collapsed && <span className="text-sm font-medium truncate">{label}</span>}
