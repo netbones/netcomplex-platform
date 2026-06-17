@@ -120,11 +120,11 @@ export async function GET(request: Request) {
   // Now fetch related data for each user
   const userIds = userResults.map(u => u.id);
 
-  // Batch: fetch all related data in 4 queries instead of N*4
+  // Batch: fetch all related data sequentially to avoid connection pool exhaustion
   const [allSeats, allSoloSeats, allPremiumSeats, allProfiles] =
     userIds.length > 0
-      ? await Promise.all([
-          db
+      ? [
+          await db
             .select({
               userId: standardSeats.userId,
               property: {
@@ -139,7 +139,7 @@ export async function GET(request: Request) {
             .from(standardSeats)
             .innerJoin(properties, eq(standardSeats.propertyId, properties.id))
             .where(inArray(standardSeats.userId, userIds)),
-          db
+          await db
             .select({
               userId: soloSeats.userId,
               property: {
@@ -154,7 +154,7 @@ export async function GET(request: Request) {
             .from(soloSeats)
             .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
             .where(inArray(soloSeats.userId, userIds)),
-          db
+          await db
             .select({
               userId: premiumSeats.userId,
               id: premiumSeats.id,
@@ -165,7 +165,7 @@ export async function GET(request: Request) {
             })
             .from(premiumSeats)
             .where(inArray(premiumSeats.userId, userIds)),
-          db
+          await db
             .select({
               userId: profiles.userId,
               householdId: profiles.householdId,
@@ -191,7 +191,7 @@ export async function GET(request: Request) {
                 eq(profiles.status, 'ACTIVE' as const)
               )
             ),
-        ])
+        ]
       : [[], [], [], []];
 
   const usersWithRelations = userResults.map(user => ({
