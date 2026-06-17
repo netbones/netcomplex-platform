@@ -17,16 +17,16 @@ progress:
 
 ## Current Position
 
-Phase: 45 (Anchor Tenant Features) — Context gathered. Ready for planning.
+Phase: 101 (Soft Deletes) — Context gathered. Ready for planning.
 
-- **Phase:** Phase 45 (Anchor Tenant Features) — renamed from "M5b Soak & Launch". 7-day production soak deferred to its own phase (not ready yet). 4 features: Community Merits, OTP reset, i18n batch, Tiptap i18n.
-- **Status:** Context gathered 2026-06-16. 9 implementation decisions captured in 45-CONTEXT.md. Execution order: OTP → Merits → i18n → Tiptap. No existing plans.
-- **Next Step:** Run `/gsd-plan-phase 45` to create plans starting with Plan 45-01 (OTP password reset).
-- **7-day soak:** Deferred to its own phase. The repositioning to M5b was premature — user prefers to decide when the system is actually stable.
+- **Phase:** Phase 101 (Soft Deletes) — Add `deletedAt` timestamp columns across all domain entities for systematic soft-delete support.
+- **Status:** Context gathered 2026-06-17. 18 implementation decisions captured in 101-CONTEXT.md. Pattern: `deletedAt` timestamp. Scope: domain entities only. Query wrapper helper for filtering.
+- **Next Step:** Run `/gsd-plan-phase 101` to create plans.
+- **Phase 45 (Anchor Tenant Features):** Context gathered. 9 decisions captured. Ready for planning when resources available.
 
-**Last Session:** 2026-06-16T00:00:00.000Z
-**Stopped at:** Phase 45 (Anchor Tenant Features) — Context gathered. Phase renamed from "M5b Soak & Launch" (soak deferred to its own phase). 4 features scoped: OTP reset, Community Merits, i18n batch, Tiptap i18n. Execution order locked: OTP → Merits → i18n → Tiptap. Ready for `/gsd-plan-phase 45`.
-**Resume file:** .planning/phases/45-m5b-anchor-tenant/45-CONTEXT.md
+**Last Session:** 2026-06-17T00:00:00.000Z
+**Stopped at:** Phase 101 (Soft Deletes) — Context gathered. Phase renamed from "M5b Soak & Launch" (soak deferred to its own phase). 4 features scoped: OTP reset, Community Merits, i18n batch, Tiptap i18n. Execution order locked: OTP → Merits → i18n → Tiptap. Ready for `/gsd-plan-phase 45`.
+**Resume file:** .planning/phases/101-soft-deletes/101-CONTEXT.md
 
 ## Active Phase Decisions
 
@@ -341,6 +341,7 @@ Phase: 45 (Anchor Tenant Features) — Context gathered. Ready for planning.
 ### Roadmap Evolution
 
 - Phase 100 added: plan 45
+- Phase 101 added: soft deletes
 
 ## A01 Execution Decisions
 
