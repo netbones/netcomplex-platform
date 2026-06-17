@@ -136,12 +136,28 @@ model Content {
   copyrightHolder  String?
   moderationStatus ModerationStatus  @default(DRAFT)
   viewCount        Int               @default(0)
+  commentsEnabled  Boolean           @default(false)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @default(now()) @updatedAt
   publishedAt      DateTime?
   expiresAt        DateTime?
   user             user?             @relation(fields: [authorId], references: [id])
   Group            Group?            @relation(fields: [groupId], references: [id])
+  likes            ContentLike[]
+}
+
+model ContentLike {
+  id        String   @id
+  tenantId  String
+  contentId String
+  userId    String
+  createdAt DateTime @default(now())
+  content   Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([contentId, userId])
+  @@index([contentId])
+  @@index([userId])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -1026,6 +1042,7 @@ model user {
   Booking                                               Booking[]
   CompetitionEntry                                      CompetitionEntry[]
   Content                                               Content[]
+  ContentLike                                           ContentLike[]
   EventAttendee                                         EventAttendee[]
   ConversationParticipant                               ConversationParticipant[]
   Group                                                 Group[]

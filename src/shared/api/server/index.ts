@@ -52,6 +52,7 @@ export {
   resourceVersions,
   competitions,
   competitionEntries,
+  contentLikes,
   maintenanceTeams,
   serviceProviders,
   maintenanceCategories,

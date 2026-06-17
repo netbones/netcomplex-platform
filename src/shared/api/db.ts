@@ -48,6 +48,7 @@ import { soloSeats } from '@schema/solo-seats';
 import { properties } from '@schema/properties';
 import { households } from '@schema/households';
 import { premiumSeats } from '@schema/premium-seats';
+import { contentLikes } from '@schema/content-likes';
 import { contents } from '@schema/contents';
 import { propertyListings } from '@schema/property-listings';
 import { communityServiceListings } from '@schema/community-service-listings';
@@ -109,6 +110,7 @@ const dbSchema = {
   properties,
   households,
   premiumSeats,
+  contentLikes,
   contents,
   propertyListings,
   communityServiceListings,
@@ -266,6 +268,7 @@ export {
   properties,
   households,
   premiumSeats,
+  contentLikes,
   contents,
   propertyListings,
   communityServiceListings,

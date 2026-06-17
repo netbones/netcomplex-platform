@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Breadcrumbs, ErrorBoundary, RichTextRenderer } from '@shared/ui';
+import { ContentEngagementBar } from '@features/content';
 import { createComponentLogger } from '@shared/lib';
 import { usePageLoading } from '@shared/ui';
 
@@ -67,6 +68,8 @@ export default function NewsPostPage() {
   const [post, setPost] = useState<ContentItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
@@ -82,13 +85,24 @@ export default function NewsPostPage() {
 
     const fetchPost = async () => {
       try {
-        const res = await fetch(`/api/content/${id}?published=true`);
-        if (res.ok) {
-          const body = await res.json();
+        const [postRes, likeRes] = await Promise.all([
+          fetch(`/api/content/${id}?published=true`),
+          fetch(`/api/content/${id}/like`),
+        ]);
+
+        if (postRes.ok) {
+          const body = await postRes.json();
           const data = body?.data ?? body;
           setPost(data);
         } else {
           setError('Post not found');
+        }
+
+        if (likeRes.ok) {
+          const body = await likeRes.json();
+          const data = body?.data ?? body;
+          setLiked(data.liked);
+          setLikeCount(data.likes);
         }
       } catch (err) {
         log.error({}, 'Failed to fetch post', err);
@@ -185,6 +199,13 @@ export default function NewsPostPage() {
 
           {/* Content */}
           <RichTextRenderer content={post.content} className="mb-8" />
+
+          <ContentEngagementBar
+            contentId={post.id}
+            initialLiked={liked}
+            likeCount={likeCount}
+            className="mb-6"
+          />
 
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
