@@ -376,6 +376,21 @@ export interface SettingInput {
 }
 
 // ---------------------------------------------------------------------------
+// Announcements
+// ---------------------------------------------------------------------------
+
+export interface AnnouncementInput {
+  id: string;
+  title: { en: string };
+  content: string;
+  author: string;
+  priority?: 'urgent' | 'high' | 'normal' | 'low';
+  targetFilter?: 'ALL' | 'OWNERS_ONLY' | 'RENTERS_ONLY';
+  targetRoles?: string[];
+  expiresAt?: Date;
+}
+
+// ---------------------------------------------------------------------------
 // Aggregate
 // ---------------------------------------------------------------------------
 
@@ -408,4 +423,5 @@ export interface TenantSeedData {
   serviceProviders: ServiceProviderInput[];
   maintenanceRequests: MaintenanceRequestInput[];
   settings: SettingInput[];
+  announcements?: AnnouncementInput[];
 }

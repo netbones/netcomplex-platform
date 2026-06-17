@@ -38,6 +38,7 @@ import { maintenanceTeams } from '@schema/maintenance-teams';
 import { serviceProviders } from '@schema/service-providers';
 import { maintenanceRequests } from '@schema/maintenance-requests';
 import { settings } from '@schema/settings';
+import { announcements } from '@schema/announcements';
 
 import type { TenantSeedData } from './seed-data/types';
 import { withTenantPrefix, withTenantId, newTenantId } from './seed-data/builder';
@@ -402,6 +403,30 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
     await db.insert(settings).values(s).onConflictDoNothing();
   }
   console.log(`  ✓ ${settingRows.length} settings`);
+
+  // Announcements
+  console.log('Announcements...');
+  const annRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.announcements ?? []))
+  ).map(a => ({
+    ...a,
+    priority: a.priority ?? 'normal',
+    targetFilter: a.targetFilter ?? 'ALL',
+    targetRoles: (a.targetRoles ?? ['RESIDENT']) as (
+      | 'RESIDENT'
+      | 'BOARD'
+      | 'ADMIN'
+      | 'COMMITTEE'
+      | 'AGENT'
+      | 'GROUP_ADMIN'
+      | 'MANAGER'
+      | 'ASSOCIATE'
+    )[],
+  }));
+  for (const a of annRows) {
+    await db.insert(announcements).values(a).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${annRows.length} announcements`);
 
   console.log(`\n✅ ${data.tenant.name} seeded.\n`);
 }
