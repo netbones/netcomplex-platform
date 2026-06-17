@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@api/client';
 import { Breadcrumbs, ErrorBoundary, TagCloud, RichTextRenderer } from '@shared/ui';
+import { ContentEngagementBar } from '@features/content';
 import { createComponentLogger } from '@shared/lib';
 import { sanitizeHtml } from '@/shared/lib/sanitize';
 import { DirectoryChatModal } from '@/features/directory/ui/DirectoryChatModal';
@@ -408,6 +409,7 @@ function ProfileContent() {
                           content={content.content}
                           className="prose prose-sm max-w-none content-body mb-3"
                         />
+                        <ContentEngagementBar contentId={content.id} className="mb-2" />
                         <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
                           <div className="flex items-center gap-3">
                             <span className="text-xs text-gray-500">
