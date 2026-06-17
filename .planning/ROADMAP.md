@@ -985,15 +985,23 @@ Plans:
 
 ## Phase 101: Soft Deletes
 
-**Goal:** Add `deletedAt` timestamp columns across all entities for systematic soft-delete support, with query filters that exclude soft-deleted records by default and audit logging on delete.
+**Goal:** Add `deletedAt` timestamp columns across all domain entities for systematic soft-delete support, with `notDeleted()` query wrapper that excludes soft-deleted records by default, and a 90-day auto-purge background job. Migrate `Message.isDeleted` → `deletedAt`, replace 5 `@unique` constraints with partial unique indexes (`WHERE deletedAt IS NULL`), fix Group hard-delete bug, and remove maintenance conditional soft-delete branching.
 
 **Depends on:** Phase 99
-**Plans:** 0 plans
+**Plans:** 3 plans in 2 waves
 **Context:** Gathered 2026-06-17. 18 decisions captured in 101-CONTEXT.md.
+
+**Requirements:** (none — all 18 CONTEXT.md decisions serve as requirements)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 101 to break down)
+| Wave | Plan               | Objective                                                                                                                                                                                                                 |
+| ---- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | [ ] 101-01-PLAN.md | Schema foundation: `deletedAt` on 25 models, `Message.isDeleted→deletedAt`, 5 partial unique indexes, `notDeleted()` helper, migration DDL                                                                                |
+| 2    | [ ] 101-02-PLAN.md | Primary entity route conversions (13 route files) + surveys                                                                                                                                                               |
+| 2    | [ ] 101-03-PLAN.md | Secondary entity route conversions + stats filtering + `/api/purge` cron endpoint                                                                                                                                         |
+| 2    | [ ] 101-02-PLAN.md | Primary entity route conversions: DELETE→soft-delete, GET `notDeleted()`, PATCH 410 guard (content, groups, events, bookings, resources, competitions, announcements, messages, community-services, maintenance entities) |
+| 2    | [ ] 101-03-PLAN.md | Secondary entity routes + stats filtering + auto-purge cron endpoint (households, invitations, membership-requests, notifications, stats, /api/purge)                                                                     |
 
 ---
 

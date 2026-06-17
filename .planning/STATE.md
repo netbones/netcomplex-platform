@@ -20,8 +20,8 @@ progress:
 Phase: 101 (Soft Deletes) — Context gathered. Ready for planning.
 
 - **Phase:** Phase 101 (Soft Deletes) — Add `deletedAt` timestamp columns across all domain entities for systematic soft-delete support.
-- **Status:** Context gathered 2026-06-17. 18 implementation decisions captured in 101-CONTEXT.md. Pattern: `deletedAt` timestamp. Scope: domain entities only. Query wrapper helper for filtering.
-- **Next Step:** Run `/gsd-plan-phase 101` to create plans.
+- **Status:** Plans created 2026-06-17. 3 plans in 2 waves: 101-01 (schema/migration), 101-02 (primary route conversions), 101-03 (secondary routes + stats + purge cron). All plan review findings resolved.
+- **Next Step:** Run `/gsd-execute-phase 101` to execute plans.
 - **Phase 45 (Anchor Tenant Features):** Context gathered. 9 decisions captured. Ready for planning when resources available.
 
 **Last Session:** 2026-06-17T00:00:00.000Z
