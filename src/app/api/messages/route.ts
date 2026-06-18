@@ -23,7 +23,7 @@ import { apiLogger } from '@shared/lib';
 
 // Drizzle imports - use db.ts exports
 
-import { eq, and, or, isNull, gt, lt, asc } from 'drizzle-orm';
+import { eq, and, or, isNull, isNotNull, gt, lt, asc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { sanitizeHtml } from '@/shared/lib/sanitize/server';
 
@@ -113,7 +113,7 @@ export async function GET(request: Request) {
       mediaUrl: messages.mediaUrl,
       createdAt: messages.createdAt,
       expiresAt: messages.expiresAt,
-      isDeleted: messages.isDeleted,
+      deletedAt: messages.deletedAt,
       sender: {
         id: users.id,
         name: users.name,
@@ -125,7 +125,7 @@ export async function GET(request: Request) {
     .where(
       and(
         eq(messages.conversationId, conversationId),
-        eq(messages.isDeleted, false),
+        isNull(messages.deletedAt),
         or(isNull(messages.expiresAt), gt(messages.expiresAt, new Date()))
       )
     )
@@ -260,7 +260,7 @@ export async function DELETE(request: Request) {
     // Drizzle delete for expired messages
     const expiredMessages = await db
       .delete(messages)
-      .where(or(lt(messages.expiresAt, new Date()), eq(messages.isDeleted, true)))
+      .where(or(lt(messages.expiresAt, new Date()), isNotNull(messages.deletedAt)))
       .returning({ id: messages.id });
 
     revalidateConversations();

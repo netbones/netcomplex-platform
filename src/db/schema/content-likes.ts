@@ -6,4 +6,5 @@ export const contentLikes = pgTable('ContentLike', {
   contentId: text('contentId').notNull(),
   userId: text('userId').notNull(),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
 });

@@ -16,6 +16,7 @@ export const invitations = pgTable('invitation', {
   status: invitationStatusEnum('status').default('PENDING').notNull(),
   expiresAt: timestamp('expiresAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
   organizationId: text('organizationId').notNull(),
   inviterId: text('inviterId').notNull(),
 });

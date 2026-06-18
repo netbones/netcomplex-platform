@@ -80,7 +80,7 @@ export async function GET(request: Request) {
           type: messages.type,
           createdAt: messages.createdAt,
           expiresAt: messages.expiresAt,
-          isDeleted: messages.isDeleted,
+          deletedAt: messages.deletedAt,
           mediaUrl: messages.mediaUrl,
         })
         .from(messages)
