@@ -28,4 +28,5 @@ export const contents = pgTable('Content', {
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   publishedAt: timestamp('publishedAt', { mode: 'date', precision: 3 }),
   expiresAt: timestamp('expiresAt', { mode: 'date', precision: 3 }),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
 });

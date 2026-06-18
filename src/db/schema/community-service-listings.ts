@@ -49,4 +49,5 @@ export const communityServiceListings = pgTable('communityServiceListing', {
   locale: text('locale').default('en').notNull(),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
 });

@@ -1,5 +1,38 @@
-import { pgTable, text, decimal, integer, doublePrecision, boolean, timestamp } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  text,
+  decimal,
+  integer,
+  doublePrecision,
+  boolean,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 import { listingTypeEnum } from './listing-type-enum';
 import { listingStatusEnum } from './listing-status-enum';
 
-export const propertyListings = pgTable('propertyListing', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), propertyId: text('propertyId').notNull(), ownerId: text('ownerId').notNull(), listingType: listingTypeEnum('listingType').notNull(), title: text('title').notNull(), description: text('description'), price: decimal('price', { precision: 65, scale: 30 }), currency: text('currency').default('ZAR').notNull(), bedrooms: integer('bedrooms'), bathrooms: integer('bathrooms'), parkingSpaces: integer('parkingSpaces'), gardenSize: doublePrecision('gardenSize'), petFriendly: boolean('petFriendly').default(false).notNull(), status: listingStatusEnum('status').default('DRAFT').notNull(), isPublished: boolean('isPublished').default(false).notNull(), isFeatured: boolean('isFeatured').default(false).notNull(), assignedAgentId: text('assignedAgentId'), marketingBudget: decimal('marketingBudget', { precision: 65, scale: 30 }), featuredUntil: timestamp('featuredUntil', { mode: 'date', precision: 3 }), organizationId: text('organizationId'), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull() });
+export const propertyListings = pgTable('propertyListing', {
+  id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
+  propertyId: text('propertyId').notNull(),
+  ownerId: text('ownerId').notNull(),
+  listingType: listingTypeEnum('listingType').notNull(),
+  title: text('title').notNull(),
+  description: text('description'),
+  price: decimal('price', { precision: 65, scale: 30 }),
+  currency: text('currency').default('ZAR').notNull(),
+  bedrooms: integer('bedrooms'),
+  bathrooms: integer('bathrooms'),
+  parkingSpaces: integer('parkingSpaces'),
+  gardenSize: doublePrecision('gardenSize'),
+  petFriendly: boolean('petFriendly').default(false).notNull(),
+  status: listingStatusEnum('status').default('DRAFT').notNull(),
+  isPublished: boolean('isPublished').default(false).notNull(),
+  isFeatured: boolean('isFeatured').default(false).notNull(),
+  assignedAgentId: text('assignedAgentId'),
+  marketingBudget: decimal('marketingBudget', { precision: 65, scale: 30 }),
+  featuredUntil: timestamp('featuredUntil', { mode: 'date', precision: 3 }),
+  organizationId: text('organizationId'),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
+});
