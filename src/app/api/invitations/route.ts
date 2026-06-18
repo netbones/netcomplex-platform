@@ -11,7 +11,7 @@ import {
   templates,
 } from '@api/server';
 
-import { eq, desc } from 'drizzle-orm';
+import { eq, and, isNull, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { apiLogger } from '@shared/lib';
 
@@ -22,7 +22,7 @@ export async function GET() {
   const invitationList = await db
     .select()
     .from(invitations)
-    .where(eq(invitations.tenantId, tenantId))
+    .where(and(eq(invitations.tenantId, tenantId), isNull(invitations.deletedAt)))
     .orderBy(desc(invitations.createdAt));
   return apiSuccess(invitationList);
 }

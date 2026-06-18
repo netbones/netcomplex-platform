@@ -16,7 +16,7 @@ import {
   apiValidationError,
 } from '@api/server';
 
-import { eq, and, desc, lte, gte, inArray, sql } from 'drizzle-orm';
+import { eq, and, desc, lte, gte, inArray, isNull, sql } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
@@ -86,7 +86,7 @@ export async function GET(request: Request) {
   const now = new Date();
 
   // Build conditions array
-  const conditions = [eq(announcements.tenantId, tenantId)];
+  const conditions = [eq(announcements.tenantId, tenantId), isNull(announcements.deletedAt)];
 
   if (priorityParam && validPriorities.includes(priorityParam as AnnouncementPriority)) {
     conditions.push(eq(announcements.priority, priorityParam));

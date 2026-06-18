@@ -17,7 +17,7 @@ import { apiLogger } from '@shared/lib';
 
 // Drizzle imports
 
-import { eq, desc, and, or, sql, ilike, inArray } from 'drizzle-orm';
+import { eq, desc, and, or, sql, ilike, inArray, isNull } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { generateNameSlug } from '@shared/api';
@@ -30,7 +30,11 @@ function resolveLocaleText(
 
   let obj: Record<string, string> | null = null;
   if (typeof value === 'string') {
-    try { obj = JSON.parse(value); } catch { return value; }
+    try {
+      obj = JSON.parse(value);
+    } catch {
+      return value;
+    }
   } else if (typeof value === 'object') {
     obj = value as Record<string, string>;
   }
@@ -75,10 +79,15 @@ export async function GET(request: NextRequest) {
     // If id or slug provided, return single listing
     if (id || slug) {
       const whereCondition = id
-        ? and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+        ? and(
+            eq(communityServiceListings.id, id),
+            eq(communityServiceListings.tenantId, tenantId),
+            isNull(communityServiceListings.deletedAt)
+          )
         : and(
             eq(communityServiceListings.slug, slug!),
-            eq(communityServiceListings.tenantId, tenantId)
+            eq(communityServiceListings.tenantId, tenantId),
+            isNull(communityServiceListings.deletedAt)
           );
       // Drizzle query
       const [listing] = await db
@@ -152,7 +161,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Build where conditions for list query
-    const conditions = [eq(communityServiceListings.tenantId, tenantId)];
+    const conditions = [
+      eq(communityServiceListings.tenantId, tenantId),
+      isNull(communityServiceListings.deletedAt),
+    ];
 
     // For public listing queries, only show published+active.
     // For provider's own listings view, show all statuses.

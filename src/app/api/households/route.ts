@@ -14,7 +14,7 @@ import {
   apiUnauthorized,
 } from '@api/server';
 
-import { eq, and, count, desc } from 'drizzle-orm';
+import { eq, and, count, desc, isNull } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import { logError } from '@shared/lib';
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     const totalResult = await db
       .select({ total: count() })
       .from(households)
-      .where(eq(households.tenantId, tenantId));
+      .where(and(eq(households.tenantId, tenantId), isNull(households.deletedAt)));
 
     const total = totalResult[0]?.total || 0;
 
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
       })
       .from(households)
       .innerJoin(properties, eq(households.propertyId, properties.id))
-      .where(eq(households.tenantId, tenantId))
+      .where(and(eq(households.tenantId, tenantId), isNull(households.deletedAt)))
       .orderBy(desc(households.createdAt))
       .limit(limit)
       .offset(skip);

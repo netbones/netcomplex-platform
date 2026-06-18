@@ -11,7 +11,7 @@ import {
   apiUnauthorized,
 } from '@api/server';
 
-import { eq, and, desc, lte, gte } from 'drizzle-orm';
+import { eq, and, desc, lte, gte, isNull } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
@@ -68,7 +68,8 @@ export async function GET(request: Request) {
           eq(competitions.tenantId, tenantId),
           eq(competitions.status, 'ACTIVE'),
           lte(competitions.startDate, now),
-          gte(competitions.endDate, now)
+          gte(competitions.endDate, now),
+          isNull(competitions.deletedAt)
         )
       )
       .orderBy(desc(competitions.startDate));
@@ -101,7 +102,8 @@ export async function GET(request: Request) {
       .where(
         and(
           eq(competitions.tenantId, tenantId),
-          eq(competitions.status, statusParam as CompetitionStatus)
+          eq(competitions.status, statusParam as CompetitionStatus),
+          isNull(competitions.deletedAt)
         )
       )
       .orderBy(desc(competitions.startDate));
@@ -111,7 +113,7 @@ export async function GET(request: Request) {
     const query = db
       .select()
       .from(competitions)
-      .where(eq(competitions.tenantId, tenantId))
+      .where(and(eq(competitions.tenantId, tenantId), isNull(competitions.deletedAt)))
       .orderBy(desc(competitions.startDate));
 
     competitionItems = await query;

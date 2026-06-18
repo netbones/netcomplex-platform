@@ -15,7 +15,10 @@ export function buildContentConditions(params: {
   groupId?: string | null;
   authorId?: string | null;
 }) {
-  const whereConditions: (SQL<unknown> | undefined)[] = [eq(contents.tenantId, params.tenantId)];
+  const whereConditions: (SQL<unknown> | undefined)[] = [
+    eq(contents.tenantId, params.tenantId),
+    isNull(contents.deletedAt),
+  ];
 
   if (params.category && params.category in (ContentCategoryEnum as Record<string, string>)) {
     whereConditions.push(eq(contents.category, params.category as ContentCategory));

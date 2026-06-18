@@ -115,7 +115,7 @@ export async function GET(request: Request) {
   const categoryFilter = categoryParam ? eq(resources.category, categoryParam as never) : undefined;
 
   // Build combined WHERE clause
-  const conditions = [eq(resources.tenantId, tenantId)];
+  const conditions = [eq(resources.tenantId, tenantId), isNull(resources.deletedAt)];
   if (visibilityFilter) conditions.push(visibilityFilter);
   if (adminVisibilityFilter) conditions.push(adminVisibilityFilter);
   if (categoryFilter) conditions.push(categoryFilter);

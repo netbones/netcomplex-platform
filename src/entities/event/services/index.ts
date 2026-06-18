@@ -1,6 +1,6 @@
 import { db, events } from '@api/server';
 
-import { eq, and, desc, asc, gte } from 'drizzle-orm';
+import { eq, and, desc, asc, gte, isNull } from 'drizzle-orm';
 
 /**
  * Lists events for a tenant with optional filtering.
@@ -11,7 +11,9 @@ export async function listEvents(params: { tenantId: string; limit?: number; upc
     const query = db
       .select()
       .from(events)
-      .where(and(eq(events.tenantId, params.tenantId), gte(events.date, now)))
+      .where(
+        and(eq(events.tenantId, params.tenantId), gte(events.date, now), isNull(events.deletedAt))
+      )
       .orderBy(asc(events.date));
     return params.limit ? query.limit(params.limit) : query;
   }
@@ -19,7 +21,7 @@ export async function listEvents(params: { tenantId: string; limit?: number; upc
   const query = db
     .select()
     .from(events)
-    .where(eq(events.tenantId, params.tenantId))
+    .where(and(eq(events.tenantId, params.tenantId), isNull(events.deletedAt)))
     .orderBy(desc(events.date));
 
   return params.limit ? query.limit(params.limit) : query;

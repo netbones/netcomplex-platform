@@ -9,7 +9,7 @@ import {
 
 import { withTenant } from '@entities/tenant/server';
 
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, isNull, desc } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const isActiveFilter = searchParams.get('isActive');
 
-  const conditions = [eq(serviceProviders.tenantId, tenantId)];
+  const conditions = [eq(serviceProviders.tenantId, tenantId), isNull(serviceProviders.deletedAt)];
 
   if (isActiveFilter === 'true') {
     conditions.push(eq(serviceProviders.isActive, true));
