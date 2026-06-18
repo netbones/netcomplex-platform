@@ -5,7 +5,7 @@ import {
   premiumSeats,
   properties,
   propertyListings,
-  propertiesTopremiumSeats,
+  propertyPremiumSeats,
   apiError,
   apiForbidden,
   apiInternalError,
@@ -35,8 +35,8 @@ export async function GET(request: NextRequest) {
     const linkedProperties = await db
       .select({ id: properties.id })
       .from(properties)
-      .innerJoin(propertiesTopremiumSeats, eq(properties.id, propertiesTopremiumSeats.B))
-      .innerJoin(premiumSeats, eq(premiumSeats.id, propertiesTopremiumSeats.A))
+      .innerJoin(propertyPremiumSeats, eq(properties.id, propertyPremiumSeats.propertyId))
+      .innerJoin(premiumSeats, eq(premiumSeats.id, propertyPremiumSeats.premiumSeatId))
       .where(and(eq(premiumSeats.userId, session.user.id), eq(premiumSeats.tenantId, tenantId)));
 
     if (!linkedProperties.length) {

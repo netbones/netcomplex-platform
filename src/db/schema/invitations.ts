@@ -3,7 +3,7 @@ import { residencyTypeEnum } from './residency-type-enum';
 import { roleEnum } from './role-enum';
 import { invitationStatusEnum } from './invitation-status-enum';
 
-export const invitations = pgTable('invitation', {
+export const invitations = pgTable('Invitation', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),
   email: text('email').notNull(),

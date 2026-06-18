@@ -12,7 +12,7 @@ import { providerTypeEnum } from './provider-type-enum';
 import { priceTypeEnum } from './price-type-enum';
 import { listingStatusEnum } from './listing-status-enum';
 
-export const communityServiceListings = pgTable('communityServiceListing', {
+export const communityServiceListings = pgTable('CommunityServiceListing', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),
   providerId: text('providerId').notNull(),

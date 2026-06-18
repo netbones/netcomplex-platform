@@ -1,6 +1,6 @@
 import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core';
 
-export const albums = pgTable('album', {
+export const albums = pgTable('Album', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),
   userId: text('userId').notNull(),

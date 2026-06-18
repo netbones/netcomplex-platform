@@ -70,21 +70,21 @@ export const usersRelations = relations(users, helpers => ({
     relationName: 'agentAccess_grantedByIdTouser',
   }),
   agentProfile: helpers.one(agentProfiles),
-  album: helpers.many(albums, { relationName: 'albumTouser' }),
+  album: helpers.many(albums, { relationName: 'AlbumTouser' }),
   communityServiceInquiry: helpers.many(communityServiceInquiries, {
-    relationName: 'communityServiceInquiryTouser',
+    relationName: 'CommunityServiceInquiryTouser',
   }),
   communityServiceListing: helpers.many(communityServiceListings, {
-    relationName: 'communityServiceListingTouser',
+    relationName: 'CommunityServiceListingTouser',
   }),
   communityServiceReview: helpers.many(communityServiceReviews, {
-    relationName: 'communityServiceReviewTouser',
+    relationName: 'CommunityServiceReviewTouser',
   }),
-  invitation: helpers.many(invitations, { relationName: 'invitationTouser' }),
-  member: helpers.many(members, { relationName: 'memberTouser' }),
+  invitation: helpers.many(invitations, { relationName: 'InvitationTouser' }),
+  member: helpers.many(members, { relationName: 'MemberTouser' }),
   passkey: helpers.many(passkeys, { relationName: 'passkeyTouser' }),
   platformSuspension: helpers.many(platformSuspensions, {
-    relationName: 'platformSuspensionTouser',
+    relationName: 'PlatformSuspensionTouser',
   }),
   premiumSeat: helpers.one(premiumSeats),
   profile_profile_landlordIdTouser: helpers.many(profiles, {
@@ -98,7 +98,7 @@ export const usersRelations = relations(users, helpers => ({
     relationName: 'propertyListing_ownerIdTouser',
   }),
   session: helpers.many(sessions, { relationName: 'sessionTouser' }),
-  soloSeat: helpers.many(soloSeats, { relationName: 'soloSeatTouser' }),
-  standardSeat: helpers.many(standardSeats, { relationName: 'standardSeatTouser' }),
+  soloSeat: helpers.many(soloSeats, { relationName: 'SoloSeatTouser' }),
+  standardSeat: helpers.many(standardSeats, { relationName: 'StandardSeatTouser' }),
   twoFactor: helpers.many(twoFactors, { relationName: 'twoFactorTouser' }),
 }));

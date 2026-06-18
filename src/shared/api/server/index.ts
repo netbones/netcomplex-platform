@@ -30,7 +30,7 @@ export {
   maintenanceRequests,
   notifications,
   agentProfiles,
-  propertiesTopremiumSeats,
+  propertyPremiumSeats,
   verifications,
   accounts,
   sessions,

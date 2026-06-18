@@ -134,7 +134,7 @@ vi.mock('@api/server', () => ({
     updatedAt: 'updatedAt',
     tenantId: 'tenantId',
   },
-  propertiesTopremiumSeats: { A: 'A', B: 'B' },
+  propertyPremiumSeats: { propertyId: 'propertyId', premiumSeatId: 'premiumSeatId' },
   households: {
     id: 'id',
     tenantId: 'tenantId',

@@ -3,7 +3,7 @@ import { householdRoleEnum } from './household-role-enum';
 import { profileStatusEnum } from './profile-status-enum';
 import { residencyTypeEnum } from './residency-type-enum';
 
-export const profiles = pgTable('profile', {
+export const profiles = pgTable('Profile', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),
   householdId: text('householdId').notNull(),

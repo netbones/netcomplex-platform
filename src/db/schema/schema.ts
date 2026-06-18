@@ -44,6 +44,7 @@ import * as organizations from './organizations';
 import * as passkeys from './passkeys';
 import * as platformSuspensions from './platform-suspensions';
 import * as premiumSeats from './premium-seats';
+import * as propertyPremiumSeats from './property-premium-seats';
 import * as profiles from './profiles';
 import * as propertyListings from './property-listings';
 import * as sessions from './sessions';
@@ -97,6 +98,7 @@ import * as organizationsRelations from './organizations-relations';
 import * as passkeysRelations from './passkeys-relations';
 import * as platformSuspensionsRelations from './platform-suspensions-relations';
 import * as premiumSeatsRelations from './premium-seats-relations';
+import * as propertyPremiumSeatsRelations from './property-premium-seats-relations';
 import * as profilesRelations from './profiles-relations';
 import * as propertyListingsRelations from './property-listings-relations';
 import * as sessionsRelations from './sessions-relations';
@@ -106,8 +108,6 @@ import * as twoFactorsRelations from './two-factors-relations';
 import * as usersRelations from './users-relations';
 import * as resourcesRelations from './resources-relations';
 import * as resourceVersionsRelations from './resource-versions-relations';
-import * as propertiesTopremiumSeats from './properties-topremium-seats';
-import * as propertiesTopremiumSeatsRelations from './properties-topremium-seats-relations';
 
 export const schema = {
   ...platformModules,
@@ -156,6 +156,7 @@ export const schema = {
   ...passkeys,
   ...platformSuspensions,
   ...premiumSeats,
+  ...propertyPremiumSeats,
   ...profiles,
   ...propertyListings,
   ...sessions,
@@ -209,6 +210,7 @@ export const schema = {
   ...passkeysRelations,
   ...platformSuspensionsRelations,
   ...premiumSeatsRelations,
+  ...propertyPremiumSeatsRelations,
   ...profilesRelations,
   ...propertyListingsRelations,
   ...sessionsRelations,
@@ -218,6 +220,4 @@ export const schema = {
   ...usersRelations,
   ...resourcesRelations,
   ...resourceVersionsRelations,
-  ...propertiesTopremiumSeats,
-  ...propertiesTopremiumSeatsRelations,
 };

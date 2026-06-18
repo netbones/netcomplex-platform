@@ -2,7 +2,7 @@ import { pgTable, text, timestamp, boolean, decimal } from 'drizzle-orm/pg-core'
 import { agentAccessLevelEnum } from './agent-access-level-enum';
 import { agentPermissionEnum } from './agent-permission-enum';
 
-export const agentAccesses = pgTable('agentAccess', {
+export const agentAccesses = pgTable('AgentAccess', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),
   agentId: text('agentId').notNull(),

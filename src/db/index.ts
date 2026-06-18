@@ -28,7 +28,7 @@ export * from '@schema/platform-suspensions';
 export * from '@schema/premium-seats';
 export * from '@schema/properties';
 export * from '@schema/property-listings';
-export * from '@schema/properties-topremium-seats';
+export * from '@schema/property-premium-seats';
 export * from '@schema/profiles';
 export * from '@schema/questions';
 export * from '@schema/responses';

@@ -8,6 +8,24 @@ import { agentAccesses } from './agent-accesses';
 import { propertyListings } from './property-listings';
 import { soloSeats } from './solo-seats';
 import { standardSeats } from './standard-seats';
-import { propertiesTopremiumSeats } from './properties-topremium-seats';
+import { propertyPremiumSeats } from './property-premium-seats';
 
-export const propertiesRelations = relations(properties, (helpers) => ({ Booking: helpers.many(bookings, { relationName: 'BookingToProperty' }), households: helpers.many(households, { relationName: 'HouseholdToProperty' }), MaintenanceRequest: helpers.many(maintenanceRequests, { relationName: 'MaintenanceRequestToProperty' }), owner: helpers.one(users, { relationName: 'PropertyOwner', fields: [ properties.ownerId ], references: [ users.id ] }), agentAccess: helpers.many(agentAccesses, { relationName: 'PropertyToagentAccess' }), propertyListing: helpers.many(propertyListings, { relationName: 'PropertyTopropertyListing' }), soloSeat: helpers.many(soloSeats, { relationName: 'PropertyTosoloSeat' }), standardSeat: helpers.many(standardSeats, { relationName: 'PropertyTostandardSeat' }), premiumSeat: helpers.many(propertiesTopremiumSeats) }));
+export const propertiesRelations = relations(properties, helpers => ({
+  Booking: helpers.many(bookings, { relationName: 'BookingToProperty' }),
+  households: helpers.many(households, { relationName: 'HouseholdToProperty' }),
+  MaintenanceRequest: helpers.many(maintenanceRequests, {
+    relationName: 'MaintenanceRequestToProperty',
+  }),
+  owner: helpers.one(users, {
+    relationName: 'PropertyOwner',
+    fields: [properties.ownerId],
+    references: [users.id],
+  }),
+  agentAccess: helpers.many(agentAccesses, { relationName: 'AgentAccessToProperty' }),
+  propertyListing: helpers.many(propertyListings, { relationName: 'PropertyToPropertyListing' }),
+  soloSeat: helpers.many(soloSeats, { relationName: 'PropertyToSoloSeat' }),
+  standardSeat: helpers.many(standardSeats, { relationName: 'PropertyToStandardSeat' }),
+  PropertyPremiumSeat: helpers.many(propertyPremiumSeats, {
+    relationName: 'PropertyToPropertyPremiumSeat',
+  }),
+}));

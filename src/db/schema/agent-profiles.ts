@@ -8,7 +8,7 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core';
 
-export const agentProfiles = pgTable('agentProfile', {
+export const agentProfiles = pgTable('AgentProfile', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),
   agentId: text('agentId').notNull(),

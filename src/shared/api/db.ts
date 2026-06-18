@@ -68,7 +68,7 @@ import { bookings } from '@schema/bookings';
 import { maintenanceRequests } from '@schema/maintenance-requests';
 import { notifications } from '@schema/notifications';
 import { agentProfiles } from '@schema/agent-profiles';
-import { propertiesTopremiumSeats } from '@schema/properties-topremium-seats';
+import { propertyPremiumSeats } from '@schema/property-premium-seats';
 import { verifications } from '@schema/verifications';
 import { accounts } from '@schema/accounts';
 import { sessions } from '@schema/sessions';
@@ -130,7 +130,7 @@ const dbSchema = {
   maintenanceRequests,
   notifications,
   agentProfiles,
-  propertiesTopremiumSeats,
+  propertyPremiumSeats,
   verifications,
   accounts,
   sessions,
@@ -292,7 +292,7 @@ export {
   maintenanceRequests,
   notifications,
   agentProfiles,
-  propertiesTopremiumSeats,
+  propertyPremiumSeats,
   verifications,
   accounts,
   sessions,

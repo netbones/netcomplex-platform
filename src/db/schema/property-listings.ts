@@ -10,7 +10,7 @@ import {
 import { listingTypeEnum } from './listing-type-enum';
 import { listingStatusEnum } from './listing-status-enum';
 
-export const propertyListings = pgTable('propertyListing', {
+export const propertyListings = pgTable('PropertyListing', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),
   propertyId: text('propertyId').notNull(),

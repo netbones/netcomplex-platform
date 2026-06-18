@@ -1,6 +1,15 @@
 import { relations } from 'drizzle-orm';
 import { premiumSeats } from './premium-seats';
 import { users } from './users';
-import { propertiesTopremiumSeats } from './properties-topremium-seats';
+import { propertyPremiumSeats } from './property-premium-seats';
 
-export const premiumSeatsRelations = relations(premiumSeats, (helpers) => ({ user: helpers.one(users, { relationName: 'premiumSeatTouser', fields: [ premiumSeats.userId ], references: [ users.id ] }), properties: helpers.many(propertiesTopremiumSeats) }));
+export const premiumSeatsRelations = relations(premiumSeats, helpers => ({
+  user: helpers.one(users, {
+    relationName: 'PremiumSeatTouser',
+    fields: [premiumSeats.userId],
+    references: [users.id],
+  }),
+  propertyPremiumSeats: helpers.many(propertyPremiumSeats, {
+    relationName: 'PremiumSeatToPropertyPremiumSeat',
+  }),
+}));

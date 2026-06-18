@@ -1,6 +1,6 @@
 import { pgTable, text, integer, timestamp, boolean } from 'drizzle-orm/pg-core';
 
-export const communityServiceReviews = pgTable('communityServiceReview', {
+export const communityServiceReviews = pgTable('CommunityServiceReview', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),
   listingId: text('listingId').notNull(),

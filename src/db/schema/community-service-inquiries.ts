@@ -1,7 +1,7 @@
 import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { inquiryStatusEnum } from './inquiry-status-enum';
 
-export const communityServiceInquiries = pgTable('communityServiceInquiry', {
+export const communityServiceInquiries = pgTable('CommunityServiceInquiry', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),
   listingId: text('listingId').notNull(),

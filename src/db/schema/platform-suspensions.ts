@@ -1,7 +1,7 @@
 import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 import { suspensionTypeEnum } from './suspension-type-enum';
 
-export const platformSuspensions = pgTable('platformSuspension', {
+export const platformSuspensions = pgTable('PlatformSuspension', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),
   userId: text('userId').notNull(),

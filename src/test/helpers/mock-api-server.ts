@@ -68,7 +68,7 @@ export function mockApiServer(overrides: Record<string, unknown> = {}) {
     maintenanceRequests: mockTable('maintenanceRequests'),
     notifications: mockTable('notifications'),
     agentProfiles: mockTable('agentProfiles'),
-    propertiesTopremiumSeats: mockTable('propertiesTopremiumSeats'),
+    propertyPremiumSeats: mockTable('propertyPremiumSeats'),
     verifications: mockTable('verifications'),
     accounts: mockTable('accounts'),
     sessions: mockTable('sessions'),
