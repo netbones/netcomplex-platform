@@ -1,4 +1,4 @@
-export { db, runWithRLS, getRLSContext } from '../db';
+export { db, runWithRLS, getRLSContext, notDeleted } from '../db';
 export type { RLSContext, DbSchema } from '../db';
 export {
   messages,

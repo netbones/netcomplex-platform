@@ -1,9 +1,11 @@
 import 'server-only';
 
-import { sql, eq } from 'drizzle-orm';
+import { sql, eq, isNull } from 'drizzle-orm';
+import type { SQL } from 'drizzle-orm';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import type { SQLWrapper } from 'drizzle-orm';
 
 export type RLSContext = {
   userId: string;
@@ -253,6 +255,10 @@ export async function getRLSContext(request: Request): Promise<RLSContext | null
     role: user.role,
     isPlatformAdmin: user.isPlatformAdmin,
   };
+}
+
+export function notDeleted(table: { deletedAt: unknown }): SQL {
+  return isNull(table.deletedAt as SQLWrapper);
 }
 
 export {
