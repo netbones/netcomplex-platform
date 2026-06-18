@@ -818,12 +818,12 @@ _Harden the codebase to launch-readiness, ship the launch-blocking features: Com
 
 **Goal:** Ship the 4 launch-blocking features for Soralia Village's 180-home rollout. Community Merits drives engagement, i18n drives 4-locale adoption, OTP drives security posture. The 7-day production soak is NOT in this phase — deferred to a separate phase when the system is stable and you're ready for launch verification.
 
-**Status:** Context gathered (discussion informed by Phase 44 hardening progress and prior context)
+**Status:** Planned — 5 plans in 5 waves
 
 **BD sources (4 features = 4 total):**
 
 - `2at` (P2 feature) — Community Merits & Standing System (flagship)
-- `l23` (P2 epic) — i18n for all pages (37-widget batch, prioritized by visibility)
+- `l23` (P2 epic) — i18n for all pages (25+ widget batch, prioritized by visibility)
 - `0f7` (P2 feature) — Tiptap content localization (blocked by l23)
 - `0tb` (P4 feature) — OTP-based password reset
 
@@ -833,13 +833,15 @@ _Harden the codebase to launch-readiness, ship the launch-blocking features: Com
 
 **Dependencies:** l23 blocks 0f7. cs5 (MyHomeSpace) ideally resolved in Phase 44.
 
-**Plans:** TBD. Suggested plan structure:
+**Plans:** 5 plans
 
-- **Plan 45-01:** OTP password reset (Better Auth emailOTP plugin, MailerSend integration)
-- **Plan 45-02:** Community Merits schema + API (behaviorRecord model, standing calculation, event-driven auto-escalation)
-- **Plan 45-03:** Community Merits admin UI + resident badges (admin page, directory + profile standing)
-- **Plan 45-04:** i18n batch for visible widgets (HomeLayer, admin domains, navigation)
-- **Plan 45-05:** Tiptap content localization (after l23 completes)
+| Wave | Plan                                                   | Objective                                                                                                                                                                       | Requirements |
+| ---- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| 1    | [ ] 45-01-PLAN.md — OTP password reset                 | Wire Better Auth emailOTP plugin + OTP verify page + Resend email template                                                                                                      | 0tb          |
+| 2    | [ ] 45-02-PLAN.md — Community Merits schema + API      | behaviorRecord model, Drizzle table, merits helpers, CRUD API with standing calc + auto-escalation                                                                              | 2at          |
+| 3    | [ ] 45-03-PLAN.md — Community Merits admin UI + badges | Admin CRUD pages at /admin/merits, StandingBadge on UnifiedResidentCard + profile, ADMIN_ITEMS/ADMIN_DOMAINS registration                                                       | 2at          |
+| 4    | [ ] 45-04-PLAN.md — i18n batch for visible widgets     | Migrate 24 widget files from useTranslation → useSafeTranslation+tx() — HomeLayer, AdminLayer, SpaceLauncher, MobileSpaceBar, ServicesLayer, MessagesLayer, marketing, platform | l23          |
+| 5    | [ ] 45-05-PLAN.md — Tiptap content localization        | Unsaved-changes warning on locale switch, LocaleAwareEditor integration, per-locale save/load hardening                                                                         | 0f7          |
 
 **Out of scope:** 7-day production soak (deferred to its own phase), dWallet (Phase 47), M4.5 fixes (Phase 43), Phase 44 hardening, M5+ post-launch (Phase 46).
 
