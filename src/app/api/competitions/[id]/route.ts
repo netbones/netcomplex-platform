@@ -9,6 +9,8 @@ import {
   apiNotFound,
   apiSuccess,
   apiUnauthorized,
+  notDeleted,
+  apiGone,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -35,7 +37,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const [competition] = await db
     .select()
     .from(competitions)
-    .where(and(eq(competitions.id, id), eq(competitions.tenantId, tenantId)))
+    .where(
+      and(notDeleted(competitions), eq(competitions.id, id), eq(competitions.tenantId, tenantId))
+    )
     .limit(1);
 
   if (!competition) {
@@ -92,6 +96,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (body.winnersCount !== undefined) updateData.winnersCount = body.winnersCount;
   if (body.maxParticipants !== undefined) updateData.maxParticipants = body.maxParticipants || null;
 
+  const [existing] = await db
+    .select({ deletedAt: competitions.deletedAt })
+    .from(competitions)
+    .where(and(eq(competitions.id, id), eq(competitions.tenantId, tenantId)))
+    .limit(1);
+
+  if (!existing) {
+    return apiNotFound('Not found');
+  }
+
+  if (existing.deletedAt) {
+    return apiGone('This record has been deleted');
+  }
+
   const [competition] = await db
     .update(competitions)
     .set(updateData)
@@ -137,7 +155,8 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const { tenantId } = await withTenant();
 
   const [competition] = await db
-    .delete(competitions)
+    .update(competitions)
+    .set({ deletedAt: new Date(), updatedAt: new Date() })
     .where(and(eq(competitions.id, id), eq(competitions.tenantId, tenantId)))
     .returning();
 

@@ -7,11 +7,13 @@ import {
   communityServiceReviews,
   communityServiceInquiries,
   apiError,
+  apiGone,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
   apiForbidden,
   apiNotFound,
+  notDeleted,
 } from '@api/server';
 
 // Drizzle imports
@@ -72,7 +74,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .from(communityServiceListings)
       .leftJoin(users, eq(communityServiceListings.providerId, users.id))
       .where(
-        and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
+        and(
+          notDeleted(communityServiceListings),
+          eq(communityServiceListings.id, id),
+          eq(communityServiceListings.tenantId, tenantId)
+        )
       )
       .limit(1);
 
@@ -171,7 +177,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     // Check ownership using Drizzle (with tenant filter)
     const [existingListing] = await db
-      .select({ providerId: communityServiceListings.providerId })
+      .select({
+        providerId: communityServiceListings.providerId,
+        deletedAt: communityServiceListings.deletedAt,
+      })
       .from(communityServiceListings)
       .where(
         and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
@@ -180,6 +189,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     if (!existingListing) {
       return apiNotFound('Listing not found');
+    }
+
+    if (existingListing.deletedAt) {
+      return apiGone('This listing has been deleted');
     }
 
     if (existingListing.providerId !== session.user.id) {
@@ -302,9 +315,10 @@ export async function DELETE(
       return apiForbidden('Access denied');
     }
 
-    // Delete with Drizzle (with tenant filter)
+    // Soft-delete with Drizzle (with tenant filter)
     await db
-      .delete(communityServiceListings)
+      .update(communityServiceListings)
+      .set({ deletedAt: new Date(), updatedAt: new Date() })
       .where(
         and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
       );

@@ -259,7 +259,8 @@ export async function DELETE(request: Request) {
   try {
     // Drizzle delete for expired messages
     const expiredMessages = await db
-      .delete(messages)
+      .update(messages)
+      .set({ deletedAt: new Date() })
       .where(or(lt(messages.expiresAt, new Date()), isNotNull(messages.deletedAt)))
       .returning({ id: messages.id });
 

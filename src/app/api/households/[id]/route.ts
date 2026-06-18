@@ -10,10 +10,12 @@ import {
   users,
   apiError,
   apiForbidden,
+  apiGone,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
   apiNotFound,
+  notDeleted,
 } from '@api/server';
 
 import { eq, asc, and } from 'drizzle-orm';
@@ -43,7 +45,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       })
       .from(households)
       .innerJoin(properties, eq(households.propertyId, properties.id))
-      .where(and(eq(households.id, householdId), eq(households.tenantId, tenantId)))
+      .where(
+        and(
+          notDeleted(households),
+          eq(households.id, householdId),
+          eq(households.tenantId, tenantId)
+        )
+      )
       .limit(1);
 
     if (!householdData) {
@@ -283,13 +291,24 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       .select({
         id: households.id,
         propertyId: households.propertyId,
+        deletedAt: households.deletedAt,
       })
       .from(households)
-      .where(and(eq(households.id, householdId), eq(households.tenantId, tenantId)))
+      .where(
+        and(
+          notDeleted(households),
+          eq(households.id, householdId),
+          eq(households.tenantId, tenantId)
+        )
+      )
       .limit(1);
 
     if (!householdData) {
       return apiNotFound('Household not found');
+    }
+
+    if (householdData.deletedAt) {
+      return apiGone('This record has been deleted');
     }
 
     // Check if user is an owner of the property linked to this household

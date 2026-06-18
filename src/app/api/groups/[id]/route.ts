@@ -10,6 +10,8 @@ import {
   apiNotFound,
   apiSuccess,
   apiUnauthorized,
+  notDeleted,
+  apiGone,
 } from '@api/server';
 
 import { eq, and, desc, inArray } from 'drizzle-orm';
@@ -39,7 +41,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       ownerId: groups.ownerId,
     })
     .from(groups)
-    .where(and(eq(groups.id, id), eq(groups.tenantId, tenantId)))
+    .where(and(notDeleted(groups), eq(groups.id, id), eq(groups.tenantId, tenantId)))
     .limit(1);
 
   if (!group) {
@@ -63,7 +65,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       joinedAt: groupMembers.joinedAt,
     })
     .from(groupMembers)
-    .where(eq(groupMembers.groupId, id));
+    .where(and(notDeleted(groupMembers), eq(groupMembers.groupId, id)));
 
   // Get member users (batched — avoids N+1 connection pool exhaustion)
   const memberUserIds = membersList.map(m => m.userId);
@@ -136,6 +138,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
 
+  const [existing] = await db
+    .select({ deletedAt: groups.deletedAt })
+    .from(groups)
+    .where(and(eq(groups.id, id), eq(groups.tenantId, tenantId)))
+    .limit(1);
+
+  if (!existing) {
+    return apiNotFound('Not found');
+  }
+
+  if (existing.deletedAt) {
+    return apiGone('This record has been deleted');
+  }
+
   const [group] = await db
     .update(groups)
     .set({
@@ -178,7 +194,10 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
 
-  await db.delete(groups).where(and(eq(groups.id, id), eq(groups.tenantId, tenantId)));
+  await db
+    .update(groups)
+    .set({ deletedAt: new Date(), updatedAt: new Date() })
+    .where(and(eq(groups.id, id), eq(groups.tenantId, tenantId)));
 
   return apiSuccess({ success: true });
 }

@@ -8,6 +8,8 @@ import {
   apiError,
   apiNotFound,
   apiSuccess,
+  notDeleted,
+  apiGone,
 } from '@api/server';
 
 import { eq, and, or, isNull, lte, gt, type SQL } from 'drizzle-orm';
@@ -95,6 +97,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   // Build where conditions
   const whereConditions: (SQL<unknown> | undefined)[] = [
+    notDeleted(contents),
     eq(contents.id, id),
     eq(contents.tenantId, tenantId),
   ];
@@ -220,6 +223,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     updateData.expiresAt = body.expiresAt ? new Date(body.expiresAt) : null;
   }
 
+  const [existing] = await db
+    .select({ deletedAt: contents.deletedAt })
+    .from(contents)
+    .where(and(eq(contents.id, id), eq(contents.tenantId, tenantId)))
+    .limit(1);
+
+  if (!existing) {
+    return apiNotFound('Not found');
+  }
+
+  if (existing.deletedAt) {
+    return apiGone('This record has been deleted');
+  }
+
   const [content] = await db
     .update(contents)
     .set(updateData)
@@ -238,7 +255,10 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
 
-  await db.delete(contents).where(and(eq(contents.id, id), eq(contents.tenantId, tenantId)));
+  await db
+    .update(contents)
+    .set({ deletedAt: new Date(), updatedAt: new Date() })
+    .where(and(eq(contents.id, id), eq(contents.tenantId, tenantId)));
 
   // Revalidate content caches
   revalidateContent();

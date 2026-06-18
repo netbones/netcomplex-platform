@@ -10,6 +10,8 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiNotFound,
+  notDeleted,
+  apiGone,
 } from '@api/server';
 
 import { eq, desc, and } from 'drizzle-orm';
@@ -96,7 +98,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const [resourceItem] = await db
     .select()
     .from(resources)
-    .where(and(eq(resources.id, id), eq(resources.tenantId, tenantId)));
+    .where(and(notDeleted(resources), eq(resources.id, id), eq(resources.tenantId, tenantId)));
 
   if (!resourceItem) {
     return apiNotFound('Resource not found');
@@ -177,6 +179,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return apiNotFound('Resource not found');
   }
 
+  if (existing.deletedAt) {
+    return apiGone('This record has been deleted');
+  }
+
   // Save version history if file or version changed
   if (body.fileUrl || body.version) {
     const oldFileUrl = body.fileUrl ? existing.fileUrl : undefined;
@@ -239,7 +245,10 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     return apiNotFound('Resource not found');
   }
 
-  await db.delete(resources).where(eq(resources.id, id));
+  await db
+    .update(resources)
+    .set({ deletedAt: new Date(), updatedAt: new Date() })
+    .where(eq(resources.id, id));
 
   revalidateContent();
 

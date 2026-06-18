@@ -1,15 +1,15 @@
 import {
   db,
   maintenanceTeams,
-  maintenanceRequests,
   requireAnyPermission,
   apiSuccess,
   apiNotFound,
+  apiGone,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
 
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 /**
  * PATCH /api/maintenance/teams/[id] - Update a maintenance team
@@ -36,6 +36,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return apiNotFound('Team not found');
   }
 
+  if (existing.deletedAt) {
+    return apiGone('This team has been deleted');
+  }
+
   const body = await request.json();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updates: Record<string, any> = { updatedAt: new Date() };
@@ -55,8 +59,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 /**
- * DELETE /api/maintenance/teams/[id] - Archive (soft-delete) a maintenance team
- * Hard delete only if no active assignments reference this team
+ * DELETE /api/maintenance/teams/[id] - Soft-delete a maintenance team
  */
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -76,30 +79,11 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     return apiNotFound('Team not found');
   }
 
-  // Check for active assignments
-  const [assignmentCount] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(maintenanceRequests)
-    .where(
-      and(
-        eq(maintenanceRequests.assignedTeamId, id),
-        sql`${maintenanceRequests.status} NOT IN ('COMPLETED', 'CANCELLED')`
-      )
-    );
-
-  if (assignmentCount?.count > 0) {
-    // Soft-delete: set isActive = false
-    const [updated] = await db
-      .update(maintenanceTeams)
-      .set({ isActive: false, updatedAt: new Date() })
-      .where(eq(maintenanceTeams.id, id))
-      .returning();
-
-    return apiSuccess({ ...updated, archived: true, activeAssignments: assignmentCount.count });
-  }
-
-  // Hard delete: no active assignments
-  await db.delete(maintenanceTeams).where(eq(maintenanceTeams.id, id));
+  // Soft-delete: set deletedAt
+  await db
+    .update(maintenanceTeams)
+    .set({ deletedAt: new Date(), updatedAt: new Date() })
+    .where(eq(maintenanceTeams.id, id));
 
   return apiSuccess({ success: true, deleted: true });
 }

@@ -6,10 +6,12 @@ import {
   users,
   groups,
   apiError,
+  apiGone,
   apiSuccess,
   apiUnauthorized,
   apiForbidden,
   apiNotFound,
+  notDeleted,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -82,6 +84,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   if (!existingRequest) {
     return apiNotFound('Membership request not found');
+  }
+
+  if (existingRequest.deletedAt) {
+    return apiGone('This record has been deleted');
   }
 
   if (existingRequest.status !== 'PENDING') {

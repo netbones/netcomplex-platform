@@ -9,6 +9,7 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
+  notDeleted,
 } from '@api/server';
 
 import { hasPermission, Permission } from '@shared/lib';
@@ -85,7 +86,7 @@ export async function GET(request: Request) {
     })
     .from(groups)
     .leftJoin(users, eq(groups.ownerId, users.id))
-    .where(and(eq(groups.isActive, true), eq(groups.tenantId, tenantId)))
+    .where(and(notDeleted(groups), eq(groups.isActive, true), eq(groups.tenantId, tenantId)))
     .orderBy(asc(groups.name));
 
   const groupIds = groupList.map(g => g.id);

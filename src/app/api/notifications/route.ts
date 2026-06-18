@@ -5,8 +5,10 @@ import {
   users,
   apiCreated,
   apiError,
+  apiGone,
   apiSuccess,
   apiUnauthorized,
+  notDeleted,
   rateLimitByUser,
   sendEmail,
   templates,
@@ -51,7 +53,13 @@ export async function GET(request: Request) {
   const results = await db
     .select()
     .from(notifications)
-    .where(and(eq(notifications.userId, userId), eq(notifications.tenantId, tenantId)))
+    .where(
+      and(
+        notDeleted(notifications),
+        eq(notifications.userId, userId),
+        eq(notifications.tenantId, tenantId)
+      )
+    )
     .orderBy(desc(notifications.createdAt))
     .limit(50);
 
@@ -131,12 +139,24 @@ export async function PATCH(request: Request) {
     await db
       .update(notifications)
       .set({ read: true })
-      .where(and(eq(notifications.userId, userId), eq(notifications.tenantId, tenantId)));
+      .where(
+        and(
+          notDeleted(notifications),
+          eq(notifications.userId, userId),
+          eq(notifications.tenantId, tenantId)
+        )
+      );
   } else if (body.id) {
     await db
       .update(notifications)
       .set({ read: true })
-      .where(and(eq(notifications.id, body.id), eq(notifications.tenantId, tenantId)));
+      .where(
+        and(
+          notDeleted(notifications),
+          eq(notifications.id, body.id),
+          eq(notifications.tenantId, tenantId)
+        )
+      );
   }
 
   return apiSuccess({ success: true });

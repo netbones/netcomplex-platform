@@ -1,4 +1,4 @@
-import { db, users, groups, contents, apiError, apiSuccess } from '@api/server';
+import { db, users, groups, contents, apiError, apiSuccess, notDeleted } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -20,14 +20,20 @@ export async function GET() {
   const activeGroups = await db
     .select({ id: groups.id })
     .from(groups)
-    .where(and(eq(groups.isActive, true), eq(groups.tenantId, tenantId)));
+    .where(and(eq(groups.isActive, true), eq(groups.tenantId, tenantId), notDeleted(groups)));
   const groupCount = activeGroups.length;
 
   // Count conservation content (using raw category value)
   const conservationContent = await db
     .select({ id: contents.id })
     .from(contents)
-    .where(and(eq(contents.category, 'CONSERVATION'), eq(contents.tenantId, tenantId)));
+    .where(
+      and(
+        eq(contents.category, 'CONSERVATION'),
+        eq(contents.tenantId, tenantId),
+        notDeleted(contents)
+      )
+    );
   const contentCount = conservationContent.length;
 
   const stats = {

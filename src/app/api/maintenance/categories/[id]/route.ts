@@ -1,17 +1,17 @@
 import {
   db,
   maintenanceCategories,
-  maintenanceRequests,
   requireAnyPermission,
   apiSuccess,
   apiNotFound,
+  apiGone,
   apiConflict,
   apiError,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
 
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 /**
  * PATCH /api/maintenance/categories/[id] - Update a maintenance category
@@ -35,6 +35,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   if (!existing) {
     return apiNotFound('Category not found');
+  }
+
+  if (existing.deletedAt) {
+    return apiGone('This category has been deleted');
   }
 
   const body = await request.json();
@@ -65,8 +69,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 /**
- * DELETE /api/maintenance/categories/[id] - Archive (soft-delete) a maintenance category
- * Soft-delete if active requests use this category; hard delete otherwise
+ * DELETE /api/maintenance/categories/[id] - Soft-delete a maintenance category
  */
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -86,31 +89,11 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     return apiNotFound('Category not found');
   }
 
-  // Check for active requests using this category
-  const [requestCount] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(maintenanceRequests)
-    .where(
-      and(
-        eq(maintenanceRequests.tenantId, tenantId),
-        eq(maintenanceRequests.category, existing.value),
-        sql`${maintenanceRequests.status} NOT IN ('COMPLETED', 'CANCELLED')`
-      )
-    );
-
-  if (requestCount?.count > 0) {
-    // Soft-delete: set isActive = false
-    const [updated] = await db
-      .update(maintenanceCategories)
-      .set({ isActive: false })
-      .where(eq(maintenanceCategories.id, id))
-      .returning();
-
-    return apiSuccess({ ...updated, archived: true, activeRequests: requestCount.count });
-  }
-
-  // Hard delete: no active requests reference this category
-  await db.delete(maintenanceCategories).where(eq(maintenanceCategories.id, id));
+  // Soft-delete: set deletedAt
+  await db
+    .update(maintenanceCategories)
+    .set({ deletedAt: new Date() })
+    .where(eq(maintenanceCategories.id, id));
 
   return apiSuccess({ success: true, deleted: true });
 }
