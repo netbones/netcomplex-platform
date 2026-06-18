@@ -96,6 +96,7 @@ model Announcement {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   expiresAt DateTime?
+  deletedAt             DateTime?
   resource Resource? @relation(fields: [resourceId], references: [id])
 }
 
@@ -112,6 +113,7 @@ model Booking {
   status     BookingStatus @default(CONFIRMED)
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @default(now()) @updatedAt
+  deletedAt             DateTime?
   property   Property?     @relation(fields: [propertyId], references: [id])
   user       user          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -141,6 +143,7 @@ model Content {
   updatedAt        DateTime          @default(now()) @updatedAt
   publishedAt      DateTime?
   expiresAt        DateTime?
+  deletedAt             DateTime?
   user             user?             @relation(fields: [authorId], references: [id])
   Group            Group?            @relation(fields: [groupId], references: [id])
   likes            ContentLike[]
@@ -168,6 +171,7 @@ model Conversation {
   type                    ConversationType          @default(DIRECT)
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @default(now()) @updatedAt
+  deletedAt             DateTime?
   ConversationParticipant ConversationParticipant[]
   Message                 Message[]
 }
@@ -206,6 +210,7 @@ model Competition {
   image           String?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+  deletedAt             DateTime?
   entries         CompetitionEntry[]
 
   @@index([tenantId])
@@ -246,6 +251,7 @@ model Event {
   isPublic    Boolean          @default(true)
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @default(now()) @updatedAt
+  deletedAt             DateTime?
   attendees   EventAttendee[]
 
   @@index([tenantId])
@@ -308,6 +314,7 @@ model GroupMembershipRequest {
   message   String?
   createdAt DateTime         @default(now())
   updatedAt DateTime         @default(now()) @updatedAt
+  deletedAt             DateTime?
   Group     Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
   user      user             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -360,6 +367,7 @@ model MaintenanceTeam {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt             DateTime?
   assignments MaintenanceRequest[] @relation("TeamAssignments")
 
   @@index([tenantId])
@@ -376,6 +384,7 @@ model ServiceProvider {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt             DateTime?
   assignments MaintenanceRequest[] @relation("ProviderAssignments")
 
   @@index([tenantId])
@@ -389,8 +398,9 @@ model MaintenanceCategory {
   description String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
+  deletedAt             DateTime?
 
-  @@unique([tenantId, value])
+
   @@index([tenantId])
 }
 
@@ -432,7 +442,7 @@ model Message {
   type           MessageType  @default(TEXT)
   createdAt      DateTime     @default(now())
   expiresAt      DateTime?
-  isDeleted      Boolean      @default(false)
+  deletedAt             DateTime?
   mediaUrl       String?
   Conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   user           user         @relation(fields: [senderId], references: [id])
@@ -451,6 +461,7 @@ model Notification {
   link      String?
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+  deletedAt             DateTime?
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, userId])
@@ -467,6 +478,7 @@ model Question {
   required  Boolean        @default(false)
   order     Int            @default(0)
   config    Json?          @default("{}")
+  deletedAt             DateTime?
   Survey    Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
   Section   SurveySection? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
 
@@ -521,6 +533,7 @@ model Survey {
   config      Json?           @default("{}")
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @default(now()) @updatedAt
+  deletedAt             DateTime?
   Question    Question[]
   Response    Response[]
   Section     SurveySection[]
@@ -533,10 +546,10 @@ model GroupMember {
   groupId  String
   role     GroupRole @default(MEMBER)
   joinedAt DateTime  @default(now())
+  deletedAt             DateTime?
   Group    Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
   user     user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, groupId])
 }
 
 model account {
@@ -647,6 +660,7 @@ model communityServiceInquiry {
   respondedAt             DateTime?
   createdAt               DateTime                @default(now())
   updatedAt               DateTime                @default(now()) @updatedAt
+  deletedAt             DateTime?
   user                    user                    @relation(fields: [inquirerId], references: [id])
   communityServiceListing communityServiceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
@@ -688,10 +702,11 @@ model communityServiceListing {
   termsAndConditions      String?
   cancellationPolicy      String?
   organizationId          String?
-  slug                    String?                   @unique
+  slug                    String?
   locale                  String                    @default("en")
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @default(now()) @updatedAt
+  deletedAt             DateTime?
   communityServiceInquiry communityServiceInquiry[]
   user                    user                      @relation(fields: [providerId], references: [id])
   communityServiceReview  communityServiceReview[]
@@ -718,6 +733,7 @@ model communityServiceReview {
   moderatedBy             String?
   moderatedAt             DateTime?
   createdAt               DateTime                @default(now())
+  deletedAt             DateTime?
   communityServiceListing communityServiceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
   user                    user                    @relation(fields: [reviewerId], references: [id])
 
@@ -729,13 +745,14 @@ model communityServiceReview {
 model Property {
   id                 String               @id @default(cuid())
   tenantId           String
-  platformAddress    String               @unique
+  platformAddress    String
   street             String
   unit               String
   ownerId            String?
   homeImage          String?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
+  deletedAt             DateTime?
   Booking            Booking[]
   households         Household[]
   MaintenanceRequest MaintenanceRequest[]
@@ -746,7 +763,6 @@ model Property {
   standardSeat       standardSeat[]
   premiumSeat        premiumSeat[]        @relation("PremiumSeatPortfolio")
 
-  @@unique([street, unit])
   @@index([ownerId])
   @@index([platformAddress])
 }
@@ -762,6 +778,7 @@ model Household {
   moveOutDate    DateTime?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  deletedAt             DateTime?
   property       Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   profiles       profile[]
 
@@ -798,6 +815,7 @@ model member {
   userId         String
   role           String       @default("member")
   createdAt      DateTime
+  deletedAt             DateTime?
   organization   organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user           user         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -935,6 +953,7 @@ model propertyListing {
   organizationId                             String?
   createdAt                                  DateTime      @default(now())
   updatedAt                                  DateTime      @default(now()) @updatedAt
+  deletedAt             DateTime?
   user_propertyListing_assignedAgentIdTouser user?         @relation("propertyListing_assignedAgentIdTouser", fields: [assignedAgentId], references: [id])
   user_propertyListing_ownerIdTouser         user          @relation("propertyListing_ownerIdTouser", fields: [ownerId], references: [id])
   property                                   Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
@@ -1109,6 +1128,7 @@ model Resource {
   publishedAt DateTime?
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
+  deletedAt             DateTime?
   user        user?              @relation(fields: [authorId], references: [id])
 
   versions    ResourceVersion[]
@@ -1128,6 +1148,7 @@ model ResourceVersion {
   version    String?
   notes      String?
   createdAt  DateTime @default(now())
+  deletedAt             DateTime?
 
   resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
 
