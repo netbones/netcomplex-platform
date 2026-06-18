@@ -20,6 +20,7 @@ function makeBooking(overrides: Partial<BookingRow> = {}): BookingRow {
     createdAt: new Date('2026-06-10T08:00:00.000Z'),
     updatedAt: new Date('2026-06-12T09:00:00.000Z'),
     ...overrides,
+    deletedAt: null,
   };
 }
 

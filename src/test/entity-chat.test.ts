@@ -37,6 +37,7 @@ function makeConversationRow(overrides: Partial<ConversationRow> = {}): Conversa
     createdAt: new Date('2024-01-15T10:30:00.000Z'),
     updatedAt: new Date('2024-01-15T11:00:00.000Z'),
     ...overrides,
+    deletedAt: null,
   };
 }
 
@@ -49,10 +50,10 @@ function makeMessageRow(overrides: Partial<MessageRow> = {}): MessageRow {
     content: 'Hello!',
     type: 'TEXT',
     mediaUrl: null,
-    isDeleted: false,
     createdAt: new Date('2024-01-15T10:30:00.000Z'),
     expiresAt: null,
     ...overrides,
+    deletedAt: null,
   };
 }
 
@@ -360,7 +361,7 @@ describe('toMessageDTO', () => {
     expect(dto.content).toBe('Hello!');
     expect(dto.type).toBe('TEXT');
     expect(dto.mediaUrl).toBeNull();
-    expect(dto.isDeleted).toBe(false);
+    expect(dto.deletedAt).toBeNull();
     expect(dto.createdAt).toBe('2024-01-15T10:30:00.000Z');
     expect(dto.expiresAt).toBeNull();
   });
@@ -379,11 +380,11 @@ describe('toMessageDTO', () => {
     expect(dto.mediaUrl).toBe('https://example.com/img.png');
   });
 
-  it('maps isDeleted when true', () => {
-    const row = makeMessageRow({ isDeleted: true });
+  it('maps deletedAt when set', () => {
+    const row = makeMessageRow({ deletedAt: new Date('2024-06-15T10:00:00.000Z') });
     const dto = toMessageDTO(row);
 
-    expect(dto.isDeleted).toBe(true);
+    expect(dto.deletedAt).toBe('2024-06-15T10:00:00.000Z');
   });
 
   it('maps expiresAt when set', () => {

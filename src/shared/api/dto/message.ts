@@ -9,7 +9,7 @@ export interface MessageDTO {
   content: string;
   type: string;
   mediaUrl: string | null;
-  isDeleted: boolean;
+  deletedAt: string | null;
   createdAt: string;
   expiresAt: string | null;
 }
@@ -23,7 +23,7 @@ export function toMessageDTO(message: InferSelectModel<typeof messages>): Messag
     content: message.content,
     type: message.type,
     mediaUrl: message.mediaUrl || null,
-    isDeleted: message.isDeleted,
+    deletedAt: message.deletedAt?.toISOString() ?? null,
     createdAt: message.createdAt?.toISOString() ?? new Date().toISOString(),
     expiresAt: message.expiresAt?.toISOString() ?? null,
   };

@@ -19,6 +19,7 @@ function makeEvent(overrides: Partial<EventRow> = {}): EventRow {
     createdAt: new Date('2026-06-01T08:00:00.000Z'),
     updatedAt: new Date('2026-06-05T09:00:00.000Z'),
     ...overrides,
+    deletedAt: null,
   };
 }
 

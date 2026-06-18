@@ -18,6 +18,7 @@ function makeMockRow(
     homeImage: string | null;
     createdAt: Date;
     updatedAt: Date;
+    deletedAt: Date | null;
   }> = {}
 ): {
   id: string;
@@ -29,6 +30,7 @@ function makeMockRow(
   homeImage: string | null;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date | null;
 } {
   return {
     id: 'prop-1',
@@ -41,6 +43,7 @@ function makeMockRow(
     createdAt: new Date('2026-01-15T10:30:00.000Z'),
     updatedAt: new Date('2026-06-01T14:00:00.000Z'),
     ...overrides,
+    deletedAt: null,
   };
 }
 
