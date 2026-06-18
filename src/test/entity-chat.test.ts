@@ -34,11 +34,11 @@ function makeConversationRow(overrides: Partial<ConversationRow> = {}): Conversa
     tenantId: 'tenant-1',
     name: 'Test Chat',
     type: 'DIRECT',
+    deletedAt: null,
     createdAt: new Date('2024-01-15T10:30:00.000Z'),
     updatedAt: new Date('2024-01-15T11:00:00.000Z'),
     ...overrides,
-    deletedAt: null,
-  };
+  } as ConversationRow;
 }
 
 function makeMessageRow(overrides: Partial<MessageRow> = {}): MessageRow {
@@ -50,11 +50,11 @@ function makeMessageRow(overrides: Partial<MessageRow> = {}): MessageRow {
     content: 'Hello!',
     type: 'TEXT',
     mediaUrl: null,
+    deletedAt: null,
     createdAt: new Date('2024-01-15T10:30:00.000Z'),
     expiresAt: null,
     ...overrides,
-    deletedAt: null,
-  };
+  } as MessageRow;
 }
 
 // =============================================================================

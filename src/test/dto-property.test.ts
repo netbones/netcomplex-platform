@@ -40,11 +40,11 @@ function makeMockRow(
     unit: 'A1',
     ownerId: 'owner-1',
     homeImage: 'https://example.com/img.jpg',
+    deletedAt: null,
     createdAt: new Date('2026-01-15T10:30:00.000Z'),
     updatedAt: new Date('2026-06-01T14:00:00.000Z'),
     ...overrides,
-    deletedAt: null,
-  };
+  } as ReturnType<typeof makeMockRow>;
 }
 
 describe('toPropertyDTO', () => {

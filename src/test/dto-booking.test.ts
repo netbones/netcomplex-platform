@@ -17,11 +17,11 @@ function makeBooking(overrides: Partial<BookingRow> = {}): BookingRow {
     endTime: '11:00',
     purpose: 'Morning swim',
     status: 'CONFIRMED',
+    deletedAt: null,
     createdAt: new Date('2026-06-10T08:00:00.000Z'),
     updatedAt: new Date('2026-06-12T09:00:00.000Z'),
     ...overrides,
-    deletedAt: null,
-  };
+  } as BookingRow;
 }
 
 describe('toBookingDTO', () => {

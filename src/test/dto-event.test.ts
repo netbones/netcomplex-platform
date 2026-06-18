@@ -16,11 +16,11 @@ function makeEvent(overrides: Partial<EventRow> = {}): EventRow {
     organizer: 'Board Committee',
     image: 'https://example.com/image.jpg',
     isPublic: true,
+    deletedAt: null,
     createdAt: new Date('2026-06-01T08:00:00.000Z'),
     updatedAt: new Date('2026-06-05T09:00:00.000Z'),
     ...overrides,
-    deletedAt: null,
-  };
+  } as EventRow;
 }
 
 describe('toEventDTO', () => {
