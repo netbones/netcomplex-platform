@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: 'Phase 101 (Soft Deletes) — Complete. All 3 plans shipped. 18 decisions (D-01 through D-18) implemented. All D-05 entity routes soft-delete via deletedAt. Zero hard-deletes. Auto-purge endpoint at /api/purge. Notify user for Phase 101 close + human verification.'
-last_updated: '2026-06-18T08:50:00.000Z'
+status: verifying
+stopped_at: Phase 45 UI-SPEC approved
+last_updated: '2026-06-18T15:59:24.219Z'
 progress:
   total_phases: 47
-  completed_phases: 41
+  completed_phases: 40
   total_plans: 110
-  completed_plans: 108
-  percent: 87
+  completed_plans: 105
+  percent: 85
 ---
 
 # Project State
@@ -24,9 +24,9 @@ Plan: 3 of 3 ✓
 - **Status:** Complete — ready for human verification sign-off.
 - **Next Step:** Phase 45 (Anchor Tenant Features) — OTP reset, Community Merits, i18n batch, Tiptap i18n.
 
-**Last Session:** 2026-06-18T00:00:00.000Z
-**Stopped at:** Phase 101 (Soft Deletes) — Complete. All 3 plans shipped. 18 decisions implemented. Awaiting human sign-off.
-**Resume file:** .planning/phases/101-soft-deletes/101-CONTEXT.md
+**Last Session:** 2026-06-18T15:41:08.268Z
+**Stopped at:** Phase 45 UI-SPEC approved
+**Resume file:** .planning/phases/45-m5b-anchor-tenant/45-UI-SPEC.md
 
 ## Active Phase Decisions
 
