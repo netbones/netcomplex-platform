@@ -3,29 +3,29 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: 'Phase 44 (M5a Hardening) 1/1 plan shipped (44-01 Steiger integration COMPLETE). 44-RESEARCH.md and 44-UI-SPEC.md also shipped (approved, 6/6 carry-forward dimensions, no-new-ui scope). Steiger installed, configured, baseline scan run (582 FSD violations: 239 err + 343 warn), 8 BD issues filed (qjpa @api/* 461, 08st tenant fan-in 9, nf5r admin fan-in 26, znjo shared-to-entities 28, 3qio pricing-app 1, ohj8 missing public API 7, s50y src/types 1, 3a3v dead slices 12+). CI workflow .github/workflows/fsd-lint.yml created. Pre-commit hook steiger-staged.sh added. ESLint cross-reference comment + AGENTS.md FSD section documented. All rules start at warn to surface debt without blocking; cluster-by-cluster tightening deferred to follow-up plans. Worktree phase-44-hardening merged to dev and removed; HEAD=a9c900a. Phase 44-02 TBD (monitoring infra plan) is next; UI-SPEC carry-forward contract covers any touched UI surfaces across 44-02..44-08+.'
-last_updated: '2026-06-16T00:00:00.000Z'
+stopped_at: 'Phase 101 (Soft Deletes) — Complete. All 3 plans shipped. 18 decisions (D-01 through D-18) implemented. All D-05 entity routes soft-delete via deletedAt. Zero hard-deletes. Auto-purge endpoint at /api/purge. Notify user for Phase 101 close + human verification.'
+last_updated: '2026-06-18T08:50:00.000Z'
 progress:
   total_phases: 47
-  completed_phases: 39
-  total_plans: 107
-  completed_plans: 100
-  percent: 83
+  completed_phases: 41
+  total_plans: 110
+  completed_plans: 108
+  percent: 87
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 101 (Soft Deletes) — Context gathered. Ready for planning.
+Phase: 101 (soft-deletes) — COMPLETE
+Plan: 3 of 3 ✓
 
-- **Phase:** Phase 101 (Soft Deletes) — Add `deletedAt` timestamp columns across all domain entities for systematic soft-delete support.
-- **Status:** Plans created 2026-06-17. 3 plans in 2 waves: 101-01 (schema/migration), 101-02 (primary route conversions), 101-03 (secondary routes + stats + purge cron). All plan review findings resolved.
-- **Next Step:** Run `/gsd-execute-phase 101` to execute plans.
-- **Phase 45 (Anchor Tenant Features):** Context gathered. 9 decisions captured. Ready for planning when resources available.
+- **Phase:** Phase 101 (Soft Deletes) — All 3 plans shipped. deletedAt on 25 entities, notDeleted() helper, all route files converted, auto-purge endpoint created.
+- **Status:** Complete — ready for human verification sign-off.
+- **Next Step:** Phase 45 (Anchor Tenant Features) — OTP reset, Community Merits, i18n batch, Tiptap i18n.
 
-**Last Session:** 2026-06-17T00:00:00.000Z
-**Stopped at:** Phase 101 (Soft Deletes) — Context gathered. Phase renamed from "M5b Soak & Launch" (soak deferred to its own phase). 4 features scoped: OTP reset, Community Merits, i18n batch, Tiptap i18n. Execution order locked: OTP → Merits → i18n → Tiptap. Ready for `/gsd-plan-phase 45`.
+**Last Session:** 2026-06-18T00:00:00.000Z
+**Stopped at:** Phase 101 (Soft Deletes) — Complete. All 3 plans shipped. 18 decisions implemented. Awaiting human sign-off.
 **Resume file:** .planning/phases/101-soft-deletes/101-CONTEXT.md
 
 ## Active Phase Decisions
