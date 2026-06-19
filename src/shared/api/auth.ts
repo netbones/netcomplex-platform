@@ -134,6 +134,7 @@ export const auth = betterAuth({
     emailOTP({
       otpLength: 6,
       expiresIn: 300,
+      sendVerificationOnSignUp: false,
       async sendVerificationOTP({ email, otp, type }) {
         if (type === 'forget-password') {
           sendEmail({
@@ -141,6 +142,18 @@ export const auth = betterAuth({
             subject: templates.passwordResetOtp.subject,
             html: templates.passwordResetOtp.getHtml(otp),
           }).catch(err => authLogger.error({ err, email }, 'OTP email send failed'));
+        } else if (type === 'email-verification') {
+          sendEmail({
+            to: email,
+            subject: 'Your Soralia Village verification code',
+            html: `<p>Your verification code is: <strong>${otp}</strong></p><p>This code expires in 5 minutes.</p>`,
+          }).catch(err => authLogger.error({ err, email }, 'OTP verification email send failed'));
+        } else if (type === 'sign-in') {
+          sendEmail({
+            to: email,
+            subject: 'Your Soralia Village sign-in code',
+            html: `<p>Your sign-in code is: <strong>${otp}</strong></p><p>This code expires in 5 minutes.</p>`,
+          }).catch(err => authLogger.error({ err, email }, 'OTP sign-in email send failed'));
         }
       },
     }),
