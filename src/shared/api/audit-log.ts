@@ -12,7 +12,12 @@ export type AuditAction =
   | 'SETTINGS_CHANGED'
   | 'CONTENT_DELETED'
   | 'INVITATION_CREATED'
-  | 'INVITATION_REVOKED';
+  | 'INVITATION_REVOKED'
+  | 'MERIT_RECORD_CREATED'
+  | 'MERIT_RECORD_UPDATED'
+  | 'MERIT_RECORD_DELETED'
+  | 'MERIT_DISPUTE_FILED'
+  | 'MERIT_DISPUTE_RESOLVED';
 
 export interface AuditLogEntry {
   action: AuditAction;
