@@ -22,12 +22,19 @@ async function fetchAdminStats(): Promise<AdminStats> {
     groupsRes.json(),
     contentRes.json(),
   ]);
-  const count = (v: unknown): number =>
-    Array.isArray(v)
-      ? v.length
-      : ((v as { total?: number; count?: number })?.total ??
-        (v as { total?: number; count?: number })?.count ??
-        0);
+  const extractData = (res: unknown): unknown => (res as { data?: unknown })?.data ?? res;
+
+  const count = (res: unknown): number => {
+    const v = extractData(res);
+    if (Array.isArray(v)) return v.length;
+    const meta = (res as { meta?: { total?: number } })?.meta;
+    if (meta?.total !== undefined) return meta.total;
+    return (
+      (v as { total?: number; count?: number })?.total ??
+      (v as { total?: number; count?: number })?.count ??
+      0
+    );
+  };
 
   return {
     totalUsers: count(users),
