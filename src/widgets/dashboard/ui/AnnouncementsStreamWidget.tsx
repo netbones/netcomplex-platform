@@ -4,10 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
 import { logError } from '@shared/lib';
-import {
-  PRIORITY_TAXONOMY,
-  type AnnouncementPriority,
-} from '@features/announcements';
+import { PRIORITY_TAXONOMY, type AnnouncementPriority } from '@features/announcements';
 
 interface StreamAnnouncement {
   id: string;
@@ -149,7 +146,11 @@ export function AnnouncementsStreamWidget() {
               </div>
 
               {/* Content — full, not truncated per revised instructions */}
-              <p className="text-sm text-gray-700 mb-1">{announcement.content}</p>
+              <p className="text-sm text-gray-700 mb-1">
+                {typeof announcement.content === 'string'
+                  ? announcement.content
+                  : (announcement.content as Record<string, string>)?.en || ''}
+              </p>
 
               {/* Footer: Author · Expiry · Document link */}
               <div className="flex items-center gap-3 text-xs text-gray-500">
