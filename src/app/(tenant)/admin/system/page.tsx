@@ -12,7 +12,8 @@ interface HealthStatus {
   dbError?: string;
   tenantId: string;
   tenantName: string;
-  userCount: number;
+  totalUsers: number;
+  activeUsers: number;
 }
 
 interface ActivityItem {
@@ -76,7 +77,7 @@ function HealthCard({ health }: { health: HealthStatus | null }) {
             {health.db === 'connected' ? 'Connected' : health.dbError || 'Disconnected'}
           </p>
           <p>
-            <span className="font-medium">Users:</span> {health.userCount}
+            <span className="font-medium">Online:</span> {health.activeUsers} active
           </p>
         </div>
       )}
@@ -111,7 +112,8 @@ export default function AdminSystemPage() {
           dbError: `HTTP ${res.status}`,
           tenantId: '',
           tenantName: 'Unknown',
-          userCount: 0,
+          totalUsers: 0,
+          activeUsers: 0,
         });
       }
     } catch {
@@ -120,7 +122,8 @@ export default function AdminSystemPage() {
         dbError: 'Network error',
         tenantId: '',
         tenantName: 'Unknown',
-        userCount: 0,
+        totalUsers: 0,
+        activeUsers: 0,
       });
     }
     setHealthLoading(false);
