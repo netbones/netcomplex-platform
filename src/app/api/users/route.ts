@@ -77,9 +77,9 @@ export async function GET(request: Request) {
     eq(users.isActive, true),
     ne(users.role, 'AGENT'),
     sql`(
-      EXISTS (SELECT 1 FROM "standardSeat" WHERE "userId" = ${users.id})
-      OR EXISTS (SELECT 1 FROM "soloSeat" WHERE "userId" = ${users.id})
-      OR EXISTS (SELECT 1 FROM "profile" WHERE "userId" = ${users.id} AND "status" = 'ACTIVE')
+      EXISTS (SELECT 1 FROM "StandardSeat" WHERE "userId" = ${users.id})
+      OR EXISTS (SELECT 1 FROM "SoloSeat" WHERE "userId" = ${users.id})
+      OR EXISTS (SELECT 1 FROM "Profile" WHERE "userId" = ${users.id} AND "status" = 'ACTIVE')
     )`,
   ];
 

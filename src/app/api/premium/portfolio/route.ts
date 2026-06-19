@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
     // Verify user owns all specified households via raw SQL
     const householdsResult = (await db.execute(sql`
       SELECT h.* 
-      FROM "household" h
-      JOIN "standardSeat" ss ON ss."householdId" = h.id
+      FROM "Household" h
+      JOIN "StandardSeat" ss ON ss."householdId" = h.id
       WHERE h.id IN ${sql`${householdIds}`}
       AND h."tenantId" = ${tenantId}
       AND ss."userId" = ${userId}
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
       // Create new Premium Seat
       const newPremiumSeat = (await db.execute(sql`
-        INSERT INTO "premiumSeat" ("userId", "tenantId", "platformAddress")
+        INSERT INTO "PremiumSeat" ("userId", "tenantId", "platformAddress")
         VALUES (${userId}, ${tenantId}, ${platformAddress})
         RETURNING id
       `)) as { rows: { id: string }[] };
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
                   'user', json_build_object('id', u.id, 'name', u.name, 'email', u.email)
                 )
               )
-              FROM "standardSeat" ss
+              FROM "StandardSeat" ss
               JOIN "user" u ON u.id = ss."userId"
               WHERE ss."householdId" = h.id AND ss."userId" = ${userId} AND ss."isPrimaryOwner" = true
             ),
@@ -130,15 +130,15 @@ export async function POST(request: NextRequest) {
                   'user', json_build_object('id', u.id, 'name', u.name)
                 )
               )
-              FROM "profile" p
+              FROM "Profile" p
               JOIN "user" u ON u.id = p."userId"
               WHERE p."householdId" = h.id
             )
           )
         ) FILTER (WHERE h.id IS NOT NULL) as "linkedHouseholds"
-      FROM "premiumSeat" ps
+      FROM "PremiumSeat" ps
       JOIN "_PremiumSeatPortfolio" htl ON htl.A = ps.id
-      JOIN "household" h ON h.id = htl.B
+      JOIN "Household" h ON h.id = htl.B
       WHERE ps."userId" = ${userId}
       AND ps."tenantId" = ${tenantId}
       GROUP BY ps.id
@@ -170,7 +170,7 @@ export async function GET(request: NextRequest) {
     }
 
     const portfolioResult = await db.execute(
-      sql`SELECT * FROM "premiumSeat" WHERE "userId" = ${session.user.id} AND "tenantId" = ${tenantId} LIMIT 1`
+      sql`SELECT * FROM "PremiumSeat" WHERE "userId" = ${session.user.id} AND "tenantId" = ${tenantId} LIMIT 1`
     );
 
     if (!portfolioResult.rows?.length) {
