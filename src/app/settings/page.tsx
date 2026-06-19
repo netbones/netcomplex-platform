@@ -127,7 +127,10 @@ export default function SettingsPage() {
           items={[{ label: tCommon('nav.home'), href: '/' }, { label: tCommon('nav.settings') }]}
         />
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Settings</h1>
+        <div className="flex items-center gap-3 mb-8">
+          <img src="/platform/settings.svg" alt="" className="w-10 h-10" />
+          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+        </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Profile</h2>
