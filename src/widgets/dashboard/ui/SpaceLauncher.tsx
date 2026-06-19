@@ -1,8 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import type { SpaceDefinition } from '../model/spaces';
+
+const SPACE_FALLBACKS: Record<string, string> = {
+  'spaces.home': 'Home',
+  'spaces.services': 'Services',
+  'spaces.community': 'Community',
+  'spaces.messages': 'Messages',
+  'spaces.admin': 'Admin',
+};
 
 interface SpaceLauncherProps {
   spaces: SpaceDefinition[];
@@ -21,7 +29,7 @@ export function SpaceLauncher({
   onNavigate,
   onToggleCollapse,
 }: SpaceLauncherProps) {
-  const { t } = useTranslation();
+  const { tx } = useSafeTranslation();
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
@@ -40,7 +48,7 @@ export function SpaceLauncher({
           const Icon = space.icon;
           const isActive = space.id === activeSpaceId;
           const href = space.href;
-          const label = t(space.labelKey);
+          const label = tx(space.labelKey, SPACE_FALLBACKS[space.labelKey] || space.labelKey);
 
           return (
             <Link

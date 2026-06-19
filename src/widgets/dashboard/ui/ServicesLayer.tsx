@@ -2,9 +2,28 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import { ServicesCommandBar, type ServicesCommandBarUrgency } from './ServicesCommandBar';
 import { SERVICES_DOMAIN_DEFINITIONS, type ServicesDomainDef } from './ServicesSubLauncher';
+
+const DOMAIN_FALLBACKS: Record<string, string> = {
+  'domains.maintenance': 'Maintenance',
+  'domains.bookings': 'Bookings',
+  'domains.amenities': 'Amenities',
+  'domains.myServices': 'My Services',
+  'domains.events': 'Events',
+  'domains.surveys': 'Surveys',
+  'domains.competitions': 'Competitions',
+  'domains.communication': 'Communication',
+  'domains.descriptions.maintenance': 'Submit and track maintenance requests',
+  'domains.descriptions.bookings': 'Reserve community facilities',
+  'domains.descriptions.amenities': 'Explore community amenities',
+  'domains.descriptions.myServices': 'View your service history and inquiries',
+  'domains.descriptions.events': 'Upcoming community events',
+  'domains.descriptions.surveys': 'Share your feedback',
+  'domains.descriptions.competitions': 'Enter community competitions',
+  'domains.descriptions.communication': 'Messages and announcements',
+};
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES
@@ -20,7 +39,7 @@ interface UrgencyResponse {
 // ═══════════════════════════════════════════════════════════════
 
 function DomainCard({ domain, badge }: { domain: ServicesDomainDef; badge: number }) {
-  const { t } = useTranslation('services');
+  const { tx } = useSafeTranslation('services');
   const DomainIcon = domain.icon;
 
   return (
@@ -33,9 +52,14 @@ function DomainCard({ domain, badge }: { domain: ServicesDomainDef; badge: numbe
       </div>
       <div className="min-w-0 flex-1">
         <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
-          {t(domain.labelKey)}
+          {tx(domain.labelKey, DOMAIN_FALLBACKS[domain.labelKey] || domain.labelKey)}
         </h3>
-        <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{t(domain.descriptionKey)}</p>
+        <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+          {tx(
+            domain.descriptionKey,
+            DOMAIN_FALLBACKS[domain.descriptionKey] || domain.descriptionKey
+          )}
+        </p>
       </div>
       {/* Urgency badge — only shown if count > 0 */}
       {badge > 0 && (

@@ -4,10 +4,18 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import { authClient } from '@api/client';
 import { usePageFlags } from '@shared/lib/hooks';
 import { getVisibleSpaces, SPACES, type SpaceId } from '../model/spaces';
+
+const SPACE_FALLBACKS: Record<string, string> = {
+  'spaces.home': 'Home',
+  'spaces.services': 'Services',
+  'spaces.community': 'Community',
+  'spaces.messages': 'Messages',
+  'spaces.admin': 'Admin',
+};
 
 /**
  * MobileSpaceBar — bottom navigation bar for Focus Spaces on mobile.
@@ -30,7 +38,7 @@ import { getVisibleSpaces, SPACES, type SpaceId } from '../model/spaces';
 export function MobileSpaceBar() {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
-  const { t } = useTranslation();
+  const { tx } = useSafeTranslation();
   const { data: session } = authClient.useSession();
   const { flags } = usePageFlags();
   const role = session?.user?.role || 'RESIDENT';
@@ -74,7 +82,7 @@ export function MobileSpaceBar() {
           {mobileSpaces.map(space => {
             const Icon = space.icon;
             const active = isActive(space.id);
-            const label = t(space.labelKey);
+            const label = tx(space.labelKey, SPACE_FALLBACKS[space.labelKey] || space.labelKey);
 
             return (
               <Link

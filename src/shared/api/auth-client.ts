@@ -1,5 +1,10 @@
 import { createAuthClient } from 'better-auth/react';
-import { twoFactorClient, organizationClient, adminClient } from 'better-auth/client/plugins';
+import {
+  twoFactorClient,
+  organizationClient,
+  adminClient,
+  emailOTPClient,
+} from 'better-auth/client/plugins';
 
 /**
  * Better Auth client for client-side authentication.
@@ -14,6 +19,7 @@ export const authClient = createAuthClient({
     }),
     organizationClient(),
     adminClient(),
+    emailOTPClient(),
   ],
 });
 

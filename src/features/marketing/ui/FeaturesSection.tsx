@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import { SectionLayout } from '@shared/ui';
 import {
   Users,
@@ -49,7 +49,7 @@ const featureColors = [
 ];
 
 export function FeaturesSection() {
-  const { t, ready } = useTranslation('platform');
+  const { tx, ready } = useSafeTranslation('platform');
   const [expandedCard, setExpandedCard] = useState<number | null>(null);
 
   if (!ready) {
@@ -57,9 +57,9 @@ export function FeaturesSection() {
   }
 
   const featuresList = Array.from({ length: 12 }, (_, i) => ({
-    title: t(`features.list.${i}.title`),
-    desc: t(`features.list.${i}.desc`),
-    details: t(`features.list.${i}.details`),
+    title: tx(`features.list.${i}.title`, `Feature ${i + 1}`),
+    desc: tx(`features.list.${i}.desc`, `Description for feature ${i + 1}`),
+    details: tx(`features.list.${i}.details`, `Details for feature ${i + 1}`),
   }));
 
   const toggleCard = (index: number) => {
@@ -70,9 +70,11 @@ export function FeaturesSection() {
     <SectionLayout size="xl" background="vellum">
       <div className="text-center mb-16">
         <h2 className="text-3xl md:text-4xl font-bold text-lapis-deep mb-4">
-          {t('features.title')}
+          {tx('features.title', 'Features')}
         </h2>
-        <p className="text-lg text-lapis-mid max-w-2xl mx-auto">{t('features.subtitle')}</p>
+        <p className="text-lg text-lapis-mid max-w-2xl mx-auto">
+          {tx('features.subtitle', 'All the tools your community needs')}
+        </p>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -102,7 +104,9 @@ export function FeaturesSection() {
                 className="w-full px-6 py-3 flex items-center justify-between text-lapis-deep hover:bg-lapis-azure/5 transition-colors duration-200 border-t border-lapis-azure/10"
               >
                 <span className="text-sm font-medium">
-                  {isExpanded ? t('features.showLess') : t('features.showMore')}
+                  {isExpanded
+                    ? tx('features.showLess', 'Show Less')
+                    : tx('features.showMore', 'Show More')}
                 </span>
                 <ChevronDown
                   className={`w-4 h-4 transition-transform duration-300 ${

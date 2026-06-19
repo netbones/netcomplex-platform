@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import { useLocalStorage } from 'usehooks-ts';
 import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
@@ -33,8 +33,30 @@ interface UrgencyResponse {
 // DOMAIN GRID CARD
 // ═══════════════════════════════════════════════════════════════
 
+const DOMAIN_FALLBACKS: Record<string, string> = {
+  'domains.heading': 'Management Domains',
+  'domains.users': 'Users',
+  'domains.maintenance': 'Maintenance',
+  'domains.content': 'Content',
+  'domains.events': 'Events',
+  'domains.competitions': 'Competitions',
+  'domains.resources': 'Resources',
+  'domains.surveys': 'Surveys',
+  'domains.announcements': 'Announcements',
+  'domains.system': 'System',
+  'domains.descriptions.users': 'Manage community members and roles',
+  'domains.descriptions.maintenance': 'Maintenance request management and analytics',
+  'domains.descriptions.content': 'Content publishing and moderation',
+  'domains.descriptions.events': 'Community event management',
+  'domains.descriptions.competitions': 'Competition setup and results',
+  'domains.descriptions.resources': 'Community resource management',
+  'domains.descriptions.surveys': 'Survey creation and results',
+  'domains.descriptions.announcements': 'Announcement creation and management',
+  'domains.descriptions.system': 'Platform configuration and health',
+};
+
 function DomainCard({ domain, badge }: { domain: AdminDomainDef; badge: number }) {
-  const { t } = useTranslation('admin');
+  const { tx } = useSafeTranslation('admin');
   const DomainIcon = domain.icon;
 
   return (
@@ -47,9 +69,14 @@ function DomainCard({ domain, badge }: { domain: AdminDomainDef; badge: number }
       </div>
       <div className="min-w-0 flex-1">
         <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
-          {t(domain.labelKey)}
+          {tx(domain.labelKey, DOMAIN_FALLBACKS[domain.labelKey] || domain.labelKey)}
         </h3>
-        <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{t(domain.descriptionKey)}</p>
+        <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+          {tx(
+            domain.descriptionKey,
+            DOMAIN_FALLBACKS[domain.descriptionKey] || domain.descriptionKey
+          )}
+        </p>
       </div>
       {/* Urgency badge — only shown if count > 0 */}
       {badge > 0 && (
@@ -104,7 +131,7 @@ function AdminLayerError({ onRetry }: { onRetry: () => void }) {
 // ═══════════════════════════════════════════════════════════════
 
 export function AdminLayer() {
-  const { t } = useTranslation('admin');
+  const { tx } = useSafeTranslation('admin');
   const { data: session } = authClient.useSession();
 
   const [urgency, setUrgency] = useState<UrgencyResponse | null>(null);
@@ -159,7 +186,9 @@ export function AdminLayer() {
 
       {/* Section: Domain Grid (3-col → 5-col responsive) */}
       <section aria-label="Management domains">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">{t('domains.heading')}</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          {tx('domains.heading', 'Management Domains')}
+        </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {ADMIN_DOMAIN_DEFINITIONS.map(domain => (
             <DomainCard

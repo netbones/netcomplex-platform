@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import { useWidgetStore } from '@entities/widget';
 import { WidgetRenderer } from '@widgets/dashboard';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/ui';
@@ -23,7 +23,7 @@ export function WidgetCard({
   isEditMode = false,
   onRemove,
 }: WidgetCardProps) {
-  const { t } = useTranslation('dashboard');
+  const { tx } = useSafeTranslation('dashboard');
   const { layouts } = useWidgetStore();
   const [isLocalCollapsed, setIsLocalCollapsed] = useState(false);
 
@@ -53,7 +53,7 @@ export function WidgetCard({
               setIsLocalCollapsed(!isLocalCollapsed);
             }}
             className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto"
-            title={isCollapsed ? t('expandWidget', 'Expand') : t('collapseWidget', 'Collapse')}
+            title={isCollapsed ? tx('expandWidget', 'Expand') : tx('collapseWidget', 'Collapse')}
           >
             <i className={`fas fa-chevron-${isCollapsed ? 'down' : 'up'} text-white text-sm`}></i>
           </button>
@@ -65,7 +65,7 @@ export function WidgetCard({
                 onRemove();
               }}
               className="p-1 rounded transition-colors pointer-events-auto"
-              title={t('removeWidget', 'Remove widget')}
+              title={tx('removeWidget', 'Remove widget')}
             >
               <i className="fas fa-times text-white/70 hover:text-red-400 text-sm transition-colors"></i>
             </button>

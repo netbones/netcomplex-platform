@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 
 interface QuickActionsWidgetProps {
   userId?: string;
 }
 
 export function QuickActionsWidget({ userId }: QuickActionsWidgetProps) {
-  const { t } = useTranslation('dashboard');
+  const { tx } = useSafeTranslation('dashboard');
 
   return (
     <div className="space-y-3">
@@ -15,7 +15,7 @@ export function QuickActionsWidget({ userId }: QuickActionsWidgetProps) {
         className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg hover:bg-indigo-50 hover:text-indigo-700 transition group"
       >
         <i className="fas fa-wrench text-gray-400 group-hover:text-indigo-600 w-5"></i>
-        <span>{t('submitRequest')}</span>
+        <span>{tx('submitRequest', 'Submit Request')}</span>
         <i className="fas fa-chevron-right ml-auto text-gray-300 group-hover:text-indigo-400 text-sm"></i>
       </Link>
       <Link
@@ -23,7 +23,7 @@ export function QuickActionsWidget({ userId }: QuickActionsWidgetProps) {
         className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg hover:bg-indigo-50 hover:text-indigo-700 transition group"
       >
         <i className="fas fa-calendar-plus text-gray-400 group-hover:text-indigo-600 w-5"></i>
-        <span>{t('bookFacility')}</span>
+        <span>{tx('bookFacility', 'Book Facility')}</span>
         <i className="fas fa-chevron-right ml-auto text-gray-300 group-hover:text-indigo-400 text-sm"></i>
       </Link>
       <Link
@@ -31,7 +31,7 @@ export function QuickActionsWidget({ userId }: QuickActionsWidgetProps) {
         className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg hover:bg-indigo-50 hover:text-indigo-700 transition group"
       >
         <i className="fas fa-plus-circle text-gray-400 group-hover:text-indigo-600 w-5"></i>
-        <span>{t('createContent', 'Create Content')}</span>
+        <span>{tx('createContent', 'Create Content')}</span>
         <i className="fas fa-chevron-right ml-auto text-gray-300 group-hover:text-indigo-400 text-sm"></i>
       </Link>
       {userId && (
@@ -40,7 +40,7 @@ export function QuickActionsWidget({ userId }: QuickActionsWidgetProps) {
           className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg hover:bg-indigo-50 hover:text-indigo-700 transition group"
         >
           <i className="fas fa-user text-gray-400 group-hover:text-indigo-600 w-5"></i>
-          <span>{t('viewProfile', 'View My Profile')}</span>
+          <span>{tx('viewProfile', 'View My Profile')}</span>
           <i className="fas fa-chevron-right ml-auto text-gray-300 group-hover:text-indigo-400 text-sm"></i>
         </Link>
       )}

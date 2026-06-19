@@ -1,11 +1,11 @@
 'use client';
 
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import { SectionLayout } from '@shared/ui';
 import { Target, Lightbulb } from 'lucide-react';
 
 export function MissionSection() {
-  const { t, ready } = useTranslation('platform');
+  const { tx, ready } = useSafeTranslation('platform');
 
   if (!ready) {
     return null;
@@ -21,11 +21,11 @@ export function MissionSection() {
                 <Target className="w-6 h-6 text-white" />
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-lapis-deep">
-                {t('mission.title')}
+                {tx('mission.title', 'Our Mission')}
               </h2>
             </div>
             <div className="space-y-4 text-base md:text-lg text-lapis-mid leading-relaxed">
-              <p>{t('mission.description')}</p>
+              <p>{tx('mission.description', 'We connect communities through technology')}</p>
             </div>
           </div>
 
@@ -36,11 +36,11 @@ export function MissionSection() {
                 <Lightbulb className="w-6 h-6 text-lapis-deep" />
               </div>
               <h3 className="text-3xl md:text-4xl font-bold text-lapis-deep">
-                {t('mission.coreBeliefTitle')}
+                {tx('mission.coreBeliefTitle', 'Core Belief')}
               </h3>
             </div>
             <p className="text-base md:text-lg text-lapis-mid leading-relaxed">
-              {t('mission.coreBelief')}
+              {tx('mission.coreBelief', 'Every community deserves great technology')}
             </p>
           </div>
         </div>

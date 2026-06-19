@@ -1,16 +1,16 @@
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 
 interface RecentActivityWidgetProps {
   emptyMessage?: string;
 }
 
 export function RecentActivityWidget({ emptyMessage }: RecentActivityWidgetProps) {
-  const { t } = useTranslation('dashboard');
+  const { tx } = useSafeTranslation('dashboard');
 
   return (
     <div className="text-center py-8 text-gray-500">
-      <p>{emptyMessage || t('noActivity')}</p>
-      <p className="text-sm">{t('activityWillAppear')}</p>
+      <p>{emptyMessage || tx('noActivity', 'No recent activity')}</p>
+      <p className="text-sm">{tx('activityWillAppear', 'Activity will appear here')}</p>
     </div>
   );
 }

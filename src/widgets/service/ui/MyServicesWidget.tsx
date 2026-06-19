@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
 import { useApiToast } from '@shared/lib/hooks';
@@ -17,7 +17,7 @@ interface ServiceListing {
 }
 
 export function MyServicesWidget() {
-  const { t } = useTranslation('dashboard');
+  const { tx } = useSafeTranslation('dashboard');
   const { data: session } = authClient.useSession();
   const { fetch: apiFetch } = useApiToast({ component: 'MyServicesWidget' });
   const [services, setServices] = useState<ServiceListing[]>([]);

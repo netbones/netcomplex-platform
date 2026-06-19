@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useParams } from 'next/navigation';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import Link from 'next/link';
 import { authClient } from '@api/client';
 import { Breadcrumbs, ErrorBoundary, TagCloud, RichTextRenderer } from '@shared/ui';
@@ -203,7 +203,7 @@ interface ResidentUser {
 function ProfileContent() {
   const params = useParams();
   const id = params?.id as string | undefined;
-  const { t: tCommon } = useTranslation('common');
+  const { tx: txCommon } = useSafeTranslation('common');
   const { data: session } = authClient.useSession();
   const [user, setUser] = useState<ResidentUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -260,7 +260,9 @@ function ProfileContent() {
   if (error || !user) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <Breadcrumbs items={[{ label: tCommon('nav.home'), href: '/' }, { label: 'Profile' }]} />
+        <Breadcrumbs
+          items={[{ label: txCommon('nav.home', 'Home'), href: '/' }, { label: 'Profile' }]}
+        />
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">{error || 'User not found'}</h1>
           <p className="text-gray-600 mb-6">
@@ -284,8 +286,8 @@ function ProfileContent() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <Breadcrumbs
         items={[
-          { label: tCommon('nav.home'), href: '/' },
-          { label: tCommon('nav.directory'), href: '/directory' },
+          { label: txCommon('nav.home', 'Home'), href: '/' },
+          { label: txCommon('nav.directory', 'Directory'), href: '/directory' },
           { label: user.name },
         ]}
       />

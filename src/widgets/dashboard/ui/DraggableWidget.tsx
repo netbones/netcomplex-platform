@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Rnd } from 'react-rnd';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import { useWidgetStore } from '@entities/widget';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/ui';
 
@@ -29,7 +29,7 @@ export function DraggableWidget({
   spaceId,
   isEditMode = false,
 }: DraggableWidgetProps) {
-  const { t } = useTranslation('dashboard');
+  const { tx } = useSafeTranslation('dashboard');
   const { updateWidgetLayout, toggleWidgetCollapsed } = useWidgetStore();
 
   // Stable default layout to prevent infinite re-renders
@@ -148,7 +148,7 @@ export function DraggableWidget({
               }}
               className="p-1 hover:bg-white/20 rounded transition-colors pointer-events-auto"
               title={
-                layout.isCollapsed ? t('expandWidget', 'Expand') : t('collapseWidget', 'Collapse')
+                layout.isCollapsed ? tx('expandWidget', 'Expand') : tx('collapseWidget', 'Collapse')
               }
             >
               <i
@@ -164,7 +164,7 @@ export function DraggableWidget({
                 onRemove();
               }}
               className="p-1 rounded transition-colors pointer-events-auto"
-              title={t('removeWidget', 'Remove widget')}
+              title={tx('removeWidget', 'Remove widget')}
             >
               <i className="fas fa-times text-white/70 hover:text-red-400 text-sm transition-colors"></i>
             </button>

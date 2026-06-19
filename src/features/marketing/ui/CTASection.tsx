@@ -1,10 +1,10 @@
 'use client';
 
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import { PageCTA } from '@shared/ui';
 
 export function CTASection() {
-  const { t, ready } = useTranslation('platform');
+  const { tx, ready } = useSafeTranslation('platform');
 
   if (!ready) {
     return null;
@@ -12,15 +12,15 @@ export function CTASection() {
 
   return (
     <PageCTA
-      title={t('cta.title')}
-      description={t('cta.description')}
+      title={tx('cta.title', 'Get Started Today')}
+      description={tx('cta.description', 'Join thousands of communities already on NetComplex')}
       primaryAction={{
         href: '/signup',
-        text: t('cta.primaryAction'),
+        text: tx('cta.primaryAction', 'Sign Up'),
       }}
       secondaryAction={{
         href: '/pricing',
-        text: t('cta.secondaryAction'),
+        text: tx('cta.secondaryAction', 'View Pricing'),
       }}
       background="lapis"
       showAttribution={true}

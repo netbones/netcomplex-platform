@@ -1,12 +1,12 @@
 'use client';
 
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import { PrimaryCTA } from './PrimaryCTA';
 import { SectionLayout } from '@shared/ui';
 import { Network } from 'lucide-react';
 
 export function HeroSection() {
-  const { t, ready } = useTranslation('platform');
+  const { tx, ready } = useSafeTranslation('platform');
 
   if (!ready) {
     return null;
@@ -446,16 +446,20 @@ export function HeroSection() {
         {/* Heading */}
         <div className="space-y-2">
           <p className="text-gold-vein tracking-wider text-sm md:text-base uppercase font-medium">
-            {t('hero.tagline')}
+            {tx('hero.tagline', 'Tagline')}
           </p>
           <h1 className="text-5xl md:text-7xl font-bold text-lapis-deep tracking-tight">
-            {t('hero.title')}
+            {tx('hero.title', 'Title')}
           </h1>
-          <p className="text-lapis-mid text-sm md:text-base pt-2">{t('hero.attribution')}</p>
+          <p className="text-lapis-mid text-sm md:text-base pt-2">
+            {tx('hero.attribution', 'Attribution')}
+          </p>
         </div>
 
         {/* Subtext */}
-        <p className="text-2xl md:text-3xl text-lapis-mid font-light">{t('hero.subtitle')}</p>
+        <p className="text-2xl md:text-3xl text-lapis-mid font-light">
+          {tx('hero.subtitle', 'Subtitle')}
+        </p>
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
@@ -464,7 +468,7 @@ export function HeroSection() {
             size="md"
             className="bg-gold-vein text-lapis-deep hover:bg-gold-vein/90"
           >
-            {t('hero.cta.signup')}
+            {tx('hero.cta.signup', 'Get Started')}
           </PrimaryCTA>
           <PrimaryCTA
             href="/pricing"
@@ -472,7 +476,7 @@ export function HeroSection() {
             size="md"
             className="border-2 border-gold-vein text-gold-vein hover:bg-gold-vein/10"
           >
-            {t('hero.cta.pricing')}
+            {tx('hero.cta.pricing', 'View Pricing')}
           </PrimaryCTA>
         </div>
       </div>

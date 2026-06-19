@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import Link from 'next/link';
 import { authClient } from '@api/client';
 import { useApiToast } from '@shared/lib/hooks';
@@ -9,7 +9,7 @@ import type { ConversationListItem } from '@entities/chat';
 import { ParticipantAvatar } from '@entities/chat';
 
 export function MessagesWidget() {
-  const { t } = useTranslation('common');
+  const { tx } = useSafeTranslation('common');
   const { data: session } = authClient.useSession();
   const { fetch: apiFetch } = useApiToast({ component: 'MessagesWidget' });
   const [conversations, setConversations] = useState<ConversationListItem[]>([]);

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import { ErrorBoundary } from '@shared/ui';
 import { useDashboardStats } from '@features/dashboard';
 
@@ -62,14 +62,14 @@ function StatCard({
 }
 
 export function DashboardStats() {
-  const { t } = useTranslation('dashboard');
+  const { tx } = useSafeTranslation('dashboard');
   const { data: stats, isLoading } = useDashboardStats();
 
   return (
     <ErrorBoundary>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <StatCard
-          title={t('myRequests', 'My Requests')}
+          title={tx('myRequests', 'My Requests')}
           value={stats?.requests ?? 0}
           icon="fa-wrench"
           color={STAT_COLORS.requests}
@@ -77,7 +77,7 @@ export function DashboardStats() {
           loading={isLoading}
         />
         <StatCard
-          title={t('myBookings', 'My Bookings')}
+          title={tx('myBookings', 'My Bookings')}
           value={stats?.bookings ?? 0}
           icon="fa-calendar-check"
           color={STAT_COLORS.bookings}
@@ -85,7 +85,7 @@ export function DashboardStats() {
           loading={isLoading}
         />
         <StatCard
-          title={t('messages', 'Messages')}
+          title={tx('messages', 'Messages')}
           value={stats?.messages ?? 0}
           icon="fa-comments"
           color={STAT_COLORS.messages}
@@ -93,7 +93,7 @@ export function DashboardStats() {
           loading={isLoading}
         />
         <StatCard
-          title={t('notifications', 'Notifications')}
+          title={tx('notifications', 'Notifications')}
           value={stats?.notifications ?? 0}
           icon="fa-bell"
           color={STAT_COLORS.notifications}

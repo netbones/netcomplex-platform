@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import {
   Users,
   Wrench,
@@ -109,8 +109,30 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
  * This is rendered BELOW the admin overview widgets (stats, activity, quick-links)
  * on the admin space page.
  */
+const DOMAIN_FALLBACKS: Record<string, string> = {
+  'domains.heading': 'Management Domains',
+  'domains.users': 'Users',
+  'domains.maintenance': 'Maintenance',
+  'domains.content': 'Content',
+  'domains.events': 'Events',
+  'domains.competitions': 'Competitions',
+  'domains.resources': 'Resources',
+  'domains.surveys': 'Surveys',
+  'domains.announcements': 'Announcements',
+  'domains.system': 'System',
+  'domains.descriptions.users': 'Manage community members and roles',
+  'domains.descriptions.maintenance': 'Maintenance request management and analytics',
+  'domains.descriptions.content': 'Content publishing and moderation',
+  'domains.descriptions.events': 'Community event management',
+  'domains.descriptions.competitions': 'Competition setup and results',
+  'domains.descriptions.resources': 'Community resource management',
+  'domains.descriptions.surveys': 'Survey creation and results',
+  'domains.descriptions.announcements': 'Announcement creation and management',
+  'domains.descriptions.system': 'Platform configuration and health',
+};
+
 export function AdminSubLauncher() {
-  const { t } = useTranslation('admin');
+  const { tx } = useSafeTranslation('admin');
 
   const handleUsersClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -123,7 +145,9 @@ export function AdminSubLauncher() {
 
   return (
     <div className="mt-8">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('domains.heading')}</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        {tx('domains.heading', 'Management Domains')}
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {ADMIN_DOMAIN_DEFINITIONS.map(domain => {
           const DomainIcon = domain.icon;
@@ -140,10 +164,13 @@ export function AdminSubLauncher() {
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition">
-                    {t(domain.labelKey)}
+                    {tx(domain.labelKey, DOMAIN_FALLBACKS[domain.labelKey] || domain.labelKey)}
                   </h3>
                   <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                    {t(domain.descriptionKey)}
+                    {tx(
+                      domain.descriptionKey,
+                      DOMAIN_FALLBACKS[domain.descriptionKey] || domain.descriptionKey
+                    )}
                   </p>
                 </div>
               </button>
@@ -160,10 +187,13 @@ export function AdminSubLauncher() {
               </div>
               <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition">
-                  {t(domain.labelKey)}
+                  {tx(domain.labelKey, DOMAIN_FALLBACKS[domain.labelKey] || domain.labelKey)}
                 </h3>
                 <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                  {t(domain.descriptionKey)}
+                  {tx(
+                    domain.descriptionKey,
+                    DOMAIN_FALLBACKS[domain.descriptionKey] || domain.descriptionKey
+                  )}
                 </p>
               </div>
             </Link>

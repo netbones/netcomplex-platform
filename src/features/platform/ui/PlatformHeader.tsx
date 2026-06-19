@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@shared/lib';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 import { LanguageSwitcher } from '@shared/ui';
 
 interface PlatformHeaderProps {
@@ -19,7 +19,7 @@ interface PlatformHeaderProps {
 export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderProps) {
   const pathname = usePathname() ?? '';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { t, ready } = useTranslation('platform');
+  const { tx, ready } = useSafeTranslation('platform');
 
   const textColor = variant === 'dark' ? 'text-white' : 'text-lapis-deep';
   const subtextColor = variant === 'dark' ? 'text-lapis-azure/70' : 'text-lapis-mid';
@@ -33,22 +33,21 @@ export function PlatformHeader({ className, variant = 'light' }: PlatformHeaderP
   ];
 
   const navItems =
-    ready === true && t
+    ready === true && tx
       ? [
-          { name: t('header.home') || 'Home', href: '/' },
-          { name: t('header.features') || 'Features', href: '/features' },
-          { name: t('header.pricing') || 'Pricing', href: '/pricing' },
-          { name: t('header.about') || 'About', href: '/about' },
+          { name: tx('header.home', 'Home'), href: '/' },
+          { name: tx('header.features', 'Features'), href: '/features' },
+          { name: tx('header.pricing', 'Pricing'), href: '/pricing' },
+          { name: tx('header.about', 'About'), href: '/about' },
         ]
       : defaultNavItems;
 
   const defaultSignInText = 'Sign In';
   const defaultGetStartedText = 'Get Started';
 
-  const signInText =
-    ready === true && t ? t('header.signIn') || defaultSignInText : defaultSignInText;
+  const signInText = ready === true && tx ? tx('header.signIn', 'Sign In') : defaultSignInText;
   const getStartedText =
-    ready === true && t ? t('header.getStarted') || defaultGetStartedText : defaultGetStartedText;
+    ready === true && tx ? tx('header.getStarted', 'Get Started') : defaultGetStartedText;
 
   const isActive = (href: string): boolean => {
     if (href === '/' && pathname === '/') return true;

@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next';
+import { useSafeTranslation } from '@shared/lib';
 
 /*
  * QUICK STATS WIDGET
@@ -27,11 +27,11 @@ const DEFAULT_STATS: QuickStat[] = [
 ];
 
 export function QuickStatsWidget({ stats = DEFAULT_STATS }: QuickStatsWidgetProps) {
-  const { t } = useTranslation('dashboard');
+  const { tx } = useSafeTranslation('dashboard');
 
   return (
     <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-900">{t('quickStats', 'Quick Stats')}</h4>
+      <h4 className="text-sm font-medium text-gray-900">{tx('quickStats', 'Quick Stats')}</h4>
       <div className="space-y-2">
         {stats.map(stat => (
           <div key={stat.label} className="flex items-center justify-between">
