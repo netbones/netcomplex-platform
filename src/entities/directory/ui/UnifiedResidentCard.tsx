@@ -2,6 +2,7 @@ import { CARD_HEADER_COLORS, CARD_ANIMATIONS, INTEREST_COLORS } from '@shared/li
 import { useSafeTranslation } from '@shared/lib';
 import Image from 'next/image';
 import Link from 'next/link';
+import { StandingBadge } from '@entities/merit';
 import type { Resident } from '../model/types';
 
 interface UnifiedResidentCardProps {
@@ -133,7 +134,9 @@ export function UnifiedResidentCard({
             <div className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center pl-4">
               <div className="flex items-center gap-2 text-white">
                 <i className="fas fa-home text-lg"></i>
-                <span className="text-sm font-medium">{tx('home.rentalProperty', 'Rental Property')}</span>
+                <span className="text-sm font-medium">
+                  {tx('home.rentalProperty', 'Rental Property')}
+                </span>
               </div>
             </div>
           )}
@@ -143,7 +146,9 @@ export function UnifiedResidentCard({
             <div className="w-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
               <div className="flex items-center gap-2 text-white px-4">
                 <i className="fas fa-home text-lg"></i>
-                <span className="text-sm font-medium">{tx('home.rentalProperty', 'Rental Property')}</span>
+                <span className="text-sm font-medium">
+                  {tx('home.rentalProperty', 'Rental Property')}
+                </span>
               </div>
             </div>
           )}
@@ -168,6 +173,7 @@ export function UnifiedResidentCard({
           </div>
           <div className="flex-1">
             <h3 className="font-bold text-lg">{resident.name}</h3>
+            <StandingBadge points={resident.standing} context="public" size="sm" />
             <div className="flex items-center gap-2">
               <p className="text-sm opacity-90">{address}</p>
             </div>

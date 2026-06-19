@@ -199,6 +199,14 @@ export const ADMIN_ITEMS: NavItem[] = [
     icon: 'chart',
   },
   {
+    href: '/admin/merits',
+    adminLabelKey: 'merits',
+    labelKey: 'nav.admin',
+    section: 'admin',
+    permissionKey: 'users',
+    icon: 'shield',
+  },
+  {
     href: '/admin/external-surveys',
     adminLabelKey: 'externalSurveys',
     labelKey: 'nav.admin',

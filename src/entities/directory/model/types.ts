@@ -27,6 +27,7 @@ export interface Resident {
   isPublic: boolean;
   profileSlug: string | null;
   role?: string;
+  standing?: number | null;
   standardSeats?: Array<{
     property: Property;
     isPrimaryOwner: boolean;

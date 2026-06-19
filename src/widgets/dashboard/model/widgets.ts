@@ -30,6 +30,7 @@ import {
   Wrench,
   ClipboardList,
   Trophy,
+  Shield,
 } from 'lucide-react';
 
 export function registerAllWidgets(registry: { register: (m: WidgetManifest) => void }) {
@@ -578,6 +579,44 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
     spaces: ['community', 'admin'],
+  });
+
+  registry.register({
+    id: 'admin-merits',
+    version: '1.0.0',
+    name: 'Merits Escalation',
+    description: 'Behavior record escalation status with infraction counts',
+    author: 'internal',
+    category: 'core',
+    icon: Shield,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('@widgets/admin').then(m => ({ default: m.MeritEscalationWidget }))
+    ),
+    loader: () => import('@widgets/admin'),
+    defaultSize: { width: 2, height: 2 },
+    minSize: { width: 1, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
+  });
+
+  registry.register({
+    id: 'admin-pending-disputes',
+    version: '1.0.0',
+    name: 'Pending Disputes',
+    description: 'Behavior record disputes awaiting admin resolution',
+    author: 'internal',
+    category: 'core',
+    icon: Shield,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('@widgets/admin').then(m => ({ default: m.PendingDisputesWidget }))
+    ),
+    loader: () => import('@widgets/admin'),
+    defaultSize: { width: 2, height: 2 },
+    minSize: { width: 1, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
   });
 
   registry.register({

@@ -309,6 +309,7 @@ export const ADMIN_DOMAINS = [
   'competitions',
   'resources',
   'surveys',
+  'merits',
   'announcements',
   'system',
 ] as const;
@@ -327,6 +328,7 @@ const ADMIN_DOMAIN_WIDGET_MAP: Record<AdminDomain, string[]> = {
   competitions: ['admin-competitions'],
   resources: ['admin-resources'],
   surveys: ['admin-surveys'],
+  merits: ['admin-merits'],
   announcements: ['admin-announcements'],
   system: ['admin-system', 'page-settings'],
 };

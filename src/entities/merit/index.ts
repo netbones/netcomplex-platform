@@ -12,3 +12,4 @@ export {
   getStandingTierConfig,
 } from './services';
 export { canManageMerits, canResolveDisputes } from './permissions';
+export { StandingBadge, getPublicStandingLabel } from './ui/StandingBadge';

@@ -10,6 +10,7 @@ import { ContentEngagementBar } from '@features/content';
 import { createComponentLogger } from '@shared/lib';
 import { sanitizeHtml } from '@/shared/lib/sanitize';
 import { DirectoryChatModal } from '@/features/directory/ui/DirectoryChatModal';
+import { StandingBadge } from '@entities/merit';
 
 const log = createComponentLogger('resident-profile');
 
@@ -156,6 +157,7 @@ interface ResidentUser {
   showPhone: boolean;
   role: string;
   createdAt: string;
+  standing?: number | null;
   standardSeats?: Array<{
     household: {
       id: string;
@@ -320,6 +322,7 @@ function ProfileContent() {
                 />
                 <div className="flex-1">
                   <h1 className="text-3xl font-bold text-gray-900">{user.name}</h1>
+                  <StandingBadge points={user.standing} context="public" size="md" />
                   {user.role === 'AGENT' ? (
                     <p className="text-soralia-primary font-medium mt-1">
                       Trusted Service Provider
