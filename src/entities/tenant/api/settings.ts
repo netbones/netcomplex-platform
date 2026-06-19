@@ -15,7 +15,7 @@ export const SETTINGS_KEYS = {
   PAGE_DASHBOARD_ENABLED: 'page_dashboard_enabled',
   PAGE_BOOKINGS_ENABLED: 'page_bookings_enabled',
   PAGE_MESSAGES_ENABLED: 'page_messages_enabled',
-  HEADER_ENGAGEMENT_FOCUS: 'header_engagement_focus',
+  HEADER_LINKS: 'header_links',
   CUSTOM_PAGES: 'custom_pages',
   CUSTOM_NAV: 'custom_nav',
 } as const;

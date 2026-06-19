@@ -47,7 +47,10 @@ export async function POST(request: NextRequest) {
 
     return runWithRLS(ctx, async tx => {
       const body = await request.json();
-      const { key, value } = body as { key: keyof PlatformPageFlags; value: string | boolean };
+      const { key, value } = body as {
+        key: keyof PlatformPageFlags;
+        value: string | boolean | string[];
+      };
 
       const validKeys: (keyof PlatformPageFlags)[] = [
         'campaign',
@@ -66,7 +69,7 @@ export async function POST(request: NextRequest) {
         'dashboard',
         'bookings',
         'messages',
-        'headerEngagementFocus',
+        'headerLinks',
       ];
 
       if (!validKeys.includes(key)) {

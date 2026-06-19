@@ -7,7 +7,6 @@ import {
   runWithRLS,
   users,
 } from '@api/server';
-import { withTenant } from '@entities/tenant/server';
 import { count, eq } from 'drizzle-orm';
 import { createComponentLogger } from '@shared/lib';
 
@@ -24,17 +23,15 @@ export async function GET(request: Request) {
     if (!ctx) return apiUnauthorized();
 
     return runWithRLS(ctx, async tx => {
-      const { tenantId } = await withTenant();
-
       const [userResult] = await tx
         .select({ count: count() })
         .from(users)
-        .where(eq(users.tenantId, tenantId));
+        .where(eq(users.tenantId, ctx.tenantId));
 
       return apiSuccess({
         db: 'connected' as const,
-        tenantId,
-        tenantName: tenantId,
+        tenantId: ctx.tenantId,
+        tenantName: ctx.tenantId,
         userCount: userResult?.count ?? 0,
       });
     });

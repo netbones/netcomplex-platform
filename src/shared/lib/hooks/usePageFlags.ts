@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { PlatformPageFlags } from '../types';
 import { apiGet } from '@api/shared';
 
@@ -9,20 +9,20 @@ export function usePageFlags() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    async function fetchFlags() {
-      try {
-        const data = await apiGet<{ flags: PlatformPageFlags }>('/api/flags');
-        setFlags(data.flags);
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Unknown error'));
-      } finally {
-        setIsLoading(false);
-      }
+  const fetchFlags = useCallback(async () => {
+    try {
+      const data = await apiGet<{ flags: PlatformPageFlags }>('/api/flags');
+      setFlags(data.flags);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Unknown error'));
+    } finally {
+      setIsLoading(false);
     }
-
-    fetchFlags();
   }, []);
 
-  return { flags, isLoading, error };
+  useEffect(() => {
+    fetchFlags();
+  }, [fetchFlags]);
+
+  return { flags, isLoading, error, refetch: fetchFlags };
 }

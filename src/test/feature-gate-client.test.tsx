@@ -37,7 +37,7 @@ function makeFlags(overrides: Partial<PlatformPageFlags> = {}): PlatformPageFlag
     dashboard: true,
     bookings: true,
     messages: true,
-    headerEngagementFocus: 'conservation',
+    headerLinks: ['directory', 'groups', 'services', 'resources'],
     ...overrides,
   };
 }
@@ -147,7 +147,12 @@ describe('useGateContext', () => {
   });
 
   it('returns null while usePageFlags is loading', () => {
-    mockUsePageFlags.mockReturnValue({ flags: null, isLoading: true, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags: null,
+      isLoading: true,
+      refetch: async () => {},
+      error: null,
+    });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockUseSession.mockReturnValue({ data: null } as any);
 
@@ -160,6 +165,7 @@ describe('useGateContext', () => {
       flags: null,
       isLoading: false,
       error: new Error('fetch failed'),
+      refetch: async () => {},
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockUseSession.mockReturnValue({ data: null } as any);
@@ -169,7 +175,12 @@ describe('useGateContext', () => {
   });
 
   it('returns null when flags are still not set after loading', () => {
-    mockUsePageFlags.mockReturnValue({ flags: null, isLoading: false, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags: null,
+      isLoading: false,
+      refetch: async () => {},
+      error: null,
+    });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockUseSession.mockReturnValue({ data: null } as any);
 
@@ -179,7 +190,12 @@ describe('useGateContext', () => {
 
   it('returns ClientGateContext with role and flags when ready', () => {
     const flags = makeFlags();
-    mockUsePageFlags.mockReturnValue({ flags, isLoading: false, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags,
+      isLoading: false,
+      refetch: async () => {},
+      error: null,
+    });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'ADMIN' } },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -191,7 +207,12 @@ describe('useGateContext', () => {
 
   it('defaults role to RESIDENT when session user has no role property', () => {
     const flags = makeFlags();
-    mockUsePageFlags.mockReturnValue({ flags, isLoading: false, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags,
+      isLoading: false,
+      refetch: async () => {},
+      error: null,
+    });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1' } },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -203,7 +224,12 @@ describe('useGateContext', () => {
 
   it('defaults role to RESIDENT when session data is null', () => {
     const flags = makeFlags();
-    mockUsePageFlags.mockReturnValue({ flags, isLoading: false, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags,
+      isLoading: false,
+      refetch: async () => {},
+      error: null,
+    });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockUseSession.mockReturnValue({ data: null } as any);
 
@@ -222,7 +248,12 @@ describe('useCanAccess', () => {
   });
 
   it('returns conservative deny while context is null', () => {
-    mockUsePageFlags.mockReturnValue({ flags: null, isLoading: true, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags: null,
+      isLoading: true,
+      refetch: async () => {},
+      error: null,
+    });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockUseSession.mockReturnValue({ data: null } as any);
 
@@ -232,7 +263,12 @@ describe('useCanAccess', () => {
 
   it('delegates to canAccessClient when context is resolved', () => {
     const flags = makeFlags({ bookings: false });
-    mockUsePageFlags.mockReturnValue({ flags, isLoading: false, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags,
+      isLoading: false,
+      refetch: async () => {},
+      error: null,
+    });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -244,7 +280,12 @@ describe('useCanAccess', () => {
 
   it('allows when context resolved and flag is true', () => {
     const flags = makeFlags({ bookings: true });
-    mockUsePageFlags.mockReturnValue({ flags, isLoading: false, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags,
+      isLoading: false,
+      refetch: async () => {},
+      error: null,
+    });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -265,7 +306,12 @@ describe('GateGuard', () => {
   });
 
   it('renders loadingFallback when context is null (loading)', () => {
-    mockUsePageFlags.mockReturnValue({ flags: null, isLoading: true, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags: null,
+      isLoading: true,
+      refetch: async () => {},
+      error: null,
+    });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockUseSession.mockReturnValue({ data: null } as any);
 
@@ -281,7 +327,12 @@ describe('GateGuard', () => {
 
   it('renders children when access is allowed', () => {
     const flags = makeFlags();
-    mockUsePageFlags.mockReturnValue({ flags, isLoading: false, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags,
+      isLoading: false,
+      refetch: async () => {},
+      error: null,
+    });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -298,7 +349,12 @@ describe('GateGuard', () => {
 
   it('renders fallback when access is denied', () => {
     const flags = makeFlags({ bookings: false });
-    mockUsePageFlags.mockReturnValue({ flags, isLoading: false, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags,
+      isLoading: false,
+      refetch: async () => {},
+      error: null,
+    });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -316,7 +372,12 @@ describe('GateGuard', () => {
 
   it('renders nothing when denied and fallback is omitted (null default)', () => {
     const flags = makeFlags({ bookings: false });
-    mockUsePageFlags.mockReturnValue({ flags, isLoading: false, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags,
+      isLoading: false,
+      refetch: async () => {},
+      error: null,
+    });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -334,7 +395,12 @@ describe('GateGuard', () => {
 
   it('uses render prop when provided (takes precedence over children/fallback)', () => {
     const flags = makeFlags();
-    mockUsePageFlags.mockReturnValue({ flags, isLoading: false, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags,
+      isLoading: false,
+      refetch: async () => {},
+      error: null,
+    });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -352,7 +418,12 @@ describe('GateGuard', () => {
 
   it('render prop receives denied result when access is blocked', () => {
     const flags = makeFlags({ bookings: false });
-    mockUsePageFlags.mockReturnValue({ flags, isLoading: false, error: null });
+    mockUsePageFlags.mockReturnValue({
+      flags,
+      isLoading: false,
+      refetch: async () => {},
+      error: null,
+    });
     mockUseSession.mockReturnValue({
       data: { user: { id: 'u1', role: 'RESIDENT' } },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

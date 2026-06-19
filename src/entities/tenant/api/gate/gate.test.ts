@@ -192,7 +192,7 @@ describe('Mapping completeness', () => {
         dashboard: true,
         bookings: true,
         messages: true,
-        headerEngagementFocus: 'conservation',
+        headerLinks: ['directory', 'groups', 'services', 'resources'],
       };
       const validFlagKeys = new Set(Object.keys(sampleFlags));
       for (const flagKey of Object.values(FEATURE_TO_FLAG)) {
@@ -260,7 +260,7 @@ const ALL_FLAGS_ENABLED: PlatformPageFlags = {
   dashboard: true,
   bookings: true,
   messages: true,
-  headerEngagementFocus: 'conservation',
+  headerLinks: ['directory', 'groups', 'services', 'resources'],
 };
 
 describe('canAccess()', () => {

@@ -13,8 +13,6 @@ import {
   competitions,
 } from '@api/server';
 
-import { withTenant } from '@entities/tenant/server';
-
 import { count, eq, and, lte } from 'drizzle-orm';
 import { createComponentLogger } from '@shared/lib';
 
@@ -31,7 +29,7 @@ export async function GET(request: Request) {
     if (!ctx) return apiUnauthorized();
 
     return runWithRLS(ctx, async tx => {
-      const { tenantId } = await withTenant();
+      const tenantId = ctx.tenantId;
 
       const [
         openMaintenance,

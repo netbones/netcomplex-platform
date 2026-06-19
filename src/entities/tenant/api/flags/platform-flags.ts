@@ -29,7 +29,7 @@ const DEFAULT_PAGE_FLAGS: PlatformPageFlags = {
   dashboard: true,
   bookings: true,
   messages: true,
-  headerEngagementFocus: 'conservation',
+  headerLinks: ['directory', 'groups', 'services', 'resources'],
 };
 
 export async function getPlatformPageFlags(tenantId: string): Promise<PlatformPageFlags> {
@@ -90,9 +90,12 @@ export async function getPlatformPageFlags(tenantId: string): Promise<PlatformPa
         case SETTINGS_KEYS.PAGE_MESSAGES_ENABLED:
           flags.messages = setting.value === 'true';
           break;
-        case SETTINGS_KEYS.HEADER_ENGAGEMENT_FOCUS:
-          if (['conservation', 'campaign'].includes(setting.value)) {
-            flags.headerEngagementFocus = setting.value as 'conservation' | 'campaign';
+        case SETTINGS_KEYS.HEADER_LINKS:
+          try {
+            const parsed = JSON.parse(setting.value);
+            if (Array.isArray(parsed)) flags.headerLinks = parsed;
+          } catch {
+            /* keep default */
           }
           break;
       }
@@ -105,10 +108,15 @@ export async function getPlatformPageFlags(tenantId: string): Promise<PlatformPa
   }
 }
 
+function serializeValue(value: unknown): string {
+  if (Array.isArray(value)) return JSON.stringify(value);
+  return String(value);
+}
+
 export async function setPlatformPageFlag(
   tenantId: string,
   key: keyof PlatformPageFlags,
-  value: string | boolean
+  value: string | boolean | string[]
 ): Promise<boolean> {
   try {
     const settingKey = mapFlagToSettingKey(key);
@@ -123,14 +131,14 @@ export async function setPlatformPageFlag(
     if (existing) {
       await db
         .update(settings)
-        .set({ value: String(value) })
+        .set({ value: serializeValue(value) })
         .where(eq(settings.id, existing.id));
     } else {
       await db.insert(settings).values({
         id: uuidv4(),
         tenantId,
         key: settingKey,
-        value: String(value),
+        value: serializeValue(value),
       });
     }
 
@@ -208,9 +216,12 @@ export async function getPlatformPageFlagsWithTx(
         case SETTINGS_KEYS.PAGE_MESSAGES_ENABLED:
           flags.messages = setting.value === 'true';
           break;
-        case SETTINGS_KEYS.HEADER_ENGAGEMENT_FOCUS:
-          if (['conservation', 'campaign'].includes(setting.value)) {
-            flags.headerEngagementFocus = setting.value as 'conservation' | 'campaign';
+        case SETTINGS_KEYS.HEADER_LINKS:
+          try {
+            const parsed = JSON.parse(setting.value);
+            if (Array.isArray(parsed)) flags.headerLinks = parsed;
+          } catch {
+            /* keep default */
           }
           break;
       }
@@ -230,7 +241,7 @@ export async function setPlatformPageFlagWithTx(
   tx: NodePgDatabase<DbSchema>,
   tenantId: string,
   key: keyof PlatformPageFlags,
-  value: string | boolean
+  value: string | boolean | string[]
 ): Promise<boolean> {
   try {
     const settingKey = mapFlagToSettingKey(key);
@@ -245,14 +256,14 @@ export async function setPlatformPageFlagWithTx(
     if (existing) {
       await tx
         .update(settings)
-        .set({ value: String(value) })
+        .set({ value: serializeValue(value) })
         .where(eq(settings.id, existing.id));
     } else {
       await tx.insert(settings).values({
         id: uuidv4(),
         tenantId,
         key: settingKey,
-        value: String(value),
+        value: serializeValue(value),
       });
     }
 
@@ -281,7 +292,7 @@ export function mapFlagToSettingKey(key: keyof PlatformPageFlags): string | unde
     dashboard: SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED,
     bookings: SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED,
     messages: SETTINGS_KEYS.PAGE_MESSAGES_ENABLED,
-    headerEngagementFocus: SETTINGS_KEYS.HEADER_ENGAGEMENT_FOCUS,
+    headerLinks: SETTINGS_KEYS.HEADER_LINKS,
   };
   return mapping[key];
 }

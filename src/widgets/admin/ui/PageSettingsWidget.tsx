@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
-import { type PlatformPageFlags } from '@shared/lib';
+import { type PlatformPageFlags, HEADER_LINK_IDS, type HeaderLinkId } from '@shared/lib';
 
 const log = createComponentLogger('PageSettingsWidget');
 
@@ -30,12 +30,14 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
       dashboard: true,
       bookings: true,
       messages: true,
-      headerEngagementFocus: 'conservation',
+      headerLinks: ['directory', 'groups', 'services', 'resources'],
     }
   );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchFlags() {
@@ -46,8 +48,8 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
           const data = body?.data ?? body;
           setFlags(prev => ({ ...prev, ...data }));
         }
-      } catch (error) {
-        log.error({}, 'Failed to fetch page flags', error);
+      } catch (err) {
+        log.error({}, 'Failed to fetch page flags', err);
       } finally {
         setLoading(false);
       }
@@ -55,9 +57,10 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
     fetchFlags();
   }, []);
 
-  const updateFlag = async (key: keyof PlatformPageFlags, value: string | boolean) => {
+  const updateFlag = async (key: keyof PlatformPageFlags, value: string | boolean | string[]) => {
     setSaving(true);
     setSaved(false);
+    setError(null);
 
     try {
       const res = await fetch('/api/admin/settings/page-flags', {
@@ -68,11 +71,16 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
 
       if (res.ok) {
         setFlags(prev => ({ ...prev, [key]: value }));
+        window.dispatchEvent(new Event('page-flags-updated'));
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
+      } else {
+        const body = await res.json().catch(() => ({}));
+        setError(body?.error || body?.message || `Failed to save ${key}`);
       }
-    } catch (error) {
-      log.error({}, 'Failed to update flag', error);
+    } catch (err) {
+      log.error({}, 'Failed to update flag', err);
+      setError('Network error — try again');
     } finally {
       setSaving(false);
     }
@@ -194,104 +202,106 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
   return (
     <ErrorBoundary>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">Page Visibility</h3>
-          {saved && (
-            <span className="text-sm text-green-600 flex items-center gap-1">
-              <i className="fas fa-check-circle"></i> Saved
-            </span>
-          )}
-        </div>
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+            {error}
+            <button onClick={() => setError(null)} className="ml-2 text-red-500 hover:text-red-700">
+              ✕
+            </button>
+          </div>
+        )}
 
-        {/* Header Engagement Focus */}
-        <div className="border-t pt-6">
-          <h4 className="text-sm font-medium text-gray-700 mb-4 flex items-center gap-2">
-            <i className="fas fa-arrows-alt-h text-indigo-600"></i>
-            Header Engagement Focus
-          </h4>
-          <p className="text-xs text-gray-500 mb-3">
-            Choose which module appears in the header navigation. The other will appear in the
-            &quot;More&quot; dropdown.
-          </p>
-          <div className="space-y-2">
-            {[
-              {
-                value: 'conservation' as const,
-                label: 'Conservation in Header',
-                description: 'Campaign goes to More dropdown',
-              },
-              {
-                value: 'campaign' as const,
-                label: 'Campaign in Header',
-                description: 'Conservation goes to More dropdown',
-              },
-            ].map(option => (
-              <label
-                key={option.value}
-                className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition-all ${
-                  flags.headerEngagementFocus === option.value
-                    ? 'bg-indigo-50 border-2 border-indigo-500'
-                    : 'bg-slate-50 border-2 border-transparent hover:bg-gray-100'
-                }`}
+        {/* ── Navigation Visibility ──────────────────────── */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Navigation Visibility</h3>
+            {saved && (
+              <span className="text-sm text-green-600 flex items-center gap-1">
+                <i className="fas fa-check-circle"></i> Saved
+              </span>
+            )}
+          </div>
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <p className="text-xs text-gray-500 mb-4">
+              Select up to 4 pages for the top navigation bar. Home is always first. Remaining
+              enabled pages appear in the &quot;More&quot; dropdown.
+            </p>
+            <div className="space-y-2">
+              {HEADER_LINK_IDS.map(id => {
+                const isSelected = flags.headerLinks.includes(id);
+                const atLimit = flags.headerLinks.length >= 4;
+                return (
+                  <div
+                    key={id}
+                    className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    <span className="font-medium text-gray-900 capitalize">{id}</span>
+                    <button
+                      onClick={() => {
+                        if (!isSelected && atLimit) return;
+                        const next = isSelected
+                          ? flags.headerLinks.filter(x => x !== id)
+                          : [...flags.headerLinks, id];
+                        updateFlag('headerLinks', next);
+                      }}
+                      disabled={saving}
+                      className={`w-10 h-6 rounded-full transition-colors ${
+                        isSelected ? 'bg-indigo-600' : 'bg-gray-300'
+                      } ${!isSelected && atLimit ? 'opacity-40 cursor-not-allowed' : ''}`}
+                    >
+                      <span
+                        className={`block w-4 h-4 rounded-full bg-white transition-transform ${
+                          isSelected ? 'translate-x-5' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-xs text-gray-400 mt-3">{flags.headerLinks.length} of 4 selected</p>
+          </div>
+        </section>
+
+        {/* ── Page Visibility ───────────────────────────── */}
+        <section>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Page Visibility</h3>
+          <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-2">
+            {pageOptions.map(option => (
+              <div
+                key={option.key}
+                className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="headerEngagementFocus"
-                    value={option.value}
-                    checked={flags.headerEngagementFocus === option.value}
-                    onChange={() => updateFlag('headerEngagementFocus', option.value)}
-                    className="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                  />
+                  <div
+                    className={`w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center`}
+                  >
+                    <i className={`fas ${option.icon} text-indigo-600`}></i>
+                  </div>
                   <div>
                     <p className="font-medium text-gray-900">{option.label}</p>
                     <p className="text-sm text-gray-500">{option.description}</p>
                   </div>
                 </div>
-                {flags.headerEngagementFocus === option.value && (
-                  <i className="fas fa-check-circle text-indigo-600 text-lg"></i>
-                )}
-              </label>
+                <button
+                  onClick={() => updateFlag(option.key, !flags[option.key] as boolean)}
+                  disabled={saving}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    flags[option.key] ? 'bg-indigo-600' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      flags[option.key] ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Page Toggles */}
-        <div className="space-y-3">
-          {pageOptions.map(option => (
-            <div
-              key={option.key}
-              className="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center`}
-                >
-                  <i className={`fas ${option.icon} text-indigo-600`}></i>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">{option.label}</p>
-                  <p className="text-sm text-gray-500">{option.description}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => updateFlag(option.key, !flags[option.key] as boolean)}
-                disabled={saving}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  flags[option.key] ? 'bg-indigo-600' : 'bg-gray-200'
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    flags[option.key] ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-          ))}
-        </div>
-
-        {/* Conservation Mode */}
+        {/* ── Conservation Mode ────────────────────────── */}
         <div className="border-t pt-6">
           <h4 className="text-sm font-medium text-gray-700 mb-4 flex items-center gap-2">
             <i className="fas fa-leaf text-green-600"></i>

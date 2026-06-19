@@ -237,13 +237,19 @@ export function Header() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { flags: pageFlags } = usePageFlags();
+  const { flags: pageFlags, refetch } = usePageFlags();
   const { t } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    const handler = () => refetch();
+    window.addEventListener('page-flags-updated', handler);
+    return () => window.removeEventListener('page-flags-updated', handler);
+  }, [refetch]);
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -260,11 +266,14 @@ export function Header() {
       ? NAV_REGISTRY.filter(item => isNavItemVisible(item, pageFlags, role))
       : [];
 
-  // Header items: Home, Directory, Services, Resources, Conservation, Campaign (first 6 items that pass visibility)
-  const headerItems = visibleItems
-    .filter(item => !['dashboard', 'bookings', 'messages', 'maintenance'].includes(item.id))
+  const headerLinkIds = pageFlags?.headerLinks ?? [];
+  const headerOrder = ['home', ...headerLinkIds];
+
+  const headerItems = headerOrder
+    .map(id => visibleItems.find(item => item.id === id))
+    .filter((item): item is NonNullable<typeof item> => item != null)
     .slice(0, 5);
-  // More items: public items that didn't fit in the header bar
+
   const moreItems = visibleItems.filter(
     item =>
       ![

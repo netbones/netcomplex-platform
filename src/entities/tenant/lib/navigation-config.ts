@@ -5,7 +5,8 @@
  * SideDrawer, and Footer. Follows NAVIGATION_GOVERNANCE.md taxonomy:
  * explore, community, workspace, admin.
  *
- * Conservation/Campaign mutual exclusion is encoded here, not in components.
+ * Header link selection is controlled by flags.headerLinks — an ordered array
+ * of up to 4 page IDs chosen from LINK_ID_TO_ITEM. Home is always first.
  */
 
 import type { PlatformPageFlags } from '../api/flags/platform-flags';
@@ -248,24 +249,28 @@ function isItemVisible(item: NavItem, flags?: PlatformPageFlags | null): boolean
   return flagValue !== false;
 }
 
+const HOME_ITEM: NavItem = STATIC_HEADER_ITEMS[0];
+
+const LINK_ID_TO_ITEM: Record<string, NavItem> = {
+  directory: STATIC_HEADER_ITEMS[1],
+  services: STATIC_HEADER_ITEMS[2],
+  resources: STATIC_HEADER_ITEMS[3],
+  conservation: CONSERVATION_NAV_ITEM,
+  campaign: CAMPAIGN_NAV_ITEM,
+  news: MORE_DROPDOWN_ITEMS[0],
+  groups: MORE_DROPDOWN_ITEMS[1],
+  surveys: MORE_DROPDOWN_ITEMS[2],
+  competitions: MORE_DROPDOWN_ITEMS[3],
+};
+
 export function getHeaderItems(flags?: PlatformPageFlags | null): NavItem[] {
-  const items: NavItem[] = [];
+  const items: NavItem[] = [HOME_ITEM];
+  const linkIds = flags?.headerLinks ?? [];
 
-  for (const item of STATIC_HEADER_ITEMS) {
-    if (isItemVisible(item, flags)) {
+  for (const id of linkIds) {
+    const item = LINK_ID_TO_ITEM[id];
+    if (item && isItemVisible(item, flags)) {
       items.push(item);
-    }
-  }
-
-  const focus = flags?.headerEngagementFocus ?? 'conservation';
-
-  if (focus === 'conservation') {
-    if (isItemVisible(CONSERVATION_NAV_ITEM, flags)) {
-      items.push(CONSERVATION_NAV_ITEM);
-    }
-  } else {
-    if (isItemVisible(CAMPAIGN_NAV_ITEM, flags)) {
-      items.push(CAMPAIGN_NAV_ITEM);
     }
   }
 
@@ -273,22 +278,25 @@ export function getHeaderItems(flags?: PlatformPageFlags | null): NavItem[] {
 }
 
 export function getMoreDropdownItems(flags?: PlatformPageFlags | null): NavItem[] {
-  const focus = flags?.headerEngagementFocus ?? 'conservation';
+  const headerIds: Set<string> = new Set(flags?.headerLinks ?? []);
   const items: NavItem[] = [];
 
-  if (focus === 'conservation') {
-    if (isItemVisible(CAMPAIGN_NAV_ITEM, flags)) {
-      items.push(CAMPAIGN_NAV_ITEM);
-    }
-  } else {
-    if (isItemVisible(CONSERVATION_NAV_ITEM, flags)) {
-      items.push(CONSERVATION_NAV_ITEM);
+  for (const item of MORE_DROPDOWN_ITEMS) {
+    // Skip items already in header
+    const mappedId = Object.entries(LINK_ID_TO_ITEM).find(([, v]) => v === item)?.[0];
+    if (mappedId && headerIds.has(mappedId)) continue;
+    if (isItemVisible(item, flags)) {
+      items.push(item);
     }
   }
 
-  for (const item of MORE_DROPDOWN_ITEMS) {
-    if (isItemVisible(item, flags)) {
-      items.push(item);
+  // Add campaign/conservation if not in header
+  for (const id of ['campaign', 'conservation'] as const) {
+    if (!headerIds.has(id)) {
+      const item = LINK_ID_TO_ITEM[id];
+      if (item && isItemVisible(item, flags)) {
+        items.push(item);
+      }
     }
   }
 

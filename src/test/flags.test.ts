@@ -144,7 +144,7 @@ describe('Page Visibility Integration', () => {
     });
   });
 
-  it('should validate headerEngagementFocus values', () => {
+  it('should validate headerLinks values', () => {
     const validFocuses = ['conservation', 'campaign'];
     const invalidFocuses = ['invalid', 'both', 'none', ''];
 
@@ -157,7 +157,7 @@ describe('Page Visibility Integration', () => {
     });
   });
 
-  it('should default headerEngagementFocus to conservation', () => {
+  it('should default headerLinks to conservation', () => {
     const defaultFlags = {
       campaign: true,
       conservation: 'default' as const,
@@ -175,10 +175,10 @@ describe('Page Visibility Integration', () => {
       dashboard: true,
       bookings: true,
       messages: true,
-      headerEngagementFocus: 'conservation' as const,
+      headerLinks: ['directory', 'groups', 'services', 'resources'] as const,
     };
 
-    expect(defaultFlags.headerEngagementFocus).toBe('conservation');
+    expect(defaultFlags.headerLinks).toBe('conservation');
   });
 });
 
@@ -267,22 +267,22 @@ describe('Admin Page Flags API', () => {
       expect(data.error).toBe('Invalid key');
     });
 
-    it('should update headerEngagementFocus', async () => {
+    it('should update headerLinks', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
         ok: true,
-        json: async () => ({ success: true, key: 'headerEngagementFocus', value: 'campaign' }),
+        json: async () => ({ success: true, key: 'headerLinks', value: 'campaign' }),
       });
 
       const response = await fetch('/api/admin/settings/page-flags', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: 'headerEngagementFocus', value: 'campaign' }),
+        body: JSON.stringify({ key: 'headerLinks', value: 'campaign' }),
       });
       const data = await response.json();
 
       expect(response.ok).toBe(true);
       expect(data.success).toBe(true);
-      expect(data.key).toBe('headerEngagementFocus');
+      expect(data.key).toBe('headerLinks');
       expect(data.value).toBe('campaign');
     });
   });

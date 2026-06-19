@@ -25,21 +25,30 @@ const defaultFlags: PlatformPageFlags = {
   dashboard: true,
   bookings: true,
   messages: true,
-  headerEngagementFocus: 'conservation',
+  headerLinks: ['directory', 'groups', 'services', 'resources'],
 };
 
 describe('getHeaderItems', () => {
-  it('returns 5 items with default flags (conservation focus)', () => {
+  it('returns Home + 4 chosen links with default flags', () => {
     const items = getHeaderItems(defaultFlags);
+    expect(items[0].href).toBe('/'); // Home always first
+    expect(items[1].href).toBe('/directory');
+    expect(items[2].href).toBe('/groups');
+    expect(items[3].href).toBe('/services');
+    expect(items[4].href).toBe('/resources');
     expect(items).toHaveLength(5);
-    expect(items[0].href).toBe('/'); // Home
-    expect(items[4].href).toBe('/conservation'); // Conservation in header
   });
 
-  it('returns Campaign in header when focus is campaign', () => {
-    const items = getHeaderItems({ ...defaultFlags, headerEngagementFocus: 'campaign' });
-    expect(items).toHaveLength(5);
-    expect(items[4].href).toBe('/campaign');
+  it('returns custom header links when configured', () => {
+    const items = getHeaderItems({
+      ...defaultFlags,
+      headerLinks: ['campaign', 'conservation', 'news', 'surveys'],
+    });
+    expect(items[0].href).toBe('/');
+    expect(items[1].href).toBe('/campaign');
+    expect(items[2].href).toBe('/conservation');
+    expect(items[3].href).toBe('/news');
+    expect(items[4].href).toBe('/surveys');
   });
 
   it('excludes items when flag is false', () => {
@@ -65,7 +74,7 @@ describe('getHeaderItems', () => {
     const items = getHeaderItems({
       ...defaultFlags,
       conservation: 'external',
-      headerEngagementFocus: 'campaign',
+      headerLinks: ['campaign', 'directory', 'groups', 'services'],
     });
     expect(items.some(i => i.href === '/campaign')).toBe(true);
     expect(items.some(i => i.href === '/conservation')).toBe(false);
@@ -80,7 +89,10 @@ describe('getMoreDropdownItems', () => {
   });
 
   it('includes Conservation when Campaign is in header', () => {
-    const items = getMoreDropdownItems({ ...defaultFlags, headerEngagementFocus: 'campaign' });
+    const items = getMoreDropdownItems({
+      ...defaultFlags,
+      headerLinks: ['campaign', 'directory', 'groups', 'services'],
+    });
     expect(items.some(i => i.href === '/conservation')).toBe(true);
     expect(items.some(i => i.href === '/campaign')).toBe(false);
   });
@@ -95,7 +107,7 @@ describe('getMoreDropdownItems', () => {
     const items = getMoreDropdownItems({
       ...defaultFlags,
       conservation: 'external',
-      headerEngagementFocus: 'campaign',
+      headerLinks: ['campaign', 'directory', 'groups', 'services'],
     });
     // Conservation is external, so it should NOT appear in More dropdown
     expect(items.some(i => i.href === '/conservation')).toBe(false);

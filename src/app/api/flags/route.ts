@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getPlatformPageFlags } from '@entities/tenant/server';
 import { getStatsigExperimentFlags } from '@entities/tenant/server';
-import { withTenantOptional } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
 import { createComponentLogger } from '@shared/lib';
 
 import { apiError, apiSuccess } from '@api/server';
@@ -16,10 +16,10 @@ export async function GET(request: NextRequest) {
     const flagParam = searchParams.get('flag');
     const experiments = searchParams.get('experiments');
 
-    const { tenantId } = await withTenantOptional();
+    const { tenantId } = await withTenant();
 
     if (!flagParam && !experiments) {
-      const allFlags = await getPlatformPageFlags(tenantId!);
+      const allFlags = await getPlatformPageFlags(tenantId);
       return apiSuccess({ flags: allFlags, tenantId });
     }
 
@@ -38,12 +38,12 @@ export async function GET(request: NextRequest) {
         'maintenance',
         'surveys',
         'competitions',
-        'headerEngagementFocus',
+        'headerLinks',
       ] as const;
       if (!validFlags.includes(flagParam as (typeof validFlags)[number])) {
         return apiError('VALIDATION_ERROR', 'Invalid flag parameter', 400);
       }
-      const allFlags = await getPlatformPageFlags(tenantId!);
+      const allFlags = await getPlatformPageFlags(tenantId);
       const value = allFlags[flagParam as keyof typeof allFlags];
       return apiSuccess({ flag: flagParam, value, tenantId });
     }

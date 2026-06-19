@@ -8,7 +8,6 @@ import {
 } from '@api/server';
 
 import { eq, count, and, gte, sql } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +19,7 @@ export async function GET(request: Request) {
   }
 
   return runWithRLS(ctx, async tx => {
-    const { tenantId } = await withTenant();
+    const tenantId = ctx.tenantId;
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 

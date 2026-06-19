@@ -1,3 +1,17 @@
+export const HEADER_LINK_IDS = [
+  'directory',
+  'groups',
+  'services',
+  'resources',
+  'news',
+  'surveys',
+  'competitions',
+  'conservation',
+  'campaign',
+] as const;
+
+export type HeaderLinkId = (typeof HEADER_LINK_IDS)[number];
+
 export interface PlatformPageFlags {
   campaign: boolean;
   conservation: 'default' | 'managed' | 'external';
@@ -15,5 +29,5 @@ export interface PlatformPageFlags {
   dashboard: boolean;
   bookings: boolean;
   messages: boolean;
-  headerEngagementFocus: 'conservation' | 'campaign';
+  headerLinks: HeaderLinkId[];
 }

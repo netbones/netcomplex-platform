@@ -13,8 +13,6 @@ import {
   events,
 } from '@api/server';
 
-import { withTenant } from '@entities/tenant/server';
-
 import { eq, and, lt, desc, inArray, sql } from 'drizzle-orm';
 import { createComponentLogger } from '@shared/lib';
 
@@ -42,8 +40,6 @@ export async function GET(request: NextRequest) {
     if (!ctx) return apiUnauthorized();
 
     return runWithRLS(ctx, async tx => {
-      const { tenantId: defaultTenantId } = await withTenant();
-
       // Query params
       const { searchParams } = request.nextUrl;
       const domain = searchParams.get('domain') || 'all';
@@ -54,7 +50,7 @@ export async function GET(request: NextRequest) {
       // Platform admin cross-tenant support
       // Uses ctx.isPlatformAdmin (cached from getRLSContext's user lookup) instead
       // of a fresh db.select to avoid duplicate queries + session-scope RLS leaks.
-      let tenantId = defaultTenantId;
+      let tenantId = ctx.tenantId;
       const requestedTenantId = searchParams.get('tenantId');
       if (requestedTenantId && ctx.isPlatformAdmin) {
         tenantId = requestedTenantId;
