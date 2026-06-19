@@ -23,7 +23,11 @@ export default function ForgotPasswordPage() {
       });
 
       if (otpError) {
-        setError(otpError?.message || otpError || 'Failed to send verification code');
+        const msg =
+          typeof otpError?.message === 'string'
+            ? otpError.message
+            : 'Failed to send verification code';
+        setError(msg);
       } else {
         router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
       }
