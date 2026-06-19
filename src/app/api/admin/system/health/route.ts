@@ -1,13 +1,6 @@
-import {
-  apiSuccess,
-  apiInternalError,
-  requireAnyPermission,
-  db,
-  users,
-  sessions,
-} from '@api/server';
+import { apiSuccess, apiInternalError, requireAnyPermission, db, users } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
-import { count, eq, gt, and } from 'drizzle-orm';
+import { count, eq, sql } from 'drizzle-orm';
 import { createComponentLogger } from '@shared/lib';
 
 export const maxDuration = 5;
@@ -26,13 +19,15 @@ export async function GET(request: Request) {
       .from(users)
       .where(eq(users.tenantId, tenantId));
 
-    const activeSessions = await db
-      .select({ userId: sessions.userId })
-      .from(sessions)
-      .innerJoin(users, eq(sessions.userId, users.id))
-      .where(and(eq(users.tenantId, tenantId), gt(sessions.expiresAt, new Date())));
+    const activeResult = await db.execute(sql`
+      SELECT count(distinct s."userId") as count
+      FROM "session" s
+      INNER JOIN "user" u ON s."userId" = u.id
+      WHERE u."tenantId" = ${tenantId}
+      AND s."expiresAt" > now()
+    `);
 
-    const activeUsers = new Set(activeSessions.map(r => r.userId)).size;
+    const activeUsers = Number((activeResult.rows[0] as { count: string }).count);
 
     return apiSuccess({
       db: 'connected' as const,
