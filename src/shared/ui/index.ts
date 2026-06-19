@@ -16,7 +16,6 @@ export * from './ModalOverlay';
 export * from './Pagination';
 export * from './RichTextEditor';
 export * from './RichTextRenderer';
-export * from './SideDrawer';
 export * from './TagCloud';
 export * from './Turnstile';
 export * from './PageCTA';
