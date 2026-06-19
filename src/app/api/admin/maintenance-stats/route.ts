@@ -25,82 +25,80 @@ export async function GET(request: Request) {
 
     const tenantFilter = eq(maintenanceRequests.tenantId, tenantId);
 
-    const [
-      totalOpenResult,
-      totalThisMonthResult,
-      completedThisMonthResult,
-      overdueResult,
-      byStatusResult,
-      byPriorityResult,
-      byCategoryResult,
-      avgResolutionResult,
-    ] = await Promise.all([
-      tx
-        .select({ count: count() })
-        .from(maintenanceRequests)
-        .where(
-          and(
-            tenantFilter,
-            sql`${maintenanceRequests.status} != 'COMPLETED'`,
-            sql`${maintenanceRequests.status} != 'CANCELLED'`
-          )
-        ),
-      tx
-        .select({ count: count() })
-        .from(maintenanceRequests)
-        .where(and(tenantFilter, gte(maintenanceRequests.createdAt, startOfMonth))),
-      tx
-        .select({ count: count() })
-        .from(maintenanceRequests)
-        .where(
-          and(
-            tenantFilter,
-            sql`${maintenanceRequests.status} = 'COMPLETED'`,
-            sql`${maintenanceRequests.completedAt} >= ${startOfMonth}`
-          )
-        ),
-      tx
-        .select({ count: count() })
-        .from(maintenanceRequests)
-        .where(
-          and(
-            tenantFilter,
-            sql`${maintenanceRequests.status} NOT IN ('COMPLETED', 'CANCELLED')`,
-            sql`${maintenanceRequests.scheduledDate} < ${now}`
-          )
-        ),
-      tx
-        .select({ status: maintenanceRequests.status, count: count() })
-        .from(maintenanceRequests)
-        .where(tenantFilter)
-        .groupBy(maintenanceRequests.status),
-      tx
-        .select({ priority: maintenanceRequests.priority, count: count() })
-        .from(maintenanceRequests)
-        .where(tenantFilter)
-        .groupBy(maintenanceRequests.priority),
-      tx
-        .select({ category: maintenanceRequests.category, count: count() })
-        .from(maintenanceRequests)
-        .where(tenantFilter)
-        .groupBy(maintenanceRequests.category),
-      tx
-        .select({
-          avgDays:
-            sql<number>`AVG(EXTRACT(EPOCH FROM(${maintenanceRequests.completedAt}) - ${maintenanceRequests.createdAt}) / 86400)`.as(
-              'avgDays'
-            ),
-        })
-        .from(maintenanceRequests)
-        .where(
-          and(
-            tenantFilter,
-            eq(maintenanceRequests.status, 'COMPLETED'),
-            sql`${maintenanceRequests.completedAt} IS NOT NULL`
-          )
+    // Run queries sequentially — the transaction connection (single pg client)
+    // cannot safely handle concurrent queries.
+    const totalOpenResult = await tx
+      .select({ count: count() })
+      .from(maintenanceRequests)
+      .where(
+        and(
+          tenantFilter,
+          sql`${maintenanceRequests.status} != 'COMPLETED'`,
+          sql`${maintenanceRequests.status} != 'CANCELLED'`
         )
-        .limit(1),
-    ]);
+      );
+
+    const totalThisMonthResult = await tx
+      .select({ count: count() })
+      .from(maintenanceRequests)
+      .where(and(tenantFilter, gte(maintenanceRequests.createdAt, startOfMonth)));
+
+    const completedThisMonthResult = await tx
+      .select({ count: count() })
+      .from(maintenanceRequests)
+      .where(
+        and(
+          tenantFilter,
+          sql`${maintenanceRequests.status} = 'COMPLETED'`,
+          sql`${maintenanceRequests.completedAt} >= ${startOfMonth}`
+        )
+      );
+
+    const overdueResult = await tx
+      .select({ count: count() })
+      .from(maintenanceRequests)
+      .where(
+        and(
+          tenantFilter,
+          sql`${maintenanceRequests.status} NOT IN ('COMPLETED', 'CANCELLED')`,
+          sql`${maintenanceRequests.scheduledDate} < ${now}`
+        )
+      );
+
+    const byStatusResult = await tx
+      .select({ status: maintenanceRequests.status, count: count() })
+      .from(maintenanceRequests)
+      .where(tenantFilter)
+      .groupBy(maintenanceRequests.status);
+
+    const byPriorityResult = await tx
+      .select({ priority: maintenanceRequests.priority, count: count() })
+      .from(maintenanceRequests)
+      .where(tenantFilter)
+      .groupBy(maintenanceRequests.priority);
+
+    const byCategoryResult = await tx
+      .select({ category: maintenanceRequests.category, count: count() })
+      .from(maintenanceRequests)
+      .where(tenantFilter)
+      .groupBy(maintenanceRequests.category);
+
+    const avgResolutionResult = await tx
+      .select({
+        avgDays:
+          sql<number>`AVG(EXTRACT(EPOCH FROM(${maintenanceRequests.completedAt}) - ${maintenanceRequests.createdAt}) / 86400)`.as(
+            'avgDays'
+          ),
+      })
+      .from(maintenanceRequests)
+      .where(
+        and(
+          tenantFilter,
+          eq(maintenanceRequests.status, 'COMPLETED'),
+          sql`${maintenanceRequests.completedAt} IS NOT NULL`
+        )
+      )
+      .limit(1);
 
     const trendResult = await tx
       .select({

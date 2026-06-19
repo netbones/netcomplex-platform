@@ -31,68 +31,54 @@ export async function GET(request: Request) {
     return runWithRLS(ctx, async tx => {
       const tenantId = ctx.tenantId;
 
-      const [
-        openMaintenance,
-        pendingMembers,
-        closingSurveys,
-        expiredAnnouncements,
-        unpublishedContent,
-        draftCompetitions,
-      ] = await Promise.all([
-        // Open maintenance requests (SUBMITTED status)
-        tx
-          .select({ count: count() })
-          .from(maintenanceRequests)
-          .where(
-            and(
-              eq(maintenanceRequests.tenantId, tenantId),
-              eq(maintenanceRequests.status, 'SUBMITTED')
-            )
-          ),
+      // Run queries sequentially — the transaction connection (single pg client)
+      // cannot safely handle concurrent queries. Concurrent queries on one client
+      // trigger the pg@8.x deprecation "client.query() when already executing".
+      const openMaintenance = await tx
+        .select({ count: count() })
+        .from(maintenanceRequests)
+        .where(
+          and(
+            eq(maintenanceRequests.tenantId, tenantId),
+            eq(maintenanceRequests.status, 'SUBMITTED')
+          )
+        );
 
-        // Pending group membership requests
-        tx
-          .select({ count: count() })
-          .from(groupMembershipRequests)
-          .where(
-            and(
-              eq(groupMembershipRequests.tenantId, tenantId),
-              eq(groupMembershipRequests.status, 'PENDING')
-            )
-          ),
+      const pendingMembers = await tx
+        .select({ count: count() })
+        .from(groupMembershipRequests)
+        .where(
+          and(
+            eq(groupMembershipRequests.tenantId, tenantId),
+            eq(groupMembershipRequests.status, 'PENDING')
+          )
+        );
 
-        // Active surveys closing within 3 days
-        tx
-          .select({ count: count() })
-          .from(surveys)
-          .where(
-            and(
-              eq(surveys.tenantId, tenantId),
-              eq(surveys.status, 'ACTIVE'),
-              lte(surveys.endDate, new Date(Date.now() + 3 * 24 * 60 * 60 * 1000))
-            )
-          ),
+      const closingSurveys = await tx
+        .select({ count: count() })
+        .from(surveys)
+        .where(
+          and(
+            eq(surveys.tenantId, tenantId),
+            eq(surveys.status, 'ACTIVE'),
+            lte(surveys.endDate, new Date(Date.now() + 3 * 24 * 60 * 60 * 1000))
+          )
+        );
 
-        // Announcements past their expiresAt
-        tx
-          .select({ count: count() })
-          .from(announcements)
-          .where(
-            and(eq(announcements.tenantId, tenantId), lte(announcements.expiresAt, new Date()))
-          ),
+      const expiredAnnouncements = await tx
+        .select({ count: count() })
+        .from(announcements)
+        .where(and(eq(announcements.tenantId, tenantId), lte(announcements.expiresAt, new Date())));
 
-        // Content drafts not yet published
-        tx
-          .select({ count: count() })
-          .from(contents)
-          .where(and(eq(contents.tenantId, tenantId), eq(contents.published, false))),
+      const unpublishedContent = await tx
+        .select({ count: count() })
+        .from(contents)
+        .where(and(eq(contents.tenantId, tenantId), eq(contents.published, false)));
 
-        // Competitions in DRAFT status
-        tx
-          .select({ count: count() })
-          .from(competitions)
-          .where(and(eq(competitions.tenantId, tenantId), eq(competitions.status, 'DRAFT'))),
-      ]);
+      const draftCompetitions = await tx
+        .select({ count: count() })
+        .from(competitions)
+        .where(and(eq(competitions.tenantId, tenantId), eq(competitions.status, 'DRAFT')));
 
       const extractCount = (result: { count: number }[]) => result[0]?.count ?? 0;
 
