@@ -184,21 +184,35 @@ export function ServicesLayer() {
         </div>
       </section>
 
-      {/* Section: Competitions & Surveys */}
-      {engagementDomains.length > 0 && (
-        <section aria-label="Competitions and surveys">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Competitions &amp; Surveys</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-            {engagementDomains.map(domain => (
-              <DomainCard
-                key={domain.id}
-                domain={domain}
-                badge={urgency.domainBadges[domain.id] ?? 0}
-              />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Section: Competitions, Surveys & Campaigns */}
+      <section aria-label="Competitions, surveys and campaigns">
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">Competitions &amp; Surveys</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          {engagementDomains.map(domain => (
+            <DomainCard
+              key={domain.id}
+              domain={domain}
+              badge={urgency.domainBadges[domain.id] ?? 0}
+            />
+          ))}
+          <Link
+            href="/campaign"
+            className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
+          >
+            <div className="flex-shrink-0 w-10 h-10">
+              <img src="/platform/campaigns.svg" alt="" className="w-full h-full" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
+                Campaigns
+              </h3>
+              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+                Community pride campaigns and initiatives
+              </p>
+            </div>
+          </Link>
+        </div>
+      </section>
 
       {/* Section: Settings */}
       <section aria-label="Settings">
