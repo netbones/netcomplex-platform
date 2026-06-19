@@ -51,7 +51,11 @@ export default function ResetPasswordPage() {
       if (response.ok) {
         setSuccess(true);
       } else {
-        setError(data.error || 'Failed to reset password');
+        const errMsg =
+          typeof data.error === 'object' && data.error !== null
+            ? (data.error as { message?: string }).message || 'Failed to reset password'
+            : data.error || 'Failed to reset password';
+        setError(errMsg);
       }
     } catch {
       setError('An unexpected error occurred');

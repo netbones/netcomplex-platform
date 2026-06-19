@@ -69,7 +69,7 @@ function VerifyOtpForm() {
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        setError(data.message || data.error || 'Invalid or expired code');
+        setError(data.error?.message || data.message || 'Invalid or expired code');
       } else {
         router.push('/sign-in?reset=success');
       }

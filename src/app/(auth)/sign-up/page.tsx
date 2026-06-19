@@ -54,7 +54,11 @@ export default function SignUpPage() {
       if (response.ok) {
         router.push(`/verify-email?email=${encodeURIComponent(email)}`);
       } else {
-        setError(data.error || 'Failed to sign up');
+        const errMsg =
+          typeof data.error === 'object' && data.error !== null
+            ? (data.error as { message?: string }).message || 'Failed to sign up'
+            : data.error || 'Failed to sign up';
+        setError(errMsg);
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'An unexpected error occurred';
