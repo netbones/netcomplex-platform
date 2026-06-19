@@ -199,6 +199,29 @@ export function ServicesLayer() {
           </div>
         </section>
       )}
+
+      {/* Section: Settings */}
+      <section aria-label="Settings">
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">Settings</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          <Link
+            href="/settings"
+            className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
+          >
+            <div className="flex-shrink-0 w-10 h-10">
+              <img src="/platform/settings.svg" alt="" className="w-full h-full" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
+                Settings
+              </h3>
+              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+                Manage your account, privacy, and preferences
+              </p>
+            </div>
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }
