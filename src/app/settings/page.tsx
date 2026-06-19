@@ -30,6 +30,7 @@ export default function SettingsPage() {
   const [loadingHousehold, setLoadingHousehold] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string>('');
   const [isOwner, setIsOwner] = useState(false);
+  const [planType, setPlanType] = useState<string>('');
 
   useEffect(() => {
     if (i18n.language) {
@@ -83,6 +84,15 @@ export default function SettingsPage() {
         const userData = body?.data ?? body;
         if (userData.avatar || userData.image) {
           setUserAvatar(userData.avatar || userData.image);
+        }
+        if (userData.premiumSeat) {
+          setPlanType('Premium');
+        } else if (userData.standardSeats?.length > 0) {
+          setPlanType('Standard Seat');
+        } else if (userData.soloSeats?.length > 0) {
+          setPlanType('Solo Seat');
+        } else {
+          setPlanType('Basic');
         }
       } catch (e) {
         log.error({}, 'Failed to fetch user', e);
@@ -255,6 +265,10 @@ export default function SettingsPage() {
               <p className="mt-1 text-gray-900 capitalize">
                 {session?.user?.role?.toLowerCase() || 'resident'}
               </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Plan</label>
+              <p className="mt-1 text-gray-900 capitalize">{planType || 'Loading...'}</p>
             </div>
           </div>
         </div>
