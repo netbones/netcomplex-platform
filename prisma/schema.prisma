@@ -883,6 +883,39 @@ model PlatformSuspension {
   @@index([userId])
 }
 
+model BehaviorRecord {
+  id                 String               @id
+  tenantId           String
+  userId             String
+  behaviorType       BehaviorType
+  category           BehaviorCategory     @default(OTHER)
+  reason             String
+  description        String?
+  recognitionPoints  Int                  @default(0)
+  disciplinaryPoints Int                  @default(0)
+  standingBefore     Int?
+  standingAfter      Int?
+  status             BehaviorRecordStatus @default(ACTIVE)
+  disputeReason      String?
+  disputedAt         DateTime?
+  resolvedById       String?
+  resolvedAt         DateTime?
+  createdById        String
+  createdAt          DateTime             @default(now())
+  expiresAt          DateTime?
+  deletedAt          DateTime?
+
+  user       user  @relation("BehaviorRecordSubject", fields: [userId], references: [id], onDelete: Cascade)
+  createdBy  user  @relation("BehaviorRecordCreatedBy", fields: [createdById], references: [id])
+  resolvedBy user? @relation("BehaviorRecordResolvedBy", fields: [resolvedById], references: [id])
+
+  @@index([userId])
+  @@index([tenantId])
+  @@index([behaviorType])
+  @@index([status])
+  @@index([category])
+}
+
 model PremiumSeat {
   id                   String                @id
   tenantId             String
@@ -1111,6 +1144,9 @@ model user {
   member                                                Member[]
   passkey                                               passkey[]
   platformSuspension                                    PlatformSuspension[]
+  behaviorRecordsSubject                                BehaviorRecord[]         @relation("BehaviorRecordSubject")
+  behaviorRecordsCreatedBy                              BehaviorRecord[]         @relation("BehaviorRecordCreatedBy")
+  behaviorRecordsResolvedBy                             BehaviorRecord[]         @relation("BehaviorRecordResolvedBy")
   premiumSeat                                           PremiumSeat?
   profile_profile_landlordIdTouser                      Profile[]                 @relation("profile_landlordIdTouser")
   profile_profile_userIdTouser                          Profile[]                 @relation("profile_userIdTouser")
@@ -1437,5 +1473,30 @@ enum SuspensionType {
   DISRUPTION
   PROPERTY
   BEHAVIOR
+  OTHER
+}
+
+enum BehaviorType {
+  MERIT
+  WARNING
+  INFRACTION
+}
+
+enum BehaviorRecordStatus {
+  ACTIVE
+  DISPUTED
+  UPHELD
+  OVERTURNED
+}
+
+enum BehaviorCategory {
+  COMMUNITY_SERVICE
+  VOLUNTEERISM
+  MAINTENANCE
+  NOISE
+  PARKING
+  SECURITY
+  PETS
+  COMPLIANCE
   OTHER
 }

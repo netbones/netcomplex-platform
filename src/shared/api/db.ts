@@ -82,6 +82,7 @@ import { eventAttendees } from '@schema/event-attendees';
 import { announcements } from '@schema/announcements';
 import { agentAccesses } from '@schema/agent-accesses';
 import { platformSuspensions } from '@schema/platform-suspensions';
+import { behaviorRecords } from '@schema/behavior-records';
 import { platformModules } from '@schema/platform-modules';
 import { tenantModules } from '@schema/tenant-modules';
 import { groupMembershipRequests } from '@schema/group-membership-requests';
@@ -144,6 +145,7 @@ const dbSchema = {
   announcements,
   agentAccesses,
   platformSuspensions,
+  behaviorRecords,
   groupMembershipRequests,
   platformModules,
   tenantModules,
@@ -306,6 +308,7 @@ export {
   announcements,
   agentAccesses,
   platformSuspensions,
+  behaviorRecords,
   groupMembershipRequests,
   platformModules,
   tenantModules,

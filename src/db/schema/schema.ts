@@ -43,6 +43,7 @@ import * as members from './members';
 import * as organizations from './organizations';
 import * as passkeys from './passkeys';
 import * as platformSuspensions from './platform-suspensions';
+import * as behaviorRecords from './behavior-records';
 import * as premiumSeats from './premium-seats';
 import * as propertyPremiumSeats from './property-premium-seats';
 import * as profiles from './profiles';
@@ -97,6 +98,7 @@ import * as membersRelations from './members-relations';
 import * as organizationsRelations from './organizations-relations';
 import * as passkeysRelations from './passkeys-relations';
 import * as platformSuspensionsRelations from './platform-suspensions-relations';
+import * as behaviorRecordsRelations from './behavior-records-relations';
 import * as premiumSeatsRelations from './premium-seats-relations';
 import * as propertyPremiumSeatsRelations from './property-premium-seats-relations';
 import * as profilesRelations from './profiles-relations';
@@ -155,6 +157,7 @@ export const schema = {
   ...organizations,
   ...passkeys,
   ...platformSuspensions,
+  ...behaviorRecords,
   ...premiumSeats,
   ...propertyPremiumSeats,
   ...profiles,
@@ -209,6 +212,7 @@ export const schema = {
   ...organizationsRelations,
   ...passkeysRelations,
   ...platformSuspensionsRelations,
+  ...behaviorRecordsRelations,
   ...premiumSeatsRelations,
   ...propertyPremiumSeatsRelations,
   ...profilesRelations,
