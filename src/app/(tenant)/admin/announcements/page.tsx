@@ -99,7 +99,10 @@ export default function AnnouncementsAdminPage() {
         <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Announcements' }]} />
 
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Announcements</h1>
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <img src="/platform/announcements.svg" alt="" className="w-8 h-8" />
+            Announcements
+          </h1>
           {!showForm && (
             <button
               onClick={() => {

@@ -613,7 +613,10 @@ export default function AdminRequestsPage() {
         />
 
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Maintenance Requests</h1>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <img src="/platform/maintenance.svg" alt="" className="w-10 h-10" />
+            Maintenance Requests
+          </h1>
           <div className="text-sm text-gray-500">
             {requests.length} request{requests.length !== 1 ? 's' : ''}
           </div>

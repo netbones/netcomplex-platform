@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <!-- Standardized panel background card glow -->
+    <linearGradient id="bgGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8ECFD" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F3F1FB" stop-opacity="0.9"/>
+    </linearGradient>
+    <!-- Deep violet-to-indigo medal body gradient -->
+    <linearGradient id="medalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" />
+      <stop offset="60%" stop-color="#5B21B6" />
+      <stop offset="100%" stop-color="#3B0764" />
+    </linearGradient>
+    <!-- Dual-tone ribbon gradient (Violet to Cyan accent) -->
+    <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6D28D9" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+    <!-- Drop shadow filter for consistent depth -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="1.5" dy="3" stdDeviation="2.5" flood-color="#3B0764" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base Card -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGlow)" />
+
+  <!-- Medal & Laurel Graphics Layer -->
+  <g filter="url(#dropShadow)" transform="translate(14, 11)">
+    <!-- Award Ribbon Bars -->
+    <path d="M6,2 L11,16 L17,16 L12,2 Z" fill="url(#ribbonGrad)" />
+    <path d="M30,2 L25,16 L19,16 L24,2 Z" fill="url(#ribbonGrad)" opacity="0.85" />
+    <rect x="13" y="14" width="10" height="4" rx="1" fill="#06B6D4" opacity="0.9" />
+
+    <!-- Laurel Wreath Silhouette (Simplified Accents) -->
+    <path d="M2,28 C0,22 4,16 4,16 C4,16 6,20 4,24" stroke="#6D28D9" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7" />
+    <path d="M34,28 C36,22 32,16 32,16 C32,16 30,20 32,24" stroke="#6D28D9" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7" />
+    <path d="M8,34 C12,37 24,37 28,34" stroke="#6D28D9" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6" />
+
+    <!-- Main Circular Medal -->
+    <circle cx="18" cy="25" r="11" fill="url(#medalGrad)" />
+    <!-- Inner Rim Ring -->
+    <circle cx="18" cy="25" r="9" fill="none" stroke="#06B6D4" stroke-width="1" opacity="0.4" />
+
+    <!-- Central Achievement Star Motif -->
+    <path d="M18,19 L19.8,22.6 L23.8,23.2 L20.9,26 L21.6,30 L18,28.1 L14.4,30 L15.1,26 L12.2,23.2 L16.2,22.6 Z" fill="#FFFFFF" opacity="0.95" />
+  </g>
+</svg>

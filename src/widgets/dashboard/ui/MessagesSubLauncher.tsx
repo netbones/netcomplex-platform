@@ -1,8 +1,5 @@
 'use client';
 
-import { MessageSquare, Megaphone, Bell } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-
 // ═══════════════════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════════════════
@@ -15,7 +12,7 @@ export interface MessagesDomainDef {
   id: string;
   labelKey: string;
   descriptionKey: string;
-  icon: LucideIcon;
+  icon: string;
   description: string;
 }
 
@@ -33,21 +30,21 @@ export const MESSAGES_DOMAIN_DEFINITIONS: MessagesDomainDef[] = [
     id: 'conversations',
     labelKey: 'domains.conversations',
     descriptionKey: 'domains.descriptions.conversations',
-    icon: MessageSquare,
+    icon: '/platform/communication.svg',
     description: 'Direct and group conversations',
   },
   {
     id: 'announcements',
     labelKey: 'domains.announcements',
     descriptionKey: 'domains.descriptions.announcements',
-    icon: Megaphone,
+    icon: '/platform/announcements.svg',
     description: 'Community announcements and broadcasts',
   },
   {
     id: 'notifications',
     labelKey: 'domains.notifications',
     descriptionKey: 'domains.descriptions.notifications',
-    icon: Bell,
+    icon: '/platform/communication.svg',
     description: 'System notifications and alerts',
   },
 ];

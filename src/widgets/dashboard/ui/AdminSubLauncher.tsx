@@ -2,19 +2,6 @@
 
 import Link from 'next/link';
 import { useSafeTranslation } from '@shared/lib';
-import {
-  Users,
-  Wrench,
-  FileText,
-  Calendar,
-  Star,
-  FolderOpen,
-  BarChart2,
-  Megaphone,
-  Settings,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-
 /**
  * Admin management domain definition.
  * Each domain maps to admin widgets rendered on the /dashboard/admin/[domain] page.
@@ -23,7 +10,7 @@ export interface AdminDomainDef {
   id: string;
   labelKey: string;
   descriptionKey: string;
-  icon: LucideIcon;
+  icon: string;
   description: string;
 }
 
@@ -38,63 +25,70 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     id: 'users',
     labelKey: 'domains.users',
     descriptionKey: 'domains.descriptions.users',
-    icon: Users,
+    icon: '/platform/users.svg',
     description: 'Manage community members and roles',
   },
   {
     id: 'maintenance',
     labelKey: 'domains.maintenance',
     descriptionKey: 'domains.descriptions.maintenance',
-    icon: Wrench,
+    icon: '/platform/maintenance.svg',
     description: 'Maintenance request management and analytics',
   },
   {
     id: 'content',
     labelKey: 'domains.content',
     descriptionKey: 'domains.descriptions.content',
-    icon: FileText,
+    icon: '/platform/content.svg',
     description: 'Content publishing and moderation',
   },
   {
     id: 'events',
     labelKey: 'domains.events',
     descriptionKey: 'domains.descriptions.events',
-    icon: Calendar,
+    icon: '/platform/events.svg',
     description: 'Community event management',
   },
   {
     id: 'competitions',
     labelKey: 'domains.competitions',
     descriptionKey: 'domains.descriptions.competitions',
-    icon: Star,
+    icon: '/platform/competitions.svg',
     description: 'Competition setup and results',
   },
   {
     id: 'resources',
     labelKey: 'domains.resources',
     descriptionKey: 'domains.descriptions.resources',
-    icon: FolderOpen,
+    icon: '/platform/resources.svg',
     description: 'Community resource management',
   },
   {
     id: 'surveys',
     labelKey: 'domains.surveys',
     descriptionKey: 'domains.descriptions.surveys',
-    icon: BarChart2,
+    icon: '/platform/surveys.svg',
     description: 'Survey creation and results',
   },
   {
     id: 'announcements',
     labelKey: 'domains.announcements',
     descriptionKey: 'domains.descriptions.announcements',
-    icon: Megaphone,
+    icon: '/platform/announcements.svg',
     description: 'Announcement creation and management',
+  },
+  {
+    id: 'merits',
+    labelKey: 'domains.merits',
+    descriptionKey: 'domains.descriptions.merits',
+    icon: '/platform/merits.svg',
+    description: 'Community merit management and disputes',
   },
   {
     id: 'system',
     labelKey: 'domains.system',
     descriptionKey: 'domains.descriptions.system',
-    icon: Settings,
+    icon: '/platform/system.svg',
     description: 'Platform configuration and health',
   },
 ];
@@ -119,6 +113,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.resources': 'Resources',
   'domains.surveys': 'Surveys',
   'domains.announcements': 'Announcements',
+  'domains.merits': 'Merits',
   'domains.system': 'System',
   'domains.descriptions.users': 'Manage community members and roles',
   'domains.descriptions.maintenance': 'Maintenance request management and analytics',
@@ -128,6 +123,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.resources': 'Community resource management',
   'domains.descriptions.surveys': 'Survey creation and results',
   'domains.descriptions.announcements': 'Announcement creation and management',
+  'domains.descriptions.merits': 'Community merit management and disputes',
   'domains.descriptions.system': 'Platform configuration and health',
 };
 
@@ -150,7 +146,6 @@ export function AdminSubLauncher() {
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {ADMIN_DOMAIN_DEFINITIONS.map(domain => {
-          const DomainIcon = domain.icon;
           if (domain.id === 'users') {
             return (
               <button
@@ -159,8 +154,8 @@ export function AdminSubLauncher() {
                 className="group flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100 text-left w-full"
                 type="button"
               >
-                <div className="flex-shrink-0 p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition">
-                  <DomainIcon className="w-6 h-6 text-indigo-600" />
+                <div className="flex-shrink-0 w-10 h-10">
+                  <img src={domain.icon} alt="" className="w-full h-full" />
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition">
@@ -182,8 +177,8 @@ export function AdminSubLauncher() {
               href={`/admin/${domain.id}`}
               className="group flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
             >
-              <div className="flex-shrink-0 p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition">
-                <DomainIcon className="w-6 h-6 text-indigo-600" />
+              <div className="flex-shrink-0 w-10 h-10">
+                <img src={domain.icon} alt="" className="w-full h-full" />
               </div>
               <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition">

@@ -183,7 +183,10 @@ export default function MaintenanceAnalyticsPage() {
         />
 
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Maintenance Analytics</h1>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <img src="/platform/maintenance.svg" alt="" className="w-10 h-10" />
+            Maintenance Analytics
+          </h1>
           <p className="text-gray-600 mt-1">Overview of maintenance request metrics</p>
         </div>
 

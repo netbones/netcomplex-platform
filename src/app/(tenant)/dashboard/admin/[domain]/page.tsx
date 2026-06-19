@@ -24,7 +24,7 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
   }
 
   const domainDef = ADMIN_DOMAIN_DEFINITIONS.find(d => d.id === domain);
-  const DomainIcon = domainDef?.icon;
+  const iconSrc = domainDef?.icon;
   const widgets = getAdminDomainWidgets(domain);
 
   // Compute domain label fallback (used by tx() multiple times)
@@ -49,7 +49,7 @@ export default function AdminDomainPage({ params }: AdminDomainPageProps) {
 
         <div className="flex items-center justify-between mt-6 mb-6">
           <div className="flex items-center gap-3">
-            {DomainIcon && <DomainIcon className="w-8 h-8 text-indigo-600" />}
+            {iconSrc && <img src={iconSrc} alt="" className="w-8 h-8" />}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {tx(domainDef?.labelKey ?? domain, domainLabelFallback, { ns: 'admin' })}

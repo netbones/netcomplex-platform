@@ -36,7 +36,10 @@ export function SurveysListPage() {
       />
 
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Surveys & Polls</h1>
+        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+          <img src="/platform/surveys.svg" alt="" className="w-10 h-10" />
+          Surveys &amp; Polls
+        </h1>
         <Link
           href="/admin/surveys/new"
           className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"

@@ -78,7 +78,10 @@ export function MeritsListPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Community Merits</h1>
+          <h1 className="text-2xl font-bold flex items-center gap-3">
+            <img src="/platform/merits.svg" alt="" className="w-8 h-8" />
+            Community Merits
+          </h1>
           <p className="text-sm text-gray-500 mt-1">Behavior records and standing management</p>
         </div>
         <Link

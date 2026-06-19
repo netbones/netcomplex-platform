@@ -30,15 +30,14 @@ interface UrgencyResponse {
 
 function DomainCard({ domain, badge }: { domain: MessagesDomainDef; badge: number }) {
   const { tx } = useSafeTranslation('messages');
-  const DomainIcon = domain.icon;
 
   return (
     <Link
       href={`/dashboard/communication/${domain.id}`}
       className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
     >
-      <div className="flex-shrink-0 p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition">
-        <DomainIcon className="w-5 h-5 text-indigo-600" />
+      <div className="flex-shrink-0 w-10 h-10">
+        <img src={domain.icon} alt="" className="w-full h-full" />
       </div>
       <div className="min-w-0 flex-1">
         <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">

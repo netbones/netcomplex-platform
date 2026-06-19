@@ -71,7 +71,10 @@ export default function GroupCategoriesPage() {
         ]}
       />
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Interest Group Categories</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+        <img src="/platform/system.svg" alt="" className="w-10 h-10" />
+        Interest Group Categories
+      </h1>
 
       {loading ? (
         <p>Loading...</p>

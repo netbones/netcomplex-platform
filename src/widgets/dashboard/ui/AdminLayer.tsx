@@ -12,7 +12,6 @@ import { ADMIN_DOMAIN_DEFINITIONS, type AdminDomainDef } from './AdminSubLaunche
 // Domain ID → actual admin route override for domains whose page name differs
 const ADMIN_ROUTE_OVERRIDES: Record<string, string> = {
   maintenance: '/admin/requests',
-  system: '/admin/categories',
 };
 
 // Lazy-load activity stream (plan truth: lazy-loaded below domain grid)
@@ -43,6 +42,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.resources': 'Resources',
   'domains.surveys': 'Surveys',
   'domains.announcements': 'Announcements',
+  'domains.merits': 'Merits',
   'domains.system': 'System',
   'domains.descriptions.users': 'Manage community members and roles',
   'domains.descriptions.maintenance': 'Maintenance request management and analytics',
@@ -52,20 +52,20 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.resources': 'Community resource management',
   'domains.descriptions.surveys': 'Survey creation and results',
   'domains.descriptions.announcements': 'Announcement creation and management',
+  'domains.descriptions.merits': 'Community merit management and disputes',
   'domains.descriptions.system': 'Platform configuration and health',
 };
 
 function DomainCard({ domain, badge }: { domain: AdminDomainDef; badge: number }) {
   const { tx } = useSafeTranslation('admin');
-  const DomainIcon = domain.icon;
 
   return (
     <Link
       href={ADMIN_ROUTE_OVERRIDES[domain.id] ?? `/admin/${domain.id}`}
       className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
     >
-      <div className="flex-shrink-0 p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition">
-        <DomainIcon className="w-5 h-5 text-indigo-600" />
+      <div className="flex-shrink-0 w-10 h-10">
+        <img src={domain.icon} alt="" className="w-full h-full" />
       </div>
       <div className="min-w-0 flex-1">
         <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">

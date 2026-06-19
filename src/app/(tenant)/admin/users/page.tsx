@@ -1,6 +1,5 @@
 'use client';
 
-import { Users } from 'lucide-react';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { AdminUserWidget } from '@widgets/admin';
 import { UsersListSection } from '@widgets/admin';
@@ -19,7 +18,7 @@ export default function AdminUsersPage() {
 
         <div className="flex items-center justify-between mt-6 mb-6">
           <div className="flex items-center gap-3">
-            <Users className="w-8 h-8 text-indigo-600" />
+            <img src="/platform/users.svg" alt="" className="w-8 h-8" />
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Users</h1>
               <p className="text-sm text-gray-500">Manage community members and roles</p>

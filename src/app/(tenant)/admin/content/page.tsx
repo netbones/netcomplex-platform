@@ -93,7 +93,10 @@ export default function ContentListPage() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Content Management' }]} />
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Content Management</h1>
+        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+          <img src="/platform/content.svg" alt="" className="w-8 h-8" />
+          Content Management
+        </h1>
         <Link
           href="/admin/content/new"
           className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"

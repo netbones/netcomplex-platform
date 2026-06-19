@@ -4,7 +4,6 @@ import {
   setPlatformPageFlagWithTx,
   type PlatformPageFlags,
 } from '@entities/tenant/server';
-import { withTenant } from '@entities/tenant/server';
 import {
   getSessionAndRole,
   runWithRLS,
@@ -27,8 +26,7 @@ export async function GET(request: NextRequest) {
     if (!ctx) return apiUnauthorized();
 
     return runWithRLS(ctx, async tx => {
-      const { tenantId } = await withTenant();
-      const flags = await getPlatformPageFlagsWithTx(tx, tenantId);
+      const flags = await getPlatformPageFlagsWithTx(tx, ctx.tenantId);
       return apiSuccess(flags);
     });
   } catch (error) {
@@ -48,7 +46,6 @@ export async function POST(request: NextRequest) {
     if (!ctx) return apiUnauthorized();
 
     return runWithRLS(ctx, async tx => {
-      const { tenantId } = await withTenant();
       const body = await request.json();
       const { key, value } = body as { key: keyof PlatformPageFlags; value: string | boolean };
 
@@ -66,13 +63,17 @@ export async function POST(request: NextRequest) {
         'maintenance',
         'surveys',
         'competitions',
+        'dashboard',
+        'bookings',
+        'messages',
+        'headerEngagementFocus',
       ];
 
       if (!validKeys.includes(key)) {
         return apiError('VALIDATION_ERROR', 'Invalid key', 400);
       }
 
-      const success = await setPlatformPageFlagWithTx(tx, tenantId, key, value);
+      const success = await setPlatformPageFlagWithTx(tx, ctx.tenantId, key, value);
 
       if (success) {
         return apiSuccess({ success: true, key, value });
