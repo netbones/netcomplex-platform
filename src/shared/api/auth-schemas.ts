@@ -68,3 +68,12 @@ export const verifyOtpSchema = z.object({
   otp: z.string().length(6, 'OTP must be 6 digits'),
   newPassword: z.string().min(8, 'Password must be at least 8 characters').max(128),
 });
+
+/**
+ * OTP send schema — validates the send-verification-otp request (Phase 45-01).
+ * Better Auth expects { email, type } for the send endpoint.
+ */
+export const sendOtpSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  type: z.enum(['sign-in', 'email-verification', 'forget-password']),
+});

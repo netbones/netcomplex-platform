@@ -27,6 +27,7 @@ import {
   forgetPasswordSchema,
   resetPasswordSchema,
   verifyOtpSchema,
+  sendOtpSchema,
 } from './auth-schemas';
 
 /**
@@ -148,7 +149,7 @@ export const auth = betterAuth({
       { path: '/sign-in/email', schema: signInEmailSchema },
       { path: '/forget-password', schema: forgetPasswordSchema },
       { path: '/reset-password', schema: resetPasswordSchema },
-      { path: '/email-otp/send-verification-otp', schema: verifyOtpSchema },
+      { path: '/email-otp/send-verification-otp', schema: sendOtpSchema },
     ]),
   ],
   advanced: {
