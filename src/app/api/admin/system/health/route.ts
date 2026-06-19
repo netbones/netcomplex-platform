@@ -1,6 +1,13 @@
-import { apiSuccess, apiInternalError, requireAnyPermission, db, users } from '@api/server';
+import {
+  apiSuccess,
+  apiInternalError,
+  requireAnyPermission,
+  db,
+  users,
+  sessions,
+} from '@api/server';
 import { withTenant } from '@entities/tenant/server';
-import { count, eq, sql } from 'drizzle-orm';
+import { count, eq, gt } from 'drizzle-orm';
 import { createComponentLogger } from '@shared/lib';
 
 export const maxDuration = 5;
@@ -19,22 +26,22 @@ export async function GET(request: Request) {
       .from(users)
       .where(eq(users.tenantId, tenantId));
 
-    const activeResult = await db.execute(sql`
-      SELECT count(distinct "userId") as count
-      FROM "session"
-      WHERE "expiresAt" > now()
-    `);
+    const [activeResult] = await db
+      .select({ count: count() })
+      .from(sessions)
+      .where(gt(sessions.expiresAt, new Date()));
 
-    const activeUsers = Number((activeResult.rows[0] as { count: string }).count);
-
-    log.info({ tenantId, totalUsers: userResult?.count }, 'health check results');
+    log.info(
+      { tenantId, totalUsers: userResult?.count, activeSessions: activeResult?.count },
+      'health check'
+    );
 
     return apiSuccess({
       db: 'connected' as const,
       tenantId,
       tenantName: tenantId,
       totalUsers: userResult?.count ?? 0,
-      activeUsers,
+      activeUsers: activeResult?.count ?? 0,
     });
   } catch (error) {
     log.error({}, 'Health check failed', error);
