@@ -164,12 +164,9 @@ const dbSchema = {
 export type DbSchema = typeof dbSchema;
 
 let dbInstance: ReturnType<typeof drizzle> | undefined;
+let authDbInstance: ReturnType<typeof drizzle> | undefined;
 
-function getDb() {
-  if (dbInstance) {
-    return dbInstance;
-  }
-
+function createConnectionString() {
   const pooledUrl = ENV.DATABASE_URL;
   const directUrl = ENV.DIRECT_URL;
 
@@ -186,12 +183,29 @@ function getDb() {
   }
 
   const envUrl = pooledUrl || directUrl!;
-  const connectionString = envUrl.replace('sslmode=require', 'sslmode=no-verify');
-  const pool = new Pool({ connectionString, ...POOL_CONFIG });
+  return envUrl.replace('sslmode=require', 'sslmode=no-verify');
+}
 
+function getDb() {
+  if (dbInstance) {
+    return dbInstance;
+  }
+
+  const pool = new Pool({ connectionString: createConnectionString(), ...POOL_CONFIG });
   dbInstance = drizzle(pool, { schema: dbSchema });
 
   return dbInstance;
+}
+
+function getAuthDb() {
+  if (authDbInstance) {
+    return authDbInstance;
+  }
+
+  const pool = new Pool({ connectionString: createConnectionString(), ...POOL_CONFIG });
+  authDbInstance = drizzle(pool, { schema: dbSchema });
+
+  return authDbInstance;
 }
 
 /**
@@ -201,6 +215,17 @@ function getDb() {
 export const db = new Proxy({} as ReturnType<typeof drizzle>, {
   get(_target, prop) {
     return getDb()[prop as keyof ReturnType<typeof drizzle>];
+  },
+});
+
+/**
+ * Separate Drizzle instance for Better Auth.
+ * Uses its own pg Pool to avoid concurrent-query deprecation
+ * warnings from pg when Auth and app queries share a pool.
+ */
+export const authDb = new Proxy({} as ReturnType<typeof drizzle>, {
+  get(_target, prop) {
+    return getAuthDb()[prop as keyof ReturnType<typeof drizzle>];
   },
 });
 

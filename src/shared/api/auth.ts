@@ -5,6 +5,7 @@ import { passkey } from '@better-auth/passkey';
 import { ENV } from 'varlock/env';
 import {
   db,
+  authDb,
   users,
   sessions,
   accounts,
@@ -42,7 +43,7 @@ import {
  * For welcome emails when requireEmailVerification is false, we use onSignUp callback.
  */
 export const auth = betterAuth({
-  database: drizzleAdapter(db, {
+  database: drizzleAdapter(authDb, {
     provider: 'pg',
     schema: {
       user: users,
