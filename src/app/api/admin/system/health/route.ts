@@ -7,7 +7,7 @@ import {
   sessions,
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
-import { count, eq, gt } from 'drizzle-orm';
+import { count, eq, gt, and } from 'drizzle-orm';
 import { createComponentLogger } from '@shared/lib';
 
 export const maxDuration = 5;
@@ -26,22 +26,20 @@ export async function GET(request: Request) {
       .from(users)
       .where(eq(users.tenantId, tenantId));
 
-    const [activeResult] = await db
-      .select({ count: count() })
+    const activeSessions = await db
+      .select({ userId: sessions.userId })
       .from(sessions)
-      .where(gt(sessions.expiresAt, new Date()));
+      .innerJoin(users, eq(sessions.userId, users.id))
+      .where(and(eq(users.tenantId, tenantId), gt(sessions.expiresAt, new Date())));
 
-    log.info(
-      { tenantId, totalUsers: userResult?.count, activeSessions: activeResult?.count },
-      'health check'
-    );
+    const activeUsers = new Set(activeSessions.map(r => r.userId)).size;
 
     return apiSuccess({
       db: 'connected' as const,
       tenantId,
       tenantName: tenantId,
       totalUsers: userResult?.count ?? 0,
-      activeUsers: activeResult?.count ?? 0,
+      activeUsers,
     });
   } catch (error) {
     log.error({}, 'Health check failed', error);
