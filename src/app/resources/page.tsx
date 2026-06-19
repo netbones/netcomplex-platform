@@ -127,7 +127,10 @@ export default function ResourcesPage() {
         <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.resources') }]} />
 
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">{t('resources:title')}</h1>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <img src="/platform/resources.svg" alt="" className="w-10 h-10" />
+            <h1 className="text-4xl font-bold text-gray-900">{t('resources:title')}</h1>
+          </div>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">{t('resources:subtitle')}</p>
         </div>
 
