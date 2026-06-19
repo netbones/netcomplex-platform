@@ -95,7 +95,10 @@ export default function NewsPage() {
         <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: 'News & Updates' }]} />
 
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">News & Updates</h1>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <img src="/platform/news.svg" alt="" className="w-10 h-10" />
+            <h1 className="text-4xl font-bold text-gray-900">News & Updates</h1>
+          </div>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Stay informed with the latest news, announcements, and updates from our community.
           </p>
