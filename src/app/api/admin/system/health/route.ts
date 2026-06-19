@@ -20,14 +20,14 @@ export async function GET(request: Request) {
       .where(eq(users.tenantId, tenantId));
 
     const activeResult = await db.execute(sql`
-      SELECT count(distinct s."userId") as count
-      FROM "session" s
-      INNER JOIN "user" u ON s."userId" = u.id
-      WHERE u."tenantId" = ${tenantId}
-      AND s."expiresAt" > now()
+      SELECT count(distinct "userId") as count
+      FROM "session"
+      WHERE "expiresAt" > now()
     `);
 
     const activeUsers = Number((activeResult.rows[0] as { count: string }).count);
+
+    log.info({ tenantId, totalUsers: userResult?.count }, 'health check results');
 
     return apiSuccess({
       db: 'connected' as const,
