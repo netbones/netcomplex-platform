@@ -34,7 +34,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
     }
   );
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [savingKeys, setSavingKeys] = useState<Set<string>>(new Set());
   const [saved, setSaved] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +58,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
   }, []);
 
   const updateFlag = async (key: keyof PlatformPageFlags, value: string | boolean | string[]) => {
-    setSaving(true);
+    setSavingKeys(prev => new Set(prev).add(key));
     setSaved(false);
     setError(null);
 
@@ -82,7 +82,11 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
       log.error({}, 'Failed to update flag', err);
       setError('Network error — try again');
     } finally {
-      setSaving(false);
+      setSavingKeys(prev => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
     }
   };
 
@@ -244,7 +248,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
                           : [...flags.headerLinks, id];
                         updateFlag('headerLinks', next);
                       }}
-                      disabled={saving}
+                      disabled={savingKeys.has('headerLinks')}
                       className={`w-10 h-6 rounded-full transition-colors ${
                         isSelected ? 'bg-indigo-600' : 'bg-gray-300'
                       } ${!isSelected && atLimit ? 'opacity-40 cursor-not-allowed' : ''}`}
@@ -285,7 +289,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
                 </div>
                 <button
                   onClick={() => updateFlag(option.key, !flags[option.key] as boolean)}
-                  disabled={saving}
+                  disabled={savingKeys.has(option.key)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     flags[option.key] ? 'bg-indigo-600' : 'bg-gray-200'
                   }`}
@@ -358,7 +362,7 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
                   onClick={() =>
                     updateFlag('conservationExternalUrl', flags.conservationExternalUrl)
                   }
-                  disabled={saving}
+                  disabled={savingKeys.has('conservationExternalUrl')}
                   className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50"
                 >
                   Save URL
