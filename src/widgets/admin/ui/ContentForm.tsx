@@ -1,12 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { LocaleSelector } from '@features/i18n';
-import { RichTextEditor, TagInput } from '@shared/ui';
+import { AlertTriangle } from 'lucide-react';
+import { LocaleAwareEditor, LocaleAwareInput } from '@features/i18n';
+import { TagInput } from '@shared/ui';
 import { authClient } from '@api/client';
 import {
   supportedLanguages,
@@ -101,11 +102,42 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
   const formValues = watch();
   const isEditing = !!initialData?.id;
 
+  // Track whether the current locale's content has unsaved changes
+  const [localeDirtyState, setLocaleDirtyState] = useState<Record<string, boolean>>({});
+  const [pendingLocaleChange, setPendingLocaleChange] = useState<SupportedLanguage | null>(null);
+
+  // Mark current locale as dirty when content changes (skip initial render)
+  const isInitialRender = useRef(true);
+  useEffect(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    const hasTitle = !!formValues.title?.[activeLocale]?.trim();
+    const hasContent = !!formValues.content?.[activeLocale]?.trim();
+    if (hasTitle || hasContent) {
+      setLocaleDirtyState(prev => ({ ...prev, [activeLocale]: true }));
+    }
+  }, [formValues.title, formValues.content, activeLocale]);
+
+  const switchLocale = useCallback((locale: SupportedLanguage) => {
+    setActiveLocale(locale);
+    setPendingLocaleChange(null);
+  }, []);
+
   const availableLocales = supportedLanguages as readonly SupportedLanguage[];
 
-  const handleLocaleChange = useCallback((locale: SupportedLanguage) => {
-    setActiveLocale(locale);
-  }, []);
+  const handleLocaleChange = useCallback(
+    (locale: SupportedLanguage) => {
+      if (locale === activeLocale) return;
+      if (localeDirtyState[activeLocale]) {
+        setPendingLocaleChange(locale);
+      } else {
+        switchLocale(locale);
+      }
+    },
+    [activeLocale, localeDirtyState, switchLocale]
+  );
 
   const handleCopyContent = useCallback(
     (targetLocale: SupportedLanguage) => {
@@ -128,6 +160,8 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
         { ...formValues.excerpt, [targetLocale]: sourceExcerpt },
         { shouldValidate: false }
       );
+
+      setLocaleDirtyState(prev => ({ ...prev, [targetLocale]: false }));
 
       toast.success(
         `Copied ${languageNames[activeLocale]} content to ${languageNames[targetLocale]}`
@@ -158,6 +192,7 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
 
       if (res.ok) {
         toast.success(isEditing ? 'Content updated!' : 'Content created!');
+        setLocaleDirtyState(prev => ({ ...prev, [activeLocale]: false }));
         const redirectTo =
           baseRedirect || (session?.user?.id ? `/resident/${session.user.id}` : '/dashboard');
         router.push(redirectTo);
@@ -186,46 +221,60 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6 max-w-4xl">
       <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-700">Editing Language:</span>
-          <LocaleSelector
-            currentLocale={activeLocale}
-            availableLocales={availableLocales}
-            onLocaleChange={handleLocaleChange}
-            onCopyToLocale={handleCopyContent}
-          />
+          <span className="text-sm font-medium text-gray-700">Translation Status:</span>
+          <span className="text-xs text-gray-500">
+            {Object.keys(formValues.title || {}).length} locales active
+          </span>
         </div>
         <div className="text-xs text-gray-500">
           {Object.keys(formValues.title || {}).length} translations
         </div>
       </div>
 
+      {pendingLocaleChange && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center justify-between">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-yellow-800">Unsaved Changes</p>
+              <p className="text-sm text-yellow-700 mt-1">
+                Unsaved changes. Switching locales will discard your changes. Save before
+                continuing.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 ml-4 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => setPendingLocaleChange(null)}
+              className="px-3 py-1.5 text-sm border border-yellow-300 rounded-lg text-yellow-700 hover:bg-yellow-100"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => pendingLocaleChange && switchLocale(pendingLocaleChange)}
+              className="px-3 py-1.5 text-sm bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+            >
+              Discard &amp; Switch
+            </button>
+          </div>
+        </div>
+      )}
+
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Title ({languageNames[activeLocale]}) <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          value={formValues.title?.[activeLocale] || ''}
-          onChange={e =>
-            setValue(
-              'title',
-              { ...formValues.title, [activeLocale]: e.target.value },
-              {
-                shouldValidate: true,
-              }
-            )
-          }
-          className={`w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-            titleError || (!hasTitleForActiveLocale && isSubmitting)
-              ? 'border-red-300'
-              : 'border-gray-300'
-          }`}
-          placeholder={`Enter title in ${languageNames[activeLocale]}...`}
+        <LocaleAwareInput
+          value={formValues.title || {}}
+          onChange={newTitle => setValue('title', newTitle, { shouldValidate: true })}
+          placeholder="Enter title..."
+          label={`Title ${(<span className="text-red-500">*</span>)}`}
+          currentLocale={activeLocale}
+          onLocaleChange={handleLocaleChange}
         />
         {typeof titleError === 'string' && (
           <p className="mt-1 text-sm text-red-600">{titleError}</p>
         )}
-        {!titleError && !hasTitleForActiveLocale && isSubmitting && (
+        {!titleError && !formValues.title?.[activeLocale]?.trim() && isSubmitting && (
           <p className="mt-1 text-sm text-red-600">
             Title is required for {languageNames[activeLocale]}
           </p>
@@ -405,19 +454,14 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Content ({languageNames[activeLocale]}) <span className="text-red-500">*</span>
+          Content <span className="text-red-500">*</span>
         </label>
-        <RichTextEditor
-          content={formValues.content?.[activeLocale] || ''}
-          onChange={html =>
-            setValue(
-              'content',
-              { ...formValues.content, [activeLocale]: html },
-              {
-                shouldValidate: true,
-              }
-            )
-          }
+        <LocaleAwareEditor
+          content={formValues.content || {}}
+          onChange={newContent => setValue('content', newContent, { shouldValidate: true })}
+          placeholder="Start typing..."
+          currentLocale={activeLocale}
+          onLocaleChange={handleLocaleChange}
         />
         {typeof contentError === 'string' && (
           <p className="mt-1 text-sm text-red-600">{contentError}</p>
