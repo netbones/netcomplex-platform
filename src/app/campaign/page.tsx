@@ -128,7 +128,10 @@ export default function CampaignPage() {
           <Breadcrumbs items={[{ label: t('nav.home'), href: '/' }, { label: pageTitle }]} />
 
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-soralia-primary mb-2">{pageTitle}</h1>
+            <div className="flex items-center gap-3 mb-4">
+              <img src="/platform/campaigns.svg" alt="" className="w-10 h-10" />
+              <h1 className="text-4xl font-bold text-soralia-primary">{pageTitle}</h1>
+            </div>
             {pageDescription && <p className="text-lg text-gray-600">{pageDescription}</p>}
           </div>
 
