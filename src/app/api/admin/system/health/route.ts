@@ -3,11 +3,11 @@ import {
   apiInternalError,
   apiUnauthorized,
   requireAnyPermission,
-  getRLSContext,
-  runWithRLS,
+  db,
   users,
   sessions,
 } from '@api/server';
+import { withTenant } from '@entities/tenant/server';
 import { count, eq, gt, and, sql } from 'drizzle-orm';
 import { createComponentLogger } from '@shared/lib';
 
@@ -20,29 +20,25 @@ export async function GET(request: Request) {
     const authError = await requireAnyPermission(['admin', 'settings']);
     if (authError) return authError;
 
-    const ctx = await getRLSContext(request);
-    if (!ctx) return apiUnauthorized();
+    const { tenantId } = await withTenant();
 
-    return runWithRLS(ctx, async tx => {
-      const tenantId = ctx.tenantId;
+    const [userResult] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(eq(users.tenantId, tenantId));
 
-      const [userResult] = await tx
-        .select({ count: count() })
-        .from(users)
-        .where(eq(users.tenantId, tenantId));
+    const [activeResult] = await db
+      .select({ count: sql<number>`count(distinct ${sessions.userId})` })
+      .from(sessions)
+      .innerJoin(users, eq(sessions.userId, users.id))
+      .where(and(eq(users.tenantId, tenantId), gt(sessions.expiresAt, new Date())));
 
-      const [activeResult] = await tx
-        .select({ count: sql<number>`count(distinct ${sessions.userId})` })
-        .from(sessions)
-        .where(and(eq(sessions.tenantId, tenantId), gt(sessions.expiresAt, new Date())));
-
-      return apiSuccess({
-        db: 'connected' as const,
-        tenantId,
-        tenantName: tenantId,
-        totalUsers: userResult?.count ?? 0,
-        activeUsers: activeResult?.count ?? 0,
-      });
+    return apiSuccess({
+      db: 'connected' as const,
+      tenantId,
+      tenantName: tenantId,
+      totalUsers: userResult?.count ?? 0,
+      activeUsers: activeResult?.count ?? 0,
     });
   } catch (error) {
     log.error({}, 'Health check failed', error);
