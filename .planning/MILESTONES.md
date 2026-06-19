@@ -120,7 +120,7 @@ forward-looking.
 **Decomposition (added 2026-06-03 per Section 7 Gap C1):** M5 has 10 work items with no priority or scope. Proposed split:
 
 - **M5a — Audit Closure (5 items).** qig, fpc, 9xr, 5u2, 1ei. Verifiable: `docs/cleaner_react_architecture.md` marked "all chapters resolved" + 5 unit-test suites.
-- **M5b — Anchor Tenant Features (5 items).** 2at, l23, 0f7, cs5, 0tb + the missing i18n router extension phase. Verifiable: Soralia admin can invite 180 homes via batch import + the M5 launch checklist (Gap η) is green.
+- **M5b — Anchor Tenant Features (13 items).** 2at, l23, 0f7, cs5, 0tb + the missing i18n router extension phase + Phase 47 dWallet (2 items: 7cp, jc1) + Phase 49 Provider Platform & Marketplace (8 items: gtm, cp8, qx7, kia, 9e8, 69c, 4vk, 4fh). Verifiable: Soralia admin can invite 180 homes via batch import + the M5 launch checklist (Gap η) is green.
 
 M5a is "we cleaned up", M5b is "we shipped launch features". Different verifiables, different stakeholders. M5a unblocks future work; M5b unblocks anchor-tenant traffic.
 

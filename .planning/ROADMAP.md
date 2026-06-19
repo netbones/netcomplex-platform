@@ -10,16 +10,16 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 Phases are grouped into milestones (M0–M6+). See `.planning/MILESTONES.md` for full structure, gap analysis, and cadence ritual.
 
-| Milestone                         | Goal                                                                      | Phases                                 | Status           |
-| --------------------------------- | ------------------------------------------------------------------------- | -------------------------------------- | ---------------- |
-| **M0 Foundation**                 | Multi-tenant substrate + base modules                                     | 00, 01, 02, 03, 05, 06, 07, 08, 11     | ✅ Shipped       |
-| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding                       | 09, 10, 18, 19, 20                     | ✅ Shipped       |
-| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system                            | 22, 24, 25, 26, 27, 28, 29, 30, 31     | ✅ Shipped       |
-| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing                     | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40 | ✅ Shipped       |
-| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration                        | 35, 41, 42                             | ✅ Complete      |
-| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                    | 43 (blockers), then (no new phases)    | 🚧 Blocked on 43 |
-| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, MyHomeSpace, **dWallet** (headline) | 44 (M5a), 45 (M5b), 47 (dWallet)       | 📋 Planning      |
-| **M5+ Post-Launch**               | Future features, second tenant                                            | 46 (bucket-c) + deferred               | Deferred         |
+| Milestone                         | Goal                                                                                  | Phases                                                        | Status           |
+| --------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ---------------- |
+| **M0 Foundation**                 | Multi-tenant substrate + base modules                                                 | 00, 01, 02, 03, 05, 06, 07, 08, 11                            | ✅ Shipped       |
+| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding                                   | 09, 10, 18, 19, 20                                            | ✅ Shipped       |
+| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system                                        | 22, 24, 25, 26, 27, 28, 29, 30, 31                            | ✅ Shipped       |
+| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing                                 | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40                        | ✅ Shipped       |
+| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration                                    | 35, 41, 42                                                    | ✅ Complete      |
+| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                                | 43 (blockers), then (no new phases)                           | 🚧 Blocked on 43 |
+| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, dWallet, Provider Platform, Service Marketplace | 44 (M5a), 45 (M5b), 47 (dWallet), 49 (platform + marketplace) | 📋 Planning      |
+| **M5+ Post-Launch**               | Future features, second tenant                                                        | 46 (bucket-c closed) + deferred                               | Deferred         |
 
 **Phase numbering note:** IDs are stable (not renumbered on re-order). Duplicates exist: `03` (Localization vs Second Tenant), `11` (Announcements vs Prisma→Drizzle). The duplicate pair has a "Planning Complete (deferred)" status on the second one, except `11-prisma-to-drizzle` which was verified complete (2026-06-03) and moved to M0. Out-of-order numeric IDs (01 after 04; 35 after 39; 99 last) reflect creation sequence, not logical order. See MILESTONES.md Gap ε.
 
@@ -760,7 +760,7 @@ Plans:
 
 ## M5 — Anchor Tenant Launch (Planning)
 
-_Harden the codebase to launch-readiness, ship the launch-blocking features: Community Merits, OTP password reset, 37-widget i18n batch, **and dWallet (the headline data-rights + revenue-share selling point)**. The 7-day production soak is deferred to its own phase when the system is stable and ready for launch verification. Ready for Soralia Village (180 homes) production traffic. Decomposed into M5a (hardening) and M5b (anchor tenant features)._
+_Harden the codebase to launch-readiness, ship the launch-blocking features: Community Merits, OTP password reset, 37-widget i18n batch, dWallet (the headline data-rights + revenue-share selling point), Provider Platform, and Service Marketplace. The 7-day production soak is deferred to its own phase when the system is stable and ready for launch verification. Ready for Soralia Village (180 homes) production traffic. Decomposed into M5a (hardening) and M5b (anchor tenant features)._
 
 **Source backlog:** BD issues from `docs/cleaner_react_architecture.md` audit (5 issues) + Soralia launch features (5 issues) + M4.5 follow-ups + pnpm advisories + FSD debt + new monitoring infrastructure. See Phase 44 and 45 for breakdown.
 
@@ -843,29 +843,27 @@ _Harden the codebase to launch-readiness, ship the launch-blocking features: Com
 | 4    | [ ] 45-04-PLAN.md — i18n batch for visible widgets     | Migrate 24 widget files from useTranslation → useSafeTranslation+tx() — HomeLayer, AdminLayer, SpaceLauncher, MobileSpaceBar, ServicesLayer, MessagesLayer, marketing, platform | l23          |
 | 5    | [ ] 45-05-PLAN.md — Tiptap content localization        | Unsaved-changes warning on locale switch, LocaleAwareEditor integration, per-locale save/load hardening                                                                         | 0f7          |
 
-**Out of scope:** 7-day production soak (deferred to its own phase), dWallet (Phase 47), M4.5 fixes (Phase 43), Phase 44 hardening, M5+ post-launch (Phase 46).
+**Out of scope:** 7-day production soak (deferred to its own phase), dWallet (Phase 47), M4.5 fixes (Phase 43), Phase 44 hardening, M5+ post-launch (Phase 46), Provider Platform & Service Marketplace (Phase 49).
 
 ---
 
 ## M5+ — Post-Launch Features (Deferred)
 
-_Features explicitly deferred to post-M5b. These are real product ideas but not prerequisites for the Soralia anchor tenant launch. Includes 10 issues from the BD backlog triage. See Phase 46 for breakdown. **dWallet is NOT here — it was elevated into M5b on 2026-06-06 as the headline anchor-tenant selling point (see phase 47).**_
+_Features explicitly deferred to post-M5b. The 8 feature items from the Phase 46 BD backlog triage were promoted to M5b Phase 49 on 2026-06-18 as launch-critical. Only future-looking deferred items remain (second tenant, plugin system, event sourcing). **dWallet was already elevated into M5b (see phase 47).**_
 
 ---
 
-## Phase 46: Bucket C Future Features
+## Phase 46: Bucket C Triage (Closed)
 
-**Goal:** Defer and document 10 post-launch features (originally mislabeled as "Phase 4/5") so they remain visible in the backlog but don't block M4.5 → M5b.
+**Goal:** Triaged 10 BD issues; 8 features promoted to M5b Phase 49; 2 FSD orphans auto-closed.
 
-**Status:** Planning (deferral + documentation)
+**Status:** Complete (triage done; features promoted 2026-06-18)
 
-**BD sources (10):** 8 features (notifications, payments, booking calendar, provider analytics, provider dashboard, third-party registration, mobile optimization, billing) + 2 orphan FSD migration state-change events
+**BD sources (10):** 8 features → Phase 49 (gtm, cp8, qx7, kia, 9e8, 69c, 4vk, 4fh) + 2 orphan FSD migration state-change events (p81.1, rbs.1) auto-closed.
 
-**Acceptance:** All 10 BD issues re-titled (done in triage); all tagged with `m5-plus,post-launch,phase-46`; issues remain open; future: scope each into a sub-phase.
+**Plans:** None. Phase 46 is a triage-complete marker.
 
-**Plans:** None. This is a deferral + documentation phase.
-
-**Out of scope:** M4.5/M5a/M5b work (different phases). dWallet is in M5b (phase 47), not here.
+**Out of scope:** All feature work is now in Phase 49.
 
 ---
 
@@ -900,7 +898,7 @@ _Features explicitly deferred to post-M5b. These are real product ideas but not 
 
 **Out of scope (deferred to phase 2):** actual EFT / PayFast disbursement integration; Community Benefit Fund as separate ledger model (counter in `Tenant.featureFlags` for now); push notifications on reward receipt; multi-currency (ZAR only).
 
-**Out of scope (other phases):** M4.5 fixes (phase 43), M5a audit closure (phase 44), M5b other launch features (phase 45), M5+ post-launch (phase 46).
+**Out of scope (other phases):** M4.5 fixes (phase 43), M5a audit closure (phase 44), M5b other launch features (phase 45, 49), M5+ post-launch (phase 46).
 
 ---
 
@@ -927,6 +925,36 @@ _Features explicitly deferred to post-M5b. These are real product ideas but not 
 **Depends on:** Phase 30 (Focus Spaces — SpaceLauncher), Phase 34 (AdminLayer), Phase 37 (Admin Route Consolidation — moved AdminLayer to `/admin`).
 
 **Out of scope:** Restructuring AdminLayer internals; changing the space model in `widgets/dashboard/model/spaces.ts`; platform admin routes (`(platform)/admin/platform/*` — separate route group, different chrome contract).
+
+---
+
+## Phase 49: Provider Platform & Service Marketplace
+
+**Goal:** Ship the 8 launch-critical features originally deferred in Phase 46. Two product clusters: Provider Platform (analytics, dashboard, registration, billing) and Service Marketplace (notifications, payments, booking calendar, mobile optimization).
+
+**Status:** Planning (promoted from Phase 46 on 2026-06-18)
+
+**BD sources (8):**
+
+**Provider Platform cluster:**
+
+- `kia` — Provider analytics
+- `9e8` — Provider dashboard
+- `69c` — Third-party provider registration
+- `4fh` — Provider billing & subscription
+
+**Service Marketplace cluster:**
+
+- `gtm` — Notification system
+- `cp8` — Payment processing
+- `qx7` — Booking calendar integration
+- `4vk` — Service marketplace mobile optimization
+
+**Acceptance:** TBD — scope via `/gsd-discuss-phase`
+
+**Dependencies:** None (independent of Community Merits, i18n, OTP, dWallet). Can execute in parallel with Phase 45 and 47.
+
+**Plans:** TBD. Run `/gsd-plan-phase 49-provider-marketplace` when ready.
 
 ---
 

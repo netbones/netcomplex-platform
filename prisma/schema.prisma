@@ -34,6 +34,7 @@ model TenantModule {
   tenant    Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tenantId, moduleKey])
+  @@index([moduleKey])
 }
 
 model AssistSession {
@@ -81,6 +82,8 @@ model Tenant {
   assistSessions   AssistSession[]
   owner            user?           @relation("TenantOwner", fields: [ownerId], references: [id])
   tenantModules    TenantModule[]
+
+  @@index([ownerId])
 }
 
 model Announcement {
@@ -98,6 +101,8 @@ model Announcement {
   expiresAt    DateTime?
   deletedAt    DateTime?
   resource     Resource?      @relation(fields: [resourceId], references: [id])
+
+  @@index([resourceId])
 }
 
 model Booking {
@@ -116,6 +121,9 @@ model Booking {
   deletedAt  DateTime?
   property   Property?     @relation(fields: [propertyId], references: [id])
   user       user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([userId])
 }
 
 model Content {
@@ -147,6 +155,9 @@ model Content {
   user             user?            @relation(fields: [authorId], references: [id])
   Group            Group?           @relation(fields: [groupId], references: [id])
   likes            ContentLike[]
+
+  @@index([authorId])
+  @@index([groupId])
 }
 
 model ContentLike {
@@ -306,6 +317,8 @@ model Group {
   user                   user                     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   GroupMembershipRequest GroupMembershipRequest[]
   GroupMember            GroupMember[]
+
+  @@index([ownerId])
 }
 
 model GroupMembershipRequest {
@@ -360,6 +373,8 @@ model MaintenanceRequest {
   @@index([tenantId])
   @@index([assignedTeamId])
   @@index([assignedProviderId])
+  @@index([propertyId])
+  @@index([userId])
 }
 
 model MaintenanceTeam {
@@ -433,6 +448,7 @@ model RequestHistory {
   user      user               @relation(fields: [userId], references: [id])
 
   @@index([requestId])
+  @@index([userId])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -452,6 +468,7 @@ model Message {
 
   @@index([conversationId, createdAt])
   @@index([expiresAt])
+  @@index([senderId])
 }
 
 model Notification {
@@ -498,6 +515,8 @@ model Response {
   createdAt DateTime  @default(now())
   deletedAt DateTime?
   Survey    Survey    @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@index([surveyId])
 }
 
 model Setting {
@@ -554,6 +573,9 @@ model GroupMember {
   deletedAt DateTime?
   Group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
   user      user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
+  @@index([userId])
 }
 
 model account {
@@ -601,6 +623,7 @@ model AgentAccess {
   @@index([expiresAt])
   @@index([propertyId])
   @@index([organizationId])
+  @@index([grantedById])
 }
 
 model AgentProfile {
@@ -814,6 +837,7 @@ model Invitation {
 
   @@index([email])
   @@index([organizationId])
+  @@index([inviterId])
 }
 
 model Member {
@@ -1058,6 +1082,7 @@ model SoloSeat {
 
   @@index([propertyId])
   @@index([organizationId])
+  @@index([userId])
 }
 
 model StandardSeat {
@@ -1197,6 +1222,7 @@ model Resource {
   @@index([tenantId])
   @@index([category])
   @@index([visibility])
+  @@index([authorId])
 }
 
 model ResourceVersion {
