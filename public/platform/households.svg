@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <!-- Standardized panel background card glow -->
+    <linearGradient id="bgGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8ECFD" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F3F1FB" stop-opacity="0.9"/>
+    </linearGradient>
+    <!-- Vibrant violet-to-indigo gradient for the foreground house -->
+    <linearGradient id="housePrimary" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A78BFA" />
+      <stop offset="60%" stop-color="#6D28D9" />
+      <stop offset="100%" stop-color="#4C1D95" />
+    </linearGradient>
+    <!-- Teal/Emerald gradient for the neighboring offset household -->
+    <linearGradient id="houseSecondary" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <!-- Drop shadow filter for consistent depth -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="1.5" dy="3" stdDeviation="2.5" flood-color="#4C1D95" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base Card -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGlow)" />
+
+  <!-- Households Graphics Group -->
+  <g filter="url(#dropShadow)" transform="translate(13, 14)">
+    <!-- Background Secondary Household -->
+    <g opacity="0.75" transform="translate(14, 2)">
+      <path d="M0,8 L11,0 L22,8 L22,22 L0,22 Z" fill="url(#houseSecondary)" />
+      <!-- Cutout window look -->
+      <rect x="7" y="10" width="8" height="6" rx="1" fill="#F3F1FB" opacity="0.9" />
+    </g>
+
+    <!-- Foreground Primary Household -->
+    <g transform="translate(0, 6)">
+      <path d="M0,9 L12,0 L24,9 L24,24 L0,24 Z" fill="url(#housePrimary)" />
+      <!-- Minimalist Door & Window Geometry -->
+      <rect x="9" y="14" width="6" height="10" rx="1" fill="#FFFFFF" opacity="0.95" />
+      <circle cx="12" cy="6" r="2" fill="#FFFFFF" opacity="0.4" />
+    </g>
+  </g>
+</svg>

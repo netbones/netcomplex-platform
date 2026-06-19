@@ -62,9 +62,10 @@ export default function HouseholdsPage() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Households' }]} />
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex items-center gap-3 mb-6">
+        <img src="/platform/households.svg" alt="" className="w-8 h-8" />
         <h1 className="text-2xl font-bold text-gray-900">Households</h1>
-        <span className="text-sm text-gray-500">{total} households</span>
+        <span className="text-sm text-gray-500 ml-auto">{total} households</span>
       </div>
 
       {/* Search */}
