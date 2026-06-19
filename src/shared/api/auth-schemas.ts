@@ -58,3 +58,13 @@ export const resetPasswordSchema = z.object({
   token: z.string().min(1, 'Token is required'),
   newPassword: z.string().min(8, 'New password must be at least 8 characters'),
 });
+
+/**
+ * OTP verification schema for emailOTP plugin (Phase 45-01).
+ * Validates the request body before the emailOTP verify endpoint processes it.
+ */
+export const verifyOtpSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  otp: z.string().length(6, 'OTP must be 6 digits'),
+  newPassword: z.string().min(8, 'Password must be at least 8 characters').max(128),
+});

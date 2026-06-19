@@ -232,6 +232,52 @@ export const templates = {
   },
 
   /**
+   * OTP password reset email sent when user requests a password reset via emailOTP plugin.
+   * Displays the 6-digit OTP code prominently with Soralia branding (Phase 45-01).
+   */
+  passwordResetOtp: {
+    subject: 'Your Soralia Village password reset code',
+    getHtml: (otp: string) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Reset Code</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #4F46E5; margin: 0;">Soralia Village</h1>
+  </div>
+  
+  <h2 style="color: #1f2937;">Password Reset Code</h2>
+  
+  <p style="margin: 20px 0;">You requested to reset your password. Use the code below to verify your identity:</p>
+  
+  <div style="text-align: center; margin: 30px 0;">
+    <span style="background: #F3F4F6; color: #1F2937; font-size: 32px; font-weight: bold; font-family: 'Courier New', monospace; padding: 16px 24px; border-radius: 8px; letter-spacing: 8px; display: inline-block; border: 2px dashed #D1D5DB;">
+      ${escapeHtml(otp)}
+    </span>
+  </div>
+
+  <div style="background: #fef3c7; border-radius: 8px; padding: 16px; margin: 20px 0;">
+    <p style="margin: 0; color: #92400e; font-size: 14px;">
+      <strong>⚠️ Important:</strong> This code expires in 5 minutes.
+    </p>
+  </div>
+  
+  <p style="color: #6b7280; font-size: 14px;">If you didn't request this password reset, please ignore this email. Your account security is important to us.</p>
+  
+  <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+  <p style="color: #9ca3af; font-size: 12px; text-align: center;">
+    &copy; ${new Date().getFullYear()} Soralia Village. All rights reserved.
+  </p>
+</body>
+</html>
+`,
+  },
+
+  /**
    * Team invitation email sent when a user is invited to join a community.
    * Includes an acceptance link with the invitation token.
    */

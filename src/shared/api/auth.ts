@@ -1,6 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
-import { twoFactor, organization, bearer } from 'better-auth/plugins';
+import { twoFactor, organization, bearer, emailOTP } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
 import { ENV } from 'varlock/env';
 import {
@@ -26,6 +26,7 @@ import {
   signInEmailSchema,
   forgetPasswordSchema,
   resetPasswordSchema,
+  verifyOtpSchema,
 } from './auth-schemas';
 
 /**
@@ -57,17 +58,17 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true, // Require email verification before sign-in
-    // Wire password reset email via Better Auth
-    sendResetPassword: async ({ user, token }) => {
-      const resetUrl = `${ENV.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
-      sendEmail({
-        to: user.email,
-        subject: templates.passwordReset.subject,
-        html: templates.passwordReset.getHtml(resetUrl),
-      }).catch(err =>
-        authLogger.error({ err, email: user.email }, 'Password reset email send failed')
-      );
-    },
+    // DISABLED: emailOTP plugin handles password reset via 6-digit OTP (Phase 45-01, D-07)
+    // sendResetPassword: async ({ user, token }) => {
+    //   const resetUrl = `${ENV.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+    //   sendEmail({
+    //     to: user.email,
+    //     subject: templates.passwordReset.subject,
+    //     html: templates.passwordReset.getHtml(resetUrl),
+    //   }).catch(err =>
+    //     authLogger.error({ err, email: user.email }, 'Password reset email send failed')
+    //   );
+    // },
     async onExistingUserSignUp({ user }) {
       sendEmail({
         to: user.email,
@@ -129,11 +130,25 @@ export const auth = betterAuth({
     organization(),
     bearer(),
     passkey(),
+    emailOTP({
+      otpLength: 6,
+      expiresIn: 300,
+      async sendVerificationOTP({ email, otp, type }) {
+        if (type === 'forget-password') {
+          sendEmail({
+            to: email,
+            subject: templates.passwordResetOtp.subject,
+            html: templates.passwordResetOtp.getHtml(otp),
+          }).catch(err => authLogger.error({ err, email }, 'OTP email send failed'));
+        }
+      },
+    }),
     validator([
       { path: '/sign-up/email', schema: signUpEmailSchema },
       { path: '/sign-in/email', schema: signInEmailSchema },
       { path: '/forget-password', schema: forgetPasswordSchema },
       { path: '/reset-password', schema: resetPasswordSchema },
+      { path: '/email-otp/send-verification-otp', schema: verifyOtpSchema },
     ]),
   ],
   advanced: {
