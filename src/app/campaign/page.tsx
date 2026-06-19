@@ -69,8 +69,8 @@ export default function CampaignPage() {
     async function fetchCampaignData() {
       try {
         const res = await fetch('/api/campaign');
-        const data = await res.json();
-        setCampaignData(data);
+        const body = await res.json();
+        setCampaignData(body.success ? body.data : body);
       } catch (error) {
         log.error({}, 'Failed to fetch campaign data', error);
       } finally {

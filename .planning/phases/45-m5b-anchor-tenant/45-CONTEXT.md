@@ -29,8 +29,9 @@ Ship the 4 launch-blocking features for Soralia Village's 180-home rollout. Each
 - 7-day production soak — deferred to its own phase when ready
 - dWallet (Phase 47, sibling in M5b)
 - M5a architecture work (Phase 44)
-- M5+ post-launch features (Phase 46)
-- Provider Platform & Service Marketplace (Phase 49, sibling in M5b)
+- M5+ post-launch features (deferred)
+- Provider Platform (Phase 46, sibling in M5b)
+- Service Marketplace (Phase 50, sibling in M5b)
   </domain>
 
 <decisions>
