@@ -219,7 +219,10 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
           <Breadcrumbs
             items={[{ label: t('nav.home'), href: '/' }, { label: t('nav.messages') }]}
           />
-          <h1 className="text-4xl font-bold text-soralia-primary mb-8">Messages</h1>
+          <h1 className="text-4xl font-bold text-soralia-primary mb-8 flex items-center gap-3">
+            <img src="/platform/communication.svg" alt="" className="w-10 h-10" />
+            Messages
+          </h1>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg shadow p-4 flex flex-col max-h-[600px]">

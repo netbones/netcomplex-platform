@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8ECFD" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F3F1FB" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="surveyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#047857" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <rect width="64" height="64" rx="16" fill="url(#bgGlow)" />
+
+  <g filter="url(#dropShadow)" transform="translate(17, 13)">
+    <rect x="0" y="4" width="30" height="38" rx="5" fill="url(#surveyGrad)" />
+    <rect x="9" y="0" width="12" height="6" rx="2" fill="#34D399" />
+    
+    <line x1="6" y1="14" x2="24" y2="14" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+    <line x1="6" y1="22" x2="20" y2="22" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+    <line x1="6" y1="30" x2="24" y2="30" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+  </g>
+</svg>

@@ -36,7 +36,7 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
   }
 
   const domainDef = SERVICES_DOMAIN_DEFINITIONS.find(d => d.id === domain);
-  const DomainIcon = domainDef?.icon;
+  const iconSrc = domainDef?.icon;
   const widgets = getServicesDomainWidgets(domain);
 
   return (
@@ -64,7 +64,7 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
 
         <div className="flex items-center justify-between mt-6 mb-6 gap-3 flex-wrap">
           <div className="flex items-center gap-3">
-            {DomainIcon && <DomainIcon className="w-8 h-8 text-indigo-600" />}
+            {iconSrc && <img src={iconSrc} alt="" className="w-8 h-8" />}
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 {tx(
@@ -150,7 +150,9 @@ export default function ServicesDomainPage({ params }: ServicesDomainPageProps) 
         {/* Coming soon for domains without widgets */}
         {widgets.length === 0 && (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            {DomainIcon && <DomainIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />}
+            {iconSrc && (
+              <img src={iconSrc} alt="" className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            )}
             <h2 className="text-lg font-semibold text-gray-900 mb-2">
               {tx(
                 domainDef?.labelKey ?? domain,

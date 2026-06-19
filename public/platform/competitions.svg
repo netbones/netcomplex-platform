@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8ECFD" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F3F1FB" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="trophyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBBF24" />
+      <stop offset="70%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#78350F" />
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#D97706" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <rect width="64" height="64" rx="16" fill="url(#bgGlow)" />
+
+  <g filter="url(#dropShadow)" transform="translate(16, 14)">
+    <path d="M4,10 C-1,10 -1,2 4,2 Z" fill="url(#trophyGrad)" stroke="#FBBF24" stroke-width="1.5" transform="translate(4,0)"/>
+    <path d="M24,10 C29,10 29,2 24,2 Z" fill="url(#trophyGrad)" stroke="#FBBF24" stroke-width="1.5" transform="translate(-4,0)"/>
+    
+    <path d="M6,0 L26,0 L24,16 C24,22 8,22 8,16 Z" fill="url(#trophyGrad)" />
+    <rect x="14" y="18" width="4" height="12" fill="url(#trophyGrad)" />
+    <ellipse cx="16" cy="32" rx="10" ry="4" fill="url(#trophyGrad)" />
+  </g>
+</svg>

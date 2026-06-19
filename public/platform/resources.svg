@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8ECFD" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F3F1FB" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="bookCover" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#312E81" />
+    </linearGradient>
+    <linearGradient id="accentSpine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F472B6" />
+      <stop offset="100%" stop-color="#BE185D" />
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="2" dy="3" stdDeviation="2" flood-color="#312E81" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <rect width="64" height="64" rx="16" fill="url(#bgGlow)" />
+
+  <g filter="url(#dropShadow)" transform="translate(15, 14)">
+    <!-- Horizontal Stacked Resource Base -->
+    <rect x="2" y="24" width="32" height="8" rx="2" fill="url(#bookCover)" />
+    <rect x="0" y="24" width="4" height="8" fill="url(#accentSpine)" />
+    <rect x="2" y="26" width="32" height="2" fill="#FFFFFF" opacity="0.3" />
+
+    <!-- Vertical Standing Book 1 -->
+    <rect x="8" y="2" width="8" height="22" rx="1.5" fill="url(#bookCover)" />
+    <rect x="8" y="2" width="8" height="3" fill="#34D399" />
+
+    <!-- Vertical Standing Book 2 -->
+    <rect x="18" y="6" width="8" height="18" rx="1.5" fill="url(#accentSpine)" />
+    <rect x="18" y="6" width="8" height="3" fill="#FFFFFF" opacity="0.6" />
+  </g>
+</svg>

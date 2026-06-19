@@ -1,17 +1,5 @@
 'use client';
 
-import {
-  Wrench,
-  Calendar,
-  Building,
-  Briefcase,
-  CalendarDays,
-  FileText,
-  Trophy,
-  MessageSquare,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-
 // ═══════════════════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════════════════
@@ -24,7 +12,7 @@ export interface ServicesDomainDef {
   id: string;
   labelKey: string;
   descriptionKey: string;
-  icon: LucideIcon;
+  icon: string;
   description: string;
 }
 
@@ -42,56 +30,56 @@ export const SERVICES_DOMAIN_DEFINITIONS: ServicesDomainDef[] = [
     id: 'maintenance',
     labelKey: 'domains.maintenance',
     descriptionKey: 'domains.descriptions.maintenance',
-    icon: Wrench,
+    icon: '/platform/maintenance.svg',
     description: 'Submit and track maintenance requests',
   },
   {
     id: 'bookings',
     labelKey: 'domains.bookings',
     descriptionKey: 'domains.descriptions.bookings',
-    icon: Calendar,
+    icon: '/platform/bookings.svg',
     description: 'Book community facilities and amenities',
   },
   {
     id: 'amenities',
     labelKey: 'domains.amenities',
     descriptionKey: 'domains.descriptions.amenities',
-    icon: Building,
+    icon: '/platform/amenities.svg',
     description: 'Community amenities and shared spaces',
   },
   {
     id: 'my-services',
     labelKey: 'domains.myServices',
     descriptionKey: 'domains.descriptions.myServices',
-    icon: Briefcase,
+    icon: '/platform/my-services.svg',
     description: 'Community services you offer or receive',
   },
   {
     id: 'events',
     labelKey: 'domains.events',
     descriptionKey: 'domains.descriptions.events',
-    icon: CalendarDays,
+    icon: '/platform/events.svg',
     description: 'Upcoming community events and activities',
   },
   {
     id: 'surveys',
     labelKey: 'domains.surveys',
     descriptionKey: 'domains.descriptions.surveys',
-    icon: FileText,
+    icon: '/platform/surveys.svg',
     description: 'Community surveys and questionnaires',
   },
   {
     id: 'competitions',
     labelKey: 'domains.competitions',
     descriptionKey: 'domains.descriptions.competitions',
-    icon: Trophy,
+    icon: '/platform/competitions.svg',
     description: 'Community competitions and contests',
   },
   {
     id: 'communication',
     labelKey: 'domains.communication',
     descriptionKey: 'domains.descriptions.communication',
-    icon: MessageSquare,
+    icon: '/platform/communication.svg',
     description: 'Chat, announcements, and messaging',
   },
 ];
