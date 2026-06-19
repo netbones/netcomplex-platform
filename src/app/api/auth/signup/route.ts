@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { ENV } from 'varlock/env';
 import { logError, apiLogger } from '@shared/lib';
 import {
   db,
@@ -71,10 +72,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward to Better Auth's sign-up endpoint
+    const origin =
+      request.headers.get('origin') || ENV.NEXT_PUBLIC_APP_URL || `http://localhost:3000`;
     const authResponse = await fetch(`${BETTER_AUTH_URL}/api/auth/sign-up/email`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Origin: origin,
+        'x-forwarded-for': request.headers.get('x-forwarded-for') || '',
+        'x-forwarded-host':
+          request.headers.get('x-forwarded-host') || request.headers.get('host') || '',
+        'x-forwarded-proto': request.headers.get('x-forwarded-proto') || 'https',
       },
       body: JSON.stringify({ email, password, name }),
     });
