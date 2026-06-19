@@ -12,12 +12,8 @@ import {
 import { and, eq, isNull, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
-import {
-  BEHAVIOR_POINTS,
-  DEFAULT_EXPIRY_DAYS,
-  getEffectivePoints,
-  checkAndEscalateStanding,
-} from '@entities/merit';
+import { BEHAVIOR_POINTS, DEFAULT_EXPIRY_DAYS } from '@entities/merit';
+import { getEffectivePoints, checkAndEscalateStanding } from '@/entities/merit/services';
 
 export const maxDuration = 8;
 

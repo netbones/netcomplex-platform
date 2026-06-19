@@ -591,7 +591,9 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: Shield,
     permissions: ['admin'],
     component: lazy(() =>
-      import('@widgets/admin').then(m => ({ default: m.MeritEscalationWidget }))
+      import('@/page-modules/admin/merits/ui/MeritEscalationWidget').then(m => ({
+        default: m.MeritEscalationWidget,
+      }))
     ),
     loader: () => import('@widgets/admin'),
     defaultSize: { width: 2, height: 2 },
@@ -610,7 +612,9 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: Shield,
     permissions: ['admin'],
     component: lazy(() =>
-      import('@widgets/admin').then(m => ({ default: m.PendingDisputesWidget }))
+      import('@/page-modules/admin/merits/ui/PendingDisputesWidget').then(m => ({
+        default: m.PendingDisputesWidget,
+      }))
     ),
     loader: () => import('@widgets/admin'),
     defaultSize: { width: 2, height: 2 },

@@ -1,10 +1,6 @@
 import { and, eq, sql, inArray, or, gte, isNull } from 'drizzle-orm';
 import { db, behaviorRecords } from '@api/server';
-import {
-  DEFAULT_TIER_THRESHOLDS,
-  ESCALATION_THRESHOLDS,
-  STANDING_TIER_CONFIG,
-} from '../model/constants';
+import { ESCALATION_THRESHOLDS } from '../model/constants';
 import type { StandingTier } from '../model/types';
 
 const ACTIVE_STATUSES = ['ACTIVE', 'UPHELD'] as const;
@@ -54,23 +50,6 @@ export async function getEffectivePoints(
 }
 
 /**
- * Map an overall score to a standing tier.
- * Watchlist: between PROBATION+1 and BRONZE-1 (negative but not severe).
- */
-export function getStandingTier(
-  overall: number,
-  thresholds?: Partial<typeof DEFAULT_TIER_THRESHOLDS>
-): StandingTier {
-  const t = { ...DEFAULT_TIER_THRESHOLDS, ...thresholds };
-
-  if (overall >= t.GOLD) return 'GOLD';
-  if (overall >= t.SILVER) return 'SILVER';
-  if (overall >= t.BRONZE) return 'BRONZE';
-  if (overall > t.PROBATION) return 'WATCHLIST';
-  return 'PROBATION';
-}
-
-/**
  * Check infraction count and escalate if thresholds are met.
  * Counts ACTIVE/UPHELD INFRACTIONS (not expired, not deleted).
  */
@@ -103,11 +82,4 @@ export async function checkAndEscalateStanding(
     return { escalated: true, type: 'REVIEW_FLAG' };
   }
   return { escalated: false };
-}
-
-/**
- * Get configurable label and styling for a standing tier.
- */
-export function getStandingTierConfig(tier: StandingTier) {
-  return STANDING_TIER_CONFIG[tier];
 }
