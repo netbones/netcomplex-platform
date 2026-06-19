@@ -108,15 +108,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Return Better Auth's error response
+    apiLogger.error(
+      { status: authResponse.status, body: responseData },
+      'Better Auth sign-up rejected'
+    );
+
     if (authResponse.status === 422) {
       return apiConflict('Email address is already registered');
     }
 
-    return apiError(
-      'VALIDATION_ERROR',
-      responseData.error?.message || 'Signup failed',
-      authResponse.status
-    );
+    const errMsg =
+      responseData.message ||
+      responseData.body?.message ||
+      responseData.error?.message ||
+      'Signup failed';
+    return apiError('VALIDATION_ERROR', errMsg, authResponse.status);
   } catch (error) {
     logError({ component: 'signup-api', operation: 'USER_SIGNUP' }, 'Failed to create user', error);
 
@@ -190,7 +196,7 @@ async function processInvitation(
  */
 async function sendWelcomeEmail(email: string, name: string) {
   try {
-const { sendEmail, templates } = await import('@api/server');
+    const { sendEmail, templates } = await import('@api/server');
 
     const html = templates.welcome.getHtml(name);
 
