@@ -103,7 +103,8 @@ export default function AdminSystemPage() {
     try {
       const res = await fetch('/api/admin/system/health');
       if (res.ok) {
-        setHealth(await res.json());
+        const body = await res.json();
+        setHealth(body.success ? body.data : body);
       } else {
         setHealth({
           db: 'error',
