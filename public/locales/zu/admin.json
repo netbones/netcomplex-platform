@@ -63,6 +63,7 @@
     "surveys": "Amaswihlome",
     "announcements": "Izimemezelo",
     "system": "Uhlelo",
+    "services": "Amasevisi",
     "descriptions": {
       "users": "Phatha amalungu omphakathi nezindima",
       "maintenance": "Ukuphathwa kwezicelo zokugcina nokuhlaziywa",
@@ -72,7 +73,8 @@
       "resources": "Ukuphathwa kwezinsiza zomphakathi",
       "surveys": "Ukudalwa kwamaswihlome nemiphumela",
       "announcements": "Ukudalwa kwezimemezelo nokuphathwa",
-      "system": "Ukumiswa kwesikhulumi nempilo"
+      "system": "Ukumiswa kwesikhulumi nempilo",
+      "services": "Lungiselela ikhasi lamasevisi omphakathi"
     }
   },
   "unsuspend": "Buyisela uMsebenzisi",
