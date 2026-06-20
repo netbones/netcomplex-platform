@@ -315,13 +315,13 @@ const tenantSettings = await db.select().from(settings).where(eq(settings.tenant
 
 ### 10.2 High Priority
 
-| #     | Issue                                           | Action                                                               | Effort      |
-| ----- | ----------------------------------------------- | -------------------------------------------------------------------- | ----------- |
-| 5     | **No shared settings abstraction**              | Create a `useSettings()` hook and `SettingsProvider` context         | 4 hrs       |
-| ~~6~~ | ~~**Tripled network load on Settings page**~~   | ~~Consolidate to single `fetch()` call~~                             | ~~✅ Done~~ |
-| ~~7~~ | ~~**No schema validation on settings values**~~ | ~~Implement per-key validation using Zod schemas~~                   | ~~✅ Done~~ |
-| 8     | ~~**No client-side caching**~~                  | ~~Add TanStack Query `useQuery` + `unstable_cache`~~                 | ~~✅ Done~~ |
-| ~~9~~ | ~~**Scattered default values**~~                | ~~Centralize all defaults in `src/shared/lib/settings/defaults.ts`~~ | ~~✅ Done~~ |
+| #     | Issue                                           | Action                                                                   | Effort      |
+| ----- | ----------------------------------------------- | ------------------------------------------------------------------------ | ----------- |
+| ~~5~~ | ~~**No shared settings abstraction**~~          | ~~Create `useSettings()` hook in `src/shared/lib/hooks/useSettings.ts`~~ | ~~✅ Done~~ |
+| ~~6~~ | ~~**Tripled network load on Settings page**~~   | ~~Consolidate to single `fetch()` call~~                                 | ~~✅ Done~~ |
+| ~~7~~ | ~~**No schema validation on settings values**~~ | ~~Implement per-key validation using Zod schemas~~                       | ~~✅ Done~~ |
+| 8     | ~~**No client-side caching**~~                  | ~~Add TanStack Query `useQuery` + `unstable_cache`~~                     | ~~✅ Done~~ |
+| ~~9~~ | ~~**Scattered default values**~~                | ~~Centralize all defaults in `src/shared/lib/settings/defaults.ts`~~     | ~~✅ Done~~ |
 
 ### 10.3 Medium Priority
 
@@ -335,11 +335,11 @@ const tenantSettings = await db.select().from(settings).where(eq(settings.tenant
 
 ### 10.4 Low Priority / Future
 
-| #   | Issue                       | Action                                                             | Effort |
-| --- | --------------------------- | ------------------------------------------------------------------ | ------ |
-| 15  | **Settings versioning**     | Add `version` or `schemaVersion` to settings for migration support | 4 hrs  |
-| 16  | **Settings export/import**  | Build admin UI for exporting/importing tenant settings (JSON)      | 4 hrs  |
-| 17  | **Type-safe settings keys** | Generate TypeScript types from settings keys automatically         | 2 hrs  |
+| #      | Issue                           | Action                                                                                | Effort      |
+| ------ | ------------------------------- | ------------------------------------------------------------------------------------- | ----------- |
+| 15     | **Settings versioning**         | Add `version` or `schemaVersion` to settings for migration support                    | 4 hrs       |
+| 16     | **Settings export/import**      | Build admin UI for exporting/importing tenant settings (JSON)                         | 4 hrs       |
+| ~~17~~ | ~~**Type-safe settings keys**~~ | ~~Add `SettingValueMap` + `getTypedSetting()` in `src/shared/lib/settings/types.ts`~~ | ~~✅ Done~~ |
 
 ---
 

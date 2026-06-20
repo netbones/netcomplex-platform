@@ -7,3 +7,4 @@ export {
 export { usePageFlags } from './usePageFlags';
 export { usePageLoading } from './usePageLoading';
 export { useSafeTranslation } from './useSafeTranslation';
+export { useSettings } from './useSettings';

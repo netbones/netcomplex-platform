@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { useQuery } from '@tanstack/react-query';
 import { Breadcrumbs, ErrorBoundary, ImageUpload } from '@shared/ui';
 import { authClient } from '@api/client';
 import { supportedLanguages, languageNames } from '@/shared/lib/i18n';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
+import { useSettings } from '@shared/lib/hooks';
 
 const log = createComponentLogger('settings-page');
 
@@ -43,16 +43,7 @@ export default function SettingsPage() {
   const [isOwner, setIsOwner] = useState(false);
   const [planType, setPlanType] = useState<string>('');
 
-  const { data: userData, isLoading: loadingHousehold } = useQuery({
-    queryKey: ['settings', 'user-data', session?.user?.id],
-    queryFn: async () => {
-      const res = await fetch(`/api/users/${session!.user!.id}`);
-      if (!res.ok) throw new Error('Failed to fetch user data');
-      return res.json();
-    },
-    enabled: !!session?.user?.id,
-    staleTime: 5 * 60 * 1000,
-  });
+  const { data: userData, isLoading: loadingHousehold } = useSettings(session?.user?.id);
 
   useEffect(() => {
     if (!userData) return;
