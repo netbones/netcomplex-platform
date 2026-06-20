@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { BookingFormData } from '@entities/booking';
-import { FACILITY_LABELS, DEFAULT_FACILITIES } from '@entities/booking';
+import { DEFAULT_FACILITIES } from '@entities/booking';
 import type { TenantFacility } from '@entities/booking';
 import { createComponentLogger } from '@shared/lib';
 
@@ -32,9 +32,10 @@ export function BookingForm({ onSubmit, onSuccess }: BookingFormProps) {
       try {
         const res = await fetch('/api/settings?key=booking_facilities');
         if (res.ok) {
-          const data = await res.json();
-          if (data?.value) {
-            const parsed = JSON.parse(data.value);
+          const body = await res.json();
+          const raw = body?.data?.value;
+          if (raw) {
+            const parsed = JSON.parse(raw);
             if (Array.isArray(parsed) && parsed.length > 0) {
               setFacilities(parsed as TenantFacility[]);
               return;
@@ -68,7 +69,12 @@ export function BookingForm({ onSubmit, onSuccess }: BookingFormProps) {
 
         if (!res.ok) {
           const errorData = await res.json();
-          throw new Error(errorData.error || 'Failed to create booking');
+          const message =
+            errorData?.data?.error ||
+            errorData?.error?.message ||
+            errorData?.error ||
+            'Failed to create booking';
+          throw new Error(typeof message === 'string' ? message : JSON.stringify(message));
         }
       }
 

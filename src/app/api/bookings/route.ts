@@ -4,6 +4,7 @@ import {
   db,
   users,
   apiCreated,
+  apiError,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
@@ -133,11 +134,7 @@ export async function POST(request: Request) {
     // Validate input with Zod schema
     const validationResult = bookingSchema.safeParse(body);
     if (!validationResult.success) {
-      return apiSuccess(
-        { error: 'Invalid input', details: validationResult.error.issues },
-        undefined,
-        400
-      );
+      return apiError('VALIDATION_ERROR', 'Invalid input', 400, validationResult.error.issues);
     }
 
     const { facility, date, startTime, endTime, purpose } = validationResult.data;
@@ -149,9 +146,9 @@ export async function POST(request: Request) {
     // Validate facility against tenant's configured facilities using service
     const validation = await validateFacility(facility, tenantId);
     if (!validation.valid) {
-      return apiSuccess(
-        { error: `Invalid facility. Valid options: ${validation.validOptions.join(', ')}` },
-        undefined,
+      return apiError(
+        'INVALID_FACILITY',
+        `Invalid facility. Valid options: ${validation.validOptions.join(', ')}`,
         400
       );
     }
