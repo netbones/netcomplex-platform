@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getPlatformPageFlags, mapFlagToSettingKey } from './platform-flags';
+import { getPlatformPageFlagsImpl, mapFlagToSettingKey } from './platform-flags';
 import { db } from '@api/server';
 
 import { SETTINGS_KEYS } from '../settings';
@@ -31,9 +31,9 @@ describe('platform-flags', () => {
     vi.clearAllMocks();
   });
 
-  describe('getPlatformPageFlags', () => {
+  describe('getPlatformPageFlagsImpl', () => {
     it('should return default values for empty settings', async () => {
-      const flags = await getPlatformPageFlags('tenant-1');
+      const flags = await getPlatformPageFlagsImpl('tenant-1');
       expect(flags.campaign).toBe(true);
       expect(flags.groups).toBe(true);
       expect(flags.services).toBe(true);
@@ -55,7 +55,7 @@ describe('platform-flags', () => {
 
       vi.mocked(db.select).mockImplementation(mockSelect);
 
-      const flags = await getPlatformPageFlags('tenant-1');
+      const flags = await getPlatformPageFlagsImpl('tenant-1');
       expect(flags.campaign).toBe(false);
       expect(flags.groups).toBe(false);
       expect(flags.conservation).toBe('external');
