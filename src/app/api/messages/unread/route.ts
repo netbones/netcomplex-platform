@@ -65,25 +65,25 @@ export async function GET(request: NextRequest) {
       conversationIds.length > 0
         ? await db.execute<{
             id: string;
-            sender_id: string;
-            created_at: Date;
-            conversation_id: string;
+            senderId: string;
+            createdAt: Date;
+            conversationId: string;
           }>(
             sql`
-            SELECT DISTINCT ON (m.conversation_id) m.id, m.sender_id, m.created_at, m.conversation_id
-            FROM messages m
-            WHERE m.conversation_id IN ${sql.join(
+            SELECT DISTINCT ON (m."conversationId") m."id", m."senderId", m."createdAt", m."conversationId"
+            FROM "Message" m
+            WHERE m."conversationId" IN ${sql.join(
               conversationIds.map(id => sql`${id}`),
               sql`, `
             )}
-              AND m.tenant_id = ${tenantId}
-            ORDER BY m.conversation_id, m.created_at DESC
+              AND m."tenantId" = ${tenantId}
+            ORDER BY m."conversationId", m."createdAt" DESC
           `
           )
         : { rows: [] };
     const latestMessageMap = new Map<string, NonNullable<(typeof latestMessageRows.rows)[0]>>();
     for (const row of latestMessageRows.rows) {
-      latestMessageMap.set(row.conversation_id, row);
+      latestMessageMap.set(row.conversationId, row);
     }
 
     // Batch 2: all unread messages from others (filter by lastReadAt in memory)
