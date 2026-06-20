@@ -229,7 +229,7 @@ function TodayZone({
           {todayBookings.map(b => (
             <TodayCard
               key={b.id}
-              href="/dashboard/services"
+              href={`/dashboard/services/bookings?id=${b.id}`}
               icon={<Clock className="w-4 h-4 text-blue-500" />}
               title={b.title}
               subtitle={b.time || 'All day'}
@@ -239,7 +239,7 @@ function TodayZone({
           {todayEvents.map(e => (
             <TodayCard
               key={e.id}
-              href="/dashboard/community"
+              href={`/dashboard/services/events/${e.id}`}
               icon={<Calendar className="w-4 h-4 text-green-500" />}
               title={e.title}
               subtitle={e.location || 'Community event'}
