@@ -1,6 +1,6 @@
 {
   "title": "Gemeenskap Dienste",
-  "subtitle": "Omvattende dienste ontwerp om jou woonervaring te verbeter en ons pragtige gemeenskap te onderhou",
+  "subtitle": "Versoek bystand van die VVE, bestuurskantoor en gemeenskapspanne.",
   "requestService": "Versoek Diens",
   "additionalServices": "Addisionele Dienste",
   "learnMore": "Leer Meer →",
@@ -28,7 +28,7 @@
   "requestServiceTitle": "Versoek {{service}} Diens",
   "maintenance": "Instandhouding",
   "security": "Sekuriteit",
-  "landscaping": "Landskap",
+  "administration": "Administrasie",
   "parking": "Parkering",
   "internet": "Internet/Kabel",
   "waste": "Afvalbestuur",
@@ -53,5 +53,14 @@
       "competitions": "Gemeenskap kompetisies en wedstryde",
       "communication": "Klets, aankondigings en boodskappe"
     }
+  },
+  "quickNav": "Diens Kategorieë",
+  "browseDirectory": "Blaai Deur Gids",
+  "needContractor": "Benodig jy 'n Eksterne Kontrakteur?",
+  "needContractorDesc": "Soek jy betroubare derdeparty diensverskaffers, herstelwerkers of professionele persone?",
+  "stats": {
+    "support": "24/7 Noodondersteuning",
+    "categories": "Diens Kategorieë",
+    "services": "Beskikbare Dienste"
   }
 }

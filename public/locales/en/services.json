@@ -1,6 +1,6 @@
 {
-  "title": "Community Services",
-  "subtitle": "Comprehensive services designed to enhance your living experience and maintain our beautiful community",
+  "title": "Resident Services",
+  "subtitle": "Request assistance from the HOA, management office and community teams.",
   "requestService": "Request Service",
   "additionalServices": "Additional Services",
   "learnMore": "Learn More →",
@@ -28,7 +28,7 @@
   "requestServiceTitle": "Request {{service}} Service",
   "maintenance": "Maintenance",
   "security": "Security",
-  "landscaping": "Landscaping",
+  "administration": "Administration",
   "parking": "Parking",
   "internet": "Internet/Cable",
   "waste": "Waste Management",
@@ -53,5 +53,14 @@
       "competitions": "Community competitions and contests",
       "communication": "Chat, announcements, and messaging"
     }
+  },
+  "quickNav": "Service Categories",
+  "browseDirectory": "Browse Directory",
+  "needContractor": "Need an External Contractor?",
+  "needContractorDesc": "Looking for trusted third-party service providers, repairmen or professionals?",
+  "stats": {
+    "support": "24/7 Emergency Support",
+    "categories": "Service Categories",
+    "services": "Available Services"
   }
 }

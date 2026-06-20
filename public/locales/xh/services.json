@@ -1,6 +1,6 @@
 {
   "title": "Iinkonzo zoLuntu",
-  "subtitle": "Iinkonzo eziyingqayizivele ezenzelwe ukuphucula amava akho okuhlala kunye nokugcina uluntu lwethu olumhle",
+  "subtitle": "Cela uncedo kwi-HOA, kwiofisi yolawulo kunye namaqela oluntu.",
   "requestService": "Funa iNkonzo",
   "additionalServices": "Iinkonzo ezongezelelweyo",
   "learnMore": "Funda Ngokungakumbi →",
@@ -28,7 +28,7 @@
   "requestServiceTitle": "Funa iNkonzo ka-{{service}}",
   "maintenance": "Ukugcinwa",
   "security": "Ukhuseleko",
-  "landscaping": "I-Landscaping",
+  "administration": "Ulawulo",
   "parking": "Indlela yokupaka",
   "internet": "Internet/Cable",
   "waste": "Ukulahlwa kwenkukuma",
@@ -53,5 +53,14 @@
       "competitions": "Ukhuphiswano loluntu kunye nemiceli-mngeni",
       "communication": "Incoko, izaziso, kunye nemiyalezo"
     }
+  },
+  "quickNav": "Iindidi zeNkonzo",
+  "browseDirectory": "Khangela iNcwadi yoLawulo",
+  "needContractor": "Ufuna iKontraka yangaPhandle?",
+  "needContractorDesc": "Ujonge iinkonzo ezithenjwayo zomntu wesithathu, abalungisi okanye iingcali?",
+  "stats": {
+    "support": "Inkxaso yoNxunguphalo lwe-24/7",
+    "categories": "Iindidi zeNkonzo",
+    "services": "Iinkonzo ezikhoyo"
   }
 }

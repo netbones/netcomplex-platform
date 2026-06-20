@@ -1,6 +1,6 @@
 {
   "title": "Amasevisi oMphakathi",
-  "subtitle": "Amasevisi aqavile ngokuhlanganisa amava akho okuhlala nokugcina umphakathi wethu omuhle",
+  "subtitle": "Cela usizo ku-HOA, ehhovisi lokuphatha kanye namaqembu omphakathi.",
   "requestService": "Funa isevisi",
   "additionalServices": "Amasevisi Okwengeziwe",
   "learnMore": "Funda Okwengeziwe →",
@@ -28,7 +28,7 @@
   "requestServiceTitle": "Funa isevisi ka-{{service}}",
   "maintenance": "Ukunakekelwa",
   "security": "Ukuvikela",
-  "landscaping": "Ukuhlela",
+  "administration": "Ukuphatha",
   "parking": "Indlela yokupaka",
   "internet": "Internet/Cable",
   "waste": "Ukulahlwa kwenkukuma",
@@ -53,5 +53,14 @@
       "competitions": "Imiqhudelwano yomphakathi nezincintiswano",
       "communication": "Ingxoxo, izimemezelo, kanye nemiyalezo"
     }
+  },
+  "quickNav": "Izigaba zeSevisi",
+  "browseDirectory": "Buka Uhlu",
+  "needContractor": "Udinga Umkhandisi wangaphandle?",
+  "needContractorDesc": "Ufuna abahlinzeki bamasevisi abathembekile, abalungisi noma ochwepheshe?",
+  "stats": {
+    "support": "Ukusekela Okuphuthumayo 24/7",
+    "categories": "Izigaba zeSevisi",
+    "services": "Amasevisi Atholakalayo"
   }
 }
