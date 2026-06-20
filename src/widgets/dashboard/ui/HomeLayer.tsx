@@ -29,6 +29,14 @@ const BADGE_STYLES: Record<string, string> = {
   Message: 'text-indigo-700 bg-indigo-100',
 };
 
+const ROW_TINT: Record<string, string> = {
+  Announcement: 'bg-purple-50',
+  Maintenance: 'bg-amber-50',
+  Event: 'bg-green-50',
+  Booking: 'bg-blue-50',
+  Message: 'bg-indigo-50',
+};
+
 interface Announcement {
   id: string;
   title: string | Record<string, unknown>;
@@ -258,7 +266,7 @@ function TodayCard({
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
+      className={`flex items-center gap-3 p-3 rounded-lg shadow-sm hover:brightness-95 transition ${ROW_TINT[type] ?? 'bg-white'}`}
     >
       {icon}
       <div className="flex-1 min-w-0">
@@ -298,7 +306,7 @@ function ActivityZone({
           {communityAnnouncements.map(a => (
             <ActivityCard
               key={a.id}
-              href="/dashboard/community"
+              href={`/news#announcement-${a.id}`}
               icon={<Megaphone className="w-4 h-4 text-purple-500" />}
               title={resolveTitle(a.title)}
               date={a.createdAt}
@@ -308,7 +316,13 @@ function ActivityZone({
           {recentActivity.map(a => (
             <ActivityCard
               key={a.id}
-              href={a.type === 'Maintenance' ? '/maintenance' : '/dashboard/community'}
+              href={
+                a.type === 'Maintenance'
+                  ? `/dashboard/services/maintenance?id=${a.id}`
+                  : a.type === 'Announcement'
+                    ? `/news#announcement-${a.id}`
+                    : '/dashboard/community'
+              }
               icon={
                 a.type === 'Maintenance' ? (
                   <Wrench className="w-4 h-4 text-indigo-500" />
@@ -349,7 +363,7 @@ function ActivityCard({
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
+      className={`flex items-center gap-3 p-3 rounded-lg shadow-sm hover:brightness-95 transition ${ROW_TINT[type] ?? 'bg-white'}`}
     >
       {icon}
       <div className="flex-1 min-w-0">
