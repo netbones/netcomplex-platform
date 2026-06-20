@@ -91,13 +91,7 @@ export function ServicesPage() {
   const [cfgHours, setCfgHours] = useState(defaultHours);
   const [cfgAdditional, setCfgAdditional] = useState(defaultAdditional);
 
-  const { isReady, LoadingComponent } = usePageLoading(
-    [
-      { label: tCommon('nav.home'), href: '/' },
-      { label: tCommon('nav.services'), href: '/services' },
-    ],
-    { additionalLoading: loading }
-  );
+  const { isReady, LoadingComponent } = usePageLoading([], { additionalLoading: loading });
 
   useEffect(() => {
     async function fetchAll() {
