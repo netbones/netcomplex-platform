@@ -4,6 +4,10 @@ import { db } from '@api/server';
 
 import { SETTINGS_KEYS } from '../settings';
 
+vi.mock('@shared/api', () => ({
+  CACHE_TAGS: { SETTINGS: 'settings' },
+}));
+
 vi.mock('@api/server', () => ({
   db: {
     select: vi.fn().mockReturnThis(),
