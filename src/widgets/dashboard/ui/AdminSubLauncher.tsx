@@ -88,7 +88,7 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     id: 'services',
     labelKey: 'domains.services',
     descriptionKey: 'domains.descriptions.services',
-    icon: '/platform/system.svg',
+    icon: '/platform/services.svg',
     description: 'Configure the public services page',
   },
   {
