@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import { createComponentLogger } from '@shared/lib';
 
@@ -24,6 +24,10 @@ export function ImageUpload({
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | undefined>(value);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setPreview(value);
+  }, [value]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

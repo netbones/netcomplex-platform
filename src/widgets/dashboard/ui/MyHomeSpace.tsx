@@ -97,8 +97,9 @@ export function MyHomeSpace() {
     });
     if (data.avatar && data.avatar !== profile?.avatar) {
       await authClient.updateUser({ image: data.avatar });
+      await authClient.getSession();
     }
-    fetchProfile();
+    await fetchProfile();
   };
 
   if (isLoading) {
