@@ -216,9 +216,18 @@ export function ServicesPage() {
           {showHero && (
             <section className="rounded-3xl overflow-hidden bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 text-white mb-12">
               <div className="p-10 lg:p-14">
-                <h1 className="text-4xl lg:text-5xl font-bold mb-4">{t('title')}</h1>
-                <p className="text-lg text-blue-100 max-w-2xl">{t('subtitle')}</p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10">
+                <div className="flex items-start gap-4 mb-8">
+                  <img
+                    src="/platform/services.svg"
+                    alt=""
+                    className="w-10 h-10 mt-1.5 hidden sm:block brightness-0 invert"
+                  />
+                  <div>
+                    <h1 className="text-4xl lg:text-5xl font-bold">{t('title')}</h1>
+                    <p className="text-lg text-blue-100 max-w-2xl mt-2">{t('subtitle')}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <StatCard value="24/7" label={t('stats.support')} />
                   <StatCard value={String(catNav.length)} label={t('stats.categories')} />
                   <StatCard
