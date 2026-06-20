@@ -18,6 +18,7 @@ export const SETTINGS_KEYS = {
   HEADER_LINKS: 'header_links',
   CUSTOM_PAGES: 'custom_pages',
   CUSTOM_NAV: 'custom_nav',
+  SERVICES_CONFIG: 'services_config',
 } as const;
 
 export type SettingsKey = (typeof SETTINGS_KEYS)[keyof typeof SETTINGS_KEYS];

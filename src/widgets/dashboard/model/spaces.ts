@@ -312,6 +312,7 @@ export const ADMIN_DOMAINS = [
   'merits',
   'announcements',
   'system',
+  'services',
 ] as const;
 
 export type AdminDomain = (typeof ADMIN_DOMAINS)[number];
@@ -331,6 +332,7 @@ const ADMIN_DOMAIN_WIDGET_MAP: Record<AdminDomain, string[]> = {
   merits: ['admin-merits'],
   announcements: ['admin-announcements'],
   system: ['admin-system', 'page-settings'],
+  services: ['services-config'],
 };
 
 /**

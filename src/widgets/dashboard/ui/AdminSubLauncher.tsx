@@ -85,6 +85,13 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     description: 'Community merit management and disputes',
   },
   {
+    id: 'services',
+    labelKey: 'domains.services',
+    descriptionKey: 'domains.descriptions.services',
+    icon: '/platform/system.svg',
+    description: 'Configure the public services page',
+  },
+  {
     id: 'system',
     labelKey: 'domains.system',
     descriptionKey: 'domains.descriptions.system',
@@ -115,6 +122,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.announcements': 'Announcements',
   'domains.merits': 'Merits',
   'domains.system': 'System',
+  'domains.services': 'Services',
   'domains.descriptions.users': 'Manage community members and roles',
   'domains.descriptions.maintenance': 'Maintenance request management and analytics',
   'domains.descriptions.content': 'Content publishing and moderation',
@@ -125,6 +133,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.announcements': 'Announcement creation and management',
   'domains.descriptions.merits': 'Community merit management and disputes',
   'domains.descriptions.system': 'Platform configuration and health',
+  'domains.descriptions.services': 'Configure the public services page',
 };
 
 export function AdminSubLauncher() {

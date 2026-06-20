@@ -48,4 +48,15 @@ export {
 
 export { getStatsigExperimentFlags } from './api/flags/statsig-flags';
 
+export {
+  getServicesConfig,
+  upsertServicesConfig,
+  defaultServicesConfig,
+  type ServicesPageConfig,
+  type CategoryConfig,
+  type EmergencyContactConfig,
+  type HourConfig,
+  type AdditionalServiceConfig,
+} from './api/flags/services-config';
+
 export { SETTINGS_KEYS } from './api/settings';

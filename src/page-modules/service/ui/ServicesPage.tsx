@@ -6,14 +6,27 @@ import { useRouter } from 'next/navigation';
 import { usePageLoading, Breadcrumbs, ErrorBoundary, ModalOverlay } from '@shared/ui';
 import { CARD_ANIMATIONS, createComponentLogger } from '@shared/lib';
 import {
-  defaultServiceCategories,
-  additionalServices,
-  serviceHours,
-  emergencyContacts,
+  defaultServiceCategories as defaultCats,
+  additionalServices as defaultAdditional,
+  serviceHours as defaultHours,
+  emergencyContacts as defaultEmergency,
   type ContentItem,
 } from '@entities/service';
 
 const log = createComponentLogger('services-page');
+
+interface ServicesConfig {
+  heroVisible: boolean;
+  categoriesVisible: boolean;
+  emergencyVisible: boolean;
+  hoursVisible: boolean;
+  additionalVisible: boolean;
+  directoryCtaVisible: boolean;
+  categories: Array<{ id: string; title: string; subtitle: string; icon: string; items: string[] }>;
+  emergencyContacts: Array<{ label: string; phone: string }>;
+  hours: Array<{ service: string; hours: string; highlight: boolean }>;
+  additionalServices: Array<{ id: string; icon: string; title: string; desc: string }>;
+}
 
 const SERVICE_THEMES: Record<
   string,
@@ -42,6 +55,18 @@ const SERVICE_THEMES: Record<
   },
 };
 
+const EMERGENCY_VISUALS = [
+  { icon: 'fa-phone-alt', bg: 'bg-red-50', text: 'text-red-800', iconColor: 'text-red-600' },
+  { icon: 'fa-shield-alt', bg: 'bg-blue-50', text: 'text-blue-800', iconColor: 'text-blue-600' },
+  { icon: 'fa-tools', bg: 'bg-green-50', text: 'text-green-800', iconColor: 'text-green-600' },
+  {
+    icon: 'fa-building',
+    bg: 'bg-purple-50',
+    text: 'text-purple-800',
+    iconColor: 'text-purple-600',
+  },
+];
+
 const FORM_INITIAL = {
   serviceType: '',
   priority: 'low',
@@ -54,11 +79,17 @@ export function ServicesPage() {
   const { t } = useTranslation('services');
   const { t: tCommon } = useTranslation('common');
   const router = useRouter();
-  const [serviceCategories, setServiceCategories] = useState(defaultServiceCategories);
+  const [serviceCategories, setServiceCategories] = useState(defaultCats);
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState(FORM_INITIAL);
   const [submitting, setSubmitting] = useState(false);
+  const [config, setConfig] = useState<ServicesConfig | null>(null);
+
+  const [cfgCategories, setCfgCategories] = useState(defaultCats);
+  const [cfgEmergency, setCfgEmergency] = useState(defaultEmergency);
+  const [cfgHours, setCfgHours] = useState(defaultHours);
+  const [cfgAdditional, setCfgAdditional] = useState(defaultAdditional);
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
@@ -69,11 +100,15 @@ export function ServicesPage() {
   );
 
   useEffect(() => {
-    async function fetchContent() {
+    async function fetchAll() {
       try {
-        const res = await fetch('/api/content?category=SERVICES&published=true');
-        if (res.ok) {
-          const body = await res.json();
+        const [contentRes, configRes] = await Promise.all([
+          fetch('/api/content?category=SERVICES&published=true'),
+          fetch('/api/admin/services-config'),
+        ]);
+
+        if (contentRes.ok) {
+          const body = await contentRes.json();
           const data = body?.data ?? [];
           if (data.length > 0) {
             setServiceCategories(
@@ -88,13 +123,32 @@ export function ServicesPage() {
             );
           }
         }
+
+        if (configRes.ok) {
+          const body = await configRes.json();
+          const cfg = body?.data ?? body;
+          if (cfg && cfg.categoriesVisible !== undefined) {
+            setConfig(cfg);
+            if (cfg.categories?.length) setCfgCategories(cfg.categories);
+            if (cfg.hours?.length) setCfgHours(cfg.hours);
+            if (cfg.additionalServices?.length) setCfgAdditional(cfg.additionalServices);
+            if (cfg.emergencyContacts?.length) {
+              setCfgEmergency(
+                cfg.emergencyContacts.map((c: { label: string; phone: string }, i: number) => {
+                  const v = EMERGENCY_VISUALS[i % EMERGENCY_VISUALS.length];
+                  return { ...v, label: c.label, phone: c.phone };
+                })
+              );
+            }
+          }
+        }
       } catch (error) {
-        log.error({}, 'Failed to fetch services', error);
+        log.error({}, 'Failed to fetch services data', error);
       } finally {
         setLoading(false);
       }
     }
-    fetchContent();
+    fetchAll();
   }, []);
 
   const openForm = useCallback((serviceId: string, serviceTitle: string) => {
@@ -122,9 +176,7 @@ export function ServicesPage() {
           preferredTime: formData.preferredTime,
         }),
       });
-      if (res.ok) {
-        alert('Service request submitted successfully!');
-      }
+      if (res.ok) alert('Service request submitted successfully!');
     } catch (error) {
       log.error({}, 'Failed to submit request', error);
     } finally {
@@ -132,6 +184,24 @@ export function ServicesPage() {
     }
     closeForm();
   };
+
+  const catNav =
+    config?.categoriesVisible !== false
+      ? config?.categories?.length
+        ? cfgCategories
+        : serviceCategories
+      : [];
+  const catCards =
+    config?.categoriesVisible !== false
+      ? config?.categories?.length
+        ? cfgCategories
+        : serviceCategories
+      : [];
+  const showEmergency = config?.emergencyVisible !== false;
+  const showHours = config?.hoursVisible !== false;
+  const showAdditional = config?.additionalVisible !== false;
+  const showDirectory = config?.directoryCtaVisible !== false;
+  const showHero = config?.heroVisible !== false;
 
   if (!isReady) return LoadingComponent;
 
@@ -143,181 +213,190 @@ export function ServicesPage() {
             items={[{ label: tCommon('nav.home'), href: '/' }, { label: tCommon('nav.services') }]}
           />
 
-          {/* 1. Gradient Hero */}
-          <section className="rounded-3xl overflow-hidden bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 text-white mb-12">
-            <div className="p-10 lg:p-14">
-              <h1 className="text-4xl lg:text-5xl font-bold mb-4">{t('title')}</h1>
-              <p className="text-lg text-blue-100 max-w-2xl">{t('subtitle')}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10">
-                <StatCard value="24/7" label={t('stats.support')} />
-                <StatCard value="3" label={t('stats.categories')} />
-                <StatCard value="8" label={t('stats.services')} />
+          {showHero && (
+            <section className="rounded-3xl overflow-hidden bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600 text-white mb-12">
+              <div className="p-10 lg:p-14">
+                <h1 className="text-4xl lg:text-5xl font-bold mb-4">{t('title')}</h1>
+                <p className="text-lg text-blue-100 max-w-2xl">{t('subtitle')}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10">
+                  <StatCard value="24/7" label={t('stats.support')} />
+                  <StatCard value={String(catNav.length)} label={t('stats.categories')} />
+                  <StatCard
+                    value={String(cfgAdditional.length + catNav.length)}
+                    label={t('stats.services')}
+                  />
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          )}
 
-          {/* 2. Category Quick Nav */}
-          <div className="flex flex-wrap gap-3 mb-12">
-            <span className="text-sm font-semibold text-gray-500 self-center mr-2">
-              {t('quickNav')}:
-            </span>
-            {serviceCategories.map(cat => {
-              const theme = SERVICE_THEMES[cat.id] || SERVICE_THEMES.maintenance;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => openForm(cat.id, cat.title)}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all hover:shadow-md ${theme.panel} ${theme.icon} border-gray-200 hover:border-current`}
-                >
-                  <i className={`fas ${cat.icon}`} />
-                  {cat.title}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* 3. Emergency Contacts — prominent */}
-          <section className="bg-red-50 border-l-4 border-red-500 rounded-2xl p-8 mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <span className="text-2xl">🚨</span>
-              <h2 className="text-2xl font-bold text-red-900">{t('emergencyContacts')}</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {emergencyContacts.map(contact => (
-                <a
-                  key={contact.label}
-                  href={`tel:${contact.phone.replace(/[^\d+]/g, '')}`}
-                  className={`flex items-center gap-4 p-4 rounded-xl ${contact.bg} hover:shadow-md transition-shadow`}
-                >
-                  <div
-                    className={`w-10 h-10 rounded-full ${contact.iconColor} bg-white/80 flex items-center justify-center`}
-                  >
-                    <i className={`fas ${contact.icon}`} />
-                  </div>
-                  <div>
-                    <p className={`font-semibold ${contact.text}`}>{contact.label}</p>
-                    <p className={`text-sm ${contact.iconColor}`}>{contact.phone}</p>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </section>
-
-          {/* 4. Service Category Cards */}
-          <section className="mb-12">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {serviceCategories.map(service => {
-                const theme = SERVICE_THEMES[service.id] || SERVICE_THEMES.maintenance;
+          {catNav.length > 0 && (
+            <div className="flex flex-wrap gap-3 mb-12">
+              <span className="text-sm font-semibold text-gray-500 self-center mr-2">
+                {t('quickNav')}:
+              </span>
+              {catNav.map(cat => {
+                const theme = SERVICE_THEMES[cat.id] || SERVICE_THEMES.maintenance;
                 return (
-                  <div
-                    key={service.id}
-                    className={`rounded-2xl overflow-hidden bg-white border border-gray-200 hover:shadow-2xl hover:-translate-y-1 ${CARD_ANIMATIONS.transition}`}
+                  <button
+                    key={cat.id}
+                    onClick={() => openForm(cat.id, cat.title)}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all hover:shadow-md ${theme.panel} ${theme.icon} border-gray-200 hover:border-current`}
                   >
-                    <div className={theme.accent + ' h-2'} />
-                    <div className="p-6">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div
-                          className={`w-12 h-12 rounded-xl ${theme.panel} flex items-center justify-center`}
-                        >
-                          <i className={`fas ${service.icon} text-2xl ${theme.icon}`} />
-                        </div>
-                        <div>
-                          <h2 className="text-xl font-bold text-gray-900">{service.title}</h2>
-                          <p className="text-sm text-gray-500">{service.subtitle}</p>
-                        </div>
-                      </div>
-                      <ul className="space-y-3 mb-6">
-                        {service.items.map((item, idx) => (
-                          <li key={idx} className="flex items-start gap-3 text-sm text-gray-600">
-                            <i className={`fas fa-check-circle mt-0.5 ${theme.icon}`} />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <button
-                        onClick={() => openForm(service.id, service.title)}
-                        className={`w-full py-3 px-4 rounded-xl text-white font-medium transition-all ${theme.accent} hover:brightness-110 shadow-md hover:shadow-lg`}
-                      >
-                        {t('requestService')}
-                      </button>
-                    </div>
-                  </div>
+                    <i className={`fas ${cat.icon}`} />
+                    {cat.title}
+                  </button>
                 );
               })}
             </div>
-          </section>
+          )}
 
-          {/* 5. Service Hours — visual cards */}
-          <section className="bg-white rounded-2xl border border-gray-200 p-8 mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('serviceHours')}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {serviceHours.map(item => (
-                <div
-                  key={item.service}
-                  className={`p-5 rounded-xl border ${item.highlight ? 'border-red-200 bg-red-50' : 'border-gray-100 bg-gray-50'} hover:shadow-md transition-shadow`}
-                >
-                  <p className="font-semibold text-gray-900">{item.service}</p>
-                  <p
-                    className={
-                      item.highlight ? 'text-red-700 font-medium mt-1' : 'text-gray-600 mt-1'
-                    }
+          {showEmergency && (
+            <section className="bg-red-50 border-l-4 border-red-500 rounded-2xl p-8 mb-12">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="text-2xl">🚨</span>
+                <h2 className="text-2xl font-bold text-red-900">{t('emergencyContacts')}</h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {cfgEmergency.map(contact => (
+                  <a
+                    key={contact.label}
+                    href={`tel:${contact.phone.replace(/[^\d+]/g, '')}`}
+                    className={`flex items-center gap-4 p-4 rounded-xl ${contact.bg} hover:shadow-md transition-shadow`}
                   >
-                    {item.hours}
-                  </p>
-                  {item.highlight && (
-                    <span className="inline-block mt-2 text-xs font-semibold text-red-700 bg-red-100 px-2 py-0.5 rounded-full">
-                      24/7
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
+                    <div
+                      className={`w-10 h-10 rounded-full ${contact.iconColor} bg-white/80 flex items-center justify-center`}
+                    >
+                      <i className={`fas ${contact.icon}`} />
+                    </div>
+                    <div>
+                      <p className={`font-semibold ${contact.text}`}>{contact.label}</p>
+                      <p className={`text-sm ${contact.iconColor}`}>{contact.phone}</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
 
-          {/* 6. Additional Services — tinted slate */}
-          <section className="bg-slate-50 rounded-3xl p-8 lg:p-10 mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-              {t('additionalServices')}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {additionalServices.map(service => (
-                <div
-                  key={service.id}
-                  className="bg-white rounded-2xl p-6 text-center border border-gray-100 hover:shadow-xl hover:-translate-y-0.5 transition-all"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-4">
-                    <i className={`fas ${service.icon} text-xl text-indigo-600`} />
+          {catCards.length > 0 && (
+            <section className="mb-12">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {catCards.map(service => {
+                  const theme = SERVICE_THEMES[service.id] || SERVICE_THEMES.maintenance;
+                  return (
+                    <div
+                      key={service.id}
+                      className={`rounded-2xl overflow-hidden bg-white border border-gray-200 hover:shadow-2xl hover:-translate-y-1 ${CARD_ANIMATIONS.transition}`}
+                    >
+                      <div className={theme.accent + ' h-2'} />
+                      <div className="p-6">
+                        <div className="flex items-center gap-4 mb-4">
+                          <div
+                            className={`w-12 h-12 rounded-xl ${theme.panel} flex items-center justify-center`}
+                          >
+                            <i className={`fas ${service.icon} text-2xl ${theme.icon}`} />
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-bold text-gray-900">{service.title}</h2>
+                            <p className="text-sm text-gray-500">{service.subtitle}</p>
+                          </div>
+                        </div>
+                        <ul className="space-y-3 mb-6">
+                          {service.items.map((item, idx) => (
+                            <li key={idx} className="flex items-start gap-3 text-sm text-gray-600">
+                              <i className={`fas fa-check-circle mt-0.5 ${theme.icon}`} />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <button
+                          onClick={() => openForm(service.id, service.title)}
+                          className={`w-full py-3 px-4 rounded-xl text-white font-medium transition-all ${theme.accent} hover:brightness-110 shadow-md hover:shadow-lg`}
+                        >
+                          {t('requestService')}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {showHours && (
+            <section className="bg-white rounded-2xl border border-gray-200 p-8 mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('serviceHours')}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {cfgHours.map(item => (
+                  <div
+                    key={item.service}
+                    className={`p-5 rounded-xl border ${item.highlight ? 'border-red-200 bg-red-50' : 'border-gray-100 bg-gray-50'} hover:shadow-md transition-shadow`}
+                  >
+                    <p className="font-semibold text-gray-900">{item.service}</p>
+                    <p
+                      className={
+                        item.highlight ? 'text-red-700 font-medium mt-1' : 'text-gray-600 mt-1'
+                      }
+                    >
+                      {item.hours}
+                    </p>
+                    {item.highlight && (
+                      <span className="inline-block mt-2 text-xs font-semibold text-red-700 bg-red-100 px-2 py-0.5 rounded-full">
+                        24/7
+                      </span>
+                    )}
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{service.title}</h3>
-                  <p className="text-sm text-gray-500 mb-4">{service.desc}</p>
-                  <button
-                    onClick={() => openForm(service.id, service.title)}
-                    className="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
-                  >
-                    {t('requestService')} →
-                  </button>
-                </div>
-              ))}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
+          )}
 
-          {/* 7. Directory CTA */}
-          <section className="rounded-3xl overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 text-white mb-12">
-            <div className="p-10 lg:p-14 text-center">
-              <h2 className="text-3xl font-bold mb-3">{t('needContractor')}</h2>
-              <p className="text-indigo-200 mb-8 max-w-xl mx-auto">{t('needContractorDesc')}</p>
-              <button
-                onClick={() => router.push('/directory')}
-                className="inline-flex items-center gap-2 bg-white text-indigo-700 px-8 py-3 rounded-xl font-semibold hover:bg-indigo-50 transition-colors shadow-lg"
-              >
-                <i className="fas fa-store" />
-                {t('browseDirectory')}
-              </button>
-            </div>
-          </section>
+          {showAdditional && (
+            <section className="bg-slate-50 rounded-3xl p-8 lg:p-10 mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+                {t('additionalServices')}
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {cfgAdditional.map(service => (
+                  <div
+                    key={service.id}
+                    className="bg-white rounded-2xl p-6 text-center border border-gray-100 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center mx-auto mb-4">
+                      <i className={`fas ${service.icon} text-xl text-indigo-600`} />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{service.title}</h3>
+                    <p className="text-sm text-gray-500 mb-4">{service.desc}</p>
+                    <button
+                      onClick={() => openForm(service.id, service.title)}
+                      className="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
+                    >
+                      {t('requestService')} →
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {showDirectory && (
+            <section className="rounded-3xl overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 text-white mb-12">
+              <div className="p-10 lg:p-14 text-center">
+                <h2 className="text-3xl font-bold mb-3">{t('needContractor')}</h2>
+                <p className="text-indigo-200 mb-8 max-w-xl mx-auto">{t('needContractorDesc')}</p>
+                <button
+                  onClick={() => router.push('/directory')}
+                  className="inline-flex items-center gap-2 bg-white text-indigo-700 px-8 py-3 rounded-xl font-semibold hover:bg-indigo-50 transition-colors shadow-lg"
+                >
+                  <i className="fas fa-store" />
+                  {t('browseDirectory')}
+                </button>
+              </div>
+            </section>
+          )}
         </div>
 
-        {/* 8. Service Request Modal */}
         {selectedService && (
           <ModalOverlay onClose={closeForm}>
             <div className="max-h-[80vh] overflow-y-auto">
@@ -339,10 +418,11 @@ export function ServicesPage() {
                       <option value="maintenance">{t('maintenance')}</option>
                       <option value="security">{t('security')}</option>
                       <option value="administration">{t('administration')}</option>
-                      <option value="parking">{t('parking')}</option>
-                      <option value="internet">{t('internet')}</option>
-                      <option value="waste">{t('waste')}</option>
-                      <option value="amenities">{t('amenities')}</option>
+                      {cfgAdditional.map(s => (
+                        <option key={s.id} value={s.id}>
+                          {s.title}
+                        </option>
+                      ))}
                       <option value="other">{t('other')}</option>
                     </select>
                   </div>
