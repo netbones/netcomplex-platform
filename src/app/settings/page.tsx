@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Breadcrumbs, ErrorBoundary, ImageUpload } from '@shared/ui';
 import { authClient } from '@api/client';
-import { supportedLanguages, languageNames, type SupportedLanguage } from '@/shared/lib/i18n';
+import { supportedLanguages, languageNames } from '@/shared/lib/i18n';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 
@@ -23,7 +23,7 @@ function isSafeImageUrl(url: string): boolean {
 }
 
 export default function SettingsPage() {
-  const { t: tCommon, t: tSettings } = useTranslation(['common', 'forms']);
+  const { t: tCommon } = useTranslation(['common', 'forms']);
   const { i18n } = useTranslation();
 
   const { isReady, LoadingComponent } = usePageLoading([
@@ -50,66 +50,45 @@ export default function SettingsPage() {
   }, [i18n.language]);
 
   useEffect(() => {
-    async function fetchUserSettings() {
-      if (!session?.user?.id) return;
-      const res = await fetch(`/api/users/${session.user.id}`);
-      const body = await res.json();
-      const data = body?.data ?? body;
-      if (data.showEmail !== undefined) setShowEmail(data.showEmail);
-      if (data.showPhone !== undefined) setShowPhone(data.showPhone);
-    }
-    fetchUserSettings();
-
-    async function fetchUserHousehold() {
+    async function fetchAllUserData() {
       if (!session?.user?.id) return;
       setLoadingHousehold(true);
       try {
         const res = await fetch(`/api/users/${session.user.id}`);
         const body = await res.json();
-        const userData = body?.data ?? body;
-        const seat = userData.standardSeats?.[0];
-        if (seat?.household?.id) {
-          const hhId = seat.household.id;
-          setHouseholdId(hhId);
-          setIsOwner(seat.isPrimaryOwner === true);
-          const hhRes = await fetch(`/api/households/${hhId}`);
-          const hhBody = await hhRes.json();
-          const hhData = hhBody?.data ?? hhBody;
-          if (hhData.household?.homeImage) {
-            setHouseholdImage(hhData.household.homeImage);
-          }
-        }
-      } catch (e) {
-        log.error({}, 'Failed to fetch household', e);
-      } finally {
-        setLoadingHousehold(false);
-      }
-    }
-    fetchUserHousehold();
+        const data = body?.data ?? body;
 
-    async function fetchUserProfile() {
-      if (!session?.user?.id) return;
-      try {
-        const res = await fetch(`/api/users/${session.user.id}`);
-        const body = await res.json();
-        const userData = body?.data ?? body;
-        if (userData.avatar || userData.image) {
-          setUserAvatar(userData.avatar || userData.image);
+        if (data.showEmail !== undefined) setShowEmail(data.showEmail);
+        if (data.showPhone !== undefined) setShowPhone(data.showPhone);
+
+        if (data.avatar || data.image) {
+          setUserAvatar(data.avatar || data.image);
         }
-        if (userData.premiumSeat) {
+        if (data.premiumSeat) {
           setPlanType('Premium');
-        } else if (userData.standardSeats?.length > 0) {
+        } else if (data.standardSeats?.length > 0) {
           setPlanType('Standard Seat');
-        } else if (userData.soloSeats?.length > 0) {
+        } else if (data.soloSeats?.length > 0) {
           setPlanType('Solo Seat');
         } else {
           setPlanType('Basic');
         }
+
+        const seat = data.standardSeats?.[0];
+        if (seat?.household?.id) {
+          setHouseholdId(seat.household.id);
+          setIsOwner(seat.isPrimaryOwner === true);
+          if (seat.household.homeImage) {
+            setHouseholdImage(seat.household.homeImage);
+          }
+        }
       } catch (e) {
-        log.error({}, 'Failed to fetch user', e);
+        log.error({}, 'Failed to fetch user data', e);
+      } finally {
+        setLoadingHousehold(false);
       }
     }
-    fetchUserProfile();
+    fetchAllUserData();
   }, [session?.user?.id]);
 
   const handleLanguageChange = async (newLang: string) => {
@@ -186,7 +165,7 @@ export default function SettingsPage() {
                       } else {
                         toast.error('Failed to save profile image');
                       }
-                    } catch (e) {
+                    } catch {
                       toast.error('Failed to save profile image');
                     }
                   }}
@@ -255,7 +234,7 @@ export default function SettingsPage() {
                     } else {
                       toast.error('Failed to save property image');
                     }
-                  } catch (e) {
+                  } catch {
                     toast.error('Failed to save property image');
                   }
                 }}

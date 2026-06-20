@@ -12,25 +12,7 @@ const log = createComponentLogger('platform-flags');
 import { type PlatformPageFlags } from '@shared/lib';
 export type { PlatformPageFlags };
 
-const DEFAULT_PAGE_FLAGS: PlatformPageFlags = {
-  campaign: true,
-  conservation: 'default',
-  conservationExternalUrl: '',
-  chat: true,
-  news: true,
-  events: true,
-  directory: true,
-  groups: true,
-  services: true,
-  resources: true,
-  maintenance: true,
-  surveys: true,
-  competitions: true,
-  dashboard: true,
-  bookings: true,
-  messages: true,
-  headerLinks: ['directory', 'groups', 'services', 'resources'],
-};
+import { DEFAULT_PAGE_FLAGS } from '@shared/lib/settings/defaults';
 
 export async function getPlatformPageFlags(tenantId: string): Promise<PlatformPageFlags> {
   try {

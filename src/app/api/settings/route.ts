@@ -4,6 +4,7 @@ import { hasPermission } from '@shared/lib';
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant, requireAssistScope } from '@entities/tenant/server';
+import { validateSettingValue } from '@shared/lib/settings/validation';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -69,6 +70,11 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as SettingBody;
+
+  const validation = validateSettingValue(body.key, body.value);
+  if (!validation.valid) {
+    return apiError('VALIDATION_ERROR', validation.error!, 400);
+  }
 
   // Enforce tenant isolation
   const { tenantId } = await withTenant();

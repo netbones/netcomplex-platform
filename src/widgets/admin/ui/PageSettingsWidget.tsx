@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
-import { type PlatformPageFlags, HEADER_LINK_IDS, type HeaderLinkId } from '@shared/lib';
+import { type PlatformPageFlags, HEADER_LINK_IDS } from '@shared/lib';
+import { DEFAULT_PAGE_FLAGS } from '@shared/lib/settings/defaults';
 
 const log = createComponentLogger('PageSettingsWidget');
 
@@ -12,27 +13,7 @@ interface PageFlagsWidgetProps {
 }
 
 export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
-  const [flags, setFlags] = useState<PlatformPageFlags>(
-    initialFlags || {
-      campaign: true,
-      conservation: 'default',
-      conservationExternalUrl: '',
-      chat: true,
-      news: true,
-      events: true,
-      directory: true,
-      groups: true,
-      services: true,
-      resources: true,
-      maintenance: true,
-      surveys: true,
-      competitions: true,
-      dashboard: true,
-      bookings: true,
-      messages: true,
-      headerLinks: ['directory', 'groups', 'services', 'resources'],
-    }
-  );
+  const [flags, setFlags] = useState<PlatformPageFlags>(initialFlags || DEFAULT_PAGE_FLAGS);
   const [loading, setLoading] = useState(true);
   const [savingKeys, setSavingKeys] = useState<Set<string>>(new Set());
   const [saved, setSaved] = useState(false);

@@ -16,6 +16,7 @@ import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import { requireAssistScope } from '@entities/tenant/server';
 import { apiLogger } from '@shared/lib';
+import { validateSettingValue } from '@shared/lib/settings/validation';
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -97,6 +98,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
   }
 
   const value = typeof body.value === 'string' ? body.value : JSON.stringify(body.value);
+
+  const validation = validateSettingValue(key, value);
+  if (!validation.valid) {
+    return apiError('VALIDATION_ERROR', validation.error!, 400);
+  }
 
   try {
     // Check if setting exists
