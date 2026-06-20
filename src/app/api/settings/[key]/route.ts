@@ -8,6 +8,7 @@ import {
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
+  writeAuditLog,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -112,6 +113,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
       .where(and(eq(settings.tenantId, tenantId), eq(settings.key, key)))
       .limit(1);
 
+    const oldValue = existing.length > 0 ? existing[0].value : null;
+
     if (existing.length > 0) {
       // Update existing
       await db
@@ -123,6 +126,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
       const id = `${tenantId}_${key}`.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
       await db.insert(settings).values({ id, tenantId, key, value });
     }
+
+    writeAuditLog({
+      action: 'SETTINGS_CHANGED',
+      actorId: authData.userId,
+      tenantId,
+      details: { key, oldValue, newValue: value, method: 'PATCH' },
+    });
 
     return apiSuccess({ key, value });
   } catch (error) {

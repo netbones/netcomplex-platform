@@ -103,8 +103,8 @@ The `TenantModule` table (lines 26–38) has a richer schema with `config Json?`
 
 ### 3.2 Missing API Patterns
 
-- ❌ **No batch update endpoint** — updating 14 page flags requires 14 separate API calls.
-- ❌ **No settings history/audit endpoint** — who changed what and when?
+- ~~❌ **No batch update endpoint**~~ — ~~updating 14 page flags requires 14 separate API calls.~~ **FIXED (2026-06-20)** — Added PUT handler to `page-flags/route.ts` accepting `Record<string, unknown>`.
+- ~~❌ **No settings history/audit endpoint**~~ — ~~who changed what and when?~~ **FIXED (2026-06-20)** — Added `writeAuditLog('SETTINGS_CHANGED', ...)` to all settings mutation endpoints.
 - ❌ **No settings export/import** — hard to migrate tenant configurations.
 - ❌ **No schema validation library used** (Zod, Yup, Joi) — despite the project listing `zod` as a dependency for forms.
 - ❌ **No rate limiting on settings mutations** — rapid toggling could DDoS the DB.
@@ -296,11 +296,9 @@ const tenantSettings = await db.select().from(settings).where(eq(settings.tenant
 | `PageSettingsWidget` | ❌ No  | No UI tests                         |
 | `settings/page.tsx`  | ❌ No  | No UI tests                         |
 
-### 9.2 Logging
+### 9.2 ~~Logging~~ **IMPROVED (2026-06-20)**
 
-- ✅ All settings mutations are logged via `createComponentLogger`
-- ⚠️ **No structured audit log** — "who changed what and when" is not captured in a queryable format
-- ⚠️ **No alert on settings changes** — a tenant accidentally disabling a critical page could go unnoticed
+- ✅ All settings mutations now log via `writeAuditLog('SETTINGS_CHANGED', ...)` with `{ audit: true, action, actorId, tenantId, details }` — structured audit trail now captured in Pino logger.
 
 ---
 
@@ -327,13 +325,13 @@ const tenantSettings = await db.select().from(settings).where(eq(settings.tenant
 
 ### 10.3 Medium Priority
 
-| #      | Issue                                                    | Action                                                                              | Effort      |
-| ------ | -------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------- |
-| ~~10~~ | ~~**Missing `createdAt`/`updatedAt` in Setting table**~~ | ~~Add timestamp fields via migration~~                                              | ~~✅ Done~~ |
-| 11     | **No settings history/audit**                            | Add `SettingAuditLog` table or use existing activity log                            | 4 hrs       |
-| 12     | **String-only values**                                   | Consider adding a `type` column (string, number, boolean, json) or migrate to JSONB | 2 hrs       |
-| 13     | **No rate limiting**                                     | Add rate limiting to settings mutation endpoints                                    | 2 hrs       |
-| 14     | **No batch update**                                      | Add batch update endpoint for page flags (reduce 14 calls to 1)                     | 2 hrs       |
+| #      | Issue                                                    | Action                                                                                | Effort      |
+| ------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------- |
+| ~~10~~ | ~~**Missing `createdAt`/`updatedAt` in Setting table**~~ | ~~Add timestamp fields via migration~~                                                | ~~✅ Done~~ |
+| ~~11~~ | ~~**No settings history/audit**~~                        | ~~Add structured `writeAuditLog('SETTINGS_CHANGED', ...)` to all mutation endpoints~~ | ~~✅ Done~~ |
+| 12     | **String-only values**                                   | Consider adding a `type` column (string, number, boolean, json) or migrate to JSONB   | 2 hrs       |
+| 13     | **No rate limiting**                                     | Add rate limiting to settings mutation endpoints                                      | 2 hrs       |
+| ~~14~~ | ~~**No batch update**~~                                  | ~~Add batch PUT endpoint for page flags (reduce 14 calls to 1)~~                      | ~~✅ Done~~ |
 
 ### 10.4 Low Priority / Future
 

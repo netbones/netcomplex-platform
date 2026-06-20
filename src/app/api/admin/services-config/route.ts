@@ -15,6 +15,7 @@ import {
   apiInternalError,
   apiUnauthorized,
   apiValidationError,
+  writeAuditLog,
 } from '@api/server';
 import { hasPermission } from '@shared/lib';
 import { createComponentLogger } from '@shared/lib';
@@ -44,22 +45,38 @@ export async function PUT(request: NextRequest) {
     const ctx = await getRLSContext(request);
     if (!ctx) return apiUnauthorized();
 
-    return runWithRLS(ctx, async tx => {
-      const rawBody = await request.json();
-      const parsed = servicesConfigSchema.partial().safeParse(rawBody);
+    const rawBody = await request.json();
+    const parsed = servicesConfigSchema.partial().safeParse(rawBody);
 
-      if (!parsed.success) {
-        return apiValidationError(parsed.error.flatten());
-      }
+    if (!parsed.success) {
+      return apiValidationError(parsed.error.flatten());
+    }
 
-      const defaults = defaultServicesConfig();
-      const config: ServicesPageConfig = { ...defaults, ...parsed.data };
+    const defaults = defaultServicesConfig();
+    const config: ServicesPageConfig = { ...defaults, ...parsed.data };
 
+    const result = await runWithRLS(ctx, async tx => {
+      const oldConfig = await getServicesConfigWithTx(tx, ctx.tenantId);
       const success = await upsertServicesConfig(tx, ctx.tenantId, config);
-      if (success) return apiSuccess({ success: true });
-
-      return apiInternalError('Failed to save');
+      return { success, oldConfig };
     });
+
+    if (result.success) {
+      writeAuditLog({
+        action: 'SETTINGS_CHANGED',
+        actorId: sessionRole.userId,
+        tenantId: ctx.tenantId,
+        details: {
+          key: 'services-config',
+          oldValue: result.oldConfig,
+          newValue: config,
+          method: 'PUT',
+        },
+      });
+      return apiSuccess({ success: true });
+    }
+
+    return apiInternalError('Failed to save');
   } catch (error) {
     log.error({ operation: 'PUT' }, 'Failed to update services config', error);
     return apiInternalError(String(error));

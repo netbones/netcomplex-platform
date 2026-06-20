@@ -1,4 +1,13 @@
-import { auth, db, users, settings, apiError, apiForbidden, apiSuccess } from '@api/server';
+import {
+  auth,
+  db,
+  users,
+  settings,
+  apiError,
+  apiForbidden,
+  apiSuccess,
+  writeAuditLog,
+} from '@api/server';
 
 import { hasPermission } from '@shared/lib';
 
@@ -86,12 +95,22 @@ export async function POST(request: Request) {
     .where(and(eq(settings.tenantId, tenantId), eq(settings.key, body.key)))
     .limit(1);
 
+  const oldValue = existing[0]?.value ?? null;
+
   if (existing[0]) {
     const updated = await db
       .update(settings)
       .set({ value: body.value })
       .where(and(eq(settings.tenantId, tenantId), eq(settings.key, body.key)))
       .returning();
+
+    writeAuditLog({
+      action: 'SETTINGS_CHANGED',
+      actorId: authData.userId,
+      tenantId,
+      details: { key: body.key, oldValue, newValue: body.value, method: 'POST' },
+    });
+
     return apiSuccess(updated[0]);
   } else {
     // Generate ID for new setting
@@ -100,6 +119,14 @@ export async function POST(request: Request) {
       .insert(settings)
       .values({ id: newId, tenantId, key: body.key, value: body.value })
       .returning();
+
+    writeAuditLog({
+      action: 'SETTINGS_CHANGED',
+      actorId: authData.userId,
+      tenantId,
+      details: { key: body.key, oldValue: null, newValue: body.value, method: 'POST' },
+    });
+
     return apiSuccess(created[0]);
   }
 }
