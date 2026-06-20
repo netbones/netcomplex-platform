@@ -15,6 +15,7 @@ import {
   members,
   invitations,
   organizations,
+  tenants,
 } from './db';
 import { tenantConfig } from '@shared/lib';
 import { sendEmail } from '@shared/api';
@@ -22,6 +23,7 @@ import { templates } from '@shared/api';
 import { authLogger } from '@shared/lib';
 import { generateProfileSlug } from './slug';
 import { validator } from 'validation-better-auth';
+import { eq } from 'drizzle-orm';
 import {
   signUpEmailSchema,
   signInEmailSchema,
@@ -188,9 +190,19 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async user => {
+          const rawTenantId = (user as Record<string, unknown>)?.tenantId as string | undefined;
+          const [tenant] = rawTenantId
+            ? await db
+                .select({ id: tenants.id })
+                .from(tenants)
+                .where(eq(tenants.slug, rawTenantId))
+                .limit(1)
+            : [];
+
           return {
             data: {
               ...user,
+              tenantId: tenant?.id ?? rawTenantId ?? tenantConfig.defaultSlug,
               profileSlug: generateProfileSlug(user.name),
             },
           };
