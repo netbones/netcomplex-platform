@@ -21,6 +21,14 @@ async function fetchJson<T>(url: string): Promise<T[]> {
 // TYPES
 // ═══════════════════════════════════════════════════════════════
 
+const BADGE_STYLES: Record<string, string> = {
+  Announcement: 'text-purple-700 bg-purple-100',
+  Maintenance: 'text-amber-700 bg-amber-100',
+  Event: 'text-green-700 bg-green-100',
+  Booking: 'text-blue-700 bg-blue-100',
+  Message: 'text-indigo-700 bg-indigo-100',
+};
+
 interface Announcement {
   id: string;
   title: string | Record<string, unknown>;
@@ -257,7 +265,11 @@ function TodayCard({
         <p className="text-sm font-medium text-gray-900 truncate">{title}</p>
         <p className="text-xs text-gray-500">{subtitle}</p>
       </div>
-      <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{type}</span>
+      <span
+        className={`text-xs px-2 py-0.5 rounded-full ${BADGE_STYLES[type] ?? 'text-gray-400 bg-gray-100'}`}
+      >
+        {type}
+      </span>
     </Link>
   );
 }
@@ -344,7 +356,11 @@ function ActivityCard({
         <p className="text-sm font-medium text-gray-900 truncate">{title}</p>
         <p className="text-xs text-gray-500">{timeAgo}</p>
       </div>
-      <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{type}</span>
+      <span
+        className={`text-xs px-2 py-0.5 rounded-full ${BADGE_STYLES[type] ?? 'text-gray-400 bg-gray-100'}`}
+      >
+        {type}
+      </span>
     </Link>
   );
 }
