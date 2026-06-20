@@ -46,6 +46,22 @@ const TABS = [
   { id: 'experience', label: 'Experience' },
 ] as const;
 
+const SOCIAL_PLATFORMS = [
+  'GitHub',
+  'LinkedIn',
+  'Twitter',
+  'Instagram',
+  'Facebook',
+  'YouTube',
+  'TikTok',
+  'Discord',
+  'Medium',
+  'Dev.to',
+  'Stack Overflow',
+  'Dribbble',
+  'Behance',
+];
+
 export function TabbedProfile({
   name,
   email,
@@ -239,9 +255,15 @@ export function TabbedProfile({
                     type="text"
                     value={account.platform}
                     onChange={e => updateSocialAccount(idx, 'platform', e.target.value)}
-                    placeholder="Platform (e.g., GitHub, LinkedIn)"
+                    placeholder="Platform"
+                    list={`social-platforms-${idx}`}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500"
                   />
+                  <datalist id={`social-platforms-${idx}`}>
+                    {SOCIAL_PLATFORMS.map(p => (
+                      <option key={p} value={p} />
+                    ))}
+                  </datalist>
                   <div className="flex gap-2 items-center">
                     <ExternalLink className="w-4 h-4 text-gray-400 shrink-0" />
                     <input
