@@ -85,6 +85,13 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     description: 'Community merit management and disputes',
   },
   {
+    id: 'bookings',
+    labelKey: 'domains.bookings',
+    descriptionKey: 'domains.descriptions.adminBookings',
+    icon: '/platform/bookings.svg',
+    description: 'Manage bookable facilities and settings',
+  },
+  {
     id: 'services',
     labelKey: 'domains.services',
     descriptionKey: 'domains.descriptions.services',
@@ -134,6 +141,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.merits': 'Community merit management and disputes',
   'domains.descriptions.system': 'Platform configuration and health',
   'domains.descriptions.services': 'Configure the public services page',
+  'domains.descriptions.adminBookings': 'Manage bookable facilities and settings',
 };
 
 export function AdminSubLauncher() {

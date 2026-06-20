@@ -106,7 +106,7 @@ const EXTENDED_SHORTCUTS: ShortcutDef[] = [
     id: 'new-booking',
     label: 'New Booking',
     icon: CalendarPlus,
-    href: '/admin/bookings?action=new',
+    href: '/admin/bookings',
     flag: 'bookings',
   },
   {
