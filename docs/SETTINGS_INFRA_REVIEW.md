@@ -3,7 +3,7 @@
 **Date:** 2026-06-20
 **Scope:** Admin and User settings infrastructure across the Netcomplex / Soralia Village platform
 **Reviewer:** Claude (OpenCode)
-**Status:** 🟡 9/16 issues resolved — critical + high priority complete, P3 rate limiting, audit, batch update done, remaining are low-priority enhancements
+**Status:** 🟢 12/16 resolved — critical + high + most medium items complete; 2 deferred (type column, export/import); 2 remaining (hoab, 5rqt) are low-priority
 
 ---
 
@@ -325,21 +325,21 @@ const tenantSettings = await db.select().from(settings).where(eq(settings.tenant
 
 ### 10.3 Medium Priority
 
-| #      | Issue                                                    | Action                                                                                | Effort      |
-| ------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------- |
-| ~~10~~ | ~~**Missing `createdAt`/`updatedAt` in Setting table**~~ | ~~Add timestamp fields via migration~~                                                | ~~✅ Done~~ |
-| ~~11~~ | ~~**No settings history/audit**~~                        | ~~Add structured `writeAuditLog('SETTINGS_CHANGED', ...)` to all mutation endpoints~~ | ~~✅ Done~~ |
-| 12     | **String-only values**                                   | Consider adding a `type` column (string, number, boolean, json) or migrate to JSONB   | 2 hrs       |
-| ~~13~~ | ~~**No rate limiting**~~                                 | ~~Add rate limiting to settings mutation endpoints~~                                  | ~~✅ Done~~ |
-| ~~14~~ | ~~**No batch update**~~                                  | ~~Add batch PUT endpoint for page flags (reduce 14 calls to 1)~~                      | ~~✅ Done~~ |
+| #      | Issue                                                    | Action                                                                                                                                                           | Effort      |
+| ------ | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| ~~10~~ | ~~**Missing `createdAt`/`updatedAt` in Setting table**~~ | ~~Add timestamp fields via migration~~                                                                                                                           | ~~✅ Done~~ |
+| ~~11~~ | ~~**No settings history/audit**~~                        | ~~Add structured `writeAuditLog('SETTINGS_CHANGED', ...)` to all mutation endpoints~~                                                                            | ~~✅ Done~~ |
+| 12     | **String-only values**                                   | ~~Consider adding a `type` column~~ **Deferred** — Zod validation handles type safety at the API layer; DB schema change carries migration risk for minimal gain |
+| ~~13~~ | ~~**No rate limiting**~~                                 | ~~Add rate limiting to settings mutation endpoints~~                                                                                                             | ~~✅ Done~~ |
+| ~~14~~ | ~~**No batch update**~~                                  | ~~Add batch PUT endpoint for page flags (reduce 14 calls to 1)~~                                                                                                 | ~~✅ Done~~ |
 
 ### 10.4 Low Priority / Future
 
-| #      | Issue                           | Action                                                                                | Effort      |
-| ------ | ------------------------------- | ------------------------------------------------------------------------------------- | ----------- |
-| 15     | **Settings versioning**         | Add `version` or `schemaVersion` to settings for migration support                    | 4 hrs       |
-| 16     | **Settings export/import**      | Build admin UI for exporting/importing tenant settings (JSON)                         | 4 hrs       |
-| ~~17~~ | ~~**Type-safe settings keys**~~ | ~~Add `SettingValueMap` + `getTypedSetting()` in `src/shared/lib/settings/types.ts`~~ | ~~✅ Done~~ |
+| #      | Issue                           | Action                                                                                | Effort       |
+| ------ | ------------------------------- | ------------------------------------------------------------------------------------- | ------------ |
+| ~~15~~ | ~~**Settings versioning**~~     | ~~Add `schemaVersion` column to Setting model~~                                       | ~~✅ Done~~  |
+| 16     | **Settings export/import**      | Build admin UI for exporting/importing tenant settings (JSON)                         | **Deferred** |
+| ~~17~~ | ~~**Type-safe settings keys**~~ | ~~Add `SettingValueMap` + `getTypedSetting()` in `src/shared/lib/settings/types.ts`~~ | ~~✅ Done~~  |
 
 ---
 

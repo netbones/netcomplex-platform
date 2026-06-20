@@ -520,12 +520,13 @@ model Response {
 }
 
 model Setting {
-  id        String   @id
-  tenantId  String
-  key       String
-  value     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id            String   @id
+  tenantId      String
+  key           String
+  value         String
+  schemaVersion Int      @default(1)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 
   @@unique([tenantId, key])
 }
