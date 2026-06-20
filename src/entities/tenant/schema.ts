@@ -45,3 +45,44 @@ export const signupSchema = z
   });
 
 export type SignupFormData = z.infer<typeof signupSchema>;
+
+const categoryConfigSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  subtitle: z.string(),
+  icon: z.string(),
+  items: z.array(z.string()),
+});
+
+const emergencyContactConfigSchema = z.object({
+  label: z.string().min(1),
+  phone: z.string().min(1),
+});
+
+const hourConfigSchema = z.object({
+  service: z.string().min(1),
+  hours: z.string().min(1),
+  highlight: z.boolean(),
+});
+
+const additionalServiceConfigSchema = z.object({
+  id: z.string().min(1),
+  icon: z.string(),
+  title: z.string().min(1),
+  desc: z.string(),
+});
+
+export const servicesConfigSchema = z.object({
+  heroVisible: z.boolean(),
+  categoriesVisible: z.boolean(),
+  emergencyVisible: z.boolean(),
+  hoursVisible: z.boolean(),
+  additionalVisible: z.boolean(),
+  directoryCtaVisible: z.boolean(),
+  categories: z.array(categoryConfigSchema),
+  emergencyContacts: z.array(emergencyContactConfigSchema),
+  hours: z.array(hourConfigSchema),
+  additionalServices: z.array(additionalServiceConfigSchema),
+});
+
+export type ServicesConfigFormData = z.infer<typeof servicesConfigSchema>;

@@ -11,6 +11,17 @@ import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('settings-page');
 
+const SAFE_IMAGE_PROTOCOLS = ['https:', 'http:'];
+
+function isSafeImageUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return SAFE_IMAGE_PROTOCOLS.includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
 export default function SettingsPage() {
   const { t: tCommon, t: tSettings } = useTranslation(['common', 'forms']);
   const { i18n } = useTranslation();
@@ -137,7 +148,7 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div className="flex items-center gap-6">
               <div className="flex-shrink-0">
-                {userAvatar ? (
+                {userAvatar && isSafeImageUrl(userAvatar) ? (
                   <img
                     src={userAvatar}
                     alt="Profile"
@@ -250,7 +261,7 @@ export default function SettingsPage() {
                 }}
                 label=""
               />
-            ) : householdImage ? (
+            ) : householdImage && isSafeImageUrl(householdImage) ? (
               <div className="relative w-32 h-32 rounded-lg overflow-hidden">
                 <img src={householdImage} alt="Property" className="w-full h-full object-cover" />
               </div>

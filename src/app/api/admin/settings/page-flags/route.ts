@@ -15,7 +15,7 @@ import {
   apiUnauthorized,
 } from '@api/server';
 
-import { isAdmin } from '@shared/lib';
+import { hasPermission } from '@shared/lib';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('page-flags-api');
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const sessionRole = await getSessionAndRole();
-    if (!sessionRole || !isAdmin(sessionRole.role)) {
+    if (!sessionRole || !hasPermission(sessionRole.role, 'admin')) {
       return apiForbidden();
     }
 

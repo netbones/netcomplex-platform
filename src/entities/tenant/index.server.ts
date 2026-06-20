@@ -61,3 +61,5 @@ export {
 } from './api/flags/services-config';
 
 export { SETTINGS_KEYS } from './api/settings';
+
+export { servicesConfigSchema, type ServicesConfigFormData } from './schema';

@@ -4,6 +4,7 @@ import {
   upsertServicesConfig,
   defaultServicesConfig,
   type ServicesPageConfig,
+  servicesConfigSchema,
 } from '@entities/tenant/server';
 import {
   getSessionAndRole,
@@ -13,8 +14,9 @@ import {
   apiSuccess,
   apiInternalError,
   apiUnauthorized,
+  apiValidationError,
 } from '@api/server';
-import { isAdmin } from '@shared/lib';
+import { hasPermission } from '@shared/lib';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('services-config-api');
@@ -37,15 +39,21 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const sessionRole = await getSessionAndRole();
-    if (!sessionRole || !isAdmin(sessionRole.role)) return apiForbidden();
+    if (!sessionRole || !hasPermission(sessionRole.role, 'admin')) return apiForbidden();
 
     const ctx = await getRLSContext(request);
     if (!ctx) return apiUnauthorized();
 
     return runWithRLS(ctx, async tx => {
-      const body = (await request.json()) as Partial<ServicesPageConfig>;
+      const rawBody = await request.json();
+      const parsed = servicesConfigSchema.partial().safeParse(rawBody);
+
+      if (!parsed.success) {
+        return apiValidationError(parsed.error.flatten());
+      }
+
       const defaults = defaultServicesConfig();
-      const config: ServicesPageConfig = { ...defaults, ...body };
+      const config: ServicesPageConfig = { ...defaults, ...parsed.data };
 
       const success = await upsertServicesConfig(tx, ctx.tenantId, config);
       if (success) return apiSuccess({ success: true });

@@ -3,7 +3,7 @@ import { auth, db, users, settings, apiError, apiForbidden, apiSuccess } from '@
 import { hasPermission } from '@shared/lib';
 
 import { eq, and } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/server';
+import { withTenant, requireAssistScope } from '@entities/tenant/server';
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -30,7 +30,7 @@ async function getSessionAndRole(request: Request) {
 export async function GET(request: Request) {
   const authData = await getSessionAndRole(request);
 
-  if (!authData || !hasPermission(authData.role, 'settings')) {
+  if (!authData || !hasPermission(authData.role, 'admin')) {
     return apiForbidden();
   }
 
@@ -56,9 +56,12 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const authData = await getSessionAndRole(request);
 
-  if (!authData || !hasPermission(authData.role, 'settings')) {
+  if (!authData || !hasPermission(authData.role, 'admin')) {
     return apiForbidden();
   }
+
+  const scopeError = await requireAssistScope(request, 'full');
+  if (scopeError) return scopeError;
 
   interface SettingBody {
     key: string;
@@ -71,13 +74,17 @@ export async function POST(request: Request) {
   const { tenantId } = await withTenant();
 
   // Try to update first, then insert if not found
-  const existing = await db.select().from(settings).where(eq(settings.key, body.key)).limit(1);
+  const existing = await db
+    .select()
+    .from(settings)
+    .where(and(eq(settings.tenantId, tenantId), eq(settings.key, body.key)))
+    .limit(1);
 
   if (existing[0]) {
     const updated = await db
       .update(settings)
       .set({ value: body.value })
-      .where(eq(settings.key, body.key))
+      .where(and(eq(settings.tenantId, tenantId), eq(settings.key, body.key)))
       .returning();
     return apiSuccess(updated[0]);
   } else {
