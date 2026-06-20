@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { ImageUpload } from '@shared/ui';
-import { User, ExternalLink, Plus, Trash2, GripVertical } from 'lucide-react';
+import { Plus, Trash2, GripVertical, User } from 'lucide-react';
 
 interface SocialAccount {
   platform: string;
@@ -250,7 +250,7 @@ export function TabbedProfile({
             )}
             {editSocialAccounts.map((account, idx) => (
               <div key={idx} className="flex gap-3 items-start">
-                <div className="flex-1 space-y-2">
+                <div className="w-44 shrink-0">
                   <input
                     type="text"
                     value={account.platform}
@@ -264,16 +264,15 @@ export function TabbedProfile({
                       <option key={p} value={p} />
                     ))}
                   </datalist>
-                  <div className="flex gap-2 items-center">
-                    <ExternalLink className="w-4 h-4 text-gray-400 shrink-0" />
-                    <input
-                      type="url"
-                      value={account.url}
-                      onChange={e => updateSocialAccount(idx, 'url', e.target.value)}
-                      placeholder="https://..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                  </div>
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={account.url}
+                    onChange={e => updateSocialAccount(idx, 'url', e.target.value)}
+                    placeholder="/yourhandle or @username"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  />
                 </div>
                 <button
                   onClick={() => removeSocialAccount(idx)}
