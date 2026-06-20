@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { authClient } from '@api/client';
 import { AlertTriangle, Calendar, Bell, Wrench, Activity, Megaphone, Clock } from 'lucide-react';
+import { getLocalizedValue } from '@shared/lib/i18n/config';
 
 async function fetchJson<T>(url: string): Promise<T[]> {
   try {
@@ -22,9 +23,14 @@ async function fetchJson<T>(url: string): Promise<T[]> {
 
 interface Announcement {
   id: string;
-  title: string;
+  title: string | Record<string, unknown>;
   priority: string;
   createdAt: string;
+}
+
+function resolveTitle(title: Announcement['title']): string {
+  if (typeof title === 'string') return title;
+  return getLocalizedValue(title, 'en') || '';
 }
 
 interface MaintenanceItem {
@@ -107,7 +113,7 @@ function UrgencyZone({
             key={a.id}
             href="/dashboard/community"
             icon={<Megaphone className="w-4 h-4 text-red-500" />}
-            label={a.title}
+            label={resolveTitle(a.title)}
             priority={a.priority}
           />
         ))}
@@ -282,7 +288,7 @@ function ActivityZone({
               key={a.id}
               href="/dashboard/community"
               icon={<Megaphone className="w-4 h-4 text-purple-500" />}
-              title={a.title}
+              title={resolveTitle(a.title)}
               date={a.createdAt}
               type="Announcement"
             />
@@ -510,9 +516,10 @@ export function HomeLayer() {
             .filter(a => a.priority !== 'urgent')
             .map(a => ({
               id: a.id,
-              title: a.title,
+              title: resolveTitle(a.title),
               type: 'Announcement' as const,
               createdAt: a.createdAt,
+              summary: undefined,
             }));
 
           const recentActivity = [...announcementActivity, ...maintenanceActivity]
