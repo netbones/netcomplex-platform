@@ -111,11 +111,14 @@ export default function AdminBookingsPage() {
           />
 
           <div className="flex items-center justify-between mt-6 mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Bookings</h1>
-              <p className="text-sm text-gray-500 mt-1">
-                Set which facilities are available for residents to book.
-              </p>
+            <div className="flex items-center gap-3">
+              <img src="/platform/bookings.svg" alt="" className="w-8 h-8" />
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Bookings</h1>
+                <p className="text-sm text-gray-500 mt-1">
+                  Set which facilities are available for residents to book.
+                </p>
+              </div>
             </div>
             <button
               onClick={save}
