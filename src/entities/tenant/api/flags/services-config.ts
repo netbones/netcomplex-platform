@@ -104,6 +104,33 @@ export async function getServicesConfig(tenantId: string): Promise<ServicesPageC
   }
 }
 
+/**
+ * Tx-aware sibling of getServicesConfig; used by routes that wrap
+ * in runWithRLS() so the query executes under the app_user role.
+ * Original getServicesConfig(tenantId) is kept unchanged for callers
+ * outside RLS.
+ */
+export async function getServicesConfigWithTx(
+  tx: NodePgDatabase<DbSchema>,
+  tenantId: string
+): Promise<ServicesPageConfig> {
+  try {
+    const rows = await tx
+      .select()
+      .from(settings)
+      .where(eq(settings.tenantId, tenantId))
+      .then(r => r.filter(s => s.key === SETTINGS_KEYS.SERVICES_CONFIG));
+
+    if (rows.length === 0) return defaultServicesConfig();
+
+    const parsed = JSON.parse(rows[0].value);
+    return { ...defaultServicesConfig(), ...parsed };
+  } catch (error) {
+    log.error({ operation: 'getServicesConfigWithTx' }, 'Failed to get config', error);
+    return defaultServicesConfig();
+  }
+}
+
 export async function upsertServicesConfig(
   tx: NodePgDatabase<DbSchema>,
   tenantId: string,

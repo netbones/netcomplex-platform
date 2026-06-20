@@ -50,6 +50,7 @@ export { getStatsigExperimentFlags } from './api/flags/statsig-flags';
 
 export {
   getServicesConfig,
+  getServicesConfigWithTx,
   upsertServicesConfig,
   defaultServicesConfig,
   type ServicesPageConfig,

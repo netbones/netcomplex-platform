@@ -1,16 +1,14 @@
 import { NextRequest } from 'next/server';
 import {
-  getServicesConfig,
+  getServicesConfigWithTx,
   upsertServicesConfig,
   defaultServicesConfig,
   type ServicesPageConfig,
 } from '@entities/tenant/server';
-import { withTenant } from '@entities/tenant/server';
 import {
   getSessionAndRole,
   runWithRLS,
   getRLSContext,
-  apiError,
   apiForbidden,
   apiSuccess,
   apiInternalError,
@@ -26,9 +24,10 @@ export async function GET(request: NextRequest) {
     const ctx = await getRLSContext(request);
     if (!ctx) return apiUnauthorized();
 
-    const { tenantId } = await withTenant();
-    const config = await getServicesConfig(tenantId);
-    return apiSuccess(config);
+    return runWithRLS(ctx, async tx => {
+      const config = await getServicesConfigWithTx(tx, ctx.tenantId);
+      return apiSuccess(config);
+    });
   } catch (error) {
     log.error({ operation: 'GET' }, 'Failed to get services config', error);
     return apiInternalError(String(error));
