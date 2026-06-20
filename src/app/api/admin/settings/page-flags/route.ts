@@ -2,10 +2,8 @@ import { NextRequest } from 'next/server';
 import {
   getPlatformPageFlagsWithTx,
   setPlatformPageFlagWithTx,
-  getPlatformPageFlags,
   type PlatformPageFlags,
 } from '@entities/tenant/server';
-import { withTenant } from '@entities/tenant/server';
 import {
   getSessionAndRole,
   runWithRLS,
@@ -27,9 +25,10 @@ export async function GET(request: NextRequest) {
     const ctx = await getRLSContext(request);
     if (!ctx) return apiUnauthorized();
 
-    const { tenantId } = await withTenant();
-    const flags = await getPlatformPageFlags(tenantId);
-    return apiSuccess(flags);
+    return runWithRLS(ctx, async tx => {
+      const flags = await getPlatformPageFlagsWithTx(tx, ctx.tenantId);
+      return apiSuccess(flags);
+    });
   } catch (error) {
     log.error({ operation: 'GET' }, 'Failed to get page flags', error);
     return apiInternalError(String(error));

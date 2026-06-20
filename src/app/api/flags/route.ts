@@ -1,14 +1,26 @@
 import { NextRequest } from 'next/server';
-import { getPlatformPageFlags } from '@entities/tenant/server';
+import { getPlatformPageFlagsWithTx } from '@entities/tenant/server';
 import { getStatsigExperimentFlags } from '@entities/tenant/server';
 import { withTenant } from '@entities/tenant/server';
 import { createComponentLogger } from '@shared/lib';
+import { sql } from 'drizzle-orm';
 
-import { apiError, apiSuccess } from '@api/server';
+import { apiError, apiSuccess, db } from '@api/server';
 
 const log = createComponentLogger('flags-api');
 
 export const dynamic = 'force-dynamic';
+
+async function readFlagsForTenant(tenantId: string) {
+  return db.transaction(async tx => {
+    await tx.execute(sql`SET LOCAL ROLE app_user`);
+    await tx.execute(sql`SELECT set_config('app.tenant_id', ${tenantId}, true)`);
+    return getPlatformPageFlagsWithTx(
+      tx as unknown as Parameters<typeof getPlatformPageFlagsWithTx>[0],
+      tenantId
+    );
+  });
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,7 +31,7 @@ export async function GET(request: NextRequest) {
     const { tenantId } = await withTenant();
 
     if (!flagParam && !experiments) {
-      const allFlags = await getPlatformPageFlags(tenantId);
+      const allFlags = await readFlagsForTenant(tenantId);
       return apiSuccess({ flags: allFlags, tenantId });
     }
 
@@ -43,7 +55,7 @@ export async function GET(request: NextRequest) {
       if (!validFlags.includes(flagParam as (typeof validFlags)[number])) {
         return apiError('VALIDATION_ERROR', 'Invalid flag parameter', 400);
       }
-      const allFlags = await getPlatformPageFlags(tenantId);
+      const allFlags = await readFlagsForTenant(tenantId);
       const value = allFlags[flagParam as keyof typeof allFlags];
       return apiSuccess({ flag: flagParam, value, tenantId });
     }
