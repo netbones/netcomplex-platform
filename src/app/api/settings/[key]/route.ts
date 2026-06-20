@@ -9,6 +9,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   writeAuditLog,
+  rateLimitByUser,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -89,6 +90,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
   // AssistSession scope guard: metadata-scoped staff can only read, not modify content/users/settings
   const scopeError = await requireAssistScope(request, 'full');
   if (scopeError) return scopeError;
+
+  const rateLimit = rateLimitByUser(authData.userId, { windowMs: 60_000, maxRequests: 10 });
+  if (rateLimit) return rateLimit;
 
   const { key } = await params;
   const { tenantId } = await withTenant();

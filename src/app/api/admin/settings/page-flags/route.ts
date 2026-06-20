@@ -14,6 +14,7 @@ import {
   apiInternalError,
   apiUnauthorized,
   writeAuditLog,
+  rateLimitByUser,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -63,6 +64,9 @@ export async function POST(request: NextRequest) {
       return apiForbidden();
     }
 
+    const rateLimit = rateLimitByUser(sessionRole.userId, { windowMs: 60_000, maxRequests: 10 });
+    if (rateLimit) return rateLimit;
+
     const ctx = await getRLSContext(request);
     if (!ctx) return apiUnauthorized();
 
@@ -106,6 +110,9 @@ export async function PUT(request: NextRequest) {
     if (!sessionRole || !hasPermission(sessionRole.role, 'admin')) {
       return apiForbidden();
     }
+
+    const rateLimit = rateLimitByUser(sessionRole.userId, { windowMs: 60_000, maxRequests: 10 });
+    if (rateLimit) return rateLimit;
 
     const ctx = await getRLSContext(request);
     if (!ctx) return apiUnauthorized();

@@ -3,7 +3,7 @@
 **Date:** 2026-06-20
 **Scope:** Admin and User settings infrastructure across the Netcomplex / Soralia Village platform
 **Reviewer:** Claude (OpenCode)
-**Status:** 🔧 In Progress — critical items fixed, P2 issues being addressed
+**Status:** 🟡 9/16 issues resolved — critical + high priority complete, P3 rate limiting, audit, batch update done, remaining are low-priority enhancements
 
 ---
 
@@ -107,7 +107,7 @@ The `TenantModule` table (lines 26–38) has a richer schema with `config Json?`
 - ~~❌ **No settings history/audit endpoint**~~ — ~~who changed what and when?~~ **FIXED (2026-06-20)** — Added `writeAuditLog('SETTINGS_CHANGED', ...)` to all settings mutation endpoints.
 - ❌ **No settings export/import** — hard to migrate tenant configurations.
 - ❌ **No schema validation library used** (Zod, Yup, Joi) — despite the project listing `zod` as a dependency for forms.
-- ❌ **No rate limiting on settings mutations** — rapid toggling could DDoS the DB.
+- ~~❌ **No rate limiting on settings mutations**~~ — ~~rapid toggling could DDoS the DB.~~ **FIXED (2026-06-20)** — Added `rateLimitByUser` (10 mutations/min) to all 4 settings endpoints.
 
 ---
 
@@ -330,7 +330,7 @@ const tenantSettings = await db.select().from(settings).where(eq(settings.tenant
 | ~~10~~ | ~~**Missing `createdAt`/`updatedAt` in Setting table**~~ | ~~Add timestamp fields via migration~~                                                | ~~✅ Done~~ |
 | ~~11~~ | ~~**No settings history/audit**~~                        | ~~Add structured `writeAuditLog('SETTINGS_CHANGED', ...)` to all mutation endpoints~~ | ~~✅ Done~~ |
 | 12     | **String-only values**                                   | Consider adding a `type` column (string, number, boolean, json) or migrate to JSONB   | 2 hrs       |
-| 13     | **No rate limiting**                                     | Add rate limiting to settings mutation endpoints                                      | 2 hrs       |
+| ~~13~~ | ~~**No rate limiting**~~                                 | ~~Add rate limiting to settings mutation endpoints~~                                  | ~~✅ Done~~ |
 | ~~14~~ | ~~**No batch update**~~                                  | ~~Add batch PUT endpoint for page flags (reduce 14 calls to 1)~~                      | ~~✅ Done~~ |
 
 ### 10.4 Low Priority / Future

@@ -7,6 +7,7 @@ import {
   apiForbidden,
   apiSuccess,
   writeAuditLog,
+  rateLimitByUser,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -72,6 +73,9 @@ export async function POST(request: Request) {
 
   const scopeError = await requireAssistScope(request, 'full');
   if (scopeError) return scopeError;
+
+  const rateLimit = rateLimitByUser(authData.userId, { windowMs: 60_000, maxRequests: 10 });
+  if (rateLimit) return rateLimit;
 
   interface SettingBody {
     key: string;
