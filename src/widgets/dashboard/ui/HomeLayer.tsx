@@ -127,7 +127,7 @@ function UrgencyZone({
         {urgentAnnouncements.map(a => (
           <UrgencyCard
             key={a.id}
-            href="/dashboard/community"
+            href={`/news#announcement-${a.id}`}
             icon={<Megaphone className="w-4 h-4 text-red-500" />}
             label={resolveTitle(a.title)}
             priority={a.priority}
@@ -135,7 +135,7 @@ function UrgencyZone({
         ))}
         {overdueMaintenance.length > 0 && (
           <UrgencyCard
-            href="/dashboard/services"
+            href="/dashboard/services/maintenance"
             icon={<Wrench className="w-4 h-4 text-amber-500" />}
             label={`${overdueMaintenance.length} overdue maintenance request${overdueMaintenance.length !== 1 ? 's' : ''}`}
             priority="high"
@@ -165,6 +165,12 @@ function UrgencyCard({
   label: string;
   priority: string;
 }) {
+  const urgencyTint: Record<string, string> = {
+    urgent: 'bg-red-50',
+    high: 'bg-amber-50',
+    normal: 'bg-indigo-50',
+  };
+
   const borderColor =
     priority === 'urgent'
       ? 'border-l-red-500'
@@ -182,7 +188,7 @@ function UrgencyCard({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm border-l-3 ${borderColor} hover:bg-gray-50 transition-colors`}
+      className={`flex items-center gap-3 p-3 rounded-lg shadow-sm border-l-3 ${borderColor} ${urgencyTint[priority] ?? 'bg-white'} hover:brightness-95 transition`}
     >
       {icon}
       <span className="flex-1 text-sm font-medium text-gray-900 truncate">{label}</span>
