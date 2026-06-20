@@ -338,6 +338,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (body.residencyType !== undefined) {
     updateData.residencyType = String(body.residencyType);
   }
+  if (body.profileData !== undefined) {
+    updateData.profileData = body.profileData;
+  }
 
   const updatedUser = await db
     .update(users)

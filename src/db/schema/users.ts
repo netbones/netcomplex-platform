@@ -1,4 +1,28 @@
 import { pgTable, text, boolean, jsonb, timestamp } from 'drizzle-orm/pg-core';
 import { roleEnum } from './role-enum';
 
-export const users = pgTable('user', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), email: text('email').notNull(), name: text('name').notNull(), role: roleEnum('role').default('RESIDENT').notNull(), isActive: boolean('isActive').default(true).notNull(), phone: text('phone'), interests: text('interests').array().notNull(), avatar: text('avatar'), profileImage: text('profileImage'), books: jsonb('books').default([]).notNull(), dashboardLayout: jsonb('dashboardLayout').default(null).notNull(), isPublic: boolean('isPublic').default(true).notNull(), showEmail: boolean('showEmail').default(true).notNull(), showPhone: boolean('showPhone').default(true).notNull(), profileSlug: text('profileSlug'), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), emailVerified: boolean('emailVerified').default(false).notNull(), image: text('image'), twoFactorEnabled: boolean('twoFactorEnabled').default(false).notNull(), isPlatformAdmin: boolean('isPlatformAdmin').default(false).notNull() });
+export const users = pgTable('user', {
+  id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
+  email: text('email').notNull(),
+  name: text('name').notNull(),
+  role: roleEnum('role').default('RESIDENT').notNull(),
+  isActive: boolean('isActive').default(true).notNull(),
+  phone: text('phone'),
+  interests: text('interests').array().notNull(),
+  avatar: text('avatar'),
+  profileImage: text('profileImage'),
+  books: jsonb('books').default([]).notNull(),
+  dashboardLayout: jsonb('dashboardLayout').default(null).notNull(),
+  profileData: jsonb('profileData').default({}).notNull(),
+  isPublic: boolean('isPublic').default(true).notNull(),
+  showEmail: boolean('showEmail').default(true).notNull(),
+  showPhone: boolean('showPhone').default(true).notNull(),
+  profileSlug: text('profileSlug'),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  emailVerified: boolean('emailVerified').default(false).notNull(),
+  image: text('image'),
+  twoFactorEnabled: boolean('twoFactorEnabled').default(false).notNull(),
+  isPlatformAdmin: boolean('isPlatformAdmin').default(false).notNull(),
+});

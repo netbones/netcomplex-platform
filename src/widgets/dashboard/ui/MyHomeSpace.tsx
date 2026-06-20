@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { authClient } from '@api/client';
-import { ErrorBoundary, ImageUpload } from '@shared/ui';
-import { Home as HomeIcon, Users, User, Pencil } from 'lucide-react';
+import { ErrorBoundary } from '@shared/ui';
+import { Home as HomeIcon, Users, User } from 'lucide-react';
+import { TabbedProfile } from './TabbedProfile';
+import type { ProfileData } from './TabbedProfile';
 
 /** User profile data shape from /api/users/[id] */
 interface UserProfile {
@@ -14,6 +16,7 @@ interface UserProfile {
   image?: string;
   avatar?: string;
   platformAddress?: string;
+  profileData?: ProfileData;
   household?: {
     id: string;
     name?: string;
@@ -53,13 +56,6 @@ export function MyHomeSpace() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Edit states
-  const [editingSection, setEditingSection] = useState<string | null>(null);
-  const [editName, setEditName] = useState('');
-  const [editEmail, setEditEmail] = useState('');
-  const [editPhone, setEditPhone] = useState('');
-  const [editAvatar, setEditAvatar] = useState('');
-
   const fetchProfile = useCallback(async () => {
     if (!userId) return;
     setIsLoading(true);
@@ -75,10 +71,6 @@ export function MyHomeSpace() {
         data.standardSeats?.[0]?.platformAddress ??
         '';
       setProfile({ ...data, platformAddress });
-      setEditName(data.name ?? '');
-      setEditEmail(data.email ?? '');
-      setEditPhone(data.phone ?? '');
-      setEditAvatar(data.avatar ?? '');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
@@ -90,31 +82,22 @@ export function MyHomeSpace() {
     fetchProfile();
   }, [fetchProfile]);
 
-  const handleSaveProfile = async () => {
+  const handleSaveProfile = async (data: {
+    name: string;
+    email: string;
+    phone: string;
+    avatar: string;
+    profileData: ProfileData;
+  }) => {
     if (!userId) return;
-    try {
-      const res = await fetch(`/api/users/${userId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: editName, email: editEmail, phone: editPhone }),
-      });
-      if (!res.ok) throw new Error('Failed to save profile');
-      setEditingSection(null);
-      fetchProfile();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save');
-    }
-  };
-
-  const handleAvatarChange = async (url: string) => {
-    if (!userId) return;
-    setEditAvatar(url);
     await fetch(`/api/users/${userId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ avatar: url, image: url }),
+      body: JSON.stringify(data),
     });
-    await authClient.updateUser({ image: url });
+    if (data.avatar && data.avatar !== profile?.avatar) {
+      await authClient.updateUser({ image: data.avatar });
+    }
     fetchProfile();
   };
 
@@ -226,122 +209,14 @@ export function MyHomeSpace() {
       </div>
 
       {/* ═══ Profile Management ═══ */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-2">
-            <User className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-lg font-semibold text-gray-900">My Profile</h2>
-          </div>
-          {editingSection !== 'profile' && (
-            <button
-              onClick={() => setEditingSection('profile')}
-              className="flex items-center gap-1 px-3 py-1 text-sm text-indigo-600 hover:bg-indigo-50 rounded-md transition"
-            >
-              <Pencil className="w-3 h-3" />
-              Edit
-            </button>
-          )}
-        </div>
-        <div className="p-6">
-          {editingSection === 'profile' ? (
-            <div className="space-y-4">
-              <ImageUpload value={editAvatar} onChange={handleAvatarChange} label="Profile Photo" />
-              <div>
-                <label className="block text-xs font-medium text-gray-500 uppercase mb-1">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={e => setEditName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-500 uppercase mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={editEmail}
-                  onChange={e => setEditEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-500 uppercase mb-1">
-                  Platform Address
-                </label>
-                <input
-                  type="text"
-                  value={profile?.platformAddress ?? ''}
-                  disabled
-                  className="w-full px-3 py-2 border border-gray-200 bg-gray-50 rounded-md text-sm text-gray-500 font-mono"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-500 uppercase mb-1">
-                  Phone
-                </label>
-                <input
-                  type="tel"
-                  value={editPhone}
-                  onChange={e => setEditPhone(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={handleSaveProfile}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700 transition"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => setEditingSection(null)}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md text-sm hover:bg-gray-200 transition"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <div className="flex items-center gap-4 mb-4">
-                {profile?.avatar ? (
-                  <img
-                    src={profile.avatar}
-                    alt={profile.name ?? ''}
-                    className="w-16 h-16 rounded-full object-cover bg-gray-100"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center">
-                    <User className="w-8 h-8 text-indigo-600" />
-                  </div>
-                )}
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {profile?.name ?? 'Not set'}
-                  </p>
-                  <p className="text-xs text-gray-500 font-mono">
-                    {profile?.platformAddress || 'Not set'}
-                  </p>
-                </div>
-              </div>
-              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <dt className="text-xs font-medium text-gray-500 uppercase">Email</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{profile?.email ?? 'Not set'}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-gray-500 uppercase">Phone</dt>
-                  <dd className="mt-1 text-sm text-gray-900">{profile?.phone ?? 'Not set'}</dd>
-                </div>
-              </dl>
-            </div>
-          )}
-        </div>
-      </div>
+      <TabbedProfile
+        name={profile?.name ?? ''}
+        email={profile?.email ?? ''}
+        avatar={profile?.avatar ?? profile?.image}
+        phone={profile?.phone ?? ''}
+        profileData={profile?.profileData ?? {}}
+        onSave={handleSaveProfile}
+      />
     </div>
   );
 }
