@@ -3,6 +3,8 @@ import { db, settings } from '@api/server';
 import type { DbSchema } from '@api/server';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
+import { CACHE_TAGS } from '@shared/api';
 import { SETTINGS_KEYS } from '../settings';
 import { v4 as uuidv4 } from 'uuid';
 import { createComponentLogger } from '@shared/lib';
@@ -14,7 +16,7 @@ export type { PlatformPageFlags };
 
 import { DEFAULT_PAGE_FLAGS } from '@shared/lib/settings/defaults';
 
-export async function getPlatformPageFlags(tenantId: string): Promise<PlatformPageFlags> {
+async function getPlatformPageFlagsImpl(tenantId: string): Promise<PlatformPageFlags> {
   try {
     const tenantSettings = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
 
@@ -89,6 +91,15 @@ export async function getPlatformPageFlags(tenantId: string): Promise<PlatformPa
     return DEFAULT_PAGE_FLAGS;
   }
 }
+
+export const getPlatformPageFlags = unstable_cache(
+  getPlatformPageFlagsImpl,
+  ['platform-page-flags'],
+  {
+    revalidate: 300,
+    tags: [CACHE_TAGS.SETTINGS],
+  }
+);
 
 function serializeValue(value: unknown): string {
   if (Array.isArray(value)) return JSON.stringify(value);

@@ -67,7 +67,7 @@ ia-village
 | --- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
 | 1   | **All values are strings** — booleans, arrays, and complex objects are serialized/deserialized manually | Type safety violations, runtime errors on malformed JSON |
 | 2   | **`value` column is unbounded** — no length limit on `String`                                           | Potential for abuse (store multi-MB blobs)               |
-| 3   | **No `createdAt` / `updatedAt` timestamps**                                                             | No audit trail, hard to debug when settings changed      |
+| 3   | **No `createdAt` / `updatedAt` timestamps**                                                             | ~~No audit trail~~ **FIXED (2026-06-20)**                |
 | 4   | **No `updatedBy` or `version` field**                                                                   | No accountability for tenant config changes              |
 | 5   | **No `description` or `category` metadata**                                                             | Hard to document what each key does                      |
 | 6   | **IDs are manually generated** (`id: text('id').primaryKey()`) — not auto-increment or UUID by default  | Risk of collisions in some write paths                   |
@@ -275,11 +275,12 @@ const tenantSettings = await db.select().from(settings).where(eq(settings.tenant
 - With 20+ settings, this is negligible. With 1000+, it becomes a problem.
 - **Missing index:** The `@@unique([tenantId, key])` constraint creates an implicit index, but there's no index on `tenantId` alone for this query pattern.
 
-### 8.3 No Client-Side Caching
+### 8.3 ~~No Client-Side Caching~~ **FIXED (2026-06-20)**
 
-- `usePageFlags()` hook (if it exists) likely fetches fresh data on every mount.
-- Settings change infrequently but are fetched on every page load.
-- **Recommendation:** Use `unstable_cache` (Next.js) or TanStack Query with longer stale times.
+~~- `usePageFlags()` hook (if it exists) likely fetches fresh data on every mount.~~
+
+- `getPlatformPageFlags` now uses `unstable_cache` with 5-min revalidation and `CACHE_TAGS.SETTINGS` ISR tag.
+- Settings page user data now uses TanStack Query `useQuery` with 5-min `staleTime`.
 
 ---
 
@@ -321,18 +322,18 @@ const tenantSettings = await db.select().from(settings).where(eq(settings.tenant
 | 5     | **No shared settings abstraction**              | Create a `useSettings()` hook and `SettingsProvider` context         | 4 hrs       |
 | ~~6~~ | ~~**Tripled network load on Settings page**~~   | ~~Consolidate to single `fetch()` call~~                             | ~~✅ Done~~ |
 | ~~7~~ | ~~**No schema validation on settings values**~~ | ~~Implement per-key validation using Zod schemas~~                   | ~~✅ Done~~ |
-| 8     | **No client-side caching**                      | Add TanStack Query or `unstable_cache` for settings data             | 3 hrs       |
+| 8     | ~~**No client-side caching**~~                  | ~~Add TanStack Query `useQuery` + `unstable_cache`~~                 | ~~✅ Done~~ |
 | ~~9~~ | ~~**Scattered default values**~~                | ~~Centralize all defaults in `src/shared/lib/settings/defaults.ts`~~ | ~~✅ Done~~ |
 
 ### 10.3 Medium Priority
 
-| #   | Issue                                                | Action                                                                              | Effort |
-| --- | ---------------------------------------------------- | ----------------------------------------------------------------------------------- | ------ |
-| 10  | **Missing `createdAt`/`updatedAt` in Setting table** | Add timestamp fields via migration                                                  | 30 min |
-| 11  | **No settings history/audit**                        | Add `SettingAuditLog` table or use existing activity log                            | 4 hrs  |
-| 12  | **String-only values**                               | Consider adding a `type` column (string, number, boolean, json) or migrate to JSONB | 2 hrs  |
-| 13  | **No rate limiting**                                 | Add rate limiting to settings mutation endpoints                                    | 2 hrs  |
-| 14  | **No batch update**                                  | Add batch update endpoint for page flags (reduce 14 calls to 1)                     | 2 hrs  |
+| #      | Issue                                                    | Action                                                                              | Effort      |
+| ------ | -------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------- |
+| ~~10~~ | ~~**Missing `createdAt`/`updatedAt` in Setting table**~~ | ~~Add timestamp fields via migration~~                                              | ~~✅ Done~~ |
+| 11     | **No settings history/audit**                            | Add `SettingAuditLog` table or use existing activity log                            | 4 hrs       |
+| 12     | **String-only values**                                   | Consider adding a `type` column (string, number, boolean, json) or migrate to JSONB | 2 hrs       |
+| 13     | **No rate limiting**                                     | Add rate limiting to settings mutation endpoints                                    | 2 hrs       |
+| 14     | **No batch update**                                      | Add batch update endpoint for page flags (reduce 14 calls to 1)                     | 2 hrs       |
 
 ### 10.4 Low Priority / Future
 

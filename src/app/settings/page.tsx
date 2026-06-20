@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
 import { Breadcrumbs, ErrorBoundary, ImageUpload } from '@shared/ui';
 import { authClient } from '@api/client';
 import { supportedLanguages, languageNames } from '@/shared/lib/i18n';
@@ -38,58 +39,52 @@ export default function SettingsPage() {
   const [showPhone, setShowPhone] = useState(true);
   const [householdId, setHouseholdId] = useState<string | null>(null);
   const [householdImage, setHouseholdImage] = useState<string>('');
-  const [loadingHousehold, setLoadingHousehold] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string>('');
   const [isOwner, setIsOwner] = useState(false);
   const [planType, setPlanType] = useState<string>('');
+
+  const { data: userData, isLoading: loadingHousehold } = useQuery({
+    queryKey: ['settings', 'user-data', session?.user?.id],
+    queryFn: async () => {
+      const res = await fetch(`/api/users/${session!.user!.id}`);
+      if (!res.ok) throw new Error('Failed to fetch user data');
+      return res.json();
+    },
+    enabled: !!session?.user?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  useEffect(() => {
+    if (!userData) return;
+    const data = userData?.data ?? userData;
+
+    if (data.showEmail !== undefined) setShowEmail(data.showEmail);
+    if (data.showPhone !== undefined) setShowPhone(data.showPhone);
+    if (data.avatar || data.image) setUserAvatar(data.avatar || data.image);
+
+    if (data.premiumSeat) {
+      setPlanType('Premium');
+    } else if (data.standardSeats?.length > 0) {
+      setPlanType('Standard Seat');
+    } else if (data.soloSeats?.length > 0) {
+      setPlanType('Solo Seat');
+    } else {
+      setPlanType('Basic');
+    }
+
+    const seat = data.standardSeats?.[0];
+    if (seat?.household?.id) {
+      setHouseholdId(seat.household.id);
+      setIsOwner(seat.isPrimaryOwner === true);
+      if (seat.household.homeImage) setHouseholdImage(seat.household.homeImage);
+    }
+  }, [userData]);
 
   useEffect(() => {
     if (i18n.language) {
       setLanguage(i18n.language);
     }
   }, [i18n.language]);
-
-  useEffect(() => {
-    async function fetchAllUserData() {
-      if (!session?.user?.id) return;
-      setLoadingHousehold(true);
-      try {
-        const res = await fetch(`/api/users/${session.user.id}`);
-        const body = await res.json();
-        const data = body?.data ?? body;
-
-        if (data.showEmail !== undefined) setShowEmail(data.showEmail);
-        if (data.showPhone !== undefined) setShowPhone(data.showPhone);
-
-        if (data.avatar || data.image) {
-          setUserAvatar(data.avatar || data.image);
-        }
-        if (data.premiumSeat) {
-          setPlanType('Premium');
-        } else if (data.standardSeats?.length > 0) {
-          setPlanType('Standard Seat');
-        } else if (data.soloSeats?.length > 0) {
-          setPlanType('Solo Seat');
-        } else {
-          setPlanType('Basic');
-        }
-
-        const seat = data.standardSeats?.[0];
-        if (seat?.household?.id) {
-          setHouseholdId(seat.household.id);
-          setIsOwner(seat.isPrimaryOwner === true);
-          if (seat.household.homeImage) {
-            setHouseholdImage(seat.household.homeImage);
-          }
-        }
-      } catch (e) {
-        log.error({}, 'Failed to fetch user data', e);
-      } finally {
-        setLoadingHousehold(false);
-      }
-    }
-    fetchAllUserData();
-  }, [session?.user?.id]);
 
   const handleLanguageChange = async (newLang: string) => {
     setSaving(true);

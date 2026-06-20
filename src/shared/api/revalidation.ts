@@ -19,6 +19,7 @@ export const CACHE_TAGS = {
   GROUPS: 'groups',
   USERS: 'users',
   CONVERSATIONS: 'conversations',
+  SETTINGS: 'settings',
 } as const;
 
 /**
