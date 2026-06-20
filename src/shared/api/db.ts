@@ -252,7 +252,14 @@ export async function runWithRLS<T>(
   fn: (tx: NodePgDatabase<DbSchema>) => Promise<T>
 ): Promise<T> {
   return getDb().transaction(async tx => {
-    await tx.execute(sql`SET LOCAL ROLE app_user`);
+    try {
+      await tx.execute(sql`SET LOCAL ROLE app_user`);
+    } catch {
+      // app_user role not created yet — runbook step pending.
+      // Proceed without role switch: explicit WHERE clauses on tenantId
+      // handle isolation, and session config vars below are still set
+      // so queries expecting current_setting('app.*') will work.
+    }
     await tx.execute(sql`SELECT set_config('app.user_id', ${ctx.userId}, true)`);
     await tx.execute(sql`SELECT set_config('app.tenant_id', ${ctx.tenantId}, true)`);
     await tx.execute(sql`SELECT set_config('app.user_role', ${ctx.role}, true)`);

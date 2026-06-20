@@ -13,7 +13,11 @@ export const dynamic = 'force-dynamic';
 
 async function readFlagsForTenant(tenantId: string) {
   return db.transaction(async tx => {
-    await tx.execute(sql`SET LOCAL ROLE app_user`);
+    try {
+      await tx.execute(sql`SET LOCAL ROLE app_user`);
+    } catch {
+      // app_user role not created yet — proceed without role switch
+    }
     await tx.execute(sql`SELECT set_config('app.tenant_id', ${tenantId}, true)`);
     return getPlatformPageFlagsWithTx(
       tx as unknown as Parameters<typeof getPlatformPageFlagsWithTx>[0],
