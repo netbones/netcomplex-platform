@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { PlatformPageFlags } from '../types';
-import { apiGet } from '@api/shared';
+
+const FLAGS_URL = '/api/flags';
 
 export function usePageFlags() {
   const [flags, setFlags] = useState<PlatformPageFlags | null>(null);
@@ -11,7 +12,10 @@ export function usePageFlags() {
 
   const fetchFlags = useCallback(async () => {
     try {
-      const data = await apiGet<{ flags: PlatformPageFlags }>('/api/flags');
+      const res = await fetch(`${FLAGS_URL}?_t=${Date.now()}`, { cache: 'no-cache' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const body = await res.json();
+      const data = body?.data ?? body;
       setFlags(data.flags);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Unknown error'));
