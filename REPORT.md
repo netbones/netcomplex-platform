@@ -144,21 +144,17 @@ A client that omits `limit` gets up to 10,000 records. This is a DoS vector and 
 
 ---
 
-### 2.5 6 TODO/FIXMEs in Source Code
+### ~~2.5 6 TODO/FIXMEs in Source Code~~ **FIXED (2026-06-21)**
 
-**Severity:** HIGH  
-**Files:** Multiple  
-**Details:**
+~~**Severity:** HIGH~~
 
-- `src/widgets/dashboard/ui/MobileSpaceBar.tsx:27,55` — "TODO: implement 'More' overflow sheet"
-- `src/widgets/dashboard/ui/MobileSpaceBar.tsx:116` — "TODO: connect to real unread message count"
-- `src/app/api/announcements/route.ts:253` — "TODO: Beyond FANOUT_CAP users, bulk job processing"
-- `src/app/bookings/page.tsx:11` — "TODO: Re-enable tenant-based feature gating"
-- `src/shared/api/rate-limit.ts:7` — "TODO: Replace in-memory store with Redis"
+**Fix:** Converted to BD issues:
 
-These indicate partially-implemented features that may block launch.
-
-**Fix:** Convert to BD/GSD issues with assignees and due dates.
+- `soralia-village-5pyh` — MobileSpaceBar "More" overflow sheet
+- `soralia-village-1srf` — MobileSpaceBar unread message count
+- `soralia-village-t2gz` — Announcements fanout queue
+- `soralia-village-8sbj` — Bookings tenant feature gating
+- Rate limiter TODO rendered obsolete by 1.5 Redis fix
 
 ---
 
@@ -281,7 +277,7 @@ The Prisma-to-Drizzle migration appears complete in code, but the Prisma schema,
 | Auth inconsistency           | ~~~68 routes~~ **FIXED (2026-06-21)** | HIGH     |
 | Hardcoded demo data          | 4 values                              | HIGH     |
 | `limit(10000)` default       | 1 route                               | HIGH     |
-| TODO/FIXME in source         | 6 items                               | HIGH     |
+| TODO/FIXME in source         | ~~6 items~~ **FIXED (2026-06-21)**    | HIGH     |
 | Test coverage                | 5.3%                                  | MEDIUM   |
 | `new Date()` in routes       | 93 instances                          | MEDIUM   |
 | Missing `maxDuration`        | ~40% of routes                        | MEDIUM   |
@@ -300,9 +296,9 @@ The Prisma-to-Drizzle migration appears complete in code, but the Prisma schema,
 
 2. **Week 2 (High):**
    - ~~Break circular dependencies by fixing barrel self-imports~~ **DONE — 0 cycles**
-   - Replace `as any` with proper Drizzle + Zod types
+   - ~~Replace `as any` with proper Drizzle + Zod types~~ **DONE — 0 remaining in API routes or entities**
    - ~~Add auth guards to all protected routes~~ **DONE — 8 routes fixed**
-   - Convert TODOs to BD/GSD issues
+   - ~~Convert TODOs to BD/GSD issues~~ **DONE — 4 issues created**
 
 3. **Week 3–4 (Medium):**
    - Increase test coverage to 30%+ (focus on API routes)
