@@ -4,7 +4,7 @@
 **Date:** 2026-06-20  
 **Scope:** `src/`, `prisma/`, `scripts/`, `test/`  
 **Source Files:** ~957 `.ts`/`.tsx` files  
-**Test Files:** ~80 (50.62% coverage — 893 passing tests, 0 failures)
+**Test Files:** ~92 (53.91% coverage — 956 passing tests, 0 failures)
 
 ---
 
@@ -141,9 +141,9 @@
 ### ~~3.1 Test Coverage: 5.3%~~ **IMPROVED (2026-06-21)**
 
 **Severity:** MEDIUM  
-**Details:** Coverage raised from 5.3% to **50.62%** — 893 passing tests across ~80 test files, **0 failures**. All pre-existing test failures are fixed — the full suite runs cleanly with no exclusions. API route coverage covers all major non-trivial routes.
+**Details:** Coverage raised from 5.3% to **53.91%** — 956 passing tests across ~92 test files, **0 failures**. All 12 admin API routes now have full test coverage. All pre-existing test failures are fixed — the full suite runs cleanly with no exclusions.
 
-**Remaining gaps:** ~37 API route files still at 0% coverage (mostly admin panel routes, survey sub-routes, and utility endpoints), plus shared/ UI and utility files.
+**Remaining gaps:** ~25 API route files at 0% coverage (mostly survey sub-routes and utility endpoints), plus shared/ UI and utility files.
 
 ---
 
@@ -246,7 +246,7 @@ The Prisma-to-Drizzle migration appears complete in code, but the Prisma schema,
 | `limit(10000)` default       | ~~1 route~~ **FIXED (2026-06-21)**                    | HIGH     |
 | Fanout `slice()` vs `LIMIT`  | ~~1 route~~ **FIXED (2026-06-21)**                    | HIGH     |
 | TODO/FIXME in source         | ~~6 items~~ **FIXED (2026-06-21)**                    | HIGH     |
-| Test coverage                | 5.3% → **50.62%** (893 tests)                         | MEDIUM   |
+| Test coverage                | 5.3% → **53.91%** (956 tests)                         | MEDIUM   |
 | `new Date()` in routes       | ~~91 instances~~ **FIXED — 63 route files converted** | MEDIUM   |
 | Missing `maxDuration`        | ~~~140 routes~~ **FIXED — 83 routes updated**         | MEDIUM   |
 | Widget registry `any`        | ~~1 file~~ **FIXED (2026-06-21)**                     | MEDIUM   |
@@ -275,7 +275,7 @@ The Prisma-to-Drizzle migration appears complete in code, but the Prisma schema,
    - ~~Add `.limit(FANOUT_CAP)` to user-fetch queries~~ **DONE**
 
 3. **Week 3–4 (Medium):**
-   - ~~Increase test coverage to 30%+~~ **DONE — 50.62%, 893 tests**
+   - ~~Increase test coverage to 30%+~~ **DONE — 53.91%, 956 tests**
    - ~~Create `now()` clock utility~~ **DONE — `src/shared/api/clock.ts`**
    - ~~Replace all `new Date()` in route files~~ **DONE — 91 instances across 63 files**
    - ~~Add `maxDuration` to all non-trivial routes~~ **DONE — 83 routes updated (110/167 total)**
