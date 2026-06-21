@@ -1,9 +1,21 @@
-import { db, groupMembers, apiCreated, apiError, apiSuccess, withErrorHandler } from '@api/server';
+import {
+  db,
+  groupMembers,
+  apiCreated,
+  apiError,
+  apiSuccess,
+  apiUnauthorized,
+  getSessionAndRole,
+  withErrorHandler,
+} from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
 export const POST = withErrorHandler(async (request: Request) => {
+  const authData = await getSessionAndRole(request);
+  if (!authData) return apiUnauthorized();
+
   const body = await request.json();
   const { userId, groupId, role = 'MEMBER' } = body;
 
@@ -37,6 +49,9 @@ export const POST = withErrorHandler(async (request: Request) => {
 });
 
 export const DELETE = withErrorHandler(async (request: Request) => {
+  const authData = await getSessionAndRole(request);
+  if (!authData) return apiUnauthorized();
+
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');
   const groupId = searchParams.get('groupId');

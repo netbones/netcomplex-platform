@@ -5,6 +5,8 @@ import {
   apiError,
   apiSuccess,
   apiInternalError,
+  apiUnauthorized,
+  getSessionAndRole,
 } from '@api/server';
 
 import { eq } from 'drizzle-orm';
@@ -18,6 +20,9 @@ interface OnboardingRequest {
 }
 
 export async function POST(request: NextRequest) {
+  const authData = await getSessionAndRole(request);
+  if (!authData) return apiUnauthorized();
+
   try {
     const body: OnboardingRequest = await request.json();
     const { tenantId, step, data } = body;

@@ -19,6 +19,7 @@ vi.mock('next/headers', () => ({
 // Hoisted mocks for shared mutable state
 const mocks = vi.hoisted(() => ({
   tenantResult: { tenantId: 'test-tenant-id' as string, tenantSlug: 'test-tenant' as string },
+  authResult: { userId: 'test-user-id', role: 'RESIDENT' as const },
   dbMock: {
     select: vi.fn(),
     insert: vi.fn(),
@@ -27,6 +28,8 @@ const mocks = vi.hoisted(() => ({
   },
   rateLimitByIP: vi.fn(),
   sendEmail: vi.fn(),
+  getSessionAndRole: vi.fn(),
+  apiUnauthorized: vi.fn(),
 }));
 
 // Mock @api/server (auth, db, rate limit, email, templates)
@@ -81,6 +84,8 @@ vi.mock('@api/server', () => ({
         headers: { 'Content-Type': 'application/json' },
       })
   ),
+  getSessionAndRole: (...args: unknown[]) => mocks.getSessionAndRole(...args),
+  apiUnauthorized: (...args: unknown[]) => mocks.apiUnauthorized(...args),
 }));
 
 // Mock withTenant
@@ -102,6 +107,19 @@ describe('Invitations API', () => {
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
     mocks.rateLimitByIP.mockReturnValue(null); // No rate limit by default
     mocks.sendEmail.mockResolvedValue({});
+    mocks.getSessionAndRole.mockResolvedValue(mocks.authResult);
+    mocks.apiUnauthorized.mockReturnValue(
+      new Response(
+        JSON.stringify({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Unauthorized' },
+        }),
+        {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
+    );
   });
 
   afterEach(() => {
@@ -118,7 +136,7 @@ describe('Invitations API', () => {
       mocks.dbMock.select.mockImplementation(() => chain);
 
       const request = new Request('http://localhost:3000/api/invitations');
-      const response = await GET();
+      const response = await GET(request);
       const body = await response.json();
 
       expect(response.status).toBe(200);
@@ -129,7 +147,8 @@ describe('Invitations API', () => {
       const chain = makeSelectChain([]);
       mocks.dbMock.select.mockImplementation(() => chain);
 
-      const response = await GET();
+      const request = new Request('http://localhost:3000/api/invitations');
+      const response = await GET(request);
       const body = await response.json();
 
       expect(response.status).toBe(200);
@@ -140,7 +159,8 @@ describe('Invitations API', () => {
       const chain = makeSelectChain([]);
       mocks.dbMock.select.mockImplementation(() => chain);
 
-      await GET();
+      const request = new Request('http://localhost:3000/api/invitations');
+      await GET(request);
 
       // Verify the query scoped by tenantId
       expect(mocks.dbMock.select).toHaveBeenCalled();

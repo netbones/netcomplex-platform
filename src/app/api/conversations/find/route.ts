@@ -1,4 +1,12 @@
-import { db, apiCreated, apiError, apiSuccess, withErrorHandler } from '@api/server';
+import {
+  db,
+  apiCreated,
+  apiError,
+  apiSuccess,
+  apiUnauthorized,
+  getSessionAndRole,
+  withErrorHandler,
+} from '@api/server';
 
 import { sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -11,6 +19,9 @@ interface ConversationResult {
 }
 
 export const POST = withErrorHandler(async (request: Request) => {
+  const authData = await getSessionAndRole(request);
+  if (!authData) return apiUnauthorized();
+
   const { tenantId } = await withTenant();
   const body = await request.json();
   const { participantIds } = body;

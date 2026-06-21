@@ -1,4 +1,12 @@
-import { db, settings, apiError, apiSuccess, withErrorHandler } from '@api/server';
+import {
+  db,
+  settings,
+  apiError,
+  apiSuccess,
+  apiUnauthorized,
+  getSessionAndRole,
+  withErrorHandler,
+} from '@api/server';
 
 import { eq, sql } from 'drizzle-orm';
 import { withTenant, withTenantOptional } from '@entities/tenant/server';
@@ -25,6 +33,9 @@ export const GET = withErrorHandler(async () => {
 });
 
 export const POST = withErrorHandler(async (request: Request) => {
+  const authData = await getSessionAndRole(request);
+  if (!authData) return apiUnauthorized();
+
   const { tenantId } = await withTenant();
   const body = await request.json();
 

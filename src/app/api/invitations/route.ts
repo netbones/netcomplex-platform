@@ -6,6 +6,8 @@ import {
   apiCreated,
   apiError,
   apiSuccess,
+  apiUnauthorized,
+  getSessionAndRole,
   rateLimitByIP,
   sendEmail,
   templates,
@@ -17,7 +19,10 @@ import { apiLogger } from '@shared/lib';
 
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
-export async function GET() {
+export async function GET(request: Request) {
+  const authData = await getSessionAndRole(request);
+  if (!authData) return apiUnauthorized();
+
   const { tenantId } = await withTenant();
   const invitationList = await db
     .select()
@@ -28,6 +33,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const authData = await getSessionAndRole(request);
+  if (!authData) return apiUnauthorized();
+
   // Rate limit: 5 invitations per minute per IP
   const rateLimit = await rateLimitByIP(request, { windowMs: 60_000, maxRequests: 5 });
   if (rateLimit) return rateLimit;

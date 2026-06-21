@@ -82,12 +82,10 @@
 
 ## 2. HIGH
 
-### 2.1 Auth Inconsistency Across API Routes
+### ~~2.1 Auth Inconsistency Across API Routes~~ **FIXED (2026-06-21)**
 
-**Severity:** HIGH  
-**Details:** Of 167 API route files, only ~99 import or reference auth utilities. Many routes that appear to require authentication (e.g., `maintenance/[id]/route.ts`, `groups/*/route.ts`) do not call `auth.api.getSession()` or any equivalent guard.
-
-**Fix:** Audit every route. Apply a `requireAuth()` wrapper to all non-public routes. Map routes to their required roles.
+~~**Details:** Of 167 API route files, only ~99 import or reference auth utilities.~~  
+**Fix:** Added auth guards (`getSessionAndRole` + `apiUnauthorized`) to 8 unprotected routes: `conversations/find`, `groups/members`, `invitations/[id]`, `invitations`, `settings/contact` (POST), `tenants/[id]/modules`, `users/[id]/books`, `platform/onboarding`. Ownership check added to `users/[id]/books`. Remaining unprotected routes are intentionally public (auth, health, flags, pricing, etc.).
 
 ---
 
@@ -271,23 +269,23 @@ The Prisma-to-Drizzle migration appears complete in code, but the Prisma schema,
 
 ## Summary Table
 
-| Category                     | Count                                | Priority |
-| ---------------------------- | ------------------------------------ | -------- |
-| API routes without try/catch | ~~113+~~ **FIXED (2026-06-21)**      | CRITICAL |
-| `as any` casts               | ~~177~~ **FIXED (2026-06-21)**       | CRITICAL |
-| Circular dependencies        | ~~16 cycles~~ **FIXED (2026-06-21)** | CRITICAL |
-| Prisma dead weight           | ~15MB                                | CRITICAL |
-| In-memory rate limiter       | ~~1 file~~ **FIXED (2026-06-21)**    | CRITICAL |
-| Unbounded `select()`         | ~~4+ routes~~ **FIXED (2026-06-21)** | CRITICAL |
-| Silent RLS bypass            | ~~1 file~~ **FIXED (2026-06-21)**    | CRITICAL |
-| Auth inconsistency           | ~68 routes                           | HIGH     |
-| Hardcoded demo data          | 4 values                             | HIGH     |
-| `limit(10000)` default       | 1 route                              | HIGH     |
-| TODO/FIXME in source         | 6 items                              | HIGH     |
-| Test coverage                | 5.3%                                 | MEDIUM   |
-| `new Date()` in routes       | 93 instances                         | MEDIUM   |
-| Missing `maxDuration`        | ~40% of routes                       | MEDIUM   |
-| `unstable_cache` usage       | 5 functions                          | MEDIUM   |
+| Category                     | Count                                 | Priority |
+| ---------------------------- | ------------------------------------- | -------- |
+| API routes without try/catch | ~~113+~~ **FIXED (2026-06-21)**       | CRITICAL |
+| `as any` casts               | ~~177~~ **FIXED (2026-06-21)**        | CRITICAL |
+| Circular dependencies        | ~~16 cycles~~ **FIXED (2026-06-21)**  | CRITICAL |
+| Prisma dead weight           | ~15MB                                 | CRITICAL |
+| In-memory rate limiter       | ~~1 file~~ **FIXED (2026-06-21)**     | CRITICAL |
+| Unbounded `select()`         | ~~4+ routes~~ **FIXED (2026-06-21)**  | CRITICAL |
+| Silent RLS bypass            | ~~1 file~~ **FIXED (2026-06-21)**     | CRITICAL |
+| Auth inconsistency           | ~~~68 routes~~ **FIXED (2026-06-21)** | HIGH     |
+| Hardcoded demo data          | 4 values                              | HIGH     |
+| `limit(10000)` default       | 1 route                               | HIGH     |
+| TODO/FIXME in source         | 6 items                               | HIGH     |
+| Test coverage                | 5.3%                                  | MEDIUM   |
+| `new Date()` in routes       | 93 instances                          | MEDIUM   |
+| Missing `maxDuration`        | ~40% of routes                        | MEDIUM   |
+| `unstable_cache` usage       | 5 functions                           | MEDIUM   |
 
 ---
 
@@ -303,7 +301,7 @@ The Prisma-to-Drizzle migration appears complete in code, but the Prisma schema,
 2. **Week 2 (High):**
    - ~~Break circular dependencies by fixing barrel self-imports~~ **DONE — 0 cycles**
    - Replace `as any` with proper Drizzle + Zod types
-   - Add auth guards to all protected routes
+   - ~~Add auth guards to all protected routes~~ **DONE — 8 routes fixed**
    - Convert TODOs to BD/GSD issues
 
 3. **Week 3–4 (Medium):**
