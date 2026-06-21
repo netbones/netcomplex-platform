@@ -8,25 +8,46 @@ let redis: Redis | null = null;
 
 function getRedis(): Redis | null {
   if (redis) return redis;
-  const hostEnv = process.env.SUGA_REDIS_HTTPS_DOMAIN;
-  const password = process.env.SUGA_REDIS_PASSWORD;
-  if (!hostEnv || !password) return null;
-  const host = hostEnv.replace(/^https?:\/\//, '').replace(/\/$/, '');
-  try {
-    redis = new Redis({
-      host,
-      port: Number(process.env.SUGA_REDIS_PORT) || 6379,
-      password,
-      tls: {},
-      maxRetriesPerRequest: 1,
-      lazyConnect: true,
-    });
-    redis.on('error', err => log.warn({}, 'Redis connection error (rate limiter degraded)', err));
-  } catch (err) {
-    log.error({}, 'Failed to create Redis client', err);
-    return null;
+
+  const upstashUrl = process.env.UPSTASH_REDIS_URL;
+  if (upstashUrl) {
+    try {
+      redis = new Redis(upstashUrl, {
+        maxRetriesPerRequest: 1,
+        lazyConnect: true,
+      });
+      redis.on('error', err => log.warn({}, 'Redis connection error (rate limiter degraded)', err));
+      return redis;
+    } catch (err) {
+      log.error({}, 'Failed to create Redis client from Upstash URL', err);
+      return null;
+    }
   }
-  return redis;
+
+  const sugaHost = process.env.SUGA_REDIS_HTTPS_DOMAIN?.replace(/^https?:\/\//, '').replace(
+    /\/$/,
+    ''
+  );
+  const sugaPassword = process.env.SUGA_REDIS_PASSWORD;
+  if (sugaHost && sugaPassword) {
+    try {
+      redis = new Redis({
+        host: sugaHost,
+        port: Number(process.env.SUGA_REDIS_PORT) || 6379,
+        password: sugaPassword,
+        tls: {},
+        maxRetriesPerRequest: 1,
+        lazyConnect: true,
+      });
+      redis.on('error', err => log.warn({}, 'Redis connection error (rate limiter degraded)', err));
+      return redis;
+    } catch (err) {
+      log.error({}, 'Failed to create Redis client from Suga config', err);
+      return null;
+    }
+  }
+
+  return null;
 }
 
 export interface RateLimitConfig {
