@@ -1,4 +1,13 @@
-import { db, users, groups, contents, apiError, apiSuccess, notDeleted } from '@api/server';
+import {
+  db,
+  users,
+  groups,
+  contents,
+  apiError,
+  apiSuccess,
+  notDeleted,
+  withErrorHandler,
+} from '@api/server';
 
 import { count, eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -6,7 +15,7 @@ import { withTenant } from '@entities/tenant/server';
 // Fast stats endpoint - limit to 3 seconds
 export const maxDuration = 3;
 
-export async function GET() {
+export const GET = withErrorHandler(async () => {
   const { tenantId } = await withTenant();
 
   const [{ count: userCount }] = await db
@@ -41,4 +50,4 @@ export async function GET() {
   };
 
   return apiSuccess(stats);
-}
+});

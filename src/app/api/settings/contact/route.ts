@@ -1,9 +1,9 @@
-import { db, settings, apiError, apiSuccess } from '@api/server';
+import { db, settings, apiError, apiSuccess, withErrorHandler } from '@api/server';
 
 import { eq, sql } from 'drizzle-orm';
 import { withTenant, withTenantOptional } from '@entities/tenant/server';
 
-export async function GET() {
+export const GET = withErrorHandler(async () => {
   // Allow reading settings without tenant (for public access)
   const { tenantId } = await withTenantOptional();
 
@@ -22,9 +22,9 @@ export async function GET() {
   );
 
   return apiSuccess(settingsMap);
-}
+});
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const { tenantId } = await withTenant();
   const body = await request.json();
 
@@ -46,4 +46,4 @@ export async function POST(request: Request) {
   }
 
   return apiSuccess({ success: true });
-}
+});

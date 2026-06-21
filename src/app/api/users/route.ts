@@ -11,6 +11,7 @@ import {
   apiPaginated,
   apiCreated,
   apiForbidden,
+  withErrorHandler,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -54,7 +55,7 @@ async function getSessionAndRole(request: Request) {
 /**
  * GET /api/users - List users with optional filters
  */
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
 
@@ -203,12 +204,12 @@ export async function GET(request: Request) {
   }));
 
   return apiPaginated(usersWithRelations, page, limit, total);
-}
+});
 
 /**
  * POST /api/users - Create a new user (admin only)
  */
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'users')) {
@@ -242,4 +243,4 @@ export async function POST(request: Request) {
     .then(rows => rows[0]);
 
   return apiCreated(newUser);
-}
+});

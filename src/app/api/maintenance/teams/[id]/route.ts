@@ -5,6 +5,7 @@ import {
   apiSuccess,
   apiNotFound,
   apiGone,
+  withErrorHandler,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
@@ -18,72 +19,76 @@ import { eq, and } from 'drizzle-orm';
  * @body contactName - Updated contact person
  * @body isActive - Toggle active status
  */
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const authError = await requireAnyPermission(['requests']);
-  if (authError) return authError;
+export const PATCH = withErrorHandler(
+  async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
+    const authError = await requireAnyPermission(['requests']);
+    if (authError) return authError;
 
-  const { tenantId } = await withTenant();
+    const { tenantId } = await withTenant();
 
-  // Verify team belongs to tenant
-  const [existing] = await db
-    .select()
-    .from(maintenanceTeams)
-    .where(and(eq(maintenanceTeams.id, id), eq(maintenanceTeams.tenantId, tenantId)))
-    .limit(1);
+    // Verify team belongs to tenant
+    const [existing] = await db
+      .select()
+      .from(maintenanceTeams)
+      .where(and(eq(maintenanceTeams.id, id), eq(maintenanceTeams.tenantId, tenantId)))
+      .limit(1);
 
-  if (!existing) {
-    return apiNotFound('Team not found');
+    if (!existing) {
+      return apiNotFound('Team not found');
+    }
+
+    if (existing.deletedAt) {
+      return apiGone('This team has been deleted');
+    }
+
+    const body = await request.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updates: Record<string, any> = { updatedAt: new Date() };
+
+    if (body.name !== undefined) updates.name = body.name;
+    if (body.trade !== undefined) updates.trade = body.trade;
+    if (body.contactName !== undefined) updates.contactName = body.contactName;
+    if (body.isActive !== undefined) updates.isActive = body.isActive;
+
+    const [updated] = await db
+      .update(maintenanceTeams)
+      .set(updates)
+      .where(and(eq(maintenanceTeams.id, id), eq(maintenanceTeams.tenantId, tenantId)))
+      .returning();
+
+    return apiSuccess(updated);
   }
-
-  if (existing.deletedAt) {
-    return apiGone('This team has been deleted');
-  }
-
-  const body = await request.json();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updates: Record<string, any> = { updatedAt: new Date() };
-
-  if (body.name !== undefined) updates.name = body.name;
-  if (body.trade !== undefined) updates.trade = body.trade;
-  if (body.contactName !== undefined) updates.contactName = body.contactName;
-  if (body.isActive !== undefined) updates.isActive = body.isActive;
-
-  const [updated] = await db
-    .update(maintenanceTeams)
-    .set(updates)
-    .where(and(eq(maintenanceTeams.id, id), eq(maintenanceTeams.tenantId, tenantId)))
-    .returning();
-
-  return apiSuccess(updated);
-}
+);
 
 /**
  * DELETE /api/maintenance/teams/[id] - Soft-delete a maintenance team
  */
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const authError = await requireAnyPermission(['requests']);
-  if (authError) return authError;
+export const DELETE = withErrorHandler(
+  async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
+    const authError = await requireAnyPermission(['requests']);
+    if (authError) return authError;
 
-  const { tenantId } = await withTenant();
+    const { tenantId } = await withTenant();
 
-  // Verify team belongs to tenant
-  const [existing] = await db
-    .select()
-    .from(maintenanceTeams)
-    .where(and(eq(maintenanceTeams.id, id), eq(maintenanceTeams.tenantId, tenantId)))
-    .limit(1);
+    // Verify team belongs to tenant
+    const [existing] = await db
+      .select()
+      .from(maintenanceTeams)
+      .where(and(eq(maintenanceTeams.id, id), eq(maintenanceTeams.tenantId, tenantId)))
+      .limit(1);
 
-  if (!existing) {
-    return apiNotFound('Team not found');
+    if (!existing) {
+      return apiNotFound('Team not found');
+    }
+
+    // Soft-delete: set deletedAt
+    await db
+      .update(maintenanceTeams)
+      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .where(eq(maintenanceTeams.id, id));
+
+    return apiSuccess({ success: true, deleted: true });
   }
-
-  // Soft-delete: set deletedAt
-  await db
-    .update(maintenanceTeams)
-    .set({ deletedAt: new Date(), updatedAt: new Date() })
-    .where(eq(maintenanceTeams.id, id));
-
-  return apiSuccess({ success: true, deleted: true });
-}
+);

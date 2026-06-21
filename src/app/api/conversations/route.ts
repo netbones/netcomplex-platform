@@ -9,6 +9,7 @@ import {
   apiError,
   apiSuccess,
   apiUnauthorized,
+  withErrorHandler,
 } from '@api/server';
 
 // Drizzle imports - use db.ts exports
@@ -16,7 +17,7 @@ import {
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const session = await auth.api.getSession({
     headers: request.headers,
   });
@@ -97,9 +98,9 @@ export async function GET(request: Request) {
   );
 
   return apiSuccess(conversationsWithDetails);
-}
+});
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const session = await auth.api.getSession({
     headers: request.headers,
   });
@@ -179,4 +180,4 @@ export async function POST(request: Request) {
     },
     { status: 201 }
   );
-}
+});

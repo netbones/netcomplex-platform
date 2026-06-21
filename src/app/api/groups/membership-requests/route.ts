@@ -8,6 +8,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiForbidden,
+  withErrorHandler,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -47,7 +48,7 @@ async function getSessionAndRole(request: Request) {
  * Requires authentication and content permission.
  * Supports query params: status (PENDING/ALL, default PENDING), groupId (filter by specific group)
  */
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
@@ -107,4 +108,4 @@ export async function GET(request: Request) {
     .orderBy(desc(groupMembershipRequests.createdAt));
 
   return apiSuccess({ requests });
-}
+});

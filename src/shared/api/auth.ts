@@ -18,8 +18,8 @@ import {
   tenants,
 } from './db';
 import { tenantConfig } from '@shared/lib';
-import { sendEmail } from '@shared/api';
-import { templates } from '@shared/api';
+import { sendEmail } from './email/resend';
+import { templates } from './email/templates';
 import { authLogger } from '@shared/lib';
 import { generateProfileSlug } from './slug';
 import { validator } from 'validation-better-auth';

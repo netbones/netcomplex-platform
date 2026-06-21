@@ -5,6 +5,7 @@ import {
   apiSuccess,
   apiCreated,
   apiError,
+  withErrorHandler,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
@@ -17,7 +18,7 @@ export const dynamic = 'force-dynamic';
  * GET /api/maintenance/providers - List service providers for the tenant
  * @query isActive - Filter by active status (true/false, default: all)
  */
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const authError = await requireAnyPermission(['requests']);
   if (authError) return authError;
 
@@ -40,7 +41,7 @@ export async function GET(request: Request) {
     .orderBy(desc(serviceProviders.createdAt));
 
   return apiSuccess(providers);
-}
+});
 
 /**
  * POST /api/maintenance/providers - Create a new service provider
@@ -50,7 +51,7 @@ export async function GET(request: Request) {
  * @body phone - Phone number (optional)
  * @body email - Email address (optional)
  */
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authError = await requireAnyPermission(['requests']);
   if (authError) return authError;
 
@@ -81,4 +82,4 @@ export async function POST(request: Request) {
     .returning();
 
   return apiCreated(provider[0]);
-}
+});

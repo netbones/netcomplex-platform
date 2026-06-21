@@ -9,6 +9,7 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
+  withErrorHandler,
 } from '@api/server';
 
 import { eq, and, desc, lte, gte, isNull } from 'drizzle-orm';
@@ -51,7 +52,7 @@ async function getSessionAndRole(request: Request) {
  *   - upcoming: if "true", filter to active competitions (startDate <= now AND endDate >= now)
  *               Unauthenticated access allowed — only returns ACTIVE status competitions
  */
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const url = new URL(request.url);
   const upcomingParam = url.searchParams.get('upcoming');
 
@@ -120,13 +121,13 @@ export async function GET(request: Request) {
   }
 
   return apiSuccess(competitionItems);
-}
+});
 
 /**
  * POST /api/competitions - Create a new competition
  * Validates required fields and creates competition with tenant isolation.
  */
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
@@ -175,4 +176,4 @@ export async function POST(request: Request) {
   revalidateContent();
 
   return apiCreated(competition);
-}
+});

@@ -7,6 +7,7 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
+  withErrorHandler,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -54,7 +55,7 @@ async function getSessionAndRole(request: Request) {
  * @query authorId - Filter by author ID (for user's own content)
  * @query locale - Content locale to fetch (default: user's browser locale or 'en')
  */
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   // Enforce tenant isolation
@@ -79,7 +80,7 @@ export async function GET(request: Request) {
   });
 
   return apiSuccess(contentItems);
-}
+});
 
 /**
  * POST /api/content - Create new content (requires content permission)
@@ -94,7 +95,7 @@ export async function GET(request: Request) {
  * @body defaultLocale - Fallback locale (default: "en")
  * @body contentType - "article" or "campaign"
  */
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
@@ -139,4 +140,4 @@ export async function POST(request: Request) {
   revalidateContent();
 
   return apiCreated(content);
-}
+});

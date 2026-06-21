@@ -1,4 +1,4 @@
-import { db, apiCreated, apiError, apiSuccess } from '@api/server';
+import { db, apiCreated, apiError, apiSuccess, withErrorHandler } from '@api/server';
 
 import { sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -10,7 +10,7 @@ interface ConversationResult {
   [key: string]: unknown;
 }
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const { tenantId } = await withTenant();
   const body = await request.json();
   const { participantIds } = body;
@@ -81,4 +81,4 @@ export async function POST(request: Request) {
   `)) as { rows: ConversationResult[] };
 
   return apiSuccess({ conversation: result.rows?.[0] }, undefined, 201);
-}
+});

@@ -7,6 +7,7 @@ import {
   apiGone,
   apiSuccess,
   apiNotFound,
+  withErrorHandler,
 } from '@api/server';
 
 import { eq, and, gt } from 'drizzle-orm';
@@ -16,7 +17,7 @@ import { eq, and, gt } from 'drizzle-orm';
  * Validates an invitation token and returns invitation details.
  * Does NOT require authentication — used by the /invite/[token] page.
  */
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const token = searchParams.get('token');
 
@@ -91,4 +92,4 @@ export async function GET(request: Request) {
       ? { id: existingUser.id, name: existingUser.name, emailVerified: existingUser.emailVerified }
       : null,
   });
-}
+});

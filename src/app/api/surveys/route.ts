@@ -10,6 +10,7 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
+  withErrorHandler,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -39,7 +40,7 @@ async function getSessionAndRole(request: Request) {
   };
 }
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
@@ -94,9 +95,9 @@ export async function GET(request: Request) {
         .orderBy(desc(surveys.createdAt));
 
   return apiSuccess(surveyList);
-}
+});
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
@@ -130,4 +131,4 @@ export async function POST(request: Request) {
     .returning();
 
   return apiCreated(survey);
-}
+});

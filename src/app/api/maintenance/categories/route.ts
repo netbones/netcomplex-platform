@@ -6,6 +6,7 @@ import {
   apiCreated,
   apiConflict,
   apiError,
+  withErrorHandler,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
@@ -19,7 +20,7 @@ export const dynamic = 'force-dynamic';
  * Used by useTenantCategories fallback path
  * @query isActive - Filter by active status (true/false, default: all)
  */
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const authError = await requireAnyPermission(['requests']);
   if (authError) return authError;
 
@@ -45,7 +46,7 @@ export async function GET(request: Request) {
     .orderBy(desc(maintenanceCategories.createdAt));
 
   return apiSuccess(categories);
-}
+});
 
 /**
  * POST /api/maintenance/categories - Create a new maintenance category
@@ -53,7 +54,7 @@ export async function GET(request: Request) {
  * @body label - Display label (required)
  * @body description - Description (optional)
  */
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authError = await requireAnyPermission(['requests']);
   if (authError) return authError;
 
@@ -97,4 +98,4 @@ export async function POST(request: Request) {
     .returning();
 
   return apiCreated(category[0]);
-}
+});

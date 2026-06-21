@@ -9,6 +9,7 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
+  withErrorHandler,
 } from '@api/server';
 
 import { eq, and, desc, inArray, or, isNull } from 'drizzle-orm';
@@ -86,7 +87,7 @@ function buildVisibilityFilter(role: string | null | undefined, isOwner: boolean
  *   - category: filter by ResourceCategory
  *   - visibility: admin-only filter by ResourceVisibility
  */
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   const role = authData?.role || null;
 
@@ -127,13 +128,13 @@ export async function GET(request: Request) {
     .orderBy(desc(resources.createdAt));
 
   return apiSuccess(resourceItems);
-}
+});
 
 /**
  * POST /api/resources - Create a new resource
  * Requires ADMIN/MANAGER role. Sets tenantId from withTenant(), authorId from session.
  */
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
@@ -182,4 +183,4 @@ export async function POST(request: Request) {
   revalidateContent();
 
   return apiCreated(resource);
-}
+});

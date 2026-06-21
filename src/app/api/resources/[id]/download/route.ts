@@ -1,26 +1,28 @@
-import { db, resources, apiSuccess, apiNotFound } from '@api/server';
+import { db, resources, apiSuccess, apiNotFound, withErrorHandler } from '@api/server';
 
 import { and, eq, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
-export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export const POST = withErrorHandler(
+  async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
 
-  // Enforce tenant isolation
-  const { tenantId } = await withTenant();
+    // Enforce tenant isolation
+    const { tenantId } = await withTenant();
 
-  const [updated] = await db
-    .update(resources)
-    .set({
-      downloadCount: sql`${resources.downloadCount} + 1`,
-      updatedAt: new Date(),
-    })
-    .where(and(eq(resources.id, id), eq(resources.tenantId, tenantId)))
-    .returning({ downloadCount: resources.downloadCount });
+    const [updated] = await db
+      .update(resources)
+      .set({
+        downloadCount: sql`${resources.downloadCount} + 1`,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(resources.id, id), eq(resources.tenantId, tenantId)))
+      .returning({ downloadCount: resources.downloadCount });
 
-  if (!updated) {
-    return apiNotFound('Resource not found');
+    if (!updated) {
+      return apiNotFound('Resource not found');
+    }
+
+    return apiSuccess({ downloadCount: updated.downloadCount });
   }
-
-  return apiSuccess({ downloadCount: updated.downloadCount });
-}
+);

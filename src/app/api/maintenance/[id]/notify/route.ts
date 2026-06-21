@@ -8,6 +8,7 @@ import {
   apiForbidden,
   apiNotFound,
   sendEmail,
+  withErrorHandler,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -36,65 +37,66 @@ async function getSessionAndRole(request: Request) {
   };
 }
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export const POST = withErrorHandler(
+  async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
 
-  const { tenantId } = await withTenant();
+    const { tenantId } = await withTenant();
 
-  const authData = await getSessionAndRole(request);
-  if (!authData) {
-    return apiUnauthorized();
-  }
+    const authData = await getSessionAndRole(request);
+    if (!authData) {
+      return apiUnauthorized();
+    }
 
-  const canViewAll = hasPermission(authData.role, 'requests');
-  if (!canViewAll) {
-    return apiForbidden();
-  }
+    const canViewAll = hasPermission(authData.role, 'requests');
+    if (!canViewAll) {
+      return apiForbidden();
+    }
 
-  const [mr] = await db
-    .select()
-    .from(maintenanceRequests)
-    .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)))
-    .limit(1);
+    const [mr] = await db
+      .select()
+      .from(maintenanceRequests)
+      .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)))
+      .limit(1);
 
-  if (!mr) {
-    return apiNotFound('Not found');
-  }
+    if (!mr) {
+      return apiNotFound('Not found');
+    }
 
-  const [resident] = await db.select().from(users).where(eq(users.id, mr.userId)).limit(1);
+    const [resident] = await db.select().from(users).where(eq(users.id, mr.userId)).limit(1);
 
-  if (!resident?.email) {
-    return apiNotFound('Resident email not found');
-  }
+    if (!resident?.email) {
+      return apiNotFound('Resident email not found');
+    }
 
-  const statusMessages: Record<string, string> = {
-    SUBMITTED: 'Your maintenance request has been submitted and is awaiting review.',
-    ASSIGNED: 'Your maintenance request has been assigned to a team member.',
-    IN_PROGRESS: 'Work has started on your maintenance request.',
-    PENDING_PARTS: 'Your maintenance request is pending parts delivery.',
-    SCHEDULED: 'Your maintenance request has been scheduled for repair.',
-    COMPLETED: 'Your maintenance request has been completed.',
-    CANCELLED: 'Your maintenance request has been cancelled.',
-  };
+    const statusMessages: Record<string, string> = {
+      SUBMITTED: 'Your maintenance request has been submitted and is awaiting review.',
+      ASSIGNED: 'Your maintenance request has been assigned to a team member.',
+      IN_PROGRESS: 'Work has started on your maintenance request.',
+      PENDING_PARTS: 'Your maintenance request is pending parts delivery.',
+      SCHEDULED: 'Your maintenance request has been scheduled for repair.',
+      COMPLETED: 'Your maintenance request has been completed.',
+      CANCELLED: 'Your maintenance request has been cancelled.',
+    };
 
-  const statusSubject: Record<string, string> = {
-    SUBMITTED: 'Maintenance Request Received',
-    ASSIGNED: 'Maintenance Request Assigned',
-    IN_PROGRESS: 'Work Started on Your Request',
-    PENDING_PARTS: 'Maintenance Request - Pending Parts',
-    SCHEDULED: 'Maintenance Request Scheduled',
-    COMPLETED: 'Maintenance Request Completed',
-    CANCELLED: 'Maintenance Request Cancelled',
-  };
+    const statusSubject: Record<string, string> = {
+      SUBMITTED: 'Maintenance Request Received',
+      ASSIGNED: 'Maintenance Request Assigned',
+      IN_PROGRESS: 'Work Started on Your Request',
+      PENDING_PARTS: 'Maintenance Request - Pending Parts',
+      SCHEDULED: 'Maintenance Request Scheduled',
+      COMPLETED: 'Maintenance Request Completed',
+      CANCELLED: 'Maintenance Request Cancelled',
+    };
 
-  const message =
-    statusMessages[mr.status] ||
-    `Your maintenance request status has been updated to ${mr.status}.`;
+    const message =
+      statusMessages[mr.status] ||
+      `Your maintenance request status has been updated to ${mr.status}.`;
 
-  const subject = statusSubject[mr.status] || 'Maintenance Request Update';
+    const subject = statusSubject[mr.status] || 'Maintenance Request Update';
 
-  // Build HTML email
-  const html = `
+    // Build HTML email
+    const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -126,26 +128,27 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 </body>
 </html>`;
 
-  // Send email notification
-  const emailResult = await sendEmail({
-    to: resident.email,
-    subject,
-    html,
-  });
+    // Send email notification
+    const emailResult = await sendEmail({
+      to: resident.email,
+      subject,
+      html,
+    });
 
-  if (!emailResult.success) {
-    notifyLogger.error(
-      { email: resident.email, error: emailResult.error },
-      'Failed to send notification'
-    );
-  } else {
-    notifyLogger.info({ email: resident.email }, 'Notification sent');
+    if (!emailResult.success) {
+      notifyLogger.error(
+        { email: resident.email, error: emailResult.error },
+        'Failed to send notification'
+      );
+    } else {
+      notifyLogger.info({ email: resident.email }, 'Notification sent');
+    }
+
+    return apiSuccess({
+      success: true,
+      message: 'Notification sent',
+      recipient: resident.email,
+      emailSent: emailResult.success,
+    });
   }
-
-  return apiSuccess({
-    success: true,
-    message: 'Notification sent',
-    recipient: resident.email,
-    emailSent: emailResult.success,
-  });
-}
+);

@@ -9,6 +9,7 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
+  withErrorHandler,
 } from '@api/server';
 
 import { eq, inArray, and, sql } from 'drizzle-orm';
@@ -103,7 +104,7 @@ async function enrichWithAttendees(events: Array<Record<string, unknown>>, userI
  *   - limit: number of events to return
  *   - upcoming: if "true", filter to events with date >= now, sorted ascending
  */
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
@@ -129,13 +130,13 @@ export async function GET(request: Request) {
   );
 
   return apiSuccess(enriched);
-}
+});
 
 /**
  * POST /api/events - Create a new event
  * Validates required fields and creates event with tenant isolation.
  */
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
@@ -180,4 +181,4 @@ export async function POST(request: Request) {
   revalidateContent();
 
   return apiCreated(event);
-}
+});

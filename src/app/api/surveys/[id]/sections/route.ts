@@ -10,6 +10,7 @@ import {
   apiNotFound,
   apiSuccess,
   apiUnauthorized,
+  withErrorHandler,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -43,113 +44,117 @@ async function getSessionAndRole(request: Request) {
  * GET /api/surveys/[id]/sections - List all sections for a survey, ordered by order.
  * Each section includes its nested questions ordered by order.
  */
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const authData = await getSessionAndRole(request);
+export const GET = withErrorHandler(
+  async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const authData = await getSessionAndRole(request);
 
-  if (!authData) {
-    return apiUnauthorized();
+    if (!authData) {
+      return apiUnauthorized();
+    }
+
+    if (!hasPermission(authData.role, 'content')) {
+      return apiForbidden();
+    }
+
+    const { tenantId } = await withTenant();
+    const { id: surveyId } = await params;
+
+    // Verify survey exists in tenant
+    const [survey] = await db
+      .select({ id: surveys.id })
+      .from(surveys)
+      .where(and(eq(surveys.id, surveyId), eq(surveys.tenantId, tenantId)))
+      .limit(1);
+
+    if (!survey) {
+      return apiNotFound('Survey not found');
+    }
+
+    const sections = await db
+      .select()
+      .from(surveySections)
+      .where(eq(surveySections.surveyId, surveyId))
+      .orderBy(asc(surveySections.order));
+
+    // Fetch all questions for this survey (filtered to those with sectionId)
+    const sectionIds = sections.map(s => s.id);
+    const sectionQuestions =
+      sectionIds.length > 0
+        ? await db
+            .select()
+            .from(questions)
+            .where(and(eq(questions.surveyId, surveyId), inArray(questions.sectionId, sectionIds)))
+            .orderBy(asc(questions.order))
+        : [];
+
+    // Nest questions into their parent sections
+    const sectionsWithQuestions = sections.map(section => ({
+      ...section,
+      questions: sectionQuestions.filter(q => q.sectionId === section.id),
+    }));
+
+    return apiSuccess(sectionsWithQuestions);
   }
-
-  if (!hasPermission(authData.role, 'content')) {
-    return apiForbidden();
-  }
-
-  const { tenantId } = await withTenant();
-  const { id: surveyId } = await params;
-
-  // Verify survey exists in tenant
-  const [survey] = await db
-    .select({ id: surveys.id })
-    .from(surveys)
-    .where(and(eq(surveys.id, surveyId), eq(surveys.tenantId, tenantId)))
-    .limit(1);
-
-  if (!survey) {
-    return apiNotFound('Survey not found');
-  }
-
-  const sections = await db
-    .select()
-    .from(surveySections)
-    .where(eq(surveySections.surveyId, surveyId))
-    .orderBy(asc(surveySections.order));
-
-  // Fetch all questions for this survey (filtered to those with sectionId)
-  const sectionIds = sections.map(s => s.id);
-  const sectionQuestions =
-    sectionIds.length > 0
-      ? await db
-          .select()
-          .from(questions)
-          .where(and(eq(questions.surveyId, surveyId), inArray(questions.sectionId, sectionIds)))
-          .orderBy(asc(questions.order))
-      : [];
-
-  // Nest questions into their parent sections
-  const sectionsWithQuestions = sections.map(section => ({
-    ...section,
-    questions: sectionQuestions.filter(q => q.sectionId === section.id),
-  }));
-
-  return apiSuccess(sectionsWithQuestions);
-}
+);
 
 /**
  * POST /api/surveys/[id]/sections - Create a new section.
  * Auto-assigns order = max(existing order) + 1 when not provided.
  */
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const authData = await getSessionAndRole(request);
+export const POST = withErrorHandler(
+  async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const authData = await getSessionAndRole(request);
 
-  if (!authData) {
-    return apiUnauthorized();
+    if (!authData) {
+      return apiUnauthorized();
+    }
+
+    if (!hasPermission(authData.role, 'content')) {
+      return apiForbidden();
+    }
+
+    const { tenantId } = await withTenant();
+    const { id: surveyId } = await params;
+
+    // Verify survey exists in tenant
+    const [survey] = await db
+      .select({ id: surveys.id })
+      .from(surveys)
+      .where(and(eq(surveys.id, surveyId), eq(surveys.tenantId, tenantId)))
+      .limit(1);
+
+    if (!survey) {
+      return apiNotFound('Survey not found');
+    }
+
+    const body = await request.json();
+
+    // Auto-assign order when not provided
+    let order = body.order;
+    if (order === undefined || order === null) {
+      const [maxResult] = await db
+        .select({ maxOrder: sql<number>`COALESCE(MAX(${surveySections.order}), -1)` })
+        .from(surveySections)
+        .where(eq(surveySections.surveyId, surveyId));
+      order = (maxResult?.maxOrder ?? -1) + 1;
+    }
+
+    const now = new Date();
+    const [created] = await db
+      .insert(surveySections)
+      .values({
+        id: crypto.randomUUID(),
+        tenantId,
+        surveyId,
+        title: body.title ?? null,
+        description: body.description ?? null,
+        image: body.image ?? null,
+        order,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .returning();
+
+    return apiCreated(created);
   }
-
-  if (!hasPermission(authData.role, 'content')) {
-    return apiForbidden();
-  }
-
-  const { tenantId } = await withTenant();
-  const { id: surveyId } = await params;
-
-  // Verify survey exists in tenant
-  const [survey] = await db
-    .select({ id: surveys.id })
-    .from(surveys)
-    .where(and(eq(surveys.id, surveyId), eq(surveys.tenantId, tenantId)))
-    .limit(1);
-
-  if (!survey) {
-    return apiNotFound('Survey not found');
-  }
-
-  const body = await request.json();
-
-  // Auto-assign order when not provided
-  let order = body.order;
-  if (order === undefined || order === null) {
-    const [maxResult] = await db
-      .select({ maxOrder: sql<number>`COALESCE(MAX(${surveySections.order}), -1)` })
-      .from(surveySections)
-      .where(eq(surveySections.surveyId, surveyId));
-    order = (maxResult?.maxOrder ?? -1) + 1;
-  }
-
-  const now = new Date();
-  const [created] = await db
-    .insert(surveySections)
-    .values({
-      id: crypto.randomUUID(),
-      tenantId,
-      surveyId,
-      title: body.title ?? null,
-      description: body.description ?? null,
-      image: body.image ?? null,
-      order,
-      createdAt: now,
-      updatedAt: now,
-    })
-    .returning();
-
-  return apiCreated(created);
-}
+);

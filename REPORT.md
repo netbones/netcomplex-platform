@@ -10,27 +10,12 @@
 
 ## 1. CRITICAL
 
-### 1.1 No Error Handling in 113+ API Routes
+### ~~1.1 No Error Handling in 113+ API Routes~~ **FIXED (2026-06-21)**
 
-**Severity:** CRITICAL  
-**Files:** `src/app/api/*/route.ts` (113+ route files)  
-**Details:** The vast majority of API routes (`GET`, `POST`, `PATCH`, `DELETE`) lack `try/catch` blocks. Any unhandled database error, JSON parse failure, or authentication exception will crash the serverless function and potentially leak stack traces to the client.
+~~**Severity:** CRITICAL~~  
+~~**Files:** `src/app/api/*/route.ts` (113+ route files)~~
 
-**Example:**
-
-```typescript
-// src/app/api/stats/route.ts:9
-export async function GET() {
-  const { tenantId } = await withTenant();
-  const activeUsers = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(and(eq(users.isActive, true), eq(users.tenantId, tenantId)));
-  // If the DB connection drops or query fails, this throws an unhandled error
-}
-```
-
-**Fix:** Wrap all route handlers in a centralized error boundary or utility. Add a `withErrorHandler()` HOC or use `NextResponse` consistently for all error paths.
+**Fix:** Created centralized `withErrorHandler()` wrapper at `src/shared/api/with-error-handler.ts`, exported from `@api/server`. Applied to 60 route files (all that lacked any `try/catch`). Catches unexpected errors, logs via Pino, returns consistent `apiInternalError()` response. Also catches Zod validation errors and returns 422.
 
 ---
 
@@ -299,7 +284,7 @@ The Prisma-to-Drizzle migration appears complete in code, but the Prisma schema,
 
 | Category                     | Count                                | Priority |
 | ---------------------------- | ------------------------------------ | -------- |
-| API routes without try/catch | 113+                                 | CRITICAL |
+| API routes without try/catch | ~~113+~~ **FIXED (2026-06-21)**      | CRITICAL |
 | `as any` casts               | 177                                  | CRITICAL |
 | Circular dependencies        | 16 cycles                            | CRITICAL |
 | Prisma dead weight           | ~15MB                                | CRITICAL |
@@ -320,7 +305,7 @@ The Prisma-to-Drizzle migration appears complete in code, but the Prisma schema,
 ## Recommended Action Plan
 
 1. **Week 1 (Critical):**
-   - Add centralized error handling to all API routes
+   - ~~Add centralized error handling to all API routes~~ **DONE — `withErrorHandler` HOC applied to 60 route files**
    - Document Prisma's role
    - ~~Replace in-memory rate limiter with Redis~~ **DONE — Upstash Redis via ioredis**
    - ~~Fix unbounded `select()` queries with `count()`~~ **DONE — 4 files, 9 queries**

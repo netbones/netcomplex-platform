@@ -10,6 +10,7 @@ import {
   apiNotFound,
   apiError,
   auth,
+  withErrorHandler,
 } from '@api/server';
 
 import { count, eq, and } from 'drizzle-orm';
@@ -18,7 +19,7 @@ import { hasPermission } from '@shared/lib';
 
 export const maxDuration = 8;
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id || !hasPermission(session.user.role as string, 'users')) {
     return apiForbidden();
@@ -113,9 +114,9 @@ export async function POST(request: Request) {
     .then(r => r[0]);
 
   return apiSuccess({ seat });
-}
+});
 
-export async function DELETE(request: Request) {
+export const DELETE = withErrorHandler(async (request: Request) => {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id || !hasPermission(session.user.role as string, 'users')) {
     return apiForbidden();
@@ -163,4 +164,4 @@ export async function DELETE(request: Request) {
   }
 
   return apiError('VALIDATION_ERROR', 'seatType must be solo or premium', 400);
-}
+});

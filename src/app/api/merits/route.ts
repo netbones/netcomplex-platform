@@ -7,7 +7,9 @@ import {
   apiForbidden,
   apiCreated,
   apiError,
+  apiSuccess,
   writeAuditLog,
+  withErrorHandler,
 } from '@api/server';
 import { and, eq, isNull, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
@@ -20,7 +22,7 @@ export const maxDuration = 8;
 /**
  * GET /api/merits — List behavior records (paginated, filterable).
  */
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const { tenantId } = await withTenant();
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id) return apiUnauthorized();
@@ -50,13 +52,13 @@ export async function GET(request: Request) {
     .offset(offset)
     .orderBy(desc(behaviorRecords.createdAt));
 
-  return Response.json({ data: rows, limit, offset });
-}
+  return apiSuccess(rows, { limit, offset });
+});
 
 /**
  * POST /api/merits — Create a new behavior record.
  */
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const { tenantId } = await withTenant();
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id) return apiUnauthorized();
@@ -133,4 +135,4 @@ export async function POST(request: Request) {
   });
 
   return apiCreated({ id, standingBefore, standingAfter });
-}
+});

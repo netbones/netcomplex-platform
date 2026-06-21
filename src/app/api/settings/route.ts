@@ -8,6 +8,7 @@ import {
   apiSuccess,
   writeAuditLog,
   rateLimitByUser,
+  withErrorHandler,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -38,7 +39,7 @@ async function getSessionAndRole(request: Request) {
   };
 }
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'admin')) {
@@ -62,9 +63,9 @@ export async function GET(request: Request) {
     .limit(1);
 
   return apiSuccess(settingResult[0] || { key, value: null });
-}
+});
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'admin')) {
@@ -133,4 +134,4 @@ export async function POST(request: Request) {
 
     return apiSuccess(created[0]);
   }
-}
+});

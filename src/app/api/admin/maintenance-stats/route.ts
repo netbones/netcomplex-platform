@@ -5,13 +5,14 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
+  withErrorHandler,
 } from '@api/server';
 
 import { eq, count, and, gte, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const ctx = await getRLSContext(request);
   if (!ctx) return apiUnauthorized();
   if (!['BOARD', 'ADMIN'].includes(ctx.role)) {
@@ -138,4 +139,4 @@ export async function GET(request: Request) {
       },
     });
   });
-}
+});

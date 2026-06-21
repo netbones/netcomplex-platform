@@ -14,6 +14,7 @@ import {
   apiInternalError,
   apiForbidden,
   apiValidationError,
+  withErrorHandler,
 } from '@api/server';
 
 import { eq, and, desc, lte, gte, inArray, isNull, sql } from 'drizzle-orm';
@@ -63,7 +64,7 @@ async function getSessionAndRole(request: Request) {
  * - active: if "true", filter to non-expired announcements only
  * - limit: limit number of results (for widget queries)
  */
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const url = new URL(request.url);
   const priorityParam = url.searchParams.get('priority');
   const activeParam = url.searchParams.get('active');
@@ -118,14 +119,14 @@ export async function GET(request: Request) {
     .limit(limit ?? 10000); // Use a high default instead of no limit to avoid type issues
 
   return apiSuccess(announcementItems);
-}
+});
 
 /**
  * POST /api/announcements - Create a new announcement with targeting + fanout + priority enforcement
  * Validates required fields, enforces priority role-gating, applies audience targeting,
  * and fans out Notification records to matching users.
  */
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
@@ -279,4 +280,4 @@ export async function POST(request: Request) {
   }
 
   return apiCreated(response);
-}
+});

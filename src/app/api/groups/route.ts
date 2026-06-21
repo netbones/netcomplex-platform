@@ -10,6 +10,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   notDeleted,
+  withErrorHandler,
 } from '@api/server';
 
 import { hasPermission, Permission } from '@shared/lib';
@@ -50,7 +51,7 @@ async function getSessionAndRole(request: Request) {
  * GET /api/groups - List all active community groups
  * Requires authentication. Residents can view groups, admins can manage.
  */
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData) {
@@ -112,7 +113,7 @@ export async function GET(request: Request) {
   }));
 
   return apiSuccess(groupsWithCounts);
-}
+});
 
 /**
  * POST /api/groups - Create a new community group
@@ -124,7 +125,7 @@ export async function GET(request: Request) {
  * @body isPublic - Whether group is publicly visible
  * @body ownerId - Optional owner ID (defaults to authenticated user)
  */
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   if (!authData) {
     return apiUnauthorized();
@@ -163,4 +164,4 @@ export async function POST(request: Request) {
     .returning();
 
   return apiCreated(group);
-}
+});

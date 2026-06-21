@@ -5,6 +5,7 @@ import {
   apiSuccess,
   apiCreated,
   apiError,
+  withErrorHandler,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
@@ -17,7 +18,7 @@ export const dynamic = 'force-dynamic';
  * GET /api/maintenance/teams - List maintenance teams for the tenant
  * @query isActive - Filter by active status (true/false, default: all)
  */
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const authError = await requireAnyPermission(['requests']);
   if (authError) return authError;
 
@@ -40,7 +41,7 @@ export async function GET(request: Request) {
     .orderBy(desc(maintenanceTeams.createdAt));
 
   return apiSuccess(teams);
-}
+});
 
 /**
  * POST /api/maintenance/teams - Create a new maintenance team
@@ -48,7 +49,7 @@ export async function GET(request: Request) {
  * @body trade - Trade category (required): PLUMBING, ELECTRICAL, HVAC, LANDSCAPING, GENERAL
  * @body contactName - Contact person name (optional)
  */
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authError = await requireAnyPermission(['requests']);
   if (authError) return authError;
 
@@ -77,4 +78,4 @@ export async function POST(request: Request) {
     .returning();
 
   return apiCreated(team[0]);
-}
+});

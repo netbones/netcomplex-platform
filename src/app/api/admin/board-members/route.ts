@@ -5,6 +5,7 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
+  withErrorHandler,
 } from '@api/server';
 
 import { eq, or, and } from 'drizzle-orm';
@@ -14,7 +15,7 @@ export const dynamic = 'force-dynamic';
 
 const BOARD_ROLES = ['BOARD', 'ADMIN', 'COMMITTEE'] as const;
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const ctx = await getRLSContext(request);
   if (!ctx) return apiUnauthorized();
   if (!['BOARD', 'ADMIN'].includes(ctx.role)) {
@@ -38,4 +39,4 @@ export async function GET(request: Request) {
 
     return apiSuccess(boardMembers);
   });
-}
+});

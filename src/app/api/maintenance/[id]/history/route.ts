@@ -11,6 +11,7 @@ import {
   apiForbidden,
   apiNotFound,
   apiError,
+  withErrorHandler,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -39,101 +40,105 @@ async function getSessionAndRole(request: Request) {
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export const GET = withErrorHandler(
+  async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
 
-  const { tenantId } = await withTenant();
+    const { tenantId } = await withTenant();
 
-  const authData = await getSessionAndRole(request);
-  if (!authData) {
-    return apiUnauthorized();
+    const authData = await getSessionAndRole(request);
+    if (!authData) {
+      return apiUnauthorized();
+    }
+
+    const canViewAll = hasPermission(authData.role, 'requests');
+    if (!canViewAll) {
+      return apiForbidden();
+    }
+
+    // First verify the request belongs to this tenant
+    const [mr] = await db
+      .select()
+      .from(maintenanceRequests)
+      .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)))
+      .limit(1);
+
+    if (!mr) {
+      return apiNotFound('Not found');
+    }
+
+    const history = await db
+      .select({
+        id: requestHistories.id,
+        requestId: requestHistories.requestId,
+        field: requestHistories.field,
+        oldValue: requestHistories.oldValue,
+        newValue: requestHistories.newValue,
+        comment: requestHistories.comment,
+        createdAt: requestHistories.createdAt,
+        user: {
+          id: users.id,
+          name: users.name,
+        },
+      })
+      .from(requestHistories)
+      .leftJoin(users, eq(requestHistories.userId, users.id))
+      .where(eq(requestHistories.requestId, id))
+      .orderBy(desc(requestHistories.createdAt));
+
+    return apiSuccess(history);
   }
+);
 
-  const canViewAll = hasPermission(authData.role, 'requests');
-  if (!canViewAll) {
-    return apiForbidden();
+export const POST = withErrorHandler(
+  async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
+
+    const { tenantId } = await withTenant();
+
+    const authData = await getSessionAndRole(request);
+    if (!authData) {
+      return apiUnauthorized();
+    }
+
+    const canViewAll = hasPermission(authData.role, 'requests');
+    if (!canViewAll) {
+      return apiForbidden();
+    }
+
+    // First verify the request belongs to this tenant
+    const [mr] = await db
+      .select()
+      .from(maintenanceRequests)
+      .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)))
+      .limit(1);
+
+    if (!mr) {
+      return apiNotFound('Not found');
+    }
+
+    const body = await request.json();
+    const { field, oldValue, newValue, comment } = body;
+
+    if (!field || newValue === undefined) {
+      return apiError('VALIDATION_ERROR', 'Missing required fields', 400);
+    }
+
+    const historyEntry = await db
+      .insert(requestHistories)
+      .values({
+        id: crypto.randomUUID(),
+        requestId: id,
+        userId: authData.userId,
+        field,
+        oldValue: oldValue || null,
+        newValue: String(newValue),
+        comment: comment || null,
+      })
+      .returning();
+
+    revalidateDashboard();
+
+    return apiCreated(historyEntry[0]);
   }
-
-  // First verify the request belongs to this tenant
-  const [mr] = await db
-    .select()
-    .from(maintenanceRequests)
-    .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)))
-    .limit(1);
-
-  if (!mr) {
-    return apiNotFound('Not found');
-  }
-
-  const history = await db
-    .select({
-      id: requestHistories.id,
-      requestId: requestHistories.requestId,
-      field: requestHistories.field,
-      oldValue: requestHistories.oldValue,
-      newValue: requestHistories.newValue,
-      comment: requestHistories.comment,
-      createdAt: requestHistories.createdAt,
-      user: {
-        id: users.id,
-        name: users.name,
-      },
-    })
-    .from(requestHistories)
-    .leftJoin(users, eq(requestHistories.userId, users.id))
-    .where(eq(requestHistories.requestId, id))
-    .orderBy(desc(requestHistories.createdAt));
-
-  return apiSuccess(history);
-}
-
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-
-  const { tenantId } = await withTenant();
-
-  const authData = await getSessionAndRole(request);
-  if (!authData) {
-    return apiUnauthorized();
-  }
-
-  const canViewAll = hasPermission(authData.role, 'requests');
-  if (!canViewAll) {
-    return apiForbidden();
-  }
-
-  // First verify the request belongs to this tenant
-  const [mr] = await db
-    .select()
-    .from(maintenanceRequests)
-    .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)))
-    .limit(1);
-
-  if (!mr) {
-    return apiNotFound('Not found');
-  }
-
-  const body = await request.json();
-  const { field, oldValue, newValue, comment } = body;
-
-  if (!field || newValue === undefined) {
-    return apiError('VALIDATION_ERROR', 'Missing required fields', 400);
-  }
-
-  const historyEntry = await db
-    .insert(requestHistories)
-    .values({
-      id: crypto.randomUUID(),
-      requestId: id,
-      userId: authData.userId,
-      field,
-      oldValue: oldValue || null,
-      newValue: String(newValue),
-      comment: comment || null,
-    })
-    .returning();
-
-  revalidateDashboard();
-
-  return apiCreated(historyEntry[0]);
-}
+);

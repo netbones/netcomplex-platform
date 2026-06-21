@@ -277,23 +277,6 @@ export async function runWithRLS<T>(
  * Derive RLS context from a Next.js request by authenticating the session.
  * Must be called within a route handler.
  */
-export async function getRLSContext(request: Request): Promise<RLSContext | null> {
-  const { auth } = await import('./auth');
-  const session = await auth.api.getSession({ headers: request.headers });
-  if (!session?.user?.id) return null;
-
-  const [user] = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
-
-  if (!user) return null;
-
-  return {
-    userId: user.id,
-    tenantId: user.tenantId,
-    role: user.role,
-    isPlatformAdmin: user.isPlatformAdmin,
-  };
-}
-
 export function notDeleted(table: { deletedAt: unknown }): SQL {
   return isNull(table.deletedAt as SQLWrapper);
 }

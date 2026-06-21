@@ -1,5 +1,6 @@
-export { db, runWithRLS, getRLSContext, notDeleted } from '../db';
+export { db, runWithRLS, notDeleted } from '../db';
 export type { RLSContext, DbSchema } from '../db';
+export { getRLSContext } from '../rls-context';
 export {
   messages,
   conversations,
@@ -108,6 +109,7 @@ export {
   apiGone,
   apiInternalError,
 } from '../api-response';
+export { withErrorHandler } from '../with-error-handler';
 export type {
   CanonicalErrorCode,
   ApiPaginatedMeta,

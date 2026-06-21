@@ -10,6 +10,7 @@ import {
   apiError,
   apiSuccess,
   apiUnauthorized,
+  withErrorHandler,
 } from '@api/server';
 
 import { count, eq, and } from 'drizzle-orm';
@@ -31,7 +32,7 @@ async function getUserId(request: Request): Promise<string | null> {
   return session?.user?.id || null;
 }
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const { tenantId } = await withTenant();
   const userId = await getUserId(request);
 
@@ -72,4 +73,4 @@ export async function GET(request: Request) {
   };
 
   return apiSuccess(stats);
-}
+});

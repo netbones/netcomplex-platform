@@ -7,6 +7,7 @@ import {
   apiError,
   apiForbidden,
   apiSuccess,
+  withErrorHandler,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -36,7 +37,7 @@ async function getSessionAndRole(request: Request) {
   };
 }
 
-export async function GET(request: Request) {
+export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'content')) {
@@ -52,9 +53,9 @@ export async function GET(request: Request) {
     .orderBy(desc(externalSurveys.createdAt));
 
   return apiSuccess(surveyList);
-}
+});
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'content')) {
@@ -83,9 +84,9 @@ export async function POST(request: Request) {
     .returning();
 
   return apiCreated(survey);
-}
+});
 
-export async function PATCH(request: Request) {
+export const PATCH = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'content')) {
@@ -106,9 +107,9 @@ export async function PATCH(request: Request) {
     .returning();
 
   return apiSuccess(survey);
-}
+});
 
-export async function DELETE(request: Request) {
+export const DELETE = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
 
   if (!authData || !hasPermission(authData.role, 'content')) {
@@ -128,4 +129,4 @@ export async function DELETE(request: Request) {
     .where(and(eq(externalSurveys.id, id), eq(externalSurveys.tenantId, tenantId)));
 
   return apiSuccess({ success: true });
-}
+});
