@@ -11,7 +11,9 @@ import {
 import { eq, sql } from 'drizzle-orm';
 import { withTenant, withTenantOptional } from '@entities/tenant/server';
 
-export const GET = withErrorHandler(async () => {
+export const GET = withErrorHandler(async (request: Request) => {
+  const authData = await getSessionAndRole(request);
+  if (!authData) return apiUnauthorized();
   // Allow reading settings without tenant (for public access)
   const { tenantId } = await withTenantOptional();
 
