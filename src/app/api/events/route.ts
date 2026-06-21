@@ -18,6 +18,8 @@ import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import { listEvents, createEvent, validateEventFields } from '@entities/event/server';
 
+export const maxDuration = 8;
+
 /**
  * Retrieves session and role from the request for API routes.
  * @param request - Incoming HTTP request

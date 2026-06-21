@@ -9,6 +9,7 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -17,6 +18,8 @@ import { eq, and, desc, inArray, or, isNull } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import type { Role } from '@shared/lib';
+
+export const maxDuration = 8;
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -155,7 +158,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
 
-  const now = new Date();
+  const ts = now();
 
   const [resource] = await db
     .insert(resources)
@@ -174,8 +177,8 @@ export const POST = withErrorHandler(async (request: Request) => {
       visibility: body.visibility || 'ALL_RESIDENTS',
       authorId: authData.role === 'ADMIN' ? null : authData.userId,
       publishedAt: body.publishedAt ? new Date(body.publishedAt) : null,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: ts,
+      updatedAt: ts,
     })
     .returning();
 

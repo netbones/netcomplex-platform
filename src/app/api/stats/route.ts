@@ -3,14 +3,22 @@ import {
   users,
   groups,
   contents,
-  apiError,
+  settings,
   apiSuccess,
   notDeleted,
   withErrorHandler,
 } from '@api/server';
 
-import { count, eq, and } from 'drizzle-orm';
+import { count, eq, and, inArray } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { SETTINGS_KEYS } from '@entities/tenant/server';
+
+const STAT_KEYS = [
+  SETTINGS_KEYS.STATS_HOMES,
+  SETTINGS_KEYS.STATS_YEARS,
+  SETTINGS_KEYS.STATS_BIRD_SPECIES,
+  SETTINGS_KEYS.STATS_NATIVE_PLANTS,
+] as const;
 
 // Fast stats endpoint - limit to 3 seconds
 export const maxDuration = 3;
@@ -39,11 +47,18 @@ export const GET = withErrorHandler(async () => {
       )
     );
 
+  const statEntries = await db
+    .select({ key: settings.key, value: settings.value })
+    .from(settings)
+    .where(and(eq(settings.tenantId, tenantId), inArray(settings.key, STAT_KEYS)));
+
+  const statMap = Object.fromEntries(statEntries.map(s => [s.key, s.value]));
+
   const stats = {
-    homes: 180,
-    years: 15,
-    birdSpecies: 47,
-    nativePlants: 150,
+    homes: parseInt(statMap[SETTINGS_KEYS.STATS_HOMES] ?? '180', 10),
+    years: parseInt(statMap[SETTINGS_KEYS.STATS_YEARS] ?? '15', 10),
+    birdSpecies: parseInt(statMap[SETTINGS_KEYS.STATS_BIRD_SPECIES] ?? '47', 10),
+    nativePlants: parseInt(statMap[SETTINGS_KEYS.STATS_NATIVE_PLANTS] ?? '150', 10),
     residents: userCount,
     groups: groupCount,
     conservationArticles: contentCount,

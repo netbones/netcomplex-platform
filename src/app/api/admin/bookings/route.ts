@@ -9,6 +9,8 @@ import { createComponentLogger } from '@shared/lib';
 import type { TenantFacility } from '@entities/booking';
 import { v4 as uuidv4 } from 'uuid';
 
+export const maxDuration = 8;
+
 const log = createComponentLogger('admin-bookings-api');
 
 export async function GET() {

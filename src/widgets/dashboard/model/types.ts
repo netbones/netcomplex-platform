@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
-import type { ComponentType, LazyExoticComponent } from 'react';
+import type { LazyExoticComponent } from 'react';
 import type { SpaceId } from './spaces';
+import type { WidgetComponent } from './registry';
 
 /**
  * Widget manifest - complete metadata for widget registration
@@ -27,11 +28,7 @@ export interface WidgetManifest {
 
   // Component loading
   /** Lazy-loaded React component */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  component: LazyExoticComponent<any>;
-  /** Optional loader function for code splitting */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  loader?: () => Promise<any>;
+  component: LazyExoticComponent<WidgetComponent>;
 
   // Access control
   /** Feature flag required to render */

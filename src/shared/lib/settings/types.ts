@@ -24,6 +24,12 @@ export type SettingValueMap = {
   custom_pages: unknown;
   custom_nav: unknown;
   services_config: unknown;
+
+  // Community stats (numeric but stored as text in the Setting table)
+  stats_homes: string;
+  stats_years: string;
+  stats_bird_species: string;
+  stats_native_plants: string;
 };
 
 // compile-time guard: all keys in SettingsKey must be in SettingValueMap

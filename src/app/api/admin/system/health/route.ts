@@ -5,6 +5,7 @@ import {
   db,
   users,
   sessions,
+  now,
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
 import { count, eq, gt, and } from 'drizzle-orm';
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
       .select({ userId: sessions.userId })
       .from(sessions)
       .innerJoin(users, eq(sessions.userId, users.id))
-      .where(and(eq(users.tenantId, tenantId), gt(sessions.expiresAt, new Date())));
+      .where(and(eq(users.tenantId, tenantId), gt(sessions.expiresAt, now())));
 
     const activeUsers = new Set(activeSessions.map(r => r.userId)).size;
 

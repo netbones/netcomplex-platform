@@ -11,6 +11,7 @@ import {
   apiPaginated,
   apiCreated,
   apiForbidden,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -217,7 +218,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   }
 
   const body = await request.json();
-  const now = new Date();
+  const ts = now();
   const { tenantId } = await withTenant();
 
   const newUser = await db
@@ -236,8 +237,8 @@ export const POST = withErrorHandler(async (request: Request) => {
       showPhone: true,
       emailVerified: false,
       twoFactorEnabled: false,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: ts,
+      updatedAt: ts,
     })
     .returning()
     .then(rows => rows[0]);

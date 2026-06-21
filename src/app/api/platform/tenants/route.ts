@@ -15,6 +15,8 @@ import {
 import { eq } from 'drizzle-orm';
 import { logError } from '@shared/lib';
 
+export const maxDuration = 8;
+
 interface SignupRequest {
   name: string;
   slug: string;

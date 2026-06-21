@@ -11,10 +11,13 @@ import {
   apiUnauthorized,
   apiInternalError,
   apiNotFound,
+  now,
 } from '@api/server';
 
 import { eq } from 'drizzle-orm';
 import { logError } from '@shared/lib';
+
+export const maxDuration = 8;
 
 async function getAssistSession(id: string) {
   const [session] = await db
@@ -70,7 +73,7 @@ export async function DELETE(
       .update(assistSessions)
       .set({
         isActive: false,
-        revokedAt: new Date(),
+        revokedAt: now(),
         revokedBy: session.user.id,
       })
       .where(eq(assistSessions.id, id));

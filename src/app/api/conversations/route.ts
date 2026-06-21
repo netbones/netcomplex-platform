@@ -9,6 +9,7 @@ import {
   apiError,
   apiSuccess,
   apiUnauthorized,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -16,6 +17,8 @@ import {
 
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+
+export const maxDuration = 8;
 
 export const GET = withErrorHandler(async (request: Request) => {
   const session = await auth.api.getSession({
@@ -117,7 +120,7 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   // Create conversation with Drizzle
   const conversationId = crypto.randomUUID();
-  const now = new Date();
+  const ts = now();
 
   // Insert conversation
   await db.insert(conversations).values({
@@ -125,8 +128,8 @@ export const POST = withErrorHandler(async (request: Request) => {
     tenantId,
     name: name || null,
     type: type || 'DIRECT',
-    createdAt: now,
-    updatedAt: now,
+    createdAt: ts,
+    updatedAt: ts,
   });
 
   // Add participants including the current user (deduplicate)
@@ -137,7 +140,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       tenantId,
       conversationId,
       userId,
-      joinedAt: now,
+      joinedAt: ts,
     }))
   );
 

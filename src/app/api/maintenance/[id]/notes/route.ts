@@ -20,6 +20,8 @@ import { eq, desc, and } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 
+export const maxDuration = 8;
+
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,

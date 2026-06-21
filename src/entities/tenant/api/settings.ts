@@ -19,6 +19,12 @@ export const SETTINGS_KEYS = {
   CUSTOM_PAGES: 'custom_pages',
   CUSTOM_NAV: 'custom_nav',
   SERVICES_CONFIG: 'services_config',
+
+  // Community stats (non-editable, set during onboarding/seed)
+  STATS_HOMES: 'stats_homes',
+  STATS_YEARS: 'stats_years',
+  STATS_BIRD_SPECIES: 'stats_bird_species',
+  STATS_NATIVE_PLANTS: 'stats_native_plants',
 } as const;
 
 export type SettingsKey = (typeof SETTINGS_KEYS)[keyof typeof SETTINGS_KEYS];

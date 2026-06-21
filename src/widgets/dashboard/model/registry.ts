@@ -4,10 +4,7 @@ import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('WidgetRegistry');
 
-/**
- * Widget component type - for backward compatibility
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- contravariance: heterogeneous widgets accept diverse props
 export type WidgetComponent = ComponentType<any>;
 
 /**

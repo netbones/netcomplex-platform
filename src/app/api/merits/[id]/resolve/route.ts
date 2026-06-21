@@ -7,6 +7,7 @@ import {
   apiNotFound,
   apiError,
   apiSuccess,
+  now,
   writeAuditLog,
   withErrorHandler,
 } from '@api/server';
@@ -52,10 +53,10 @@ export const POST = withErrorHandler(
       return apiError('VALIDATION_ERROR', 'Only disputed records can be resolved', 400);
     }
 
-    const now = new Date();
+    const ts = now();
     const updateData: Record<string, unknown> = {
       resolvedById: session.user.id,
-      resolvedAt: now,
+      resolvedAt: ts,
     };
 
     if (verdict === 'OVERTURN') {

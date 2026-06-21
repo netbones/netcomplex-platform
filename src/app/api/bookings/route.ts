@@ -8,6 +8,7 @@ import {
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
+  now,
 } from '@api/server';
 
 import { assertModuleEnabled } from '@entities/tenant/server';
@@ -76,7 +77,7 @@ export async function GET(request: Request) {
 
   // Normalize "today" to today's ISO date string to avoid Invalid Date
   if (date === 'today') {
-    date = new Date().toISOString().split('T')[0];
+    date = now().toISOString().split('T')[0];
   }
 
   const { tenantId } = await withTenant();

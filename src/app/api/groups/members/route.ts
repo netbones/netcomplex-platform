@@ -6,11 +6,14 @@ import {
   apiSuccess,
   apiUnauthorized,
   getSessionAndRole,
+  now,
   withErrorHandler,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+
+export const maxDuration = 8;
 
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
@@ -41,7 +44,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       userId,
       groupId,
       role,
-      joinedAt: new Date(),
+      joinedAt: now(),
     })
     .returning();
 

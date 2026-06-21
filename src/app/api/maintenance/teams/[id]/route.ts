@@ -5,12 +5,15 @@ import {
   apiSuccess,
   apiNotFound,
   apiGone,
+  now,
   withErrorHandler,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
 
 import { eq, and } from 'drizzle-orm';
+
+export const maxDuration = 8;
 
 /**
  * PATCH /api/maintenance/teams/[id] - Update a maintenance team
@@ -43,7 +46,7 @@ export const PATCH = withErrorHandler(
     }
 
     const body = await request.json();
-    const updates: Partial<typeof maintenanceTeams.$inferInsert> = { updatedAt: new Date() };
+    const updates: Partial<typeof maintenanceTeams.$inferInsert> = { updatedAt: now() };
 
     if (body.name !== undefined) updates.name = body.name;
     if (body.trade !== undefined) updates.trade = body.trade;
@@ -85,7 +88,7 @@ export const DELETE = withErrorHandler(
     // Soft-delete: set deletedAt
     await db
       .update(maintenanceTeams)
-      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .set({ deletedAt: now(), updatedAt: now() })
       .where(eq(maintenanceTeams.id, id));
 
     return apiSuccess({ success: true, deleted: true });

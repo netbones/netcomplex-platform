@@ -1,7 +1,9 @@
-import { db, resources, apiSuccess, apiNotFound, withErrorHandler } from '@api/server';
+import { db, resources, apiSuccess, apiNotFound, now, withErrorHandler } from '@api/server';
 
 import { and, eq, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+
+export const maxDuration = 8;
 
 export const POST = withErrorHandler(
   async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -14,7 +16,7 @@ export const POST = withErrorHandler(
       .update(resources)
       .set({
         downloadCount: sql`${resources.downloadCount} + 1`,
-        updatedAt: new Date(),
+        updatedAt: now(),
       })
       .where(and(eq(resources.id, id), eq(resources.tenantId, tenantId)))
       .returning({ downloadCount: resources.downloadCount });

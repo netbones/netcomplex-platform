@@ -11,6 +11,7 @@ import {
   announcements,
   contents,
   competitions,
+  now,
 } from '@api/server';
 
 import { count, eq, and, lte } from 'drizzle-orm';
@@ -68,7 +69,7 @@ export async function GET(request: Request) {
       const expiredAnnouncements = await tx
         .select({ count: count() })
         .from(announcements)
-        .where(and(eq(announcements.tenantId, tenantId), lte(announcements.expiresAt, new Date())));
+        .where(and(eq(announcements.tenantId, tenantId), lte(announcements.expiresAt, now())));
 
       const unpublishedContent = await tx
         .select({ count: count() })

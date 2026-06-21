@@ -14,6 +14,8 @@ import {
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
+export const maxDuration = 8;
+
 /**
  * GET /api/events/[id]/register - List attendees for an event
  * Returns { attendees, registered } where `registered` indicates if the

@@ -19,6 +19,8 @@ import { hasPermission } from '@shared/lib';
 import { eq, and, asc, sql, inArray } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
+export const maxDuration = 8;
+
 const VALID_QUESTION_TYPES = [
   'SINGLE_CHOICE',
   'MULTIPLE_CHOICE',

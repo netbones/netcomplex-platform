@@ -4,6 +4,8 @@ import { eq, and, desc } from 'drizzle-orm';
 import { withTenantOptional } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
+export const maxDuration = 8;
+
 // Default campaign configuration
 const DEFAULT_CAMPAIGN_CONFIG = {
   linkLabel: { en: 'Campaign', af: 'Veldtog', xh: 'Icampaign', zu: 'I-Campaign' },

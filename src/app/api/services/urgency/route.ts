@@ -6,6 +6,7 @@ import {
   maintenanceRequests,
   bookings,
   auth,
+  now,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
@@ -31,7 +32,7 @@ export async function GET() {
     const { tenantId } = await withTenant();
     const userId = session.user.id;
 
-    const today = new Date();
+    const today = now();
     const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
 
     const [openMaintenanceResult, upcomingBookingsResult, overdueMaintenanceResult] =

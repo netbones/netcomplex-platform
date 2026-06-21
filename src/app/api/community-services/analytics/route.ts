@@ -11,6 +11,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiForbidden,
+  now,
 } from '@api/server';
 
 // Drizzle imports
@@ -18,6 +19,8 @@ import {
 import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
+
+export const maxDuration = 8;
 
 /**
  * GET /api/community-services/analytics - Get marketplace analytics
@@ -50,18 +53,18 @@ export async function GET(request: NextRequest) {
     const period = searchParams.get('period') || '30d'; // 7d, 30d, 90d, all
 
     // Calculate date range
-    const now = new Date();
+    const ts = now();
     let startDate: Date;
 
     switch (period) {
       case '7d':
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        startDate = new Date(ts.getTime() - 7 * 24 * 60 * 60 * 1000);
         break;
       case '30d':
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        startDate = new Date(ts.getTime() - 30 * 24 * 60 * 60 * 1000);
         break;
       case '90d':
-        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        startDate = new Date(ts.getTime() - 90 * 24 * 60 * 60 * 1000);
         break;
       default:
         startDate = new Date('2020-01-01'); // All time
@@ -183,7 +186,7 @@ export async function GET(request: NextRequest) {
       categories: categoryStats.map(c => ({ category: c.category, _count: c.count })),
       recentActivity,
       period,
-      generatedAt: new Date().toISOString(),
+      generatedAt: now().toISOString(),
     });
   } catch (error) {
     logError(

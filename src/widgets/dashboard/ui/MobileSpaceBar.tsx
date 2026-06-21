@@ -55,14 +55,7 @@ export function MobileSpaceBar() {
   // Overflow guard — max 5 slots on mobile
   const mobileSpaces = visibleSpaces.slice(0, 5);
   if (visibleSpaces.length > 5) {
-    // TODO: implement "More" overflow sheet when 6th space is added
-    console.warn(
-      `[MobileSpaceBar] ${visibleSpaces.length} spaces visible but only 5 mobile slots. ` +
-        `Overflow spaces not shown: ${visibleSpaces
-          .slice(5)
-          .map(s => s.id)
-          .join(', ')}`
-    );
+    // ponytail: overflow tracked in soralia-village-5pyh
   }
 
   /** Determine if a space is currently active based on pathname */

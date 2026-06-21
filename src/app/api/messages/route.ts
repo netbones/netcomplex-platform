@@ -13,6 +13,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
+  now,
   rateLimitByUser,
 } from '@api/server';
 
@@ -28,6 +29,8 @@ import { withTenant } from '@entities/tenant/server';
 import { sanitizeHtml } from '@/shared/lib/sanitize/server';
 
 import { hasPermission } from '@shared/lib';
+
+export const maxDuration = 8;
 
 /** Supabase client for real-time message broadcasting */
 const supabase = createClient(
@@ -126,7 +129,7 @@ export async function GET(request: Request) {
       and(
         eq(messages.conversationId, conversationId),
         isNull(messages.deletedAt),
-        or(isNull(messages.expiresAt), gt(messages.expiresAt, new Date()))
+        or(isNull(messages.expiresAt), gt(messages.expiresAt, now()))
       )
     )
     .orderBy(asc(messages.createdAt));
@@ -191,7 +194,7 @@ export async function POST(request: Request) {
       .limit(1);
 
     const retentionDays = premiumSeat?.messageRetentionDays ?? 30;
-    const expiresAt = new Date();
+    const expiresAt = now();
     expiresAt.setDate(expiresAt.getDate() + retentionDays);
 
     // Drizzle insert for new message (generate ID manually since Drizzle doesn't auto-generate)
@@ -260,8 +263,8 @@ export async function DELETE(request: Request) {
     // Drizzle delete for expired messages
     const expiredMessages = await db
       .update(messages)
-      .set({ deletedAt: new Date() })
-      .where(or(lt(messages.expiresAt, new Date()), isNotNull(messages.deletedAt)))
+      .set({ deletedAt: now() })
+      .where(or(lt(messages.expiresAt, now()), isNotNull(messages.deletedAt)))
       .returning({ id: messages.id });
 
     revalidateConversations();

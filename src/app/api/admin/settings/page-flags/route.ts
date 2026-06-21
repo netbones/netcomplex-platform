@@ -20,6 +20,8 @@ import {
 import { hasPermission } from '@shared/lib';
 import { createComponentLogger } from '@shared/lib';
 
+export const maxDuration = 8;
+
 const log = createComponentLogger('page-flags-api');
 
 export async function GET(request: NextRequest) {

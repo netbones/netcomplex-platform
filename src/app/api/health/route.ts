@@ -1,10 +1,14 @@
+import { now } from '@api/server';
+
+export const runtime = 'edge';
+
 export async function GET() {
   return new Response(
     JSON.stringify({
       status: 'ok',
-      timestamp: new Date().toISOString(),
-      runtime: 'nodejs',
-      version: '1.0.0',
+      timestamp: now().toISOString(),
+      runtime: 'edge',
+      version: process.env.npm_package_version ?? '0.0.0',
     }),
     {
       headers: {

@@ -74,10 +74,10 @@ export const getStaticStats = unstable_cache(
     } catch (error) {
       logError({ component: 'data-fetching' }, 'Failed to fetch static stats', error);
       return {
-        homes: 180,
-        years: 15,
-        birdSpecies: 47,
-        nativePlants: 150,
+        homes: 0,
+        years: 0,
+        birdSpecies: 0,
+        nativePlants: 0,
         residents: 0,
         groups: 0,
         conservationArticles: 0,

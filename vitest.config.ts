@@ -10,20 +10,41 @@ export default defineConfig({
     'server-only': '{}',
   },
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@app': path.resolve(__dirname, './src/app'),
-      '@shared': path.resolve(__dirname, './src/shared'),
-      '@api': path.resolve(__dirname, './src/shared/api'),
-      '@entities': path.resolve(__dirname, './src/entities'),
-      '@features': path.resolve(__dirname, './src/features'),
-      '@widgets': path.resolve(__dirname, './src/widgets'),
-      '@pages': path.resolve(__dirname, './src/page-modules'),
-      '@processes': path.resolve(__dirname, './src/processes'),
-      '@prisma': path.resolve(__dirname, './prisma/drizzle'),
-      '@schema': path.resolve(__dirname, './src/db/schema'),
-      '@server': path.resolve(__dirname, './src/server'),
-    },
+    alias: [
+      // More specific paths first — Vite matches the first entry.
+      {
+        find: '@entities/tenant/server',
+        replacement: path.resolve(__dirname, './src/entities/tenant/index.server'),
+      },
+      {
+        find: '@entities/content/server',
+        replacement: path.resolve(__dirname, './src/entities/content/index.server'),
+      },
+      {
+        find: '@entities/maintenance/server',
+        replacement: path.resolve(__dirname, './src/entities/maintenance/index.server'),
+      },
+      {
+        find: '@entities/event/server',
+        replacement: path.resolve(__dirname, './src/entities/event/index.server'),
+      },
+      {
+        find: '@entities/booking/server',
+        replacement: path.resolve(__dirname, './src/entities/booking/index.server'),
+      },
+      { find: '@', replacement: path.resolve(__dirname, './src') },
+      { find: '@app', replacement: path.resolve(__dirname, './src/app') },
+      { find: '@shared', replacement: path.resolve(__dirname, './src/shared') },
+      { find: '@api', replacement: path.resolve(__dirname, './src/shared/api') },
+      { find: '@entities', replacement: path.resolve(__dirname, './src/entities') },
+      { find: '@features', replacement: path.resolve(__dirname, './src/features') },
+      { find: '@widgets', replacement: path.resolve(__dirname, './src/widgets') },
+      { find: '@pages', replacement: path.resolve(__dirname, './src/page-modules') },
+      { find: '@processes', replacement: path.resolve(__dirname, './src/processes') },
+      { find: '@prisma', replacement: path.resolve(__dirname, './prisma/drizzle') },
+      { find: '@schema', replacement: path.resolve(__dirname, './src/db/schema') },
+      { find: '@server', replacement: path.resolve(__dirname, './src/server') },
+    ],
   },
   test: {
     env: {

@@ -7,6 +7,7 @@ import {
   notifications,
   resources,
   revalidateDashboard,
+  now,
   apiCreated,
   apiError,
   apiSuccess,
@@ -25,6 +26,8 @@ import { canPublishAnnouncements } from '@shared/lib';
 import { validatePriorityForRole } from '@features/announcements';
 import type { AnnouncementPriority } from '@features/announcements';
 import { announcementSchema } from '@entities/content';
+
+export const maxDuration = 8;
 
 /** Maximum number of notification records to create in a single fanout */
 const FANOUT_CAP = 500;
@@ -84,7 +87,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   const { tenantId } = await withTenant();
 
   const validPriorities = ['urgent', 'high', 'normal', 'low'] as const;
-  const now = new Date();
+  const nowDate = now();
 
   // Build conditions array
   const conditions = [eq(announcements.tenantId, tenantId), isNull(announcements.deletedAt)];
@@ -96,7 +99,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   if (activeParam === 'true') {
     // Active means: expiresAt is null OR expiresAt > now
     conditions.push(
-      sql`(${announcements.expiresAt} IS NULL OR ${announcements.expiresAt} > ${now})`
+      sql`(${announcements.expiresAt} IS NULL OR ${announcements.expiresAt} > ${nowDate})`
     );
   }
 
@@ -116,7 +119,7 @@ export const GET = withErrorHandler(async (request: Request) => {
     .from(announcements)
     .where(and(...conditions))
     .orderBy(priorityOrder, desc(announcements.createdAt))
-    .limit(limit ?? 10000); // Use a high default instead of no limit to avoid type issues
+    .limit(limit ?? 50);
 
   return apiSuccess(announcementItems);
 });
@@ -171,7 +174,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     }
   }
 
-  const now = new Date();
+  const announcementDate = now();
 
   const [announcement] = await db
     .insert(announcements)
@@ -185,8 +188,8 @@ export const POST = withErrorHandler(async (request: Request) => {
       targetFilter: data.targetFilter,
       targetRoles: data.targetRoles,
       resourceId: data.resourceId || null,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: announcementDate,
+      updatedAt: announcementDate,
       expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
     })
     .returning();
@@ -200,7 +203,8 @@ export const POST = withErrorHandler(async (request: Request) => {
   let targetUsers: { id: string }[] = await db
     .select({ id: users.id })
     .from(users)
-    .where(and(eq(users.tenantId, tenantId), eq(users.isActive, true)));
+    .where(and(eq(users.tenantId, tenantId), eq(users.isActive, true)))
+    .limit(FANOUT_CAP);
 
   // Step 2: Apply targetFilter (audience by residency type)
   if (data.targetFilter === 'OWNERS_ONLY') {
@@ -214,7 +218,8 @@ export const POST = withErrorHandler(async (request: Request) => {
           eq(users.isActive, true),
           inArray(profiles.residencyType, ['OWNER', 'FAMILY'])
         )
-      );
+      )
+      .limit(FANOUT_CAP);
     targetUsers = ownerUserIds;
   } else if (data.targetFilter === 'RENTERS_ONLY') {
     const renterUserIds = await db
@@ -227,7 +232,8 @@ export const POST = withErrorHandler(async (request: Request) => {
           eq(users.isActive, true),
           eq(profiles.residencyType, 'RENTER')
         )
-      );
+      )
+      .limit(FANOUT_CAP);
     targetUsers = renterUserIds;
   }
   // ALL: no occupancy filter — keep all active users
@@ -243,7 +249,8 @@ export const POST = withErrorHandler(async (request: Request) => {
           eq(users.isActive, true),
           inArray(users.role, data.targetRoles)
         )
-      );
+      )
+      .limit(FANOUT_CAP);
     // Intersect: user must match BOTH filter AND role
     const roleIds = new Set(roleFilteredUsers.map(u => u.id));
     targetUsers = targetUsers.filter(u => roleIds.has(u.id));
@@ -251,7 +258,6 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   // Step 4: Cap at FANOUT_CAP and bulk insert notifications
   const cappedUsers = targetUsers.slice(0, FANOUT_CAP);
-  // TODO: Beyond FANOUT_CAP users, bulk job processing (queue) will be needed
 
   if (cappedUsers.length > 0) {
     await db.insert(notifications).values(

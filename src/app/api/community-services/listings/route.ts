@@ -9,6 +9,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiNotFound,
+  now,
 } from '@api/server';
 
 import { assertModuleEnabled } from '@entities/tenant/server';
@@ -21,6 +22,8 @@ import { eq, desc, and, or, sql, ilike, inArray, isNull } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { generateNameSlug } from '@shared/api';
+
+export const maxDuration = 8;
 
 function resolveLocaleText(
   value: Record<string, string> | string | null | undefined,
@@ -343,7 +346,7 @@ export async function POST(request: NextRequest) {
 
     // Create listing with Drizzle
     const listingId = crypto.randomUUID();
-    const now = new Date();
+    const ts = now();
 
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
@@ -385,8 +388,8 @@ export async function POST(request: NextRequest) {
       isPublished: false,
       rating: 0,
       reviewCount: 0,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: ts,
+      updatedAt: ts,
     });
 
     // Fetch the created listing

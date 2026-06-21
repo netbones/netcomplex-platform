@@ -12,6 +12,7 @@ import {
   apiUnauthorized,
   apiForbidden,
   apiNotFound,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -19,6 +20,8 @@ import { hasPermission } from '@shared/lib';
 import { eq, and } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
+
+export const maxDuration = 8;
 
 // Valid status transitions for the 7-value lifecycle
 const VALID_STATUSES = [
@@ -198,9 +201,9 @@ export const PATCH = withErrorHandler(
       return apiNotFound('Not found');
     }
 
-    const now = new Date();
+    const ts = now();
     const updates: Partial<typeof maintenanceRequests.$inferInsert> = {
-      updatedAt: now,
+      updatedAt: ts,
     };
 
     // Track status changes — validate against 7-value enum
@@ -212,7 +215,7 @@ export const PATCH = withErrorHandler(
       }
       updates.status = body.status;
       if (body.status === 'COMPLETED') {
-        updates.completedAt = now;
+        updates.completedAt = ts;
       }
       await db.insert(requestHistories).values({
         id: crypto.randomUUID(),

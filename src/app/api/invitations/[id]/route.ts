@@ -7,11 +7,14 @@ import {
   apiUnauthorized,
   getSessionAndRole,
   notDeleted,
+  now,
   withErrorHandler,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+
+export const maxDuration = 8;
 
 export const DELETE = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -22,7 +25,7 @@ export const DELETE = withErrorHandler(
     const { id } = await params;
     await db
       .update(invitations)
-      .set({ deletedAt: new Date() })
+      .set({ deletedAt: now() })
       .where(and(eq(invitations.id, id), eq(invitations.tenantId, tenantId)));
     return apiSuccess({ success: true });
   }

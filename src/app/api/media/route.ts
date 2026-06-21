@@ -11,6 +11,8 @@ import {
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
+export const maxDuration = 8;
+
 export async function GET(request: Request) {
   const { tenantId } = await withTenant();
   const session = await auth.api.getSession({

@@ -11,6 +11,8 @@ import {
 import { eq, sql } from 'drizzle-orm';
 import { withTenant, withTenantOptional } from '@entities/tenant/server';
 
+export const maxDuration = 8;
+
 export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();

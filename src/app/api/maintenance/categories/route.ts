@@ -6,12 +6,15 @@ import {
   apiCreated,
   apiConflict,
   apiError,
+  now,
   withErrorHandler,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
 
 import { eq, and, isNull, desc } from 'drizzle-orm';
+
+export const maxDuration = 8;
 
 export const dynamic = 'force-dynamic';
 
@@ -93,7 +96,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       label,
       description: description || null,
       isActive: true,
-      createdAt: new Date(),
+      createdAt: now(),
     })
     .returning();
 

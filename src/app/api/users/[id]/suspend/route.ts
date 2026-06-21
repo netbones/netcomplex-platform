@@ -9,6 +9,7 @@ import {
   apiCreated,
   apiError,
   apiConflict,
+  now,
   writeAuditLog,
   withErrorHandler,
 } from '@api/server';
@@ -136,13 +137,13 @@ export const POST = withErrorHandler(
           suspensionType: body.suspensionType,
           reason: body.reason.trim(),
           description: body.description || null,
-          startDate: new Date(),
+          startDate: now(),
           endDate: parsedEndDate,
           isPermanent,
           isActive: true,
           createdById: session.user.id,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: now(),
+          updatedAt: now(),
         })
         .returning();
 

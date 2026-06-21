@@ -2,6 +2,15 @@
 
 This project uses **pnpm** package manager
 
+## Sub-Agent protocols
+
+Subagents must only typecheck their own work to avoid collisions. Run typecheck scoped to specific files, not the full project:
+
+```bash
+# Check only your modified files
+npx tsc --noEmit --pretty src/app/api/your-file.ts 2>&1 | head -30
+```
+
 ## 📋 Issue Tracking: BD vs GSD
 
 This project uses TWO tracking systems for different purposes. Do NOT confuse them.

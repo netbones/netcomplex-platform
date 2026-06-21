@@ -10,6 +10,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiNotFound,
+  now,
 } from '@api/server';
 
 // Drizzle imports
@@ -17,6 +18,8 @@ import {
 import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
+
+export const maxDuration = 8;
 
 /**
  * GET /api/community-services/reviews/[listingId] - Get reviews for a listing
@@ -190,7 +193,7 @@ export async function POST(
 
     // Create review with Drizzle
     const reviewId = crypto.randomUUID();
-    const now = new Date();
+    const ts = now();
 
     await db.insert(communityServiceReviews).values({
       id: reviewId,
@@ -203,7 +206,7 @@ export async function POST(
       serviceDate: serviceDate ? new Date(serviceDate) : null,
       responseQuality,
       isPublished: true,
-      createdAt: now,
+      createdAt: ts,
     });
 
     // Update listing rating
@@ -269,7 +272,7 @@ async function updateListingRating(listingId: string, tenantId: string) {
     .set({
       rating: Number(ratingStats?.avgRating) || 0,
       reviewCount: ratingStats?.count || 0,
-      updatedAt: new Date(),
+      updatedAt: now(),
     })
     .where(
       and(

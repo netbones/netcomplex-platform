@@ -12,6 +12,8 @@ import {
   auth,
 } from '@api/server';
 
+export const maxDuration = 8;
+
 export async function GET(request: NextRequest) {
   const guard = await requirePlatformAdmin(request);
   if (guard) return guard;

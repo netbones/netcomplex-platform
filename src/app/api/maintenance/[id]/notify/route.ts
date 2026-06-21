@@ -17,6 +17,8 @@ import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { createLogger } from '@shared/lib';
 
+export const maxDuration = 8;
+
 const notifyLogger = createLogger('maintenance-notify');
 
 async function getSessionAndRole(request: Request) {

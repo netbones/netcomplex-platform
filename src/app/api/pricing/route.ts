@@ -6,6 +6,8 @@ import { apiError, apiSuccess, apiInternalError } from '@api/server';
 
 import type { PricingPlan } from '@features/pricing';
 
+export const maxDuration = 8;
+
 export type { PricingPlan };
 
 // Static pricing data aligned with Netcomplex tiers

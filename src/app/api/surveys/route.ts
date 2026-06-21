@@ -10,6 +10,7 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -17,6 +18,8 @@ import { hasPermission } from '@shared/lib';
 
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+
+export const maxDuration = 8;
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -109,7 +112,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   }
 
   const body = await request.json();
-  const now = new Date();
+  const ts = now();
 
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
@@ -125,8 +128,8 @@ export const POST = withErrorHandler(async (request: Request) => {
       status: body.status ?? 'DRAFT',
       startDate: body.startDate ? new Date(body.startDate) : null,
       endDate: body.endDate ? new Date(body.endDate) : null,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: ts,
+      updatedAt: ts,
     })
     .returning();
 

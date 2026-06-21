@@ -11,6 +11,7 @@ import {
   apiUnauthorized,
   notDeleted,
   apiGone,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -19,6 +20,8 @@ import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
 import { hasPermission } from '@shared/lib';
+
+export const maxDuration = 8;
 
 /**
  * GET /api/events/[id] - Get single event by ID
@@ -83,7 +86,7 @@ export const PATCH = withErrorHandler(
     const { tenantId } = await withTenant();
 
     const updateData: Record<string, unknown> = {
-      updatedAt: new Date(),
+      updatedAt: now(),
     };
 
     if (body.title !== undefined) updateData.title = body.title;
@@ -156,7 +159,7 @@ export const DELETE = withErrorHandler(
 
     const [event] = await db
       .update(events)
-      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .set({ deletedAt: now(), updatedAt: now() })
       .where(and(eq(events.id, id), eq(events.tenantId, tenantId)))
       .returning();
 

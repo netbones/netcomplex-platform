@@ -10,6 +10,7 @@ import {
   apiNotFound,
   apiSuccess,
   apiUnauthorized,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -17,6 +18,8 @@ import { hasPermission } from '@shared/lib';
 
 import { eq, and, asc, sql, inArray } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+
+export const maxDuration = 8;
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -139,7 +142,7 @@ export const POST = withErrorHandler(
       order = (maxResult?.maxOrder ?? -1) + 1;
     }
 
-    const now = new Date();
+    const ts = now();
     const [created] = await db
       .insert(surveySections)
       .values({
@@ -150,8 +153,8 @@ export const POST = withErrorHandler(
         description: body.description ?? null,
         image: body.image ?? null,
         order,
-        createdAt: now,
-        updatedAt: now,
+        createdAt: ts,
+        updatedAt: ts,
       })
       .returning();
 

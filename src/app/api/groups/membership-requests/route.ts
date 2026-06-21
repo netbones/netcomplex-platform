@@ -16,6 +16,8 @@ import { hasPermission } from '@shared/lib';
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
+export const maxDuration = 8;
+
 /**
  * Retrieves session and role from the request for API routes.
  * @param request - Incoming HTTP request

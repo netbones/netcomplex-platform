@@ -7,6 +7,7 @@ import {
   apiError,
   apiForbidden,
   apiSuccess,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -14,6 +15,8 @@ import { hasPermission } from '@shared/lib';
 
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+
+export const maxDuration = 8;
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -66,7 +69,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const { tenantId } = await withTenant();
 
   const body = await request.json();
-  const now = new Date();
+  const ts = now();
 
   const [survey] = await db
     .insert(externalSurveys)
@@ -78,8 +81,8 @@ export const POST = withErrorHandler(async (request: Request) => {
       externalId: body.externalId,
       embedUrl: body.embedUrl,
       isActive: body.isActive ?? true,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: ts,
+      updatedAt: ts,
     })
     .returning();
 
@@ -101,7 +104,7 @@ export const PATCH = withErrorHandler(async (request: Request) => {
     .set({
       name: body.name,
       isActive: body.isActive,
-      updatedAt: new Date(),
+      updatedAt: now(),
     })
     .where(and(eq(externalSurveys.id, body.id), eq(externalSurveys.tenantId, tenantId)))
     .returning();

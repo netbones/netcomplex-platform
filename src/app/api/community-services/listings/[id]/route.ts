@@ -14,6 +14,7 @@ import {
   apiForbidden,
   apiNotFound,
   notDeleted,
+  now,
 } from '@api/server';
 
 // Drizzle imports
@@ -21,6 +22,8 @@ import {
 import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
+
+export const maxDuration = 8;
 
 /**
  * GET /api/community-services/listings/[id] - Get a specific service listing
@@ -215,7 +218,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const updateData: ListingUpdate = {
-      updatedAt: new Date(),
+      updatedAt: now(),
       title: titleObj,
       description: descriptionObj,
       locale,
@@ -318,7 +321,7 @@ export async function DELETE(
     // Soft-delete with Drizzle (with tenant filter)
     await db
       .update(communityServiceListings)
-      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .set({ deletedAt: now(), updatedAt: now() })
       .where(
         and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
       );

@@ -11,6 +11,7 @@ import {
   apiError,
   apiForbidden,
   auth,
+  now,
   revalidateDashboard,
   withErrorHandler,
 } from '@api/server';
@@ -19,6 +20,8 @@ import { withTenant } from '@entities/tenant/server';
 
 import { hasPermission } from '@shared/lib';
 import { eq, and } from 'drizzle-orm';
+
+export const maxDuration = 8;
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -116,8 +119,8 @@ export const POST = withErrorHandler(
       }
     }
 
-    const now = new Date();
-    const updates: Partial<typeof maintenanceRequests.$inferInsert> = { updatedAt: now };
+    const ts = now();
+    const updates: Partial<typeof maintenanceRequests.$inferInsert> = { updatedAt: ts };
 
     // Track team assignment changes
     if (teamId !== undefined && teamId !== existing.assignedTeamId) {

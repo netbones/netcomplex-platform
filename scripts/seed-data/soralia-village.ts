@@ -2875,6 +2875,10 @@ export const SORALIA_VILLAGE: TenantSeedData = {
 
   settings: [
     { id: 'setting-ticket-format', key: 'ticket_number_format', value: 'SRV-{YYYY}-{NNNN}' },
+    { id: 'setting-stats-homes', key: 'stats_homes', value: '180' },
+    { id: 'setting-stats-years', key: 'stats_years', value: '15' },
+    { id: 'setting-stats-bird-species', key: 'stats_bird_species', value: '47' },
+    { id: 'setting-stats-native-plants', key: 'stats_native_plants', value: '150' },
   ],
 
   announcements: [

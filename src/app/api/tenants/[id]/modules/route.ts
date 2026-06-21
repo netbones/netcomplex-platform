@@ -21,6 +21,8 @@ import { eq, and, desc } from 'drizzle-orm';
 import type { TenantTier } from '@shared/lib';
 import { apiLogger } from '@shared/lib';
 
+export const maxDuration = 8;
+
 const TIER_ORDER: Record<TenantTier, number> = {
   STANDARD: 1,
   PREMIUM: 2,

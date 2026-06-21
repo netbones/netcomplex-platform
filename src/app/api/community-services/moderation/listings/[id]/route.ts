@@ -9,6 +9,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiForbidden,
+  now,
 } from '@api/server';
 
 // Drizzle imports
@@ -16,6 +17,8 @@ import {
 import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
+
+export const maxDuration = 8;
 
 type ListingStatus = (typeof communityServiceListings.status.enumValues)[number];
 
@@ -154,9 +157,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         status: 'ACTIVE',
         isPublished: true,
         moderatedBy: session.user.id,
-        moderatedAt: new Date(),
+        moderatedAt: now(),
         moderationNotes: notes,
-        updatedAt: new Date(),
+        updatedAt: now(),
       })
       .where(
         and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
@@ -224,9 +227,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         status: 'WITHDRAWN',
         isPublished: false,
         moderatedBy: session.user.id,
-        moderatedAt: new Date(),
+        moderatedAt: now(),
         moderationNotes: `${reason}: ${notes}`,
-        updatedAt: new Date(),
+        updatedAt: now(),
       })
       .where(
         and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))
@@ -297,9 +300,9 @@ export async function DELETE(
         status: 'WITHDRAWN',
         isPublished: false,
         moderatedBy: session.user.id,
-        moderatedAt: new Date(),
+        moderatedAt: now(),
         moderationNotes: `REMOVED: ${reason}`,
-        updatedAt: new Date(),
+        updatedAt: now(),
       })
       .where(
         and(eq(communityServiceListings.id, id), eq(communityServiceListings.tenantId, tenantId))

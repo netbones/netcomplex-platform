@@ -19,6 +19,8 @@ import { withTenant } from '@entities/tenant/server';
 import { listContent, createContent } from '@entities/content/server';
 import { defaultLanguage } from '@shared/lib';
 
+export const maxDuration = 8;
+
 /**
  * Retrieves session and role from the request for API routes.
  * @param request - Incoming HTTP request

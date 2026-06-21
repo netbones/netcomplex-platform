@@ -11,11 +11,14 @@ import {
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
+  now,
 } from '@api/server';
 
 import { eq, sql, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
+
+export const maxDuration = 8;
 
 /**
  * GET /api/premium/listings - Get property listings for premium user
@@ -142,8 +145,8 @@ export async function POST(request: NextRequest) {
         petFriendly: petFriendly || false,
         status: 'DRAFT',
         isPublished: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: now(),
+        updatedAt: now(),
       })
       .returning();
 

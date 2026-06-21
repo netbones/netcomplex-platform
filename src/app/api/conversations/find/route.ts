@@ -11,6 +11,8 @@ import {
 import { sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
+export const maxDuration = 8;
+
 interface ConversationResult {
   id: string;
   name: string | null;

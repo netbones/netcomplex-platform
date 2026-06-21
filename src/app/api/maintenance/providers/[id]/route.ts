@@ -6,12 +6,15 @@ import {
   apiNotFound,
   apiGone,
   apiError,
+  now,
   withErrorHandler,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
 
 import { eq, and } from 'drizzle-orm';
+
+export const maxDuration = 8;
 
 /**
  * PATCH /api/maintenance/providers/[id] - Update a service provider
@@ -46,7 +49,7 @@ export const PATCH = withErrorHandler(
     }
 
     const body = await request.json();
-    const updates: Partial<typeof serviceProviders.$inferInsert> = { updatedAt: new Date() };
+    const updates: Partial<typeof serviceProviders.$inferInsert> = { updatedAt: now() };
 
     if (body.companyName !== undefined) updates.companyName = body.companyName;
     if (body.trade !== undefined) updates.trade = body.trade;
@@ -90,7 +93,7 @@ export const DELETE = withErrorHandler(
     // Soft-delete: set deletedAt
     await db
       .update(serviceProviders)
-      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .set({ deletedAt: now(), updatedAt: now() })
       .where(eq(serviceProviders.id, id));
 
     return apiSuccess({ success: true, deleted: true });

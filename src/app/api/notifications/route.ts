@@ -19,6 +19,8 @@ import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 import { createLogger } from '@shared/lib';
 
+export const maxDuration = 8;
+
 const notifyLogger = createLogger('notifications');
 
 async function getSessionAndUserId(request: Request) {

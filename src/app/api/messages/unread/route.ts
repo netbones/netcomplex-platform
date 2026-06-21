@@ -10,6 +10,7 @@ import {
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
+  now,
 } from '@api/server';
 
 // Drizzle imports - use individual exports from db.ts
@@ -17,6 +18,8 @@ import {
 import { eq, and, sql, ne, inArray } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
+
+export const maxDuration = 8;
 
 /**
  * GET /api/messages/unread - Get unread message counts for current user
@@ -192,7 +195,7 @@ export async function POST(request: NextRequest) {
     await db
       .update(conversationParticipants)
       .set({
-        lastReadAt: new Date(),
+        lastReadAt: now(),
         lastReadMessageId: messageId || null,
       })
       .where(

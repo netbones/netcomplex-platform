@@ -9,6 +9,7 @@ import {
   announcements,
   notifications,
   auth,
+  now,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
@@ -105,7 +106,7 @@ export async function GET() {
         .where(
           and(
             eq(announcements.tenantId, tenantId),
-            or(sql`${announcements.expiresAt} IS NULL`, gt(announcements.expiresAt, new Date()))
+            or(sql`${announcements.expiresAt} IS NULL`, gt(announcements.expiresAt, now()))
           )
         ),
 

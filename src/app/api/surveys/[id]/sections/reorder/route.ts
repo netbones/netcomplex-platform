@@ -9,6 +9,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiValidationError,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -109,7 +110,7 @@ export const POST = withErrorHandler(
       for (const item of body.items) {
         await tx
           .update(surveySections)
-          .set({ order: item.order, updatedAt: new Date() })
+          .set({ order: item.order, updatedAt: now() })
           .where(and(eq(surveySections.id, item.id), eq(surveySections.tenantId, tenantId)));
       }
       return body.items.length;

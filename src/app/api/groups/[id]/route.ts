@@ -12,12 +12,15 @@ import {
   apiUnauthorized,
   notDeleted,
   apiGone,
+  now,
   withErrorHandler,
 } from '@api/server';
 
 import { eq, and, desc, inArray } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
+
+export const maxDuration = 8;
 
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -167,7 +170,7 @@ export const PATCH = withErrorHandler(
         isPublic: body.isPublic,
         accessType: body.accessType,
         residentFilter: body.residentFilter,
-        updatedAt: new Date(),
+        updatedAt: now(),
       })
       .where(and(eq(groups.id, id), eq(groups.tenantId, tenantId)))
       .returning();
@@ -202,7 +205,7 @@ export const DELETE = withErrorHandler(
 
     await db
       .update(groups)
-      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .set({ deletedAt: now(), updatedAt: now() })
       .where(and(eq(groups.id, id), eq(groups.tenantId, tenantId)));
 
     return apiSuccess({ success: true });

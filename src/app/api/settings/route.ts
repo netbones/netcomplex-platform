@@ -17,6 +17,8 @@ import { eq, and } from 'drizzle-orm';
 import { withTenant, requireAssistScope } from '@entities/tenant/server';
 import { validateSettingValue } from '@shared/lib/settings/validation';
 
+export const maxDuration = 8;
+
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
     headers: request.headers,

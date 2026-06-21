@@ -11,6 +11,7 @@ import {
   apiUnauthorized,
   apiForbidden,
   apiNotFound,
+  now,
 } from '@api/server';
 
 // Drizzle imports
@@ -18,6 +19,8 @@ import {
 import { eq, and, sql, inArray, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
+
+export const maxDuration = 8;
 
 type InquiryStatus = (typeof communityServiceInquiries.status.enumValues)[number];
 
@@ -230,8 +233,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .set({
         providerResponse: response,
         status: status || 'RESPONDED',
-        respondedAt: new Date(),
-        updatedAt: new Date(),
+        respondedAt: now(),
+        updatedAt: now(),
       })
       .where(
         and(eq(communityServiceInquiries.id, id), eq(communityServiceInquiries.tenantId, tenantId))

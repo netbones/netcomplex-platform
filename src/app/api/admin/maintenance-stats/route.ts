@@ -6,10 +6,12 @@ import {
   apiSuccess,
   apiUnauthorized,
   withErrorHandler,
+  now,
 } from '@api/server';
 
 import { eq, count, and, gte, sql } from 'drizzle-orm';
 
+export const maxDuration = 8;
 export const dynamic = 'force-dynamic';
 
 export const GET = withErrorHandler(async (request: Request) => {
@@ -21,8 +23,8 @@ export const GET = withErrorHandler(async (request: Request) => {
 
   return runWithRLS(ctx, async tx => {
     const tenantId = ctx.tenantId;
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const ts = now();
+    const startOfMonth = new Date(ts.getFullYear(), ts.getMonth(), 1);
 
     const tenantFilter = eq(maintenanceRequests.tenantId, tenantId);
 
@@ -62,7 +64,7 @@ export const GET = withErrorHandler(async (request: Request) => {
         and(
           tenantFilter,
           sql`${maintenanceRequests.status} NOT IN ('COMPLETED', 'CANCELLED')`,
-          sql`${maintenanceRequests.scheduledDate} < ${now}`
+          sql`${maintenanceRequests.scheduledDate} < ${ts}`
         )
       );
 
@@ -110,7 +112,7 @@ export const GET = withErrorHandler(async (request: Request) => {
       .where(
         and(
           tenantFilter,
-          gte(maintenanceRequests.createdAt, new Date(now.getFullYear(), now.getMonth() - 11, 1))
+          gte(maintenanceRequests.createdAt, new Date(ts.getFullYear(), ts.getMonth() - 11, 1))
         )
       )
       .groupBy(sql`TO_CHAR(${maintenanceRequests.createdAt}, 'YYYY-MM')`)

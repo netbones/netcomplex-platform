@@ -8,6 +8,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   getSessionAndRole,
+  now,
   rateLimitByIP,
   sendEmail,
   templates,
@@ -16,6 +17,8 @@ import {
 import { eq, and, isNull, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { apiLogger } from '@shared/lib';
+
+export const maxDuration = 8;
 
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
@@ -78,7 +81,7 @@ export async function POST(request: Request) {
       organizationId: body.organizationId || 'placeholder-org-id',
       token,
       status: 'PENDING',
-      createdAt: new Date(),
+      createdAt: now(),
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     })
     .returning();

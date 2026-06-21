@@ -5,12 +5,15 @@ import {
   apiSuccess,
   apiCreated,
   apiError,
+  now,
   withErrorHandler,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
 
 import { eq, and, isNull, desc } from 'drizzle-orm';
+
+export const maxDuration = 8;
 
 export const dynamic = 'force-dynamic';
 
@@ -62,7 +65,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     return apiError('VALIDATION_ERROR', 'name and trade are required', 400);
   }
 
-  const now = new Date();
+  const ts = now();
   const team = await db
     .insert(maintenanceTeams)
     .values({
@@ -72,8 +75,8 @@ export const POST = withErrorHandler(async (request: Request) => {
       trade,
       contactName: contactName || null,
       isActive: true,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: ts,
+      updatedAt: ts,
     })
     .returning();
 

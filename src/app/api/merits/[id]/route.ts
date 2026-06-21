@@ -7,6 +7,7 @@ import {
   apiNotFound,
   apiError,
   apiSuccess,
+  now,
   writeAuditLog,
   withErrorHandler,
 } from '@api/server';
@@ -112,10 +113,10 @@ export const DELETE = withErrorHandler(
 
     if (!hasPermission(session.user.role, 'users')) return apiForbidden('Insufficient permissions');
 
-    const now = new Date();
+    const ts = now();
     await db
       .update(behaviorRecords)
-      .set({ deletedAt: now })
+      .set({ deletedAt: ts })
       .where(and(eq(behaviorRecords.id, id), eq(behaviorRecords.tenantId, tenantId)));
 
     await writeAuditLog({

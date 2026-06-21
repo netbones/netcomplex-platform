@@ -10,6 +10,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   notDeleted,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -138,7 +139,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   }
 
   const body = await request.json();
-  const now = new Date();
+  const ts = now();
 
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
@@ -158,8 +159,8 @@ export const POST = withErrorHandler(async (request: Request) => {
       accessType: 'OPEN',
       residentFilter: 'ALL',
       isActive: true,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: ts,
+      updatedAt: ts,
     })
     .returning();
 

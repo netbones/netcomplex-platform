@@ -14,9 +14,12 @@ import {
   apiSuccess,
   rateLimitByIP,
   verifyTurnstile,
+  now,
 } from '@api/server';
 
 import { eq, and, gt } from 'drizzle-orm';
+
+export const maxDuration = 8;
 
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
@@ -60,7 +63,7 @@ export async function POST(request: NextRequest) {
         return apiError('VALIDATION_ERROR', 'Invalid or expired invitation token', 400);
       }
 
-      if (new Date() > invitation.expiresAt) {
+      if (now() > invitation.expiresAt) {
         await db
           .update(invitations)
           .set({ status: 'EXPIRED' })

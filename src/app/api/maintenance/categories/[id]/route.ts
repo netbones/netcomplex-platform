@@ -7,12 +7,15 @@ import {
   apiGone,
   apiConflict,
   apiError,
+  now,
   withErrorHandler,
 } from '@api/server';
 
 import { withTenant } from '@entities/tenant/server';
 
 import { eq, and } from 'drizzle-orm';
+
+export const maxDuration = 8;
 
 /**
  * PATCH /api/maintenance/categories/[id] - Update a maintenance category
@@ -95,7 +98,7 @@ export const DELETE = withErrorHandler(
     // Soft-delete: set deletedAt
     await db
       .update(maintenanceCategories)
-      .set({ deletedAt: new Date() })
+      .set({ deletedAt: now() })
       .where(eq(maintenanceCategories.id, id));
 
     return apiSuccess({ success: true, deleted: true });

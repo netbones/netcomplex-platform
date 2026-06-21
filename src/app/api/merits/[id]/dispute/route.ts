@@ -7,6 +7,7 @@ import {
   apiNotFound,
   apiError,
   apiSuccess,
+  now,
   writeAuditLog,
   withErrorHandler,
 } from '@api/server';
@@ -53,13 +54,13 @@ export const POST = withErrorHandler(
       return apiError('VALIDATION_ERROR', 'Only active records can be disputed', 400);
     }
 
-    const now = new Date();
+    const ts = now();
     await db
       .update(behaviorRecords)
       .set({
         status: 'DISPUTED',
         disputeReason: reason,
-        disputedAt: now,
+        disputedAt: ts,
       })
       .where(eq(behaviorRecords.id, id));
 

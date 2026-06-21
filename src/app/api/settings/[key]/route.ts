@@ -20,6 +20,8 @@ import { requireAssistScope } from '@entities/tenant/server';
 import { apiLogger } from '@shared/lib';
 import { validateSettingValue } from '@shared/lib/settings/validation';
 
+export const maxDuration = 8;
+
 /**
  * Retrieves session and role from the request for API routes.
  */

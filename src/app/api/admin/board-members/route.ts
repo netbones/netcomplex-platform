@@ -11,6 +11,7 @@ import {
 import { eq, or, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
+export const maxDuration = 8;
 export const dynamic = 'force-dynamic';
 
 const BOARD_ROLES = ['BOARD', 'ADMIN', 'COMMITTEE'] as const;

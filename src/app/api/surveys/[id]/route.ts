@@ -10,6 +10,7 @@ import {
   apiNotFound,
   apiSuccess,
   apiUnauthorized,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -17,6 +18,8 @@ import { hasPermission } from '@shared/lib';
 
 import { eq, and, asc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+
+export const maxDuration = 8;
 
 async function getSessionAndRole(request: Request) {
   const session = await auth.api.getSession({
@@ -114,7 +117,7 @@ export const PUT = withErrorHandler(
 
     const body = await request.json();
     const updateData: Record<string, unknown> = {
-      updatedAt: new Date(),
+      updatedAt: now(),
     };
 
     if (body.title !== undefined) updateData.title = body.title;

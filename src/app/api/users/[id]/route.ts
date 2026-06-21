@@ -24,6 +24,8 @@ import { requireAssistScope } from '@entities/tenant/server';
 
 import { getLocalizedValue, getLocalizedContent, defaultLanguage } from '@shared/lib';
 
+export const maxDuration = 8;
+
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const { id } = await params;

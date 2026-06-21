@@ -7,10 +7,13 @@ import {
   apiGone,
   apiSuccess,
   apiNotFound,
+  now,
   withErrorHandler,
 } from '@api/server';
 
 import { eq, and, gt } from 'drizzle-orm';
+
+export const maxDuration = 8;
 
 /**
  * GET /api/invitations/validate?token=<token>
@@ -47,7 +50,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   }
 
   // Check if expired
-  if (new Date() > invitation.expiresAt) {
+  if (now() > invitation.expiresAt) {
     return apiGone('Invitation has expired');
   }
 

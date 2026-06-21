@@ -13,6 +13,7 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiNotFound,
+  now,
 } from '@api/server';
 
 // Drizzle imports
@@ -20,6 +21,8 @@ import {
 import { eq, desc, and, sql, inArray } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
+
+export const maxDuration = 8;
 
 type InquiryStatus = (typeof communityServiceInquiries.status.enumValues)[number];
 
@@ -223,7 +226,7 @@ export async function POST(request: NextRequest) {
 
     // Create inquiry with Drizzle
     const inquiryId = crypto.randomUUID();
-    const now = new Date();
+    const ts = now();
 
     await db.insert(communityServiceInquiries).values({
       id: inquiryId,
@@ -237,8 +240,8 @@ export async function POST(request: NextRequest) {
       description,
       contactMethod: contactMethod || 'PLATFORM_MESSAGE',
       status: 'PENDING',
-      createdAt: now,
-      updatedAt: now,
+      createdAt: ts,
+      updatedAt: ts,
     });
 
     // Auto-create conversation if platform message is preferred
@@ -269,8 +272,8 @@ export async function POST(request: NextRequest) {
           id: conversationId,
           tenantId,
           type: 'DIRECT',
-          createdAt: now,
-          updatedAt: now,
+          createdAt: ts,
+          updatedAt: ts,
         });
         await db.insert(conversationParticipants).values([
           {
@@ -278,14 +281,14 @@ export async function POST(request: NextRequest) {
             tenantId,
             conversationId,
             userId: session.user.id,
-            joinedAt: now,
+            joinedAt: ts,
           },
           {
             id: crypto.randomUUID(),
             tenantId,
             conversationId,
             userId: listing.providerId,
-            joinedAt: now,
+            joinedAt: ts,
           },
         ]);
       } else {
@@ -301,7 +304,7 @@ export async function POST(request: NextRequest) {
           senderId: session.user.id,
           content: description,
           type: 'TEXT',
-          createdAt: now,
+          createdAt: ts,
         });
       }
     }

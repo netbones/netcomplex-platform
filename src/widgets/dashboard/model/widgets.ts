@@ -66,7 +66,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/DashboardStats').then(m => ({ default: m.DashboardStats }))
     ),
-    loader: () => import('../ui/DashboardStats'),
     defaultSize: { width: 4, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -84,7 +83,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/QuickActionsWidget').then(m => ({ default: m.QuickActionsWidget }))
     ),
-    loader: () => import('../ui/QuickActionsWidget'),
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -102,7 +100,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/RecentActivityWidget').then(m => ({ default: m.RecentActivityWidget }))
     ),
-    loader: () => import('../ui/RecentActivityWidget'),
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -120,7 +117,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/SoloSeatWidget').then(m => ({ default: m.SoloSeatWidget }))
     ),
-    loader: () => import('../ui/SoloSeatWidget'),
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -139,7 +135,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/PropertiesWidget').then(m => ({ default: m.PropertiesWidget }))
     ),
-    loader: () => import('../ui/PropertiesWidget'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -161,7 +156,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/NotificationsWidget').then(m => ({ default: m.NotificationsWidget }))
     ),
-    loader: () => import('../ui/NotificationsWidget'),
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -177,7 +171,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     category: 'communication',
     icon: MessageSquare,
     component: lazy(() => import('@widgets/chat').then(m => ({ default: m.MessagesWidget }))),
-    loader: () => import('@widgets/chat'),
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -201,7 +194,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.MaintenanceRequestsWidget,
       }))
     ),
-    loader: () => import('@widgets/maintenance'),
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -222,7 +214,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.MaintenanceList,
       }))
     ),
-    loader: () => import('@widgets/maintenance'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -243,7 +234,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.MaintenanceAnalyticsWidget,
       }))
     ),
-    loader: () => import('@widgets/maintenance'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -268,7 +258,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.AdminStatsWidget,
       }))
     ),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 4, height: 2 },
     minSize: { width: 3, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -289,7 +278,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.AdminActivityWidget,
       }))
     ),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -310,7 +298,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.AdminQuickLinksWidget,
       }))
     ),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -331,7 +318,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.AdminContentWidget,
       }))
     ),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -352,7 +338,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.AdminUserWidget,
       }))
     ),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -373,7 +358,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.AdminSystemWidget,
       }))
     ),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -393,7 +377,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     category: 'content',
     icon: Calendar,
     component: lazy(() => import('../ui/EventsWidget').then(m => ({ default: m.EventsWidget }))),
-    loader: () => import('../ui/EventsWidget'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -409,7 +392,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     category: 'content',
     icon: FileText,
     component: lazy(() => import('../ui/SurveysWidget').then(m => ({ default: m.SurveysWidget }))),
-    loader: () => import('../ui/SurveysWidget'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -427,7 +409,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/CompetitionsWidget').then(m => ({ default: m.CompetitionsWidget }))
     ),
-    loader: () => import('../ui/CompetitionsWidget'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -447,7 +428,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.AnnouncementsStreamWidget,
       }))
     ),
-    loader: () => import('../ui/AnnouncementsStreamWidget'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -464,7 +444,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: Calendar,
     permissions: ['admin'],
     component: lazy(() => import('@widgets/admin').then(m => ({ default: m.EventsWidget }))),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -481,7 +460,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: FileText,
     permissions: ['admin'],
     component: lazy(() => import('@widgets/admin').then(m => ({ default: m.SurveysWidget }))),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -502,7 +480,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.AdminAnnouncementsWidget,
       }))
     ),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -523,7 +500,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.GroupModerationWidgetWithErrorBoundary,
       }))
     ),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -540,7 +516,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: Settings,
     permissions: ['admin'],
     component: lazy(() => import('@widgets/admin').then(m => ({ default: m.PageSettingsWidget }))),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -557,7 +532,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: Star,
     permissions: ['admin'],
     component: lazy(() => import('@widgets/admin').then(m => ({ default: m.CompetitionList }))),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -574,7 +548,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: FileText,
     permissions: ['admin'],
     component: lazy(() => import('@widgets/admin').then(m => ({ default: m.ResourceList }))),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -595,7 +568,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.MeritEscalationWidget,
       }))
     ),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -616,7 +588,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
         default: m.PendingDisputesWidget,
       }))
     ),
-    loader: () => import('@widgets/admin'),
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -634,7 +605,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/UserContentWidget').then(m => ({ default: m.UserContentWidget }))
     ),
-    loader: () => import('../ui/UserContentWidget'),
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -652,7 +622,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/BookshelfWidget').then(m => ({ default: m.BookshelfWidget }))
     ),
-    loader: () => import('../ui/BookshelfWidget'),
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -668,7 +637,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     category: 'content',
     icon: Grid,
     component: lazy(() => import('../ui/MyAlbumWidget').then(m => ({ default: m.MyAlbumWidget }))),
-    loader: () => import('../ui/MyAlbumWidget'),
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -684,7 +652,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     category: 'content',
     icon: Image,
     component: lazy(() => import('../ui/MediaWidget').then(m => ({ default: m.MediaWidget }))),
-    loader: () => import('../ui/MediaWidget'),
     defaultSize: { width: 2, height: 2 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -701,7 +668,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: Briefcase,
     featureFlag: 'services',
     component: lazy(() => import('@widgets/service').then(m => ({ default: m.MyServicesManager }))),
-    loader: () => import('@widgets/service'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -718,7 +684,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: Send,
     featureFlag: 'services',
     component: lazy(() => import('@widgets/service').then(m => ({ default: m.MyServicesManager }))),
-    loader: () => import('@widgets/service'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -740,7 +705,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/SidebarWidgetBox').then(m => ({ default: m.SidebarWidgetBox }))
     ),
-    loader: () => import('../ui/SidebarWidgetBox'),
     defaultSize: { width: 1, height: 3 },
     minSize: { width: 1, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
@@ -764,7 +728,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/PremiumPortfolioWidget').then(m => ({ default: m.PremiumPortfolioWidget }))
     ),
-    loader: () => import('../ui/PremiumPortfolioWidget'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -785,7 +748,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/AgentDashboardWidget').then(m => ({ default: m.AgentDashboardWidget }))
     ),
-    loader: () => import('../ui/AgentDashboardWidget'),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
@@ -805,7 +767,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/CommunityGraphWidget').then(m => ({ default: m.CommunityGraphWidget }))
     ),
-    loader: () => import('../ui/CommunityGraphWidget'),
     defaultSize: { width: 4, height: 4 },
     minSize: { width: 3, height: 3 },
     dragHandleClassName: 'widget-drag-handle',
@@ -825,7 +786,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     component: lazy(() =>
       import('../ui/AgentActivityWidget').then(m => ({ default: m.AgentActivityWidget }))
     ),
-    loader: () => import('../ui/AgentActivityWidget'),
     defaultSize: { width: 3, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',

@@ -8,6 +8,7 @@ import {
   apiCreated,
   apiError,
   apiSuccess,
+  now,
   writeAuditLog,
   withErrorHandler,
 } from '@api/server';
@@ -117,7 +118,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   }
 
   const id = uuidv4();
-  const now = new Date();
+  const ts = now();
   let recognitionPoints = 0;
   let disciplinaryPoints = 0;
 
@@ -130,7 +131,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   }
 
   const expiryDays = DEFAULT_EXPIRY_DAYS[behaviorType as keyof typeof DEFAULT_EXPIRY_DAYS];
-  const expiresAt = expiryDays ? new Date(now.getTime() + expiryDays * 24 * 60 * 60 * 1000) : null;
+  const expiresAt = expiryDays ? new Date(ts.getTime() + expiryDays * 24 * 60 * 60 * 1000) : null;
 
   const { overall: standingBefore } = await getEffectivePoints(userId, tenantId);
   const standingAfter =
@@ -150,7 +151,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     standingAfter,
     status: 'ACTIVE',
     createdById: session.user.id,
-    createdAt: now,
+    createdAt: ts,
     expiresAt,
   });
 

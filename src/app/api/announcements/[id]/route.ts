@@ -12,6 +12,7 @@ import {
   notDeleted,
   apiGone,
   withErrorHandler,
+  now,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -21,6 +22,8 @@ import { withTenant } from '@entities/tenant/server';
 import { canPublishAnnouncements } from '@shared/lib';
 import { validatePriorityForRole } from '@features/announcements';
 import type { AnnouncementPriority } from '@features/announcements';
+
+export const maxDuration = 8;
 
 /**
  * GET /api/announcements/[id] - Get single announcement by ID
@@ -120,7 +123,7 @@ export const PATCH = withErrorHandler(
     }
 
     const updateData: Record<string, unknown> = {
-      updatedAt: new Date(),
+      updatedAt: now(),
     };
 
     if (body.title !== undefined) updateData.title = body.title;
@@ -202,7 +205,7 @@ export const DELETE = withErrorHandler(
 
     const [announcement] = await db
       .update(announcements)
-      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .set({ deletedAt: now(), updatedAt: now() })
       .where(and(eq(announcements.id, id), eq(announcements.tenantId, tenantId)))
       .returning();
 

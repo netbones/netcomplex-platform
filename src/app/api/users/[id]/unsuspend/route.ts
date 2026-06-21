@@ -8,6 +8,7 @@ import {
   apiNotFound,
   apiSuccess,
   apiConflict,
+  now,
   writeAuditLog,
   withErrorHandler,
 } from '@api/server';
@@ -78,7 +79,7 @@ export const POST = withErrorHandler(
     const updatedUser = await db.transaction(async tx => {
       await tx
         .update(platformSuspensions)
-        .set({ isActive: false, updatedAt: new Date() })
+        .set({ isActive: false, updatedAt: now() })
         .where(eq(platformSuspensions.id, activeSuspension.id));
 
       const [user] = await tx

@@ -12,6 +12,7 @@ import {
   apiNotFound,
   notDeleted,
   apiGone,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -19,6 +20,8 @@ import { eq, desc, and } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
+
+export const maxDuration = 8;
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -200,7 +203,7 @@ export const PATCH = withErrorHandler(
           fileSize: body.fileUrl ? existing.fileSize : undefined,
           version: oldVersion,
           notes: body.versionNotes || null,
-          createdAt: new Date(),
+          createdAt: now(),
         });
       }
     }
@@ -210,7 +213,7 @@ export const PATCH = withErrorHandler(
       .set({
         ...body,
         publishedAt: body.publishedAt ? new Date(body.publishedAt) : undefined,
-        updatedAt: new Date(),
+        updatedAt: now(),
       })
       .where(eq(resources.id, id))
       .returning();
@@ -253,7 +256,7 @@ export const DELETE = withErrorHandler(
 
     await db
       .update(resources)
-      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .set({ deletedAt: now(), updatedAt: now() })
       .where(eq(resources.id, id));
 
     revalidateContent();

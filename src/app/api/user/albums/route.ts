@@ -7,11 +7,14 @@ import {
   apiUnauthorized,
   apiInternalError,
   apiError,
+  now,
 } from '@api/server';
 
 import { eq, desc, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
+
+export const maxDuration = 8;
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     const { action, album, albumId } = await request.json();
     const userId = session.user.id;
-    const now = new Date();
+    const ts = now();
 
     switch (action) {
       case 'create': {
@@ -51,8 +54,8 @@ export async function POST(request: NextRequest) {
             description: album.description || null,
             isPublic: album.isPublic || false,
             mediaIds: album.mediaIds || [],
-            createdAt: now,
-            updatedAt: now,
+            createdAt: ts,
+            updatedAt: ts,
           })
           .returning();
 
@@ -73,7 +76,7 @@ export async function POST(request: NextRequest) {
             description: album.description || null,
             isPublic: album.isPublic,
             mediaIds: album.mediaIds || [],
-            updatedAt: now,
+            updatedAt: ts,
           })
           .where(
             and(eq(albums.id, album.id), eq(albums.tenantId, tenantId), eq(albums.userId, userId))

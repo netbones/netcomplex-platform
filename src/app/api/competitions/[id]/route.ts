@@ -12,6 +12,7 @@ import {
   notDeleted,
   apiGone,
   withErrorHandler,
+  now,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -19,6 +20,8 @@ import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
 import { hasPermission } from '@shared/lib';
+
+export const maxDuration = 8;
 
 /**
  * GET /api/competitions/[id] - Get single competition by ID
@@ -85,7 +88,7 @@ export const PATCH = withErrorHandler(
     const { tenantId } = await withTenant();
 
     const updateData: Record<string, unknown> = {
-      updatedAt: new Date(),
+      updatedAt: now(),
     };
 
     if (body.title !== undefined) updateData.title = body.title;
@@ -163,7 +166,7 @@ export const DELETE = withErrorHandler(
 
     const [competition] = await db
       .update(competitions)
-      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .set({ deletedAt: now(), updatedAt: now() })
       .where(and(eq(competitions.id, id), eq(competitions.tenantId, tenantId)))
       .returning();
 

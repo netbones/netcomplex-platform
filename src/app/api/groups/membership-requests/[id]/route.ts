@@ -12,6 +12,7 @@ import {
   apiForbidden,
   apiNotFound,
   notDeleted,
+  now,
   withErrorHandler,
 } from '@api/server';
 
@@ -19,6 +20,8 @@ import { hasPermission } from '@shared/lib';
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+
+export const maxDuration = 8;
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -99,13 +102,13 @@ export const POST = withErrorHandler(
       return apiError('VALIDATION_ERROR', 'Membership request has already been processed', 400);
     }
 
-    const now = new Date();
+    const ts = now();
 
     if (action === 'approve') {
       // Update request status to APPROVED
       await db
         .update(groupMembershipRequests)
-        .set({ status: 'APPROVED', updatedAt: now })
+        .set({ status: 'APPROVED', updatedAt: ts })
         .where(eq(groupMembershipRequests.id, requestId));
 
       // Create a GroupMember record with role=MEMBER
@@ -128,7 +131,7 @@ export const POST = withErrorHandler(
           userId: existingRequest.userId,
           groupId: existingRequest.groupId,
           role: 'MEMBER',
-          joinedAt: now,
+          joinedAt: ts,
         });
       }
 
@@ -162,7 +165,7 @@ export const POST = withErrorHandler(
     // action === 'reject'
     await db
       .update(groupMembershipRequests)
-      .set({ status: 'REJECTED', updatedAt: now })
+      .set({ status: 'REJECTED', updatedAt: ts })
       .where(eq(groupMembershipRequests.id, requestId));
 
     // Fetch full response with user and group details

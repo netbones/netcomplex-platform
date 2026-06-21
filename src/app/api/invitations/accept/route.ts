@@ -8,11 +8,14 @@ import {
   apiInternalError,
   apiSuccess,
   apiNotFound,
+  now,
 } from '@api/server';
 
 import { eq, and, gt } from 'drizzle-orm';
 
 import { apiLogger } from '@shared/lib';
+
+export const maxDuration = 8;
 
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
@@ -43,7 +46,7 @@ export async function POST(request: Request) {
     }
 
     // Check if expired
-    if (new Date() > invitation.expiresAt) {
+    if (now() > invitation.expiresAt) {
       // Update status to EXPIRED
       await db
         .update(invitations)

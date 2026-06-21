@@ -23,6 +23,8 @@ import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 import { hasPermission } from '@shared/lib';
 
+export const maxDuration = 8;
+
 /**
  * GET /api/households/[id] - Get household profile with occupants and aggregated content
  */

@@ -11,6 +11,7 @@ import {
   notDeleted,
   apiGone,
   withErrorHandler,
+  now,
 } from '@api/server';
 
 import { eq, and, or, isNull, lte, gt, type SQL } from 'drizzle-orm';
@@ -24,6 +25,8 @@ import {
 import { withTenant } from '@entities/tenant/server';
 
 import { hasPermission } from '@shared/lib';
+
+export const maxDuration = 8;
 
 /**
  * Transform content item to include localized fields
@@ -110,9 +113,9 @@ export const GET = withErrorHandler(
 
     // For non-admin users, apply date filtering
     if (!canViewAll) {
-      const now = new Date();
-      whereConditions.push(or(isNull(contents.publishedAt), lte(contents.publishedAt, now)));
-      whereConditions.push(or(isNull(contents.expiresAt), gt(contents.expiresAt, now)));
+      const ts = now();
+      whereConditions.push(or(isNull(contents.publishedAt), lte(contents.publishedAt, ts)));
+      whereConditions.push(or(isNull(contents.expiresAt), gt(contents.expiresAt, ts)));
     }
 
     const [content] = await db
@@ -182,7 +185,7 @@ export const PATCH = withErrorHandler(
     const { tenantId } = await withTenant();
 
     const updateData: Record<string, unknown> = {
-      updatedAt: new Date(),
+      updatedAt: now(),
     };
 
     // Handle title - can be string (single locale) or JSON (multi-locale)
@@ -219,7 +222,7 @@ export const PATCH = withErrorHandler(
       updateData.copyrightHolder = body.copyrightHolder || null;
 
     if (body.published && !body.publishedAt) {
-      updateData.publishedAt = new Date();
+      updateData.publishedAt = now();
     }
     if (body.publishedAt !== undefined) {
       updateData.publishedAt = body.publishedAt ? new Date(body.publishedAt) : null;
@@ -264,7 +267,7 @@ export const DELETE = withErrorHandler(
 
     await db
       .update(contents)
-      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .set({ deletedAt: now(), updatedAt: now() })
       .where(and(eq(contents.id, id), eq(contents.tenantId, tenantId)));
 
     // Revalidate content caches

@@ -12,10 +12,13 @@ import {
   apiUnauthorized,
   apiInternalError,
   apiNotFound,
+  now,
 } from '@api/server';
 
 import { eq, and, gt } from 'drizzle-orm';
 import { logError } from '@shared/lib';
+
+export const maxDuration = 8;
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,8 +40,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const tenantId = searchParams.get('tenantId');
 
-    const now = new Date();
-    const whereConditions = [eq(assistSessions.isActive, true), gt(assistSessions.expiresAt, now)];
+    const ts = now();
+    const whereConditions = [eq(assistSessions.isActive, true), gt(assistSessions.expiresAt, ts)];
 
     if (tenantId) {
       whereConditions.push(eq(assistSessions.tenantId, tenantId));

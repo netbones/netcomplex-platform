@@ -10,12 +10,15 @@ import {
   apiSuccess,
   apiUnauthorized,
   withErrorHandler,
+  now,
 } from '@api/server';
 
 import { eq, and, desc, lte, gte, isNull } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
+
+export const maxDuration = 8;
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -60,7 +63,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   if (upcomingParam === 'true') {
     const { tenantId } = await withTenant();
 
-    const now = new Date();
+    const ts = now();
     const query = db
       .select()
       .from(competitions)
@@ -68,8 +71,8 @@ export const GET = withErrorHandler(async (request: Request) => {
         and(
           eq(competitions.tenantId, tenantId),
           eq(competitions.status, 'ACTIVE'),
-          lte(competitions.startDate, now),
-          gte(competitions.endDate, now),
+          lte(competitions.startDate, ts),
+          gte(competitions.endDate, ts),
           isNull(competitions.deletedAt)
         )
       )
@@ -151,7 +154,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
 
-  const now = new Date();
+  const ts = now();
 
   const [competition] = await db
     .insert(competitions)
@@ -167,8 +170,8 @@ export const POST = withErrorHandler(async (request: Request) => {
       status: 'DRAFT',
       entryCount: 0,
       image: body.image || null,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: ts,
+      updatedAt: ts,
     })
     .returning();
 
