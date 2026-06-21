@@ -11,7 +11,7 @@ export const GET = betterAuth.GET;
  * Limits to 10 POST requests per minute per IP.
  */
 export async function POST(request: Request) {
-  const rateLimit = rateLimitByIP(request, { windowMs: 60_000, maxRequests: 10 });
+  const rateLimit = await rateLimitByIP(request, { windowMs: 60_000, maxRequests: 10 });
   if (rateLimit) return rateLimit;
   return betterAuth.POST(request);
 }

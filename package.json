@@ -24,7 +24,9 @@
     "api:generate": "tsx src/server/openapi/generator.ts public/openapi.json",
     "api:lint": "redocly lint --config .redocly.yaml --format=stylish",
     "api:ci": "pnpm api:generate && pnpm api:lint",
-    "fsd:check": "steiger ./src"
+    "fsd:check": "steiger ./src",
+    "fsd:graph": "depcruise --output-type archi --collapse 3 src | dot -T svg | depcruise-wrap-stream-in-html > fsd-high-level-dependencies.html",
+    "fsd:graph:detailed": "depcruise --output-type dot --collapse 4 src | dot -T svg | depcruise-wrap-stream-in-html > fsd-detailed-dependencies.html"
   },
   "prisma": {
     "seed": "pnpm exec tsx prisma/seed.ts"
@@ -54,6 +56,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/ioredis": "^5.0.0",
     "@types/jsdom": "^28.0.3",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^25.5.0",
@@ -65,6 +68,7 @@
     "@vitest/coverage-v8": "^4.1.2",
     "autoprefixer": "^10.4.27",
     "better-auth": "^1.5.6",
+    "dependency-cruiser": "^17.4.3",
     "dotenv": "^17.4.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.39.4",
@@ -136,6 +140,7 @@
     "i18next": "^25.10.10",
     "i18next-browser-languagedetector": "^8.2.1",
     "i18next-http-backend": "^3.0.2",
+    "ioredis": "^5.11.1",
     "leaflet": "^1.9.4",
     "lowlight": "^3.3.0",
     "lucide-react": "^1.7.0",

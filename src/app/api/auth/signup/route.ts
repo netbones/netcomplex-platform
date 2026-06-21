@@ -28,7 +28,7 @@ const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 export async function POST(request: NextRequest) {
   try {
     // Rate limit: 3 signup attempts per hour per IP
-    const rateLimit = rateLimitByIP(request, { windowMs: 3600_000, maxRequests: 3 });
+    const rateLimit = await rateLimitByIP(request, { windowMs: 3600_000, maxRequests: 3 });
     if (rateLimit) return rateLimit;
 
     const body = await request.json();

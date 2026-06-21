@@ -149,7 +149,7 @@ export async function POST(request: Request) {
   }
 
   // Rate limit: 30 messages per minute per user
-  const rateLimit = rateLimitByUser(authData.userId, { windowMs: 60_000, maxRequests: 30 });
+  const rateLimit = await rateLimitByUser(authData.userId, { windowMs: 60_000, maxRequests: 30 });
   if (rateLimit) return rateLimit;
 
   try {

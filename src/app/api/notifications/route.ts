@@ -81,7 +81,7 @@ export async function POST(request: Request) {
   }
 
   // Rate limit: 60 notification create/modify operations per minute per user
-  const rateLimit = rateLimitByUser(userId, { windowMs: 60_000, maxRequests: 60 });
+  const rateLimit = await rateLimitByUser(userId, { windowMs: 60_000, maxRequests: 60 });
   if (rateLimit) return rateLimit;
 
   const body = await request.json();
@@ -130,7 +130,7 @@ export async function PATCH(request: Request) {
   }
 
   // Rate limit: 60 notification create/modify operations per minute per user
-  const rateLimit = rateLimitByUser(userId, { windowMs: 60_000, maxRequests: 60 });
+  const rateLimit = await rateLimitByUser(userId, { windowMs: 60_000, maxRequests: 60 });
   if (rateLimit) return rateLimit;
 
   const body = await request.json();

@@ -91,7 +91,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
   const scopeError = await requireAssistScope(request, 'full');
   if (scopeError) return scopeError;
 
-  const rateLimit = rateLimitByUser(authData.userId, { windowMs: 60_000, maxRequests: 10 });
+  const rateLimit = await rateLimitByUser(authData.userId, { windowMs: 60_000, maxRequests: 10 });
   if (rateLimit) return rateLimit;
 
   const { key } = await params;

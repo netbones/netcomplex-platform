@@ -64,7 +64,10 @@ export async function POST(request: NextRequest) {
       return apiForbidden();
     }
 
-    const rateLimit = rateLimitByUser(sessionRole.userId, { windowMs: 60_000, maxRequests: 10 });
+    const rateLimit = await rateLimitByUser(sessionRole.userId, {
+      windowMs: 60_000,
+      maxRequests: 10,
+    });
     if (rateLimit) return rateLimit;
 
     const ctx = await getRLSContext(request);
@@ -111,7 +114,10 @@ export async function PUT(request: NextRequest) {
       return apiForbidden();
     }
 
-    const rateLimit = rateLimitByUser(sessionRole.userId, { windowMs: 60_000, maxRequests: 10 });
+    const rateLimit = await rateLimitByUser(sessionRole.userId, {
+      windowMs: 60_000,
+      maxRequests: 10,
+    });
     if (rateLimit) return rateLimit;
 
     const ctx = await getRLSContext(request);

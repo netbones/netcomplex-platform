@@ -29,7 +29,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   // Rate limit: 5 invitations per minute per IP
-  const rateLimit = rateLimitByIP(request, { windowMs: 60_000, maxRequests: 5 });
+  const rateLimit = await rateLimitByIP(request, { windowMs: 60_000, maxRequests: 5 });
   if (rateLimit) return rateLimit;
 
   const body = await request.json();

@@ -43,7 +43,10 @@ export async function PUT(request: NextRequest) {
     const sessionRole = await getSessionAndRole();
     if (!sessionRole || !hasPermission(sessionRole.role, 'admin')) return apiForbidden();
 
-    const rateLimit = rateLimitByUser(sessionRole.userId, { windowMs: 60_000, maxRequests: 10 });
+    const rateLimit = await rateLimitByUser(sessionRole.userId, {
+      windowMs: 60_000,
+      maxRequests: 10,
+    });
     if (rateLimit) return rateLimit;
 
     const ctx = await getRLSContext(request);
