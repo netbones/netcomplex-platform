@@ -53,18 +53,15 @@ vi.mock('@api/server', () => ({
 
 vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
-}));
-vi.mock('@entities/tenant', () => ({
-  withTenant: () => Promise.resolve(mocks.tenantResult),
-}));
-
-vi.mock('@entities/tenant/api/settings', () => ({
   SETTINGS_KEYS: {
     STATS_HOMES: 'stats_homes',
     STATS_YEARS: 'stats_years',
     STATS_BIRD_SPECIES: 'stats_bird_species',
     STATS_NATIVE_PLANTS: 'stats_native_plants',
   },
+}));
+vi.mock('@entities/tenant', () => ({
+  withTenant: () => Promise.resolve(mocks.tenantResult),
 }));
 
 import { GET } from '@/app/api/stats/route';
