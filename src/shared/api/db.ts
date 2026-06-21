@@ -1,11 +1,14 @@
 import 'server-only';
 
+import { createComponentLogger } from '@shared/lib';
 import { sql, eq, isNull } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { SQLWrapper } from 'drizzle-orm';
+
+const log = createComponentLogger('runWithRLS');
 
 export type RLSContext = {
   userId: string;
@@ -255,10 +258,10 @@ export async function runWithRLS<T>(
     try {
       await tx.execute(sql`SET LOCAL ROLE app_user`);
     } catch {
-      // app_user role not created yet — runbook step pending.
-      // Proceed without role switch: explicit WHERE clauses on tenantId
-      // handle isolation, and session config vars below are still set
-      // so queries expecting current_setting('app.*') will work.
+      log.warn(
+        {},
+        'RLS role switch failed — proceeding without app_user role. RLS policies NOT enforced.'
+      );
     }
     await tx.execute(sql`SELECT set_config('app.user_id', ${ctx.userId}, true)`);
     await tx.execute(sql`SELECT set_config('app.tenant_id', ${ctx.tenantId}, true)`);

@@ -1,6 +1,6 @@
 import { db, users, groups, contents, apiError, apiSuccess, notDeleted } from '@api/server';
 
-import { eq, and } from 'drizzle-orm';
+import { count, eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
 // Fast stats endpoint - limit to 3 seconds
@@ -9,23 +9,18 @@ export const maxDuration = 3;
 export async function GET() {
   const { tenantId } = await withTenant();
 
-  // Count active users
-  const activeUsers = await db
-    .select({ id: users.id })
+  const [{ count: userCount }] = await db
+    .select({ count: count() })
     .from(users)
     .where(and(eq(users.isActive, true), eq(users.tenantId, tenantId)));
-  const userCount = activeUsers.length;
 
-  // Count active groups
-  const activeGroups = await db
-    .select({ id: groups.id })
+  const [{ count: groupCount }] = await db
+    .select({ count: count() })
     .from(groups)
     .where(and(eq(groups.isActive, true), eq(groups.tenantId, tenantId), notDeleted(groups)));
-  const groupCount = activeGroups.length;
 
-  // Count conservation content (using raw category value)
-  const conservationContent = await db
-    .select({ id: contents.id })
+  const [{ count: contentCount }] = await db
+    .select({ count: count() })
     .from(contents)
     .where(
       and(
@@ -34,7 +29,6 @@ export async function GET() {
         notDeleted(contents)
       )
     );
-  const contentCount = conservationContent.length;
 
   const stats = {
     homes: 180,

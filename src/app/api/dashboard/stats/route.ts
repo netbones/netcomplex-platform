@@ -12,7 +12,7 @@ import {
   apiUnauthorized,
 } from '@api/server';
 
-import { eq, and } from 'drizzle-orm';
+import { count, eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
 export const maxDuration = 5;
@@ -39,23 +39,18 @@ export async function GET(request: Request) {
     return apiUnauthorized();
   }
 
-  // Count maintenance requests for user
-  const userRequests = await db
-    .select({ id: maintenanceRequests.id })
+  const [{ count: requests }] = await db
+    .select({ count: count() })
     .from(maintenanceRequests)
     .where(and(eq(maintenanceRequests.userId, userId), eq(maintenanceRequests.tenantId, tenantId)));
-  const requests = userRequests.length;
 
-  // Count bookings where user is owner or participant
-  const userBookings = await db
-    .select({ id: bookings.id })
+  const [{ count: bookingsCount }] = await db
+    .select({ count: count() })
     .from(bookings)
     .where(and(eq(bookings.userId, userId), eq(bookings.tenantId, tenantId)));
-  const bookingsCount = userBookings.length;
 
-  // Count conversations user participates in
-  const userConversations = await db
-    .select({ id: conversationParticipants.id })
+  const [{ count: conversationsCount }] = await db
+    .select({ count: count() })
     .from(conversationParticipants)
     .where(
       and(
@@ -63,14 +58,11 @@ export async function GET(request: Request) {
         eq(conversationParticipants.tenantId, tenantId)
       )
     );
-  const conversationsCount = userConversations.length;
 
-  // Count notifications for user
-  const userNotifications = await db
-    .select({ id: notifications.id })
+  const [{ count: notificationsCount }] = await db
+    .select({ count: count() })
     .from(notifications)
     .where(and(eq(notifications.userId, userId), eq(notifications.tenantId, tenantId)));
-  const notificationsCount = userNotifications.length;
 
   const stats: DashboardStats = {
     requests,

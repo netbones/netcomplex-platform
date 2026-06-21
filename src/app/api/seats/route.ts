@@ -12,7 +12,7 @@ import {
   auth,
 } from '@api/server';
 
-import { eq, and } from 'drizzle-orm';
+import { count, eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 
@@ -49,11 +49,11 @@ export async function POST(request: Request) {
 
   // Check if user already has a seat of this type
   if (seatType === 'solo') {
-    const existing = await db
-      .select({ id: soloSeats.id })
+    const [{ count: soloCount }] = await db
+      .select({ count: count() })
       .from(soloSeats)
       .where(eq(soloSeats.userId, userId));
-    if (existing.length >= 5) {
+    if (soloCount >= 5) {
       return apiConflict('User already has 5 soloSeats (maximum)');
     }
 

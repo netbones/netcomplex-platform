@@ -8,7 +8,7 @@ import {
   apiConflict,
 } from '@api/server';
 
-import { eq, and } from 'drizzle-orm';
+import { count, eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -17,16 +17,30 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const session = await auth.api.getSession({ headers: request.headers });
   const { tenantId } = await withTenant();
 
-  const likes = await db
-    .select({ userId: contentLikes.userId })
+  const [{ count: totalLikes }] = await db
+    .select({ count: count() })
     .from(contentLikes)
-    .where(and(eq(contentLikes.contentId, id), eq(contentLikes.tenantId, tenantId)))
-    .orderBy(contentLikes.createdAt);
+    .where(and(eq(contentLikes.contentId, id), eq(contentLikes.tenantId, tenantId)));
 
   const userId = session?.user?.id;
-  const liked = userId ? likes.some(l => l.userId === userId) : false;
 
-  return apiSuccess({ likes: likes.length, liked });
+  let liked = false;
+  if (userId) {
+    const [existing] = await db
+      .select({ id: contentLikes.id })
+      .from(contentLikes)
+      .where(
+        and(
+          eq(contentLikes.contentId, id),
+          eq(contentLikes.userId, userId),
+          eq(contentLikes.tenantId, tenantId)
+        )
+      )
+      .limit(1);
+    liked = !!existing;
+  }
+
+  return apiSuccess({ likes: totalLikes, liked });
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {

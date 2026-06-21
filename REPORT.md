@@ -92,49 +92,17 @@ shared/api/client.ts > shared/api/trpc/routers.ts > ... > shared/api/auth.ts > s
 
 ---
 
-### 1.6 Unbounded `select()` Queries
+### ~~1.6 Unbounded `select()` Queries~~ **FIXED (2026-06-21)**
 
-**Severity:** CRITICAL  
-**File:** `src/app/api/stats/route.ts`  
-**Details:** The stats endpoint fetches ALL rows into memory just to count them:
-
-```typescript
-const activeUsers = await db
-  .select({ id: users.id })      // Selects ALL matching rows
-  .from(users)
-  .where(...);
-const userCount = activeUsers.length;     // Count in JS
-```
-
-This pattern appears in at least 4 routes. If a tenant has 100k users, the function will run out of memory or timeout.
-
-**Fix:** Use `count()` aggregate:
-
-```typescript
-const [{ userCount }] = await db
-  .select({ userCount: count() })
-  .from(users)
-  .where(...);
-```
+~~**File:** `src/app/api/stats/route.ts`~~  
+**Fix:** Replaced `select({ id }).from().where()` + `.length` with `select({ count: count() })` in 4 files (9 queries): `stats/route.ts`, `dashboard/stats/route.ts`, `seats/route.ts`, `content/[id]/like/route.ts`.
 
 ---
 
-### 1.7 Silent Security Degradation in `runWithRLS`
+### ~~1.7 Silent Security Degradation in `runWithRLS`~~ **FIXED (2026-06-21)**
 
-**Severity:** CRITICAL  
-**File:** `src/shared/api/db.ts:256-262`  
-**Details:** The `SET LOCAL ROLE app_user` command is wrapped in a bare `catch {}` with no logging. If the `app_user` role is missing, the app silently falls back to running queries with the default role, bypassing RLS.
-
-```typescript
-try {
-  await tx.execute(sql\SET LOCAL ROLE app_user\);
-} catch {
-  // app_user role not created yet — runbook step pending.
-  // Proceed without role switch...
-}
-```
-
-**Fix:** Log the failure at minimum. In production, fail fast rather than silently degrading security.
+~~**File:** `src/shared/api/db.ts:256-262`~~  
+**Fix:** Added `log.warn({}, 'RLS role switch failed — proceeding without app_user role. RLS policies NOT enforced.')` to the empty catch block. Uses existing `createComponentLogger`.
 
 ---
 
@@ -329,23 +297,23 @@ The Prisma-to-Drizzle migration appears complete in code, but the Prisma schema,
 
 ## Summary Table
 
-| Category                     | Count                             | Priority |
-| ---------------------------- | --------------------------------- | -------- |
-| API routes without try/catch | 113+                              | CRITICAL |
-| `as any` casts               | 177                               | CRITICAL |
-| Circular dependencies        | 16 cycles                         | CRITICAL |
-| Prisma dead weight           | ~15MB                             | CRITICAL |
-| In-memory rate limiter       | ~~1 file~~ **FIXED (2026-06-21)** | CRITICAL |
-| Unbounded `select()`         | 4+ routes                         | CRITICAL |
-| Silent RLS bypass            | 1 file                            | CRITICAL |
-| Auth inconsistency           | ~68 routes                        | HIGH     |
-| Hardcoded demo data          | 4 values                          | HIGH     |
-| `limit(10000)` default       | 1 route                           | HIGH     |
-| TODO/FIXME in source         | 6 items                           | HIGH     |
-| Test coverage                | 5.3%                              | MEDIUM   |
-| `new Date()` in routes       | 93 instances                      | MEDIUM   |
-| Missing `maxDuration`        | ~40% of routes                    | MEDIUM   |
-| `unstable_cache` usage       | 5 functions                       | MEDIUM   |
+| Category                     | Count                                | Priority |
+| ---------------------------- | ------------------------------------ | -------- |
+| API routes without try/catch | 113+                                 | CRITICAL |
+| `as any` casts               | 177                                  | CRITICAL |
+| Circular dependencies        | 16 cycles                            | CRITICAL |
+| Prisma dead weight           | ~15MB                                | CRITICAL |
+| In-memory rate limiter       | ~~1 file~~ **FIXED (2026-06-21)**    | CRITICAL |
+| Unbounded `select()`         | ~~4+ routes~~ **FIXED (2026-06-21)** | CRITICAL |
+| Silent RLS bypass            | ~~1 file~~ **FIXED (2026-06-21)**    | CRITICAL |
+| Auth inconsistency           | ~68 routes                           | HIGH     |
+| Hardcoded demo data          | 4 values                             | HIGH     |
+| `limit(10000)` default       | 1 route                              | HIGH     |
+| TODO/FIXME in source         | 6 items                              | HIGH     |
+| Test coverage                | 5.3%                                 | MEDIUM   |
+| `new Date()` in routes       | 93 instances                         | MEDIUM   |
+| Missing `maxDuration`        | ~40% of routes                       | MEDIUM   |
+| `unstable_cache` usage       | 5 functions                          | MEDIUM   |
 
 ---
 
@@ -355,7 +323,8 @@ The Prisma-to-Drizzle migration appears complete in code, but the Prisma schema,
    - Add centralized error handling to all API routes
    - Document Prisma's role
    - ~~Replace in-memory rate limiter with Redis~~ **DONE — Upstash Redis via ioredis**
-   - Fix unbounded `select()` queries with `count()`
+   - ~~Fix unbounded `select()` queries with `count()`~~ **DONE — 4 files, 9 queries**
+   - ~~Add logging to silent RLS bypass~~ **DONE**
 
 2. **Week 2 (High):**
    - Break circular dependencies by removing `shared/api/index.ts` barrel
