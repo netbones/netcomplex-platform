@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -37,7 +38,6 @@ const SPACE_FALLBACKS: Record<string, string> = {
  */
 export function MobileSpaceBar() {
   const [mounted, setMounted] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
   const pathname = usePathname();
   const { tx } = useSafeTranslation();
   const { data: session } = authClient.useSession();
@@ -46,20 +46,14 @@ export function MobileSpaceBar() {
 
   useEffect(() => setMounted(true), []);
 
-  useEffect(() => {
-    if (!session?.user?.id) return;
-    fetch('/api/messages/unread')
-      .then(res => res.json())
-      .then(data => setUnreadCount(data?.data?.totalUnread ?? 0))
-      .catch(() => {});
-    const interval = setInterval(() => {
-      fetch('/api/messages/unread')
-        .then(res => res.json())
-        .then(data => setUnreadCount(data?.data?.totalUnread ?? 0))
-        .catch(() => {});
-    }, 30_000);
-    return () => clearInterval(interval);
-  }, [session?.user?.id]);
+  const { data: unreadData } = useQuery({
+    queryKey: ['messages', 'unread'],
+    queryFn: () => fetch('/api/messages/unread').then(r => r.json()),
+    enabled: !!session?.user?.id,
+    refetchInterval: 30_000,
+    staleTime: 15_000,
+  });
+  const unreadCount = (unreadData?.data?.totalUnread as number) ?? 0;
 
   const visibleSpaces = flags
     ? getVisibleSpaces(role, flags)
