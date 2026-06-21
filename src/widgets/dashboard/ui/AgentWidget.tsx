@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
-import { useApiToast } from '@shared/lib/hooks';
+import { useApiToast, usePremiumListings } from '@shared/lib/hooks';
 
 interface AgentProfile {
   id: string;
@@ -44,14 +44,15 @@ export function AgentWidget() {
   const { data: session } = authClient.useSession();
   const { fetch: apiFetch, mutate: apiMutate } = useApiToast({ component: 'AgentWidget' });
   const [agents, setAgents] = useState<AgentProfile[]>([]);
-  const [listings, setListings] = useState<PropertyListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'agents' | 'listings'>('agents');
+
+  const { data: premiumData, isLoading: listingsLoading } = usePremiumListings();
+  const listings = premiumData?.listings ?? [];
 
   useEffect(() => {
     if (session?.user?.id) {
       fetchAgentData();
-      fetchListings();
     }
   }, [session?.user?.id]);
 
@@ -62,19 +63,10 @@ export function AgentWidget() {
         .then(res => res.json() as Promise<{ agents?: AgentProfile[] }>),
       {
         error: 'Failed to fetch agent data',
-        onSuccess: (data: { agents?: AgentProfile[] }) => setAgents(data.agents || []),
-      }
-    );
-  };
-
-  const fetchListings = () => {
-    apiFetch(
-      globalThis
-        .fetch('/api/premium/listings')
-        .then(res => res.json() as Promise<{ listings?: PropertyListing[] }>),
-      {
-        error: 'Failed to fetch listings',
-        onSuccess: (data: { listings?: PropertyListing[] }) => setListings(data.listings || []),
+        onSuccess: (data: { agents?: AgentProfile[] }) => {
+          setAgents(data.agents || []);
+          setLoading(false);
+        },
         onError: () => setLoading(false),
       }
     );
@@ -97,7 +89,7 @@ export function AgentWidget() {
     );
   };
 
-  if (loading) {
+  if (loading || listingsLoading) {
     return (
       <ErrorBoundary>
         <div className="bg-white rounded-lg shadow-md p-6">

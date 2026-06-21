@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback } from 'react';
 import Link from 'next/link';
 import { Calendar, MapPin, Plus, ArrowRight, Loader2, BadgeCheck } from 'lucide-react';
-import { logError } from '@shared/lib';
+import { useUpcomingEvents } from '@shared/lib/hooks';
 
 interface AttendeePreview {
   name: string;
@@ -38,40 +38,11 @@ function formatTime(dateString: string): string {
 }
 
 export function EventsWidget() {
-  const [events, setEvents] = useState<EventItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: rawData, isLoading, isError, refetch } = useUpcomingEvents();
+  const events: EventItem[] = (rawData as Record<string, unknown>)?.data ?? rawData ?? [];
+  const retry = useCallback(() => refetch(), [refetch]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchEvents() {
-      try {
-        const res = await fetch('/api/events?limit=5&upcoming=true');
-        if (!res.ok) throw new Error(`Failed: ${res.status}`);
-        const body = await res.json();
-        if (!cancelled) {
-          setEvents(body?.data ?? body ?? []);
-        }
-      } catch (err) {
-        logError(
-          { component: 'EventsWidget', operation: 'fetchUpcoming' },
-          'Failed to fetch events',
-          err
-        );
-        if (!cancelled) setError('Failed to load events');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    fetchEvents();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" />
@@ -79,16 +50,13 @@ export function EventsWidget() {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <div className="text-center py-6">
         <Calendar className="w-8 h-8 text-red-400 mx-auto mb-2" />
-        <p className="text-sm text-gray-500 mb-3">{error}</p>
+        <p className="text-sm text-gray-500 mb-3">Failed to load events</p>
         <button
-          onClick={() => {
-            setLoading(true);
-            setError(null);
-          }}
+          onClick={retry}
           className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
         >
           Try again

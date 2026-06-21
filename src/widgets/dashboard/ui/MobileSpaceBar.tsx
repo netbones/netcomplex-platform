@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSafeTranslation } from '@shared/lib';
 import { authClient } from '@api/client';
-import { usePageFlags } from '@shared/lib/hooks';
+import { usePageFlags, useUnreadMessages } from '@shared/lib/hooks';
 import { getVisibleSpaces, SPACES, type SpaceId } from '../model/spaces';
 
 const SPACE_FALLBACKS: Record<string, string> = {
@@ -46,13 +45,7 @@ export function MobileSpaceBar() {
 
   useEffect(() => setMounted(true), []);
 
-  const { data: unreadData } = useQuery({
-    queryKey: ['messages', 'unread'],
-    queryFn: () => fetch('/api/messages/unread').then(r => r.json()),
-    enabled: !!session?.user?.id,
-    refetchInterval: 30_000,
-    staleTime: 15_000,
-  });
+  const { data: unreadData } = useUnreadMessages(!!session?.user?.id);
   const unreadCount = (unreadData?.data?.totalUnread as number) ?? 0;
 
   const visibleSpaces = flags

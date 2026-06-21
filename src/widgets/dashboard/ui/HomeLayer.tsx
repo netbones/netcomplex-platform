@@ -17,6 +17,10 @@ async function fetchJson<T>(url: string): Promise<T[]> {
   }
 }
 
+function getUpcomingEvents() {
+  return fetchJson<EventItem>('/api/events?upcoming=true&limit=5');
+}
+
 // ═══════════════════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════════════════
@@ -498,17 +502,14 @@ export function HomeLayer() {
           : '/api/maintenance?overdue=true'
       ),
 
-      // Unread message count (returns object, not array)
+      // Unread message count
       fetch('/api/messages/unread')
-        .then(r => (r.ok ? r.json() : { totalUnread: 0 }))
-        .then(data => {
-          const unwrapped = (data as Record<string, unknown>)?.data ?? data;
-          return ((unwrapped as { totalUnread?: number })?.totalUnread ?? 0) as number;
-        })
+        .then(r => r.json())
+        .then(d => d?.data?.totalUnread ?? 0)
         .catch(() => 0),
 
       // Upcoming events (filter today/tomorrow client-side)
-      fetchJson<EventItem>('/api/events?upcoming=true&limit=5'),
+      getUpcomingEvents(),
 
       // Bookings today
       fetchJson<BookingItem>('/api/bookings?date=today'),

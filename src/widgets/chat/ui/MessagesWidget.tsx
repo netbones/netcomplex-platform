@@ -1,37 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useSafeTranslation } from '@shared/lib';
 import Link from 'next/link';
 import { authClient } from '@api/client';
-import { useApiToast } from '@shared/lib/hooks';
+import { useConversations } from '@shared/lib/hooks';
 import type { ConversationListItem } from '@entities/chat';
 import { ParticipantAvatar } from '@entities/chat';
 
 export function MessagesWidget() {
   const { tx } = useSafeTranslation('common');
   const { data: session } = authClient.useSession();
-  const { fetch: apiFetch } = useApiToast({ component: 'MessagesWidget' });
-  const [conversations, setConversations] = useState<ConversationListItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: conversations = [], isLoading } = useConversations<ConversationListItem>(
+    session?.user?.id
+  );
 
-  useEffect(() => {
-    if (!session?.user?.id) return;
-
-    apiFetch(
-      globalThis
-        .fetch(`/api/conversations?userId=${session.user.id}`)
-        .then(res => res.json() as Promise<ConversationListItem[]>),
-      {
-        error: 'Failed to fetch conversations',
-        onSuccess: (data: ConversationListItem[]) =>
-          setConversations(Array.isArray(data) ? data : []),
-        onError: () => setLoading(false),
-      }
-    );
-  }, [session?.user?.id]);
-
-  if (loading) {
+  if (isLoading) {
     return <div className="animate-pulse h-32 bg-gray-100 rounded-lg"></div>;
   }
 

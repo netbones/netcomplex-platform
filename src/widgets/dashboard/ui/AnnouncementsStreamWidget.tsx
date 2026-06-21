@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
-import { logError } from '@shared/lib';
+import { useActiveAnnouncements } from '@shared/lib/hooks';
 import { PRIORITY_TAXONOMY, type AnnouncementPriority } from '@features/announcements';
 
 interface StreamAnnouncement {
@@ -26,57 +25,17 @@ interface StreamAnnouncement {
 }
 
 export function AnnouncementsStreamWidget() {
-  const [announcements, setAnnouncements] = useState<StreamAnnouncement[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: rawData, isLoading, error, refetch } = useActiveAnnouncements();
 
-  useEffect(() => {
-    async function fetchAnnouncements() {
-      try {
-        const res = await fetch('/api/announcements?active=true&limit=5');
-        if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
-        const body = await res.json();
-        const data = body.success ? body.data : body;
-        setAnnouncements(Array.isArray(data) ? data : []);
-      } catch (err) {
-        logError(
-          { component: 'AnnouncementsStreamWidget', operation: 'fetch' },
-          'Failed to fetch announcements',
-          err
-        );
-        setError('Failed to load announcements');
-      } finally {
-        setLoading(false);
-      }
-    }
+  const announcements: StreamAnnouncement[] = rawData
+    ? Array.isArray(rawData.success !== undefined ? rawData.data : rawData)
+      ? rawData.success !== undefined
+        ? rawData.data
+        : rawData
+      : []
+    : [];
 
-    fetchAnnouncements();
-  }, []);
-
-  const handleRetry = () => {
-    setLoading(true);
-    setError(null);
-    fetch('/api/announcements?active=true&limit=5')
-      .then(res => {
-        if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
-        return res.json();
-      })
-      .then(body => {
-        const data = body.success ? body.data : body;
-        setAnnouncements(Array.isArray(data) ? data : []);
-      })
-      .catch(err => {
-        logError(
-          { component: 'AnnouncementsStreamWidget', operation: 'retry' },
-          'Failed to retry fetch announcements',
-          err
-        );
-        setError('Failed to load announcements');
-      })
-      .finally(() => setLoading(false));
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <ErrorBoundary>
         <div className="animate-pulse space-y-3">
@@ -94,9 +53,9 @@ export function AnnouncementsStreamWidget() {
       <ErrorBoundary>
         <div className="text-center py-4">
           <i className="fas fa-exclamation-circle text-2xl text-red-500 mb-2"></i>
-          <p className="text-sm text-gray-600 mb-3">{error}</p>
+          <p className="text-sm text-gray-600 mb-3">Failed to load announcements</p>
           <button
-            onClick={handleRetry}
+            onClick={() => refetch()}
             className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700"
           >
             Retry

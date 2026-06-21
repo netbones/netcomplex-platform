@@ -7,7 +7,7 @@ import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
 import { AgentWidget } from './AgentWidget';
 import { CreateListingForm } from '@features/service';
-import { useApiToast } from '@shared/lib/hooks';
+import { useApiToast, usePremiumListings } from '@shared/lib/hooks';
 
 interface PortfolioHousehold {
   id: string;
@@ -70,30 +70,23 @@ export function PremiumPortfolioWidget() {
     component: 'PremiumPortfolioWidget',
   });
   const [portfolio, setPortfolio] = useState<PremiumPortfolio | null>(null);
-  const [listings, setListings] = useState<PropertyListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState(false);
   const [activeTab, setActiveTab] = useState<'portfolio' | 'agents' | 'listings'>('portfolio');
   const [showCreateForm, setShowCreateForm] = useState(false);
 
+  const {
+    data: premiumData,
+    isLoading: listingsLoading,
+    refetch: refetchListings,
+  } = usePremiumListings();
+  const listings = premiumData?.listings ?? [];
+
   useEffect(() => {
     if (session?.user?.id) {
       fetchPortfolio();
-      fetchListings();
     }
   }, [session?.user?.id]);
-
-  const fetchListings = () => {
-    apiFetch(
-      globalThis
-        .fetch('/api/premium/listings')
-        .then(res => res.json() as Promise<{ listings?: PropertyListing[] }>),
-      {
-        error: 'Failed to fetch listings',
-        onSuccess: (data: { listings?: PropertyListing[] }) => setListings(data.listings || []),
-      }
-    );
-  };
 
   const fetchPortfolio = () => {
     apiFetch(
@@ -156,7 +149,7 @@ export function PremiumPortfolioWidget() {
   };
 
   const handleListingCreated = () => {
-    fetchListings(); // Refresh listings after creation
+    refetchListings();
   };
 
   const handleListProperty = (householdId: string) => {

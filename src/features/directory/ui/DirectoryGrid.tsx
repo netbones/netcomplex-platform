@@ -2,10 +2,10 @@
 
 import { CARD_HEADER_COLORS } from '@shared/lib';
 import { authClient } from '@api/client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { DirectoryChatModal } from './DirectoryChatModal';
 import { UnifiedResidentCard, type Resident } from '@entities/directory';
-import { apiGet } from '@api/shared';
+import { useUnreadMessages } from '@shared/lib/hooks';
 
 interface DirectoryGridProps {
   residents: Resident[];
@@ -15,25 +15,10 @@ interface DirectoryGridProps {
 export function DirectoryGrid({ residents, viewMode = 'grid' }: DirectoryGridProps) {
   const { data: session } = authClient.useSession();
   const [chatUser, setChatUser] = useState<{ id: string; name: string } | null>(null);
-  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
   const currentUserId = session?.user?.id || '';
 
-  useEffect(() => {
-    if (currentUserId) {
-      const fetchUnreadCounts = async () => {
-        try {
-          const data = await apiGet<{ unreadCounts: Record<string, number> }>(
-            '/api/messages/unread'
-          );
-          setUnreadCounts(data.unreadCounts || {});
-        } catch {
-          // Silently fail
-        }
-      };
-
-      fetchUnreadCounts();
-    }
-  }, [currentUserId]);
+  const { data: unreadData } = useUnreadMessages(!!currentUserId);
+  const unreadCounts: Record<string, number> = unreadData?.data?.unreadCounts || {};
 
   const openChat = (user: { id: string; name: string }) => {
     setChatUser(user);
