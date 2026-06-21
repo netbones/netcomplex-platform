@@ -19,18 +19,14 @@
 
 ---
 
-### 1.2 Circular Dependency Chains in `shared/api/`
+### ~~1.2 Circular Dependency Chains in `shared/api/`~~ **FIXED (2026-06-21)**
 
-**Severity:** CRITICAL  
-**Files:** `shared/api/auth.ts` ↔ `shared/api/db.ts`, `shared/api/index.ts` barrel  
-**Details:** Madge reports 16 circular dependency cycles originating from the `shared/api/index.ts` barrel file. This forces mutual imports between auth, database, and API utilities, making tree-shaking ineffective and increasing bundle size.
+~~**Files:** `shared/api/auth.ts` ↔ `shared/api/db.ts`, `shared/api/index.ts` barrel~~  
+**Fix:**
 
-```
-shared/api/auth.ts > shared/api/db.ts
-shared/api/client.ts > shared/api/trpc/routers.ts > ... > shared/api/auth.ts > shared/api/index.ts
-```
-
-**Fix:** Eliminate the `shared/api/index.ts` barrel. Import directly from sub-modules (e.g., `import { db } from '@shared/api/db'` instead of `import { db } from '@shared/api'`). Split `auth.ts` into config + runtime modules.
+- `auth.ts`: Changed `import from '@shared/api'` → direct imports from `./email/resend` and `./email/templates`
+- Extracted `getRLSContext()` from `db.ts` into new `rls-context.ts` — removes `db.ts` → `auth.ts` dynamic import
+- Madge: 0 circular dependencies (down from 5)
 
 ---
 
@@ -286,7 +282,7 @@ The Prisma-to-Drizzle migration appears complete in code, but the Prisma schema,
 | ---------------------------- | ------------------------------------ | -------- |
 | API routes without try/catch | ~~113+~~ **FIXED (2026-06-21)**      | CRITICAL |
 | `as any` casts               | 177                                  | CRITICAL |
-| Circular dependencies        | 16 cycles                            | CRITICAL |
+| Circular dependencies        | ~~16 cycles~~ **FIXED (2026-06-21)** | CRITICAL |
 | Prisma dead weight           | ~15MB                                | CRITICAL |
 | In-memory rate limiter       | ~~1 file~~ **FIXED (2026-06-21)**    | CRITICAL |
 | Unbounded `select()`         | ~~4+ routes~~ **FIXED (2026-06-21)** | CRITICAL |
@@ -312,7 +308,7 @@ The Prisma-to-Drizzle migration appears complete in code, but the Prisma schema,
    - ~~Add logging to silent RLS bypass~~ **DONE**
 
 2. **Week 2 (High):**
-   - Break circular dependencies by removing `shared/api/index.ts` barrel
+   - ~~Break circular dependencies by fixing barrel self-imports~~ **DONE — 0 cycles**
    - Replace `as any` with proper Drizzle + Zod types
    - Add auth guards to all protected routes
    - Convert TODOs to BD/GSD issues
