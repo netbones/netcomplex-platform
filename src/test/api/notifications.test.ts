@@ -101,7 +101,7 @@ describe('Notifications API', () => {
       const mockNotifications = [{ id: 'n-1', title: 'Test Notification', read: false }];
       mocks.dbMock.select.mockReturnValue(makeSelectChain(mockNotifications));
 
-      const response = await GET(new Request('http://localhost:3000/api/notifications'));
+      const response = await GET(new Request('http://localhost:3000/api/notifications') as any);
       const body = await response.json();
 
       expect(response.status).toBe(200);
@@ -111,7 +111,7 @@ describe('Notifications API', () => {
     it('returns 401 without authentication', async () => {
       mocks.authSession = null;
 
-      const response = await GET(new Request('http://localhost:3000/api/notifications'));
+      const response = await GET(new Request('http://localhost:3000/api/notifications') as any);
 
       expect(response.status).toBe(401);
     });

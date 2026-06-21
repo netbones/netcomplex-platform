@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { makeSelectChain } from './helpers';
 
-// Mock server-only
 vi.mock('server-only', () => ({}));
 
-// Mock next/headers
 vi.mock('next/headers', () => ({
   headers: vi.fn(() =>
     Promise.resolve({
@@ -16,7 +16,6 @@ vi.mock('next/headers', () => ({
   ),
 }));
 
-// Hoisted mocks for shared mutable state
 const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string } } | null,
   tenantResult: { tenantId: 'test-tenant-id' as string, tenantSlug: 'test-tenant' as string },
@@ -26,115 +25,84 @@ const mocks = vi.hoisted(() => ({
     update: vi.fn(),
     delete: vi.fn(),
   },
-  listBookings: vi.fn(),
-  createBooking: vi.fn(),
-  validateFacility: vi.fn(),
   assertModuleEnabled: vi.fn(),
+  listBookings: vi.fn(),
+  validateFacility: vi.fn(),
+  createBooking: vi.fn(),
   revalidateDashboard: vi.fn(),
-  apiSuccess: vi.fn((data: unknown, _meta?: unknown, status = 200) =>
-    Response.json({ success: true, data }, { status })
-  ),
-  apiCreated: vi.fn((data: unknown) => Response.json({ success: true, data }, { status: 201 })),
-  apiUnauthorized: vi.fn((message?: string) =>
-    Response.json(
-      {
-        success: false,
-        error: { code: 'AUTH_REQUIRED', message: message || 'Authentication required' },
-      },
-      { status: 401 }
-    )
-  ),
-  apiInternalError: vi.fn((message?: string) =>
-    Response.json(
-      {
-        success: false,
-        error: { code: 'INTERNAL_ERROR', message: message || 'Internal server error' },
-      },
-      { status: 500 }
-    )
-  ),
-  apiNotFound: vi.fn((message?: string) =>
-    Response.json(
-      { success: false, error: { code: 'NOT_FOUND', message: message || 'Not found' } },
-      { status: 404 }
-    )
-  ),
-  apiForbidden: vi.fn((message?: string) =>
-    Response.json(
-      { success: false, error: { code: 'FORBIDDEN', message: message || 'Forbidden' } },
-      { status: 403 }
-    )
-  ),
-  apiValidationError: vi.fn((details?: unknown) =>
-    Response.json(
-      {
-        success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details },
-      },
-      { status: 422 }
-    )
-  ),
+  bookingSafeParse: vi.fn(),
+  toBookingDTO: vi.fn(),
+  apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
 }));
 
-vi.mock('@api/server', () => ({
-  auth: {
-    api: {
-      getSession: () => Promise.resolve(mocks.sessionResult),
+vi.mock('@api/server', async () => {
+  const { NextResponse } = await import('next/server');
+  return {
+    auth: {
+      api: {
+        getSession: () => Promise.resolve(mocks.sessionResult),
+      },
     },
-  },
-  db: mocks.dbMock,
-  bookings: { id: 'id', tenantId: 'tenantId', facility: 'facility' },
-  users: { id: 'id', role: 'role', name: 'name' },
-  revalidateDashboard: mocks.revalidateDashboard,
-  apiSuccess: mocks.apiSuccess,
-  apiCreated: mocks.apiCreated,
-  apiUnauthorized: mocks.apiUnauthorized,
-  apiInternalError: mocks.apiInternalError,
-  apiNotFound: mocks.apiNotFound,
-  apiForbidden: mocks.apiForbidden,
-  apiValidationError: mocks.apiValidationError,
-}));
+    db: mocks.dbMock,
+    users: { id: 'id', role: 'role', name: 'name' },
+    revalidateDashboard: mocks.revalidateDashboard,
+    now: () => new Date('2026-06-21T12:00:00Z'),
+    CACHE_TAGS: { SETTINGS: 'settings' },
+    apiSuccess: (data: unknown, _meta?: unknown, status = 200, init?: ResponseInit) =>
+      NextResponse.json({ success: true, data }, { status, ...(init || {}) }) as any,
+    apiCreated: (data: unknown) =>
+      NextResponse.json({ success: true, data }, { status: 201 }) as any,
+    apiUnauthorized: (message = 'Authentication required') =>
+      NextResponse.json({ success: false, error: { code: 'AUTH_REQUIRED', message } }, { status: 401 }) as any,
+    apiInternalError: (message = 'Internal server error') =>
+      NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR', message } }, { status: 500 }) as any,
+    apiError: (code: string, message: string, status: number, details?: unknown) =>
+      NextResponse.json({ success: false, error: { code, message, details } }, { status }) as any,
+    withErrorHandler: (handler: any) => handler,
+  };
+});
 
-// Mock withTenant and feature gate
-vi.mock('@entities/tenant', () => ({
+vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
-  hasPermission: vi.fn((role: string | null | undefined, permission: string) => {
-    if (!role) return false;
-    if (permission === 'bookings') return role === 'ADMIN' || role === 'MANAGER';
-    return false;
-  }),
   assertModuleEnabled: (...args: unknown[]) => mocks.assertModuleEnabled(...args),
 }));
 
-// Mock booking services (preserve real exports like bookingSchema, override service fns)
-vi.mock('@entities/booking', async importOriginal => {
-  const actual = await importOriginal<typeof import('@entities/booking')>();
-  return {
-    ...actual,
-    listBookings: (...args: unknown[]) => mocks.listBookings(...args),
-    createBooking: (...args: unknown[]) => mocks.createBooking(...args),
-    validateFacility: (...args: unknown[]) => mocks.validateFacility(...args),
-  };
-});
+vi.mock('@shared/lib', () => ({
+  hasPermission: (role: string | null | undefined, permission: string) => {
+    if (!role) return false;
+    if (permission === 'bookings') return ['ADMIN', 'BOARD', 'MANAGER'].includes(role);
+    return false;
+  },
+  apiLogger: mocks.apiLogger,
+}));
 
-// Mock logger (preserve real exports like hasPermission, override apiLogger)
-vi.mock('@shared/lib', async importOriginal => {
-  const actual = await importOriginal<typeof import('@shared/lib')>();
-  return {
-    ...actual,
-    apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
-  };
-});
+vi.mock('@entities/booking', () => ({
+  bookingSchema: {
+    safeParse: (data: unknown) => mocks.bookingSafeParse(data),
+  },
+}));
+
+vi.mock('@api/shared', () => ({
+  toBookingDTO: (data: unknown) => mocks.toBookingDTO(data),
+}));
+
+vi.mock('@entities/booking/server', () => ({
+  listBookings: (...args: unknown[]) => mocks.listBookings(...args),
+  validateFacility: (...args: unknown[]) => mocks.validateFacility(...args),
+  createBooking: (...args: unknown[]) => mocks.createBooking(...args),
+}));
 
 import { GET, POST } from '@/app/api/bookings/route';
-import { makeSelectChain } from './helpers';
 
 describe('Bookings API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.sessionResult = null;
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
-    mocks.assertModuleEnabled.mockResolvedValue(null); // Module enabled by default
+    mocks.assertModuleEnabled.mockResolvedValue(null);
+    mocks.bookingSafeParse.mockReturnValue({ success: true, data: {} });
+    mocks.toBookingDTO.mockImplementation((b: any) => ({ ...b }));
+    mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
   });
 
   afterEach(() => {
@@ -143,107 +111,11 @@ describe('Bookings API', () => {
 
   describe('GET /api/bookings', () => {
     it('returns 401 without auth', async () => {
-      const request = new Request('http://localhost:3000/api/bookings');
-      const response = await GET(request);
-      expect(response.status).toBe(401);
-    });
+      const res = await GET(new Request('http://localhost/api/bookings') as any);
 
-    it('returns 403 when bookings module is disabled for tenant', async () => {
-      mocks.sessionResult = { user: { id: 'user-1' } };
-      mocks.assertModuleEnabled.mockResolvedValue(
-        new Response(JSON.stringify({ success: false, error: { code: 'FEATURE_DISABLED' } }), {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      );
-
-      const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
-      mocks.dbMock.select.mockImplementation(() => roleChain);
-
-      const request = new Request('http://localhost:3000/api/bookings');
-      const response = await GET(request);
-
-      expect(response.status).toBe(403);
-    });
-
-    it('returns list with valid auth', async () => {
-      mocks.sessionResult = { user: { id: 'user-1' } };
-
-      const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
-      mocks.dbMock.select.mockImplementation(() => roleChain);
-      mocks.listBookings.mockResolvedValue([]);
-
-      const request = new Request('http://localhost:3000/api/bookings');
-      const response = await GET(request);
-
-      expect(response.status).toBe(200);
-      expect(mocks.listBookings).toHaveBeenCalled();
-    });
-
-    it('filters by facility when query param provided', async () => {
-      mocks.sessionResult = { user: { id: 'user-1' } };
-
-      const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
-      mocks.dbMock.select.mockImplementation(() => roleChain);
-      mocks.listBookings.mockResolvedValue([]);
-
-      const request = new Request('http://localhost:3000/api/bookings?facility=POOL');
-      const response = await GET(request);
-
-      expect(response.status).toBe(200);
-      expect(mocks.listBookings).toHaveBeenCalledWith(
-        expect.objectContaining({ facility: 'POOL' })
-      );
-    });
-
-    it('normalizes today param to ISO date', async () => {
-      mocks.sessionResult = { user: { id: 'user-1' } };
-
-      const roleChain = makeSelectChain([{ role: 'ADMIN' }]);
-      mocks.dbMock.select.mockImplementation(() => roleChain);
-      mocks.listBookings.mockResolvedValue([]);
-
-      const request = new Request('http://localhost:3000/api/bookings?date=today');
-      await GET(request);
-
-      expect(mocks.listBookings).toHaveBeenCalledWith(
-        expect.objectContaining({
-          date: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
-        })
-      );
-    });
-
-    it('enforces tenant isolation', async () => {
-      mocks.sessionResult = { user: { id: 'user-1' } };
-
-      const roleChain = makeSelectChain([{ role: 'RESIDENT' }]);
-      mocks.dbMock.select.mockImplementation(() => roleChain);
-      mocks.listBookings.mockResolvedValue([]);
-
-      const request = new Request('http://localhost:3000/api/bookings');
-      await GET(request);
-
-      expect(mocks.listBookings).toHaveBeenCalledWith(
-        expect.objectContaining({ tenantId: 'test-tenant-id' })
-      );
-    });
-  });
-
-  describe('POST /api/bookings', () => {
-    it('returns 401 without auth', async () => {
-      const request = new Request('http://localhost:3000/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          facility: 'POOL',
-          date: '2026-12-31',
-          startTime: '09:00',
-          endTime: '10:00',
-        }),
-      });
-
-      const response = await POST(request);
-      expect(response.status).toBe(401);
+      expect(res.status).toBe(401);
+      const body = await res.json();
+      expect((body as any).error?.code).toBe('AUTH_REQUIRED');
     });
 
     it('returns 403 when bookings module is disabled', async () => {
@@ -254,118 +126,306 @@ describe('Bookings API', () => {
           headers: { 'Content-Type': 'application/json' },
         })
       );
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'ADMIN' }]));
 
-      const roleChain = makeSelectChain([{ role: 'RESIDENT' }]);
-      mocks.dbMock.select.mockImplementation(() => roleChain);
+      const res = await GET(new Request('http://localhost/api/bookings') as any);
 
-      const request = new Request('http://localhost:3000/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          facility: 'POOL',
-          date: '2026-12-31',
-          startTime: '09:00',
-          endTime: '10:00',
-        }),
-      });
-
-      const response = await POST(request);
-      expect(response.status).toBe(403);
+      expect(res.status).toBe(403);
     });
 
-    it('validates input with Zod schema', async () => {
+    it('returns bookings list with valid auth', async () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
-      mocks.assertModuleEnabled.mockResolvedValue(null);
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'ADMIN' }]));
+      mocks.listBookings.mockResolvedValue([
+        { Booking: { id: 'b1', facility: 'POOL', date: '2026-07-01' }, user: { id: 'u1', name: 'Alice' } },
+      ]);
+      mocks.toBookingDTO.mockImplementation((b: any) => ({ ...b, facilityLabel: 'Swimming Pool' }));
 
-      const roleChain = makeSelectChain([{ role: 'RESIDENT' }]);
-      mocks.dbMock.select.mockImplementation(() => roleChain);
+      const res = await GET(new Request('http://localhost/api/bookings') as any);
+      const body = await res.json();
 
-      const request = new Request('http://localhost:3000/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invalidField: 'test' }),
-      });
-
-      const response = await POST(request);
-      expect(response.status).toBe(400);
+      expect(res.status).toBe(200);
+      expect((body as any).data).toHaveLength(1);
+      expect((body as any).data[0].facilityLabel).toBe('Swimming Pool');
+      expect((body as any).data[0].user.name).toBe('Alice');
+      expect(mocks.listBookings).toHaveBeenCalledWith(
+        expect.objectContaining({ tenantId: 'test-tenant-id' })
+      );
     });
 
-    it('rejects invalid facility', async () => {
+    it('returns empty list when no bookings exist', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'ADMIN' }]));
+      mocks.listBookings.mockResolvedValue([]);
+
+      const res = await GET(new Request('http://localhost/api/bookings') as any);
+      const body = await res.json();
+
+      expect(res.status).toBe(200);
+      expect((body as any).data).toEqual([]);
+    });
+
+    it('filters by facility when query param provided', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'ADMIN' }]));
+      mocks.listBookings.mockResolvedValue([]);
+
+      await GET(new Request('http://localhost/api/bookings?facility=GYM') as any);
+
+      expect(mocks.listBookings).toHaveBeenCalledWith(
+        expect.objectContaining({ facility: 'GYM' })
+      );
+    });
+
+    it('normalizes date=today to ISO date string', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'ADMIN' }]));
+      mocks.listBookings.mockResolvedValue([]);
+
+      await GET(new Request('http://localhost/api/bookings?date=today') as any);
+
+      expect(mocks.listBookings).toHaveBeenCalledWith(
+        expect.objectContaining({
+          date: '2026-06-21',
+        })
+      );
+    });
+
+    it('passes canViewAll=true for admin roles', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'BOARD' }]));
+      mocks.listBookings.mockResolvedValue([]);
+
+      await GET(new Request('http://localhost/api/bookings') as any);
+
+      expect(mocks.listBookings).toHaveBeenCalledWith(
+        expect.objectContaining({ canViewAll: true })
+      );
+    });
+
+    it('passes canViewAll=false for resident role', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'RESIDENT' }]));
+      mocks.listBookings.mockResolvedValue([]);
+
+      await GET(new Request('http://localhost/api/bookings') as any);
+
+      expect(mocks.listBookings).toHaveBeenCalledWith(
+        expect.objectContaining({ canViewAll: false })
+      );
+    });
+
+    it('enforces tenant isolation', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'ADMIN' }]));
+      mocks.listBookings.mockResolvedValue([]);
+
+      await GET(new Request('http://localhost/api/bookings') as any);
+
+      expect(mocks.listBookings).toHaveBeenCalledWith(
+        expect.objectContaining({ tenantId: 'test-tenant-id' })
+      );
+    });
+
+    it('defaults role to RESIDENT when user result is empty', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
+      // Empty user result triggers fallback to 'RESIDENT'
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
+      mocks.listBookings.mockResolvedValue([]);
+
+      await GET(new Request('http://localhost/api/bookings') as any);
+
+      expect(mocks.listBookings).toHaveBeenCalledWith(
+        expect.objectContaining({ canViewAll: false })
+      );
+    });
+  });
+
+  describe('POST /api/bookings', () => {
+    it('returns 401 without auth', async () => {
+      const res = await POST(
+        new Request('http://localhost/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ facility: 'POOL', date: '2026-12-31', startTime: '09:00', endTime: '10:00' }),
+        })
+      );
+
+      expect(res.status).toBe(401);
+    });
+
+    it('returns 403 when bookings module is disabled', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
+      mocks.assertModuleEnabled.mockResolvedValue(
+        new Response(JSON.stringify({ success: false, error: { code: 'FEATURE_DISABLED' } }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'RESIDENT' }]));
+
+      const res = await POST(
+        new Request('http://localhost/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ facility: 'POOL', date: '2026-12-31', startTime: '09:00', endTime: '10:00' }),
+        })
+      );
+
+      expect(res.status).toBe(403);
+    });
+
+    it('returns 400 when input validation fails', async () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
       mocks.assertModuleEnabled.mockResolvedValue(null);
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'RESIDENT' }]));
+      mocks.bookingSafeParse.mockReturnValue({
+        success: false,
+        error: { issues: [{ path: ['facility'], message: 'Facility is required' }] },
+      });
+
+      const res = await POST(
+        new Request('http://localhost/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ invalidField: 'test' }),
+        })
+      );
+
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect((body as any).error?.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('returns 400 when facility is invalid', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
+      mocks.assertModuleEnabled.mockResolvedValue(null);
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'RESIDENT' }]));
+      mocks.bookingSafeParse.mockReturnValue({
+        success: true,
+        data: { facility: 'INVALID', date: '2026-12-31', startTime: '09:00', endTime: '10:00', purpose: '' },
+      });
       mocks.validateFacility.mockResolvedValue({ valid: false, validOptions: ['POOL', 'GYM'] });
 
-      const roleChain = makeSelectChain([{ role: 'RESIDENT' }]);
-      mocks.dbMock.select.mockImplementation(() => roleChain);
+      const res = await POST(
+        new Request('http://localhost/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ facility: 'INVALID', date: '2026-12-31', startTime: '09:00', endTime: '10:00' }),
+        })
+      );
 
-      const request = new Request('http://localhost:3000/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          facility: 'INVALID',
-          date: '2026-12-31',
-          startTime: '09:00',
-          endTime: '10:00',
-        }),
-      });
-
-      const response = await POST(request);
-      expect(response.status).toBe(400);
+      expect(res.status).toBe(400);
+      const body = await res.json();
+      expect((body as any).error?.code).toBe('INVALID_FACILITY');
     });
 
-    it('creates booking with valid data', async () => {
+    it('creates a booking with valid data', async () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
       mocks.assertModuleEnabled.mockResolvedValue(null);
-
-      const roleChain = makeSelectChain([{ role: 'RESIDENT' }]);
-      mocks.dbMock.select.mockImplementation(() => roleChain);
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'RESIDENT' }]));
+      mocks.bookingSafeParse.mockReturnValue({
+        success: true,
+        data: { facility: 'POOL', date: '2026-12-31', startTime: '09:00', endTime: '10:00', purpose: 'Morning swim' },
+      });
       mocks.validateFacility.mockResolvedValue({ valid: true });
       mocks.createBooking.mockResolvedValue([{ id: 'booking-1', facility: 'POOL' }]);
 
-      const request = new Request('http://localhost:3000/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          facility: 'POOL',
-          date: '2026-12-31',
-          startTime: '09:00',
-          endTime: '10:00',
-          purpose: 'Morning swim',
-        }),
-      });
-
-      const response = await POST(request);
-      expect(response.status).toBe(201);
-      expect(mocks.createBooking).toHaveBeenCalledWith(
-        expect.objectContaining({ tenantId: 'test-tenant-id' })
+      const res = await POST(
+        new Request('http://localhost/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            facility: 'POOL',
+            date: '2026-12-31',
+            startTime: '09:00',
+            endTime: '10:00',
+            purpose: 'Morning swim',
+          }),
+        })
       );
+
+      expect(res.status).toBe(201);
+      const body = await res.json();
+      expect((body as any).data.id).toBe('booking-1');
+      expect(mocks.revalidateDashboard).toHaveBeenCalledOnce();
     });
 
     it('enforces tenant isolation on create', async () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
       mocks.assertModuleEnabled.mockResolvedValue(null);
-
-      const roleChain = makeSelectChain([{ role: 'RESIDENT' }]);
-      mocks.dbMock.select.mockImplementation(() => roleChain);
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'RESIDENT' }]));
+      mocks.bookingSafeParse.mockReturnValue({
+        success: true,
+        data: { facility: 'GYM', date: '2026-12-31', startTime: '10:00', endTime: '11:00', purpose: '' },
+      });
       mocks.validateFacility.mockResolvedValue({ valid: true });
       mocks.createBooking.mockResolvedValue([{ id: 'booking-1' }]);
 
-      const request = new Request('http://localhost:3000/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          facility: 'GYM',
-          date: '2026-12-31',
-          startTime: '10:00',
-          endTime: '11:00',
-        }),
-      });
-
-      await POST(request);
+      await POST(
+        new Request('http://localhost/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ facility: 'GYM', date: '2026-12-31', startTime: '10:00', endTime: '11:00' }),
+        })
+      );
 
       expect(mocks.createBooking).toHaveBeenCalledWith(
         expect.objectContaining({ tenantId: 'test-tenant-id' })
       );
+    });
+
+    it('uses body.userId when provided', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
+      mocks.assertModuleEnabled.mockResolvedValue(null);
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'ADMIN' }]));
+      mocks.bookingSafeParse.mockReturnValue({
+        success: true,
+        data: { facility: 'POOL', date: '2026-12-31', startTime: '09:00', endTime: '10:00', purpose: '' },
+      });
+      mocks.validateFacility.mockResolvedValue({ valid: true });
+      mocks.createBooking.mockResolvedValue([{ id: 'booking-1' }]);
+
+      await POST(
+        new Request('http://localhost/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: 'u2',
+            facility: 'POOL',
+            date: '2026-12-31',
+            startTime: '09:00',
+            endTime: '10:00',
+          }),
+        })
+      );
+
+      expect(mocks.createBooking).toHaveBeenCalledWith(
+        expect.objectContaining({ userId: 'u2' })
+      );
+    });
+
+    it('returns 500 on booking creation error', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
+      mocks.assertModuleEnabled.mockResolvedValue(null);
+      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'RESIDENT' }]));
+      mocks.bookingSafeParse.mockReturnValue({
+        success: true,
+        data: { facility: 'POOL', date: '2026-12-31', startTime: '09:00', endTime: '10:00', purpose: '' },
+      });
+      mocks.validateFacility.mockResolvedValue({ valid: true });
+      mocks.createBooking.mockRejectedValue(new Error('DB error'));
+
+      const res = await POST(
+        new Request('http://localhost/api/bookings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ facility: 'POOL', date: '2026-12-31', startTime: '09:00', endTime: '10:00' }),
+        })
+      );
+
+      expect(res.status).toBe(500);
+      expect(mocks.apiLogger.error).toHaveBeenCalled();
     });
   });
 });

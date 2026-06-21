@@ -63,11 +63,8 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: [
+        'src/app/api/**/*.ts',
         'src/shared/**/*.{ts,tsx}',
-        'src/entities/**/*.{ts,tsx}',
-        'src/features/**/*.{ts,tsx}',
-        'src/widgets/**/*.{ts,tsx}',
-        'src/page-modules/**/*.{ts,tsx}',
       ],
       exclude: ['src/**/*.d.ts', 'src/shared/api/db.ts'],
     },

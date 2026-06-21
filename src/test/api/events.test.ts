@@ -1,9 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Mock server-only
 vi.mock('server-only', () => ({}));
 
-// Mock next/headers
 vi.mock('next/headers', () => ({
   headers: vi.fn(() =>
     Promise.resolve({
@@ -16,7 +14,6 @@ vi.mock('next/headers', () => ({
   ),
 }));
 
-// Hoisted mocks for shared mutable state
 const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string } } | null,
   tenantResult: { tenantId: 'test-tenant-id' as string, tenantSlug: 'test-tenant' as string },
@@ -31,7 +28,6 @@ const mocks = vi.hoisted(() => ({
   validateEventFields: vi.fn(),
 }));
 
-// Mock @api/server — consolidated single call with ALL exports the route imports
 vi.mock('@api/server', () => {
   const jsonResponse = (data: unknown, status: number) =>
     new Response(JSON.stringify(data), {
@@ -55,6 +51,7 @@ vi.mock('@api/server', () => {
       createdAt: 'createdAt',
     },
     revalidateContent: vi.fn(),
+    withErrorHandler: vi.fn(<T>(handler: T) => handler),
     apiSuccess: vi.fn((data: unknown, _meta?: unknown, status = 200) =>
       jsonResponse({ success: true, data }, status)
     ),
@@ -71,35 +68,36 @@ vi.mock('@api/server', () => {
     apiForbidden: vi.fn(() =>
       jsonResponse({ success: false, error: { code: 'FORBIDDEN', message: 'Forbidden' } }, 403)
     ),
+    apiNotFound: vi.fn((message?: string) =>
+      jsonResponse({ success: false, error: { code: 'NOT_FOUND', message: message || 'Not found' } }, 404)
+    ),
+    apiGone: vi.fn((message?: string) =>
+      jsonResponse({ success: false, error: { code: 'GONE', message: message || 'Gone' } }, 410)
+    ),
+    apiConflict: vi.fn((message?: string) =>
+      jsonResponse(
+        { success: false, error: { code: 'CONFLICT', message: message || 'Conflict' } },
+        409
+      )
+    ),
   };
 });
 
-// Mock @entities/tenant
-vi.mock('@entities/tenant', () => ({
+vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
-  hasPermission: (role: string | null | undefined, permission: string) => {
-    if (!role) return false;
-    if (permission === 'content')
-      return role === 'ADMIN' || role === 'MANAGER' || role === 'COMMITTEE';
-    if (permission === 'contentOwn') return role === 'ADMIN' || role === 'COMMITTEE';
-    return false;
-  },
 }));
 
-// Mock event services
-vi.mock('@entities/event', () => ({
+vi.mock('@entities/event/server', () => ({
   listEvents: (...args: unknown[]) => mocks.listEvents(...args),
   createEvent: (...args: unknown[]) => mocks.createEvent(...args),
   validateEventFields: (...args: unknown[]) => mocks.validateEventFields(...args),
 }));
 
-// Mock logger and permissions
 vi.mock('@shared/lib', () => ({
   apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
   hasPermission: (role: string | null | undefined, permission: string) => {
     if (!role) return false;
-    if (permission === 'content')
-      return role === 'ADMIN' || role === 'MANAGER' || role === 'COMMITTEE';
+    if (permission === 'content') return role === 'ADMIN' || role === 'MANAGER' || role === 'COMMITTEE';
     if (permission === 'contentOwn') return role === 'ADMIN' || role === 'COMMITTEE';
     return false;
   },

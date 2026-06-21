@@ -32,6 +32,7 @@ const mocks = vi.hoisted(() => ({
 
 // Mock api/server — consolidated: auth, db, users, revalidation, and all API response helpers
 vi.mock('@api/server', () => ({
+  CACHE_TAGS: { SETTINGS: 'settings' },
   auth: {
     api: {
       getSession: () => Promise.resolve(mocks.sessionResult),
@@ -87,8 +88,12 @@ vi.mock('@api/server', () => ({
 }));
 
 // Mock withTenant (consolidated — was split across 2 separate vi.mock calls)
+vi.mock('@entities/tenant/server', () => ({
+  withTenant: () => Promise.resolve(mocks.tenantResult),
+}));
 vi.mock('@entities/tenant', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
+  assertModuleEnabled: vi.fn(() => Promise.resolve(null)),
 }));
 
 // Mock maintenance services — keep real schema for validation, stub service fns
@@ -110,6 +115,7 @@ vi.mock('@shared/lib', () => ({
     if (permission === 'requests') return role === 'ADMIN' || role === 'MANAGER';
     return false;
   }),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
 }));
 
 import { GET, POST } from '@/app/api/maintenance/route';

@@ -32,6 +32,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@api/server', () => ({
+  CACHE_TAGS: { SETTINGS: 'settings' },
   auth: {
     api: {
       getSession: () => Promise.resolve(mocks.sessionResult),
@@ -41,6 +42,10 @@ vi.mock('@api/server', () => ({
   communityServiceListings: { id: 'id', __brand: 'table' },
   communityServiceReviews: { id: 'id', __brand: 'table' },
   communityServiceInquiries: { id: 'id', __brand: 'table' },
+  conversations: { id: 'id', __brand: 'table' },
+  conversationParticipants: { id: 'id', userId: 'userId', __brand: 'table' },
+  messages: { id: 'id', __brand: 'table' },
+  now: () => new Date(),
   users: { id: 'id', role: 'role', name: 'name', email: 'email', phone: 'phone', avatar: 'avatar' },
   apiSuccess: vi.fn(
     (data: unknown) =>
@@ -105,15 +110,19 @@ vi.mock('@api/server', () => ({
   ),
 }));
 
+vi.mock('@entities/tenant/server', () => ({
+  withTenant: () => Promise.resolve(mocks.tenantResult),
+  assertModuleEnabled: vi.fn(() => Promise.resolve(null)),
+}));
 vi.mock('@entities/tenant', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
-  assertModuleEnabled: (...args: unknown[]) => mocks.assertModuleEnabled(...args),
 }));
 
 vi.mock('@shared/lib', () => ({
   apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
   logError: vi.fn(),
   hasPermission: vi.fn(() => mocks.hasPermissionResult),
+  createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
 }));
 
 import { makeSelectChain, makeInsertChain, makeUpdateChain, makeDeleteChain } from './helpers';

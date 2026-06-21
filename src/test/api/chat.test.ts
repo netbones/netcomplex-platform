@@ -73,6 +73,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@api/server', () => ({
+  CACHE_TAGS: { SETTINGS: 'settings' },
   auth: {
     api: {
       getSession: () => Promise.resolve(mocks.sessionResult),
@@ -121,6 +122,8 @@ vi.mock('@api/server', () => ({
   apiError: mocks.apiError,
   rateLimitByUser: mocks.rateLimitByUser,
   revalidateConversations: mocks.revalidateConversations,
+  now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
+  withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
 }));
 
 vi.mock('@entities/tenant', () => ({

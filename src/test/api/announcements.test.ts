@@ -89,17 +89,19 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@api/server', () => ({
+  CACHE_TAGS: { SETTINGS: 'settings' },
   auth: {
     api: {
       getSession: () => Promise.resolve(mocks.sessionResult),
     },
   },
   db: mocks.dbMock,
-  announcements: { id: 'id', tenantId: 'tenantId', priority: 'priority' },
+  announcements: { id: 'id', tenantId: 'tenantId', priority: 'priority', deletedAt: 'deletedAt' },
   users: { id: 'id', role: 'role', name: 'name', isActive: 'isActive', tenantId: 'tenantId' },
   profiles: { userId: 'userId', residencyType: 'residencyType' },
   notifications: { id: 'id', tenantId: 'tenantId', userId: 'userId' },
   resources: { id: 'id', tenantId: 'tenantId' },
+  notDeleted: <T>(t: T) => ({ isNull: [t, 'deletedAt'] }) as const,
   revalidateDashboard: mocks.revalidateDashboard,
   apiSuccess: mocks.apiSuccess,
   apiCreated: mocks.apiCreated,
@@ -109,6 +111,8 @@ vi.mock('@api/server', () => ({
   apiForbidden: mocks.apiForbidden,
   apiValidationError: mocks.apiValidationError,
   apiError: mocks.apiError,
+  now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
+  withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
 }));
 
 vi.mock('@entities/tenant', () => ({
@@ -138,6 +142,7 @@ vi.mock('@features/announcements', async importOriginal => {
 import { GET, POST } from '@/app/api/announcements/route';
 import { GET as GET_BY_ID, PATCH, DELETE } from '@/app/api/announcements/[id]/route';
 import { makeSelectChain, makeInsertChain, makeUpdateChain } from './helpers';
+
 
 function makeDeleteReturningChain(result: unknown[]) {
   return {
@@ -600,10 +605,10 @@ describe('Announcements API', () => {
       mocks.sessionResult = { user: { id: 'user-1' } };
 
       const userRoleChain = makeSelectChain([{ role: 'ADMIN' }]);
-      const deleteChain = makeDeleteReturningChain([]);
+      const updateChain = makeUpdateChain([]);
 
       mocks.dbMock.select.mockReturnValue(userRoleChain);
-      mocks.dbMock.delete.mockReturnValue(deleteChain);
+      mocks.dbMock.update.mockReturnValue(updateChain);
 
       const request = makeReq({
         method: 'DELETE',
@@ -619,10 +624,10 @@ describe('Announcements API', () => {
       const deletedAnn = { id: 'ann-1', title: 'Test', priority: 'normal' };
 
       const userRoleChain = makeSelectChain([{ role: 'ADMIN' }]);
-      const deleteChain = makeDeleteReturningChain([deletedAnn]);
+      const updateChain = makeUpdateChain([deletedAnn]);
 
       mocks.dbMock.select.mockReturnValue(userRoleChain);
-      mocks.dbMock.delete.mockReturnValue(deleteChain);
+      mocks.dbMock.update.mockReturnValue(updateChain);
 
       const request = makeReq({
         method: 'DELETE',

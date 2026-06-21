@@ -36,3 +36,6 @@ dist/next-env.d.ts
 
 # Build artifacts
 tsconfig.tsbuildinfo
+
+# Coverage
+coverage/
