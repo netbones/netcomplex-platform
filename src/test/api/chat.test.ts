@@ -122,6 +122,13 @@ vi.mock('@api/server', () => ({
   apiError: mocks.apiError,
   rateLimitByUser: mocks.rateLimitByUser,
   revalidateConversations: mocks.revalidateConversations,
+  getSessionAndRole: vi.fn(() =>
+    Promise.resolve(
+      mocks.sessionResult
+        ? { user: mocks.sessionResult.user, role: 'RESIDENT', tenantId: 'test-tenant-id' }
+        : null
+    )
+  ),
   now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
   withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
 }));
@@ -353,6 +360,7 @@ describe('Chat/Conversations API', () => {
   // ---------------------------------------------------------------
   describe('POST /api/conversations/find', () => {
     it('returns 400 when fewer than 2 participantIds provided', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
       const request = req('http://localhost:3000/api/conversations/find', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -363,6 +371,7 @@ describe('Chat/Conversations API', () => {
     });
 
     it('returns existing conversation when found', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
       const existing = {
         id: 'conv-existing',
         name: null,
@@ -387,6 +396,7 @@ describe('Chat/Conversations API', () => {
     });
 
     it('creates new conversation when none exists', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
       const newConv = { id: 'conv-new', name: null, type: 'DIRECT' };
       const finalConv = {
         id: 'conv-new',
@@ -418,6 +428,7 @@ describe('Chat/Conversations API', () => {
     });
 
     it('enforces tenant isolation', async () => {
+      mocks.sessionResult = { user: { id: 'user-1' } };
       mocks.tenantResult = { tenantId: 'other-tenant-id', tenantSlug: 'other-tenant' };
 
       const existing = {
@@ -616,11 +627,7 @@ describe('Chat/Conversations API', () => {
     it('prunes expired and deleted messages for admin', async () => {
       mocks.sessionResult = { user: { id: 'admin-1' } };
       mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'ADMIN' }]));
-      mocks.dbMock.delete.mockReturnValue({
-        where: vi.fn(() => ({
-          returning: vi.fn(() => Promise.resolve([{ id: 'msg-1' }, { id: 'msg-2' }])),
-        })),
-      });
+      mocks.dbMock.update.mockReturnValue(makeUpdateChain([{ id: 'msg-1' }, { id: 'msg-2' }]));
 
       const request = req('http://localhost:3000/api/messages', { method: 'DELETE' });
       const response = await DELETEMessages(request);

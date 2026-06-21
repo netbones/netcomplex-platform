@@ -39,14 +39,15 @@ vi.mock('@api/server', () => ({
     },
   },
   db: mocks.dbMock,
-  communityServiceListings: { id: 'id', __brand: 'table' },
-  communityServiceReviews: { id: 'id', __brand: 'table' },
-  communityServiceInquiries: { id: 'id', __brand: 'table' },
+  communityServiceListings: { id: 'id', tenantId: 'tenantId', providerId: 'providerId', title: 'title', description: 'description', category: 'category', subcategory: 'subcategory', priceType: 'priceType', price: 'price', currency: 'currency', serviceAreas: 'serviceAreas', availability: 'availability', licenseNumber: 'licenseNumber', insuranceExpiry: 'insuranceExpiry', responseTime: 'responseTime', contactMethods: 'contactMethods', images: 'images', portfolio: 'portfolio', status: 'status', isPublished: 'isPublished', isFeatured: 'isFeatured', rating: 'rating', reviewCount: 'reviewCount', termsAndConditions: 'termsAndConditions', cancellationPolicy: 'cancellationPolicy', verificationDate: 'verificationDate', verified: 'verified', createdAt: 'createdAt', updatedAt: 'updatedAt', slug: 'slug', locale: 'locale', deletedAt: 'deletedAt', __brand: 'table' },
+  communityServiceReviews: { id: 'id', listingId: 'listingId', reviewerId: 'reviewerId', rating: 'rating', title: 'title', comment: 'comment', serviceDate: 'serviceDate', responseQuality: 'responseQuality', isPublished: 'isPublished', createdAt: 'createdAt', __brand: 'table' },
+  communityServiceInquiries: { id: 'id', listingId: 'listingId', status: 'status', __brand: 'table' },
   conversations: { id: 'id', __brand: 'table' },
   conversationParticipants: { id: 'id', userId: 'userId', __brand: 'table' },
   messages: { id: 'id', __brand: 'table' },
   now: () => new Date(),
   users: { id: 'id', role: 'role', name: 'name', email: 'email', phone: 'phone', avatar: 'avatar' },
+  notDeleted: vi.fn((t: { deletedAt: string }) => ({ isNull: [t, 'deletedAt'] })),
   apiSuccess: vi.fn(
     (data: unknown) =>
       new Response(JSON.stringify({ success: true, data }), {
@@ -91,6 +92,16 @@ vi.mock('@api/server', () => ({
         { status: 404, headers: { 'Content-Type': 'application/json' } }
       )
   ),
+  apiGone: vi.fn(
+    (message?: string) =>
+      new Response(
+        JSON.stringify({
+          success: false,
+          error: { code: 'GONE', message: message || 'Resource has been deleted' },
+        }),
+        { status: 410, headers: { 'Content-Type': 'application/json' } }
+      )
+  ),
   apiInternalError: vi.fn(
     () =>
       new Response(
@@ -112,7 +123,7 @@ vi.mock('@api/server', () => ({
 
 vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
-  assertModuleEnabled: vi.fn(() => Promise.resolve(null)),
+  assertModuleEnabled: mocks.assertModuleEnabled,
 }));
 vi.mock('@entities/tenant', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),

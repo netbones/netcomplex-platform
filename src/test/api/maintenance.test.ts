@@ -40,6 +40,23 @@ vi.mock('@api/server', () => ({
   },
   db: mocks.dbMock,
   users: { id: 'id', role: 'role', name: 'name', email: 'email' },
+  maintenanceRequests: {
+    id: 'id', tenantId: 'tenantId', userId: 'userId', propertyId: 'propertyId',
+    category: 'category',
+    status: Object.assign('status', {
+      enumValues: ['SUBMITTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'ON_HOLD', 'SCHEDULED', 'RESOLVED'],
+    }),
+    priority: Object.assign('priority', {
+      enumValues: ['LOW', 'MEDIUM', 'HIGH', 'EMERGENCY'],
+    }),
+    description: 'description', images: 'images', ticketNumber: 'ticketNumber',
+    preferredDate: 'preferredDate', preferredTime: 'preferredTime',
+    createdAt: 'createdAt', updatedAt: 'updatedAt',
+    assignedTeamId: 'assignedTeamId', assignedProviderId: 'assignedProviderId',
+  },
+  maintenanceTeams: { id: 'id', name: 'name', trade: 'trade' },
+  serviceProviders: { id: 'id', companyName: 'companyName', trade: 'trade' },
+  properties: { id: 'id', street: 'street', unit: 'unit' },
   revalidateDashboard: vi.fn(),
   apiSuccess: vi.fn(
     (data: unknown) =>
@@ -96,15 +113,22 @@ vi.mock('@entities/tenant', () => ({
   assertModuleEnabled: vi.fn(() => Promise.resolve(null)),
 }));
 
-// Mock maintenance services — keep real schema for validation, stub service fns
-vi.mock('@entities/maintenance', async () => {
+// Mock maintenance services (server barrel) — stubs the two query functions the route uses
+vi.mock('@entities/maintenance/server', async () => {
   const actual =
-    await vi.importActual<typeof import('@entities/maintenance')>('@entities/maintenance');
+    await vi.importActual<typeof import('@entities/maintenance/server')>('@entities/maintenance/server');
   return {
     ...actual,
     listMaintenanceRequests: (...args: unknown[]) => mocks.listMaintenanceRequests(...args),
     createMaintenanceRequest: (...args: unknown[]) => mocks.createMaintenanceRequest(...args),
   };
+});
+
+// Keep @entities/maintenance unmocked so schema/validation imports are real
+vi.mock('@entities/maintenance', async () => {
+  const actual =
+    await vi.importActual<typeof import('@entities/maintenance')>('@entities/maintenance');
+  return actual;
 });
 
 // Mock logger + permissions
