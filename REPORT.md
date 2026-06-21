@@ -30,18 +30,11 @@
 
 ---
 
-### 1.3 `as any` Type Assertions in API Routes
+### ~~1.3 `as any` Type Assertions in API Routes~~ **FIXED (2026-06-21)**
 
-**Severity:** CRITICAL  
-**Details:** 177 instances of `as any` across the codebase. Many are in API routes where Zod-validated data is cast to bypass TypeScript strictness, defeating the purpose of using Drizzle's type-safe query builder.
+~~**Severity:** CRITICAL~~
 
-**Examples:**
-
-- `src/app/api/announcements/route.ts:267` — `as any` on `insert(notifications).values(...)`
-- `src/app/api/merits/[id]/route.ts:85` — `updateData as any`
-- `src/app/api/merits/route.ts:40` — `status as any` on enum comparison
-
-**Fix:** Derive insert/update types from Drizzle schema using `typeof` and `z.infer<>` from Zod schemas. Remove `/* eslint-disable @typescript-eslint/no-explicit-any */` overrides.
+**Fix:** Replaced all `as any` and `Record<string, any>` casts with proper Drizzle types (`$inferInsert`, `$inferSelect`, enum-constrained type assertions). Removed all `eslint-disable @typescript-eslint/no-explicit-any` overrides in API route and entity code.
 
 ---
 
@@ -281,7 +274,7 @@ The Prisma-to-Drizzle migration appears complete in code, but the Prisma schema,
 | Category                     | Count                                | Priority |
 | ---------------------------- | ------------------------------------ | -------- |
 | API routes without try/catch | ~~113+~~ **FIXED (2026-06-21)**      | CRITICAL |
-| `as any` casts               | 177                                  | CRITICAL |
+| `as any` casts               | ~~177~~ **FIXED (2026-06-21)**       | CRITICAL |
 | Circular dependencies        | ~~16 cycles~~ **FIXED (2026-06-21)** | CRITICAL |
 | Prisma dead weight           | ~15MB                                | CRITICAL |
 | In-memory rate limiter       | ~~1 file~~ **FIXED (2026-06-21)**    | CRITICAL |

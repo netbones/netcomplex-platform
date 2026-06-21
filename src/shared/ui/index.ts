@@ -1,4 +1,3 @@
-export * from './TagInput';
 export * from './Bookshelf';
 export * from './Breadcrumbs';
 export * from './Carousel';
@@ -13,13 +12,16 @@ export * from './LanguageSwitcher';
 export * from './Loading';
 export * from './MediaLibrary';
 export * from './ModalOverlay';
+export * from './PageCTA';
+export * from './PrimaryCTA';
+export * from './PromoBanner';
+export * from './PromoIllustration';
 export * from './Pagination';
 export * from './RichTextEditor';
 export * from './RichTextRenderer';
 export * from './TagCloud';
+export * from './TagInput';
 export * from './Turnstile';
-export * from './PageCTA';
-export * from './PrimaryCTA';
 export * from './tooltip';
 // Re-export from hooks for backward compatibility
 export { usePageLoading, useI18nReady, PageLoadingSkeleton } from '../lib/hooks/usePageLoading';

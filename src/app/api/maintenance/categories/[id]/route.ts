@@ -54,8 +54,7 @@ export const PATCH = withErrorHandler(
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updates: Record<string, any> = {};
+    const updates: Partial<typeof maintenanceCategories.$inferInsert> = {};
 
     if (body.label !== undefined) updates.label = body.label;
     if (body.description !== undefined) updates.description = body.description;

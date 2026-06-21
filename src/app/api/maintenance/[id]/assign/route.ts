@@ -117,8 +117,7 @@ export const POST = withErrorHandler(
     }
 
     const now = new Date();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updates: Record<string, any> = { updatedAt: now };
+    const updates: Partial<typeof maintenanceRequests.$inferInsert> = { updatedAt: now };
 
     // Track team assignment changes
     if (teamId !== undefined && teamId !== existing.assignedTeamId) {

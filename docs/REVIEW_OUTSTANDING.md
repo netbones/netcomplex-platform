@@ -15,7 +15,7 @@ How is User onboarded? How are platform address managed?
 3. Directory
    Services are not showing? Is it unwrap bug?
 
-4. Services
+4. Services [x]
    /services
    The page needs to be managed by Admin, will want to change information/content,
    requires management under Admin domains.
@@ -24,3 +24,9 @@ How is User onboarded? How are platform address managed?
 
 6. /admin/users how does Admin invite Board member?
    Admin can currently invite user (must test)
+
+7. Conservation page management
+   We currently have a mode toggle which does nothing
+   Default content
+   Managed Content via CMS ( we need to be able to input cms url)
+   External Portal (requires input of API etc)

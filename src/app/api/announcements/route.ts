@@ -254,7 +254,6 @@ export const POST = withErrorHandler(async (request: Request) => {
   // TODO: Beyond FANOUT_CAP users, bulk job processing (queue) will be needed
 
   if (cappedUsers.length > 0) {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
     await db.insert(notifications).values(
       cappedUsers.map(user => ({
         id: crypto.randomUUID(),
@@ -265,9 +264,8 @@ export const POST = withErrorHandler(async (request: Request) => {
         type: `announcement-${announcement.priority}`,
         link: `/news#announcement-${announcement.id}`,
         read: false,
-      })) as any
+      })) as (typeof notifications.$inferInsert)[]
     );
-    /* eslint-enable @typescript-eslint/no-explicit-any */
   }
 
   // Revalidate dashboard caches

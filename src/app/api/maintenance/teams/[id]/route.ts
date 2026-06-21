@@ -43,8 +43,7 @@ export const PATCH = withErrorHandler(
     }
 
     const body = await request.json();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updates: Record<string, any> = { updatedAt: new Date() };
+    const updates: Partial<typeof maintenanceTeams.$inferInsert> = { updatedAt: new Date() };
 
     if (body.name !== undefined) updates.name = body.name;
     if (body.trade !== undefined) updates.trade = body.trade;

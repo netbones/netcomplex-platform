@@ -85,8 +85,7 @@ export const PATCH = withErrorHandler(
 
     await db
       .update(behaviorRecords)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .set(updateData as any)
+      .set(updateData as typeof behaviorRecords.$inferInsert)
       .where(and(eq(behaviorRecords.id, id), eq(behaviorRecords.tenantId, tenantId)));
 
     await writeAuditLog({

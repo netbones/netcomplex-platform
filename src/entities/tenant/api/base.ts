@@ -152,8 +152,7 @@ export async function createTenant(data: {
   tier?: TenantTier;
   ownerId?: string | null;
 }): Promise<Tenant> {
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const row = {
+  const row: typeof tenants.$inferInsert = {
     id: data.id ?? crypto.randomUUID(),
     name: data.name,
     slug: data.slug,
@@ -167,18 +166,14 @@ export async function createTenant(data: {
     customCss: data.customCss ?? null,
     active: data.active ?? true,
     subscriptionTier: data.subscriptionTier ?? 'foundation',
-    modules: data.modules ?? {},
+    modules: (data.modules ?? {}) as typeof tenants.$inferInsert.modules,
     maxPages: data.maxPages ?? 5,
     pageCount: data.pageCount ?? 0,
-    featureFlags: data.featureFlags ?? {},
+    featureFlags: (data.featureFlags ?? {}) as typeof tenants.$inferInsert.featureFlags,
     tier: data.tier ?? 'STANDARD',
     ownerId: data.ownerId ?? null,
   };
-  const result = await db
-    .insert(tenants)
-    .values(row as any)
-    .returning();
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+  const result = await db.insert(tenants).values(row).returning();
   return toTenant(result[0] as unknown as Record<string, unknown>);
 }
 

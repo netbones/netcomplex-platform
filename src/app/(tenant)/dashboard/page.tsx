@@ -25,9 +25,9 @@ export default function DashboardHome() {
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <PromoBanner
-        message="You can also select some featured content to highlight at the top."
-        ctaLabel="Configure now"
-        onCtaClick={() => router.push('/dashboard/content/featured')}
+        message="Customise your dashboard with a header image or choose from the gallery."
+        ctaLabel="Customise"
+        onCtaClick={() => router.push('/dashboard')}
         onDismiss={handleDismiss}
       />
       <HomeLayer />

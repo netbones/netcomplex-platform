@@ -199,8 +199,7 @@ export const PATCH = withErrorHandler(
     }
 
     const now = new Date();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updates: Record<string, any> = {
+    const updates: Partial<typeof maintenanceRequests.$inferInsert> = {
       updatedAt: now,
     };
 

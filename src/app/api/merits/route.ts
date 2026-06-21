@@ -38,10 +38,41 @@ export const GET = withErrorHandler(async (request: Request) => {
 
   const conditions = [eq(behaviorRecords.tenantId, tenantId), isNull(behaviorRecords.deletedAt)];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (status) conditions.push(eq(behaviorRecords.status, status as any));
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (category) conditions.push(eq(behaviorRecords.category, category as any));
+  if (status && ['ACTIVE', 'DISPUTED', 'UPHELD', 'OVERTURNED'].includes(status)) {
+    conditions.push(
+      eq(behaviorRecords.status, status as 'ACTIVE' | 'DISPUTED' | 'UPHELD' | 'OVERTURNED')
+    );
+  }
+  if (
+    category &&
+    [
+      'COMMUNITY_SERVICE',
+      'VOLUNTEERISM',
+      'MAINTENANCE',
+      'NOISE',
+      'PARKING',
+      'SECURITY',
+      'PETS',
+      'COMPLIANCE',
+      'OTHER',
+    ].includes(category)
+  ) {
+    conditions.push(
+      eq(
+        behaviorRecords.category,
+        category as
+          | 'COMMUNITY_SERVICE'
+          | 'VOLUNTEERISM'
+          | 'MAINTENANCE'
+          | 'NOISE'
+          | 'PARKING'
+          | 'SECURITY'
+          | 'PETS'
+          | 'COMPLIANCE'
+          | 'OTHER'
+      )
+    );
+  }
   if (filterUserId) conditions.push(eq(behaviorRecords.userId, filterUserId));
 
   const rows = await db
@@ -109,8 +140,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     id,
     tenantId,
     userId,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    behaviorType: behaviorType as any,
+    behaviorType: behaviorType as typeof behaviorRecords.$inferInsert.behaviorType,
     category: category || 'OTHER',
     reason,
     description: description || null,
