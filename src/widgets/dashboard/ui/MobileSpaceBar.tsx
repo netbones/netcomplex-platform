@@ -37,6 +37,7 @@ const SPACE_FALLBACKS: Record<string, string> = {
  */
 export function MobileSpaceBar() {
   const [mounted, setMounted] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const pathname = usePathname();
   const { tx } = useSafeTranslation();
   const { data: session } = authClient.useSession();
@@ -44,6 +45,21 @@ export function MobileSpaceBar() {
   const role = session?.user?.role || 'RESIDENT';
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    fetch('/api/messages/unread')
+      .then(res => res.json())
+      .then(data => setUnreadCount(data?.data?.totalUnread ?? 0))
+      .catch(() => {});
+    const interval = setInterval(() => {
+      fetch('/api/messages/unread')
+        .then(res => res.json())
+        .then(data => setUnreadCount(data?.data?.totalUnread ?? 0))
+        .catch(() => {});
+    }, 30_000);
+    return () => clearInterval(interval);
+  }, [session?.user?.id]);
 
   const visibleSpaces = flags
     ? getVisibleSpaces(role, flags)
@@ -96,7 +112,7 @@ export function MobileSpaceBar() {
                 <div className="relative">
                   <Icon className="w-5 h-5" />
                   {/* Badge: show indicator on Messages space */}
-                  {space.id === 'messages' && <UnreadBadge />}
+                  {space.id === 'messages' && <UnreadBadge count={unreadCount} />}
                 </div>
                 <span className="text-[10px] font-medium leading-tight truncate max-w-[64px]">
                   {label}
@@ -112,7 +128,11 @@ export function MobileSpaceBar() {
 }
 
 /** Small red dot badge for unread messages (placeholder — will connect to real count) */
-function UnreadBadge() {
-  // TODO: connect to real unread message count from message store
-  return null;
+function UnreadBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 text-[10px] font-bold text-white bg-red-500 rounded-full leading-none">
+      {count > 99 ? '99+' : count}
+    </span>
+  );
 }
