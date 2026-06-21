@@ -13,3 +13,5 @@ export { useSettings } from './useSettings';
 export { useUpcomingEvents } from './useUpcomingEvents';
 export { useActiveAnnouncements } from './useActiveAnnouncements';
 export { useUnreadMessages } from './useUnreadMessages';
+export { useAdminUsers } from './useAdminUsers';
+export { useAdminContent } from './useAdminContent';

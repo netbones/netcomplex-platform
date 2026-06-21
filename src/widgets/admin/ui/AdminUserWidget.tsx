@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@shared/ui';
-import { logError } from '@shared/lib';
+import { useAdminUsers } from '@shared/lib/hooks';
 
 export interface UserItem {
   id: string;
@@ -15,50 +15,21 @@ export interface UserItem {
 
 export function AdminUserWidget() {
   const { t } = useTranslation('admin');
-  const [userStats, setUserStats] = useState({
-    total: 0,
-    active: 0,
-    pending: 0,
-    recentSignups: 0,
-  });
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useAdminUsers();
 
-  useEffect(() => {
-    async function fetchUserStats() {
-      try {
-        const response = await fetch('/api/users');
-        if (response.ok) {
-          const data = await response.json();
-          const unwrapped = data?.data ?? data;
-          const users = unwrapped?.users ?? (Array.isArray(unwrapped) ? unwrapped : []);
-          const total = unwrapped?.total ?? data?.meta?.total ?? (users.length || 0);
+  const userStats = useMemo(() => {
+    if (!data) return { total: 0, active: 0, pending: 0, recentSignups: 0 };
+    const unwrapped = data?.data ?? data;
+    const users = unwrapped?.users ?? (Array.isArray(unwrapped) ? unwrapped : []);
+    const total =
+      unwrapped?.total ?? data?.meta?.total ?? (Array.isArray(users) ? users.length : 0);
+    const active = Array.isArray(users) ? users.filter((u: UserItem) => u.isActive).length : 0;
+    const pending = total - active;
+    const recentSignups = Math.floor(Math.random() * 5) + 1;
+    return { total, active, pending, recentSignups };
+  }, [data]);
 
-          // Ensure users is an array before calling filter
-          const active = Array.isArray(users)
-            ? users.filter((u: UserItem) => u.isActive).length
-            : 0;
-          const pending = total - active;
-
-          // Mock recent signups (last 30 days)
-          const recentSignups = Math.floor(Math.random() * 5) + 1;
-
-          setUserStats({ total, active, pending, recentSignups });
-        }
-      } catch (error) {
-        logError(
-          { component: 'AdminUserWidget', operation: 'fetchUserStats' },
-          'Failed to fetch user stats',
-          error
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchUserStats();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <ErrorBoundary>
         <div className="animate-pulse space-y-4">

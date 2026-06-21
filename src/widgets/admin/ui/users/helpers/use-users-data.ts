@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { AdminUser, Invitation } from '@entities/user';
 import { PAGE_SIZE } from '@entities/user';
+import { useAdminUsers } from '@shared/lib/hooks';
 import { resolveType } from './resolve-user-helpers';
 
 interface UseUsersDataReturn {
@@ -31,64 +32,83 @@ export function useUsersData(): UseUsersDataReturn {
   const [isOpen, setIsOpen] = useState(true);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [filterType, setFilterType] = useState('all');
   const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    setLoading(true);
-    const params = new URLSearchParams();
-    params.set('page', String(page));
-    params.set('limit', String(PAGE_SIZE));
-    if (search) params.set('search', search);
-    if (filterRole !== 'all') params.set('role', filterRole);
-    Promise.all([
-      fetch(`/api/users?${params}`).then(r => r.json()),
-      fetch('/api/invitations').then(r => r.json()),
-    ])
-      .then(([usersData, invitesData]) => {
-        const data = usersData?.data ?? usersData;
-        setUsers(data?.users ?? (Array.isArray(data) ? data : []));
-        setTotal(data?.total ?? usersData?.meta?.total ?? (Array.isArray(data) ? data.length : 0));
-        setInvitations(invitesData?.data ?? invitesData);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [isOpen, search, filterRole, page]);
+  const { data: rawData, isLoading } = useAdminUsers();
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setPage(1);
-  }, [search, filterRole]);
+  const allUsers: AdminUser[] = useMemo(() => {
+    if (!rawData) return [];
+    const data = rawData?.data ?? rawData;
+    return data?.users ?? (Array.isArray(data) ? (data as AdminUser[]) : []);
+  }, [rawData]);
 
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const searchedUsers = useMemo(() => {
+    if (!search) return allUsers;
+    const s = search.toLowerCase();
+    return allUsers.filter(
+      u =>
+        (u.name && String(u.name).toLowerCase().includes(s)) ||
+        (u.email && String(u.email).toLowerCase().includes(s))
+    );
+  }, [allUsers, search]);
 
-  const pendingInvites = useMemo(
-    () => invitations.filter(i => i.status === 'PENDING'),
-    [invitations]
-  );
+  const roleFiltered = useMemo(() => {
+    if (filterRole === 'all') return searchedUsers;
+    return searchedUsers.filter(u => u.role === filterRole);
+  }, [searchedUsers, filterRole]);
 
-  const filteredUsers = useMemo(() => {
-    if (filterType === 'all') return users;
-    return users.filter(u => {
+  const typeFiltered = useMemo(() => {
+    if (filterType === 'all') return roleFiltered;
+    return roleFiltered.filter(u => {
       const type = resolveType(u);
       if (filterType === 'OWNER') return type === 'Owner';
       if (filterType === 'RENTER') return type === 'Renter';
       if (filterType === 'SUSPENDED') return type === 'Suspended';
       return true;
     });
-  }, [users, filterType]);
+  }, [roleFiltered, filterType]);
+
+  const total = typeFiltered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const paginated = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return typeFiltered.slice(start, start + PAGE_SIZE);
+  }, [typeFiltered, page]);
+
+  useEffect(() => {
+    setUsers(paginated);
+  }, [paginated]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    Promise.all([fetch('/api/invitations').then(r => r.json())])
+      .then(([invitesData]) => {
+        setInvitations(invitesData?.data ?? invitesData);
+      })
+      .catch(() => {});
+  }, [isOpen]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, filterRole]);
+
+  const pendingInvites = useMemo(
+    () => invitations.filter(i => i.status === 'PENDING'),
+    [invitations]
+  );
+
+  const filteredUsers = users;
 
   return {
     users,
     setUsers,
     invitations,
     setInvitations,
-    loading,
+    loading: isLoading,
     search,
     setSearch,
     filterRole,

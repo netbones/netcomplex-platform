@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import Link from 'next/link';
 import { useSafeTranslation } from '@shared/lib';
 import { useLocalStorage } from 'usehooks-ts';
 import { authClient } from '@api/client';
+import { useAdminUrgency } from '@features/admin';
 import { ErrorBoundary } from '@shared/ui';
 import { AdminCommandBar, type CommandBarUrgency } from './AdminCommandBar';
 import { ADMIN_DOMAIN_DEFINITIONS, type AdminDomainDef } from './AdminSubLauncher';
@@ -134,41 +135,18 @@ export function AdminLayer() {
   const { tx } = useSafeTranslation('admin');
   const { data: session } = authClient.useSession();
 
-  const [urgency, setUrgency] = useState<UrgencyResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { data: urgency, isLoading, isError, refetch } = useAdminUrgency<UrgencyResponse>();
 
   // Persistent shortcut customisation (per user)
   const [activeShortcuts, setActiveShortcuts] = useLocalStorage<string[]>('admin-shortcuts', []);
 
   const isPlatformAdmin = session?.user?.role?.toUpperCase() === 'ADMIN';
 
-  const fetchUrgency = useCallback(async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      const res = await fetch('/api/admin/urgency');
-      if (!res.ok) throw new Error('Failed');
-      const body = await res.json();
-      // Unwrap canonical apiSuccess envelope
-      const data = body.success ? body.data : body;
-      setUrgency(data as UrgencyResponse);
-      setLoading(false);
-    } catch {
-      setError(true);
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchUrgency();
-  }, [fetchUrgency]);
-
-  if (error) {
-    return <AdminLayerError onRetry={fetchUrgency} />;
+  if (isError) {
+    return <AdminLayerError onRetry={() => refetch()} />;
   }
 
-  if (loading || !urgency) {
+  if (isLoading || !urgency) {
     return <AdminLayerSkeleton />;
   }
 

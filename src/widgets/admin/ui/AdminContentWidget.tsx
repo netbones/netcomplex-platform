@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@shared/ui';
-import { logError } from '@shared/lib';
+import { useAdminContent } from '@shared/lib/hooks';
 
 export interface ContentItem {
   id: string;
@@ -14,46 +14,21 @@ export interface ContentItem {
 
 export function AdminContentWidget() {
   const { t } = useTranslation('admin');
-  const [contentStats, setContentStats] = useState({
-    total: 0,
-    published: 0,
-    draft: 0,
-    recent: 0,
-  });
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useAdminContent();
 
-  useEffect(() => {
-    async function fetchContentStats() {
-      try {
-        const response = await fetch('/api/content');
-        if (response.ok) {
-          const body = await response.json();
-          const raw = body?.data;
-          const content = Array.isArray(raw) ? raw : [];
-          const total = content.length;
-          const published = content.filter((c: ContentItem) => c.published).length;
-          const draft = total - published;
+  const contentStats = useMemo(() => {
+    if (!data) return { total: 0, published: 0, draft: 0, recent: 0 };
+    const body = data;
+    const raw = body?.data;
+    const content = Array.isArray(raw) ? raw : [];
+    const total = content.length;
+    const published = content.filter((c: ContentItem) => c.published).length;
+    const draft = total - published;
+    const recent = Math.floor(Math.random() * 3) + 1;
+    return { total, published, draft, recent };
+  }, [data]);
 
-          // Mock recent content (last 7 days)
-          const recent = Math.floor(Math.random() * 3) + 1;
-
-          setContentStats({ total, published, draft, recent });
-        }
-      } catch (error) {
-        logError(
-          { component: 'AdminContentWidget', operation: 'fetchContentStats' },
-          'Failed to fetch content stats',
-          error
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchContentStats();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <ErrorBoundary>
         <div className="animate-pulse space-y-4">
