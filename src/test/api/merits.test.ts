@@ -24,7 +24,7 @@ const mocks = vi.hoisted(() => ({
   writeAuditLog: vi.fn(),
   getEffectivePointsResult: { recognition: 5, disciplinary: 0, overall: 5 },
   checkAndEscalateResult: { escalated: false },
-  behaviorRecords: {
+  communityMerits: {
     id: 'id',
     tenantId: 'tenantId',
     userId: 'userId',
@@ -52,7 +52,7 @@ vi.mock('@api/server', () => ({
     },
   },
   db: mocks.dbMock,
-  behaviorRecords: mocks.behaviorRecords,
+  communityMerits: mocks.communityMerits,
   apiUnauthorized: vi.fn(
     (message = 'Unauthorized') =>
       new Response(JSON.stringify({ success: false, error: { code: 'UNAUTHORIZED', message } }), {
@@ -141,9 +141,11 @@ describe('Merits API', () => {
         reason: 'Helped clean common area',
         status: 'ACTIVE',
       };
-      mocks.dbMock.select.mockReturnValue(makeSelectChain([{ ...record, createdAt: new Date('2026-06-21T10:00:00Z') }]));
+      mocks.dbMock.select.mockReturnValue(
+        makeSelectChain([{ ...record, createdAt: new Date('2026-06-21T10:00:00Z') }])
+      );
 
-      const response = await GET(new Request('http://localhost:3000/api/merits') as any);
+      const response = await GET(new Request('http://localhost:3000/api/merits'));
       const body = await response.json();
 
       expect(response.status).toBe(200);
@@ -156,7 +158,9 @@ describe('Merits API', () => {
       mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
 
       const response = await GET(
-        new Request('http://localhost:3000/api/merits?status=DISPUTED&category=NOISE&userId=u1&limit=10&offset=5')
+        new Request(
+          'http://localhost:3000/api/merits?status=DISPUTED&category=NOISE&userId=u1&limit=10&offset=5'
+        )
       );
       const body = await response.json();
 
@@ -167,7 +171,7 @@ describe('Merits API', () => {
     it('returns 401 without auth session', async () => {
       mocks.authSession = null;
 
-      const response = await GET(new Request('http://localhost:3000/api/merits') as any);
+      const response = await GET(new Request('http://localhost:3000/api/merits'));
       expect(response.status).toBe(401);
     });
 
@@ -175,14 +179,14 @@ describe('Merits API', () => {
       const { hasPermission } = await import('@shared/lib');
       vi.mocked(hasPermission).mockReturnValueOnce(false);
 
-      const response = await GET(new Request('http://localhost:3000/api/merits') as any);
+      const response = await GET(new Request('http://localhost:3000/api/merits'));
       expect(response.status).toBe(403);
     });
 
     it('returns empty array when no records exist', async () => {
       mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
 
-      const response = await GET(new Request('http://localhost:3000/api/merits') as any);
+      const response = await GET(new Request('http://localhost:3000/api/merits'));
       const body = await response.json();
 
       expect(response.status).toBe(200);

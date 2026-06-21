@@ -27,6 +27,7 @@ export interface PlatformPageFlags {
   surveys: boolean;
   competitions: boolean;
   dashboard: boolean;
+  providers: boolean;
   bookings: boolean;
   messages: boolean;
   headerLinks: HeaderLinkId[];

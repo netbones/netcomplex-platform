@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   auth,
   db,
-  behaviorRecords,
+  communityMerits,
   apiUnauthorized,
   apiForbidden,
   apiCreated,
@@ -37,11 +37,11 @@ export const GET = withErrorHandler(async (request: Request) => {
   const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100);
   const offset = parseInt(searchParams.get('offset') || '0', 10);
 
-  const conditions = [eq(behaviorRecords.tenantId, tenantId), isNull(behaviorRecords.deletedAt)];
+  const conditions = [eq(communityMerits.tenantId, tenantId), isNull(communityMerits.deletedAt)];
 
   if (status && ['ACTIVE', 'DISPUTED', 'UPHELD', 'OVERTURNED'].includes(status)) {
     conditions.push(
-      eq(behaviorRecords.status, status as 'ACTIVE' | 'DISPUTED' | 'UPHELD' | 'OVERTURNED')
+      eq(communityMerits.status, status as 'ACTIVE' | 'DISPUTED' | 'UPHELD' | 'OVERTURNED')
     );
   }
   if (
@@ -60,7 +60,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   ) {
     conditions.push(
       eq(
-        behaviorRecords.category,
+        communityMerits.category,
         category as
           | 'COMMUNITY_SERVICE'
           | 'VOLUNTEERISM'
@@ -74,15 +74,15 @@ export const GET = withErrorHandler(async (request: Request) => {
       )
     );
   }
-  if (filterUserId) conditions.push(eq(behaviorRecords.userId, filterUserId));
+  if (filterUserId) conditions.push(eq(communityMerits.userId, filterUserId));
 
   const rows = await db
     .select()
-    .from(behaviorRecords)
+    .from(communityMerits)
     .where(and(...conditions))
     .limit(limit)
     .offset(offset)
-    .orderBy(desc(behaviorRecords.createdAt));
+    .orderBy(desc(communityMerits.createdAt));
 
   return apiSuccess(rows, { limit, offset });
 });
@@ -137,11 +137,11 @@ export const POST = withErrorHandler(async (request: Request) => {
   const standingAfter =
     standingBefore + (behaviorType === 'MERIT' ? recognitionPoints : -disciplinaryPoints);
 
-  await db.insert(behaviorRecords).values({
+  await db.insert(communityMerits).values({
     id,
     tenantId,
     userId,
-    behaviorType: behaviorType as typeof behaviorRecords.$inferInsert.behaviorType,
+    behaviorType: behaviorType as typeof communityMerits.$inferInsert.behaviorType,
     category: category || 'OTHER',
     reason,
     description: description || null,

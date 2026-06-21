@@ -29,7 +29,7 @@ import { invitations } from './invitations';
 import { members } from './members';
 import { passkeys } from './passkeys';
 import { platformSuspensions } from './platform-suspensions';
-import { behaviorRecords } from './behavior-records';
+import { communityMerits } from './community-merits';
 import { premiumSeats } from './premium-seats';
 import { profiles } from './profiles';
 import { propertyListings } from './property-listings';
@@ -87,12 +87,12 @@ export const usersRelations = relations(users, helpers => ({
   platformSuspension: helpers.many(platformSuspensions, {
     relationName: 'PlatformSuspensionTouser',
   }),
-  behaviorRecordsSubject: helpers.many(behaviorRecords, { relationName: 'BehaviorRecordSubject' }),
-  behaviorRecordsCreatedBy: helpers.many(behaviorRecords, {
-    relationName: 'BehaviorRecordCreatedBy',
+  communityMeritsSubject: helpers.many(communityMerits, { relationName: 'CommunityMeritSubject' }),
+  communityMeritsCreatedBy: helpers.many(communityMerits, {
+    relationName: 'CommunityMeritCreatedBy',
   }),
-  behaviorRecordsResolvedBy: helpers.many(behaviorRecords, {
-    relationName: 'BehaviorRecordResolvedBy',
+  communityMeritsResolvedBy: helpers.many(communityMerits, {
+    relationName: 'CommunityMeritResolvedBy',
   }),
   premiumSeat: helpers.one(premiumSeats),
   profile_profile_landlordIdTouser: helpers.many(profiles, {

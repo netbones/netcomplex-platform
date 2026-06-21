@@ -1,15 +1,14 @@
-import { and, eq, sql, inArray, or, gte, isNull } from 'drizzle-orm';
-import { db, behaviorRecords } from '@api/server';
+import { and, eq, gte, inArray, isNull, or, sql } from 'drizzle-orm';
+import { db, communityMerits } from '@api/server';
 import { ESCALATION_THRESHOLDS } from '../model/constants';
-import type { StandingTier } from '../model/types';
 
 const ACTIVE_STATUSES = ['ACTIVE', 'UPHELD'] as const;
 
 function notExpiredOrDeleted() {
   const now = new Date();
   return and(
-    isNull(behaviorRecords.deletedAt),
-    or(isNull(behaviorRecords.expiresAt), gte(behaviorRecords.expiresAt, now))
+    isNull(communityMerits.deletedAt),
+    or(isNull(communityMerits.expiresAt), gte(communityMerits.expiresAt, now))
   );
 }
 
@@ -22,24 +21,24 @@ export async function getEffectivePoints(
   tenantId: string
 ): Promise<{ recognition: number; disciplinary: number; overall: number }> {
   const baseConditions = and(
-    eq(behaviorRecords.userId, userId),
-    eq(behaviorRecords.tenantId, tenantId),
-    inArray(behaviorRecords.status, ACTIVE_STATUSES),
+    eq(communityMerits.userId, userId),
+    eq(communityMerits.tenantId, tenantId),
+    inArray(communityMerits.status, ACTIVE_STATUSES),
     notExpiredOrDeleted()
   );
 
   const [recognitionRow] = await db
     .select({
-      total: sql<number>`COALESCE(SUM(${behaviorRecords.recognitionPoints}), 0)`.as('total'),
+      total: sql<number>`COALESCE(SUM(${communityMerits.recognitionPoints}), 0)`.as('total'),
     })
-    .from(behaviorRecords)
+    .from(communityMerits)
     .where(baseConditions);
 
   const [disciplinaryRow] = await db
     .select({
-      total: sql<number>`COALESCE(SUM(${behaviorRecords.disciplinaryPoints}), 0)`.as('total'),
+      total: sql<number>`COALESCE(SUM(${communityMerits.disciplinaryPoints}), 0)`.as('total'),
     })
-    .from(behaviorRecords)
+    .from(communityMerits)
     .where(baseConditions);
 
   const recognition = Number(recognitionRow?.total ?? 0);
@@ -62,13 +61,13 @@ export async function checkAndEscalateStanding(
 }> {
   const [row] = await db
     .select({ count: sql<number>`COUNT(*)`.as('count') })
-    .from(behaviorRecords)
+    .from(communityMerits)
     .where(
       and(
-        eq(behaviorRecords.userId, userId),
-        eq(behaviorRecords.tenantId, tenantId),
-        eq(behaviorRecords.behaviorType, 'INFRACTION'),
-        inArray(behaviorRecords.status, ACTIVE_STATUSES),
+        eq(communityMerits.userId, userId),
+        eq(communityMerits.tenantId, tenantId),
+        eq(communityMerits.behaviorType, 'INFRACTION'),
+        inArray(communityMerits.status, ACTIVE_STATUSES),
         notExpiredOrDeleted()
       )
     );

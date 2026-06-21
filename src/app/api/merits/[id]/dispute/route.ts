@@ -1,7 +1,7 @@
 import {
   auth,
   db,
-  behaviorRecords,
+  communityMerits,
   apiUnauthorized,
   apiForbidden,
   apiNotFound,
@@ -35,12 +35,12 @@ export const POST = withErrorHandler(
 
     const [record] = await db
       .select()
-      .from(behaviorRecords)
+      .from(communityMerits)
       .where(
         and(
-          eq(behaviorRecords.id, id),
-          eq(behaviorRecords.tenantId, tenantId),
-          isNull(behaviorRecords.deletedAt)
+          eq(communityMerits.id, id),
+          eq(communityMerits.tenantId, tenantId),
+          isNull(communityMerits.deletedAt)
         )
       );
 
@@ -56,13 +56,13 @@ export const POST = withErrorHandler(
 
     const ts = now();
     await db
-      .update(behaviorRecords)
+      .update(communityMerits)
       .set({
         status: 'DISPUTED',
         disputeReason: reason,
         disputedAt: ts,
       })
-      .where(eq(behaviorRecords.id, id));
+      .where(eq(communityMerits.id, id));
 
     await writeAuditLog({
       tenantId,

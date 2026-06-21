@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Shield, AlertTriangle, Check, Clock, X, Plus } from 'lucide-react';
 
-interface BehaviorRecord {
+interface CommunityMerit {
   id: string;
   userId: string;
   behaviorType: 'MERIT' | 'WARNING' | 'INFRACTION';
@@ -36,7 +36,7 @@ const STATUS_ICON: Record<string, { icon: typeof Check; className: string }> = {
 };
 
 export function MeritsListPage() {
-  const [records, setRecords] = useState<BehaviorRecord[]>([]);
+  const [records, setRecords] = useState<CommunityMerit[]>([]);
   const [loading, setLoading] = useState(true);
   const [, setError] = useState('');
 

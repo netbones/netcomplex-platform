@@ -910,7 +910,7 @@ model PlatformSuspension {
   @@index([userId])
 }
 
-model BehaviorRecord {
+model CommunityMerit {
   id                 String               @id
   tenantId           String
   userId             String
@@ -932,15 +932,16 @@ model BehaviorRecord {
   expiresAt          DateTime?
   deletedAt          DateTime?
 
-  user       user  @relation("BehaviorRecordSubject", fields: [userId], references: [id], onDelete: Cascade)
-  createdBy  user  @relation("BehaviorRecordCreatedBy", fields: [createdById], references: [id])
-  resolvedBy user? @relation("BehaviorRecordResolvedBy", fields: [resolvedById], references: [id])
+  user       user  @relation("CommunityMeritSubject", fields: [userId], references: [id], onDelete: Cascade)
+  createdBy  user  @relation("CommunityMeritCreatedBy", fields: [createdById], references: [id])
+  resolvedBy user? @relation("CommunityMeritResolvedBy", fields: [resolvedById], references: [id])
 
   @@index([userId])
   @@index([tenantId])
   @@index([behaviorType])
   @@index([status])
   @@index([category])
+  @@map("community_merits")
 }
 
 model PremiumSeat {
@@ -1173,9 +1174,9 @@ model user {
   member                                                Member[]
   passkey                                               passkey[]
   platformSuspension                                    PlatformSuspension[]
-  behaviorRecordsSubject                                BehaviorRecord[]         @relation("BehaviorRecordSubject")
-  behaviorRecordsCreatedBy                              BehaviorRecord[]         @relation("BehaviorRecordCreatedBy")
-  behaviorRecordsResolvedBy                             BehaviorRecord[]         @relation("BehaviorRecordResolvedBy")
+  communityMeritsSubject                                CommunityMerit[]         @relation("CommunityMeritSubject")
+  communityMeritsCreatedBy                              CommunityMerit[]         @relation("CommunityMeritCreatedBy")
+  communityMeritsResolvedBy                             CommunityMerit[]         @relation("CommunityMeritResolvedBy")
   premiumSeat                                           PremiumSeat?
   profile_profile_landlordIdTouser                      Profile[]                 @relation("profile_landlordIdTouser")
   profile_profile_userIdTouser                          Profile[]                 @relation("profile_userIdTouser")
@@ -1529,4 +1530,199 @@ enum BehaviorCategory {
   PETS
   COMPLIANCE
   OTHER
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROVIDER PLATFORM (Phase 46)
+// ═══════════════════════════════════════════════════════════════
+
+model ProviderVerification {
+  id                    String                   @id @default(cuid())
+  providerId            String                   @unique
+  tenantId              String
+  status                ProviderVerificationStatus @default(PENDING)
+  notes                 String?
+  startDate             DateTime                 @default(now())
+  endDate               DateTime?
+  verificationThreshold Int                      @default(300) @map("verification_threshold")
+  probationThreshold    Int                      @default(0) @map("probation_threshold")
+  createdAt             DateTime                 @default(now()) @map("created_at")
+  updatedAt             DateTime                 @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@index([providerId])
+  @@map("provider_verifications")
+}
+
+model ProviderLegalAgreement {
+  id            String   @id @default(cuid())
+  providerId    String   @map("provider_id")
+  tenantId      String   @map("tenant_id")
+  agreementType String   @map("agreement_type") // 'TOS', 'PRIVACY', 'CODE_OF_CONDUCT'
+  version       String
+  acceptedAt    DateTime @default(now()) @map("accepted_at")
+  ipAddress     String?  @map("ip_address")
+  userAgent     String?  @map("user_agent")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId])
+  @@index([providerId])
+  @@map("provider_legal_agreements")
+}
+
+model ProviderCredit {
+  id                  String    @id @default(cuid())
+  providerId          String    @unique @map("provider_id")
+  tenantId            String    @map("tenant_id")
+  totalCredits        Int       @default(0) @map("total_credits")
+  responseTimeScore   Int?      @map("response_time_score")
+  qualityScore        Int?      @map("quality_score")
+  reviewScore         Int?      @map("review_score")
+  complianceScore     Int?      @map("compliance_score")
+  engagementScore     Int?      @map("engagement_score")
+  lastCalculatedAt    DateTime? @map("last_calculated_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@map("provider_credits")
+}
+
+model ProviderMerit {
+  id          String            @id @default(cuid())
+  providerId  String            @map("provider_id")
+  tenantId    String            @map("tenant_id")
+  meritType   ProviderMeritType @map("merit_type")
+  points      Int
+  description String?
+  referenceId String?           @map("reference_id")
+  createdAt   DateTime          @default(now()) @map("created_at")
+
+  @@index([tenantId])
+  @@index([providerId])
+  @@map("provider_merits")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROVIDER PLATFORM ENUMS
+// ═══════════════════════════════════════════════════════════════
+
+enum ProviderMeritType {
+  RESPONSE_TIME
+  SERVICE_QUALITY
+  REVIEW_RATING
+  COMPLIANCE
+  ENGAGEMENT
+  REFERENCE
+}
+
+enum ProviderVerificationStatus {
+  PENDING
+  PROBATION
+  VERIFIED
+  SUSPENDED
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROVIDER BILLING (Phase 46)
+// ═══════════════════════════════════════════════════════════════
+
+model SubscriptionTier {
+  id                String   @id @default(cuid())
+  tenantId          String   @map("tenant_id")
+  name              String
+  description       String?
+  price             Decimal  @db.Decimal(10, 2)
+  currency          String   @default("ZAR")
+  maxListings       Int?     @map("max_listings")
+  features          Json?
+  platformFeePercent Decimal @default(8.00) @map("platform_fee_percent") @db.Decimal(5, 2)
+  verificationRequired Boolean @default(false) @map("verification_required")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId])
+  @@map("subscription_tiers")
+}
+
+model ProviderSubscription {
+  id             String   @id @default(cuid())
+  providerId     String   @map("provider_id")
+  tenantId       String   @map("tenant_id")
+  tierId         String   @map("tier_id")
+  status         SubscriptionStatus @default(ACTIVE)
+  startDate      DateTime @map("start_date")
+  endDate        DateTime? @map("end_date")
+  nextBillingDate DateTime? @map("next_billing_date")
+  price          Decimal  @db.Decimal(10, 2)
+  currency       String   @default("ZAR")
+  paymentGateway PaymentGateway? @map("payment_gateway")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([tenantId])
+  @@index([providerId])
+  @@map("provider_subscriptions")
+}
+
+model PaymentTransaction {
+  id            String   @id @default(cuid())
+  providerId    String   @map("provider_id")
+  tenantId      String   @map("tenant_id")
+  subscriptionId String  @map("subscription_id")
+  amount        Decimal  @db.Decimal(10, 2)
+  currency      String   @default("ZAR")
+  platformFee   Decimal  @map("platform_fee") @db.Decimal(10, 2)
+  processorFee  Decimal  @map("processor_fee") @db.Decimal(10, 2)
+  netAmount     Decimal  @map("net_amount") @db.Decimal(10, 2)
+  status        TransactionStatus @default(PENDING)
+  gateway       PaymentGateway
+  externalRef   String?  @map("external_ref进项")
+  invoiceUrl    String?  @map("invoice_url")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId])
+  @@index([providerId])
+  @@index([subscriptionId])
+  @@map("payment_transactions")
+}
+
+model RevenueRecord {
+  id            String   @id @default(cuid())
+  tenantId      String   @map("tenant_id")
+  providerId    String   @map("provider_id")
+  transactionId String  @map("transaction_id")
+  grossAmount   Decimal  @map("gross_amount") @db.Decimal(10, 2)
+  platformFee   Decimal  @map("platform_fee") @db.Decimal(10, 2)
+  processorFee  Decimal  @map("processor_fee") @db.Decimal(10, 2)
+  netAmount     Decimal  @map("net_amount") @db.Decimal(10, 2)
+  currency      String   @default("ZAR")
+  period        String
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId])
+  @@index([providerId])
+  @@map("revenue_records")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROVIDER BILLING ENUMS
+// ═══════════════════════════════════════════════════════════════
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PENDING
+}
+
+enum PaymentGateway {
+  PAYSTACK
+  PAYPAL
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
 }

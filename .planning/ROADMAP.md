@@ -829,7 +829,7 @@ _Harden the codebase to launch-readiness, ship the launch-blocking features: Com
 
 **Execution order (locked):** OTP first (quickest win) → Community Merits (flagship, most complex) → i18n batch → Tiptap i18n (blocked on l23).
 
-**Acceptance:** Community Merits system live with `behaviorRecord` table, hardcoded tier thresholds, event-driven auto-escalation, admin page at `/admin/merits`, and standing badges on directory + profile. OTP password reset works end-to-end via Better Auth emailOTP plugin. Most visible widgets (HomeLayer, admin domain grids, navigation) available in 4 locales. Tiptap editors can save/load content in any locale.
+**Acceptance:** Community Merits system live with `CommunityMerit` model (`community_merits` table), hardcoded tier thresholds, event-driven auto-escalation, admin page at `/admin/merits`, and standing badges on directory + profile. OTP password reset works end-to-end via Better Auth emailOTP plugin. Most visible widgets (HomeLayer, admin domain grids, navigation) available in 4 locales. Tiptap editors can save/load content in any locale.
 
 **Dependencies:** l23 blocks 0f7. cs5 (MyHomeSpace) ideally resolved in Phase 44.
 
@@ -838,7 +838,7 @@ _Harden the codebase to launch-readiness, ship the launch-blocking features: Com
 | Wave | Plan                                                   | Objective                                                                                                                                                                       | Requirements |
 | ---- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
 | 1    | [ ] 45-01-PLAN.md — OTP password reset                 | Wire Better Auth emailOTP plugin + OTP verify page + Resend email template                                                                                                      | 0tb          |
-| 2    | [ ] 45-02-PLAN.md — Community Merits schema + API      | behaviorRecord model, Drizzle table, merits helpers, CRUD API with standing calc + auto-escalation                                                                              | 2at          |
+| 2    | [ ] 45-02-PLAN.md — Community Merits schema + API      | CommunityMerit model, Drizzle table, merits helpers, CRUD API with standing calc + auto-escalation                                                                              | 2at          |
 | 3    | [ ] 45-03-PLAN.md — Community Merits admin UI + badges | Admin CRUD pages at /admin/merits, StandingBadge on UnifiedResidentCard + profile, ADMIN_ITEMS/ADMIN_DOMAINS registration                                                       | 2at          |
 | 4    | [ ] 45-04-PLAN.md — i18n batch for visible widgets     | Migrate 24 widget files from useTranslation → useSafeTranslation+tx() — HomeLayer, AdminLayer, SpaceLauncher, MobileSpaceBar, ServicesLayer, MessagesLayer, marketing, platform | l23          |
 | 5    | [ ] 45-05-PLAN.md — Tiptap content localization        | Unsaved-changes warning on locale switch, LocaleAwareEditor integration, per-locale save/load hardening                                                                         | 0f7          |

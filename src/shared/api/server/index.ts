@@ -45,7 +45,7 @@ export {
   announcements,
   agentAccesses,
   platformSuspensions,
-  behaviorRecords,
+  communityMerits,
   groupMembershipRequests,
   platformModules,
   tenantModules,

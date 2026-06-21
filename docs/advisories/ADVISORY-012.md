@@ -5,11 +5,13 @@
 **Severity:** One blocking defect (will fail `prisma migrate dev`), six non-blocking architectural/governance gaps
 **Author:** Claude (architectural advisory) — reviewed at DavDev's request prior to agent execution
 
+**Revision 2026-06-21 (DavDev):** `BehaviorRecord` model renamed to `CommunityMerit` (`community_merits` table) to align branding with the Community Merits feature rather than a punitive "behaviour tracking" framing. All Prisma model names, Drizzle exports, relation names, and code references updated. Migration `20260621205302_rename_behavior_record_to_community_merits` created but pending apply. The underlying enums (`BehaviorType`, `BehaviorRecordStatus`, `BehaviorCategory`) retain their names as DB-level type systems — these are internal and do not surface the behavioural framing. See also: Phase 46 `ProviderMerit` (formerly `CommunityMerit` under Provider Platform) for naming disambiguation between resident and provider merit systems.
+
 ---
 
 ## 1. Problem Statement
 
-Plans 45-02 and 45-03 introduce a `BehaviorRecord` model (Community Merits / disciplinary standing system) with split recognition/disciplinary scoring, a dispute workflow, an infraction-count escalation engine, and admin UI + public standing badges. The plans are well-specified at the feature level but contain one defect that will halt execution at Task 4 of 45-02 (`npx prisma migrate dev`), plus several deviations from established project conventions (FSD entity placement, the `canAccess()` gating direction set in Phase 41, navigation admission criteria, dual-ORM generation order) that should be corrected before the agent starts, rather than discovered mid-execution or cleaned up in a later advisory the way ADVISORY-009 and the Phase 31 tab removal were.
+Plans 45-02 and 45-03 introduce a `CommunityMerit` model (formerly `BehaviorRecord` — Community Merits / standing system) with split recognition/disciplinary scoring, a dispute workflow, an infraction-count escalation engine, and admin UI + public standing badges. The plans are well-specified at the feature level but contain one defect that will halt execution at Task 4 of 45-02 (`npx prisma migrate dev`), plus several deviations from established project conventions (FSD entity placement, the `canAccess()` gating direction set in Phase 41, navigation admission criteria, dual-ORM generation order) that should be corrected before the agent starts, rather than discovered mid-execution or cleaned up in a later advisory the way ADVISORY-009 and the Phase 31 tab removal were.
 
 This advisory documents the defects, the reasoning, and a corrected execution sequence. It does not change scope or feature intent — only model correctness, file placement, and sequencing.
 

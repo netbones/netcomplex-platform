@@ -10,7 +10,7 @@
  */
 
 import type { LucideIcon } from 'lucide-react';
-import { Home, Briefcase, Users, MessageSquare, Shield } from 'lucide-react';
+import { Home, Briefcase, Users, MessageSquare, Shield, Tractor } from 'lucide-react';
 import type { PlatformPageFlags } from '@entities/tenant/server';
 
 // ═══════════════════════════════════════════════════════════════
@@ -18,7 +18,7 @@ import type { PlatformPageFlags } from '@entities/tenant/server';
 // ═══════════════════════════════════════════════════════════════
 
 /** The 5 space identifiers — URL slugs and registry keys */
-export type SpaceId = 'home' | 'services' | 'community' | 'messages' | 'admin';
+export type SpaceId = 'home' | 'providers' | 'services' | 'community' | 'messages' | 'admin';
 
 // ═══════════════════════════════════════════════════════════════
 // SPACE DEFINITION
@@ -72,6 +72,21 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
       'solo-seat',
       'properties',
       'sidebar-widgets',
+    ],
+  },
+  providers: {
+    id: 'providers',
+    href: '/dashboard/providers',
+    labelKey: 'spaces.providers',
+    icon: Tractor,
+    isCore: false,
+    requiredFlag: 'providers',
+    widgetIds: [
+      'provider-overview',
+      'provider-inquiries',
+      'provider-analytics',
+      'provider-listings',
+      'provider-credit-progress',
     ],
   },
   services: {

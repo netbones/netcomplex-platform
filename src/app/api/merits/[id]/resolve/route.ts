@@ -1,7 +1,7 @@
 import {
   auth,
   db,
-  behaviorRecords,
+  communityMerits,
   apiUnauthorized,
   apiForbidden,
   apiNotFound,
@@ -38,12 +38,12 @@ export const POST = withErrorHandler(
 
     const [record] = await db
       .select()
-      .from(behaviorRecords)
+      .from(communityMerits)
       .where(
         and(
-          eq(behaviorRecords.id, id),
-          eq(behaviorRecords.tenantId, tenantId),
-          isNull(behaviorRecords.deletedAt)
+          eq(communityMerits.id, id),
+          eq(communityMerits.tenantId, tenantId),
+          isNull(communityMerits.deletedAt)
         )
       );
 
@@ -69,9 +69,9 @@ export const POST = withErrorHandler(
     }
 
     await db
-      .update(behaviorRecords)
-      .set(updateData as typeof behaviorRecords.$inferInsert)
-      .where(eq(behaviorRecords.id, id));
+      .update(communityMerits)
+      .set(updateData as typeof communityMerits.$inferInsert)
+      .where(eq(communityMerits.id, id));
 
     await writeAuditLog({
       tenantId,

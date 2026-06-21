@@ -1,7 +1,7 @@
 import {
   auth,
   db,
-  behaviorRecords,
+  communityMerits,
   apiUnauthorized,
   apiForbidden,
   apiNotFound,
@@ -43,12 +43,12 @@ export const GET = withErrorHandler(
 
     const [row] = await db
       .select()
-      .from(behaviorRecords)
+      .from(communityMerits)
       .where(
         and(
-          eq(behaviorRecords.id, id),
-          eq(behaviorRecords.tenantId, tenantId),
-          isNull(behaviorRecords.deletedAt)
+          eq(communityMerits.id, id),
+          eq(communityMerits.tenantId, tenantId),
+          isNull(communityMerits.deletedAt)
         )
       );
 
@@ -85,9 +85,9 @@ export const PATCH = withErrorHandler(
     }
 
     await db
-      .update(behaviorRecords)
-      .set(updateData as typeof behaviorRecords.$inferInsert)
-      .where(and(eq(behaviorRecords.id, id), eq(behaviorRecords.tenantId, tenantId)));
+      .update(communityMerits)
+      .set(updateData as typeof communityMerits.$inferInsert)
+      .where(and(eq(communityMerits.id, id), eq(communityMerits.tenantId, tenantId)));
 
     await writeAuditLog({
       tenantId,
@@ -115,9 +115,9 @@ export const DELETE = withErrorHandler(
 
     const ts = now();
     await db
-      .update(behaviorRecords)
+      .update(communityMerits)
       .set({ deletedAt: ts })
-      .where(and(eq(behaviorRecords.id, id), eq(behaviorRecords.tenantId, tenantId)));
+      .where(and(eq(communityMerits.id, id), eq(communityMerits.tenantId, tenantId)));
 
     await writeAuditLog({
       tenantId,

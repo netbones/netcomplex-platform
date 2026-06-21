@@ -3,7 +3,7 @@ import { behaviorTypeEnum } from './behavior-type-enum';
 import { behaviorCategoryEnum } from './behavior-category-enum';
 import { behaviorRecordStatusEnum } from './behavior-record-status-enum';
 
-export const behaviorRecords = pgTable('BehaviorRecord', {
+export const communityMerits = pgTable('community_merits', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),
   userId: text('userId').notNull(),

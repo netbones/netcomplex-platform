@@ -43,7 +43,7 @@ import * as members from './members';
 import * as organizations from './organizations';
 import * as passkeys from './passkeys';
 import * as platformSuspensions from './platform-suspensions';
-import * as behaviorRecords from './behavior-records';
+import * as communityMerits from './community-merits';
 import * as premiumSeats from './premium-seats';
 import * as propertyPremiumSeats from './property-premium-seats';
 import * as profiles from './profiles';
@@ -56,6 +56,14 @@ import * as users from './users';
 import * as verifications from './verifications';
 import * as resources from './resources';
 import * as resourceVersions from './resource-versions';
+import * as providerVerifications from './provider-verifications';
+import * as providerLegalAgreements from './provider-legal-agreements';
+import * as providerCredits from './provider-credits';
+import * as providerMerits from './provider-merits';
+import * as subscriptionTiers from './subscription-tiers';
+import * as providerSubscriptions from './provider-subscriptions';
+import * as paymentTransactions from './payment-transactions';
+import * as revenueRecords from './revenue-records';
 import * as platformModulesRelations from './platform-modules-relations';
 import * as tenantModulesRelations from './tenant-modules-relations';
 import * as assistSessionsRelations from './assist-sessions-relations';
@@ -98,7 +106,7 @@ import * as membersRelations from './members-relations';
 import * as organizationsRelations from './organizations-relations';
 import * as passkeysRelations from './passkeys-relations';
 import * as platformSuspensionsRelations from './platform-suspensions-relations';
-import * as behaviorRecordsRelations from './behavior-records-relations';
+import * as communityMeritsRelations from './community-merits-relations';
 import * as premiumSeatsRelations from './premium-seats-relations';
 import * as propertyPremiumSeatsRelations from './property-premium-seats-relations';
 import * as profilesRelations from './profiles-relations';
@@ -157,7 +165,7 @@ export const schema = {
   ...organizations,
   ...passkeys,
   ...platformSuspensions,
-  ...behaviorRecords,
+  ...communityMerits,
   ...premiumSeats,
   ...propertyPremiumSeats,
   ...profiles,
@@ -170,6 +178,14 @@ export const schema = {
   ...verifications,
   ...resources,
   ...resourceVersions,
+  ...providerVerifications,
+  ...providerLegalAgreements,
+  ...providerCredits,
+  ...providerMerits,
+  ...subscriptionTiers,
+  ...providerSubscriptions,
+  ...paymentTransactions,
+  ...revenueRecords,
   ...platformModulesRelations,
   ...tenantModulesRelations,
   ...assistSessionsRelations,
@@ -212,7 +228,7 @@ export const schema = {
   ...organizationsRelations,
   ...passkeysRelations,
   ...platformSuspensionsRelations,
-  ...behaviorRecordsRelations,
+  ...communityMeritsRelations,
   ...premiumSeatsRelations,
   ...propertyPremiumSeatsRelations,
   ...profilesRelations,

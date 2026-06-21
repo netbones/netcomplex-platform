@@ -35,7 +35,7 @@ vi.mock('@api/server', async () => {
         getSession: vi.fn(() => Promise.resolve(mocks.authSession)),
       },
     },
-    behaviorRecords: {
+    communityMerits: {
       id: 'id',
       tenantId: 'tenantId',
       userId: 'userId',
@@ -46,11 +46,20 @@ vi.mock('@api/server', async () => {
       $inferInsert: {} as Record<string, unknown>,
     },
     apiUnauthorized: (message = 'Authentication required') =>
-      NextResponse.json({ success: false, error: { code: 'AUTH_REQUIRED', message } }, { status: 401 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'AUTH_REQUIRED', message } },
+        { status: 401 }
+      ) as any,
     apiForbidden: (message = 'Forbidden') =>
-      NextResponse.json({ success: false, error: { code: 'FORBIDDEN', message } }, { status: 403 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'FORBIDDEN', message } },
+        { status: 403 }
+      ) as any,
     apiNotFound: (message = 'Not found') =>
-      NextResponse.json({ success: false, error: { code: 'NOT_FOUND', message } }, { status: 404 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message } },
+        { status: 404 }
+      ) as any,
     apiError: (code: string, message: string, status: number = 500) =>
       NextResponse.json({ success: false, error: { code, message } }, { status }) as any,
     apiSuccess: (data: unknown, _meta?: unknown, status = 200, init?: ResponseInit) =>
@@ -93,7 +102,9 @@ describe('Merits Dispute API', () => {
     it('returns 401 without auth session', async () => {
       mocks.authSession = null;
 
-      const res = await POST(disputeRequest({ reason: 'This was not my fault' }), { params: Promise.resolve({ id: 'r1' }) });
+      const res = await POST(disputeRequest({ reason: 'This was not my fault' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
 
       expect(res.status).toBe(401);
     });
@@ -107,7 +118,9 @@ describe('Merits Dispute API', () => {
     });
 
     it('returns 400 when reason is too short', async () => {
-      const res = await POST(disputeRequest({ reason: 'No' }), { params: Promise.resolve({ id: 'r1' }) });
+      const res = await POST(disputeRequest({ reason: 'No' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
       const body = await res.json();
 
       expect(res.status).toBe(400);
@@ -117,33 +130,47 @@ describe('Merits Dispute API', () => {
     it('returns 404 when record not found', async () => {
       mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
 
-      const res = await POST(disputeRequest({ reason: 'This was not my fault' }), { params: Promise.resolve({ id: 'r1' }) });
+      const res = await POST(disputeRequest({ reason: 'This was not my fault' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
 
       expect(res.status).toBe(404);
     });
 
-    it('returns 403 when disputing another user\'s record', async () => {
-      mocks.dbMock.select.mockReturnValue(makeSelectChain([{
-        id: 'r1',
-        tenantId: 'test-tenant-id',
-        userId: 'other-user',
-        status: 'ACTIVE',
-      }]));
+    it("returns 403 when disputing another user's record", async () => {
+      mocks.dbMock.select.mockReturnValue(
+        makeSelectChain([
+          {
+            id: 'r1',
+            tenantId: 'test-tenant-id',
+            userId: 'other-user',
+            status: 'ACTIVE',
+          },
+        ])
+      );
 
-      const res = await POST(disputeRequest({ reason: 'This was not my fault' }), { params: Promise.resolve({ id: 'r1' }) });
+      const res = await POST(disputeRequest({ reason: 'This was not my fault' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
 
       expect(res.status).toBe(403);
     });
 
     it('returns 400 when record is not ACTIVE', async () => {
-      mocks.dbMock.select.mockReturnValue(makeSelectChain([{
-        id: 'r1',
-        tenantId: 'test-tenant-id',
-        userId: 'user-1',
-        status: 'DISPUTED',
-      }]));
+      mocks.dbMock.select.mockReturnValue(
+        makeSelectChain([
+          {
+            id: 'r1',
+            tenantId: 'test-tenant-id',
+            userId: 'user-1',
+            status: 'DISPUTED',
+          },
+        ])
+      );
 
-      const res = await POST(disputeRequest({ reason: 'This was not my fault' }), { params: Promise.resolve({ id: 'r1' }) });
+      const res = await POST(disputeRequest({ reason: 'This was not my fault' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
       const body = await res.json();
 
       expect(res.status).toBe(400);
@@ -151,14 +178,20 @@ describe('Merits Dispute API', () => {
     });
 
     it('successfully disputes an ACTIVE record', async () => {
-      mocks.dbMock.select.mockReturnValue(makeSelectChain([{
-        id: 'r1',
-        tenantId: 'test-tenant-id',
-        userId: 'user-1',
-        status: 'ACTIVE',
-      }]));
+      mocks.dbMock.select.mockReturnValue(
+        makeSelectChain([
+          {
+            id: 'r1',
+            tenantId: 'test-tenant-id',
+            userId: 'user-1',
+            status: 'ACTIVE',
+          },
+        ])
+      );
 
-      const res = await POST(disputeRequest({ reason: 'This was not my fault' }), { params: Promise.resolve({ id: 'r1' }) });
+      const res = await POST(disputeRequest({ reason: 'This was not my fault' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
       const body = await res.json();
 
       expect(res.status).toBe(200);
@@ -166,14 +199,20 @@ describe('Merits Dispute API', () => {
     });
 
     it('writes audit log on successful dispute', async () => {
-      mocks.dbMock.select.mockReturnValue(makeSelectChain([{
-        id: 'r1',
-        tenantId: 'test-tenant-id',
-        userId: 'user-1',
-        status: 'ACTIVE',
-      }]));
+      mocks.dbMock.select.mockReturnValue(
+        makeSelectChain([
+          {
+            id: 'r1',
+            tenantId: 'test-tenant-id',
+            userId: 'user-1',
+            status: 'ACTIVE',
+          },
+        ])
+      );
 
-      await POST(disputeRequest({ reason: 'This was not my fault' }), { params: Promise.resolve({ id: 'r1' }) });
+      await POST(disputeRequest({ reason: 'This was not my fault' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
 
       expect(mocks.writeAuditLog).toHaveBeenCalledOnce();
       expect(mocks.writeAuditLog).toHaveBeenCalledWith({
@@ -186,14 +225,20 @@ describe('Merits Dispute API', () => {
     });
 
     it('updates the record status to DISPUTED with reason and timestamp', async () => {
-      mocks.dbMock.select.mockReturnValue(makeSelectChain([{
-        id: 'r1',
-        tenantId: 'test-tenant-id',
-        userId: 'user-1',
-        status: 'ACTIVE',
-      }]));
+      mocks.dbMock.select.mockReturnValue(
+        makeSelectChain([
+          {
+            id: 'r1',
+            tenantId: 'test-tenant-id',
+            userId: 'user-1',
+            status: 'ACTIVE',
+          },
+        ])
+      );
 
-      await POST(disputeRequest({ reason: 'This was not my fault' }), { params: Promise.resolve({ id: 'r1' }) });
+      await POST(disputeRequest({ reason: 'This was not my fault' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
 
       expect(mocks.dbMock.update).toHaveBeenCalledOnce();
     });

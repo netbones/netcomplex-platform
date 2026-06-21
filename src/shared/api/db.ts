@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { createComponentLogger } from '@shared/lib';
-import { sql, eq, isNull } from 'drizzle-orm';
+import { sql, isNull } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
@@ -85,7 +85,7 @@ import { eventAttendees } from '@schema/event-attendees';
 import { announcements } from '@schema/announcements';
 import { agentAccesses } from '@schema/agent-accesses';
 import { platformSuspensions } from '@schema/platform-suspensions';
-import { behaviorRecords } from '@schema/behavior-records';
+import { communityMerits } from '@schema/community-merits';
 import { platformModules } from '@schema/platform-modules';
 import { tenantModules } from '@schema/tenant-modules';
 import { groupMembershipRequests } from '@schema/group-membership-requests';
@@ -148,7 +148,7 @@ const dbSchema = {
   announcements,
   agentAccesses,
   platformSuspensions,
-  behaviorRecords,
+  communityMerits,
   groupMembershipRequests,
   platformModules,
   tenantModules,
@@ -326,7 +326,7 @@ export {
   announcements,
   agentAccesses,
   platformSuspensions,
-  behaviorRecords,
+  communityMerits,
   groupMembershipRequests,
   platformModules,
   tenantModules,

@@ -35,7 +35,7 @@ vi.mock('@api/server', async () => {
         getSession: vi.fn(() => Promise.resolve(mocks.authSession)),
       },
     },
-    behaviorRecords: {
+    communityMerits: {
       id: 'id',
       tenantId: 'tenantId',
       userId: 'userId',
@@ -50,11 +50,20 @@ vi.mock('@api/server', async () => {
       $inferInsert: {} as Record<string, unknown>,
     },
     apiUnauthorized: (message = 'Authentication required') =>
-      NextResponse.json({ success: false, error: { code: 'AUTH_REQUIRED', message } }, { status: 401 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'AUTH_REQUIRED', message } },
+        { status: 401 }
+      ) as any,
     apiForbidden: (message = 'Forbidden') =>
-      NextResponse.json({ success: false, error: { code: 'FORBIDDEN', message } }, { status: 403 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'FORBIDDEN', message } },
+        { status: 403 }
+      ) as any,
     apiNotFound: (message = 'Not found') =>
-      NextResponse.json({ success: false, error: { code: 'NOT_FOUND', message } }, { status: 404 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message } },
+        { status: 404 }
+      ) as any,
     apiError: (code: string, message: string, status: number = 500) =>
       NextResponse.json({ success: false, error: { code, message } }, { status }) as any,
     apiSuccess: (data: unknown, _meta?: unknown, status = 200, init?: ResponseInit) =>
@@ -71,7 +80,9 @@ vi.mock('@entities/tenant/server', () => ({
 }));
 
 vi.mock('@shared/lib', () => ({
-  hasPermission: vi.fn((role: string, perm: string) => ['ADMIN', 'BOARD'].includes(role) || perm === 'users'),
+  hasPermission: vi.fn(
+    (role: string, perm: string) => ['ADMIN', 'BOARD'].includes(role) || perm === 'users'
+  ),
 }));
 
 import { POST } from '@/app/api/merits/[id]/resolve/route';
@@ -101,7 +112,9 @@ describe('Merits Resolve API', () => {
     it('returns 401 without auth session', async () => {
       mocks.authSession = null;
 
-      const res = await POST(resolveRequest({ verdict: 'UPHOLD' }), { params: Promise.resolve({ id: 'r1' }) });
+      const res = await POST(resolveRequest({ verdict: 'UPHOLD' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
 
       expect(res.status).toBe(401);
     });
@@ -110,7 +123,9 @@ describe('Merits Resolve API', () => {
       const { hasPermission } = await import('@shared/lib');
       vi.mocked(hasPermission).mockReturnValueOnce(false);
 
-      const res = await POST(resolveRequest({ verdict: 'UPHOLD' }), { params: Promise.resolve({ id: 'r1' }) });
+      const res = await POST(resolveRequest({ verdict: 'UPHOLD' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
 
       expect(res.status).toBe(403);
     });
@@ -124,7 +139,9 @@ describe('Merits Resolve API', () => {
     });
 
     it('returns 400 for invalid verdict value', async () => {
-      const res = await POST(resolveRequest({ verdict: 'INVALID' }), { params: Promise.resolve({ id: 'r1' }) });
+      const res = await POST(resolveRequest({ verdict: 'INVALID' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
       const body = await res.json();
 
       expect(res.status).toBe(400);
@@ -134,20 +151,28 @@ describe('Merits Resolve API', () => {
     it('returns 404 when record not found', async () => {
       mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
 
-      const res = await POST(resolveRequest({ verdict: 'UPHOLD' }), { params: Promise.resolve({ id: 'r1' }) });
+      const res = await POST(resolveRequest({ verdict: 'UPHOLD' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
 
       expect(res.status).toBe(404);
     });
 
     it('returns 400 when record is not DISPUTED', async () => {
-      mocks.dbMock.select.mockReturnValue(makeSelectChain([{
-        id: 'r1',
-        tenantId: 'test-tenant-id',
-        status: 'ACTIVE',
-        standingBefore: 10,
-      }]));
+      mocks.dbMock.select.mockReturnValue(
+        makeSelectChain([
+          {
+            id: 'r1',
+            tenantId: 'test-tenant-id',
+            status: 'ACTIVE',
+            standingBefore: 10,
+          },
+        ])
+      );
 
-      const res = await POST(resolveRequest({ verdict: 'UPHOLD' }), { params: Promise.resolve({ id: 'r1' }) });
+      const res = await POST(resolveRequest({ verdict: 'UPHOLD' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
       const body = await res.json();
 
       expect(res.status).toBe(400);
@@ -155,14 +180,20 @@ describe('Merits Resolve API', () => {
     });
 
     it('resolves a dispute with UPHOLD verdict', async () => {
-      mocks.dbMock.select.mockReturnValue(makeSelectChain([{
-        id: 'r1',
-        tenantId: 'test-tenant-id',
-        status: 'DISPUTED',
-        standingBefore: 10,
-      }]));
+      mocks.dbMock.select.mockReturnValue(
+        makeSelectChain([
+          {
+            id: 'r1',
+            tenantId: 'test-tenant-id',
+            status: 'DISPUTED',
+            standingBefore: 10,
+          },
+        ])
+      );
 
-      const res = await POST(resolveRequest({ verdict: 'UPHOLD' }), { params: Promise.resolve({ id: 'r1' }) });
+      const res = await POST(resolveRequest({ verdict: 'UPHOLD' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
       const body = await res.json();
 
       expect(res.status).toBe(200);
@@ -170,14 +201,20 @@ describe('Merits Resolve API', () => {
     });
 
     it('resolves a dispute with OVERTURN verdict', async () => {
-      mocks.dbMock.select.mockReturnValue(makeSelectChain([{
-        id: 'r1',
-        tenantId: 'test-tenant-id',
-        status: 'DISPUTED',
-        standingBefore: 10,
-      }]));
+      mocks.dbMock.select.mockReturnValue(
+        makeSelectChain([
+          {
+            id: 'r1',
+            tenantId: 'test-tenant-id',
+            status: 'DISPUTED',
+            standingBefore: 10,
+          },
+        ])
+      );
 
-      const res = await POST(resolveRequest({ verdict: 'OVERTURN' }), { params: Promise.resolve({ id: 'r1' }) });
+      const res = await POST(resolveRequest({ verdict: 'OVERTURN' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
       const body = await res.json();
 
       expect(res.status).toBe(200);
@@ -193,7 +230,9 @@ describe('Merits Resolve API', () => {
       };
       mocks.dbMock.select.mockReturnValue(makeSelectChain([record]));
 
-      await POST(resolveRequest({ verdict: 'OVERTURN' }), { params: Promise.resolve({ id: 'r1' }) });
+      await POST(resolveRequest({ verdict: 'OVERTURN' }), {
+        params: Promise.resolve({ id: 'r1' }),
+      });
 
       // Verify update was called - the update mock chain doesn't capture args easily,
       // but we can confirm the route didn't error
@@ -215,13 +254,17 @@ describe('Merits Resolve API', () => {
     });
 
     it('writes audit log on successful resolution', async () => {
-      mocks.dbMock.select.mockReturnValue(makeSelectChain([{
-        id: 'r1',
-        tenantId: 'test-tenant-id',
-        userId: 'user-1',
-        status: 'DISPUTED',
-        standingBefore: 10,
-      }]));
+      mocks.dbMock.select.mockReturnValue(
+        makeSelectChain([
+          {
+            id: 'r1',
+            tenantId: 'test-tenant-id',
+            userId: 'user-1',
+            status: 'DISPUTED',
+            standingBefore: 10,
+          },
+        ])
+      );
 
       await POST(resolveRequest({ verdict: 'UPHOLD' }), { params: Promise.resolve({ id: 'r1' }) });
 
