@@ -122,6 +122,9 @@ model user {
   image                                                 String?
   twoFactorEnabled                                      Boolean?                  @default(false)
   isPlatformAdmin                                       Boolean                   @default(false)
+  banned                                                Boolean                   @default(false)
+  banReason                                             String?
+  banExpires                                            DateTime?
   assistSessions                                        AssistSession[]
   Booking                                               Booking[]
   CompetitionEntry                                      CompetitionEntry[]

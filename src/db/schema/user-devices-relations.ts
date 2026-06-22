@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { userDevices } from './devices';
+import { userDevices } from './user-devices';
 import { users } from './users';
 
 export const userDevicesRelations = relations(userDevices, helpers => ({

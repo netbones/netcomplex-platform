@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { userKeys } from './keys';
+import { userKeys } from './user-keys';
 import { users } from './users';
 
 export const userKeysRelations = relations(userKeys, helpers => ({

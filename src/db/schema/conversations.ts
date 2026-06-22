@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, text, jsonb, timestamp } from 'drizzle-orm/pg-core';
 import { conversationTypeEnum } from './conversation-type-enum';
 
 export const conversations = pgTable('Conversation', {

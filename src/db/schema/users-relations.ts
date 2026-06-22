@@ -37,8 +37,8 @@ import { sessions } from './sessions';
 import { soloSeats } from './solo-seats';
 import { standardSeats } from './standard-seats';
 import { twoFactors } from './two-factors';
-import { userDevices } from './devices';
-import { userKeys } from './keys';
+import { userKeys } from './user-keys';
+import { userDevices } from './user-devices';
 
 export const usersRelations = relations(users, helpers => ({
   assistSessions: helpers.many(assistSessions, { relationName: 'AssistSessionTouser' }),
@@ -111,6 +111,6 @@ export const usersRelations = relations(users, helpers => ({
   soloSeat: helpers.many(soloSeats, { relationName: 'SoloSeatTouser' }),
   standardSeat: helpers.many(standardSeats, { relationName: 'StandardSeatTouser' }),
   twoFactor: helpers.many(twoFactors, { relationName: 'twoFactorTouser' }),
-  UserDevice: helpers.many(userDevices, { relationName: 'UserDeviceTouser' }),
   UserKey: helpers.many(userKeys, { relationName: 'UserKeyTouser' }),
+  UserDevice: helpers.many(userDevices, { relationName: 'UserDeviceTouser' }),
 }));
