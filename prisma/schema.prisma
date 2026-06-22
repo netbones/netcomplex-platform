@@ -938,6 +938,7 @@ model RequestNote {
   user       user               @relation(fields: [userId], references: [id])
 
   @@index([requestId])
+  @@index([userId])
 }
 
 model RequestHistory {
