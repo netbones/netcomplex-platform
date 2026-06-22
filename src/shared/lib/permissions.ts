@@ -15,6 +15,7 @@ export interface Permission {
   messages: boolean;
   settings: boolean;
   announcements: boolean;
+  providers: boolean;
 }
 
 export const ROLE_PERMISSIONS: Record<Role, Permission> = {
@@ -33,6 +34,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     messages: true,
     settings: false,
     announcements: false,
+    providers: false,
   },
   GROUP_ADMIN: {
     admin: false,
@@ -49,6 +51,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     messages: true,
     settings: false,
     announcements: false,
+    providers: false,
   },
   COMMITTEE: {
     admin: false,
@@ -65,6 +68,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     messages: true,
     settings: true,
     announcements: true,
+    providers: false,
   },
   BOARD: {
     admin: false,
@@ -81,6 +85,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     messages: true,
     settings: true,
     announcements: true,
+    providers: true,
   },
   ADMIN: {
     admin: true,
@@ -97,6 +102,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     messages: true,
     settings: true,
     announcements: true,
+    providers: true,
   },
   AGENT: {
     admin: false,
@@ -113,6 +119,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     messages: false,
     settings: false,
     announcements: false,
+    providers: false,
   },
   MANAGER: {
     admin: false,
@@ -129,6 +136,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     messages: true,
     settings: true,
     announcements: true,
+    providers: false,
   },
   ASSOCIATE: {
     admin: false,
@@ -145,6 +153,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     messages: true,
     settings: false,
     announcements: false,
+    providers: false,
   },
 };
 
@@ -163,6 +172,7 @@ const ZERO_PERMISSIONS: Permission = {
   messages: false,
   settings: false,
   announcements: false,
+  providers: false,
 };
 
 export function hasPermission(

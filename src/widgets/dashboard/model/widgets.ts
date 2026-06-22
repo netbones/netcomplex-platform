@@ -178,6 +178,95 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   });
 
   // ═══════════════════════════════════════════════════════════════
+  // PROVIDER WIDGETS
+  // ═══════════════════════════════════════════════════════════════
+
+  registry.register({
+    id: 'provider-overview',
+    version: '1.0.0',
+    name: 'Provider Overview',
+    description: 'Provider profile, verification status, and trust summary',
+    author: 'internal',
+    category: 'core',
+    icon: Briefcase,
+    component: lazy(() =>
+      import('../ui/provider-widgets').then(m => ({ default: m.ProviderOverviewWidget }))
+    ),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['providers'],
+  });
+
+  registry.register({
+    id: 'provider-inquiries',
+    version: '1.0.0',
+    name: 'Provider Inquiries',
+    description: "Inquiry pipeline across the provider's own listings",
+    author: 'internal',
+    category: 'communication',
+    icon: ClipboardList,
+    component: lazy(() =>
+      import('../ui/provider-widgets').then(m => ({ default: m.ProviderInquiriesWidget }))
+    ),
+    defaultSize: { width: 4, height: 2 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['providers'],
+  });
+
+  registry.register({
+    id: 'provider-analytics',
+    version: '1.0.0',
+    name: 'Provider Analytics',
+    description: 'Provider-scoped listing and inquiry analytics',
+    author: 'internal',
+    category: 'core',
+    icon: BarChart2,
+    component: lazy(() =>
+      import('../ui/provider-widgets').then(m => ({ default: m.ProviderAnalyticsWidget }))
+    ),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['providers'],
+  });
+
+  registry.register({
+    id: 'provider-listings',
+    version: '1.0.0',
+    name: 'Provider Listings',
+    description: 'Summary of active provider listings',
+    author: 'internal',
+    category: 'core',
+    icon: Layers,
+    component: lazy(() =>
+      import('../ui/provider-widgets').then(m => ({ default: m.ProviderListingsWidget }))
+    ),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['providers'],
+  });
+
+  registry.register({
+    id: 'provider-credit-progress',
+    version: '1.0.0',
+    name: 'Provider Credit Progress',
+    description: 'Progress toward verified provider status',
+    author: 'internal',
+    category: 'core',
+    icon: Shield,
+    component: lazy(() =>
+      import('../ui/provider-widgets').then(m => ({ default: m.ProviderCreditProgressWidget }))
+    ),
+    defaultSize: { width: 4, height: 2 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['providers'],
+  });
+
+  // ═══════════════════════════════════════════════════════════════
   // MAINTENANCE WIDGETS
   // ═══════════════════════════════════════════════════════════════
 

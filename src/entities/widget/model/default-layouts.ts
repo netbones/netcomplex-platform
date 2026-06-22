@@ -30,6 +30,13 @@ import type { WidgetLayouts, UserWidgets } from '@entities/widget';
 
 const RESIDENT_USER_WIDGETS: UserWidgets = {
   home: ['stats', 'quick-actions', 'notifications', 'recent-activity', 'events', 'messages'],
+  providers: [
+    'provider-overview',
+    'provider-analytics',
+    'provider-listings',
+    'provider-credit-progress',
+    'provider-inquiries',
+  ],
   services: ['maintenance-requests', 'events', 'notifications', 'my-services', 'service-inquiries'],
   community: [
     'my-content',
@@ -52,6 +59,13 @@ const RESIDENT_LAYOUTS: WidgetLayouts = {
     'recent-activity': { x: 0, y: 4, width: 4, height: 2, isCollapsed: false },
     events: { x: 0, y: 6, width: 2, height: 2, isCollapsed: false },
     messages: { x: 2, y: 6, width: 2, height: 2, isCollapsed: false },
+  },
+  providers: {
+    'provider-overview': { x: 0, y: 0, width: 4, height: 3, isCollapsed: false },
+    'provider-analytics': { x: 0, y: 3, width: 4, height: 3, isCollapsed: false },
+    'provider-listings': { x: 0, y: 6, width: 4, height: 3, isCollapsed: false },
+    'provider-credit-progress': { x: 0, y: 9, width: 4, height: 2, isCollapsed: false },
+    'provider-inquiries': { x: 0, y: 11, width: 4, height: 2, isCollapsed: false },
   },
   services: {
     'maintenance-requests': { x: 0, y: 0, width: 4, height: 3, isCollapsed: false },
@@ -79,6 +93,13 @@ const RESIDENT_LAYOUTS: WidgetLayouts = {
 
 const BOARD_USER_WIDGETS: UserWidgets = {
   home: ['admin-stats', 'admin-quick-links', 'admin-activity', 'notifications', 'recent-activity'],
+  providers: [
+    'provider-overview',
+    'provider-analytics',
+    'provider-listings',
+    'provider-credit-progress',
+    'provider-inquiries',
+  ],
   services: ['maintenance-list', 'events', 'my-services', 'service-inquiries'],
   community: [
     'admin-events',
@@ -98,6 +119,13 @@ const BOARD_LAYOUTS: WidgetLayouts = {
     'admin-activity': { x: 1, y: 2, width: 2, height: 3, isCollapsed: false },
     notifications: { x: 3, y: 2, width: 1, height: 2, isCollapsed: false },
     'recent-activity': { x: 0, y: 5, width: 4, height: 2, isCollapsed: false },
+  },
+  providers: {
+    'provider-overview': { x: 0, y: 0, width: 4, height: 3, isCollapsed: false },
+    'provider-analytics': { x: 0, y: 3, width: 4, height: 3, isCollapsed: false },
+    'provider-listings': { x: 0, y: 6, width: 4, height: 3, isCollapsed: false },
+    'provider-credit-progress': { x: 0, y: 9, width: 4, height: 2, isCollapsed: false },
+    'provider-inquiries': { x: 0, y: 11, width: 4, height: 2, isCollapsed: false },
   },
   services: {
     'maintenance-list': { x: 0, y: 0, width: 4, height: 3, isCollapsed: false },
@@ -127,6 +155,13 @@ const BOARD_LAYOUTS: WidgetLayouts = {
 
 const ADMIN_USER_WIDGETS: UserWidgets = {
   home: ['admin-stats', 'admin-quick-links', 'admin-user', 'admin-activity'],
+  providers: [
+    'provider-overview',
+    'provider-analytics',
+    'provider-listings',
+    'provider-credit-progress',
+    'provider-inquiries',
+  ],
   services: ['maintenance-list', 'maintenance-analytics', 'events', 'admin-resources'],
   community: [
     'admin-content',
@@ -146,6 +181,13 @@ const ADMIN_LAYOUTS: WidgetLayouts = {
     'admin-quick-links': { x: 0, y: 2, width: 1, height: 2, isCollapsed: false },
     'admin-user': { x: 1, y: 2, width: 2, height: 3, isCollapsed: false },
     'admin-activity': { x: 3, y: 2, width: 1, height: 3, isCollapsed: false },
+  },
+  providers: {
+    'provider-overview': { x: 0, y: 0, width: 4, height: 3, isCollapsed: false },
+    'provider-analytics': { x: 0, y: 3, width: 4, height: 3, isCollapsed: false },
+    'provider-listings': { x: 0, y: 6, width: 4, height: 3, isCollapsed: false },
+    'provider-credit-progress': { x: 0, y: 9, width: 4, height: 2, isCollapsed: false },
+    'provider-inquiries': { x: 0, y: 11, width: 4, height: 2, isCollapsed: false },
   },
   services: {
     'maintenance-list': { x: 0, y: 0, width: 2, height: 3, isCollapsed: false },

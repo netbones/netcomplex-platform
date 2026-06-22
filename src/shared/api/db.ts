@@ -99,6 +99,9 @@ import { serviceProviders } from '@schema/service-providers';
 import { maintenanceCategories } from '@schema/maintenance-categories';
 import { requestNotes } from '@schema/request-notes';
 import { requestHistories } from '@schema/request-histories';
+import { providerVerifications } from '@schema/provider-verifications';
+import { providerCredits } from '@schema/provider-credits';
+import { providerSubscriptions } from '@schema/provider-subscriptions';
 
 import { ENV } from 'varlock/env';
 import { dbLogger } from '@shared/lib';
@@ -162,6 +165,9 @@ const dbSchema = {
   maintenanceCategories,
   requestNotes,
   requestHistories,
+  providerVerifications,
+  providerCredits,
+  providerSubscriptions,
 } as const;
 
 export type DbSchema = typeof dbSchema;
@@ -340,4 +346,7 @@ export {
   maintenanceCategories,
   requestNotes,
   requestHistories,
+  providerVerifications,
+  providerCredits,
+  providerSubscriptions,
 };

@@ -11,6 +11,7 @@ import { getVisibleSpaces, SPACES, type SpaceId } from '../model/spaces';
 
 const SPACE_FALLBACKS: Record<string, string> = {
   'spaces.home': 'Home',
+  'spaces.providers': 'Providers',
   'spaces.services': 'Services',
   'spaces.community': 'Community',
   'spaces.messages': 'Messages',

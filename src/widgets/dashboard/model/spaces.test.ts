@@ -6,6 +6,10 @@ describe('SPACES href registry', () => {
     expect(SPACES.home.href).toBe('/dashboard');
   });
 
+  it('providers space has href /dashboard/providers', () => {
+    expect(SPACES.providers.href).toBe('/dashboard/providers');
+  });
+
   it('services space has href /dashboard/services', () => {
     expect(SPACES.services.href).toBe('/dashboard/services');
   });
@@ -23,7 +27,7 @@ describe('SPACES href registry', () => {
   });
 
   it('every SpaceId entry has a non-empty href string', () => {
-    const ids: SpaceId[] = ['home', 'services', 'community', 'messages', 'admin'];
+    const ids: SpaceId[] = ['home', 'providers', 'services', 'community', 'messages', 'admin'];
     for (const id of ids) {
       expect(typeof SPACES[id].href).toBe('string');
       expect(SPACES[id].href.length).toBeGreaterThan(0);

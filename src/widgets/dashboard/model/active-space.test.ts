@@ -14,6 +14,10 @@ describe('getActiveSpaceId', () => {
     expect(getActiveSpaceId('/dashboard/')).toBe('home');
   });
 
+  it('returns "providers" for /dashboard/providers', () => {
+    expect(getActiveSpaceId('/dashboard/providers')).toBe('providers');
+  });
+
   it('returns "services" for /dashboard/services', () => {
     expect(getActiveSpaceId('/dashboard/services')).toBe('services');
   });

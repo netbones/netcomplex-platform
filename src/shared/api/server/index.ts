@@ -60,6 +60,9 @@ export {
   maintenanceCategories,
   requestNotes,
   requestHistories,
+  providerVerifications,
+  providerCredits,
+  providerSubscriptions,
 } from '../db';
 export { auth } from '../auth';
 export {

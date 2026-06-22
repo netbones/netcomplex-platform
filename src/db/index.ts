@@ -43,3 +43,6 @@ export * from '@schema/two-factors';
 // user-groups types now exported via @schema/groups, @schema/group-members, @schema/group-membership-requests
 export * from '@schema/users';
 export * from '@schema/verifications';
+export * from '@schema/provider-verifications';
+export * from '@schema/provider-credits';
+export * from '@schema/provider-subscriptions';

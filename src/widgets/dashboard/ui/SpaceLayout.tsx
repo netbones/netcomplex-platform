@@ -12,10 +12,11 @@ import { authClient } from '@api/client';
 import { AddWidgetModal } from '@features/dashboard';
 import { Megaphone } from 'lucide-react';
 import type { SpaceId } from '../model/spaces';
-import { SPACES, getWidgetsForSpace } from '../model/spaces';
+import { SPACES } from '../model/spaces';
 
 const SPACE_FALLBACKS: Record<string, string> = {
   'spaces.home': 'Home',
+  'spaces.providers': 'Providers',
   'spaces.services': 'Services',
   'spaces.community': 'Community',
   'spaces.messages': 'Messages',
