@@ -168,7 +168,7 @@ export const auth = betterAuth({
       { path: '/email-otp/send-verification-otp', schema: sendOtpSchema },
     ]),
     admin({
-      adminRoles: ['ADMIN', 'BOARD'],
+      adminUserIds: ['soralia-user-david-vdm', 'soralia-user-hoa-services'],
     }),
   ],
   advanced: {
