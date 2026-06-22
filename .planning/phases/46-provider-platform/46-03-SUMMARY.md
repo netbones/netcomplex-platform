@@ -148,3 +148,12 @@ Recommended next step:
 - wire invoice PDF generation/storage
 - add admin revenue summary/reporting endpoints on top of `revenueRecords`
 - add integration tests once worktree-local Vitest resolution is stable
+
+## Post-completion MITIGATIONS
+
+The following fixes were applied after the 46-03 feature implementation was complete:
+
+1. **Schema FK relations & Prisma models** (`bf723784`)
+   - `provider_charges` and `provider_invoices` tables were Drizzle-only during implementation; migration `20260622000000_add_provider_fk_relations` now creates them in Prisma schema and DB with full `@relation` directives, FK constraints (`ON DELETE CASCADE`), and enums (`ProviderChargeStatus`, `InvoiceStatus`)
+   - Billing FK chains (`provider_subscriptions.tierId → subscription_tiers.id`, `payment_transactions.subscriptionId → provider_subscriptions.id`, `provider_charges.subscriptionId → provider_subscriptions.id`, `provider_invoices.subscriptionId → provider_subscriptions.id`, `revenue_records.transactionId → payment_transactions.id`) all now have explicit Prisma `@relation` directives
+   - `PaymentTransaction.externalRef` typo fixed (`external_ref进項` → `external_ref`)

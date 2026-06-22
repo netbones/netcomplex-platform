@@ -136,3 +136,13 @@ Focused Vitest execution now works when run with the main checkout's installed V
 - Add a persisted verification / moderation event table if deeper audit-history requirements emerge during milestone verification.
 - If full PayPal refund coverage for older transactions is required, backfill or persist remote capture IDs for pre-gap-closure payments.
 - Add active gateway health probes if operational monitoring needs to move beyond inferred status.
+
+## Post-completion MITIGATIONS
+
+The following fixes were applied after the 46-04 feature implementation was complete:
+
+1. **Schema FK relations & Prisma models** (`bf723784`)
+   - Admin-facing tables (`provider_charges`, `provider_invoices`, `revenue_records`, `payment_transactions`) were Drizzle-only during implementation; migration `20260622000000_add_provider_fk_relations` now creates them in Prisma schema and DB with full `@relation` directives, FK constraints (`ON DELETE CASCADE`), and required enums
+   - All FK chains referenced by admin APIs (transaction → subscription → tier, charge → subscription, invoice → subscription, revenue → transaction) now have explicit Prisma `@relation` directives
+   - `PaymentTransaction.externalRef` typo fixed (`external_ref进項` → `external_ref`)
+   - `ProviderVerification.providerId` column renamed from camelCase to snake_case (`provider_id`)

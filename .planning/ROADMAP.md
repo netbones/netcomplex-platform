@@ -857,7 +857,7 @@ _Features explicitly deferred to post-M5b. The 8 feature items originally in the
 
 **Goal:** Ship the Provider Platform cluster — provider analytics, provider dashboard, third-party provider registration, and provider billing & subscription. These 4 features enable the provider economy for the Soralia Village anchor tenant launch.
 
-**Status:** Planning (restructured from Bucket C Triage on 2026-06-19)
+**Status:** Complete — 4 plans delivered, plus 3 post-completion MITIGATION fixes
 
 **BD sources (4):**
 
@@ -871,11 +871,17 @@ _Features explicitly deferred to post-M5b. The 8 feature items originally in the
 - `p81.1` — Orphan FSD migration state-change event (no actionable description)
 - `rbs.1` — Orphan FSD migration state-change event (no actionable description)
 
-**Acceptance:** TBD — scope via `/gsd-discuss-phase`
+**Acceptance:** Verified via PLAN.md files 46-01–46-04.
 
 **Dependencies:** None (independent of Community Merits, i18n, OTP, dWallet). Can execute in parallel with Phase 45 and 47.
 
-**Plans:** TBD. Run `/gsd-plan-phase 46-provider-platform` when ready.
+**Plans:** Four sub-plans executed: 46-01 (Dashboard & Analytics), 46-02 (Registration & Legal), 46-03 (Billing & Credits), 46-04 (Admin Moderation).
+
+**Post-completion MITIGATIONS (3 fix commits applied after feature delivery):**
+
+1. Schema FK relations & Prisma models — added `@relation` directives, 16 FK constraints (`ON DELETE CASCADE`), missing Prisma models, fixed `providerId` camelCase/snake_case and `externalRef` typo, created migration `20260622000000_add_provider_fk_relations`
+2. Payment refund & callback gaps — added Paystack verify and PayPal capture completion routes, implemented gateway-executed refunds, updated summaries accordingly
+3. ProvidersLayer redirect fix — replaced `redirect()` with `useRouter.push()` to avoid ErrorBoundary intercept
 
 **Out of scope:** Service Marketplace features (gtm, cp8, qx7, 4vk — now in Phase 50), dWallet (Phase 47), M5a hardening (Phase 44), M4.5 fixes (Phase 43).
 

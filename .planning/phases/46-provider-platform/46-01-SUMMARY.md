@@ -113,6 +113,19 @@ Updated:
 - Clean on the touched route/UI/model files after implementation
 - One initial standalone helper diagnostic reported unresolved aliases, but targeted ESLint for that file passed after integration
 
+## Post-completion MITIGATIONS
+
+The following fixes were applied after the 46-01 feature implementation was complete:
+
+1. **Schema FK relations & Prisma models** (`bf723784`)
+   - `ProviderVerification.providerId` column renamed from camelCase to snake_case (`provider_id`) to match Prisma conventions
+   - Added `@relation` directives linking `ProviderVerification.providerId → ServiceProvider.id`
+   - Missing Phase 46 tables (provider_charges, provider_invoices) created in Prisma schema and DB via migration `20260622000000_add_provider_fk_relations`
+   - 16 FK constraints added with `ON DELETE CASCADE` across all provider tables
+
+2. **ProvidersLayer redirect fix** (`949f38dc`)
+   - `ProvidersLayer.tsx` replaced `redirect()` with `useRouter.push()` in `useEffect` to prevent `NEXT_REDIRECT` from being intercepted by the ErrorBoundary wrapper, which was showing "Something went wrong" instead of navigating
+
 ## Follow-up considerations for 46-02 / 46-03
 
 Potential blockers / constraints to keep in mind:

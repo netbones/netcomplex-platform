@@ -142,3 +142,12 @@ Both were blocked by the local worktree package-resolution setup:
 
 4. **Website persistence is still open**
    - If later plans need provider websites in listings/admin UI/search, add a formal schema field + migration.
+
+## Post-completion MITIGATIONS
+
+The following fixes were applied after the 46-02 feature implementation was complete:
+
+1. **Schema FK relations & Prisma models** (`bf723784`)
+   - Provider registration FK chains (`provider_legal_agreements.providerId → ServiceProvider.id`, `provider_verifications.providerId → ServiceProvider.id`) now have explicit `@relation` directives and `ON DELETE CASCADE` constraints
+   - All missing Phase 46 provider tables created in Prisma schema and DB via migration `20260622000000_add_provider_fk_relations`
+   - `ProviderVerification.providerId` column renamed from camelCase to snake_case (`provider_id`) for Prisma compatibility
