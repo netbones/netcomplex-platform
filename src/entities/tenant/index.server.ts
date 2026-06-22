@@ -61,5 +61,10 @@ export {
 } from './api/flags/services-config';
 
 export { SETTINGS_KEYS } from './api/settings';
+export {
+  getProviderRegistrationMode,
+  getProviderRegistrationModeImpl,
+  setProviderRegistrationMode,
+} from './api/provider-registration-mode';
 
 export { servicesConfigSchema, type ServicesConfigFormData } from './schema';

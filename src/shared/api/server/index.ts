@@ -61,6 +61,7 @@ export {
   requestNotes,
   requestHistories,
   providerVerifications,
+  providerLegalAgreements,
   providerCredits,
   providerSubscriptions,
 } from '../db';

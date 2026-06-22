@@ -57,6 +57,7 @@ export const SETTINGS_VALUE_SCHEMAS: Record<string, z.ZodTypeAny> = Object.fromE
   ['custom_pages', jsonStringSchema()],
   ['custom_nav', jsonStringSchema()],
   ['services_config', jsonStringSchema()],
+  ['provider_registration_mode', z.enum(['OPEN', 'INVITATION_ONLY'])],
   ['interest_categories', jsonStringArraySchema()],
 ] as [string, z.ZodTypeAny][]);
 

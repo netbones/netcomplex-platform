@@ -1,0 +1,67 @@
+import { revalidatePath, revalidateTag } from 'next/cache';
+
+import {
+  apiError,
+  apiForbidden,
+  apiInternalError,
+  apiSuccess,
+  apiUnauthorized,
+  CACHE_TAGS,
+  getSessionAndRole,
+} from '@api/server';
+import { withTenant } from '@entities/tenant/server';
+import {
+  getProviderRegistrationModeImpl,
+  setProviderRegistrationMode,
+} from '@entities/tenant/server';
+import { providerRegistrationModeSchema } from '@shared/lib/providers/registration';
+
+export const maxDuration = 8;
+
+function canManageMode(role: string): boolean {
+  return role === 'ADMIN' || role === 'BOARD';
+}
+
+export async function GET(request: Request) {
+  const auth = await getSessionAndRole(request);
+  if (!auth) {
+    return apiUnauthorized();
+  }
+
+  if (!canManageMode(auth.role)) {
+    return apiForbidden('Board or admin access required');
+  }
+
+  const { tenantId } = await withTenant();
+  const mode = await getProviderRegistrationModeImpl(tenantId);
+
+  return apiSuccess({ mode });
+}
+
+export async function PATCH(request: Request) {
+  const auth = await getSessionAndRole(request);
+  if (!auth) {
+    return apiUnauthorized();
+  }
+
+  if (!canManageMode(auth.role)) {
+    return apiForbidden('Board or admin access required');
+  }
+
+  const body = (await request.json()) as { mode?: string };
+  const parsed = providerRegistrationModeSchema.safeParse(body.mode);
+  if (!parsed.success) {
+    return apiError('VALIDATION_ERROR', 'mode must be OPEN or INVITATION_ONLY', 400);
+  }
+
+  const { tenantId } = await withTenant();
+  const ok = await setProviderRegistrationMode(tenantId, parsed.data);
+  if (!ok) {
+    return apiInternalError('Failed to update provider registration mode');
+  }
+
+  revalidateTag(CACHE_TAGS.SETTINGS);
+  revalidatePath('/providers/register');
+
+  return apiSuccess({ mode: parsed.data });
+}

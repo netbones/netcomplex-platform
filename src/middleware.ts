@@ -16,28 +16,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 const PLATFORM_DOMAIN = 'app.netbones.co.za';
 const DEFAULT_TENANT_SLUG = 'soralia';
 
-const TENANT_DOMAINS = ['netbones.co.za', 'soralia.org', 'soralia.com', 'soralia.co.za'];
-
 function isPlatformHost(host: string): boolean {
   // Only the actual platform domain (strip port for comparison)
   const hostWithoutPort = host.split(':')[0];
   return hostWithoutPort === PLATFORM_DOMAIN;
-}
-
-function isTenantHost(host: string): boolean {
-  if (isPlatformHost(host)) return false;
-
-  // Localhost is treated as a tenant for development
-  if (host.includes('localhost')) return true;
-
-  // Check if it's a tenant subdomain (e.g., soralia.netbones.co.za)
-  const hostWithoutPort = host.split(':')[0];
-  for (const domain of TENANT_DOMAINS) {
-    if (hostWithoutPort.endsWith(`.${domain}`) || hostWithoutPort === domain) {
-      return true;
-    }
-  }
-  return false;
 }
 
 function isTenantRoute(pathname: string): boolean {
@@ -48,6 +30,7 @@ function isTenantRoute(pathname: string): boolean {
     pathname.startsWith('/events') ||
     pathname.startsWith('/bookings') ||
     pathname.startsWith('/maintenance') ||
+    pathname.startsWith('/providers') ||
     pathname.startsWith('/messages') ||
     pathname.startsWith('/notifications') ||
     pathname.startsWith('/settings') ||

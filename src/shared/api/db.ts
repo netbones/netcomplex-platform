@@ -100,6 +100,7 @@ import { maintenanceCategories } from '@schema/maintenance-categories';
 import { requestNotes } from '@schema/request-notes';
 import { requestHistories } from '@schema/request-histories';
 import { providerVerifications } from '@schema/provider-verifications';
+import { providerLegalAgreements } from '@schema/provider-legal-agreements';
 import { providerCredits } from '@schema/provider-credits';
 import { providerSubscriptions } from '@schema/provider-subscriptions';
 
@@ -166,6 +167,7 @@ const dbSchema = {
   requestNotes,
   requestHistories,
   providerVerifications,
+  providerLegalAgreements,
   providerCredits,
   providerSubscriptions,
 } as const;
@@ -347,6 +349,7 @@ export {
   requestNotes,
   requestHistories,
   providerVerifications,
+  providerLegalAgreements,
   providerCredits,
   providerSubscriptions,
 };

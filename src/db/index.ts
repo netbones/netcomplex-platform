@@ -44,5 +44,6 @@ export * from '@schema/two-factors';
 export * from '@schema/users';
 export * from '@schema/verifications';
 export * from '@schema/provider-verifications';
+export * from '@schema/provider-legal-agreements';
 export * from '@schema/provider-credits';
 export * from '@schema/provider-subscriptions';
