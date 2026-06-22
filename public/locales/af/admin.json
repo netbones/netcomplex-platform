@@ -64,6 +64,7 @@
     "announcements": "Aankondigings",
     "system": "Stelsel",
     "services": "Dienste",
+    "providers": "Verskaffers",
     "descriptions": {
       "users": "Bestuur gemeenskapslede en rolle",
       "maintenance": "Instandhoudingsversoekbestuur en ontleding",
@@ -74,7 +75,8 @@
       "surveys": "Opnameskepping en uitslae",
       "announcements": "Aankondigingskepping en bestuur",
       "system": "Platformkonfigurasie en gesondheid",
-      "services": "Konfigureer die publieke dienste bladsy"
+      "services": "Konfigureer die publieke dienste bladsy",
+      "providers": "Verskafferbestuur, inkomste en moderering"
     }
   },
   "unsuspend": "Ontskors",

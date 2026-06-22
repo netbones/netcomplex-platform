@@ -64,6 +64,7 @@
     "announcements": "Izimemezelo",
     "system": "Uhlelo",
     "services": "Amasevisi",
+    "providers": "Abahlinzeki",
     "descriptions": {
       "users": "Phatha amalungu omphakathi nezindima",
       "maintenance": "Ukuphathwa kwezicelo zokugcina nokuhlaziywa",
@@ -74,7 +75,8 @@
       "surveys": "Ukudalwa kwamaswihlome nemiphumela",
       "announcements": "Ukudalwa kwezimemezelo nokuphathwa",
       "system": "Ukumiswa kwesikhulumi nempilo",
-      "services": "Lungiselela ikhasi lamasevisi omphakathi"
+      "services": "Lungiselela ikhasi lamasevisi omphakathi",
+      "providers": "Ukuphathwa kwabahlinzeki, imali engenayo nokumodareyitha"
     }
   },
   "unsuspend": "Buyisela uMsebenzisi",

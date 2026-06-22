@@ -65,6 +65,7 @@
     "system": "System",
     "services": "Services",
     "bookings": "Bookings",
+    "providers": "Providers",
     "descriptions": {
       "users": "Manage community members and roles",
       "maintenance": "Maintenance request management and analytics",
@@ -76,7 +77,8 @@
       "announcements": "Announcement creation and management",
       "system": "Platform configuration and health",
       "services": "Configure the public services page",
-      "adminBookings": "Manage bookable facilities and settings"
+      "adminBookings": "Manage bookable facilities and settings",
+      "providers": "Provider management, revenue, and moderation"
     }
   },
   "unsuspend": "Unsuspend",

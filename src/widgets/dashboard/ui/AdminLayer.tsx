@@ -45,6 +45,9 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.announcements': 'Announcements',
   'domains.merits': 'Merits',
   'domains.system': 'System',
+  'domains.providers': 'Providers',
+  'domains.bookings': 'Bookings',
+  'domains.services': 'Services',
   'domains.descriptions.users': 'Manage community members and roles',
   'domains.descriptions.maintenance': 'Maintenance request management and analytics',
   'domains.descriptions.content': 'Content publishing and moderation',
@@ -55,6 +58,9 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.announcements': 'Announcement creation and management',
   'domains.descriptions.merits': 'Community merit management and disputes',
   'domains.descriptions.system': 'Platform configuration and health',
+  'domains.descriptions.providers': 'Provider management, revenue, and moderation',
+  'domains.descriptions.services': 'Configure the public services page',
+  'domains.descriptions.adminBookings': 'Manage bookable facilities and settings',
 };
 
 function DomainCard({ domain, badge }: { domain: AdminDomainDef; badge: number }) {

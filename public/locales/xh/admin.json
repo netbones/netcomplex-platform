@@ -64,6 +64,7 @@
     "announcements": "Izibhengezo",
     "system": "Inkqubo",
     "services": "Iinkonzo",
+    "providers": "Ababoneleli",
     "descriptions": {
       "users": "Lawula amalungu oluntu kunye neendima",
       "maintenance": "Ul awulo lwezicelo zokugcina kunye nohlalutyo",
@@ -74,7 +75,8 @@
       "surveys": "Ukuyilwa kovavanyo kunye neziphumo",
       "announcements": "Ukuyilwa kwezibhengezo kunye nolawulo",
       "system": "Uqwalaselo lweqonga kunye nempilo",
-      "services": "Qwalasela iphepha leenkonzo zoluntu"
+      "services": "Qwalasela iphepha leenkonzo zoluntu",
+      "providers": "Ul awulo lwababoneleli, ingeniso kunye nokumodareyitha"
     }
   },
   "unsuspend": "Buyisela uMsebenzisi",
