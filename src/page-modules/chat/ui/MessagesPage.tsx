@@ -13,6 +13,7 @@ import {
   TypingIndicator,
   EmojiPickerButton,
   ParticipantAvatar,
+  ParticipantAvatarStack,
   type ConversationListItem,
 } from '@entities/chat';
 import { CreateConversationModal } from '@features/chat';
@@ -331,9 +332,7 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
                       >
                         <div className="flex shrink-0">
                           {conv.type === 'GROUP' ? (
-                            <div className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-purple-100 text-purple-700 font-bold">
-                              {displayName.charAt(0).toUpperCase()}
-                            </div>
+                            <ParticipantAvatarStack participants={otherParticipants} max={3} />
                           ) : (
                             <ParticipantAvatar
                               name={otherParticipants[0]?.name || ''}
@@ -441,9 +440,7 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
                               </Link>
                             ) : (
                               <>
-                                <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
-                                  {activeConv?.name?.charAt(0).toUpperCase() || 'G'}
-                                </div>
+                                <ParticipantAvatarStack participants={otherParticipants} max={4} />
                                 <div className="min-w-0">
                                   <h3 className="font-bold text-gray-950 truncate">
                                     {activeConv?.name || 'Group Conversation'}
@@ -506,7 +503,19 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
                             </Link>
                           </div>
                         )}
-
+                        {!isDirectChat && otherParticipants.length > 0 && (
+                          <div className="flex flex-col items-center justify-center text-center py-8 border-b border-gray-50 mb-6 bg-gradient-to-b from-gray-50/50 to-transparent rounded-2xl px-4">
+                            <div className="mb-4">
+                              <ParticipantAvatarStack participants={otherParticipants} max={5} />
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900">
+                              {activeConv?.name || 'Group Conversation'}
+                            </h3>
+                            <p className="text-[11px] text-gray-400 mt-1">
+                              {otherParticipants.length + 1} participants
+                            </p>
+                          </div>
+                        )}
                         {messagesLoading ? (
                           <p className="text-center text-gray-400 py-8 text-sm">
                             Loading messages...
