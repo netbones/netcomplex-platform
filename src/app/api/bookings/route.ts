@@ -8,6 +8,7 @@ import {
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
+  emitEvent,
   now,
 } from '@api/server';
 
@@ -167,6 +168,13 @@ export async function POST(request: Request) {
 
     // Revalidate dashboard caches immediately when new booking is created
     revalidateDashboard();
+
+    emitEvent('booking.created', {
+      tenantId,
+      userId,
+      bookingId: booking.id,
+      facility,
+    });
 
     return apiCreated(booking);
   } catch (error) {

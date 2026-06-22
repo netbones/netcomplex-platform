@@ -11,6 +11,7 @@ import {
   apiUnauthorized,
   withErrorHandler,
   now,
+  emitEvent,
 } from '@api/server';
 
 import { eq, and, desc, lte, gte, isNull } from 'drizzle-orm';
@@ -177,6 +178,12 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   // Revalidate content caches
   revalidateContent();
+
+  emitEvent('competition.entered', {
+    tenantId,
+    userId: authData.userId,
+    competitionId: competition.id,
+  });
 
   return apiCreated(competition);
 });

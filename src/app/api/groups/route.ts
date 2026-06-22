@@ -11,6 +11,7 @@ import {
   apiUnauthorized,
   notDeleted,
   now,
+  emitEvent,
   withErrorHandler,
 } from '@api/server';
 
@@ -163,6 +164,12 @@ export const POST = withErrorHandler(async (request: Request) => {
       updatedAt: ts,
     })
     .returning();
+
+  emitEvent('group.joined', {
+    tenantId,
+    userId: authData.userId,
+    groupId: group.id,
+  });
 
   return apiCreated(group);
 });

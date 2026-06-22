@@ -7,6 +7,7 @@ import {
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
+  emitEvent,
   withErrorHandler,
 } from '@api/server';
 
@@ -140,6 +141,13 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   // Revalidate content caches immediately when new content is created
   revalidateContent();
+
+  emitEvent('content.created', {
+    tenantId,
+    userId: authData.userId,
+    contentId: content.id,
+    category: content.category,
+  });
 
   return apiCreated(content);
 });

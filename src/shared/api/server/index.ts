@@ -99,6 +99,8 @@ export { getDashboardStats, getStaticStats, getUserContent } from '../data-fetch
 export { uploadImage, listUserImages, deleteImage, validateImage } from '../storage';
 export type { UploadResult, MediaItem } from '../storage';
 export { verifyTurnstile } from '../turnstile';
+export { emitEvent, onEvent, offEvent } from '../events';
+export type { DomainEvent, EventType } from '../events';
 export { now, setClock } from '../clock';
 export { getRequestId, createLogContext, withTiming } from '../observability';
 export type { RequestLogContext } from '../observability';

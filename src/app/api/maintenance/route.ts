@@ -7,6 +7,7 @@ import {
   apiValidationError,
   revalidateDashboard,
   db,
+  emitEvent,
   users,
 } from '@api/server';
 
@@ -160,6 +161,13 @@ export async function POST(request: Request) {
 
     // Revalidate dashboard caches immediately when new request is created
     revalidateDashboard();
+
+    emitEvent('maintenance.created', {
+      tenantId,
+      userId,
+      requestId: maintenanceRequest.id,
+      category,
+    });
 
     return apiCreated(maintenanceRequest);
   } catch (error) {
