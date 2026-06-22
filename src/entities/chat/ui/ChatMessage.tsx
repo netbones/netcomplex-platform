@@ -26,7 +26,7 @@ function parseLinks(text: string) {
           href={part}
           target="_blank"
           rel="noopener noreferrer"
-          className="underline hover:opacity-80 break-all font-medium"
+          className="underline hover:opacity-80 break-all font-medium text-inherit"
         >
           {part.replace(/^https?:\/\/(www\.)?/, '')}
         </a>
@@ -84,8 +84,8 @@ export function ChatMessage({ message, isCurrentUser, showSenderName = false }: 
         <div
           className={`px-4 py-2.5 shadow-sm transition-all duration-200 ${
             isCurrentUser
-              ? 'bg-gradient-to-br from-indigo-600 to-indigo-700 text-white rounded-2xl rounded-tr-none'
-              : 'bg-gray-100 text-gray-800 rounded-2xl rounded-tl-none'
+              ? 'bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-2xl rounded-tr-none'
+              : 'bg-gray-100 rounded-2xl rounded-tl-none'
           }`}
         >
           {isImage ? (
@@ -97,7 +97,11 @@ export function ChatMessage({ message, isCurrentUser, showSenderName = false }: 
               />
             </div>
           ) : (
-            <p className="text-[14px] leading-relaxed break-words">{elements}</p>
+            <p
+              className={`text-[14px] leading-relaxed break-words ${isCurrentUser ? 'text-white' : 'text-gray-800'}`}
+            >
+              {elements}
+            </p>
           )}
         </div>
 
