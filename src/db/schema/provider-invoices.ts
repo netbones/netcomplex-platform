@@ -1,5 +1,4 @@
-import { pgTable, text, decimal, timestamp, jsonb } from 'drizzle-orm/pg-core';
-
+import { pgTable, text, jsonb, decimal, timestamp } from 'drizzle-orm/pg-core';
 import { invoiceStatusEnum } from './invoice-status-enum';
 
 export const providerInvoices = pgTable('provider_invoices', {

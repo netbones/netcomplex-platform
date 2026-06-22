@@ -14,7 +14,7 @@ export const paymentTransactions = pgTable('payment_transactions', {
   netAmount: decimal('net_amount', { precision: 65, scale: 30 }).notNull(),
   status: transactionStatusEnum('status').default('PENDING').notNull(),
   gateway: paymentGatewayEnum('gateway').notNull(),
-  externalRef: text('external_ref进项'),
+  externalRef: text('external_ref'),
   invoiceUrl: text('invoice_url'),
   createdAt: timestamp('created_at', { mode: 'date', precision: 3 }).defaultNow().notNull(),
 });

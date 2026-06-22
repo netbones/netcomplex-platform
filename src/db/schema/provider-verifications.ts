@@ -3,7 +3,7 @@ import { providerVerificationStatusEnum } from './provider-verification-status-e
 
 export const providerVerifications = pgTable('provider_verifications', {
   id: text('id').primaryKey(),
-  providerId: text('providerId').notNull(),
+  providerId: text('provider_id').notNull(),
   tenantId: text('tenantId').notNull(),
   status: providerVerificationStatusEnum('status').default('PENDING').notNull(),
   notes: text('notes'),

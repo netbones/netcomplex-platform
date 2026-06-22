@@ -1,7 +1,6 @@
 import { pgTable, text, decimal, timestamp } from 'drizzle-orm/pg-core';
-
-import { paymentGatewayEnum } from './payment-gateway-enum';
 import { providerChargeStatusEnum } from './provider-charge-status-enum';
+import { paymentGatewayEnum } from './payment-gateway-enum';
 
 export const providerCharges = pgTable('provider_charges', {
   id: text('id').primaryKey(),

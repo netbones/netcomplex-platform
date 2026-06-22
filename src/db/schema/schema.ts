@@ -63,9 +63,9 @@ import * as providerMerits from './provider-merits';
 import * as subscriptionTiers from './subscription-tiers';
 import * as providerSubscriptions from './provider-subscriptions';
 import * as paymentTransactions from './payment-transactions';
+import * as revenueRecords from './revenue-records';
 import * as providerCharges from './provider-charges';
 import * as providerInvoices from './provider-invoices';
-import * as revenueRecords from './revenue-records';
 import * as platformModulesRelations from './platform-modules-relations';
 import * as tenantModulesRelations from './tenant-modules-relations';
 import * as assistSessionsRelations from './assist-sessions-relations';
@@ -120,6 +120,16 @@ import * as twoFactorsRelations from './two-factors-relations';
 import * as usersRelations from './users-relations';
 import * as resourcesRelations from './resources-relations';
 import * as resourceVersionsRelations from './resource-versions-relations';
+import * as providerVerificationsRelations from './provider-verifications-relations';
+import * as providerLegalAgreementsRelations from './provider-legal-agreements-relations';
+import * as providerCreditsRelations from './provider-credits-relations';
+import * as providerMeritsRelations from './provider-merits-relations';
+import * as subscriptionTiersRelations from './subscription-tiers-relations';
+import * as providerSubscriptionsRelations from './provider-subscriptions-relations';
+import * as paymentTransactionsRelations from './payment-transactions-relations';
+import * as revenueRecordsRelations from './revenue-records-relations';
+import * as providerChargesRelations from './provider-charges-relations';
+import * as providerInvoicesRelations from './provider-invoices-relations';
 
 export const schema = {
   ...platformModules,
@@ -187,9 +197,9 @@ export const schema = {
   ...subscriptionTiers,
   ...providerSubscriptions,
   ...paymentTransactions,
+  ...revenueRecords,
   ...providerCharges,
   ...providerInvoices,
-  ...revenueRecords,
   ...platformModulesRelations,
   ...tenantModulesRelations,
   ...assistSessionsRelations,
@@ -244,4 +254,14 @@ export const schema = {
   ...usersRelations,
   ...resourcesRelations,
   ...resourceVersionsRelations,
+  ...providerVerificationsRelations,
+  ...providerLegalAgreementsRelations,
+  ...providerCreditsRelations,
+  ...providerMeritsRelations,
+  ...subscriptionTiersRelations,
+  ...providerSubscriptionsRelations,
+  ...paymentTransactionsRelations,
+  ...revenueRecordsRelations,
+  ...providerChargesRelations,
+  ...providerInvoicesRelations,
 };

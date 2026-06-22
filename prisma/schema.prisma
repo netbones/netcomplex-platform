@@ -406,6 +406,16 @@ model ServiceProvider {
   deletedAt   DateTime?
   assignments MaintenanceRequest[] @relation("ProviderAssignments")
 
+  verifications  ProviderVerification[]
+  legalAgreements ProviderLegalAgreement[]
+  credit         ProviderCredit?
+  merits         ProviderMerit[]
+  subscriptions  ProviderSubscription[]
+  transactions   PaymentTransaction[]
+  revenue        RevenueRecord[]
+  charges        ProviderCharge[]
+  invoices       ProviderInvoice[]
+
   @@index([tenantId])
 }
 
@@ -1538,7 +1548,7 @@ enum BehaviorCategory {
 
 model ProviderVerification {
   id                    String                   @id @default(cuid())
-  providerId            String                   @unique
+  providerId            String                   @unique @map("provider_id")
   tenantId              String
   status                ProviderVerificationStatus @default(PENDING)
   notes                 String?
@@ -1548,6 +1558,8 @@ model ProviderVerification {
   probationThreshold    Int                      @default(0) @map("probation_threshold")
   createdAt             DateTime                 @default(now()) @map("created_at")
   updatedAt             DateTime                 @updatedAt @map("updated_at")
+
+  provider ServiceProvider @relation(fields: [providerId], references: [id])
 
   @@index([tenantId])
   @@index([providerId])
@@ -1564,6 +1576,8 @@ model ProviderLegalAgreement {
   ipAddress     String?  @map("ip_address")
   userAgent     String?  @map("user_agent")
   createdAt     DateTime @default(now()) @map("created_at")
+
+  provider ServiceProvider @relation(fields: [providerId], references: [id])
 
   @@index([tenantId])
   @@index([providerId])
@@ -1584,6 +1598,8 @@ model ProviderCredit {
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @updatedAt @map("updated_at")
 
+  provider ServiceProvider @relation(fields: [providerId], references: [id])
+
   @@index([tenantId])
   @@map("provider_credits")
 }
@@ -1597,6 +1613,8 @@ model ProviderMerit {
   description String?
   referenceId String?           @map("reference_id")
   createdAt   DateTime          @default(now()) @map("created_at")
+
+  provider ServiceProvider @relation(fields: [providerId], references: [id])
 
   @@index([tenantId])
   @@index([providerId])
@@ -1640,6 +1658,8 @@ model SubscriptionTier {
   verificationRequired Boolean @default(false) @map("verification_required")
   createdAt         DateTime @default(now()) @map("created_at")
 
+  subscriptions ProviderSubscription[]
+
   @@index([tenantId])
   @@map("subscription_tiers")
 }
@@ -1659,6 +1679,12 @@ model ProviderSubscription {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
+  provider     ServiceProvider  @relation(fields: [providerId], references: [id])
+  tier         SubscriptionTier @relation(fields: [tierId], references: [id])
+  transactions PaymentTransaction[]
+  charges      ProviderCharge[]
+  invoices     ProviderInvoice[]
+
   @@index([tenantId])
   @@index([providerId])
   @@map("provider_subscriptions")
@@ -1676,9 +1702,15 @@ model PaymentTransaction {
   netAmount     Decimal  @map("net_amount") @db.Decimal(10, 2)
   status        TransactionStatus @default(PENDING)
   gateway       PaymentGateway
-  externalRef   String?  @map("external_ref进项")
+  externalRef   String?  @map("external_ref")
   invoiceUrl    String?  @map("invoice_url")
   createdAt     DateTime @default(now()) @map("created_at")
+
+  provider     ServiceProvider      @relation(fields: [providerId], references: [id])
+  subscription ProviderSubscription @relation(fields: [subscriptionId], references: [id])
+  charges      ProviderCharge[]
+  invoices     ProviderInvoice[]
+  revenue      RevenueRecord[]
 
   @@index([tenantId])
   @@index([providerId])
@@ -1699,9 +1731,70 @@ model RevenueRecord {
   period        String
   createdAt     DateTime @default(now()) @map("created_at")
 
+  provider    ServiceProvider   @relation(fields: [providerId], references: [id])
+  transaction PaymentTransaction @relation(fields: [transactionId], references: [id])
+
   @@index([tenantId])
   @@index([providerId])
   @@map("revenue_records")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROVIDER BILLING — Phase 46 (continued)
+// ═══════════════════════════════════════════════════════════════
+
+model ProviderCharge {
+  id             String   @id @default(cuid())
+  providerId     String   @map("provider_id")
+  tenantId       String   @map("tenant_id")
+  subscriptionId String   @map("subscription_id")
+  transactionId  String?  @map("transaction_id")
+  description    String
+  amount         Decimal  @db.Decimal(10, 2)
+  currency       String   @default("ZAR")
+  status         ProviderChargeStatus @default(PENDING)
+  gateway        PaymentGateway?
+  externalRef    String?  @map("external_ref")
+  dueDate        DateTime @map("due_date")
+  paidAt         DateTime? @map("paid_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  provider     ServiceProvider      @relation(fields: [providerId], references: [id])
+  subscription ProviderSubscription @relation(fields: [subscriptionId], references: [id])
+  transaction  PaymentTransaction?  @relation(fields: [transactionId], references: [id])
+
+  @@index([tenantId])
+  @@index([providerId])
+  @@map("provider_charges")
+}
+
+model ProviderInvoice {
+  id             String   @id @default(cuid())
+  providerId     String   @map("provider_id")
+  tenantId       String   @map("tenant_id")
+  subscriptionId String   @map("subscription_id")
+  transactionId  String   @map("transaction_id")
+  invoiceNumber  String   @map("invoice_number")
+  items          Json
+  total          Decimal  @db.Decimal(10, 2)
+  platformFee    Decimal  @map("platform_fee") @db.Decimal(10, 2)
+  processorFee   Decimal  @map("processor_fee") @db.Decimal(10, 2)
+  netAmount      Decimal  @map("net_amount") @db.Decimal(10, 2)
+  currency       String   @default("ZAR")
+  status         InvoiceStatus @default(PENDING)
+  paidAt         DateTime? @map("paid_at")
+  pdfUrl         String?  @map("pdf_url")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  provider     ServiceProvider      @relation(fields: [providerId], references: [id])
+  subscription ProviderSubscription @relation(fields: [subscriptionId], references: [id])
+  transaction  PaymentTransaction   @relation(fields: [transactionId], references: [id])
+
+  @@index([tenantId])
+  @@index([providerId])
+  @@map("provider_invoices")
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1725,4 +1818,16 @@ enum TransactionStatus {
   COMPLETED
   FAILED
   REFUNDED
+}
+
+enum ProviderChargeStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  VOID
 }
