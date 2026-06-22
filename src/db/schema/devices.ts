@@ -1,0 +1,10 @@
+import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+
+export const userDevices = pgTable('UserDevice', {
+  id: text('id').primaryKey(),
+  userId: text('userId').notNull(),
+  publicKey: text('publicKey').notNull(),
+  deviceName: text('deviceName').notNull(),
+  lastSeenAt: timestamp('lastSeenAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+});

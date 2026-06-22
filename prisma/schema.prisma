@@ -181,6 +181,7 @@ model Conversation {
   tenantId                String
   name                    String?
   type                    ConversationType          @default(DIRECT)
+  capabilities            Json?
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @default(now()) @updatedAt
   deletedAt               DateTime?
@@ -481,6 +482,29 @@ model Message {
   @@index([conversationId, createdAt])
   @@index([expiresAt])
   @@index([senderId])
+}
+
+model UserKey {
+  id        String    @id @default(cuid())
+  userId    String
+  publicKey String
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+  user      user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model UserDevice {
+  id         String    @id @default(cuid())
+  userId     String
+  publicKey  String
+  deviceName String
+  lastSeenAt DateTime  @default(now())
+  createdAt  DateTime  @default(now())
+  user       user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Notification {
@@ -1198,6 +1222,8 @@ model user {
   soloSeat                                              SoloSeat[]
   standardSeat                                          StandardSeat[]
   twoFactor                                             twoFactor[]
+  UserKey                                               UserKey[]
+  UserDevice                                            UserDevice[]
 }
 
 model verification {
@@ -1319,6 +1345,8 @@ enum ModerationStatus {
 enum ConversationType {
   DIRECT
   GROUP
+  SECURE_DIRECT
+  SECURE_GROUP
 }
 
 enum GroupAccess {

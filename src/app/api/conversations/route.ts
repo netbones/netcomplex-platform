@@ -37,6 +37,7 @@ export const GET = withErrorHandler(async (request: Request) => {
       id: conversations.id,
       name: conversations.name,
       type: conversations.type,
+      capabilities: conversations.capabilities,
       createdAt: conversations.createdAt,
       updatedAt: conversations.updatedAt,
     })
@@ -152,6 +153,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       id: conversations.id,
       name: conversations.name,
       type: conversations.type,
+      capabilities: conversations.capabilities,
       createdAt: conversations.createdAt,
       updatedAt: conversations.updatedAt,
     })

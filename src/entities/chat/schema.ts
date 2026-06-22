@@ -31,7 +31,7 @@ export type MessageFormData = z.infer<typeof messageSchema>;
 
 export const conversationSchema = z.object({
   name: z.string().min(1, 'Group name is required').max(100, 'Name too long').trim(),
-  type: z.enum(['DIRECT', 'GROUP']).optional().default('DIRECT'),
+  type: z.enum(['DIRECT', 'GROUP', 'SECURE_DIRECT', 'SECURE_GROUP']).optional().default('DIRECT'),
   participantIds: z
     .array(z.string().uuid('Invalid participant ID'))
     .min(2, 'At least 2 participants required'),

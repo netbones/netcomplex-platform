@@ -36,9 +36,11 @@ import * as albums from './albums';
 import * as communityServiceInquiries from './community-service-inquiries';
 import * as communityServiceListings from './community-service-listings';
 import * as communityServiceReviews from './community-service-reviews';
+import * as devices from './devices';
 import * as properties from './properties';
 import * as households from './households';
 import * as invitations from './invitations';
+import * as keys from './keys';
 import * as members from './members';
 import * as organizations from './organizations';
 import * as passkeys from './passkeys';
@@ -101,9 +103,11 @@ import * as albumsRelations from './albums-relations';
 import * as communityServiceInquiriesRelations from './community-service-inquiries-relations';
 import * as communityServiceListingsRelations from './community-service-listings-relations';
 import * as communityServiceReviewsRelations from './community-service-reviews-relations';
+import * as devicesRelations from './devices-relations';
 import * as propertiesRelations from './properties-relations';
 import * as householdsRelations from './households-relations';
 import * as invitationsRelations from './invitations-relations';
+import * as keysRelations from './keys-relations';
 import * as membersRelations from './members-relations';
 import * as organizationsRelations from './organizations-relations';
 import * as passkeysRelations from './passkeys-relations';
@@ -170,9 +174,11 @@ export const schema = {
   ...communityServiceInquiries,
   ...communityServiceListings,
   ...communityServiceReviews,
+  ...devices,
   ...properties,
   ...households,
   ...invitations,
+  ...keys,
   ...members,
   ...organizations,
   ...passkeys,
@@ -235,9 +241,11 @@ export const schema = {
   ...communityServiceInquiriesRelations,
   ...communityServiceListingsRelations,
   ...communityServiceReviewsRelations,
+  ...devicesRelations,
   ...propertiesRelations,
   ...householdsRelations,
   ...invitationsRelations,
+  ...keysRelations,
   ...membersRelations,
   ...organizationsRelations,
   ...passkeysRelations,

@@ -6,6 +6,7 @@ export interface ConversationDTO {
   id: string;
   name: string | null;
   type: string;
+  capabilities: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -18,6 +19,7 @@ export function toConversationDTO(
     id: conversation.id,
     name: conversation.name || null,
     type: conversation.type,
+    capabilities: (conversation.capabilities as Record<string, unknown>) ?? null,
     createdAt: conversation.createdAt?.toISOString() ?? new Date().toISOString(),
     updatedAt: conversation.updatedAt?.toISOString() ?? new Date().toISOString(),
   };

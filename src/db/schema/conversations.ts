@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, jsonb } from 'drizzle-orm/pg-core';
 import { conversationTypeEnum } from './conversation-type-enum';
 
 export const conversations = pgTable('Conversation', {
@@ -6,6 +6,7 @@ export const conversations = pgTable('Conversation', {
   tenantId: text('tenantId').notNull(),
   name: text('name'),
   type: conversationTypeEnum('type').default('DIRECT').notNull(),
+  capabilities: jsonb('capabilities'),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),

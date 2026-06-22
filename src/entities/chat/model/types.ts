@@ -1,6 +1,12 @@
-export type ConversationType = 'DIRECT' | 'GROUP';
+export type ConversationType = 'DIRECT' | 'GROUP' | 'SECURE_DIRECT' | 'SECURE_GROUP';
 
 export type MessageType = 'TEXT' | 'IMAGE' | 'SYSTEM' | 'VOICE' | 'FILE';
+
+export interface ConversationCapabilities {
+  searchable: boolean;
+  moderated: boolean;
+  encrypted: boolean;
+}
 
 export interface TextPayload {
   body: string;
@@ -73,6 +79,7 @@ export interface Conversation {
   id: string;
   name: string | null;
   type: ConversationType;
+  capabilities: ConversationCapabilities | null;
   participants: ConversationParticipant[];
   messages: ConversationMessage[];
 }
@@ -81,6 +88,7 @@ export interface ConversationListItem {
   id: string;
   name: string | null;
   type: ConversationType;
+  capabilities: ConversationCapabilities | null;
   createdAt: string;
   updatedAt: string;
   participants: ConversationParticipant[];
