@@ -95,7 +95,11 @@ export function AnnouncementsStreamWidget() {
                 >
                   {tax.label}
                 </span>
-                <h3 className="text-sm font-semibold text-gray-900 flex-1">{announcement.title}</h3>
+                <h3 className="text-sm font-semibold text-gray-900 flex-1">
+                  {typeof announcement.title === 'string'
+                    ? announcement.title
+                    : (announcement.title as Record<string, string>)?.en || ''}
+                </h3>
                 <span className="text-xs text-gray-500 flex-shrink-0">
                   {new Date(announcement.createdAt).toLocaleDateString('en-ZA', {
                     month: 'short',
