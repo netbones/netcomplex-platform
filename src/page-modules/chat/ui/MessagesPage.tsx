@@ -47,6 +47,8 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
       id: string;
       content: string;
       type: string;
+      messageVersion: number;
+      payload: Record<string, unknown> | null;
       mediaUrl?: string | null;
       createdAt: string;
       sender: { id: string; name: string; avatar: string | null };
@@ -532,6 +534,8 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
                                 id: msg.id,
                                 content: msg.content,
                                 type: msg.type as 'TEXT' | 'IMAGE' | 'SYSTEM',
+                                messageVersion: msg.messageVersion ?? 1,
+                                payload: msg.payload ?? null,
                                 mediaUrl: msg.mediaUrl,
                                 createdAt: msg.createdAt,
                                 sender: msg.sender,

@@ -8,6 +8,8 @@ export interface MessageDTO {
   senderId: string;
   content: string;
   type: string;
+  messageVersion: number;
+  payload: Record<string, unknown> | null;
   mediaUrl: string | null;
   deletedAt: string | null;
   createdAt: string;
@@ -22,6 +24,8 @@ export function toMessageDTO(message: InferSelectModel<typeof messages>): Messag
     senderId: message.senderId,
     content: message.content,
     type: message.type,
+    messageVersion: message.messageVersion ?? 1,
+    payload: (message.payload as Record<string, unknown>) ?? null,
     mediaUrl: message.mediaUrl || null,
     deletedAt: message.deletedAt?.toISOString() ?? null,
     createdAt: message.createdAt?.toISOString() ?? new Date().toISOString(),

@@ -113,6 +113,8 @@ export async function GET(request: Request) {
       senderId: messages.senderId,
       content: messages.content,
       type: messages.type,
+      messageVersion: messages.messageVersion,
+      payload: messages.payload,
       mediaUrl: messages.mediaUrl,
       createdAt: messages.createdAt,
       expiresAt: messages.expiresAt,
@@ -164,7 +166,8 @@ export async function POST(request: Request) {
       return apiValidationError(validationResult.error.issues);
     }
 
-    const { conversationId, content, type, mediaUrl } = validationResult.data;
+    const { conversationId, content, type, mediaUrl, messageVersion, payload } =
+      validationResult.data;
 
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
@@ -207,6 +210,8 @@ export async function POST(request: Request) {
         senderId: authData.userId,
         content: type === 'TEXT' ? sanitizeHtml(content) : content,
         type: type || 'TEXT',
+        messageVersion: messageVersion || 1,
+        payload,
         mediaUrl,
         expiresAt,
       })

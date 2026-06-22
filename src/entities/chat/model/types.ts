@@ -1,6 +1,44 @@
 export type ConversationType = 'DIRECT' | 'GROUP';
 
-export type MessageType = 'TEXT' | 'IMAGE' | 'SYSTEM';
+export type MessageType = 'TEXT' | 'IMAGE' | 'SYSTEM' | 'VOICE' | 'FILE';
+
+export interface TextPayload {
+  body: string;
+}
+
+export interface VoicePayload {
+  url: string;
+  duration: number;
+  waveform?: number[];
+  transcript?: string;
+}
+
+export interface ImagePayload {
+  url: string;
+  width?: number;
+  height?: number;
+  altText?: string;
+}
+
+export interface FilePayload {
+  url: string;
+  fileName: string;
+  fileSize?: number;
+  mimeType?: string;
+}
+
+export interface SystemPayload {
+  action: string;
+  data?: Record<string, unknown>;
+}
+
+export type MessagePayload =
+  | TextPayload
+  | VoicePayload
+  | ImagePayload
+  | FilePayload
+  | SystemPayload
+  | Record<string, unknown>;
 
 export interface ParticipantInfo {
   id: string;
@@ -23,6 +61,8 @@ export interface ConversationMessage {
   senderId: string;
   content: string;
   type: string;
+  messageVersion: number;
+  payload: Record<string, unknown> | null;
   createdAt: string;
   expiresAt?: string | null;
   isDeleted?: boolean;
@@ -61,6 +101,8 @@ export interface Message {
   id: string;
   content: string;
   type: MessageType;
+  messageVersion: number;
+  payload: Record<string, unknown> | null;
   mediaUrl?: string | null;
   createdAt: string;
   sender: ParticipantInfo;
@@ -70,6 +112,8 @@ export interface MessageFormData {
   conversationId: string;
   content: string;
   type: MessageType;
+  messageVersion?: number;
+  payload?: Record<string, unknown>;
   mediaUrl?: string;
 }
 

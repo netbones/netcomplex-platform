@@ -10,8 +10,10 @@ export const messageSchema = z
   .object({
     conversationId: z.string().min(1, 'Conversation ID is required'),
     content: z.string().min(1, 'Message content is required').max(2000, 'Message too long'),
-    type: z.enum(['TEXT', 'IMAGE', 'SYSTEM']).optional().default('TEXT'),
+    type: z.enum(['TEXT', 'IMAGE', 'SYSTEM', 'VOICE', 'FILE']).optional().default('TEXT'),
     mediaUrl: z.string().url().optional(),
+    messageVersion: z.number().int().positive().optional().default(1),
+    payload: z.record(z.unknown()).optional(),
   })
   .refine(
     data => {

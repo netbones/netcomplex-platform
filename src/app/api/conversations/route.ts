@@ -82,6 +82,8 @@ export const GET = withErrorHandler(async (request: Request) => {
           senderId: messages.senderId,
           content: messages.content,
           type: messages.type,
+          messageVersion: messages.messageVersion,
+          payload: messages.payload,
           createdAt: messages.createdAt,
           expiresAt: messages.expiresAt,
           deletedAt: messages.deletedAt,
