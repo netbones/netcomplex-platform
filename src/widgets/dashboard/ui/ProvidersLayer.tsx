@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
 import {
   EmptyProviderState,
@@ -13,6 +15,14 @@ import {
 import { useProviderDashboard } from './provider-widgets';
 
 function ProvidersLayerInner() {
+  const { data: session } = authClient.useSession();
+  const role = session?.user?.role?.toUpperCase();
+  const isAdmin = role === 'ADMIN' || role === 'BOARD';
+
+  if (isAdmin) {
+    redirect('/admin/providers');
+  }
+
   const dashboardQuery = useProviderDashboard();
 
   if (dashboardQuery.isLoading) {

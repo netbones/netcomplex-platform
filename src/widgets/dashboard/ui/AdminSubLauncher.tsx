@@ -99,6 +99,13 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     description: 'Configure the public services page',
   },
   {
+    id: 'providers',
+    labelKey: 'domains.providers',
+    descriptionKey: 'domains.descriptions.providers',
+    icon: '/platform/providers.svg',
+    description: 'Provider management, revenue, and moderation',
+  },
+  {
     id: 'system',
     labelKey: 'domains.system',
     descriptionKey: 'domains.descriptions.system',
@@ -128,6 +135,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.surveys': 'Surveys',
   'domains.announcements': 'Announcements',
   'domains.merits': 'Merits',
+  'domains.providers': 'Providers',
   'domains.system': 'System',
   'domains.services': 'Services',
   'domains.descriptions.users': 'Manage community members and roles',

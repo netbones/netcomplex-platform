@@ -199,6 +199,11 @@ export function getVisibleSpaces(role: string, flags: PlatformPageFlags): SpaceD
       return false;
     }
 
+    // Providers space: hide for admin/board (they use /admin/providers)
+    if (spaceId === 'providers' && isAdmin) {
+      return false;
+    }
+
     // Core spaces: always visible (role check already done for admin)
     if (space.isCore) {
       return true;
@@ -326,6 +331,7 @@ export const ADMIN_DOMAINS = [
   'surveys',
   'merits',
   'announcements',
+  'providers',
   'system',
   'services',
 ] as const;
@@ -347,6 +353,7 @@ const ADMIN_DOMAIN_WIDGET_MAP: Record<AdminDomain, string[]> = {
   merits: ['admin-merits'],
   announcements: ['admin-announcements'],
   system: ['admin-system', 'page-settings'],
+  providers: ['admin-providers'],
   services: ['services-config'],
 };
 

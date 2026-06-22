@@ -1,5 +1,5 @@
-import { RevenueDashboard } from '@/components/admin/RevenueDashboard';
+import { redirect } from 'next/navigation';
 
 export default function AdminRevenuePage() {
-  return <RevenueDashboard />;
+  redirect('/admin/providers/revenue');
 }

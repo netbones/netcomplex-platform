@@ -1,5 +1,5 @@
-import { TransactionDashboard } from '@/components/admin/TransactionDashboard';
+import { redirect } from 'next/navigation';
 
 export default function AdminTransactionsPage() {
-  return <TransactionDashboard />;
+  redirect('/admin/providers/transactions');
 }

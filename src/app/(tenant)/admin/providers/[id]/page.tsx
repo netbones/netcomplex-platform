@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { ProviderDetailView } from '@/components/admin/ProviderDetailView';
 
 export default async function AdminProviderDetailPage({
   params,
@@ -6,5 +6,5 @@ export default async function AdminProviderDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  redirect(`/admin/providers/${id}`);
+  return <ProviderDetailView providerId={id} />;
 }

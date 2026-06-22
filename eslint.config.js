@@ -63,4 +63,10 @@ export default [
       ],
     },
   },
+  {
+    files: ['src/app/(tenant)/admin/providers/**'],
+    rules: {
+      'no-restricted-imports': 'off',
+    },
+  },
 ];

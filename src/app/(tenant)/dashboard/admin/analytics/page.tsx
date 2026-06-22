@@ -1,5 +1,5 @@
-import { ProviderAnalyticsDashboard } from '@/components/admin/ProviderAnalyticsDashboard';
+import { redirect } from 'next/navigation';
 
 export default function AdminProviderAnalyticsPage() {
-  return <ProviderAnalyticsDashboard />;
+  redirect('/admin/providers/analytics');
 }
