@@ -1,6 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
-import { twoFactor, organization, bearer, emailOTP, admin } from 'better-auth/plugins';
+import { twoFactor, organization, bearer, emailOTP } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
 import { ENV } from 'varlock/env';
 import {
@@ -167,9 +167,6 @@ export const auth = betterAuth({
       { path: '/reset-password', schema: resetPasswordSchema },
       { path: '/email-otp/send-verification-otp', schema: sendOtpSchema },
     ]),
-    admin({
-      adminUserIds: ['soralia-user-david-vdm', 'soralia-user-hoa-services'],
-    }),
   ],
   advanced: {
     cookiePrefix: tenantConfig.auth.cookiePrefix,
