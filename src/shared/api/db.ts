@@ -102,7 +102,13 @@ import { requestHistories } from '@schema/request-histories';
 import { providerVerifications } from '@schema/provider-verifications';
 import { providerLegalAgreements } from '@schema/provider-legal-agreements';
 import { providerCredits } from '@schema/provider-credits';
+import { providerMerits } from '@schema/provider-merits';
+import { subscriptionTiers } from '@schema/subscription-tiers';
 import { providerSubscriptions } from '@schema/provider-subscriptions';
+import { paymentTransactions } from '@schema/payment-transactions';
+import { providerCharges } from '@schema/provider-charges';
+import { providerInvoices } from '@schema/provider-invoices';
+import { revenueRecords } from '@schema/revenue-records';
 
 import { ENV } from 'varlock/env';
 import { dbLogger } from '@shared/lib';
@@ -169,7 +175,13 @@ const dbSchema = {
   providerVerifications,
   providerLegalAgreements,
   providerCredits,
+  providerMerits,
+  subscriptionTiers,
   providerSubscriptions,
+  paymentTransactions,
+  providerCharges,
+  providerInvoices,
+  revenueRecords,
 } as const;
 
 export type DbSchema = typeof dbSchema;
@@ -351,5 +363,11 @@ export {
   providerVerifications,
   providerLegalAgreements,
   providerCredits,
+  providerMerits,
+  subscriptionTiers,
   providerSubscriptions,
+  paymentTransactions,
+  providerCharges,
+  providerInvoices,
+  revenueRecords,
 };

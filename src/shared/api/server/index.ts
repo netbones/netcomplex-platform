@@ -63,7 +63,13 @@ export {
   providerVerifications,
   providerLegalAgreements,
   providerCredits,
+  providerMerits,
+  subscriptionTiers,
   providerSubscriptions,
+  paymentTransactions,
+  providerCharges,
+  providerInvoices,
+  revenueRecords,
 } from '../db';
 export { auth } from '../auth';
 export {

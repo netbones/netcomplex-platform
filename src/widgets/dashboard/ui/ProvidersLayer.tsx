@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
 import {
   EmptyProviderState,
@@ -56,9 +57,20 @@ function ProvidersLayerInner() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold text-gray-900">Providers</h1>
-        <p className="mt-2 text-sm text-gray-600">Track provider verification, listing performance, inquiries, and your community credit progress.</p>
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h1 className="text-3xl font-semibold text-gray-900">Providers</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Track provider verification, listing performance, inquiries, and your community credit
+            progress.
+          </p>
+        </div>
+        <Link
+          href="/dashboard/providers/billing"
+          className="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+        >
+          Open billing
+        </Link>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">

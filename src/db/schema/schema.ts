@@ -63,6 +63,8 @@ import * as providerMerits from './provider-merits';
 import * as subscriptionTiers from './subscription-tiers';
 import * as providerSubscriptions from './provider-subscriptions';
 import * as paymentTransactions from './payment-transactions';
+import * as providerCharges from './provider-charges';
+import * as providerInvoices from './provider-invoices';
 import * as revenueRecords from './revenue-records';
 import * as platformModulesRelations from './platform-modules-relations';
 import * as tenantModulesRelations from './tenant-modules-relations';
@@ -185,6 +187,8 @@ export const schema = {
   ...subscriptionTiers,
   ...providerSubscriptions,
   ...paymentTransactions,
+  ...providerCharges,
+  ...providerInvoices,
   ...revenueRecords,
   ...platformModulesRelations,
   ...tenantModulesRelations,
