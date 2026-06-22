@@ -30,7 +30,10 @@ export default function AdminProviderSettingsPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <section className="rounded-3xl bg-gradient-to-r from-gray-900 to-slate-700 p-6 text-white shadow-lg">
-        <h1 className="text-3xl font-semibold">Provider registration settings</h1>
+        <h1 className="flex items-center gap-3 text-3xl font-semibold">
+          <img src="/platform/providers.svg" alt="" className="h-8 w-8" />
+          Provider registration settings
+        </h1>
         <p className="mt-2 max-w-3xl text-sm text-slate-200">
           Toggle self-service provider onboarding and confirm gateway readiness before opening
           billing-related settings to the tenant.

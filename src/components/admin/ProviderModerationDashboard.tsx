@@ -48,7 +48,8 @@ export function ProviderModerationDashboard() {
 
   const modeQuery = useQuery<RegistrationModeResponse>({
     queryKey: ['admin', 'provider-registration-mode'],
-    queryFn: () => fetchApi<RegistrationModeResponse>('/api/admin/tenant/provider-registration-mode'),
+    queryFn: () =>
+      fetchApi<RegistrationModeResponse>('/api/admin/tenant/provider-registration-mode'),
     staleTime: 60_000,
   });
 
@@ -59,18 +60,27 @@ export function ProviderModerationDashboard() {
       <section className="rounded-3xl bg-gradient-to-r from-indigo-700 to-sky-700 p-6 text-white shadow-lg">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold">Provider moderation</h1>
+            <h1 className="flex items-center gap-3 text-3xl font-semibold">
+              <img src="/platform/providers.svg" alt="" className="h-8 w-8" />
+              Provider moderation
+            </h1>
             <p className="mt-2 max-w-3xl text-sm text-indigo-50">
-              Review onboarding submissions, manage verification status, and monitor provider revenue performance from a single admin surface.
+              Review onboarding submissions, manage verification status, and monitor provider
+              revenue performance from a single admin surface.
             </p>
           </div>
           <div className="rounded-2xl bg-white/10 p-4 text-sm">
             <div className="text-indigo-100">Registration mode</div>
             <div className="mt-2 flex items-center gap-3">
-              <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadgeClass(modeQuery.data?.mode ?? 'INVITATION_ONLY')}`}>
+              <span
+                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadgeClass(modeQuery.data?.mode ?? 'INVITATION_ONLY')}`}
+              >
                 {(modeQuery.data?.mode ?? 'INVITATION_ONLY').replace('_', ' ')}
               </span>
-              <Link href="/dashboard/admin/settings" className="text-white underline underline-offset-4">
+              <Link
+                href="/dashboard/admin/settings"
+                className="text-white underline underline-offset-4"
+              >
                 Manage setting
               </Link>
             </div>
@@ -83,7 +93,10 @@ export function ProviderModerationDashboard() {
         <StatCard title="Pending" value={String(data?.summary.pendingProviders ?? 0)} />
         <StatCard title="Verified" value={String(data?.summary.verifiedProviders ?? 0)} />
         <StatCard title="Suspended" value={String(data?.summary.suspendedProviders ?? 0)} />
-        <StatCard title="Monthly revenue" value={formatCurrency(data?.summary.monthlyRevenue ?? 0)} />
+        <StatCard
+          title="Monthly revenue"
+          value={formatCurrency(data?.summary.monthlyRevenue ?? 0)}
+        />
       </div>
 
       <VerificationQueue providers={queueQuery.data?.providers ?? []} />
@@ -92,7 +105,9 @@ export function ProviderModerationDashboard() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h2 className="text-base font-semibold text-gray-900">All providers</h2>
-            <p className="mt-1 text-sm text-gray-500">Filter by moderation status, search by company, and drill into detail views.</p>
+            <p className="mt-1 text-sm text-gray-500">
+              Filter by moderation status, search by company, and drill into detail views.
+            </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <input
@@ -136,35 +151,54 @@ export function ProviderModerationDashboard() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {providersQuery.isLoading ? (
-                <tr><td colSpan={7} className="py-8 text-center text-gray-500">Loading providers…</td></tr>
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-gray-500">
+                    Loading providers…
+                  </td>
+                </tr>
               ) : data?.providers.length ? (
                 data.providers.map(provider => (
                   <tr key={provider.id}>
                     <td className="py-4 pr-4">
                       <div className="font-medium text-gray-900">{provider.companyName}</div>
-                      <div className="mt-1 text-xs text-gray-500">Joined {formatDate(provider.createdAt)}</div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        Joined {formatDate(provider.createdAt)}
+                      </div>
                     </td>
                     <td className="py-4 pr-4 text-gray-700">
                       <div>{provider.contactName ?? 'No contact'}</div>
-                      <div className="mt-1 text-xs text-gray-500">{provider.email ?? 'No email'}</div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        {provider.email ?? 'No email'}
+                      </div>
                     </td>
                     <td className="py-4 pr-4 text-gray-700">{provider.trade ?? '—'}</td>
                     <td className="py-4 pr-4">
-                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadgeClass(provider.verificationStatus)}`}>
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadgeClass(provider.verificationStatus)}`}
+                      >
                         {provider.verificationStatus.toLowerCase()}
                       </span>
                     </td>
                     <td className="py-4 pr-4 text-gray-700">{provider.creditScore}</td>
-                    <td className="py-4 pr-4 text-gray-700">{formatCurrency(provider.revenueTotal)}</td>
+                    <td className="py-4 pr-4 text-gray-700">
+                      {formatCurrency(provider.revenueTotal)}
+                    </td>
                     <td className="py-4">
-                      <Link href={`/dashboard/admin/providers/${provider.id}`} className="rounded-lg border border-indigo-200 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-50">
+                      <Link
+                        href={`/dashboard/admin/providers/${provider.id}`}
+                        className="rounded-lg border border-indigo-200 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-50"
+                      >
                         Open detail
                       </Link>
                     </td>
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan={7} className="py-8 text-center text-gray-500">No providers match the selected filters.</td></tr>
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-gray-500">
+                    No providers match the selected filters.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -175,10 +209,22 @@ export function ProviderModerationDashboard() {
             Page {data?.pagination.page ?? 1} of {data?.pagination.totalPages ?? 1}
           </span>
           <div className="flex gap-2">
-            <button type="button" onClick={() => setPage(current => Math.max(1, current - 1))} disabled={(data?.pagination.page ?? 1) <= 1} className="rounded-lg border border-gray-300 px-3 py-2 disabled:opacity-50">
+            <button
+              type="button"
+              onClick={() => setPage(current => Math.max(1, current - 1))}
+              disabled={(data?.pagination.page ?? 1) <= 1}
+              className="rounded-lg border border-gray-300 px-3 py-2 disabled:opacity-50"
+            >
               Previous
             </button>
-            <button type="button" onClick={() => setPage(current => Math.min(data?.pagination.totalPages ?? current, current + 1))} disabled={(data?.pagination.page ?? 1) >= (data?.pagination.totalPages ?? 1)} className="rounded-lg border border-gray-300 px-3 py-2 disabled:opacity-50">
+            <button
+              type="button"
+              onClick={() =>
+                setPage(current => Math.min(data?.pagination.totalPages ?? current, current + 1))
+              }
+              disabled={(data?.pagination.page ?? 1) >= (data?.pagination.totalPages ?? 1)}
+              className="rounded-lg border border-gray-300 px-3 py-2 disabled:opacity-50"
+            >
               Next
             </button>
           </div>

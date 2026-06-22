@@ -35,7 +35,10 @@ export function ProviderAnalyticsDashboard() {
       <section className="rounded-3xl bg-gradient-to-r from-violet-700 to-fuchsia-700 p-6 text-white shadow-lg">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold">Provider ecosystem analytics</h1>
+            <h1 className="flex items-center gap-3 text-3xl font-semibold">
+              <img src="/platform/providers.svg" alt="" className="h-8 w-8" />
+              Provider ecosystem analytics
+            </h1>
             <p className="mt-2 max-w-3xl text-sm text-violet-50">
               Track registration velocity, verification conversion, credits, suspensions, and
               revenue mix for the provider ecosystem.

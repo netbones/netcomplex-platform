@@ -33,7 +33,8 @@ export function RevenueDashboard() {
 
   const detailsQuery = useQuery<RevenueDetailsResponse>({
     queryKey: ['admin', 'revenue', 'details', filters],
-    queryFn: () => fetchApi<RevenueDetailsResponse>(`/api/admin/revenue/details?${filters}&limit=10`),
+    queryFn: () =>
+      fetchApi<RevenueDetailsResponse>(`/api/admin/revenue/details?${filters}&limit=10`),
     staleTime: 60_000,
   });
 
@@ -44,18 +45,30 @@ export function RevenueDashboard() {
       <section className="rounded-3xl bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white shadow-lg">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold">Provider revenue analytics</h1>
+            <h1 className="flex items-center gap-3 text-3xl font-semibold">
+              <img src="/platform/providers.svg" alt="" className="h-8 w-8" />
+              Provider revenue analytics
+            </h1>
             <p className="mt-2 max-w-3xl text-sm text-emerald-50">
-              Monitor platform fees, processor deductions, gateway mix, and payout visibility from provider billing.
+              Monitor platform fees, processor deductions, gateway mix, and payout visibility from
+              provider billing.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <select value={grouping} onChange={event => setGrouping(event.target.value)} className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white">
+            <select
+              value={grouping}
+              onChange={event => setGrouping(event.target.value)}
+              className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white"
+            >
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
               <option value="monthly">Monthly</option>
             </select>
-            <select value={gateway} onChange={event => setGateway(event.target.value)} className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white">
+            <select
+              value={gateway}
+              onChange={event => setGateway(event.target.value)}
+              className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white"
+            >
               <option value="">All gateways</option>
               <option value="PAYSTACK">Paystack</option>
               <option value="PAYPAL">PayPal</option>
@@ -66,9 +79,18 @@ export function RevenueDashboard() {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <KpiCard title="Total revenue" value={formatCurrency(summary?.totals.totalRevenue ?? 0)} />
-        <KpiCard title="Platform fees" value={formatCurrency(summary?.totals.totalPlatformFees ?? 0)} />
-        <KpiCard title="Processor fees" value={formatCurrency(summary?.totals.totalProcessorFees ?? 0)} />
-        <KpiCard title="Net provider payouts" value={formatCurrency(summary?.totals.totalNetPayout ?? 0)} />
+        <KpiCard
+          title="Platform fees"
+          value={formatCurrency(summary?.totals.totalPlatformFees ?? 0)}
+        />
+        <KpiCard
+          title="Processor fees"
+          value={formatCurrency(summary?.totals.totalProcessorFees ?? 0)}
+        />
+        <KpiCard
+          title="Net provider payouts"
+          value={formatCurrency(summary?.totals.totalNetPayout ?? 0)}
+        />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
@@ -96,17 +118,25 @@ export function RevenueDashboard() {
         <RevenueChart
           title="Revenue over time"
           description="Platform revenue trend over the active date range."
-          data={(summary?.timeline ?? []).map(item => ({ label: item.label, value: item.totalRevenue, color: 'bg-sky-500' }))}
+          data={(summary?.timeline ?? []).map(item => ({
+            label: item.label,
+            value: item.totalRevenue,
+            color: 'bg-sky-500',
+          }))}
         />
         <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <h2 className="text-base font-semibold text-gray-900">Gateway health</h2>
-          <p className="mt-1 text-sm text-gray-500">Configuration-aware signal from recent billing outcomes.</p>
+          <p className="mt-1 text-sm text-gray-500">
+            Configuration-aware signal from recent billing outcomes.
+          </p>
           <div className="mt-5 space-y-3">
             {Object.entries(summary?.gatewayHealth ?? {}).map(([gatewayName, gatewayHealth]) => (
               <div key={gatewayName} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div className="font-medium text-gray-900">{gatewayName}</div>
-                  <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadgeClass(gatewayHealth.status.toUpperCase())}`}>
+                  <span
+                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadgeClass(gatewayHealth.status.toUpperCase())}`}
+                  >
                     {gatewayHealth.status.replace('_', ' ')}
                   </span>
                 </div>
@@ -119,7 +149,9 @@ export function RevenueDashboard() {
 
       <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
         <h2 className="text-base font-semibold text-gray-900">Recent revenue transactions</h2>
-        <p className="mt-1 text-sm text-gray-500">Latest billing events with platform-fee and processor-fee breakdown.</p>
+        <p className="mt-1 text-sm text-gray-500">
+          Latest billing events with platform-fee and processor-fee breakdown.
+        </p>
         <div className="mt-5 overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead>
@@ -134,23 +166,43 @@ export function RevenueDashboard() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {detailsQuery.isLoading ? (
-                <tr><td colSpan={6} className="py-8 text-center text-gray-500">Loading transactions…</td></tr>
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-gray-500">
+                    Loading transactions…
+                  </td>
+                </tr>
               ) : detailsQuery.data?.transactions.length ? (
                 detailsQuery.data.transactions.map(row => (
                   <tr key={row.id}>
                     <td className="py-4 pr-4">
-                      <div className="font-medium text-gray-900">{row.providerCompanyName ?? 'Unknown provider'}</div>
-                      <div className="mt-1 text-xs text-gray-500">{row.tierName ?? 'Unassigned tier'}</div>
+                      <div className="font-medium text-gray-900">
+                        {row.providerCompanyName ?? 'Unknown provider'}
+                      </div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        {row.tierName ?? 'Unassigned tier'}
+                      </div>
                     </td>
                     <td className="py-4 pr-4 text-gray-700">{row.gateway}</td>
-                    <td className="py-4 pr-4 text-gray-700">{formatCurrency(row.amount, row.currency)}</td>
-                    <td className="py-4 pr-4 text-gray-700">{formatCurrency(row.platformFee, row.currency)}</td>
-                    <td className="py-4 pr-4 text-gray-700">{formatCurrency(row.processorFee, row.currency)}</td>
-                    <td className="py-4 font-medium text-gray-900">{formatCurrency(row.netAmount, row.currency)}</td>
+                    <td className="py-4 pr-4 text-gray-700">
+                      {formatCurrency(row.amount, row.currency)}
+                    </td>
+                    <td className="py-4 pr-4 text-gray-700">
+                      {formatCurrency(row.platformFee, row.currency)}
+                    </td>
+                    <td className="py-4 pr-4 text-gray-700">
+                      {formatCurrency(row.processorFee, row.currency)}
+                    </td>
+                    <td className="py-4 font-medium text-gray-900">
+                      {formatCurrency(row.netAmount, row.currency)}
+                    </td>
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan={6} className="py-8 text-center text-gray-500">No revenue data is available for the selected filters.</td></tr>
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-gray-500">
+                    No revenue data is available for the selected filters.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
