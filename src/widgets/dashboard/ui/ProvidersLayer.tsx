@@ -1,7 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
 import {
@@ -15,14 +16,6 @@ import {
 import { useProviderDashboard } from './provider-widgets';
 
 function ProvidersLayerInner() {
-  const { data: session } = authClient.useSession();
-  const role = session?.user?.role?.toUpperCase();
-  const isAdmin = role === 'ADMIN' || role === 'BOARD';
-
-  if (isAdmin) {
-    redirect('/admin/providers');
-  }
-
   const dashboardQuery = useProviderDashboard();
 
   if (dashboardQuery.isLoading) {
@@ -96,6 +89,25 @@ function ProvidersLayerInner() {
 }
 
 export function ProvidersLayer() {
+  const router = useRouter();
+  const { data: session } = authClient.useSession();
+  const role = session?.user?.role?.toUpperCase();
+  const isAdmin = role === 'ADMIN' || role === 'BOARD';
+
+  useEffect(() => {
+    if (isAdmin) {
+      router.push('/admin/providers');
+    }
+  }, [isAdmin, router]);
+
+  if (isAdmin) {
+    return (
+      <div className="p-6 max-w-6xl mx-auto animate-pulse">
+        <div className="h-28 rounded-2xl bg-gray-100" />
+      </div>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <ProvidersLayerInner />
