@@ -25,4 +25,7 @@ export const users = pgTable('user', {
   image: text('image'),
   twoFactorEnabled: boolean('twoFactorEnabled').default(false).notNull(),
   isPlatformAdmin: boolean('isPlatformAdmin').default(false).notNull(),
+  banned: boolean('banned').default(false).notNull(),
+  banReason: text('banReason'),
+  banExpires: timestamp('banExpires', { mode: 'date', precision: 3 }),
 });
