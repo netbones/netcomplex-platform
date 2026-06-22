@@ -75,10 +75,10 @@ export async function GET(request: NextRequest) {
             sql`
             SELECT DISTINCT ON (m."conversationId") m."id", m."senderId", m."createdAt", m."conversationId"
             FROM "Message" m
-            WHERE m."conversationId" IN ${sql.join(
+            WHERE m."conversationId" IN (${sql.join(
               conversationIds.map(id => sql`${id}`),
               sql`, `
-            )}
+            )})
               AND m."tenantId" = ${tenantId}
             ORDER BY m."conversationId", m."createdAt" DESC
           `
