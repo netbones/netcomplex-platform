@@ -13,7 +13,7 @@ function parseLinks(text: string) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   const urls = text.match(urlRegex);
 
-  if (!urls) return { text, previews: [] };
+  if (!urls) return { elements: text, previews: [] };
 
   // Strip URLs from text for cleaner bubble or keep them highlighted
   // For standard chat, we keep the text but highlight the links
