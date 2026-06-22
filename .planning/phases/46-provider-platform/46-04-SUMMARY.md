@@ -2,7 +2,7 @@
 
 ## Status
 
-**Substantially complete with one intentional deviation:** the refund flow is implemented as **validated manual review** rather than live gateway-executed refunds, because the existing Paystack/PayPal service layer in this branch does not yet expose refund operations.
+**Substantially complete with narrower remaining limitations:** gateway-executed refunds are now implemented for Paystack transactions and for PayPal transactions that have a persisted capture ID. The main remaining refund limitation is legacy PayPal transactions that were completed before capture IDs were stored.
 
 ## What changed
 
@@ -84,13 +84,13 @@ Updated existing moderation routes to emit audit-log entries:
 - Admins can verify, reject, suspend/reinstate, and adjust credits.
 - Tenant registration mode can be toggled between `OPEN` and `INVITATION_ONLY` with gateway readiness shown in the response/UI.
 - Revenue dashboards now expose platform-fee and processor-fee breakdowns, gateway split, and tier split.
-- Transaction oversight is now available, with safe refund review logging.
+- Transaction oversight is now available, with gateway refund execution and audit logging.
 
 ## Intentional deviations / limitations
 
-1. **Refund execution is manual-review only in this phase**
-   - The admin refund API validates the requested amount and logs a reconciliation record/reference.
-   - It does **not** call Paystack or PayPal refund APIs because those capabilities are not implemented in the current payment service layer.
+1. **Refund execution still has one PayPal edge-case limitation**
+   - The admin refund API now calls Paystack and PayPal refund operations.
+   - PayPal refunds require a persisted remote capture ID; newly completed PayPal transactions now store that via webhook/capture completion, but older transactions created before that change may still require manual handling.
 
 2. **Gateway health is inferred, not actively probed**
    - Health status is derived from environment configuration plus recent transaction outcomes.
@@ -122,16 +122,17 @@ Ran file-scoped diagnostics on the touched admin/shared files, including:
 
 All checked files reported **no diagnostics**.
 
-### Could not run
+### Additional targeted tests passed
 
-Attempted focused Vitest execution for:
+Focused Vitest execution now works when run with the main checkout's installed Vitest binary against the Phase 46 worktree root. The following targeted suites passed during gap closure validation:
 
-- `src/shared/lib/providers/admin.test.ts`
+- `src/server/payments/paystack.test.ts`
+- `src/shared/lib/providers/billing.test.ts`
 
-but the worktree environment currently does not expose a runnable `vitest` binary (`sh: 1: vitest: not found`).
+(`src/shared/lib/providers/admin.test.ts` was not rerun in this gap-closure pass.)
 
 ## Remaining blockers for full Phase 46 verification
 
-- Install/restore runnable local test binaries in the worktree so targeted Vitest execution can run.
-- Add real payment-gateway refund operations if live refund processing is required for phase acceptance.
 - Add a persisted verification / moderation event table if deeper audit-history requirements emerge during milestone verification.
+- If full PayPal refund coverage for older transactions is required, backfill or persist remote capture IDs for pre-gap-closure payments.
+- Add active gateway health probes if operational monitoring needs to move beyond inferred status.

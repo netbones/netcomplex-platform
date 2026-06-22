@@ -11,35 +11,42 @@ export const maxDuration = 8;
 const paypal = new PayPalService();
 
 export async function POST(request: Request) {
-  const payload = (await request.json().catch(() => null)) as
-    | {
-        event_type?: string;
-        resource?: {
-          custom_id?: string;
-          supplementary_data?: {
-            related_ids?: {
-              order_id?: string;
-            };
-          };
+  const payload = (await request.json().catch(() => null)) as {
+    event_type?: string;
+    resource?: {
+      id?: string;
+      custom_id?: string;
+      invoice_id?: string;
+      supplementary_data?: {
+        related_ids?: {
+          order_id?: string;
         };
-      }
-    | null;
+      };
+    };
+  } | null;
 
   if (!payload) {
     return apiError('VALIDATION_ERROR', 'Invalid PayPal webhook payload', 400);
   }
 
-  const verification = await paypal.verifyWebhookSignature(payload as Record<string, unknown>, request.headers);
+  const verification = await paypal.verifyWebhookSignature(
+    payload as Record<string, unknown>,
+    request.headers
+  );
   if (!verification.verified) {
     return apiError('FORBIDDEN', verification.reason ?? 'Invalid PayPal signature', 403);
   }
 
-  const reference = payload.resource?.custom_id ?? payload.resource?.supplementary_data?.related_ids?.order_id;
+  const reference =
+    payload.resource?.custom_id ?? payload.resource?.supplementary_data?.related_ids?.order_id;
 
   switch (payload.event_type) {
     case 'PAYMENT.CAPTURE.COMPLETED':
       if (reference) {
-        await markTransactionCompletedByReference(reference);
+        await markTransactionCompletedByReference(reference, {
+          gatewayReference: payload.resource?.id ?? null,
+          invoiceUrl: payload.resource?.invoice_id ?? null,
+        });
       }
       break;
     case 'PAYMENT.CAPTURE.DENIED':

@@ -13,7 +13,13 @@ interface RefundModalProps {
   onSubmit: (payload: { amount?: number; reason: string }) => Promise<void>;
 }
 
-export function RefundModal({ transaction, open, pending = false, onClose, onSubmit }: RefundModalProps) {
+export function RefundModal({
+  transaction,
+  open,
+  pending = false,
+  onClose,
+  onSubmit,
+}: RefundModalProps) {
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState('');
 
@@ -26,20 +32,29 @@ export function RefundModal({ transaction, open, pending = false, onClose, onSub
       <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Review refund request</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Execute refund</h2>
             <p className="mt-1 text-sm text-gray-500">
-              This phase validates refund eligibility and logs manual reconciliation for gateway follow-up.
+              Submit a gateway refund for the refundable portion of this completed provider
+              transaction.
             </p>
           </div>
-          <button type="button" onClick={onClose} className="text-sm text-gray-500 hover:text-gray-700">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-sm text-gray-500 hover:text-gray-700"
+          >
             Close
           </button>
         </div>
 
         <div className="mt-5 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
-          <div className="font-medium text-gray-900">{transaction.providerCompanyName ?? 'Provider transaction'}</div>
+          <div className="font-medium text-gray-900">
+            {transaction.providerCompanyName ?? 'Provider transaction'}
+          </div>
           <div className="mt-1">Gateway: {transaction.gateway}</div>
-          <div className="mt-1">Maximum refundable: {formatCurrency(transaction.refundableAmount, transaction.currency)}</div>
+          <div className="mt-1">
+            Maximum refundable: {formatCurrency(transaction.refundableAmount, transaction.currency)}
+          </div>
         </div>
 
         <form
@@ -55,7 +70,9 @@ export function RefundModal({ transaction, open, pending = false, onClose, onSub
           }}
         >
           <div>
-            <label className="block text-sm font-medium text-gray-700">Refund amount (optional)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Refund amount (optional)
+            </label>
             <input
               value={amount}
               onChange={event => setAmount(event.target.value)}
@@ -88,7 +105,7 @@ export function RefundModal({ transaction, open, pending = false, onClose, onSub
               disabled={pending}
               className="rounded-lg bg-soralia-primary px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {pending ? 'Submitting…' : 'Log refund review'}
+              {pending ? 'Submitting…' : 'Execute refund'}
             </button>
           </div>
         </form>

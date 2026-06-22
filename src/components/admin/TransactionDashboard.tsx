@@ -57,7 +57,8 @@ export function TransactionDashboard() {
       <section className="rounded-3xl bg-gradient-to-r from-slate-900 to-indigo-900 p-6 text-white shadow-lg">
         <h1 className="text-3xl font-semibold">Provider transactions</h1>
         <p className="mt-2 max-w-3xl text-sm text-slate-200">
-          Inspect transaction status, refundable exposure, and manual refund-review requests across provider billing.
+          Inspect transaction status, refundable exposure, and execute gateway refunds across
+          provider billing.
         </p>
       </section>
 
@@ -70,14 +71,19 @@ export function TransactionDashboard() {
       <div className="grid gap-4 md:grid-cols-3">
         <SummaryCard title="Transactions in view" value={String(data?.pagination.total ?? 0)} />
         <SummaryCard title="Total value" value={formatCurrency(data?.summary.totalAmount ?? 0)} />
-        <SummaryCard title="Refundable exposure" value={formatCurrency(data?.summary.totalRefundable ?? 0)} />
+        <SummaryCard
+          title="Refundable exposure"
+          value={formatCurrency(data?.summary.totalRefundable ?? 0)}
+        />
       </div>
 
       <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h2 className="text-base font-semibold text-gray-900">Transaction queue</h2>
-            <p className="mt-1 text-sm text-gray-500">Filter payment records before opening provider detail pages.</p>
+            <p className="mt-1 text-sm text-gray-500">
+              Filter payment records before opening provider detail pages.
+            </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <select
@@ -132,18 +138,25 @@ export function TransactionDashboard() {
                 data.transactions.map(transaction => (
                   <tr key={transaction.id} className="align-top">
                     <td className="py-4 pr-4">
-                      <div className="font-medium text-gray-900">{transaction.providerCompanyName ?? 'Unknown provider'}</div>
-                      <div className="mt-1 text-xs text-gray-500">{transaction.externalRef ?? transaction.id}</div>
+                      <div className="font-medium text-gray-900">
+                        {transaction.providerCompanyName ?? 'Unknown provider'}
+                      </div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        {transaction.externalRef ?? transaction.id}
+                      </div>
                     </td>
                     <td className="py-4 pr-4 text-gray-700">{transaction.gateway}</td>
                     <td className="py-4 pr-4 text-gray-700">
                       <div>{formatCurrency(transaction.amount, transaction.currency)}</div>
                       <div className="mt-1 text-xs text-gray-500">
-                        Refundable {formatCurrency(transaction.refundableAmount, transaction.currency)}
+                        Refundable{' '}
+                        {formatCurrency(transaction.refundableAmount, transaction.currency)}
                       </div>
                     </td>
                     <td className="py-4 pr-4">
-                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadgeClass(transaction.status)}`}>
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusBadgeClass(transaction.status)}`}
+                      >
                         {transaction.status.toLowerCase()}
                       </span>
                     </td>
@@ -155,7 +168,7 @@ export function TransactionDashboard() {
                         onClick={() => setSelectedTransaction(transaction)}
                         className="rounded-lg border border-indigo-200 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        Refund review
+                        Refund
                       </button>
                     </td>
                   </tr>
@@ -186,7 +199,9 @@ export function TransactionDashboard() {
             </button>
             <button
               type="button"
-              onClick={() => setPage(current => Math.min(data?.pagination.totalPages ?? current, current + 1))}
+              onClick={() =>
+                setPage(current => Math.min(data?.pagination.totalPages ?? current, current + 1))
+              }
               disabled={(data?.pagination.page ?? 1) >= (data?.pagination.totalPages ?? 1)}
               className="rounded-lg border border-gray-300 px-3 py-2 disabled:opacity-50"
             >

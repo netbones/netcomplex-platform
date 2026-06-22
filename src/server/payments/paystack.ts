@@ -26,6 +26,14 @@ export interface WebhookVerificationResult {
   reason?: string;
 }
 
+export interface RefundExecutionResult {
+  status: 'completed' | 'configuration_required' | 'degraded';
+  refundReference: string | null;
+  message: string;
+  processedAmount?: number | null;
+  raw?: unknown;
+}
+
 const PAYSTACK_BASE_URL = 'https://api.paystack.co';
 
 function getPaystackSecret(): string | null {
@@ -150,6 +158,65 @@ export class PaystackService {
       cancelled: false,
       reason:
         'Remote Paystack subscription cancellation is deferred until remote subscription identifiers are persisted by the platform.',
+    };
+  }
+
+  async refundTransaction(params: {
+    transactionReference: string;
+    amount: number;
+    currency: string;
+    reason: string;
+  }): Promise<RefundExecutionResult> {
+    const secretKey = getPaystackSecret();
+    if (!secretKey) {
+      return {
+        status: 'configuration_required',
+        refundReference: null,
+        message: 'PAYSTACK_SECRET_KEY is not configured for this environment.',
+      };
+    }
+
+    const response = await fetch(`${PAYSTACK_BASE_URL}/refund`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${secretKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        transaction: params.transactionReference,
+        amount: Math.round(params.amount * 100),
+        currency: params.currency,
+        merchant_note: params.reason,
+      }),
+    });
+
+    const body = (await response.json().catch(() => null)) as {
+      status?: boolean;
+      message?: string;
+      data?: {
+        refund_reference?: string;
+        reference?: string;
+        amount?: number;
+        status?: string;
+      };
+    } | null;
+
+    if (!response.ok || !body?.status) {
+      return {
+        status: 'degraded',
+        refundReference: null,
+        message: body?.message ?? `Paystack refund failed with status ${response.status}`,
+        raw: body,
+      };
+    }
+
+    return {
+      status: 'completed',
+      refundReference: body.data?.refund_reference ?? body.data?.reference ?? null,
+      message: body.message ?? 'Paystack refund submitted successfully.',
+      processedAmount:
+        typeof body.data?.amount === 'number' ? Number(body.data.amount) / 100 : params.amount,
+      raw: body,
     };
   }
 

@@ -12,6 +12,7 @@ import {
   writeAuditLog,
   getSessionAndRole,
 } from '@api/server';
+import { refundProviderTransaction } from '@shared/api';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 import { decimalToNumber } from '@shared/lib/providers/billing';
@@ -24,10 +25,7 @@ const refundRequestSchema = z.object({
   reason: z.string().trim().min(3).max(1000),
 });
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authError = await requireAnyPermission(['providers']);
     if (authError) {
@@ -53,7 +51,7 @@ export async function POST(
     }
 
     if (transaction.status !== 'COMPLETED') {
-      return apiError('VALIDATION_ERROR', 'Only completed transactions can enter refund review', 400);
+      return apiError('VALIDATION_ERROR', 'Only completed transactions can be refunded', 400);
     }
 
     const maxRefundable = getRefundableAmount({
@@ -72,7 +70,16 @@ export async function POST(
       );
     }
 
-    const refundReference = `manual-refund-${transaction.gateway.toLowerCase()}-${transaction.id.slice(0, 8)}-${Date.now()}`;
+    const result = await refundProviderTransaction({
+      tenantId,
+      transactionId: transaction.id,
+      amount: requestedAmount,
+      reason: parsed.data.reason,
+    });
+
+    if (!result.ok) {
+      return apiError('VALIDATION_ERROR', result.message, result.status);
+    }
 
     if (auth) {
       writeAuditLog({
@@ -85,21 +92,14 @@ export async function POST(
           requestedAmount,
           maxRefundable,
           reason: parsed.data.reason,
-          processingMode: 'MANUAL_RECONCILIATION_REQUIRED',
+          processingMode: 'GATEWAY_EXECUTED',
+          refundReference: result.data.refundReference,
+          refundedStatus: result.data.status,
         },
       });
     }
 
-    return apiSuccess({
-      refundReference,
-      transactionId: transaction.id,
-      gateway: transaction.gateway,
-      requestedAmount,
-      maxRefundable,
-      status: 'MANUAL_REVIEW_REQUIRED',
-      message:
-        'Gateway-native refund execution is not wired yet for provider billing. This request has been validated and logged for manual reconciliation.',
-    });
+    return apiSuccess(result.data);
   } catch (error) {
     logError(
       { component: 'admin-transaction-refund-api', operation: 'POST' },

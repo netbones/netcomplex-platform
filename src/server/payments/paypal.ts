@@ -1,6 +1,11 @@
 import 'server-only';
 
-import type { PaymentInitializationContext, PaymentInitializationResult, WebhookVerificationResult } from './paystack';
+import type {
+  PaymentInitializationContext,
+  PaymentInitializationResult,
+  RefundExecutionResult,
+  WebhookVerificationResult,
+} from './paystack';
 
 function getPayPalBaseUrl(): string {
   const configured = process.env.PAYPAL_BASE_URL?.trim();
@@ -126,13 +131,16 @@ export class PayPalService {
       return { captured: false, reason: 'Unable to acquire PayPal access token.' };
     }
 
-    const response = await fetch(`${getPayPalBaseUrl()}/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${getPayPalBaseUrl()}/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
     return response.json().catch(() => null);
   }
@@ -150,6 +158,65 @@ export class PayPalService {
       cancelled: false,
       reason:
         'Remote PayPal subscription cancellation is deferred until the platform persists remote subscription identifiers.',
+    };
+  }
+
+  async refundCapture(params: {
+    captureId: string;
+    amount: number;
+    currency: string;
+    reason: string;
+  }): Promise<RefundExecutionResult> {
+    const accessToken = await this.getAccessToken();
+    if (!accessToken) {
+      return {
+        status: 'configuration_required',
+        refundReference: null,
+        message: 'Unable to acquire PayPal access token for refund execution.',
+      };
+    }
+
+    const response = await fetch(
+      `${getPayPalBaseUrl()}/v2/payments/captures/${encodeURIComponent(params.captureId)}/refund`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: {
+            currency_code: params.currency,
+            value: params.amount.toFixed(2),
+          },
+          note_to_payer: params.reason,
+        }),
+      }
+    );
+
+    const body = (await response.json().catch(() => null)) as {
+      id?: string;
+      status?: string;
+      message?: string;
+    } | null;
+
+    if (!response.ok || !body?.id) {
+      return {
+        status: 'degraded',
+        refundReference: null,
+        message: body?.message ?? `PayPal refund failed with status ${response.status}`,
+        raw: body,
+      };
+    }
+
+    return {
+      status: 'completed',
+      refundReference: body.id,
+      message: body.status
+        ? `PayPal refund ${body.status.toLowerCase()}.`
+        : 'PayPal refund submitted successfully.',
+      processedAmount: params.amount,
+      raw: body,
     };
   }
 
@@ -181,26 +248,29 @@ export class PayPalService {
       return { verified: false, reason: 'Unable to acquire PayPal access token.' };
     }
 
-    const response = await fetch(`${getPayPalBaseUrl()}/v1/notifications/verify-webhook-signature`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        auth_algo: authAlgo,
-        cert_url: certUrl,
-        transmission_id: transmissionId,
-        transmission_sig: transmissionSig,
-        transmission_time: transmissionTime,
-        webhook_id: credentials.webhookId,
-        webhook_event: body,
-      }),
-    });
+    const response = await fetch(
+      `${getPayPalBaseUrl()}/v1/notifications/verify-webhook-signature`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          auth_algo: authAlgo,
+          cert_url: certUrl,
+          transmission_id: transmissionId,
+          transmission_sig: transmissionSig,
+          transmission_time: transmissionTime,
+          webhook_id: credentials.webhookId,
+          webhook_event: body,
+        }),
+      }
+    );
 
-    const payload = (await response.json().catch(() => null)) as
-      | { verification_status?: string }
-      | null;
+    const payload = (await response.json().catch(() => null)) as {
+      verification_status?: string;
+    } | null;
 
     if (!response.ok) {
       return {

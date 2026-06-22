@@ -1025,7 +1025,10 @@ export async function updateProviderSubscriptionStatus(params: {
   return { ok: true, data: updated };
 }
 
-export async function markTransactionCompletedByReference(reference: string) {
+export async function markTransactionCompletedByReference(
+  reference: string,
+  options: { gatewayReference?: string | null; invoiceUrl?: string | null } = {}
+) {
   const [transaction] = await db
     .select()
     .from(paymentTransactions)
@@ -1042,10 +1045,18 @@ export async function markTransactionCompletedByReference(reference: string) {
 
   const completedAt = now();
 
-  if (transaction.status !== 'COMPLETED') {
+  if (
+    transaction.status !== 'COMPLETED' ||
+    (options.gatewayReference && options.gatewayReference !== transaction.externalRef) ||
+    (options.invoiceUrl && options.invoiceUrl !== transaction.invoiceUrl)
+  ) {
     await db
       .update(paymentTransactions)
-      .set({ status: 'COMPLETED' })
+      .set({
+        status: 'COMPLETED',
+        externalRef: options.gatewayReference ?? transaction.externalRef,
+        invoiceUrl: options.invoiceUrl ?? transaction.invoiceUrl,
+      })
       .where(eq(paymentTransactions.id, transaction.id));
   }
 
@@ -1100,6 +1111,153 @@ export async function markTransactionCompletedByReference(reference: string) {
   }
 
   return { ok: true, status: 200, message: 'Transaction marked as completed.' } as const;
+}
+
+export async function refundProviderTransaction(params: {
+  tenantId: string;
+  transactionId: string;
+  amount: number;
+  reason: string;
+}) {
+  const [transaction] = await db
+    .select()
+    .from(paymentTransactions)
+    .where(
+      and(
+        eq(paymentTransactions.id, params.transactionId),
+        eq(paymentTransactions.tenantId, params.tenantId)
+      )
+    )
+    .limit(1);
+
+  if (!transaction) {
+    return { ok: false, status: 404, message: 'Transaction not found.' } as const;
+  }
+
+  if (transaction.status === 'REFUNDED') {
+    return {
+      ok: true,
+      data: {
+        refundReference: transaction.externalRef ?? `refund-${transaction.id}`,
+        transactionId: transaction.id,
+        gateway: transaction.gateway,
+        requestedAmount: params.amount,
+        maxRefundable: decimalToNumber(transaction.netAmount),
+        status: 'REFUNDED',
+        message: 'Transaction has already been refunded.',
+      },
+    } as const;
+  }
+
+  if (transaction.status !== 'COMPLETED') {
+    return {
+      ok: false,
+      status: 400,
+      message: 'Only completed transactions can be refunded.',
+    } as const;
+  }
+
+  const maxRefundable = decimalToNumber(transaction.netAmount);
+  if (maxRefundable <= 0 || params.amount <= 0) {
+    return {
+      ok: false,
+      status: 400,
+      message: 'This transaction does not have a refundable balance.',
+    } as const;
+  }
+
+  if (params.amount > maxRefundable) {
+    return {
+      ok: false,
+      status: 400,
+      message: `Refund amount exceeds the maximum refundable amount of ${formatCurrency(maxRefundable, transaction.currency)}.`,
+    } as const;
+  }
+
+  let execution:
+    | Awaited<ReturnType<PaystackService['refundTransaction']>>
+    | Awaited<ReturnType<PayPalService['refundCapture']>>;
+
+  if (transaction.gateway === 'PAYSTACK') {
+    execution = await paystackService.refundTransaction({
+      transactionReference: transaction.externalRef ?? transaction.id,
+      amount: params.amount,
+      currency: transaction.currency,
+      reason: params.reason,
+    });
+  } else {
+    if (!transaction.externalRef || transaction.externalRef.startsWith('prov-')) {
+      return {
+        ok: false,
+        status: 409,
+        message:
+          'This PayPal transaction does not yet have a refundable capture reference. Capture completion must persist the remote PayPal capture ID before gateway refunds can execute.',
+      } as const;
+    }
+
+    execution = await paypalService.refundCapture({
+      captureId: transaction.externalRef,
+      amount: params.amount,
+      currency: transaction.currency,
+      reason: params.reason,
+    });
+  }
+
+  if (execution.status !== 'completed') {
+    return {
+      ok: false,
+      status: execution.status === 'configuration_required' ? 503 : 502,
+      message: execution.message,
+    } as const;
+  }
+
+  const refundedAt = now();
+
+  await db
+    .update(paymentTransactions)
+    .set({ status: 'REFUNDED' })
+    .where(eq(paymentTransactions.id, transaction.id));
+
+  await db
+    .update(providerSubscriptions)
+    .set({
+      status: 'CANCELLED',
+      endDate: refundedAt,
+      updatedAt: refundedAt,
+    })
+    .where(eq(providerSubscriptions.id, transaction.subscriptionId));
+
+  await db
+    .update(providerCharges)
+    .set({
+      status: 'FAILED',
+      paidAt: null,
+      updatedAt: refundedAt,
+    })
+    .where(eq(providerCharges.transactionId, transaction.id));
+
+  await db
+    .update(providerInvoices)
+    .set({
+      status: 'VOID',
+      updatedAt: refundedAt,
+    })
+    .where(eq(providerInvoices.transactionId, transaction.id));
+
+  await db.delete(revenueRecords).where(eq(revenueRecords.transactionId, transaction.id));
+
+  return {
+    ok: true,
+    data: {
+      refundReference: execution.refundReference ?? `refund-${transaction.id}`,
+      transactionId: transaction.id,
+      gateway: transaction.gateway,
+      requestedAmount: execution.processedAmount ?? params.amount,
+      maxRefundable,
+      status: 'REFUNDED',
+      message: execution.message,
+    },
+  } as const;
 }
 
 export async function markTransactionFailedByReference(reference: string) {

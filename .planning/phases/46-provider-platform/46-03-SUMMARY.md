@@ -8,6 +8,7 @@ This implementation delivers a coherent provider billing foundation inside the P
 
 - provider billing dashboard and subscription flows
 - Paystack / PayPal service wrappers with webhook signature verification scaffolding
+- explicit Paystack verify and PayPal capture completion routes for redirect-based payment finalization
 - DB-backed subscription tiers, transactions, charges, invoices, revenue records, and provider credit views
 - fee calculation and transaction persistence
 - provider-facing billing, charges, invoices, fees, and credit APIs
@@ -58,7 +59,9 @@ Billing / credit APIs in this slice:
 - `src/app/api/providers/credits/route.ts`
 - `src/app/api/providers/credits/history/route.ts`
 - `src/app/api/payments/paystack/webhook/route.ts`
+- `src/app/api/payments/paystack/verify/route.ts`
 - `src/app/api/payments/paypal/webhook/route.ts`
+- `src/app/api/payments/paypal/capture/route.ts`
 
 Provider UI delivered / finalized:
 
@@ -103,14 +106,16 @@ File-scoped diagnostics were run and returned clean for:
 - `src/server/payments/paystack.test.ts`
 - `src/shared/lib/providers/billing.test.ts`
 
-### Attempted but blocked
+### Passed
 
-Focused `vitest` execution was attempted for:
+Focused `vitest` execution passed for:
 
 - `src/shared/lib/providers/billing.test.ts`
 - `src/server/payments/paystack.test.ts`
 
-It was blocked by a worktree-local module resolution issue loading `vitest.config.ts` (`vitest/config`, `@vitejs/plugin-react`, `dotenv` unresolved from the worktree execution context). This appears to be an environment / worktree dependency resolution problem rather than an error reported inside the touched billing files themselves.
+Executed with the main checkout's installed Vitest binary against the Phase 46 worktree root:
+
+- `/home/ubuntupunk/Projects/soralia-village/node_modules/.bin/vitest run --root /home/ubuntupunk/Projects/soralia-village.phase-46-provider-platform --config /home/ubuntupunk/Projects/soralia-village.phase-46-provider-platform/vitest.config.ts ...`
 
 ## Deviations / deliberate deferrals
 
@@ -124,10 +129,11 @@ These are intentionally deferred for **46-04** or a follow-up billing hardening 
    - invoice rows are persisted
    - `pdfUrl` remains nullable until storage / document generation is wired
 
-3. **Gateway callback / capture endpoints beyond webhook scaffolding**
+3. **Gateway callback / capture coverage is now partially closed**
    - provider subscription init is live from `/api/providers/billing/subscribe`
    - webhook verification and local completion/failure handling are implemented
-   - fully fleshed PayPal capture / Paystack verify callback routes are still deferred
+   - `GET /api/payments/paystack/verify` and `POST /api/payments/paypal/capture` now finalize redirect-based flows
+   - recurring remote subscription lifecycle remains deferred
 
 4. **Admin revenue management endpoints**
    - revenue persistence exists via `revenueRecords`
