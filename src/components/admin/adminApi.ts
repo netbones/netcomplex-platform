@@ -1,0 +1,82 @@
+'use client';
+
+export interface QueryError extends Error {
+  status?: number;
+  details?: unknown;
+}
+
+export async function fetchApi<T>(url: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(url, {
+    credentials: 'same-origin',
+    cache: 'no-store',
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(init?.headers ?? {}),
+    },
+  });
+
+  const body = await response.json().catch(() => null);
+  if (!response.ok) {
+    const error = new Error(
+      body?.error?.message ?? body?.message ?? `Request failed with status ${response.status}`
+    ) as QueryError;
+    error.status = response.status;
+    error.details = body?.error?.details ?? body;
+    throw error;
+  }
+
+  return (body?.data ?? body) as T;
+}
+
+export async function sendJson<T>(url: string, init: RequestInit): Promise<T> {
+  return fetchApi<T>(url, init);
+}
+
+export function formatDate(value: string | null | undefined): string {
+  if (!value) return '—';
+  return new Date(value).toLocaleDateString('en-ZA', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+export function formatCurrency(amount: number, currency = 'ZAR'): string {
+  return new Intl.NumberFormat('en-ZA', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
+export function formatPercent(value: number): string {
+  return `${value.toFixed(1)}%`;
+}
+
+export function statusBadgeClass(status: string): string {
+  switch (status) {
+    case 'VERIFIED':
+    case 'COMPLETED':
+    case 'ACTIVE':
+    case 'HEALTHY':
+      return 'bg-emerald-100 text-emerald-700';
+    case 'PENDING':
+    case 'PROBATION':
+    case 'IDLE':
+    case 'MANUAL_REVIEW_REQUIRED':
+      return 'bg-amber-100 text-amber-800';
+    case 'SUSPENDED':
+    case 'FAILED':
+    case 'DEGRADED':
+      return 'bg-rose-100 text-rose-700';
+    case 'REFUNDED':
+    case 'INVITATION_ONLY':
+      return 'bg-slate-200 text-slate-700';
+    case 'OPEN':
+      return 'bg-indigo-100 text-indigo-700';
+    default:
+      return 'bg-gray-100 text-gray-700';
+  }
+}

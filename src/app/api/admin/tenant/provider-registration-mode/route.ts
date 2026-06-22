@@ -8,6 +8,7 @@ import {
   apiUnauthorized,
   CACHE_TAGS,
   getSessionAndRole,
+  writeAuditLog,
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
 import {
@@ -35,7 +36,16 @@ export async function GET(request: Request) {
   const { tenantId } = await withTenant();
   const mode = await getProviderRegistrationModeImpl(tenantId);
 
-  return apiSuccess({ mode });
+  return apiSuccess({
+    mode,
+    paymentSettingsUnlocked: mode === 'OPEN',
+    gatewayStatus: {
+      paystackConfigured: Boolean(process.env.PAYSTACK_SECRET_KEY?.trim()),
+      paypalConfigured: Boolean(
+        process.env.PAYPAL_CLIENT_ID?.trim() && process.env.PAYPAL_CLIENT_SECRET?.trim()
+      ),
+    },
+  });
 }
 
 export async function PATCH(request: Request) {
@@ -49,12 +59,13 @@ export async function PATCH(request: Request) {
   }
 
   const body = (await request.json()) as { mode?: string };
+  const { tenantId } = await withTenant();
+  const previousMode = await getProviderRegistrationModeImpl(tenantId);
   const parsed = providerRegistrationModeSchema.safeParse(body.mode);
   if (!parsed.success) {
     return apiError('VALIDATION_ERROR', 'mode must be OPEN or INVITATION_ONLY', 400);
   }
 
-  const { tenantId } = await withTenant();
   const ok = await setProviderRegistrationMode(tenantId, parsed.data);
   if (!ok) {
     return apiInternalError('Failed to update provider registration mode');
@@ -63,5 +74,21 @@ export async function PATCH(request: Request) {
   revalidateTag(CACHE_TAGS.SETTINGS);
   revalidatePath('/providers/register');
 
-  return apiSuccess({ mode: parsed.data });
+  writeAuditLog({
+    action: 'PROVIDER_REGISTRATION_MODE_CHANGED',
+    actorId: auth.userId,
+    tenantId,
+    details: { oldValue: previousMode, newValue: parsed.data },
+  });
+
+  return apiSuccess({
+    mode: parsed.data,
+    paymentSettingsUnlocked: parsed.data === 'OPEN',
+    gatewayStatus: {
+      paystackConfigured: Boolean(process.env.PAYSTACK_SECRET_KEY?.trim()),
+      paypalConfigured: Boolean(
+        process.env.PAYPAL_CLIENT_ID?.trim() && process.env.PAYPAL_CLIENT_SECRET?.trim()
+      ),
+    },
+  });
 }

@@ -9,9 +9,14 @@ import {
   db,
   now,
   serviceProviders,
+  writeAuditLog,
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
-import { getProviderDueDiligenceSnapshot, getSessionAndRole, upsertProviderVerification } from '@shared/api';
+import {
+  getProviderDueDiligenceSnapshot,
+  getSessionAndRole,
+  upsertProviderVerification,
+} from '@shared/api';
 import { providerReviewRejectionSchema } from '@shared/lib/providers/registration';
 
 export const maxDuration = 8;
@@ -20,10 +25,7 @@ function canReviewProviders(role: string): boolean {
   return role === 'ADMIN' || role === 'BOARD';
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getSessionAndRole(request);
   if (!auth) {
     return apiUnauthorized();
@@ -70,6 +72,14 @@ export async function PATCH(
   });
 
   const dueDiligence = await getProviderDueDiligenceSnapshot(tenantId, provider.id, 'SUSPENDED');
+
+  writeAuditLog({
+    action: 'PROVIDER_REJECTED',
+    actorId: auth.userId,
+    tenantId,
+    targetId: provider.id,
+    details: { reason: parsed.data.reason, mappedStatus: 'SUSPENDED' },
+  });
 
   return apiSuccess({
     provider,

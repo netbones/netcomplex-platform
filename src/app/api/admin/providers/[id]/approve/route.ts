@@ -9,9 +9,14 @@ import {
   db,
   now,
   serviceProviders,
+  writeAuditLog,
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
-import { getProviderDueDiligenceSnapshot, getSessionAndRole, upsertProviderVerification } from '@shared/api';
+import {
+  getProviderDueDiligenceSnapshot,
+  getSessionAndRole,
+  upsertProviderVerification,
+} from '@shared/api';
 import { providerReviewApprovalSchema } from '@shared/lib/providers/registration';
 
 export const maxDuration = 8;
@@ -20,10 +25,7 @@ function canReviewProviders(role: string): boolean {
   return role === 'ADMIN' || role === 'BOARD';
 }
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getSessionAndRole(request);
   if (!auth) {
     return apiUnauthorized();
@@ -73,6 +75,14 @@ export async function PATCH(
   });
 
   const dueDiligence = await getProviderDueDiligenceSnapshot(tenantId, provider.id, 'VERIFIED');
+
+  writeAuditLog({
+    action: 'PROVIDER_APPROVED',
+    actorId: auth.userId,
+    tenantId,
+    targetId: provider.id,
+    details: { method: 'approve', notes: approvalNote },
+  });
 
   return apiSuccess({
     provider,
