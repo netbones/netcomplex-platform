@@ -1,10 +1,9 @@
-import { db, settings } from '@api/server';
+import { db, settings, CACHE_TAGS } from '@api/server';
 
 import type { DbSchema } from '@api/server';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
-import { CACHE_TAGS } from '@shared/api';
 import { SETTINGS_KEYS } from '../settings';
 import { v4 as uuidv4 } from 'uuid';
 import { createComponentLogger } from '@shared/lib';
