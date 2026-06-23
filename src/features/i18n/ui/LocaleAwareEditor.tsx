@@ -92,6 +92,7 @@ export function LocaleAwareEditor({
             ...content,
             [targetLocale]: translatedContent,
           });
+          setActiveLocale(targetLocale);
         }
       } catch (err) {
         setTranslateError(err instanceof Error ? err.message : 'Translation failed');
