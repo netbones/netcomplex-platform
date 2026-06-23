@@ -124,353 +124,212 @@ prisma migrate / db push                    src/lib/db.ts
 
 All tables include `tenantId` for multi-tenant data isolation (NetComplex platform).
 
-> See Section 4.1 for the Household/Seat/Alias schema extension.
+> **Canonical source of truth:** `prisma/schema.prisma` at repo root. The schema below is a curated subset of architecturally significant models. For the complete schema with all fields, enums, and indexes, see `prisma/schema.prisma` (1916 lines).
+
+> See [IDENTITY_MODEL.md](../architecture/IDENTITY_MODEL.md) for the Household/Seat/Alias model.
 
 > See [TIER_MODEL.md](./TIER_MODEL.md) for the module-based tier system.
 
-### Full Schema
+### Core Schema (Curated)
 
 ```prisma
-generator client {
-  provider = "prisma-client-js"
+// ── User & Identity ──
+
+model user {
+  id                String   @id
+  tenantId          String
+  email             String   @unique
+  name              String
+  role              Role     @default(RESIDENT)
+  isActive          Boolean  @default(true)
+  phone             String?
+  interests         String[]
+  avatar            String?
+  profileSlug       String?
+  isPlatformAdmin   Boolean  @default(false)
+  banned            Boolean  @default(false)
+  profileData       Json?    @default("{}")
+  standardSeat      StandardSeat[]
+  soloSeat          SoloSeat[]
+  premiumSeat       PremiumSeat?
+  Profile           Profile[]
+  ServiceProvider   ServiceProvider?  // linked via registration
+  // ... relations omitted for brevity
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+enum Role { RESIDENT | GROUP_ADMIN | COMMITTEE | BOARD | ADMIN | AGENT | MANAGER | ASSOCIATE | PROVIDER }
+
+// ── Seat Types (see IDENTITY_MODEL.md) ──
+
+model StandardSeat {
+  id              String   @id
+  tenantId        String
+  userId          String
+  propertyId      String
+  isPrimaryOwner  Boolean  @default(true)
+  platformAddress String   @unique
+  property        Property @relation(fields: [propertyId], references: [id])
+  user            user     @relation(fields: [userId], references: [id])
+  @@unique([userId, propertyId])
 }
 
-model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String
-  role          Role      @default(RESIDENT)
-  phone         String?
-  interests     String[]
-  avatar        String?
-  isPublic      Boolean   @default(true)
-  showEmail     Boolean   @default(true)
-  showPhone     Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Seat relationships (mutually exclusive)
-  standardSeat  StandardSeat?
-  soloSeat      SoloSeat?
-  premiumSeat   PremiumSeat?
-
-  // Profile relationships
-  addressProfiles Profile[]
-
-  requests      MaintenanceRequest[]
-  bookings      Booking[]
-  notifications Notification[]
-  conversations Conversation[]
-  contents      Content[]
+model SoloSeat {
+  id                  String       @id
+  tenantId            String
+  userId              String
+  platformAddress     String       @unique
+  propertyId          String?
+  seatType            SoloSeatType // RESIDENT | MEMBER
+  isComplimentary     Boolean      @default(false)
+  linkedFromProfileId String?
+  property            Property?    @relation
+  user                user         @relation
 }
 
-enum Role {
-  RESIDENT
-  GROUP_ADMIN // Manages only their own group
-  COMMITTEE   // Committee member
-  BOARD       // HOA Board member
-  ADMIN       // SuperAdmin - full platform access
+model PremiumSeat {
+  id                   String   @id
+  tenantId             String
+  userId               String   @unique
+  platformAddress      String   @unique
+  subscriptionTier     String   @default("basic")
+  maxProperties        Int      @default(5)
+  messageRetentionDays Int      @default(30)
+  tier                 String   @default("foundation")
+  user                 user     @relation
+  propertyPremiumSeats PropertyPremiumSeat[]
 }
 
-enum SeatType {
-  STANDARD   // Property owner household management
-  SOLO       // Liberation - independent occupant identity
-  PREMIUM    // Portfolio - multi-property investor management
+// ── Household & Property ──
+
+model Property {
+  id              String     @id
+  tenantId        String
+  platformAddress String
+  street          String
+  unit            String
+  ownerId         String?
+  standardSeat    StandardSeat[]
+  households      Household[]
 }
 
-enum OccupantType {
-  OCCUPANT   // Adult resident
-  MINOR      // Child/minor under adult supervision
-  FAMILY     // Extended family member
+model Household {
+  id            String      @id
+  tenantId      String
+  propertyId    String
+  occupancyType OccupancyType // OWNER_OCCUPIED | RENTAL | VACANT
+  status        HouseholdStatus // ACTIVE | ARCHIVED
+  profiles      Profile[]
+  property      Property    @relation
 }
 
-model MaintenanceRequest {
-  id          String        @id @default(cuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category    String
-  priority    Priority
-  description String
-  status      RequestStatus @default(SUBMITTED)
-  images      String[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+model Profile {
+  id              String        @id
+  tenantId        String
+  householdId     String
+  displayName     String
+  profileAddress  String        @unique  // name.unitNNN@domain
+  userId          String?
+  occupantSince   DateTime
+  householdRole   HouseholdRole // OCCUPANT | MINOR | FAMILY
+  status          ProfileStatus
+  residencyType   ResidencyType // FAMILY | RENTER | OWNER
+  landlordId      String?
+  household       Household     @relation
 }
 
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-  EMERGENCY
-}
+// ── Chat & Messaging ──
 
-enum RequestStatus {
-  SUBMITTED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-}
-
-model Booking {
-  id          String        @id @default(cuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  facility    String
-  date        DateTime
-  startTime   String
-  endTime     String
-  purpose     String?
-  status      BookingStatus @default(CONFIRMED)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-}
-
-enum BookingStatus {
-  CONFIRMED
-  CANCELLED
-  COMPLETED
-}
-
-model Event {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  date        DateTime
-  location    String
-  organizer   String
-  image       String?
-  isPublic    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Announcement {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  author    String
-  priority  String   @default("normal")
-  createdAt DateTime @default(now())
-  expiresAt DateTime?
-}
-
-model Content {
-  id          String         @id @default(cuid())
-  title       String
-  content     String         @db.Text
-  excerpt     String?
-  image       String?
-  category    ContentCategory
-  authorId    String?
-  author      User?          @relation(fields: [authorId], references: [id])
-  groupId     String?
-  group       Group?         @relation(fields: [groupId], references: [id])
-  published   Boolean        @default(false)
-  featured    Boolean        @default(false)
-  priority    String         @default("normal")
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  publishedAt DateTime?
-  expiresAt   DateTime?
-}
-
-enum ContentCategory {
-  ANNOUNCEMENT
-  NEWS
-  EVENT
-  BLOG
-}
-
-model Group {
-  id          String       @id @default(cuid())
-  name        String
-  description String?
-  category    String
-  image       String?
-  isPublic    Boolean      @default(true)
-  accessType  GroupAccess  @default(OPEN)
-  residentFilter ResidentFilter @default(ALL)
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  ownerId     String
-  owner      User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  members    UserGroup[]
-  contents   Content[]
-  membershipRequests GroupMembershipRequest[]
-}
-
-enum GroupAccess {
-  OPEN        // Anyone can join
-  INVITE_ONLY // Requires invitation from group admin
-  APPLICATION // Requires application approval
-}
-
-enum ResidentFilter {
-  ALL         // All residents can join
-  OWNERS_ONLY // Homeowners only
-  RENTERS_ONLY // Renters only
-}
-
-enum GroupRole {
-  MEMBER
-  MODERATOR
-  ADMIN
-}
-
-model UserGroup {
-  id        String    @id @default(cuid())
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  groupId   String
-  group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  role      GroupRole @default(MEMBER)
-  joinedAt  DateTime  @default(now())
-
-  @@unique([userId, groupId])
-}
-
-model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title     String
-  message   String
-  type      String
-  link      String?
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-}
-
-model Survey {
-  id          String     @id @default(cuid())
-  title       String
-  description String?
-  type        SurveyType @default(INTERNAL)
-  status      SurveyStatus @default(DRAFT)
-  questions   Question[]
-  responses   Response[]
-  startDate   DateTime?
-  endDate     DateTime?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-}
-
-enum SurveyType {
-  INTERNAL   // Community polls, HOA votes
-  EXTERNAL   // Third-party integration (bitlabs, cpx-research)
-}
-
-enum SurveyStatus {
-  DRAFT
-  ACTIVE
-  CLOSED
-}
-
-model Question {
-  id         String   @id @default(cuid())
-  surveyId   String
-  survey     Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  text       String
-  type       QuestionType
-  options    String[] // JSON array for MCQ options
-  required   Boolean  @default(false)
-  order      Int      @default(0)
-  responses  Answer[]
-}
-
-enum QuestionType {
-  SINGLE_CHOICE
-  MULTIPLE_CHOICE
-  TEXT
-  RATING
-  YES_NO
-}
-
-model Response {
-  id        String   @id @default(cuid())
-  surveyId  String
-  survey    Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
-  userId    String?  // Null for anonymous external surveys
-  answers   Answer[]
-  createdAt DateTime @default(now())
-}
-
-model Answer {
-  id         String   @id @default(cuid())
-  responseId String
-  response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
-  questionId String
-  value      String   // JSON string for complex answers
-}
-
-model ExternalSurvey {
-  id          String   @id @default(cuid())
-  name        String
-  provider    String   // "bitlabs", "cpx-research", etc.
-  externalId  String   // ID on external platform
-  embedUrl    String   // IFrame/script embed URL
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Setting {
-  id    String @id @default(cuid())
-  key   String @unique
-  value String
-}
-
-// Supabase Realtime for Messaging
 model Conversation {
-  id           String    @id @default(cuid())
-  name         String?   // Group chat name, null for direct messages
-  type         ConversationType @default(DIRECT)
-  participants User[]
-  messages     Message[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id                      String   @id
+  tenantId                String
+  name                    String?
+  type                    ConversationType // DIRECT | GROUP | SECURE_DIRECT | SECURE_GROUP
+  ConversationParticipant ConversationParticipant[]
+  Message                 Message[]
 }
 
-enum ConversationType {
-  DIRECT     // Two people
-  GROUP      // 3+ people, community chats
+model ConversationParticipant {
+  id                String       @id
+  conversationId    String
+  userId            String
+  lastReadAt        DateTime?
+  lastReadMessageId String?
+  Conversation      Conversation @relation
+  user              user         @relation
+  @@unique([conversationId, userId])
 }
 
 model Message {
-  id             String       @id @default(cuid())
+  id             String       @id
+  tenantId       String
   conversationId String
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   senderId       String
-  sender         User         @relation(fields: [senderId], references: [id])
   content        String
-  type           MessageType  @default(TEXT)
-  readBy         MessageRead[]
-  createdAt      DateTime     @default(now())
+  type           MessageType  // TEXT | IMAGE | SYSTEM | VOICE | FILE
+  messageVersion Int          @default(1)
+  payload        Json?
+  expiresAt      DateTime?
+  deletedAt      DateTime?
+  Conversation   Conversation @relation
+  user           user         @relation
 }
 
-enum MessageType {
-  TEXT
-  IMAGE
-  SYSTEM // "User joined chat", etc.
+// ── Service Providers ──
+
+model ServiceProvider {
+  id          String   @id
+  tenantId    String
+  companyName String
+  contactName String?
+  email       String?
+  trade       String
+  isActive    Boolean  @default(true)
+  verifications   ProviderVerification[]
+  legalAgreements ProviderLegalAgreement[]
+  reputation      ProviderReputation?
+  merits          ProviderMerit[]
+  subscriptions   ProviderSubscription[]
+  transactions    PaymentTransaction[]
+  revenue         RevenueRecord[]
+  charges         ProviderCharge[]
+  invoices        ProviderInvoice[]
 }
 
-model MessageRead {
-  id         String   @id @default(cuid())
-  messageId  String
-  message    Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  userId     String
-  readAt     DateTime @default(now())
+// ── Tenant & Platform ──
 
-  @@unique([messageId, userId])
+model Tenant {
+  id               String   @id @default(uuid())
+  name             String
+  slug             String   @unique
+  customDomain     String?  @unique
+  tier             Tier     @default(STANDARD)
+  modules          Json?
+  featureFlags     Json     @default("{}")
+  tenantModules    TenantModule[]
+}
+
+model PlatformModule {
+  id             String         @id
+  key            String         @unique
+  label          String
+  minTier        Tier           @default(STANDARD)
+  defaultEnabled Boolean        @default(false)
+  tenantModules  TenantModule[]
+}
+
+model TenantModule {
+  id        String         @id
+  tenantId  String
+  moduleKey String
+  enabled   Boolean        @default(false)
+  config    Json?
+  module    PlatformModule @relation(fields: [moduleKey], references: [key])
+  tenant    Tenant         @relation
+  @@unique([tenantId, moduleKey])
 }
 ```
+
+> **For the complete schema** including: Auth & Sessions (account, verification, passkey, session, twoFactor), Content & Community (Content, ContentLike, Group, GroupMember, Album, Resource, ResourceVersion, Announcement), Events & Bookings (Event, EventAttendee, Booking), Maintenance (MaintenanceRequest, MaintenanceTeam, MaintenanceCategory, RequestNote, RequestHistory), Surveys (Survey, SurveySection, Question, Response), Community Services (CommunityServiceListing, CommunityServiceInquiry, CommunityServiceReview), Provider Billing (ProviderSubscription, PaymentTransaction, RevenueRecord, ProviderCharge, ProviderInvoice, SubscriptionTier), Community Merits, Competitions, Agent Access, Platform Suspensions, and all enums — see `prisma/schema.prisma`.
 
 ---
 

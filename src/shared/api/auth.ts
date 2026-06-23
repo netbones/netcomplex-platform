@@ -1,6 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
-import { twoFactor, organization, bearer, emailOTP } from 'better-auth/plugins';
+import { twoFactor, organization, bearer, emailOTP, admin } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
 import { ENV } from 'varlock/env';
 import {
@@ -61,6 +61,11 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true, // Require email verification before sign-in
+    customSyntheticUser: {
+      banned: false,
+      banReason: null,
+      banExpires: null,
+    },
     // DISABLED: emailOTP plugin handles password reset via 6-digit OTP (Phase 45-01, D-07)
     // sendResetPassword: async ({ user, token }) => {
     //   const resetUrl = `${ENV.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
@@ -129,6 +134,9 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    admin({
+      adminUserIds: ['FmFmv6QHWXcwTzXbFDnxvEjF2Q4Qh4SE'],
+    }),
     twoFactor({ issuer: tenantConfig.auth.issuer }),
     organization(),
     bearer(),

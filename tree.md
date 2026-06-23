@@ -1,7 +1,5 @@
 .
-├── 2026-05-15*11-06.png
 ├── AGENTS.md
-├── COMMUNIQUE.md
 ├── components.json
 ├── coverage
 │   ├── app
@@ -701,7 +699,6 @@
 │   └── sorter.js
 ├── docs
 │   ├── 11-ANNOUNCEMENTS-REVISED-INSTRUCTIONS.md
-│   ├── ADMIN_INFRA_REPORT.md
 │   ├── advisories
 │   │   ├── ADVISORY-001.md
 │   │   ├── ADVISORY-002.md
@@ -715,10 +712,11 @@
 │   │   ├── ADVISORY-010.md
 │   │   ├── ADVISORY-011.md
 │   │   ├── ADVISORY-012.md
-│   │   └── ADVISORY-013-achievements-system.md
+│   │   ├── ADVISORY-013.md
+│   │   └── ADVISORY-014.md
 │   ├── architecture
 │   │   ├── 11-ANNOUNCEMENTS-PROBLEM-DEFINITION.md
-│   │   ├── AGENT_MODEL.md
+│   │   ├── AGENT*MODEL.md
 │   │   ├── API_ARCHITECTURE.md
 │   │   ├── cleaner_react_architecture.md
 │   │   ├── DASHBOARD-PHASE-B-DISCUSSION.md
@@ -726,6 +724,7 @@
 │   │   ├── DOMAINS-PROXY.md
 │   │   ├── domain_username_mapping.md
 │   │   ├── DWALLET_SPEC.md
+│   │   ├── FeaturedContentPromo.example.tsx
 │   │   ├── FLOW.md
 │   │   ├── IDENTITY_MODEL.md
 │   │   ├── iot_lorawan_architecture.svg
@@ -757,7 +756,12 @@
 │   │   ├── soralia_map.png
 │   │   ├── soralia_map_purp.png
 │   │   └── soralia_map.xcf
-│   ├── AUDIT.md
+│   ├── audits
+│   │   └── SETTINGS_AUDIT.md
+│   ├── CHAT_INFRA_REPORT.md
+│   ├── communiques
+│   │   ├── COMMUNIQUE-02.md
+│   │   └── COMMUNIQUE.md
 │   ├── CONTEXT_MAP.md
 │   ├── contexts
 │   │   ├── admin.md
@@ -773,9 +777,13 @@
 │   │   ├── user.md
 │   │   └── widget.md
 │   ├── discussions
+│   │   ├── CHAT_E2EE.md
 │   │   ├── DISCUSSION-response.md
-│   │   └── DISCUSSION-server-only-barrel.md
-│   ├── FeaturedContentPromo.example.tsx
+│   │   ├── DISCUSSION-server-only-barrel.md
+│   │   ├── GATE_ADDENDUM.md
+│   │   ├── GATE_DISCUSSION.md
+│   │   ├── RESOURCES_DISCUSSION.md
+│   │   └── SERVICES_DISCUSSION.md
 │   ├── features
 │   │   ├── admin
 │   │   │   └── feature-management.md
@@ -802,8 +810,6 @@
 │   │   ├── NETCOMPLEX_WIDGET_ALIGNMENT.md
 │   │   ├── WIDGET_HELP.md
 │   │   └── widget-registry-architecture-react-rnd-v2.md
-│   ├── GATE_ADDENDUM.md
-│   ├── GATE_DISCUSSION.md
 │   ├── GATE_PLAN.md
 │   ├── HOLISTIC.md
 │   ├── INDEX.md
@@ -837,8 +843,6 @@
 │   │   ├── PREPARING_FOR_MULTI_TENANT.md
 │   │   ├── PROFILE_URLS.md
 │   │   └── TENANT_AUDIT.md
-│   ├── NOTES.md
-│   ├── PLAN.md
 │   ├── plans
 │   │   ├── DASH_ADVISORY.md
 │   │   ├── DASHBOARD-PHASE-A-PLAN.md
@@ -868,12 +872,16 @@
 │   ├── prompts
 │   │   └── trpc_caller_test_template.ts
 │   ├── QUERY_INFRA.md
-│   ├── REPORT.md
-│   ├── RESOURCES_DISCUSSION.md
+│   ├── reports
+│   │   ├── ADMIN_INFRA_REPORT.md
+│   │   ├── AUDIT.md
+│   │   ├── MERITS_REVIEW.md
+│   │   ├── NOTIFICATIONS_REVIEW.md
+│   │   ├── REPORT-001.md
+│   │   ├── REPORT-002.md
+│   │   ├── SECURITY_AUDIT_M4.5.md
+│   │   └── TOAST_TOOLTIPS_REVIEW.md
 │   ├── REVIEW_OUTSTANDING.md
-│   ├── SECURITY_AUDIT_M4.5.md
-│   ├── SERVICES_DISCUSSION.md
-│   ├── SETTINGS_AUDIT.md
 │   ├── SETTINGS_INFRA_REVIEW.md
 │   ├── standards
 │   │   ├── DATABASE_DESIGN_BEST_PRACTICE.md
@@ -899,12 +907,11 @@
 │   │   ├── SPEC.md
 │   │   ├── TDD.md
 │   │   ├── TDD.md.old
-│   │   └── tRPC.md
+│   │   ├── tRPC.md
+│   │   └── UBIQUITOUS_LANGUAGE.md
 │   ├── steiger.md
 │   ├── SURVEY_TESTING.md
-│   ├── tech-debt-register.md
-│   ├── TEST_COVERAGE_GAPS.md
-│   └── UBIQUITOUS_LANGUAGE.md
+│   └── tech-debt-register.md
 ├── drizzle
 │   └── meta
 │   └── \_journal.json
@@ -914,16 +921,17 @@
 ├── env.d.ts
 ├── eslint.config.js
 ├── eslint.config.mjs
+├── fsd-detailed-dependencies.html
 ├── fsd-high-level-dependencies.html
 ├── justfile
 ├── LICENSE
+├── lint_report.md
 ├── mail
 │   ├── example_cc_bcc.js
 │   ├── example.js
 │   ├── personalisation_example.js
 │   ├── README.md
 │   └── template_email_example.js
-├── MITIGATION.md
 ├── next.config.mjs
 ├── next-env.d.ts
 ├── opencode.json
@@ -957,6 +965,18 @@
 │   │   ├── 20260621205302_rename_behavior_record_to_community_merits
 │   │   │   └── migration.sql
 │   │   ├── 20260622000000_add_provider_fk_relations
+│   │   │   └── migration.sql
+│   │   ├── 20260623000000_add_notification_preferences
+│   │   │   └── migration.sql
+│   │   ├── 20260623084645_rename_provider_credit_to_reputation
+│   │   │   └── migration.sql
+│   │   ├── 20260623092113_add_evidence_url_to_provider_merits
+│   │   │   └── migration.sql
+│   │   ├── 20260623093522_add_dispute_history_to_community_merits
+│   │   │   └── migration.sql
+│   │   ├── 20260623095534_add_notification_type_enum_payload_readat_senderid
+│   │   │   └── migration.sql
+│   │   ├── 20260623131106_content_type
 │   │   │   └── migration.sql
 │   │   └── migration_lock.toml
 │   ├── schema.prisma
@@ -1082,7 +1102,6 @@
 │   ├── soralia.jpg
 │   └── soralia.png
 ├── README.md
-├── REPORT.md
 ├── scripts
 │   ├── audit-tenant-isolation.ts
 │   ├── backfill-tenant-records.ts
@@ -1129,6 +1148,9 @@
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── maintenance-stats
 │   │   │   │   │   └── route.ts
+│   │   │   │   ├── merits
+│   │   │   │   │   └── recalculate
+│   │   │   │   │   └── route.ts
 │   │   │   │   ├── platform
 │   │   │   │   │   ├── assist
 │   │   │   │   │   │   ├── [id]
@@ -1142,9 +1164,11 @@
 │   │   │   │   │   ├── [id]
 │   │   │   │   │   │   ├── approve
 │   │   │   │   │   │   │   └── route.ts
-│   │   │   │   │   │   ├── credits
+│   │   │   │   │   │   ├── due-diligence
 │   │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   │   ├── reject
+│   │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── reputation
 │   │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   │   ├── route.ts
 │   │   │   │   │   │   ├── suspend
@@ -1320,6 +1344,8 @@
 │   │   │   │   └── urgency
 │   │   │   │   └── route.ts
 │   │   │   ├── notifications
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── route.ts
 │   │   │   │   └── route.ts
 │   │   │   ├── openapi.json
 │   │   │   │   └── route.ts
@@ -1348,7 +1374,7 @@
 │   │   │   │   └── route.ts
 │   │   │   ├── providers
 │   │   │   │   ├── analytics
-│   │   │   │   │   ├── credit-score
+│   │   │   │   │   ├── reputation-score
 │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── billing
@@ -1363,10 +1389,6 @@
 │   │   │   │   │   ├── route.ts
 │   │   │   │   │   └── subscribe
 │   │   │   │   │   └── route.ts
-│   │   │   │   ├── credits
-│   │   │   │   │   ├── history
-│   │   │   │   │   │   └── route.ts
-│   │   │   │   │   └── route.ts
 │   │   │   │   ├── dashboard
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── legal
@@ -1374,6 +1396,10 @@
 │   │   │   │   ├── register
 │   │   │   │   │   ├── route.ts
 │   │   │   │   │   └── validate
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── reputation
+│   │   │   │   │   ├── history
+│   │   │   │   │   │   └── route.ts
 │   │   │   │   │   └── route.ts
 │   │   │   │   └── verification
 │   │   │   │   └── route.ts
@@ -1419,6 +1445,8 @@
 │   │   │   ├── tenants
 │   │   │   │   └── [id]
 │   │   │   │   └── modules
+│   │   │   │   └── route.ts
+│   │   │   ├── translate
 │   │   │   │   └── route.ts
 │   │   │   ├── trpc
 │   │   │   │   └── [trpc]
@@ -1730,6 +1758,7 @@
 │   │   │   │   │   │   └── page.tsx
 │   │   │   │   │   ├── settings
 │   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   ├── sub-nav.tsx
 │   │   │   │   │   └── transactions
 │   │   │   │   │   └── page.tsx
 │   │   │   │   ├── requests
@@ -1813,22 +1842,17 @@
 │   │   │   └── page.tsx
 │   │   └── page.tsx
 │   ├── components
-│   │   ├── admin
-│   │   │   ├── adminApi.ts
-│   │   │   ├── ProviderAnalyticsDashboard.tsx
-│   │   │   ├── ProviderDetailView.tsx
-│   │   │   ├── ProviderModerationDashboard.tsx
-│   │   │   ├── RefundModal.tsx
-│   │   │   ├── RevenueChart.tsx
-│   │   │   ├── RevenueDashboard.tsx
-│   │   │   ├── TransactionDashboard.tsx
-│   │   │   ├── types.ts
-│   │   │   └── VerificationQueue.tsx
-│   │   └── providers
-│   │   ├── BillingDashboard.tsx
-│   │   ├── CreditProgressWidget.tsx
-│   │   ├── PaymentSetupModal.tsx
-│   │   └── types.ts
+│   │   └── admin
+│   │   ├── adminApi.ts
+│   │   ├── ProviderAnalyticsDashboard.tsx
+│   │   ├── ProviderDetailView.tsx
+│   │   ├── ProviderModerationDashboard.tsx
+│   │   ├── RefundModal.tsx
+│   │   ├── RevenueChart.tsx
+│   │   ├── RevenueDashboard.tsx
+│   │   ├── TransactionDashboard.tsx
+│   │   ├── types.ts
+│   │   └── VerificationQueue.tsx
 │   ├── db
 │   │   ├── index.ts
 │   │   └── schema
@@ -1917,6 +1941,7 @@
 │   │   ├── moderation-status-enum.ts
 │   │   ├── notifications-relations.ts
 │   │   ├── notifications.ts
+│   │   ├── notification-type-enum.ts
 │   │   ├── occupancy-type-enum.ts
 │   │   ├── organizations-relations.ts
 │   │   ├── organizations.ts
@@ -1945,8 +1970,6 @@
 │   │   ├── provider-charges-relations.ts
 │   │   ├── provider-charge-status-enum.ts
 │   │   ├── provider-charges.ts
-│   │   ├── provider-credits-relations.ts
-│   │   ├── provider-credits.ts
 │   │   ├── provider-invoices-relations.ts
 │   │   ├── provider-invoices.ts
 │   │   ├── provider-legal-agreements-relations.ts
@@ -1954,6 +1977,8 @@
 │   │   ├── provider-merits-relations.ts
 │   │   ├── provider-merits.ts
 │   │   ├── provider-merit-type-enum.ts
+│   │   ├── provider-reputations-relations.ts
+│   │   ├── provider-reputations.ts
 │   │   ├── provider-subscriptions-relations.ts
 │   │   ├── provider-subscriptions.ts
 │   │   ├── provider-type-enum.ts
@@ -2010,6 +2035,10 @@
 │   │   ├── transaction-status-enum.ts
 │   │   ├── two-factors-relations.ts
 │   │   ├── two-factors.ts
+│   │   ├── user-devices-relations.ts
+│   │   ├── user-devices.ts
+│   │   ├── user-keys-relations.ts
+│   │   ├── user-keys.ts
 │   │   ├── users-relations.ts
 │   │   ├── users.ts
 │   │   └── verifications.ts
@@ -2043,6 +2072,8 @@
 │   │   │   ├── index.ts
 │   │   │   ├── model
 │   │   │   │   ├── constants.ts
+│   │   │   │   ├── moderation-provider.ts
+│   │   │   │   ├── search-provider.ts
 │   │   │   │   ├── types.ts
 │   │   │   │   └── use-presence.ts
 │   │   │   ├── schema.ts
@@ -2050,6 +2081,7 @@
 │   │   │   ├── ChatMessage.tsx
 │   │   │   ├── EmojiPickerButton.tsx
 │   │   │   ├── OnlineIndicator.tsx
+│   │   │   ├── ParticipantAvatarStack.tsx
 │   │   │   ├── ParticipantAvatar.tsx
 │   │   │   └── TypingIndicator.tsx
 │   │   ├── content
@@ -2152,7 +2184,8 @@
 │   │   │   │   ├── gate
 │   │   │   │   │   ├── feature-gate.ts
 │   │   │   │   │   ├── gate.test.ts
-│   │   │   │   │   └── gate.ts
+│   │   │   │   │   ├── gate.ts
+│   │   │   │   │   └── mappings.ts
 │   │   │   │   ├── guards.ts
 │   │   │   │   ├── index.ts
 │   │   │   │   ├── provider-registration-mode.test.ts
@@ -2322,6 +2355,14 @@
 │   │   │   ├── PricingCTA.tsx
 │   │   │   ├── PricingFAQ.tsx
 │   │   │   └── PricingHeader.tsx
+│   │   ├── provider-billing
+│   │   │   ├── index.ts
+│   │   │   ├── model
+│   │   │   │   └── types.ts
+│   │   │   └── ui
+│   │   │   ├── BillingDashboard.tsx
+│   │   │   ├── PaymentSetupModal.tsx
+│   │   │   └── ReputationProgressWidget.tsx
 │   │   ├── provider-registration
 │   │   │   ├── index.ts
 │   │   │   └── ui
@@ -2454,6 +2495,9 @@
 │   │   │   ├── email
 │   │   │   │   ├── resend.ts
 │   │   │   │   └── templates.ts
+│   │   │   ├── events
+│   │   │   │   ├── emitter.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── http-client.ts
 │   │   │   ├── index.ts
 │   │   │   ├── observability.ts
@@ -2489,6 +2533,7 @@
 │   │   │   ├── constants.ts
 │   │   │   ├── hooks
 │   │   │   │   ├── index.ts
+│   │   │   │   ├── toast-messages.ts
 │   │   │   │   ├── useActiveAnnouncements.ts
 │   │   │   │   ├── useAdminContent.ts
 │   │   │   │   ├── useAdminUsers.ts
@@ -2747,6 +2792,7 @@
 │   │   │   ├── spaces.test.ts
 │   │   │   ├── spaces.ts
 │   │   │   ├── types.ts
+│   │   │   ├── useNotifSubscription.ts
 │   │   │   └── widgets.ts
 │   │   └── ui
 │   │   ├── AdminActivityStream.tsx
@@ -2780,11 +2826,11 @@
 │   │   ├── provider-widgets
 │   │   │   ├── index.ts
 │   │   │   ├── ProviderAnalyticsWidget.tsx
-│   │   │   ├── ProviderCreditProgressWidget.tsx
 │   │   │   ├── ProviderInquiriesWidget.tsx
 │   │   │   ├── ProviderListingsWidget.tsx
 │   │   │   ├── ProviderOverviewWidget.tsx
 │   │   │   ├── provider-queries.ts
+│   │   │   ├── ProviderReputationProgressWidget.tsx
 │   │   │   └── provider-ui.tsx
 │   │   ├── QuickActionsWidget.tsx
 │   │   ├── QuickStatsWidget.tsx
@@ -2823,7 +2869,6 @@
 │   ├── ServiceQualityWidget.tsx
 │   └── ServicesGrid.tsx
 ├── steiger.config.js
-├── suga.md
 ├── supabase
 │   └── config.toml
 ├── tailwind.config.cjs
@@ -2838,4 +2883,4 @@
 ├── tsconfig.tsbuildinfo
 └── vitest.config.ts
 
-823 directories, 2016 files
+840 directories, 2044 files

@@ -150,6 +150,7 @@ Audit Logger: Pino → structured JSON
 1. ~~**20 routes without tenant filters** (`e0w`) — real cross-tenant data leakage risk in production~~
 2. ~~**Non-atomic signup** (GAP-09) — user creation without tenant+role creates orphaned accounts~~ Resolved by Phase 20: `POST /api/platform/tenants` atomically creates tenant + user + ADMIN role in a single transaction.
 3. **Single Drizzle connection** — ~~no connection pooling, no retry logic; Supabase connection limits could be hit under load~~ Fixed in BD issue `22a`: pool now configured with `max: 1`, `idleTimeoutMillis: 10000`, `connectionTimeoutMillis: 5000`. Retry deferred to Supabase pooler layer. 4.~~**No automated schema drift detection** — Prisma→Drizzle generation is manual; CI doesn't verify generated schemas match source~~ 8ffb071
+   155: 5. **ADVISORY-014-P1:** Better Auth admin plugin uses `adminUserIds` whitelist. Adding new platform admins requires code change + deploy until Phase 2 (`isPlatformAdmin` bridge) is implemented. Tracked for resolution.
 
 ### Opportunities
 

@@ -423,68 +423,75 @@ Five Premium Seats provided at no charge for HOA board members and committee rep
 
 ## Data Model Summary
 
-```
+> **Canonical source:** `prisma/schema.prisma`. The model below reflects the actual schema. See "Schema Drift Notes" below for rationale behind changes from the original IDENTITY_MODEL.md design.
 
-User
-├── StandardSeat? (0:1) - Property owner household management
-├── SoloSeat? (0:1) - Personal liberation identity
-├── PremiumSeat? (0:1) - Multi-property portfolio management
-└── AddressProfiles[] (0:n) - Household occupants (up to 5 per StandardSeat)
+```
+user
+├── standardSeat[] (0:n) - Property owner household management
+├── soloSeat[] (0:n) - Personal liberation identity
+├── premiumSeat? (0:1) - Multi-property portfolio management
+├── Profile[] (0:n) - Household occupants (via Household)
+├── ServiceProvider? (0:1) - Provider registration link
+└── profileSlug? - Per-user slug/identifier
 
 StandardSeat (Property Owner - Household Management)
-├── householdId (links to managed household)
-├── platformAddress (unitNNN@domain)
+├── propertyId (links to Property, not Household)
+├── platformAddress (unitNNN@domain) @unique
 ├── userId (property owner)
-└── AddressProfiles[] (occupants, family, minors - all flat)
+├── isPrimaryOwner (supports co-ownership)
+└── user (FK)
 
 SoloSeat (Liberation - Independent Identity)
 ├── userId (liberated occupant)
-├── platformAddress (name@domain - independent)
-├── householdId (optional - current residence)
-└── isComplimentary (board/committee members)
+├── platformAddress (name@domain) @unique
+├── propertyId? (optional - current residence property)
+├── seatType (RESIDENT | MEMBER)
+├── isComplimentary (board/committee members)
+└── linkedFromProfileId? (origin alias when upgrading)
 
 PremiumSeat (Portfolio - Multi-Property Management)
-├── userId (property investor)
-├── platformAddress (investor@domain)
-├── linkedHouseholds[] (portfolio of managed properties)
+├── userId (property investor) @unique
+├── platformAddress (investor@domain) @unique
 ├── subscriptionTier (pricing tier)
-└── maxProperties (tier limits)
+├── maxProperties (tier limits)
+├── messageRetentionDays (chat retention override)
+├── tier (feature tier: "foundation" etc.)
+└── propertyPremiumSeats[] (join table to Property)
 
-AddressProfile (Household Occupant - Flat under StandardSeat)
-├── standardSeatId (parent household)
-├── profileAddress (name.unitNNN@domain)
+Profile (Household Occupant - was AddressProfile)
+├── householdId (parent Household, not StandardSeat)
+├── profileAddress (name.unitNNN@domain) @unique
 ├── displayName
-├── avatar
+├── avatar / occupantImage / rentalImage
 ├── isPublic
-├── occupantType (OCCUPANT, MINOR, FAMILY)
-└── occupantSince (tenure tracking)
-
+├── householdRole (OCCUPANT | MINOR | FAMILY)
+├── status (ACTIVE | UPGRADED | REMOVED | EVICTED | LEASE_ENDED)
+├── residencyType (FAMILY | RENTER | OWNER)
+├── landlordId? (FK to user)
+├── occupantSince / leaseStartDate / leaseEndDate
+└── household (FK)
 ```
 
-User
-├── StandardSeat? (1:1) - Member household login
-├── SoloSeat? (1:1) - Personal login (resident or member)
-└── AddressProfiles[] (1:n) - up to 5 per StandardSeat
+---
 
-StandardSeat (Member)
-├── householdId
-├── platformAddress (unitNNN@domain)
-├── memberId (User FK - property owner)
-└── AddressProfiles[] (occupants, family)
+## Schema Drift Notes
 
-SoloSeat
-├── userId
-├── platformAddress (name@domain)
-└── isComplimentary (boolean)
+The following deviations exist between the original design in this document and the actual `prisma/schema.prisma` implementation, with rationale:
 
-AddressProfile (Occupant)
-├── standardSeatId
-├── profile (name.unitNNN)
-├── displayName
-├── avatar
-└── isPublic
+| Original Design                                 | Actual Schema                                                                    | Rationale                                                                                                                                                                                                               |
+| ----------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `AddressProfile` table                          | `Profile` table                                                                  | Generic name supports reuse beyond address-aliasing (agent profiles, service profiles). `profileAddress` field still serves the alias purpose.                                                                          |
+| `Profile.standardSeatId` (FK to StandardSeat)   | `Profile.householdId` (FK to Household)                                          | Profiles belong to a Household (occupancy period), not a StandardSeat (ownership). This correctly models rental turnover — when a new tenant moves in, the Household changes but the StandardSeat stays with the owner. |
+| `StandardSeat.householdId`                      | `StandardSeat.propertyId` + `isPrimaryOwner`                                     | Direct link to Property enables co-ownership (multiple owners per property). Household is a separate temporal occupancy record.                                                                                         |
+| `SoloSeat.householdId`                          | `SoloSeat.propertyId` + `seatType` + `linkedFromProfileId`                       | propertyId links SoloSeats to a Property instead of Household. seatType (RESIDENT/MEMBER) distinguishes living-in vs HOA-member-only. linkedFromProfileId tracks liberation origin.                                     |
+| `PremiumSeat.linkedHouseholds[]` (direct array) | `PropertyPremiumSeat` join table                                                 | Proper many-to-many between PremiumSeat and Property, normalized with join table.                                                                                                                                       |
+| `OccupantType` enum (`OCCUPANT                  | MINOR                                                                            | FAMILY`)                                                                                                                                                                                                                | `HouseholdRole` enum + `ResidencyType` enum | Split into two concerns: role within household (HouseholdRole) vs legal/lease status (ResidencyType: FAMILY/RENTER/OWNER). |
+| `SeatType` enum                                 | Removed — not needed                                                             | Seat type is inherently known by which table the record lives in. No cross-table type discriminator required.                                                                                                           |
+| `User.AddressProfiles[]` direct relation        | `user.Profile[]` via `Household`                                                 | Profiles are scoped to Households, not directly to users. A user can have profiles across multiple Households (e.g. property owner with profiles in their own household + as landlord in another).                      |
+| `MessageRead` table                             | Removed — replaced by `ConversationParticipant.lastReadAt` + `lastReadMessageId` | Simpler: tracking last-read position per participant instead of individual read receipts per message.                                                                                                                   |
+| `UserGroup` table                               | `GroupMember` table                                                              | Renamed for clarity. Same structure.                                                                                                                                                                                    |
 
-```
+**Note:** The `prisma/schema.prisma` evolves independently. Cross-table uniqueness (preventing the same address across different seat types) is not enforced at DB level — this is a known gap tracked in COMMUNIQUE-02.
 
 ---
 
@@ -501,8 +508,10 @@ AddressProfile (Occupant)
 
 ---
 
-_Last Updated: 2026-03-30_
-_Based on: SaaS License Agreement v4_
+_Last Updated: 2026-06-23_
+_Based on: SaaS License Agreement v4; schema drift reconciled against prisma/schema.prisma_
+
+```
 
 ```
 

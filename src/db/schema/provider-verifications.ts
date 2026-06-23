@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, integer } from 'drizzle-orm/pg-core';
 import { providerVerificationStatusEnum } from './provider-verification-status-enum';
 
 export const providerVerifications = pgTable('provider_verifications', {
@@ -7,9 +7,6 @@ export const providerVerifications = pgTable('provider_verifications', {
   tenantId: text('tenantId').notNull(),
   status: providerVerificationStatusEnum('status').default('PENDING').notNull(),
   notes: text('notes'),
-  dueDiligenceItems: jsonb('due_diligence_items')
-    .$type<Array<{ key: string; status: string; notes?: string }>>()
-    .default([]),
   startDate: timestamp('startDate', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   endDate: timestamp('endDate', { mode: 'date', precision: 3 }),
   verificationThreshold: integer('verification_threshold').default(300).notNull(),

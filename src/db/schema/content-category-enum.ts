@@ -2,11 +2,11 @@ import { pgEnum } from 'drizzle-orm/pg-core';
 
 export const contentCategoryEnum = pgEnum('ContentCategory', [
   'ANNOUNCEMENT',
-  'NEWS',
-  'EVENT',
   'BLOG',
-  'CONSERVATION',
-  'SERVICES',
   'CAMPAIGN',
+  'CONSERVATION',
+  'EVENT',
   'LEGAL',
+  'NEWS',
+  'SERVICES',
 ]);

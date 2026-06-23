@@ -92,6 +92,10 @@ export async function middleware(request: NextRequest) {
 
   const host = request.headers.get('host') || '';
   const pathname = request.nextUrl.pathname;
+
+  // Expose pathname for server components that need to determine active route
+  response.headers.set('x-pathname', pathname);
+  request.headers.set('x-pathname', pathname);
   const isPlatform = isPlatformHost(host);
 
   const isApiRoute = pathname.startsWith('/api/');

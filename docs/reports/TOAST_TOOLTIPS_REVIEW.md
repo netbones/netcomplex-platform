@@ -159,15 +159,15 @@ text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95...'
 
 ### 6.2 Recommendations
 
-| Priority | Item                                                         | Effort |
+| Priority | Item                                                         | Effort | Status                                                                                                                  |
 | -------- | ------------------------------------------------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------- |
-| P1       | Replace `title` attributes with `Tooltip` on icon buttons    | 2h     |
-| P1       | Consolidate `<Toaster>` to root layout                       | 30min  |
-| P1       | Fix missing error toasts in CompetitionList/UsersListSection | 1h     |
-| P2       | Standardize error message format (create error dictionary)   | 2h     |
-| P2       | Migrate all API calls to `useApiToast`                       | 4h     |
-| P2       | Add i18n to all toast messages                               | 3h     |
-| P3       | Add `duration` and `position` config per toast type          | 1h     | ⏭️ Deferred — Sonner defaults are adequate; revisit if UX feedback flags overlap/dismiss issues                         |
+| P1       | Replace `title` attributes with `Tooltip` on icon buttons    | 2h     | ✅ Done — RichTextEditor (20+ buttons), MediaLibrary (8 buttons, color swatches)                                        |
+| P1       | Consolidate `<Toaster>` to root layout                       | 30min  | ✅ Done — Single `<Toaster>` in `providers.tsx`, removed from auth/tenant/platform layouts                              |
+| P1       | Fix missing error toasts in CompetitionList/UsersListSection | 1h     | ✅ Done — CompetitionList delete, UsersListSection revoke/update error handlers                                         |
+| P2       | Standardize error message format (create error dictionary)   | 2h     | ✅ Done — `ToastMsg` in `src/shared/lib/hooks/toast-messages.ts` with 11 helpers                                        |
+| P2       | Migrate API calls to `useApiToast`                           | 4h     | ✅ Done — ResourceForm, EventForm, ContentForm, CompetitionForm, ResourceList migrated                                  |
+| P2       | Add i18n to all toast messages                               | 3h     | ✅ Done — `toast.*` keys in `en/common.json`; settings page uses `tCommon()`                                            |
+| P3       | Add `duration` and `position` config per toast type          | 1h     | ⏭️ Deferred — Sonner defaults adequate; revisit if UX feedback flags overlap/dismiss issues                             |
 | P3       | Ensure loading toasts are announced to screen readers        | 1h     | ⏭️ Deferred — Sonner provides `role="status"`/`role="alert"` natively; full loading a11y is a Sonner library limitation |
 
 ---
