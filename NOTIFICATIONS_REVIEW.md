@@ -3,13 +3,13 @@
 **System:** In-App Notifications + Email  
 **Documented:** 2026-06-23 by GSD Review  
 **BD Tracking:** `soralia-village-oi9x`  
-**Last Updated:** 2026-06-23 — P1 items + schema hardening applied
+**Last Updated:** 2026-06-23 — P1–P2 items + schema hardening applied
 
 ---
 
 ## Executive Summary
 
-The notification system is a **basic but functional in-app notification layer** with opt-in email delivery. It provides CRUD endpoints, a dedicated UI page, a dashboard widget, and ISR-cached stats. However, it is missing real-time delivery, notification preferences, a rich type system, and delivery channels beyond email.
+The notification system is a **basic but functional in-app notification layer** with opt-in email delivery. Schema has been hardened (enum types, `payload` JSONB, `readAt`, `senderId`), a `DELETE` endpoint added, and dashboard polling implemented. Still missing: notification preferences, real-time delivery (SSE/WebSocket), queued emails, and richer frontend UX.
 
 ---
 
@@ -23,12 +23,12 @@ The notification system is a **basic but functional in-app notification layer** 
 
 ### 1.2 Key Gaps
 
-- **`type` is a string, not an enum** — Prone to typos, cannot enforce valid values at DB level
-- **No `payload` or `metadata` field** — Cannot carry structured data (e.g., ticket ID, event details)
-- **No `senderId` or `actor` field** — Cannot attribute notifications to triggering users
+- ~~**`type` is a string, not an enum** — Prone to typos, cannot enforce valid values at DB level~~ ✅ **Fixed** — Now `NotificationType` enum (`info`, `warning`, `success`, `error`)
+- ~~**No `payload` or `metadata` field** — Cannot carry structured data (e.g., ticket ID, event details)~~ ✅ **Added** — `payload` JSONB
+- ~~**No `senderId` or `actor` field** — Cannot attribute notifications to triggering users~~ ✅ **Added** — `senderId`
+- ~~**`read` is a boolean, not a timestamp** — Cannot calculate "time to read" metrics~~ ✅ **Added** — `readAt` timestamp (alongside `read` boolean)
 - **No `priority` field** — All notifications treated equally
 - **No `deliveryStatus` field** — Cannot track if email was sent, bounced, or failed
-- **`read` is a boolean, not a timestamp** — Cannot calculate "time to read" metrics
 
 ---
 
@@ -43,7 +43,7 @@ The notification system is a **basic but functional in-app notification layer** 
 
 ### 2.2 Issues
 
-- **No `DELETE` endpoint** — Users cannot dismiss individual notifications
+- ~~**No `DELETE` endpoint** — Users cannot dismiss individual notifications~~ ✅ **Added** — `DELETE /api/notifications/[id]`
 - **No `PUT` for idempotency** — Cannot upsert by external ID, risks duplicates
 - **Paginated but no cursor-based pagination** — Offset/limit not implemented; hard 50-item cap
 - **No bulk `PATCH` for selective read** — Can only mark ALL or ONE, not a subset
@@ -81,7 +81,7 @@ The notification system is a **basic but functional in-app notification layer** 
 
 ### 4.2 Issues
 
-- **No real-time badge update** — Unread count is stale until page refresh (no polling, no SSE)
+- ~~**No real-time badge update** — Unread count is stale until page refresh (no polling, no SSE)~~ ✅ **Added** — 30s polling on `NotificationsWidget`
 - **No toast on new notification** — User must navigate to `/notifications` to see new items
 - **No grouping/threading** — All notifications are a flat list
 - **No swipe/dismiss on mobile** — Poor UX for clearing items
@@ -93,7 +93,7 @@ The notification system is a **basic but functional in-app notification layer** 
 
 ### 5.1 Current State
 
-- **No WebSocket, no SSE, no polling** — Frontend is entirely passive
+- ~~**No WebSocket, no SSE, no polling** — Frontend is entirely passive~~ ✅ **Polling added** — `NotificationsWidget` polls every 30s
 - **ISR cache for stats** — `getDashboardStats` uses `unstable_cache`, but cache invalidation is manual
 - **Supabase Realtime is not used** — Despite being in the tech stack
 
@@ -183,17 +183,20 @@ The notification system is a **basic but functional in-app notification layer** 
 | P3       | Implement Supabase Realtime subscription         | 3h     |               |
 | P3       | Queue email sends with retry                     | 4h     |               |
 | P3       | Add bulk read endpoint                           | 2h     |               |
+| P3       | Add `PUT` with idempotency key                   | 2h     |               |
 | P3       | ARIA live region + keyboard shortcut             | 2h     |               |
 
 ### Implementation Notes
 
-**Schema hardening:** `type` now uses `NotificationType` enum (`info`/`warning`/`success`/`error`). Added `payload` JSONB for structured data, `senderId` for attribution, `readAt` timestamp (non-breaking, alongside `read` boolean).
+**Schema hardening:** `type` now uses `NotificationType` enum (`info`/`warning`/`success`/`error`). Added `payload` JSONB for structured data, `senderId` for attribution, `readAt` timestamp (non-breaking, alongside `read` boolean). Migration applied: `20260623095534_add_notification_type_enum_payload_readat_senderid`.
 
 **DELETE endpoint:** `DELETE /api/notifications/[id]` — soft-deletes (sets `deletedAt`). Owner-scoped (only the notification recipient can dismiss).
 
 **PATCH readAt:** `PATCH /api/notifications` now sets `readAt: now()` alongside `read: true`.
 
 **Frontend polling:** `NotificationsWidget` polls `GET /api/notifications?unread=true` every 30 seconds. Falls back gracefully on error.
+
+**Remaining P2:** Notification preferences page (per-type, per-channel opt-in). Candidate for next phase.
 
 ---
 
