@@ -12,6 +12,7 @@ export const notifications = pgTable('Notification', {
   link: text('link'),
   read: boolean('read').default(false).notNull(),
   readAt: timestamp('readAt', { mode: 'date', precision: 3 }),
+  deliveryStatus: text('deliveryStatus').default('PENDING').notNull(),
   payload: jsonb('payload'),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),

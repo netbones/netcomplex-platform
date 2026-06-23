@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSafeTranslation } from '@shared/lib';
 import { authClient } from '@api/client';
-import { usePageFlags, useUnreadMessages } from '@shared/lib/hooks';
+import { useGateContext } from '@features/gate';
+import { useUnreadMessages } from '@shared/lib/hooks';
 import { getVisibleSpaces, SPACES, type SpaceId } from '../model/spaces';
 
 const SPACE_FALLBACKS: Record<string, string> = {
@@ -41,7 +42,7 @@ export function MobileSpaceBar() {
   const pathname = usePathname();
   const { tx } = useSafeTranslation();
   const { data: session } = authClient.useSession();
-  const { flags } = usePageFlags();
+  const ctx = useGateContext();
   const role = session?.user?.role || 'RESIDENT';
 
   useEffect(() => setMounted(true), []);
@@ -49,8 +50,8 @@ export function MobileSpaceBar() {
   const { data: unreadData } = useUnreadMessages(!!session?.user?.id);
   const unreadCount = (unreadData?.data?.totalUnread as number) ?? 0;
 
-  const visibleSpaces = flags
-    ? getVisibleSpaces(role, flags)
+  const visibleSpaces = ctx?.flags
+    ? getVisibleSpaces(role, ctx.flags)
     : getVisibleSpaces(role, {} as Parameters<typeof getVisibleSpaces>[1]);
 
   // Overflow guard — max 5 slots on mobile

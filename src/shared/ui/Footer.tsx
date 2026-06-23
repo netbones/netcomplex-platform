@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { useContactSettings } from '@/shared/lib/hooks/useContactSettings';
-import { usePageFlags } from '@shared/lib/hooks';
+import { useGateContext } from '@features/gate';
 import { NAV_REGISTRY, isNavItemVisible } from '@/shared/lib/nav';
 import { authClient } from '@api/client';
 
@@ -12,14 +12,14 @@ export function Footer() {
   const [mounted, setMounted] = useState(false);
   const { t, ready } = useTranslation('common');
   const { contacts } = useContactSettings();
-  const { flags } = usePageFlags();
+  const ctx = useGateContext();
   const { data: session } = authClient.useSession();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted || !ready || !flags) {
+  if (!mounted || !ready || !ctx?.flags) {
     return (
       <footer className="bg-gray-900 text-white mt-auto">
         <div className="container mx-auto px-4 py-12">
@@ -31,6 +31,7 @@ export function Footer() {
 
   const formatPhone = (phone: string | undefined) => phone?.replace(/\D/g, '') || '';
   const role = session?.user?.role;
+  const { flags } = ctx;
 
   const quickLinks = NAV_REGISTRY.filter(
     item =>

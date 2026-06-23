@@ -160,15 +160,15 @@ text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95...'
 ### 6.2 Recommendations
 
 | Priority | Item                                                         | Effort |
-| -------- | ------------------------------------------------------------ | ------ |
+| -------- | ------------------------------------------------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------- |
 | P1       | Replace `title` attributes with `Tooltip` on icon buttons    | 2h     |
 | P1       | Consolidate `<Toaster>` to root layout                       | 30min  |
 | P1       | Fix missing error toasts in CompetitionList/UsersListSection | 1h     |
 | P2       | Standardize error message format (create error dictionary)   | 2h     |
 | P2       | Migrate all API calls to `useApiToast`                       | 4h     |
 | P2       | Add i18n to all toast messages                               | 3h     |
-| P3       | Add `duration` and `position` config per toast type          | 1h     |
-| P3       | Ensure loading toasts are announced to screen readers        | 1h     |
+| P3       | Add `duration` and `position` config per toast type          | 1h     | ⏭️ Deferred — Sonner defaults are adequate; revisit if UX feedback flags overlap/dismiss issues                         |
+| P3       | Ensure loading toasts are announced to screen readers        | 1h     | ⏭️ Deferred — Sonner provides `role="status"`/`role="alert"` natively; full loading a11y is a Sonner library limitation |
 
 ---
 

@@ -13,7 +13,7 @@ import {
   templates,
 } from '@api/server';
 
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, inArray, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 import { createLogger } from '@shared/lib';
@@ -70,6 +70,105 @@ export async function GET(request: Request) {
 }
 
 /**
+ * Create or return an existing notification by idempotency key.
+ * If `Idempotency-Key` header or `body.idempotencyKey` is provided and a notification
+ * with that key already exists, returns the existing one (200) instead of creating a duplicate.
+ */
+export async function PUT(request: Request) {
+  const { tenantId } = await withTenant();
+  const userId = await getSessionAndUserId(request);
+
+  if (!userId) {
+    return apiUnauthorized();
+  }
+
+  // Rate limit: 60 notification create/modify operations per minute per user
+  const rateLimit = await rateLimitByUser(userId, { windowMs: 60_000, maxRequests: 60 });
+  if (rateLimit) return rateLimit;
+
+  const body = await request.json();
+  const idempotencyKey = request.headers.get('Idempotency-Key') || body.idempotencyKey;
+
+  if (!idempotencyKey) {
+    // No idempotency key — fall through to POST behaviour
+    return POST(request);
+  }
+
+  // Check if a notification with this idempotency key already exists
+  const existing = await db
+    .select()
+    .from(notifications)
+    .where(
+      and(
+        notDeleted(notifications),
+        eq(notifications.tenantId, tenantId),
+        sql`${notifications.payload}->>'_idempotencyKey' = ${idempotencyKey}`
+      )
+    )
+    .limit(1);
+
+  if (existing[0]) {
+    return apiSuccess(existing[0]);
+  }
+
+  // Create new notification with idempotency key stored in payload
+  const mergedPayload = { ...(body.payload || {}), _idempotencyKey: idempotencyKey };
+  const targetUserId = body.userId || userId;
+  const sendEmailNotification = body.sendEmail === true;
+
+  const [newNotification] = await db
+    .insert(notifications)
+    .values({
+      id: crypto.randomUUID(),
+      tenantId,
+      userId: targetUserId,
+      senderId: body.senderId || null,
+      title: body.title,
+      message: body.message,
+      type: (body.type || 'info') as 'info' | 'warning' | 'success' | 'error',
+      link: body.link || '',
+      payload: mergedPayload,
+      read: false,
+    })
+    .returning();
+
+  // Send email notification if requested and user has email notifications enabled
+  if (sendEmailNotification) {
+    await sendEmailNotificationIfEnabled(
+      targetUserId,
+      body.title,
+      body.message,
+      body.type || 'info',
+      newNotification.id
+    ).catch(error => {
+      logError(
+        { component: 'notifications-api', operation: 'SEND_EMAIL' },
+        'Failed to send email notification',
+        error
+      );
+    });
+  }
+
+  // Broadcast via Supabase Realtime
+  supabase
+    .channel(`notifications:${targetUserId}`)
+    .send({
+      type: 'broadcast',
+      event: 'new-notification',
+      payload: newNotification,
+    })
+    .catch(error => {
+      logError(
+        { component: 'notifications-api', operation: 'REALTIME_BROADCAST' },
+        'Failed to broadcast notification',
+        error
+      );
+    });
+
+  return apiCreated(newNotification);
+}
+
+/**
  * Create a new notification.
  * Optionally sends an email if sendEmail is true and user has email notifications enabled.
  */
@@ -112,7 +211,8 @@ export async function POST(request: Request) {
       targetUserId,
       body.title,
       body.message,
-      body.type || 'info'
+      body.type || 'info',
+      newNotification.id
     ).catch(error => {
       logError(
         { component: 'notifications-api', operation: 'SEND_EMAIL' },
@@ -181,6 +281,18 @@ export async function PATCH(request: Request) {
           eq(notifications.tenantId, tenantId)
         )
       );
+  } else if (body.ids && Array.isArray(body.ids) && body.ids.length > 0) {
+    await db
+      .update(notifications)
+      .set({ read: true, readAt: new Date() })
+      .where(
+        and(
+          notDeleted(notifications),
+          inArray(notifications.id, body.ids),
+          eq(notifications.userId, userId),
+          eq(notifications.tenantId, tenantId)
+        )
+      );
   }
 
   return apiSuccess({ success: true });
@@ -194,7 +306,8 @@ async function sendEmailNotificationIfEnabled(
   userId: string,
   title: string,
   message: string,
-  type: string = 'info'
+  type: string = 'info',
+  notificationId?: string
 ): Promise<void> {
   try {
     // Get user and check email notification preference
@@ -202,6 +315,7 @@ async function sendEmailNotificationIfEnabled(
 
     if (!user) {
       notifyLogger.warn({ userId }, 'User not found, skipping notification email');
+      await updateDeliveryStatus(notificationId, 'FAILED');
       return;
     }
 
@@ -211,21 +325,50 @@ async function sendEmailNotificationIfEnabled(
 
     if (!emailEnabled) {
       notifyLogger.debug({ userId, type }, 'Email notifications disabled for this type');
+      await updateDeliveryStatus(notificationId, 'SKIPPED');
       return;
     }
 
-    // Send email notification
+    // Send email notification with retry
     const html = templates.emailNotification.getHtml(title, message);
+    let lastError: unknown;
 
-    await sendEmail({
-      to: user.email,
-      subject: `Soralia Village: ${title}`,
-      html,
-    });
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        if (attempt > 1) {
+          const delay = Math.min(1000 * 2 ** (attempt - 1), 10_000);
+          await new Promise(r => setTimeout(r, delay));
+        }
+        await updateDeliveryStatus(notificationId, 'SENDING');
+        await sendEmail({
+          to: user.email,
+          subject: `Soralia Village: ${title}`,
+          html,
+        });
+        await updateDeliveryStatus(notificationId, 'SENT');
+        notifyLogger.info({ email: user.email, attempt }, 'Notification email sent');
+        return;
+      } catch (error) {
+        lastError = error;
+        notifyLogger.warn({ email: user.email, attempt, error }, 'Email send attempt failed');
+      }
+    }
 
-    notifyLogger.info({ email: user.email }, 'Notification email sent');
+    await updateDeliveryStatus(notificationId, 'FAILED');
+    notifyLogger.error(
+      { userId, error: lastError },
+      'Failed to send notification email after 3 attempts'
+    );
   } catch (error) {
     notifyLogger.error({ userId, error }, 'Failed to send notification email');
-    // Don't throw - email failure shouldn't fail the notification creation
   }
+}
+
+async function updateDeliveryStatus(notificationId: string | undefined, status: string) {
+  if (!notificationId) return;
+  await db
+    .update(notifications)
+    .set({ deliveryStatus: status })
+    .where(eq(notifications.id, notificationId))
+    .catch(() => {});
 }

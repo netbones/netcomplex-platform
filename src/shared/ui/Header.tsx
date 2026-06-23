@@ -6,7 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@shared/ui';
 import { authClient } from '@api/client';
-import { usePageFlags } from '@shared/lib/hooks';
+import { useGateContext } from '@features/gate';
+import { usePageFlags } from '@shared/lib/hooks/usePageFlags';
 import { NAV_REGISTRY, isNavItemVisible } from '@/shared/lib/nav';
 import { MobileMenu } from './MobileMenu';
 
@@ -245,7 +246,8 @@ export function Header() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { flags: pageFlags, refetch } = usePageFlags();
+  const ctx = useGateContext();
+  const { refetch } = usePageFlags();
   const { t } = useTranslation('common');
   const { data: session, isPending } = authClient.useSession();
 
@@ -270,11 +272,11 @@ export function Header() {
 
   const role = session?.user?.role;
   const visibleItems =
-    mounted && pageFlags
-      ? NAV_REGISTRY.filter(item => isNavItemVisible(item, pageFlags, role))
+    mounted && ctx?.flags
+      ? NAV_REGISTRY.filter(item => isNavItemVisible(item, ctx.flags, role))
       : [];
 
-  const headerLinkIds = pageFlags?.headerLinks ?? [];
+  const headerLinkIds = ctx?.flags?.headerLinks ?? [];
   const headerOrder = ['home', ...headerLinkIds];
 
   const headerItems = headerOrder
@@ -361,7 +363,7 @@ export function Header() {
               <div className="hidden md:flex items-center">
                 <AvatarDropdown
                   session={session}
-                  flags={pageFlags!}
+                  flags={ctx!.flags}
                   onSignOut={handleSignOut}
                   t={t}
                   pathname={pathname}
@@ -400,7 +402,7 @@ export function Header() {
         <MobileMenu
           isOpen={mobileMenuOpen}
           onClose={() => setMobileMenuOpen(false)}
-          pageFlags={pageFlags}
+          pageFlags={ctx!.flags}
           isAuthenticated={!!session}
           role={session?.user?.role as string | null}
         />

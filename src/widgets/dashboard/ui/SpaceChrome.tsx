@@ -21,7 +21,7 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { authClient } from '@api/client';
-import { usePageFlags } from '@shared/lib/hooks';
+import { useGateContext } from '@features/gate';
 import { ErrorBoundary } from '@shared/ui';
 import { SpaceLauncher } from './SpaceLauncher';
 import { MobileSpaceBar } from './MobileSpaceBar';
@@ -35,12 +35,12 @@ export function SpaceChrome({ children }: SpaceChromeProps) {
   const [collapsed, setCollapsed] = useState(true);
   const pathname = usePathname();
   const { data: session } = authClient.useSession();
-  const { flags } = usePageFlags();
+  const ctx = useGateContext();
 
   const role = session?.user?.role || 'RESIDENT';
   const activeSpaceId = getActiveSpaceId(pathname);
-  const visibleSpaces = flags
-    ? getVisibleSpaces(role, flags)
+  const visibleSpaces = ctx?.flags
+    ? getVisibleSpaces(role, ctx.flags)
     : getVisibleSpaces(role, {} as Parameters<typeof getVisibleSpaces>[1]);
 
   // Navigation is handled by the Link href — callback is for future extensibility

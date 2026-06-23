@@ -4,7 +4,8 @@ export {
   type UseApiToastOptions,
   type UseApiToastReturn,
 } from './useApiToast';
-export { usePageFlags } from './usePageFlags';
+// @internal — use useGateContext() from @features/gate instead
+// export { usePageFlags } from './usePageFlags';
 export { usePageLoading } from './usePageLoading';
 export { usePremiumListings } from './usePremiumListings';
 export { useSafeTranslation } from './useSafeTranslation';

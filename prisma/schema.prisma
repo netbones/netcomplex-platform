@@ -245,6 +245,7 @@ model Notification {
   link      String?
   read      Boolean       @default(false)
   readAt    DateTime?
+  deliveryStatus String    @default("PENDING")
   payload   Json?
   createdAt DateTime      @default(now())
   deletedAt DateTime?
