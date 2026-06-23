@@ -399,7 +399,7 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
   // Subscription tiers (tenant-scoped billing plans)
   console.log('Subscription tiers...');
   const tierRows = withTimestamps(
-    withTenantId(tenantId, withTenantPrefix(slug, data.subscriptionTiers))
+    withTenantId(tenantId, withTenantPrefix(slug, data.subscriptionTiers ?? []))
   );
   for (const t of tierRows) {
     await db.insert(subscriptionTiers).values(t).onConflictDoNothing();
@@ -409,7 +409,7 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
   // Provider reputation
   console.log('Provider reputation...');
   const reputationRows = withTimestamps(
-    withTenantId(tenantId, withTenantPrefix(slug, data.providerReputations))
+    withTenantId(tenantId, withTenantPrefix(slug, data.providerReputations ?? []))
   );
   for (const c of reputationRows) {
     await db.insert(providerReputations).values(c).onConflictDoNothing();
@@ -419,7 +419,7 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
   // Provider merits
   console.log('Provider merits...');
   const meritRows = withTimestamps(
-    withTenantId(tenantId, withTenantPrefix(slug, data.providerMerits))
+    withTenantId(tenantId, withTenantPrefix(slug, data.providerMerits ?? []))
   );
   for (const m of meritRows) {
     await db.insert(providerMerits).values(m).onConflictDoNothing();
@@ -429,7 +429,7 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
   // Provider subscriptions
   console.log('Provider subscriptions...');
   const subRows = withTimestamps(
-    withTenantId(tenantId, withTenantPrefix(slug, data.providerSubscriptions))
+    withTenantId(tenantId, withTenantPrefix(slug, data.providerSubscriptions ?? []))
   );
   for (const s of subRows) {
     await db.insert(providerSubscriptions).values(s).onConflictDoNothing();
@@ -438,38 +438,38 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
 
   // Payment transactions
   console.log('Payment transactions...');
-  const txRows = withTimestamps(
-    withTenantId(tenantId, withTenantPrefix(slug, data.paymentTransactions))
+  const pmtRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.paymentTransactions ?? []))
   );
-  for (const t of txRows) {
-    await db.insert(paymentTransactions).values(t).onConflictDoNothing();
+  for (const p of pmtRows) {
+    await db.insert(paymentTransactions).values(p).onConflictDoNothing();
   }
-  console.log(`  ✓ ${txRows.length} payment transactions`);
+  console.log(`  ✓ ${pmtRows.length} payment transactions`);
 
   // Provider charges
   console.log('Provider charges...');
-  const chgRows = withTimestamps(
-    withTenantId(tenantId, withTenantPrefix(slug, data.providerCharges))
+  const chargeRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.providerCharges ?? []))
   );
-  for (const c of chgRows) {
+  for (const c of chargeRows) {
     await db.insert(providerCharges).values(c).onConflictDoNothing();
   }
-  console.log(`  ✓ ${chgRows.length} provider charges`);
+  console.log(`  ✓ ${chargeRows.length} provider charges`);
 
   // Provider invoices
   console.log('Provider invoices...');
-  const invRows = withTimestamps(
-    withTenantId(tenantId, withTenantPrefix(slug, data.providerInvoices))
+  const invoiceRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.providerInvoices ?? []))
   );
-  for (const i of invRows) {
+  for (const i of invoiceRows) {
     await db.insert(providerInvoices).values(i).onConflictDoNothing();
   }
-  console.log(`  ✓ ${invRows.length} provider invoices`);
+  console.log(`  ✓ ${invoiceRows.length} provider invoices`);
 
   // Revenue records
   console.log('Revenue records...');
   const revenueRows = withTimestamps(
-    withTenantId(tenantId, withTenantPrefix(slug, data.revenueRecords))
+    withTenantId(tenantId, withTenantPrefix(slug, data.revenueRecords ?? []))
   );
   for (const r of revenueRows) {
     await db.insert(revenueRecords).values(r).onConflictDoNothing();
