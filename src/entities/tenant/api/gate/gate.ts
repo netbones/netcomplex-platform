@@ -30,12 +30,7 @@ import { db, tenants, getSessionAndRole } from '@api/server';
 import { createComponentLogger } from '@/shared/lib';
 
 import type { FeatureKey, GateReason, GateResult, GateContext } from './mappings';
-import {
-  FEATURE_TO_MODULE,
-  FEATURE_TO_FLAG,
-  FEATURE_TO_REGISTRY,
-  GATE_REASON_TO_ERROR,
-} from './mappings';
+import { FEATURE_TO_MODULE, FEATURE_TO_FLAG, FEATURE_TO_REGISTRY } from './mappings';
 
 const gateLogger = createComponentLogger('gate');
 
