@@ -119,6 +119,8 @@ export interface ProviderDetailResponse {
       key: string;
       label: string;
       version: string;
+      summary: string;
+      body: string;
       accepted: boolean;
       acceptedAt: string | null;
     }>;

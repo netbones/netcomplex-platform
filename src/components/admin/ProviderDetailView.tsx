@@ -13,6 +13,75 @@ import {
 } from './adminApi';
 import type { ProviderDetailResponse } from './types';
 
+function LegalDocumentCard({
+  document,
+}: {
+  document: ProviderDetailResponse['legalStatus']['documents'][number];
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const providerAccepted = document.accepted && document.acceptedAt;
+
+  return (
+    <div className="rounded-xl border border-gray-200 bg-gray-50">
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="flex w-full items-start justify-between gap-4 p-4 text-left"
+      >
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-3">
+            <div className="font-semibold text-gray-900">{document.label}</div>
+            <span className="text-xs text-gray-400">v{document.version}</span>
+          </div>
+          <div className="mt-1 text-sm text-gray-600 line-clamp-2">{document.summary}</div>
+        </div>
+        <div className="flex shrink-0 items-center gap-3">
+          {providerAccepted ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+              <svg className="h-3 w-3" viewBox="0 0 12 12" fill="currentColor">
+                <path d="M4.5 8.5L2 6l.7-.7 1.8 1.8 4.8-4.8.7.7z" />
+              </svg>
+              Accepted {formatDate(document.acceptedAt)}
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700">
+              Not accepted
+            </span>
+          )}
+          <svg
+            className={`h-4 w-4 text-gray-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </div>
+      </button>
+      {expanded ? (
+        <div className="border-t border-gray-200 px-4 py-4">
+          <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
+            {document.body}
+          </div>
+          {!providerAccepted ? (
+            <div className="mt-4 rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm">
+              <div className="font-semibold text-rose-900">Provider action required</div>
+              <p className="mt-1 text-rose-700">
+                This provider has not yet accepted the {document.label.toLowerCase()}. The provider
+                must accept this agreement through their onboarding or legal settings before they
+                can access the full provider platform features on the current version.
+              </p>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 const TABS = ['profile', 'verification', 'legal', 'reputation', 'payments', 'actions'] as const;
 type ProviderTab = (typeof TABS)[number];
 
@@ -311,18 +380,62 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
       ) : null}
 
       {activeTab === 'legal' ? (
-        <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-          <h2 className="text-base font-semibold text-gray-900">Legal agreements</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            {data.legalStatus.documents.map(document => (
-              <div key={document.key} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                <div className="font-medium text-gray-900">{document.label}</div>
-                <div className="mt-1 text-sm text-gray-600">Version {document.version}</div>
-                <div className="mt-2 text-xs text-gray-500">
-                  Accepted {document.accepted ? formatDate(document.acceptedAt) : 'No'}
+        <section className="space-y-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-gray-900">Legal agreements</h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Platform-governed documents that every provider must accept. Click to review full
+              text.
+            </p>
+            <div className="mt-5 grid gap-4">
+              {data.legalStatus.documents.map(document => (
+                <LegalDocumentCard key={document.key} document={document} />
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-semibold text-gray-900">Acceptance history</h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Record of each agreement acceptance by this provider.
+            </p>
+            <div className="mt-4 space-y-2">
+              {data.legalAgreements.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-500">
+                  No legal agreements have been accepted by this provider yet.
                 </div>
-              </div>
-            ))}
+              ) : (
+                data.legalAgreements.map(agreement => (
+                  <div
+                    key={agreement.id}
+                    className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3"
+                  >
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {agreement.agreementType.replace('_', ' ')}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        v{agreement.version} • {formatDate(agreement.acceptedAt)}
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-400">{agreement.ipAddress ?? '—'}</div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-5 text-sm text-indigo-900">
+            <div className="font-semibold">Document management</div>
+            <p className="mt-1">
+              Legal agreement text and versions are configured in{' '}
+              <code className="rounded bg-indigo-100 px-1 text-xs">
+                src/shared/lib/providers/registration.ts
+              </code>
+              . To update document content, versions, or summaries, edit{' '}
+              <code className="rounded bg-indigo-100 px-1 text-xs">PROVIDER_LEGAL_DOCUMENTS</code>{' '}
+              and increment the version string. Providers must re-accept when versions change.
+            </p>
           </div>
         </section>
       ) : null}
