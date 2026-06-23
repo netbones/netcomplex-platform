@@ -3,6 +3,8 @@ import { useSafeTranslation } from '@shared/lib';
 import Image from 'next/image';
 import Link from 'next/link';
 import { StandingBadge } from '@entities/merit';
+import { AchievementBadgeGrid } from './AchievementBadgeGrid';
+import { useEffect, useState } from 'react';
 import type { Resident } from '../model/types';
 
 interface UnifiedResidentCardProps {
@@ -50,6 +52,24 @@ export function UnifiedResidentCard({
   const address = [street, unit].filter(Boolean).join(', ');
 
   const interestList = Array.isArray(resident.interests) ? resident.interests : [];
+
+  const [achievements, setAchievements] = useState<
+    Array<{
+      key: string;
+      label: string;
+      icon?: string | null;
+      category: string;
+      unlocked: boolean;
+      unlockedAt?: Date | null;
+    }>
+  >([]);
+
+  useEffect(() => {
+    fetch('/api/achievements', { credentials: 'same-origin' })
+      .then(res => (res.ok ? res.json() : Promise.reject()))
+      .then(body => setAchievements(body?.data ?? []))
+      .catch(() => {});
+  }, []);
 
   const hasHomeImage = !!(
     resident.standardSeats?.[0]?.property?.homeImage ||
@@ -282,6 +302,11 @@ export function UnifiedResidentCard({
                   {interest}
                 </span>
               ))}
+            </div>
+          )}
+          {achievements.length > 0 && (
+            <div className="mt-2">
+              <AchievementBadgeGrid achievements={achievements} />
             </div>
           )}
         </div>

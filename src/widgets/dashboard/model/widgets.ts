@@ -880,4 +880,45 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     dragHandleClassName: 'widget-drag-handle',
     spaces: ['services', 'admin'],
   });
+
+  // ═══════════════════════════════════════════════════════════════
+  // ACHIEVEMENTS WIDGETS
+  // ═══════════════════════════════════════════════════════════════
+
+  registry.register({
+    id: 'achievements',
+    version: '1.0.0',
+    name: 'Achievements',
+    description: 'Your achievement badges and progress',
+    author: 'internal',
+    category: 'content',
+    icon: Trophy,
+    component: lazy(() =>
+      import('../ui/AchievementsWidget').then(m => ({ default: m.AchievementsWidget }))
+    ),
+    defaultSize: { width: 3, height: 2 },
+    minSize: { width: 2, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['home'],
+  });
+
+  registry.register({
+    id: 'admin-achievements',
+    version: '1.0.0',
+    name: 'Achievement Catalog',
+    description: 'Manage achievement definitions and thresholds',
+    author: 'internal',
+    category: 'core',
+    icon: Trophy,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../ui/AdminAchievementsWidget').then(m => ({
+        default: m.AdminAchievementsWidget,
+      }))
+    ),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 3, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
+  });
 }
