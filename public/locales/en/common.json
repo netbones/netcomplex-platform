@@ -42,6 +42,7 @@
   },
   "spaces": {
     "home": "Home",
+    "providers": "Provider",
     "services": "Services",
     "community": "Community",
     "messages": "Messages",

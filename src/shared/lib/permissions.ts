@@ -155,6 +155,23 @@ export const ROLE_PERMISSIONS: Record<Role, Permission> = {
     announcements: false,
     providers: false,
   },
+  PROVIDER: {
+    admin: false,
+    users: false,
+    households: false,
+    requests: false,
+    content: false,
+    groups: false,
+    groupsOwn: false,
+    contentOwn: true,
+    events: false,
+    bookings: false,
+    directory: false,
+    messages: true,
+    settings: false,
+    announcements: false,
+    providers: true,
+  },
 };
 
 const ZERO_PERMISSIONS: Permission = {

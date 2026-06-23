@@ -12,7 +12,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 // ── Auth & Sessions (Better Auth) ──
 
 model account {
@@ -95,7 +94,6 @@ model twoFactor {
   @@index([userId])
 }
 
-
 // ── User & Identity ──
 
 model user {
@@ -115,7 +113,7 @@ model user {
   isPublic                                              Boolean                   @default(true)
   showEmail                                             Boolean                   @default(true)
   showPhone                                             Boolean                   @default(true)
-  notificationPreferences                                Json?                     @default("{\"info\":{\"inApp\":true,\"email\":true},\"warning\":{\"inApp\":true,\"email\":true},\"success\":{\"inApp\":true,\"email\":true},\"error\":{\"inApp\":true,\"email\":true}}")
+  notificationPreferences                               Json?                     @default("{\"info\":{\"inApp\":true,\"email\":true},\"warning\":{\"inApp\":true,\"email\":true},\"success\":{\"inApp\":true,\"email\":true},\"error\":{\"inApp\":true,\"email\":true}}")
   profileSlug                                           String?
   createdAt                                             DateTime                  @default(now())
   updatedAt                                             DateTime                  @default(now()) @updatedAt
@@ -156,9 +154,9 @@ model user {
   member                                                Member[]
   passkey                                               passkey[]
   platformSuspension                                    PlatformSuspension[]
-  communityMeritsSubject                                CommunityMerit[]         @relation("CommunityMeritSubject")
-  communityMeritsCreatedBy                              CommunityMerit[]         @relation("CommunityMeritCreatedBy")
-  communityMeritsResolvedBy                             CommunityMerit[]         @relation("CommunityMeritResolvedBy")
+  communityMeritsSubject                                CommunityMerit[]          @relation("CommunityMeritSubject")
+  communityMeritsCreatedBy                              CommunityMerit[]          @relation("CommunityMeritCreatedBy")
+  communityMeritsResolvedBy                             CommunityMerit[]          @relation("CommunityMeritResolvedBy")
   premiumSeat                                           PremiumSeat?
   profile_profile_landlordIdTouser                      Profile[]                 @relation("profile_landlordIdTouser")
   profile_profile_userIdTouser                          Profile[]                 @relation("profile_userIdTouser")
@@ -235,21 +233,21 @@ model Organization {
 }
 
 model Notification {
-  id        String        @id
-  tenantId  String
-  userId    String
-  senderId  String?
-  title     String
-  message   String
-  type      NotificationType @default(info)
-  link      String?
-  read      Boolean       @default(false)
-  readAt    DateTime?
-  deliveryStatus String    @default("PENDING")
-  payload   Json?
-  createdAt DateTime      @default(now())
-  deletedAt DateTime?
-  user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String           @id
+  tenantId       String
+  userId         String
+  senderId       String?
+  title          String
+  message        String
+  type           NotificationType @default(info)
+  link           String?
+  read           Boolean          @default(false)
+  readAt         DateTime?
+  deliveryStatus String           @default("PENDING")
+  payload        Json?
+  createdAt      DateTime         @default(now())
+  deletedAt      DateTime?
+  user           user             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, userId])
 }
@@ -357,17 +355,16 @@ model UserKey {
 }
 
 model UserDevice {
-  id         String    @id @default(cuid())
+  id         String   @id @default(cuid())
   userId     String
   publicKey  String
   deviceName String
-  lastSeenAt DateTime  @default(now())
-  createdAt  DateTime  @default(now())
-  user       user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastSeenAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  user       user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
-
 
 // ── Tenant & Platform ──
 
@@ -436,7 +433,6 @@ model Setting {
 
   @@unique([tenantId, key])
 }
-
 
 // ── Directory & Properties ──
 
@@ -560,7 +556,6 @@ model Invitation {
   @@index([inviterId])
 }
 
-
 // ── Chat & Messaging ──
 
 model Conversation {
@@ -612,7 +607,6 @@ model Message {
   @@index([expiresAt])
   @@index([senderId])
 }
-
 
 // ── Content & Community ──
 
@@ -803,7 +797,6 @@ model Announcement {
   @@index([resourceId])
 }
 
-
 // ── Events ──
 
 model Event {
@@ -838,7 +831,6 @@ model EventAttendee {
   @@index([userId])
 }
 
-
 // ── Bookings ──
 
 model Booking {
@@ -861,7 +853,6 @@ model Booking {
   @@index([propertyId])
   @@index([userId])
 }
-
 
 // ── Maintenance ──
 
@@ -962,7 +953,6 @@ model RequestHistory {
   @@index([userId])
 }
 
-
 // ── Service Providers ──
 
 model ServiceProvider {
@@ -979,15 +969,15 @@ model ServiceProvider {
   deletedAt   DateTime?
   assignments MaintenanceRequest[] @relation("ProviderAssignments")
 
-  verifications  ProviderVerification[]
+  verifications   ProviderVerification[]
   legalAgreements ProviderLegalAgreement[]
-  reputation     ProviderReputation?
-  merits         ProviderMerit[]
-  subscriptions  ProviderSubscription[]
-  transactions   PaymentTransaction[]
-  revenue        RevenueRecord[]
-  charges        ProviderCharge[]
-  invoices       ProviderInvoice[]
+  reputation      ProviderReputation?
+  merits          ProviderMerit[]
+  subscriptions   ProviderSubscription[]
+  transactions    PaymentTransaction[]
+  revenue         RevenueRecord[]
+  charges         ProviderCharge[]
+  invoices        ProviderInvoice[]
 
   @@index([tenantId])
 }
@@ -1091,17 +1081,17 @@ model CommunityServiceReview {
 }
 
 model ProviderVerification {
-  id                    String                   @id @default(cuid())
-  providerId            String                   @unique @map("provider_id")
+  id                    String                     @id @default(cuid())
+  providerId            String                     @unique @map("provider_id")
   tenantId              String
   status                ProviderVerificationStatus @default(PENDING)
   notes                 String?
-  startDate             DateTime                 @default(now())
+  startDate             DateTime                   @default(now())
   endDate               DateTime?
-  verificationThreshold Int                      @default(300) @map("verification_threshold")
-  probationThreshold    Int                      @default(0) @map("probation_threshold")
-  createdAt             DateTime                 @default(now()) @map("created_at")
-  updatedAt             DateTime                 @updatedAt @map("updated_at")
+  verificationThreshold Int                        @default(300) @map("verification_threshold")
+  probationThreshold    Int                        @default(0) @map("probation_threshold")
+  createdAt             DateTime                   @default(now()) @map("created_at")
+  updatedAt             DateTime                   @updatedAt @map("updated_at")
 
   provider ServiceProvider @relation(fields: [providerId], references: [id])
 
@@ -1129,18 +1119,18 @@ model ProviderLegalAgreement {
 }
 
 model ProviderReputation {
-  id                  String    @id @default(cuid())
-  providerId          String    @unique @map("provider_id")
-  tenantId            String    @map("tenant_id")
+  id                String    @id @default(cuid())
+  providerId        String    @unique @map("provider_id")
+  tenantId          String    @map("tenant_id")
   totalScore        Int       @default(0) @map("total_score")
-  responseTimeScore   Int?      @map("response_time_score")
-  qualityScore        Int?      @map("quality_score")
-  reviewScore         Int?      @map("review_score")
-  complianceScore     Int?      @map("compliance_score")
-  engagementScore     Int?      @map("engagement_score")
-  lastCalculatedAt    DateTime? @map("last_calculated_at")
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  responseTimeScore Int?      @map("response_time_score")
+  qualityScore      Int?      @map("quality_score")
+  reviewScore       Int?      @map("review_score")
+  complianceScore   Int?      @map("compliance_score")
+  engagementScore   Int?      @map("engagement_score")
+  lastCalculatedAt  DateTime? @map("last_calculated_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
 
   provider ServiceProvider @relation(fields: [providerId], references: [id])
 
@@ -1167,22 +1157,22 @@ model ProviderMerit {
 }
 
 model ProviderSubscription {
-  id             String   @id @default(cuid())
-  providerId     String   @map("provider_id")
-  tenantId       String   @map("tenant_id")
-  tierId         String   @map("tier_id")
-  status         SubscriptionStatus @default(ACTIVE)
-  startDate      DateTime @map("start_date")
-  endDate        DateTime? @map("end_date")
-  nextBillingDate DateTime? @map("next_billing_date")
-  price          Decimal  @db.Decimal(10, 2)
-  currency       String   @default("ZAR")
-  paymentGateway PaymentGateway? @map("payment_gateway")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id              String             @id @default(cuid())
+  providerId      String             @map("provider_id")
+  tenantId        String             @map("tenant_id")
+  tierId          String             @map("tier_id")
+  status          SubscriptionStatus @default(ACTIVE)
+  startDate       DateTime           @map("start_date")
+  endDate         DateTime?          @map("end_date")
+  nextBillingDate DateTime?          @map("next_billing_date")
+  price           Decimal            @db.Decimal(10, 2)
+  currency        String             @default("ZAR")
+  paymentGateway  PaymentGateway?    @map("payment_gateway")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
 
-  provider     ServiceProvider  @relation(fields: [providerId], references: [id])
-  tier         SubscriptionTier @relation(fields: [tierId], references: [id])
+  provider     ServiceProvider      @relation(fields: [providerId], references: [id])
+  tier         SubscriptionTier     @relation(fields: [tierId], references: [id])
   transactions PaymentTransaction[]
   charges      ProviderCharge[]
   invoices     ProviderInvoice[]
@@ -1193,20 +1183,20 @@ model ProviderSubscription {
 }
 
 model PaymentTransaction {
-  id            String   @id @default(cuid())
-  providerId    String   @map("provider_id")
-  tenantId      String   @map("tenant_id")
-  subscriptionId String  @map("subscription_id")
-  amount        Decimal  @db.Decimal(10, 2)
-  currency      String   @default("ZAR")
-  platformFee   Decimal  @map("platform_fee") @db.Decimal(10, 2)
-  processorFee  Decimal  @map("processor_fee") @db.Decimal(10, 2)
-  netAmount     Decimal  @map("net_amount") @db.Decimal(10, 2)
-  status        TransactionStatus @default(PENDING)
-  gateway       PaymentGateway
-  externalRef   String?  @map("external_ref")
-  invoiceUrl    String?  @map("invoice_url")
-  createdAt     DateTime @default(now()) @map("created_at")
+  id             String            @id @default(cuid())
+  providerId     String            @map("provider_id")
+  tenantId       String            @map("tenant_id")
+  subscriptionId String            @map("subscription_id")
+  amount         Decimal           @db.Decimal(10, 2)
+  currency       String            @default("ZAR")
+  platformFee    Decimal           @map("platform_fee") @db.Decimal(10, 2)
+  processorFee   Decimal           @map("processor_fee") @db.Decimal(10, 2)
+  netAmount      Decimal           @map("net_amount") @db.Decimal(10, 2)
+  status         TransactionStatus @default(PENDING)
+  gateway        PaymentGateway
+  externalRef    String?           @map("external_ref")
+  invoiceUrl     String?           @map("invoice_url")
+  createdAt      DateTime          @default(now()) @map("created_at")
 
   provider     ServiceProvider      @relation(fields: [providerId], references: [id])
   subscription ProviderSubscription @relation(fields: [subscriptionId], references: [id])
@@ -1224,7 +1214,7 @@ model RevenueRecord {
   id            String   @id @default(cuid())
   tenantId      String   @map("tenant_id")
   providerId    String   @map("provider_id")
-  transactionId String  @map("transaction_id")
+  transactionId String   @map("transaction_id")
   grossAmount   Decimal  @map("gross_amount") @db.Decimal(10, 2)
   platformFee   Decimal  @map("platform_fee") @db.Decimal(10, 2)
   processorFee  Decimal  @map("processor_fee") @db.Decimal(10, 2)
@@ -1233,7 +1223,7 @@ model RevenueRecord {
   period        String
   createdAt     DateTime @default(now()) @map("created_at")
 
-  provider    ServiceProvider   @relation(fields: [providerId], references: [id])
+  provider    ServiceProvider    @relation(fields: [providerId], references: [id])
   transaction PaymentTransaction @relation(fields: [transactionId], references: [id])
 
   @@index([tenantId])
@@ -1242,21 +1232,21 @@ model RevenueRecord {
 }
 
 model ProviderCharge {
-  id             String   @id @default(cuid())
-  providerId     String   @map("provider_id")
-  tenantId       String   @map("tenant_id")
-  subscriptionId String   @map("subscription_id")
-  transactionId  String?  @map("transaction_id")
+  id             String               @id @default(cuid())
+  providerId     String               @map("provider_id")
+  tenantId       String               @map("tenant_id")
+  subscriptionId String               @map("subscription_id")
+  transactionId  String?              @map("transaction_id")
   description    String
-  amount         Decimal  @db.Decimal(10, 2)
-  currency       String   @default("ZAR")
+  amount         Decimal              @db.Decimal(10, 2)
+  currency       String               @default("ZAR")
   status         ProviderChargeStatus @default(PENDING)
   gateway        PaymentGateway?
-  externalRef    String?  @map("external_ref")
-  dueDate        DateTime @map("due_date")
-  paidAt         DateTime? @map("paid_at")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  externalRef    String?              @map("external_ref")
+  dueDate        DateTime             @map("due_date")
+  paidAt         DateTime?            @map("paid_at")
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
 
   provider     ServiceProvider      @relation(fields: [providerId], references: [id])
   subscription ProviderSubscription @relation(fields: [subscriptionId], references: [id])
@@ -1268,23 +1258,23 @@ model ProviderCharge {
 }
 
 model ProviderInvoice {
-  id             String   @id @default(cuid())
-  providerId     String   @map("provider_id")
-  tenantId       String   @map("tenant_id")
-  subscriptionId String   @map("subscription_id")
-  transactionId  String   @map("transaction_id")
-  invoiceNumber  String   @map("invoice_number")
+  id             String        @id @default(cuid())
+  providerId     String        @map("provider_id")
+  tenantId       String        @map("tenant_id")
+  subscriptionId String        @map("subscription_id")
+  transactionId  String        @map("transaction_id")
+  invoiceNumber  String        @map("invoice_number")
   items          Json
-  total          Decimal  @db.Decimal(10, 2)
-  platformFee    Decimal  @map("platform_fee") @db.Decimal(10, 2)
-  processorFee   Decimal  @map("processor_fee") @db.Decimal(10, 2)
-  netAmount      Decimal  @map("net_amount") @db.Decimal(10, 2)
-  currency       String   @default("ZAR")
+  total          Decimal       @db.Decimal(10, 2)
+  platformFee    Decimal       @map("platform_fee") @db.Decimal(10, 2)
+  processorFee   Decimal       @map("processor_fee") @db.Decimal(10, 2)
+  netAmount      Decimal       @map("net_amount") @db.Decimal(10, 2)
+  currency       String        @default("ZAR")
   status         InvoiceStatus @default(PENDING)
-  paidAt         DateTime? @map("paid_at")
-  pdfUrl         String?  @map("pdf_url")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  paidAt         DateTime?     @map("paid_at")
+  pdfUrl         String?       @map("pdf_url")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
 
   provider     ServiceProvider      @relation(fields: [providerId], references: [id])
   subscription ProviderSubscription @relation(fields: [subscriptionId], references: [id])
@@ -1294,7 +1284,6 @@ model ProviderInvoice {
   @@index([providerId])
   @@map("provider_invoices")
 }
-
 
 // ── Surveys ──
 
@@ -1378,7 +1367,6 @@ model ExternalSurvey {
   deletedAt  DateTime?
 }
 
-
 // ── Community Merits ──
 
 model CommunityMerit {
@@ -1395,7 +1383,7 @@ model CommunityMerit {
   standingAfter      Int?
   status             BehaviorRecordStatus @default(ACTIVE)
   disputeReason      String?
-  disputeHistory     Json?                 @map("dispute_history")
+  disputeHistory     Json?                @map("dispute_history")
   disputedAt         DateTime?
   resolvedById       String?
   resolvedAt         DateTime?
@@ -1415,7 +1403,6 @@ model CommunityMerit {
   @@index([category])
   @@map("community_merits")
 }
-
 
 // ── Competitions (Marketing) ──
 
@@ -1465,7 +1452,6 @@ model CompetitionEntry {
   @@index([userId])
   @@index([status])
 }
-
 
 // ── Admin & Suspensions ──
 
@@ -1538,28 +1524,26 @@ model PlatformSuspension {
   @@index([userId])
 }
 
-
 // ── Pricing ──
 
 model SubscriptionTier {
-  id                String   @id @default(cuid())
-  tenantId          String   @map("tenant_id")
-  name              String
-  description       String?
-  price             Decimal  @db.Decimal(10, 2)
-  currency          String   @default("ZAR")
-  maxListings       Int?     @map("max_listings")
-  features          Json?
-  platformFeePercent Decimal @default(8.00) @map("platform_fee_percent") @db.Decimal(5, 2)
-  verificationRequired Boolean @default(false) @map("verification_required")
-  createdAt         DateTime @default(now()) @map("created_at")
+  id                   String   @id @default(cuid())
+  tenantId             String   @map("tenant_id")
+  name                 String
+  description          String?
+  price                Decimal  @db.Decimal(10, 2)
+  currency             String   @default("ZAR")
+  maxListings          Int?     @map("max_listings")
+  features             Json?
+  platformFeePercent   Decimal  @default(8.00) @map("platform_fee_percent") @db.Decimal(5, 2)
+  verificationRequired Boolean  @default(false) @map("verification_required")
+  createdAt            DateTime @default(now()) @map("created_at")
 
   subscriptions ProviderSubscription[]
 
   @@index([tenantId])
   @@map("subscription_tiers")
 }
-
 
 // ── Enums: Tenant & Platform ──
 
@@ -1651,12 +1635,13 @@ enum MessageType {
 
 enum ContentCategory {
   ANNOUNCEMENT
-  NEWS
-  EVENT
   BLOG
-  CONSERVATION
-  SERVICES
   CAMPAIGN
+  CONSERVATION
+  EVENT
+  LEGAL
+  NEWS
+  SERVICES
 }
 
 enum ContentLicense {
@@ -1927,4 +1912,5 @@ enum Role {
   AGENT
   MANAGER
   ASSOCIATE
+  PROVIDER
 }

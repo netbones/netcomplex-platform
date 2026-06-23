@@ -199,9 +199,9 @@ export function getVisibleSpaces(role: string, flags: PlatformPageFlags): SpaceD
       return false;
     }
 
-    // Providers space: hide for admin/board (they use /admin/providers)
-    if (spaceId === 'providers' && isAdmin) {
-      return false;
+    // Providers space: only for PROVIDER role (not admin/board — they use /admin/providers)
+    if (spaceId === 'providers') {
+      return normalizedRole === 'PROVIDER';
     }
 
     // Core spaces: always visible (role check already done for admin)
