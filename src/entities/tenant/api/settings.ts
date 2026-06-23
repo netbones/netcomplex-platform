@@ -32,6 +32,10 @@ export const SETTINGS_KEYS = {
 
   // Merit system — optional MERIT record expiry (days as string, default null = never)
   MERIT_EXPIRY_DAYS: 'merit_expiry_days',
+
+  // Machine translation for content — tenant-provided API key
+  TRANSLATION_PROVIDER: 'translation_provider',
+  TRANSLATION_API_KEY: 'translation_api_key',
 } as const;
 
 export type SettingsKey = (typeof SETTINGS_KEYS)[keyof typeof SETTINGS_KEYS];

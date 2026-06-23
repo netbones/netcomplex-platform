@@ -2,13 +2,15 @@
 
 import { useCallback, useState } from 'react';
 import { supportedLanguages, languageNames, type SupportedLanguage } from '@/shared/lib/i18n';
-import { ChevronDown, Languages, Copy, Check } from 'lucide-react';
+import { ChevronDown, Languages, Copy, Check, Globe } from 'lucide-react';
 
 interface LocaleSelectorProps {
   currentLocale: SupportedLanguage;
   availableLocales?: readonly SupportedLanguage[];
   onLocaleChange: (locale: SupportedLanguage) => void;
   onCopyToLocale?: (targetLocale: SupportedLanguage) => void;
+  onTranslateToLocale?: (targetLocale: SupportedLanguage) => Promise<void>;
+  translatingLocale?: SupportedLanguage | null;
   disabled?: boolean;
 }
 
@@ -17,6 +19,8 @@ export function LocaleSelector({
   availableLocales = supportedLanguages,
   onLocaleChange,
   onCopyToLocale,
+  onTranslateToLocale,
+  translatingLocale,
   disabled = false,
 }: LocaleSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,6 +36,16 @@ export function LocaleSelector({
       }
     },
     [onCopyToLocale]
+  );
+
+  const handleTranslateToLocale = useCallback(
+    (targetLocale: SupportedLanguage, e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (onTranslateToLocale) {
+        onTranslateToLocale(targetLocale);
+      }
+    },
+    [onTranslateToLocale]
   );
 
   return (
@@ -57,7 +71,7 @@ export function LocaleSelector({
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute top-full left-0 mt-1 z-50 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[180px]">
+          <div className="absolute top-full left-0 mt-1 z-50 bg-white rounded-lg shadow-lg border border-gray-200 py-1 min-w-[220px]">
             {availableLocales.map(locale => (
               <div key={locale} className="relative">
                 <button
@@ -75,19 +89,36 @@ export function LocaleSelector({
                   <span className="text-xs text-gray-400 uppercase">{locale}</span>
                 </button>
 
-                {onCopyToLocale && locale !== currentLocale && (
-                  <button
-                    type="button"
-                    onClick={e => handleCopyToLocale(locale, e)}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-indigo-600"
-                    title={`Copy ${languageNames[currentLocale]} content to ${languageNames[locale]}`}
-                  >
-                    {copiedLocale === locale ? (
-                      <Check className="w-3.5 h-3.5 text-green-500" />
-                    ) : (
-                      <Copy className="w-3.5 h-3.5" />
+                {locale !== currentLocale && (
+                  <div className="absolute right-12 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+                    {onCopyToLocale && (
+                      <button
+                        type="button"
+                        onClick={e => handleCopyToLocale(locale, e)}
+                        className="p-1 text-gray-400 hover:text-indigo-600"
+                        title={`Copy ${languageNames[currentLocale]} content to ${languageNames[locale]}`}
+                      >
+                        {copiedLocale === locale ? (
+                          <Check className="w-3.5 h-3.5 text-green-500" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                      </button>
                     )}
-                  </button>
+                    {onTranslateToLocale && (
+                      <button
+                        type="button"
+                        onClick={e => handleTranslateToLocale(locale, e)}
+                        disabled={translatingLocale === locale}
+                        className={`p-1 rounded ${translatingLocale === locale ? 'text-indigo-400 animate-pulse' : 'text-gray-400 hover:text-indigo-600'}`}
+                        title={`Auto-translate ${languageNames[currentLocale]} to ${languageNames[locale]}`}
+                      >
+                        <Globe
+                          className={`w-3.5 h-3.5 ${translatingLocale === locale ? 'animate-spin' : ''}`}
+                        />
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             ))}

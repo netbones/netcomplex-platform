@@ -30,6 +30,8 @@ export function LocaleAwareEditor({
   onLocaleChange,
 }: LocaleAwareEditorProps) {
   const [activeLocale, setActiveLocale] = useState<SupportedLanguage>(currentLocale);
+  const [translatingLocale, setTranslatingLocale] = useState<SupportedLanguage | null>(null);
+  const [translateError, setTranslateError] = useState<string | null>(null);
 
   const handleLocaleChange = useCallback(
     (locale: SupportedLanguage) => {
@@ -60,6 +62,46 @@ export function LocaleAwareEditor({
     [content, activeLocale, onChange]
   );
 
+  const handleTranslateToLocale = useCallback(
+    async (targetLocale: SupportedLanguage) => {
+      const sourceContent = content[activeLocale];
+      if (!sourceContent) return;
+
+      setTranslatingLocale(targetLocale);
+      setTranslateError(null);
+
+      try {
+        const res = await fetch('/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sourceLocale: activeLocale,
+            targetLocale,
+            content: sourceContent,
+          }),
+        });
+
+        const body = await res.json();
+        if (!res.ok) {
+          throw new Error(body?.error?.message ?? 'Translation failed');
+        }
+
+        const translatedContent = body?.data?.content ?? body?.content;
+        if (translatedContent) {
+          onChange({
+            ...content,
+            [targetLocale]: translatedContent,
+          });
+        }
+      } catch (err) {
+        setTranslateError(err instanceof Error ? err.message : 'Translation failed');
+      } finally {
+        setTranslatingLocale(null);
+      }
+    },
+    [content, activeLocale, onChange]
+  );
+
   const currentContent = content[activeLocale] || '';
 
   const availableLocales = supportedLanguages.filter(
@@ -75,11 +117,13 @@ export function LocaleAwareEditor({
           onLocaleChange={handleLocaleChange}
         />
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">Copy to:</span>
+          <span className="text-sm text-gray-500">Translate to:</span>
           <LocaleSelector
             currentLocale={activeLocale}
             onLocaleChange={handleLocaleChange}
             onCopyToLocale={handleCopyToLocale}
+            onTranslateToLocale={handleTranslateToLocale}
+            translatingLocale={translatingLocale}
           />
         </div>
       </div>
@@ -98,6 +142,7 @@ export function LocaleAwareEditor({
         {Object.keys(content).length > 1 && (
           <span className="ml-2">{Object.keys(content).length} translations available</span>
         )}
+        {translateError && <span className="ml-2 text-rose-600">{translateError}</span>}
       </div>
     </div>
   );
