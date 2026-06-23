@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
+import { Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
 import { authClient } from '@api/client';
 import { createComponentLogger } from '@shared/lib';
 
@@ -131,20 +132,28 @@ export function MediaLibrary({
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setViewMode('grid')}
-            className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
-            title="Grid view"
-          >
-            <i className="fas fa-th-large"></i>
-          </button>
-          <button
-            onClick={() => setViewMode('carousel')}
-            className={`p-2 rounded-md ${viewMode === 'carousel' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
-            title="Carousel view"
-          >
-            <i className="fas fa-images"></i>
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+              >
+                <i className="fas fa-th-large"></i>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Grid view</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => setViewMode('carousel')}
+                className={`p-2 rounded-md ${viewMode === 'carousel' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+              >
+                <i className="fas fa-images"></i>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Carousel view</TooltipContent>
+          </Tooltip>
         </div>
         <span className="text-sm text-gray-500">{images.length} images</span>
       </div>
@@ -204,36 +213,48 @@ export function MediaLibrary({
                     <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        copyToClipboard(img.url);
-                      }}
-                      className="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100"
-                      title="Copy URL"
-                    >
-                      <i className="fas fa-link"></i>
-                    </button>
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        window.open(img.url, '_blank');
-                      }}
-                      className="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100"
-                      title="View"
-                    >
-                      <i className="fas fa-external-link-alt"></i>
-                    </button>
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        handleDelete(img.key);
-                      }}
-                      className="p-2 bg-red-500 rounded-full text-white hover:bg-red-600"
-                      title="Delete"
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            copyToClipboard(img.url);
+                          }}
+                          className="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100"
+                        >
+                          <i className="fas fa-link"></i>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy URL</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            window.open(img.url, '_blank');
+                          }}
+                          className="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100"
+                        >
+                          <i className="fas fa-external-link-alt"></i>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>View</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleDelete(img.key);
+                          }}
+                          className="p-2 bg-red-500 rounded-full text-white hover:bg-red-600"
+                        >
+                          <i className="fas fa-trash"></i>
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Delete</TooltipContent>
+                    </Tooltip>
                   </div>
                   <div className="p-2 text-xs text-gray-500 truncate">{formatSize(img.size)}</div>
                 </div>
@@ -287,27 +308,39 @@ export function MediaLibrary({
                 </div>
                 {/* Actions */}
                 <div className="absolute top-4 right-4 flex gap-2">
-                  <button
-                    onClick={() => copyToClipboard(images[selectedIndex].url)}
-                    className="p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
-                    title="Copy URL"
-                  >
-                    <i className="fas fa-link"></i>
-                  </button>
-                  <button
-                    onClick={() => window.open(images[selectedIndex].url, '_blank')}
-                    className="p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
-                    title="View full"
-                  >
-                    <i className="fas fa-external-link-alt"></i>
-                  </button>
-                  <button
-                    onClick={() => handleDelete(images[selectedIndex].key)}
-                    className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                    title="Delete"
-                  >
-                    <i className="fas fa-trash"></i>
-                  </button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => copyToClipboard(images[selectedIndex].url)}
+                        className="p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+                      >
+                        <i className="fas fa-link"></i>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Copy URL</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => window.open(images[selectedIndex].url, '_blank')}
+                        className="p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+                      >
+                        <i className="fas fa-external-link-alt"></i>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>View full</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleDelete(images[selectedIndex].key)}
+                        className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Delete</TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
 

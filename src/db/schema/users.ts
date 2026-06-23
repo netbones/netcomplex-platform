@@ -18,6 +18,14 @@ export const users = pgTable('user', {
   isPublic: boolean('isPublic').default(true).notNull(),
   showEmail: boolean('showEmail').default(true).notNull(),
   showPhone: boolean('showPhone').default(true).notNull(),
+  notificationPreferences: jsonb('notificationPreferences')
+    .default({
+      info: { inApp: true, email: true },
+      warning: { inApp: true, email: true },
+      success: { inApp: true, email: true },
+      error: { inApp: true, email: true },
+    })
+    .notNull(),
   profileSlug: text('profileSlug'),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),

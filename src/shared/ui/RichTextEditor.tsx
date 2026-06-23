@@ -17,6 +17,7 @@ import { FontFamily } from './FontFamily';
 import { common, createLowlight } from 'lowlight';
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { toast } from 'sonner';
+import { Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
 
 const lowlight = createLowlight(common);
 
@@ -64,6 +65,26 @@ const COLORS = [
   { label: 'Purple', value: '#a855f7' },
   { label: 'Violet', value: '#8b5cf6' },
 ];
+
+function ToolbarButton({
+  title,
+  children,
+  ...props
+}: {
+  title: string;
+  children: React.ReactNode;
+} & React.ComponentPropsWithoutRef<'button'>) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button title={title} {...props}>
+          {children}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>{title}</TooltipContent>
+    </Tooltip>
+  );
+}
 
 export function RichTextEditor({
   content,
@@ -286,50 +307,51 @@ export function RichTextEditor({
     <div className="border border-gray-300 rounded-lg overflow-hidden">
       <div className="bg-gray-50 border-b border-gray-300 px-2 py-1 flex flex-wrap gap-1 items-center">
         {/* Text formatting */}
-        <button
+        <ToolbarButton
+          title="Bold (Ctrl+B)"
           type="button"
           onClick={() => editor.chain().focus().toggleBold().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('bold') ? 'bg-gray-200' : ''}`}
-          title="Bold (Ctrl+B)"
         >
           <i className="fas fa-bold"></i>
-        </button>
-        <button
+        </ToolbarButton>
+        <ToolbarButton
+          title="Italic (Ctrl+I)"
           type="button"
           onClick={() => editor.chain().focus().toggleItalic().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('italic') ? 'bg-gray-200' : ''}`}
-          title="Italic (Ctrl+I)"
         >
           <i className="fas fa-italic"></i>
-        </button>
-        <button
+        </ToolbarButton>
+        <ToolbarButton
+          title="Underline (Ctrl+U)"
           type="button"
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('underline') ? 'bg-gray-200' : ''}`}
-          title="Underline (Ctrl+U)"
         >
           <i className="fas fa-underline"></i>
-        </button>
-        <button
+        </ToolbarButton>
+        <ToolbarButton
+          title="Strikethrough"
           type="button"
           onClick={() => editor.chain().focus().toggleStrike().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('strike') ? 'bg-gray-200' : ''}`}
-          title="Strikethrough"
         >
           <i className="fas fa-strikethrough"></i>
-        </button>
-        <button
+        </ToolbarButton>
+        <ToolbarButton
+          title="Highlight"
           type="button"
           onClick={() => editor.chain().focus().toggleHighlight().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('highlight') ? 'bg-yellow-200' : ''}`}
-          title="Highlight"
         >
           <i className="fas fa-highlighter"></i>
-        </button>
+        </ToolbarButton>
 
         {/* Font Family */}
         <div className="relative" ref={fontFamilyRef}>
-          <button
+          <ToolbarButton
+            title="Font Family"
             type="button"
             onClick={() => {
               setShowFontFamily(!showFontFamily);
@@ -337,10 +359,9 @@ export function RichTextEditor({
               setShowColor(false);
             }}
             className="p-2 rounded hover:bg-gray-200 text-sm font-medium"
-            title="Font Family"
           >
             <i className="fas fa-font"></i>
-          </button>
+          </ToolbarButton>
           {showFontFamily && (
             <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-2 min-w-[150px]">
               {FONT_FAMILIES.map(font => (
@@ -365,7 +386,8 @@ export function RichTextEditor({
 
         {/* Font size */}
         <div className="relative" ref={fontSizeRef}>
-          <button
+          <ToolbarButton
+            title="Font Size"
             type="button"
             onClick={() => {
               setShowFontSize(!showFontSize);
@@ -373,10 +395,9 @@ export function RichTextEditor({
               setShowFontFamily(false);
             }}
             className="p-2 rounded hover:bg-gray-200 text-sm font-medium"
-            title="Font Size"
           >
             <i className="fas fa-text-height"></i>
-          </button>
+          </ToolbarButton>
           {showFontSize && (
             <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-2 grid grid-cols-2 gap-1 min-w-[120px]">
               {FONT_SIZES.map(size => (
@@ -398,7 +419,8 @@ export function RichTextEditor({
 
         {/* Color */}
         <div className="relative" ref={colorRef}>
-          <button
+          <ToolbarButton
+            title="Text Color"
             type="button"
             onClick={() => {
               setShowColor(!showColor);
@@ -406,22 +428,24 @@ export function RichTextEditor({
               setShowFontFamily(false);
             }}
             className="p-2 rounded hover:bg-gray-200"
-            title="Text Color"
           >
             <i className="fas fa-palette"></i>
-          </button>
+          </ToolbarButton>
           {showColor && (
             <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-3 min-w-[200px]">
               <p className="text-xs text-gray-500 mb-2">Text Color</p>
               <div className="grid grid-cols-6 gap-2">
                 {COLORS.map(color => (
-                  <button
-                    key={color.value}
-                    onClick={() => setColor(color.value)}
-                    className="w-8 h-8 rounded-lg border-2 hover:scale-110 transition-transform shadow-sm"
-                    style={{ backgroundColor: color.value }}
-                    title={color.label}
-                  />
+                  <Tooltip key={color.value}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => setColor(color.value)}
+                        className="w-8 h-8 rounded-lg border-2 hover:scale-110 transition-transform shadow-sm"
+                        style={{ backgroundColor: color.value }}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>{color.label}</TooltipContent>
+                  </Tooltip>
                 ))}
               </div>
             </div>
@@ -431,36 +455,37 @@ export function RichTextEditor({
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
 
         {/* Alignment */}
-        <button
+        <ToolbarButton
+          title="Align Left"
           type="button"
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'left' }) ? 'bg-gray-200' : ''}`}
-          title="Align Left"
         >
           <i className="fas fa-align-left"></i>
-        </button>
-        <button
+        </ToolbarButton>
+        <ToolbarButton
+          title="Align Center"
           type="button"
           onClick={() => editor.chain().focus().setTextAlign('center').run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'center' }) ? 'bg-gray-200' : ''}`}
-          title="Align Center"
         >
           <i className="fas fa-align-center"></i>
-        </button>
-        <button
+        </ToolbarButton>
+        <ToolbarButton
+          title="Align Right"
           type="button"
           onClick={() => editor.chain().focus().setTextAlign('right').run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive({ textAlign: 'right' }) ? 'bg-gray-200' : ''}`}
-          title="Align Right"
         >
           <i className="fas fa-align-right"></i>
-        </button>
+        </ToolbarButton>
 
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
 
         {/* Heading dropdown */}
         <div className="relative" ref={headingRef}>
-          <button
+          <ToolbarButton
+            title="Heading"
             type="button"
             onClick={() => {
               setShowHeading(!showHeading);
@@ -469,10 +494,9 @@ export function RichTextEditor({
               setShowColor(false);
             }}
             className="p-2 rounded hover:bg-gray-200 text-xs font-bold"
-            title="Heading"
           >
             {getCurrentHeading()}
-          </button>
+          </ToolbarButton>
           {showHeading && (
             <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg z-20 p-1 min-w-[120px]">
               {HEADINGS.map(h => (
@@ -496,101 +520,101 @@ export function RichTextEditor({
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
 
         {/* Lists */}
-        <button
+        <ToolbarButton
+          title="Bullet List"
           type="button"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('bulletList') ? 'bg-gray-200' : ''}`}
-          title="Bullet List"
         >
           <i className="fas fa-list-ul"></i>
-        </button>
-        <button
+        </ToolbarButton>
+        <ToolbarButton
+          title="Numbered List"
           type="button"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('orderedList') ? 'bg-gray-200' : ''}`}
-          title="Numbered List"
         >
           <i className="fas fa-list-ol"></i>
-        </button>
+        </ToolbarButton>
 
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
 
         {/* Blocks */}
-        <button
+        <ToolbarButton
+          title="Quote"
           type="button"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('blockquote') ? 'bg-gray-200' : ''}`}
-          title="Quote"
         >
           <i className="fas fa-quote-right"></i>
-        </button>
-        <button
+        </ToolbarButton>
+        <ToolbarButton
+          title="Code Block"
           type="button"
           onClick={() => editor.chain().focus().toggleCodeBlock().run()}
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('codeBlock') ? 'bg-gray-200' : ''}`}
-          title="Code Block"
         >
           <i className="fas fa-code"></i>
-        </button>
+        </ToolbarButton>
 
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
 
         {/* Images */}
-        <button
+        <ToolbarButton
+          title="Upload Image"
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
           className={`p-2 rounded hover:bg-gray-200 ${uploading ? 'opacity-50' : ''}`}
-          title="Upload Image"
         >
           {uploading ? (
             <i className="fas fa-spinner fa-spin"></i>
           ) : (
             <i className="fas fa-image"></i>
           )}
-        </button>
-        <button
+        </ToolbarButton>
+        <ToolbarButton
+          title="Media Library"
           type="button"
           onClick={openMediaLibrary}
           className="p-2 rounded hover:bg-gray-200"
-          title="Media Library"
         >
           <i className="fas fa-images"></i>
-        </button>
+        </ToolbarButton>
 
         <span className="w-px h-6 bg-gray-300 mx-1"></span>
 
         {/* Undo/Redo */}
-        <button
+        <ToolbarButton
+          title="Undo (Ctrl+Z)"
           type="button"
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo()}
           className="p-2 rounded hover:bg-gray-200 disabled:opacity-50"
-          title="Undo (Ctrl+Z)"
         >
           <i className="fas fa-undo"></i>
-        </button>
-        <button
+        </ToolbarButton>
+        <ToolbarButton
+          title="Redo (Ctrl+Shift+Z)"
           type="button"
           onClick={() => editor.chain().focus().redo().run()}
           disabled={!editor.can().redo()}
           className="p-2 rounded hover:bg-gray-200 disabled:opacity-50"
-          title="Redo (Ctrl+Shift+Z)"
         >
           <i className="fas fa-redo"></i>
-        </button>
+        </ToolbarButton>
 
         {onDraftSave && (
           <>
             <span className="w-px h-6 bg-gray-300 mx-1"></span>
-            <button
+            <ToolbarButton
+              title="Save Draft"
               type="button"
               onClick={handleDraftSave}
               className="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200"
-              title="Save Draft"
             >
               Save Draft
-            </button>
+            </ToolbarButton>
           </>
         )}
         {lastSaved && (

@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { httpBatchLink } from '@trpc/client';
 import superjson from 'superjson';
+import { Toaster } from 'sonner';
 import { authClient, trpc } from '@api/client';
 import { TooltipProvider } from '@shared/ui';
 // eslint-disable-next-line no-restricted-imports -- barrel deliberately excludes client-only i18n
@@ -45,7 +46,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>{children}</TooltipProvider>
+        <TooltipProvider>
+          <Toaster position="top-right" />
+          {children}
+        </TooltipProvider>
       </QueryClientProvider>
     </trpc.Provider>
   );

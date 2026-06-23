@@ -526,6 +526,8 @@ export function CompetitionList() {
     if (res.ok) {
       setCompetitions(competitions.filter(c => c.id !== id));
       toast.success('Competition deleted');
+    } else {
+      toast.error('Failed to delete competition');
     }
     setDeleteId(null);
   };

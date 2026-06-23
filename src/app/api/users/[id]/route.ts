@@ -57,6 +57,7 @@ export const GET = withErrorHandler(
         isPublic: users.isPublic,
         showEmail: users.showEmail,
         showPhone: users.showPhone,
+        notificationPreferences: users.notificationPreferences,
         role: users.role,
         createdAt: users.createdAt,
         profileSlug: users.profileSlug,
@@ -82,6 +83,7 @@ export const GET = withErrorHandler(
           isPublic: users.isPublic,
           showEmail: users.showEmail,
           showPhone: users.showPhone,
+          notificationPreferences: users.notificationPreferences,
           role: users.role,
           createdAt: users.createdAt,
           profileSlug: users.profileSlug,
@@ -346,6 +348,9 @@ export const PATCH = withErrorHandler(
     }
     if (body.profileData !== undefined) {
       updateData.profileData = body.profileData;
+    }
+    if (body.notificationPreferences !== undefined) {
+      updateData.notificationPreferences = body.notificationPreferences;
     }
 
     const updatedUser = await db

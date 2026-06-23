@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
-import { Toaster } from 'sonner';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,10 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default async function PlatformLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <Toaster position="top-right" />
-      <Suspense fallback={null}>{children}</Suspense>
-    </>
-  );
+  return <Suspense fallback={null}>{children}</Suspense>;
 }

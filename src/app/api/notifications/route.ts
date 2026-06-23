@@ -107,7 +107,12 @@ export async function POST(request: Request) {
 
   // Send email notification if requested and user has email notifications enabled
   if (sendEmailNotification) {
-    await sendEmailNotificationIfEnabled(targetUserId, body.title, body.message).catch(error => {
+    await sendEmailNotificationIfEnabled(
+      targetUserId,
+      body.title,
+      body.message,
+      body.type || 'info'
+    ).catch(error => {
       logError(
         { component: 'notifications-api', operation: 'SEND_EMAIL' },
         'Failed to send email notification',
@@ -171,7 +176,8 @@ export async function PATCH(request: Request) {
 async function sendEmailNotificationIfEnabled(
   userId: string,
   title: string,
-  message: string
+  message: string,
+  type: string = 'info'
 ): Promise<void> {
   try {
     // Get user and check email notification preference
@@ -182,10 +188,12 @@ async function sendEmailNotificationIfEnabled(
       return;
     }
 
-    // Check if user has email notifications enabled
-    // Using showEmail as a proxy for email notification preference
-    if (!user.showEmail) {
-      notifyLogger.debug({ userId }, 'User has email notifications disabled');
+    // Check per-type notification preference (fall back to showEmail for backward compat)
+    const prefs = user.notificationPreferences as Record<string, { email?: boolean }> | null;
+    const emailEnabled = prefs?.[type]?.email ?? user.showEmail;
+
+    if (!emailEnabled) {
+      notifyLogger.debug({ userId, type }, 'Email notifications disabled for this type');
       return;
     }
 

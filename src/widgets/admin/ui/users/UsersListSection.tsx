@@ -75,19 +75,27 @@ export function UsersListSection() {
   };
 
   const handleRevoke = async (id: string) => {
-    await fetch(`/api/invitations/${id}`, { method: 'DELETE' });
-    setInvitations(invitations.filter(i => i.id !== id));
-    toast.success(t('inviteRevoked'));
+    const res = await fetch(`/api/invitations/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      setInvitations(invitations.filter(i => i.id !== id));
+      toast.success(t('inviteRevoked'));
+    } else {
+      toast.error(t('inviteFailed'));
+    }
   };
 
   const updateUser = async (id: string, data: Record<string, string>) => {
-    await fetch(`/api/users/${id}`, {
+    const res = await fetch(`/api/users/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-    setUsers(users.map(u => (u.id === id ? { ...u, ...data } : u)));
-    toast.success(t('userUpdated'));
+    if (res.ok) {
+      setUsers(users.map(u => (u.id === id ? { ...u, ...data } : u)));
+      toast.success(t('userUpdated'));
+    } else {
+      toast.error(t('inviteFailed'));
+    }
   };
 
   const handleDelete = async () => {

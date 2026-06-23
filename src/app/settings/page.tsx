@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Breadcrumbs, ErrorBoundary, ImageUpload } from '@shared/ui';
@@ -42,6 +42,18 @@ export default function SettingsPage() {
   const [userAvatar, setUserAvatar] = useState<string>('');
   const [isOwner, setIsOwner] = useState(false);
   const [planType, setPlanType] = useState<string>('');
+  const [notificationPrefs, setNotificationPrefs] = useState<
+    Record<string, { inApp: boolean; email: boolean }>
+  >({});
+  const [notifSaving, setNotifSaving] = useState(false);
+
+  const NOTIF_TYPES = ['info', 'warning', 'success', 'error'] as const;
+  const NOTIF_LABELS: Record<string, string> = {
+    info: 'General updates',
+    warning: 'Warnings & alerts',
+    success: 'Success confirmations',
+    error: 'Error notices',
+  };
 
   const { data: userData, isLoading: loadingHousehold } = useSettings(session?.user?.id);
 
@@ -52,6 +64,7 @@ export default function SettingsPage() {
     if (data.showEmail !== undefined) setShowEmail(data.showEmail);
     if (data.showPhone !== undefined) setShowPhone(data.showPhone);
     if (data.avatar || data.image) setUserAvatar(data.avatar || data.image);
+    if (data.notificationPreferences) setNotificationPrefs(data.notificationPreferences);
 
     if (data.premiumSeat) {
       setPlanType('Premium');
@@ -91,6 +104,16 @@ export default function SettingsPage() {
       setSaving(false);
     }
   };
+
+  const toggleNotifPref = useCallback((type: string, channel: 'inApp' | 'email') => {
+    setNotificationPrefs(prev => ({
+      ...prev,
+      [type]: {
+        ...(prev[type] || { inApp: true, email: true }),
+        [channel]: !(prev[type]?.[channel] ?? true),
+      },
+    }));
+  }, []);
 
   if (sessionLoading || !isReady) {
     return LoadingComponent;
@@ -250,6 +273,74 @@ export default function SettingsPage() {
               <p className="mt-1 text-gray-900 capitalize">{planType || 'Loading...'}</p>
             </div>
           </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Notifications</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            Choose which types of notifications you receive and how.
+          </p>
+          <div className="space-y-3">
+            {NOTIF_TYPES.map(type => {
+              const pref = notificationPrefs[type] || { inApp: true, email: true };
+              return (
+                <div
+                  key={type}
+                  className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
+                >
+                  <span className="text-sm font-medium text-gray-700 capitalize w-32">
+                    {NOTIF_LABELS[type]}
+                  </span>
+                  <div className="flex items-center gap-6">
+                    <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={pref.inApp}
+                        onChange={() => toggleNotifPref(type, 'inApp')}
+                        className="w-4 h-4 text-soralia-primary border-gray-300 rounded focus:ring-soralia-primary"
+                      />
+                      In-app
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={pref.email}
+                        onChange={() => toggleNotifPref(type, 'email')}
+                        className="w-4 h-4 text-soralia-primary border-gray-300 rounded focus:ring-soralia-primary"
+                      />
+                      Email
+                    </label>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <button
+            onClick={async () => {
+              if (!session?.user?.id) return;
+              setNotifSaving(true);
+              try {
+                const res = await fetch(`/api/users/${session.user.id}`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ notificationPreferences: notificationPrefs }),
+                });
+                if (res.ok) {
+                  toast.success('Notification preferences saved');
+                } else {
+                  toast.error('Failed to save notification preferences');
+                }
+              } catch {
+                toast.error('Failed to save notification preferences');
+              } finally {
+                setNotifSaving(false);
+              }
+            }}
+            disabled={notifSaving}
+            className="mt-4 px-4 py-2 bg-soralia-primary text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+          >
+            {notifSaving ? 'Saving...' : 'Save Notification Preferences'}
+          </button>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">

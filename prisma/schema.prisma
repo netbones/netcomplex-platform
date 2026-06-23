@@ -115,6 +115,7 @@ model user {
   isPublic                                              Boolean                   @default(true)
   showEmail                                             Boolean                   @default(true)
   showPhone                                             Boolean                   @default(true)
+  notificationPreferences                                Json?                     @default("{\"info\":{\"inApp\":true,\"email\":true},\"warning\":{\"inApp\":true,\"email\":true},\"success\":{\"inApp\":true,\"email\":true},\"error\":{\"inApp\":true,\"email\":true}}")
   profileSlug                                           String?
   createdAt                                             DateTime                  @default(now())
   updatedAt                                             DateTime                  @default(now()) @updatedAt
