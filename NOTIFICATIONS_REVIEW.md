@@ -3,7 +3,7 @@
 **System:** In-App Notifications + Email  
 **Documented:** 2026-06-23 by GSD Review  
 **BD Tracking:** `soralia-village-oi9x`  
-**Last Updated:** 2026-06-23 — P1–P2 items + schema hardening + preferences page
+**Last Updated:** 2026-06-23 — P1–P3 items + schema hardening + preferences + realtime
 
 ---
 
@@ -180,7 +180,7 @@ The notification system is a **basic but functional in-app notification layer** 
 | ✅ Done  | P2: Add `readAt` timestamp                       | 1h     | ✅ 2026-06-23 |
 | ✅ Done  | P3: Add `senderId` for attribution               | 0.5h   | ✅ 2026-06-23 |
 | ✅ Done  | P2: Build notification preferences page          | 4h     | ✅ 2026-06-23 |
-| P3       | Implement Supabase Realtime subscription         | 3h     |               |
+| ✅ Done  | P3: Implement Supabase Realtime subscription     | 3h     | ✅ 2026-06-23 |
 | P3       | Queue email sends with retry                     | 4h     |               |
 | P3       | Add bulk read endpoint                           | 2h     |               |
 | P3       | Add `PUT` with idempotency key                   | 2h     |               |
@@ -197,6 +197,10 @@ The notification system is a **basic but functional in-app notification layer** 
 **PATCH readAt:** `PATCH /api/notifications` now sets `readAt: now()` alongside `read: true`.
 
 **Frontend polling:** `NotificationsWidget` polls `GET /api/notifications?unread=true` every 30 seconds. Falls back gracefully on error.
+
+**Supabase Realtime:** `POST /api/notifications` broadcasts to `notifications:{userId}` channel after insert. `useNotifSubscription` hook subscribes on the client, shows a toast, and triggers an unread count refresh. Polling retained as fallback. Follows the same broadcast pattern as `src/app/api/messages/route.ts`.
+
+All P1–P3 items complete. Remaining work is P3 (queued emails, bulk read, idempotent PUT, ARIA).
 
 ---
 
