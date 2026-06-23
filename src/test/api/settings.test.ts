@@ -111,7 +111,9 @@ describe('Settings API', () => {
       ];
       mocks.dbMock.select.mockReturnValue(makeSelectChain(settings));
 
-      const response = await GET(new Request('http://localhost:3000/api/settings') as any);
+      const response = await GET(
+        new Request('http://localhost:3000/api/settings') as unknown as Request
+      );
       const body = await response.json();
 
       expect(response.status).toBe(200);
@@ -122,7 +124,9 @@ describe('Settings API', () => {
       const setting = { id: 's1', key: 'site_name', value: 'Soralia', tenantId: 'test-tenant-id' };
       mocks.dbMock.select.mockReturnValue(makeSelectChain([setting]));
 
-      const response = await GET(new Request('http://localhost:3000/api/settings?key=site_name') as any);
+      const response = await GET(
+        new Request('http://localhost:3000/api/settings?key=site_name') as unknown as Request
+      );
       const body = await response.json();
 
       expect(response.status).toBe(200);
@@ -132,7 +136,9 @@ describe('Settings API', () => {
     it('returns null value for missing key filter', async () => {
       mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
 
-      const response = await GET(new Request('http://localhost:3000/api/settings?key=nonexistent') as any);
+      const response = await GET(
+        new Request('http://localhost:3000/api/settings?key=nonexistent') as unknown as Request
+      );
       const body = await response.json();
 
       expect(response.status).toBe(200);
@@ -142,7 +148,9 @@ describe('Settings API', () => {
     it('returns 403 without auth session', async () => {
       mocks.authSession = null;
 
-      const response = await GET(new Request('http://localhost:3000/api/settings') as any);
+      const response = await GET(
+        new Request('http://localhost:3000/api/settings') as unknown as Request
+      );
       expect(response.status).toBe(403);
     });
 
@@ -150,14 +158,18 @@ describe('Settings API', () => {
       const { hasPermission } = await import('@shared/lib');
       vi.mocked(hasPermission).mockReturnValueOnce(false);
 
-      const response = await GET(new Request('http://localhost:3000/api/settings') as any);
+      const response = await GET(
+        new Request('http://localhost:3000/api/settings') as unknown as Request
+      );
       expect(response.status).toBe(403);
     });
 
     it('returns empty array when no settings exist', async () => {
       mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
 
-      const response = await GET(new Request('http://localhost:3000/api/settings') as any);
+      const response = await GET(
+        new Request('http://localhost:3000/api/settings') as unknown as Request
+      );
       const body = await response.json();
 
       expect(response.status).toBe(200);
@@ -167,7 +179,12 @@ describe('Settings API', () => {
 
   describe('POST', () => {
     it('creates a new setting', async () => {
-      const created = { id: 'site_name', key: 'site_name', value: 'Soralia', tenantId: 'test-tenant-id' };
+      const created = {
+        id: 'site_name',
+        key: 'site_name',
+        value: 'Soralia',
+        tenantId: 'test-tenant-id',
+      };
       mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
       mocks.dbMock.insert.mockReturnValue({
         values: vi.fn().mockReturnValue({
@@ -195,7 +212,12 @@ describe('Settings API', () => {
     });
 
     it('updates an existing setting', async () => {
-      const existing = { id: 'site_name', key: 'site_name', value: 'Old Name', tenantId: 'test-tenant-id' };
+      const existing = {
+        id: 'site_name',
+        key: 'site_name',
+        value: 'Old Name',
+        tenantId: 'test-tenant-id',
+      };
       const updated = { ...existing, value: 'Soralia' };
       mocks.dbMock.select.mockReturnValue(makeSelectChain([existing]));
       mocks.dbMock.update.mockReturnValue({

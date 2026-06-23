@@ -5,7 +5,6 @@ import {
   users,
   revalidateContent,
   apiCreated,
-  apiError,
   apiForbidden,
   apiSuccess,
   apiUnauthorized,

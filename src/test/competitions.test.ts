@@ -139,16 +139,12 @@ vi.mock('@shared/lib', () => ({
 // Import route handlers after mocking
 import { GET as COMPETITIONS_GET, POST as COMPETITIONS_POST } from '@/app/api/competitions/route';
 import {
-  GET as COMPETITION_GET,
   PATCH as COMPETITION_PATCH,
   DELETE as COMPETITION_DELETE,
 } from '@/app/api/competitions/[id]/route';
-import { GET as TENANTS_GET, POST as TENANTS_POST } from '@/app/api/admin/platform/tenants/route';
+import { GET as TENANTS_GET } from '@/app/api/admin/platform/tenants/route';
 import { GET as ASSIST_GET, POST as ASSIST_POST } from '@/app/api/admin/platform/assist/route';
-import {
-  DELETE as ASSIST_REVOKE,
-  PATCH as ASSIST_EXTEND,
-} from '@/app/api/admin/platform/assist/[id]/route';
+import { DELETE as ASSIST_REVOKE } from '@/app/api/admin/platform/assist/[id]/route';
 import { auth } from '@api/server';
 
 // Helper: create a full chainable select
@@ -213,7 +209,6 @@ describe('Competition API', () => {
 
       const request = new Request('http://localhost/api/competitions?upcoming=true');
       const response = await COMPETITIONS_GET(request);
-      const data = await response.json();
 
       expect(response.status).toBe(200);
     });
@@ -400,7 +395,6 @@ describe('Platform Admin API', () => {
 
       const request = new Request('http://localhost/api/admin/platform/tenants');
       const response = await TENANTS_GET(request as never);
-      const data = await response.json();
 
       expect(response.status).toBe(403);
     });
@@ -466,7 +460,6 @@ describe('Platform Admin API', () => {
       });
 
       const response = await ASSIST_POST(request as never);
-      const data = await response.json();
 
       expect(response.status).toBe(403);
     });
@@ -486,7 +479,6 @@ describe('Platform Admin API', () => {
       });
 
       const response = await ASSIST_REVOKE(request as never, { params });
-      const data = await response.json();
 
       expect(response.status).toBe(404);
     });

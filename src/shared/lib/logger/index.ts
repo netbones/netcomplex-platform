@@ -29,8 +29,6 @@ export const dbLogger = createLogger('database');
 export const authLogger = createLogger('auth');
 export const uploadLogger = createLogger('upload');
 
-type LogLevel = 'error' | 'warn' | 'info' | 'debug';
-
 interface LogContext {
   component?: string;
   [key: string]: unknown;

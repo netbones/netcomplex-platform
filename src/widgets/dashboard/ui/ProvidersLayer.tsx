@@ -8,7 +8,7 @@ import { ErrorBoundary } from '@shared/ui';
 import {
   EmptyProviderState,
   ProviderAnalyticsWidget,
-  ProviderCreditProgressWidget,
+  ProviderReputationProgressWidget,
   ProviderInquiriesWidget,
   ProviderOverviewWidget,
   ProviderListingsWidget,
@@ -64,8 +64,8 @@ function ProvidersLayerInner() {
         <div>
           <h1 className="text-3xl font-semibold text-gray-900">Providers</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Track provider verification, listing performance, inquiries, and your community credit
-            progress.
+            Track provider verification, listing performance, inquiries, and your community
+            reputation progress.
           </p>
         </div>
         <Link
@@ -80,7 +80,7 @@ function ProvidersLayerInner() {
         <ProviderOverviewWidget />
         <ProviderAnalyticsWidget />
         <ProviderListingsWidget />
-        <ProviderCreditProgressWidget />
+        <ProviderReputationProgressWidget />
       </div>
 
       <ProviderInquiriesWidget />

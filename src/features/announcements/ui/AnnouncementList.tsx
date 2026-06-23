@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { PRIORITY_TAXONOMY, type AnnouncementPriority } from '../model/priority-taxonomy';
 import type { AnnouncementWithResource } from '../model/types';
 

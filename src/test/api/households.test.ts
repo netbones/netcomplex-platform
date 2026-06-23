@@ -119,7 +119,9 @@ describe('Households API', () => {
   it('returns 401 without auth', async () => {
     mocks.sessionResult = null;
 
-    const response = await GET(new Request('http://localhost:3000/api/households') as any);
+    const response = await GET(
+      new Request('http://localhost:3000/api/households') as unknown as Request
+    );
 
     expect(response.status).toBe(401);
   });
@@ -127,7 +129,9 @@ describe('Households API', () => {
   it('returns 403 for RESIDENT role', async () => {
     mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'RESIDENT' }]));
 
-    const response = await GET(new Request('http://localhost:3000/api/households') as any);
+    const response = await GET(
+      new Request('http://localhost:3000/api/households') as unknown as Request
+    );
 
     expect(response.status).toBe(403);
   });
@@ -140,7 +144,9 @@ describe('Households API', () => {
       return makeSelectChain([]);
     });
 
-    const response = await GET(new Request('http://localhost:3000/api/households') as any);
+    const response = await GET(
+      new Request('http://localhost:3000/api/households') as unknown as Request
+    );
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -170,13 +176,13 @@ describe('Households API', () => {
       if (callIndex === 4) return makeSelectChain([{ count: 2 }]);
       if (callIndex === 5) return makeSelectChain([{ count: 1 }]);
       if (callIndex === 6)
-        return makeSelectChain([
-          { id: 'user-1', name: 'John Doe', email: 'john@test.com' },
-        ]);
+        return makeSelectChain([{ id: 'user-1', name: 'John Doe', email: 'john@test.com' }]);
       return makeSelectChain([]);
     });
 
-    const response = await GET(new Request('http://localhost:3000/api/households') as any);
+    const response = await GET(
+      new Request('http://localhost:3000/api/households') as unknown as Request
+    );
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -227,17 +233,15 @@ describe('Households API', () => {
       if (callIndex === 6) return makeSelectChain([{ count: 0 }]);
       if (callIndex === 7) return makeSelectChain([{ count: 0 }]);
       if (callIndex === 8)
-        return makeSelectChain([
-          { id: 'user-1', name: 'Alice Smith', email: 'alice@test.com' },
-        ]);
+        return makeSelectChain([{ id: 'user-1', name: 'Alice Smith', email: 'alice@test.com' }]);
       if (callIndex === 9)
-        return makeSelectChain([
-          { id: 'user-2', name: 'Bob Jones', email: 'bob@test.com' },
-        ]);
+        return makeSelectChain([{ id: 'user-2', name: 'Bob Jones', email: 'bob@test.com' }]);
       return makeSelectChain([]);
     });
 
-    const response = await GET(new Request('http://localhost:3000/api/households?search=oak') as any);
+    const response = await GET(
+      new Request('http://localhost:3000/api/households?search=oak') as unknown as Request
+    );
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -279,17 +283,15 @@ describe('Households API', () => {
       if (callIndex === 6) return makeSelectChain([{ count: 0 }]);
       if (callIndex === 7) return makeSelectChain([{ count: 0 }]);
       if (callIndex === 8)
-        return makeSelectChain([
-          { id: 'user-1', name: 'Alice Smith', email: 'alice@test.com' },
-        ]);
+        return makeSelectChain([{ id: 'user-1', name: 'Alice Smith', email: 'alice@test.com' }]);
       if (callIndex === 9)
-        return makeSelectChain([
-          { id: 'user-2', name: 'Bob Jones', email: 'bob@test.com' },
-        ]);
+        return makeSelectChain([{ id: 'user-2', name: 'Bob Jones', email: 'bob@test.com' }]);
       return makeSelectChain([]);
     });
 
-    const response = await GET(new Request('http://localhost:3000/api/households?search=alice') as any);
+    const response = await GET(
+      new Request('http://localhost:3000/api/households?search=alice') as unknown as Request
+    );
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -319,14 +321,12 @@ describe('Households API', () => {
       if (callIndex === 4) return makeSelectChain([{ count: 1 }]);
       if (callIndex === 5) return makeSelectChain([{ count: 0 }]);
       if (callIndex === 6)
-        return makeSelectChain([
-          { id: 'user-1', name: 'Owner', email: 'owner@test.com' },
-        ]);
+        return makeSelectChain([{ id: 'user-1', name: 'Owner', email: 'owner@test.com' }]);
       return makeSelectChain([]);
     });
 
     const response = await GET(
-      new Request('http://localhost:3000/api/households?page=2&limit=5') as any
+      new Request('http://localhost:3000/api/households?page=2&limit=5') as unknown as Request
     );
     const body = await response.json();
 
@@ -347,7 +347,7 @@ describe('Households API', () => {
     });
 
     const response = await GET(
-      new Request('http://localhost:3000/api/households?page=1&limit=999') as any as any
+      new Request('http://localhost:3000/api/households?page=1&limit=999') as unknown as Request
     );
     const body = await response.json();
 
@@ -380,7 +380,9 @@ describe('Households API', () => {
       return makeSelectChain([]);
     });
 
-    const response = await GET(new Request('http://localhost:3000/api/households') as any);
+    const response = await GET(
+      new Request('http://localhost:3000/api/households') as unknown as Request
+    );
     const body = await response.json();
 
     expect(response.status).toBe(200);

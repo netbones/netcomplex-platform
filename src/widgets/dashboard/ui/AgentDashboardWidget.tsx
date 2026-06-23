@@ -33,7 +33,7 @@ export function AgentDashboardWidget() {
         const body = await res.json();
         const data = body.success ? body.data : body;
         setHouseholds(data.properties || []);
-      } catch (err) {
+      } catch {
         setError('Failed to load properties');
       } finally {
         setLoading(false);

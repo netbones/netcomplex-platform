@@ -13,12 +13,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import {
-  auth,
-  db,
-  assistSessions,
-  users,
-} from '@api/server';
+import { auth, db, assistSessions } from '@api/server';
 
 import { eq, and, gt } from 'drizzle-orm';
 

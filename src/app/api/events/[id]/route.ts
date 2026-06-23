@@ -4,7 +4,6 @@ import {
   users,
   revalidateContent,
   auth,
-  apiError,
   apiForbidden,
   apiNotFound,
   apiSuccess,

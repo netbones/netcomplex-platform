@@ -1,4 +1,4 @@
-import { db, contents, users, settings, apiError, apiSuccess, apiInternalError } from '@api/server';
+import { db, contents, users, settings, apiSuccess, apiInternalError } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenantOptional } from '@entities/tenant/server';
@@ -26,7 +26,7 @@ const DEFAULT_CAMPAIGN_CONFIG = {
  * Uses tenant settings if configured, otherwise falls back to defaults.
  * Supports multilingual content.
  */
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
     // Get tenant context (optional for public pages)
     const { tenantId } = await withTenantOptional();

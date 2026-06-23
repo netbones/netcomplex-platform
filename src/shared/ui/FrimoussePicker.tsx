@@ -37,7 +37,7 @@ export function FrimoussePicker({
   size = 'md',
 }: FrimoussePickerProps) {
   const [skinTone, setSkinTone] = useLocalStorage<SkinTone>('emojiSkinTone', initialSkinTone);
-  const [activeEmoji, setActiveEmoji] = useState<{ emoji: string; label: string } | null>(null);
+  const [, setActiveEmoji] = useState<{ emoji: string; label: string } | null>(null);
 
   const handleSkinToneChange = (newTone: string) => {
     const tone = newTone as SkinTone;

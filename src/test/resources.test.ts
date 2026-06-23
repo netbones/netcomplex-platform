@@ -241,7 +241,6 @@ describe('Resource API', () => {
       });
 
       const response = await POST(request);
-      const data = await response.json();
 
       expect(response.status).toBe(201);
       expect(mocks.dbMock.insert).toHaveBeenCalled();
@@ -322,7 +321,6 @@ describe('Resource API', () => {
       const request = new Request('http://localhost/api/resources/other-tenant-resource');
 
       const response = await GET_BY_ID(request, { params });
-      const data = await response.json();
 
       expect(response.status).toBe(404);
     });
@@ -458,7 +456,6 @@ describe('Resource API', () => {
       });
 
       const response = await PATCH(request, { params });
-      const data = await response.json();
 
       expect(response.status).toBe(404);
     });

@@ -10,7 +10,7 @@ import {
   now,
   serviceProviders,
   providerVerifications,
-  providerCredits,
+  providerReputations,
   communityServiceListings,
   type SessionAndRole,
 } from './server';
@@ -33,9 +33,9 @@ export interface ProviderVerificationSnapshot {
   isSuspended: boolean;
 }
 
-export interface ProviderCreditSnapshot {
+export interface ProviderReputationSnapshot {
   providerId: string | null;
-  totalCredits: number;
+  totalScore: number;
   responseTimeScore: number;
   qualityScore: number;
   reviewScore: number;
@@ -52,7 +52,7 @@ export interface ProviderAccessContext {
   tenantId: string;
   providerRecord: typeof serviceProviders.$inferSelect | null;
   verification: ProviderVerificationSnapshot;
-  credits: ProviderCreditSnapshot;
+  reputation: ProviderReputationSnapshot;
   hasProviderListings: boolean;
   accessMode: 'permission' | 'provider-record' | 'provider-listings';
 }
@@ -102,7 +102,10 @@ export async function getProviderRecordForUser(
   return providerRecord ?? null;
 }
 
-export async function hasProviderListingsForUser(tenantId: string, userId: string): Promise<boolean> {
+export async function hasProviderListingsForUser(
+  tenantId: string,
+  userId: string
+): Promise<boolean> {
   const [row] = await db
     .select({ count: sql<number>`count(*)` })
     .from(communityServiceListings)
@@ -166,15 +169,15 @@ export async function getProviderVerificationSnapshot(
   };
 }
 
-export async function getProviderCreditSnapshot(
+export async function getProviderReputationSnapshot(
   tenantId: string,
   providerId: string | null,
   verificationThreshold = 300
-): Promise<ProviderCreditSnapshot> {
+): Promise<ProviderReputationSnapshot> {
   if (!providerId) {
     return {
       providerId: null,
-      totalCredits: 0,
+      totalScore: 0,
       responseTimeScore: 0,
       qualityScore: 0,
       reviewScore: 0,
@@ -187,32 +190,39 @@ export async function getProviderCreditSnapshot(
     };
   }
 
-  const [creditRow] = await db
+  const [reputationRow] = await db
     .select()
-    .from(providerCredits)
-    .where(and(eq(providerCredits.tenantId, tenantId), eq(providerCredits.providerId, providerId)))
+    .from(providerReputations)
+    .where(
+      and(
+        eq(providerReputations.tenantId, tenantId),
+        eq(providerReputations.providerId, providerId)
+      )
+    )
     .limit(1);
 
-  const totalCredits = creditRow?.totalCredits ?? 0;
+  const totalScore = reputationRow?.totalScore ?? 0;
 
   return {
     providerId,
-    totalCredits,
-    responseTimeScore: creditRow?.responseTimeScore ?? 0,
-    qualityScore: creditRow?.qualityScore ?? 0,
-    reviewScore: creditRow?.reviewScore ?? 0,
-    complianceScore: creditRow?.complianceScore ?? 0,
-    engagementScore: creditRow?.engagementScore ?? 0,
+    totalScore,
+    responseTimeScore: reputationRow?.responseTimeScore ?? 0,
+    qualityScore: reputationRow?.qualityScore ?? 0,
+    reviewScore: reputationRow?.reviewScore ?? 0,
+    complianceScore: reputationRow?.complianceScore ?? 0,
+    engagementScore: reputationRow?.engagementScore ?? 0,
     verificationThreshold,
-    remainingToVerification: Math.max(verificationThreshold - totalCredits, 0),
-    progressPercentage: clampPercentage((totalCredits / Math.max(verificationThreshold, 1)) * 100),
-    lastCalculatedAt: toIsoString(creditRow?.lastCalculatedAt),
+    remainingToVerification: Math.max(verificationThreshold - totalScore, 0),
+    progressPercentage: clampPercentage((totalScore / Math.max(verificationThreshold, 1)) * 100),
+    lastCalculatedAt: toIsoString(reputationRow?.lastCalculatedAt),
   };
 }
 
 export async function requireProviderAccess(
   request: Request
-): Promise<ProviderAccessContext | ReturnType<typeof apiUnauthorized> | ReturnType<typeof apiForbidden>> {
+): Promise<
+  ProviderAccessContext | ReturnType<typeof apiUnauthorized> | ReturnType<typeof apiForbidden>
+> {
   const auth = await getSessionAndRole(request);
 
   if (!auth) {
@@ -229,7 +239,7 @@ export async function requireProviderAccess(
   }
 
   const verification = await getProviderVerificationSnapshot(tenantId, providerRecord?.id ?? null);
-  const credits = await getProviderCreditSnapshot(
+  const reputation = await getProviderReputationSnapshot(
     tenantId,
     providerRecord?.id ?? null,
     verification.verificationThreshold
@@ -240,9 +250,13 @@ export async function requireProviderAccess(
     tenantId,
     providerRecord,
     verification,
-    credits,
+    reputation,
     hasProviderListings,
-    accessMode: hasRoleAccess ? 'permission' : providerRecord ? 'provider-record' : 'provider-listings',
+    accessMode: hasRoleAccess
+      ? 'permission'
+      : providerRecord
+        ? 'provider-record'
+        : 'provider-listings',
   };
 }
 

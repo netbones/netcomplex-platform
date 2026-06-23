@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authClient } from '@api/client';
-import { useApiToast } from '@shared/lib/hooks';
 
 interface InvitationData {
   id: string;
@@ -21,22 +20,14 @@ interface InvitationData {
   inviterName: string;
 }
 
-interface ExistingUser {
-  id: string;
-  name: string;
-  emailVerified: boolean | null;
-}
-
 export default function InvitePage() {
   const params = useParams();
   const router = useRouter();
-  const { fetch: apiFetch } = useApiToast({ component: 'InvitePage' });
   const { data: session } = authClient.useSession();
 
   const token = params.token as string;
 
   const [invitation, setInvitation] = useState<InvitationData | null>(null);
-  const [existingUser, setExistingUser] = useState<ExistingUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [accepting, setAccepting] = useState(false);
@@ -56,7 +47,6 @@ export default function InvitePage() {
         }
 
         setInvitation(data.invitation);
-        setExistingUser(data.existingUser);
       } catch {
         setError('Failed to load invitation. Please try again.');
       } finally {

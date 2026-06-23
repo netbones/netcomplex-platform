@@ -1,6 +1,7 @@
 import { and, eq, gte, inArray, isNull, or, sql } from 'drizzle-orm';
-import { db, communityMerits } from '@api/server';
-import { ESCALATION_THRESHOLDS } from '../model/constants';
+import { db, communityMerits, settings } from '@api/server';
+import { ESCALATION_THRESHOLDS, DEFAULT_TIER_THRESHOLDS } from '../model/constants';
+import { SETTINGS_KEYS } from '@entities/tenant/server';
 
 const ACTIVE_STATUSES = ['ACTIVE', 'UPHELD'] as const;
 
@@ -81,4 +82,48 @@ export async function checkAndEscalateStanding(
     return { escalated: true, type: 'REVIEW_FLAG' };
   }
   return { escalated: false };
+}
+
+/**
+ * Read merit tier thresholds from tenant settings, falling back to defaults.
+ */
+export async function getMeritTierThresholds(
+  tenantId: string
+): Promise<{ GOLD: number; SILVER: number; BRONZE: number; PROBATION: number }> {
+  const [row] = await db
+    .select({ value: settings.value })
+    .from(settings)
+    .where(
+      and(eq(settings.tenantId, tenantId), eq(settings.key, SETTINGS_KEYS.MERIT_TIER_THRESHOLDS))
+    )
+    .limit(1);
+
+  if (!row?.value) return { ...DEFAULT_TIER_THRESHOLDS };
+
+  try {
+    const parsed = JSON.parse(row.value);
+    return {
+      GOLD: Number(parsed.GOLD ?? DEFAULT_TIER_THRESHOLDS.GOLD),
+      SILVER: Number(parsed.SILVER ?? DEFAULT_TIER_THRESHOLDS.SILVER),
+      BRONZE: Number(parsed.BRONZE ?? DEFAULT_TIER_THRESHOLDS.BRONZE),
+      PROBATION: Number(parsed.PROBATION ?? DEFAULT_TIER_THRESHOLDS.PROBATION),
+    };
+  } catch {
+    return { ...DEFAULT_TIER_THRESHOLDS };
+  }
+}
+
+/**
+ * Read MERIT-type expiry days from tenant settings (null = never expire).
+ */
+export async function getMeritExpiryDays(tenantId: string): Promise<number | null> {
+  const [row] = await db
+    .select({ value: settings.value })
+    .from(settings)
+    .where(and(eq(settings.tenantId, tenantId), eq(settings.key, SETTINGS_KEYS.MERIT_EXPIRY_DAYS)))
+    .limit(1);
+
+  if (!row?.value || row.value === '') return null;
+  const days = parseInt(row.value, 10);
+  return Number.isFinite(days) && days > 0 ? days : null;
 }

@@ -85,7 +85,10 @@ describe('Invitations API', () => {
     mocks.getSessionAndRole.mockResolvedValue(mocks.authResult);
     mocks.apiUnauthorized.mockReturnValue(
       new Response(
-        JSON.stringify({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } }),
+        JSON.stringify({
+          success: false,
+          error: { code: 'UNAUTHORIZED', message: 'Unauthorized' },
+        }),
         { status: 401, headers: { 'Content-Type': 'application/json' } }
       )
     );
@@ -113,7 +116,9 @@ describe('Invitations API', () => {
     it('returns 401 without auth', async () => {
       mocks.getSessionAndRole.mockResolvedValue(null);
 
-      const response = await GET(new Request('http://localhost:3000/api/invitations') as any);
+      const response = await GET(
+        new Request('http://localhost:3000/api/invitations') as unknown as Request
+      );
       expect(response.status).toBe(401);
     });
 
@@ -123,7 +128,9 @@ describe('Invitations API', () => {
       ];
       mocks.dbMock.select.mockImplementation(() => makeSelectChain(invitations));
 
-      const response = await GET(new Request('http://localhost:3000/api/invitations') as any);
+      const response = await GET(
+        new Request('http://localhost:3000/api/invitations') as unknown as Request
+      );
       const body = await response.json();
 
       expect(response.status).toBe(200);
@@ -140,7 +147,16 @@ describe('Invitations API', () => {
       mocks.dbMock.insert.mockImplementation(() => ({
         values: vi.fn(() => ({
           returning: vi.fn(() =>
-            Promise.resolve([{ id: 'inv-1', email: 'new@test.com', name: 'New', role: 'RESIDENT', status: 'PENDING', token: 'tok' }])
+            Promise.resolve([
+              {
+                id: 'inv-1',
+                email: 'new@test.com',
+                name: 'New',
+                role: 'RESIDENT',
+                status: 'PENDING',
+                token: 'tok',
+              },
+            ])
           ),
         })),
       }));
@@ -154,9 +170,7 @@ describe('Invitations API', () => {
       );
 
       expect(response.status).toBe(201);
-      expect(mocks.sendEmail).toHaveBeenCalledWith(
-        expect.objectContaining({ to: 'new@test.com' })
-      );
+      expect(mocks.sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: 'new@test.com' }));
     });
 
     it('returns 429 when rate limit exceeded', async () => {

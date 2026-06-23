@@ -98,7 +98,6 @@ export function AnnouncementForm({
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    watch,
     setValue,
   } = useForm<AnnouncementFormInput>({
     resolver: zodResolver(announcementSchema),

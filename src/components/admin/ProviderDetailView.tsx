@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchApi, formatCurrency, formatDate, sendJson, statusBadgeClass } from './adminApi';
 import type { ProviderDetailResponse } from './types';
 
-const TABS = ['profile', 'verification', 'legal', 'credits', 'payments', 'actions'] as const;
+const TABS = ['profile', 'verification', 'legal', 'reputation', 'payments', 'actions'] as const;
 type ProviderTab = (typeof TABS)[number];
 
 export function ProviderDetailView({ providerId }: { providerId: string }) {
@@ -15,8 +15,8 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
   const [verifyNotes, setVerifyNotes] = useState('');
   const [rejectReason, setRejectReason] = useState('');
   const [suspendReason, setSuspendReason] = useState('');
-  const [creditReason, setCreditReason] = useState('');
-  const [creditDelta, setCreditDelta] = useState('0');
+  const [reputationReason, setReputationReason] = useState('');
+  const [reputationDelta, setReputationDelta] = useState('0');
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   const queryKey = useMemo(() => ['admin', 'provider-detail', providerId], [providerId]);
@@ -27,7 +27,11 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
   });
 
   const actionMutation = useMutation({
-    mutationFn: async (payload: { url: string; method: 'POST' | 'PATCH'; body: Record<string, unknown> }) =>
+    mutationFn: async (payload: {
+      url: string;
+      method: 'POST' | 'PATCH';
+      body: Record<string, unknown>;
+    }) =>
       sendJson<unknown>(payload.url, {
         method: payload.method,
         body: JSON.stringify(payload.body),
@@ -42,7 +46,9 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
   const data = providerQuery.data;
 
   if (providerQuery.isLoading || !data) {
-    return <div className="mx-auto max-w-7xl p-6 text-sm text-gray-500">Loading provider detail…</div>;
+    return (
+      <div className="mx-auto max-w-7xl p-6 text-sm text-gray-500">Loading provider detail…</div>
+    );
   }
 
   return (
@@ -53,25 +59,37 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
             <div className="text-sm text-slate-300">Provider moderation detail</div>
             <h1 className="mt-2 text-3xl font-semibold">{data.provider.companyName}</h1>
             <p className="mt-2 max-w-3xl text-sm text-slate-200">
-              Review legal acceptance, due diligence, credits, payments, and apply admin overrides with audit-backed APIs.
+              Review legal acceptance, due diligence, reputation, payments, and apply admin
+              overrides with audit-backed APIs.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass(data.provider.verificationStatus)}`}>
+            <span
+              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass(data.provider.verificationStatus)}`}
+            >
               {data.provider.verificationStatus.toLowerCase()}
             </span>
             <span className="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white">
-              {data.credits?.totalCredits ?? 0} credits
+              {data.reputation?.totalScore ?? 0} points
             </span>
           </div>
         </div>
       </section>
 
-      {actionMessage ? <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-sm text-indigo-900">{actionMessage}</div> : null}
+      {actionMessage ? (
+        <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-sm text-indigo-900">
+          {actionMessage}
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap gap-2">
         {TABS.map(tab => (
-          <button key={tab} type="button" onClick={() => setActiveTab(tab)} className={`rounded-full px-4 py-2 text-sm font-semibold ${activeTab === tab ? 'bg-soralia-primary text-white' : 'bg-white text-gray-700 border border-gray-300'}`}>
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setActiveTab(tab)}
+            className={`rounded-full px-4 py-2 text-sm font-semibold ${activeTab === tab ? 'bg-soralia-primary text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
+          >
             {tab}
           </button>
         ))}
@@ -82,11 +100,26 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
           <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
             <h2 className="text-base font-semibold text-gray-900">Profile</h2>
             <dl className="mt-4 space-y-3 text-sm">
-              <div><dt className="text-gray-500">Contact</dt><dd className="font-medium text-gray-900">{data.provider.contactName ?? '—'}</dd></div>
-              <div><dt className="text-gray-500">Email</dt><dd className="font-medium text-gray-900">{data.provider.email ?? '—'}</dd></div>
-              <div><dt className="text-gray-500">Phone</dt><dd className="font-medium text-gray-900">{data.provider.phone ?? '—'}</dd></div>
-              <div><dt className="text-gray-500">Trade</dt><dd className="font-medium text-gray-900">{data.provider.trade ?? '—'}</dd></div>
-              <div><dt className="text-gray-500">Created</dt><dd className="font-medium text-gray-900">{formatDate(data.provider.createdAt)}</dd></div>
+              <div>
+                <dt className="text-gray-500">Contact</dt>
+                <dd className="font-medium text-gray-900">{data.provider.contactName ?? '—'}</dd>
+              </div>
+              <div>
+                <dt className="text-gray-500">Email</dt>
+                <dd className="font-medium text-gray-900">{data.provider.email ?? '—'}</dd>
+              </div>
+              <div>
+                <dt className="text-gray-500">Phone</dt>
+                <dd className="font-medium text-gray-900">{data.provider.phone ?? '—'}</dd>
+              </div>
+              <div>
+                <dt className="text-gray-500">Trade</dt>
+                <dd className="font-medium text-gray-900">{data.provider.trade ?? '—'}</dd>
+              </div>
+              <div>
+                <dt className="text-gray-500">Created</dt>
+                <dd className="font-medium text-gray-900">{formatDate(data.provider.createdAt)}</dd>
+              </div>
             </dl>
           </div>
           <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -121,7 +154,9 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
           </div>
           <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
             <h2 className="text-base font-semibold text-gray-900">Verification record</h2>
-            <div className="mt-4 text-sm text-gray-700">{data.verification.notes ?? 'No verification notes recorded yet.'}</div>
+            <div className="mt-4 text-sm text-gray-700">
+              {data.verification.notes ?? 'No verification notes recorded yet.'}
+            </div>
             <div className="mt-4 space-y-3">
               {data.verificationHistory.map(item => (
                 <div key={item.id} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
@@ -142,28 +177,40 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
               <div key={document.key} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                 <div className="font-medium text-gray-900">{document.label}</div>
                 <div className="mt-1 text-sm text-gray-600">Version {document.version}</div>
-                <div className="mt-2 text-xs text-gray-500">Accepted {document.accepted ? formatDate(document.acceptedAt) : 'No'}</div>
+                <div className="mt-2 text-xs text-gray-500">
+                  Accepted {document.accepted ? formatDate(document.acceptedAt) : 'No'}
+                </div>
               </div>
             ))}
           </div>
         </section>
       ) : null}
 
-      {activeTab === 'credits' ? (
+      {activeTab === 'reputation' ? (
         <section className="grid gap-6 xl:grid-cols-[0.85fr,1.15fr]">
           <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 className="text-base font-semibold text-gray-900">Credit snapshot</h2>
-            <div className="mt-4 text-4xl font-semibold text-gray-900">{data.credits?.totalCredits ?? 0}</div>
-            <div className="mt-2 text-sm text-gray-500">Last calculated {formatDate(data.credits?.lastCalculatedAt ?? null)}</div>
+            <h2 className="text-base font-semibold text-gray-900">Reputation snapshot</h2>
+            <div className="mt-4 text-4xl font-semibold text-gray-900">
+              {data.reputation?.totalScore ?? 0}
+            </div>
+            <div className="mt-2 text-sm text-gray-500">
+              Last calculated {formatDate(data.reputation?.lastCalculatedAt ?? null)}
+            </div>
           </div>
           <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 className="text-base font-semibold text-gray-900">Credit history</h2>
+            <h2 className="text-base font-semibold text-gray-900">Reputation history</h2>
             <div className="mt-4 space-y-3">
-              {data.creditHistory.map(item => (
+              {data.reputationHistory.map(item => (
                 <div key={item.id} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                  <div className="font-medium text-gray-900">{item.meritType.replace('_', ' ')}</div>
-                  <div className="mt-1 text-sm text-gray-600">{item.description ?? 'No description provided'}</div>
-                  <div className="mt-2 text-xs text-gray-500">{item.points} points • {formatDate(item.createdAt)}</div>
+                  <div className="font-medium text-gray-900">
+                    {item.meritType.replace('_', ' ')}
+                  </div>
+                  <div className="mt-1 text-sm text-gray-600">
+                    {item.description ?? 'No description provided'}
+                  </div>
+                  <div className="mt-2 text-xs text-gray-500">
+                    {item.points} points • {formatDate(item.createdAt)}
+                  </div>
                 </div>
               ))}
             </div>
@@ -174,20 +221,63 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
       {activeTab === 'payments' ? (
         <section className="space-y-6">
           <div className="grid gap-4 md:grid-cols-4">
-            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"><div className="text-sm text-gray-500">Revenue</div><div className="mt-2 text-2xl font-semibold text-gray-900">{formatCurrency(data.revenueSummary.totalRevenue)}</div></div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"><div className="text-sm text-gray-500">Platform fees</div><div className="mt-2 text-2xl font-semibold text-gray-900">{formatCurrency(data.revenueSummary.totalPlatformFees)}</div></div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"><div className="text-sm text-gray-500">Processor fees</div><div className="mt-2 text-2xl font-semibold text-gray-900">{formatCurrency(data.revenueSummary.totalProcessorFees)}</div></div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"><div className="text-sm text-gray-500">Net payout</div><div className="mt-2 text-2xl font-semibold text-gray-900">{formatCurrency(data.revenueSummary.totalNetPayout)}</div></div>
+            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+              <div className="text-sm text-gray-500">Revenue</div>
+              <div className="mt-2 text-2xl font-semibold text-gray-900">
+                {formatCurrency(data.revenueSummary.totalRevenue)}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+              <div className="text-sm text-gray-500">Platform fees</div>
+              <div className="mt-2 text-2xl font-semibold text-gray-900">
+                {formatCurrency(data.revenueSummary.totalPlatformFees)}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+              <div className="text-sm text-gray-500">Processor fees</div>
+              <div className="mt-2 text-2xl font-semibold text-gray-900">
+                {formatCurrency(data.revenueSummary.totalProcessorFees)}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+              <div className="text-sm text-gray-500">Net payout</div>
+              <div className="mt-2 text-2xl font-semibold text-gray-900">
+                {formatCurrency(data.revenueSummary.totalNetPayout)}
+              </div>
+            </div>
           </div>
           <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
             <h2 className="text-base font-semibold text-gray-900">Payment profile</h2>
             <p className="mt-2 text-sm text-gray-600">{data.paymentProfile.note}</p>
             <div className="mt-5 overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead><tr className="text-left text-xs uppercase tracking-wide text-gray-500"><th className="pb-3 pr-4">Gateway</th><th className="pb-3 pr-4">Tier</th><th className="pb-3 pr-4">Gross</th><th className="pb-3 pr-4">Fees</th><th className="pb-3">Net</th></tr></thead>
+                <thead>
+                  <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
+                    <th className="pb-3 pr-4">Gateway</th>
+                    <th className="pb-3 pr-4">Tier</th>
+                    <th className="pb-3 pr-4">Gross</th>
+                    <th className="pb-3 pr-4">Fees</th>
+                    <th className="pb-3">Net</th>
+                  </tr>
+                </thead>
                 <tbody className="divide-y divide-gray-100">
                   {data.paymentHistory.map(payment => (
-                    <tr key={payment.id}><td className="py-4 pr-4 text-gray-700">{payment.gateway}</td><td className="py-4 pr-4 text-gray-700">{payment.tierName ?? '—'}</td><td className="py-4 pr-4 text-gray-700">{formatCurrency(payment.amount, payment.currency)}</td><td className="py-4 pr-4 text-gray-700">{formatCurrency(payment.platformFee + payment.processorFee, payment.currency)}</td><td className="py-4 font-medium text-gray-900">{formatCurrency(payment.netAmount, payment.currency)}</td></tr>
+                    <tr key={payment.id}>
+                      <td className="py-4 pr-4 text-gray-700">{payment.gateway}</td>
+                      <td className="py-4 pr-4 text-gray-700">{payment.tierName ?? '—'}</td>
+                      <td className="py-4 pr-4 text-gray-700">
+                        {formatCurrency(payment.amount, payment.currency)}
+                      </td>
+                      <td className="py-4 pr-4 text-gray-700">
+                        {formatCurrency(
+                          payment.platformFee + payment.processorFee,
+                          payment.currency
+                        )}
+                      </td>
+                      <td className="py-4 font-medium text-gray-900">
+                        {formatCurrency(payment.netAmount, payment.currency)}
+                      </td>
+                    </tr>
                   ))}
                 </tbody>
               </table>
@@ -198,29 +288,139 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
 
       {activeTab === 'actions' ? (
         <section className="grid gap-6 xl:grid-cols-2">
-          <form className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-3" onSubmit={async event => { event.preventDefault(); await actionMutation.mutateAsync({ url: `/api/admin/providers/${providerId}/verify`, method: 'POST', body: { notes: verifyNotes } }); setVerifyNotes(''); }}>
+          <form
+            className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-3"
+            onSubmit={async event => {
+              event.preventDefault();
+              await actionMutation.mutateAsync({
+                url: `/api/admin/providers/${providerId}/verify`,
+                method: 'POST',
+                body: { notes: verifyNotes },
+              });
+              setVerifyNotes('');
+            }}
+          >
             <h2 className="text-base font-semibold text-gray-900">Verify provider</h2>
-            <textarea value={verifyNotes} onChange={event => setVerifyNotes(event.target.value)} rows={4} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Verification notes" />
-            <button type="submit" disabled={actionMutation.isPending} className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white">Approve & verify</button>
+            <textarea
+              value={verifyNotes}
+              onChange={event => setVerifyNotes(event.target.value)}
+              rows={4}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              placeholder="Verification notes"
+            />
+            <button
+              type="submit"
+              disabled={actionMutation.isPending}
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
+            >
+              Approve & verify
+            </button>
           </form>
 
-          <form className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-3" onSubmit={async event => { event.preventDefault(); await actionMutation.mutateAsync({ url: `/api/admin/providers/${providerId}/reject`, method: 'PATCH', body: { reason: rejectReason } }); setRejectReason(''); }}>
+          <form
+            className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-3"
+            onSubmit={async event => {
+              event.preventDefault();
+              await actionMutation.mutateAsync({
+                url: `/api/admin/providers/${providerId}/reject`,
+                method: 'PATCH',
+                body: { reason: rejectReason },
+              });
+              setRejectReason('');
+            }}
+          >
             <h2 className="text-base font-semibold text-gray-900">Reject application</h2>
-            <textarea required value={rejectReason} onChange={event => setRejectReason(event.target.value)} rows={4} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Reason for rejection" />
-            <button type="submit" disabled={actionMutation.isPending} className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white">Reject provider</button>
+            <textarea
+              required
+              value={rejectReason}
+              onChange={event => setRejectReason(event.target.value)}
+              rows={4}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              placeholder="Reason for rejection"
+            />
+            <button
+              type="submit"
+              disabled={actionMutation.isPending}
+              className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white"
+            >
+              Reject provider
+            </button>
           </form>
 
-          <form className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-3" onSubmit={async event => { event.preventDefault(); await actionMutation.mutateAsync({ url: `/api/admin/providers/${providerId}/suspend`, method: 'PATCH', body: { action: data.provider.verificationStatus === 'SUSPENDED' ? 'REINSTATE' : 'SUSPEND', reason: suspendReason, restoreStatus: 'PROBATION' } }); setSuspendReason(''); }}>
+          <form
+            className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-3"
+            onSubmit={async event => {
+              event.preventDefault();
+              await actionMutation.mutateAsync({
+                url: `/api/admin/providers/${providerId}/suspend`,
+                method: 'PATCH',
+                body: {
+                  action:
+                    data.provider.verificationStatus === 'SUSPENDED' ? 'REINSTATE' : 'SUSPEND',
+                  reason: suspendReason,
+                  restoreStatus: 'PROBATION',
+                },
+              });
+              setSuspendReason('');
+            }}
+          >
             <h2 className="text-base font-semibold text-gray-900">Suspend or reinstate</h2>
-            <textarea value={suspendReason} onChange={event => setSuspendReason(event.target.value)} rows={4} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Suspension or reinstatement notes" />
-            <button type="submit" disabled={actionMutation.isPending} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white">{data.provider.verificationStatus === 'SUSPENDED' ? 'Reinstate provider' : 'Suspend provider'}</button>
+            <textarea
+              value={suspendReason}
+              onChange={event => setSuspendReason(event.target.value)}
+              rows={4}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              placeholder="Suspension or reinstatement notes"
+            />
+            <button
+              type="submit"
+              disabled={actionMutation.isPending}
+              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
+            >
+              {data.provider.verificationStatus === 'SUSPENDED'
+                ? 'Reinstate provider'
+                : 'Suspend provider'}
+            </button>
           </form>
 
-          <form className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-3" onSubmit={async event => { event.preventDefault(); await actionMutation.mutateAsync({ url: `/api/admin/providers/${providerId}/credits`, method: 'PATCH', body: { reason: creditReason, creditDelta: Number.parseInt(creditDelta, 10) || 0 } }); setCreditReason(''); setCreditDelta('0'); }}>
-            <h2 className="text-base font-semibold text-gray-900">Adjust credits</h2>
-            <input value={creditDelta} onChange={event => setCreditDelta(event.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" inputMode="numeric" />
-            <textarea required value={creditReason} onChange={event => setCreditReason(event.target.value)} rows={4} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Reason for manual credit adjustment" />
-            <button type="submit" disabled={actionMutation.isPending} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">Save credit override</button>
+          <form
+            className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-3"
+            onSubmit={async event => {
+              event.preventDefault();
+              await actionMutation.mutateAsync({
+                url: `/api/admin/providers/${providerId}/reputation`,
+                method: 'PATCH',
+                body: {
+                  reason: reputationReason,
+                  reputationDelta: Number.parseInt(reputationDelta, 10) || 0,
+                },
+              });
+              setReputationReason('');
+              setReputationDelta('0');
+            }}
+          >
+            <h2 className="text-base font-semibold text-gray-900">Adjust reputation</h2>
+            <input
+              value={reputationDelta}
+              onChange={event => setReputationDelta(event.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              inputMode="numeric"
+            />
+            <textarea
+              required
+              value={reputationReason}
+              onChange={event => setReputationReason(event.target.value)}
+              rows={4}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              placeholder="Reason for manual reputation adjustment"
+            />
+            <button
+              type="submit"
+              disabled={actionMutation.isPending}
+              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white"
+            >
+              Save reputation override
+            </button>
           </form>
         </section>
       ) : null}

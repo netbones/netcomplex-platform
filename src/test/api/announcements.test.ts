@@ -133,7 +133,7 @@ vi.mock('@features/announcements', async importOriginal => {
   const actual = await importOriginal<typeof import('@features/announcements')>();
   return {
     ...actual,
-    validatePriorityForRole: (priority: string, _role: string) =>
+    validatePriorityForRole: (_priority: string, _role: string) =>
       mocks.validatedPriority as 'urgent' | 'high' | 'normal' | 'low',
     PRIORITY_TAXONOMY: actual.PRIORITY_TAXONOMY,
   };
@@ -142,15 +142,6 @@ vi.mock('@features/announcements', async importOriginal => {
 import { GET, POST } from '@/app/api/announcements/route';
 import { GET as GET_BY_ID, PATCH, DELETE } from '@/app/api/announcements/[id]/route';
 import { makeSelectChain, makeInsertChain, makeUpdateChain } from './helpers';
-
-
-function makeDeleteReturningChain(result: unknown[]) {
-  return {
-    where: vi.fn(() => ({
-      returning: vi.fn(() => Promise.resolve(result)),
-    })),
-  };
-}
 
 function makeReq({
   method = 'GET',

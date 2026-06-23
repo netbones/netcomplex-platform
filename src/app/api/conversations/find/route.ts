@@ -1,6 +1,5 @@
 import {
   db,
-  apiCreated,
   apiError,
   apiSuccess,
   apiUnauthorized,
@@ -61,11 +60,10 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   // Create new direct conversation
   const conversationId = crypto.randomUUID();
-  const newConversation = (await db.execute(sql`
+  await db.execute(sql`
     INSERT INTO "Conversation" (id, name, type, "tenantId")
     VALUES (${conversationId}, NULL, 'DIRECT', ${tenantId})
-    RETURNING *
-  `)) as { rows: ConversationResult[] };
+  `);
 
   // Create participants
   for (const userId of participantIds) {

@@ -13,7 +13,9 @@ const STATUS_STYLES: Record<ProviderVerification['displayStatus'], string> = {
 
 export function ProviderStatusBadge({ status }: { status: ProviderVerification['displayStatus'] }) {
   return (
-    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${STATUS_STYLES[status]}`}>
+    <span
+      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${STATUS_STYLES[status]}`}
+    >
       {status === 'UNVERIFIED' ? 'Unverified' : status.charAt(0) + status.slice(1).toLowerCase()}
     </span>
   );
@@ -32,7 +34,9 @@ export function ProviderStatusSummary({
         <CheckCircle2 className="mt-0.5 h-5 w-5" />
         <div>
           <p className="font-semibold">Verified provider</p>
-          <p className="text-sm">Your provider profile has full analytics access for community performance monitoring.</p>
+          <p className="text-sm">
+            Your provider profile has full analytics access for community performance monitoring.
+          </p>
         </div>
       </div>
     );
@@ -44,7 +48,10 @@ export function ProviderStatusSummary({
         <ShieldAlert className="mt-0.5 h-5 w-5" />
         <div>
           <p className="font-semibold">Provider account suspended</p>
-          <p className="text-sm">Analytics are hidden while the account is suspended. Contact support or the community administrators for review.</p>
+          <p className="text-sm">
+            Analytics are hidden while the account is suspended. Contact support or the community
+            administrators for review.
+          </p>
         </div>
       </div>
     );
@@ -56,7 +63,10 @@ export function ProviderStatusSummary({
         <Clock3 className="mt-0.5 h-5 w-5" />
         <div>
           <p className="font-semibold">Probationary provider</p>
-          <p className="text-sm">You are building toward verification. {remainingToVerification} more credit points are needed to unlock the full provider analytics view.</p>
+          <p className="text-sm">
+            You are building toward verification. {remainingToVerification} more reputation points
+            are needed to unlock the full provider analytics view.
+          </p>
         </div>
       </div>
     );
@@ -67,7 +77,10 @@ export function ProviderStatusSummary({
       <AlertTriangle className="mt-0.5 h-5 w-5" />
       <div>
         <p className="font-semibold">Verification not complete</p>
-        <p className="text-sm">Your provider profile is still awaiting verification. Complete onboarding and build service credits to graduate into probation or verified access.</p>
+        <p className="text-sm">
+          Your provider profile is still awaiting verification. Complete onboarding and build
+          service reputation to graduate into probation or verified access.
+        </p>
       </div>
     </div>
   );
@@ -116,7 +129,10 @@ export function ProviderMetricCard({
 export function ProviderProgressBar({ value }: { value: number }) {
   return (
     <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
-      <div className="h-full rounded-full bg-indigo-600 transition-all" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
+      <div
+        className="h-full rounded-full bg-indigo-600 transition-all"
+        style={{ width: `${Math.max(0, Math.min(100, value))}%` }}
+      />
     </div>
   );
 }

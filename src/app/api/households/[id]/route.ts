@@ -8,7 +8,6 @@ import {
   profiles,
   contents,
   users,
-  apiError,
   apiForbidden,
   apiGone,
   apiInternalError,

@@ -4,7 +4,6 @@ import { useState, useEffect, Fragment } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { trpc } from '@api/client';
-import type { ParticipantDTO } from '@shared/api';
 
 // ──────────────────────────────────────────
 // Types
@@ -135,7 +134,6 @@ function AutoSelectModal({
   onClose: () => void;
 }) {
   const utils = trpc.useUtils();
-  const [scoreThreshold, setScoreThreshold] = useState<number | ''>('');
 
   const markWinnerMutation = trpc.competitions.markWinner.useMutation({
     onSuccess: () => {
@@ -145,8 +143,6 @@ function AutoSelectModal({
       toast.error(err.message);
     },
   });
-
-  const updateEntryMutation = trpc.competitions.updateEntry.useMutation();
 
   const handleAutoSelect = async () => {
     const { participants } = await utils.competitions.listParticipants.fetch({ competitionId });

@@ -85,9 +85,9 @@ export interface BillingMerit {
   createdAt: string;
 }
 
-export interface CreditProgress {
+export interface ReputationProgress {
   providerId: string | null;
-  totalCredits: number;
+  totalScore: number;
   responseTimeScore: number;
   qualityScore: number;
   reviewScore: number;
@@ -106,7 +106,7 @@ export interface BillingResponse {
   verification: {
     verificationThreshold: number;
   };
-  creditProgress: CreditProgress;
+  reputationProgress: ReputationProgress;
   currentSubscription: BillingSubscription | null;
   availableTiers: BillingTier[];
   feeSummary: {
@@ -128,10 +128,10 @@ export interface BillingResponse {
   notices: string[];
 }
 
-export interface CreditsResponse {
+export interface ReputationResponse {
   verificationStatus: 'UNVERIFIED' | 'PROBATION' | 'VERIFIED' | 'SUSPENDED';
-  creditScore: number;
-  progress: CreditProgress;
+  reputationScore: number;
+  progress: ReputationProgress;
   eligibleForVerification: boolean;
   band: 'PROBATION' | 'EMERGING' | 'VERIFIED_CANDIDATE';
   merits: BillingMerit[];

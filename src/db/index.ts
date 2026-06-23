@@ -55,7 +55,7 @@ export * from '@schema/users';
 export * from '@schema/verifications';
 export * from '@schema/provider-verifications';
 export * from '@schema/provider-legal-agreements';
-export * from '@schema/provider-credits';
+export * from '@schema/provider-reputations';
 export * from '@schema/provider-merits';
 export * from '@schema/provider-subscriptions';
 export * from '@schema/payment-transactions';

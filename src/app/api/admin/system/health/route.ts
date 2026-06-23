@@ -15,7 +15,7 @@ export const maxDuration = 5;
 
 const log = createComponentLogger('system-health-api');
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
     const authError = await requireAnyPermission(['admin', 'settings']);
     if (authError) return authError;

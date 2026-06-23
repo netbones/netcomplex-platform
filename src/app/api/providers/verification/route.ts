@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       providerRecordExists: Boolean(providerAccess.providerRecord),
       verificationStatus: providerAccess.verification.displayStatus,
       verification: providerAccess.verification,
-      creditProgress: providerAccess.credits,
+      reputationProgress: providerAccess.reputation,
       accessMode: providerAccess.accessMode,
     });
   } catch (error) {

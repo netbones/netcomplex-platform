@@ -8,7 +8,7 @@ export interface ProviderListItem {
   createdAt: string;
   verificationStatus: string;
   verificationNotes: string | null;
-  creditScore: number;
+  reputationScore: number;
   revenueTotal: number;
   platformFeeTotal: number;
 }
@@ -129,8 +129,8 @@ export interface ProviderDetailResponse {
     ipAddress: string | null;
     userAgent: string | null;
   }>;
-  credits: {
-    totalCredits: number;
+  reputation: {
+    totalScore: number;
     responseTimeScore: number | null;
     qualityScore: number | null;
     reviewScore: number | null;
@@ -138,7 +138,7 @@ export interface ProviderDetailResponse {
     engagementScore: number | null;
     lastCalculatedAt: string | null;
   } | null;
-  creditHistory: Array<{
+  reputationHistory: Array<{
     id: string;
     meritType: string;
     points: number;
@@ -204,7 +204,7 @@ export interface ProviderAnalyticsResponse {
     newProvidersThisMonth: number;
     newProvidersThisQuarter: number;
     verificationRate: number;
-    averageCreditScore: number;
+    averageReputationScore: number;
     suspendedCount: number;
     revenueMetrics: {
       totalRevenue: number;
@@ -217,7 +217,7 @@ export interface ProviderAnalyticsResponse {
   topProviders: Array<{
     id: string;
     companyName: string;
-    creditScore: number;
+    reputationScore: number;
     status: string;
   }>;
   suspendedReasons: Array<{

@@ -11,7 +11,7 @@
  *     .where(tierSatisfies(tenant));
  */
 
-import { eq, and, gte } from 'drizzle-orm';
+import type { TenantTier } from '@shared/lib';
 import type { TenantTier } from '@shared/lib';
 
 // ============================================

@@ -5,7 +5,6 @@ import {
   agentProfiles,
   users,
   premiumSeats,
-  apiError,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,
@@ -83,7 +82,7 @@ export async function POST(request: NextRequest) {
       return apiUnauthorized();
     }
 
-    const { agentId } = await request.json();
+    await request.json();
 
     // Check if user has Premium Seat
     const seat = await db

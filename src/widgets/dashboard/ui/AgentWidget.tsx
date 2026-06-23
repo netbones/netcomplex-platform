@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
@@ -22,25 +21,7 @@ interface AgentProfile {
   };
 }
 
-/** @property-consolidation-plan (44-03 findings)
- * This is a LISTING type, not a Property shape — it models property
- * listings/assignments in the agent domain, not real-estate properties.
- * Per C1 resolution: leave as-is. Do NOT consolidate with PropertySummaryDTO.
- * Last audit: 2026-06-08
- */
-interface PropertyListing {
-  id: string;
-  title: string;
-  listingType: string;
-  price?: number;
-  status: string;
-  assignedAgent?: {
-    name: string;
-  };
-}
-
 export function AgentWidget() {
-  const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
   const { fetch: apiFetch, mutate: apiMutate } = useApiToast({ component: 'AgentWidget' });
   const [agents, setAgents] = useState<AgentProfile[]>([]);

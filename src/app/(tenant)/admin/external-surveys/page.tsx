@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { Breadcrumbs } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 

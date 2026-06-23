@@ -3,7 +3,6 @@
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { logError, createComponentLogger } from '@shared/lib';
-import { authClient } from '@api/client';
 
 const log = createComponentLogger('useApiToast');
 
@@ -83,8 +82,6 @@ export function useApiToast(options?: UseApiToastOptions): UseApiToastReturn {
       }
     ): Promise<T | undefined> => {
       const { retry = true, retryCount = 3, silent = false, critical = false, onRetry } = options;
-      let lastError: unknown;
-
       for (let attempt = 0; attempt <= retryCount; attempt++) {
         try {
           const data = await promise;
@@ -102,8 +99,6 @@ export function useApiToast(options?: UseApiToastOptions): UseApiToastReturn {
 
           return data;
         } catch (error) {
-          lastError = error;
-
           // Log every attempt failure
           logToServer(operation, error, {
             attempt: attempt + 1,
@@ -302,7 +297,7 @@ export function toastPromise<T>(
 
   return toast.promise(executeWithRetry(), {
     loading,
-    success: success ? data => success : undefined,
+    success: success ? _data => success : undefined,
     error: err => ({
       message: errorMessage,
       description: err instanceof Error ? err.message : String(err),

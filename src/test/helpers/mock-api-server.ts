@@ -11,10 +11,6 @@
 
 import { vi } from 'vitest';
 
-function mockFn() {
-  return vi.fn();
-}
-
 function mockTable(name: string) {
   return { id: 'id', name, __brand: 'table' };
 }

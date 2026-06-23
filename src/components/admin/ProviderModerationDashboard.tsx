@@ -144,7 +144,7 @@ export function ProviderModerationDashboard() {
                 <th className="pb-3 pr-4">Contact</th>
                 <th className="pb-3 pr-4">Trade</th>
                 <th className="pb-3 pr-4">Status</th>
-                <th className="pb-3 pr-4">Credits</th>
+                <th className="pb-3 pr-4">Reputation</th>
                 <th className="pb-3 pr-4">Revenue</th>
                 <th className="pb-3">Actions</th>
               </tr>
@@ -179,7 +179,7 @@ export function ProviderModerationDashboard() {
                         {provider.verificationStatus.toLowerCase()}
                       </span>
                     </td>
-                    <td className="py-4 pr-4 text-gray-700">{provider.creditScore}</td>
+                    <td className="py-4 pr-4 text-gray-700">{provider.reputationScore}</td>
                     <td className="py-4 pr-4 text-gray-700">
                       {formatCurrency(provider.revenueTotal)}
                     </td>

@@ -11,7 +11,7 @@ import {
   withErrorHandler,
 } from '@api/server';
 
-import { eq, and, gt } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 export const maxDuration = 8;
 

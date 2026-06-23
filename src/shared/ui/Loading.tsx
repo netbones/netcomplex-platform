@@ -70,7 +70,11 @@ interface LoadingCardProps {
 /**
  * Loading skeleton for card-like components
  */
-export function LoadingCard({ className, titleLines = 1, contentLines = 3 }: LoadingCardProps) {
+export function LoadingCard({
+  className,
+  titleLines: _titleLines = 1,
+  contentLines = 3,
+}: LoadingCardProps) {
   return (
     <div className={cn('p-6 border border-gray-200 rounded-lg bg-white', className)}>
       <LoadingSkeleton height="h-6" className="w-3/4 mb-4" />

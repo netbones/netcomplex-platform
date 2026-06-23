@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@shared/ui';
 
 interface ActivityItem {
@@ -15,7 +14,6 @@ interface ActivityItem {
 }
 
 export function AdminActivityWidget() {
-  const { t } = useTranslation('admin');
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
 

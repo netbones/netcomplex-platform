@@ -11,11 +11,6 @@ vi.mock('@api/auth-client', () => ({
 
 import { useResidentFilter } from '../features/directory/model/useResidentFilter';
 
-interface MockResponse {
-  ok: boolean;
-  json: () => Promise<{ users: unknown[]; total: number }>;
-}
-
 const createMockResponse = (data: { users: unknown[]; total: number }, status = 200) => ({
   ok: status >= 200 && status < 300,
   status,

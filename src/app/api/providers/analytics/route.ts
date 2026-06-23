@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       return providerAccess;
     }
 
-    const { auth, tenantId, verification, credits } = providerAccess;
+    const { auth, tenantId, verification, reputation } = providerAccess;
     const searchParams = new URL(request.url).searchParams;
     const requestedPeriod = (searchParams.get('period') ?? '30d') as SupportedPeriod;
     const period: SupportedPeriod = ['7d', '30d', '90d', 'all'].includes(requestedPeriod)
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
         analyticsVisibility: 'none',
         verificationStatus: verification.displayStatus,
         verification,
-        creditScore: credits.totalCredits,
+        reputationScore: reputation.totalScore,
         listingsCount,
         activeListingsCount,
         inquiriesCount: 0,
@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
           pending: 0,
           responded: 0,
         },
-        creditProgress: credits,
+        reputationProgress: reputation,
         limited: true,
         suspensionNotice: 'Provider analytics are unavailable while the provider is suspended.',
       });
@@ -196,7 +196,7 @@ export async function GET(request: NextRequest) {
       analyticsVisibility,
       verificationStatus: verification.displayStatus,
       verification,
-      creditScore: credits.totalCredits,
+      reputationScore: reputation.totalScore,
       listingsCount,
       activeListingsCount,
       inquiriesCount: analyticsVisibility === 'minimal' ? 0 : inquiriesCount,
@@ -210,7 +210,7 @@ export async function GET(request: NextRequest) {
         pending: analyticsVisibility === 'minimal' ? 0 : pendingInquiriesCount,
         responded: analyticsVisibility === 'minimal' ? 0 : respondedInquiriesCount,
       },
-      creditProgress: credits,
+      reputationProgress: reputation,
       limited: analyticsVisibility !== 'full',
       dataNotes:
         analyticsVisibility === 'limited'

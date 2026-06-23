@@ -3,7 +3,6 @@ import {
   auth,
   db,
   communityServiceListings,
-  apiError,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,

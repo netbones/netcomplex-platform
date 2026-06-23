@@ -85,9 +85,12 @@ describe('Campaign API', () => {
   });
 
   it('returns default config and empty content when no tenant context', async () => {
-    mocks.tenantResult = { tenantId: null as unknown as string, tenantSlug: null as unknown as string };
+    mocks.tenantResult = {
+      tenantId: null as unknown as string,
+      tenantSlug: null as unknown as string,
+    };
 
-    const response = await GET(undefined as any);
+    const response = await GET(undefined as unknown as Request);
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -110,7 +113,10 @@ describe('Campaign API', () => {
       .mockReturnValueOnce(
         makeSelectChain([
           { key: 'campaignLinkLabel', value: JSON.stringify({ en: 'Join Us', af: 'Sluit Aan' }) },
-          { key: 'campaignPageTitle', value: JSON.stringify({ en: 'Our Campaign', af: 'Ons Veldtog' }) },
+          {
+            key: 'campaignPageTitle',
+            value: JSON.stringify({ en: 'Our Campaign', af: 'Ons Veldtog' }),
+          },
           {
             key: 'campaignPageDescription',
             value: JSON.stringify({ en: 'Help us grow', af: 'Help ons groei' }),
@@ -136,7 +142,7 @@ describe('Campaign API', () => {
         ])
       );
 
-    const response = await GET(undefined as any);
+    const response = await GET(undefined as unknown as Request);
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -152,7 +158,7 @@ describe('Campaign API', () => {
       .mockReturnValueOnce(makeSelectChain([]))
       .mockReturnValueOnce(makeSelectChain([]));
 
-    const response = await GET(undefined as any);
+    const response = await GET(undefined as unknown as Request);
     const body = await response.json();
 
     expect(response.status).toBe(200);

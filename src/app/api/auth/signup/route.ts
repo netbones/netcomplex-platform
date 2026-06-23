@@ -11,13 +11,12 @@ import {
   apiForbidden,
   apiGone,
   apiInternalError,
-  apiSuccess,
   rateLimitByIP,
   verifyTurnstile,
   now,
 } from '@api/server';
 
-import { eq, and, gt } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 export const maxDuration = 8;
 
@@ -216,7 +215,7 @@ async function sendWelcomeEmail(email: string, name: string) {
       subject: templates.welcome.subject,
       html,
     });
-  } catch (_error) {
+  } catch {
     // Email failure shouldn't affect signup
   }
 }

@@ -4,7 +4,6 @@ import {
   eventAttendees,
   users,
   apiSuccess,
-  apiError,
   apiUnauthorized,
   apiNotFound,
   apiConflict,

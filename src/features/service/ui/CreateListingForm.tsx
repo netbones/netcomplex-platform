@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSafeTranslation } from '@shared/lib';
 import { ErrorBoundary } from '@shared/ui';
 import { useApiToast } from '@shared/lib/hooks';
 
@@ -19,7 +18,6 @@ interface Household {
 }
 
 export function CreateListingForm({ householdId, onClose, onSuccess }: CreateListingFormProps) {
-  const { tx } = useSafeTranslation('dashboard');
   const { fetch: apiFetch, mutate: apiMutate } = useApiToast({ component: 'CreateListingForm' });
   const [loading, setLoading] = useState(false);
   const [households, setHouseholds] = useState<Household[]>([]);

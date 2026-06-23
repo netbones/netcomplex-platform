@@ -65,23 +65,6 @@ vi.mock('@shared/lib', () => ({
 
 import { POST } from '@/app/api/upload/route';
 
-function makeFormData(file?: File): FormData {
-  const fd = new FormData();
-  if (file) fd.append('file', file);
-  return fd;
-}
-
-function makeRequest(formData: FormData): Request {
-  return new Request('http://localhost:3000/api/upload', {
-    method: 'POST',
-    headers: {
-      'x-tenant-id': 'test-tenant-id',
-      'x-tenant-slug': 'test-tenant',
-    },
-    body: formData,
-  });
-}
-
 describe('Upload API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -97,19 +80,25 @@ describe('Upload API', () => {
 
   it('returns 401 when not authenticated', async () => {
     mocks.authSession = null;
-    const response = await POST(new Request('http://localhost:3000/api/upload', { method: 'POST' }) as any);
-    const body = await response.json();
+    const response = await POST(
+      new Request('http://localhost:3000/api/upload', { method: 'POST' }) as unknown as Request
+    );
 
     expect(response.status).toBe(401);
   });
 
   it('returns 429 when rate limited', async () => {
     mocks.rateLimitResult = new Response(
-      JSON.stringify({ success: false, error: { code: 'RATE_LIMITED', message: 'Too many requests' } }),
+      JSON.stringify({
+        success: false,
+        error: { code: 'RATE_LIMITED', message: 'Too many requests' },
+      }),
       { status: 429, headers: { 'Content-Type': 'application/json' } }
     );
 
-    const response = await POST(new Request('http://localhost:3000/api/upload', { method: 'POST' }) as any);
+    const response = await POST(
+      new Request('http://localhost:3000/api/upload', { method: 'POST' }) as unknown as Request
+    );
     const body = await response.json();
 
     expect(response.status).toBe(429);

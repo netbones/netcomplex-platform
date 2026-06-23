@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { ModalOverlay } from '@shared/ui';
-import type { BillingTier } from './types';
+import type { BillingTier } from '../model/types';
 
 interface SubscribeResult {
   subscriptionId: string;

@@ -152,11 +152,7 @@ function CompetitionDetailContent() {
 
   if (!competition) return <DetailSkeleton />;
 
-  const isWithinDateRange =
-    new Date() >= new Date(competition.startDate) && new Date() <= new Date(competition.endDate);
-  const canParticipate = competition.status === 'ACTIVE' && isWithinDateRange && !!session;
   const hasJoined = !!competition.currentUserEntry;
-  const entryStatus = competition.currentUserEntry?.status;
 
   // ── Render ──
   return (

@@ -9,7 +9,6 @@ import {
   revalidateDashboard,
   now,
   apiCreated,
-  apiError,
   apiSuccess,
   apiUnauthorized,
   apiInternalError,
@@ -18,10 +17,9 @@ import {
   withErrorHandler,
 } from '@api/server';
 
-import { eq, and, desc, lte, gte, inArray, isNull, sql } from 'drizzle-orm';
+import { eq, and, desc, inArray, isNull, sql } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
-import { hasPermission } from '@shared/lib';
 import { canPublishAnnouncements } from '@shared/lib';
 import { validatePriorityForRole } from '@features/announcements';
 import type { AnnouncementPriority } from '@features/announcements';

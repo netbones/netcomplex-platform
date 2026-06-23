@@ -36,7 +36,7 @@ export function useI18nReady(additionalLoading = false) {
  */
 export function PageLoadingSkeleton({
   breadcrumbs,
-  title = 'Loading...',
+  _title = 'Loading...',
   contentHeight = 'h-64',
   className = 'max-w-6xl mx-auto px-4 py-8',
 }: PageLoadingSkeletonProps) {

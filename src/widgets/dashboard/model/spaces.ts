@@ -86,7 +86,7 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
       'provider-inquiries',
       'provider-analytics',
       'provider-listings',
-      'provider-credit-progress',
+      'provider-reputation-progress',
     ],
   },
   services: {

@@ -14,7 +14,7 @@ import {
 
 import { withTenant } from '@entities/tenant/server';
 
-import { count, eq, and, ne, gt, desc, sql, lte, or } from 'drizzle-orm';
+import { count, eq, and, ne, gt, sql, or } from 'drizzle-orm';
 import { createComponentLogger } from '@shared/lib';
 import { headers } from 'next/headers';
 

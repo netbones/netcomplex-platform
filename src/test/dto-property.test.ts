@@ -3,7 +3,6 @@ import {
   toPropertyDTO,
   toPropertyDTOs,
   toPropertySummaryDTO,
-  PropertyDTO,
   PropertySummaryDTO,
 } from '@shared/api/dto/property';
 

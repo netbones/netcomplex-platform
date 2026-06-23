@@ -56,7 +56,6 @@ export function FeaturesForm({ tenant, allFeatures }: TenantFeaturesFormProps) {
   }
 
   function getStatusLabel(featureKey: string, featureTier: string): string {
-    const status = getStatus(featureKey, featureTier);
     const overridden = isOverridden(featureKey);
     const access = getAccessLevel(featureTier);
 
@@ -108,7 +107,6 @@ export function FeaturesForm({ tenant, allFeatures }: TenantFeaturesFormProps) {
             {category.features.map(feature => {
               const access = getAccessLevel(feature.tier);
               const overridden = isOverridden(feature.key);
-              const status = getStatus(feature.key, feature.tier);
               const enabled = featureFlags[feature.key];
 
               return (

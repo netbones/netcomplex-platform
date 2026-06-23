@@ -1,7 +1,6 @@
 'use client';
 
 // import { useTenant } from '../api/context';
-import { useModuleEnabled } from '../api/use-enabled-modules';
 
 /**
  * FeatureGate - Conditionally render content based on module enablement

@@ -34,14 +34,14 @@ function renderNode(node: TipTapNode, key: number): React.ReactNode {
       const HeadingElement = level === 1 ? 'h1' : level === 3 ? 'h3' : 'h2';
       return (
         <HeadingElement key={key} className={headingStyles[level] || headingStyles[2]}>
-          {content?.map((child, i) => renderText(child))}
+          {content?.map((child, _i) => renderText(child))}
         </HeadingElement>
       );
     }
     case 'paragraph':
       return (
         <p key={key} className="text-gray-700 leading-relaxed mb-4">
-          {content?.map((child, i) => renderText(child))}
+          {content?.map((child, _i) => renderText(child))}
         </p>
       );
     case 'bulletList':

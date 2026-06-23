@@ -5,7 +5,6 @@ import {
   resourceVersions,
   users,
   revalidateContent,
-  apiError,
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
@@ -60,25 +59,6 @@ async function checkUserOwnsProperty(userId: string, tenantId: string): Promise<
     .where(and(eq(households.tenantId, tenantId), eq(profiles.userId, userId)))
     .limit(1);
   return result.length > 0;
-}
-
-/**
- * Build a Drizzle WHERE clause for resource visibility based on user role.
- */
-function buildVisibilityFilter(role: string | null | undefined, isOwner: boolean = false) {
-  if (hasPermission(role, 'admin') || role === 'MANAGER' || role === 'BOARD') {
-    return undefined;
-  }
-
-  if (role === 'COMMITTEE') {
-    return eq(resources.visibility, 'ALL_RESIDENTS') ? undefined : undefined; // Simplified: we'll handle in query
-  }
-
-  if (role === 'RESIDENT' && isOwner) {
-    return undefined; // Will filter in query
-  }
-
-  return eq(resources.visibility, 'ALL_RESIDENTS');
 }
 
 /**

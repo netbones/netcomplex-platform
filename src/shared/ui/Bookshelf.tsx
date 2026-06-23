@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useSafeTranslation } from '@shared/lib';
 
 interface Book {
@@ -64,7 +64,7 @@ export function Bookshelf({
       const data = await res.json();
       setBooks(data.books || [...books, book]);
       setNewBook({ title: '', author: '', coverUrl: '', url: '' });
-    } catch (e) {
+    } catch {
       setBooks([...books, book]);
     }
     setSaving(false);
@@ -80,7 +80,7 @@ export function Bookshelf({
       });
       const data = await res.json();
       setBooks(data.books || books.filter(b => b.id !== bookId));
-    } catch (e) {
+    } catch {
       setBooks(books.filter(b => b.id !== bookId));
     }
     setSaving(false);

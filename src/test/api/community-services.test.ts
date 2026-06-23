@@ -39,9 +39,60 @@ vi.mock('@api/server', () => ({
     },
   },
   db: mocks.dbMock,
-  communityServiceListings: { id: 'id', tenantId: 'tenantId', providerId: 'providerId', title: 'title', description: 'description', category: 'category', subcategory: 'subcategory', priceType: 'priceType', price: 'price', currency: 'currency', serviceAreas: 'serviceAreas', availability: 'availability', licenseNumber: 'licenseNumber', insuranceExpiry: 'insuranceExpiry', responseTime: 'responseTime', contactMethods: 'contactMethods', images: 'images', portfolio: 'portfolio', status: 'status', isPublished: 'isPublished', isFeatured: 'isFeatured', rating: 'rating', reviewCount: 'reviewCount', termsAndConditions: 'termsAndConditions', cancellationPolicy: 'cancellationPolicy', verificationDate: 'verificationDate', verified: 'verified', createdAt: 'createdAt', updatedAt: 'updatedAt', slug: 'slug', locale: 'locale', deletedAt: 'deletedAt', __brand: 'table' },
-  communityServiceReviews: { id: 'id', listingId: 'listingId', reviewerId: 'reviewerId', rating: 'rating', title: 'title', comment: 'comment', serviceDate: 'serviceDate', responseQuality: 'responseQuality', isPublished: 'isPublished', createdAt: 'createdAt', __brand: 'table' },
-  communityServiceInquiries: { id: 'id', listingId: 'listingId', status: 'status', __brand: 'table' },
+  communityServiceListings: {
+    id: 'id',
+    tenantId: 'tenantId',
+    providerId: 'providerId',
+    title: 'title',
+    description: 'description',
+    category: 'category',
+    subcategory: 'subcategory',
+    priceType: 'priceType',
+    price: 'price',
+    currency: 'currency',
+    serviceAreas: 'serviceAreas',
+    availability: 'availability',
+    licenseNumber: 'licenseNumber',
+    insuranceExpiry: 'insuranceExpiry',
+    responseTime: 'responseTime',
+    contactMethods: 'contactMethods',
+    images: 'images',
+    portfolio: 'portfolio',
+    status: 'status',
+    isPublished: 'isPublished',
+    isFeatured: 'isFeatured',
+    rating: 'rating',
+    reviewCount: 'reviewCount',
+    termsAndConditions: 'termsAndConditions',
+    cancellationPolicy: 'cancellationPolicy',
+    verificationDate: 'verificationDate',
+    verified: 'verified',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    slug: 'slug',
+    locale: 'locale',
+    deletedAt: 'deletedAt',
+    __brand: 'table',
+  },
+  communityServiceReviews: {
+    id: 'id',
+    listingId: 'listingId',
+    reviewerId: 'reviewerId',
+    rating: 'rating',
+    title: 'title',
+    comment: 'comment',
+    serviceDate: 'serviceDate',
+    responseQuality: 'responseQuality',
+    isPublished: 'isPublished',
+    createdAt: 'createdAt',
+    __brand: 'table',
+  },
+  communityServiceInquiries: {
+    id: 'id',
+    listingId: 'listingId',
+    status: 'status',
+    __brand: 'table',
+  },
   conversations: { id: 'id', __brand: 'table' },
   conversationParticipants: { id: 'id', userId: 'userId', __brand: 'table' },
   messages: { id: 'id', __brand: 'table' },
@@ -443,9 +494,7 @@ describe('GET /community-services/listings/[id]', () => {
     const chain = makeFullSelectChain([
       { ...mockListing, isPublished: true, providerId: 'provider-1' },
     ]);
-    let callCount = 0;
     mocks.dbMock.select.mockImplementation(() => {
-      callCount++;
       return chain;
     });
 
@@ -459,9 +508,7 @@ describe('GET /community-services/listings/[id]', () => {
     const chain = makeFullSelectChain([
       { ...mockListing, isPublished: false, providerId: 'provider-1' },
     ]);
-    let callCount = 0;
     mocks.dbMock.select.mockImplementation(() => {
-      callCount++;
       return chain;
     });
 
@@ -922,7 +969,6 @@ describe('GET /community-services/inquiries', () => {
 
     const request = req('http://localhost:3000/api/community-services/inquiries');
     const response = await inquiriesGET(request);
-    const body = await response.json();
     expect(response.status).toBe(200);
   });
 });

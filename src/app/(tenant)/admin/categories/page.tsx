@@ -3,12 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Breadcrumbs } from '@shared/ui';
 
-interface Setting {
-  id: string;
-  key: string;
-  value: string;
-}
-
 export default function GroupCategoriesPage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +37,7 @@ export default function GroupCategoriesPage() {
         setMessage('Categories saved successfully!');
         setTimeout(() => setMessage(''), 3000);
       }
-    } catch (error) {
+    } catch {
       setMessage('Failed to save');
     } finally {
       setSaving(false);

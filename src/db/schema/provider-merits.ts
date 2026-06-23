@@ -9,5 +9,6 @@ export const providerMerits = pgTable('provider_merits', {
   points: integer('points').notNull(),
   description: text('description'),
   referenceId: text('reference_id'),
+  evidenceUrl: text('evidence_url'),
   createdAt: timestamp('created_at', { mode: 'date', precision: 3 }).defaultNow().notNull(),
 });

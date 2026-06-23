@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useApiToast } from '@shared/lib/hooks';
 
 /*
@@ -20,8 +19,7 @@ interface TagCloudWidgetProps {
   authorId?: string;
 }
 
-export function TagCloudWidget({ widgetId, authorId }: TagCloudWidgetProps) {
-  const { t } = useTranslation('dashboard');
+export function TagCloudWidget({ widgetId: _widgetId, authorId }: TagCloudWidgetProps) {
   const { fetch: apiFetch } = useApiToast({ component: 'TagCloudWidget' });
   const [tags, setTags] = useState<{ name: string; size: string; count: number }[]>([]);
   const [loading, setLoading] = useState(true);

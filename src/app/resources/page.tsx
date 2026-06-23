@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { CARD_ANIMATIONS, createComponentLogger } from '@shared/lib';
+import { createComponentLogger } from '@shared/lib';
 import { usePageLoading } from '@shared/ui';
 
 const log = createComponentLogger('resources-page');

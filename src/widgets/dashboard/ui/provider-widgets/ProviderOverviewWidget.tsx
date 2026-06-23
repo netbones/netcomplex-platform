@@ -1,6 +1,12 @@
 'use client';
 
-import { ProviderMetricCard, ProviderSection, ProviderStatusBadge, ProviderStatusSummary, formatProviderDate } from './provider-ui';
+import {
+  ProviderMetricCard,
+  ProviderSection,
+  ProviderStatusBadge,
+  ProviderStatusSummary,
+  formatProviderDate,
+} from './provider-ui';
 import { useProviderDashboard } from './provider-queries';
 
 export function ProviderOverviewWidget() {
@@ -11,7 +17,11 @@ export function ProviderOverviewWidget() {
   }
 
   if (error || !data) {
-    return <div className="rounded-xl bg-red-50 p-4 text-sm text-red-700">Unable to load provider profile.</div>;
+    return (
+      <div className="rounded-xl bg-red-50 p-4 text-sm text-red-700">
+        Unable to load provider profile.
+      </div>
+    );
   }
 
   return (
@@ -26,8 +36,13 @@ export function ProviderOverviewWidget() {
               <h3 className="text-xl font-semibold text-gray-900">{data.companyName}</h3>
               <ProviderStatusBadge status={data.verificationStatus} />
             </div>
-            <p className="mt-1 text-sm text-gray-500">{data.trade} · {data.isActive ? 'Active provider profile' : 'Inactive provider profile'}</p>
-            <p className="mt-2 text-sm text-gray-600">Primary contact: {data.contactName || data.email || 'Not yet configured'}</p>
+            <p className="mt-1 text-sm text-gray-500">
+              {data.trade} ·{' '}
+              {data.isActive ? 'Active provider profile' : 'Inactive provider profile'}
+            </p>
+            <p className="mt-2 text-sm text-gray-600">
+              Primary contact: {data.contactName || data.email || 'Not yet configured'}
+            </p>
           </div>
           <div className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-600">
             <div>Started: {formatProviderDate(data.verification.startDate)}</div>
@@ -37,13 +52,25 @@ export function ProviderOverviewWidget() {
 
         <ProviderStatusSummary
           verification={data.verification}
-          remainingToVerification={data.creditProgress.remainingToVerification}
+          remainingToVerification={data.reputationProgress.remainingToVerification}
         />
 
         <div className="grid gap-3 md:grid-cols-3">
-          <ProviderMetricCard label="Credit score" value={data.creditScore} hint="Community trust points" />
-          <ProviderMetricCard label="Active listings" value={data.activeListingsCount} hint={`${data.listingCount} total listings`} />
-          <ProviderMetricCard label="Pending inquiries" value={data.pendingInquiries} hint={`${data.inquiryCount} total inquiries`} />
+          <ProviderMetricCard
+            label="Reputation score"
+            value={data.reputationScore}
+            hint="Community trust points"
+          />
+          <ProviderMetricCard
+            label="Active listings"
+            value={data.activeListingsCount}
+            hint={`${data.listingCount} total listings`}
+          />
+          <ProviderMetricCard
+            label="Pending inquiries"
+            value={data.pendingInquiries}
+            hint={`${data.inquiryCount} total inquiries`}
+          />
         </div>
       </div>
     </ProviderSection>

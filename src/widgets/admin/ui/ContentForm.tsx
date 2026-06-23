@@ -125,8 +125,6 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
     setPendingLocaleChange(null);
   }, []);
 
-  const availableLocales = supportedLanguages as readonly SupportedLanguage[];
-
   const handleLocaleChange = useCallback(
     (locale: SupportedLanguage) => {
       if (locale === activeLocale) return;
@@ -137,37 +135,6 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
       }
     },
     [activeLocale, localeDirtyState, switchLocale]
-  );
-
-  const handleCopyContent = useCallback(
-    (targetLocale: SupportedLanguage) => {
-      const sourceTitle = formValues.title?.[activeLocale] || '';
-      const sourceContent = formValues.content?.[activeLocale] || '';
-      const sourceExcerpt = formValues.excerpt?.[activeLocale] || '';
-
-      setValue(
-        'title',
-        { ...formValues.title, [targetLocale]: sourceTitle },
-        { shouldValidate: false }
-      );
-      setValue(
-        'content',
-        { ...formValues.content, [targetLocale]: sourceContent },
-        { shouldValidate: false }
-      );
-      setValue(
-        'excerpt',
-        { ...formValues.excerpt, [targetLocale]: sourceExcerpt },
-        { shouldValidate: false }
-      );
-
-      setLocaleDirtyState(prev => ({ ...prev, [targetLocale]: false }));
-
-      toast.success(
-        `Copied ${languageNames[activeLocale]} content to ${languageNames[targetLocale]}`
-      );
-    },
-    [activeLocale, formValues, setValue]
   );
 
   const onSubmit = async (data: ContentFormData) => {
@@ -214,7 +181,6 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
   const categoryError = errors.category?.message;
   const tagsError = errors.tags?.message;
 
-  const hasTitleForActiveLocale = !!formValues.title?.[activeLocale]?.trim();
   const hasContentForActiveLocale = !!formValues.content?.[activeLocale]?.trim();
 
   return (

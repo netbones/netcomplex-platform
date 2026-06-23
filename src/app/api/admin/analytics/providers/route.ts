@@ -6,7 +6,7 @@ import {
   apiSuccess,
   db,
   paymentTransactions,
-  providerCredits,
+  providerReputations,
   providerVerifications,
   requireAnyPermission,
   serviceProviders,
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
         companyName: serviceProviders.companyName,
         createdAt: serviceProviders.createdAt,
         status: sql<string>`coalesce(${providerVerifications.status}::text, 'PENDING')`,
-        creditScore: sql<number>`coalesce(${providerCredits.totalCredits}, 0)`,
+        reputationScore: sql<number>`coalesce(${providerReputations.totalScore}, 0)`,
       })
       .from(serviceProviders)
       .leftJoin(
@@ -51,10 +51,10 @@ export async function GET(request: NextRequest) {
         )
       )
       .leftJoin(
-        providerCredits,
+        providerReputations,
         and(
-          eq(providerCredits.tenantId, serviceProviders.tenantId),
-          eq(providerCredits.providerId, serviceProviders.id)
+          eq(providerReputations.tenantId, serviceProviders.tenantId),
+          eq(providerReputations.providerId, serviceProviders.id)
         )
       )
       .where(and(eq(serviceProviders.tenantId, tenantId), isNull(serviceProviders.deletedAt)));
@@ -73,11 +73,12 @@ export async function GET(request: NextRequest) {
 
     const verificationRate =
       totalProviders > 0 ? Number(((statusCounts.VERIFIED / totalProviders) * 100).toFixed(1)) : 0;
-    const averageCreditScore =
+    const averageReputationScore =
       totalProviders > 0
         ? Number(
             (
-              providerRows.reduce((sum, provider) => sum + (provider.creditScore ?? 0), 0) / totalProviders
+              providerRows.reduce((sum, provider) => sum + (provider.reputationScore ?? 0), 0) /
+              totalProviders
             ).toFixed(1)
           )
         : 0;
@@ -90,7 +91,7 @@ export async function GET(request: NextRequest) {
     ).length;
 
     const topProviders = [...providerRows]
-      .sort((left, right) => (right.creditScore ?? 0) - (left.creditScore ?? 0))
+      .sort((left, right) => (right.reputationScore ?? 0) - (left.reputationScore ?? 0))
       .slice(0, 5);
 
     const paymentFilters = [eq(paymentTransactions.tenantId, tenantId)];
@@ -161,7 +162,10 @@ export async function GET(request: NextRequest) {
 
     const suspendedReasons = providerRows
       .filter(provider => provider.status === 'SUSPENDED')
-      .map(provider => ({ companyName: provider.companyName, reason: 'See moderation notes in provider detail.' }))
+      .map(provider => ({
+        companyName: provider.companyName,
+        reason: 'See moderation notes in provider detail.',
+      }))
       .slice(0, 5);
 
     return apiSuccess({
@@ -175,7 +179,7 @@ export async function GET(request: NextRequest) {
         newProvidersThisMonth,
         newProvidersThisQuarter,
         verificationRate,
-        averageCreditScore,
+        averageReputationScore,
         suspendedCount: statusCounts.SUSPENDED,
         revenueMetrics,
       },

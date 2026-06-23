@@ -9,9 +9,7 @@ import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import {
   ChatMessage,
-  OnlineIndicator,
   TypingIndicator,
-  EmojiPickerButton,
   ParticipantAvatar,
   ParticipantAvatarStack,
   type ConversationListItem,
@@ -59,8 +57,7 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
   const [showNewChat, setShowNewChat] = useState(false);
-  const [typingUsers, setTypingUsers] = useState<string[]>([]);
-  const [onlineCount, setOnlineCount] = useState(0);
+  const [typingUsers] = useState<string[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -383,7 +380,6 @@ export function MessagesPage({ initialConversationId }: MessagesPageProps) {
                   const firstOtherParticipant = otherParticipants[0];
                   const otherParticipantName = firstOtherParticipant?.name || 'User';
                   const otherParticipantAvatar = firstOtherParticipant?.avatar;
-                  const otherParticipantId = firstOtherParticipant?.id;
                   const profileLink = firstOtherParticipant
                     ? `/resident/${firstOtherParticipant.id}`
                     : '#';

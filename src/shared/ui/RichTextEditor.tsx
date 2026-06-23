@@ -176,7 +176,7 @@ export function RichTextEditor({
         const error = await res.json();
         toast.error(error.error || 'Failed to upload image');
       }
-    } catch (e) {
+    } catch {
       toast.error('Failed to upload image');
     } finally {
       setUploading(false);

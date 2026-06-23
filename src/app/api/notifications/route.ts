@@ -4,8 +4,6 @@ import {
   notifications,
   users,
   apiCreated,
-  apiError,
-  apiGone,
   apiSuccess,
   apiUnauthorized,
   notDeleted,
@@ -97,10 +95,12 @@ export async function POST(request: Request) {
       id: crypto.randomUUID(),
       tenantId,
       userId: targetUserId,
+      senderId: body.senderId || null,
       title: body.title,
       message: body.message,
       type: (body.type || 'info') as 'info' | 'warning' | 'success' | 'error',
       link: body.link || '',
+      payload: body.payload || null,
       read: false,
     })
     .returning();
@@ -140,7 +140,7 @@ export async function PATCH(request: Request) {
   if (body.all) {
     await db
       .update(notifications)
-      .set({ read: true })
+      .set({ read: true, readAt: new Date() })
       .where(
         and(
           notDeleted(notifications),
@@ -151,7 +151,7 @@ export async function PATCH(request: Request) {
   } else if (body.id) {
     await db
       .update(notifications)
-      .set({ read: true })
+      .set({ read: true, readAt: new Date() })
       .where(
         and(
           notDeleted(notifications),

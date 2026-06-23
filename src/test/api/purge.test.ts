@@ -31,19 +31,16 @@ vi.mock('@api/server', async () => {
     messages: { id: 'id', deletedAt: 'deletedAt' },
     apiSuccess: (data: unknown) =>
       NextResponse.json({ success: true, data }, { status: 200 }) as any,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     apiUnauthorized: (_message = 'Authentication required') =>
       NextResponse.json(
         { success: false, error: { code: 'AUTH_REQUIRED', message: 'Authentication required' } },
         { status: 401 }
       ) as any,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     apiForbidden: (_message = 'Forbidden') =>
       NextResponse.json(
         { success: false, error: { code: 'FORBIDDEN', message: 'Forbidden' } },
         { status: 403 }
       ) as any,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     apiInternalError: (_message = 'Internal server error') =>
       NextResponse.json(
         { success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },

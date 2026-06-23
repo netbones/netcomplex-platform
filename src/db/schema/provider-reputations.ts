@@ -1,10 +1,10 @@
 import { pgTable, text, integer, timestamp } from 'drizzle-orm/pg-core';
 
-export const providerCredits = pgTable('provider_credits', {
+export const providerReputations = pgTable('provider_reputation', {
   id: text('id').primaryKey(),
   providerId: text('provider_id').notNull(),
   tenantId: text('tenant_id').notNull(),
-  totalCredits: integer('total_credits').default(0).notNull(),
+  totalScore: integer('total_score').default(0).notNull(),
   responseTimeScore: integer('response_time_score'),
   qualityScore: integer('quality_score'),
   reviewScore: integer('review_score'),

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link';
 import { authClient } from '@api/client';
 import { createComponentLogger } from '@shared/lib';
 

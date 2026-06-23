@@ -30,10 +30,6 @@ import {
   apiSuspendedUser,
   apiInternalError,
   ERROR_CODES,
-  ApiSuccessResponse,
-  ApiErrorResponse,
-  ApiPaginatedResponse,
-  ApiPaginatedMeta,
 } from '@api/server';
 
 describe('api-response', () => {

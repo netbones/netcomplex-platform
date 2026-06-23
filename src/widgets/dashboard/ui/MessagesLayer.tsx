@@ -101,8 +101,6 @@ function MessagesLayerError({ onRetry }: { onRetry: () => void }) {
 // ═══════════════════════════════════════════════════════════════
 
 export function MessagesLayer() {
-  const { tx } = useSafeTranslation('messages');
-
   const [urgency, setUrgency] = useState<UrgencyResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);

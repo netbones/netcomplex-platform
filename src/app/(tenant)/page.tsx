@@ -12,7 +12,7 @@ const CommunityMap = dynamic(() => import('@entities/directory').then(mod => mod
   loading: () => <div className="h-96 w-full bg-gray-100 rounded-lg animate-pulse" />,
 });
 
-import { UnifiedResidentCard, type Resident } from '@entities/directory';
+import { UnifiedResidentCard } from '@entities/directory';
 
 export default function HomePage() {
   const { t, ready } = useTranslation('common');

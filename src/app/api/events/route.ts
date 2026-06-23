@@ -5,7 +5,6 @@ import {
   eventAttendees,
   revalidateContent,
   apiCreated,
-  apiError,
   apiForbidden,
   apiSuccess,
   apiUnauthorized,

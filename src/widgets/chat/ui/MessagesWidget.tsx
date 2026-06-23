@@ -1,6 +1,5 @@
 'use client';
 
-import { useSafeTranslation } from '@shared/lib';
 import Link from 'next/link';
 import { authClient } from '@api/client';
 import { useConversations } from '@shared/lib/hooks';
@@ -8,7 +7,6 @@ import type { ConversationListItem } from '@entities/chat';
 import { ParticipantAvatar } from '@entities/chat';
 
 export function MessagesWidget() {
-  const { tx } = useSafeTranslation('common');
   const { data: session } = authClient.useSession();
   const { data: conversations = [], isLoading } = useConversations<ConversationListItem>(
     session?.user?.id
@@ -47,7 +45,7 @@ export function MessagesWidget() {
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition"
           >
             <div className="flex -space-x-2">
-              {otherParticipants.slice(0, 2).map((participant, i) => (
+              {otherParticipants.slice(0, 2).map((participant, _i) => (
                 <ParticipantAvatar
                   key={participant.id}
                   name={participant.name || ''}

@@ -5,7 +5,6 @@ import {
   apiSuccess,
   apiNotFound,
   apiGone,
-  apiError,
   now,
   withErrorHandler,
 } from '@api/server';

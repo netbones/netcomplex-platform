@@ -62,6 +62,7 @@ export const DEFAULT_RATE_LIMITS: Record<string, RateLimitConfig> = {
   messages: { windowMs: 60_000, maxRequests: 30 },
   notifications: { windowMs: 60_000, maxRequests: 60 },
   upload: { windowMs: 60_000, maxRequests: 10 },
+  merits: { windowMs: 60_000, maxRequests: 20 },
 };
 
 export async function rateLimitByKey(

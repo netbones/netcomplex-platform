@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       return providerAccess;
     }
 
-    const { auth, tenantId, providerRecord, verification, credits } = providerAccess;
+    const { auth, tenantId, providerRecord, verification, reputation } = providerAccess;
 
     if (!providerRecord) {
       return apiNotFound('Provider registration is not complete for this account');
@@ -97,8 +97,8 @@ export async function GET(request: NextRequest) {
       isActive: providerRecord.isActive,
       verificationStatus: verification.displayStatus,
       verification,
-      creditScore: credits.totalCredits,
-      creditProgress: credits,
+      reputationScore: reputation.totalScore,
+      reputationProgress: reputation,
       listingCount: listingRows.length,
       activeListingsCount: activeListings.length,
       inquiryCount,

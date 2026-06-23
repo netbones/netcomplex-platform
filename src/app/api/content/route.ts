@@ -59,8 +59,6 @@ async function getSessionAndRole(request: Request) {
  * @query locale - Content locale to fetch (default: user's browser locale or 'en')
  */
 export const GET = withErrorHandler(async (request: Request) => {
-  const authData = await getSessionAndRole(request);
-
   // Enforce tenant isolation
   const { tenantId } = await withTenant();
 

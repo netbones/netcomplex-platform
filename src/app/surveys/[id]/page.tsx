@@ -1,7 +1,6 @@
 'use client';
 
 import { use, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FileText, Loader2, Send, CheckCircle2, AlertCircle, Star, ArrowLeft } from 'lucide-react';
 import type { Survey, SurveyQuestion, SurveySection } from '@entities/survey';
@@ -255,7 +254,6 @@ function QuestionFormField({
 
 export default function SurveyResponsePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const router = useRouter();
   const [data, setData] = useState<SurveyDetail | null>(null);
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [loading, setLoading] = useState(true);

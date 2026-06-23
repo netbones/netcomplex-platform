@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { use } from 'react';
 import Link from 'next/link';
 import { Calendar, MapPin, User, ArrowLeft } from 'lucide-react';
-import { ErrorBoundary, LoadingSpinner, Breadcrumbs } from '@shared/ui';
+import { LoadingSpinner, Breadcrumbs } from '@shared/ui';
 import { EventAttendance } from '@features/events';
 
 interface EventDetail {

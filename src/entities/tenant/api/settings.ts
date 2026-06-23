@@ -26,6 +26,12 @@ export const SETTINGS_KEYS = {
   STATS_YEARS: 'stats_years',
   STATS_BIRD_SPECIES: 'stats_bird_species',
   STATS_NATIVE_PLANTS: 'stats_native_plants',
+
+  // Merit system tier thresholds (JSON: { GOLD, SILVER, BRONZE, PROBATION })
+  MERIT_TIER_THRESHOLDS: 'merit_tier_thresholds',
+
+  // Merit system — optional MERIT record expiry (days as string, default null = never)
+  MERIT_EXPIRY_DAYS: 'merit_expiry_days',
 } as const;
 
 export type SettingsKey = (typeof SETTINGS_KEYS)[keyof typeof SETTINGS_KEYS];

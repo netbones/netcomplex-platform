@@ -1,4 +1,4 @@
-import { db, contents, users, apiError, apiSuccess, apiInternalError } from '@api/server';
+import { db, contents, users, apiSuccess, apiInternalError } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';

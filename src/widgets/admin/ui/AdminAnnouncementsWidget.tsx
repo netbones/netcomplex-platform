@@ -1,13 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
 import { logError } from '@shared/lib';
-import {
-  PRIORITY_TAXONOMY,
-  type AnnouncementPriority,
-} from '@features/announcements';
+import { PRIORITY_TAXONOMY, type AnnouncementPriority } from '@features/announcements';
 
 interface AdminAnnouncementItem {
   id: string;

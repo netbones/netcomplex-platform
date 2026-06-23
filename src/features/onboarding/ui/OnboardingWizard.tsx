@@ -1,7 +1,6 @@
 'use client';
 
-import { useOnboarding, type OnboardingStep } from '../model/useOnboarding';
-import { OnboardingStep as StepWrapper } from './OnboardingStep';
+import { useOnboarding } from '../model/useOnboarding';
 import { BrandingStep } from './steps/BrandingStep';
 import { ModulesStep } from './steps/ModulesStep';
 import { FacilitiesStep } from './steps/FacilitiesStep';

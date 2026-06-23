@@ -234,17 +234,20 @@ model Organization {
 }
 
 model Notification {
-  id        String    @id
+  id        String        @id
   tenantId  String
   userId    String
+  senderId  String?
   title     String
   message   String
-  type      String
+  type      NotificationType @default(info)
   link      String?
-  read      Boolean   @default(false)
-  createdAt DateTime  @default(now())
+  read      Boolean       @default(false)
+  readAt    DateTime?
+  payload   Json?
+  createdAt DateTime      @default(now())
   deletedAt DateTime?
-  user      user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      user          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, userId])
 }
@@ -976,7 +979,7 @@ model ServiceProvider {
 
   verifications  ProviderVerification[]
   legalAgreements ProviderLegalAgreement[]
-  credit         ProviderCredit?
+  reputation     ProviderReputation?
   merits         ProviderMerit[]
   subscriptions  ProviderSubscription[]
   transactions   PaymentTransaction[]
@@ -1123,11 +1126,11 @@ model ProviderLegalAgreement {
   @@map("provider_legal_agreements")
 }
 
-model ProviderCredit {
+model ProviderReputation {
   id                  String    @id @default(cuid())
   providerId          String    @unique @map("provider_id")
   tenantId            String    @map("tenant_id")
-  totalCredits        Int       @default(0) @map("total_credits")
+  totalScore        Int       @default(0) @map("total_score")
   responseTimeScore   Int?      @map("response_time_score")
   qualityScore        Int?      @map("quality_score")
   reviewScore         Int?      @map("review_score")
@@ -1140,7 +1143,7 @@ model ProviderCredit {
   provider ServiceProvider @relation(fields: [providerId], references: [id])
 
   @@index([tenantId])
-  @@map("provider_credits")
+  @@map("provider_reputation")
 }
 
 model ProviderMerit {
@@ -1151,6 +1154,7 @@ model ProviderMerit {
   points      Int
   description String?
   referenceId String?           @map("reference_id")
+  evidenceUrl String?           @map("evidence_url")
   createdAt   DateTime          @default(now()) @map("created_at")
 
   provider ServiceProvider @relation(fields: [providerId], references: [id])
@@ -1389,6 +1393,7 @@ model CommunityMerit {
   standingAfter      Int?
   status             BehaviorRecordStatus @default(ACTIVE)
   disputeReason      String?
+  disputeHistory     Json?                 @map("dispute_history")
   disputedAt         DateTime?
   resolvedById       String?
   resolvedAt         DateTime?
@@ -1779,6 +1784,13 @@ enum SubscriptionStatus {
 enum PaymentGateway {
   PAYSTACK
   PAYPAL
+}
+
+enum NotificationType {
+  info
+  warning
+  success
+  error
 }
 
 enum TransactionStatus {

@@ -4,12 +4,6 @@ import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('statsig-flags');
 
-interface FlagEntities {
-  tenant?: { id: string };
-  user?: { id: string; role?: string; householdId?: string };
-  household?: { id: string; type?: string };
-}
-
 const identify = dedupe(({ cookies }: { cookies: ReadonlyRequestCookies }) => {
   const tenantId = cookies.get('x-tenant-id')?.value;
   const userId = cookies.get('user-id')?.value;

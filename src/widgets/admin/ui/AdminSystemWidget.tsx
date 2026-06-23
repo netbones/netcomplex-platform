@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 
@@ -16,7 +15,6 @@ interface SystemStatus {
 }
 
 export function AdminSystemWidget() {
-  const { t } = useTranslation('admin');
   const [systemStatus, setSystemStatus] = useState<SystemStatus>({
     apiHealth: 'healthy',
     databaseStatus: 'connected',

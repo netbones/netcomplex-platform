@@ -39,6 +39,14 @@ import { serviceProviders } from '@schema/service-providers';
 import { maintenanceRequests } from '@schema/maintenance-requests';
 import { settings } from '@schema/settings';
 import { announcements } from '@schema/announcements';
+import { subscriptionTiers } from '@schema/subscription-tiers';
+import { providerReputations } from '@schema/provider-reputations';
+import { providerMerits } from '@schema/provider-merits';
+import { providerSubscriptions } from '@schema/provider-subscriptions';
+import { paymentTransactions } from '@schema/payment-transactions';
+import { providerCharges } from '@schema/provider-charges';
+import { providerInvoices } from '@schema/provider-invoices';
+import { revenueRecords } from '@schema/revenue-records';
 
 import type { TenantSeedData } from './seed-data/types';
 import { withTenantPrefix, withTenantId, newTenantId } from './seed-data/builder';
@@ -387,6 +395,86 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
     await db.insert(serviceProviders).values(p).onConflictDoNothing();
   }
   console.log(`  ✓ ${provRows.length} service providers`);
+
+  // Subscription tiers (tenant-scoped billing plans)
+  console.log('Subscription tiers...');
+  const tierRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.subscriptionTiers))
+  );
+  for (const t of tierRows) {
+    await db.insert(subscriptionTiers).values(t).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${tierRows.length} subscription tiers`);
+
+  // Provider reputation
+  console.log('Provider reputation...');
+  const reputationRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.providerReputations))
+  );
+  for (const c of reputationRows) {
+    await db.insert(providerReputations).values(c).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${reputationRows.length} provider reputation`);
+
+  // Provider merits
+  console.log('Provider merits...');
+  const meritRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.providerMerits))
+  );
+  for (const m of meritRows) {
+    await db.insert(providerMerits).values(m).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${meritRows.length} provider merits`);
+
+  // Provider subscriptions
+  console.log('Provider subscriptions...');
+  const subRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.providerSubscriptions))
+  );
+  for (const s of subRows) {
+    await db.insert(providerSubscriptions).values(s).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${subRows.length} provider subscriptions`);
+
+  // Payment transactions
+  console.log('Payment transactions...');
+  const txRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.paymentTransactions))
+  );
+  for (const t of txRows) {
+    await db.insert(paymentTransactions).values(t).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${txRows.length} payment transactions`);
+
+  // Provider charges
+  console.log('Provider charges...');
+  const chgRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.providerCharges))
+  );
+  for (const c of chgRows) {
+    await db.insert(providerCharges).values(c).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${chgRows.length} provider charges`);
+
+  // Provider invoices
+  console.log('Provider invoices...');
+  const invRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.providerInvoices))
+  );
+  for (const i of invRows) {
+    await db.insert(providerInvoices).values(i).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${invRows.length} provider invoices`);
+
+  // Revenue records
+  console.log('Revenue records...');
+  const revenueRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.revenueRecords))
+  );
+  for (const r of revenueRows) {
+    await db.insert(revenueRecords).values(r).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${revenueRows.length} revenue records`);
 
   // Maintenance requests
   console.log('Maintenance requests...');

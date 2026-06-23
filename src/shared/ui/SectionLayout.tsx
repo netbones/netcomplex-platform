@@ -44,8 +44,6 @@ export function SectionLayout({
     lg: 'px-4 sm:px-6 lg:px-8',
   };
 
-  const Container = container ? 'div' : 'section';
-
   const containerClasses = container ? 'max-w-7xl mx-auto' : '';
 
   return (

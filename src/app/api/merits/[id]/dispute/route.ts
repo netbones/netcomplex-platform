@@ -55,12 +55,17 @@ export const POST = withErrorHandler(
     }
 
     const ts = now();
+    const currentHistory: unknown[] = (record.disputeHistory as unknown[]) ?? [];
     await db
       .update(communityMerits)
       .set({
         status: 'DISPUTED',
         disputeReason: reason,
         disputedAt: ts,
+        disputeHistory: [
+          ...currentHistory,
+          { type: 'FILED', actorId: session.user.id, reason, timestamp: ts.toISOString() },
+        ],
       })
       .where(eq(communityMerits.id, id));
 

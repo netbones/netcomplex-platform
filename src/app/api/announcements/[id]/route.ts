@@ -5,7 +5,6 @@ import {
   resources,
   revalidateDashboard,
   auth,
-  apiError,
   apiNotFound,
   apiSuccess,
   apiUnauthorized,

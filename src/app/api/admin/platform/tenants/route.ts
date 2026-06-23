@@ -3,14 +3,7 @@ import { listTenants, createTenant } from '@entities/tenant/server';
 import { requirePlatformAdmin } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
-import {
-  apiCreated,
-  apiError,
-  apiSuccess,
-  apiInternalError,
-  writeAuditLog,
-  auth,
-} from '@api/server';
+import { apiCreated, apiSuccess, apiInternalError, writeAuditLog, auth } from '@api/server';
 
 export const maxDuration = 8;
 

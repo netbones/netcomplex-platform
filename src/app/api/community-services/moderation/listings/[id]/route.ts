@@ -4,7 +4,6 @@ import {
   db,
   communityServiceListings,
   users,
-  apiError,
   apiInternalError,
   apiSuccess,
   apiUnauthorized,

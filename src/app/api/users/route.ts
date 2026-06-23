@@ -22,8 +22,6 @@ import { eq, and, or, asc, ilike, count, ne, sql, inArray } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { toUserDTO } from '@api/shared';
-import type { InferSelectModel } from 'drizzle-orm';
-
 export const maxDuration = 8;
 
 /**

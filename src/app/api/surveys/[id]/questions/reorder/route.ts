@@ -4,7 +4,6 @@ import {
   questions,
   surveys,
   users,
-  apiError,
   apiForbidden,
   apiNotFound,
   apiSuccess,

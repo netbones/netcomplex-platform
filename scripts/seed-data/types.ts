@@ -391,6 +391,117 @@ export interface AnnouncementInput {
 }
 
 // ---------------------------------------------------------------------------
+// Provider Billing
+// ---------------------------------------------------------------------------
+
+export interface SubscriptionTierInput {
+  id: string;
+  name: string;
+  description: string | null;
+  price: string;
+  currency?: string;
+  maxListings: number | null;
+  features: Record<string, unknown>;
+  platformFeePercent: string;
+  verificationRequired: boolean;
+}
+
+export interface ProviderReputationInput {
+  id: string;
+  providerId: string;
+  totalScore: number;
+  responseTimeScore: number | null;
+  qualityScore: number | null;
+  reviewScore: number | null;
+  complianceScore: number | null;
+  engagementScore: number | null;
+  lastCalculatedAt: Date | null;
+}
+
+export interface ProviderMeritInput {
+  id: string;
+  providerId: string;
+  meritType: string;
+  points: number;
+  description?: string;
+  referenceId?: string;
+  evidenceUrl?: string;
+  createdAt: string;
+}
+
+export interface ProviderSubscriptionInput {
+  id: string;
+  providerId: string;
+  tierId: string;
+  status: 'ACTIVE' | 'CANCELLED' | 'EXPIRED' | 'PENDING';
+  startDate: Date;
+  endDate: Date | null;
+  nextBillingDate: Date | null;
+  price: string;
+  currency?: string;
+  paymentGateway: 'PAYSTACK' | 'PAYPAL' | null;
+}
+
+export interface PaymentTransactionInput {
+  id: string;
+  providerId: string;
+  subscriptionId: string;
+  amount: string;
+  currency?: string;
+  platformFee: string;
+  processorFee: string;
+  netAmount: string;
+  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
+  gateway: 'PAYSTACK' | 'PAYPAL';
+  externalRef: string | null;
+  invoiceUrl: string | null;
+}
+
+export interface ProviderChargeInput {
+  id: string;
+  providerId: string;
+  subscriptionId: string;
+  transactionId: string | null;
+  description: string;
+  amount: string;
+  currency?: string;
+  status: 'PENDING' | 'PAID' | 'FAILED';
+  gateway: 'PAYSTACK' | 'PAYPAL' | null;
+  externalRef: string | null;
+  dueDate: Date;
+  paidAt: Date | null;
+}
+
+export interface ProviderInvoiceInput {
+  id: string;
+  providerId: string;
+  subscriptionId: string;
+  transactionId: string;
+  invoiceNumber: string;
+  items: unknown;
+  total: string;
+  platformFee: string;
+  processorFee: string;
+  netAmount: string;
+  currency?: string;
+  status: 'PENDING' | 'PAID' | 'VOID';
+  paidAt: Date | null;
+  pdfUrl: string | null;
+}
+
+export interface RevenueRecordInput {
+  id: string;
+  providerId: string;
+  transactionId: string;
+  grossAmount: string;
+  platformFee: string;
+  processorFee: string;
+  netAmount: string;
+  currency?: string;
+  period: string;
+}
+
+// ---------------------------------------------------------------------------
 // Aggregate
 // ---------------------------------------------------------------------------
 
@@ -424,4 +535,12 @@ export interface TenantSeedData {
   maintenanceRequests: MaintenanceRequestInput[];
   settings: SettingInput[];
   announcements?: AnnouncementInput[];
+  subscriptionTiers: SubscriptionTierInput[];
+  providerReputations: ProviderReputationInput[];
+  providerMerits: ProviderMeritInput[];
+  providerSubscriptions: ProviderSubscriptionInput[];
+  paymentTransactions: PaymentTransactionInput[];
+  providerCharges: ProviderChargeInput[];
+  providerInvoices: ProviderInvoiceInput[];
+  revenueRecords: RevenueRecordInput[];
 }

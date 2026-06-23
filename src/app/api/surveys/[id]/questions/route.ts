@@ -5,7 +5,6 @@ import {
   surveys,
   users,
   apiCreated,
-  apiError,
   apiForbidden,
   apiNotFound,
   apiSuccess,
@@ -16,7 +15,7 @@ import {
 
 import { hasPermission } from '@shared/lib';
 
-import { eq, and, asc, sql, inArray } from 'drizzle-orm';
+import { eq, and, asc, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 
 export const maxDuration = 8;

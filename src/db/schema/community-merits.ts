@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, jsonb, timestamp } from 'drizzle-orm/pg-core';
 import { behaviorTypeEnum } from './behavior-type-enum';
 import { behaviorCategoryEnum } from './behavior-category-enum';
 import { behaviorRecordStatusEnum } from './behavior-record-status-enum';
@@ -17,6 +17,7 @@ export const communityMerits = pgTable('community_merits', {
   standingAfter: integer('standingAfter'),
   status: behaviorRecordStatusEnum('status').default('ACTIVE').notNull(),
   disputeReason: text('disputeReason'),
+  disputeHistory: jsonb('dispute_history'),
   disputedAt: timestamp('disputedAt', { mode: 'date', precision: 3 }),
   resolvedById: text('resolvedById'),
   resolvedAt: timestamp('resolvedAt', { mode: 'date', precision: 3 }),

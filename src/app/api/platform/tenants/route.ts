@@ -1,11 +1,9 @@
 import { NextRequest } from 'next/server';
 import { TIERS, type TierLevel } from '@entities/tenant';
-import { createTenant, getTenantById } from '@entities/tenant/server';
 import {
   db,
   users,
   tenants,
-  apiCreated,
   apiConflict,
   apiError,
   apiInternalError,
@@ -145,9 +143,6 @@ export async function POST(request: NextRequest) {
       await db.delete(users).where(eq(users.id, userId));
       throw err;
     }
-
-    // Fetch the fully-linked tenant for response
-    const linkedTenant = await getTenantById(tenantId!);
 
     return apiSuccess(
       {

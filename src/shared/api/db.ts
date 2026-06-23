@@ -101,7 +101,7 @@ import { requestNotes } from '@schema/request-notes';
 import { requestHistories } from '@schema/request-histories';
 import { providerVerifications } from '@schema/provider-verifications';
 import { providerLegalAgreements } from '@schema/provider-legal-agreements';
-import { providerCredits } from '@schema/provider-credits';
+import { providerReputations } from '@schema/provider-reputations';
 import { providerMerits } from '@schema/provider-merits';
 import { subscriptionTiers } from '@schema/subscription-tiers';
 import { providerSubscriptions } from '@schema/provider-subscriptions';
@@ -174,7 +174,7 @@ const dbSchema = {
   requestHistories,
   providerVerifications,
   providerLegalAgreements,
-  providerCredits,
+  providerReputations,
   providerMerits,
   subscriptionTiers,
   providerSubscriptions,
@@ -362,7 +362,7 @@ export {
   requestHistories,
   providerVerifications,
   providerLegalAgreements,
-  providerCredits,
+  providerReputations,
   providerMerits,
   subscriptionTiers,
   providerSubscriptions,

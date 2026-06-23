@@ -35,52 +35,50 @@ export async function GET() {
     const today = now();
     const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-    const [openMaintenanceResult, upcomingBookingsResult, overdueMaintenanceResult] =
-      await Promise.all([
-        // Open maintenance requests (SUBMITTED status)
-        // Always user-scoped — the badge represents the user's own open requests
-        // on the user-facing services dashboard, regardless of role
-        db
-          .select({ count: count() })
-          .from(maintenanceRequests)
-          .where(
-            and(
-              eq(maintenanceRequests.tenantId, tenantId),
-              eq(maintenanceRequests.status, 'SUBMITTED'),
-              eq(maintenanceRequests.userId, userId)
-            )
-          ),
+    const [openMaintenanceResult, upcomingBookingsResult] = await Promise.all([
+      // Open maintenance requests (SUBMITTED status)
+      // Always user-scoped — the badge represents the user's own open requests
+      // on the user-facing services dashboard, regardless of role
+      db
+        .select({ count: count() })
+        .from(maintenanceRequests)
+        .where(
+          and(
+            eq(maintenanceRequests.tenantId, tenantId),
+            eq(maintenanceRequests.status, 'SUBMITTED'),
+            eq(maintenanceRequests.userId, userId)
+          )
+        ),
 
-        // Upcoming bookings (next 7 days)
-        db
-          .select({ count: count() })
-          .from(bookings)
-          .where(
-            and(
-              eq(bookings.tenantId, tenantId),
-              gte(bookings.date, today),
-              lte(bookings.date, sevenDaysFromNow)
-            )
-          ),
+      // Upcoming bookings (next 7 days)
+      db
+        .select({ count: count() })
+        .from(bookings)
+        .where(
+          and(
+            eq(bookings.tenantId, tenantId),
+            gte(bookings.date, today),
+            lte(bookings.date, sevenDaysFromNow)
+          )
+        ),
 
-        // Overdue maintenance (scheduledDate past, not completed/cancelled)
-        db
-          .select({ count: count() })
-          .from(maintenanceRequests)
-          .where(
-            and(
-              eq(maintenanceRequests.tenantId, tenantId),
-              lte(maintenanceRequests.scheduledDate, today),
-              notInArray(maintenanceRequests.status, ['COMPLETED', 'CANCELLED'])
-            )
-          ),
-      ]);
+      // Overdue maintenance (scheduledDate past, not completed/cancelled)
+      db
+        .select({ count: count() })
+        .from(maintenanceRequests)
+        .where(
+          and(
+            eq(maintenanceRequests.tenantId, tenantId),
+            lte(maintenanceRequests.scheduledDate, today),
+            notInArray(maintenanceRequests.status, ['COMPLETED', 'CANCELLED'])
+          )
+        ),
+    ]);
 
     const extractCount = (result: { count: number }[]) => result[0]?.count ?? 0;
 
     const openMaintenance = extractCount(openMaintenanceResult);
     const upcomingBookings = extractCount(upcomingBookingsResult);
-    const overdueMaintenance = extractCount(overdueMaintenanceResult);
 
     return apiSuccess({
       commandBar: {

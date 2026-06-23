@@ -41,18 +41,34 @@ vi.mock('@api/server', () => ({
   db: mocks.dbMock,
   users: { id: 'id', role: 'role', name: 'name', email: 'email' },
   maintenanceRequests: {
-    id: 'id', tenantId: 'tenantId', userId: 'userId', propertyId: 'propertyId',
+    id: 'id',
+    tenantId: 'tenantId',
+    userId: 'userId',
+    propertyId: 'propertyId',
     category: 'category',
     status: Object.assign('status', {
-      enumValues: ['SUBMITTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'ON_HOLD', 'SCHEDULED', 'RESOLVED'],
+      enumValues: [
+        'SUBMITTED',
+        'IN_PROGRESS',
+        'COMPLETED',
+        'CANCELLED',
+        'ON_HOLD',
+        'SCHEDULED',
+        'RESOLVED',
+      ],
     }),
     priority: Object.assign('priority', {
       enumValues: ['LOW', 'MEDIUM', 'HIGH', 'EMERGENCY'],
     }),
-    description: 'description', images: 'images', ticketNumber: 'ticketNumber',
-    preferredDate: 'preferredDate', preferredTime: 'preferredTime',
-    createdAt: 'createdAt', updatedAt: 'updatedAt',
-    assignedTeamId: 'assignedTeamId', assignedProviderId: 'assignedProviderId',
+    description: 'description',
+    images: 'images',
+    ticketNumber: 'ticketNumber',
+    preferredDate: 'preferredDate',
+    preferredTime: 'preferredTime',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    assignedTeamId: 'assignedTeamId',
+    assignedProviderId: 'assignedProviderId',
   },
   maintenanceTeams: { id: 'id', name: 'name', trade: 'trade' },
   serviceProviders: { id: 'id', companyName: 'companyName', trade: 'trade' },
@@ -115,8 +131,9 @@ vi.mock('@entities/tenant', () => ({
 
 // Mock maintenance services (server barrel) — stubs the two query functions the route uses
 vi.mock('@entities/maintenance/server', async () => {
-  const actual =
-    await vi.importActual<typeof import('@entities/maintenance/server')>('@entities/maintenance/server');
+  const actual = await vi.importActual<typeof import('@entities/maintenance/server')>(
+    '@entities/maintenance/server'
+  );
   return {
     ...actual,
     listMaintenanceRequests: (...args: unknown[]) => mocks.listMaintenanceRequests(...args),
@@ -143,7 +160,7 @@ vi.mock('@shared/lib', () => ({
 }));
 
 import { GET, POST } from '@/app/api/maintenance/route';
-import { makeSelectChain, makeInsertChain, createMockRequest } from './helpers';
+import { makeSelectChain } from './helpers';
 
 describe('Maintenance API', () => {
   beforeEach(() => {

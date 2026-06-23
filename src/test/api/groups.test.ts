@@ -21,12 +21,8 @@ const mocks = vi.hoisted(() => ({
     select: vi.fn(),
     insert: vi.fn(),
   },
-  apiSuccess: vi.fn((data: unknown) =>
-    Response.json({ success: true, data }, { status: 200 })
-  ),
-  apiCreated: vi.fn((data: unknown) =>
-    Response.json({ success: true, data }, { status: 201 })
-  ),
+  apiSuccess: vi.fn((data: unknown) => Response.json({ success: true, data }, { status: 200 })),
+  apiCreated: vi.fn((data: unknown) => Response.json({ success: true, data }, { status: 201 })),
   apiUnauthorized: vi.fn(() =>
     Response.json(
       { success: false, error: { code: 'AUTH_REQUIRED', message: 'Authentication required' } },
@@ -51,13 +47,30 @@ vi.mock('@api/server', () => ({
   auth: { api: { getSession: () => Promise.resolve(mocks.sessionResult) } },
   db: mocks.dbMock,
   groups: {
-    id: 'id', name: 'name', description: 'description', category: 'category',
-    image: 'image', color: 'color', isPublic: 'isPublic', accessType: 'accessType',
-    residentFilter: 'residentFilter', isActive: 'isActive', createdAt: 'createdAt',
-    updatedAt: 'updatedAt', ownerId: 'ownerId', tenantId: 'tenantId',
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    category: 'category',
+    image: 'image',
+    color: 'color',
+    isPublic: 'isPublic',
+    accessType: 'accessType',
+    residentFilter: 'residentFilter',
+    isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    ownerId: 'ownerId',
+    tenantId: 'tenantId',
   },
   users: { id: 'id', role: 'role', name: 'name' },
-  groupMembers: { id: 'id', userId: 'userId', groupId: 'groupId', role: 'role', joinedAt: 'joinedAt', tenantId: 'tenantId' },
+  groupMembers: {
+    id: 'id',
+    userId: 'userId',
+    groupId: 'groupId',
+    role: 'role',
+    joinedAt: 'joinedAt',
+    tenantId: 'tenantId',
+  },
   apiSuccess: mocks.apiSuccess,
   apiCreated: mocks.apiCreated,
   apiUnauthorized: mocks.apiUnauthorized,
@@ -76,7 +89,11 @@ vi.mock('@entities/tenant', () => ({
 
 vi.mock('@shared/lib', async importOriginal => {
   const actual = await importOriginal<typeof import('@shared/lib')>();
-  return { ...actual, hasPermission: mocks.hasPermission, apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() } };
+  return {
+    ...actual,
+    hasPermission: mocks.hasPermission,
+    apiLogger: { error: vi.fn(), info: vi.fn(), warn: vi.fn() },
+  };
 });
 
 import { GET, POST } from '@/app/api/groups/route';
@@ -88,8 +105,8 @@ const mockSession = (role: string) => {
 };
 
 const mockPermission = (perms: Record<string, boolean>) => {
-  mocks.hasPermission.mockImplementation((_role: string | null | undefined, perm: string) =>
-    perms[perm] === true
+  mocks.hasPermission.mockImplementation(
+    (_role: string | null | undefined, perm: string) => perms[perm] === true
   );
 };
 
@@ -104,14 +121,14 @@ describe('GET /api/groups', () => {
   });
 
   it('returns 401 when not authenticated', async () => {
-    const res = await GET(new Request('http://localhost:3000/api/groups') as any);
+    const res = await GET(new Request('http://localhost:3000/api/groups') as unknown as Request);
     expect(res.status).toBe(401);
   });
 
   it('returns 403 when role lacks permission and is not RESIDENT', async () => {
     mockSession('AGENT');
     mockPermission({});
-    const res = await GET(new Request('http://localhost:3000/api/groups') as any);
+    const res = await GET(new Request('http://localhost:3000/api/groups') as unknown as Request);
     expect(res.status).toBe(403);
   });
 
@@ -121,11 +138,26 @@ describe('GET /api/groups', () => {
 
     mocks.dbMock.select.mockReturnValueOnce(
       makeSelectChain([
-        { id: 'g-1', name: 'Book Club', ownerId: 'u-1', isActive: true, description: null, category: null, image: null, color: '#4F46E5', isPublic: true, accessType: 'OPEN', residentFilter: 'ALL', createdAt: null, updatedAt: null, ownerName: 'Alice' },
+        {
+          id: 'g-1',
+          name: 'Book Club',
+          ownerId: 'u-1',
+          isActive: true,
+          description: null,
+          category: null,
+          image: null,
+          color: '#4F46E5',
+          isPublic: true,
+          accessType: 'OPEN',
+          residentFilter: 'ALL',
+          createdAt: null,
+          updatedAt: null,
+          ownerName: 'Alice',
+        },
       ])
     );
 
-    const res = await GET(new Request('http://localhost:3000/api/groups') as any);
+    const res = await GET(new Request('http://localhost:3000/api/groups') as unknown as Request);
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.data).toHaveLength(1);
@@ -136,7 +168,7 @@ describe('GET /api/groups', () => {
     mockSession('RESIDENT');
     mockPermission({});
     mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
-    const res = await GET(new Request('http://localhost:3000/api/groups') as any);
+    const res = await GET(new Request('http://localhost:3000/api/groups') as unknown as Request);
     expect(res.status).toBe(200);
   });
 });
@@ -166,7 +198,20 @@ describe('POST /api/groups', () => {
     mockSession('ADMIN');
     mockPermission({ groups: true });
 
-    const created = { id: 'g-new', tenantId: 'test-tenant-id', name: 'New Group', description: 'Test', category: 'SOCIAL', image: null, isPublic: true, ownerId: 'user-1', color: '#4F46E5', accessType: 'OPEN', residentFilter: 'ALL', isActive: true };
+    const created = {
+      id: 'g-new',
+      tenantId: 'test-tenant-id',
+      name: 'New Group',
+      description: 'Test',
+      category: 'SOCIAL',
+      image: null,
+      isPublic: true,
+      ownerId: 'user-1',
+      color: '#4F46E5',
+      accessType: 'OPEN',
+      residentFilter: 'ALL',
+      isActive: true,
+    };
     mocks.dbMock.insert.mockReturnValue(makeInsertChain([created]));
 
     const res = await POST(

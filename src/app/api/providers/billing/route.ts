@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       companyName: providerAccess.providerRecord.companyName,
       verificationStatus: providerAccess.verification.displayStatus,
       verification: providerAccess.verification,
-      creditProgress: providerAccess.credits,
+      reputationProgress: providerAccess.reputation,
       ...billing,
     });
   } catch (error) {
@@ -71,9 +71,7 @@ export async function PATCH(request: NextRequest) {
       subscriptionId: parsed.data.subscriptionId,
       status: parsed.data.status,
       endDate: parsed.data.endDate ? new Date(parsed.data.endDate) : null,
-      nextBillingDate: parsed.data.nextBillingDate
-        ? new Date(parsed.data.nextBillingDate)
-        : null,
+      nextBillingDate: parsed.data.nextBillingDate ? new Date(parsed.data.nextBillingDate) : null,
     });
 
     if (!result.ok) {

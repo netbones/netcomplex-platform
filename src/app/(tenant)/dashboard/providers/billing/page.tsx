@@ -1,4 +1,4 @@
-import { BillingDashboard } from '@/components/providers/BillingDashboard';
+import { BillingDashboard } from '@features/provider-billing';
 
 export default function ProviderBillingPage() {
   return <BillingDashboard />;

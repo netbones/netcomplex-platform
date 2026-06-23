@@ -5,7 +5,6 @@ import {
   users,
   groupMembers,
   contents,
-  apiError,
   apiForbidden,
   apiNotFound,
   apiSuccess,

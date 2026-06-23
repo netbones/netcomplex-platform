@@ -3,7 +3,6 @@ import {
   users,
   apiSuccess,
   apiNotFound,
-  apiError,
   apiUnauthorized,
   getSessionAndRole,
   withErrorHandler,

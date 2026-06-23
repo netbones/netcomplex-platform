@@ -5,7 +5,6 @@ import {
   users,
   groupMembers,
   apiCreated,
-  apiError,
   apiForbidden,
   apiSuccess,
   apiUnauthorized,
@@ -15,7 +14,7 @@ import {
   withErrorHandler,
 } from '@api/server';
 
-import { hasPermission, Permission } from '@shared/lib';
+import { hasPermission } from '@shared/lib';
 
 import { eq, and, asc, inArray, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';

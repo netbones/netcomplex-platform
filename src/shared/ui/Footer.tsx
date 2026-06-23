@@ -11,7 +11,7 @@ import { authClient } from '@api/client';
 export function Footer() {
   const [mounted, setMounted] = useState(false);
   const { t, ready } = useTranslation('common');
-  const { contacts, loading } = useContactSettings();
+  const { contacts } = useContactSettings();
   const { flags } = usePageFlags();
   const { data: session } = authClient.useSession();
 

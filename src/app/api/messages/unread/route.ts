@@ -5,7 +5,6 @@ import {
   messages,
   conversations,
   conversationParticipants,
-  users,
   apiError,
   apiInternalError,
   apiSuccess,

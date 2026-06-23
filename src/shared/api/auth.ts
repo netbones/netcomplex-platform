@@ -29,7 +29,6 @@ import {
   signInEmailSchema,
   forgetPasswordSchema,
   resetPasswordSchema,
-  verifyOtpSchema,
   sendOtpSchema,
 } from './auth-schemas';
 

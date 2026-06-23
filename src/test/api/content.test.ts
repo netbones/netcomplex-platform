@@ -95,7 +95,9 @@ describe('Content API', () => {
     it('returns content list', async () => {
       mocks.listContentResult = [{ id: 'c-1', title: 'Article' }];
 
-      const response = await GET(new Request('http://localhost:3000/api/content') as any);
+      const response = await GET(
+        new Request('http://localhost:3000/api/content') as unknown as Request
+      );
       const body = await response.json();
 
       expect(response.status).toBe(200);

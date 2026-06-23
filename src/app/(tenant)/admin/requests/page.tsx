@@ -1327,7 +1327,7 @@ export default function AdminRequestsPage() {
                       {/* Vertical line */}
                       <div className="absolute left-3 top-2 bottom-2 w-0.5 bg-gray-200" />
                       <div className="space-y-4">
-                        {statusTimeline.map((entry, idx) => (
+                        {statusTimeline.map((entry, _idx) => (
                           <div key={entry.id} className="relative pl-8">
                             {/* Dot */}
                             <div

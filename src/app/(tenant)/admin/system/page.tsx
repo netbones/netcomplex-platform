@@ -96,7 +96,7 @@ export default function AdminSystemPage() {
   const { data: stats, isLoading: statsLoading } = useAdminStats();
 
   const [health, setHealth] = useState<HealthStatus | null>(null);
-  const [healthLoading, setHealthLoading] = useState(true);
+  const [, setHealthLoading] = useState(true);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [activityLoading, setActivityLoading] = useState(true);
 

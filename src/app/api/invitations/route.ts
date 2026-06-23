@@ -4,7 +4,6 @@ import {
   tenants,
   users,
   apiCreated,
-  apiError,
   apiSuccess,
   apiUnauthorized,
   getSessionAndRole,

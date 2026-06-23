@@ -6,7 +6,6 @@ import {
   questions,
   responses,
   apiCreated,
-  apiError,
   apiForbidden,
   apiSuccess,
   apiUnauthorized,

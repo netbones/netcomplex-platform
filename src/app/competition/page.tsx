@@ -3,7 +3,6 @@
 import { ErrorBoundary } from '@shared/ui';
 import { trpc } from '@api/client';
 import { useRouter } from 'next/navigation';
-import { LoadingCard } from '@shared/ui';
 
 const typeBadgeColors: Record<string, string> = {
   RAFFLE: 'bg-purple-100 text-purple-800',
@@ -184,7 +183,6 @@ function CompetitionContent() {
     data: competitions,
     isLoading,
     isError,
-    error,
     refetch,
   } = trpc.competitions.listPublicCompetitions.useQuery(undefined, {
     staleTime: 30_000,

@@ -30,15 +30,15 @@ export async function GET(request: NextRequest) {
 
     return apiSuccess({
       verificationStatus: providerAccess.verification.displayStatus,
-      creditScore: providerAccess.credits.totalCredits,
-      progress: providerAccess.credits,
+      reputationScore: providerAccess.reputation.totalScore,
+      progress: providerAccess.reputation,
       verification: providerAccess.verification,
       eligibleForVerification:
-        providerAccess.credits.totalCredits >= providerAccess.verification.verificationThreshold,
+        providerAccess.reputation.totalScore >= providerAccess.verification.verificationThreshold,
       band:
-        providerAccess.credits.totalCredits >= providerAccess.verification.verificationThreshold
+        providerAccess.reputation.totalScore >= providerAccess.verification.verificationThreshold
           ? 'VERIFIED_CANDIDATE'
-          : providerAccess.credits.totalCredits >= 100
+          : providerAccess.reputation.totalScore >= 100
             ? 'EMERGING'
             : 'PROBATION',
       merits: merits.slice(0, 10).map(merit => ({
@@ -52,8 +52,8 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     logError(
-      { component: 'provider-credits-api', operation: 'GET' },
-      'Provider credits fetch error',
+      { component: 'provider-reputation-api', operation: 'GET' },
+      'Provider reputation fetch error',
       error
     );
     return apiInternalError();

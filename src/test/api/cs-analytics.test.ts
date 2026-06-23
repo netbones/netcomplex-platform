@@ -34,9 +34,62 @@ vi.mock('@api/server', () => ({
     },
   },
   db: mocks.dbMock,
-  communityServiceListings: { id: 'id', tenantId: 'tenantId', providerId: 'providerId', title: 'title', description: 'description', category: 'category', subcategory: 'subcategory', priceType: 'priceType', price: 'price', currency: 'currency', serviceAreas: 'serviceAreas', availability: 'availability', licenseNumber: 'licenseNumber', insuranceExpiry: 'insuranceExpiry', responseTime: 'responseTime', contactMethods: 'contactMethods', images: 'images', portfolio: 'portfolio', status: 'status', isPublished: 'isPublished', isFeatured: 'isFeatured', rating: 'rating', reviewCount: 'reviewCount', termsAndConditions: 'termsAndConditions', cancellationPolicy: 'cancellationPolicy', verificationDate: 'verificationDate', verified: 'verified', createdAt: 'createdAt', updatedAt: 'updatedAt', slug: 'slug', locale: 'locale', deletedAt: 'deletedAt', __brand: 'table' },
-  communityServiceReviews: { id: 'id', listingId: 'listingId', reviewerId: 'reviewerId', rating: 'rating', title: 'title', comment: 'comment', serviceDate: 'serviceDate', responseQuality: 'responseQuality', isPublished: 'isPublished', createdAt: 'createdAt', __brand: 'table' },
-  communityServiceInquiries: { id: 'id', listingId: 'listingId', inquirerId: 'inquirerId', status: 'status', createdAt: 'createdAt', __brand: 'table' },
+  communityServiceListings: {
+    id: 'id',
+    tenantId: 'tenantId',
+    providerId: 'providerId',
+    title: 'title',
+    description: 'description',
+    category: 'category',
+    subcategory: 'subcategory',
+    priceType: 'priceType',
+    price: 'price',
+    currency: 'currency',
+    serviceAreas: 'serviceAreas',
+    availability: 'availability',
+    licenseNumber: 'licenseNumber',
+    insuranceExpiry: 'insuranceExpiry',
+    responseTime: 'responseTime',
+    contactMethods: 'contactMethods',
+    images: 'images',
+    portfolio: 'portfolio',
+    status: 'status',
+    isPublished: 'isPublished',
+    isFeatured: 'isFeatured',
+    rating: 'rating',
+    reviewCount: 'reviewCount',
+    termsAndConditions: 'termsAndConditions',
+    cancellationPolicy: 'cancellationPolicy',
+    verificationDate: 'verificationDate',
+    verified: 'verified',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    slug: 'slug',
+    locale: 'locale',
+    deletedAt: 'deletedAt',
+    __brand: 'table',
+  },
+  communityServiceReviews: {
+    id: 'id',
+    listingId: 'listingId',
+    reviewerId: 'reviewerId',
+    rating: 'rating',
+    title: 'title',
+    comment: 'comment',
+    serviceDate: 'serviceDate',
+    responseQuality: 'responseQuality',
+    isPublished: 'isPublished',
+    createdAt: 'createdAt',
+    __brand: 'table',
+  },
+  communityServiceInquiries: {
+    id: 'id',
+    listingId: 'listingId',
+    inquirerId: 'inquirerId',
+    status: 'status',
+    createdAt: 'createdAt',
+    __brand: 'table',
+  },
   users: { id: 'id', role: 'role', name: 'name', email: 'email', avatar: 'avatar', phone: 'phone' },
   now: () => new Date('2026-06-21T12:00:00.000Z'),
   apiSuccess: vi.fn(
@@ -93,8 +146,6 @@ vi.mock('@shared/lib', () => ({
   logError: vi.fn(),
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
 }));
-
-import { makeSelectChain } from './helpers';
 
 /**
  * Extended select chain that supports orderBy/limit/offset chaining after where().
@@ -166,7 +217,11 @@ describe('GET /api/community-services/analytics', () => {
       if (callIdx === 4) return makeFullSelectChain([{ providerId: 'p1' }, { providerId: 'p2' }]);
       if (callIdx === 5) return makeFullSelectChain([{ count: 50 }]);
       if (callIdx === 6) return makeFullSelectChain([{ count: 30 }]);
-      if (callIdx === 7) return makeFullSelectChain([{ category: 'GARDENING', count: 10 }, { category: 'MAINTENANCE', count: 5 }]);
+      if (callIdx === 7)
+        return makeFullSelectChain([
+          { category: 'GARDENING', count: 10 },
+          { category: 'MAINTENANCE', count: 5 },
+        ]);
       if (callIdx === 8) return makeFullSelectChain([]);
       return makeFullSelectChain([{ avgRating: 4.2, count: 50 }]);
     });
@@ -240,7 +295,9 @@ describe('GET /api/community-services/analytics', () => {
       return makeFullSelectChain([{ avgRating: 4.5, count: 3 }]);
     });
 
-    const response = await GET(req('http://localhost:3000/api/community-services/analytics?period=7d'));
+    const response = await GET(
+      req('http://localhost:3000/api/community-services/analytics?period=7d')
+    );
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body.data.period).toBe('7d');
@@ -262,7 +319,9 @@ describe('GET /api/community-services/analytics', () => {
       return makeFullSelectChain([{ avgRating: 4.0, count: 100 }]);
     });
 
-    const response = await GET(req('http://localhost:3000/api/community-services/analytics?period=90d'));
+    const response = await GET(
+      req('http://localhost:3000/api/community-services/analytics?period=90d')
+    );
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body.data.period).toBe('90d');
@@ -284,7 +343,9 @@ describe('GET /api/community-services/analytics', () => {
       return makeFullSelectChain([{ avgRating: 4.1, count: 200 }]);
     });
 
-    const response = await GET(req('http://localhost:3000/api/community-services/analytics?period=all'));
+    const response = await GET(
+      req('http://localhost:3000/api/community-services/analytics?period=all')
+    );
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body.data.period).toBe('all');

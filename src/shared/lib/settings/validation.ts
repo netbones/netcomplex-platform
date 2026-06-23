@@ -59,6 +59,8 @@ export const SETTINGS_VALUE_SCHEMAS: Record<string, z.ZodTypeAny> = Object.fromE
   ['services_config', jsonStringSchema()],
   ['provider_registration_mode', z.enum(['OPEN', 'INVITATION_ONLY'])],
   ['interest_categories', jsonStringArraySchema()],
+  ['merit_tier_thresholds', jsonStringSchema()],
+  ['merit_expiry_days', z.string().regex(/^\d*$/, 'Must be a non-negative integer or empty')],
 ] as [string, z.ZodTypeAny][]);
 
 const fallbackSchema = z.string();

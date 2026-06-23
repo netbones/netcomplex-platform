@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
           return apiError('VALIDATION_ERROR', 'Maximum 3 albums allowed', 400);
         }
 
-        const newAlbum = await db
+        await db
           .insert(albums)
           .values({
             id: crypto.randomUUID(),
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       }
 
       case 'update': {
-        const updatedAlbum = await db
+        await db
           .update(albums)
           .set({
             title: album.title,

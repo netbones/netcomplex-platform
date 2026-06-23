@@ -23,7 +23,6 @@ import {
   ShoppingBag,
   BookOpen,
   Wrench,
-  TrendingUp,
   X,
 } from 'lucide-react';
 
@@ -193,8 +192,8 @@ export function CommunityGraphWidget({
     return { initialNodes: nodes, initialEdges: edges };
   }, [residents, connections]);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 
   const onNodeClick = useCallback((_: unknown, node: Node) => {
     setSelectedNode(node.id);

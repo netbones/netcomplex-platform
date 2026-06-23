@@ -5,13 +5,12 @@ import {
   agentAccesses,
   users,
   properties,
-  apiError,
   apiSuccess,
   apiUnauthorized,
   apiInternalError,
 } from '@api/server';
 
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { apiLogger } from '@shared/lib';
 

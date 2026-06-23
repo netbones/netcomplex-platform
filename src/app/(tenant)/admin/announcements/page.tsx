@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { authClient } from '@api/client';
 import { canPublishAnnouncements } from '@shared/lib';
@@ -10,7 +9,6 @@ import type { AnnouncementWithResource } from '@features/announcements';
 import type { AnnouncementFormData } from '@entities/content';
 import { toast } from 'sonner';
 export default function AnnouncementsAdminPage() {
-  const router = useRouter();
   const { data: session } = authClient.useSession();
   const userRole = (session?.user as { role?: string } | undefined)?.role || 'RESIDENT';
 
@@ -18,7 +16,6 @@ export default function AnnouncementsAdminPage() {
     announcements,
     loading,
     error,
-    submitting,
     createAnnouncement,
     updateAnnouncement,
     deleteAnnouncement,

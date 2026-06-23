@@ -250,7 +250,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   });
 
   registry.register({
-    id: 'provider-credit-progress',
+    id: 'provider-reputation-progress',
     version: '1.0.0',
     name: 'Provider Credit Progress',
     description: 'Progress toward verified provider status',
@@ -258,7 +258,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     category: 'core',
     icon: Shield,
     component: lazy(() =>
-      import('../ui/provider-widgets').then(m => ({ default: m.ProviderCreditProgressWidget }))
+      import('../ui/provider-widgets').then(m => ({ default: m.ProviderReputationProgressWidget }))
     ),
     defaultSize: { width: 4, height: 2 },
     minSize: { width: 2, height: 2 },

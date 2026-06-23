@@ -6,7 +6,6 @@ import { LocaleSelector, LocaleTabs, LocaleBadge } from './LocaleSelector';
 import {
   supportedLanguages,
   languageNames,
-  getLocalizedValue,
   defaultLanguage,
   type SupportedLanguage,
 } from '@/shared/lib/i18n';
@@ -142,10 +141,6 @@ export function LocaleAwareInput({
   );
 
   const currentValue = value[activeLocale] || '';
-
-  const availableLocales = supportedLanguages.filter(
-    lang => lang in value || lang === activeLocale
-  ) as readonly SupportedLanguage[];
 
   return (
     <div className="space-y-2">

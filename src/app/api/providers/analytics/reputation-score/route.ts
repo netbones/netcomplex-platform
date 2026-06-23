@@ -14,14 +14,14 @@ export async function GET(request: NextRequest) {
 
     return apiSuccess({
       verificationStatus: providerAccess.verification.displayStatus,
-      creditScore: providerAccess.credits.totalCredits,
-      progress: providerAccess.credits,
+      reputationScore: providerAccess.reputation.totalScore,
+      progress: providerAccess.reputation,
       verification: providerAccess.verification,
     });
   } catch (error) {
     logError(
-      { component: 'provider-credit-score-api', operation: 'GET' },
-      'Provider credit score fetch error',
+      { component: 'provider-reputation-score-api', operation: 'GET' },
+      'Provider reputation score fetch error',
       error
     );
     return apiInternalError();

@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from '@shared/ui';
 import { useAdminContent } from '@shared/lib/hooks';
 
@@ -13,7 +12,6 @@ export interface ContentItem {
 }
 
 export function AdminContentWidget() {
-  const { t } = useTranslation('admin');
   const { data, isLoading } = useAdminContent();
 
   const contentStats = useMemo(() => {

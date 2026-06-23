@@ -1,7 +1,6 @@
 import {
   db,
   settings,
-  apiError,
   apiSuccess,
   apiUnauthorized,
   getSessionAndRole,

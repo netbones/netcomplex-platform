@@ -6,7 +6,7 @@ import {
   apiSuccess,
   db,
   paymentTransactions,
-  providerCredits,
+  providerReputations,
   providerVerifications,
   requireAnyPermission,
   serviceProviders,
@@ -14,10 +14,7 @@ import {
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 import { decimalToNumber } from '@shared/lib/providers/billing';
-import {
-  normalizeAdminProviderStatus,
-  parsePositiveInt,
-} from '@shared/lib/providers/admin';
+import { normalizeAdminProviderStatus, parsePositiveInt } from '@shared/lib/providers/admin';
 
 export const maxDuration = 8;
 
@@ -64,7 +61,7 @@ export async function GET(request: NextRequest) {
         createdAt: serviceProviders.createdAt,
         verificationStatus: sql<string>`coalesce(${providerVerifications.status}::text, 'PENDING')`,
         verificationNotes: providerVerifications.notes,
-        creditScore: sql<number>`coalesce(${providerCredits.totalCredits}, 0)`,
+        reputationScore: sql<number>`coalesce(${providerReputations.totalScore}, 0)`,
         revenueTotal: sql<string>`coalesce(sum(case when ${paymentTransactions.status} = 'COMPLETED' then ${paymentTransactions.amount} else 0 end), 0)`,
         platformFeeTotal: sql<string>`coalesce(sum(case when ${paymentTransactions.status} = 'COMPLETED' then ${paymentTransactions.platformFee} else 0 end), 0)`,
       })
@@ -77,10 +74,10 @@ export async function GET(request: NextRequest) {
         )
       )
       .leftJoin(
-        providerCredits,
+        providerReputations,
         and(
-          eq(providerCredits.tenantId, serviceProviders.tenantId),
-          eq(providerCredits.providerId, serviceProviders.id)
+          eq(providerReputations.tenantId, serviceProviders.tenantId),
+          eq(providerReputations.providerId, serviceProviders.id)
         )
       )
       .leftJoin(
@@ -95,7 +92,7 @@ export async function GET(request: NextRequest) {
         serviceProviders.id,
         providerVerifications.status,
         providerVerifications.notes,
-        providerCredits.totalCredits
+        providerReputations.totalScore
       )
       .orderBy(desc(serviceProviders.createdAt))
       .limit(limit)
@@ -156,7 +153,7 @@ export async function GET(request: NextRequest) {
     return apiSuccess({
       providers: rows.map(row => ({
         ...row,
-        creditScore: row.creditScore ?? 0,
+        reputationScore: row.reputationScore ?? 0,
         revenueTotal: decimalToNumber(row.revenueTotal),
         platformFeeTotal: decimalToNumber(row.platformFeeTotal),
       })),

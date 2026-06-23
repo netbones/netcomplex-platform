@@ -2,7 +2,6 @@ import { NextRequest } from 'next/server';
 import {
   db,
   settings,
-  apiError,
   apiSuccess,
   apiInternalError,
   apiUnauthorized,

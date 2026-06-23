@@ -7,7 +7,6 @@ import {
   standardSeats,
   profiles,
   users,
-  apiError,
   apiForbidden,
   apiInternalError,
   apiSuccess,

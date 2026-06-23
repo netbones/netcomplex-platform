@@ -6,11 +6,10 @@ import {
   apiSuccess,
   db,
   paymentTransactions,
-  providerCredits,
+  providerReputations,
   providerLegalAgreements,
   providerMerits,
   providerSubscriptions,
-  providerVerifications,
   requireAnyPermission,
   serviceProviders,
   subscriptionTiers,
@@ -26,10 +25,7 @@ import { decimalToNumber } from '@shared/lib/providers/billing';
 
 export const maxDuration = 8;
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authError = await requireAnyPermission(['providers']);
     if (authError) {
@@ -63,10 +59,15 @@ export async function GET(
       verification.rawStatus
     );
 
-    const [credits] = await db
+    const [reputation] = await db
       .select()
-      .from(providerCredits)
-      .where(and(eq(providerCredits.tenantId, tenantId), eq(providerCredits.providerId, provider.id)))
+      .from(providerReputations)
+      .where(
+        and(
+          eq(providerReputations.tenantId, tenantId),
+          eq(providerReputations.providerId, provider.id)
+        )
+      )
       .limit(1);
 
     const merits = await db
@@ -120,7 +121,10 @@ export async function GET(
         tierName: subscriptionTiers.name,
       })
       .from(paymentTransactions)
-      .leftJoin(providerSubscriptions, eq(providerSubscriptions.id, paymentTransactions.subscriptionId))
+      .leftJoin(
+        providerSubscriptions,
+        eq(providerSubscriptions.id, paymentTransactions.subscriptionId)
+      )
       .leftJoin(subscriptionTiers, eq(subscriptionTiers.id, providerSubscriptions.tierId))
       .where(
         and(
@@ -227,13 +231,13 @@ export async function GET(
         ...agreement,
         acceptedAt: agreement.acceptedAt.toISOString(),
       })),
-      credits: credits
+      reputation: reputation
         ? {
-            ...credits,
-            lastCalculatedAt: credits.lastCalculatedAt?.toISOString() ?? null,
+            ...reputation,
+            lastCalculatedAt: reputation.lastCalculatedAt?.toISOString() ?? null,
           }
         : null,
-      creditHistory: merits.map(merit => ({
+      reputationHistory: merits.map(merit => ({
         ...merit,
         createdAt: merit.createdAt.toISOString(),
       })),

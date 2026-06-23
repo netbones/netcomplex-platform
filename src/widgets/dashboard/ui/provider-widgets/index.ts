@@ -4,4 +4,4 @@ export * from './ProviderOverviewWidget';
 export * from './ProviderAnalyticsWidget';
 export * from './ProviderListingsWidget';
 export * from './ProviderInquiriesWidget';
-export * from './ProviderCreditProgressWidget';
+export * from './ProviderReputationProgressWidget';

@@ -1,6 +1,6 @@
 'use client';
 
-import type { CreditsResponse } from './types';
+import type { ReputationResponse } from '../model/types';
 
 function formatDate(value: string | null): string {
   if (!value) return '—';
@@ -20,14 +20,14 @@ function MeritRow({ label, value }: { label: string; value: number }) {
   );
 }
 
-export function CreditProgressWidget({ data }: { data: CreditsResponse }) {
+export function ReputationProgressWidget({ data }: { data: ReputationResponse }) {
   return (
     <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-base font-semibold text-gray-900">Community credits</h2>
+          <h2 className="text-base font-semibold text-gray-900">Community reputation</h2>
           <p className="mt-1 text-sm text-gray-500">
-            Credits measure provider trust, responsiveness, and platform participation.
+            Reputation measures provider trust, responsiveness, and platform participation.
           </p>
         </div>
         <span className="inline-flex w-fit rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
@@ -40,8 +40,8 @@ export function CreditProgressWidget({ data }: { data: CreditsResponse }) {
           <div className="rounded-2xl bg-indigo-50 p-4 text-indigo-950">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <div className="text-sm font-medium text-indigo-700">Total credit score</div>
-                <div className="mt-2 text-4xl font-semibold">{data.creditScore}</div>
+                <div className="text-sm font-medium text-indigo-700">Total reputation score</div>
+                <div className="mt-2 text-4xl font-semibold">{data.reputationScore}</div>
               </div>
               <div className="text-right text-sm text-indigo-700">
                 <div>{data.progress.progressPercentage}% to verification</div>
@@ -51,13 +51,15 @@ export function CreditProgressWidget({ data }: { data: CreditsResponse }) {
             <div className="mt-4 h-2 overflow-hidden rounded-full bg-indigo-200">
               <div
                 className="h-full rounded-full bg-indigo-600 transition-all"
-                style={{ width: `${Math.max(0, Math.min(100, data.progress.progressPercentage))}%` }}
+                style={{
+                  width: `${Math.max(0, Math.min(100, data.progress.progressPercentage))}%`,
+                }}
               />
             </div>
             <div className="mt-3 text-sm text-indigo-800">
               {data.eligibleForVerification
-                ? 'This provider has reached the verification credit threshold.'
-                : `${data.progress.remainingToVerification} credits remain before automatic verification review eligibility.`}
+                ? 'This provider has reached the verification threshold.'
+                : `${data.progress.remainingToVerification} points remain before automatic verification review eligibility.`}
             </div>
           </div>
 
@@ -77,13 +79,17 @@ export function CreditProgressWidget({ data }: { data: CreditsResponse }) {
           </div>
           <div className="mt-3 space-y-3">
             {data.merits.length === 0 ? (
-              <p className="text-sm text-gray-500">No merit events have been recorded for this provider yet.</p>
+              <p className="text-sm text-gray-500">
+                No merit events have been recorded for this provider yet.
+              </p>
             ) : (
               data.merits.map(merit => (
                 <div key={merit.id} className="rounded-xl border border-gray-200 bg-white p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{merit.meritType.replace('_', ' ')}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {merit.meritType.replace('_', ' ')}
+                      </div>
                       <div className="mt-1 text-xs text-gray-500">
                         {merit.description ?? 'No description provided'}
                       </div>

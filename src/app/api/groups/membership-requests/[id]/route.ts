@@ -11,7 +11,6 @@ import {
   apiUnauthorized,
   apiForbidden,
   apiNotFound,
-  notDeleted,
   now,
   withErrorHandler,
 } from '@api/server';

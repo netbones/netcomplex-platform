@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Rnd } from 'react-rnd';
 import { useSafeTranslation } from '@shared/lib';
 import { useWidgetStore } from '@entities/widget';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/ui';
 
 interface DraggableWidgetProps {
   id: string;

@@ -61,8 +61,8 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     logError(
-      { component: 'provider-credits-history-api', operation: 'GET' },
-      'Provider credit history fetch error',
+      { component: 'provider-reputation-history-api', operation: 'GET' },
+      'Provider reputation history fetch error',
       error
     );
     return apiInternalError();

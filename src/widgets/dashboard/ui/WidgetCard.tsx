@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useSafeTranslation } from '@shared/lib';
 import { useWidgetStore } from '@entities/widget';
 import { WidgetRenderer } from '@widgets/dashboard';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/ui';
 
 interface WidgetCardProps {
   id: string;

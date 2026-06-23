@@ -2,7 +2,6 @@ import {
   db,
   invitations,
   users,
-  auth,
   apiError,
   apiGone,
   apiInternalError,
@@ -11,7 +10,7 @@ import {
   now,
 } from '@api/server';
 
-import { eq, and, gt } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 import { apiLogger } from '@shared/lib';
 
@@ -28,7 +27,7 @@ const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { token, userId } = body;
+    const { token } = body;
 
     if (!token) {
       return apiError('VALIDATION_ERROR', 'Token is required', 400);

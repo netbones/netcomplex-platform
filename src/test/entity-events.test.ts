@@ -52,7 +52,8 @@ describe('eventSchema', () => {
   });
 
   it('rejects missing title', () => {
-    const { title: _, ...data } = validEventData;
+    const data = { ...validEventData };
+    delete (data as Record<string, unknown>).title;
     const result = eventSchema.safeParse(data);
     expect(result.success).toBe(false);
     if (!result.success) {
@@ -61,7 +62,8 @@ describe('eventSchema', () => {
   });
 
   it('rejects missing startDate', () => {
-    const { startDate: _, ...data } = validEventData;
+    const data = { ...validEventData };
+    delete (data as Record<string, unknown>).startDate;
     const result = eventSchema.safeParse(data);
     expect(result.success).toBe(false);
     if (!result.success) {
@@ -70,7 +72,8 @@ describe('eventSchema', () => {
   });
 
   it('rejects missing endDate', () => {
-    const { endDate: _, ...data } = validEventData;
+    const data = { ...validEventData };
+    delete (data as Record<string, unknown>).endDate;
     const result = eventSchema.safeParse(data);
     expect(result.success).toBe(false);
   });
@@ -366,7 +369,8 @@ describe('validateEventFields', () => {
   });
 
   it('returns invalid when required field is missing entirely', () => {
-    const { title: _, ...body } = validBody;
+    const body = { ...validBody };
+    delete (body as Record<string, unknown>).title;
     const result = validateEventFields(body);
     expect(result.valid).toBe(false);
     expect(result.missing).toContain('title');

@@ -30,11 +30,13 @@ export type SettingValueMap = {
   stats_years: string;
   stats_bird_species: string;
   stats_native_plants: string;
-};
 
-// compile-time guard: all keys in SettingsKey must be in SettingValueMap
-type _AssertKeysCovered<T extends Record<SettingsKey, unknown>> = T;
-type _Check = _AssertKeysCovered<SettingValueMap>;
+  // Merit tier thresholds (JSON object)
+  merit_tier_thresholds: unknown;
+
+  // Merit expiry (days as string, empty = never)
+  merit_expiry_days: string;
+};
 
 export function getTypedSetting<K extends SettingsKey>(key: K, value: string): SettingValueMap[K] {
   if (key.startsWith('page_') && key.endsWith('_enabled'))

@@ -8,7 +8,7 @@ interface EmojiPickerButtonProps {
 }
 
 export function EmojiPickerButton({ onEmojiSelect }: EmojiPickerButtonProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [, setIsOpen] = useState(false);
 
   return (
     <FrimoussePickerButton

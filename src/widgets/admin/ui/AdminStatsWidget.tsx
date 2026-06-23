@@ -1,16 +1,8 @@
 'use client';
 
-import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { ErrorBoundary } from '@shared/ui';
 import { useAdminStats } from '@features/admin';
-
-interface AdminStats {
-  totalUsers: number;
-  activeRequests: number;
-  totalGroups: number;
-  totalContent: number;
-}
 
 interface StatCardProps {
   title: string;
@@ -55,7 +47,6 @@ function StatCard({ title, value, icon, href, color = 'bg-gray-500', loading }: 
 }
 
 export function AdminStatsWidget() {
-  const { t } = useTranslation('admin');
   const { data: stats, isLoading } = useAdminStats();
 
   const s = stats ?? { totalUsers: 0, activeRequests: 0, totalGroups: 0, totalContent: 0 };

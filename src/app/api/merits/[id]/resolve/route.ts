@@ -2,6 +2,7 @@ import {
   auth,
   db,
   communityMerits,
+  notifications,
   apiUnauthorized,
   apiForbidden,
   apiNotFound,
@@ -14,6 +15,8 @@ import {
 import { eq, and, isNull } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
+import { getStandingTier } from '@entities/merit';
+import { getEffectivePoints } from '@/entities/merit/services';
 
 export const maxDuration = 8;
 
@@ -54,9 +57,14 @@ export const POST = withErrorHandler(
     }
 
     const ts = now();
+    const currentHistory: unknown[] = (record.disputeHistory as unknown[]) ?? [];
     const updateData: Record<string, unknown> = {
       resolvedById: session.user.id,
       resolvedAt: ts,
+      disputeHistory: [
+        ...currentHistory,
+        { type: 'RESOLVED', actorId: session.user.id, verdict, timestamp: ts.toISOString() },
+      ],
     };
 
     if (verdict === 'OVERTURN') {
@@ -80,6 +88,30 @@ export const POST = withErrorHandler(
       actorId: session.user.id,
       details: { verdict, previousStatus: record.status },
     });
+
+    if (verdict === 'OVERTURN') {
+      const points = await getEffectivePoints(record.userId, tenantId);
+      const tierBefore = getStandingTier(record.standingAfter ?? 0);
+      const tierAfter = getStandingTier(points.overall);
+      if (tierBefore !== tierAfter) {
+        const labels: Record<string, string> = {
+          GOLD: 'Gold',
+          SILVER: 'Silver',
+          BRONZE: 'Bronze',
+          WATCHLIST: 'Watchlist',
+          PROBATION: 'Probation',
+        };
+        await db.insert(notifications).values({
+          id: crypto.randomUUID(),
+          tenantId,
+          userId: record.userId,
+          title: 'Dispute resolved — standing updated',
+          message: `Your standing changed from ${labels[tierBefore]} to ${labels[tierAfter]} after dispute resolution.`,
+          type: tierAfter === 'WATCHLIST' || tierAfter === 'PROBATION' ? 'warning' : 'info',
+          read: false,
+        });
+      }
+    }
 
     return apiSuccess({ status: verdict === 'UPHOLD' ? 'UPHELD' : 'OVERTURNED' });
   }

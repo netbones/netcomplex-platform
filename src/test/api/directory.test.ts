@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { NextRequest } from 'next/server';
 
 vi.mock('server-only', () => ({}));
 
@@ -209,7 +208,7 @@ vi.mock('@shared/lib', async importOriginal => {
   };
 });
 
-import { GET as listUsers, POST as createUser } from '@/app/api/users/route';
+import { GET as listUsers } from '@/app/api/users/route';
 import { makeSelectChain } from './helpers';
 
 function setupAuthAdmin() {

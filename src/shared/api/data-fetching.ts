@@ -3,7 +3,6 @@
  * Uses aggressive caching and ISR patterns to minimize serverless invocations
  */
 
-import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { CACHE_TAGS } from './revalidation';
 import { logError } from '@shared/lib';

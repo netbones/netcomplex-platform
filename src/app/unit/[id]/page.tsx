@@ -4,7 +4,6 @@ import { useState, useEffect, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { authClient } from '@api/client';
 import { Breadcrumbs, ErrorBoundary, TagCloud } from '@shared/ui';
 import { sanitizeHtml } from '@/shared/lib/sanitize';
 import { usePageLoading } from '@shared/ui';
@@ -67,7 +66,6 @@ function HouseholdContent() {
   const params = useParams() as { id?: string } | null;
   const id = params?.id;
   const { t: tCommon } = useTranslation('common');
-  const { data: session } = authClient.useSession();
   const [household, setHousehold] = useState<HouseholdData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -150,7 +148,6 @@ function HouseholdContent() {
   }
 
   const primaryOwner = household.occupants.find(o => o.isPrimaryOwner);
-  const otherOccupants = household.occupants.filter(o => !o.isPrimaryOwner);
   const paginatedContent = household.content.slice(
     (page - 1) * contentsPerPage,
     page * contentsPerPage

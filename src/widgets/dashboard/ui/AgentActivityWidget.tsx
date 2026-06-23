@@ -27,7 +27,7 @@ export function AgentActivityWidget() {
         const body = await res.json();
         const data = body.success ? body.data : body;
         setActivities(data.activities || []);
-      } catch (err) {
+      } catch {
         setError('Failed to load activity');
       } finally {
         setLoading(false);

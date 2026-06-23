@@ -9,7 +9,6 @@ import {
   tenantModules,
   platformModules,
   tenants,
-  apiError,
   apiSuccess,
   apiInternalError,
   apiNotFound,
@@ -17,7 +16,7 @@ import {
   getSessionAndRole,
 } from '@api/server';
 
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import type { TenantTier } from '@shared/lib';
 import { apiLogger } from '@shared/lib';
 

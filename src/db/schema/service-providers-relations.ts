@@ -3,7 +3,7 @@ import { serviceProviders } from './service-providers';
 import { maintenanceRequests } from './maintenance-requests';
 import { providerVerifications } from './provider-verifications';
 import { providerLegalAgreements } from './provider-legal-agreements';
-import { providerCredits } from './provider-credits';
+import { providerReputations } from './provider-reputations';
 import { providerMerits } from './provider-merits';
 import { providerSubscriptions } from './provider-subscriptions';
 import { paymentTransactions } from './payment-transactions';
@@ -19,7 +19,7 @@ export const serviceProvidersRelations = relations(serviceProviders, helpers => 
   legalAgreements: helpers.many(providerLegalAgreements, {
     relationName: 'ProviderLegalAgreementToServiceProvider',
   }),
-  credit: helpers.one(providerCredits),
+  reputation: helpers.one(providerReputations),
   merits: helpers.many(providerMerits, { relationName: 'ProviderMeritToServiceProvider' }),
   subscriptions: helpers.many(providerSubscriptions, {
     relationName: 'ProviderSubscriptionToServiceProvider',

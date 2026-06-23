@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CreditProgressWidget } from './CreditProgressWidget';
+import { ReputationProgressWidget } from './ReputationProgressWidget';
 import { PaymentSetupModal } from './PaymentSetupModal';
-import type { BillingResponse, CreditsResponse } from './types';
+import type { BillingResponse, ReputationResponse } from '../model/types';
 
 interface QueryError extends Error {
   status?: number;
@@ -98,9 +98,9 @@ export function BillingDashboard() {
     staleTime: 60_000,
   });
 
-  const creditsQuery = useQuery<CreditsResponse, QueryError>({
-    queryKey: ['providers', 'credits'],
-    queryFn: () => fetchApi<CreditsResponse>('/api/providers/credits'),
+  const reputationQuery = useQuery<ReputationResponse, QueryError>({
+    queryKey: ['providers', 'reputation'],
+    queryFn: () => fetchApi<ReputationResponse>('/api/providers/reputation'),
     staleTime: 60_000,
   });
 
@@ -109,12 +109,12 @@ export function BillingDashboard() {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['providers', 'billing'] }),
-        queryClient.invalidateQueries({ queryKey: ['providers', 'credits'] }),
+        queryClient.invalidateQueries({ queryKey: ['providers', 'reputation'] }),
       ]);
     },
   });
 
-  if (billingQuery.isLoading || creditsQuery.isLoading) {
+  if (billingQuery.isLoading || reputationQuery.isLoading) {
     return (
       <div className="mx-auto max-w-7xl space-y-6 p-6 animate-pulse">
         <div className="h-28 rounded-2xl bg-gray-100" />
@@ -128,19 +128,19 @@ export function BillingDashboard() {
     );
   }
 
-  if (billingQuery.error || creditsQuery.error || !billingQuery.data || !creditsQuery.data) {
+  if (billingQuery.error || reputationQuery.error || !billingQuery.data || !reputationQuery.data) {
     return (
       <div className="mx-auto max-w-4xl p-6">
         <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-700">
           Unable to load provider billing right now.{' '}
-          {billingQuery.error?.message ?? creditsQuery.error?.message}
+          {billingQuery.error?.message ?? reputationQuery.error?.message}
         </div>
       </div>
     );
   }
 
   const billing = billingQuery.data;
-  const credits = creditsQuery.data;
+  const reputation = reputationQuery.data;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
@@ -150,8 +150,8 @@ export function BillingDashboard() {
             <div className="text-sm font-medium text-indigo-100">Provider billing</div>
             <h1 className="mt-2 text-3xl font-semibold">{billing.companyName}</h1>
             <p className="mt-2 max-w-3xl text-sm text-indigo-100">
-              Manage subscriptions, review fee breakdowns, and track how community credits support
-              provider verification.
+              Manage subscriptions, review fee breakdowns, and track how community reputation
+              supports provider verification.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -238,13 +238,14 @@ export function BillingDashboard() {
                   {billing.verificationStatus}
                 </div>
                 <div className="mt-1 text-xs text-gray-500">
-                  Threshold {billing.verification.verificationThreshold} credits
+                  Threshold {billing.verification.verificationThreshold} points
                 </div>
               </div>
             </div>
           ) : (
             <div className="mt-5 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
-              No subscription is active yet. Use “Change plan” to initialize provider billing.
+              No subscription is active yet. Use &ldquo;Change plan&rdquo; to initialize provider
+              billing.
             </div>
           )}
         </section>
@@ -323,7 +324,7 @@ export function BillingDashboard() {
         </div>
       </section>
 
-      <CreditProgressWidget data={credits} />
+      <ReputationProgressWidget data={reputation} />
 
       <div className="grid gap-6 xl:grid-cols-2">
         <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -453,7 +454,7 @@ export function BillingDashboard() {
           onClose={() => setPaymentSetupOpen(false)}
           onSubscribed={() => {
             void queryClient.invalidateQueries({ queryKey: ['providers', 'billing'] });
-            void queryClient.invalidateQueries({ queryKey: ['providers', 'credits'] });
+            void queryClient.invalidateQueries({ queryKey: ['providers', 'reputation'] });
           }}
         />
       ) : null}

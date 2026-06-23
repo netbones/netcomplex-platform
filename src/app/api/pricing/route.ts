@@ -2,7 +2,7 @@ import { TIERS, type TierLevel } from '@entities/tenant';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
-import { apiError, apiSuccess, apiInternalError } from '@api/server';
+import { apiSuccess, apiInternalError } from '@api/server';
 
 import type { PricingPlan } from '@features/pricing';
 

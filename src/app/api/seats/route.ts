@@ -5,7 +5,6 @@ import {
   premiumSeats,
   apiSuccess,
   apiConflict,
-  apiCreated,
   apiForbidden,
   apiNotFound,
   apiError,

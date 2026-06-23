@@ -42,8 +42,6 @@ export async function createContent(data: {
   license?: string;
   copyrightHolder?: string | null;
 }) {
-  const now = new Date();
-
   return contentService.createContent({
     id: crypto.randomUUID(),
     tenantId: data.tenantId,

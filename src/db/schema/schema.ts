@@ -49,7 +49,7 @@ import * as communityServiceListings from './community-service-listings';
 import * as communityServiceReviews from './community-service-reviews';
 import * as providerVerifications from './provider-verifications';
 import * as providerLegalAgreements from './provider-legal-agreements';
-import * as providerCredits from './provider-credits';
+import * as providerReputations from './provider-reputations';
 import * as providerMerits from './provider-merits';
 import * as providerSubscriptions from './provider-subscriptions';
 import * as paymentTransactions from './payment-transactions';
@@ -116,7 +116,7 @@ import * as communityServiceListingsRelations from './community-service-listings
 import * as communityServiceReviewsRelations from './community-service-reviews-relations';
 import * as providerVerificationsRelations from './provider-verifications-relations';
 import * as providerLegalAgreementsRelations from './provider-legal-agreements-relations';
-import * as providerCreditsRelations from './provider-credits-relations';
+import * as providerReputationsRelations from './provider-reputations-relations';
 import * as providerMeritsRelations from './provider-merits-relations';
 import * as providerSubscriptionsRelations from './provider-subscriptions-relations';
 import * as paymentTransactionsRelations from './payment-transactions-relations';
@@ -187,7 +187,7 @@ export const schema = {
   ...communityServiceReviews,
   ...providerVerifications,
   ...providerLegalAgreements,
-  ...providerCredits,
+  ...providerReputations,
   ...providerMerits,
   ...providerSubscriptions,
   ...paymentTransactions,
@@ -254,7 +254,7 @@ export const schema = {
   ...communityServiceReviewsRelations,
   ...providerVerificationsRelations,
   ...providerLegalAgreementsRelations,
-  ...providerCreditsRelations,
+  ...providerReputationsRelations,
   ...providerMeritsRelations,
   ...providerSubscriptionsRelations,
   ...paymentTransactionsRelations,

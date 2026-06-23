@@ -4,7 +4,6 @@ import {
   groupMembershipRequests,
   users,
   groups,
-  apiError,
   apiSuccess,
   apiUnauthorized,
   apiForbidden,

@@ -3,7 +3,6 @@ import {
   auth,
   db,
   premiumSeats,
-  apiError,
   apiForbidden,
   apiInternalError,
   apiNotFound,

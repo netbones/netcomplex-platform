@@ -1,5 +1,3 @@
-import { PrimaryCTA } from '@shared/ui';
-
 interface SignupCTAProps {
   step: number;
   totalSteps: number;

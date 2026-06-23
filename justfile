@@ -11,6 +11,9 @@ dev:
 dev_turbo:
     pnpm dev --turbo
 
+start:
+    pnpm start
+
 # Build
 build:
     pnpm build
@@ -25,6 +28,15 @@ db_push:
 db_seed:
     pnpm db:seed
 
+db_seed_village:
+    pnpm db:seed:village
+
+db_seed_solaris:
+    pnpm db:seed:solaris
+
+db_check:
+    pnpm db:check
+
 db_studio:
     pnpm db:studio
 
@@ -34,9 +46,42 @@ db_studio_drizzle:
 db_generate:
     prisma generate
 
+# API
+api_generate:
+    pnpm api:generate
+
+api_lint:
+    pnpm api:lint
+
+api_ci:
+    pnpm api:ci
+
+# FSD Architecture
+fsd_check:
+    pnpm fsd:check
+
+fsd_graph:
+    pnpm fsd:graph
+
+fsd_graph_detailed:
+    pnpm fsd:graph:detailed
+
+# Issue tracking
+bd_ready:
+    bd ready
+
+bd_list:
+    bd list
+
+bd_sync:
+    bd sync
+
 # Quality gates
 lint:
     pnpm lint
+
+lint_report:
+    -pnpm lint > lint_report.md 2>&1
 
 typecheck:
     pnpm typecheck
@@ -70,7 +115,7 @@ clean_all: clean
 tree:
     tree -I node_modules > tree.md 2>&1
 
-#Code
+# Code
 
 code:
     opencode -c

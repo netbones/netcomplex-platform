@@ -5,7 +5,6 @@ import {
   groups,
   revalidateContent,
   auth,
-  apiError,
   apiNotFound,
   apiSuccess,
   notDeleted,

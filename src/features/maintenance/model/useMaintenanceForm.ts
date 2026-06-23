@@ -2,12 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { supabase } from '@/shared/api/supabase';
-import {
-  MaintenanceRequestForm,
-  MaintenancePriority,
-  PRESET_CATEGORIES,
-  DEFAULT_CATEGORIES,
-} from '@entities/maintenance';
+import { MaintenanceRequestForm, DEFAULT_CATEGORIES } from '@entities/maintenance';
 import type { TenantCategory } from '@entities/maintenance';
 import { createComponentLogger } from '@shared/lib';
 
@@ -168,7 +163,7 @@ export function useMaintenanceForm(onSubmit?: (data: MaintenanceRequestForm) => 
         alert('Maintenance request submitted successfully!');
         setFormData({ category: '', priority: 'MEDIUM', description: '', images: [] });
       }
-    } catch (err) {
+    } catch {
       setError('Failed to submit request. Please try again.');
     } finally {
       setSubmitting(false);

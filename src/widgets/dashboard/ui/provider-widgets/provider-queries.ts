@@ -16,9 +16,9 @@ export interface ProviderVerification {
   isSuspended: boolean;
 }
 
-export interface ProviderCreditProgress {
+export interface ProviderReputationProgress {
   providerId: string | null;
-  totalCredits: number;
+  totalScore: number;
   responseTimeScore: number;
   qualityScore: number;
   reviewScore: number;
@@ -40,8 +40,8 @@ export interface ProviderDashboardData {
   isActive: boolean;
   verificationStatus: ProviderVerification['displayStatus'];
   verification: ProviderVerification;
-  creditScore: number;
-  creditProgress: ProviderCreditProgress;
+  reputationScore: number;
+  reputationProgress: ProviderReputationProgress;
   listingCount: number;
   activeListingsCount: number;
   inquiryCount: number;
@@ -64,7 +64,7 @@ export interface ProviderAnalyticsData {
   analyticsVisibility: 'full' | 'limited' | 'minimal' | 'none';
   verificationStatus: ProviderVerification['displayStatus'];
   verification: ProviderVerification;
-  creditScore: number;
+  reputationScore: number;
   listingsCount: number;
   activeListingsCount: number;
   inquiriesCount: number;
@@ -78,7 +78,7 @@ export interface ProviderAnalyticsData {
     pending: number;
     responded: number;
   };
-  creditProgress: ProviderCreditProgress;
+  reputationProgress: ProviderReputationProgress;
   limited: boolean;
   dataNotes?: string[];
   suspensionNotice?: string;
@@ -88,14 +88,14 @@ export interface ProviderVerificationResponse {
   providerRecordExists: boolean;
   verificationStatus: ProviderVerification['displayStatus'];
   verification: ProviderVerification;
-  creditProgress: ProviderCreditProgress;
+  reputationProgress: ProviderReputationProgress;
   accessMode: 'permission' | 'provider-record' | 'provider-listings';
 }
 
-export interface ProviderCreditScoreResponse {
+export interface ProviderReputationScoreResponse {
   verificationStatus: ProviderVerification['displayStatus'];
-  creditScore: number;
-  progress: ProviderCreditProgress;
+  reputationScore: number;
+  progress: ProviderReputationProgress;
   verification: ProviderVerification;
 }
 
@@ -145,10 +145,11 @@ export function useProviderVerification() {
   });
 }
 
-export function useProviderCreditScore() {
-  return useQuery<ProviderCreditScoreResponse, QueryError>({
-    queryKey: ['providers', 'credit-score'],
-    queryFn: () => fetchApi<ProviderCreditScoreResponse>('/api/providers/analytics/credit-score'),
+export function useProviderReputationScore() {
+  return useQuery<ProviderReputationScoreResponse, QueryError>({
+    queryKey: ['providers', 'reputation-score'],
+    queryFn: () =>
+      fetchApi<ProviderReputationScoreResponse>('/api/providers/analytics/reputation-score'),
     staleTime: 60_000,
   });
 }

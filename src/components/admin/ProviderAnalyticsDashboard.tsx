@@ -40,7 +40,7 @@ export function ProviderAnalyticsDashboard() {
               Provider ecosystem analytics
             </h1>
             <p className="mt-2 max-w-3xl text-sm text-violet-50">
-              Track registration velocity, verification conversion, credits, suspensions, and
+              Track registration velocity, verification conversion, reputation, suspensions, and
               revenue mix for the provider ecosystem.
             </p>
           </div>
@@ -66,8 +66,8 @@ export function ProviderAnalyticsDashboard() {
           value={formatPercent(analytics?.metrics.verificationRate ?? 0)}
         />
         <MetricCard
-          title="Average credit score"
-          value={String(analytics?.metrics.averageCreditScore ?? 0)}
+          title="Average reputation score"
+          value={String(analytics?.metrics.averageReputationScore ?? 0)}
         />
         <MetricCard
           title="Revenue tracked"
@@ -111,7 +111,7 @@ export function ProviderAnalyticsDashboard() {
           </div>
         </section>
         <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-          <h2 className="text-base font-semibold text-gray-900">Top providers by credits</h2>
+          <h2 className="text-base font-semibold text-gray-900">Top providers by reputation</h2>
           <p className="mt-1 text-sm text-gray-500">
             Operators leading on trust and participation scores.
           </p>
@@ -120,7 +120,7 @@ export function ProviderAnalyticsDashboard() {
               <div key={provider.id} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                 <div className="font-medium text-gray-900">{provider.companyName}</div>
                 <div className="mt-1 text-sm text-gray-600">
-                  {provider.creditScore} credits • {provider.status.toLowerCase()}
+                  {provider.reputationScore} points • {provider.status.toLowerCase()}
                 </div>
               </div>
             ))}

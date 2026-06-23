@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { authClient } from '@api/client';
 import { INTEREST_CATEGORIES } from '@shared/lib';
 import { usePageLoading } from '@shared/ui';
 
@@ -26,7 +25,6 @@ export default function GroupsHubPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedAccess, setSelectedAccess] = useState('all');
-  const { data: session } = authClient.useSession();
 
   const { isReady, LoadingComponent } = usePageLoading(
     [
@@ -66,13 +64,6 @@ export default function GroupsHubPage() {
     if (type === 'INVITE_ONLY') return t('groups:accessType.INVITE_ONLY');
     if (type === 'APPLICATION') return t('groups:accessType.APPLICATION');
     return type;
-  };
-
-  const residentFilterLabel = (filter: string) => {
-    if (filter === 'ALL') return t('groups:filter.all');
-    if (filter === 'OWNERS_ONLY') return t('groups:filter.owners');
-    if (filter === 'RENTERS_ONLY') return t('groups:filter.renters');
-    return filter;
   };
 
   if (!isReady) {

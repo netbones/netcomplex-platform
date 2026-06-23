@@ -14,7 +14,7 @@ import { logError } from '@shared/lib';
 export const maxDuration = 8;
 
 export async function GET(request: Request) {
-  const { tenantId } = await withTenant();
+  await withTenant();
   const session = await auth.api.getSession({
     headers: request.headers,
   });

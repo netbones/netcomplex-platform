@@ -3,6 +3,7 @@ import {
   auth,
   db,
   communityMerits,
+  notifications,
   apiUnauthorized,
   apiForbidden,
   apiCreated,
@@ -11,12 +12,17 @@ import {
   now,
   writeAuditLog,
   withErrorHandler,
+  rateLimitByUser,
 } from '@api/server';
 import { and, eq, isNull, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
-import { BEHAVIOR_POINTS, DEFAULT_EXPIRY_DAYS } from '@entities/merit';
-import { getEffectivePoints, checkAndEscalateStanding } from '@/entities/merit/services';
+import { BEHAVIOR_POINTS, DEFAULT_EXPIRY_DAYS, getStandingTier } from '@entities/merit';
+import {
+  getEffectivePoints,
+  checkAndEscalateStanding,
+  getMeritExpiryDays,
+} from '@/entities/merit/services';
 
 export const maxDuration = 8;
 
@@ -97,6 +103,9 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   if (!hasPermission(session.user.role, 'users')) return apiForbidden('Insufficient permissions');
 
+  const rateLimit = await rateLimitByUser(session.user.id, { windowMs: 60_000, maxRequests: 20 });
+  if (rateLimit) return rateLimit;
+
   const body = await request.json();
   const { userId, behaviorType, category, reason, description } = body;
 
@@ -131,7 +140,12 @@ export const POST = withErrorHandler(async (request: Request) => {
   }
 
   const expiryDays = DEFAULT_EXPIRY_DAYS[behaviorType as keyof typeof DEFAULT_EXPIRY_DAYS];
-  const expiresAt = expiryDays ? new Date(ts.getTime() + expiryDays * 24 * 60 * 60 * 1000) : null;
+  const configuredMeritExpiryDays =
+    behaviorType === 'MERIT' ? await getMeritExpiryDays(tenantId) : null;
+  const effectiveExpiryDays = behaviorType === 'MERIT' ? configuredMeritExpiryDays : expiryDays;
+  const expiresAt = effectiveExpiryDays
+    ? new Date(ts.getTime() + effectiveExpiryDays * 24 * 60 * 60 * 1000)
+    : null;
 
   const { overall: standingBefore } = await getEffectivePoints(userId, tenantId);
   const standingAfter =
@@ -156,6 +170,27 @@ export const POST = withErrorHandler(async (request: Request) => {
   });
 
   await checkAndEscalateStanding(userId, tenantId);
+
+  const tierBefore = getStandingTier(standingBefore);
+  const tierAfter = getStandingTier(standingAfter);
+  if (tierBefore !== tierAfter) {
+    const labels: Record<string, string> = {
+      GOLD: 'Gold',
+      SILVER: 'Silver',
+      BRONZE: 'Bronze',
+      WATCHLIST: 'Watchlist',
+      PROBATION: 'Probation',
+    };
+    await db.insert(notifications).values({
+      id: uuidv4(),
+      tenantId,
+      userId,
+      title: 'Community standing updated',
+      message: `Your standing changed from ${labels[tierBefore]} to ${labels[tierAfter]}.`,
+      type: tierAfter === 'WATCHLIST' || tierAfter === 'PROBATION' ? 'warning' : 'info',
+      read: false,
+    });
+  }
 
   await writeAuditLog({
     tenantId,

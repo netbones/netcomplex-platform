@@ -74,7 +74,7 @@ export function MediaLibrary({
           const error = await res.json();
           toast.error(`${file.name}: ${error.error}`);
         }
-      } catch (e) {
+      } catch {
         toast.error(`Failed to upload ${file.name}`);
       }
     }
@@ -100,7 +100,7 @@ export function MediaLibrary({
         const error = await res.json();
         toast.error(error.error || 'Failed to delete');
       }
-    } catch (e) {
+    } catch {
       toast.error('Failed to delete image');
     }
   };

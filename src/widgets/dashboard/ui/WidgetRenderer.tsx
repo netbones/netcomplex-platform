@@ -1,16 +1,9 @@
 'use client';
 
 import { ReactNode, Suspense } from 'react';
-// import { lazy } from 'react';
-// import { useTenant } from '@entities/tenant';
-import type { Tenant } from '@shared/lib';
-import { isFeatureEnabled } from '@entities/tenant';
 import { ErrorBoundary } from '@shared/ui';
-import { createComponentLogger } from '@shared/lib';
 import { registry } from '../model/registry';
 import type { WidgetManifest } from '../model/types';
-
-const log = createComponentLogger('WidgetRenderer');
 
 interface WidgetRendererProps {
   widgetId: string;
@@ -23,29 +16,6 @@ interface WidgetRendererProps {
  */
 function getWidgetManifest(widgetId: string): WidgetManifest | undefined {
   return registry.resolve(widgetId);
-}
-
-/**
- * Check if a widget should be rendered based on tenant feature access.
- * Uses manifest featureFlag only - no dual-source lookup
- */
-function _canRenderWidget(widgetId: string, tenant: Tenant | null): boolean {
-  // If no tenant context, show all widgets (e.g., public pages)
-  if (!tenant) {
-    if (process.env.NODE_ENV === 'development') {
-      log.debug('No tenant context, showing all widgets');
-    }
-    return true;
-  }
-
-  // Get feature flag from manifest only (no dual-source lookup)
-  const manifest = getWidgetManifest(widgetId);
-  if (manifest?.featureFlag) {
-    return isFeatureEnabled(tenant, manifest.featureFlag);
-  }
-
-  // No feature flag means widget is always visible
-  return true;
 }
 
 /**

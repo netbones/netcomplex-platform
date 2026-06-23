@@ -1,4 +1,4 @@
-import type { BookingStatus, Facility, TenantFacility } from './types';
+import type { BookingStatus, TenantFacility } from './types';
 
 export const BOOKING_STATUSES: Record<BookingStatus, BookingStatus> = {
   CONFIRMED: 'CONFIRMED',

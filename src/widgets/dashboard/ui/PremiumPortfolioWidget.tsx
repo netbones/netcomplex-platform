@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { authClient } from '@api/client';
 import { ErrorBoundary } from '@shared/ui';
@@ -38,33 +37,7 @@ interface PremiumPortfolio {
   linkedHouseholds: PortfolioHousehold[];
 }
 
-/** @property-consolidation-plan (44-03 findings)
- * This is a LISTING type, not a Property shape — it models premium
- * portfolio listings with publishing/featured status.
- * Per C1 resolution: leave as-is. Do NOT consolidate with PropertySummaryDTO.
- * Last audit: 2026-06-08
- */
-interface PropertyListing {
-  id: string;
-  householdId: string;
-  title: string;
-  listingType: string;
-  price?: number;
-  status: string;
-  isPublished: boolean;
-  isFeatured: boolean;
-  createdAt: string;
-  household: {
-    street: string;
-    unit: string;
-  };
-  assignedAgent?: {
-    name: string;
-  };
-}
-
 export function PremiumPortfolioWidget() {
-  const { t } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
   const { fetch: apiFetch, mutate: apiMutate } = useApiToast({
     component: 'PremiumPortfolioWidget',
@@ -75,11 +48,7 @@ export function PremiumPortfolioWidget() {
   const [activeTab, setActiveTab] = useState<'portfolio' | 'agents' | 'listings'>('portfolio');
   const [showCreateForm, setShowCreateForm] = useState(false);
 
-  const {
-    data: premiumData,
-    isLoading: listingsLoading,
-    refetch: refetchListings,
-  } = usePremiumListings();
+  const { data: premiumData, refetch: refetchListings } = usePremiumListings();
   const listings = premiumData?.listings ?? [];
 
   useEffect(() => {
@@ -152,7 +121,7 @@ export function PremiumPortfolioWidget() {
     refetchListings();
   };
 
-  const handleListProperty = (householdId: string) => {
+  const handleListProperty = (_householdId: string) => {
     setShowCreateForm(true);
     // The form will fetch available households, but we could pass the householdId to pre-select it
   };

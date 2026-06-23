@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { makeSelectChain } from './helpers';
 
 vi.mock('server-only', () => ({}));
 
@@ -151,16 +150,17 @@ describe('Health API', () => {
 
     expect(body.timestamp).toBe('2026-06-21T12:00:00.000Z');
     expect(body.version).toBe('1.2.3');
-    expect(response.headers.get('cache-control')).toBe('public, s-maxage=60, stale-while-revalidate=120');
+    expect(response.headers.get('cache-control')).toBe(
+      'public, s-maxage=60, stale-while-revalidate=120'
+    );
   });
 });
 
 describe('Flags API', () => {
   it('returns all flags when no query params given', async () => {
-    const request = Object.assign(
-      new Request('http://localhost:3000/api/flags'),
-      { nextUrl: new URL('http://localhost:3000/api/flags') }
-    );
+    const request = Object.assign(new Request('http://localhost:3000/api/flags'), {
+      nextUrl: new URL('http://localhost:3000/api/flags'),
+    });
     const response = await getFlags(request as any);
     const body = await response.json();
 
@@ -170,10 +170,9 @@ describe('Flags API', () => {
   });
 
   it('returns single flag value for valid flag param', async () => {
-    const request = Object.assign(
-      new Request('http://localhost:3000/api/flags?flag=campaign'),
-      { nextUrl: new URL('http://localhost:3000/api/flags?flag=campaign') }
-    );
+    const request = Object.assign(new Request('http://localhost:3000/api/flags?flag=campaign'), {
+      nextUrl: new URL('http://localhost:3000/api/flags?flag=campaign'),
+    });
     const response = await getFlags(request as any);
     const body = await response.json();
 
@@ -183,10 +182,9 @@ describe('Flags API', () => {
   });
 
   it('returns 400 for invalid flag parameter', async () => {
-    const request = Object.assign(
-      new Request('http://localhost:3000/api/flags?flag=invalid'),
-      { nextUrl: new URL('http://localhost:3000/api/flags?flag=invalid') }
-    );
+    const request = Object.assign(new Request('http://localhost:3000/api/flags?flag=invalid'), {
+      nextUrl: new URL('http://localhost:3000/api/flags?flag=invalid'),
+    });
     const response = await getFlags(request as any);
     const body = await response.json();
 

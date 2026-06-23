@@ -5,10 +5,9 @@ import { useParams } from 'next/navigation';
 import { useSafeTranslation } from '@shared/lib';
 import Link from 'next/link';
 import { authClient } from '@api/client';
-import { Breadcrumbs, ErrorBoundary, TagCloud, RichTextRenderer } from '@shared/ui';
+import { Breadcrumbs, ErrorBoundary, RichTextRenderer } from '@shared/ui';
 import { ContentEngagementBar } from '@features/content';
 import { createComponentLogger } from '@shared/lib';
-import { sanitizeHtml } from '@/shared/lib/sanitize';
 import { DirectoryChatModal } from '@/features/directory/ui/DirectoryChatModal';
 import { StandingBadge } from '@entities/merit';
 

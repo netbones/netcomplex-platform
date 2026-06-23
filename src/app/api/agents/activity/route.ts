@@ -3,7 +3,6 @@ import {
   auth,
   db,
   agentAccesses,
-  apiError,
   apiSuccess,
   apiUnauthorized,
   apiInternalError,

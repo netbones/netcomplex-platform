@@ -62,7 +62,7 @@ export {
   requestHistories,
   providerVerifications,
   providerLegalAgreements,
-  providerCredits,
+  providerReputations,
   providerMerits,
   subscriptionTiers,
   providerSubscriptions,

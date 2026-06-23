@@ -73,7 +73,7 @@ vi.mock('@api/server', () => ({
   apiUnauthorized: mocks.apiUnauthorized,
   apiForbidden: mocks.apiForbidden,
   apiError: mocks.apiError,
-  withErrorHandler: (fn: Function) => fn,
+  withErrorHandler: (fn: (...args: unknown[]) => unknown) => fn,
   now: () => new Date('2026-06-21T00:00:00Z'),
 }));
 
@@ -107,7 +107,9 @@ describe('Surveys API', () => {
 
   describe('GET /api/surveys', () => {
     it('returns 401 without auth', async () => {
-      const response = await GET(new Request('http://localhost:3000/api/surveys') as any);
+      const response = await GET(
+        new Request('http://localhost:3000/api/surveys') as unknown as Request
+      );
       expect(response.status).toBe(401);
     });
 
@@ -117,7 +119,9 @@ describe('Surveys API', () => {
         makeSelectChain([{ id: 's-1', title: 'Test Survey' }])
       );
 
-      const response = await GET(new Request('http://localhost:3000/api/surveys') as any);
+      const response = await GET(
+        new Request('http://localhost:3000/api/surveys') as unknown as Request
+      );
       expect(response.status).toBe(200);
       const body = await response.json();
       expect(body.success).toBe(true);
@@ -128,7 +132,9 @@ describe('Surveys API', () => {
       setupAuth('RESIDENT');
       mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([{ id: 's-2', status: 'ACTIVE' }]));
 
-      const response = await GET(new Request('http://localhost:3000/api/surveys?status=ACTIVE') as any);
+      const response = await GET(
+        new Request('http://localhost:3000/api/surveys?status=ACTIVE') as unknown as Request
+      );
       expect(response.status).toBe(200);
       const body = await response.json();
       expect(body.data).toEqual([{ id: 's-2', status: 'ACTIVE' }]);

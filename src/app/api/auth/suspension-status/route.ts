@@ -1,4 +1,4 @@
-import { requireNotSuspended, apiError, apiSuccess } from '@api/server';
+import { requireNotSuspended, apiSuccess } from '@api/server';
 
 export const maxDuration = 8;
 
