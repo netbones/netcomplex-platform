@@ -29,7 +29,7 @@
     "fsd:graph:detailed": "depcruise --output-type dot --collapse 4 src | dot -T svg | depcruise-wrap-stream-in-html > fsd-detailed-dependencies.html"
   },
   "prisma": {
-    "seed": "pnpm exec tsx prisma/seed.ts"
+    "seed": "pnpm exec tsx seed.ts"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
