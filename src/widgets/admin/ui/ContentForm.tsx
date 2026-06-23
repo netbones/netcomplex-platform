@@ -270,6 +270,7 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
           >
             <option value="article">Article</option>
             <option value="campaign">Campaign</option>
+            <option value="document">Document</option>
           </select>
         </div>
       </div>

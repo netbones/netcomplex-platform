@@ -25,7 +25,7 @@ export const contentSchema = z
     featured: z.boolean(),
     published: z.boolean(),
     defaultLocale: z.string().min(2, 'Default locale is required').max(5),
-    contentType: z.enum(['article', 'campaign']),
+    contentType: z.enum(['article', 'campaign', 'document']),
     publishedAt: z.string().optional().nullable(),
     expiresAt: z.string().optional().nullable(),
   })
