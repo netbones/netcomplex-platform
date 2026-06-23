@@ -1170,6 +1170,36 @@ This rule closes the _category_ of failure, not just the current instances, and 
 - Requires ~105 files to use `@entities/<slice>/server` instead of deep paths, but the migration is mechanical (find-replace)
 - New developers must learn the `server.ts` convention
 
+### Client-Side Constraint (added 2026-06-23)
+
+**Client modules (`'use client'`) must never import from `@entities/*/server` barrels.** The bundler evaluates the entire barrel's module graph — not just the named export — and will include server-side dependencies (`ioredis`, `next/headers`, `server-only`, `dns`) in the client bundle, causing a hard build crash.
+
+This means the `@entities/*/server` barrel is a one-way door: server components and API routes may import from it safely, but any value import (including constants and mapping tables) from the server barrel into a client module will fail the build.
+
+#### Failure Case (2026-06-23)
+
+`f4eb9894` (ADR-020 migration) changed the client gate module's imports from `@entities/tenant` → `@entities/tenant/server` because `FEATURE_TO_FLAG` and `FEATURE_TO_REGISTRY` were defined in `gate.ts` alongside server-only functions. This pulled `ioredis` → `dns` into the client bundle. The error was dormant until `406d099b` migrated `Footer.tsx` to `useGateContext()`, which activated the chain.
+
+#### Resolution Pattern (2026-06-23)
+
+When a client module needs types or constants that originated in a server module:
+
+1. Extract the pure types and constants into a **new, clean module** (e.g., `gate/mappings.ts`) with zero server dependencies (only `type` imports from `@shared/lib`)
+2. The server module imports and re-exports from the clean module
+3. The client module imports directly from the clean module (deep import, requires ESLint override)
+4. The server barrel splits its exports: types/constants from the clean module, functions from the server module
+
+```
+src/entities/tenant/api/gate/
+├── mappings.ts      # Types + constants — zero server deps, client-safe
+├── gate.ts          # Server functions — imports/re-exports from mappings
+└── ...
+```
+
+#### Static Enforcement
+
+This constraint is not yet statically enforceable (ESLint `no-restricted-imports` can block deep imports, but cannot distinguish `'use client'` from server modules). The `server.ts` barrel pattern relies on developer discipline: if a symbol is needed by client code, it must live in a client-safe location before being consumed.
+
 ### Related
 
 - `docs/discussions/DISCUSSION-server-only-barrel.md` — problem framing and option analysis
@@ -1178,6 +1208,9 @@ This rule closes the _category_ of failure, not just the current instances, and 
 - `eslint.config.js:19-61` — `no-restricted-imports` deep import blocking
 - Phase 44 (M5A hardening): FSD enforcement baseline
 - BD issue `de8x`: i18n sidestep precedent
+- BD issue `soralia-village-1eh`: C2 gating migration — triggered the client-side constraint discovery
+- Commit `f4eb9894`: introduced the violation (ADR-020 migration switched client gate to server barrel)
+- Commit `ba82bdc8`: resolution — extracted `gate/mappings.ts` clean module
 
 ### Key Files
 
