@@ -152,61 +152,106 @@ export function RevenueDashboard() {
         <p className="mt-1 text-sm text-gray-500">
           Latest billing events with platform-fee and processor-fee breakdown.
         </p>
-        <div className="mt-5 overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead>
-              <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
-                <th className="pb-3 pr-4">Provider</th>
-                <th className="pb-3 pr-4">Gateway</th>
-                <th className="pb-3 pr-4">Gross</th>
-                <th className="pb-3 pr-4">Platform fee</th>
-                <th className="pb-3 pr-4">Processor fee</th>
-                <th className="pb-3">Net</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {detailsQuery.isLoading ? (
-                <tr>
-                  <td colSpan={6} className="py-8 text-center text-gray-500">
-                    Loading transactions…
-                  </td>
-                </tr>
-              ) : detailsQuery.data?.transactions.length ? (
-                detailsQuery.data.transactions.map(row => (
-                  <tr key={row.id}>
-                    <td className="py-4 pr-4">
+
+        {detailsQuery.isLoading ? (
+          <p className="mt-5 py-8 text-center text-sm text-gray-500">Loading transactions…</p>
+        ) : detailsQuery.data?.transactions.length ? (
+          <>
+            {/* Desktop table */}
+            <div className="mt-5 hidden overflow-x-auto md:block">
+              <table className="min-w-full divide-y divide-gray-200 text-sm">
+                <thead>
+                  <tr className="text-left text-xs uppercase tracking-wide text-gray-500">
+                    <th className="pb-3 pr-4">Provider</th>
+                    <th className="pb-3 pr-4">Gateway</th>
+                    <th className="pb-3 pr-4">Gross</th>
+                    <th className="pb-3 pr-4">Platform fee</th>
+                    <th className="pb-3 pr-4">Processor fee</th>
+                    <th className="pb-3">Net</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {detailsQuery.data.transactions.map(row => (
+                    <tr key={row.id}>
+                      <td className="py-4 pr-4">
+                        <div className="font-medium text-gray-900">
+                          {row.providerCompanyName ?? 'Unknown provider'}
+                        </div>
+                        <div className="mt-1 text-xs text-gray-500">
+                          {row.tierName ?? 'Unassigned tier'}
+                        </div>
+                      </td>
+                      <td className="py-4 pr-4 text-gray-700">{row.gateway}</td>
+                      <td className="py-4 pr-4 text-gray-700">
+                        {formatCurrency(row.amount, row.currency)}
+                      </td>
+                      <td className="py-4 pr-4 text-gray-700">
+                        {formatCurrency(row.platformFee, row.currency)}
+                      </td>
+                      <td className="py-4 pr-4 text-gray-700">
+                        {formatCurrency(row.processorFee, row.currency)}
+                      </td>
+                      <td className="py-4 font-medium text-gray-900">
+                        {formatCurrency(row.netAmount, row.currency)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile cards */}
+            <div className="mt-5 space-y-3 md:hidden">
+              {detailsQuery.data.transactions.map(row => (
+                <div key={row.id} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
                       <div className="font-medium text-gray-900">
                         {row.providerCompanyName ?? 'Unknown provider'}
                       </div>
-                      <div className="mt-1 text-xs text-gray-500">
+                      <div className="mt-0.5 text-xs text-gray-500">
                         {row.tierName ?? 'Unassigned tier'}
                       </div>
-                    </td>
-                    <td className="py-4 pr-4 text-gray-700">{row.gateway}</td>
-                    <td className="py-4 pr-4 text-gray-700">
-                      {formatCurrency(row.amount, row.currency)}
-                    </td>
-                    <td className="py-4 pr-4 text-gray-700">
-                      {formatCurrency(row.platformFee, row.currency)}
-                    </td>
-                    <td className="py-4 pr-4 text-gray-700">
-                      {formatCurrency(row.processorFee, row.currency)}
-                    </td>
-                    <td className="py-4 font-medium text-gray-900">
-                      {formatCurrency(row.netAmount, row.currency)}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="py-8 text-center text-gray-500">
-                    No revenue data is available for the selected filters.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+                    <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-600 ring-1 ring-gray-200">
+                      {row.gateway}
+                    </span>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+                    <div>
+                      <span className="text-gray-500">Gross</span>
+                      <div className="font-medium text-gray-900">
+                        {formatCurrency(row.amount, row.currency)}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Net</span>
+                      <div className="font-medium text-gray-900">
+                        {formatCurrency(row.netAmount, row.currency)}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Platform fee</span>
+                      <div className="text-gray-700">
+                        {formatCurrency(row.platformFee, row.currency)}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Processor fee</span>
+                      <div className="text-gray-700">
+                        {formatCurrency(row.processorFee, row.currency)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <p className="mt-5 py-8 text-center text-sm text-gray-500">
+            No revenue data is available for the selected filters.
+          </p>
+        )}
       </section>
 
       {summary?.licenseCompliance ? (
