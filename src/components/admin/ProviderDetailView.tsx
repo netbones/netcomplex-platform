@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
@@ -428,14 +429,23 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
           <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-5 text-sm text-indigo-900">
             <div className="font-semibold">Document management</div>
             <p className="mt-1">
-              Legal agreement text and versions are configured in{' '}
-              <code className="rounded bg-indigo-100 px-1 text-xs">
-                src/shared/lib/providers/registration.ts
-              </code>
-              . To update document content, versions, or summaries, edit{' '}
-              <code className="rounded bg-indigo-100 px-1 text-xs">PROVIDER_LEGAL_DOCUMENTS</code>{' '}
-              and increment the version string. Providers must re-accept when versions change.
+              Legal agreements are managed through the platform content system. Create a{' '}
+              <strong>LEGAL</strong> category resource per document — the provider portal reads the
+              latest published version automatically.
             </p>
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <Link
+                href="/admin/content"
+                className="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700"
+              >
+                Manage documents
+              </Link>
+              <span className="text-xs text-indigo-600">
+                Defaults from{' '}
+                <code className="rounded bg-indigo-100 px-1 text-xs">PROVIDER_LEGAL_DOCUMENTS</code>{' '}
+                serve as templates until tenant overrides are published.
+              </span>
+            </div>
           </div>
         </section>
       ) : null}
