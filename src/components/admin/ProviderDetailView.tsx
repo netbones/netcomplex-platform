@@ -12,7 +12,6 @@ type ProviderTab = (typeof TABS)[number];
 export function ProviderDetailView({ providerId }: { providerId: string }) {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<ProviderTab>('profile');
-  const [verifyNotes, setVerifyNotes] = useState('');
   const [rejectReason, setRejectReason] = useState('');
   const [suspendReason, setSuspendReason] = useState('');
   const [reputationReason, setReputationReason] = useState('');
@@ -148,6 +147,44 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+      ) : null}
+
+      {activeTab === 'profile' ? (
+        <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+          <h2 className="text-base font-semibold text-gray-900">Due diligence summary</h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Use the{' '}
+            <button
+              type="button"
+              onClick={() => setActiveTab('verification')}
+              className="font-medium text-indigo-600 underline"
+            >
+              verification
+            </button>{' '}
+            tab to review and update each item.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            {data.dueDiligence.items.map(item => (
+              <div key={item.key} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-medium text-sm text-gray-900">{item.label}</div>
+                  <span
+                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
+                      item.status === 'APPROVED'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-amber-100 text-amber-700'
+                    }`}
+                  >
+                    {item.status}
+                  </span>
+                </div>
+                {item.notes ? (
+                  <div className="mt-2 text-xs text-gray-600 line-clamp-2">{item.notes}</div>
+                ) : null}
+              </div>
+            ))}
           </div>
         </section>
       ) : null}
@@ -378,34 +415,35 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
 
       {activeTab === 'actions' ? (
         <section className="grid gap-6 xl:grid-cols-2">
-          <form
-            className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-3"
-            onSubmit={async event => {
-              event.preventDefault();
-              await actionMutation.mutateAsync({
-                url: `/api/admin/providers/${providerId}/verify`,
-                method: 'POST',
-                body: { notes: verifyNotes },
-              });
-              setVerifyNotes('');
-            }}
-          >
-            <h2 className="text-base font-semibold text-gray-900">Verify provider</h2>
-            <textarea
-              value={verifyNotes}
-              onChange={event => setVerifyNotes(event.target.value)}
-              rows={4}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              placeholder="Verification notes"
-            />
-            <button
-              type="submit"
-              disabled={actionMutation.isPending}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
-            >
-              Approve & verify
-            </button>
-          </form>
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-3">
+            <h2 className="text-base font-semibold text-gray-900">Verification workflow</h2>
+            <p className="text-sm text-gray-600">
+              Use the{' '}
+              <button
+                type="button"
+                onClick={() => setActiveTab('verification')}
+                className="font-medium text-indigo-600 underline"
+              >
+                verification tab
+              </button>{' '}
+              to complete the due diligence checklist — tick each item, add admin notes, and save.
+              The provider status updates automatically when all items are approved.
+            </p>
+            <div className="rounded-lg bg-gray-50 p-4 text-sm">
+              <div className="font-medium text-gray-900">Current status</div>
+              <div className="mt-2 flex items-center gap-2">
+                <span
+                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass(data.provider.verificationStatus)}`}
+                >
+                  {data.provider.verificationStatus.toLowerCase()}
+                </span>
+                <span className="text-gray-500">
+                  {data.dueDiligence.items.filter(i => i.status === 'APPROVED').length}/
+                  {data.dueDiligence.items.length} items approved
+                </span>
+              </div>
+            </div>
+          </div>
 
           <form
             className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-3"
