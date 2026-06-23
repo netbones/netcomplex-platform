@@ -19,6 +19,14 @@ export default [
       'no-restricted-imports': [
         'error',
         {
+          paths: [
+            {
+              name: '@shared/lib/hooks',
+              importNames: ['usePageFlags'],
+              message:
+                'usePageFlags is @internal. Use useGateContext() from @features/gate instead.',
+            },
+          ],
           patterns: [
             // Enforce slice public API (no deep imports)
             {
