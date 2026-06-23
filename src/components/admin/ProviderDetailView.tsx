@@ -3,7 +3,14 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { fetchApi, formatCurrency, formatDate, sendJson, statusBadgeClass } from './adminApi';
+import {
+  fetchApi,
+  formatCurrency,
+  formatDate,
+  sendJson,
+  statusBadgeClass,
+  ddStepColor,
+} from './adminApi';
 import type { ProviderDetailResponse } from './types';
 
 const TABS = ['profile', 'verification', 'legal', 'reputation', 'payments', 'actions'] as const;
@@ -166,25 +173,28 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
             tab to review and update each item.
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            {data.dueDiligence.items.map(item => (
-              <div key={item.key} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="font-medium text-sm text-gray-900">{item.label}</div>
-                  <span
-                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
-                      item.status === 'APPROVED'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-amber-100 text-amber-700'
-                    }`}
-                  >
-                    {item.status}
-                  </span>
+            {data.dueDiligence.items.map(item => {
+              const c = ddStepColor(item.key);
+              return (
+                <div key={item.key} className={`rounded-xl border-l-4 bg-gray-50 p-4 ${c.border}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="font-medium text-sm text-gray-900">{item.label}</div>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
+                        item.status === 'APPROVED'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-amber-100 text-amber-700'
+                      }`}
+                    >
+                      {item.status}
+                    </span>
+                  </div>
+                  {item.notes ? (
+                    <div className="mt-2 text-xs text-gray-600 line-clamp-2">{item.notes}</div>
+                  ) : null}
                 </div>
-                {item.notes ? (
-                  <div className="mt-2 text-xs text-gray-600 line-clamp-2">{item.notes}</div>
-                ) : null}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       ) : null}
@@ -200,8 +210,12 @@ export function ProviderDetailView({ providerId }: { providerId: string }) {
               {ddItems.map(item => {
                 const current = data.dueDiligence.items.find(i => i.key === item.key);
                 if (!current) return null;
+                const c = ddStepColor(item.key);
                 return (
-                  <div key={item.key} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <div
+                    key={item.key}
+                    className={`rounded-xl border-l-4 bg-gray-50 p-4 ${c.border}`}
+                  >
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"

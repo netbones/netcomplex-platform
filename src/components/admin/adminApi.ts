@@ -80,3 +80,35 @@ export function statusBadgeClass(status: string): string {
       return 'bg-gray-100 text-gray-700';
   }
 }
+
+const DD_STEP_COLORS: Record<string, { border: string; bg: string; text: string; dot: string }> = {
+  IDENTITY: {
+    border: 'border-l-indigo-400',
+    bg: 'bg-indigo-50',
+    text: 'text-indigo-700',
+    dot: 'bg-indigo-500',
+  },
+  SERVICE: {
+    border: 'border-l-emerald-400',
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-700',
+    dot: 'bg-emerald-500',
+  },
+  BACKGROUND: {
+    border: 'border-l-amber-400',
+    bg: 'bg-amber-50',
+    text: 'text-amber-700',
+    dot: 'bg-amber-500',
+  },
+};
+
+export function ddStepColor(key: string) {
+  return (
+    DD_STEP_COLORS[key] ?? {
+      border: 'border-l-gray-300',
+      bg: 'bg-gray-50',
+      text: 'text-gray-600',
+      dot: 'bg-gray-400',
+    }
+  );
+}

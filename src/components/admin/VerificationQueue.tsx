@@ -3,7 +3,7 @@
 import Link from 'next/link';
 
 import type { PendingProviderItem } from './types';
-import { formatDate, statusBadgeClass } from './adminApi';
+import { formatDate, statusBadgeClass, ddStepColor } from './adminApi';
 
 export function VerificationQueue({ providers }: { providers: PendingProviderItem[] }) {
   return (
@@ -39,10 +39,12 @@ export function VerificationQueue({ providers }: { providers: PendingProviderIte
                     </span>
                   </div>
                   <div className="mt-1 text-sm text-gray-600">
-                    {provider.contactName ?? 'No contact name'} • {provider.trade ?? 'Trade not provided'}
+                    {provider.contactName ?? 'No contact name'} •{' '}
+                    {provider.trade ?? 'Trade not provided'}
                   </div>
                   <div className="mt-1 text-xs text-gray-500">
-                    Registered {formatDate(provider.createdAt)} • Legal agreements {provider.legalStatus.acceptedAgreementCount}/3
+                    Registered {formatDate(provider.createdAt)} • Legal agreements{' '}
+                    {provider.legalStatus.acceptedAgreementCount}/3
                   </div>
                 </div>
                 <Link
@@ -53,14 +55,20 @@ export function VerificationQueue({ providers }: { providers: PendingProviderIte
                 </Link>
               </div>
               <div className="mt-3 grid gap-2 md:grid-cols-3">
-                {provider.dueDiligence.items.map(item => (
-                  <div key={item.key} className="rounded-lg border border-white bg-white p-3">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      {item.label}
+                {provider.dueDiligence.items.map(item => {
+                  const c = ddStepColor(item.key);
+                  return (
+                    <div
+                      key={item.key}
+                      className={`rounded-lg border-l-4 bg-white p-3 ${c.border}`}
+                    >
+                      <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        {item.label}
+                      </div>
+                      <div className="mt-1 text-sm text-gray-700">{item.description}</div>
                     </div>
-                    <div className="mt-1 text-sm text-gray-700">{item.description}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))
