@@ -21,7 +21,7 @@ import { eq } from 'drizzle-orm';
 
 import { isModuleEnabled } from '../../lib/modules';
 import type { TenantTier } from '@/shared/lib';
-import { getPlatformPageFlags, type PlatformPageFlags } from '../flags/platform-flags';
+import { getPlatformPageFlags } from '../flags/platform-flags';
 import { canAccessPage, hasFeature, type TierLevel } from '../features/registry';
 import { ROLE_PERMISSIONS, type Role } from '@/shared/lib';
 import { MODULES, type ModuleKey } from '@/shared/lib';
@@ -29,115 +29,29 @@ import { MODULES, type ModuleKey } from '@/shared/lib';
 import { db, tenants, getSessionAndRole } from '@api/server';
 import { createComponentLogger } from '@/shared/lib';
 
+import type { FeatureKey, GateReason, GateResult, GateContext } from './mappings';
+import {
+  FEATURE_TO_MODULE,
+  FEATURE_TO_FLAG,
+  FEATURE_TO_REGISTRY,
+  GATE_REASON_TO_ERROR,
+} from './mappings';
+
 const gateLogger = createComponentLogger('gate');
 
-// ============================================
-// PUBLIC TYPES
-// ============================================
-
-/**
- * Canonical 14-key feature namespace.
- * Sub-features use dot notation (e.g. 'maintenance.updates') in future phases.
- */
-export type FeatureKey =
-  | 'maintenance'
-  | 'bookings'
-  | 'events'
-  | 'surveys'
-  | 'competitions'
-  | 'groups'
-  | 'chat'
-  | 'news'
-  | 'directory'
-  | 'resources'
-  | 'conservation'
-  | 'services'
-  | 'dashboard'
-  | 'messages';
-
-/** Reasons the gate can return. `allowed` is the success case. */
-export type GateReason = 'role' | 'tier' | 'module' | 'flag' | 'feature' | 'allowed';
-
-/** Return type for canAccess() and canAccessClient(). */
-export interface GateResult {
-  allowed: boolean;
-  reason: GateReason;
-}
-
-/**
- * Server-side gate context.
- */
-export interface GateContext {
-  tenantId: string;
-  role: Role;
-  tier: TenantTier;
-}
-
-// ============================================
-// MAPPING TABLES (canonical source of truth)
-// ============================================
-
-export const FEATURE_TO_MODULE: Record<FeatureKey, ModuleKey | null> = {
-  maintenance: 'maintenance',
-  bookings: 'bookings',
-  surveys: 'surveys',
-  events: 'events',
-  groups: 'groups',
-  chat: 'chat',
-  news: 'news',
-  directory: 'directory',
-  resources: 'resources',
-  conservation: 'conservation',
-  services: 'marketplace',
-  messages: 'chat',
-  competitions: null,
-  dashboard: null,
-};
-
-type PlatformPageFlagKey = keyof PlatformPageFlags;
-
-export const FEATURE_TO_FLAG: Record<FeatureKey, PlatformPageFlagKey | null> = {
-  maintenance: 'maintenance',
-  bookings: 'bookings',
-  surveys: 'surveys',
-  events: 'events',
-  groups: 'groups',
-  chat: 'chat',
-  news: 'news',
-  directory: 'directory',
-  resources: 'resources',
-  conservation: 'conservation',
-  services: 'services',
-  competitions: 'competitions',
-  dashboard: 'dashboard',
-  messages: 'messages',
-};
-
-export const FEATURE_TO_REGISTRY: Record<FeatureKey, string | null> = {
-  maintenance: 'page.maintenance',
-  bookings: 'page.bookings',
-  surveys: 'page.surveys',
-  events: 'page.events',
-  groups: 'page.groups',
-  chat: 'page.chat',
-  news: 'page.news',
-  directory: 'page.directory',
-  resources: 'page.resources',
-  conservation: 'page.conservation',
-  services: 'page.marketplace',
-  messages: 'page.chat',
-  competitions: null,
-  dashboard: null,
-};
-
-export const GATE_REASON_TO_ERROR: Record<GateReason, string> = {
-  role: 'INSUFFICIENT_ROLE',
-  tier: 'TIER_REQUIRED',
-  module: 'MODULE_DISABLED',
-  flag: 'PAGE_DISABLED',
-  feature: 'FEATURE_UNAVAILABLE',
-  allowed: 'OK',
-};
+// Re-export pure types and mapping tables from the clean module
+// so client consumers can import from @entities/tenant/api/gate/mappings
+// without pulling in server-only deps (ioredis → dns).
+export {
+  type FeatureKey,
+  type GateReason,
+  type GateResult,
+  type GateContext,
+  FEATURE_TO_FLAG,
+  FEATURE_TO_MODULE,
+  FEATURE_TO_REGISTRY,
+  GATE_REASON_TO_ERROR,
+} from './mappings';
 
 // ============================================
 // HELPERS

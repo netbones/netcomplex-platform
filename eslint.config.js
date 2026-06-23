@@ -77,4 +77,51 @@ export default [
       'no-restricted-imports': 'off',
     },
   },
+  {
+    // @features/gate imports mapping tables from @entities/tenant/api/gate/mappings.
+    // This is the canonical clean module (zero server deps) — importing from the
+    // @entities/tenant/server barrel would pull ioredis → dns into client builds.
+    // See soralia-village-1eh for the build fix rationale.
+    files: ['src/features/gate/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [],
+          patterns: [
+            // Keep all patterns EXCEPT the entities deep-import rule,
+            // which traps the intentionally deep @entities/tenant/api/gate/mappings import.
+            {
+              regex: '^@shared/(?!lib/hooks)[^/]+/[^/]+$',
+              message: 'Use public API from @shared instead of deep imports.',
+            },
+            {
+              group: ['@features/*/*'],
+              message: 'Use public API from @features/<slice> instead of deep imports.',
+            },
+            {
+              group: ['@widgets/*/*'],
+              message: 'Use public API from @widgets/<slice> instead of deep imports.',
+            },
+            {
+              group: ['@pages/*/*'],
+              message: 'Use public API from @pages/<slice> instead of deep imports.',
+            },
+            {
+              group: ['@processes/*/*'],
+              message: 'Use public API from @processes/<slice> instead of deep imports.',
+            },
+            {
+              group: ['@/components/**'],
+              message: 'Legacy components bucket is deprecated. Use FSD layers instead.',
+            },
+            {
+              group: ['@/lib/**'],
+              message: 'Legacy lib bucket is deprecated. Use @shared/lib instead.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ];

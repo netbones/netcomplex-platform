@@ -23,6 +23,8 @@ export { withTenant, withTenantOptional } from './api/with-tenant';
 export { requirePlatformAdmin } from './api/guards';
 export { requireAssistScope } from './api/assist-scope-guard';
 
+// Types and mapping tables — importable by client code without server deps.
+// See @entities/tenant/api/gate/mappings.ts for the canonical definitions.
 export {
   type FeatureKey,
   type GateResult,
@@ -32,9 +34,9 @@ export {
   FEATURE_TO_REGISTRY,
   FEATURE_TO_MODULE,
   GATE_REASON_TO_ERROR,
-  canAccess,
-  resolveGateContext,
-} from './api/gate/gate';
+} from './api/gate/mappings';
+
+export { canAccess, resolveGateContext } from './api/gate/gate';
 
 export { assertModuleEnabled } from './api/gate/feature-gate';
 
