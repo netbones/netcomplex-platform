@@ -109,6 +109,10 @@ import { paymentTransactions } from '@schema/payment-transactions';
 import { providerCharges } from '@schema/provider-charges';
 import { providerInvoices } from '@schema/provider-invoices';
 import { revenueRecords } from '@schema/revenue-records';
+import { achievementDefinitions } from '@schema/achievement-definitions';
+import { tenantAchievements } from '@schema/tenant-achievements';
+import { userAchievementProgresses } from '@schema/user-achievement-progresses';
+import { userAchievements } from '@schema/user-achievements';
 
 import { ENV } from 'varlock/env';
 import { dbLogger } from '@shared/lib';
@@ -182,6 +186,10 @@ const dbSchema = {
   providerCharges,
   providerInvoices,
   revenueRecords,
+  achievementDefinitions,
+  tenantAchievements,
+  userAchievementProgresses,
+  userAchievements,
 } as const;
 
 export type DbSchema = typeof dbSchema;
@@ -370,4 +378,8 @@ export {
   providerCharges,
   providerInvoices,
   revenueRecords,
+  achievementDefinitions,
+  tenantAchievements,
+  userAchievementProgresses,
+  userAchievements,
 };

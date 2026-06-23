@@ -1,17 +1,17 @@
 # ADVISORY-013: Achievements System
 
-> **Status:** Phase A complete (2026-06-22) — event emitter built and wired into 6 domains. Phases B–E pending DavDev decision gates.
+> **Status:** Phase A complete (2026-06-22) — event emitter built and wired into 6 domains. Decision gates G1–G4 resolved (2026-06-23). Phases B–E ready for execution.
 > **Author:** Claude (architectural advisor)
 > **Date:** 2026-06-21
 > **Related:** ADVISORY-012 (Community Merits — explicitly out of scope, see Boundary section), C2 (gating consolidation, Phase 41), GATE_PLAN.md, BD `soralia-village-k9q7`
 
-| Phase                            | Status                   | Commit     |
-| -------------------------------- | ------------------------ | ---------- |
-| A — Event Infrastructure         | ✅ done                  | `59540ddf` |
-| B — Schema + Achievement Service | 📋 pending (needs G1–G4) | —          |
-| C — API + Admin Configuration    | 📋 pending               | —          |
-| D — Widgets                      | 📋 pending               | —          |
-| E — Backfill                     | 📋 pending (G4)          | —          |
+| Phase                            | Status                  | Commit     |
+| -------------------------------- | ----------------------- | ---------- |
+| A — Event Infrastructure         | ✅ done                 | `59540ddf` |
+| B — Schema + Achievement Service | 📋 ready                | —          |
+| C — API + Admin Configuration    | 📋 ready                | —          |
+| D — Widgets                      | 📋 ready                | —          |
+| E — Backfill                     | ~~📋~~ N/A (G4=forward) | —          |
 
 ---
 
@@ -225,16 +225,14 @@ grep -rl "Notification" src/shared/api/ src/entities/ 2>/dev/null | head -5
 
 ---
 
-## 6. Decision Gates (DavDev confirmation required before agent execution)
+## 6. Decision Gates — RESOLVED (2026-06-23)
 
-These were **not** resolved in the elicitation session and must be confirmed:
-
-| Gate   | Question                                                                                                                                                                                                                                                  | Why it matters                                                                                                                                                                                                                                                         |
-| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **G1** | In-process event emitter (best-effort, v1) vs. durable outbox table from day one?                                                                                                                                                                         | Affects whether missed events require a backfill job or are structurally impossible. Recommendation: in-process for v1 (Section 3.2).                                                                                                                                  |
-| **G2** | Should Achievements be gated through the new `canAccess()` system (Phase 41) or ship as an always-on module independent of tiers?                                                                                                                         | Phase 41 is still in-flight (C2 status: "Phase 1 infrastructure complete," legacy systems still live). Gating Achievements through an unstable system risks rework.                                                                                                    |
-| **G3** | Does "merits counts are eligible achievement triggers" mean reading `BehaviorRecord.recognitionPoints` (read-only, no write coupling) is in scope for v1, or deferred to a later phase?                                                                   | Confirmed broad coverage includes merits, but this is the one trigger source that touches the Merits bounded context — needs an explicit read-only boundary statement so Merits' decision gate (legacy `hasPermission` vs `canAccess()`) isn't accidentally entangled. |
-| **G4** | Backfill: do existing users get achievements retroactively computed from historical data (e.g. someone with 12 past maintenance requests should already have "5 requests" and "10 requests" unlocked), or does the system only count forward from launch? | Affects whether a one-time backfill script is part of this phase or explicitly deferred.                                                                                                                                                                               |
+| Gate   | Decision                                                | Rationale                                                              |
+| ------ | ------------------------------------------------------- | ---------------------------------------------------------------------- |
+| **G1** | ✅ In-process emitter for v1 (best-effort)              | Matches single-instance Vercel reality; backfill handles missed events |
+| **G2** | ✅ Ship always-on, not gated through canAccess()        | Avoids coupling to unstable Phase 41; can add gating later             |
+| **G3** | ✅ Deferred — merits as trigger source excluded from v1 | Keeps Merits/Achievements boundary clean; 6 domains in scope for v1    |
+| **G4** | ✅ Forward-only — no retroactive backfill               | Simpler; users start earning from launch                               |
 
 ---
 
@@ -292,7 +290,7 @@ These were **not** resolved in the elicitation session and must be confirmed:
 ## 9. Done Criteria Checklist
 
 - [x] Discovery checklist (Section 5) run and results reported before any code written
-- [ ] Decision gates G1–G4 explicitly confirmed by DavDev
+- [x] Decision gates G1–G4 explicitly confirmed by DavDev (2026-06-23)
 - [ ] Event emitter ships without altering response shape/latency of existing routes
 - [ ] 4 new Prisma models added, `prisma generate` run, Drizzle schema verified
 - [ ] Zero changes to `BehaviorRecord` model or Merits-related code paths

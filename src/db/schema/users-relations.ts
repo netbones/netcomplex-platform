@@ -39,6 +39,8 @@ import { standardSeats } from './standard-seats';
 import { twoFactors } from './two-factors';
 import { userKeys } from './user-keys';
 import { userDevices } from './user-devices';
+import { userAchievementProgresses } from './user-achievement-progresses';
+import { userAchievements } from './user-achievements';
 
 export const usersRelations = relations(users, helpers => ({
   assistSessions: helpers.many(assistSessions, { relationName: 'AssistSessionTouser' }),
@@ -113,4 +115,8 @@ export const usersRelations = relations(users, helpers => ({
   twoFactor: helpers.many(twoFactors, { relationName: 'twoFactorTouser' }),
   UserKey: helpers.many(userKeys, { relationName: 'UserKeyTouser' }),
   UserDevice: helpers.many(userDevices, { relationName: 'UserDeviceTouser' }),
+  UserAchievementProgress: helpers.many(userAchievementProgresses, {
+    relationName: 'UserAchievementProgressTouser',
+  }),
+  UserAchievement: helpers.many(userAchievements, { relationName: 'UserAchievementTouser' }),
 }));

@@ -1,0 +1,10 @@
+import { pgTable, text, integer, timestamp } from 'drizzle-orm/pg-core';
+
+export const userAchievementProgresses = pgTable('UserAchievementProgress', {
+  id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
+  userId: text('userId').notNull(),
+  definitionId: text('definitionId').notNull(),
+  count: integer('count').default(0).notNull(),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
+});

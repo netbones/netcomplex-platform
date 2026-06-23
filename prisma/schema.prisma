@@ -168,6 +168,8 @@ model user {
   twoFactor                                             twoFactor[]
   UserKey                                               UserKey[]
   UserDevice                                            UserDevice[]
+  UserAchievementProgress                               UserAchievementProgress[]
+  UserAchievement                                       UserAchievement[]
 }
 
 model Profile {
@@ -418,6 +420,7 @@ model Tenant {
   assistSessions   AssistSession[]
   owner            user?           @relation("TenantOwner", fields: [ownerId], references: [id])
   tenantModules    TenantModule[]
+  tenantAchievements TenantAchievement[]
 
   @@index([ownerId])
 }
@@ -1545,6 +1548,60 @@ model SubscriptionTier {
   @@map("subscription_tiers")
 }
 
+// ── Achievements System ──
+
+model AchievementDefinition {
+  id                String              @id @default(cuid())
+  key               String              @unique
+  label             String
+  description       String?
+  icon              String?
+  eventType         String
+  threshold         Int                 @default(1)
+  category          AchievementCategory @default(ENGAGEMENT)
+  createdAt         DateTime            @default(now())
+  tenantAchievements TenantAchievement[]
+}
+
+model TenantAchievement {
+  id              String               @id @default(cuid())
+  tenantId        String
+  definitionId    String
+  enabled         Boolean              @default(true)
+  customThreshold Int?
+  definition      AchievementDefinition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
+  tenant          Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, definitionId])
+  @@index([tenantId])
+}
+
+model UserAchievementProgress {
+  id           String   @id @default(cuid())
+  tenantId     String
+  userId       String
+  definitionId String
+  count        Int      @default(0)
+  updatedAt    DateTime @updatedAt
+  user         user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, definitionId])
+  @@index([tenantId])
+}
+
+model UserAchievement {
+  id           String   @id @default(cuid())
+  tenantId     String
+  userId       String
+  definitionId String
+  unlockedAt   DateTime @default(now())
+  user         user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, definitionId])
+  @@index([tenantId])
+  @@index([userId])
+}
+
 // ── Enums: Tenant & Platform ──
 
 enum Tier {
@@ -1902,6 +1959,12 @@ enum SoloSeatType {
 }
 
 // ── Enums: User & Identity ──
+
+enum AchievementCategory {
+  ENGAGEMENT
+  CONTRIBUTION
+  MILESTONE
+}
 
 enum Role {
   RESIDENT

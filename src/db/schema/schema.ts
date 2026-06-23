@@ -68,6 +68,10 @@ import * as assistSessions from './assist-sessions';
 import * as agentAccesses from './agent-accesses';
 import * as platformSuspensions from './platform-suspensions';
 import * as subscriptionTiers from './subscription-tiers';
+import * as achievementDefinitions from './achievement-definitions';
+import * as tenantAchievements from './tenant-achievements';
+import * as userAchievementProgresses from './user-achievement-progresses';
+import * as userAchievements from './user-achievements';
 import * as accountsRelations from './accounts-relations';
 import * as passkeysRelations from './passkeys-relations';
 import * as sessionsRelations from './sessions-relations';
@@ -134,6 +138,10 @@ import * as assistSessionsRelations from './assist-sessions-relations';
 import * as agentAccessesRelations from './agent-accesses-relations';
 import * as platformSuspensionsRelations from './platform-suspensions-relations';
 import * as subscriptionTiersRelations from './subscription-tiers-relations';
+import * as achievementDefinitionsRelations from './achievement-definitions-relations';
+import * as tenantAchievementsRelations from './tenant-achievements-relations';
+import * as userAchievementProgressesRelations from './user-achievement-progresses-relations';
+import * as userAchievementsRelations from './user-achievements-relations';
 
 export const schema = {
   ...accounts,
@@ -206,6 +214,10 @@ export const schema = {
   ...agentAccesses,
   ...platformSuspensions,
   ...subscriptionTiers,
+  ...achievementDefinitions,
+  ...tenantAchievements,
+  ...userAchievementProgresses,
+  ...userAchievements,
   ...accountsRelations,
   ...passkeysRelations,
   ...sessionsRelations,
@@ -272,4 +284,8 @@ export const schema = {
   ...agentAccessesRelations,
   ...platformSuspensionsRelations,
   ...subscriptionTiersRelations,
+  ...achievementDefinitionsRelations,
+  ...tenantAchievementsRelations,
+  ...userAchievementProgressesRelations,
+  ...userAchievementsRelations,
 };
