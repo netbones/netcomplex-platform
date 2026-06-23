@@ -7,8 +7,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toastPromise, ToastMsg } from '@shared/lib/hooks';
 import { adminCompetitionSchema, type AdminCompetitionFormData } from '@entities/event';
 
-const log = createComponentLogger('CompetitionForm');
-
 interface CompetitionFormProps {
   initialData?: {
     id?: string;

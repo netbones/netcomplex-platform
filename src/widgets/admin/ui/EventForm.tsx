@@ -4,13 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-import { toastPromise } from '@shared/lib/hooks';
+import { toastPromise, ToastMsg } from '@shared/lib/hooks';
 import { adminEventSchema, type AdminEventFormData } from '@entities/event';
-import { createComponentLogger } from '@shared/lib';
-import { ToastMsg } from '@shared/lib/hooks';
-
-const log = createComponentLogger('EventForm');
 
 interface EventFormProps {
   redirectPath?: string;

@@ -4,9 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-import { toastPromise } from '@shared/lib/hooks';
-import { ToastMsg } from '@shared/lib/hooks';
+import { toastPromise, ToastMsg } from '@shared/lib/hooks';
 import { AlertTriangle } from 'lucide-react';
 import { LocaleAwareEditor, LocaleAwareInput } from '@features/i18n';
 import { TagInput } from '@shared/ui';
@@ -18,9 +16,6 @@ import {
   type SupportedLanguage,
 } from '@/shared/lib/i18n';
 import { contentSchema, type ContentFormData } from '@entities/content';
-import { createComponentLogger } from '@shared/lib';
-
-const log = createComponentLogger('ContentForm');
 
 interface ContentFormProps {
   initialData?: {
