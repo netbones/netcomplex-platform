@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { authClient } from '@api/client';
+import { useNotifSubscription } from '../model/useNotifSubscription';
 
 interface NotificationsWidgetProps {
   count?: number;
@@ -8,23 +10,22 @@ interface NotificationsWidgetProps {
 
 export function NotificationsWidget({ count = 0 }: NotificationsWidgetProps) {
   const [unread, setUnread] = useState(count);
+  const { data: session } = authClient.useSession();
+
+  const refresh = useCallback(() => {
+    fetch('/api/notifications?unread=true', { credentials: 'same-origin' })
+      .then(res => res.ok && res.json())
+      .then(body => setUnread(body?.data?.length ?? 0))
+      .catch(() => {});
+  }, []);
+
+  useNotifSubscription(session?.user?.id, refresh);
 
   useEffect(() => {
-    const poll = async () => {
-      try {
-        const res = await fetch('/api/notifications?unread=true', { credentials: 'same-origin' });
-        if (!res.ok) return;
-        const body = await res.json();
-        setUnread(body.data?.length ?? 0);
-      } catch {
-        // polling degraded — keep previous count
-      }
-    };
-
-    poll();
-    const interval = setInterval(poll, 30_000);
+    refresh();
+    const interval = setInterval(refresh, 30_000);
     return () => clearInterval(interval);
-  }, []);
+  }, [refresh]);
 
   return (
     <div className="text-center py-4 text-gray-500">

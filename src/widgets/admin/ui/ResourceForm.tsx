@@ -5,9 +5,11 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { toastPromise } from '@shared/lib/hooks';
 import { RichTextEditor } from '@shared/ui';
 import { z } from 'zod';
 import { createComponentLogger } from '@shared/lib';
+import { ToastMsg } from '@shared/lib/hooks';
 
 const log = createComponentLogger('ResourceForm');
 
@@ -168,53 +170,56 @@ export function ResourceForm({ initialData }: ResourceFormProps) {
   };
 
   const onSubmit = async (data: ResourceFormData) => {
-    const loadingToast = toast.loading(isEditing ? 'Updating resource...' : 'Creating resource...');
+    await toastPromise(
+      (async () => {
+        const method = isEditing ? 'PATCH' : 'POST';
+        const url = isEditing ? `/api/resources/${initialData.id}` : '/api/resources';
 
-    try {
-      const method = isEditing ? 'PATCH' : 'POST';
-      const url = isEditing ? `/api/resources/${initialData.id}` : '/api/resources';
+        const body = {
+          ...data,
+          publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
+        };
 
-      const body = {
-        ...data,
-        publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
-      };
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || ToastMsg.failedToSave('resource'));
+        }
 
-      if (res.ok) {
-        toast.success(isEditing ? 'Resource updated!' : 'Resource created!');
         router.push('/admin/resources');
         router.refresh();
-      } else {
-        const error = await res.json();
-        toast.error(error.error || 'Failed to save resource');
+      })(),
+      {
+        loading: isEditing ? 'Updating resource...' : 'Creating resource...',
+        success: isEditing ? ToastMsg.updated('Resource') : ToastMsg.created('Resource'),
+        error: ToastMsg.failedToSave('resource'),
+        component: 'ResourceForm',
       }
-    } catch {
-      toast.error('Something went wrong');
-    } finally {
-      toast.dismiss(loadingToast);
-    }
+    );
   };
 
   const handleDelete = async () => {
     if (!initialData?.id) return;
 
-    try {
-      const res = await fetch(`/api/resources/${initialData.id}`, { method: 'DELETE' });
-      if (res.ok) {
-        toast.success('Resource deleted');
+    await toastPromise(
+      (async () => {
+        const res = await fetch(`/api/resources/${initialData.id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error(ToastMsg.failedToDelete('resource'));
         router.push('/admin/resources');
         router.refresh();
-      } else {
-        toast.error('Failed to delete resource');
+      })(),
+      {
+        loading: 'Deleting resource...',
+        success: ToastMsg.deleted('Resource'),
+        error: ToastMsg.failedToDelete('resource'),
+        component: 'ResourceForm',
       }
-    } catch {
-      toast.error('Failed to delete resource');
-    }
+    );
     setDeleteConfirmOpen(false);
   };
 

@@ -74,6 +74,19 @@
     "contact": "Contact",
     "copyright": "Soralia Village Homeowners Association. All rights reserved."
   },
+  "toast": {
+    "created": "{{entity}} created",
+    "updated": "{{entity}} updated",
+    "deleted": "{{entity}} deleted",
+    "failedToCreate": "Failed to create {{entity}}",
+    "failedToUpdate": "Failed to update {{entity}}",
+    "failedToDelete": "Failed to delete {{entity}}",
+    "failedToSave": "Failed to save {{entity}}",
+    "failedToLoad": "Failed to load {{entity}}",
+    "failedToUpload": "Failed to upload {{entity}}",
+    "uploaded": "{{entity}} uploaded",
+    "genericError": "Something went wrong"
+  },
   "home": {
     "ourCommunity": "Our Community",
     "exploreMap": "Explore our beautiful neighborhood. Click on streets to see residents.",

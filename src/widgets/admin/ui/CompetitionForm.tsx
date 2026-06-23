@@ -4,9 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
+import { toastPromise, ToastMsg } from '@shared/lib/hooks';
 import { adminCompetitionSchema, type AdminCompetitionFormData } from '@entities/event';
-import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('CompetitionForm');
 
@@ -95,71 +94,67 @@ export function CompetitionForm({ initialData }: CompetitionFormProps) {
   };
 
   const onSubmit = async (data: AdminCompetitionFormData) => {
-    const loadingToast = toast.loading(
-      isEditing ? 'Updating competition...' : 'Creating competition...'
-    );
+    await toastPromise(
+      (async () => {
+        const method = isEditing ? 'PATCH' : 'POST';
+        const url = isEditing ? `/api/competitions/${initialData.id}` : '/api/competitions';
 
-    try {
-      const method = isEditing ? 'PATCH' : 'POST';
-      const url = isEditing ? `/api/competitions/${initialData.id}` : '/api/competitions';
+        const body = {
+          ...data,
+          description: data.description || null,
+          rules: data.rules || null,
+          prizeInfo: data.prizeInfo || null,
+          image: data.image || null,
+          status: data.status,
+          type: data.type,
+          winnersCount: data.winnersCount,
+          maxParticipants: data.maxParticipants || null,
+        };
 
-      const body = {
-        ...data,
-        description: data.description || null,
-        rules: data.rules || null,
-        prizeInfo: data.prizeInfo || null,
-        image: data.image || null,
-        status: data.status,
-        type: data.type,
-        winnersCount: data.winnersCount,
-        maxParticipants: data.maxParticipants || null,
-      };
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || ToastMsg.failedToSave('competition'));
+        }
 
-      if (res.ok) {
-        toast.success(isEditing ? 'Competition updated!' : 'Competition created!');
         router.push('/admin/competitions');
         router.refresh();
-      } else {
-        const error = await res.json();
-        toast.error(error.error || 'Failed to save competition');
+      })(),
+      {
+        loading: isEditing ? 'Updating competition...' : 'Creating competition...',
+        success: isEditing ? ToastMsg.updated('Competition') : ToastMsg.created('Competition'),
+        error: ToastMsg.failedToSave('competition'),
+        component: 'CompetitionForm',
       }
-    } catch (error) {
-      log.error({}, 'Error saving competition', error);
-      toast.error('Something went wrong');
-    } finally {
-      toast.dismiss(loadingToast);
-    }
+    );
   };
 
   const handleDelete = async () => {
     if (!initialData?.id) return;
 
-    const loadingToast = toast.loading('Deleting competition...');
-
-    try {
-      const res = await fetch(`/api/competitions/${initialData.id}`, { method: 'DELETE' });
-
-      if (res.ok) {
-        toast.success('Competition deleted');
+    await toastPromise(
+      (async () => {
+        const res = await fetch(`/api/competitions/${initialData.id}`, { method: 'DELETE' });
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || ToastMsg.failedToDelete('competition'));
+        }
         router.push('/admin/competitions');
         router.refresh();
-      } else {
-        const error = await res.json();
-        toast.error(error.error || 'Failed to delete competition');
+      })(),
+      {
+        loading: 'Deleting competition...',
+        success: ToastMsg.deleted('Competition'),
+        error: ToastMsg.failedToDelete('competition'),
+        component: 'CompetitionForm',
       }
-    } catch (error) {
-      log.error({}, 'Error deleting competition', error);
-      toast.error('Something went wrong');
-    } finally {
-      toast.dismiss(loadingToast);
-      setDeleteConfirmOpen(false);
-    }
+    );
+    setDeleteConfirmOpen(false);
   };
 
   return (

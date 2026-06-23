@@ -3,6 +3,7 @@ import {
   db,
   notifications,
   users,
+  supabase,
   apiCreated,
   apiSuccess,
   apiUnauthorized,
@@ -120,6 +121,22 @@ export async function POST(request: Request) {
       );
     });
   }
+
+  // Broadcast via Supabase Realtime so subscribed clients get instant updates
+  supabase
+    .channel(`notifications:${targetUserId}`)
+    .send({
+      type: 'broadcast',
+      event: 'new-notification',
+      payload: newNotification,
+    })
+    .catch(error => {
+      logError(
+        { component: 'notifications-api', operation: 'REALTIME_BROADCAST' },
+        'Failed to broadcast notification',
+        error
+      );
+    });
 
   return apiCreated(newNotification);
 }

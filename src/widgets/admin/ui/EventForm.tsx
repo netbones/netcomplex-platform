@@ -5,8 +5,10 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { toastPromise } from '@shared/lib/hooks';
 import { adminEventSchema, type AdminEventFormData } from '@entities/event';
 import { createComponentLogger } from '@shared/lib';
+import { ToastMsg } from '@shared/lib/hooks';
 
 const log = createComponentLogger('EventForm');
 
@@ -72,62 +74,60 @@ export function EventForm({ redirectPath = '/admin/events', initialData }: Event
   );
 
   const onSubmit = async (data: AdminEventFormData) => {
-    const loadingToast = toast.loading(isEditing ? 'Updating event...' : 'Creating event...');
+    await toastPromise(
+      (async () => {
+        const method = isEditing ? 'PATCH' : 'POST';
+        const url = isEditing ? `/api/events/${initialData.id}` : '/api/events';
 
-    try {
-      const method = isEditing ? 'PATCH' : 'POST';
-      const url = isEditing ? `/api/events/${initialData.id}` : '/api/events';
+        const body = {
+          ...data,
+          image: data.image || null,
+        };
 
-      const body = {
-        ...data,
-        image: data.image || null,
-      };
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || ToastMsg.failedToSave('event'));
+        }
 
-      if (res.ok) {
-        toast.success(isEditing ? 'Event updated!' : 'Event created!');
         router.push(redirectPath);
         router.refresh();
-      } else {
-        const error = await res.json();
-        toast.error(error.error || 'Failed to save event');
+      })(),
+      {
+        loading: isEditing ? 'Updating event...' : 'Creating event...',
+        success: isEditing ? ToastMsg.updated('Event') : ToastMsg.created('Event'),
+        error: ToastMsg.failedToSave('event'),
+        component: 'EventForm',
       }
-    } catch (error) {
-      log.error({}, 'Error saving event', error);
-      toast.error('Something went wrong');
-    } finally {
-      toast.dismiss(loadingToast);
-    }
+    );
   };
 
   const handleDelete = async () => {
     if (!initialData?.id) return;
 
-    const loadingToast = toast.loading('Deleting event...');
-
-    try {
-      const res = await fetch(`/api/events/${initialData.id}`, { method: 'DELETE' });
-
-      if (res.ok) {
-        toast.success('Event deleted');
+    await toastPromise(
+      (async () => {
+        const res = await fetch(`/api/events/${initialData.id}`, { method: 'DELETE' });
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || ToastMsg.failedToDelete('event'));
+        }
         router.push(redirectPath);
         router.refresh();
-      } else {
-        const error = await res.json();
-        toast.error(error.error || 'Failed to delete event');
+      })(),
+      {
+        loading: 'Deleting event...',
+        success: ToastMsg.deleted('Event'),
+        error: ToastMsg.failedToDelete('event'),
+        component: 'EventForm',
       }
-    } catch (error) {
-      log.error({}, 'Error deleting event', error);
-      toast.error('Something went wrong');
-    } finally {
-      toast.dismiss(loadingToast);
-      setDeleteConfirmOpen(false);
-    }
+    );
+    setDeleteConfirmOpen(false);
   };
 
   return (

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import React from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { ToastMsg } from '@shared/lib/hooks';
 
 const RESOURCE_CATEGORIES = [
   { value: 'ARCHITECTURAL', label: 'Architectural' },
@@ -97,7 +98,7 @@ export function ResourceList() {
         setResources(body?.data ?? body);
       }
     } catch {
-      toast.error('Failed to load resources');
+      toast.error(ToastMsg.failedToLoad('resources'));
     } finally {
       setLoading(false);
     }
@@ -121,7 +122,7 @@ export function ResourceList() {
           setExpandedDetails(prev => ({ ...prev, [resource.id]: body?.data ?? body }));
         }
       } catch {
-        toast.error('Failed to load resource details');
+        toast.error(ToastMsg.failedToLoad('resource details'));
       }
     }
   };
@@ -142,9 +143,7 @@ export function ResourceList() {
       });
       setResources(prev =>
         prev.map(r =>
-          r.id === resource.id
-            ? { ...r, downloadCount: (r.downloadCount ?? 0) + 1 }
-            : r
+          r.id === resource.id ? { ...r, downloadCount: (r.downloadCount ?? 0) + 1 } : r
         )
       );
     } catch {
@@ -156,13 +155,13 @@ export function ResourceList() {
     try {
       const res = await fetch(`/api/resources/${id}`, { method: 'DELETE' });
       if (res.ok) {
-        toast.success('Resource deleted');
+        toast.success(ToastMsg.deleted('Resource'));
         setResources(prev => prev.filter(r => r.id !== id));
       } else {
-        toast.error('Failed to delete resource');
+        toast.error(ToastMsg.failedToDelete('resource'));
       }
     } catch {
-      toast.error('Failed to delete resource');
+      toast.error(ToastMsg.failedToDelete('resource'));
     }
     setDeleteId(null);
   };
@@ -229,13 +228,27 @@ export function ResourceList() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Visibility</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">File</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Version</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Title
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Category
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Visibility
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  File
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Version
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Date
+                </th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -248,17 +261,22 @@ export function ResourceList() {
                   >
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">
                       <div className="flex items-center gap-2">
-                        <i className={`fas fa-chevron-${expandedId === resource.id ? 'down' : 'right'} text-xs text-gray-400`}></i>
+                        <i
+                          className={`fas fa-chevron-${expandedId === resource.id ? 'down' : 'right'} text-xs text-gray-400`}
+                        ></i>
                         {resource.title}
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">
                       <span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded text-xs">
-                        {RESOURCE_CATEGORIES.find(c => c.value === resource.category)?.label || resource.category}
+                        {RESOURCE_CATEGORIES.find(c => c.value === resource.category)?.label ||
+                          resource.category}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm">
-                      <span className={`px-2 py-1 rounded text-xs ${VISIBILITY_COLORS[resource.visibility] || 'bg-gray-100 text-gray-800'}`}>
+                      <span
+                        className={`px-2 py-1 rounded text-xs ${VISIBILITY_COLORS[resource.visibility] || 'bg-gray-100 text-gray-800'}`}
+                      >
                         {VISIBILITY_LABELS[resource.visibility] || resource.visibility}
                       </span>
                     </td>
@@ -270,8 +288,13 @@ export function ResourceList() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">{resource.version || '—'}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600">{formatDate(resource.createdAt)}</td>
-                    <td className="px-4 py-3 text-sm text-right space-x-2" onClick={e => e.stopPropagation()}>
+                    <td className="px-4 py-3 text-sm text-gray-600">
+                      {formatDate(resource.createdAt)}
+                    </td>
+                    <td
+                      className="px-4 py-3 text-sm text-right space-x-2"
+                      onClick={e => e.stopPropagation()}
+                    >
                       <Link
                         href={`/admin/resources/${resource.id}`}
                         className="text-indigo-600 hover:text-indigo-800"
@@ -385,7 +408,9 @@ function ExpandedResourceDetails({
               <div key={v.id} className="text-xs bg-white rounded p-2 border border-gray-100">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-gray-700">v{v.version || '—'}</span>
-                  <span className="text-gray-400">{new Date(v.createdAt).toLocaleDateString('en-ZA')}</span>
+                  <span className="text-gray-400">
+                    {new Date(v.createdAt).toLocaleDateString('en-ZA')}
+                  </span>
                 </div>
                 {v.notes && <p className="text-gray-500 mt-0.5">{v.notes}</p>}
               </div>

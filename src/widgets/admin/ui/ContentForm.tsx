@@ -5,6 +5,8 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { toastPromise } from '@shared/lib/hooks';
+import { ToastMsg } from '@shared/lib/hooks';
 import { AlertTriangle } from 'lucide-react';
 import { LocaleAwareEditor, LocaleAwareInput } from '@features/i18n';
 import { TagInput } from '@shared/ui';
@@ -138,42 +140,41 @@ export function ContentForm({ initialData, groups = [], baseRedirect }: ContentF
   );
 
   const onSubmit = async (data: ContentFormData) => {
-    const loadingToast = toast.loading(isEditing ? 'Updating...' : 'Creating...');
+    await toastPromise(
+      (async () => {
+        const method = isEditing ? 'PATCH' : 'POST';
+        const url = isEditing ? `/api/content/${initialData.id}` : '/api/content';
 
-    try {
-      const method = isEditing ? 'PATCH' : 'POST';
-      const url = isEditing ? `/api/content/${initialData.id}` : '/api/content';
+        const body = {
+          ...data,
+          publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
+          expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+        };
 
-      // Convert datetime-local strings to Date objects
-      const body = {
-        ...data,
-        publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
-        expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
-      };
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || ToastMsg.failedToSave('content'));
+        }
 
-      if (res.ok) {
-        toast.success(isEditing ? 'Content updated!' : 'Content created!');
         setLocaleDirtyState(prev => ({ ...prev, [activeLocale]: false }));
         const redirectTo =
           baseRedirect || (session?.user?.id ? `/resident/${session.user.id}` : '/dashboard');
         router.push(redirectTo);
         router.refresh();
-      } else {
-        const error = await res.json();
-        toast.error(error.error || 'Failed to save content');
+      })(),
+      {
+        loading: isEditing ? 'Updating...' : 'Creating...',
+        success: isEditing ? ToastMsg.updated('Content') : ToastMsg.created('Content'),
+        error: ToastMsg.failedToSave('content'),
+        component: 'ContentForm',
       }
-    } catch (error) {
-      log.error({}, 'Error saving content', error);
-      toast.error('Something went wrong');
-    } finally {
-      toast.dismiss(loadingToast);
-    }
+    );
   };
 
   const titleError = errors.title?.message;

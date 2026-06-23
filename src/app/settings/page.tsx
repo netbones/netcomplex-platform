@@ -32,6 +32,7 @@ export default function SettingsPage() {
     { label: 'Settings', href: '/settings' },
   ]);
   const { data: session, isPending: sessionLoading } = authClient.useSession();
+  const tToast = (key: string, entity: string) => tCommon(`toast.${key}`, { entity });
   const [language, setLanguage] = useState<string>('en');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -170,12 +171,12 @@ export default function SettingsPage() {
                       }
 
                       if (res.ok) {
-                        toast.success('Profile image saved!');
+                        toast.success(tToast('uploaded', 'Profile image'));
                       } else {
-                        toast.error('Failed to save profile image');
+                        toast.error(tToast('failedToUpload', 'profile image'));
                       }
                     } catch {
-                      toast.error('Failed to save profile image');
+                      toast.error(tToast('failedToUpload', 'profile image'));
                     }
                   }}
                   label="Change profile photo"
@@ -239,12 +240,12 @@ export default function SettingsPage() {
                       body: JSON.stringify({ homeImage: url }),
                     });
                     if (res.ok) {
-                      toast.success('Property image saved!');
+                      toast.success(tToast('uploaded', 'Property image'));
                     } else {
-                      toast.error('Failed to save property image');
+                      toast.error(tToast('failedToUpload', 'property image'));
                     }
                   } catch {
-                    toast.error('Failed to save property image');
+                    toast.error(tToast('failedToUpload', 'property image'));
                   }
                 }}
                 label=""
@@ -326,12 +327,12 @@ export default function SettingsPage() {
                   body: JSON.stringify({ notificationPreferences: notificationPrefs }),
                 });
                 if (res.ok) {
-                  toast.success('Notification preferences saved');
+                  toast.success(tToast('updated', 'Notification preferences'));
                 } else {
-                  toast.error('Failed to save notification preferences');
+                  toast.error(tToast('failedToSave', 'notification preferences'));
                 }
               } catch {
-                toast.error('Failed to save notification preferences');
+                toast.error(tToast('failedToSave', 'notification preferences'));
               } finally {
                 setNotifSaving(false);
               }
@@ -379,12 +380,12 @@ export default function SettingsPage() {
                   body: JSON.stringify({ showEmail, showPhone }),
                 });
                 if (res.ok) {
-                  toast.success('Privacy settings saved');
+                  toast.success(tToast('updated', 'Privacy settings'));
                 } else {
-                  toast.error('Failed to save settings');
+                  toast.error(tToast('failedToSave', 'settings'));
                 }
               } catch {
-                toast.error('Failed to save settings');
+                toast.error(tToast('failedToSave', 'settings'));
               } finally {
                 setSaving(false);
               }
