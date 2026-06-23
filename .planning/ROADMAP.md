@@ -1046,6 +1046,22 @@ Plans:
 
 ---
 
+## Phase 102: Achievements System
+
+**Goal:** Cross-cutting achievements engine — event bus infrastructure, achievement definitions, progress tracking, unlock logic, resident widget, and admin configuration. Scoped from ADVISORY-013 (Phases B–D; Phase A already shipped, Phase E deferred per G4=forward-only).
+
+**Depends on:** Phase 101 (soft deletes — schema stability)
+**Plans:** 0 plans
+**Context:** ADVISORY-013 decision gates resolved 2026-06-23 (G1=in-process emitter, G2=always-on, G3=merits deferred, G4=forward-only).
+
+**Requirements:** ADVISORY-013-B (schema + service), ADVISORY-013-C (API + admin), ADVISORY-013-D (widgets)
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 102 to break down)
+
+---
+
 ## Phase 99: Build Fix
 
 **Goal:** Fix build errors caused by the multi-tenant refactor — broken import paths in 6 API routes, centralize imports via `@/lib/db`, inline Drizzle table definitions for non-generated tables
