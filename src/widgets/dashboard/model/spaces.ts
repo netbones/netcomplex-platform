@@ -204,6 +204,11 @@ export function getVisibleSpaces(role: string, flags: PlatformPageFlags): SpaceD
       return normalizedRole === 'PROVIDER';
     }
 
+    // PROVIDER role: only see providers + messages spaces
+    if (normalizedRole === 'PROVIDER') {
+      return spaceId === 'messages';
+    }
+
     // Core spaces: always visible (role check already done for admin)
     if (space.isCore) {
       return true;

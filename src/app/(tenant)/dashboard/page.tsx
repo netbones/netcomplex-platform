@@ -3,13 +3,19 @@
 import { HomeLayer } from '@widgets/dashboard';
 import { MyHomeSpaceWithErrorBoundary } from '@widgets/dashboard';
 import { PromoBanner } from '@shared/ui';
-import { useRouter } from 'next/navigation';
+import { useRouter, redirect } from 'next/navigation';
 import { authClient } from '@api/client';
 
 export default function DashboardHome() {
   const router = useRouter();
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
+  const role = (session?.user as { role?: string } | undefined)?.role;
+
+  // PROVIDER role: redirect to provider dashboard
+  if (role === 'PROVIDER') {
+    redirect('/dashboard/providers');
+  }
 
   const handleDismiss = async () => {
     if (!userId) return;
