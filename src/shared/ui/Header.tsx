@@ -363,7 +363,7 @@ export function Header() {
               <div className="hidden md:flex items-center">
                 <AvatarDropdown
                   session={session}
-                  flags={ctx!.flags}
+                  flags={ctx?.flags ?? {}}
                   onSignOut={handleSignOut}
                   t={t}
                   pathname={pathname}
@@ -402,7 +402,7 @@ export function Header() {
         <MobileMenu
           isOpen={mobileMenuOpen}
           onClose={() => setMobileMenuOpen(false)}
-          pageFlags={ctx!.flags}
+          pageFlags={ctx?.flags ?? {}}
           isAuthenticated={!!session}
           role={session?.user?.role as string | null}
         />
