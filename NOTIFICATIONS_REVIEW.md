@@ -3,13 +3,13 @@
 **System:** In-App Notifications + Email  
 **Documented:** 2026-06-23 by GSD Review  
 **BD Tracking:** `soralia-village-oi9x`  
-**Last Updated:** 2026-06-23 — P1–P2 items + schema hardening applied
+**Last Updated:** 2026-06-23 — P1–P2 items + schema hardening + preferences page
 
 ---
 
 ## Executive Summary
 
-The notification system is a **basic but functional in-app notification layer** with opt-in email delivery. Schema has been hardened (enum types, `payload` JSONB, `readAt`, `senderId`), a `DELETE` endpoint added, and dashboard polling implemented. Still missing: notification preferences, real-time delivery (SSE/WebSocket), queued emails, and richer frontend UX.
+The notification system is a **basic but functional in-app notification layer** with opt-in email delivery. Schema has been hardened (enum types, `payload` JSONB, `readAt`, `senderId`), a `DELETE` endpoint added, dashboard polling implemented, and a notification preferences page built. Still missing: real-time delivery (SSE/WebSocket), queued emails, and richer frontend UX.
 
 ---
 
@@ -179,7 +179,7 @@ The notification system is a **basic but functional in-app notification layer** 
 | ✅ Done  | P2: Migrate `type` to enum + add `payload` JSONB | 3h     | ✅ 2026-06-23 |
 | ✅ Done  | P2: Add `readAt` timestamp                       | 1h     | ✅ 2026-06-23 |
 | ✅ Done  | P3: Add `senderId` for attribution               | 0.5h   | ✅ 2026-06-23 |
-| P2       | Build notification preferences page              | 4h     |               |
+| ✅ Done  | P2: Build notification preferences page          | 4h     | ✅ 2026-06-23 |
 | P3       | Implement Supabase Realtime subscription         | 3h     |               |
 | P3       | Queue email sends with retry                     | 4h     |               |
 | P3       | Add bulk read endpoint                           | 2h     |               |
@@ -190,13 +190,13 @@ The notification system is a **basic but functional in-app notification layer** 
 
 **Schema hardening:** `type` now uses `NotificationType` enum (`info`/`warning`/`success`/`error`). Added `payload` JSONB for structured data, `senderId` for attribution, `readAt` timestamp (non-breaking, alongside `read` boolean). Migration applied: `20260623095534_add_notification_type_enum_payload_readat_senderid`.
 
+**Notification preferences page:** Added `notificationPreferences` JSONB column to `user` model. Per-type (`info`/`warning`/`success`/`error`) in-app and email toggles on the `/settings` page. The `sendEmailNotificationIfEnabled()` function now checks `notificationPreferences[type].email` before sending, falling back to `showEmail` for backward compatibility. Migration applied via `prisma db push`. Access: `/settings` → Notifications section.
+
 **DELETE endpoint:** `DELETE /api/notifications/[id]` — soft-deletes (sets `deletedAt`). Owner-scoped (only the notification recipient can dismiss).
 
 **PATCH readAt:** `PATCH /api/notifications` now sets `readAt: now()` alongside `read: true`.
 
 **Frontend polling:** `NotificationsWidget` polls `GET /api/notifications?unread=true` every 30 seconds. Falls back gracefully on error.
-
-**Remaining P2:** Notification preferences page (per-type, per-channel opt-in). Candidate for next phase.
 
 ---
 
