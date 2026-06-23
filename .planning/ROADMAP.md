@@ -1051,14 +1051,18 @@ Plans:
 **Goal:** Cross-cutting achievements engine — event bus infrastructure, achievement definitions, progress tracking, unlock logic, resident widget, and admin configuration. Scoped from ADVISORY-013 (Phases B–D; Phase A already shipped, Phase E deferred per G4=forward-only).
 
 **Depends on:** Phase 101 (soft deletes — schema stability)
-**Plans:** 0 plans
+**Plans:** 3 plans in 3 waves
 **Context:** ADVISORY-013 decision gates resolved 2026-06-23 (G1=in-process emitter, G2=always-on, G3=merits deferred, G4=forward-only).
 
 **Requirements:** ADVISORY-013-B (schema + service), ADVISORY-013-C (API + admin), ADVISORY-013-D (widgets)
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 102 to break down)
+| Wave | Plan               | Objective                                                                      |
+| ---- | ------------------ | ------------------------------------------------------------------------------ |
+| 1    | [x] 102-01-PLAN.md | Schema + Drizzle + achievement event listener service + seed 12 definitions    |
+| 2    | [ ] 102-02-PLAN.md | Resident API (list + progress) + Admin API (toggle, thresholds, config)        |
+| 3    | [ ] 102-03-PLAN.md | Dashboard badge grid widget + admin catalog widget + directory profile section |
 
 ---
 
