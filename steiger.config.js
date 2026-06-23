@@ -53,4 +53,17 @@ export default defineConfig([
       'fsd/forbidden-imports': 'off',
     },
   },
+  {
+    // Header and Footer in shared/ui import useGateContext from @features/gate.
+    // The gate is infrastructure that must be consumed by shared UI components
+    // for navigation visibility gating. Phase 41 established useGateContext as
+    // the canonical client-side gate; Phase 44-1eh migrated these callsites from
+    // usePageFlags (@shared/lib/hooks, FSD-compliant) to useGateContext
+    // (@features/gate, layer violation). The gate slice is de facto
+    // infrastructure, not a normal feature. See soralia-village-1eh.
+    files: ['src/shared/ui/Header.tsx', 'src/shared/ui/Footer.tsx'],
+    rules: {
+      'fsd/forbidden-imports': 'off',
+    },
+  },
 ]);
