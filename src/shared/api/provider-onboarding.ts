@@ -17,7 +17,10 @@ import {
 } from '@shared/lib/providers/registration';
 import type { ProviderVerificationStatus } from './provider-platform';
 
-export function getRequestMetadata(request: Request): { ipAddress: string | null; userAgent: string | null } {
+export function getRequestMetadata(request: Request): {
+  ipAddress: string | null;
+  userAgent: string | null;
+} {
   const forwardedFor = request.headers.get('x-forwarded-for');
   const ipAddress = forwardedFor?.split(',')[0]?.trim() || request.headers.get('x-real-ip');
 
@@ -166,10 +169,14 @@ export async function getProviderDueDiligenceSnapshot(
   verificationStatus?: ProviderVerificationStatus | null
 ) {
   let resolvedStatus = verificationStatus ?? null;
+  let persistedItems: Array<{ key: string; status: string; notes?: string }> = [];
 
   if (!resolvedStatus && providerId) {
     const [verification] = await db
-      .select({ status: providerVerifications.status })
+      .select({
+        status: providerVerifications.status,
+        dueDiligenceItems: providerVerifications.dueDiligenceItems,
+      })
       .from(providerVerifications)
       .where(
         and(
@@ -179,13 +186,26 @@ export async function getProviderDueDiligenceSnapshot(
       )
       .limit(1);
 
-    resolvedStatus = (verification?.status as ProviderVerificationStatus | undefined) ?? 'PROBATION';
+    resolvedStatus =
+      (verification?.status as ProviderVerificationStatus | undefined) ?? 'PROBATION';
+    persistedItems =
+      (verification?.dueDiligenceItems as Array<{ key: string; status: string; notes?: string }>) ??
+      [];
   }
 
   const workflowStatus = getDueDiligenceWorkflowStatus(resolvedStatus ?? 'PROBATION');
+  const checklist = buildDueDiligenceChecklist(workflowStatus);
+
+  const items = checklist.map(item => {
+    const persisted = persistedItems.find(p => p.key === item.key);
+    if (persisted) {
+      return { ...item, status: persisted.status, notes: persisted.notes };
+    }
+    return item;
+  });
 
   return {
     workflowStatus,
-    items: buildDueDiligenceChecklist(workflowStatus),
+    items,
   };
 }

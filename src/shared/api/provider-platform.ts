@@ -269,6 +269,7 @@ export async function upsertProviderVerification(params: {
   endDate?: Date | null;
   verificationThreshold?: number;
   probationThreshold?: number;
+  dueDiligenceItems?: Array<{ key: string; status: string; notes?: string }>;
 }) {
   const [existing] = await db
     .select({ id: providerVerifications.id })
@@ -289,6 +290,7 @@ export async function upsertProviderVerification(params: {
       .set({
         status: params.status,
         notes: params.notes ?? null,
+        dueDiligenceItems: params.dueDiligenceItems ?? undefined,
         startDate: params.startDate ?? undefined,
         endDate: params.endDate ?? null,
         verificationThreshold: params.verificationThreshold ?? undefined,
@@ -309,6 +311,7 @@ export async function upsertProviderVerification(params: {
       tenantId: params.tenantId,
       status: params.status,
       notes: params.notes ?? null,
+      dueDiligenceItems: params.dueDiligenceItems ?? [],
       startDate: params.startDate ?? timestamp,
       endDate: params.endDate ?? null,
       verificationThreshold: params.verificationThreshold ?? 300,

@@ -53,6 +53,7 @@ export interface PendingProviderItem {
       label: string;
       description: string;
       status: string;
+      notes?: string;
     }>;
   };
   legalStatus: {
@@ -108,6 +109,7 @@ export interface ProviderDetailResponse {
       label: string;
       description: string;
       status: string;
+      notes?: string;
     }>;
   };
   legalStatus: {
