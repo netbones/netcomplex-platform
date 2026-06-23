@@ -44,6 +44,7 @@ const categories = [
   { value: 'RESOURCE', label: 'Resource' },
   { value: 'CAMPAIGN', label: 'Campaign' },
   { value: 'CONSERVATION', label: 'Conservation (Sub-category)' },
+  { value: 'LEGAL', label: 'Legal' },
 ] as const;
 
 function getInitialDefaultValues(initialData?: ContentFormProps['initialData']): ContentFormData {

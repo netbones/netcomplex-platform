@@ -5,7 +5,8 @@ export type ContentCategory =
   | 'BLOG'
   | 'CONSERVATION'
   | 'SERVICES'
-  | 'CAMPAIGN';
+  | 'CAMPAIGN'
+  | 'LEGAL';
 
 export const ContentCategoryEnum: Record<ContentCategory, ContentCategory> = {
   ANNOUNCEMENT: 'ANNOUNCEMENT',
@@ -15,6 +16,7 @@ export const ContentCategoryEnum: Record<ContentCategory, ContentCategory> = {
   CONSERVATION: 'CONSERVATION',
   SERVICES: 'SERVICES',
   CAMPAIGN: 'CAMPAIGN',
+  LEGAL: 'LEGAL',
 };
 
 export type ContentLicense = 'CC0' | 'CC_BY' | 'CC_BY_SA' | 'CC_BY_NC' | 'ALL_RIGHTS_RESERVED';
