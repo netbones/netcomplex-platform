@@ -29,7 +29,15 @@ import type { WidgetLayouts, UserWidgets } from '@entities/widget';
 // ═══════════════════════════════════════════════════════════════
 
 const RESIDENT_USER_WIDGETS: UserWidgets = {
-  home: ['stats', 'quick-actions', 'notifications', 'recent-activity', 'events', 'messages'],
+  home: [
+    'stats',
+    'quick-actions',
+    'notifications',
+    'recent-activity',
+    'events',
+    'messages',
+    'achievements',
+  ],
   providers: [
     'provider-overview',
     'provider-analytics',
@@ -59,6 +67,7 @@ const RESIDENT_LAYOUTS: WidgetLayouts = {
     'recent-activity': { x: 0, y: 4, width: 4, height: 2, isCollapsed: false },
     events: { x: 0, y: 6, width: 2, height: 2, isCollapsed: false },
     messages: { x: 2, y: 6, width: 2, height: 2, isCollapsed: false },
+    achievements: { x: 0, y: 8, width: 4, height: 2, isCollapsed: false },
   },
   providers: {
     'provider-overview': { x: 0, y: 0, width: 4, height: 3, isCollapsed: false },

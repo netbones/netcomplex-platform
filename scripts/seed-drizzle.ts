@@ -48,6 +48,8 @@ import { providerCharges } from '@schema/provider-charges';
 import { providerInvoices } from '@schema/provider-invoices';
 import { revenueRecords } from '@schema/revenue-records';
 
+import { seedAchievementDefinitions } from '@shared/api/achievements/seed';
+
 import type { TenantSeedData } from './seed-data/types';
 import { withTenantPrefix, withTenantId, newTenantId } from './seed-data/builder';
 import { SORALIA_VILLAGE } from './seed-data/soralia-village';
@@ -540,6 +542,11 @@ async function main() {
   console.log(
     `📦 Seeding ${targets.length} tenant(s): ${targets.map(t => t.tenant.slug).join(', ')}`
   );
+
+  // Global seed: achievement definitions (not per-tenant)
+  await seedAchievementDefinitions();
+  console.log('  ✓ achievement definitions');
+
   for (const t of targets) {
     await seedTenant(t);
   }
