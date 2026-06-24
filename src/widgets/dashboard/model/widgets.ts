@@ -916,7 +916,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
     dragHandleClassName: 'widget-drag-handle',
-    spaces: ['home'],
+    spaces: ['home', 'community'],
   });
 
   registry.register({

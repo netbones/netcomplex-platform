@@ -55,6 +55,7 @@ const RESIDENT_USER_WIDGETS: UserWidgets = {
     'agent-dashboard',
     'agent-activity',
     'community-graph-widget',
+    'achievements',
   ],
   messages: ['messages', 'notifications'],
 };
@@ -92,6 +93,7 @@ const RESIDENT_LAYOUTS: WidgetLayouts = {
     'agent-dashboard': { x: 0, y: 3, width: 2, height: 3, isCollapsed: false },
     'agent-activity': { x: 2, y: 3, width: 2, height: 3, isCollapsed: false },
     'community-graph-widget': { x: 0, y: 6, width: 4, height: 3, isCollapsed: false },
+    achievements: { x: 0, y: 9, width: 4, height: 2, isCollapsed: false },
   },
   messages: {},
 };

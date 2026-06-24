@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <!-- Standardized panel background card glow -->
+    <linearGradient id="bgGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8ECFD" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F3F1FB" stop-opacity="0.9"/>
+    </linearGradient>
+    <!-- Deep violet-to-indigo medal body gradient -->
+    <linearGradient id="medalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" />
+      <stop offset="60%" stop-color="#5B21B6" />
+      <stop offset="100%" stop-color="#3B0764" />
+    </linearGradient>
+    <!-- Cyan/Teal gradient for the modern live updates accent ring -->
+    <linearGradient id="medalAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06B6D4" />
+      <stop offset="100%" stop-color="#14B8A6" />
+    </linearGradient>
+    <!-- Drop shadow filter for consistent depth -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="1.5" dy="3" stdDeviation="2.5" flood-color="#3B0764" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base Card -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGlow)" />
+
+  <!-- Medal Graphics Layer -->
+  <g filter="url(#dropShadow)" transform="translate(18, 14)">
+    <!-- Award Ribbon Bars -->
+    <path d="M4,2 L10,14 L18,14 L12,2 Z" fill="url(#medalGrad)" opacity="0.8" />
+    <path d="M24,2 L18,14 L10,14 L16,2 Z" fill="url(#medalGrad)" />
+    <rect x="8" y="12" width="12" height="4" rx="1" fill="#FFFFFF" opacity="0.9" />
+
+    <!-- Main Circular Medal -->
+    <circle cx="14" cy="24" r="11" fill="url(#medalGrad)" />
+    <!-- Inner Rim Ring -->
+    <circle cx="14" cy="24" r="9" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4" />
+
+    <!-- Central Achievement Star Motif -->
+    <path d="M14,18 L15.5,22.2 L20,22.8 L17,25.6 L17.8,29.8 L14,27.8 L10.2,29.8 L11,25.6 L8,22.8 L12.5,22.2 Z" fill="url(#medalAccent)" opacity="0.9" />
+    <circle cx="14" cy="24" r="3" fill="#FFFFFF" />
+  </g>
+</svg>
