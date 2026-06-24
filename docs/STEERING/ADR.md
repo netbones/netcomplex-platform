@@ -1283,7 +1283,7 @@ Sign-up (any path) → USER
 - [x] `prisma migrate status` shows no drift after migration
 - [x] New sign-up creates `user.role = USER` (via auth.ts hook `role: 'USER'`)
 - [x] Invitation acceptance promotes `USER` to the role encoded in the invitation (non-PROVIDER paths)
-- [ ] Provider stub creation + approval pipeline (deferred — needs `ServiceProvider.userId` FK)
+- [x] Provider stub creation + approval pipeline (deferred — needs `ServiceProvider.userId` FK)
 - [x] `Property.platformAddress` has `@unique` constraint
 - [x] Seat tables have `status` and `archivedAt` columns
 - [x] Cross-table address guard function exists and is called in seat-creation paths
@@ -1304,7 +1304,21 @@ Sign-up (any path) → USER
 - `src/app/api/invitations/accept/route.ts:73-86` — Admission hook guards `user.role === 'USER'` before promoting
 - `src/app/api/providers/dashboard/route.ts:38-41` — Suspended provider gate
 
----
+**22.1 — `PROBATION` is the canonical initial `ProviderVerificationStatus`**
+
+No code path creates a `PENDING` verification row. The `PENDING` enum value is vestigial — it exists as a schema default on the model definition but `createProviderStub` explicitly sets `PROBATION`. Future engineers must not create code paths targeting `PENDING` as an initial state. The enum value should be removed in a future cleanup once confirmed no production rows carry it.
+
+**22.2 — Due diligence and activation are intentionally separate gates**
+
+The `due-diligence` PATCH endpoint reviews documentation and may set `status=VERIFIED` when all items are approved, but it does **not** set `isActive` or promote `user.role`. Activation requires an explicit admin decision via `approve` or `verify`. This separation provides a clear audit boundary: paperwork review is distinct from access grant.
+
+**22.3 — Two activation routes exist by design**
+
+`approve` (gated to ADMIN/BOARD) and `verify` (gated to `providers` permission) implement the same transaction pattern. Both are valid activation points — `verify` is the broader-permission path for cases where a non-board staff member completes verification. The `details.method` field in the audit log distinguishes them. A future `activateProvider()` shared service should be extracted to eliminate the duplication risk (GAP-5).
+
+**22.4 — Suspension does not change `user.role`**
+
+## A suspended provider retains `role: PROVIDER` in the `user` table. Access is blocked entirely through `requireProviderAccess()` checking `verification.isSuspended`. This is intentional — role is an identity classification, not a live access token. Reinstatement restores access without requiring a role re-grant.
 
 _More ADRs will be added as we make architectural decisions. Use the template above to propose new ADRs._
 
