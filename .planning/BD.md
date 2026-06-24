@@ -1,9 +1,9 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-06-13 (Session 12b)
-> **Total remaining:** 29 issues
-> **Closed this session:** 6 (`s50y`, `3qio`, `nf5r`, `znjo`, `rnov`, `qjpa`)
-> **Created this session:** 1 (`rnov` — closed same session)
+> **Last updated:** 2026-06-23 (Session 13)
+> **Total remaining:** 30 issues
+> **Closed this session:** 0
+> **Created this session:** 1 (`5z3g`)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
 ## Summary by Priority
@@ -49,6 +49,7 @@
 | `22a`  | task    | Add connection pool config + retry to Drizzle singleton                                         | ○      |
 | `4a6`  | task    | **RLS migration: move add_rls.sql into proper Prisma migration, narrow to 14 tables, fix bugs** | ○      |
 | `5m7l` | task    | Confirm Schedule F Table 2 revenue share percentages with anchor tenant (Soralia Village)       | ○      |
+| `5z3g` | task    | Define USER role + role lifecycle for sign-ups, adoptions, and providers                        | ○      |
 
 ### Blocked Tasks
 
@@ -297,15 +298,16 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 
 ## Recommended Next Actions
 
-1. **`5m7l`** — Confirm Schedule F Table 2 revenue share percentages with anchor tenant (dWallet M5b launch-readiness — see "dWallet" section above)
-2. **`cs5`** — MyHomeSpace property linking bug (user has property but shows "No property linked")
-3. **`ka6`** — Design decision: widget placement across Focus Spaces (UX call needed)
-4. **`6d8`** — Migrate React imports to Preact (performance)
-5. **`l23`** — Epic: i18n for all pages (large scope)
-6. **`ltn`** — Add request validation plugin (security)
-7. **`byj`** — AddWidgetModal search/filter enhancement
-8. **`bgb`** — Epic: Interests Visualization (in-progress)
-9. **`7td`** — Enable One Tap passkey login (security)
+1. **`5z3g`** — Define USER role + role lifecycle for sign-ups, adoptions, and providers (Better Auth hardcodes `role='user'`, PG enum lacks it → 422s)
+2. **`5m7l`** — Confirm Schedule F Table 2 revenue share percentages with anchor tenant (dWallet M5b launch-readiness — see "dWallet" section above)
+3. **`cs5`** — MyHomeSpace property linking bug (user has property but shows "No property linked")
+4. **`ka6`** — Design decision: widget placement across Focus Spaces (UX call needed)
+5. **`6d8`** — Migrate React imports to Preact (performance)
+6. **`l23`** — Epic: i18n for all pages (large scope)
+7. **`ltn`** — Add request validation plugin (security)
+8. **`byj`** — AddWidgetModal search/filter enhancement
+9. **`bgb`** — Epic: Interests Visualization (in-progress)
+10. **`7td`** — Enable One Tap passkey login (security)
 
 ### Architecture Roadmap (from `docs/cleaner_react_architecture.md` audit, 2026-06-02)
 

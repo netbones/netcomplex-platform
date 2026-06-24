@@ -10,6 +10,7 @@ import {
   apiError,
   auth,
   withErrorHandler,
+  assertAddressUnique,
 } from '@api/server';
 
 import { count, eq, and } from 'drizzle-orm';
@@ -57,7 +58,14 @@ export const POST = withErrorHandler(async (request: Request) => {
       return apiConflict('User already has 5 soloSeats (maximum)');
     }
 
-    // Check platformAddress uniqueness
+    // Cross-table address uniqueness guard
+    try {
+      await assertAddressUnique(platformAddress, db);
+    } catch (e) {
+      return apiConflict((e as Error).message);
+    }
+
+    // Check platformAddress uniqueness within soloSeats
     const [existingAddr] = await db
       .select({ id: soloSeats.id })
       .from(soloSeats)

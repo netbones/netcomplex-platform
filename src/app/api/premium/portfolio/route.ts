@@ -8,6 +8,8 @@ import {
   apiNotFound,
   apiSuccess,
   apiUnauthorized,
+  apiConflict,
+  assertAddressUnique,
 } from '@api/server';
 
 import { eq, sql, and } from 'drizzle-orm';
@@ -85,6 +87,13 @@ export async function POST(request: NextRequest) {
 
       const user = userResult.rows[0];
       const platformAddress = `${(user.name || '').toLowerCase().replace(/\s+/g, '.')}@sorialia.org`;
+
+      // Cross-table address uniqueness guard
+      try {
+        await assertAddressUnique(platformAddress, db);
+      } catch (e) {
+        return apiConflict((e as Error).message);
+      }
 
       // Create new Premium Seat
       const newPremiumSeat = (await db.execute(sql`

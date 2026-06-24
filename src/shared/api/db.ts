@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { createComponentLogger } from '@shared/lib';
-import { sql, isNull } from 'drizzle-orm';
+import { sql, isNull, eq } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
@@ -307,6 +307,32 @@ export async function runWithRLS<T>(
  */
 export function notDeleted(table: { deletedAt: unknown }): SQL {
   return isNull(table.deletedAt as SQLWrapper);
+}
+
+/**
+ * ADVISORY-015 Phase 4: Cross-table address uniqueness guard.
+ * Checks all three seat tables before insertion — belt-and-suspenders over per-table @unique.
+ */
+export async function assertAddressUnique(
+  platformAddress: string,
+  tx: NodePgDatabase<DbSchema>
+): Promise<void> {
+  const [standard, solo, premium] = await Promise.all([
+    tx
+      .select()
+      .from(standardSeats)
+      .where(eq(standardSeats.platformAddress, platformAddress))
+      .limit(1),
+    tx.select().from(soloSeats).where(eq(soloSeats.platformAddress, platformAddress)).limit(1),
+    tx
+      .select()
+      .from(premiumSeats)
+      .where(eq(premiumSeats.platformAddress, platformAddress))
+      .limit(1),
+  ]);
+  if (standard.length || solo.length || premium.length) {
+    throw new Error(`Platform address '${platformAddress}' is already in use`);
+  }
 }
 
 export {

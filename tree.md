@@ -713,7 +713,8 @@
 │   │   ├── ADVISORY-011.md
 │   │   ├── ADVISORY-012.md
 │   │   ├── ADVISORY-013.md
-│   │   └── ADVISORY-014.md
+│   │   ├── ADVISORY-014.md
+│   │   └── ADVISORY-015.md
 │   ├── architecture
 │   │   ├── 11-ANNOUNCEMENTS-PROBLEM-DEFINITION.md
 │   │   ├── AGENT*MODEL.md
@@ -877,6 +878,7 @@
 │   │   ├── AUDIT.md
 │   │   ├── MERITS_REVIEW.md
 │   │   ├── NOTIFICATIONS_REVIEW.md
+│   │   ├── Provider_Verification_Due_Diligence_Audit.md
 │   │   ├── REPORT-001.md
 │   │   ├── REPORT-002.md
 │   │   ├── SECURITY_AUDIT_M4.5.md
@@ -977,6 +979,18 @@
 │   │   ├── 20260623095534_add_notification_type_enum_payload_readat_senderid
 │   │   │   └── migration.sql
 │   │   ├── 20260623131106_content_type
+│   │   │   └── migration.sql
+│   │   ├── 20260623170016_provider_enum
+│   │   │   └── migration.sql
+│   │   ├── 20260623182500_add_achievements
+│   │   │   └── migration.sql
+│   │   ├── 20260623183000_normalize_provider_table_naming
+│   │   │   └── migration.sql
+│   │   ├── 20260623184500_add_due_diligence_items
+│   │   │   └── migration.sql
+│   │   ├── 20260624000000_add_user_role_and_seat_lifecycle
+│   │   │   └── migration.sql
+│   │   ├── 20260624010000_add_user_id_to_service_provider
 │   │   │   └── migration.sql
 │   │   └── migration_lock.toml
 │   ├── schema.prisma
@@ -1136,7 +1150,14 @@
 ├── src
 │   ├── app
 │   │   ├── api
+│   │   │   ├── achievements
+│   │   │   │   ├── progress
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
 │   │   │   ├── admin
+│   │   │   │   ├── achievements
+│   │   │   │   │   └── [id]
+│   │   │   │   │   └── route.ts
 │   │   │   │   ├── activity
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── analytics
@@ -1858,6 +1879,9 @@
 │   │   └── schema
 │   │   ├── accounts-relations.ts
 │   │   ├── accounts.ts
+│   │   ├── achievement-category-enum.ts
+│   │   ├── achievement-definitions-relations.ts
+│   │   ├── achievement-definitions.ts
 │   │   ├── agent-accesses-relations.ts
 │   │   ├── agent-accesses.ts
 │   │   ├── agent-access-level-enum.ts
@@ -2007,6 +2031,7 @@
 │   │   ├── revenue-records.ts
 │   │   ├── role-enum.ts
 │   │   ├── schema.ts
+│   │   ├── seat-status-enum.ts
 │   │   ├── service-providers-relations.ts
 │   │   ├── service-providers.ts
 │   │   ├── sessions-relations.ts
@@ -2027,6 +2052,8 @@
 │   │   ├── surveys.ts
 │   │   ├── survey-type-enum.ts
 │   │   ├── suspension-type-enum.ts
+│   │   ├── tenant-achievements-relations.ts
+│   │   ├── tenant-achievements.ts
 │   │   ├── tenant-modules-relations.ts
 │   │   ├── tenant-modules.ts
 │   │   ├── tenants-relations.ts
@@ -2035,6 +2062,10 @@
 │   │   ├── transaction-status-enum.ts
 │   │   ├── two-factors-relations.ts
 │   │   ├── two-factors.ts
+│   │   ├── user-achievement-progresses-relations.ts
+│   │   ├── user-achievement-progresses.ts
+│   │   ├── user-achievements-relations.ts
+│   │   ├── user-achievements.ts
 │   │   ├── user-devices-relations.ts
 │   │   ├── user-devices.ts
 │   │   ├── user-keys-relations.ts
@@ -2102,6 +2133,7 @@
 │   │   │   │   ├── constants.ts
 │   │   │   │   └── types.ts
 │   │   │   └── ui
+│   │   │   ├── AchievementBadgeGrid.tsx
 │   │   │   ├── CommunityMap.tsx
 │   │   │   ├── index.ts
 │   │   │   └── UnifiedResidentCard.tsx
@@ -2462,6 +2494,11 @@
 │   │   └── index.ts
 │   ├── shared
 │   │   ├── api
+│   │   │   ├── achievements
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── listener.ts
+│   │   │   │   ├── seed.ts
+│   │   │   │   └── service.ts
 │   │   │   ├── api-response.ts
 │   │   │   ├── audit-log.ts
 │   │   │   ├── auth-client.ts
@@ -2795,6 +2832,8 @@
 │   │   │   ├── useNotifSubscription.ts
 │   │   │   └── widgets.ts
 │   │   └── ui
+│   │   ├── AchievementsWidget.tsx
+│   │   ├── AdminAchievementsWidget.tsx
 │   │   ├── AdminActivityStream.tsx
 │   │   ├── AdminCommandBar.tsx
 │   │   ├── AdminLayer.tsx
@@ -2883,4 +2922,4 @@
 ├── tsconfig.tsbuildinfo
 └── vitest.config.ts
 
-840 directories, 2044 files
+851 directories, 2072 files

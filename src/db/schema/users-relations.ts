@@ -36,6 +36,7 @@ import { propertyListings } from './property-listings';
 import { sessions } from './sessions';
 import { soloSeats } from './solo-seats';
 import { standardSeats } from './standard-seats';
+import { serviceProviders } from './service-providers';
 import { twoFactors } from './two-factors';
 import { userKeys } from './user-keys';
 import { userDevices } from './user-devices';
@@ -112,6 +113,7 @@ export const usersRelations = relations(users, helpers => ({
   session: helpers.many(sessions, { relationName: 'sessionTouser' }),
   soloSeat: helpers.many(soloSeats, { relationName: 'SoloSeatTouser' }),
   standardSeat: helpers.many(standardSeats, { relationName: 'StandardSeatTouser' }),
+  serviceProviders: helpers.many(serviceProviders, { relationName: 'ServiceProviderTouser' }),
   twoFactor: helpers.many(twoFactors, { relationName: 'twoFactorTouser' }),
   UserKey: helpers.many(userKeys, { relationName: 'UserKeyTouser' }),
   UserDevice: helpers.many(userDevices, { relationName: 'UserDeviceTouser' }),

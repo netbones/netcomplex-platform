@@ -101,7 +101,7 @@ model user {
   tenantId                                              String
   email                                                 String                    @unique
   name                                                  String
-  role                                                  Role                      @default(RESIDENT)
+  role                                                  Role                      @default(USER)
   isActive                                              Boolean                   @default(true)
   phone                                                 String?
   interests                                             String[]
@@ -165,6 +165,7 @@ model user {
   session                                               session[]
   soloSeat                                              SoloSeat[]
   standardSeat                                          StandardSeat[]
+  serviceProviders                                      ServiceProvider[]
   twoFactor                                             twoFactor[]
   UserKey                                               UserKey[]
   UserDevice                                            UserDevice[]
@@ -295,6 +296,8 @@ model PremiumSeat {
   maxProperties        Int                   @default(5)
   platformAddress      String                @unique
   organizationId       String?
+  status               SeatStatus            @default(ACTIVE)
+  archivedAt           DateTime?
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @default(now()) @updatedAt
   messageRetentionDays Int                   @default(30)
@@ -316,6 +319,8 @@ model SoloSeat {
   isComplimentary     Boolean      @default(false)
   linkedFromProfileId String?
   organizationId      String?
+  status              SeatStatus   @default(ACTIVE)
+  archivedAt          DateTime?
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @default(now()) @updatedAt
   property            Property?    @relation(fields: [propertyId], references: [id])
@@ -327,15 +332,17 @@ model SoloSeat {
 }
 
 model StandardSeat {
-  id              String   @id
+  id              String     @id
   tenantId        String
   userId          String
   propertyId      String
-  isPrimaryOwner  Boolean  @default(true)
-  platformAddress String   @unique
+  isPrimaryOwner  Boolean    @default(true)
+  platformAddress String     @unique
   organizationId  String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @default(now()) @updatedAt
+  status          SeatStatus @default(ACTIVE)
+  archivedAt      DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @default(now()) @updatedAt
   property        Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   user            user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -461,7 +468,6 @@ model Property {
   PropertyPremiumSeat PropertyPremiumSeat[]
 
   @@index([ownerId])
-  @@index([platformAddress])
 }
 
 model Household {
@@ -961,6 +967,7 @@ model RequestHistory {
 model ServiceProvider {
   id          String               @id @default(cuid())
   tenantId    String
+  userId      String?
   companyName String
   contactName String?
   phone       String?
@@ -970,6 +977,7 @@ model ServiceProvider {
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
   deletedAt   DateTime?
+  user        user?                @relation(fields: [userId], references: [id])
   assignments MaintenanceRequest[] @relation("ProviderAssignments")
 
   verifications   ProviderVerification[]
@@ -1960,6 +1968,7 @@ enum AchievementCategory {
 }
 
 enum Role {
+  USER
   RESIDENT
   GROUP_ADMIN
   COMMITTEE
@@ -1969,4 +1978,10 @@ enum Role {
   MANAGER
   ASSOCIATE
   PROVIDER
+}
+
+enum SeatStatus {
+  ACTIVE
+  ARCHIVED
+  COOLING_OFF
 }

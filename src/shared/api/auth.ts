@@ -128,7 +128,7 @@ export const auth = betterAuth({
       role: {
         type: 'string',
         required: false,
-        defaultValue: 'RESIDENT',
+        defaultValue: 'USER',
         input: false, // Role is managed by admins, not settable during signup
       },
     },
@@ -211,6 +211,7 @@ export const auth = betterAuth({
               ...user,
               tenantId: tenant?.id ?? rawTenantId ?? tenantConfig.defaultSlug,
               profileSlug: generateProfileSlug(user.name),
+              role: 'USER',
             },
           };
         },

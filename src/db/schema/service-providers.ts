@@ -3,6 +3,7 @@ import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core';
 export const serviceProviders = pgTable('ServiceProvider', {
   id: text('id').primaryKey(),
   tenantId: text('tenantId').notNull(),
+  userId: text('userId'),
   companyName: text('companyName').notNull(),
   contactName: text('contactName'),
   phone: text('phone'),

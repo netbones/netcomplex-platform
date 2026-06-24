@@ -3,6 +3,7 @@ import {
   apiInternalError,
   apiNotFound,
   apiSuccess,
+  apiForbidden,
   communityServiceInquiries,
   communityServiceListings,
   db,
@@ -33,6 +34,13 @@ export async function GET(request: NextRequest) {
     }
 
     const { auth, tenantId, providerRecord, verification, reputation } = providerAccess;
+
+    // ADVISORY-015 Phase 5: Suspended providers cannot access the dashboard
+    if (auth.role === 'PROVIDER' && verification.isSuspended) {
+      return apiForbidden(
+        'Your provider account has been suspended. Contact your community administrator.'
+      );
+    }
 
     if (!providerRecord) {
       return apiNotFound('Provider registration is not complete for this account');

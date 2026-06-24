@@ -84,6 +84,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     .values({
       id: providerId,
       tenantId,
+      userId: auth.userId, // ADVISORY-015 Phase 3B: link provider to user record
       companyName: input.companyName,
       contactName: input.contactName,
       phone: input.phone ?? null,

@@ -11,7 +11,7 @@ import {
   apiForbidden,
   apiGone,
   apiInternalError,
-  rateLimitByIP,
+  rateLimitByKey,
   verifyTurnstile,
   now,
 } from '@api/server';
@@ -29,8 +29,15 @@ const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
  */
 export async function POST(request: NextRequest) {
   try {
-    // Rate limit: 3 signup attempts per hour per IP
-    const rateLimit = await rateLimitByIP(request, { windowMs: 3600_000, maxRequests: 3 });
+    // Rate limit: 10 signup attempts per hour per IP
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
+    const rateLimit = await rateLimitByKey(`signup:ip:${ip}`, {
+      windowMs: 3600_000,
+      maxRequests: 10,
+    });
     if (rateLimit) return rateLimit;
 
     const body = await request.json();

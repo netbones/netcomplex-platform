@@ -239,6 +239,14 @@ export async function requireProviderAccess(
   }
 
   const verification = await getProviderVerificationSnapshot(tenantId, providerRecord?.id ?? null);
+
+  // ADVISORY-015: Suspended providers cannot access provider endpoints
+  if (providerRecord && verification.isSuspended) {
+    return apiForbidden(
+      'Your provider account has been suspended. Contact your community administrator.'
+    );
+  }
+
   const reputation = await getProviderReputationSnapshot(
     tenantId,
     providerRecord?.id ?? null,
@@ -322,4 +330,41 @@ export async function upsertProviderVerification(params: {
     .returning();
 
   return created;
+}
+
+/**
+ * ADVISORY-015 Phase 3B: Create provider stub records for a newly registered provider.
+ * Called from both invitation acceptance (PROVIDER path) and self-registration.
+ * Does NOT set user.role — the user stays at USER until admin approval (Phase 3C).
+ */
+export async function createProviderStub(userId: string, tenantId: string, companyName?: string) {
+  const timestamp = now();
+  const providerId = crypto.randomUUID();
+
+  const [provider] = await db
+    .insert(serviceProviders)
+    .values({
+      id: providerId,
+      tenantId,
+      userId,
+      companyName: companyName || '',
+      trade: 'GENERAL',
+      isActive: false,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    })
+    .returning();
+
+  await db.insert(providerVerifications).values({
+    id: crypto.randomUUID(),
+    providerId,
+    tenantId,
+    status: 'PROBATION',
+    verificationThreshold: 300,
+    probationThreshold: 0,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  });
+
+  return provider;
 }

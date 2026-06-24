@@ -1,4 +1,5 @@
 import { pgTable, text, boolean, integer, timestamp } from 'drizzle-orm/pg-core';
+import { seatStatusEnum } from './seat-status-enum';
 
 export const premiumSeats = pgTable('PremiumSeat', {
   id: text('id').primaryKey(),
@@ -10,6 +11,8 @@ export const premiumSeats = pgTable('PremiumSeat', {
   maxProperties: integer('maxProperties').default(5).notNull(),
   platformAddress: text('platformAddress').notNull(),
   organizationId: text('organizationId'),
+  status: seatStatusEnum('status').default('ACTIVE').notNull(),
+  archivedAt: timestamp('archivedAt', { mode: 'date', precision: 3 }),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   messageRetentionDays: integer('messageRetentionDays').default(30).notNull(),

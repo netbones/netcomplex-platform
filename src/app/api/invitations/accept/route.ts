@@ -13,10 +13,9 @@ import {
 import { eq } from 'drizzle-orm';
 
 import { apiLogger } from '@shared/lib';
+import { createProviderStub } from '@shared/api';
 
 export const maxDuration = 8;
-
-const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 /**
  * POST /api/invitations/accept
@@ -71,25 +70,20 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (existingUser) {
-      // User exists — link them to the tenant with the invited role
-      // Update user's role and tenantId via Better Auth
-      const authResponse = await fetch(`${BETTER_AUTH_URL}/api/auth/user/update`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          data: {
-            role: invitation.role,
-            tenantId: invitation.tenantId,
-          },
-        }),
-      });
+      // ADVISORY-015: Only promote USER-role accounts. Never downgrade an already-admitted user.
+      // PROVIDER invitations skip role assignment — providers must go through the stub+probation pipeline.
+      const isProviderInvite = invitation.role === 'PROVIDER';
 
-      if (!authResponse.ok) {
-        apiLogger.error(
+      if (!isProviderInvite && existingUser.role === 'USER') {
+        await db.update(users).set({ role: invitation.role }).where(eq(users.id, existingUser.id));
+      } else if (isProviderInvite) {
+        // ADVISORY-015 Phase 3B: Create provider stub (PENDING) + verification (PROBATION).
+        // User stays at USER role until admin approval (Phase 3C).
+        await createProviderStub(existingUser.id, invitation.tenantId);
+        apiLogger.info(
           { userId: existingUser.id, invitationId: invitation.id },
-          'Failed to update user role via Better Auth'
+          'Provider invitation accepted — stub created, awaiting admin approval'
         );
-        return apiInternalError('Failed to apply invitation role. Please contact support.');
       }
 
       // Mark invitation as accepted

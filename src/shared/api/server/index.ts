@@ -1,4 +1,4 @@
-export { db, runWithRLS, notDeleted } from '../db';
+export { db, runWithRLS, notDeleted, assertAddressUnique } from '../db';
 export type { RLSContext, DbSchema } from '../db';
 export { getRLSContext } from '../rls-context';
 export {

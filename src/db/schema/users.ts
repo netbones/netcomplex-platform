@@ -6,7 +6,7 @@ export const users = pgTable('user', {
   tenantId: text('tenantId').notNull(),
   email: text('email').notNull(),
   name: text('name').notNull(),
-  role: roleEnum('role').default('RESIDENT').notNull(),
+  role: roleEnum('role').default('USER').notNull(),
   isActive: boolean('isActive').default(true).notNull(),
   phone: text('phone'),
   interests: text('interests').array().notNull(),

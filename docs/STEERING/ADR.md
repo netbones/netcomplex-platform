@@ -1222,6 +1222,90 @@ This constraint is not yet statically enforceable (ESLint `no-restricted-imports
 
 ---
 
+## ADR-022: USER as Pre-Admission Staging Role
+
+### Status
+
+Proposed
+
+### Date
+
+2026-06-23
+
+### Context
+
+Better Auth hardcodes `role: 'user'` on every sign-up, but the PostgreSQL `Role` enum had no `USER` value. The workaround in `auth.ts` overrode this to `RESIDENT`, making the default semantically incorrect — a freshly registered account not yet admitted to any community is not a resident.
+
+Three related issues needed resolution:
+
+1. **No pre-admission state in the role enum** — `user.role @default(RESIDENT)` conflated "not yet placed" with "placed as a community resident." Every sign-up immediately became `RESIDENT`, regardless of future admission path.
+2. **No role lifecycle model** — There was no defined path from sign-up through admission hooks to a meaningful community role (`RESIDENT`, `PROVIDER`, `AGENT`, etc.). The `Invitation.role` field encoded the target role but no code acted on it at acceptance time.
+3. **Provider identity model undefined** — Providers needed a platform account and verification pipeline, but the relationship between their `user` record and the `ServiceProvider` table was undocumented. The quick-fix override meant providers signed up as residents.
+
+### Decision
+
+`USER` is added to the `Role` enum as the canonical pre-admission staging role — the lowest-privilege value representing "authenticated via Better Auth, no community context assigned yet." All community roles (`RESIDENT`, `PROVIDER`, `AGENT`, etc.) are reached only via explicit admission hooks.
+
+The lifecycle is:
+
+```
+Sign-up (any path) → USER
+     ├─ Invitation accepted (resident/board/committee) → target role from Invitation.role
+     ├─ Provider registration + admin approved → PROVIDER
+     └─ Agent onboarding + AgentAccess granted → AGENT
+```
+
+`USER` accounts have no seat, no community access. The gate is implemented via seat-absence: any route requiring community context checks for a valid seat record. No new permission layer is required.
+
+### Alternatives Considered
+
+- **Keep workaround (`RESIDENT` override)**: Quick fix but semantically wrong. Rejected because it makes all future role-audit work harder — every filter that checks for RESIDENT would need to be revisited.
+- **Remove the `role` column from the `user` table entirely**: Not viable — Better Auth's schema requires it, and role-based access control depends on it.
+- **Role-set model (multiple roles per user)**: Overengineered for current needs. Deferred until dual-role users (resident + provider) become a real case.
+
+### Consequences
+
+#### Positive
+
+- Semantically correct sign-up state — `USER` means "authenticated, unplaced"
+- No workaround override needed in `auth.ts` — Better Auth's `'user'` maps naturally to `USER` via the enum
+- Admission hooks become the single place where community roles are assigned
+- Provider identity model is documented: `User` record + `PROVIDER` role + `ServiceProvider` row
+
+#### Negative
+
+- Any code that assumes `role !== ADMIN` implies a valid community member must be audited (G5 discovery)
+- Existing code uses `|| 'RESIDENT'` as a fallback in 50+ call sites. While `USER` is truthy (won't trigger the fallback), these users will have minimal permissions until admitted
+- Provider stub creation (Phase 3B) is deferred — `ServiceProvider` has no `userId` FK, requiring schema follow-up
+
+### Verification
+
+- [x] `prisma migrate status` shows no drift after migration
+- [x] New sign-up creates `user.role = USER` (via auth.ts hook `role: 'USER'`)
+- [x] Invitation acceptance promotes `USER` to the role encoded in the invitation (non-PROVIDER paths)
+- [ ] Provider stub creation + approval pipeline (deferred — needs `ServiceProvider.userId` FK)
+- [x] `Property.platformAddress` has `@unique` constraint
+- [x] Seat tables have `status` and `archivedAt` columns
+- [x] Cross-table address guard function exists and is called in seat-creation paths
+
+### Related
+
+- ADVISORY-015: Full execution plan with role lifecycle, provider admission, address hardening
+- BD `5z3g`: Define USER role + role lifecycle
+- `src/db/schema/role-enum.ts`: Drizzle `roleEnum` definition
+- `src/shared/api/auth.ts`: Better Auth configuration and database hooks
+- `src/app/api/invitations/accept/route.ts`: Admission hook (non-PROVIDER role promotion)
+
+### Key Files
+
+- `prisma/schema.prisma` — `enum Role { USER, ... }`, `@default(USER)` on user.role, `@unique` on Property.platformAddress, `SeatStatus` enum, seat lifecycle fields
+- `prisma/migrations/20260624000000_add_user_role_and_seat_lifecycle/migration.sql`
+- `src/shared/api/auth.ts:131,214` — `additionalFields.role.defaultValue` and hook override both set to `'USER'`
+- `src/app/api/invitations/accept/route.ts:73-86` — Admission hook guards `user.role === 'USER'` before promoting
+- `src/app/api/providers/dashboard/route.ts:38-41` — Suspended provider gate
+
+---
+
 _More ADRs will be added as we make architectural decisions. Use the template above to propose new ADRs._
 
 ---
