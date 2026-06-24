@@ -198,6 +198,7 @@ const ADMIN_LAYOUTS: WidgetLayouts = {
     'admin-quick-links': { x: 0, y: 2, width: 1, height: 2, isCollapsed: false },
     'admin-user': { x: 1, y: 2, width: 2, height: 3, isCollapsed: false },
     'admin-activity': { x: 3, y: 2, width: 1, height: 3, isCollapsed: false },
+    achievements: { x: 0, y: 5, width: 4, height: 2, isCollapsed: false },
   },
   providers: {
     'provider-overview': { x: 0, y: 0, width: 4, height: 3, isCollapsed: false },
