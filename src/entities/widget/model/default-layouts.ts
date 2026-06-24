@@ -101,7 +101,14 @@ const RESIDENT_LAYOUTS: WidgetLayouts = {
 // ═══════════════════════════════════════════════════════════════
 
 const BOARD_USER_WIDGETS: UserWidgets = {
-  home: ['admin-stats', 'admin-quick-links', 'admin-activity', 'notifications', 'recent-activity'],
+  home: [
+    'admin-stats',
+    'admin-quick-links',
+    'admin-activity',
+    'notifications',
+    'recent-activity',
+    'achievements',
+  ],
   providers: [
     'provider-overview',
     'provider-analytics',
