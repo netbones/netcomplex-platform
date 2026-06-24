@@ -37,6 +37,11 @@ export function AchievementBadgeGrid({ achievements }: AchievementBadgeGridProps
               {items.map(achievement => (
                 <div
                   key={achievement.key}
+                  title={
+                    achievement.unlocked && achievement.unlockedAt
+                      ? `${achievement.label} — Unlocked ${new Date(achievement.unlockedAt).toLocaleDateString()}`
+                      : achievement.label
+                  }
                   className={`relative group flex flex-col items-center p-2 rounded-lg text-center transition-colors ${
                     achievement.unlocked
                       ? 'bg-indigo-50 dark:bg-indigo-900/20'
@@ -54,11 +59,6 @@ export function AchievementBadgeGrid({ achievements }: AchievementBadgeGridProps
                   <span className="text-[10px] leading-tight text-gray-700 dark:text-gray-300 line-clamp-2">
                     {achievement.label}
                   </span>
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-                    {achievement.unlocked && achievement.unlockedAt
-                      ? `${achievement.label} — Unlocked ${new Date(achievement.unlockedAt).toLocaleDateString()}`
-                      : achievement.label}
-                  </div>
                 </div>
               ))}
             </div>
