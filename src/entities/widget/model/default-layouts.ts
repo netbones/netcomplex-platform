@@ -135,6 +135,7 @@ const BOARD_LAYOUTS: WidgetLayouts = {
     'admin-activity': { x: 1, y: 2, width: 2, height: 3, isCollapsed: false },
     notifications: { x: 3, y: 2, width: 1, height: 2, isCollapsed: false },
     'recent-activity': { x: 0, y: 5, width: 4, height: 2, isCollapsed: false },
+    achievements: { x: 0, y: 7, width: 4, height: 2, isCollapsed: false },
   },
   providers: {
     'provider-overview': { x: 0, y: 0, width: 4, height: 3, isCollapsed: false },
@@ -170,7 +171,7 @@ const BOARD_LAYOUTS: WidgetLayouts = {
 // ═══════════════════════════════════════════════════════════════
 
 const ADMIN_USER_WIDGETS: UserWidgets = {
-  home: ['admin-stats', 'admin-quick-links', 'admin-user', 'admin-activity'],
+  home: ['admin-stats', 'admin-quick-links', 'admin-user', 'admin-activity', 'achievements'],
   providers: [
     'provider-overview',
     'provider-analytics',
