@@ -6,16 +6,14 @@ import {
   apiNotFound,
   apiSuccess,
   db,
-  now,
   requireAnyPermission,
   serviceProviders,
-  users,
   providerVerifications,
   writeAuditLog,
   getSessionAndRole,
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
-import { getProviderDueDiligenceSnapshot } from '@shared/api';
+import { getProviderDueDiligenceSnapshot, activateProvider } from '@shared/api';
 import { logError } from '@shared/lib';
 import { providerReviewApprovalSchema } from '@shared/lib/providers/registration';
 
@@ -57,29 +55,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const notes = parsed.data.notes.trim() || 'Provider manually verified by admin review.';
-    const timestamp = now();
 
     await db.transaction(async tx => {
-      await tx
-        .update(serviceProviders)
-        .set({ isActive: true, updatedAt: timestamp })
-        .where(eq(serviceProviders.id, provider.id));
-
-      await tx
-        .update(providerVerifications)
-        .set({ status: 'VERIFIED', endDate: null, notes, updatedAt: timestamp })
-        .where(eq(providerVerifications.providerId, provider.id));
-
-      if (provider.userId) {
-        const [user] = await tx
-          .select({ role: users.role })
-          .from(users)
-          .where(eq(users.id, provider.userId))
-          .limit(1);
-        if (user && user.role === 'USER') {
-          await tx.update(users).set({ role: 'PROVIDER' }).where(eq(users.id, provider.userId));
-        }
-      }
+      await activateProvider(tx, provider.id, provider.userId, notes);
     });
 
     if (auth) {

@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { and, eq, isNull, sql } from 'drizzle-orm';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { withTenant } from '@entities/tenant/server';
 import {
   apiForbidden,
@@ -12,6 +13,7 @@ import {
   providerVerifications,
   providerReputations,
   communityServiceListings,
+  users,
   type SessionAndRole,
 } from './server';
 import { hasPermission } from '@shared/lib';
@@ -367,4 +369,39 @@ export async function createProviderStub(userId: string, tenantId: string, compa
   });
 
   return provider;
+}
+
+/**
+ * ADVISORY-015 Phase 3C / GAP-5: Shared provider activation — used by both
+ * approve and verify routes. Atomically sets isActive, verification status,
+ * and promotes user.role (only from USER — never downgrades).
+ */
+export async function activateProvider(
+  tx: NodePgDatabase<Record<string, unknown>>,
+  providerId: string,
+  userId: string | null,
+  notes: string
+): Promise<void> {
+  const timestamp = now();
+
+  await tx
+    .update(serviceProviders)
+    .set({ isActive: true, updatedAt: timestamp })
+    .where(eq(serviceProviders.id, providerId));
+
+  await tx
+    .update(providerVerifications)
+    .set({ status: 'VERIFIED', endDate: null, notes, updatedAt: timestamp })
+    .where(eq(providerVerifications.providerId, providerId));
+
+  if (userId) {
+    const [user] = await tx
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    if (user && user.role === 'USER') {
+      await tx.update(users).set({ role: 'PROVIDER' }).where(eq(users.id, userId));
+    }
+  }
 }
