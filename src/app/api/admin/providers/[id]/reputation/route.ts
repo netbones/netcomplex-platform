@@ -16,7 +16,7 @@ import {
   getSessionAndRole,
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
-import { getProviderReputationSnapshot, upsertProviderVerification } from '@shared/api';
+import { getProviderReputationSnapshot } from '@shared/api';
 import { logError } from '@shared/lib';
 
 export const maxDuration = 8;
@@ -25,7 +25,6 @@ const providerReputationAdjustmentSchema = z.object({
   reason: z.string().trim().min(3).max(1000),
   totalScore: z.number().int().min(0).max(10000).optional(),
   reputationDelta: z.number().int().min(-1000).max(1000).optional(),
-  verificationStatus: z.enum(['PROBATION', 'VERIFIED', 'SUSPENDED']).optional(),
 });
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -119,17 +118,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       });
     }
 
-    let verification = null;
-    if (parsed.data.verificationStatus) {
-      verification = await upsertProviderVerification({
-        tenantId,
-        providerId: provider.id,
-        status: parsed.data.verificationStatus,
-        notes: `Manual verification override: ${parsed.data.reason}`,
-        endDate: parsed.data.verificationStatus === 'SUSPENDED' ? timestamp : null,
-      });
-    }
-
     if (auth) {
       writeAuditLog({
         action: 'PROVIDER_REPUTATION_ADJUSTED',
@@ -141,14 +129,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
           baseScore,
           nextTotalScore,
           delta,
-          verificationStatus: parsed.data.verificationStatus ?? null,
         },
       });
     }
 
     const snapshot = await getProviderReputationSnapshot(tenantId, provider.id);
 
-    return apiSuccess({ provider, reputation: snapshot, verification });
+    return apiSuccess({ provider, reputation: snapshot });
   } catch (error) {
     logError(
       { component: 'admin-provider-reputation-api', operation: 'PATCH' },

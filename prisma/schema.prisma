@@ -102,7 +102,7 @@ model user {
   email                                                 String                    @unique
   name                                                  String
   role                                                  Role                      @default(USER)
-  isActive                                              Boolean                   @default(true)
+  isActive    Boolean              @default(false)
   phone                                                 String?
   interests                                             String[]
   avatar                                                String?
