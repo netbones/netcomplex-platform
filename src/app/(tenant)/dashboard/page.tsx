@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { HomeLayer } from '@widgets/dashboard';
 import { MyHomeSpaceWithErrorBoundary } from '@widgets/dashboard';
+import { AchievementsWidget } from '@widgets/dashboard';
 import { PromoBanner, HeaderImagePicker } from '@shared/ui';
 import { useRouter } from 'next/navigation';
 import { authClient } from '@api/client';
@@ -80,6 +81,7 @@ export default function DashboardHome() {
       )}
 
       <HomeLayer />
+      <AchievementsWidget />
       <MyHomeSpaceWithErrorBoundary />
 
       <HeaderImagePicker

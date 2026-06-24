@@ -132,6 +132,7 @@ export const SPACES: Record<SpaceId, SpaceDefinition> = {
       'admin-competitions',
       'admin-resources',
       'admin-content',
+      'achievements',
     ],
   },
   messages: {

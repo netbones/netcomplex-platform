@@ -1,7 +1,7 @@
 /**
  * Default Dashboard Layouts (Space-keyed)
  *
- * DISCOVERY ANSWERS (confirmed from source):
+ *
  *
  * Q1 — Layout item shape:
  * WidgetLayout = { x: number; y: number; width: number; height: number;
@@ -18,8 +18,10 @@
  * home, services, community, messages, admin
  *
  * Q4 — dashboardLayout storage on user:
- * `string | null` — JSON.stringify({ layouts, userWidgets })
+ * `string | null` — JSON.ngify({ layouts, userWidgets })
  * Hydrated via widget-store.ts hydrateFromDatabase(), persisted via saveToDatabase()
+ *
+ * NOTE: The widget dashboard layouts are legacy, we only retain the community space as a true dnd widget space. Consider refactoring.
  */
 
 import type { WidgetLayouts, UserWidgets } from '@entities/widget';
@@ -51,9 +53,6 @@ const RESIDENT_USER_WIDGETS: UserWidgets = {
     'my-album',
     'media',
     'bookshelf',
-    'premium-portfolio',
-    'agent-dashboard',
-    'agent-activity',
     'community-graph-widget',
     'achievements',
   ],
