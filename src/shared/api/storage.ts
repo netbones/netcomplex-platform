@@ -146,6 +146,109 @@ export async function deleteImage(
   }
 }
 
+export async function uploadTenantImage(file: File, tenantId: string): Promise<UploadResult> {
+  if (!file.type.startsWith('image/')) {
+    return { url: '', key: '', error: 'Invalid file type. Only images are allowed.' };
+  }
+
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return { url: '', key: '', error: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP' };
+  }
+
+  if (file.size > MAX_FILE_SIZE) {
+    return { url: '', key: '', error: 'File too large. Maximum size is 2MB.' };
+  }
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const ext = file.name.split('.').pop() || 'jpg';
+    const key = `tenants/${tenantId}/system/${uuidv4()}.${ext}`;
+
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: buffer,
+      ContentType: file.type,
+      ACL: 'public-read' as const,
+    });
+
+    await s3Client.send(command);
+
+    const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/${key}`;
+    return { url: publicUrl, key };
+  } catch (error) {
+    logError(
+      { component: 'storage', operation: 'uploadTenantImage' },
+      'Failed to upload tenant image',
+      error
+    );
+    return { url: '', key: '', error: 'Failed to upload image. Please try again.' };
+  }
+}
+
+export async function listTenantImages(tenantId: string): Promise<MediaItem[]> {
+  const prefix = `tenants/${tenantId}/system/`;
+
+  try {
+    const command = new ListObjectsV2Command({
+      Bucket: BUCKET_NAME,
+      Prefix: prefix,
+    });
+
+    const response = await s3Client.send(command);
+
+    if (!response.Contents) {
+      return [];
+    }
+
+    return response.Contents.map(item => {
+      const name = item.Key?.split('/').pop() || '';
+      return {
+        key: item.Key || '',
+        url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/${item.Key}`,
+        name,
+        size: item.Size || 0,
+        uploadedAt: item.LastModified?.toISOString() || new Date().toISOString(),
+      };
+    });
+  } catch (error) {
+    logError(
+      { component: 'storage', operation: 'listTenantImages' },
+      'Failed to list tenant images',
+      error
+    );
+    return [];
+  }
+}
+
+export async function deleteTenantImage(
+  key: string,
+  tenantId: string
+): Promise<{ success: boolean; error?: string }> {
+  if (!key.startsWith(`tenants/${tenantId}/system/`)) {
+    return { success: false, error: 'Unauthorized to delete this file' };
+  }
+
+  try {
+    const command = new DeleteObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+    });
+
+    await s3Client.send(command);
+    return { success: true };
+  } catch (error) {
+    logError(
+      { component: 'storage', operation: 'deleteTenantImage' },
+      'Failed to delete image',
+      error
+    );
+    return { success: false, error: 'Failed to delete image' };
+  }
+}
+
 export function validateImage(file: File): string | null {
   if (!file.type.startsWith('image/')) {
     return 'Invalid file type. Only images are allowed.';

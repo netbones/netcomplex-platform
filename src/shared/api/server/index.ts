@@ -96,7 +96,15 @@ export { writeAuditLog } from '../audit-log';
 export type { AuditAction, AuditLogEntry } from '../audit-log';
 export { supabase } from '../supabase';
 export { getDashboardStats, getStaticStats, getUserContent } from '../data-fetching';
-export { uploadImage, listUserImages, deleteImage, validateImage } from '../storage';
+export {
+  uploadImage,
+  listUserImages,
+  deleteImage,
+  validateImage,
+  uploadTenantImage,
+  listTenantImages,
+  deleteTenantImage,
+} from '../storage';
 export type { UploadResult, MediaItem } from '../storage';
 export { verifyTurnstile } from '../turnstile';
 export { emitEvent, onEvent, offEvent } from '../events';
