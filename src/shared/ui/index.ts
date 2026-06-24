@@ -15,6 +15,7 @@ export * from './ModalOverlay';
 export * from './PageCTA';
 export * from './PrimaryCTA';
 export * from './PromoBanner';
+export * from './HeaderImagePicker';
 export * from './PromoIllustration';
 export * from './Pagination';
 export * from './RichTextEditor';

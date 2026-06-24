@@ -22,6 +22,8 @@ export interface ProfileData {
   intro?: string;
   socialAccounts?: SocialAccount[];
   experience?: ExperienceItem[];
+  headerImage?: string;
+  featuredContentPromoDismissed?: boolean;
 }
 
 interface TabbedProfileProps {
