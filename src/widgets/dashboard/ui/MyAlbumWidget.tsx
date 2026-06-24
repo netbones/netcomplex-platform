@@ -202,7 +202,7 @@ export function MyAlbumWidget() {
                   className="rounded"
                 />
                 <span className="text-sm text-gray-700">
-                  {t('makePublic', 'Make album public on profile')}
+                  {t('shareWithCommunity', 'Share with community')}
                 </span>
               </label>
             </div>
@@ -245,12 +245,14 @@ export function MyAlbumWidget() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-gray-900 truncate">{album.title}</h4>
-                  <div className="flex items-center gap-1">
-                    {album.isPublic && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                        {t('public', 'Public')}
-                      </span>
-                    )}
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        album.isPublic ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'
+                      }`}
+                    >
+                      {album.isPublic ? t('public', 'Public') : t('private', 'Private')}
+                    </span>
                     <button
                       onClick={() => handleDeleteAlbum(album.id)}
                       className="text-red-500 hover:text-red-700 text-sm"
@@ -281,11 +283,15 @@ export function MyAlbumWidget() {
                       const updatedAlbum = { ...album, isPublic: !album.isPublic };
                       handleUpdateAlbum(updatedAlbum);
                     }}
-                    className="text-xs text-gray-600 hover:text-gray-800"
+                    className={`text-xs font-medium ${
+                      album.isPublic
+                        ? 'text-amber-600 hover:text-amber-800'
+                        : 'text-green-600 hover:text-green-800'
+                    }`}
                   >
                     {album.isPublic
                       ? t('makePrivate', 'Make Private')
-                      : t('makePublic', 'Make Public')}
+                      : t('sharePublicly', 'Share Publicly')}
                   </button>
                 </div>
                 {selectedAlbum?.id === album.id && (

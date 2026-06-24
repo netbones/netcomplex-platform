@@ -684,6 +684,23 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   });
 
   registry.register({
+    id: 'community-gallery',
+    version: '1.0.0',
+    name: 'Community Gallery',
+    description: 'Public albums shared by community members',
+    author: 'internal',
+    category: 'content',
+    icon: Image,
+    component: lazy(() =>
+      import('../ui/CommunityGalleryWidget').then(m => ({ default: m.CommunityGalleryWidget }))
+    ),
+    defaultSize: { width: 2, height: 2 },
+    minSize: { width: 1, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['community'],
+  });
+
+  registry.register({
     id: 'my-content',
     version: '1.0.0',
     name: 'My Content',
