@@ -39,6 +39,7 @@ export {
 export { canAccess, resolveGateContext } from './api/gate/gate';
 
 export { assertModuleEnabled } from './api/gate/feature-gate';
+export { isModuleEnabled } from './lib/modules';
 
 export {
   getPlatformPageFlags,

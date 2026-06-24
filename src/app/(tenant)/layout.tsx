@@ -4,12 +4,19 @@ import '../globals.css';
 import { I18nextProvider } from 'react-i18next';
 // eslint-disable-next-line no-restricted-imports -- barrel deliberately excludes client-only i18n
 import i18n from '@shared/lib/i18n';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { SpaceChrome } from '@widgets/dashboard';
 import { authClient } from '@api/client';
+// eslint-disable-next-line no-restricted-imports -- client-only store not in barrel
+import { useGateContextStore } from '@entities/tenant/model/gate-context-store';
 
 export default function TenantLayout({ children }: { children: React.ReactNode }) {
   const { data: session } = authClient.useSession();
+  const hydrate = useGateContextStore(s => s.hydrate);
+
+  useEffect(() => {
+    if (session) hydrate();
+  }, [session, hydrate]);
 
   const inner = <Suspense fallback={null}>{children}</Suspense>;
 
