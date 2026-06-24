@@ -8,7 +8,7 @@ import {
   providerVerifications,
   serviceProviders,
 } from '@api/server';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import {
   getProviderDueDiligenceSnapshot,
   getProviderLegalAgreementStatus,
@@ -27,6 +27,9 @@ export async function GET(request: Request) {
   if (!auth) {
     return apiUnauthorized();
   }
+
+  const moduleCheck = await assertModuleEnabled('providers');
+  if (moduleCheck) return moduleCheck;
 
   if (!canReviewProviders(auth.role)) {
     return apiForbidden('Board or admin access required');

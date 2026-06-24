@@ -15,7 +15,7 @@ import {
 
 import { eq, and, desc, lte, gte, isNull } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 
 export const maxDuration = 8;
@@ -136,6 +136,9 @@ export const POST = withErrorHandler(async (request: Request) => {
   if (!authData) {
     return apiUnauthorized();
   }
+
+  const moduleCheck = await assertModuleEnabled('competitions');
+  if (moduleCheck) return moduleCheck;
 
   if (!hasPermission(authData.role, 'content') && !hasPermission(authData.role, 'contentOwn')) {
     return apiForbidden();

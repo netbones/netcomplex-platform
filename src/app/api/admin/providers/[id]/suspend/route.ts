@@ -13,7 +13,7 @@ import {
   writeAuditLog,
   getSessionAndRole,
 } from '@api/server';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { getProviderDueDiligenceSnapshot, upsertProviderVerification } from '@shared/api';
 import { logError } from '@shared/lib';
 
@@ -25,11 +25,11 @@ const suspendProviderSchema = z.object({
   restoreStatus: z.enum(['PROBATION', 'VERIFIED']).optional(),
 });
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const moduleCheck = await assertModuleEnabled('providers');
+    if (moduleCheck) return moduleCheck;
+
     const authError = await requireAnyPermission(['providers']);
     if (authError) {
       return authError;
@@ -60,7 +60,8 @@ export async function PATCH(
     }
 
     const action = parsed.data.action;
-    const nextStatus = action === 'REINSTATE' ? parsed.data.restoreStatus ?? 'PROBATION' : 'SUSPENDED';
+    const nextStatus =
+      action === 'REINSTATE' ? (parsed.data.restoreStatus ?? 'PROBATION') : 'SUSPENDED';
     const notes =
       parsed.data.reason?.trim() ||
       (action === 'REINSTATE'

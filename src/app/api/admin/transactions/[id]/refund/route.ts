@@ -13,7 +13,7 @@ import {
   getSessionAndRole,
 } from '@api/server';
 import { refundProviderTransaction } from '@shared/api';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 import { decimalToNumber } from '@shared/lib/providers/billing';
 import { getRefundableAmount } from '@shared/lib/providers/admin';
@@ -27,6 +27,9 @@ const refundRequestSchema = z.object({
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const moduleCheck = await assertModuleEnabled('providers');
+    if (moduleCheck) return moduleCheck;
+
     const authError = await requireAnyPermission(['providers']);
     if (authError) {
       return authError;

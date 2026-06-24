@@ -12,7 +12,7 @@ import {
   updateProviderSubscriptionStatus,
 } from '@shared/api';
 import { providerBillingPatchSchema } from '@shared/lib/providers/billing';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
 export const maxDuration = 8;
@@ -54,6 +54,9 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    const moduleCheck = await assertModuleEnabled('providers');
+    if (moduleCheck) return moduleCheck;
+
     const authError = await requireAnyPermission(['providers']);
     if (authError) {
       return authError;

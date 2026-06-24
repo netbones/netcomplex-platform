@@ -16,7 +16,7 @@ import {
 
 import { eq, and } from 'drizzle-orm';
 
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 
 import { hasPermission } from '@shared/lib';
 
@@ -67,6 +67,9 @@ export const PATCH = withErrorHandler(
     if (!session?.user?.id) {
       return apiUnauthorized();
     }
+
+    const moduleCheck = await assertModuleEnabled('competitions');
+    if (moduleCheck) return moduleCheck;
 
     const [user] = await db
       .select({ role: users.role })
@@ -146,6 +149,9 @@ export const DELETE = withErrorHandler(
     if (!session?.user?.id) {
       return apiUnauthorized();
     }
+
+    const moduleCheck = await assertModuleEnabled('competitions');
+    if (moduleCheck) return moduleCheck;
 
     const [user] = await db
       .select({ role: users.role })

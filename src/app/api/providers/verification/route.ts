@@ -13,7 +13,7 @@ import {
   upsertProviderVerification,
   type ProviderVerificationStatus,
 } from '@shared/api';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 import { and, eq, isNull } from 'drizzle-orm';
 
@@ -55,6 +55,9 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    const moduleCheck = await assertModuleEnabled('providers');
+    if (moduleCheck) return moduleCheck;
+
     const authError = await requireAnyPermission(['providers']);
     if (authError) {
       return authError;

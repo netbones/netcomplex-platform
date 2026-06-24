@@ -1,7 +1,7 @@
 import { db, contents, users, apiSuccess, apiInternalError } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 
 export const maxDuration = 8;
@@ -9,6 +9,8 @@ export const maxDuration = 8;
 export async function GET() {
   try {
     const { tenantId } = await withTenant();
+    const moduleCheck = await assertModuleEnabled('conservation');
+    if (moduleCheck) return moduleCheck;
 
     const contentList = await db
       .select({

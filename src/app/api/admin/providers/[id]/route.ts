@@ -14,7 +14,7 @@ import {
   serviceProviders,
   subscriptionTiers,
 } from '@api/server';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import {
   getProviderDueDiligenceSnapshot,
   getProviderLegalAgreementStatus,
@@ -27,6 +27,9 @@ export const maxDuration = 8;
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const moduleCheck = await assertModuleEnabled('providers');
+    if (moduleCheck) return moduleCheck;
+
     const authError = await requireAnyPermission(['providers']);
     if (authError) {
       return authError;

@@ -11,7 +11,7 @@ import {
   serviceProviders,
   subscriptionTiers,
 } from '@api/server';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 import { decimalToNumber } from '@shared/lib/providers/billing';
 import { getDateRangeFromSearchParams, parsePositiveInt } from '@shared/lib/providers/admin';
@@ -20,6 +20,9 @@ export const maxDuration = 8;
 
 export async function GET(request: NextRequest) {
   try {
+    const moduleCheck = await assertModuleEnabled('providers');
+    if (moduleCheck) return moduleCheck;
+
     const authError = await requireAnyPermission(['providers']);
     if (authError) {
       return authError;

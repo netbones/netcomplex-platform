@@ -8,7 +8,7 @@ import {
 } from '@api/server';
 
 import { eq, sql } from 'drizzle-orm';
-import { withTenant, withTenantOptional } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant, withTenantOptional } from '@entities/tenant/server';
 
 export const maxDuration = 8;
 
@@ -38,6 +38,9 @@ export const GET = withErrorHandler(async (request: Request) => {
 export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();
+
+  const moduleCheck = await assertModuleEnabled('settings');
+  if (moduleCheck) return moduleCheck;
 
   const { tenantId } = await withTenant();
   const body = await request.json();

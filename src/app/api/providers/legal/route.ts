@@ -6,7 +6,7 @@ import {
   getSessionAndRole,
   withErrorHandler,
 } from '@api/server';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import {
   getProviderLegalAgreementStatus,
   getProviderRecordForUser,
@@ -21,6 +21,8 @@ export const maxDuration = 8;
 
 export const GET = withErrorHandler(async (request: Request) => {
   const { tenantId } = await withTenant();
+  const moduleCheck = await assertModuleEnabled('providers');
+  if (moduleCheck) return moduleCheck;
   const auth = await getSessionAndRole(request);
   const providerRecord = auth
     ? await getProviderRecordForUser(tenantId, auth.session.user.email)
@@ -40,6 +42,9 @@ export const POST = withErrorHandler(async (request: Request) => {
   if (!auth) {
     return apiUnauthorized();
   }
+
+  const moduleCheck = await assertModuleEnabled('providers');
+  if (moduleCheck) return moduleCheck;
 
   const { tenantId } = await withTenant();
   const providerRecord = await getProviderRecordForUser(tenantId, auth.session.user.email);

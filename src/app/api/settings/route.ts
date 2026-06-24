@@ -14,7 +14,7 @@ import {
 import { hasPermission } from '@shared/lib';
 
 import { eq, and } from 'drizzle-orm';
-import { withTenant, requireAssistScope } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant, requireAssistScope } from '@entities/tenant/server';
 import { validateSettingValue } from '@shared/lib/settings/validation';
 
 export const maxDuration = 8;
@@ -48,6 +48,9 @@ export const GET = withErrorHandler(async (request: Request) => {
     return apiForbidden();
   }
 
+  const moduleCheck = await assertModuleEnabled('settings');
+  if (moduleCheck) return moduleCheck;
+
   const { searchParams } = new URL(request.url);
   const key = searchParams.get('key');
 
@@ -73,6 +76,9 @@ export const POST = withErrorHandler(async (request: Request) => {
   if (!authData || !hasPermission(authData.role, 'admin')) {
     return apiForbidden();
   }
+
+  const moduleCheck = await assertModuleEnabled('settings');
+  if (moduleCheck) return moduleCheck;
 
   const scopeError = await requireAssistScope(request, 'full');
   if (scopeError) return scopeError;

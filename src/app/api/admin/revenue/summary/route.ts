@@ -10,7 +10,7 @@ import {
   requireAnyPermission,
   subscriptionTiers,
 } from '@api/server';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 import { decimalToNumber } from '@shared/lib/providers/billing';
 import {
@@ -24,6 +24,9 @@ export const maxDuration = 8;
 
 export async function GET(request: NextRequest) {
   try {
+    const moduleCheck = await assertModuleEnabled('providers');
+    if (moduleCheck) return moduleCheck;
+
     const authError = await requireAnyPermission(['providers']);
     if (authError) {
       return authError;
@@ -50,9 +53,18 @@ export async function GET(request: NextRequest) {
         tierName: subscriptionTiers.name,
       })
       .from(paymentTransactions)
-      .leftJoin(providerSubscriptions, eq(providerSubscriptions.id, paymentTransactions.subscriptionId))
+      .leftJoin(
+        providerSubscriptions,
+        eq(providerSubscriptions.id, paymentTransactions.subscriptionId)
+      )
       .leftJoin(subscriptionTiers, eq(subscriptionTiers.id, providerSubscriptions.tierId))
-      .where(and(eq(paymentTransactions.tenantId, tenantId), sql`${paymentTransactions.createdAt} >= ${startDate}`, sql`${paymentTransactions.createdAt} <= ${endDate}`));
+      .where(
+        and(
+          eq(paymentTransactions.tenantId, tenantId),
+          sql`${paymentTransactions.createdAt} >= ${startDate}`,
+          sql`${paymentTransactions.createdAt} <= ${endDate}`
+        )
+      );
 
     const filteredRows = rows.filter(row => {
       if (gatewayFilter && row.gateway !== gatewayFilter) {
@@ -104,20 +116,28 @@ export async function GET(request: NextRequest) {
         acc[row.gateway] = bucket;
         return acc;
       },
-      {} as Record<string, {
-        gateway: string;
-        transactionCount: number;
-        totalRevenue: number;
-        totalPlatformFees: number;
-        totalProcessorFees: number;
-        totalNetPayout: number;
-      }>
+      {} as Record<
+        string,
+        {
+          gateway: string;
+          transactionCount: number;
+          totalRevenue: number;
+          totalPlatformFees: number;
+          totalProcessorFees: number;
+          totalNetPayout: number;
+        }
+      >
     );
 
     const byTier = filteredRows.reduce(
       (acc, row) => {
         const key = row.tierName ?? 'Unassigned';
-        const bucket = acc[key] ?? { tierName: key, totalRevenue: 0, totalPlatformFees: 0, transactionCount: 0 };
+        const bucket = acc[key] ?? {
+          tierName: key,
+          totalRevenue: 0,
+          totalPlatformFees: 0,
+          transactionCount: 0,
+        };
         bucket.transactionCount += 1;
         if (row.status === 'COMPLETED') {
           bucket.totalRevenue += decimalToNumber(row.amount);
@@ -126,7 +146,15 @@ export async function GET(request: NextRequest) {
         acc[key] = bucket;
         return acc;
       },
-      {} as Record<string, { tierName: string; totalRevenue: number; totalPlatformFees: number; transactionCount: number }>
+      {} as Record<
+        string,
+        {
+          tierName: string;
+          totalRevenue: number;
+          totalPlatformFees: number;
+          transactionCount: number;
+        }
+      >
     );
 
     const timeline = filteredRows.reduce(
@@ -148,13 +176,16 @@ export async function GET(request: NextRequest) {
         acc[bucketKey] = bucket;
         return acc;
       },
-      {} as Record<string, {
-        label: string;
-        totalRevenue: number;
-        totalPlatformFees: number;
-        totalProcessorFees: number;
-        totalNetPayout: number;
-      }>
+      {} as Record<
+        string,
+        {
+          label: string;
+          totalRevenue: number;
+          totalPlatformFees: number;
+          totalProcessorFees: number;
+          totalNetPayout: number;
+        }
+      >
     );
 
     const recentGatewayStats = filteredRows.reduce(
@@ -195,12 +226,15 @@ export async function GET(request: NextRequest) {
       totals,
       byGateway: Object.values(byGateway),
       byTier: Object.values(byTier),
-      timeline: Object.values(timeline).sort((left, right) => left.label.localeCompare(right.label)),
+      timeline: Object.values(timeline).sort((left, right) =>
+        left.label.localeCompare(right.label)
+      ),
       gatewayHealth,
       licenseCompliance: {
         reference: 'SaaS License Agreement §4.7',
         status: 'tracked',
-        trackedBasis: 'Platform-fee and net-payout figures are derived from persisted provider billing transactions.',
+        trackedBasis:
+          'Platform-fee and net-payout figures are derived from persisted provider billing transactions.',
         notes: [
           'Revenue sharing reporting is limited to recorded transaction data in this phase.',
           'External settlement workflows and gateway operational probes remain manual.',

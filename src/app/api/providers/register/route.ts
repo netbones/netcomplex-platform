@@ -10,7 +10,7 @@ import {
   serviceProviders,
   withErrorHandler,
 } from '@api/server';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import {
   getProviderRecordForUser,
   upsertProviderVerification,
@@ -36,6 +36,9 @@ export const POST = withErrorHandler(async (request: Request) => {
   if (!auth) {
     return apiUnauthorized();
   }
+
+  const moduleCheck = await assertModuleEnabled('providers');
+  if (moduleCheck) return moduleCheck;
 
   const canRegister =
     hasPermission(auth.role, 'directory') || hasPermission(auth.role, 'providers');

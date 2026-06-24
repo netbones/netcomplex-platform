@@ -25,7 +25,7 @@ export const SORALIA_VILLAGE: TenantSeedData = {
     primaryColor: '#4F46E5',
     accentColor: '#F59E0B',
     subscriptionTier: 'core',
-    tier: 'STANDARD',
+    tier: 'PREMIUM', // ADVISORY-016: Development tier — reset to STANDARD at launch
     featureFlags: {},
     tagline: 'Where fynbos meets the sea',
     description:

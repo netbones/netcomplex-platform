@@ -15,7 +15,7 @@ import {
   writeAuditLog,
   getSessionAndRole,
 } from '@api/server';
-import { withTenant } from '@entities/tenant/server';
+import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { getProviderReputationSnapshot } from '@shared/api';
 import { logError } from '@shared/lib';
 
@@ -29,6 +29,9 @@ const providerReputationAdjustmentSchema = z.object({
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const moduleCheck = await assertModuleEnabled('providers');
+    if (moduleCheck) return moduleCheck;
+
     const authError = await requireAnyPermission(['providers']);
     if (authError) {
       return authError;
