@@ -49,7 +49,7 @@ export function AchievementsWidget() {
       <div className="flex items-center gap-2 mb-3 px-1">
         <Trophy className="w-4 h-4 text-indigo-500" />
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          {unlockedCount} / {achievements.length} unlocked
+          Achievements — {unlockedCount} / {achievements.length} unlocked
         </span>
       </div>
       <AchievementBadgeGrid achievements={achievements} />
