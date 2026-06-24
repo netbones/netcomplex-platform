@@ -1066,6 +1066,30 @@ Plans:
 
 ---
 
+## Phase 103: Tenant Gallery & Album Sharing
+
+**Goal:** Tenant-level system gallery for dashboard header images and system banners + public album sharing across the community.
+
+**Depends on:** None
+**Depends on:** None
+**Plans:** 1 plan in 3 waves
+**Context:** Issue soralia-village-j29z
+
+**Requirements:**
+
+- GALLERY-01: Admin-managed tenant media library (upload, list, delete)
+- GALLERY-02: Dashboard header image picker — select from tenant gallery or personal uploads
+- GALLERY-03: User album sharing — public albums discoverable across the community
+- GALLERY-04: Community gallery widget showing public albums from all users
+
+Plans:
+
+| Wave | Plan               | Objective                                                                      |
+| ---- | ------------------ | ------------------------------------------------------------------------------ |
+| 1    | [x] 103-01-PLAN.md | Tenant system storage + admin media API + header picker + public album sharing |
+
+---
+
 ## Phase 99: Build Fix
 
 **Goal:** Fix build errors caused by the multi-tenant refactor — broken import paths in 6 API routes, centralize imports via `@/lib/db`, inline Drizzle table definitions for non-generated tables
