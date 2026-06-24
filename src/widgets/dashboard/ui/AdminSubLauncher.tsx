@@ -88,7 +88,7 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     id: 'achievements',
     labelKey: 'domains.achievements',
     descriptionKey: 'domains.descriptions.achievements',
-    icon: '/platform/merits.svg',
+    icon: '/platform/achievements.svg',
     description: 'Achievement configuration and catalog',
   },
   {
