@@ -45,7 +45,7 @@ export function MobileMenu({ isOpen, onClose, pageFlags, isAuthenticated, role }
       ['groups', 'news', 'surveys', 'competition', 'conservation', 'campaign'].includes(i.id)
     ),
     workspace: visibleNav.filter(i =>
-      ['dashboard', 'bookings', 'messages', 'maintenance'].includes(i.id)
+      ['dashboard', 'bookings', 'messages', 'maintenance', 'dashboard-wallet'].includes(i.id)
     ),
     admin: visibleAdmin,
   };

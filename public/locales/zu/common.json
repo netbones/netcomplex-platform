@@ -46,7 +46,8 @@
     "services": "Amasevisi",
     "community": "Umphakathi",
     "messages": "Umlando",
-    "admin": "Admin"
+    "admin": "Admin",
+    "wallet": "i-dWallet yami"
   },
   "admin": {
     "overview": "Dashboard",

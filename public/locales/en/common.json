@@ -46,7 +46,8 @@
     "services": "Services",
     "community": "Community",
     "messages": "Messages",
-    "admin": "Admin"
+    "admin": "Admin",
+    "wallet": "My dWallet"
   },
   "admin": {
     "overview": "Dashboard",

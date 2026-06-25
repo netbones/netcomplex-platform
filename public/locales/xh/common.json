@@ -46,7 +46,8 @@
     "services": "Iinkonzo",
     "community": "Umphakathi",
     "messages": "Imiyalezo",
-    "admin": "Admin"
+    "admin": "Admin",
+    "wallet": "i-dWallet yam"
   },
   "admin": {
     "overview": "Dashboard",

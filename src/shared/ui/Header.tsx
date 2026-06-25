@@ -10,6 +10,7 @@ import { useGateContext } from '@features/gate';
 import { usePageFlags } from '@shared/lib/hooks/usePageFlags';
 import { type PlatformPageFlags } from '@shared/lib';
 import { NAV_REGISTRY, isNavItemVisible } from '@/shared/lib/nav';
+import { Wallet } from 'lucide-react';
 import { MobileMenu } from './MobileMenu';
 
 function TeaserLink({
@@ -217,6 +218,16 @@ function AvatarDropdown({
               {t(item.nameKey)}
             </Link>
           ))}
+          {flags?.dWallet && (
+            <Link
+              href="/dashboard/wallet"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
+            >
+              <Wallet className="w-4 h-4 text-indigo-600" />
+              {t('spaces.wallet')}
+            </Link>
+          )}
           <div className="border-t border-gray-100 my-1" />
           <Link
             href="/settings"
@@ -298,6 +309,7 @@ export function Header() {
         'dashboard-community',
         'dashboard-messages',
         'dashboard-admin',
+        'dashboard-wallet',
         ...headerItems.map(i => i.id),
       ].includes(item.id)
   );

@@ -67,6 +67,12 @@ export const NAV_REGISTRY: NavItem[] = [
     flag: 'messages',
   },
   { id: 'dashboard-admin', nameKey: 'spaces.admin', href: '/admin', permission: 'admin' },
+  {
+    id: 'dashboard-wallet',
+    nameKey: 'spaces.wallet',
+    href: '/dashboard/wallet',
+    flag: 'dWallet',
+  },
 ];
 
 export const ADMIN_NAV_REGISTRY: NavItem[] = [
