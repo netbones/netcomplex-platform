@@ -4,7 +4,6 @@
  * After migration (GREEN), it SHOULD PASS (10 tables found).
  */
 import { describe, it, expect } from 'vitest';
-import { sql } from 'drizzle-orm';
 import pg from 'pg';
 import * as dotenv from 'dotenv';
 

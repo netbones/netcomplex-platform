@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
@@ -55,7 +55,7 @@ export function RegistrationForm({ initialEmail, initialContactName }: Registrat
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ProviderRegistrationInput>({
-    resolver: zodResolver(providerRegistrationSchema),
+    resolver: zodResolver(providerRegistrationSchema) as Resolver<ProviderRegistrationInput>,
     defaultValues: {
       companyName: '',
       contactName: initialContactName,

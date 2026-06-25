@@ -34,7 +34,8 @@ export const GET = withErrorHandler(async (request: Request) => {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id) return apiUnauthorized();
 
-  if (!hasPermission(session.user.role, 'users')) return apiForbidden('Insufficient permissions');
+  if (!hasPermission((session.user as Record<string, unknown>).role as string, 'users'))
+    return apiForbidden('Insufficient permissions');
 
   const { searchParams } = new URL(request.url);
   const status = searchParams.get('status');
@@ -101,7 +102,8 @@ export const POST = withErrorHandler(async (request: Request) => {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id) return apiUnauthorized();
 
-  if (!hasPermission(session.user.role, 'users')) return apiForbidden('Insufficient permissions');
+  if (!hasPermission((session.user as Record<string, unknown>).role as string, 'users'))
+    return apiForbidden('Insufficient permissions');
 
   const rateLimit = await rateLimitByUser(session.user.id, { windowMs: 60_000, maxRequests: 20 });
   if (rateLimit) return rateLimit;

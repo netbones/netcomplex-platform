@@ -265,7 +265,7 @@ export const POST = withErrorHandler(async (request: Request) => {
         userId: user.id,
         title: announcement.title as string,
         message: announcement.content.slice(0, 200),
-        type: `announcement-${announcement.priority}`,
+        type: 'info',
         link: `/news#announcement-${announcement.id}`,
         read: false,
       })) as (typeof notifications.$inferInsert)[]

@@ -424,9 +424,9 @@ export interface ProviderMeritInput {
   meritType: string;
   points: number;
   description?: string;
-  referenceId?: string;
+  referenceId?: string | null;
   evidenceUrl?: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export interface ProviderSubscriptionInput {

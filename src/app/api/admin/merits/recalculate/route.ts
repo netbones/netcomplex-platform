@@ -20,7 +20,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id) return apiUnauthorized();
 
-  if (!hasPermission(session.user.role, 'users')) {
+  if (!hasPermission((session.user as Record<string, unknown>).role as string, 'users')) {
     return apiForbidden('Insufficient permissions');
   }
 

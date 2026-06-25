@@ -25,6 +25,7 @@ const defaultFlags: PlatformPageFlags = {
   dashboard: true,
   bookings: true,
   messages: true,
+  providers: true,
   headerLinks: ['directory', 'groups', 'services', 'resources'],
 };
 

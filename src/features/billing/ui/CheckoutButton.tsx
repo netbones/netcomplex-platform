@@ -12,7 +12,12 @@ interface CheckoutButtonProps {
   onSuccess?: () => void;
 }
 
-export function CheckoutButton({ planId, planName, amount, onSuccess }: CheckoutButtonProps) {
+export function CheckoutButton({
+  planId,
+  planName: _planName,
+  amount,
+  onSuccess,
+}: CheckoutButtonProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

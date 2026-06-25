@@ -73,6 +73,9 @@ export async function getPlatformPageFlagsImpl(tenantId: string): Promise<Platfo
         case SETTINGS_KEYS.PAGE_MESSAGES_ENABLED:
           flags.messages = setting.value === 'true';
           break;
+        case SETTINGS_KEYS.PAGE_PROVIDERS_ENABLED:
+          flags.providers = setting.value === 'true';
+          break;
         case SETTINGS_KEYS.HEADER_LINKS:
           try {
             const parsed = JSON.parse(setting.value);
@@ -208,6 +211,9 @@ export async function getPlatformPageFlagsWithTx(
         case SETTINGS_KEYS.PAGE_MESSAGES_ENABLED:
           flags.messages = setting.value === 'true';
           break;
+        case SETTINGS_KEYS.PAGE_PROVIDERS_ENABLED:
+          flags.providers = setting.value === 'true';
+          break;
         case SETTINGS_KEYS.HEADER_LINKS:
           try {
             const parsed = JSON.parse(setting.value);
@@ -282,6 +288,7 @@ export function mapFlagToSettingKey(key: keyof PlatformPageFlags): string | unde
     surveys: SETTINGS_KEYS.PAGE_SURVEYS_ENABLED,
     competitions: SETTINGS_KEYS.PAGE_COMPETITIONS_ENABLED,
     dashboard: SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED,
+    providers: SETTINGS_KEYS.PAGE_PROVIDERS_ENABLED,
     bookings: SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED,
     messages: SETTINGS_KEYS.PAGE_MESSAGES_ENABLED,
     headerLinks: SETTINGS_KEYS.HEADER_LINKS,

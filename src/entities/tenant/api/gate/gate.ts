@@ -132,7 +132,7 @@ export async function canAccess(
   const moduleKey = FEATURE_TO_MODULE[feature];
   if (moduleKey !== null) {
     const tierLevel = tenantTierToTierLevel(ctx.tier);
-    const requiredTier = MODULES_REQUIRED_TIER[moduleKey];
+    const requiredTier = MODULES_REQUIRED_TIER[moduleKey as ModuleKey];
     if (!tierAtLeast(tierLevel, requiredTier)) {
       logDenial(ctx, feature, 'tier');
       return { allowed: false, reason: 'tier' };

@@ -10,6 +10,7 @@ interface BreadcrumbItem {
 
 interface PageLoadingSkeletonProps {
   breadcrumbs: BreadcrumbItem[];
+  _title?: string;
   title?: string;
   contentHeight?: string;
   className?: string;

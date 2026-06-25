@@ -432,7 +432,10 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
     withTenantId(tenantId, withTenantPrefix(slug, data.providerMerits ?? []))
   );
   for (const m of meritRows) {
-    await db.insert(providerMerits).values(m).onConflictDoNothing();
+    await db
+      .insert(providerMerits)
+      .values(m as typeof providerMerits.$inferInsert)
+      .onConflictDoNothing();
   }
   console.log(`  ✓ ${meritRows.length} provider merits`);
 

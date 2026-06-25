@@ -27,7 +27,7 @@ const patchBodySchema = z.object({
   icon: z.string().optional(),
 });
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const sessionRole = await getSessionAndRole();
     if (!sessionRole || !hasPermission(sessionRole.role, 'admin')) {
@@ -49,7 +49,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return apiError('VALIDATION_ERROR', parsed.error.message, 400);
     }
 
-    const { id: definitionId } = params;
+    const { id: definitionId } = await params;
     const { enabled, customThreshold, icon } = parsed.data;
 
     return runWithRLS(ctx, async tx => {

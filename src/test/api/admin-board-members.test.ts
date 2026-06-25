@@ -90,7 +90,8 @@ describe('GET /api/admin/board-members', () => {
       from: vi.fn(() => ({
         where: vi.fn(() => Promise.resolve(rows)),
       })),
-    }));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    })) as any;
     const res = await GET(new Request('http://localhost:3000'));
     const body = await res.json();
     expect(res.status).toBe(200);

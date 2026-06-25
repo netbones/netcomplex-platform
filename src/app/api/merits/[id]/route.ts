@@ -15,7 +15,7 @@ import {
 import { eq, and, isNull } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
-import { getStandingTier } from '@entities/merit';
+import { getStandingTier, DEFAULT_TIER_THRESHOLDS } from '@entities/merit';
 import { getEffectivePoints, getMeritTierThresholds } from '@/entities/merit/services';
 
 export const maxDuration = 8;
@@ -42,7 +42,8 @@ export const GET = withErrorHandler(
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session?.user?.id) return apiUnauthorized();
 
-    if (!hasPermission(session.user.role, 'users')) return apiForbidden('Insufficient permissions');
+    if (!hasPermission((session.user as Record<string, unknown>).role as string, 'users'))
+      return apiForbidden('Insufficient permissions');
 
     const [row] = await db
       .select()
@@ -71,7 +72,8 @@ export const PATCH = withErrorHandler(
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session?.user?.id) return apiUnauthorized();
 
-    if (!hasPermission(session.user.role, 'users')) return apiForbidden('Insufficient permissions');
+    if (!hasPermission((session.user as Record<string, unknown>).role as string, 'users'))
+      return apiForbidden('Insufficient permissions');
 
     const rateLimit = await rateLimitByUser(session.user.id, { windowMs: 60_000, maxRequests: 20 });
     if (rateLimit) return rateLimit;
@@ -115,7 +117,10 @@ export const PATCH = withErrorHandler(
       const thresholds = await getMeritTierThresholds(tenantId);
       standing = {
         overall: points.overall,
-        tier: getStandingTier(points.overall, thresholds),
+        tier: getStandingTier(
+          points.overall,
+          thresholds as Partial<typeof DEFAULT_TIER_THRESHOLDS>
+        ),
       };
     }
 
@@ -133,7 +138,8 @@ export const DELETE = withErrorHandler(
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session?.user?.id) return apiUnauthorized();
 
-    if (!hasPermission(session.user.role, 'users')) return apiForbidden('Insufficient permissions');
+    if (!hasPermission((session.user as Record<string, unknown>).role as string, 'users'))
+      return apiForbidden('Insufficient permissions');
 
     const rateLimit = await rateLimitByUser(session.user.id, { windowMs: 60_000, maxRequests: 20 });
     if (rateLimit) return rateLimit;

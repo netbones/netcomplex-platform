@@ -8,6 +8,7 @@ import { LanguageSwitcher } from '@shared/ui';
 import { authClient } from '@api/client';
 import { useGateContext } from '@features/gate';
 import { usePageFlags } from '@shared/lib/hooks/usePageFlags';
+import { type PlatformPageFlags } from '@shared/lib';
 import { NAV_REGISTRY, isNavItemVisible } from '@/shared/lib/nav';
 import { MobileMenu } from './MobileMenu';
 
@@ -146,7 +147,7 @@ function AvatarDropdown({
   pathname,
 }: {
   session: NonNullable<ReturnType<typeof authClient.useSession>['data']>;
-  flags: import('@shared/lib/types').PlatformPageFlags;
+  flags: import('@shared/lib').PlatformPageFlags;
   onSignOut: () => void;
   t: (key: string) => string;
   pathname: string;
@@ -363,7 +364,7 @@ export function Header() {
               <div className="hidden md:flex items-center">
                 <AvatarDropdown
                   session={session}
-                  flags={ctx?.flags ?? {}}
+                  flags={ctx?.flags ?? ({} as PlatformPageFlags)}
                   onSignOut={handleSignOut}
                   t={t}
                   pathname={pathname}
@@ -402,7 +403,7 @@ export function Header() {
         <MobileMenu
           isOpen={mobileMenuOpen}
           onClose={() => setMobileMenuOpen(false)}
-          pageFlags={ctx?.flags ?? {}}
+          pageFlags={ctx?.flags ?? null}
           isAuthenticated={!!session}
           role={session?.user?.role as string | null}
         />

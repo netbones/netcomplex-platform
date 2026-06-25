@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
@@ -84,7 +85,7 @@ const MOCK_FLAGS = {
   headerLinks: true,
 };
 
-function makeRequest(method: string, body?: unknown): Request {
+function makeRequest(method: string, body?: unknown): NextRequest {
   const init: RequestInit & { headers: Record<string, string> } = {
     method,
     headers: {
@@ -96,7 +97,10 @@ function makeRequest(method: string, body?: unknown): Request {
   if (body !== undefined) {
     init.body = JSON.stringify(body);
   }
-  return new Request('http://localhost/api/admin/settings/page-flags', init);
+  return new NextRequest('http://localhost/api/admin/settings/page-flags', {
+    ...init,
+    signal: undefined,
+  } as any);
 }
 
 describe('GET /api/admin/settings/page-flags', () => {

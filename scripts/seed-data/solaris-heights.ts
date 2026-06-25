@@ -1821,4 +1821,13 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
   settings: [
     { id: 'slh-setting-ticket-format', key: 'ticket_number_format', value: 'SLH-{YYYY}-{NNNN}' },
   ],
+
+  subscriptionTiers: [],
+  providerReputations: [],
+  providerMerits: [],
+  providerSubscriptions: [],
+  paymentTransactions: [],
+  providerCharges: [],
+  providerInvoices: [],
+  revenueRecords: [],
 };

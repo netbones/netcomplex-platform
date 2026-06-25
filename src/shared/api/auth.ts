@@ -61,11 +61,15 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true, // Require email verification before sign-in
-    customSyntheticUser: {
+    customSyntheticUser: ({ coreFields, additionalFields, id }) => ({
+      ...coreFields,
+      role: 'USER',
       banned: false,
       banReason: null,
       banExpires: null,
-    },
+      ...additionalFields,
+      id,
+    }),
     // DISABLED: emailOTP plugin handles password reset via 6-digit OTP (Phase 45-01, D-07)
     // sendResetPassword: async ({ user, token }) => {
     //   const resetUrl = `${ENV.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;

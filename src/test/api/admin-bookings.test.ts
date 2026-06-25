@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('server-only', () => ({}));
@@ -137,7 +138,7 @@ describe('PUT /api/admin/bookings', () => {
 
   it('returns 403 without session', async () => {
     const res = await PUT(
-      new Request('http://localhost:3000', {
+      new NextRequest('http://localhost:3000', {
         method: 'PUT',
         body: JSON.stringify([]),
       })
@@ -148,7 +149,7 @@ describe('PUT /api/admin/bookings', () => {
   it('returns 403 for non-admin', async () => {
     mocks.sessionRole = { userId: 'u1', role: 'RESIDENT' };
     const res = await PUT(
-      new Request('http://localhost:3000', {
+      new NextRequest('http://localhost:3000', {
         method: 'PUT',
         body: JSON.stringify([]),
       })
@@ -159,7 +160,7 @@ describe('PUT /api/admin/bookings', () => {
   it('returns 400 for non-array body', async () => {
     mocks.sessionRole = { userId: 'u1', role: 'ADMIN' };
     const res = await PUT(
-      new Request('http://localhost:3000', {
+      new NextRequest('http://localhost:3000', {
         method: 'PUT',
         body: JSON.stringify('not-an-array'),
       })
@@ -170,7 +171,7 @@ describe('PUT /api/admin/bookings', () => {
   it('returns 400 for facility missing value', async () => {
     mocks.sessionRole = { userId: 'u1', role: 'ADMIN' };
     const res = await PUT(
-      new Request('http://localhost:3000', {
+      new NextRequest('http://localhost:3000', {
         method: 'PUT',
         body: JSON.stringify([{ label: 'Pool' }]),
       })
@@ -181,7 +182,7 @@ describe('PUT /api/admin/bookings', () => {
   it('returns 400 for facility missing label', async () => {
     mocks.sessionRole = { userId: 'u1', role: 'ADMIN' };
     const res = await PUT(
-      new Request('http://localhost:3000', {
+      new NextRequest('http://localhost:3000', {
         method: 'PUT',
         body: JSON.stringify([{ value: 'pool' }]),
       })
@@ -202,10 +203,11 @@ describe('PUT /api/admin/bookings', () => {
       values: vi.fn(() => ({
         returning: vi.fn(() => Promise.resolve([{ id: 'new-id' }])),
       })),
-    };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
 
     const res = await PUT(
-      new Request('http://localhost:3000', {
+      new NextRequest('http://localhost:3000', {
         method: 'PUT',
         body: JSON.stringify([{ value: 'pool', label: 'Pool' }]),
       })
@@ -224,7 +226,8 @@ describe('PUT /api/admin/bookings', () => {
           limit: vi.fn(() => Promise.resolve([{ id: 'existing-id' }])),
         })),
       })),
-    };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
     mocks.dbUpdateChain = {
       set: vi.fn(() => ({
         where: vi.fn(() => Promise.resolve()),
@@ -232,7 +235,7 @@ describe('PUT /api/admin/bookings', () => {
     };
 
     const res = await PUT(
-      new Request('http://localhost:3000', {
+      new NextRequest('http://localhost:3000', {
         method: 'PUT',
         body: JSON.stringify([{ value: 'pool', label: 'Pool' }]),
       })
@@ -249,7 +252,7 @@ describe('PUT /api/admin/bookings', () => {
       }),
     };
     const res = await PUT(
-      new Request('http://localhost:3000', {
+      new NextRequest('http://localhost:3000', {
         method: 'PUT',
         body: JSON.stringify([{ value: 'pool', label: 'Pool' }]),
       })

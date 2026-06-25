@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('server-only', () => ({}));
@@ -119,9 +120,7 @@ describe('Households API', () => {
   it('returns 401 without auth', async () => {
     mocks.sessionResult = null;
 
-    const response = await GET(
-      new Request('http://localhost:3000/api/households') as unknown as Request
-    );
+    const response = await GET(new NextRequest('http://localhost:3000/api/households'));
 
     expect(response.status).toBe(401);
   });
@@ -129,9 +128,7 @@ describe('Households API', () => {
   it('returns 403 for RESIDENT role', async () => {
     mocks.dbMock.select.mockReturnValue(makeSelectChain([{ role: 'RESIDENT' }]));
 
-    const response = await GET(
-      new Request('http://localhost:3000/api/households') as unknown as Request
-    );
+    const response = await GET(new NextRequest('http://localhost:3000/api/households'));
 
     expect(response.status).toBe(403);
   });
@@ -144,9 +141,7 @@ describe('Households API', () => {
       return makeSelectChain([]);
     });
 
-    const response = await GET(
-      new Request('http://localhost:3000/api/households') as unknown as Request
-    );
+    const response = await GET(new NextRequest('http://localhost:3000/api/households'));
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -180,9 +175,7 @@ describe('Households API', () => {
       return makeSelectChain([]);
     });
 
-    const response = await GET(
-      new Request('http://localhost:3000/api/households') as unknown as Request
-    );
+    const response = await GET(new NextRequest('http://localhost:3000/api/households'));
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -239,9 +232,7 @@ describe('Households API', () => {
       return makeSelectChain([]);
     });
 
-    const response = await GET(
-      new Request('http://localhost:3000/api/households?search=oak') as unknown as Request
-    );
+    const response = await GET(new NextRequest('http://localhost:3000/api/households?search=oak'));
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -290,7 +281,7 @@ describe('Households API', () => {
     });
 
     const response = await GET(
-      new Request('http://localhost:3000/api/households?search=alice') as unknown as Request
+      new NextRequest('http://localhost:3000/api/households?search=alice')
     );
     const body = await response.json();
 
@@ -326,7 +317,7 @@ describe('Households API', () => {
     });
 
     const response = await GET(
-      new Request('http://localhost:3000/api/households?page=2&limit=5') as unknown as Request
+      new NextRequest('http://localhost:3000/api/households?page=2&limit=5')
     );
     const body = await response.json();
 
@@ -347,7 +338,7 @@ describe('Households API', () => {
     });
 
     const response = await GET(
-      new Request('http://localhost:3000/api/households?page=1&limit=999') as unknown as Request
+      new NextRequest('http://localhost:3000/api/households?page=1&limit=999')
     );
     const body = await response.json();
 
@@ -380,9 +371,7 @@ describe('Households API', () => {
       return makeSelectChain([]);
     });
 
-    const response = await GET(
-      new Request('http://localhost:3000/api/households') as unknown as Request
-    );
+    const response = await GET(new NextRequest('http://localhost:3000/api/households'));
     const body = await response.json();
 
     expect(response.status).toBe(200);

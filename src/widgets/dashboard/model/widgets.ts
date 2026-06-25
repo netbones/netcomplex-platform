@@ -32,11 +32,7 @@ import {
   Trophy,
   Shield,
   Sparkles,
-  DollarSign,
-  CreditCard,
   TrendingUp,
-  Percent,
-  Search,
 } from 'lucide-react';
 
 export function registerAllWidgets(registry: { register: (m: WidgetManifest) => void }) {

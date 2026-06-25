@@ -4,8 +4,11 @@ import {
   getProviderRegistrationModeImpl,
   setProviderRegistrationMode,
 } from './provider-registration-mode';
-import { db } from '@api/server';
+import { db as _db } from '@api/server';
 import { SETTINGS_KEYS } from './settings';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const db = _db as any;
 
 vi.mock('@api/server', () => ({
   CACHE_TAGS: { SETTINGS: 'settings' },
@@ -17,7 +20,8 @@ vi.mock('@api/server', () => ({
     set: vi.fn().mockReturnThis(),
     insert: vi.fn().mockReturnThis(),
     values: vi.fn().mockResolvedValue([]),
-  },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any,
   settings: {
     id: 'id',
     tenantId: 'tenantId',
@@ -45,7 +49,8 @@ describe('provider-registration-mode', () => {
   });
 
   it('returns an explicitly configured mode', async () => {
-    vi.mocked(db.where).mockResolvedValueOnce([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (db.where as any).mockResolvedValueOnce([
       { key: SETTINGS_KEYS.PROVIDER_REGISTRATION_MODE, value: 'OPEN' },
     ]);
 
@@ -54,7 +59,8 @@ describe('provider-registration-mode', () => {
   });
 
   it('updates an existing setting when saving the mode', async () => {
-    vi.mocked(db.where).mockResolvedValueOnce([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (db.where as any).mockResolvedValueOnce([
       { id: 'setting-1', key: SETTINGS_KEYS.PROVIDER_REGISTRATION_MODE, value: 'INVITATION_ONLY' },
     ]);
 

@@ -5,14 +5,8 @@ vi.mock('server-only', () => ({}));
 const mocks = vi.hoisted(() => ({
   requireAnyPermissionResult: null as Response | null,
   sessionResult: null as { userId: string; role: string } | null,
-  selectChain: {
-    from: vi.fn(() => ({
-      where: vi.fn(() => Promise.resolve([])),
-      innerJoin: vi.fn(() => ({
-        where: vi.fn(() => Promise.resolve([])),
-      })),
-    })),
-  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  selectChain: {} as any,
   withTenantResult: { tenantId: 'test-tenant-id', tenantSlug: 'test' },
 }));
 

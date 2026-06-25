@@ -6,7 +6,7 @@ shadcn_initialized: true
 preset: default (slate base, CSS variables, rsc, tsx)
 created: 2026-06-25
 revised: 2026-06-25
-revised-reason: Earnings Breakdown fix — replaced misleading percentage-bar chart (which implied proportional slices of a single pool) with rand amount list showing actual per-stream Resident Data Share amounts; added math footnote explaining per-stream Distributable Surplus calculation; applied fix to Surface 1 (widget), Surface 3 Tab 1 (Overview), and Impact tab Revenue Stream Contribution Breakdown; preserved all existing constraints (4 font sizes, 2 weights, 60/30/10 color, compliance notes, Schedule F streams)
+revised-reason: Flippable Earnings Breakdown card — added dual-sided card with bar chart (front: Community Revenue Distribution showing per-stream contribution to total pool) and rand amount list (back: Your Share); flip interaction via click/tap/swipe with localStorage memory; applied to Surface 1 (widget), Surface 3 Tab 1 (Overview), and Surface 3 Tab 3 (Impact); bar chart uses actual rand amounts for proportional width, percentages sum to 100%; preserved all existing constraints (4 font sizes, 2 weights, 60/30/10 color split, compliance notes, Schedule F streams, admin constraints, 5 tabs)
 ---
 
 # Phase 47 — UI Design Contract
@@ -199,16 +199,20 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 │                                      │
   │  Where Your Value Comes From         │
   │  ┌──────────────────────────────────┐│
-  │  │ Survey Participation       R8.20 ││  ← stream name + rand amount earned this period
-  │  │ Marketplace Activity       R3.50 ││     (actual Resident Data Share distribution)
-  │  │ Agent Transactions         R5.00 ││
-  │  │ Value-Added Services       R2.10 ││
-  │  │ Service Provider Listings    —   ││  ← "—" = no revenue from this stream this period
-  │  │ Premium Placements           —   ││
-  │  │ Agent Registrations        R1.20 ││
-  │  │ Agent Premium Listings       —   ││
+  │  │ ↻ Community Revenue This Month   ││  ← flippable card header with flip control
+  │  │                                  ││
+  │  │ Survey Participation  ██████ 41% ││  ← bar chart (front side default for widget)
+  │  │ Agent Transactions    ████   25% ││     bar width = stream's % of total pool
+  │  │ Marketplace Activity  ███    17% ││
+  │  │ Value-Added Services  ██     11% ││
+  │  │ Agent Registrations   █       6% ││
+  │  │ Service Provider List  —     0% ││  ← dashed empty bar for zero-revenue
+  │  │ Premium Placements     —     0% ││
+  │  │ Agent Premium List     —     0% ││
   │  │ ──────────────────────────────── ││
-  │  │ Total Resident Data Share R20.00 ││  ← sum of above (text-indigo-600, font-semibold)
+  │  │ Total Resident Share Pool R20,000││  ← pool total (front side summary)
+  │  │                                  ││
+  │  │ Tap card to see your share →     ││  ← hint to flip to back side
   │  └──────────────────────────────────┘│
 │                                      │
   │  Community Impact                    │
@@ -235,20 +239,81 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 └──────────────────────────────────────┘
 ```
 
-**Earnings Breakdown card ("Where Your Value Comes From"):**
+**Earnings Breakdown card (flippable — "Where Your Value Comes From" / "Your Share"):**
 
-All eight revenue streams from Schedule F Table 2, each shown as a simple list row with the actual rand amount earned in the current period. No percentage bar chart — percentages apply to different base amounts (each stream's own Distributable Surplus) and cannot be rendered as proportional slices of a single bar.
+The Earnings Breakdown card is a dual-sided, flippable card with two complementary views of the same data. Both sides share the same card boundary — no layout shift on flip.
 
-Each row:
+**Default side (widget):** Front (Community Revenue Distribution) — the community-level summary provides at-a-glance context for the widget.
 
-- **Stream name:** readable full label (e.g., "Survey Participation", not "Survey")
+**Default side (full page Overview tab):** Back (Your Share) — the personal view is the primary deep-dive content for the full page.
+
+**Card header (both sides):**
+
+- Title matches current side: "Community Revenue This Month" (front) / "Your Share This Period" (back)
+- `[↻ flip]` control: subtle icon/text button in the card header, right-aligned, using `text-sm text-slate-400 hover:text-indigo-600` transition. Uses lucide `RefreshCw` icon at 14px.
+
+**─── FRONT SIDE: Community Revenue Distribution (bar chart) ───**
+
+Shows a horizontal bar chart where each bar's width represents that stream's contribution to the TOTAL Resident Data Share pool this period. Percentages are computed from actual rand amounts: `(stream's resident share amount ÷ total pool) × 100`. These DO sum to 100% for streams with revenue.
+
+```
+┌──────────────────────────────────────────────┐
+│  Community Revenue This Month      [↻ flip]  │
+│                                              │
+│  Survey Participation    ████████████    41% │
+│  Agent Transactions      ████████        25% │
+│  Marketplace Activity    ██████          17% │
+│  Value-Added Services    ████            11% │
+│  Agent Registrations     ██               6% │
+│  Service Provider List   —                0% │
+│  Premium Placements      —                0% │
+│  Agent Premium List      —                0% │
+│                                              │
+│  Total Resident Data Share Pool  R20,000     │
+└──────────────────────────────────────────────┘
+```
+
+Bar chart specifications:
+
+- **Bar fill:** `bg-indigo-600` for streams with revenue > 0
+- **Zero-revenue streams:** dashed empty bar segment using `border border-dashed border-slate-200`, label shows "— 0%" in `text-slate-300`
+- **Bar height:** 20px (h-5) with `rounded-r-sm` right edge
+- **Bar width:** proportional to percentage contribution, computed client-side from actual rand amounts
+- **Percentage label:** right-aligned, `text-sm text-slate-600 font-medium` for non-zero, `text-slate-300` for zero
+- **Stream name:** left side of row, `text-sm text-slate-700`
+- **Total row:** divider (`border-t border-slate-200`) + "Total Resident Data Share Pool" label in `text-sm font-semibold` + rand amount in `text-indigo-600 font-semibold`
+- **Row ordering:** same Schedule F Table 2 order as below
+- **Math footnote below chart in `text-xs text-slate-400`:** "\* Percentages based on actual Resident Data Share rand amounts this period. Each bar shows that stream's contribution to the total pool distributed to residents."
+
+**─── BACK SIDE: Your Share (rand amounts, current format) ───**
+
+The existing rand-amount list with the per-stream Resident Data Share footnote. Kept as-is from the previous revision.
+
+```
+┌──────────────────────────────────────────────┐
+│  Your Share This Period            [↻ flip]  │
+│                                              │
+│  Survey Participation               R8.20    │
+│  Marketplace Activity               R3.50    │
+│  Agent Transactions                 R5.00    │
+│  Value-Added Services               R2.10    │
+│  Service Provider Listings          R0.00 —  │
+│  Premium Placements                 R0.00 —  │
+│  Agent Registrations                R1.20    │
+│  Agent Premium Listings             R0.00 —  │
+│  ──────────────────────────────────────────  │
+│  Total Your Share                  R20.00    │
+└──────────────────────────────────────────────┘
+```
+
+Back side specifications:
+
+- **Stream name:** readable full label, `text-sm text-slate-700`
 - **Rand amount:** right-aligned in `text-indigo-600` for non-zero amounts, `text-slate-300` with "—" for zero-revenue streams
-- **Resident Share % footnote:** small muted text below each active stream — e.g., `(20% of this stream's distributable surplus)` in `text-xs text-slate-400`
-- **Total row:** divider line + "Total Resident Data Share this period" label + sum rand amount in `text-indigo-600 font-semibold`
+- **Total row:** divider line + "Total Your Share" label + sum rand amount in `text-indigo-600 font-semibold`
+- **Math footnote below list in `text-xs text-slate-400`:** "\* Each stream's Resident Data Share = (that stream's Distributable Surplus × Resident Share %) ÷ active participants. Percentages apply to different base amounts — they are not proportions of a single pool. Your per-stream amount varies each distribution period based on actual revenue generated."
 
-Visual weight comes from rand amounts being right-aligned and using the community-forward indigo-600 color for non-zero amounts. Streams with no revenue show muted text and no amount.
-
-Row ordering (Schedule F Table 2):
+**─── SHARED: Row ordering (both sides follow Schedule F Table 2) ───**
 
 1. Survey Participation — 20% Resident Data Share
 2. Marketplace Activity — 20% Resident Data Share
@@ -259,9 +324,15 @@ Row ordering (Schedule F Table 2):
 7. Agent Registrations — 10% Resident Data Share
 8. Agent Premium Listings — 10% Resident Data Share
 
-**Math footnote (displayed below the list in `text-xs text-slate-400`):**
+**─── SHARED: Flip interaction ───**
 
-> \* Each stream's Resident Data Share = (that stream's Distributable Surplus × Resident Share %) ÷ active participants. Percentages apply to different base amounts — they are not proportions of a single pool. Your per-stream amount varies each distribution period based on actual revenue generated.
+- Click `[↻ flip]` button or tap the card body to toggle between sides
+- CSS 3D transform: `transform-style: preserve-3d` with `rotateY(180deg)` transition, duration 400ms, easing `ease-in-out`
+- Front side: `backface-visibility: hidden` on front face element; back side: `backface-visibility: hidden; transform: rotateY(180deg)` on back face element. Flipping the parent container rotates both simultaneously.
+- On mobile (≤768px), swipe gesture also triggers flip: horizontal swipe with velocity > 0.3px/ms or distance > 80px
+- **localStorage persistence:** key `dwallet-earnings-side` stores `"front"` or `"back"`. Read on mount; write on flip. Widget and full page share the same key — last-viewed side is consistent across surfaces.
+- Both sides share identical card dimensions — no layout shift during flip
+- Card wrapper uses `perspective: 1000px` for natural 3D depth
 
 **Community Impact card:**
 
@@ -369,12 +440,14 @@ Metrics derivable from the actual financial model (Schedule F & G). No invented/
 - Available Value display (28px semibold, indigo-600 icon/currency)
 - Pending Distribution (16px, slate-600) with "Est. next distribution: [date]" in `text-sm text-slate-400`
 - Lifetime stats: Value Earned, Value Withdrawn, wallet status badge
-- "Where Your Value Comes From" earnings breakdown card (same as widget — rand amount list, see Surface 1 for full spec):
-  - All 8 Schedule F streams shown as a simple list with actual rand amounts, not a percentage bar chart
-  - Each row: stream name (full readable label) + rand amount right-aligned in `text-indigo-600` (or "—" in `text-slate-300` for no revenue)
+- "Where Your Value Comes From" earnings breakdown card (same flippable dual-sided card as Surface 1 — see full spec above):
+  - **Default side on full page: Back (Your Share)** — personal rand amounts are the primary deep-dive content on the Overview tab
+  - **Front side (Community Revenue Distribution):** bar chart showing each stream's contribution to total pool with proportional widths and percentages summing to 100%
+  - **Back side (Your Share):** all 8 Schedule F streams shown as a simple list with actual rand amounts right-aligned in `text-indigo-600` (or "—" in `text-slate-300` for no revenue)
   - Resident Share % as small muted footnote: "(20% of this stream's distributable surplus)" in `text-xs text-slate-400`
-  - Total row with divider and "Total Resident Data Share this period" sum
+  - Total row with divider and "Total Your Share" sum
   - Math footnote: "Each stream's Resident Data Share = (that stream's Distributable Surplus × Resident Share %) ÷ active participants. Percentages apply to different base amounts — they are not proportions of a single pool. Your per-stream amount varies each distribution period based on actual revenue generated."
+  - Flip interaction: click `[↻ flip]` or tap card to toggle; mobile swipe gesture supported; localStorage remembers last-viewed side (key: `dwallet-earnings-side`)
 - Community Impact card (same as widget):
   - Active Revenue Streams | Participating Residents (count of wallets with status ACTIVE)
   - Total Resident Share Pool | Your Estimated Share (pool ÷ active participants, pro-rata per Schedule G G3)
@@ -426,13 +499,15 @@ All metrics are derivable from the actual dWallet financial model (Schedule F & 
   - "Unclaimed Transfers" explicitly notes "from expired rewards" so residents understand why individual unclaimed money flows here.
   - Empty state: "No Community Benefit Fund activity yet. The fund grows as unclaimed rewards and community revenue accumulate."
 
-- **Revenue Stream Contribution Breakdown** (rand amount list, same format as Earnings Breakdown card in Surface 1):
-  - Each stream shown as a simple list row: full stream name + actual rand amount right-aligned in `text-indigo-600`
+- **Revenue Stream Contribution Breakdown** (flippable dual-sided card, same design as Earnings Breakdown in Surface 1 — see full flippable card spec above):
+  - **Default side on Impact tab: Front (Community Revenue Distribution)** — community context is the primary view for impact assessment
+  - **Front side:** horizontal bar chart with proportional-width bars showing each stream's contribution to total pool, percentages computed from actual rand amounts (sum to 100%)
+  - **Back side:** rand amount list — each stream shown as a simple list row: full stream name + actual rand amount right-aligned in `text-indigo-600`
   - Streams with no revenue show "—" in muted `text-slate-300`
   - Resident Share % as small muted footnote below each active stream: "(20% of this stream's distributable surplus)" in `text-xs text-slate-400`
   - Total row at bottom with divider: "Total Resident Share Pool R[derived]"
-  - Math footnote displayed below the list (same as in Surface 1 Earnings Breakdown card)
-  - No percentage bar chart — percentages apply to different base amounts and cannot be rendered as proportional slices
+  - Math footnote displayed below the list (same as in Surface 1)
+  - Flip interaction: click `[↻ flip]` or tap card; mobile swipe gesture; localStorage key `dwallet-earnings-side` shared with widget and Overview
 - Empty state: "No impact data yet — community impact metrics will appear once your data sharing generates community-wide contributions."
 - Data sources: `GET /api/v1/tenant/dwallet/impact` (aggregate community stats), `GET /api/admin/dwallet/stats` (for admin aggregate view)
 
@@ -580,12 +655,89 @@ registry.register({
 
 ## Interaction Patterns
 
+### Flip Interaction (Earnings Breakdown Card)
+
+```
+┌──────────────────────────────────────────┐
+│  Community Revenue This Month  [↻ flip]  │  ← card header with flip control
+│                                          │
+│  Survey Participation  ████████████  41% │  ← front face (bar chart)
+│  Agent Transactions    ████████      25% │
+│  Marketplace Activity  ██████        17% │
+│  ...                                     │
+│                                          │
+│  Total Resident Data Share Pool  R20,000 │
+└──────────────────────────────────────────┘
+                  ↻ flip (rotateY 180deg, 400ms ease-in-out)
+┌──────────────────────────────────────────┐
+│  Your Share This Period        [↻ flip]  │  ← card header with flip control
+│                                          │
+│  Survey Participation            R8.20   │  ← back face (rand amounts)
+│  Marketplace Activity            R3.50   │
+│  ...                                     │
+│                                          │
+│  Total Your Share               R20.00   │
+└──────────────────────────────────────────┘
+```
+
+**CSS implementation:**
+
+- Card wrapper: `perspective: 1000px` for natural 3D depth
+- Card inner: `transform-style: preserve-3d; transition: transform 400ms ease-in-out`
+- Front face: `backface-visibility: hidden`
+- Back face: `backface-visibility: hidden; transform: rotateY(180deg)` (pre-rotated so it's hidden until the parent flips)
+- Flipped state class (toggle on parent): `transform: rotateY(180deg)`
+- Both faces share identical `width` and `min-height` — no layout shift
+
+**Interaction triggers:**
+
+1. **Click `[↻ flip]` button:** Toggles `flipped` state on card wrapper. Uses `aria-label="Flip card to {opposite side}"` updated dynamically.
+2. **Tap card body (anywhere except interactive children):** Also toggles flip. Card body has `cursor: pointer` and a subtle hover border highlight (`border-slate-300 → border-indigo-200` transition).
+3. **Mobile swipe gesture (≤768px):** Detect horizontal swipe via `touchstart`/`touchend` delta. Flip if:
+   - Swipe distance > 80px in either horizontal direction, OR
+   - Swipe velocity > 0.3px/ms (distance/time)
+   - Vertical scroll takes priority — if |deltaY| > |deltaX|, treat as scroll, not flip.
+4. **Enter/Space keys** on the card body (when focused) also toggle flip.
+
+**localStorage persistence:**
+
+```typescript
+// Key shared across widget and full page
+const STORAGE_KEY = 'dwallet-earnings-side';
+
+// Read on mount
+const stored = localStorage.getItem(STORAGE_KEY);
+const initialSide = stored === 'back' ? 'back' : 'front'; // default: front
+
+// Write on flip
+localStorage.setItem(STORAGE_KEY, flipped ? 'back' : 'front');
+```
+
+**Default side per surface:**
+
+| Surface                              | Default Side | Rationale                                           |
+| ------------------------------------ | ------------ | --------------------------------------------------- |
+| Widget (Surface 1)                   | Front        | Community context at-a-glance                       |
+| Full page Overview (Surface 3 Tab 1) | Back         | Personal deep-dive is primary content for full page |
+| Full page Impact (Surface 3 Tab 3)   | Front        | Community context is primary for impact assessment  |
+
+If `localStorage` has a stored value, it overrides the surface default — the user's last preference wins.
+
+**Accessibility:**
+
+- `[↻ flip]` button is keyboard-focusable with visible focus ring (`focus-visible:ring-2 focus-visible:ring-indigo-500`)
+- `aria-label` on flip button: "View community distribution" (front) / "View your share" (back)
+- Card body click-to-flip has `role="button" tabindex="0"` and responds to Enter/Space keys
+- `aria-live="polite"` announcement container within card: text updates to "{Community Revenue Distribution / Your Share} view shown" on side change
+- Both sides use the same heading hierarchy (h3 in widget, h2 in full page)
+- Respects `prefers-reduced-motion`: when set, disable rotateY transition (instant swap)
+
 ### Consent Toggle
 
 ```
 [Stream Label]           ~R8.20/mo  ──────────●──────────  ON  ← accent bg on track
 [Stream Label]           ~R5.00/mo  ○────────────────────  OFF ← slate-200 track, muted label
-                                                                   (shows "paused" if previously granted)
+                                                                    (shows "paused" if previously granted)
 ```
 
 - Estimated monthly value displayed inline next to stream label (`text-sm text-slate-400`)
@@ -669,14 +821,14 @@ dWallet is a Value Ledger, not a single-purpose rewards tracker. Resident Data S
 Sources (credits): Resident Data Share (Phase 47) → Community Merits (Phase 45) → Referral Rewards → Volunteer Credits → AI Credits (Phase 104)
 Sinks (debits): Payouts (Phase 47) → Donations → Marketplace Spending → Fee Payments
 
-The UI contract accommodates this evolution. The Earnings Breakdown list and Impact tab expand vertically for new value sources (new rows in the list, not new bar segments). The `WalletTransaction.sourceType` field (TransactionSource enum in `DWALLET_SPEC.md`) already distinguishes between sources — only `RESIDENT_DATA_SHARE` is active in Phase 47.
+The UI contract accommodates this evolution. Both sides of the flippable card expand vertically for new value sources: the front bar chart gains new bars and the back rand-amount list gains new rows. The `WalletTransaction.sourceType` field (TransactionSource enum in `DWALLET_SPEC.md`) already distinguishes between sources — only `RESIDENT_DATA_SHARE` is active in Phase 47.
 
 ---
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PENDING — community language sweep applied ("Community Value", "Value Earned", "Activity"); Earnings Breakdown replaced percentage-bar chart with rand amount list (percentages cannot be proportional slices — each stream has its own Distributable Surplus base); math footnote added explaining per-stream calculation; Community Impact uses derivable model-based metrics; contractual compliance notes added (R50 minimum, 12-month CBF, pro-rata); "Resident Data Share" replaces "Data Rewards" for contractual accuracy; awaiting re-check
-- [ ] Dimension 2 Visuals: PENDING — Surface 1 Earnings Breakdown redesigned with rand amount list (no bar chart); Surface 3 Tab 1 Overview updated to match list format; Impact tab Revenue Stream Contribution Breakdown replaced bar chart with list format; Community Impact card preserved; consent toggles preserved; awaiting re-check
+- [ ] Dimension 1 Copywriting: PENDING — community language sweep applied ("Community Value", "Value Earned", "Activity"); flippable Earnings Breakdown card added with front side bar chart ("Community Revenue Distribution" — per-stream contribution to total pool with percentages summing to 100%) and back side rand amount list ("Your Share"); flip control label "↻ flip" with aria-labels on both sides; math footnotes on both sides explaining calculation basis; Community Impact uses derivable model-based metrics; contractual compliance notes added (R50 minimum, 12-month CBF, pro-rata); "Resident Data Share" replaces "Data Rewards" for contractual accuracy; awaiting re-check
+- [ ] Dimension 2 Visuals: PENDING — Surface 1 Earnings Breakdown redesigned as flippable dual-sided card (front: horizontal bar chart with indigo-600 bars and proportional widths; back: rand amount list); Surface 3 Tab 1 Overview defaults to back side (Your Share); Surface 3 Tab 3 Impact defaults to front side (Community Revenue Distribution); flip interaction via click/tap/swipe with 400ms rotateY CSS transition; both sides share identical card dimensions (no layout shift); Community Impact card preserved; consent toggles preserved; awaiting re-check
 - [ ] Dimension 3 Color: PASS (unchanged — semantic colors removed green/gold/banking aesthetics; indigo-600/slate-600/slate-400 preserved)
 - [ ] Dimension 4 Typography: PASS (unchanged — 4 sizes, 2 weights preserved)
 - [ ] Dimension 5 Spacing: PASS (unchanged — all multiples of 4 preserved)

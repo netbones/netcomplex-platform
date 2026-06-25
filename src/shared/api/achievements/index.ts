@@ -1,3 +1,3 @@
 export { processAchievementEvent } from './service';
-export { seedAchievementDefinitions } from './seed';
+export { seedAchievementDefinitions } from './defaults';
 import './listener';

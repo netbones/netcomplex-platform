@@ -37,6 +37,7 @@ function makeFlags(overrides: Partial<PlatformPageFlags> = {}): PlatformPageFlag
     dashboard: true,
     bookings: true,
     messages: true,
+    providers: true,
     headerLinks: ['directory', 'groups', 'services', 'resources'],
     ...overrides,
   };

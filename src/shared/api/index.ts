@@ -5,4 +5,14 @@ export * from './client';
 export * from './shared';
 export * from './provider-platform';
 export * from './provider-onboarding';
-export * from './provider-billing';
+export {
+  type ProviderBillingActionError,
+  type ProviderBillingActionSuccess,
+  type ProviderBillingActionResult,
+  getProviderBillingSnapshot,
+  createProviderSubscriptionCheckout,
+  cancelProviderSubscription,
+  cancelProviderSubscriptionById,
+  updateProviderSubscriptionStatus,
+  refundProviderTransaction,
+} from './provider-billing';

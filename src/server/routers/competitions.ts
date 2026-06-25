@@ -703,17 +703,19 @@ export const competitionRouter = router({
         .returning();
 
       // Create notification for the winner
-      await db.insert(notifications).values({
-        id: crypto.randomUUID(),
-        tenantId,
-        userId: updated.userId,
-        title: `You won ${comp.title}!`,
-        message: `Congratulations! You won ${comp.title}.`,
-        type: 'competition-winner',
-        link: `/competition/${comp.id}`,
-        read: false,
-        createdAt: nowDate,
-      });
+      await db.insert(notifications).values([
+        {
+          id: crypto.randomUUID(),
+          tenantId,
+          userId: updated.userId,
+          title: `You won ${comp.title}!`,
+          message: `Congratulations! You won ${comp.title}.`,
+          type: 'info',
+          link: `/competition/${comp.id}`,
+          read: false,
+          createdAt: nowDate,
+        },
+      ] as (typeof notifications.$inferInsert)[]);
 
       const [user] = await db
         .select({ name: users.name, avatar: users.avatar })
@@ -797,7 +799,7 @@ export const competitionRouter = router({
             userId: entry.userId,
             title: `You won ${comp.title}!`,
             message: `Congratulations! You won ${comp.title}.`,
-            type: 'competition-winner' as const,
+            type: 'info' as const,
             link: `/competition/${comp.id}`,
             read: false,
             createdAt: nowDate,
