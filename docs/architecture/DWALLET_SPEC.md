@@ -84,6 +84,7 @@ model WalletTransaction {
   referenceType   String?             // "data_share_batch" | "payout" | "rollover" | "adjustment"
   balanceBefore   Decimal             @db.Decimal(12, 2)
   balanceAfter    Decimal             @db.Decimal(12, 2)
+  sourceType      TransactionSource   @default(RESIDENT_DATA_SHARE)  // Value Ledger: distinguishes between future value sources (Phase 45 Merits, Phase 104 AI, etc.)
   createdAt       DateTime            @default(now())
 
   wallet          DWallet             @relation(fields: [walletId], references: [id], onDelete: Cascade)
@@ -197,6 +198,19 @@ enum TransactionType {
   DEBIT         // payout disbursed
   ROLLOVER      // unclaimed balance moved to Community Benefit Fund
   ADJUSTMENT    // admin correction with audit note
+}
+
+// Value Ledger: distinguishes between future value sources.
+// Only RESIDENT_DATA_SHARE is active in Phase 47 — other enum values
+// are forward-compatible slots for Phase 45 (Merits), Phase 104 (AI Billing),
+// and future marketplace/referral/volunteer credits.
+enum TransactionSource {
+  RESIDENT_DATA_SHARE
+  COMMUNITY_MERITS
+  REFERRAL_REWARD
+  VOLUNTEER_CREDIT
+  AI_CREDIT
+  MARKETPLACE_CREDIT
 }
 
 enum PayoutStatus {
@@ -470,7 +484,7 @@ Follow this sequence. Do not skip phases. Each plan should be a GSD phase.
 
 **Goal:** All DB models exist and are migrated.
 
-1. Add the 8 new models (`DWallet`, `WalletTransaction`, `DataConsent`, `PayoutRequest`, `DataRevenueStream`, `DataShareBatch`, and 4 new enums) to `prisma/schema.prisma` exactly as specified in Section 2.1 above.
+1. Add the 6 new models (`DWallet`, `WalletTransaction`, `DataConsent`, `PayoutRequest`, `DataRevenueStream`, `DataShareBatch`, and 5 new enums) to `prisma/schema.prisma` exactly as specified in Section 2.1 above.
 2. Add the reverse relation `dWallet DWallet?` to the `user` model.
 3. Run `npx prisma migrate dev --name add_dwallet_module` to generate the migration.
 4. Run `npx prisma generate` to regenerate the Drizzle schema (the generator picks it up automatically).
