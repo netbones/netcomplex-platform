@@ -164,7 +164,7 @@ export type {
   TenantBillingActionError,
   TenantBillingActionSuccess,
   TenantBillingActionResult,
-} from './tenant-billing';
+} from '../tenant-billing';
 export {
   createTenantSubscriptionCheckout,
   cancelTenantSubscription,
@@ -176,7 +176,7 @@ export {
   syncTierToTenant,
   recordBillingEvent,
   getOrCreateDefaultBillingPlans,
-} from './tenant-billing';
+} from '../tenant-billing';
 
 // AI Provider — platform pool
 export {
