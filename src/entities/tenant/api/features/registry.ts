@@ -50,6 +50,14 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
     description: 'Resident directory with search and profiles',
     icon: 'users',
   },
+  'page.dWallet': {
+    key: 'page.dWallet',
+    tier: 'depth',
+    category: 'page',
+    label: 'Data Wallet',
+    description: 'Per-resident data rights, consent, and revenue-share rewards wallet',
+    icon: 'wallet',
+  },
   'page.news': {
     key: 'page.news',
     tier: 'foundation',
@@ -325,6 +333,14 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
     description: 'Announcements and news',
     page: 'news',
   },
+  'dwallet-summary': {
+    key: 'dwallet-summary',
+    tier: 'depth',
+    category: 'community',
+    label: 'My dWallet',
+    description: 'Community value, consent status, and impact at a glance',
+    page: 'dWallet',
+  },
   'maintenance-widget': {
     key: 'maintenance-widget',
     tier: 'foundation',
@@ -376,6 +392,14 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
     label: 'Analytics',
     description: 'Advanced analytics',
     page: 'analytics',
+  },
+  'dwallet-admin': {
+    key: 'dwallet-admin',
+    tier: 'depth',
+    category: 'admin',
+    label: 'dWallet Admin',
+    description: 'Community value distribution, payout management, and compliance overview',
+    page: 'admin',
   },
   'stats-widget': {
     key: 'stats-widget',
