@@ -6,7 +6,7 @@ shadcn_initialized: true
 preset: default (slate base, CSS variables, rsc, tsx)
 created: 2026-06-25
 revised: 2026-06-25
-revised-reason: Flippable Earnings Breakdown card — added dual-sided card with bar chart (front: Community Revenue Distribution showing per-stream contribution to total pool) and rand amount list (back: Your Share); flip interaction via click/tap/swipe with localStorage memory; applied to Surface 1 (widget), Surface 3 Tab 1 (Overview), and Surface 3 Tab 3 (Impact); bar chart uses actual rand amounts for proportional width, percentages sum to 100%; preserved all existing constraints (4 font sizes, 2 weights, 60/30/10 color split, compliance notes, Schedule F streams, admin constraints, 5 tabs)
+revised-reason: Flippable Earnings Breakdown card (bar chart + rand amount list, localStorage flip memory, applied to 3 surfaces). Consent stream names corrected to match actual 8 Schedule F revenue streams: speculative names (Anonymised Analytics→Survey Participation, Community Insights→Marketplace Activity, Market Research→Agent Transactions, Community Benchmarks→Value-Added Services, Service Matching→Service Provider Listings) replaced; 3 missing streams added (Premium Placements, Agent Registrations, Agent Premium Listings); hardcoded R values replaced with ~R[varies]/mo across consent sections (Surface 1 widget, Tab 4 Consents panel, interaction diagrams, admin batch list).
 ---
 
 # Phase 47 — UI Design Contract
@@ -128,13 +128,16 @@ These colors avoid banking/fintech aesthetics (no green for gains, no red for lo
 
 Each consent toggle in the Consents tab displays an estimated monthly reward:
 
-| Stream               | Label                |
-| -------------------- | -------------------- |
-| Anonymised Analytics | "~R8.20/mo"          |
-| Community Insights   | "~R3.50/mo"          |
-| Market Research      | "~R5.00/mo (paused)" |
-| Community Benchmarks | "~R2.80/mo"          |
-| Service Matching     | "~R3.40/mo"          |
+| Stream                    | Label           |
+| ------------------------- | --------------- |
+| Survey Participation      | "~R[varies]/mo" |
+| Marketplace Activity      | "~R[varies]/mo" |
+| Agent Transactions        | "~R[varies]/mo" |
+| Value-Added Services      | "~R[varies]/mo" |
+| Service Provider Listings | "~R[varies]/mo" |
+| Premium Placements        | "~R[varies]/mo" |
+| Agent Registrations       | "~R[varies]/mo" |
+| Agent Premium Listings    | "~R[varies]/mo" |
 
 Values appear inline next to each toggle as muted `text-sm text-slate-400`. A footnote reads: "Estimated values based on current community participation. Actual rewards vary per distribution cycle."
 
@@ -225,11 +228,14 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 │                                      │
 │  Consent Status                      │
 │  ┌──────────────────────────────────┐│
-│  │ Anonymised Analytics   [ON]  ~R8.20/mo││  ← ConsentToggle rows with estimated value
-│  │ Community Insights     [ON]  ~R3.50/mo││      ON = accent bg (indigo-600)
-│  │ Market Research       [OFF]  ~R5.00/mo││      OFF = slate-200 bg, muted label
-│  │ Community Benchmarks   [ON]  ~R2.80/mo││
-│  │ Service Matching       [ON]  ~R3.40/mo││
+│  │ Survey Participation     [ON]  ~R[varies]/mo││  ← Consent toggle rows — all 8 Schedule F streams
+│  │ Marketplace Activity     [ON]  ~R[varies]/mo││      ON = accent bg (indigo-600)
+│  │ Agent Transactions      [OFF]  ~R[varies]/mo││      OFF = slate-200 bg, muted label
+│  │ Value-Added Services     [ON]  ~R[varies]/mo││      (paused) shown if previously granted
+│  │ Service Provider List.   [ON]  ~R[varies]/mo││
+│  │ Premium Placements       [ON]  ~R[varies]/mo││
+│  │ Agent Registrations      [ON]  ~R[varies]/mo││
+│  │ Agent Premium List.     [OFF]  ~R[varies]/mo││
 │  └──────────────────────────────────┘│
 │                                      │
 │  *Estimated values vary per cycle    │
@@ -389,8 +395,8 @@ Metrics derivable from the actual financial model (Schedule F & G). No invented/
 │                                              │
 │  Recent Batches                              │
 │  ┌──────────────────────────────────────────┐│
-│  │ Anonymised Analytics  │ 15 Jun  │ ✓     ││  ← Batch list
-│  │ Market Research       │ 01 Jun  │ ✓     ││
+│  │ Survey Participation  │ 15 Jun  │ ✓     ││  ← Batch list
+│  │ Agent Transactions    │ 01 Jun  │ ✓     ││
 │  └──────────────────────────────────────────┘│
 └──────────────────────────────────────────────┘
 ```
@@ -518,25 +524,37 @@ All metrics are derivable from the actual dWallet financial model (Schedule F & 
 - Estimated value display per stream:
   ```
   ┌──────────────────────────────────────────────────────────┐
-  │ Anonymised Analytics                        [ON] ~R8.20  │
-  │ Your anonymised usage data helps improve services         │
+  │ Survey Participation                       [ON] ~R[varies]/mo│
+  │ Your anonymised survey responses help improve community services│
   │ Granted 15 Jun 2026                                       │
   │                                                          │
-  │ Community Insights                          [ON] ~R3.50  │
-  │ Aggregated community trends and patterns                  │
+  │ Marketplace Activity                       [ON] ~R[varies]/mo│
+  │ Your marketplace engagement helps fund community initiatives│
   │ Granted 15 Jun 2026                                       │
   │                                                          │
-  │ Market Research                            [OFF] ~R5.00  │
-  │ Third-party research with privacy safeguards              │
-  │ Last revoked 01 Apr 2026                   (paused)      │
+  │ Agent Transactions                        [OFF] ~R[varies]/mo│
+  │ Agent-assisted transactions contribute to shared community revenue│
+  │ Revoked 01 Apr 2026                        (paused)      │
   │                                                          │
-  │ Community Benchmarks                        [ON] ~R2.80  │
-  │ Performance comparisons across communities                │
+  │ Value-Added Services                      [ON] ~R[varies]/mo│
+  │ Your use of community features supports shared infrastructure│
   │ Granted 15 Jun 2026                                       │
   │                                                          │
-  │ Service Matching                            [ON] ~R3.40  │
-  │ Connect you with relevant community services              │
+  │ Service Provider Listings                 [ON] ~R[varies]/mo│
+  │ Your engagement with providers connects you with relevant services│
   │ Granted 10 Jun 2026                                       │
+  │                                                          │
+  │ Premium Placements                         [ON] ~R[varies]/mo│
+  │ Prioritised service visibility helps fund the community platform│
+  │ Granted 15 Jun 2026                                       │
+  │                                                          │
+  │ Agent Registrations                       [ON] ~R[varies]/mo│
+  │ Community agent network generates platform revenue for residents│
+  │ Granted 01 Jun 2026                                       │
+  │                                                          │
+  │ Agent Premium Listings                   [OFF] ~R[varies]/mo│
+  │ Featured agent profiles contribute to community service funding│
+  │ No consent granted                                        │
   └──────────────────────────────────────────────────────────┘
   ```
 - Estimated values in `text-sm text-slate-400`. Footnote: "Estimated values based on current community participation. Actual rewards vary per distribution cycle."
@@ -735,9 +753,9 @@ If `localStorage` has a stored value, it overrides the surface default — the u
 ### Consent Toggle
 
 ```
-[Stream Label]           ~R8.20/mo  ──────────●──────────  ON  ← accent bg on track
-[Stream Label]           ~R5.00/mo  ○────────────────────  OFF ← slate-200 track, muted label
-                                                                    (shows "paused" if previously granted)
+[Stream Label]           ~R[varies]/mo  ──────────●──────────  ON  ← accent bg on track
+[Stream Label]           ~R[varies]/mo  ○────────────────────  OFF ← slate-200 track, muted label
+                                                                        (shows "paused" if previously granted)
 ```
 
 - Estimated monthly value displayed inline next to stream label (`text-sm text-slate-400`)
