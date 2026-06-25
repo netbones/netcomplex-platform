@@ -15,6 +15,10 @@ export {
   households,
   premiumSeats,
   contents,
+  dataConsents,
+  dataRevenueStreams,
+  dataShareBatches,
+  dWallets,
   propertyListings,
   communityServiceListings,
   communityServiceReviews,
@@ -39,6 +43,7 @@ export {
   twoFactors,
   members,
   organizations,
+  payoutRequests,
   tenants,
   events,
   eventAttendees,
@@ -67,6 +72,7 @@ export {
   subscriptionTiers,
   providerSubscriptions,
   paymentTransactions,
+  walletTransactions,
   providerCharges,
   providerInvoices,
   revenueRecords,
@@ -93,8 +99,7 @@ export {
   revalidateGate,
 } from '../revalidation';
 export { CACHE_TAGS } from '../revalidation';
-export { rateLimitByKey, rateLimitByIP, rateLimitByUser } from '../rate-limit';
-export { DEFAULT_RATE_LIMITS } from '../rate-limit';
+export { rateLimitByKey, rateLimitByIP, rateLimitByUser, DEFAULT_RATE_LIMITS } from '../rate-limit';
 export type { RateLimitConfig } from '../rate-limit';
 export { writeAuditLog } from '../audit-log';
 export type { AuditAction, AuditLogEntry } from '../audit-log';
@@ -188,3 +193,4 @@ export {
   getCurrentBillingMonth,
 } from '../ai';
 export type { AiProvider, AiCompletionOptions, AiCompletionResult, AiCapabilityKey } from '../ai';
+export { AI_MODELS } from '../ai';

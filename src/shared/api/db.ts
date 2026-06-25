@@ -117,6 +117,12 @@ import { platformAiTierQuotas } from '@schema/platform-ai-tier-quotas';
 import { aiCapabilityCosts } from '@schema/ai-capability-costs';
 import { tenantAiUsages } from '@schema/tenant-ai-usages';
 import { aiUsageEvents } from '@schema/ai-usage-events';
+import { dataConsents } from '@schema/data-consents';
+import { dataRevenueStreams } from '@schema/data-revenue-streams';
+import { dataShareBatches } from '@schema/data-share-batches';
+import { dWallets } from '@schema/d-wallets';
+import { payoutRequests } from '@schema/payout-requests';
+import { walletTransactions } from '@schema/wallet-transactions';
 
 import { ENV } from 'varlock/env';
 import { dbLogger } from '@shared/lib';
@@ -136,6 +142,10 @@ const dbSchema = {
   premiumSeats,
   contentLikes,
   contents,
+  dataConsents,
+  dataRevenueStreams,
+  dataShareBatches,
+  dWallets,
   propertyListings,
   communityServiceListings,
   communityServiceReviews,
@@ -160,6 +170,7 @@ const dbSchema = {
   twoFactors,
   members,
   organizations,
+  payoutRequests,
   tenants,
   events,
   eventAttendees,
@@ -187,6 +198,7 @@ const dbSchema = {
   subscriptionTiers,
   providerSubscriptions,
   paymentTransactions,
+  walletTransactions,
   providerCharges,
   providerInvoices,
   revenueRecords,
@@ -323,7 +335,7 @@ export function notDeleted(table: { deletedAt: unknown }): SQL {
  */
 export async function assertAddressUnique(
   platformAddress: string,
-  tx: NodePgDatabase<DbSchema>
+  tx: NodePgDatabase<Record<string, unknown>>
 ): Promise<void> {
   const [standard, solo, premium] = await Promise.all([
     tx
@@ -358,6 +370,10 @@ export {
   premiumSeats,
   contentLikes,
   contents,
+  dataConsents,
+  dataRevenueStreams,
+  dataShareBatches,
+  dWallets,
   propertyListings,
   communityServiceListings,
   communityServiceReviews,
@@ -382,6 +398,7 @@ export {
   twoFactors,
   members,
   organizations,
+  payoutRequests,
   tenants,
   events,
   eventAttendees,
@@ -409,6 +426,7 @@ export {
   subscriptionTiers,
   providerSubscriptions,
   paymentTransactions,
+  walletTransactions,
   providerCharges,
   providerInvoices,
   revenueRecords,
