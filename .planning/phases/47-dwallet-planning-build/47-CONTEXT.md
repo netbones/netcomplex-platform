@@ -76,6 +76,7 @@ These are non-negotiable per the spec. Any plan that violates them is a reject.
 1. `WalletTransaction` rows are immutable. Corrections are `ADJUSTMENT` rows.
 2. `DataConsent` rows are append-only. Current state = most recent row per `(walletId, streamKey)`.
 3. `balanceAfter = balanceBefore + amount` after every credit/debit. Both recorded. `DWallet.balance` always equals `SUM(transactions.amount)`.
+   - **Double-entry ledger (BILLING.md Domain 3):** WalletTransaction IS the ledger — balance is derived, never mutated directly. Corrections are ADJUSTMENT rows. See `docs/architecture/DWALLET_SPEC.md` WalletTransaction section for full design note.
 4. Distribution batches use Drizzle `.transaction()` — succeed atomically or fail atomically.
 5. Admin routes never return individual wallet balances, consent choices, or transaction details. Aggregate counts and totals only. `PayoutRequest` may show resident name to ADMIN / BOARD roles for payment processing.
 6. Pino audit log on every consent change with `{ event: 'consent_change', userId, streamKey, granted, tenantId, ip }`.

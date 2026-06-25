@@ -63,6 +63,14 @@ model DWallet {
 
 // ── WalletTransaction ────────────────────────────────────────────────────
 // Immutable append-only ledger. Every credit and debit is a row.
+//
+// Design note (BILLING.md Domain 3 alignment): WalletTransaction serves as
+// the double-entry ledger entries. Balance is never mutated directly via
+// `wallet.balance += amount` — it is derived from SUM(transactions.amount).
+// Each row records balanceBefore (debit side) and balanceAfter (credit side),
+// where balanceAfter = balanceBefore + amount. Corrections are new ADJUSTMENT
+// rows, never in-place mutation of existing transactions. DWallet.balance is
+// a cached computation that must always equal SUM(WalletTransaction.amount).
 
 model WalletTransaction {
   id              String              @id @default(cuid())
