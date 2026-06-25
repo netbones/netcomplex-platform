@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { billingPlans } from '@schema/billing-plan';
+import { billingPlans } from '@schema/billing-plans';
 
 function now() {
   return new Date();

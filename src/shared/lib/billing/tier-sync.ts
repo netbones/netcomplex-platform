@@ -14,8 +14,8 @@ import 'server-only';
 import { eq } from 'drizzle-orm';
 import { db } from '@api/server';
 import { tenants } from '@schema/tenants';
-import { tenantSubscriptions } from '@schema/tenant-subscription';
-import { billingPlans } from '@schema/billing-plan';
+import { tenantSubscriptions } from '@schema/tenant-subscriptions';
+import { billingPlans } from '@schema/billing-plans';
 import { createComponentLogger } from '@/shared/lib';
 
 const tierSyncLogger = createComponentLogger('tier-sync');

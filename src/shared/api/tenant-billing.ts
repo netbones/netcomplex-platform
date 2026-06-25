@@ -3,11 +3,11 @@ import 'server-only';
 import { and, desc, eq, inArray } from 'drizzle-orm';
 
 import { db, now } from './server';
-import { billingPlans } from '@schema/billing-plan';
-import { tenantSubscriptions } from '@schema/tenant-subscription';
-import { tenantInvoices } from '@schema/tenant-invoice';
-import { tenantPayments } from '@schema/tenant-payment';
-import { billingEvents } from '@schema/billing-event';
+import { billingPlans } from '@schema/billing-plans';
+import { tenantSubscriptions } from '@schema/tenant-subscriptions';
+import { tenantInvoices } from '@schema/tenant-invoices';
+import { tenantPayments } from '@schema/tenant-payments';
+import { billingEvents } from '@schema/billing-events';
 import { tenants } from '@schema/tenants';
 
 type BillingEventType = (typeof billingEvents.$inferSelect)['eventType'];

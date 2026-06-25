@@ -2,10 +2,10 @@ import { NextRequest } from 'next/server';
 import { requirePlatformAdmin } from '@entities/tenant/server';
 import { apiSuccess, apiInternalError, db } from '@api/server';
 import { logError } from '@shared/lib';
-import { tenantInvoices } from '@schema/tenant-invoice';
+import { tenantInvoices } from '@schema/tenant-invoices';
 import { tenants } from '@schema/tenants';
-import { tenantSubscriptions } from '@schema/tenant-subscription';
-import { billingPlans } from '@schema/billing-plan';
+import { tenantSubscriptions } from '@schema/tenant-subscriptions';
+import { billingPlans } from '@schema/billing-plans';
 import { eq, desc, and, lt } from 'drizzle-orm';
 
 export const maxDuration = 8;

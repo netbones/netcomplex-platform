@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { requirePlatformAdmin } from '@entities/tenant/server';
 import { apiSuccess, apiInternalError, db } from '@api/server';
 import { logError } from '@shared/lib';
-import { tenantPayments } from '@schema/tenant-payment';
+import { tenantPayments } from '@schema/tenant-payments';
 import { tenants } from '@schema/tenants';
 import { eq, desc, and, lt } from 'drizzle-orm';
 

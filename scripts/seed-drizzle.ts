@@ -48,7 +48,7 @@ import { providerCharges } from '@schema/provider-charges';
 import { providerInvoices } from '@schema/provider-invoices';
 import { revenueRecords } from '@schema/revenue-records';
 
-import { billingPlans } from '@schema/billing-plan';
+import { billingPlans } from '@schema/billing-plans';
 import { getOrCreateDefaultBillingPlans } from '@shared/lib/billing/seed-plans';
 
 import { achievementDefinitions } from '@schema/achievement-definitions';

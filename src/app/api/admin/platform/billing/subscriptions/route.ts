@@ -2,8 +2,8 @@ import { NextRequest } from 'next/server';
 import { requirePlatformAdmin } from '@entities/tenant/server';
 import { apiSuccess, apiInternalError, apiNotFound, writeAuditLog, auth, db } from '@api/server';
 import { logError } from '@shared/lib';
-import { tenantSubscriptions } from '@schema/tenant-subscription';
-import { billingPlans } from '@schema/billing-plan';
+import { tenantSubscriptions } from '@schema/tenant-subscriptions';
+import { billingPlans } from '@schema/billing-plans';
 import { tenants } from '@schema/tenants';
 import { eq, and, desc, like, or } from 'drizzle-orm';
 

@@ -18,7 +18,7 @@ const mocks = vi.hoisted(() => ({
   tenantResult: { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' },
   authSession: null as { user: { id: string; email?: string; name?: string } } | null,
   userRole: 'RESIDENT',
-  walletResult: null as unknown,
+  walletResult: null as { id: string; balance: string; [key: string]: unknown } | null,
   dbMock: {
     select: vi.fn(),
     insert: vi.fn(),

@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { requirePlatformAdmin } from '@entities/tenant/server';
 import { apiSuccess, apiInternalError, apiNotFound, writeAuditLog, auth, db } from '@api/server';
 import { logError } from '@shared/lib';
-import { billingPlans } from '@schema/billing-plan';
+import { billingPlans } from '@schema/billing-plans';
 import { tenants } from '@schema/tenants';
 import { eq, asc } from 'drizzle-orm';
 

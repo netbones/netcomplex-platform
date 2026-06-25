@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { and, desc, eq, lt } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
-import { tenantInvoices } from '@schema/tenant-invoice';
+import { tenantInvoices } from '@schema/tenant-invoices';
 import { apiSuccess, apiInternalError } from '@api/server';
 import { db } from '@api/server';
 import { logError } from '@shared/lib';
