@@ -1,13 +1,15 @@
 export const HEADER_LINK_IDS = [
-  'directory',
-  'groups',
-  'services',
-  'resources',
-  'news',
-  'surveys',
+  'campaign',
   'competitions',
   'conservation',
-  'campaign',
+  'dashboard',
+  'directory',
+  'dWallet',
+  'groups',
+  'news',
+  'resources',
+  'services',
+  'surveys',
 ] as const;
 
 export type HeaderLinkId = (typeof HEADER_LINK_IDS)[number];
@@ -27,6 +29,7 @@ export interface PlatformPageFlags {
   surveys: boolean;
   competitions: boolean;
   dashboard: boolean;
+  dWallet: boolean;
   providers: boolean;
   bookings: boolean;
   messages: boolean;
