@@ -887,6 +887,32 @@ _Features explicitly deferred to post-M5b. The 8 feature items originally in the
 
 ---
 
+### Phase 46.1: Platform SaaS Billing Foundation (INSERTED)
+
+**Goal:** Build the platform SaaS billing foundation — the source of truth for tenant subscription plans, payments, and invoicing. Establish BillingPlan → TenantSubscription → Tenant.tier pipeline, create 10 billing domain models with Drizzle schemas, implement checkout & subscription lifecycle (create/upgrade/downgrade/cancel), wire platform admin routes + widgets, and build tenant-facing billing portal at /tenant/billing.
+
+**Status:** Planned — 4 plans in 3 waves
+
+**Requirements:** BILL-01, BILL-02, BILL-03, BILL-04
+
+**Depends on:** Phase 46 (Provider Platform — reuses PaystackService/PayPalService)
+
+**Plans:** 4 plans
+
+| Wave | Plan                | Objective                                                                                                                           |
+| ---- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | [ ] 46.1-01-PLAN.md | Domain Models: 10 Prisma models + 4 enums, Drizzle schema files, migration, seed default STANDARD/PREMIUM/ENTERPRISE plans          |
+| 2    | [ ] 46.1-02-PLAN.md | Subscription Lifecycle: tenant-billing.ts (checkout, upgrade/downgrade, cancel, tier sync, webhook), billing helpers + tests, types |
+| 3    | [ ] 46.1-03-PLAN.md | Platform Admin: 4 admin API routes + 3 admin billing widgets (overview, subscriptions, revenue)                                     |
+| 3    | [ ] 46.1-04-PLAN.md | Tenant Portal: 3 pages at /tenant/billing (overview, invoices, payment-methods) + 5 UI components + checkout flow                   |
+
+Plans:
+
+- [ ] 46.1-01-PLAN.md — Billing domain models (schema, migration, seed, Drizzle schemas)
+- [ ] 46.1-02-PLAN.md — Checkout & subscription lifecycle + tier sync + billing helpers + tests
+- [ ] 46.1-03-PLAN.md — Platform admin billing routes + admin billing widgets
+- [ ] 46.1-04-PLAN.md — Tenant billing portal pages + billing feature UI components
+
 ## Phase 47: dWallet Planning & Build
 
 **Goal:** Implement the dWallet module — per-resident data rights, granular consent, and revenue-share rewards — as defined in `docs/architecture/DWALLET_SPEC.md` (Schedule G of the Soralia Village v10 SaaS agreement). **The headline anchor-tenant selling point:** "You own your data, you grant consent per use, you earn revenue share." Without dWallet, the Soralia pitch collapses to a generic community portal.
