@@ -6,7 +6,7 @@ shadcn_initialized: true
 preset: default (slate base, CSS variables, rsc, tsx)
 created: 2026-06-25
 revised: 2026-06-25
-revised-reason: Schedule-F-G alignment — replaced speculative earnings categories with 8 actual Schedule F revenue streams (Survey Participation, Marketplace Activity, Agent Transactions, Value-Added Services, Service Provider Listings, Premium Placements, Agent Registrations, Agent Premium Listings), replaced invented Community Impact metrics with derivable model-based stats, added contractual compliance notes (R50 minimum, 12-month CBF sweep, pro-rata distribution), added Future Revenue Sources (Phase 48+) note block, renamed "Data Rewards" → "Resident Data Share" for contractual accuracy
+revised-reason: Schedule-F-G alignment — replaced speculative earnings categories with 8 actual Schedule F revenue streams (Survey Participation, Marketplace Activity, Agent Transactions, Value-Added Services, Service Provider Listings, Premium Placements, Agent Registrations, Agent Premium Listings), replaced invented Community Impact metrics with derivable model-based stats, added contractual compliance notes (R50 minimum, 12-month CBF sweep, pro-rata distribution), renamed "Data Rewards" → "Resident Data Share" for contractual accuracy
 ---
 
 # Phase 47 — UI Design Contract
@@ -256,7 +256,7 @@ Metrics derivable from the actual financial model (Schedule F & G). No invented/
 - Unclaimed → CBF After: 12 months from credit date (Schedule G, G3)
 - Layout: 2×2 stat grid within card, each stat is label below value. "Your Estimated Share" uses `font-semibold` for emphasis.
 
-**Future value ledger design:** The Overview layout is designed to accommodate additional value sources beyond Resident Data Share — merits, referrals, volunteer credits, AI credits, marketplace credits — as they ship in future phases. The bar chart expands horizontally; new rows appear without restructuring. See Future Revenue Sources note block on the Overview tab for planned Phase 48+ additions.
+**Future value ledger design:** The Overview layout is designed to accommodate additional value sources beyond Resident Data Share as they ship in future phases. The bar chart expands horizontally; new rows appear without restructuring.
 
 **States:**
 
@@ -360,29 +360,6 @@ Metrics derivable from the actual financial model (Schedule F & G). No invented/
 - Revenue stream summary cards (stream name, resident share %, your consent status, estimated monthly value)
 - Quick actions: "Request Payout", "Export My Data", "Download Annual Statement"
 - Last 5 community activities (link to Activity tab)
-
-**Future Revenue Sources (Phase 48+):**
-
-A note block at the bottom of the Overview tab, clearly marked as NOT implemented in Phase 47:
-
-```text
---- Future Revenue Sources (Phase 48+) ---
-
-Community Merits Rewards: Points earned through good standing and community
-participation, convertible to dWallet value. Requires Phase 45 Community Merits
-completion.
-Referral Bonuses: Rewards for inviting new residents to the platform. Requires
-referral tracking infrastructure.
-Volunteer Credits: Value for community service and committee participation.
-Requires volunteer hour tracking.
-AI Credits: Value from AI training data contributions. Depends on Phase 104 AI
-infrastructure.
-Marketplace Credits: Spend wallet balance on community services. Requires Phase
-2 payments integration.
-
-These are product-direction ideas for discussion. None are implemented in
-Phase 47.
-```
 
 **Tab 2 — Activity (renamed from "Transactions"):**
 
@@ -651,8 +628,8 @@ Two-step destructive action:
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PENDING — community language sweep applied ("Community Value", "Value Earned", "Activity"); Earnings Breakdown aligned to 8 Schedule F revenue streams (Survey Participation, Marketplace Activity, Agent Transactions, Value-Added Services, Service Provider Listings, Premium Placements, Agent Registrations, Agent Premium Listings); Community Impact uses derivable model-based metrics; contractual compliance notes added (R50 minimum, 12-month CBF, pro-rata); Future Revenue Sources (Phase 48+) note block added; "Resident Data Share" replaces "Data Rewards" for contractual accuracy; awaiting re-check
-- [ ] Dimension 2 Visuals: PENDING — Surface 1 redesigned with 8-stream Earnings Breakdown card and derivable Community Impact card; Surface 3 restructured with updated Overview (Schedule F streams), Impact tab (derivable metrics with Schedule F stream breakdown), Payouts tab (compliance info block); consent toggles preserved; Future Revenue Sources note block added; awaiting re-check
+- [ ] Dimension 1 Copywriting: PENDING — community language sweep applied ("Community Value", "Value Earned", "Activity"); Earnings Breakdown aligned to 8 Schedule F revenue streams (Survey Participation, Marketplace Activity, Agent Transactions, Value-Added Services, Service Provider Listings, Premium Placements, Agent Registrations, Agent Premium Listings); Community Impact uses derivable model-based metrics; contractual compliance notes added (R50 minimum, 12-month CBF, pro-rata); "Resident Data Share" replaces "Data Rewards" for contractual accuracy; awaiting re-check
+- [ ] Dimension 2 Visuals: PENDING — Surface 1 redesigned with 8-stream Earnings Breakdown card and derivable Community Impact card; Surface 3 restructured with updated Overview (Schedule F streams), Impact tab (derivable metrics with Schedule F stream breakdown), Payouts tab (compliance info block); consent toggles preserved; awaiting re-check
 - [ ] Dimension 3 Color: PASS (unchanged — semantic colors removed green/gold/banking aesthetics; indigo-600/slate-600/slate-400 preserved)
 - [ ] Dimension 4 Typography: PASS (unchanged — 4 sizes, 2 weights preserved)
 - [ ] Dimension 5 Spacing: PASS (unchanged — all multiples of 4 preserved)
