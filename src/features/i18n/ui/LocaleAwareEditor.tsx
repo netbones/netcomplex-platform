@@ -32,6 +32,7 @@ export function LocaleAwareEditor({
   const [activeLocale, setActiveLocale] = useState<SupportedLanguage>(currentLocale);
   const [translatingLocale, setTranslatingLocale] = useState<SupportedLanguage | null>(null);
   const [translateError, setTranslateError] = useState<string | null>(null);
+  const [translationUnavailable, setTranslationUnavailable] = useState(false);
 
   const handleLocaleChange = useCallback(
     (locale: SupportedLanguage) => {
@@ -70,8 +71,9 @@ export function LocaleAwareEditor({
       setTranslatingLocale(targetLocale);
       setTranslateError(null);
 
+      let res: Response | undefined;
       try {
-        const res = await fetch('/api/translate', {
+        res = await fetch('/api/translate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -95,6 +97,9 @@ export function LocaleAwareEditor({
           setActiveLocale(targetLocale);
         }
       } catch (err) {
+        if (res && (res.status === 503 || res.status === 429)) {
+          setTranslationUnavailable(true);
+        }
         setTranslateError(err instanceof Error ? err.message : 'Translation failed');
       } finally {
         setTranslatingLocale(null);
@@ -119,6 +124,14 @@ export function LocaleAwareEditor({
         />
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-500">Translate to:</span>
+          {translationUnavailable && (
+            <span
+              className="text-xs text-amber-600 ml-2"
+              title="AI translation is not available for your community"
+            >
+              Translation unavailable
+            </span>
+          )}
           <LocaleSelector
             currentLocale={activeLocale}
             onLocaleChange={handleLocaleChange}
@@ -144,6 +157,12 @@ export function LocaleAwareEditor({
           <span className="ml-2">{Object.keys(content).length} translations available</span>
         )}
         {translateError && <span className="ml-2 text-rose-600">{translateError}</span>}
+        {translationUnavailable && !translateError && (
+          <span className="ml-2 text-amber-600">
+            AI translation unavailable — your community's AI quota may be exhausted. Contact your
+            administrator.
+          </span>
+        )}
       </div>
     </div>
   );
