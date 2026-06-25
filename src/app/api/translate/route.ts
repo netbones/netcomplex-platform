@@ -1,15 +1,9 @@
-import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
-import {
-  apiError,
-  apiInternalError,
-  apiSuccess,
-  db,
-  settings,
-  getSessionAndRole,
-} from '@api/server';
-import { withTenant, SETTINGS_KEYS } from '@entities/tenant/server';
+import { apiError, apiInternalError, apiSuccess, db, getSessionAndRole } from '@api/server';
+import { getAiProvider, isAiCapabilityEnabled, checkQuota, recordUsage } from '@api/server';
+import type { AiCapabilityKey } from '@entities/tenant/server';
+import { withTenant } from '@entities/tenant/server';
 import { logError, supportedLanguages } from '@shared/lib';
 
 const translateRequestSchema = z.object({
@@ -45,92 +39,101 @@ export async function POST(request: Request) {
       return apiError('VALIDATION_ERROR', 'Source and target locales must differ', 400);
     }
 
-    await withTenant();
+    const { tenantId } = await withTenant();
+    const capability: AiCapabilityKey = 'ai.content.translation';
 
-    const [[apiKeySetting], [providerSetting]] = await Promise.all([
-      db
-        .select({ value: settings.value })
-        .from(settings)
-        .where(eq(settings.key, SETTINGS_KEYS.TRANSLATION_API_KEY))
-        .limit(1),
-      db
-        .select({ value: settings.value })
-        .from(settings)
-        .where(eq(settings.key, SETTINGS_KEYS.TRANSLATION_PROVIDER))
-        .limit(1),
-    ]);
-
-    const apiKey = apiKeySetting?.value as string | undefined;
-    const provider = (providerSetting?.value as string | undefined) ?? 'openai';
-
-    if (!apiKey) {
+    // Step 1: Capability check
+    if (!(await isAiCapabilityEnabled(tenantId, capability))) {
       return apiError(
-        'TRANSLATION_NOT_CONFIGURED',
-        'Machine translation is not configured for this tenant. Add a translation API key in tenant settings.',
-        402
+        'FEATURE_DISABLED',
+        'AI translation is not enabled for this community. Contact your administrator to enable the AI Provider module.',
+        503
+      );
+    }
+
+    // Step 2: Quota check
+    const quota = await checkQuota(tenantId, capability, db);
+    if (!quota.allowed) {
+      return apiError(
+        'FEATURE_DISABLED',
+        `AI token quota exhausted for this month (${quota.remainingTokens} tokens remaining). Upgrade your plan or wait until the next billing period.`,
+        429,
+        { code: 'AI_QUOTA_EXHAUSTED', remainingTokens: quota.remainingTokens }
+      );
+    }
+
+    // Step 3: Get provider
+    const provider = await getAiProvider(tenantId);
+    if (!provider.isAvailable()) {
+      return apiError(
+        'FEATURE_DISABLED',
+        'AI translation is temporarily unavailable. The AI service may be down or the platform AI keys are not configured.',
+        503
       );
     }
 
     const sourceName = LANGUAGE_NAMES[sourceLocale] || sourceLocale;
     const targetName = LANGUAGE_NAMES[targetLocale] || targetLocale;
 
-    let translatedText: string;
+    // Step 4: Call AI
+    const start = Date.now();
+    let result;
+    let success = true;
+    let errorCode: string | undefined;
 
-    if (provider === 'openai') {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: `You are a professional translator. Translate the following HTML content from ${sourceName} to ${targetName}. Preserve all HTML tags, attributes, and structure exactly as-is. Only translate the text content between tags. Do not modify, add, or remove any HTML elements. Return only the translated HTML, no explanations.`,
-            },
-            { role: 'user', content },
-          ],
-          temperature: 0.1,
-          max_tokens: 4096,
-        }),
+    try {
+      result = await provider.complete(content, {
+        systemPrompt: `You are a professional translator. Translate the following HTML content from ${sourceName} to ${targetName}. Preserve all HTML tags, attributes, and structure exactly as-is. Only translate the text content between tags. Do not modify, add, or remove any HTML elements. Return only the translated HTML, no explanations.`,
+        maxTokens: 2000,
+        temperature: 0.1,
       });
+    } catch (err) {
+      success = false;
+      errorCode = err instanceof Error ? err.message.slice(0, 50) : 'UNKNOWN';
+      result = { text: '', provider: 'null' as const, tokensUsed: 0 };
+    }
 
-      if (!response.ok) {
-        const errBody = await response.text();
-        logError(
-          { component: 'translate-api', operation: 'POST', status: response.status },
-          'OpenAI translation API error',
-          errBody
-        );
-        return apiError('TRANSLATION_FAILED', 'Translation service returned an error', 502, {
-          provider: 'openai',
-          status: response.status,
-        });
-      }
+    // Step 5: Record usage (ALWAYS — even on failure)
+    await recordUsage(
+      {
+        tenantId,
+        capability,
+        userId: auth.userId,
+        // translate has no document reference — omitting referenceId
+        provider: result.provider,
+        model: result.provider === 'anthropic' ? 'claude-haiku-4-5-20241022' : 'gpt-4o-mini',
+        inputTokens: estimateInputTokens(content),
+        outputTokens: result.tokensUsed ?? 0,
+        durationMs: Date.now() - start,
+        success,
+        errorCode,
+      },
+      db
+    );
 
-      const json = (await response.json()) as {
-        choices: Array<{ message: { content: string } }>;
-      };
-      translatedText = json.choices[0]?.message?.content ?? '';
-    } else {
+    // Step 6: Handle result
+    if (!success) {
+      logError(
+        { component: 'translate-api', operation: 'POST', provider: provider.name },
+        'AI translation call failed',
+        errorCode
+      );
       return apiError(
-        'TRANSLATION_NOT_CONFIGURED',
-        `Unsupported translation provider: ${provider}`,
-        400
+        'TRANSLATION_FAILED',
+        'Translation service returned an error. You may retry.',
+        502
       );
     }
 
-    if (!translatedText) {
+    if (!result.text) {
       return apiError('TRANSLATION_FAILED', 'Translation returned empty result', 502);
     }
 
     return apiSuccess({
-      content: translatedText,
+      content: result.text,
       sourceLocale,
       targetLocale,
-      provider,
+      provider: result.provider,
     });
   } catch (error) {
     logError(
@@ -140,4 +143,9 @@ export async function POST(request: Request) {
     );
     return apiInternalError();
   }
+}
+
+/** Rough token estimator — 20% buffer per SUPPLEMENTAL-2 R17 */
+function estimateInputTokens(text: string): number {
+  return Math.ceil(text.length * 0.27 * 1.2); // ~4 chars per token + 20% buffer
 }
