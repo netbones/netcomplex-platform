@@ -3,6 +3,7 @@
  */
 
 export { isModuleEnabled, assertModuleEnabled, getEnabledModules } from './assert-module-enabled';
+export { getTenantModule } from './get-tenant-module';
 
 export {
   getTierLevel,

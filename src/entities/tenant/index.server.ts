@@ -40,6 +40,13 @@ export { canAccess, resolveGateContext } from './api/gate/gate';
 
 export { assertModuleEnabled } from './api/gate/feature-gate';
 export { isModuleEnabled } from './lib/modules';
+export { getTenantModule } from './lib/modules/get-tenant-module';
+export {
+  isAiCapabilityEnabled,
+  type AiCapabilityKey,
+  AI_CAPABILITY_KEYS,
+} from './api/ai-capabilities';
+export type { AiProviderModuleConfig } from './api/ai-capabilities';
 
 export {
   getPlatformPageFlags,

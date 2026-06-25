@@ -70,6 +70,10 @@ export {
   providerCharges,
   providerInvoices,
   revenueRecords,
+  platformAiTierQuotas,
+  aiCapabilityCosts,
+  tenantAiUsages,
+  aiUsageEvents,
 } from '../db';
 export { auth } from '../auth';
 export {
@@ -153,3 +157,4 @@ export type { Context } from '../trpc/server';
 export { sendEmail } from '../email/resend';
 export { templates } from '../email/templates';
 export type { TemplateKey } from '../email/templates';
+export { getTenantModule } from '@entities/tenant/server';

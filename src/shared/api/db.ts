@@ -113,6 +113,10 @@ import { achievementDefinitions } from '@schema/achievement-definitions';
 import { tenantAchievements } from '@schema/tenant-achievements';
 import { userAchievementProgresses } from '@schema/user-achievement-progresses';
 import { userAchievements } from '@schema/user-achievements';
+import { platformAiTierQuotas } from '@schema/platform-ai-tier-quotas';
+import { aiCapabilityCosts } from '@schema/ai-capability-costs';
+import { tenantAiUsages } from '@schema/tenant-ai-usages';
+import { aiUsageEvents } from '@schema/ai-usage-events';
 
 import { ENV } from 'varlock/env';
 import { dbLogger } from '@shared/lib';
@@ -190,6 +194,10 @@ const dbSchema = {
   tenantAchievements,
   userAchievementProgresses,
   userAchievements,
+  platformAiTierQuotas,
+  aiCapabilityCosts,
+  tenantAiUsages,
+  aiUsageEvents,
 } as const;
 
 export type DbSchema = typeof dbSchema;
@@ -408,4 +416,8 @@ export {
   tenantAchievements,
   userAchievementProgresses,
   userAchievements,
+  platformAiTierQuotas,
+  aiCapabilityCosts,
+  tenantAiUsages,
+  aiUsageEvents,
 };
