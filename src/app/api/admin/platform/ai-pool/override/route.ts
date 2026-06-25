@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       // Audit log
       const session = await auth.api.getSession({ headers: request.headers });
       writeAuditLog({
-        action: 'SETTINGS_CHANGED', // ponytail: reuse existing audit action; AI_POOL_OVERRIDE not in AuditAction union yet
+        action: 'AI_POOL_OVERRIDE',
         actorId: session?.user?.id || 'unknown',
         targetId: tenantId,
         details: {
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     const session = await auth.api.getSession({ headers: request.headers });
     writeAuditLog({
-      action: 'SETTINGS_CHANGED',
+      action: 'AI_POOL_OVERRIDE',
       actorId: session?.user?.id || 'unknown',
       targetId: tenantId,
       details: {

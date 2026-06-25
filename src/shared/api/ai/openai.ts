@@ -2,6 +2,7 @@ import 'server-only';
 
 import OpenAI from 'openai';
 import type { AiProvider, AiCompletionResult, AiCompletionOptions } from './provider';
+import { AI_MODELS } from './config';
 
 /**
  * OpenAI provider — also serves as the DeepSeek provider via baseURL.
@@ -23,7 +24,7 @@ export class OpenAiProvider implements AiProvider {
   async complete(userPrompt: string, options?: AiCompletionOptions): Promise<AiCompletionResult> {
     const response = await this.client.chat.completions.create({
       // per RESEARCH.md §16: canonical model IDs
-      model: this.name === 'deepseek' ? 'deepseek-chat' : 'gpt-4o-mini',
+      model: this.name === 'deepseek' ? AI_MODELS.DEEPSEEK : AI_MODELS.OPENAI,
       max_tokens: options?.maxTokens ?? 1000,
       temperature: options?.temperature ?? 0,
       messages: [

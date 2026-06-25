@@ -1,5 +1,5 @@
-import { pgTable, text, timestamp, decimal } from 'drizzle-orm/pg-core';
-import { billingAdjustmentTypeEnum } from './billing-adjustment-enums';
+import { pgTable, text, decimal, timestamp } from 'drizzle-orm/pg-core';
+import { billingAdjustmentTypeEnum } from './billing-adjustment-type-enum';
 
 export const billingAdjustments = pgTable('BillingAdjustment', {
   id: text('id').primaryKey(),

@@ -24,3 +24,6 @@ export type { PoolCallOptions, PoolCallResult } from './pool';
 
 // Re-export provider types
 export type { AiProvider, AiCompletionOptions, AiCompletionResult } from './provider';
+
+// Re-export config (model IDs)
+export { AI_MODELS, type ModelId } from './config';

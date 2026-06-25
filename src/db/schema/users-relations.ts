@@ -42,6 +42,7 @@ import { userKeys } from './user-keys';
 import { userDevices } from './user-devices';
 import { userAchievementProgresses } from './user-achievement-progresses';
 import { userAchievements } from './user-achievements';
+import { dWallets } from './d-wallets';
 
 export const usersRelations = relations(users, helpers => ({
   assistSessions: helpers.many(assistSessions, { relationName: 'AssistSessionTouser' }),
@@ -121,4 +122,5 @@ export const usersRelations = relations(users, helpers => ({
     relationName: 'UserAchievementProgressTouser',
   }),
   UserAchievement: helpers.many(userAchievements, { relationName: 'UserAchievementTouser' }),
+  dWallet: helpers.one(dWallets),
 }));

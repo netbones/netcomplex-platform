@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, decimal } from 'drizzle-orm/pg-core';
+import { pgTable, text, decimal, timestamp } from 'drizzle-orm/pg-core';
 import { transactionStatusEnum } from './transaction-status-enum';
 import { paymentGatewayEnum } from './payment-gateway-enum';
 

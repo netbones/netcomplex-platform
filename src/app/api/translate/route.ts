@@ -1,10 +1,10 @@
 import { z } from 'zod';
-
 import { apiError, apiInternalError, apiSuccess, db, getSessionAndRole } from '@api/server';
 import { getAiProvider, isAiCapabilityEnabled, checkQuota, recordUsage } from '@api/server';
 import type { AiCapabilityKey } from '@entities/tenant/server';
 import { withTenant } from '@entities/tenant/server';
 import { logError, supportedLanguages } from '@shared/lib';
+import { AI_MODELS, rateLimitByUser } from '@api/server';
 
 const translateRequestSchema = z.object({
   sourceLocale: z.enum(supportedLanguages),
@@ -27,6 +27,13 @@ export async function POST(request: Request) {
     if (!auth) {
       return apiError('UNAUTHORIZED', 'Authentication required', 401);
     }
+
+    // Rate limit by authenticated user to prevent per-user DoS
+    const rateLimitResult = await rateLimitByUser(auth.userId, {
+      windowMs: 60_000,
+      maxRequests: 10,
+    });
+    if (rateLimitResult) return rateLimitResult;
 
     const parsed = translateRequestSchema.safeParse(await request.json());
     if (!parsed.success) {
@@ -101,7 +108,7 @@ export async function POST(request: Request) {
         userId: auth.userId,
         // translate has no document reference — omitting referenceId
         provider: result.provider,
-        model: result.provider === 'anthropic' ? 'claude-haiku-4-5-20241022' : 'gpt-4o-mini',
+        model: result.provider === 'anthropic' ? AI_MODELS.ANTHROPIC : AI_MODELS.OPENAI,
         inputTokens: estimateInputTokens(content),
         outputTokens: result.tokensUsed ?? 0,
         durationMs: Date.now() - start,

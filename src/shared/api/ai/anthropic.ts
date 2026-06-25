@@ -2,6 +2,7 @@ import 'server-only';
 
 import Anthropic from '@anthropic-ai/sdk';
 import type { AiProvider, AiCompletionResult, AiCompletionOptions } from './provider';
+import { AI_MODELS } from './config';
 
 export class AnthropicProvider implements AiProvider {
   readonly name = 'anthropic' as const;
@@ -18,7 +19,7 @@ export class AnthropicProvider implements AiProvider {
   async complete(userPrompt: string, options?: AiCompletionOptions): Promise<AiCompletionResult> {
     const response = await this.client.messages.create({
       // per RESEARCH.md §16: canonical Anthropic model
-      model: 'claude-haiku-4-5-20241022',
+      model: AI_MODELS.ANTHROPIC,
       max_tokens: options?.maxTokens ?? 1000,
       temperature: options?.temperature ?? 0,
       system: options?.systemPrompt,

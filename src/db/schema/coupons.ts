@@ -1,5 +1,5 @@
-import { pgTable, text, timestamp, decimal, integer, boolean } from 'drizzle-orm/pg-core';
-import { couponDiscountTypeEnum } from './coupon-enums';
+import { pgTable, text, decimal, integer, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { couponDiscountTypeEnum } from './coupon-discount-type-enum';
 
 export const coupons = pgTable('Coupon', {
   id: text('id').primaryKey(),

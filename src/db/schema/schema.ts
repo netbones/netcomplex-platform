@@ -56,20 +56,16 @@ import * as paymentTransactions from './payment-transactions';
 import * as revenueRecords from './revenue-records';
 import * as providerCharges from './provider-charges';
 import * as providerInvoices from './provider-invoices';
-import * as billingPlanEnums from './billing-plan-enums';
-import * as billingPlan from './billing-plan';
-import * as tenantSubscription from './tenant-subscription';
-import * as tenantInvoice from './tenant-invoice';
-import * as tenantPayment from './tenant-payment';
-import * as billingAdjustmentEnums from './billing-adjustment-enums';
-import * as billingAdjustment from './billing-adjustment';
-import * as billingEventEnums from './billing-event-enums';
-import * as billingEvent from './billing-event';
-import * as couponEnums from './coupon-enums';
-import * as coupon from './coupon';
-import * as couponRedemption from './coupon-redemption';
-import * as taxRate from './tax-rate';
-import * as taxJurisdiction from './tax-jurisdiction';
+import * as billingPlans from './billing-plans';
+import * as tenantSubscriptions from './tenant-subscriptions';
+import * as tenantInvoices from './tenant-invoices';
+import * as tenantPayments from './tenant-payments';
+import * as billingAdjustments from './billing-adjustments';
+import * as billingEvents from './billing-events';
+import * as coupons from './coupons';
+import * as couponRedemptions from './coupon-redemptions';
+import * as taxRates from './tax-rates';
+import * as taxJurisdictions from './tax-jurisdictions';
 import * as surveys from './surveys';
 import * as questions from './questions';
 import * as responses from './responses';
@@ -86,6 +82,12 @@ import * as achievementDefinitions from './achievement-definitions';
 import * as tenantAchievements from './tenant-achievements';
 import * as userAchievementProgresses from './user-achievement-progresses';
 import * as userAchievements from './user-achievements';
+import * as dWallets from './d-wallets';
+import * as walletTransactions from './wallet-transactions';
+import * as dataConsents from './data-consents';
+import * as payoutRequests from './payout-requests';
+import * as dataRevenueStreams from './data-revenue-streams';
+import * as dataShareBatches from './data-share-batches';
 import * as platformAiTierQuotas from './platform-ai-tier-quotas';
 import * as aiCapabilityCosts from './ai-capability-costs';
 import * as tenantAiUsages from './tenant-ai-usages';
@@ -145,7 +147,15 @@ import * as paymentTransactionsRelations from './payment-transactions-relations'
 import * as revenueRecordsRelations from './revenue-records-relations';
 import * as providerChargesRelations from './provider-charges-relations';
 import * as providerInvoicesRelations from './provider-invoices-relations';
-import * as billingRelations from './billing-relations';
+import * as billingPlansRelations from './billing-plans-relations';
+import * as tenantSubscriptionsRelations from './tenant-subscriptions-relations';
+import * as tenantInvoicesRelations from './tenant-invoices-relations';
+import * as tenantPaymentsRelations from './tenant-payments-relations';
+import * as billingEventsRelations from './billing-events-relations';
+import * as couponsRelations from './coupons-relations';
+import * as couponRedemptionsRelations from './coupon-redemptions-relations';
+import * as taxRatesRelations from './tax-rates-relations';
+import * as taxJurisdictionsRelations from './tax-jurisdictions-relations';
 import * as surveysRelations from './surveys-relations';
 import * as questionsRelations from './questions-relations';
 import * as responsesRelations from './responses-relations';
@@ -161,6 +171,10 @@ import * as achievementDefinitionsRelations from './achievement-definitions-rela
 import * as tenantAchievementsRelations from './tenant-achievements-relations';
 import * as userAchievementProgressesRelations from './user-achievement-progresses-relations';
 import * as userAchievementsRelations from './user-achievements-relations';
+import * as dWalletsRelations from './d-wallets-relations';
+import * as walletTransactionsRelations from './wallet-transactions-relations';
+import * as dataConsentsRelations from './data-consents-relations';
+import * as payoutRequestsRelations from './payout-requests-relations';
 import * as tenantAiUsagesRelations from './tenant-ai-usages-relations';
 import * as aiUsageEventsRelations from './ai-usage-events-relations';
 
@@ -223,20 +237,16 @@ export const schema = {
   ...revenueRecords,
   ...providerCharges,
   ...providerInvoices,
-  ...billingPlanEnums,
-  ...billingPlan,
-  ...tenantSubscription,
-  ...tenantInvoice,
-  ...tenantPayment,
-  ...billingAdjustmentEnums,
-  ...billingAdjustment,
-  ...billingEventEnums,
-  ...billingEvent,
-  ...couponEnums,
-  ...coupon,
-  ...couponRedemption,
-  ...taxRate,
-  ...taxJurisdiction,
+  ...billingPlans,
+  ...tenantSubscriptions,
+  ...tenantInvoices,
+  ...tenantPayments,
+  ...billingAdjustments,
+  ...billingEvents,
+  ...coupons,
+  ...couponRedemptions,
+  ...taxRates,
+  ...taxJurisdictions,
   ...surveys,
   ...questions,
   ...responses,
@@ -253,6 +263,12 @@ export const schema = {
   ...tenantAchievements,
   ...userAchievementProgresses,
   ...userAchievements,
+  ...dWallets,
+  ...walletTransactions,
+  ...dataConsents,
+  ...payoutRequests,
+  ...dataRevenueStreams,
+  ...dataShareBatches,
   ...platformAiTierQuotas,
   ...aiCapabilityCosts,
   ...tenantAiUsages,
@@ -312,7 +328,15 @@ export const schema = {
   ...revenueRecordsRelations,
   ...providerChargesRelations,
   ...providerInvoicesRelations,
-  ...billingRelations,
+  ...billingPlansRelations,
+  ...tenantSubscriptionsRelations,
+  ...tenantInvoicesRelations,
+  ...tenantPaymentsRelations,
+  ...billingEventsRelations,
+  ...couponsRelations,
+  ...couponRedemptionsRelations,
+  ...taxRatesRelations,
+  ...taxJurisdictionsRelations,
   ...surveysRelations,
   ...questionsRelations,
   ...responsesRelations,
@@ -328,6 +352,10 @@ export const schema = {
   ...tenantAchievementsRelations,
   ...userAchievementProgressesRelations,
   ...userAchievementsRelations,
+  ...dWalletsRelations,
+  ...walletTransactionsRelations,
+  ...dataConsentsRelations,
+  ...payoutRequestsRelations,
   ...tenantAiUsagesRelations,
   ...aiUsageEventsRelations,
 };

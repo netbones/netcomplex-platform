@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, decimal, boolean, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, text, jsonb, decimal, timestamp, boolean } from 'drizzle-orm/pg-core';
 import { invoiceStatusEnum } from './invoice-status-enum';
 
 export const tenantInvoices = pgTable('TenantInvoice', {
@@ -7,7 +7,7 @@ export const tenantInvoices = pgTable('TenantInvoice', {
   subscriptionId: text('subscriptionId').notNull(),
   transactionId: text('transactionId'),
   invoiceNumber: text('invoiceNumber').notNull(),
-  items: jsonb('items').default('[]').notNull(),
+  items: jsonb('items').default([]).notNull(),
   subtotal: decimal('subtotal', { precision: 65, scale: 30 }).default('0').notNull(),
   taxAmount: decimal('taxAmount', { precision: 65, scale: 30 }).default('0').notNull(),
   total: decimal('total', { precision: 65, scale: 30 }).default('0').notNull(),

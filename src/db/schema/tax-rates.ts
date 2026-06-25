@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, decimal, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, decimal, boolean, timestamp } from 'drizzle-orm/pg-core';
 
 export const taxRates = pgTable('TaxRate', {
   id: text('id').primaryKey(),

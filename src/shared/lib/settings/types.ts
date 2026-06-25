@@ -1,5 +1,3 @@
-import type { SettingsKey } from '@/entities/tenant/api/settings';
-
 type BoolFlag = boolean;
 type ConservationMode = 'default' | 'iframe' | 'external';
 
@@ -38,7 +36,10 @@ export type SettingValueMap = {
   merit_expiry_days: string;
 };
 
-export function getTypedSetting<K extends SettingsKey>(key: K, value: string): SettingValueMap[K] {
+export function getTypedSetting<K extends keyof SettingValueMap>(
+  key: K,
+  value: string
+): SettingValueMap[K] {
   if (key.startsWith('page_') && key.endsWith('_enabled'))
     return (value === 'true') as SettingValueMap[K];
   if (key === 'header_links') return JSON.parse(value) as SettingValueMap[K];

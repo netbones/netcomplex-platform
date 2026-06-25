@@ -167,7 +167,8 @@ export async function recordUsage(
   const allotted = usage.tokensAllotted;
   const newUsed = usage.tokensUsed + total;
   const overage = Math.max(0, newUsed - allotted);
-  const overageCost = overage * Number(quota.overagePriceZAR);
+  // Use Decimal.js or raw SQL for precise arithmetic to avoid float issues with large costs
+  const overageCost = sql`(${overage})::numeric * ${quota.overagePriceZAR}`;
 
   await tx.transaction(async trx => {
     await trx
@@ -175,7 +176,7 @@ export async function recordUsage(
       .set({
         tokensUsed: newUsed,
         overageTokens: sql`${tenantAiUsages.overageTokens} + ${overage}`,
-        overageCostZAR: sql`${tenantAiUsages.overageCostZAR} + ${overageCost}::numeric`,
+        overageCostZAR: sql`${tenantAiUsages.overageCostZAR} + ${overageCost}`,
         updatedAt: new Date(),
       })
       .where(eq(tenantAiUsages.id, usage.id));

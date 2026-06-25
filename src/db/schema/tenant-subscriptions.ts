@@ -1,5 +1,5 @@
 import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
-import { tenantSubscriptionStatusEnum } from './billing-plan-enums';
+import { tenantSubscriptionStatusEnum } from './tenant-subscription-status-enum';
 
 export const tenantSubscriptions = pgTable('TenantSubscription', {
   id: text('id').primaryKey(),

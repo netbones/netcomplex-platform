@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core';
 
 export const taxJurisdictions = pgTable('TaxJurisdiction', {
   id: text('id').primaryKey(),

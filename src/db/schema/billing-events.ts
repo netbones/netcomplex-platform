@@ -1,5 +1,5 @@
-import { pgTable, text, timestamp, jsonb } from 'drizzle-orm/pg-core';
-import { billingEventTypeEnum } from './billing-event-enums';
+import { pgTable, text, jsonb, timestamp } from 'drizzle-orm/pg-core';
+import { billingEventTypeEnum } from './billing-event-type-enum';
 
 export const billingEvents = pgTable('BillingEvent', {
   id: text('id').primaryKey(),
@@ -7,6 +7,6 @@ export const billingEvents = pgTable('BillingEvent', {
   subscriptionId: text('subscriptionId'),
   planId: text('planId'),
   eventType: billingEventTypeEnum('eventType').notNull(),
-  metadata: jsonb('metadata').default('{}').notNull(),
+  metadata: jsonb('metadata').default({}).notNull(),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
 });
