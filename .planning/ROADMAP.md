@@ -10,16 +10,16 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 Phases are grouped into milestones (M0–M6+). See `.planning/MILESTONES.md` for full structure, gap analysis, and cadence ritual.
 
-| Milestone                         | Goal                                                                                  | Phases                                                                             | Status           |
-| --------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------- |
-| **M0 Foundation**                 | Multi-tenant substrate + base modules                                                 | 00, 01, 02, 03, 05, 06, 07, 08, 11                                                 | ✅ Shipped       |
-| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding                                   | 09, 10, 18, 19, 20                                                                 | ✅ Shipped       |
-| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system                                        | 22, 24, 25, 26, 27, 28, 29, 30, 31                                                 | ✅ Shipped       |
-| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing                                 | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40                                             | ✅ Shipped       |
-| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration                                    | 35, 41, 42                                                                         | ✅ Complete      |
-| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                                | 43 (blockers), then (no new phases)                                                | 🚧 Blocked on 43 |
-| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, dWallet, Provider Platform, Service Marketplace | 44 (M5a), 45 (M5b), 46 (Provider Platform), 47 (dWallet), 50 (Service Marketplace) | 📋 Planning      |
-| **M5+ Post-Launch**               | Future features, second tenant                                                        | deferred                                                                           | Deferred         |
+| Milestone                         | Goal                                                                                                      | Phases                                                                                                           | Status           |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------- |
+| **M0 Foundation**                 | Multi-tenant substrate + base modules                                                                     | 00, 01, 02, 03, 05, 06, 07, 08, 11                                                                               | ✅ Shipped       |
+| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding                                                       | 09, 10, 18, 19, 20                                                                                               | ✅ Shipped       |
+| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system                                                            | 22, 24, 25, 26, 27, 28, 29, 30, 31                                                                               | ✅ Shipped       |
+| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing                                                     | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40                                                                           | ✅ Shipped       |
+| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration                                                        | 35, 41, 42                                                                                                       | ✅ Complete      |
+| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                                                    | 43 (blockers), then (no new phases)                                                                              | 🚧 Blocked on 43 |
+| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, dWallet, Provider Platform, Service Marketplace, Dispute Resolution | 44 (M5a), 45 (M5b), 46 (Provider Platform), 47 (dWallet), 50 (Service Marketplace), 104–108 (Dispute Resolution) | 📋 Planning      |
+| **M5+ Post-Launch**               | Future features, second tenant                                                                            | deferred                                                                                                         | Deferred         |
 
 **Phase numbering note:** IDs are stable (not renumbered on re-order). Duplicates exist: `03` (Localization vs Second Tenant), `11` (Announcements vs Prisma→Drizzle). The duplicate pair has a "Planning Complete (deferred)" status on the second one, except `11-prisma-to-drizzle` which was verified complete (2026-06-03) and moved to M0. Out-of-order numeric IDs (01 after 04; 35 after 39; 99 last) reflect creation sequence, not logical order. See MILESTONES.md Gap ε.
 
@@ -1087,6 +1087,100 @@ Plans:
 | Wave | Plan               | Objective                                                                      |
 | ---- | ------------------ | ------------------------------------------------------------------------------ |
 | 1    | [x] 103-01-PLAN.md | Tenant system storage + admin media API + header picker + public album sharing |
+
+## Phase 104: AI Provider Infrastructure & Translate Migration
+
+**Goal:** Tenant-managed AI provider abstraction — Anthropic, OpenAI, DeepSeek — with encrypted key storage, capability gating, admin settings widget, and translate route migration.
+
+**Source:** ADVISORY-017-SUPPLEMENTAL — Phases A + B
+**Status:** Planned — 4 plans in 4 waves
+**Requirements:** AI-PROV-01, AI-PROV-02, AI-PROV-03
+
+| Requirement | Plan   | Description                                                                                    |
+| ----------- | ------ | ---------------------------------------------------------------------------------------------- |
+| AI-PROV-02  | 104-01 | Entity helpers (getTenantModule, settings-service), encryption module, seed, env vars          |
+| AI-PROV-01  | 104-02 | AI provider abstraction layer: interface, 4 providers, factory, capability checks, SDK install |
+| AI-PROV-01  | 104-03 | Admin API routes (status, key, delete, test) + AiProviderSettingsWidget + registration         |
+| AI-PROV-03  | 104-04 | Translate route migration to getAiProvider + LocaleAwareEditor degraded state                  |
+
+**Plans:** 4 plans
+
+Plans:
+
+| Wave | Plan               | Objective                                                                                                      |
+| ---- | ------------------ | -------------------------------------------------------------------------------------------------------------- |
+| 1    | [ ] 104-01-PLAN.md | Entity foundation: getTenantModule, settings CRUD, encryption, seed, env vars (AI-PROV-02)                     |
+| 2    | [ ] 104-02-PLAN.md | AI provider layer: AnthropicProvider, OpenAiProvider, NullProvider, factory, barrels, SDK install (AI-PROV-01) |
+| 3    | [ ] 104-03-PLAN.md | Admin API routes (status/key/delete/test) + AiProviderSettingsWidget + registration (AI-PROV-01)               |
+| 4    | [ ] 104-04-PLAN.md | Translate route migration + LocaleAwareEditor degraded state + key rotation script (AI-PROV-03)                |
+
+---
+
+## Phase 105: Dispute Schema & Entity Layer
+
+**Goal:** DisputeCase, DisputeEvidence, DisputeEvent, DisputeMessage, DisputeMessageVersion, DisputeNotification models + enums + Drizzle generation + entity layer per FSD layout.
+
+**Source:** ADVISORY-017 — Phases 1 + 2
+**Status:** Not planned
+**Depends on:** Phase 104 (soft dep — schema work can start in parallel)
+**Requirements:** DISPUTE-01, DISPUTE-02
+
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 105 to break down)
+
+---
+
+## Phase 106: Dispute API Routes & Intake Screen
+
+**Goal:** All CRUD routes, submit with cooling-off enforcement, intake screen with AI frivolity check, mediation thread, evidence upload, CSOS export route.
+
+**Source:** ADVISORY-017 Phase 3 + SUPPLEMENTAL Phase C
+**Status:** Not planned
+**Depends on:** Phase 104, Phase 105
+**Requirements:** DISPUTE-03, DISPUTE-04, DISPUTE-05
+
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 106 to break down)
+
+---
+
+## Phase 107: Dispute UI & Widgets
+
+**Goal:** Intake wizard (emotion check-in, self-resolution, frivolity screen, conflict tips), dispute form, mediation thread UI, evidence uploader, dashboard widgets, navigation registration.
+
+**Source:** ADVISORY-017 — Phases 4 + 5
+**Status:** Not planned
+**Depends on:** Phase 106
+**Requirements:** DISPUTE-06, DISPUTE-07
+
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 107 to break down)
+
+---
+
+## Phase 108: CSOS Export Package
+
+**Goal:** PDF generation for CSOS Form 2 — certified dispute history with all sections A–F, rate-limited, audit-logged. Ruling issuance flow.
+
+**Source:** ADVISORY-017 — Phase 6
+**Status:** Not planned
+**Depends on:** Phase 106
+**Requirements:** DISPUTE-08
+
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 108 to break down)
 
 ---
 
