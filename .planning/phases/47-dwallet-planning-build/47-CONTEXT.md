@@ -3,8 +3,8 @@ phase: 47-dwallet-planning-build
 type: plan-then-execute
 status: planning
 created: 2026-06-04
-revised: 2026-06-06
-revised-reason: Elevated from M6+ to M5b — dWallet is the headline selling point for the Soralia anchor tenant (180 homes). Not post-launch.
+revised: 2026-06-25
+revised-reason: Value Ledger architecture — added TransactionSource enum + sourceType on WalletTransaction for forward-compatibility with future value sources (Phase 45 Merits, Phase 104 AI). Five enums total (was four).
 milestone: M5b (anchor tenant launch — flagship feature)
 priority: P1 (launch-blocking, on the critical path with Community Merits, MyHomeSpace, OTP)
 spec: docs/architecture/DWALLET_SPEC.md
@@ -59,13 +59,13 @@ The spec defines 6 implementation sub-phases (A–F). Each becomes a GSD plan wi
 Six new models, all additive (no existing tables altered), plus reverse relation `dWallet DWallet?` on `user`:
 
 - `DWallet` — one per (tenantId, userId), `@@unique`, status enum
-- `WalletTransaction` — immutable append-only ledger; every credit/debit/rollover/adjustment is a row
+- `WalletTransaction` — immutable append-only ledger; every credit/debit/rollover/adjustment is a row. MUST include `sourceType` field with values: `resident_data_share`, `community_merits`, `referral_reward`, `volunteer_credit`, `ai_credit`, `marketplace_credit`. Only `resident_data_share` is active in Phase 47; other enum values are forward-compatible slots (Constraint 8 — Value Ledger principle).
 - `DataConsent` — append-only per (walletId, streamKey); current state = latest row
 - `PayoutRequest` — resident-initiated; min R50 threshold enforced
 - `DataRevenueStream` — tenant-level config; per-stream resident share %
 - `DataShareBatch` — monthly distribution run; uses Drizzle `.transaction()` for atomicity
 
-Four enums: `WalletStatus`, `TransactionType`, `PayoutStatus`, `BatchStatus`.
+Five enums: `WalletStatus`, `TransactionType`, `TransactionSource`, `PayoutStatus`, `BatchStatus`.
 
 Seed entries: `PlatformModule` row (`key: 'dWallet'`, `minTier: PREMIUM`, `defaultEnabled: false`) + 4 `DataRevenueStream` rows scoped to the Soralia tenant with placeholder percentages (TODO comment to confirm against Schedule F Table 2).
 
@@ -81,6 +81,7 @@ These are non-negotiable per the spec. Any plan that violates them is a reject.
 5. Admin routes never return individual wallet balances, consent choices, or transaction details. Aggregate counts and totals only. `PayoutRequest` may show resident name to ADMIN / BOARD roles for payment processing.
 6. Pino audit log on every consent change with `{ event: 'consent_change', userId, streamKey, granted, tenantId, ip }`.
 7. `tenantId` on every dWallet model. All queries filter by `tenantId`. Do not rely on wallet ownership alone for tenant isolation.
+8. **Value Ledger principle:** dWallet is a Value Ledger, not a single-purpose rewards tracker. `WalletTransaction.sourceType` must support multiple value sources from day one — `resident_data_share`, `community_merits`, `referral_reward`, `volunteer_credit`, `ai_credit`, `marketplace_credit` — even though only `resident_data_share` is active in Phase 47. Future phases (45 Merits, 104 AI Billing) add sources without changing the wallet abstraction. This prevents three separate reward systems from evolving in parallel.
 
 ## Patterns to Follow (Sub-Phases B, C, D)
 
@@ -95,7 +96,8 @@ These are non-negotiable per the spec. Any plan that violates them is a reject.
 
 ## Acceptance
 
-- [ ] Sub-phase A: All 6 models + 4 enums migrated via Prisma; Drizzle schema regenerated; `prisma validate` passes; `npm run typecheck` passes
+- [ ] Sub-phase A: All 6 models + 5 enums migrated via Prisma; Drizzle schema regenerated; `prisma validate` passes; `npm run typecheck` passes
+- [ ] Sub-phase A: `TransactionSource` enum includes `resident_data_share`, `community_merits`, `referral_reward`, `volunteer_credit`, `ai_credit`, `marketplace_credit` — Value Ledger forward-compatibility (Constraint 8)
 - [ ] Sub-phase A: `PlatformModule` seed entry `dWallet` exists with `minTier: PREMIUM`
 - [ ] Sub-phase A: 4 `DataRevenueStream` seed entries exist for the Soralia tenant (with `TODO: confirm against Schedule F Table 2` comment)
 - [ ] Sub-phase B: All 10 resident routes + 7 admin routes implemented, auth-guarded, returning correct envelopes, with `maxDuration = 8`
