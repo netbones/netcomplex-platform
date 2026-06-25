@@ -927,20 +927,28 @@ Plans:
 
 **Sub-phases (per spec's Implementation Order):**
 
-| Sub | Objective                                                                                                  | Plan target |
-| --- | ---------------------------------------------------------------------------------------------------------- | ----------- |
-| A   | Schema & migration — 6 new Prisma models + 4 enums + `PlatformModule` seed + `DataRevenueStream` seed      | TBD         |
-| B   | API layer — 10 resident + 7 admin routes, Zod, Drizzle transactions, Vitest coverage                       | TBD         |
-| C   | Entity FSD structure — `src/entities/dwallet/` (schema, types, hooks, helpers)                             | TBD         |
-| D   | Widgets — `dwallet-summary` (resident) + `admin-dwallet` (admin), registered in `widgets.ts`               | TBD         |
-| E   | Feature gate integration — `dWallet` PlatformModule + 6 FeatureRegistry keys + `canAccess()` on all routes | TBD         |
-| F   | Full page + navigation — `/dashboard/wallet`, header dropdown, mobile burger, admin sidebar                | TBD         |
+| Sub | Plan       | Objective                                                                                                                              | Wave |
+| --- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| A   | 47-01-PLAN | Schema & migration — 6 new Prisma models + 5 enums + `PlatformModule` seed + `DataRevenueStream` seed + Drizzle wiring                 | 1    |
+| C   | 47-02-PLAN | Entity FSD structure — `src/entities/dwallet/` (schema, types, hooks, helpers)                                                         | 1    |
+| B1  | 47-03-PLAN | Resident API routes — 10 routes (wallet, transactions, consents, payout, export, deletion, streams, statement)                         | 2    |
+| B2  | 47-04-PLAN | Admin API routes — 7 routes (stats, batches, payouts, streams) + 3 Vitest test files (batch, immutable, isolation)                     | 2    |
+| E   | 47-05-PLAN | Feature gate integration — `dWallet` FeatureKey + mapping tables + FeatureRegistry + PlatformPageFlags + DEFAULT_PAGE_FLAGS            | 2    |
+| D   | 47-06-PLAN | Widgets — `DWalletSummaryWidget` (resident) + `DWalletAdminWidget` (admin), registered in `widgets.ts` behind `featureFlag: 'dWallet'` | 3    |
+| F   | 47-07-PLAN | Full page + navigation — `/dashboard/wallet` (5 tabs), header dropdown, mobile burger, NAV_REGISTRY                                    | 4    |
 
 **Hard constraints (per spec, non-negotiable):** immutable `WalletTransaction`; append-only `DataConsent`; `balanceAfter = balanceBefore + amount` invariant; atomic batch ops via Drizzle `.transaction()`; no admin PII access (aggregate counts only); Pino audit on every consent change; `tenantId` on every model.
 
-**Acceptance:** 6 sub-phase PLAN.md files created and executed; 6 new Prisma models migrated; all 17 API routes auth-guarded with `canAccess('page.dWallet')`; both widgets registered and visually verified (admin widget never shows individual balances); full `/dashboard/wallet` page exists; UBIQUITOUS_LANGUAGE.md updated with 7 new terms; integration-verification grep commands pass (no `prisma.` in routes, `tenantId` on every query, `apiSuccess`/`apiError` envelope in every route); POPIA audit complete (7cp); M5 launch checklist can flip to green once Schedule F Table 2 is confirmed.
+**Acceptance:** 7 sub-phase PLAN.md files created and executed; 6 new Prisma models + 5 enums migrated; 12 Drizzle schema files auto-generated; all 17 API routes auth-guarded with `canAccess('page.dWallet')`; both widgets registered and visually verified (admin widget never shows individual balances); full `/dashboard/wallet` page with 5 tabs exists; UBIQUITOUS_LANGUAGE.md updated with 7 new terms; integration-verification grep commands pass (no `prisma.` in routes, `tenantId` on every query, `apiSuccess`/`apiError` envelope in every route); 6 Vitest test files passing; POPIA audit complete (7cp); M5 launch checklist can flip to green once Schedule F Table 2 is confirmed.
 
-**Plans:** TBD. Run `/gsd-plan-phase 47-dwallet-planning-build` when ready. Suggested wave structure: Wave 1 = A + C (parallel), Wave 2 = B + E (parallel), Wave 3 = D, Wave 4 = F.
+**Plans:** 7 plans in 4 waves
+
+| Wave | Plans                           | Objective                                |
+| ---- | ------------------------------- | ---------------------------------------- |
+| 1    | [ ] 47-01, [ ] 47-02            | Schema + Entity FSD                      |
+| 2    | [ ] 47-03, [ ] 47-04, [ ] 47-05 | Resident API + Admin API + Feature Gates |
+| 3    | [ ] 47-06                       | Widgets                                  |
+| 4    | [ ] 47-07                       | Full Page + Navigation                   |
 
 **Out of scope (deferred to phase 2):** actual EFT / PayFast disbursement integration; Community Benefit Fund as separate ledger model (counter in `Tenant.featureFlags` for now); push notifications on reward receipt; multi-currency (ZAR only).
 
