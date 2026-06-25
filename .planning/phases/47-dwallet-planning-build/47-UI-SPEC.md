@@ -5,6 +5,8 @@ status: draft
 shadcn_initialized: true
 preset: default (slate base, CSS variables, rsc, tsx)
 created: 2026-06-25
+revised: 2026-06-25
+revised-reason: Product-design feedback — added Impact tab, Earnings Breakdown + Community Impact cards on Overview, consent toggle estimated values, community language sweep, removal of banking aesthetics (green/gold → indigo/slate)
 ---
 
 # Phase 47 — UI Design Contract
@@ -62,9 +64,9 @@ Tailwind default 4px-based scale — no project-level overrides in `tailwind.con
 
 Two weights only — 400 (regular) for all running text and labels, 600 (semibold) for all headings and emphasis:
 
-- Balance display (large number in `DWalletSummaryWidget`): 600 (semibold) at 28px — `text-2xl font-semibold`
+- Community Value display (large number in `DWalletSummaryWidget`): 600 (semibold) at 28px — `text-2xl font-semibold`
 - Stat card values in `DWalletAdminWidget`: 600 (semibold) at 20px — `text-xl font-semibold`
-- Transaction amounts: 400 (regular) at 14px — `text-sm`, with CREDIT in green (`text-emerald-600`), DEBIT in red (`text-red-600`)
+- Transaction amounts: 400 (regular) at 14px — `text-sm`, with Value Earned in `text-indigo-600`, Value Used in `text-slate-600`, Rollover in `text-slate-400`
 - Consent stream labels: 400 (regular) at 16px — `text-base`
 - Page/section headings: 600 (semibold) at 20px — `text-xl font-semibold`
 
@@ -74,32 +76,34 @@ Two weights only — 400 (regular) for all running text and labels, 600 (semibol
 
 ## Color
 
-| Role               | Value                                                                        | Usage                                                                                  |
-| ------------------ | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Dominant (60%)     | White (`bg-white`) and gray-50 (`bg-gray-50`)                                | Page backgrounds, widget backgrounds, main surfaces                                    |
-| Secondary (30%)    | Slate-100/200 borders (`border-gray-100`), slate-50 surfaces (`bg-slate-50`) | Cards, sidebar, nav, section dividers                                                  |
-| Accent (10%)       | `#4F46E5` (soralia.primary, Tailwind `indigo-600`)                           | Primary CTA buttons, active consent toggles, balance display icon, active nav item     |
-| Semantic: positive | `#10B981` (emerald-500)                                                      | CREDIT transaction amounts, granted consent badges, completed payout status            |
-| Semantic: negative | `#EF4444` (red-500)                                                          | DEBIT transaction amounts, revoked consent badges, rejected payout status              |
-| Semantic: warning  | `#F59E0B` (amber-500)                                                        | PENDING payout status, below-threshold warnings                                        |
-| Destructive        | `#DC2626` (red-600)                                                          | "Delete My Data" button, deletion request confirmation, CLOSED wallet status indicator |
+| Role               | Value                                                                        | Usage                                                                                   |
+| ------------------ | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Dominant (60%)     | White (`bg-white`) and gray-50 (`bg-gray-50`)                                | Page backgrounds, widget backgrounds, main surfaces                                     |
+| Secondary (30%)    | Slate-100/200 borders (`border-gray-100`), slate-50 surfaces (`bg-slate-50`) | Cards, sidebar, nav, section dividers                                                   |
+| Accent (10%)       | `#4F46E5` (soralia.primary, Tailwind `indigo-600`)                           | Primary CTA buttons, active consent toggles, balance display icon, active nav item      |
+| Semantic: positive | `#4F46E5` (indigo-600)                                                       | Value Earned amounts, granted consent badges, completed payout status                   |
+| Semantic: neutral  | `#475569` (slate-600)                                                        | Value Used amounts, revoked consent badges, rejected payout status                      |
+| Semantic: muted    | `#94A3B8` (slate-400)                                                        | Rollover amounts, pending payout status, "Coming Soon" labels, below-threshold warnings |
+| Destructive        | `#DC2626` (red-600)                                                          | "Delete My Data" button, deletion request confirmation, CLOSED wallet status indicator  |
 
 **Accent reserved for:**
 
 - Primary CTA: "Request Payout" button, "Export My Data" button
 - Active consent toggle switch (ON state)
-- Balance display currency symbol and wallet icon in summary widget
+- Community Value display (currency symbol + wallet icon in summary widget)
 - Active navigation item highlight
 - Feature gate badge (active/inactive indicator)
 
-**NOT accent:** All interactive elements. Secondary buttons use outline/border style; stat cards use semantic colors; status badges use their respective colors.
+**NOT accent:** All interactive elements. Secondary buttons use outline/border style; stat cards use semantic colors; status badges use their respective colors. The dWallet avoids banking aesthetics — no green for gains, no gold for rewards. It reads as community participation, not a financial dashboard.
 
-**CREDIT/DEBIT color convention:**
+**Value flow color convention:**
 
-- CREDIT (money received): `text-emerald-600` — positive, earned
-- DEBIT (money paid out): `text-red-600` — money leaving wallet
-- ROLLOVER (to community fund): `text-amber-600` — neutral, transferred
-- ADJUSTMENT (correction): `text-gray-500` — administrative
+- Value Earned (credit): `text-indigo-600` — community accent, positive
+- Value Used (debit): `text-slate-600` — neutral, spent or withdrawn
+- Value Rolled (rollover to community fund): `text-slate-400` — muted, transferred
+- Adjustment (correction): `text-gray-400` — administrative
+
+These colors avoid banking/fintech aesthetics (no green for gains, no red for losses, no gold). The dWallet is about community participation and data value, not a financial account.
 
 **Source:** `tailwind.config.cjs` soralia colors + existing widget patterns (DashboardStats uses semantic colors per stat type). DWALLET_SPEC.md §D specifies balance display must be "large, prominent" — accent-adjacent indigo/primary for the wallet icon and currency symbol reinforces the dWallet brand.
 
@@ -107,42 +111,59 @@ Two weights only — 400 (regular) for all running text and labels, 600 (semibol
 
 ## Copywriting Contract
 
+**Community language principle:** The dWallet uses community-forward language throughout — never banking/fintech terminology. "Community Value" replaces "Balance" in headings. "Value Earned" replaces "Income." "Community Activity" replaces "Transactions." This is about participation, contribution, and data value within the community.
+
 ### Primary CTA Labels
 
-| Context                   | Copy               | Notes                                                                                      |
-| ------------------------- | ------------------ | ------------------------------------------------------------------------------------------ |
-| Resident widget CTA       | "Request Payout"   | Disabled if balance < R50 with tooltip: "Minimum R50 balance required to request a payout" |
-| Resident widget secondary | "Export My Data"   | Opens export format selection (JSON / CSV)                                                 |
-| Admin widget CTA          | "Run Distribution" | Opens distribution batch form                                                              |
-| Full page payout tab      | "Request Payout"   | Button in payout section                                                                   |
-| Full page export section  | "Export My Data"   | With format selector                                                                       |
-| Deletion request          | "Delete My Data"   | Destructive action — requires confirmation dialog                                          |
+| Context                   | Copy               | Notes                                                                                            |
+| ------------------------- | ------------------ | ------------------------------------------------------------------------------------------------ |
+| Resident widget CTA       | "Request Payout"   | Disabled if value < R50 with tooltip: "Minimum R50 community value required to request a payout" |
+| Resident widget secondary | "Export My Data"   | Opens export format selection (JSON / CSV)                                                       |
+| Admin widget CTA          | "Run Distribution" | Opens distribution batch form                                                                    |
+| Full page payout tab      | "Request Payout"   | Button in payout section                                                                         |
+| Full page export section  | "Export My Data"   | With format selector                                                                             |
+| Deletion request          | "Delete My Data"   | Destructive action — requires confirmation dialog                                                |
+
+### Consent Toggle Value Labels
+
+Each consent toggle in the Consents tab displays an estimated monthly reward:
+
+| Stream               | Label                |
+| -------------------- | -------------------- |
+| Anonymised Analytics | "~R8.20/mo"          |
+| Community Insights   | "~R3.50/mo"          |
+| Market Research      | "~R5.00/mo (paused)" |
+| Community Benchmarks | "~R2.80/mo"          |
+| Service Matching     | "~R3.40/mo"          |
+
+Values appear inline next to each toggle as muted `text-sm text-slate-400`. A footnote reads: "Estimated values based on current community participation. Actual rewards vary per distribution cycle."
 
 ### Empty State Copy
 
-| Context                        | Heading                    | Body                                                                                        |
-| ------------------------------ | -------------------------- | ------------------------------------------------------------------------------------------- |
-| Empty wallet (no transactions) | "No transactions yet"      | "Your wallet is ready. Credits from data sharing will appear here as they are distributed." |
-| No consents                    | "No consent decisions yet" | "Grant consent to data streams to start earning rewards. Your data, your choice."           |
-| No payouts                     | "No payout requests"       | "Once your balance reaches R50, you can request a payout here."                             |
-| Admin: no batches              | "No distribution batches"  | "Run your first distribution to credit opted-in residents."                                 |
-| Admin: no payouts pending      | "No pending payouts"       | "All payout requests have been processed."                                                  |
+| Context                    | Heading                     | Body                                                                                                  |
+| -------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Empty wallet (no activity) | "No community activity yet" | "Your dWallet is ready. Value earned through data sharing will appear here as it is distributed."     |
+| No consents                | "No consent decisions yet"  | "Grant consent to data streams to start earning value. Your data, your choice."                       |
+| No payouts                 | "No payout requests"        | "Once your community value reaches R50, you can request a payout here."                               |
+| No impact data             | "No impact data yet"        | "Community impact metrics will appear once your data sharing generates community-wide contributions." |
+| Admin: no batches          | "No distribution batches"   | "Run your first distribution to credit opted-in residents."                                           |
+| Admin: no payouts pending  | "No pending payouts"        | "All payout requests have been processed."                                                            |
 
 ### Error State Copy
 
 | Context                    | Problem + Solution                                                                                          |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Wallet load failure        | "Could not load wallet. Please refresh the page or try again later."                                        |
+| Wallet load failure        | "Could not load dWallet. Please refresh the page or try again later."                                       |
 | Consent toggle failure     | "Could not update consent. Please try again. If the problem persists, contact support."                     |
-| Payout below threshold     | "Your balance of R{amount} is below the R50 minimum. Continue sharing data to earn more."                   |
+| Payout below threshold     | "Your community value of R{amount} is below the R50 minimum. Continue sharing data to earn more."           |
 | Export generation failure  | "Could not generate export. Please try again. If the problem persists, request manual export from support." |
 | Distribution batch failure | "Batch distribution failed. No credits were applied. Check the batch history for details."                  |
 
 ### Destructive Actions
 
-| Action           | Confirmation Copy                                                                                                                                                                     | Approach                                                                                                                                                |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| "Delete My Data" | "This will permanently close your wallet, transfer any remaining balance to the Community Benefit Fund, and anonymise your data records. This action cannot be undone. Are you sure?" | Two-step: (1) "Delete My Data" button → confirmation modal with explicit "I understand, delete my data" checkbox before final "Confirm Deletion" button |
+| Action           | Confirmation Copy                                                                                                                                                                              | Approach                                                                                                                                                |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Delete My Data" | "This will permanently close your dWallet, transfer any remaining community value to the Community Benefit Fund, and anonymise your data records. This action cannot be undone. Are you sure?" | Two-step: (1) "Delete My Data" button → confirmation modal with explicit "I understand, delete my data" checkbox before final "Confirm Deletion" button |
 
 ### Form Dismiss Labels
 
@@ -155,7 +176,7 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 | Export format selector      | "Close"        | Dismisses the export format popover                                   |
 | Deletion confirmation modal | "Keep My Data" | Explicitly preserves data — pairs with destructive "Confirm Deletion" |
 
-**Source:** DWALLET_SPEC.md §D (widget UI specs), §6 (export/deletion), §4 (consent model), §5 (R50 threshold). Error copy derived from existing ErrorBoundary fallback patterns.
+**Source:** DWALLET_SPEC.md §D (widget UI specs), §6 (export/deletion), §4 (consent model), §5 (R50 threshold). Error copy derived from existing ErrorBoundary fallback patterns. Consent toggle values and Impact tab copy added per product-design feedback (2026-06-25).
 
 ---
 
@@ -163,37 +184,71 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 
 ### Surface 1: DWalletSummaryWidget (resident, home space)
 
-**Layout:** Compact card, 2×2 grid units default, 1×1 minimum.
+**Layout:** Compact card, 2×3 grid units default (expanded from 2×2 to accommodate new Overview cards), 2×2 minimum.
 
 ```
-┌──────────────────────────────┐
-│  🏦 My Data Wallet           │  ← widget header with Wallet icon + "My Data Wallet"
-│                              │
-│  R 1,247.50                  │  ← balance (28px semibold, indigo-600 icon/currency)
-│  Lifetime earned: R 3,420    │  ← secondary stat (14px, gray-500)
-│                              │
-│  Consent Status              │
-│  ┌──────────────────────────┐│
-│  │ Anonymised Analytics  [ON]││  ← ConsentToggle rows (stream label + toggle switch)
-│  │ Market Research      [OFF]││      ON = accent bg (indigo-100 → indigo-600)
-│  │ Community Benchmarks  [ON]││      OFF = gray-200 bg
-│  │ Service Matching     [OFF]││
-│  └──────────────────────────┘│
-│                              │
-│  Last reward: R 42.50        │
-│  Anonymised Analytics        │
-│  15 Jun 2026                 │
-│                              │
-│  [Request Payout] [Export]   │  ← CTA row
-│  View full history →         │  ← link to /dashboard/wallet
-└──────────────────────────────┘
+┌──────────────────────────────────────┐
+│  🏦 My dWallet                       │  ← widget header with Wallet icon + "My dWallet"
+│                                      │
+│  Community Value                     │
+│  R 1,247.50                          │  ← value display (28px semibold, indigo-600 icon/currency)
+│  Value Earned (lifetime): R 3,420   │  ← secondary stat (14px, slate-500)
+│                                      │
+│  Where Your Value Comes From         │
+│  ┌──────────────────────────────────┐│
+│  │ ████████████████████░ Data   65% ││  ← Data Rewards: R810.88 (active, indigo-600)
+│  │ ░░░░░░░░░░░░░░░░░░░░░░ Comm  20% ││     Community Rewards: coming soon (slate-300)
+│  │ ░░░░░░░░░░░░░░░░░░░░░░ Merit 10% ││     Merits: coming soon (slate-300)
+│  │ ░░░░░░░░░░░░░░░░░░░░░░ Refer  5% ││     Referrals: coming soon (slate-300)
+│  └──────────────────────────────────┘│
+│                                      │
+│  Community Impact                    │
+│  ┌──────────────────────────────────┐│
+│  │  324           R18,200           ││  ← Residents Participating, Community Earnings
+│  │  Participants  Community Earnings ││
+│  │  4             R1,247            ││  ← Projects Funded, Your Contribution
+│  │  Projects      Your Contribution  ││
+│  └──────────────────────────────────┘│
+│                                      │
+│  Consent Status                      │
+│  ┌──────────────────────────────────┐│
+│  │ Anonymised Analytics   [ON]  ~R8.20/mo││  ← ConsentToggle rows with estimated value
+│  │ Community Insights     [ON]  ~R3.50/mo││      ON = accent bg (indigo-600)
+│  │ Market Research       [OFF]  ~R5.00/mo││      OFF = slate-200 bg, muted label
+│  │ Community Benchmarks   [ON]  ~R2.80/mo││
+│  │ Service Matching       [ON]  ~R3.40/mo││
+│  └──────────────────────────────────┘│
+│                                      │
+│  *Estimated values vary per cycle    │
+│                                      │
+│  [Request Payout] [Export]           │  ← CTA row
+│  View full activity →                │  ← link to /dashboard/wallet?tab=activity
+└──────────────────────────────────────┘
 ```
+
+**Earnings Breakdown card ("Where Your Value Comes From"):**
+
+- Data Rewards: 65% (R810.88) — active, `text-indigo-600` on filled bar segment
+- Community Rewards: 20% — "Coming Soon" in muted slate-300 with dashed bar segment
+- Merits: 10% — "Coming Soon" in muted slate-300 with dashed bar segment
+- Referrals: 5% — "Coming Soon" in muted slate-300 with dashed bar segment
+- Only Data Rewards is active in Phase 47. Other sources show muted styling — architecture ready for future value types.
+
+**Community Impact card:**
+
+- Residents Participating: 324
+- Community Earnings: R18,200
+- Projects Funded: 4
+- Your Contribution: R1,247
+- Layout: 2×2 stat grid within card, each stat is label below value.
+
+**Future value ledger design:** The Overview layout is designed to accommodate additional value sources beyond data rewards — merits, referrals, volunteer credits, AI credits, marketplace credits — as they ship in future phases. The bar chart expands horizontally; new rows appear without restructuring.
 
 **States:**
 
-- Loading: `LoadingCard` with `contentLines={4}`
-- Empty: Wallet created but no transactions — show balance as R 0.00, show "No transactions yet" empty state
-- Error: `ErrorBoundary` fallback with "Could not load wallet"
+- Loading: `LoadingCard` with `contentLines={6}`
+- Empty: Wallet created but no activity — show Community Value as R 0.00, show "No community activity yet" empty state, Impact card hidden, Earnings card shows all "Coming Soon"
+- Error: `ErrorBoundary` fallback with "Could not load dWallet"
 - Below threshold: "Request Payout" disabled with tooltip
 - No streams configured: Consent section shows "No revenue streams configured for your community"
 
@@ -202,9 +257,9 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 - Consent toggle: optimistic UI update on click → `POST /api/v1/tenant/dwallet/consents/:streamKey`. On failure, revert toggle and show toast.
 - "Request Payout": navigates to `/dashboard/wallet?tab=payouts` or opens inline form (TBD by executor)
 - "Export My Data": opens small dropdown/popover with JSON/CSV choice, triggers export API
-- "View full history": navigates to `/dashboard/wallet`
+- "View full activity": navigates to `/dashboard/wallet?tab=activity`
 
-**Data source:** `useWallet()` hook (TanStack Query) — fetches `GET /api/v1/tenant/dwallet/` for summary, `GET /api/v1/tenant/dwallet/consents` for consent states, `GET /api/v1/tenant/dwallet/streams` for stream labels.
+**Data source:** `useWallet()` hook (TanStack Query) — fetches `GET /api/v1/tenant/dwallet/` for summary, `GET /api/v1/tenant/dwallet/consents` for consent states, `GET /api/v1/tenant/dwallet/streams` for stream labels, `GET /api/v1/tenant/dwallet/impact` for community impact stats.
 
 ### Surface 2: DWalletAdminWidget (admin, system space)
 
@@ -212,7 +267,7 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 
 ```
 ┌──────────────────────────────────────────────┐
-│  📊 Data Wallet Admin                        │
+│  📊 dWallet Admin                             │
 │                                              │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐     │
 │  │ Residents │ │  Month   │ │ Pending  │     │  ← Stat cards row
@@ -255,66 +310,128 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 **Interactions:**
 
 - "Run Distribution": opens distribution form (modal or inline expand) with stream selector, period start/end date pickers, total revenue input. On submit → `POST /api/admin/dwallet/batches`.
-- Payout "Approve" button: `PATCH /api/admin/dwallet/payouts/:id` with status COMPLETED. Creates DEBIT transaction. Button uses emerald-600 text and `aria-label="Approve payout for {residentName}"`.
-- Payout "Reject" button: `PATCH /api/admin/dwallet/payouts/:id` with status REJECTED. No balance change. Button uses red-600 text and `aria-label="Reject payout for {residentName}"`.
+- Payout "Approve" button: `PATCH /api/admin/dwallet/payouts/:id` with status COMPLETED. Creates DEBIT transaction. Button uses `indigo-600` text and `aria-label="Approve payout for {residentName}"`.
+- Payout "Reject" button: `PATCH /api/admin/dwallet/payouts/:id` with status REJECTED. No balance change. Button uses `slate-600` text and `aria-label="Reject payout for {residentName}"`.
 
 **Data source:** `GET /api/admin/dwallet/stats`, `GET /api/admin/dwallet/payouts`, `GET /api/admin/dwallet/batches`.
 
 ### Surface 3: Full Wallet Page — `/dashboard/wallet`
 
-**Layout:** Full page with tab-based navigation (Overview | Transactions | Consents | Payouts).
+**Layout:** Full page with tab-based navigation (Overview | Activity | Impact | Consents | Payouts).
 
 ```
-┌─────────────────────────────────────────────────┐
-│  My Data Wallet                    [Export] [···]│  ← Page header
-│  R 1,247.50                                     │
-│  ─────────────────────────────────────────────── │
-│  [Overview] [Transactions] [Consents] [Payouts]   │  ← Tab bar
-│  ─────────────────────────────────────────────── │
-│                                                  │
-│  {Active Tab Content}                            │
-│                                                  │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│  My dWallet                             [Export] [···]│  ← Page header
+│  Community Value  R 1,247.50                         │
+│  ─────────────────────────────────────────────────── │
+│  [Overview] [Activity] [Impact] [Consents] [Payouts]  │  ← Tab bar (5 tabs)
+│  ─────────────────────────────────────────────────── │
+│                                                      │
+│  {Active Tab Content}                                │
+│                                                      │
+└──────────────────────────────────────────────────────┘
 ```
 
 **Tab 1 — Overview:**
 
-- Large balance display (same as widget, larger)
-- Lifetime stats (lifetimeEarned, lifetimePaid, wallet status)
-- Revenue stream summary cards (stream name, resident share %, your consent status)
+- Large Community Value display (28px semibold, indigo-600 icon/currency)
+- Lifetime stats: Value Earned, Value Withdrawn, wallet status badge
+- "Where Your Value Comes From" earnings breakdown card (same as widget):
+  - Data Rewards 65% (R810.88) — active, `indigo-600` bar
+  - Community Rewards 20% — "Coming Soon" in muted `slate-300`
+  - Merits 10% — "Coming Soon" in muted `slate-300`
+  - Referrals 5% — "Coming Soon" in muted `slate-300`
+- Community Impact card (same as widget):
+  - Residents Participating: 324 | Community Earnings: R18,200
+  - Projects Funded: 4 | Your Contribution: R1,247
+- Revenue stream summary cards (stream name, resident share %, your consent status, estimated monthly value)
 - Quick actions: "Request Payout", "Export My Data", "Download Annual Statement"
-- Last 5 transactions (link to Transactions tab)
+- Last 5 community activities (link to Activity tab)
+- **Future value ledger design:** The Overview layout accommodates additional value sources as they ship — the earnings bar chart scales horizontally, and new stat rows appear in the Community Impact card without restructuring. The dWallet is designed to eventually combine data rewards, merits, referrals, volunteer credits, AI credits, and marketplace credits into a single Community Value total.
 
-**Tab 2 — Transactions:**
+**Tab 2 — Activity (renamed from "Transactions"):**
 
-- Full paginated transaction history table
-- Columns: Date, Type (badge), Description, Amount (signed with color), Balance Before, Balance After
-- Type badges: CREDIT (emerald), DEBIT (red), ROLLOVER (amber), ADJUSTMENT (gray)
+- Full paginated activity history table (community-forward language — not banking "transactions")
+- Columns: Date, Type (badge), Source, Amount (signed with color), Value Before, Value After
+- Type badges using new color convention:
+  - Value Earned: `indigo-600` (was CREDIT/green — no banking aesthetic)
+  - Value Used: `slate-600` (was DEBIT/red — no banking aesthetic)
+  - Value Rolled: `slate-400` (was ROLLOVER/amber — no banking aesthetic)
+  - Adjustment: `gray-400` (administrative correction)
 - Filter by: type (dropdown), date range (date pickers)
 - Sort by date (newest first default)
 
-**Tab 3 — Consents:**
+**Tab 3 — Impact (new in Phase 47):**
+
+- Community Earnings banner — total distributed across all residents since inception
+  - Display as large stat: "R482,500 — Total Community Value Distributed"
+- Residents Participating count: "324 of 340 residents are opted in"
+- Your Contribution amount + percentage of community total:
+  - "Your Contribution: R1,247 (0.26% of community total)"
+- Community Benefit Fund balance:
+  - "R24,200 — available for community projects"
+- Data Streams contribution breakdown:
+  - ┌──────────────────────────────────────────────────┐
+  - │ Analytics ██████████████████████░░░ 65% R313,625│
+  - │ Research ████████░░░░░░░░░░░░░░░░░░ 20% R96,500 │
+  - │ Benchmarks ████░░░░░░░░░░░░░░░░░░░░░ 10% R48,250 │
+  - │ Matching ██░░░░░░░░░░░░░░░░░░░░░░░░ 5% R24,125 │
+  - └──────────────────────────────────────────────────┘
+- Empty state: "No impact data yet — community impact metrics will appear once your data sharing generates community-wide contributions."
+- Data sources: `GET /api/v1/tenant/dwallet/impact` (aggregate community stats), `GET /api/admin/dwallet/stats` (for admin aggregate view)
+
+**Tab 4 — Consents:**
 
 - Full consent management panel
-- Each stream: label, description, current status (granted/revoked), grant/revoke date, toggle switch
+- Each stream: label, description, current status (granted/revoked), grant/revoke date, toggle switch, **estimated monthly value**
+- Estimated value display per stream:
+  ```
+  ┌──────────────────────────────────────────────────────────┐
+  │ Anonymised Analytics                        [ON] ~R8.20  │
+  │ Your anonymised usage data helps improve services         │
+  │ Granted 15 Jun 2026                                       │
+  │                                                          │
+  │ Community Insights                          [ON] ~R3.50  │
+  │ Aggregated community trends and patterns                  │
+  │ Granted 15 Jun 2026                                       │
+  │                                                          │
+  │ Market Research                            [OFF] ~R5.00  │
+  │ Third-party research with privacy safeguards              │
+  │ Last revoked 01 Apr 2026                   (paused)      │
+  │                                                          │
+  │ Community Benchmarks                        [ON] ~R2.80  │
+  │ Performance comparisons across communities                │
+  │ Granted 15 Jun 2026                                       │
+  │                                                          │
+  │ Service Matching                            [ON] ~R3.40  │
+  │ Connect you with relevant community services              │
+  │ Granted 10 Jun 2026                                       │
+  └──────────────────────────────────────────────────────────┘
+  ```
+- Estimated values in `text-sm text-slate-400`. Footnote: "Estimated values based on current community participation. Actual rewards vary per distribution cycle."
 - Revoking consent: immediate effect (no future credits from that stream)
-- Info text: "Revoking consent stops future reward accumulation. Past credits are not affected."
+- Info text: "Revoking consent stops future value accumulation. Past value earned is not affected."
 - Audit disclaimer: "All consent changes are logged and retained for 5 years per Schedule G4."
 
-**Tab 4 — Payouts:**
+**Tab 5 — Payouts:**
 
-- Payout request form: amount (auto-filled to current balance, editable), method (display-only: "Bank Transfer")
-- "Request Payout" button (disabled if < R50)
+- Payout request form: amount (auto-filled to current Community Value, editable), method (display-only: "Bank Transfer")
+- "Request Payout" button (disabled if value < R50)
 - Payout history table: Date Requested, Amount, Status (badge), Processed Date, Notes
-- Status badges: PENDING (amber), PROCESSING (blue), COMPLETED (emerald), REJECTED (red), CANCELLED (gray)
+- Status badges using new color convention:
+  - PENDING: `slate-400` (was amber — no banking aesthetic)
+  - PROCESSING: `indigo-500`
+  - COMPLETED: `indigo-600` (was emerald — no banking aesthetic)
+  - REJECTED: `slate-600` (was red — no banking aesthetic)
+  - CANCELLED: `gray-400`
 
-**Data sources:** Respective API routes per tab. Use TanStack Query with appropriate stale times (balance: 30s, transactions/history: 2min, consent state: 1min).
+**Data sources:** Respective API routes per tab. Use TanStack Query with appropriate stale times (community value: 30s, activity history: 2min, consent state: 1min, impact: 5min).
 
 **Navigation integration (Sub-Phase F):**
 
-- Header avatar dropdown: "My Wallet" entry behind `dWallet` feature flag (use `canAccessClient('page.dWallet')` or widget manifest `featureFlag`)
-- Mobile burger menu: "My Wallet" in My Space section, behind `dWallet` flag
-- Admin sidebar: "Data & Wallet" in System section (link to admin dWallet stats or admin-dwallet widget placement)
+- Header avatar dropdown: "My dWallet" entry behind `dWallet` feature flag (use `canAccessClient('page.dWallet')` or widget manifest `featureFlag`)
+- Mobile burger menu: "My dWallet" in My Space section, behind `dWallet` flag
+- Admin sidebar: "Data & Community" in System section (link to admin dWallet stats or admin-dwallet widget placement)
 
 ---
 
@@ -327,8 +444,8 @@ These registrations MUST be added to `src/widgets/dashboard/model/widgets.ts` in
 registry.register({
   id: 'dwallet-summary',
   version: '1.0.0',
-  name: 'My Data Wallet',
-  description: 'Current balance, recent rewards, and consent status',
+  name: 'My dWallet',
+  description: 'Community value, consent status, and impact at a glance',
   category: 'core',
   icon: Wallet, // from lucide-react
   featureFlag: 'dWallet',
@@ -337,8 +454,8 @@ registry.register({
       default: m.DWalletSummaryWidget,
     }))
   ),
-  defaultSize: { width: 2, height: 2 },
-  minSize: { width: 1, height: 1 },
+  defaultSize: { width: 2, height: 3 },
+  minSize: { width: 2, height: 2 },
   dragHandleClassName: 'widget-drag-handle',
   spaces: ['home'],
 });
@@ -347,8 +464,8 @@ registry.register({
 registry.register({
   id: 'admin-dwallet',
   version: '1.0.0',
-  name: 'Data Wallet Admin',
-  description: 'Reward distribution, payout management, and compliance overview',
+  name: 'dWallet Admin',
+  description: 'Community value distribution, payout management, and compliance overview',
   category: 'core',
   icon: Wallet, // from lucide-react
   featureFlag: 'dWallet',
@@ -384,23 +501,26 @@ registry.register({
 ### Consent Toggle
 
 ```
-[Stream Label]  ──────────●──────────  ON  ← accent bg on track
-[Stream Label]  ○────────────────────  OFF ← gray-200 track
+[Stream Label]           ~R8.20/mo  ──────────●──────────  ON  ← accent bg on track
+[Stream Label]           ~R5.00/mo  ○────────────────────  OFF ← slate-200 track, muted label
+                                                                   (shows "paused" if previously granted)
 ```
 
+- Estimated monthly value displayed inline next to stream label (`text-sm text-slate-400`)
 - Optimistic update: toggle immediately flips on click
 - API call: `POST /api/v1/tenant/dwallet/consents/:streamKey` with `{ granted: boolean }`
 - On failure: revert toggle, show Sonner toast with error message
 - Audit: Pino log generated server-side on every consent change
+- Footnote below all toggles: "Estimated values based on current community participation. Actual rewards vary per distribution cycle."
 
 ### Payout Request Form
 
 ```
 Request a Payout
 ┌─────────────────────────────────┐
-│ Available Balance    R 1,247.50 │
-│ Amount to withdraw   [1247.50]  │  ← input, pre-filled, editable
-│ Method               Bank Transfer│  ← display-only in Phase 1
+│ Community Value       R 1,247.50 │
+│ Amount to withdraw    [1247.50]  │  ← input, pre-filled, editable
+│ Method                Bank Transfer│  ← display-only in Phase 1
 │                                  │
 │ [Go Back]    [Request Payout]   │
 └─────────────────────────────────┘
@@ -460,11 +580,11 @@ Two-step destructive action:
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PENDING — form dismiss labels changed from generic "Cancel" to context-specific ("Go Back", "Keep My Data", "Close"); awaiting re-check
-- [ ] Dimension 2 Visuals: PENDING — admin payout actions changed from icon-only [✓][✗] to explicit text buttons with aria-labels; awaiting re-check
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PENDING — consolidated from 4 weights to 2 (400 + 600); awaiting re-check
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [ ] Dimension 1 Copywriting: PENDING — community language sweep applied ("Community Value", "Value Earned", "Activity"), Impact tab and consent toggle values added, "Coming Soon" states for future sources; awaiting re-check
+- [ ] Dimension 2 Visuals: PENDING — Surface 1 redesigned with Earnings Breakdown and Community Impact cards, Surface 3 restructured to 5 tabs (Impact added, Transactions→Activity renamed), consent toggles show estimated values, Overview designed for future value ledger expansion; awaiting re-check
+- [ ] Dimension 3 Color: PENDING — semantic colors changed (green→indigo-600 for positive, red→slate-600 for negative, amber→slate-400 for neutral/pending); green, gold, and banking aesthetics removed; awaiting re-check
+- [ ] Dimension 4 Typography: PASS (unchanged — 4 sizes, 2 weights preserved)
+- [ ] Dimension 5 Spacing: PASS (unchanged — all multiples of 4 preserved)
+- [ ] Dimension 6 Registry Safety: PASS (unchanged — no third-party registries)
 
-**Approval:** pending
+**Approval:** pending — updated per product-design feedback 2026-06-25
