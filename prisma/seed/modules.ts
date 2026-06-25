@@ -75,6 +75,14 @@ const modules = [
     defaultEnabled: true,
     description: 'CMS for news, events, blogs',
   },
+  {
+    key: 'ai-provider',
+    label: 'AI Provider',
+    description:
+      'Connect an AI provider (Anthropic or OpenAI) to enable AI-powered features across the platform',
+    minTier: tierMap.STANDARD,
+    defaultEnabled: false,
+  },
 
   // Premium
   {
@@ -145,6 +153,33 @@ async function main() {
       create: m,
     });
   }
+  // Seed AI pool tier quotas (SUPPLEMENTAL-2 G8: STANDARD 50k / PREMIUM 200k / ENTERPRISE 500k)
+  await prisma.platformAiTierQuota.createMany({
+    data: [
+      { tier: 'STANDARD', monthlyTokens: 50_000, overagePolicy: 'HARD_STOP' },
+      { tier: 'PREMIUM', monthlyTokens: 200_000, overagePolicy: 'THROTTLE' },
+      {
+        tier: 'ENTERPRISE',
+        monthlyTokens: 500_000,
+        overagePolicy: 'SURCHARGE',
+        overageTokens: 500_000,
+        overagePriceZAR: 0.0001,
+      },
+    ],
+    skipDuplicates: true,
+  });
+
+  // Seed AI capability cost estimates
+  await prisma.aiCapabilityCost.createMany({
+    data: [
+      { capability: 'ai.disputes.frivolityScreen', estimatedTokens: 300, maxTokens: 500 },
+      { capability: 'ai.content.translation', estimatedTokens: 800, maxTokens: 2000 },
+      { capability: 'ai.content.moderation', estimatedTokens: 200, maxTokens: 300 },
+      { capability: 'ai.maintenance.triage', estimatedTokens: 400, maxTokens: 600 },
+    ],
+    skipDuplicates: true,
+  });
+
   console.log('Seeded', modules.length, 'platform modules');
 }
 
