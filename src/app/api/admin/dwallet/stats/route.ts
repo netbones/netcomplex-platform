@@ -1,6 +1,5 @@
 import {
   apiSuccess,
-  apiError,
   apiUnauthorized,
   apiForbidden,
   apiInternalError,
@@ -9,7 +8,6 @@ import {
   db,
   dWallets,
   dataConsents,
-  dataRevenueStreams,
   payoutRequests,
   walletTransactions,
 } from '@api/server';

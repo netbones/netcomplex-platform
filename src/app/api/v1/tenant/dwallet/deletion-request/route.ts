@@ -4,7 +4,6 @@ import {
   walletTransactions,
   dataConsents,
   apiSuccess,
-  apiError,
   apiUnauthorized,
   withErrorHandler,
   getSessionAndRole,

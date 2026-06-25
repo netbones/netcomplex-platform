@@ -1,23 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { ErrorBoundary, LoadingCard, LoadingSkeleton } from '@shared/ui';
+import { ErrorBoundary, LoadingCard } from '@shared/ui';
 import { Wallet, CheckCircle, XCircle } from 'lucide-react';
 import type { AdminStats, PayoutRequestItem, BatchRecord } from '../model/types';
-
-// ── Types ──────────────────────────────────────────────────────────────────
-
-interface AdminDWalletData {
-  stats: AdminStats | null;
-  payouts: PayoutRequestItem[];
-  batches: BatchRecord[];
-  isLoadingStats: boolean;
-  isLoadingPayouts: boolean;
-  isLoadingBatches: boolean;
-  statsError: unknown;
-  payoutsError: unknown;
-  batchesError: unknown;
-}
 
 // ── Data fetching helpers ──────────────────────────────────────────────────
 
@@ -212,8 +198,9 @@ function PayoutsTable({
   onApprove,
   onReject,
   isActioning,
-  actioningId,
+  actioningId: _actioningId,
 }: PayoutsTableProps) {
+  void _actioningId;
   if (payouts.length === 0) {
     return <AdminEmptyState message="No pending payouts" />;
   }

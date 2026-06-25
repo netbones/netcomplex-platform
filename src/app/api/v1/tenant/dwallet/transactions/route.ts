@@ -2,7 +2,6 @@ import {
   db,
   walletTransactions,
   apiSuccess,
-  apiError,
   apiUnauthorized,
   withErrorHandler,
   getSessionAndRole,

@@ -1,24 +1,18 @@
 import {
   db,
-  dWallets,
   walletTransactions,
   dataConsents,
   dataRevenueStreams,
   apiSuccess,
-  apiError,
   apiUnauthorized,
-  apiForbidden,
   withErrorHandler,
   getSessionAndRole,
 } from '@api/server';
 
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
-import { createComponentLogger } from '@shared/lib';
 import { getOrCreateWallet } from '@entities/dwallet';
 import type { DWalletSummary, ConsentState, TransactionItem } from '@entities/dwallet';
-
-const logger = createComponentLogger('dwallet-api');
 
 export const maxDuration = 8;
 

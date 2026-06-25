@@ -1,7 +1,6 @@
 import {
   apiSuccess,
   apiCreated,
-  apiError,
   apiUnauthorized,
   apiForbidden,
   apiConflict,

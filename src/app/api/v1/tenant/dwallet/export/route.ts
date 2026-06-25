@@ -4,7 +4,6 @@ import {
   walletTransactions,
   payoutRequests,
   apiSuccess,
-  apiError,
   apiUnauthorized,
   withErrorHandler,
   getSessionAndRole,
@@ -15,10 +14,7 @@ import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { getOrCreateWallet } from '@entities/dwallet';
 import { exportRequestSchema } from '@entities/dwallet';
-import { createComponentLogger } from '@shared/lib';
 import { NextResponse } from 'next/server';
-
-const logger = createComponentLogger('dwallet-export');
 
 export const maxDuration = 8;
 

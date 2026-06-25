@@ -15,15 +15,12 @@ import {
   Download,
   MoreHorizontal,
   Info,
-  Users,
   TrendingUp,
   Shield,
   FileText,
   CreditCard,
-  Calendar,
   ChevronLeft,
   ChevronRight,
-  BarChart3,
   Activity as ActivityIcon,
 } from 'lucide-react';
 
@@ -664,7 +661,6 @@ function ActivityTab() {
 
 function ImpactTab({ streams }: { streams: StreamConfig[] }) {
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Impact data is derived from available endpoints

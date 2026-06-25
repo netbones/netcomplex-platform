@@ -14,7 +14,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   const sessionData = await getSessionAndRole(request);
   if (!sessionData) return apiUnauthorized();
 
-  const { tenantId } = await withTenant();
+  await withTenant();
 
   return apiSuccess({
     message:

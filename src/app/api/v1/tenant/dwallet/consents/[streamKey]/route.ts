@@ -5,7 +5,6 @@ import {
   apiSuccess,
   apiError,
   apiUnauthorized,
-  apiForbidden,
   withErrorHandler,
   getSessionAndRole,
   now,
