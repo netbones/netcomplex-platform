@@ -114,6 +114,13 @@ const modules = [
     description: 'Community competitions and contests',
   },
   {
+    key: 'dWallet',
+    label: 'dWallet',
+    minTier: tierMap.PREMIUM,
+    defaultEnabled: false,
+    description: 'Per-resident data rights, consent, and rewards wallet',
+  },
+  {
     key: 'providers',
     label: 'Service Providers',
     minTier: tierMap.PREMIUM,
@@ -182,6 +189,9 @@ async function main() {
 
   console.log('Seeded', modules.length, 'platform modules');
 }
+
+// Run dWallet data revenue stream seed
+import './dwallet-streams';
 
 main()
   .catch(console.error)
