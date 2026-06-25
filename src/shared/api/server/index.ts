@@ -159,6 +159,25 @@ export { templates } from '../email/templates';
 export type { TemplateKey } from '../email/templates';
 export { getTenantModule } from '@entities/tenant/server';
 
+// Tenant billing
+export type {
+  TenantBillingActionError,
+  TenantBillingActionSuccess,
+  TenantBillingActionResult,
+} from './tenant-billing';
+export {
+  createTenantSubscriptionCheckout,
+  cancelTenantSubscription,
+  upgradeTenantSubscription,
+  downgradeTenantSubscription,
+  getTenantBillingSnapshot,
+  markTransactionCompletedByReference,
+  markTransactionFailedByReference,
+  syncTierToTenant,
+  recordBillingEvent,
+  getOrCreateDefaultBillingPlans,
+} from './tenant-billing';
+
 // AI Provider — platform pool
 export {
   getAiProvider,
