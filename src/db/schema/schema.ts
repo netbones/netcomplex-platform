@@ -56,6 +56,20 @@ import * as paymentTransactions from './payment-transactions';
 import * as revenueRecords from './revenue-records';
 import * as providerCharges from './provider-charges';
 import * as providerInvoices from './provider-invoices';
+import * as billingPlanEnums from './billing-plan-enums';
+import * as billingPlan from './billing-plan';
+import * as tenantSubscription from './tenant-subscription';
+import * as tenantInvoice from './tenant-invoice';
+import * as tenantPayment from './tenant-payment';
+import * as billingAdjustmentEnums from './billing-adjustment-enums';
+import * as billingAdjustment from './billing-adjustment';
+import * as billingEventEnums from './billing-event-enums';
+import * as billingEvent from './billing-event';
+import * as couponEnums from './coupon-enums';
+import * as coupon from './coupon';
+import * as couponRedemption from './coupon-redemption';
+import * as taxRate from './tax-rate';
+import * as taxJurisdiction from './tax-jurisdiction';
 import * as surveys from './surveys';
 import * as questions from './questions';
 import * as responses from './responses';
@@ -72,6 +86,10 @@ import * as achievementDefinitions from './achievement-definitions';
 import * as tenantAchievements from './tenant-achievements';
 import * as userAchievementProgresses from './user-achievement-progresses';
 import * as userAchievements from './user-achievements';
+import * as platformAiTierQuotas from './platform-ai-tier-quotas';
+import * as aiCapabilityCosts from './ai-capability-costs';
+import * as tenantAiUsages from './tenant-ai-usages';
+import * as aiUsageEvents from './ai-usage-events';
 import * as accountsRelations from './accounts-relations';
 import * as passkeysRelations from './passkeys-relations';
 import * as sessionsRelations from './sessions-relations';
@@ -127,6 +145,7 @@ import * as paymentTransactionsRelations from './payment-transactions-relations'
 import * as revenueRecordsRelations from './revenue-records-relations';
 import * as providerChargesRelations from './provider-charges-relations';
 import * as providerInvoicesRelations from './provider-invoices-relations';
+import * as billingRelations from './billing-relations';
 import * as surveysRelations from './surveys-relations';
 import * as questionsRelations from './questions-relations';
 import * as responsesRelations from './responses-relations';
@@ -142,6 +161,8 @@ import * as achievementDefinitionsRelations from './achievement-definitions-rela
 import * as tenantAchievementsRelations from './tenant-achievements-relations';
 import * as userAchievementProgressesRelations from './user-achievement-progresses-relations';
 import * as userAchievementsRelations from './user-achievements-relations';
+import * as tenantAiUsagesRelations from './tenant-ai-usages-relations';
+import * as aiUsageEventsRelations from './ai-usage-events-relations';
 
 export const schema = {
   ...accounts,
@@ -202,6 +223,20 @@ export const schema = {
   ...revenueRecords,
   ...providerCharges,
   ...providerInvoices,
+  ...billingPlanEnums,
+  ...billingPlan,
+  ...tenantSubscription,
+  ...tenantInvoice,
+  ...tenantPayment,
+  ...billingAdjustmentEnums,
+  ...billingAdjustment,
+  ...billingEventEnums,
+  ...billingEvent,
+  ...couponEnums,
+  ...coupon,
+  ...couponRedemption,
+  ...taxRate,
+  ...taxJurisdiction,
   ...surveys,
   ...questions,
   ...responses,
@@ -218,6 +253,10 @@ export const schema = {
   ...tenantAchievements,
   ...userAchievementProgresses,
   ...userAchievements,
+  ...platformAiTierQuotas,
+  ...aiCapabilityCosts,
+  ...tenantAiUsages,
+  ...aiUsageEvents,
   ...accountsRelations,
   ...passkeysRelations,
   ...sessionsRelations,
@@ -273,6 +312,7 @@ export const schema = {
   ...revenueRecordsRelations,
   ...providerChargesRelations,
   ...providerInvoicesRelations,
+  ...billingRelations,
   ...surveysRelations,
   ...questionsRelations,
   ...responsesRelations,
@@ -288,4 +328,6 @@ export const schema = {
   ...tenantAchievementsRelations,
   ...userAchievementProgressesRelations,
   ...userAchievementsRelations,
+  ...tenantAiUsagesRelations,
+  ...aiUsageEventsRelations,
 };

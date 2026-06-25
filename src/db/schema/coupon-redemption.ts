@@ -1,0 +1,11 @@
+import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+
+export const couponRedemptions = pgTable('CouponRedemption', {
+  id: text('id').primaryKey(),
+  couponId: text('couponId').notNull(),
+  tenantId: text('tenantId').notNull(),
+  subscriptionId: text('subscriptionId'),
+  paymentId: text('paymentId'),
+  redeemedAt: timestamp('redeemedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+});
