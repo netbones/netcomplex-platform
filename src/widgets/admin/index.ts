@@ -19,4 +19,4 @@ export * from './ui/AdminAnnouncementsWidget';
 export * from './ui/SurveysWidget';
 export * from './ui/GroupModerationWidget';
 export * from './ui/UsersListSection';
-export { AdminAchievementsWidget } from '../dashboard/ui/AdminAchievementsWidget';
+export * from './ui/AdminAchievementsWidget';

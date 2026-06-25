@@ -98,5 +98,19 @@
   "reasonRequired": "Nceda faka isizathu sonqumamiso",
   "confirmNameRequired": "Nceda chwetheza igama lomsebenzisi ukuqinisekisa",
   "suspensionHistory": "Imbali yoNqumamiso",
-  "noSuspensions": "Akukho mbali yonqumamiso"
+  "noSuspensions": "Akukho mbali yonqumamiso",
+  "achievements": {
+    "catalog": "Ikhathalogu yeMpumelelo",
+    "filterAll": "Zonke",
+    "categoryEngagement": "Uzibandakanya",
+    "categoryContribution": "Igalelo",
+    "categoryMilestone": "Isikhumbuzo",
+    "enabled": "Impumelelo isebenze",
+    "disabled": "Impumelelo ayisebenzi",
+    "failedUpdate": "Uhlaziyo aluphumelelanga",
+    "thresholdUpdated": "Umda uhlaziywe",
+    "failedThreshold": "Umda uhlaziyo aluphumelelanga",
+    "failedLoad": "Iimpumelelo azilayishwanga",
+    "customThreshold": "Umda oqhelekileyo (ungenanto = umgangatho)"
+  }
 }

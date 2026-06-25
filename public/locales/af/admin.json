@@ -98,5 +98,19 @@
   "reasonRequired": "Voer asseblief 'n rede vir skorsing in",
   "confirmNameRequired": "Tik asseblief die gebruiker se naam om te bevestig",
   "suspensionHistory": "Skorsinggeskiedenis",
-  "noSuspensions": "Geen skorsinggeskiedenis"
+  "noSuspensions": "Geen skorsinggeskiedenis",
+  "achievements": {
+    "catalog": "Prestasie Katalogus",
+    "filterAll": "Alle",
+    "categoryEngagement": "Betrokkenheid",
+    "categoryContribution": "Bydrae",
+    "categoryMilestone": "Mylpaal",
+    "enabled": "Prestasie geaktiveer",
+    "disabled": "Prestasie gedeaktiveer",
+    "failedUpdate": "Opdatering misluk",
+    "thresholdUpdated": "Drempel opgedateer",
+    "failedThreshold": "Drempel opdatering misluk",
+    "failedLoad": "Kon nie prestasies laai nie",
+    "customThreshold": "Aangepaste drempel (leeg = standaard)"
+  }
 }

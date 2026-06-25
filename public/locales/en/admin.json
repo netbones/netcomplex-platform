@@ -100,5 +100,19 @@
   "reasonRequired": "Please enter a reason for suspension",
   "confirmNameRequired": "Please type the user's name to confirm",
   "suspensionHistory": "Suspension History",
-  "noSuspensions": "No suspension history"
+  "noSuspensions": "No suspension history",
+  "achievements": {
+    "catalog": "Achievement Catalog",
+    "filterAll": "All",
+    "categoryEngagement": "Engagement",
+    "categoryContribution": "Contribution",
+    "categoryMilestone": "Milestone",
+    "enabled": "Achievement enabled",
+    "disabled": "Achievement disabled",
+    "failedUpdate": "Failed to update",
+    "thresholdUpdated": "Threshold updated",
+    "failedThreshold": "Failed to update threshold",
+    "failedLoad": "Failed to load achievements",
+    "customThreshold": "Custom threshold (blank = default)"
+  }
 }

@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Trophy } from 'lucide-react';
+import { useEffect, useState, type ComponentType } from 'react';
+import { Trophy, icons } from 'lucide-react';
 import { toast } from 'sonner';
+import { useSafeTranslation } from '@shared/lib';
 
 interface AchievementDefinition {
   id: string;
@@ -13,9 +14,11 @@ interface AchievementDefinition {
   threshold: number;
   enabled: boolean;
   customThreshold?: number | null;
+  icon?: string | null;
 }
 
 export function AdminAchievementsWidget() {
+  const { tx } = useSafeTranslation('admin');
   const [definitions, setDefinitions] = useState<AchievementDefinition[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
@@ -35,10 +38,11 @@ export function AdminAchievementsWidget() {
             threshold: d.threshold,
             enabled: d.enabled !== false,
             customThreshold: d.customThreshold,
+            icon: d.icon as string | null | undefined,
           }))
         );
       })
-      .catch(() => toast.error('Failed to load achievements'))
+      .catch(() => toast.error(tx('achievements.failedLoad', 'Failed to load achievements')))
       .finally(() => setLoading(false));
   }, []);
 
@@ -52,9 +56,30 @@ export function AdminAchievementsWidget() {
       });
       if (!res.ok) throw new Error();
       setDefinitions(prev => prev.map(d => (d.id === id ? { ...d, enabled: !current } : d)));
-      toast.success(current ? 'Achievement disabled' : 'Achievement enabled');
+      toast.success(
+        current
+          ? tx('achievements.disabled', 'Achievement disabled')
+          : tx('achievements.enabled', 'Achievement enabled')
+      );
     } catch {
-      toast.error('Failed to update');
+      toast.error(tx('achievements.failedUpdate', 'Failed to update'));
+    }
+  };
+
+  const updateIcon = async (id: string, value: string) => {
+    const icon = value || null;
+    try {
+      const res = await fetch(`/api/admin/achievements/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ icon }),
+      });
+      if (!res.ok) throw new Error();
+      setDefinitions(prev => prev.map(d => (d.id === id ? { ...d, icon } : d)));
+      toast.success('Icon updated');
+    } catch {
+      toast.error('Failed to update icon');
     }
   };
 
@@ -71,9 +96,9 @@ export function AdminAchievementsWidget() {
       });
       if (!res.ok) throw new Error();
       setDefinitions(prev => prev.map(d => (d.id === id ? { ...d, customThreshold: num } : d)));
-      toast.success('Threshold updated');
+      toast.success(tx('achievements.thresholdUpdated', 'Threshold updated'));
     } catch {
-      toast.error('Failed to update threshold');
+      toast.error(tx('achievements.failedThreshold', 'Failed to update threshold'));
     }
   };
 
@@ -93,7 +118,9 @@ export function AdminAchievementsWidget() {
     <div>
       <div className="flex items-center gap-2 mb-3">
         <Trophy className="w-4 h-4 text-indigo-500" />
-        <span className="text-sm font-medium">Achievement Catalog</span>
+        <span className="text-sm font-medium">
+          {tx('achievements.catalog', 'Achievement Catalog')}
+        </span>
       </div>
 
       <div className="flex gap-1 mb-3">
@@ -107,7 +134,12 @@ export function AdminAchievementsWidget() {
                 : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
             }`}
           >
-            {cat === 'all' ? 'All' : cat}
+            {cat === 'all'
+              ? tx('achievements.filterAll', 'All')
+              : tx(
+                  `achievements.category${cat.charAt(0) + cat.slice(1).toLowerCase()}`,
+                  cat.charAt(0) + cat.slice(1).toLowerCase()
+                )}
           </button>
         ))}
       </div>
@@ -134,15 +166,37 @@ export function AdminAchievementsWidget() {
               <span className="text-sm font-medium truncate block">{def.label}</span>
               <span className="text-[10px] text-gray-400">{def.category}</span>
             </div>
-            <input
-              type="number"
-              min={1}
-              value={def.customThreshold ?? ''}
-              placeholder={String(def.threshold)}
-              onChange={e => updateThreshold(def.id, e.target.value)}
-              className="w-14 px-1 py-0.5 text-xs text-center border rounded dark:bg-gray-800 dark:border-gray-700"
-              title="Custom threshold (blank = default)"
-            />
+            <div className="flex items-center gap-1">
+              {(() => {
+                const Icon = def.icon
+                  ? (icons[def.icon as keyof typeof icons] as
+                      | ComponentType<{ className?: string }>
+                      | undefined)
+                  : undefined;
+                return Icon ? (
+                  <Icon className="w-4 h-4 text-indigo-500" />
+                ) : (
+                  <Trophy className="w-4 h-4 text-gray-300" />
+                );
+              })()}
+              <input
+                type="text"
+                value={def.icon ?? ''}
+                placeholder="icon"
+                onChange={e => updateIcon(def.id, e.target.value)}
+                className="w-16 px-1 py-0.5 text-xs border rounded dark:bg-gray-800 dark:border-gray-700"
+                title="Lucide icon name"
+              />
+              <input
+                type="number"
+                min={1}
+                value={def.customThreshold ?? ''}
+                placeholder={String(def.threshold)}
+                onChange={e => updateThreshold(def.id, e.target.value)}
+                className="w-14 px-1 py-0.5 text-xs text-center border rounded dark:bg-gray-800 dark:border-gray-700"
+                title={tx('achievements.customThreshold', 'Custom threshold (blank = default)')}
+              />
+            </div>
           </div>
         ))}
       </div>

@@ -929,7 +929,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     icon: Trophy,
     permissions: ['admin'],
     component: lazy(() =>
-      import('../ui/AdminAchievementsWidget').then(m => ({
+      import('@widgets/admin').then(m => ({
         default: m.AdminAchievementsWidget,
       }))
     ),

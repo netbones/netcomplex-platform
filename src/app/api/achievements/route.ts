@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { eq, and, or, isNull } from 'drizzle-orm';
+import { eq, and, or, isNull, sql } from 'drizzle-orm';
 import {
   getSessionAndRole,
   runWithRLS,
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
           key: achievementDefinitions.key,
           label: achievementDefinitions.label,
           description: achievementDefinitions.description,
-          icon: achievementDefinitions.icon,
+          icon: sql<string>`COALESCE(${tenantAchievements.icon}, ${achievementDefinitions.icon})`,
           category: achievementDefinitions.category,
           threshold: achievementDefinitions.threshold,
           customThreshold: tenantAchievements.customThreshold,

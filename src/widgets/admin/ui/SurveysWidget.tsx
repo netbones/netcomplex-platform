@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@shared/ui';
-import { logError } from '@shared/lib';
+import { createComponentLogger } from '@shared/lib';
+
+const log = createComponentLogger('SurveysWidget');
 
 export interface SurveyItem {
   id: string;
@@ -29,11 +31,7 @@ export function SurveysWidget() {
         const body = await response.json();
         setSurveys(body?.data ?? body);
       } catch (err) {
-        logError(
-          { component: 'SurveysWidget', operation: 'fetchSurveys' },
-          'Failed to fetch surveys',
-          err
-        );
+        log.error({ operation: 'fetchSurveys' }, 'Failed to fetch surveys', err);
         setError('Failed to load surveys');
       } finally {
         setLoading(false);
@@ -53,11 +51,7 @@ export function SurveysWidget() {
       })
       .then(body => setSurveys(body?.data ?? body))
       .catch(err => {
-        logError(
-          { component: 'SurveysWidget', operation: 'retryFetch' },
-          'Failed to retry fetch surveys',
-          err
-        );
+        log.error({ operation: 'retryFetch' }, 'Failed to retry fetch surveys', err);
         setError('Failed to load surveys');
       })
       .finally(() => setLoading(false));

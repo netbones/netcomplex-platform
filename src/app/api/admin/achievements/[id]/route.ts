@@ -25,7 +25,6 @@ const patchBodySchema = z.object({
   enabled: z.boolean().optional(),
   customThreshold: z.number().int().positive().nullable().optional(),
   icon: z.string().optional(),
-  category: z.enum(['ENGAGEMENT', 'CONTRIBUTION', 'MILESTONE']).optional(),
 });
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
@@ -51,7 +50,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     }
 
     const { id: definitionId } = params;
-    const { enabled, customThreshold, icon, category } = parsed.data;
+    const { enabled, customThreshold, icon } = parsed.data;
 
     return runWithRLS(ctx, async tx => {
       const [definition] = await tx
@@ -64,18 +63,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         return apiError('NOT_FOUND', 'Achievement definition not found', 404);
       }
 
-      if (icon !== undefined || category !== undefined) {
-        const updateFields: Record<string, unknown> = {};
-        if (icon !== undefined) updateFields.icon = icon;
-        if (category !== undefined) updateFields.category = category;
+      const hasTenantFields =
+        enabled !== undefined || customThreshold !== undefined || icon !== undefined;
 
-        await tx
-          .update(achievementDefinitions)
-          .set(updateFields)
-          .where(eq(achievementDefinitions.id, definitionId));
-      }
-
-      if (enabled !== undefined || customThreshold !== undefined) {
+      if (hasTenantFields) {
         const [existing] = await tx
           .select({ id: tenantAchievements.id })
           .from(tenantAchievements)
@@ -91,6 +82,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
           const updateFields: Record<string, unknown> = {};
           if (enabled !== undefined) updateFields.enabled = enabled;
           if (customThreshold !== undefined) updateFields.customThreshold = customThreshold;
+          if (icon !== undefined) updateFields.icon = icon;
 
           await tx
             .update(tenantAchievements)
@@ -103,6 +95,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
             definitionId,
             enabled: enabled ?? true,
             customThreshold: customThreshold ?? null,
+            icon: icon ?? null,
           });
         }
       }

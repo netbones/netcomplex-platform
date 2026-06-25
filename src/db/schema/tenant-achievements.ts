@@ -6,4 +6,5 @@ export const tenantAchievements = pgTable('TenantAchievement', {
   definitionId: text('definitionId').notNull(),
   enabled: boolean('enabled').default(true).notNull(),
   customThreshold: integer('customThreshold'),
+  icon: text('icon'),
 });

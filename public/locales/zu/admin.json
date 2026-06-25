@@ -98,5 +98,19 @@
   "reasonRequired": "Sicela ufake isizathu sokumisa",
   "confirmNameRequired": "Sicela uthayiphe igama lomsebenzisi ukuqinisekisa",
   "suspensionHistory": "Umlando Wokumisa",
-  "noSuspensions": "Awukho umlando wokumisa"
+  "noSuspensions": "Awukho umlando wokumisa",
+  "achievements": {
+    "catalog": "Ikhathalogu yeMpumelelo",
+    "filterAll": "Zonke",
+    "categoryEngagement": "Ukuzibandakanya",
+    "categoryContribution": "Umnikelo",
+    "categoryMilestone": "Inqopha",
+    "enabled": "Impumelelo inikwe amandla",
+    "disabled": "Impumelelo ivaliwe",
+    "failedUpdate": "Ukubuyekeza kuhlulekile",
+    "thresholdUpdated": "Isilinganiso sibuyekeziwe",
+    "failedThreshold": "Ukubuyekeza isilinganiso kuhlulekile",
+    "failedLoad": "Iimpumelelo azilayishiwe",
+    "customThreshold": "Isilinganiso esikhethekile (kungenalutho = okujwayelekile)"
+  }
 }
