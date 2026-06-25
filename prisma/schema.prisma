@@ -170,7 +170,8 @@ model user {
   UserKey                                               UserKey[]
   UserDevice                                            UserDevice[]
   UserAchievementProgress                               UserAchievementProgress[]
-  UserAchievement                                       UserAchievement[]
+  UserAchievement                               UserAchievement[]
+  dWallet                                            DWallet?
 }
 
 model Profile {
@@ -1791,6 +1792,169 @@ model UserAchievement {
   @@unique([userId, definitionId])
   @@index([tenantId])
   @@index([userId])
+}
+
+// ── dWallet — Data Rights, Consent & Rewards Wallet ──
+
+model DWallet {
+  id              String          @id @default(cuid())
+  tenantId        String
+  userId          String          @unique
+  balance         Decimal         @default(0) @db.Decimal(12, 2)
+  currency        String          @default("ZAR")
+  lifetimeEarned  Decimal         @default(0) @db.Decimal(12, 2)
+  lifetimePaid    Decimal         @default(0) @db.Decimal(12, 2)
+  status          WalletStatus    @default(ACTIVE)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  user            user            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions    WalletTransaction[]
+  consents        DataConsent[]
+  payoutRequests  PayoutRequest[]
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@index([userId])
+  @@index([status])
+}
+
+model WalletTransaction {
+  id              String              @id @default(cuid())
+  tenantId        String
+  walletId        String
+  type            TransactionType
+  amount          Decimal             @db.Decimal(12, 2)
+  currency        String              @default("ZAR")
+  description     String
+  referenceId     String?
+  referenceType   String?
+  balanceBefore   Decimal             @db.Decimal(12, 2)
+  balanceAfter    Decimal             @db.Decimal(12, 2)
+  sourceType      TransactionSource   @default(RESIDENT_DATA_SHARE)
+  createdAt       DateTime            @default(now())
+
+  wallet          DWallet             @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@index([tenantId])
+  @@index([referenceId])
+  @@index([createdAt])
+}
+
+model DataConsent {
+  id              String          @id @default(cuid())
+  tenantId        String
+  walletId        String
+  userId          String
+  streamKey       String
+  granted         Boolean
+  ipAddress       String?
+  userAgent       String?
+  grantedAt       DateTime?
+  revokedAt       DateTime?
+  createdAt       DateTime        @default(now())
+
+  wallet          DWallet         @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@index([tenantId, streamKey])
+  @@index([userId])
+}
+
+model PayoutRequest {
+  id              String          @id @default(cuid())
+  tenantId        String
+  walletId        String
+  userId          String
+  amount          Decimal         @db.Decimal(12, 2)
+  currency        String          @default("ZAR")
+  status          PayoutStatus    @default(PENDING)
+  method          String?
+  bankReference   String?
+  processedAt     DateTime?
+  processedBy     String?
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  wallet          DWallet         @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@index([tenantId])
+  @@index([status])
+}
+
+model DataRevenueStream {
+  id              String          @id @default(cuid())
+  tenantId        String
+  key             String
+  label           String
+  description     String?
+  residentSharePct Decimal        @db.Decimal(5, 2)
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([tenantId, key])
+  @@index([tenantId])
+}
+
+model DataShareBatch {
+  id              String          @id @default(cuid())
+  tenantId        String
+  periodStart     DateTime
+  periodEnd       DateTime
+  streamKey       String
+  totalRevenue    Decimal         @db.Decimal(12, 2)
+  residentPool    Decimal         @db.Decimal(12, 2)
+  participantCount Int
+  status          BatchStatus     @default(PENDING)
+  processedAt     DateTime?
+  processedBy     String?
+  createdAt       DateTime        @default(now())
+
+  @@index([tenantId])
+  @@index([status])
+}
+
+// ── Enums: dWallet ──
+
+enum WalletStatus {
+  ACTIVE
+  FROZEN
+  CLOSED
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+  ROLLOVER
+  ADJUSTMENT
+}
+
+enum TransactionSource {
+  RESIDENT_DATA_SHARE
+  COMMUNITY_MERITS
+  REFERRAL_REWARD
+  VOLUNTEER_CREDIT
+  AI_CREDIT
+  MARKETPLACE_CREDIT
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  REJECTED
+  CANCELLED
+}
+
+enum BatchStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
 // ── Enums: Billing ──
