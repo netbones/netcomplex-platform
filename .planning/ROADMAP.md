@@ -1090,29 +1090,31 @@ Plans:
 
 ## Phase 104: AI Provider Infrastructure & Translate Migration
 
-**Goal:** Tenant-managed AI provider abstraction — Anthropic, OpenAI, DeepSeek — with encrypted key storage, capability gating, admin settings widget, and translate route migration.
+**Goal:** Platform AI pool architecture — Anthropic + OpenAI via platform-managed keys with per-tenant token quotas (STANDARD 50k / PREMIUM 200k / ENTERPRISE 500k tokens/month), tier-based overage policies, usage tracking and audit events, platform admin pool management, tenant admin usage widget, and translate route migration.
 
-**Source:** ADVISORY-017-SUPPLEMENTAL — Phases A + B
-**Status:** Planned — 4 plans in 4 waves
+**Source:** ADVISORY-017-SUPPLEMENTAL-2 (primary) + ADVISORY-017-SUPPLEMENTAL (retained: interface, NullProvider, capability flags, FSD rules, translate migration)
+**Status:** Planned — 4 plans in 4 waves (replanned 2026-06-25 after SUPPLEMENTAL-2 scope change)
 **Requirements:** AI-PROV-01, AI-PROV-02, AI-PROV-03
 
-| Requirement | Plan   | Description                                                                                    |
-| ----------- | ------ | ---------------------------------------------------------------------------------------------- |
-| AI-PROV-02  | 104-01 | Entity helpers (getTenantModule, settings-service), encryption module, seed, env vars          |
-| AI-PROV-01  | 104-02 | AI provider abstraction layer: interface, 4 providers, factory, capability checks, SDK install |
-| AI-PROV-01  | 104-03 | Admin API routes (status, key, delete, test) + AiProviderSettingsWidget + registration         |
-| AI-PROV-03  | 104-04 | Translate route migration to getAiProvider + LocaleAwareEditor degraded state                  |
+| Requirement | Plan   | Description                                                                                       |
+| ----------- | ------ | ------------------------------------------------------------------------------------------------- |
+| AI-PROV-02  | 104-01 | Schema: 4 AI pool models + 2 enums, seed quotas/costs, getTenantModule helper, ai-provider module |
+| AI-PROV-01  | 104-02 | Pool: quota enforcement + usage recording. Providers: Anthropic, OpenAI, NullProvider, factory    |
+| AI-PROV-02  | 104-03 | Platform admin routes (6) + cron rollover + admin-ai-usage widget + registration                  |
+| AI-PROV-03  | 104-04 | Translate route migration to pool pattern + LocaleAwareEditor degraded state + env vars           |
 
 **Plans:** 4 plans
 
 Plans:
 
-| Wave | Plan               | Objective                                                                                                      |
-| ---- | ------------------ | -------------------------------------------------------------------------------------------------------------- |
-| 1    | [ ] 104-01-PLAN.md | Entity foundation: getTenantModule, settings CRUD, encryption, seed, env vars (AI-PROV-02)                     |
-| 2    | [ ] 104-02-PLAN.md | AI provider layer: AnthropicProvider, OpenAiProvider, NullProvider, factory, barrels, SDK install (AI-PROV-01) |
-| 3    | [ ] 104-03-PLAN.md | Admin API routes (status/key/delete/test) + AiProviderSettingsWidget + registration (AI-PROV-01)               |
-| 4    | [ ] 104-04-PLAN.md | Translate route migration + LocaleAwareEditor degraded state + key rotation script (AI-PROV-03)                |
+| Wave | Plan               | Objective                                                                                                        |
+| ---- | ------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| 1    | [ ] 104-01-PLAN.md | Schema + Seed + Entity: 4 models, 2 enums, migration, seed tier quotas + capability costs, getTenantModule       |
+| 2    | [ ] 104-02-PLAN.md | Pool + Providers + Factory: checkQuota/recordUsage, AnthropicProvider, OpenAiProvider, NullProvider, SDK install |
+| 3    | [ ] 104-03-PLAN.md | Admin Routes + Widgets: 6 platform admin API routes, cron rollover, admin-ai-usage widget, registration          |
+| 4    | [ ] 104-04-PLAN.md | Migration: translate route to pool pattern, LocaleAwareEditor degraded state, env vars, quality gates            |
+
+**Scope removed (SUPPLEMENTAL-2 §1):** encryption.ts, tenant key storage, POST /api/admin/ai-provider/key, AiProviderSettingsWidget key management UI, AI_SETTINGS_ENCRYPTION_KEY env var.
 
 ---
 
