@@ -6,7 +6,7 @@ shadcn_initialized: true
 preset: default (slate base, CSS variables, rsc, tsx)
 created: 2026-06-25
 revised: 2026-06-25
-revised-reason: Product-design feedback — added Impact tab, Earnings Breakdown + Community Impact cards on Overview, consent toggle estimated values, community language sweep, removal of banking aesthetics (green/gold → indigo/slate)
+revised-reason: Schedule-F-G alignment — replaced speculative earnings categories with 8 actual Schedule F revenue streams (Survey Participation, Marketplace Activity, Agent Transactions, Value-Added Services, Service Provider Listings, Premium Placements, Agent Registrations, Agent Premium Listings), replaced invented Community Impact metrics with derivable model-based stats, added contractual compliance notes (R50 minimum, 12-month CBF sweep, pro-rata distribution), added Future Revenue Sources (Phase 48+) note block, renamed "Data Rewards" → "Resident Data Share" for contractual accuracy
 ---
 
 # Phase 47 — UI Design Contract
@@ -194,21 +194,25 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 │  R 1,247.50                          │  ← value display (28px semibold, indigo-600 icon/currency)
 │  Value Earned (lifetime): R 3,420   │  ← secondary stat (14px, slate-500)
 │                                      │
-│  Where Your Value Comes From         │
-│  ┌──────────────────────────────────┐│
-│  │ ████████████████████░ Data   65% ││  ← Data Rewards: R810.88 (active, indigo-600)
-│  │ ░░░░░░░░░░░░░░░░░░░░░░ Comm  20% ││     Community Rewards: coming soon (slate-300)
-│  │ ░░░░░░░░░░░░░░░░░░░░░░ Merit 10% ││     Merits: coming soon (slate-300)
-│  │ ░░░░░░░░░░░░░░░░░░░░░░ Refer  5% ││     Referrals: coming soon (slate-300)
-│  └──────────────────────────────────┘│
+  │  Where Your Value Comes From         │
+  │  ┌──────────────────────────────────┐│
+  │  │ ████████████████████░ Survey 20% ││  ← Survey Participation: 20% of distributable surplus
+  │  │ ████████████████████░ Market 20% ││     Marketplace Activity: 20% of distributable surplus
+  │  │ ████████████████████░ AgentT 20% ││     Agent Transactions: 20% of distributable surplus
+  │  │ ████████████████████░ VAS    20% ││     Value-Added Services: 20% of distributable surplus
+  │  │ ██████████░░░░░░░░░░░ Provid 10% ││     Service Provider Listings: 10% of distributable surplus
+  │  │ ██████████░░░░░░░░░░░ Prem   10% ││     Premium Placements: 10% of distributable surplus
+  │  │ ██████████░░░░░░░░░░░ AgReg  10% ││     Agent Registrations: 10% of distributable surplus
+  │  │ ██████████░░░░░░░░░░░ AgPrem 10% ││     Agent Premium Listings: 10% of distributable surplus
+  │  └──────────────────────────────────┘│
 │                                      │
-│  Community Impact                    │
-│  ┌──────────────────────────────────┐│
-│  │  324           R18,200           ││  ← Residents Participating, Community Earnings
-│  │  Participants  Community Earnings ││
-│  │  4             R1,247            ││  ← Projects Funded, Your Contribution
-│  │  Projects      Your Contribution  ││
-│  └──────────────────────────────────┘│
+  │  Community Impact                    │
+  │  ┌──────────────────────────────────┐│
+  │  │  8             [derived]         ││  ← Active Revenue Streams, Participating Residents
+  │  │  Streams       Participants      ││     (count of wallets with status ACTIVE)
+  │  │  R[derived]    R[derived]        ││  ← Total Resident Share Pool, Your Estimated Share
+  │  │  Total Pool    Your Est. Share   ││     (pool ÷ active participants)
+  │  └──────────────────────────────────┘│
 │                                      │
 │  Consent Status                      │
 │  ┌──────────────────────────────────┐│
@@ -228,26 +232,36 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 
 **Earnings Breakdown card ("Where Your Value Comes From"):**
 
-- Data Rewards: 65% (R810.88) — active, `text-indigo-600` on filled bar segment
-- Community Rewards: 20% — "Coming Soon" in muted slate-300 with dashed bar segment
-- Merits: 10% — "Coming Soon" in muted slate-300 with dashed bar segment
-- Referrals: 5% — "Coming Soon" in muted slate-300 with dashed bar segment
-- Only Data Rewards is active in Phase 47. Other sources show muted styling — architecture ready for future value types.
+All eight revenue streams from Schedule F Table 2, each shown with its Resident Data Share percentage of distributable surplus:
+
+- Survey Participation: 20% — Resident Data Share of this stream's distributable surplus
+- Marketplace Activity: 20% — Resident Data Share of this stream's distributable surplus
+- Agent Transactions: 20% — Resident Data Share of this stream's distributable surplus
+- Value-Added Services: 20% — Resident Data Share of this stream's distributable surplus
+- Service Provider Listings: 10% — Resident Data Share of this stream's distributable surplus
+- Premium Placements: 10% — Resident Data Share of this stream's distributable surplus
+- Agent Registrations: 10% — Resident Data Share of this stream's distributable surplus
+- Agent Premium Listings: 10% — Resident Data Share of this stream's distributable surplus
+
+Streams with no revenue in the current period show "—" instead of an amount with a muted slate-300 bar segment. Active streams show the calculated Resident Data Share contribution in `text-indigo-600` on filled bar segments. Actual per-resident amounts depend on pro-rata distribution across all opt-in participants (Schedule G, G3).
 
 **Community Impact card:**
 
-- Residents Participating: 324
-- Community Earnings: R18,200
-- Projects Funded: 4
-- Your Contribution: R1,247
-- Layout: 2×2 stat grid within card, each stat is label below value.
+Metrics derivable from the actual financial model (Schedule F & G). No invented/hardcoded numbers:
 
-**Future value ledger design:** The Overview layout is designed to accommodate additional value sources beyond data rewards — merits, referrals, volunteer credits, AI credits, marketplace credits — as they ship in future phases. The bar chart expands horizontally; new rows appear without restructuring.
+- Active Revenue Streams: count of streams with revenue in current period (max 8)
+- Participating Residents: derived — count of wallets with status ACTIVE
+- Total Resident Share Pool: derived — sum of all Resident Data Share amounts for the current distribution period
+- Your Estimated Share: derived — pool ÷ active participants (pro-rata, Schedule G G3)
+- Unclaimed → CBF After: 12 months from credit date (Schedule G, G3)
+- Layout: 2×2 stat grid within card, each stat is label below value. "Your Estimated Share" uses `font-semibold` for emphasis.
+
+**Future value ledger design:** The Overview layout is designed to accommodate additional value sources beyond Resident Data Share — merits, referrals, volunteer credits, AI credits, marketplace credits — as they ship in future phases. The bar chart expands horizontally; new rows appear without restructuring. See Future Revenue Sources note block on the Overview tab for planned Phase 48+ additions.
 
 **States:**
 
 - Loading: `LoadingCard` with `contentLines={6}`
-- Empty: Wallet created but no activity — show Community Value as R 0.00, show "No community activity yet" empty state, Impact card hidden, Earnings card shows all "Coming Soon"
+- Empty: Wallet created but no activity — show Community Value as R 0.00, show "No community activity yet" empty state, Impact card hidden, Earnings card shows all streams with "—" (no revenue in current period)
 - Error: `ErrorBoundary` fallback with "Could not load dWallet"
 - Below threshold: "Request Payout" disabled with tooltip
 - No streams configured: Consent section shows "No revenue streams configured for your community"
@@ -336,18 +350,39 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 
 - Large Community Value display (28px semibold, indigo-600 icon/currency)
 - Lifetime stats: Value Earned, Value Withdrawn, wallet status badge
-- "Where Your Value Comes From" earnings breakdown card (same as widget):
-  - Data Rewards 65% (R810.88) — active, `indigo-600` bar
-  - Community Rewards 20% — "Coming Soon" in muted `slate-300`
-  - Merits 10% — "Coming Soon" in muted `slate-300`
-  - Referrals 5% — "Coming Soon" in muted `slate-300`
+- "Where Your Value Comes From" earnings breakdown card (same as widget — all 8 Schedule F streams):
+  - Survey Participation 20%, Marketplace Activity 20%, Agent Transactions 20%, Value-Added Services 20%
+  - Service Provider Listings 10%, Premium Placements 10%, Agent Registrations 10%, Agent Premium Listings 10%
+  - Each shows % of distributable surplus per Schedule F Table 2. Streams with no revenue show "—".
 - Community Impact card (same as widget):
-  - Residents Participating: 324 | Community Earnings: R18,200
-  - Projects Funded: 4 | Your Contribution: R1,247
+  - Active Revenue Streams | Participating Residents (count of wallets with status ACTIVE)
+  - Total Resident Share Pool | Your Estimated Share (pool ÷ active participants, pro-rata per Schedule G G3)
 - Revenue stream summary cards (stream name, resident share %, your consent status, estimated monthly value)
 - Quick actions: "Request Payout", "Export My Data", "Download Annual Statement"
 - Last 5 community activities (link to Activity tab)
-- **Future value ledger design:** The Overview layout accommodates additional value sources as they ship — the earnings bar chart scales horizontally, and new stat rows appear in the Community Impact card without restructuring. The dWallet is designed to eventually combine data rewards, merits, referrals, volunteer credits, AI credits, and marketplace credits into a single Community Value total.
+
+**Future Revenue Sources (Phase 48+):**
+
+A note block at the bottom of the Overview tab, clearly marked as NOT implemented in Phase 47:
+
+```text
+--- Future Revenue Sources (Phase 48+) ---
+
+Community Merits Rewards: Points earned through good standing and community
+participation, convertible to dWallet value. Requires Phase 45 Community Merits
+completion.
+Referral Bonuses: Rewards for inviting new residents to the platform. Requires
+referral tracking infrastructure.
+Volunteer Credits: Value for community service and committee participation.
+Requires volunteer hour tracking.
+AI Credits: Value from AI training data contributions. Depends on Phase 104 AI
+infrastructure.
+Marketplace Credits: Spend wallet balance on community services. Requires Phase
+2 payments integration.
+
+These are product-direction ideas for discussion. None are implemented in
+Phase 47.
+```
 
 **Tab 2 — Activity (renamed from "Transactions"):**
 
@@ -363,20 +398,30 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 
 **Tab 3 — Impact (new in Phase 47):**
 
-- Community Earnings banner — total distributed across all residents since inception
-  - Display as large stat: "R482,500 — Total Community Value Distributed"
-- Residents Participating count: "324 of 340 residents are opted in"
-- Your Contribution amount + percentage of community total:
-  - "Your Contribution: R1,247 (0.26% of community total)"
-- Community Benefit Fund balance:
-  - "R24,200 — available for community projects"
-- Data Streams contribution breakdown:
+All metrics are derivable from the actual dWallet financial model (Schedule F & G). No invented/hardcoded numbers:
+
+- **Total Resident Share Pool** — sum of all Resident Data Share amounts for the current distribution period
+  - Display as large stat: "R [derived] — Total Resident Share Pool (Current Period)"
+- **Participating Residents** — count of wallets with status ACTIVE
+  - "X residents currently opted in"
+- **Your Estimated Share** — total pool ÷ active participants (pro-rata, Schedule G G3)
+  - "Your Estimated Share: R [derived] (1/[count] of community total)"
+- **Active Revenue Streams** — count with revenue in current period (0-8)
+  - "X of 8 revenue streams generating value this period"
+- **Unclaimed → CBF** — unclaimed rewards transfer to Community Benefit Fund after 12 months from credit date (Schedule G, G3)
+  - "R [derived] transferred to Community Benefit Fund this period"
+- **Revenue Stream Contribution Breakdown:**
   - ┌──────────────────────────────────────────────────┐
-  - │ Analytics ██████████████████████░░░ 65% R313,625│
-  - │ Research ████████░░░░░░░░░░░░░░░░░░ 20% R96,500 │
-  - │ Benchmarks ████░░░░░░░░░░░░░░░░░░░░░ 10% R48,250 │
-  - │ Matching ██░░░░░░░░░░░░░░░░░░░░░░░░ 5% R24,125 │
+  - │ Survey Participation ████████████ 20% R[derived]│
+  - │ Marketplace Activity ████████████ 20% R[derived]│
+  - │ Agent Transactions ████████████ 20% R[derived]│
+  - │ Value-Added Services ████████████ 20% R[derived]│
+  - │ Service Provider List ████████ 10% R[derived]│
+  - │ Premium Placements ████████ 10% R[derived]│
+  - │ Agent Registrations ████████ 10% R[derived]│
+  - │ Agent Premium List ████████ 10% R[derived]│
   - └──────────────────────────────────────────────────┘
+  - Streams with no revenue show "—" and a muted slate-300 dashed bar
 - Empty state: "No impact data yet — community impact metrics will appear once your data sharing generates community-wide contributions."
 - Data sources: `GET /api/v1/tenant/dwallet/impact` (aggregate community stats), `GET /api/admin/dwallet/stats` (for admin aggregate view)
 
@@ -416,7 +461,7 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 **Tab 5 — Payouts:**
 
 - Payout request form: amount (auto-filled to current Community Value, editable), method (display-only: "Bank Transfer")
-- "Request Payout" button (disabled if value < R50)
+- "Request Payout" button (disabled if value < R50 minimum payout, per Schedule G G3)
 - Payout history table: Date Requested, Amount, Status (badge), Processed Date, Notes
 - Status badges using new color convention:
   - PENDING: `slate-400` (was amber — no banking aesthetic)
@@ -425,6 +470,15 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
   - REJECTED: `slate-600` (was red — no banking aesthetic)
   - CANCELLED: `gray-400`
 
+**Payout Compliance Notes (displayed in-tab):**
+
+- **Minimum Payout:** R50 minimum payout threshold. Monthly or on request (Schedule G, G3).
+- **Unclaimed Rewards:** Unclaimed rewards transfer to the Community Benefit Fund after 12 months from the credit date (Schedule G, G3).
+- **Pro-Rata Distribution:** Per-resident reward = total pool ÷ active opt-in participants (Schedule G, G3).
+- **Audit Trail:** All distributions, payouts, and unclaimed transfers are logged and retained per Schedule G4 audit requirements.
+
+These compliance notes appear as a sidebar or info block within the Payouts tab, using `text-sm text-slate-500` with an info icon (lucide `Info`).
+
 **Data sources:** Respective API routes per tab. Use TanStack Query with appropriate stale times (community value: 30s, activity history: 2min, consent state: 1min, impact: 5min).
 
 **Navigation integration (Sub-Phase F):**
@@ -432,6 +486,23 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 - Header avatar dropdown: "My dWallet" entry behind `dWallet` feature flag (use `canAccessClient('page.dWallet')` or widget manifest `featureFlag`)
 - Mobile burger menu: "My dWallet" in My Space section, behind `dWallet` flag
 - Admin sidebar: "Data & Community" in System section (link to admin dWallet stats or admin-dwallet widget placement)
+
+---
+
+## Compliance Notes (Schedule F & G)
+
+All dWallet financial mechanics are governed by the SaaS License Agreement Schedules F (Revenue Streams) and G (Resident Data Share Program). These contractual terms inform all UI copy, calculations, and constraints:
+
+| Rule                                                                                                                                                                                                                                                | Source             | UI Implementation                                                                                                |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Resident Data Share = % of each stream's distributable surplus                                                                                                                                                                                      | Schedule F Table 2 | Percentage displayed in Earnings Breakdown bar chart; used as basis for pro-rata calculation                     |
+| 8 revenue streams: Survey Participation (20%), Marketplace Activity (20%), Agent Transactions (20%), Value-Added Services (20%), Service Provider Listings (10%), Premium Placements (10%), Agent Registrations (10%), Agent Premium Listings (10%) | Schedule F Table 2 | All 8 streams shown in Overview, Impact, and Admin widget. Streams with no revenue show "—".                     |
+| Pro-rata distribution: per-resident reward = total pool ÷ active opt-in participants                                                                                                                                                                | Schedule G G3      | "Your Estimated Share" calculation on Overview and Impact tabs                                                   |
+| R50 minimum payout threshold                                                                                                                                                                                                                        | Schedule G G3      | "Request Payout" button disabled below R50; tooltip explains minimum                                             |
+| Monthly or on-request payouts                                                                                                                                                                                                                       | Schedule G G3      | Payout form accepts requests any time; monthly distributions shown in Activity                                   |
+| Unclaimed rewards → CBF after 12 months                                                                                                                                                                                                             | Schedule G G3      | Displayed as "Unclaimed → CBF After: 12 months" on Community Impact card; unclaimed amounts shown in Payouts tab |
+| All consent changes logged and retained 5 years                                                                                                                                                                                                     | Schedule G G4      | Audit disclaimer on Consents tab                                                                                 |
+| Aggregate-only admin view (no individual balances)                                                                                                                                                                                                  | DWALLET_SPEC.md §7 | Admin widget shows aggregate counts only; payout table shows names for payment processing only                   |
 
 ---
 
@@ -580,11 +651,11 @@ Two-step destructive action:
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PENDING — community language sweep applied ("Community Value", "Value Earned", "Activity"), Impact tab and consent toggle values added, "Coming Soon" states for future sources; awaiting re-check
-- [ ] Dimension 2 Visuals: PENDING — Surface 1 redesigned with Earnings Breakdown and Community Impact cards, Surface 3 restructured to 5 tabs (Impact added, Transactions→Activity renamed), consent toggles show estimated values, Overview designed for future value ledger expansion; awaiting re-check
-- [ ] Dimension 3 Color: PENDING — semantic colors changed (green→indigo-600 for positive, red→slate-600 for negative, amber→slate-400 for neutral/pending); green, gold, and banking aesthetics removed; awaiting re-check
+- [ ] Dimension 1 Copywriting: PENDING — community language sweep applied ("Community Value", "Value Earned", "Activity"); Earnings Breakdown aligned to 8 Schedule F revenue streams (Survey Participation, Marketplace Activity, Agent Transactions, Value-Added Services, Service Provider Listings, Premium Placements, Agent Registrations, Agent Premium Listings); Community Impact uses derivable model-based metrics; contractual compliance notes added (R50 minimum, 12-month CBF, pro-rata); Future Revenue Sources (Phase 48+) note block added; "Resident Data Share" replaces "Data Rewards" for contractual accuracy; awaiting re-check
+- [ ] Dimension 2 Visuals: PENDING — Surface 1 redesigned with 8-stream Earnings Breakdown card and derivable Community Impact card; Surface 3 restructured with updated Overview (Schedule F streams), Impact tab (derivable metrics with Schedule F stream breakdown), Payouts tab (compliance info block); consent toggles preserved; Future Revenue Sources note block added; awaiting re-check
+- [ ] Dimension 3 Color: PASS (unchanged — semantic colors removed green/gold/banking aesthetics; indigo-600/slate-600/slate-400 preserved)
 - [ ] Dimension 4 Typography: PASS (unchanged — 4 sizes, 2 weights preserved)
 - [ ] Dimension 5 Spacing: PASS (unchanged — all multiples of 4 preserved)
 - [ ] Dimension 6 Registry Safety: PASS (unchanged — no third-party registries)
 
-**Approval:** pending — updated per product-design feedback 2026-06-25
+**Approval:** pending — updated per Schedule F & G contractual alignment 2026-06-25
