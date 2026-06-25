@@ -48,6 +48,9 @@ import { providerCharges } from '@schema/provider-charges';
 import { providerInvoices } from '@schema/provider-invoices';
 import { revenueRecords } from '@schema/revenue-records';
 
+import { billingPlans } from '@schema/billing-plan';
+import { getOrCreateDefaultBillingPlans } from '@shared/lib/billing/seed-plans';
+
 import { achievementDefinitions } from '@schema/achievement-definitions';
 
 import type { TenantSeedData } from './seed-data/types';
@@ -407,6 +410,11 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
     await db.insert(subscriptionTiers).values(t).onConflictDoNothing();
   }
   console.log(`  ✓ ${tierRows.length} subscription tiers`);
+
+  // Platform SaaS billing plans
+  console.log('Billing plans...');
+  const planRows = await getOrCreateDefaultBillingPlans(db, tenantId);
+  console.log(`  ✓ ${(planRows as unknown[]).length} billing plans`);
 
   // Provider reputation
   console.log('Provider reputation...');
