@@ -23,6 +23,7 @@ const defaultFlags: PlatformPageFlags = {
   surveys: true,
   competitions: true,
   dashboard: true,
+  dWallet: false,
   bookings: true,
   messages: true,
   providers: true,

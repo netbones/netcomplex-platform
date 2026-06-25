@@ -67,6 +67,9 @@ export async function getPlatformPageFlagsImpl(tenantId: string): Promise<Platfo
         case SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED:
           flags.dashboard = setting.value === 'true';
           break;
+        case SETTINGS_KEYS.PAGE_DWALLET_ENABLED:
+          flags.dWallet = setting.value === 'true';
+          break;
         case SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED:
           flags.bookings = setting.value === 'true';
           break;
@@ -205,6 +208,9 @@ export async function getPlatformPageFlagsWithTx(
         case SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED:
           flags.dashboard = setting.value === 'true';
           break;
+        case SETTINGS_KEYS.PAGE_DWALLET_ENABLED:
+          flags.dWallet = setting.value === 'true';
+          break;
         case SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED:
           flags.bookings = setting.value === 'true';
           break;
@@ -288,6 +294,7 @@ export function mapFlagToSettingKey(key: keyof PlatformPageFlags): string | unde
     surveys: SETTINGS_KEYS.PAGE_SURVEYS_ENABLED,
     competitions: SETTINGS_KEYS.PAGE_COMPETITIONS_ENABLED,
     dashboard: SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED,
+    dWallet: SETTINGS_KEYS.PAGE_DWALLET_ENABLED,
     providers: SETTINGS_KEYS.PAGE_PROVIDERS_ENABLED,
     bookings: SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED,
     messages: SETTINGS_KEYS.PAGE_MESSAGES_ENABLED,

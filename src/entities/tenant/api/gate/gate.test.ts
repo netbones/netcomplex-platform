@@ -190,6 +190,7 @@ describe('Mapping completeness', () => {
         surveys: true,
         competitions: true,
         dashboard: true,
+        dWallet: false,
         providers: true,
         bookings: true,
         messages: true,
@@ -203,8 +204,8 @@ describe('Mapping completeness', () => {
       }
     });
 
-    it('should have exactly 14 entries (one per FeatureKey)', () => {
-      expect(Object.keys(FEATURE_TO_FLAG)).toHaveLength(14);
+    it('should have exactly 15 entries (one per FeatureKey)', () => {
+      expect(Object.keys(FEATURE_TO_FLAG)).toHaveLength(15);
     });
   });
 
@@ -224,8 +225,8 @@ describe('Mapping completeness', () => {
       }
     });
 
-    it('should have exactly 14 entries (one per FeatureKey)', () => {
-      expect(Object.keys(FEATURE_TO_REGISTRY)).toHaveLength(14);
+    it('should have exactly 15 entries (one per FeatureKey)', () => {
+      expect(Object.keys(FEATURE_TO_REGISTRY)).toHaveLength(15);
     });
   });
 
@@ -259,6 +260,7 @@ const ALL_FLAGS_ENABLED: PlatformPageFlags = {
   surveys: true,
   competitions: true,
   dashboard: true,
+  dWallet: true,
   providers: true,
   bookings: true,
   messages: true,
