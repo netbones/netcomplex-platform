@@ -941,7 +941,7 @@ Plans:
 
 **Acceptance:** 7 sub-phase PLAN.md files created and executed; 6 new Prisma models + 5 enums migrated; 12 Drizzle schema files auto-generated; all 17 API routes auth-guarded with `canAccess('page.dWallet')`; both widgets registered and visually verified (admin widget never shows individual balances); full `/dashboard/wallet` page with 5 tabs exists; UBIQUITOUS_LANGUAGE.md updated with 7 new terms; integration-verification grep commands pass (no `prisma.` in routes, `tenantId` on every query, `apiSuccess`/`apiError` envelope in every route); 6 Vitest test files passing; POPIA audit complete (7cp); M5 launch checklist can flip to green once Schedule F Table 2 is confirmed.
 
-**Plans:** 7 plans in 4 waves
+**Plans:** 1/7 plans executed
 
 | Wave | Plans                           | Objective                                |
 | ---- | ------------------------------- | ---------------------------------------- |
