@@ -897,7 +897,7 @@ _Features explicitly deferred to post-M5b. The 8 feature items originally in the
 
 **Depends on:** Phase 46 (Provider Platform — reuses PaystackService/PayPalService)
 
-**Plans:** 4 plans
+**Plans:** 2/4 plans executed
 
 | Wave | Plan                | Objective                                                                                                                           |
 | ---- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
@@ -909,7 +909,7 @@ _Features explicitly deferred to post-M5b. The 8 feature items originally in the
 Plans:
 
 - [x] 46.1-01-PLAN.md — Billing domain models (schema, migration, seed, Drizzle schemas)
-- [ ] 46.1-02-PLAN.md — Checkout & subscription lifecycle + tier sync + billing helpers + tests
+- [x] 46.1-02-PLAN.md — Checkout & subscription lifecycle + tier sync + billing helpers + tests
 - [ ] 46.1-03-PLAN.md — Platform admin billing routes + admin billing widgets
 - [ ] 46.1-04-PLAN.md — Tenant billing portal pages + billing feature UI components
 
