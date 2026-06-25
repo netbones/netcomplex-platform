@@ -1157,15 +1157,26 @@ Plans:
 **Goal:** DisputeCase, DisputeEvidence, DisputeEvent, DisputeMessage, DisputeMessageVersion, DisputeNotification models + enums + Drizzle generation + entity layer per FSD layout.
 
 **Source:** ADVISORY-017 — Phases 1 + 2
-**Status:** Not planned
+**Status:** Planned — 2 plans in 2 waves
 **Depends on:** Phase 104 (soft dep — schema work can start in parallel)
 **Requirements:** DISPUTE-01, DISPUTE-02
 
-**Plans:** 0 plans
+| Requirement | Plan   | Description                                                   |
+| ----------- | ------ | ------------------------------------------------------------- |
+| DISPUTE-01  | 105-01 | Schema: 6 models + 5 enums, migration, seed, DB push          |
+| DISPUTE-02  | 105-02 | Entity layer: types, constants, lifecycle, UI, Drizzle wiring |
+
+**Plans:** 2 plans
+
+| Wave | Plan               | Objective                                                                                   |
+| ---- | ------------------ | ------------------------------------------------------------------------------------------- |
+| 1    | [ ] 105-01-PLAN.md | Schema + Seed + DB Push: 6 models, 5 enums, migration, Drizzle gen, disputes PlatformModule |
+| 2    | [ ] 105-02-PLAN.md | Entity Layer: types, constants, lifecycle, reference generator, 3 UI badges, Drizzle wiring |
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 105 to break down)
+- [ ] 105-01-PLAN.md — Schema + Seed + Migration + DB Push (Wave 1)
+- [ ] 105-02-PLAN.md — Entity Layer + UI Badges + Drizzle Barrels (Wave 2)
 
 ---
 
