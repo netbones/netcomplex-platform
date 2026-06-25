@@ -6,7 +6,7 @@ shadcn_initialized: true
 preset: default (slate base, CSS variables, rsc, tsx)
 created: 2026-06-25
 revised: 2026-06-25
-revised-reason: Schedule-F-G alignment — replaced speculative earnings categories with 8 actual Schedule F revenue streams (Survey Participation, Marketplace Activity, Agent Transactions, Value-Added Services, Service Provider Listings, Premium Placements, Agent Registrations, Agent Premium Listings), replaced invented Community Impact metrics with derivable model-based stats, added contractual compliance notes (R50 minimum, 12-month CBF sweep, pro-rata distribution), renamed "Data Rewards" → "Resident Data Share" for contractual accuracy
+revised-reason: Earnings Breakdown fix — replaced misleading percentage-bar chart (which implied proportional slices of a single pool) with rand amount list showing actual per-stream Resident Data Share amounts; added math footnote explaining per-stream Distributable Surplus calculation; applied fix to Surface 1 (widget), Surface 3 Tab 1 (Overview), and Impact tab Revenue Stream Contribution Breakdown; preserved all existing constraints (4 font sizes, 2 weights, 60/30/10 color, compliance notes, Schedule F streams)
 ---
 
 # Phase 47 — UI Design Contract
@@ -199,14 +199,16 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 │                                      │
   │  Where Your Value Comes From         │
   │  ┌──────────────────────────────────┐│
-  │  │ ████████████████████░ Survey 20% ││  ← Survey Participation: 20% of distributable surplus
-  │  │ ████████████████████░ Market 20% ││     Marketplace Activity: 20% of distributable surplus
-  │  │ ████████████████████░ AgentT 20% ││     Agent Transactions: 20% of distributable surplus
-  │  │ ████████████████████░ VAS    20% ││     Value-Added Services: 20% of distributable surplus
-  │  │ ██████████░░░░░░░░░░░ Provid 10% ││     Service Provider Listings: 10% of distributable surplus
-  │  │ ██████████░░░░░░░░░░░ Prem   10% ││     Premium Placements: 10% of distributable surplus
-  │  │ ██████████░░░░░░░░░░░ AgReg  10% ││     Agent Registrations: 10% of distributable surplus
-  │  │ ██████████░░░░░░░░░░░ AgPrem 10% ││     Agent Premium Listings: 10% of distributable surplus
+  │  │ Survey Participation       R8.20 ││  ← stream name + rand amount earned this period
+  │  │ Marketplace Activity       R3.50 ││     (actual Resident Data Share distribution)
+  │  │ Agent Transactions         R5.00 ││
+  │  │ Value-Added Services       R2.10 ││
+  │  │ Service Provider Listings    —   ││  ← "—" = no revenue from this stream this period
+  │  │ Premium Placements           —   ││
+  │  │ Agent Registrations        R1.20 ││
+  │  │ Agent Premium Listings       —   ││
+  │  │ ──────────────────────────────── ││
+  │  │ Total Resident Data Share R20.00 ││  ← sum of above (text-indigo-600, font-semibold)
   │  └──────────────────────────────────┘│
 │                                      │
   │  Community Impact                    │
@@ -235,18 +237,31 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 
 **Earnings Breakdown card ("Where Your Value Comes From"):**
 
-All eight revenue streams from Schedule F Table 2, each shown with its Resident Data Share percentage of distributable surplus:
+All eight revenue streams from Schedule F Table 2, each shown as a simple list row with the actual rand amount earned in the current period. No percentage bar chart — percentages apply to different base amounts (each stream's own Distributable Surplus) and cannot be rendered as proportional slices of a single bar.
 
-- Survey Participation: 20% — Resident Data Share of this stream's distributable surplus
-- Marketplace Activity: 20% — Resident Data Share of this stream's distributable surplus
-- Agent Transactions: 20% — Resident Data Share of this stream's distributable surplus
-- Value-Added Services: 20% — Resident Data Share of this stream's distributable surplus
-- Service Provider Listings: 10% — Resident Data Share of this stream's distributable surplus
-- Premium Placements: 10% — Resident Data Share of this stream's distributable surplus
-- Agent Registrations: 10% — Resident Data Share of this stream's distributable surplus
-- Agent Premium Listings: 10% — Resident Data Share of this stream's distributable surplus
+Each row:
 
-Streams with no revenue in the current period show "—" instead of an amount with a muted slate-300 bar segment. Active streams show the calculated Resident Data Share contribution in `text-indigo-600` on filled bar segments. Actual per-resident amounts depend on pro-rata distribution across all opt-in participants (Schedule G, G3).
+- **Stream name:** readable full label (e.g., "Survey Participation", not "Survey")
+- **Rand amount:** right-aligned in `text-indigo-600` for non-zero amounts, `text-slate-300` with "—" for zero-revenue streams
+- **Resident Share % footnote:** small muted text below each active stream — e.g., `(20% of this stream's distributable surplus)` in `text-xs text-slate-400`
+- **Total row:** divider line + "Total Resident Data Share this period" label + sum rand amount in `text-indigo-600 font-semibold`
+
+Visual weight comes from rand amounts being right-aligned and using the community-forward indigo-600 color for non-zero amounts. Streams with no revenue show muted text and no amount.
+
+Row ordering (Schedule F Table 2):
+
+1. Survey Participation — 20% Resident Data Share
+2. Marketplace Activity — 20% Resident Data Share
+3. Agent Transactions — 20% Resident Data Share
+4. Value-Added Services — 20% Resident Data Share
+5. Service Provider Listings — 10% Resident Data Share
+6. Premium Placements — 10% Resident Data Share
+7. Agent Registrations — 10% Resident Data Share
+8. Agent Premium Listings — 10% Resident Data Share
+
+**Math footnote (displayed below the list in `text-xs text-slate-400`):**
+
+> \* Each stream's Resident Data Share = (that stream's Distributable Surplus × Resident Share %) ÷ active participants. Percentages apply to different base amounts — they are not proportions of a single pool. Your per-stream amount varies each distribution period based on actual revenue generated.
 
 **Community Impact card:**
 
@@ -259,7 +274,7 @@ Metrics derivable from the actual financial model (Schedule F & G). No invented/
 - Unclaimed → CBF After: 12 months from credit date (Schedule G, G3)
 - Layout: 2×2 stat grid within card, each stat is label below value. "Your Estimated Share" uses `font-semibold` for emphasis.
 
-**Future value ledger design:** The Overview layout is designed to accommodate additional value sources beyond Resident Data Share as they ship in future phases. The bar chart expands horizontally; new rows appear without restructuring.
+**Future value ledger design:** The Overview layout is designed to accommodate additional value sources beyond Resident Data Share as they ship in future phases. The earnings list expands vertically with new rows; no restructuring needed.
 
 **States:**
 
@@ -354,10 +369,12 @@ Metrics derivable from the actual financial model (Schedule F & G). No invented/
 - Available Value display (28px semibold, indigo-600 icon/currency)
 - Pending Distribution (16px, slate-600) with "Est. next distribution: [date]" in `text-sm text-slate-400`
 - Lifetime stats: Value Earned, Value Withdrawn, wallet status badge
-- "Where Your Value Comes From" earnings breakdown card (same as widget — all 8 Schedule F streams):
-  - Survey Participation 20%, Marketplace Activity 20%, Agent Transactions 20%, Value-Added Services 20%
-  - Service Provider Listings 10%, Premium Placements 10%, Agent Registrations 10%, Agent Premium Listings 10%
-  - Each shows % of distributable surplus per Schedule F Table 2. Streams with no revenue show "—".
+- "Where Your Value Comes From" earnings breakdown card (same as widget — rand amount list, see Surface 1 for full spec):
+  - All 8 Schedule F streams shown as a simple list with actual rand amounts, not a percentage bar chart
+  - Each row: stream name (full readable label) + rand amount right-aligned in `text-indigo-600` (or "—" in `text-slate-300` for no revenue)
+  - Resident Share % as small muted footnote: "(20% of this stream's distributable surplus)" in `text-xs text-slate-400`
+  - Total row with divider and "Total Resident Data Share this period" sum
+  - Math footnote: "Each stream's Resident Data Share = (that stream's Distributable Surplus × Resident Share %) ÷ active participants. Percentages apply to different base amounts — they are not proportions of a single pool. Your per-stream amount varies each distribution period based on actual revenue generated."
 - Community Impact card (same as widget):
   - Active Revenue Streams | Participating Residents (count of wallets with status ACTIVE)
   - Total Resident Share Pool | Your Estimated Share (pool ÷ active participants, pro-rata per Schedule G G3)
@@ -409,18 +426,13 @@ All metrics are derivable from the actual dWallet financial model (Schedule F & 
   - "Unclaimed Transfers" explicitly notes "from expired rewards" so residents understand why individual unclaimed money flows here.
   - Empty state: "No Community Benefit Fund activity yet. The fund grows as unclaimed rewards and community revenue accumulate."
 
-- **Revenue Stream Contribution Breakdown:**
-  - ┌──────────────────────────────────────────────────┐
-  - │ Survey Participation ████████████ 20% R[derived]│
-  - │ Marketplace Activity ████████████ 20% R[derived]│
-  - │ Agent Transactions ████████████ 20% R[derived]│
-  - │ Value-Added Services ████████████ 20% R[derived]│
-  - │ Service Provider List ████████ 10% R[derived]│
-  - │ Premium Placements ████████ 10% R[derived]│
-  - │ Agent Registrations ████████ 10% R[derived]│
-  - │ Agent Premium List ████████ 10% R[derived]│
-  - └──────────────────────────────────────────────────┘
-  - Streams with no revenue show "—" and a muted slate-300 dashed bar
+- **Revenue Stream Contribution Breakdown** (rand amount list, same format as Earnings Breakdown card in Surface 1):
+  - Each stream shown as a simple list row: full stream name + actual rand amount right-aligned in `text-indigo-600`
+  - Streams with no revenue show "—" in muted `text-slate-300`
+  - Resident Share % as small muted footnote below each active stream: "(20% of this stream's distributable surplus)" in `text-xs text-slate-400`
+  - Total row at bottom with divider: "Total Resident Share Pool R[derived]"
+  - Math footnote displayed below the list (same as in Surface 1 Earnings Breakdown card)
+  - No percentage bar chart — percentages apply to different base amounts and cannot be rendered as proportional slices
 - Empty state: "No impact data yet — community impact metrics will appear once your data sharing generates community-wide contributions."
 - Data sources: `GET /api/v1/tenant/dwallet/impact` (aggregate community stats), `GET /api/admin/dwallet/stats` (for admin aggregate view)
 
@@ -492,16 +504,16 @@ These compliance notes appear as a sidebar or info block within the Payouts tab,
 
 All dWallet financial mechanics are governed by the SaaS License Agreement Schedules F (Revenue Streams) and G (Resident Data Share Program). These contractual terms inform all UI copy, calculations, and constraints:
 
-| Rule                                                                                                                                                                                                                                                | Source             | UI Implementation                                                                                                |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| Resident Data Share = % of each stream's distributable surplus                                                                                                                                                                                      | Schedule F Table 2 | Percentage displayed in Earnings Breakdown bar chart; used as basis for pro-rata calculation                     |
-| 8 revenue streams: Survey Participation (20%), Marketplace Activity (20%), Agent Transactions (20%), Value-Added Services (20%), Service Provider Listings (10%), Premium Placements (10%), Agent Registrations (10%), Agent Premium Listings (10%) | Schedule F Table 2 | All 8 streams shown in Overview, Impact, and Admin widget. Streams with no revenue show "—".                     |
-| Pro-rata distribution: per-resident reward = total pool ÷ active opt-in participants                                                                                                                                                                | Schedule G G3      | "Your Estimated Share" calculation on Overview and Impact tabs                                                   |
-| R50 minimum payout threshold                                                                                                                                                                                                                        | Schedule G G3      | "Request Payout" button disabled below R50; tooltip explains minimum                                             |
-| Monthly or on-request payouts                                                                                                                                                                                                                       | Schedule G G3      | Payout form accepts requests any time; monthly distributions shown in Activity                                   |
-| Unclaimed rewards → CBF after 12 months                                                                                                                                                                                                             | Schedule G G3      | Displayed as "Unclaimed → CBF After: 12 months" on Community Impact card; unclaimed amounts shown in Payouts tab |
-| All consent changes logged and retained 5 years                                                                                                                                                                                                     | Schedule G G4      | Audit disclaimer on Consents tab                                                                                 |
-| Aggregate-only admin view (no individual balances)                                                                                                                                                                                                  | DWALLET_SPEC.md §7 | Admin widget shows aggregate counts only; payout table shows names for payment processing only                   |
+| Rule                                                                                                                                                                                                                                                | Source             | UI Implementation                                                                                                             |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| Resident Data Share = % of each stream's distributable surplus                                                                                                                                                                                      | Schedule F Table 2 | Percentage displayed as muted footnote next to each stream in Earnings Breakdown list; used as basis for pro-rata calculation |
+| 8 revenue streams: Survey Participation (20%), Marketplace Activity (20%), Agent Transactions (20%), Value-Added Services (20%), Service Provider Listings (10%), Premium Placements (10%), Agent Registrations (10%), Agent Premium Listings (10%) | Schedule F Table 2 | All 8 streams shown in Overview, Impact, and Admin widget. Streams with no revenue show "—".                                  |
+| Pro-rata distribution: per-resident reward = total pool ÷ active opt-in participants                                                                                                                                                                | Schedule G G3      | "Your Estimated Share" calculation on Overview and Impact tabs                                                                |
+| R50 minimum payout threshold                                                                                                                                                                                                                        | Schedule G G3      | "Request Payout" button disabled below R50; tooltip explains minimum                                                          |
+| Monthly or on-request payouts                                                                                                                                                                                                                       | Schedule G G3      | Payout form accepts requests any time; monthly distributions shown in Activity                                                |
+| Unclaimed rewards → CBF after 12 months                                                                                                                                                                                                             | Schedule G G3      | Displayed as "Unclaimed → CBF After: 12 months" on Community Impact card; unclaimed amounts shown in Payouts tab              |
+| All consent changes logged and retained 5 years                                                                                                                                                                                                     | Schedule G G4      | Audit disclaimer on Consents tab                                                                                              |
+| Aggregate-only admin view (no individual balances)                                                                                                                                                                                                  | DWALLET_SPEC.md §7 | Admin widget shows aggregate counts only; payout table shows names for payment processing only                                |
 
 ---
 
@@ -657,14 +669,14 @@ dWallet is a Value Ledger, not a single-purpose rewards tracker. Resident Data S
 Sources (credits): Resident Data Share (Phase 47) → Community Merits (Phase 45) → Referral Rewards → Volunteer Credits → AI Credits (Phase 104)
 Sinks (debits): Payouts (Phase 47) → Donations → Marketplace Spending → Fee Payments
 
-The UI contract accommodates this evolution. The Earnings Breakdown bar chart and Impact tab expand horizontally for new sources. The `WalletTransaction.sourceType` field (TransactionSource enum in `DWALLET_SPEC.md`) already distinguishes between sources — only `RESIDENT_DATA_SHARE` is active in Phase 47.
+The UI contract accommodates this evolution. The Earnings Breakdown list and Impact tab expand vertically for new value sources (new rows in the list, not new bar segments). The `WalletTransaction.sourceType` field (TransactionSource enum in `DWALLET_SPEC.md`) already distinguishes between sources — only `RESIDENT_DATA_SHARE` is active in Phase 47.
 
 ---
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PENDING — community language sweep applied ("Community Value", "Value Earned", "Activity"); Earnings Breakdown aligned to 8 Schedule F revenue streams (Survey Participation, Marketplace Activity, Agent Transactions, Value-Added Services, Service Provider Listings, Premium Placements, Agent Registrations, Agent Premium Listings); Community Impact uses derivable model-based metrics; contractual compliance notes added (R50 minimum, 12-month CBF, pro-rata); "Resident Data Share" replaces "Data Rewards" for contractual accuracy; awaiting re-check
-- [ ] Dimension 2 Visuals: PENDING — Surface 1 redesigned with 8-stream Earnings Breakdown card and derivable Community Impact card; Surface 3 restructured with updated Overview (Schedule F streams), Impact tab (derivable metrics with Schedule F stream breakdown), Payouts tab (compliance info block); consent toggles preserved; awaiting re-check
+- [ ] Dimension 1 Copywriting: PENDING — community language sweep applied ("Community Value", "Value Earned", "Activity"); Earnings Breakdown replaced percentage-bar chart with rand amount list (percentages cannot be proportional slices — each stream has its own Distributable Surplus base); math footnote added explaining per-stream calculation; Community Impact uses derivable model-based metrics; contractual compliance notes added (R50 minimum, 12-month CBF, pro-rata); "Resident Data Share" replaces "Data Rewards" for contractual accuracy; awaiting re-check
+- [ ] Dimension 2 Visuals: PENDING — Surface 1 Earnings Breakdown redesigned with rand amount list (no bar chart); Surface 3 Tab 1 Overview updated to match list format; Impact tab Revenue Stream Contribution Breakdown replaced bar chart with list format; Community Impact card preserved; consent toggles preserved; awaiting re-check
 - [ ] Dimension 3 Color: PASS (unchanged — semantic colors removed green/gold/banking aesthetics; indigo-600/slate-600/slate-400 preserved)
 - [ ] Dimension 4 Typography: PASS (unchanged — 4 sizes, 2 weights preserved)
 - [ ] Dimension 5 Spacing: PASS (unchanged — all multiples of 4 preserved)
