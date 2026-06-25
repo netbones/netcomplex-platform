@@ -32,6 +32,11 @@ import {
   Trophy,
   Shield,
   Sparkles,
+  DollarSign,
+  CreditCard,
+  TrendingUp,
+  Percent,
+  Search,
 } from 'lucide-react';
 
 export function registerAllWidgets(registry: { register: (m: WidgetManifest) => void }) {
@@ -958,6 +963,70 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
       import('@features/ai-provider').then(m => ({ default: m.AdminAiUsageWidget }))
     ),
     defaultSize: { width: 3, height: 2 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // BILLING WIDGETS (Phase 46.1)
+  // ═══════════════════════════════════════════════════════════════
+
+  registry.register({
+    id: 'admin-billing-overview',
+    version: '1.0.0',
+    name: 'Billing Overview',
+    description: 'MRR, tier distribution, and churn metrics',
+    author: 'internal',
+    category: 'core',
+    icon: BarChart2,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../ui/AdminBillingOverviewWidget').then(m => ({
+        default: m.AdminBillingOverviewWidget,
+      }))
+    ),
+    defaultSize: { width: 4, height: 2 },
+    minSize: { width: 2, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
+  });
+
+  registry.register({
+    id: 'admin-subscriptions',
+    version: '1.0.0',
+    name: 'Subscriptions',
+    description: 'Filterable, searchable subscription list',
+    author: 'internal',
+    category: 'core',
+    icon: Users,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../ui/AdminSubscriptionsWidget').then(m => ({
+        default: m.AdminSubscriptionsWidget,
+      }))
+    ),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
+  });
+
+  registry.register({
+    id: 'admin-revenue',
+    version: '1.0.0',
+    name: 'Revenue',
+    description: 'Monthly revenue chart and payment funnel',
+    author: 'internal',
+    category: 'core',
+    icon: TrendingUp,
+    permissions: ['admin'],
+    component: lazy(() =>
+      import('../ui/AdminRevenueWidget').then(m => ({
+        default: m.AdminRevenueWidget,
+      }))
+    ),
+    defaultSize: { width: 4, height: 3 },
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
     spaces: ['admin'],
