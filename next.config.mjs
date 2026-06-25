@@ -12,7 +12,7 @@ const nextConfig = {
   // Pino uses worker threads for transports (pino-pretty).
   // Bundling it causes "Cannot find module lib/worker.js" at runtime.
   // Mark as external so Node resolves them from node_modules directly.
-  serverExternalPackages: ['pino'],
+  serverExternalPackages: ['pino', 'ioredis'],
 
   // Allow cross-origin dev requests for HMR
   allowedDevOrigins: ['app.netbones.co.za'],
