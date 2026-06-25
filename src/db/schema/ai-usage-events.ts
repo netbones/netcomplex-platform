@@ -1,0 +1,19 @@
+import { pgTable, text, integer, boolean, timestamp } from 'drizzle-orm/pg-core';
+
+export const aiUsageEvents = pgTable('AiUsageEvent', {
+  id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
+  usageId: text('usageId').notNull(),
+  capability: text('capability').notNull(),
+  provider: text('provider').notNull(),
+  model: text('model').notNull(),
+  inputTokens: integer('inputTokens').notNull(),
+  outputTokens: integer('outputTokens').notNull(),
+  totalTokens: integer('totalTokens').notNull(),
+  userId: text('userId'),
+  referenceId: text('referenceId'),
+  durationMs: integer('durationMs'),
+  success: boolean('success').default(true).notNull(),
+  errorCode: text('errorCode'),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+});

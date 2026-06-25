@@ -1986,3 +1986,80 @@ enum SeatStatus {
   ARCHIVED
   COOLING_OFF
 }
+
+// ── Enums: AI Pool ──
+
+enum AiOveragePolicy {
+  HARD_STOP
+  THROTTLE
+  SURCHARGE
+}
+
+enum AiUsageStatus {
+  ACTIVE
+  SETTLED
+  OVERRIDDEN
+}
+
+// ── Platform AI Pool ──
+
+model PlatformAiTierQuota {
+  id              String           @id @default(cuid())
+  tier            Tier             @unique
+  monthlyTokens   Int
+  overagePolicy   AiOveragePolicy  @default(HARD_STOP)
+  overageTokens   Int              @default(0)
+  overagePriceZAR Decimal          @default(0) @db.Decimal(10, 4)
+  updatedAt       DateTime         @updatedAt
+  updatedById     String?
+}
+
+model AiCapabilityCost {
+  id              String   @id @default(cuid())
+  capability      String   @unique
+  estimatedTokens Int
+  maxTokens       Int
+  notes           String?
+  updatedAt       DateTime @updatedAt
+}
+
+model TenantAiUsage {
+  id              String         @id @default(cuid())
+  tenantId        String
+  billingMonth    String
+  tokensAllotted  Int
+  tokensUsed      Int            @default(0)
+  overageTokens   Int            @default(0)
+  overageCostZAR  Decimal        @default(0) @db.Decimal(10, 4)
+  status          AiUsageStatus  @default(ACTIVE)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  events          AiUsageEvent[]
+
+  @@unique([tenantId, billingMonth])
+  @@index([tenantId])
+  @@index([billingMonth])
+}
+
+model AiUsageEvent {
+  id           String          @id @default(cuid())
+  tenantId     String
+  usageId      String
+  capability   String
+  provider     String
+  model        String
+  inputTokens  Int
+  outputTokens Int
+  totalTokens  Int
+  userId       String?
+  referenceId  String?
+  durationMs   Int?
+  success      Boolean         @default(true)
+  errorCode    String?
+  createdAt    DateTime        @default(now())
+  usage        TenantAiUsage   @relation(fields: [usageId], references: [id])
+
+  @@index([tenantId, createdAt])
+  @@index([capability])
+  @@index([usageId])
+}
