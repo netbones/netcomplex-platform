@@ -31,6 +31,7 @@ import {
   ClipboardList,
   Trophy,
   Shield,
+  Sparkles,
 } from 'lucide-react';
 
 export function registerAllWidgets(registry: { register: (m: WidgetManifest) => void }) {
@@ -935,6 +936,29 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     ),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 3, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // AI PROVIDER WIDGETS
+  // ═══════════════════════════════════════════════════════════════
+
+  registry.register({
+    id: 'admin-ai-usage',
+    version: '1.0.0',
+    name: 'AI Usage',
+    description: 'Monthly AI token usage and feature breakdown',
+    author: 'internal',
+    category: 'core',
+    icon: Sparkles,
+    featureFlag: 'ai-provider',
+    permissions: ['admin', 'board'],
+    component: lazy(() =>
+      import('@features/ai-provider').then(m => ({ default: m.AdminAiUsageWidget }))
+    ),
+    defaultSize: { width: 3, height: 2 },
+    minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
     spaces: ['admin'],
   });
