@@ -6,7 +6,7 @@ shadcn_initialized: true
 preset: default (slate base, CSS variables, rsc, tsx)
 created: 2026-06-25
 revised: 2026-06-25
-revised-reason: Flippable Earnings Breakdown card (bar chart + rand amount list, localStorage flip memory, applied to 3 surfaces). Consent stream names corrected to match actual 8 Schedule F revenue streams: speculative names (Anonymised Analytics→Survey Participation, Community Insights→Marketplace Activity, Market Research→Agent Transactions, Community Benchmarks→Value-Added Services, Service Matching→Service Provider Listings) replaced; 3 missing streams added (Premium Placements, Agent Registrations, Agent Premium Listings); hardcoded R values replaced with ~R[varies]/mo across consent sections (Surface 1 widget, Tab 4 Consents panel, interaction diagrams, admin batch list).
+revised-reason: Decoupled consent from payouts. Single program-level master toggle ("Resident Data Share Program") controls payout eligibility — all participants share equally in one pool. Per-stream toggles control DATA USAGE only, with clear notes that they do not affect rewards. Removed all ~R[varies]/mo estimated values from per-stream consent toggles everywhere (Surface 1 widget, Tab 4 Consents, interaction diagrams). Simplified Earnings Breakdown math footnote to "pool ÷ participants." Updated Consent Toggle Value Labels table to show toggle purpose instead of estimated values.
 ---
 
 # Phase 47 — UI Design Contract
@@ -126,20 +126,20 @@ These colors avoid banking/fintech aesthetics (no green for gains, no red for lo
 
 ### Consent Toggle Value Labels
 
-Each consent toggle in the Consents tab displays an estimated monthly reward:
+Per-stream toggles control DATA USAGE only. Payout eligibility is controlled by the single "Resident Data Share Program" toggle at the top of the Consents tab. All program participants share equally in the total pool regardless of which individual streams they allow.
 
-| Stream                    | Label           |
-| ------------------------- | --------------- |
-| Survey Participation      | "~R[varies]/mo" |
-| Marketplace Activity      | "~R[varies]/mo" |
-| Agent Transactions        | "~R[varies]/mo" |
-| Value-Added Services      | "~R[varies]/mo" |
-| Service Provider Listings | "~R[varies]/mo" |
-| Premium Placements        | "~R[varies]/mo" |
-| Agent Registrations       | "~R[varies]/mo" |
-| Agent Premium Listings    | "~R[varies]/mo" |
+| Stream                    | Toggle Purpose                                  |
+| ------------------------- | ----------------------------------------------- |
+| Survey Participation      | Controls data usage for third-party surveys     |
+| Marketplace Activity      | Controls data usage for marketplace analytics   |
+| Agent Transactions        | Controls data usage for agent marketplace       |
+| Value-Added Services      | Controls data usage for VAS improvement         |
+| Service Provider Listings | Controls data usage for provider analytics      |
+| Premium Placements        | Controls data usage for listing analytics       |
+| Agent Registrations       | Controls data usage for agent registration data |
+| Agent Premium Listings    | Controls data usage for premium listing data    |
 
-Values appear inline next to each toggle as muted `text-sm text-slate-400`. A footnote reads: "Estimated values based on current community participation. Actual rewards vary per distribution cycle."
+All per-stream toggles control DATA USAGE only. Payout eligibility is controlled by the single Resident Data Share Program toggle at the top of the Consents tab. All program participants share equally in the total pool regardless of which individual streams they allow.
 
 ### Empty State Copy
 
@@ -228,17 +228,24 @@ All form dismiss buttons use context-specific labels, never the generic "Cancel"
 │                                      │
 │  Consent Status                      │
 │  ┌──────────────────────────────────┐│
-│  │ Survey Participation     [ON]  ~R[varies]/mo││  ← Consent toggle rows — all 8 Schedule F streams
-│  │ Marketplace Activity     [ON]  ~R[varies]/mo││      ON = accent bg (indigo-600)
-│  │ Agent Transactions      [OFF]  ~R[varies]/mo││      OFF = slate-200 bg, muted label
-│  │ Value-Added Services     [ON]  ~R[varies]/mo││      (paused) shown if previously granted
-│  │ Service Provider List.   [ON]  ~R[varies]/mo││
-│  │ Premium Placements       [ON]  ~R[varies]/mo││
-│  │ Agent Registrations      [ON]  ~R[varies]/mo││
-│  │ Agent Premium List.     [OFF]  ~R[varies]/mo││
+│  │ Resident Data Share Program  [ON] ││  ← master toggle — controls payout eligibility only
+│  │ You share equally with 324      ││     single program-level opt-in
+│  │ other residents                 ││
+│  │ Survey Participation     [ON]    ││  ← per-stream consent toggles — data usage only
+│  │ Marketplace Activity     [ON]    ││     ON = accent bg (indigo-600)
+│  │ Agent Transactions      [OFF]    ││     OFF = slate-200 bg, muted label
+│  │ Value-Added Services     [ON]    ││     (paused) shown if previously granted
+│  │ Service Provider List.   [ON]    ││     No estimated values — payouts are equal share
+│  │ Premium Placements       [ON]    ││
+│  │ Agent Registrations      [ON]    ││
+│  │ Agent Premium List.     [OFF]    ││
 │  └──────────────────────────────────┘│
 │                                      │
-│  *Estimated values vary per cycle    │
+│  *Per-stream toggles control data    │
+│   usage only. Payout eligibility is  │
+│   controlled by the master toggle    │
+│   above. All participants share      │
+│   equally in the total pool.         │
 │                                      │
 │  [Request Payout] [Export]           │  ← CTA row
 │  View full activity →                │  ← link to /dashboard/wallet?tab=activity
@@ -289,11 +296,11 @@ Bar chart specifications:
 - **Stream name:** left side of row, `text-sm text-slate-700`
 - **Total row:** divider (`border-t border-slate-200`) + "Total Resident Data Share Pool" label in `text-sm font-semibold` + rand amount in `text-indigo-600 font-semibold`
 - **Row ordering:** same Schedule F Table 2 order as below
-- **Math footnote below chart in `text-xs text-slate-400`:** "\* Percentages based on actual Resident Data Share rand amounts this period. Each bar shows that stream's contribution to the total pool distributed to residents."
+- **Math footnote below chart in `text-xs text-slate-400`:** "\* Percentages show each stream's contribution to the total Resident Data Share pool this period. Your share = total pool ÷ all program participants. Equal distribution — all opt-in residents receive the same amount regardless of which streams they allow."
 
 **─── BACK SIDE: Your Share (rand amounts, current format) ───**
 
-The existing rand-amount list with the per-stream Resident Data Share footnote. Kept as-is from the previous revision.
+The rand-amount list showing the proportional breakdown of the resident's equal share by stream contribution. All opt-in residents receive the same total amount.
 
 ```
 ┌──────────────────────────────────────────────┐
@@ -317,7 +324,7 @@ Back side specifications:
 - **Stream name:** readable full label, `text-sm text-slate-700`
 - **Rand amount:** right-aligned in `text-indigo-600` for non-zero amounts, `text-slate-300` with "—" for zero-revenue streams
 - **Total row:** divider line + "Total Your Share" label + sum rand amount in `text-indigo-600 font-semibold`
-- **Math footnote below list in `text-xs text-slate-400`:** "\* Each stream's Resident Data Share = (that stream's Distributable Surplus × Resident Share %) ÷ active participants. Percentages apply to different base amounts — they are not proportions of a single pool. Your per-stream amount varies each distribution period based on actual revenue generated."
+- **Math footnote below list in `text-xs text-slate-400`:** "\* Your share = total Resident Data Share pool ÷ all program participants. Equal distribution — all opt-in residents receive the same amount. Per-stream consent controls data usage, not payout calculation."
 
 **─── SHARED: Row ordering (both sides follow Schedule F Table 2) ───**
 
@@ -450,14 +457,14 @@ Metrics derivable from the actual financial model (Schedule F & G). No invented/
   - **Default side on full page: Back (Your Share)** — personal rand amounts are the primary deep-dive content on the Overview tab
   - **Front side (Community Revenue Distribution):** bar chart showing each stream's contribution to total pool with proportional widths and percentages summing to 100%
   - **Back side (Your Share):** all 8 Schedule F streams shown as a simple list with actual rand amounts right-aligned in `text-indigo-600` (or "—" in `text-slate-300` for no revenue)
-  - Resident Share % as small muted footnote: "(20% of this stream's distributable surplus)" in `text-xs text-slate-400`
+  - Schedule F stream percentages as muted footnote: "(Stream contributes 20% of its distributable surplus to the pool)" in `text-xs text-slate-400`
   - Total row with divider and "Total Your Share" sum
-  - Math footnote: "Each stream's Resident Data Share = (that stream's Distributable Surplus × Resident Share %) ÷ active participants. Percentages apply to different base amounts — they are not proportions of a single pool. Your per-stream amount varies each distribution period based on actual revenue generated."
+  - Math footnote: "Your share = total Resident Data Share pool ÷ all program participants. Equal distribution — all opt-in residents receive the same amount. Per-stream consent controls data usage, not payout calculation."
   - Flip interaction: click `[↻ flip]` or tap card to toggle; mobile swipe gesture supported; localStorage remembers last-viewed side (key: `dwallet-earnings-side`)
 - Community Impact card (same as widget):
   - Active Revenue Streams | Participating Residents (count of wallets with status ACTIVE)
   - Total Resident Share Pool | Your Estimated Share (pool ÷ active participants, pro-rata per Schedule G G3)
-- Revenue stream summary cards (stream name, resident share %, your consent status, estimated monthly value)
+- Revenue stream summary cards (stream name, contribution to pool %, your consent status, data usage note)
 - Quick actions: "Request Payout", "Export My Data", "Download Annual Statement"
 - Last 5 community activities (link to Activity tab)
 
@@ -512,7 +519,7 @@ All metrics are derivable from the actual dWallet financial model (Schedule F & 
   - Streams with no revenue show "—" in muted `text-slate-300`
   - Resident Share % as small muted footnote below each active stream: "(20% of this stream's distributable surplus)" in `text-xs text-slate-400`
   - Total row at bottom with divider: "Total Resident Share Pool R[derived]"
-  - Math footnote displayed below the list (same as in Surface 1)
+  - Math footnote displayed below the list: "Your share = total Resident Data Share pool ÷ all program participants. Equal distribution — all opt-in residents receive the same amount. Per-stream consent controls data usage, not payout calculation."
   - Flip interaction: click `[↻ flip]` or tap card; mobile swipe gesture; localStorage key `dwallet-earnings-side` shared with widget and Overview
 - Empty state: "No impact data yet — community impact metrics will appear once your data sharing generates community-wide contributions."
 - Data sources: `GET /api/v1/tenant/dwallet/impact` (aggregate community stats), `GET /api/admin/dwallet/stats` (for admin aggregate view)
@@ -520,46 +527,71 @@ All metrics are derivable from the actual dWallet financial model (Schedule F & 
 **Tab 4 — Consents:**
 
 - Full consent management panel
-- Each stream: label, description, current status (granted/revoked), grant/revoke date, toggle switch, **estimated monthly value**
-- Estimated value display per stream:
+- **Master toggle at top** — "Resident Data Share Program":
   ```
   ┌──────────────────────────────────────────────────────────┐
-  │ Survey Participation                       [ON] ~R[varies]/mo│
-  │ Your anonymised survey responses help improve community services│
+  │ Resident Data Share Program                    [ON]       │
+  │ Share in platform revenue earned by the community.        │
+  │ Your share = total pool ÷ all participants.              │
+  │ Revoking opt-out stops future rewards immediately.        │
+  └──────────────────────────────────────────────────────────┘
+  ```
+  This is the ONLY toggle that affects payouts. Must be ON to receive any Resident Data Share distributions.
+- **Per-stream toggles below** — controls DATA USAGE only:
+  ```
+  ┌──────────────────────────────────────────────────────────┐
+  │ Survey Participation                          [ON]       │
+  │ Controls whether your anonymised data is used for         │
+  │ third-party surveys. Does not affect your Resident        │
+  │ Data Share rewards.                                      │
   │ Granted 15 Jun 2026                                       │
   │                                                          │
-  │ Marketplace Activity                       [ON] ~R[varies]/mo│
-  │ Your marketplace engagement helps fund community initiatives│
+  │ Marketplace Activity                          [ON]       │
+  │ Controls whether your marketplace engagement data is     │
+  │ used for analytics. Does not affect your Resident        │
+  │ Data Share rewards.                                      │
   │ Granted 15 Jun 2026                                       │
   │                                                          │
-  │ Agent Transactions                        [OFF] ~R[varies]/mo│
-  │ Agent-assisted transactions contribute to shared community revenue│
+  │ Agent Transactions                           [OFF]       │
+  │ Controls whether your agent transaction data is used     │
+  │ for agent marketplace analytics. Does not affect         │
+  │ your Resident Data Share rewards.                        │
   │ Revoked 01 Apr 2026                        (paused)      │
   │                                                          │
-  │ Value-Added Services                      [ON] ~R[varies]/mo│
-  │ Your use of community features supports shared infrastructure│
+  │ Value-Added Services                         [ON]       │
+  │ Controls whether your anonymised usage data is used      │
+  │ for VAS improvement. Does not affect your Resident       │
+  │ Data Share rewards.                                      │
   │ Granted 15 Jun 2026                                       │
   │                                                          │
-  │ Service Provider Listings                 [ON] ~R[varies]/mo│
-  │ Your engagement with providers connects you with relevant services│
+  │ Service Provider Listings                    [ON]       │
+  │ Controls whether your provider engagement data is used   │
+  │ for analytics. Does not affect your Resident Data        │
+  │ Share rewards.                                           │
   │ Granted 10 Jun 2026                                       │
   │                                                          │
-  │ Premium Placements                         [ON] ~R[varies]/mo│
-  │ Prioritised service visibility helps fund the community platform│
+  │ Premium Placements                            [ON]       │
+  │ Controls whether your listing data is used for           │
+  │ analytics. Does not affect your Resident Data            │
+  │ Share rewards.                                           │
   │ Granted 15 Jun 2026                                       │
   │                                                          │
-  │ Agent Registrations                       [ON] ~R[varies]/mo│
-  │ Community agent network generates platform revenue for residents│
+  │ Agent Registrations                          [ON]       │
+  │ Controls whether your agent registration data is used    │
+  │ for analytics. Does not affect your Resident Data        │
+  │ Share rewards.                                           │
   │ Granted 01 Jun 2026                                       │
   │                                                          │
-  │ Agent Premium Listings                   [OFF] ~R[varies]/mo│
-  │ Featured agent profiles contribute to community service funding│
+  │ Agent Premium Listings                      [OFF]       │
+  │ Controls whether your premium listing data is used       │
+  │ for analytics. Does not affect your Resident Data        │
+  │ Share rewards.                                           │
   │ No consent granted                                        │
   └──────────────────────────────────────────────────────────┘
   ```
-- Estimated values in `text-sm text-slate-400`. Footnote: "Estimated values based on current community participation. Actual rewards vary per distribution cycle."
-- Revoking consent: immediate effect (no future credits from that stream)
-- Info text: "Revoking consent stops future value accumulation. Past value earned is not affected."
+- No estimated rand values on per-stream toggles — payouts are equal share for all participants
+- Revoking consent: immediate effect (no future data usage from that stream)
+- Info text: "Revoking consent stops future data usage for that stream. Past value earned is not affected. To stop receiving future rewards, use the Resident Data Share Program toggle above."
 - Audit disclaimer: "All consent changes are logged and retained for 5 years per Schedule G4."
 
 **Tab 5 — Payouts:**
@@ -597,16 +629,16 @@ These compliance notes appear as a sidebar or info block within the Payouts tab,
 
 All dWallet financial mechanics are governed by the SaaS License Agreement Schedules F (Revenue Streams) and G (Resident Data Share Program). These contractual terms inform all UI copy, calculations, and constraints:
 
-| Rule                                                                                                                                                                                                                                                | Source             | UI Implementation                                                                                                             |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| Resident Data Share = % of each stream's distributable surplus                                                                                                                                                                                      | Schedule F Table 2 | Percentage displayed as muted footnote next to each stream in Earnings Breakdown list; used as basis for pro-rata calculation |
-| 8 revenue streams: Survey Participation (20%), Marketplace Activity (20%), Agent Transactions (20%), Value-Added Services (20%), Service Provider Listings (10%), Premium Placements (10%), Agent Registrations (10%), Agent Premium Listings (10%) | Schedule F Table 2 | All 8 streams shown in Overview, Impact, and Admin widget. Streams with no revenue show "—".                                  |
-| Pro-rata distribution: per-resident reward = total pool ÷ active opt-in participants                                                                                                                                                                | Schedule G G3      | "Your Estimated Share" calculation on Overview and Impact tabs                                                                |
-| R50 minimum payout threshold                                                                                                                                                                                                                        | Schedule G G3      | "Request Payout" button disabled below R50; tooltip explains minimum                                                          |
-| Monthly or on-request payouts                                                                                                                                                                                                                       | Schedule G G3      | Payout form accepts requests any time; monthly distributions shown in Activity                                                |
-| Unclaimed rewards → CBF after 12 months                                                                                                                                                                                                             | Schedule G G3      | Displayed as "Unclaimed → CBF After: 12 months" on Community Impact card; unclaimed amounts shown in Payouts tab              |
-| All consent changes logged and retained 5 years                                                                                                                                                                                                     | Schedule G G4      | Audit disclaimer on Consents tab                                                                                              |
-| Aggregate-only admin view (no individual balances)                                                                                                                                                                                                  | DWALLET_SPEC.md §7 | Admin widget shows aggregate counts only; payout table shows names for payment processing only                                |
+| Rule                                                                                                                                                                                                                                                | Source             | UI Implementation                                                                                                                                                                     |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Resident Data Share = % of each stream's distributable surplus                                                                                                                                                                                      | Schedule F Table 2 | Percentages determine each stream's contribution to the pool. Individual share = total pool ÷ participants (equal distribution). Shown in bar chart on Earnings Breakdown front side. |
+| 8 revenue streams: Survey Participation (20%), Marketplace Activity (20%), Agent Transactions (20%), Value-Added Services (20%), Service Provider Listings (10%), Premium Placements (10%), Agent Registrations (10%), Agent Premium Listings (10%) | Schedule F Table 2 | All 8 streams shown in Overview, Impact, and Admin widget. Streams with no revenue show "—".                                                                                          |
+| Pro-rata distribution: per-resident reward = total pool ÷ active opt-in participants                                                                                                                                                                | Schedule G G3      | "Your Estimated Share" calculation on Overview and Impact tabs                                                                                                                        |
+| R50 minimum payout threshold                                                                                                                                                                                                                        | Schedule G G3      | "Request Payout" button disabled below R50; tooltip explains minimum                                                                                                                  |
+| Monthly or on-request payouts                                                                                                                                                                                                                       | Schedule G G3      | Payout form accepts requests any time; monthly distributions shown in Activity                                                                                                        |
+| Unclaimed rewards → CBF after 12 months                                                                                                                                                                                                             | Schedule G G3      | Displayed as "Unclaimed → CBF After: 12 months" on Community Impact card; unclaimed amounts shown in Payouts tab                                                                      |
+| All consent changes logged and retained 5 years                                                                                                                                                                                                     | Schedule G G4      | Audit disclaimer on Consents tab                                                                                                                                                      |
+| Aggregate-only admin view (no individual balances)                                                                                                                                                                                                  | DWALLET_SPEC.md §7 | Admin widget shows aggregate counts only; payout table shows names for payment processing only                                                                                        |
 
 ---
 
@@ -753,17 +785,17 @@ If `localStorage` has a stored value, it overrides the surface default — the u
 ### Consent Toggle
 
 ```
-[Stream Label]           ~R[varies]/mo  ──────────●──────────  ON  ← accent bg on track
-[Stream Label]           ~R[varies]/mo  ○────────────────────  OFF ← slate-200 track, muted label
-                                                                        (shows "paused" if previously granted)
+[Stream Label]              ──────────●──────────  ON  ← accent bg on track
+[Stream Label]              ○────────────────────  OFF ← slate-200 track, muted label
+                                                         (shows "paused" if previously granted)
 ```
 
-- Estimated monthly value displayed inline next to stream label (`text-sm text-slate-400`)
+- Per-stream toggles control DATA USAGE only (no estimated rand values)
 - Optimistic update: toggle immediately flips on click
 - API call: `POST /api/v1/tenant/dwallet/consents/:streamKey` with `{ granted: boolean }`
 - On failure: revert toggle, show Sonner toast with error message
 - Audit: Pino log generated server-side on every consent change
-- Footnote below all toggles: "Estimated values based on current community participation. Actual rewards vary per distribution cycle."
+- Note: "Data usage consent does not affect your Resident Data Share rewards. Use the Resident Data Share Program toggle to opt out of rewards."
 
 ### Payout Request Form
 
@@ -845,11 +877,11 @@ The UI contract accommodates this evolution. Both sides of the flippable card ex
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PENDING — community language sweep applied ("Community Value", "Value Earned", "Activity"); flippable Earnings Breakdown card added with front side bar chart ("Community Revenue Distribution" — per-stream contribution to total pool with percentages summing to 100%) and back side rand amount list ("Your Share"); flip control label "↻ flip" with aria-labels on both sides; math footnotes on both sides explaining calculation basis; Community Impact uses derivable model-based metrics; contractual compliance notes added (R50 minimum, 12-month CBF, pro-rata); "Resident Data Share" replaces "Data Rewards" for contractual accuracy; awaiting re-check
-- [ ] Dimension 2 Visuals: PENDING — Surface 1 Earnings Breakdown redesigned as flippable dual-sided card (front: horizontal bar chart with indigo-600 bars and proportional widths; back: rand amount list); Surface 3 Tab 1 Overview defaults to back side (Your Share); Surface 3 Tab 3 Impact defaults to front side (Community Revenue Distribution); flip interaction via click/tap/swipe with 400ms rotateY CSS transition; both sides share identical card dimensions (no layout shift); Community Impact card preserved; consent toggles preserved; awaiting re-check
+- [ ] Dimension 1 Copywriting: PENDING — community language sweep applied ("Community Value", "Value Earned", "Activity"); flippable Earnings Breakdown card with front side bar chart ("Community Revenue Distribution") and back side rand amount list; Resident Data Share Program master toggle at top of Consents tab (single payout opt-in); per-stream consent toggles control DATA USAGE only with clear notes ("Does not affect your Resident Data Share rewards"); Consent Toggle Value Labels table shows toggle purpose (not estimated values); math footnotes simplified to "pool ÷ participants" with equal distribution language; all ~R[varies]/mo estimated per-stream values removed; awaiting re-check
+- [ ] Dimension 2 Visuals: PENDING — Surface 1 Earnings Breakdown: flippable dual-sided card with bar chart front and rand-amount back; Surface 3 Tab 1 defaults to back side, Tab 3 defaults to front side; flip interaction with localStorage persistence; consent section redesigned: master "Resident Data Share Program" toggle + per-stream data-usage toggles (no estimated values); compact widget consent summary; awaiting re-check
 - [ ] Dimension 3 Color: PASS (unchanged — semantic colors removed green/gold/banking aesthetics; indigo-600/slate-600/slate-400 preserved)
 - [ ] Dimension 4 Typography: PASS (unchanged — 4 sizes, 2 weights preserved)
 - [ ] Dimension 5 Spacing: PASS (unchanged — all multiples of 4 preserved)
 - [ ] Dimension 6 Registry Safety: PASS (unchanged — no third-party registries)
 
-**Approval:** pending — updated per Schedule F & G contractual alignment 2026-06-25
+**Approval:** pending — decoupled consent from payouts (2026-06-25): master Resident Data Share Program toggle controls payout eligibility; per-stream toggles control data usage only; all ~R[varies]/mo estimated values removed; math simplified to equal distribution (pool ÷ participants)

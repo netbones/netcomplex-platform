@@ -82,6 +82,7 @@ These are non-negotiable per the spec. Any plan that violates them is a reject.
 6. Pino audit log on every consent change with `{ event: 'consent_change', userId, streamKey, granted, tenantId, ip }`.
 7. `tenantId` on every dWallet model. All queries filter by `tenantId`. Do not rely on wallet ownership alone for tenant isolation.
 8. **Value Ledger principle:** dWallet is a Value Ledger, not a single-purpose rewards tracker. `WalletTransaction.sourceType` must support multiple value sources from day one — `resident_data_share`, `community_merits`, `referral_reward`, `volunteer_credit`, `ai_credit`, `marketplace_credit` — even though only `resident_data_share` is active in Phase 47. Future phases (45 Merits, 104 AI Billing) add sources without changing the wallet abstraction. This prevents three separate reward systems from evolving in parallel.
+9. **Consent decoupled from payouts (2026-06-25):** Per-stream consent toggles control DATA USAGE only — whether a resident's anonymised data may be used for specific purposes. A single program-level opt-in ("Participate in Resident Data Share") controls payout eligibility. Payout calculation: total Resident Data Share pool ÷ all program participants = equal per-resident amount. One pool, one participant count, simple math. This avoids an 8-way admin burden per distribution cycle and ensures residents are not penalised for privacy choices.
 
 ## Patterns to Follow (Sub-Phases B, C, D)
 
