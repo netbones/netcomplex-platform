@@ -33,6 +33,7 @@ import {
   Shield,
   Sparkles,
   TrendingUp,
+  Wallet,
 } from 'lucide-react';
 
 export function registerAllWidgets(registry: { register: (m: WidgetManifest) => void }) {
@@ -56,6 +57,26 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   // ═══════════════════════════════════════════════════════════════
   // CORE WIDGETS
   // ═══════════════════════════════════════════════════════════════
+
+  registry.register({
+    id: 'dwallet-summary',
+    version: '1.0.0',
+    name: 'My dWallet',
+    description: 'Community value, consent status, and impact at a glance',
+    author: 'internal',
+    category: 'core',
+    icon: Wallet,
+    featureFlag: 'dWallet',
+    component: lazy(() =>
+      import('@entities/dwallet/ui/DWalletSummaryWidget').then(m => ({
+        default: m.DWalletSummaryWidget,
+      }))
+    ),
+    defaultSize: { width: 2, height: 3 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['home'],
+  });
 
   registry.register({
     id: 'stats',
@@ -686,6 +707,27 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   });
 
   registry.register({
+    id: 'admin-dwallet',
+    version: '1.0.0',
+    name: 'dWallet Admin',
+    description: 'Community value distribution, payout management, and compliance overview',
+    author: 'internal',
+    category: 'core',
+    icon: Wallet,
+    featureFlag: 'dWallet',
+    permissions: ['admin', 'board'],
+    component: lazy(() =>
+      import('@entities/dwallet/ui/DWalletAdminWidget').then(m => ({
+        default: m.DWalletAdminWidget,
+      }))
+    ),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 3, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
+  });
+
+  registry.register({
     id: 'community-gallery',
     version: '1.0.0',
     name: 'Community Gallery',
@@ -962,6 +1004,7 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     minSize: { width: 2, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
     spaces: ['admin'],
+    // tenantId prop will be wired when dashboard shell context is available
   });
 
   // ═══════════════════════════════════════════════════════════════
