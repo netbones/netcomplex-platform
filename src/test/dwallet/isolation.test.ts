@@ -25,7 +25,6 @@ describe('Tenant Isolation — B-ISOLATION', () => {
     //     .where(eq(dWallets.userId, userId))  // MISSING tenantId filter
 
     const tenantA = 'tenant-a';
-    const tenantB = 'tenant-b';
 
     // Simulate: query should return only tenantA results
     const allWallets = [

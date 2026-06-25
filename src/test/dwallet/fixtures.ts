@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+// vitest globals are configured via vitest.config.ts
 
 /**
  * Shared test fixtures for dWallet API route tests.
