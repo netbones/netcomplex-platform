@@ -158,3 +158,7 @@ export { sendEmail } from '../email/resend';
 export { templates } from '../email/templates';
 export type { TemplateKey } from '../email/templates';
 export { getTenantModule } from '@entities/tenant/server';
+
+// AI Provider — platform pool
+export { getAiProvider, isAiCapabilityEnabled, checkQuota, recordUsage } from '../ai';
+export type { AiProvider, AiCompletionOptions, AiCompletionResult, AiCapabilityKey } from '../ai';
