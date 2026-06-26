@@ -1189,7 +1189,7 @@ Plans:
 **Depends on:** Phase 104, Phase 105
 **Requirements:** DISPUTE-03, DISPUTE-04, DISPUTE-05
 
-**Plans:** 2/4 plans executed
+**Plans:** 3/4 plans executed
 Plans:
 
 - [ ] TBD (run /gsd-plan-phase 106 to break down)
