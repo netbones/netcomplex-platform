@@ -1166,7 +1166,7 @@ Plans:
 | DISPUTE-01  | 105-01 | Schema: 6 models + 5 enums, migration, seed, DB push          |
 | DISPUTE-02  | 105-02 | Entity layer: types, constants, lifecycle, UI, Drizzle wiring |
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 | Wave | Plan               | Objective                                                                                   |
 | ---- | ------------------ | ------------------------------------------------------------------------------------------- |
@@ -1176,7 +1176,7 @@ Plans:
 Plans:
 
 - [x] 105-01-PLAN.md — Schema + Seed + Migration + DB Push (Wave 1)
-- [ ] 105-02-PLAN.md — Entity Layer + UI Badges + Drizzle Barrels (Wave 2)
+- [x] 105-02-PLAN.md — Entity Layer + UI Badges + Drizzle Barrels (Wave 2)
 
 ---
 
