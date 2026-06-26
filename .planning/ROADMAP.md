@@ -1293,10 +1293,10 @@ Plans:
 
 **Plans:**
 
-| Wave | Plan               | Objective                                                                                    |
+2/2 plans complete
 | ---- | ------------------ | -------------------------------------------------------------------------------------------- |
-| 1    | [ ] 110-01-PLAN.md | `/api/access` endpoint + PageAccess types + 5-layer resolution pipeline + agent extension    |
-| 2    | [ ] 110-02-PLAN.md | `usePageAccess()` hook + nav refactor (SpaceChrome, MobileSpaceBar) + `filterSpaces` pure fn |
+| 1 | [ ] 110-01-PLAN.md | `/api/access` endpoint + PageAccess types + 5-layer resolution pipeline + agent extension |
+| 2 | [ ] 110-02-PLAN.md | `usePageAccess()` hook + nav refactor (SpaceChrome, MobileSpaceBar) + `filterSpaces` pure fn |
 
 **Out of scope:** Full agent gateway (token issuance, scope management, audit log), widget-level access, access-based redirects, rate limiting on access endpoint.
 
