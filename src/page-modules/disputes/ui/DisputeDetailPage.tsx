@@ -70,6 +70,10 @@ export function DisputeDetailPage({ disputeId }: DisputeDetailPageProps) {
 
     if (disputeId && threadState === 'ready') {
       fetchDispute();
+    } else if (threadState === 'error') {
+      if (!cancelled) {
+        setIsLoading(false);
+      }
     }
 
     return () => {
