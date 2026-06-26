@@ -51,13 +51,6 @@ const jsonResponse = (data: unknown, status: number) =>
 vi.mock('@api/server', () => ({
   db: mocks.dbMock,
   auth: { api: { getSession: vi.fn(() => Promise.resolve(mocks.sessionResult)) } },
-  dWallets: {
-    id: 'id',
-    balance: 'balance',
-    status: 'status',
-    tenantId: 'tenantId',
-    updatedAt: 'updatedAt',
-  },
   walletTransactions: {
     id: 'id',
     walletId: 'walletId',
@@ -74,6 +67,16 @@ vi.mock('@api/server', () => ({
     tenantId: 'tenantId',
   },
   dataConsents: { id: 'id', walletId: 'walletId', userId: 'userId', tenantId: 'tenantId' },
+  dWallets: {
+    id: 'id',
+    userId: 'userId',
+    tenantId: 'tenantId',
+    balance: 'balance',
+    status: 'status',
+    currency: 'currency',
+    lifetimeEarned: 'lifetimeEarned',
+    lifetimePaid: 'lifetimePaid',
+  },
   apiSuccess: vi.fn((data: unknown) => jsonResponse({ success: true, data }, 200)),
   apiUnauthorized: vi.fn(() => jsonResponse({ error: 'Unauthorized' }, 401)),
   withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
@@ -85,7 +88,7 @@ vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' }),
 }));
 
-vi.mock('@entities/dwallet/server', () => ({
+vi.mock('@entities/dwallet', () => ({
   getOrCreateWallet: vi.fn(() => Promise.resolve(mocks.activeWallet)),
 }));
 
@@ -141,7 +144,7 @@ describe('POST /api/v1/tenant/dwallet/deletion-request', () => {
 
   it('returns early if wallet already closed', async () => {
     mocks.sessionResult = { userId: 'user-1', user: { id: 'user-1' } };
-    const { getOrCreateWallet } = await import('@entities/dwallet/server');
+    const { getOrCreateWallet } = await import('@entities/dwallet');
     vi.mocked(getOrCreateWallet).mockResolvedValueOnce(mocks.closedWallet as never);
 
     const response = await POST(makeReq());
@@ -154,7 +157,7 @@ describe('POST /api/v1/tenant/dwallet/deletion-request', () => {
 
   it('does not create rollover transaction for empty wallet', async () => {
     mocks.sessionResult = { userId: 'user-1', user: { id: 'user-1' } };
-    const { getOrCreateWallet } = await import('@entities/dwallet/server');
+    const { getOrCreateWallet } = await import('@entities/dwallet');
     vi.mocked(getOrCreateWallet).mockResolvedValueOnce(mocks.emptyWallet as never);
     mocks.dbMock.update.mockReturnValue(makeUpdateChain() as never);
 

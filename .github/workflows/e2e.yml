@@ -1,0 +1,44 @@
+name: E2E Smoke Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday at 6 AM UTC
+
+jobs:
+  smoke:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Install Playwright browsers
+        run: npx playwright install firefox
+
+      - name: Build
+        run: pnpm build
+
+      - name: Start server
+        run: |
+          pnpm start &
+          npx wait-on http://localhost:3000 --timeout 60000
+
+      - name: Run smoke tests
+        run: npx playwright test e2e/smoke.test.ts --reporter=list
+
+      - name: Upload results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results/

@@ -4,6 +4,12 @@ vi.setConfig({ testTimeout: 15000 });
 
 vi.mock('server-only', () => ({}));
 
+vi.mock('@supabase/supabase-js', () => ({
+  createClient: vi.fn(() => ({
+    channel: vi.fn(() => ({ subscribe: vi.fn() })),
+  })),
+}));
+
 vi.mock('next/headers', () => ({
   headers: vi.fn(() =>
     Promise.resolve({

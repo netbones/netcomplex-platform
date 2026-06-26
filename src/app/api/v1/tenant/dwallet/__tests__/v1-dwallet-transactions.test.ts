@@ -73,7 +73,7 @@ vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' }),
 }));
 
-vi.mock('@entities/dwallet/server', () => ({
+vi.mock('@entities/dwallet', () => ({
   getOrCreateWallet: vi.fn(() => Promise.resolve(mocks.wallet)),
 }));
 

@@ -79,11 +79,8 @@ vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' }),
 }));
 
-vi.mock('@entities/dwallet/server', () => ({
-  getOrCreateWallet: vi.fn(() => Promise.resolve(mocks.wallet)),
-}));
-
 vi.mock('@entities/dwallet', () => ({
+  getOrCreateWallet: vi.fn(() => Promise.resolve(mocks.wallet)),
   payoutRequestSchema: { parse: vi.fn((body: unknown) => body) },
 }));
 
@@ -168,7 +165,7 @@ describe('POST /api/v1/tenant/dwallet/payout', () => {
 
   it('rejects payout below R50 threshold', async () => {
     mocks.sessionResult = { userId: 'user-1', user: { id: 'user-1' } };
-    const { getOrCreateWallet } = await import('@entities/dwallet/server');
+    const { getOrCreateWallet } = await import('@entities/dwallet');
     vi.mocked(getOrCreateWallet).mockResolvedValueOnce(mocks.lowBalanceWallet as never);
 
     const response = await POST(makeReq('POST', { amount: 10 }));

@@ -26,9 +26,21 @@ const mocks = vi.hoisted(() => ({
     currency: 'ZAR',
     status: 'ACTIVE',
   },
+  streams: [
+    {
+      key: 'stream-1',
+      label: 'Data Share',
+      description: 'Share anonymous data',
+      isActive: true,
+      id: 's-1',
+      residentSharePct: 50,
+      createdAt: new Date('2026-01-01'),
+    },
+  ],
   consents: [
     {
-      id: 'c-1',
+      id: 'consent-1',
+      walletId: 'wallet-1',
       streamKey: 'stream-1',
       granted: true,
       grantedAt: new Date('2026-06-01'),
@@ -39,33 +51,40 @@ const mocks = vi.hoisted(() => ({
   transactions: [
     {
       id: 'tx-1',
+      walletId: 'wallet-1',
+      tenantId: 'test-tenant-id',
       type: 'ALLOCATION',
       amount: '50.00',
-      description: 'Data share',
+      description: 'Test allocation',
       sourceType: 'RESIDENT_DATA_SHARE',
       balanceBefore: '100.00',
       balanceAfter: '150.00',
       createdAt: new Date('2026-06-26'),
     },
   ],
-  payouts: [
-    {
-      id: 'p-1',
-      amount: '50.00',
-      status: 'COMPLETED',
-      method: 'bank_transfer',
-      createdAt: new Date('2026-06-20'),
-      processedAt: new Date('2026-06-21'),
-    },
-  ],
 }));
 
 const jsonResponse = (data: unknown, status: number) =>
-  new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json' } });
+  new Response(JSON.stringify(data), {
+    status,
+    headers: { 'content-type': 'application/json' },
+  });
 
 vi.mock('@api/server', () => ({
   db: mocks.dbMock,
   auth: { api: { getSession: vi.fn(() => Promise.resolve(mocks.sessionResult)) } },
+  walletTransactions: {
+    id: 'id',
+    walletId: 'walletId',
+    tenantId: 'tenantId',
+    type: 'type',
+    amount: 'amount',
+    description: 'description',
+    sourceType: 'sourceType',
+    balanceBefore: 'balanceBefore',
+    balanceAfter: 'balanceAfter',
+    createdAt: 'createdAt',
+  },
   dataConsents: {
     id: 'id',
     walletId: 'walletId',
@@ -74,29 +93,15 @@ vi.mock('@api/server', () => ({
     grantedAt: 'grantedAt',
     revokedAt: 'revokedAt',
     createdAt: 'createdAt',
-    tenantId: 'tenantId',
   },
-  walletTransactions: {
+  dataRevenueStreams: {
     id: 'id',
-    walletId: 'walletId',
-    type: 'type',
-    amount: 'amount',
+    tenantId: 'tenantId',
+    key: 'key',
+    label: 'label',
     description: 'description',
-    sourceType: 'sourceType',
-    balanceBefore: 'balanceBefore',
-    balanceAfter: 'balanceAfter',
-    createdAt: 'createdAt',
-    tenantId: 'tenantId',
-  },
-  payoutRequests: {
-    id: 'id',
-    walletId: 'walletId',
-    amount: 'amount',
-    status: 'status',
-    method: 'method',
-    createdAt: 'createdAt',
-    processedAt: 'processedAt',
-    tenantId: 'tenantId',
+    isActive: 'isActive',
+    residentSharePct: 'residentSharePct',
   },
   apiSuccess: vi.fn((data: unknown) => jsonResponse({ success: true, data }, 200)),
   apiUnauthorized: vi.fn(() => jsonResponse({ error: 'Unauthorized' }, 401)),
@@ -109,32 +114,23 @@ vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' }),
 }));
 
-vi.mock('@entities/dwallet/server', () => ({
+vi.mock('@entities/dwallet', () => ({
   getOrCreateWallet: vi.fn(() => Promise.resolve(mocks.wallet)),
 }));
 
-vi.mock('@entities/dwallet', () => ({
-  exportRequestSchema: { parse: vi.fn((body: unknown) => body) },
-}));
+import { GET } from '@/app/api/v1/tenant/dwallet/route';
 
-import { POST } from '@/app/api/v1/tenant/dwallet/export/route';
-
-function makeReq(body: unknown): Request {
-  return new Request('http://localhost:3000/api/v1/tenant/dwallet/export', {
-    method: 'POST',
+function makeReq(url = 'http://localhost:3000/api/v1/tenant/dwallet'): Request {
+  return new Request(url, {
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(body),
   });
 }
 
-describe('POST /api/v1/tenant/dwallet/export', () => {
+describe('GET /api/v1/tenant/dwallet', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.sessionResult = null;
-
-    const selectChain = makeSelectChain(mocks.consents);
-    const orderByChain = { ...selectChain, orderBy: vi.fn(() => makeSelectChain(mocks.consents)) };
-    mocks.dbMock.select.mockReturnValue(orderByChain);
+    mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
   });
 
   afterEach(() => {
@@ -142,41 +138,49 @@ describe('POST /api/v1/tenant/dwallet/export', () => {
   });
 
   it('returns 401 without auth', async () => {
-    const response = await POST(makeReq({ format: 'json' }));
+    const response = await GET(makeReq());
     expect(response.status).toBe(401);
   });
 
-  it('exports JSON format when authenticated', async () => {
+  it('returns dwallet summary when authenticated', async () => {
     mocks.sessionResult = { userId: 'user-1', user: { id: 'user-1' } };
+    // First select call returns streams, subsequent calls return transactions
     mocks.dbMock.select
-      .mockImplementationOnce(() => makeSelectChain(mocks.consents))
-      .mockImplementationOnce(() => makeSelectChain(mocks.transactions))
-      .mockImplementationOnce(() => makeSelectChain(mocks.payouts));
+      .mockImplementationOnce(() => makeSelectChain(mocks.streams))
+      .mockReturnValue(makeSelectChain(mocks.transactions));
 
-    const response = await POST(makeReq({ format: 'json' }));
+    const response = await GET(makeReq());
     const body = await response.json();
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(body.data.data.wallet.balance).toBe('150.00');
-    expect(body.data.data.consents).toHaveLength(1);
-    expect(body.data.data.transactions).toHaveLength(1);
-    expect(body.data.data.payouts).toHaveLength(1);
+    expect(body.data.balance).toBe('150.00');
+    expect(body.data.lifetimeEarned).toBe('500.00');
+    expect(body.data.lifetimePaid).toBe('50.00');
+    expect(body.data.currency).toBe('ZAR');
+    expect(body.data.status).toBe('ACTIVE');
+    expect(body.data.recentTransactions).toHaveLength(1);
   });
 
-  it('exports CSV format', async () => {
+  it('returns empty consents when no streams exist', async () => {
     mocks.sessionResult = { userId: 'user-1', user: { id: 'user-1' } };
-    mocks.dbMock.select
-      .mockImplementationOnce(() => makeSelectChain(mocks.consents))
-      .mockImplementationOnce(() => makeSelectChain(mocks.transactions))
-      .mockImplementationOnce(() => makeSelectChain(mocks.payouts));
+    mocks.dbMock.select.mockReturnValue(makeSelectChain([]));
 
-    const response = await POST(makeReq({ format: 'csv' }));
+    const response = await GET(makeReq());
+    const body = await response.json();
 
     expect(response.status).toBe(200);
-    const text = await response.text();
-    expect(response.headers.get('content-type')).toBe('text/csv');
-    expect(text).toContain('id,type,amount,description');
-    expect(text).toContain('Data share');
+    expect(body.data.consents).toEqual([]);
+  });
+
+  it('includes recent transactions in summary', async () => {
+    mocks.sessionResult = { userId: 'user-1', user: { id: 'user-1' } };
+    mocks.dbMock.select.mockReturnValue(makeSelectChain(mocks.transactions));
+
+    const response = await GET(makeReq());
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.data.recentTransactions).toBeDefined();
   });
 });
