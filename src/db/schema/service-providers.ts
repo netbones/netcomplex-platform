@@ -9,6 +9,7 @@ export const serviceProviders = pgTable('ServiceProvider', {
   phone: text('phone'),
   email: text('email'),
   trade: text('trade').notNull(),
+  website: text('website'),
   isActive: boolean('isActive').default(true).notNull(),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),

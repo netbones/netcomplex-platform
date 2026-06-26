@@ -93,6 +93,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       phone: input.phone ?? null,
       email: input.email,
       trade: input.trade ?? 'GENERAL',
+      website: input.website ?? null,
       isActive: false,
       createdAt: timestamp,
       updatedAt: timestamp,

@@ -982,6 +982,7 @@ model ServiceProvider {
   phone       String?
   email       String?
   trade       String
+  website     String?
   isActive    Boolean              @default(true)
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
