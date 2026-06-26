@@ -552,20 +552,14 @@ if (isInternal && !isModerator) {
 
 ## Open Questions
 
-1. **Cooling-off hours tenant setting**
-   - What we know: Default 24h, configurable 24–72h per tenant via `disputes.coolingOffHours` tenant setting
-   - What's unclear: Whether this tenant setting key already exists or must be created in Phase 106
-   - Recommendation: Read from tenant settings with fallback to 24. Create BD issue if setting doesn't exist.
+1. **Cooling-off hours tenant setting** (RESOLVED)
+   - RESOLVED: Default 24h, configurable 24–72h per tenant via `disputes.coolingOffHours` tenant setting. Read from tenant settings with fallback to 24. Create the setting key in Phase 106 if it doesn't exist.
 
-2. **CSOS export route — stub vs. partial implementation**
-   - What we know: Full PDF generation deferred to Phase 108
-   - What's unclear: Should Phase 106 return a JSON event log (route skeleton) or a minimal placeholder?
-   - Recommendation: Return JSON with dispute data + events + evidence list (Section A–F data, not formatted PDF). Phase 108 wraps this in PDF.
+2. **CSOS export route — stub vs. partial implementation** (RESOLVED)
+   - RESOLVED: Return JSON with dispute data + events + evidence list (Section A–F data, not formatted PDF). Phase 108 wraps this in PDF.
 
-3. **Mediation thread — Supabase Realtime pattern**
-   - What we know: Chat uses `supabase.channel('chat:${conversationId}').send({ type: 'broadcast', event: 'new-message', payload: message })`
-   - What's unclear: Should mediation messages use the same realtime broadcast pattern as chat?
-   - Recommendation: Yes — use channel `dispute:${disputeId}` with event `new-mediation-message`. Filter visibility client-side based on `isInternal`.
+3. **Mediation thread — Supabase Realtime pattern** (RESOLVED)
+   - RESOLVED: Use channel `dispute:${disputeId}` with event `new-mediation-message`. Filter visibility client-side based on `isInternal`. Same broadcast pattern as chat.
 
 ## Environment Availability
 
