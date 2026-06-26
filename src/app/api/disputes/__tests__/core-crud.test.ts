@@ -162,14 +162,18 @@ vi.mock('@entities/dispute/server', () => ({
   generateDisputeReference: vi.fn(() => Promise.resolve('DSP-2026-0043')),
 }));
 
-vi.mock('@entities/dispute', () => ({
-  canTransition: vi.fn((from: string, to: string) => {
-    if (from === 'DRAFT' && to === 'SUBMITTED') return true;
-    if (from === 'DRAFT' && to === 'WITHDRAWN') return true;
-    if (from === 'DRAFT' && to === 'RESOLVED') return false;
-    return false;
-  }),
-}));
+vi.mock('@entities/dispute', async () => {
+  const actual = await vi.importActual('@entities/dispute');
+  return {
+    ...actual,
+    canTransition: vi.fn((from: string, to: string) => {
+      if (from === 'DRAFT' && to === 'SUBMITTED') return true;
+      if (from === 'DRAFT' && to === 'WITHDRAWN') return true;
+      if (from === 'DRAFT' && to === 'RESOLVED') return false;
+      return false;
+    }),
+  };
+});
 
 vi.mock('@shared/lib', () => ({
   hasPermission: vi.fn((role: string, perm: string) => {

@@ -31,6 +31,8 @@
       "@entities/maintenance/server": ["./src/entities/maintenance/index.server"],
       "@entities/event/server": ["./src/entities/event/index.server"],
       "@entities/booking/server": ["./src/entities/booking/index.server"],
+      "@entities/dwallet/server": ["./src/entities/dwallet/index.server"],
+      "@entities/dispute/server": ["./src/entities/dispute/index.server"],
       "@features/*": ["./src/features/*"],
       "@widgets/*": ["./src/widgets/*"],
       "@pages/*": ["./src/page-modules/*"],
