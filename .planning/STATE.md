@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
+status: executing
 stopped_at: Completed 47-04-PLAN.md
-last_updated: '2026-06-25T18:46:00.797Z'
+last_updated: '2026-06-26T06:49:37.351Z'
 progress:
   total_phases: 56
   completed_phases: 45
-  total_plans: 136
-  completed_plans: 130
+  total_plans: 138
+  completed_plans: 131
   percent: 80
 ---
 
@@ -17,14 +17,14 @@ progress:
 
 ## Current Position
 
-Phase: 47 — COMPLETE
-Plan: 7 of 7
+Phase: 105 (dispute-schema-entity-layer) — EXECUTING
+Plan: 2 of 2
 
 - **Phase:** Phase 103 (Tenant Gallery & Album Sharing) — 1 plan, 3 waves. Context gathered, ready for execution.
-- **Status:** Phase 47 complete
+- **Status:** Ready to execute
 - **Next Step:** Execute phase 103 via GSD worktree workflow.
 
-**Last Session:** 2026-06-25T18:45:27.495Z
+**Last Session:** 2026-06-26T06:49:23.943Z
 **Stopped at:** Completed 47-04-PLAN.md
 
 ## Active Phase Decisions
@@ -176,6 +176,8 @@ Plan: 7 of 7
 - [Phase 31]: admin-config.ts safe to delete — not exported from entities/admin barrel, only used DashboardTab type from deleted DashboardTabs.tsx
 - [Phase 31]: Dropped SPACE\_ prefix from constants — DEFAULT_USER_WIDGETS/DEFAULT_LAYOUTS are canonical (no migration prefix needed)
 - [Phase 47-dwallet-planning-build]: /tmp/decision-47-03.txt — DB constraint prevented null; placeholder preserves anonymisation intent
+- [Phase 105-dispute-schema-entity-layer]: DisputeMessageVersion model designed from plan description (5 fields + FK) — ADVISORY-017 §8 had only Gate G2 decision, not full model definition — Gate G2 resolved to add full version history model for CSOS legal defensibility but did not include Prisma model definition in §8 schema block
+- [Phase 105-dispute-schema-entity-layer]: Named relations used for all 8 dispute FK references on user model to avoid ambiguity with 54 existing relations — Without named relations, Prisma would generate auto-names that could conflict with existing user relations. Named relations follow the existing pattern in the schema (CommunityMeritSubject, CommunityMeritCreatedBy, etc.)
 
 ## Notes
 
@@ -344,6 +346,7 @@ Plan: 7 of 7
 | Phase 47-dwallet-planning-build P05             | 12min  | 3 tasks  | 9 files  |
 | Phase 47-dwallet-planning-build P06             | 6min   | 3 tasks  | 3 files  |
 | Phase 47-dwallet-planning-build P07             | 12min  | 3 tasks  | 8 files  |
+| Phase 105-dispute-schema-entity-layer P01       | 8 min  | 3 tasks  | 22 files |
 
 ## Accumulated Context
 
