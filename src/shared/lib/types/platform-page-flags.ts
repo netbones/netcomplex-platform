@@ -29,6 +29,7 @@ export interface PlatformPageFlags {
   surveys: boolean;
   competitions: boolean;
   dashboard: boolean;
+  disputes: boolean;
   dWallet: boolean;
   providers: boolean;
   bookings: boolean;

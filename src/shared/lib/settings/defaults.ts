@@ -15,6 +15,7 @@ export const DEFAULT_PAGE_FLAGS: PlatformPageFlags = {
   surveys: true,
   competitions: true,
   dashboard: true,
+  disputes: true,
   dWallet: false,
   providers: true,
   bookings: true,
