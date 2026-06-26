@@ -29,7 +29,15 @@ const mocks = vi.hoisted(() => ({
     update: vi.fn(() => ({
       set: vi.fn(() => ({
         where: vi.fn(() => ({
-          returning: vi.fn(() => Promise.resolve([{ ...mocks.disputeInDb, status: 'SUBMITTED' }])),
+          returning: vi.fn(() =>
+            Promise.resolve([
+              {
+                ...(mocks.disputeInDb ?? {}),
+                status: 'SUBMITTED' as const,
+                submittedAt: new Date(),
+              },
+            ])
+          ),
         })),
       })),
     })),
