@@ -125,6 +125,21 @@ These are already defined in existing entity components — documented here for 
 
 ---
 
+## Focal Points
+
+Visual anchor declaration for primary screens in this phase.
+
+| Screen                | Focal Point                                                     | Rationale                                                                 |
+| --------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| my-disputes widget    | "File a Dispute" primary CTA button (`soralia-primary` accent)  | Drives the intake flow — the resident's entry point to dispute resolution |
+| /disputes/[id] page   | Status badge + dispute title (header)                           | Orients the user immediately on case state and identity                   |
+| admin-disputes widget | Filter tabs (Pending Assignment, In Mediation, Awaiting Ruling) | Surfaces the moderation queue as the primary action surface               |
+| Intake wizard         | Current step number + heading (1. Emotion, 2. Checklist, etc.)  | Guides the user through the de-escalation gate                            |
+
+**Priority rule:** When multiple focal elements exist (e.g., CTA + card list), the CTA takes highest visual priority — use accent color on the CTA, neutral tones on the list.
+
+---
+
 ## Copywriting Contract
 
 ### my-disputes Widget
@@ -138,7 +153,7 @@ These are already defined in existing entity components — documented here for 
 | Empty state body    | You haven't filed any disputes yet. If you're experiencing an issue with a neighbour, HOA rule, or community matter, our resolution process can help. |
 | Empty state CTA     | File a Dispute                                                                                                                                        |
 | Loading state       | (LoadingSkeleton — 3 card placeholders)                                                                                                               |
-| Card action         | **View** → navigates to `/disputes/[id]`                                                                                                              |
+| Card action         | **View Dispute** → navigates to `/disputes/[id]`                                                                                                      |
 | Card metadata       | Reference number, category badge, status badge, "Last updated: {date}"                                                                                |
 | Cancel wizard       | **Back to list** — returns to list view, discards wizard progress                                                                                     |
 
@@ -211,10 +226,10 @@ These are already defined in existing entity components — documented here for 
 
 ### Destructive Actions
 
-| Action           | Trigger                                  | Confirmation                                                                                                                                                            |
-| ---------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Withdraw Dispute | "Withdraw Dispute" button on detail page | "Are you sure you want to withdraw this dispute? This action cannot be undone. The dispute will be closed permanently." Confirmation button: **Yes, Withdraw** / Cancel |
-| Cancel Wizard    | "Back to list" during wizard             | If form has unsaved content: "You have unsaved progress. Going back will discard your entries. Continue?" Confirmation: **Discard & Go Back** / **Stay**                |
+| Action           | Trigger                                  | Confirmation                                                                                                                                                                      |
+| ---------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Withdraw Dispute | "Withdraw Dispute" button on detail page | "Are you sure you want to withdraw this dispute? This action cannot be undone. The dispute will be closed permanently." Confirmation button: **Yes, Withdraw** / **Keep Dispute** |
+| Cancel Wizard    | "Back to list" during wizard             | If form has unsaved content: "You have unsaved progress. Going back will discard your entries. Continue?" Confirmation: **Discard & Go Back** / **Stay**                          |
 
 ### Error States
 
