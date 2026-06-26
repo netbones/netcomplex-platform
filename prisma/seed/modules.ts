@@ -83,6 +83,13 @@ const modules = [
     minTier: tierMap.STANDARD,
     defaultEnabled: false,
   },
+  {
+    key: 'disputes',
+    label: 'Dispute Resolution',
+    description: 'CSOS-compliant dispute filing, mediation, and escalation',
+    minTier: tierMap.STANDARD,
+    defaultEnabled: false,
+  },
 
   // Premium
   {

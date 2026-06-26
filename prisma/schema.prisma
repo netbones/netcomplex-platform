@@ -172,6 +172,14 @@ model user {
   UserAchievementProgress                               UserAchievementProgress[]
   UserAchievement                               UserAchievement[]
   dWallet                                            DWallet?
+  disputeCases_complainant                            DisputeCase[]             @relation("DisputeComplainant")
+  disputeCases_respondent                             DisputeCase[]             @relation("DisputeRespondent")
+  disputeCases_moderator                              DisputeCase[]             @relation("DisputeModerator")
+  disputeCases_closedBy                               DisputeCase[]             @relation("DisputeClosedBy")
+  disputeEvidence_uploader                            DisputeEvidence[]         @relation("DisputeEvidenceUploader")
+  disputeEvent_actor                                  DisputeEvent[]            @relation("DisputeEventActor")
+  disputeMessage_sender                               DisputeMessage[]          @relation("DisputeMessageSender")
+  disputeNotification_user                            DisputeNotification[]     @relation("DisputeNotificationUser")
 }
 
 model Profile {
@@ -2579,7 +2587,7 @@ model DisputeEvidence {
   deletedAt   DateTime?
 
   dispute     DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  uploader    user        @relation(fields: [uploadedBy], references: [id])
+  uploader    user        @relation("DisputeEvidenceUploader", fields: [uploadedBy], references: [id])
 
   @@index([disputeId])
   @@index([uploadedBy])
@@ -2598,7 +2606,7 @@ model DisputeEvent {
   createdAt   DateTime         @default(now())
 
   dispute     DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  actor       user?       @relation(fields: [actorId], references: [id])
+  actor       user?       @relation("DisputeEventActor", fields: [actorId], references: [id])
 
   @@index([disputeId])
   @@index([eventType])
@@ -2616,7 +2624,8 @@ model DisputeMessage {
   deletedAt   DateTime?
 
   dispute     DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  sender      user        @relation(fields: [senderId], references: [id])
+  sender      user        @relation("DisputeMessageSender", fields: [senderId], references: [id])
+  versions    DisputeMessageVersion[]
 
   @@index([disputeId])
   @@index([senderId])
@@ -2644,7 +2653,7 @@ model DisputeNotification {
   createdAt   DateTime  @default(now())
 
   dispute     DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
-  user        user        @relation(fields: [userId], references: [id])
+  user        user        @relation("DisputeNotificationUser", fields: [userId], references: [id])
 
   @@index([disputeId])
   @@index([userId])

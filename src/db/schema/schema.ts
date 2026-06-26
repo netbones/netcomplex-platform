@@ -92,6 +92,12 @@ import * as platformAiTierQuotas from './platform-ai-tier-quotas';
 import * as aiCapabilityCosts from './ai-capability-costs';
 import * as tenantAiUsages from './tenant-ai-usages';
 import * as aiUsageEvents from './ai-usage-events';
+import * as disputeCases from './dispute-cases';
+import * as disputeEvidences from './dispute-evidences';
+import * as disputeEvents from './dispute-events';
+import * as disputeMessages from './dispute-messages';
+import * as disputeMessageVersions from './dispute-message-versions';
+import * as disputeNotifications from './dispute-notifications';
 import * as accountsRelations from './accounts-relations';
 import * as passkeysRelations from './passkeys-relations';
 import * as sessionsRelations from './sessions-relations';
@@ -177,6 +183,12 @@ import * as dataConsentsRelations from './data-consents-relations';
 import * as payoutRequestsRelations from './payout-requests-relations';
 import * as tenantAiUsagesRelations from './tenant-ai-usages-relations';
 import * as aiUsageEventsRelations from './ai-usage-events-relations';
+import * as disputeCasesRelations from './dispute-cases-relations';
+import * as disputeEvidencesRelations from './dispute-evidences-relations';
+import * as disputeEventsRelations from './dispute-events-relations';
+import * as disputeMessagesRelations from './dispute-messages-relations';
+import * as disputeMessageVersionsRelations from './dispute-message-versions-relations';
+import * as disputeNotificationsRelations from './dispute-notifications-relations';
 
 export const schema = {
   ...accounts,
@@ -273,6 +285,12 @@ export const schema = {
   ...aiCapabilityCosts,
   ...tenantAiUsages,
   ...aiUsageEvents,
+  ...disputeCases,
+  ...disputeEvidences,
+  ...disputeEvents,
+  ...disputeMessages,
+  ...disputeMessageVersions,
+  ...disputeNotifications,
   ...accountsRelations,
   ...passkeysRelations,
   ...sessionsRelations,
@@ -358,4 +376,10 @@ export const schema = {
   ...payoutRequestsRelations,
   ...tenantAiUsagesRelations,
   ...aiUsageEventsRelations,
+  ...disputeCasesRelations,
+  ...disputeEvidencesRelations,
+  ...disputeEventsRelations,
+  ...disputeMessagesRelations,
+  ...disputeMessageVersionsRelations,
+  ...disputeNotificationsRelations,
 };

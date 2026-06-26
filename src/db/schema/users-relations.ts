@@ -43,6 +43,11 @@ import { userDevices } from './user-devices';
 import { userAchievementProgresses } from './user-achievement-progresses';
 import { userAchievements } from './user-achievements';
 import { dWallets } from './d-wallets';
+import { disputeCases } from './dispute-cases';
+import { disputeEvidences } from './dispute-evidences';
+import { disputeEvents } from './dispute-events';
+import { disputeMessages } from './dispute-messages';
+import { disputeNotifications } from './dispute-notifications';
 
 export const usersRelations = relations(users, helpers => ({
   assistSessions: helpers.many(assistSessions, { relationName: 'AssistSessionTouser' }),
@@ -123,4 +128,16 @@ export const usersRelations = relations(users, helpers => ({
   }),
   UserAchievement: helpers.many(userAchievements, { relationName: 'UserAchievementTouser' }),
   dWallet: helpers.one(dWallets),
+  disputeCases_complainant: helpers.many(disputeCases, { relationName: 'DisputeComplainant' }),
+  disputeCases_respondent: helpers.many(disputeCases, { relationName: 'DisputeRespondent' }),
+  disputeCases_moderator: helpers.many(disputeCases, { relationName: 'DisputeModerator' }),
+  disputeCases_closedBy: helpers.many(disputeCases, { relationName: 'DisputeClosedBy' }),
+  disputeEvidence_uploader: helpers.many(disputeEvidences, {
+    relationName: 'DisputeEvidenceUploader',
+  }),
+  disputeEvent_actor: helpers.many(disputeEvents, { relationName: 'DisputeEventActor' }),
+  disputeMessage_sender: helpers.many(disputeMessages, { relationName: 'DisputeMessageSender' }),
+  disputeNotification_user: helpers.many(disputeNotifications, {
+    relationName: 'DisputeNotificationUser',
+  }),
 }));
