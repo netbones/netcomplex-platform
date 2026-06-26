@@ -32,23 +32,29 @@ export function DisputeForm({ onComplete, onCancel }: DisputeFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<DisputeCreateInput>({
     resolver: zodResolver(disputeCreateSchema),
     defaultValues: {
-      severity: 'MODERATE' as const,
-      respondentType: 'RESIDENT' as const,
-      category: undefined,
+      category: undefined as unknown as DisputeCreateInput['category'],
       title: '',
       description: '',
-      desiredOutcome: '',
-      respondentId: '',
-    },
+      severity: 'MODERATE',
+      respondentType: 'RESIDENT',
+    } as DisputeCreateInput,
   });
 
-  const onSubmit = async (data: Record<string, unknown>) => {
+  const onSubmit = async (data: DisputeCreateInput) => {
     setIsSubmitting(true);
     try {
-      const payload = data as DisputeCreateInput;
+      // Transform empty respondentId to undefined (Zod .uuid().optional() rejects "")
+      const payload: DisputeCreateInput = {
+        ...data,
+        respondentId:
+          data.respondentId && (data.respondentId as string).trim() !== ''
+            ? data.respondentId
+            : undefined,
+      };
+
       const response = await fetch('/api/disputes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -187,7 +193,9 @@ export function DisputeForm({ onComplete, onCancel }: DisputeFormProps) {
           <input
             id="respondentId"
             type="text"
-            {...register('respondentId')}
+            {...register('respondentId', {
+              setValueAs: (v: string) => (v === '' ? undefined : v),
+            })}
             placeholder="UUID of the respondent"
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-soralia-primary focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
