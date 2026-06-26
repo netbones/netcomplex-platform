@@ -106,8 +106,8 @@ describe('buildOverageInvoicePdf', () => {
     const pdfBytes = await buildOverageInvoicePdf(data);
     const { text } = await parsePdfText(pdfBytes);
 
-    // Large numbers should appear in full
-    expect(text).toContain('4000000');
+    // Large numbers should appear in full (with thousand separators)
+    expect(text).toContain('4 000 000');
     // Cost should appear
     expect(text).toContain('1520.00');
   });
