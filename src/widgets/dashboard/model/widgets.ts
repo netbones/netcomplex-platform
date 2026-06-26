@@ -34,6 +34,8 @@ import {
   Sparkles,
   TrendingUp,
   Wallet,
+  Scale,
+  Gavel,
 } from 'lucide-react';
 
 export function registerAllWidgets(registry: { register: (m: WidgetManifest) => void }) {
@@ -1067,6 +1069,47 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     ),
     defaultSize: { width: 4, height: 3 },
     minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // DISPUTE RESOLUTION WIDGETS
+  // ═══════════════════════════════════════════════════════════════
+
+  registry.register({
+    id: 'my-disputes',
+    version: '1.0.0',
+    name: 'My Disputes',
+    description: 'Your filed disputes and their status',
+    author: 'internal',
+    category: 'core',
+    icon: Scale,
+    featureFlag: 'disputes',
+    component: lazy(() =>
+      import('../ui/MyDisputesWidget').then(m => ({ default: m.MyDisputesWidget }))
+    ),
+    defaultSize: { width: 3, height: 3 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['home', 'community'],
+  });
+
+  registry.register({
+    id: 'admin-disputes',
+    version: '1.0.0',
+    name: 'Dispute Moderation',
+    description: 'Moderation queue for dispute resolution',
+    author: 'internal',
+    category: 'core',
+    icon: Gavel,
+    featureFlag: 'disputes',
+    permissions: ['admin', 'board'],
+    component: lazy(() =>
+      import('../ui/AdminDisputesWidget').then(m => ({ default: m.AdminDisputesWidget }))
+    ),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 3, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
     spaces: ['admin'],
   });
