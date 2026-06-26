@@ -1235,15 +1235,21 @@ Plans:
 **Goal:** PDF generation for CSOS Form 2 — certified dispute history with all sections A–F, rate-limited, audit-logged. Ruling issuance flow.
 
 **Source:** ADVISORY-017 — Phase 6
-**Status:** Not planned
+**Status:** Planning Complete
 **Depends on:** Phase 106
 **Requirements:** DISPUTE-08
 
-**Plans:** 0 plans
+**Plans:** 2 plans in 1 wave
+
+| Wave | Plan           | Objective                                                                                                             |
+| ---- | -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1    | 108-01-PLAN.md | Server-side: pdf-lib PDF builder module + route handler upgrade (binary PDF, message queries, DB rate limit fallback) |
+| 1    | 108-02-PLAN.md | Client-side: CSOSExportButton binary PDF download update + component tests                                            |
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 108 to break down)
+- [ ] 108-01-PLAN.md — PDF builder (build-csos-pdf.ts) + route handler binary PDF response + message queries + DB rate limit fallback
+- [ ] 108-02-PLAN.md — CSOSExportButton binary download + component tests
 
 ---
 
