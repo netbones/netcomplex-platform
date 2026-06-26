@@ -91,6 +91,11 @@ export function mockApiServer(overrides: Record<string, unknown> = {}) {
     maintenanceCategories: mockTable('maintenanceCategories'),
     requestNotes: mockTable('requestNotes'),
     requestHistories: mockTable('requestHistories'),
+    dWallets: mockTable('dWallets'),
+    walletTransactions: mockTable('walletTransactions'),
+    dataConsents: mockTable('dataConsents'),
+    dataRevenueStreams: mockTable('dataRevenueStreams'),
+    payoutRequests: mockTable('payoutRequests'),
 
     // --- auth ---
     auth: {

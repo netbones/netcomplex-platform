@@ -36,6 +36,10 @@ export default defineConfig({
         find: '@entities/dispute/server',
         replacement: path.resolve(__dirname, './src/entities/dispute/index.server'),
       },
+      {
+        find: '@entities/dwallet/server',
+        replacement: path.resolve(__dirname, './src/entities/dwallet/index.server'),
+      },
       { find: '@', replacement: path.resolve(__dirname, './src') },
       { find: '@app', replacement: path.resolve(__dirname, './src/app') },
       { find: '@shared', replacement: path.resolve(__dirname, './src/shared') },
@@ -66,8 +70,23 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      include: ['src/app/api/**/*.ts', 'src/shared/**/*.{ts,tsx}'],
-      exclude: ['src/**/*.d.ts', 'src/shared/api/db.ts'],
+      include: [
+        'src/app/api/**/*.ts',
+        'src/shared/**/*.{ts,tsx}',
+        'src/entities/**/*.{ts,tsx}',
+        'src/features/**/*.{ts,tsx}',
+      ],
+      exclude: [
+        'src/**/*.d.ts',
+        'src/shared/api/db.ts',
+        'src/entities/**/index.{ts,tsx}',
+        'src/features/**/index.{ts,tsx}',
+      ],
+      thresholds: {
+        lines: 20,
+        branches: 15,
+        functions: 10,
+      },
     },
   },
 });
