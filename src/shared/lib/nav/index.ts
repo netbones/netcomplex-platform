@@ -86,6 +86,12 @@ export const ADMIN_NAV_REGISTRY: NavItem[] = [
   },
   { id: 'admin_content', nameKey: 'admin.content', href: '/admin/content', permission: 'content' },
   { id: 'admin_groups', nameKey: 'admin.groups', href: '/admin/groups', permission: 'groups' },
+  {
+    id: 'admin_disputes',
+    nameKey: 'admin.disputes',
+    href: '/admin/disputes',
+    permission: 'admin',
+  },
 ];
 
 /**

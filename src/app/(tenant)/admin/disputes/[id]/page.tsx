@@ -12,6 +12,8 @@ import { DisputeTimeline } from '@entities/dispute';
 import { MediationThread } from '@entities/dispute';
 import { AIFrivolityCheckPanel } from '@entities/dispute';
 import { CoolingOffTimer } from '@entities/dispute';
+import { EvidencePreviewGrid } from '@entities/dispute';
+import { DisputeActionsBar } from '@entities/dispute';
 
 interface DetailState {
   dispute: DisputeCaseDTO | null;
@@ -167,9 +169,12 @@ export default function AdminDisputeDetailPage() {
                 <DisputeTimeline events={state.events} />
               </div>
 
-              {/* Evidence placeholder — wired in Task 3 */}
-              <div className="p-6 bg-gray-50 border border-dashed border-gray-300 rounded-lg text-center">
-                <p className="text-sm text-gray-400">Evidence will appear here</p>
+              {/* Evidence grid */}
+              <div>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                  Evidence
+                </h3>
+                <EvidencePreviewGrid disputeId={dispute.id} userId={userId} />
               </div>
             </div>
 
@@ -182,10 +187,7 @@ export default function AdminDisputeDetailPage() {
                 status={dispute.status}
               />
 
-              {/* Actions placeholder — wired in Task 3 */}
-              <div className="p-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg text-center">
-                <p className="text-sm text-gray-400">Actions will appear here</p>
-              </div>
+              <DisputeActionsBar dispute={dispute} userRole={userRole} userId={userId} />
 
               <MediationThread disputeId={dispute.id} userRole={userRole} userId={userId} />
             </div>
