@@ -14,5 +14,7 @@ export {
   disputeRulingSchema,
   intakeScreenRequestSchema,
   intakeScreenOutputSchema,
+  type IntakeScreenRequest,
+  type IntakeScreenOutput,
 } from './model/schemas';
 export { sanitizeDescriptionForAi } from './lib/pii-sanitizer';
