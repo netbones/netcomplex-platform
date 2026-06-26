@@ -16,3 +16,4 @@ export {
   updateProviderSubscriptionStatus,
   refundProviderTransaction,
 } from './provider-billing';
+export { buildProviderInvoicePdf } from './build-provider-invoice-pdf';
