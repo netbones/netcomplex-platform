@@ -180,6 +180,42 @@ export const SPACE_SLUGS = Object.keys(SPACES) as SpaceId[];
 export const ADMIN_ROLES = ['admin', 'board', 'ADMIN', 'BOARD'];
 
 /**
+ * Pure filter — determines which SPACE_DEFINITIONS are displayable given
+ * accessible space IDs and feature flags. Auth decisions happen server-side
+ * in /api/access; this function just filters the registry.
+ *
+ * @param accessibleSpaceIds - SpaceId[] from usePageAccess().spaces
+ * @param flags - PlatformPageFlags (for optional space sub-filtering)
+ * @returns SpaceDefinition[] — space objects with href, icon, labelKey
+ */
+export function filterSpaces(
+  accessibleSpaceIds: SpaceId[],
+  flags: PlatformPageFlags
+): SpaceDefinition[] {
+  return accessibleSpaceIds
+    .map(id => SPACES[id])
+    .filter((space): space is SpaceDefinition => {
+      if (!space) return false;
+      // Optional spaces with requiredFlag: respect flag
+      if (space.requiredFlag) {
+        return flags[space.requiredFlag] !== false;
+      }
+      // Community space: auto-hide if all sub-flags off (Q2 hybrid decision)
+      if (space.id === 'community') {
+        const communityFlags: (keyof PlatformPageFlags)[] = [
+          'events',
+          'groups',
+          'surveys',
+          'competitions',
+          'news',
+        ];
+        return communityFlags.some(f => flags[f] !== false);
+      }
+      return true;
+    });
+}
+
+/**
  * Get spaces visible for a given role + feature flags.
  *
  * Rules:

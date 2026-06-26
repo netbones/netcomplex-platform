@@ -16,4 +16,5 @@ export { useActiveAnnouncements } from './useActiveAnnouncements';
 export { useUnreadMessages } from './useUnreadMessages';
 export { useAdminUsers } from './useAdminUsers';
 export { useAdminContent } from './useAdminContent';
+export { usePageAccess, useVisibleSpaces, type PageAccessResult } from './usePageAccess';
 export { ToastMsg } from './toast-messages';
