@@ -10,16 +10,16 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 Phases are grouped into milestones (M0–M6+). See `.planning/MILESTONES.md` for full structure, gap analysis, and cadence ritual.
 
-| Milestone                         | Goal                                                                                                                       | Phases                                                                                                                                       | Status           |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| **M0 Foundation**                 | Multi-tenant substrate + base modules                                                                                      | 00, 01, 02, 03, 05, 06, 07, 08, 11                                                                                                           | ✅ Shipped       |
-| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding                                                                        | 09, 10, 18, 19, 20                                                                                                                           | ✅ Shipped       |
-| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system                                                                             | 22, 24, 25, 26, 27, 28, 29, 30, 31                                                                                                           | ✅ Shipped       |
-| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing                                                                      | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40                                                                                                       | ✅ Shipped       |
-| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration                                                                         | 35, 41, 42                                                                                                                                   | ✅ Complete      |
-| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                                                                     | 43 (blockers), then (no new phases)                                                                                                          | 🚧 Blocked on 43 |
-| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, dWallet, Provider Platform, Service Marketplace, Dispute Resolution, AI Pool Billing | 44 (M5a), 45 (M5b), 46 (Provider Platform), 47 (dWallet), 50 (Service Marketplace), 104–108 (Dispute Resolution), 109 (AI Surcharge Billing) | 📋 Planning      |
-| **M5+ Post-Launch**               | Future features, second tenant                                                                                             | deferred                                                                                                                                     | Deferred         |
+| Milestone                         | Goal                                                                                                                                       | Phases                                                                                                                                                             | Status           |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------- |
+| **M0 Foundation**                 | Multi-tenant substrate + base modules                                                                                                      | 00, 01, 02, 03, 05, 06, 07, 08, 11                                                                                                                                 | ✅ Shipped       |
+| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding                                                                                        | 09, 10, 18, 19, 20                                                                                                                                                 | ✅ Shipped       |
+| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system                                                                                             | 22, 24, 25, 26, 27, 28, 29, 30, 31                                                                                                                                 | ✅ Shipped       |
+| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing                                                                                      | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40                                                                                                                             | ✅ Shipped       |
+| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration                                                                                         | 35, 41, 42                                                                                                                                                         | ✅ Complete      |
+| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                                                                                     | 43 (blockers), then (no new phases)                                                                                                                                | 🚧 Blocked on 43 |
+| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, dWallet, Provider Platform, Service Marketplace, Dispute Resolution, AI Pool Billing, Access Control | 44 (M5a), 45 (M5b), 46 (Provider Platform), 47 (dWallet), 50 (Service Marketplace), 104–108 (Dispute Resolution), 109 (AI Surcharge Billing), 110 (Access Control) | 📋 Planning      |
+| **M5+ Post-Launch**               | Future features, second tenant                                                                                                             | deferred                                                                                                                                                           | Deferred         |
 
 **Phase numbering note:** IDs are stable (not renumbered on re-order). Duplicates exist: `03` (Localization vs Second Tenant), `11` (Announcements vs Prisma→Drizzle). The duplicate pair has a "Planning Complete (deferred)" status on the second one, except `11-prisma-to-drizzle` which was verified complete (2026-06-03) and moved to M0. Out-of-order numeric IDs (01 after 04; 35 after 39; 99 last) reflect creation sequence, not logical order. See MILESTONES.md Gap ε.
 
@@ -1276,6 +1276,29 @@ Plans:
 - [ ] 109-01-PLAN.md — buildOverageInvoicePdf() pure function + cron surcharge detection + billing event recording + PDF download route
 
 **Out of scope:** Non-ENTERPRISE overage billing (THROTTLE/HARD_STOP), real-time overage alerts, custom surcharge rates per tenant, multi-currency support.
+
+---
+
+## Phase 110: Page & Navigation Access Control
+
+**Goal:** Build centralized page & navigation access control. Single `/api/access` endpoint returning `PageAccess` per caller (spaces, pages, features). `usePageAccess()` hook for all nav components. Resolution pipeline: Role → Record existence → Suspension → Feature flags → Agent token. Provider access gating (BD soralia-village-b51v) is the first consumer — replaces `normalizedRole === 'PROVIDER'` with `hasProviderRecord === true`.
+
+**Status:** Planning Complete — 2 plans in 2 waves
+
+**Requirements:** ACCESS-01, ACCESS-02, ACCESS-03, ACCESS-04, ACCESS-05, ACCESS-06
+
+**Depends on:** Phase 41 (Feature Gate Consolidation — `canAccess()`), Phase 46 (Provider Platform — provider records), Phase 30 (Focus Spaces)
+
+**BD source:** soralia-village-b51v
+
+**Plans:**
+
+| Wave | Plan               | Objective                                                                                    |
+| ---- | ------------------ | -------------------------------------------------------------------------------------------- |
+| 1    | [ ] 110-01-PLAN.md | `/api/access` endpoint + PageAccess types + 5-layer resolution pipeline + agent extension    |
+| 2    | [ ] 110-02-PLAN.md | `usePageAccess()` hook + nav refactor (SpaceChrome, MobileSpaceBar) + `filterSpaces` pure fn |
+
+**Out of scope:** Full agent gateway (token issuance, scope management, audit log), widget-level access, access-based redirects, rate limiting on access endpoint.
 
 ---
 
