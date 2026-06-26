@@ -90,6 +90,7 @@ export async function POST(request: Request) {
 
     try {
       result = await provider.complete(content, {
+        capability,
         systemPrompt: `You are a professional translator. Translate the following HTML content from ${sourceName} to ${targetName}. Preserve all HTML tags, attributes, and structure exactly as-is. Only translate the text content between tags. Do not modify, add, or remove any HTML elements. Return only the translated HTML, no explanations.`,
         maxTokens: 2000,
         temperature: 0.1,

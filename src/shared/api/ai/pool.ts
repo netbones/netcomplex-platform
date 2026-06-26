@@ -12,6 +12,7 @@ import {
   notifications,
 } from '../db';
 import type { AiCapabilityKey } from '@entities/tenant/server';
+import { estimateCostUSD } from './pricing';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -167,6 +168,12 @@ export async function recordUsage(
   const allotted = usage.tokensAllotted;
   const newUsed = usage.tokensUsed + total;
   const overage = Math.max(0, newUsed - allotted);
+  const estimatedCostUSD = estimateCostUSD(
+    options.provider,
+    options.model,
+    options.inputTokens,
+    options.outputTokens
+  );
   // Use Decimal.js or raw SQL for precise arithmetic to avoid float issues with large costs
   const overageCost = sql`(${overage})::numeric * ${quota.overagePriceZAR}`;
 
@@ -191,6 +198,7 @@ export async function recordUsage(
       inputTokens: options.inputTokens,
       outputTokens: options.outputTokens,
       totalTokens: total,
+      estimatedCostUSD: estimatedCostUSD.toFixed(6),
       userId: options.userId ?? null,
       referenceId: options.referenceId ?? null,
       durationMs: options.durationMs,

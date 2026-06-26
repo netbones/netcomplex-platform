@@ -2448,8 +2448,9 @@ model AiUsageEvent {
   model        String
   inputTokens  Int
   outputTokens Int
-  totalTokens  Int
-  userId       String?
+  totalTokens       Int
+  estimatedCostUSD  Decimal  @default(0) @db.Decimal(10, 6)
+  userId            String?
   referenceId  String?
   durationMs   Int?
   success      Boolean         @default(true)

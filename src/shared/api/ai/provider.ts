@@ -1,14 +1,17 @@
 import 'server-only';
 
 import { getTenantModule } from '@entities/tenant/server';
+import type { AiCapabilityKey } from '@entities/tenant/server';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
 export interface AiCompletionOptions {
+  capability: AiCapabilityKey;
   maxTokens?: number;
   temperature?: number;
   systemPrompt?: string;
   jsonMode?: boolean;
+  model?: string;
 }
 
 export interface AiCompletionResult {

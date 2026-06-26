@@ -1,4 +1,4 @@
-import { pgTable, text, integer, boolean, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, decimal, boolean, timestamp } from 'drizzle-orm/pg-core';
 
 export const aiUsageEvents = pgTable('AiUsageEvent', {
   id: text('id').primaryKey(),
@@ -10,6 +10,9 @@ export const aiUsageEvents = pgTable('AiUsageEvent', {
   inputTokens: integer('inputTokens').notNull(),
   outputTokens: integer('outputTokens').notNull(),
   totalTokens: integer('totalTokens').notNull(),
+  estimatedCostUSD: decimal('estimatedCostUSD', { precision: 65, scale: 30 })
+    .default('0')
+    .notNull(),
   userId: text('userId'),
   referenceId: text('referenceId'),
   durationMs: integer('durationMs'),

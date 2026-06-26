@@ -176,7 +176,7 @@ async function main() {
         tier: 'ENTERPRISE',
         monthlyTokens: 500_000,
         overagePolicy: 'SURCHARGE',
-        overageTokens: 500_000,
+        overageTokens: 250_000,
         overagePriceZAR: 0.0001,
       },
     ],

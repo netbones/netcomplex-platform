@@ -2,8 +2,8 @@
 
 > **Last updated:** 2026-06-23 (Session 13)
 > **Total remaining:** 30 issues
-> **Closed this session:** 0
-> **Created this session:** 1 (`5z3g`)
+> **Closed this session:** 4 (`0orq`, `7a02`, `gb5p`, `tbtr`)
+> **Created this session:** 5 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
 ## Summary by Priority
@@ -50,6 +50,10 @@
 | `4a6`  | task    | **RLS migration: move add_rls.sql into proper Prisma migration, narrow to 14 tables, fix bugs** | ○      |
 | `5m7l` | task    | Confirm Schedule F Table 2 revenue share percentages with anchor tenant (Soralia Village)       | ○      |
 | `5z3g` | task    | Define USER role + role lifecycle for sign-ups, adoptions, and providers                        | ○      |
+| `0orq` | task    | AI Pool: Add estimatedCostUSD to AiUsageEvent + pricing.ts + wire into recordUsage()            | ✅     |
+| `7a02` | task    | AI Pool: Add estimatedCostUSD aggregation to platform admin usage routes                        | ✅     |
+| `gb5p` | task    | AI Pool: Make capability required on AiCompletionOptions (type-level enforcement)               | ✅     |
+| `tbtr` | task    | AI Pool: Fix ENTERPRISE seed overageTokens (500k→250k) and migrate to Drizzle pattern           | ✅     |
 
 ### Blocked Tasks
 

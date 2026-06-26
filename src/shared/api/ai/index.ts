@@ -4,6 +4,8 @@ export { getAiProvider, getPoolProviderConfig } from './provider';
 export { AnthropicProvider } from './anthropic';
 export { OpenAiProvider } from './openai';
 export { NullProvider } from './null-provider';
+export { estimateCostUSD } from './pricing';
+export type { AiProviderName } from './pricing';
 export {
   checkQuota,
   recordUsage,
