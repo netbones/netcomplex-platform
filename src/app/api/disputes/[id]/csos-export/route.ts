@@ -1,6 +1,5 @@
 import {
   auth,
-  apiSuccess,
   apiUnauthorized,
   apiForbidden,
   apiNotFound,
@@ -8,14 +7,19 @@ import {
   disputeCases,
   disputeEvents,
   disputeEvidences,
+  disputeMessages,
+  disputeMessageVersions,
+  settings,
   users,
   now,
   withErrorHandler,
+  rateLimitByKey,
 } from '@api/server';
 import { hasPermission } from '@shared/lib';
-import { eq, and, isNull, asc } from 'drizzle-orm';
+import { eq, and, isNull, asc, gte, inArray, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
-import { rateLimitByKey } from '@api/server';
+import { NextResponse } from 'next/server';
+import { buildCsosExportPdf } from './build-csos-pdf';
 
 export const maxDuration = 8;
 
@@ -37,8 +41,9 @@ async function getSessionAndRole(request: Request) {
 
 /**
  * GET /api/disputes/[id]/csos-export
- * Returns structured JSON event log for CSOS Form 2 submission.
- * Rate limited to 3 exports per case per day, each export audit logged.
+ * Returns certified PDF for CSOS Form 2 submission.
+ * Rate limited to 3 exports per case per day (Redis + DB fallback).
+ * Each export is audit logged.
  */
 export const GET = withErrorHandler(
   async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -75,13 +80,44 @@ export const GET = withErrorHandler(
       return apiForbidden();
     }
 
-    // Rate limit: 3 exports per case per day
+    // Rate limit: 3 exports per case per day (Redis primary)
     const rateLimitKey = `csos-export:${id}:${authData.userId}`;
     const rateLimit = await rateLimitByKey(rateLimitKey, {
       windowMs: 86_400_000,
       maxRequests: 3,
     });
     if (rateLimit) return rateLimit;
+
+    // DB-based rate limit fallback when Redis unavailable
+    if (!rateLimit) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const [exportCountToday] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(disputeEvents)
+        .where(
+          and(
+            eq(disputeEvents.disputeId, id),
+            eq(disputeEvents.tenantId, tenantId),
+            eq(disputeEvents.actorId, authData.userId),
+            eq(disputeEvents.eventType, 'NOTE_ADDED'),
+            gte(disputeEvents.createdAt, today)
+          )
+        );
+      const count = Number(exportCountToday?.count ?? 0);
+      if (count >= 3) {
+        return new NextResponse(
+          JSON.stringify({
+            success: false,
+            error: {
+              code: 'RATE_LIMITED',
+              message: 'CSOS export limit reached (3 per day). Try again tomorrow.',
+            },
+          }),
+          { status: 429, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+    }
 
     // Fetch events for timeline
     const events = await db
@@ -90,7 +126,7 @@ export const GET = withErrorHandler(
       .where(and(eq(disputeEvents.disputeId, id), eq(disputeEvents.tenantId, tenantId)))
       .orderBy(asc(disputeEvents.createdAt));
 
-    // Fetch evidence
+    // Fetch evidence (non-deleted)
     const evidence = await db
       .select()
       .from(disputeEvidences)
@@ -102,8 +138,50 @@ export const GET = withErrorHandler(
         )
       );
 
-    // Build 6-section CSOS export object
-    const exportData = {
+    // Fetch messages (non-internal, non-deleted)
+    const messages = await db
+      .select()
+      .from(disputeMessages)
+      .where(
+        and(
+          eq(disputeMessages.disputeId, id),
+          eq(disputeMessages.tenantId, tenantId),
+          eq(disputeMessages.isInternal, false),
+          isNull(disputeMessages.deletedAt)
+        )
+      )
+      .orderBy(asc(disputeMessages.createdAt));
+
+    // Fetch message versions for edited messages
+    const editedMessageIds = messages.filter(m => m.editedAt).map(m => m.id);
+    const messageVersions =
+      editedMessageIds.length > 0
+        ? await db
+            .select()
+            .from(disputeMessageVersions)
+            .where(inArray(disputeMessageVersions.messageId, editedMessageIds))
+            .orderBy(asc(disputeMessageVersions.editedAt))
+        : [];
+
+    // Fetch tenant CSOS settings
+    const [csosSetting] = await db
+      .select()
+      .from(settings)
+      .where(and(eq(settings.tenantId, tenantId), eq(settings.key, 'csos')))
+      .limit(1);
+
+    let csosRegNo: string | null = null;
+    if (csosSetting?.value) {
+      try {
+        const parsed = JSON.parse(csosSetting.value as string);
+        csosRegNo = parsed?.schemeRegistration ?? null;
+      } catch {
+        csosRegNo = null;
+      }
+    }
+
+    // Build PDF
+    const pdfBytes = await buildCsosExportPdf({
       parties: {
         complainant: resolveComplainantName(dispute, authData),
         respondent: dispute.respondentId ?? 'N/A',
@@ -118,8 +196,9 @@ export const GET = withErrorHandler(
         status: dispute.status,
         submittedAt: dispute.submittedAt,
         resolvedAt: dispute.resolvedAt,
+        desiredOutcome: dispute.desiredOutcome ?? null,
       },
-      resolutionHistory: events.map(evt => ({
+      events: events.map(evt => ({
         eventType: evt.eventType,
         fromStatus: evt.fromStatus,
         toStatus: evt.toStatus,
@@ -130,10 +209,19 @@ export const GET = withErrorHandler(
       })),
       evidence: evidence.map(ev => ({
         fileName: ev.fileName,
-        fileType: ev.fileType,
-        fileUrl: ev.fileUrl,
-        uploadedBy: ev.uploadedBy,
         createdAt: ev.createdAt,
+      })),
+      messages: messages.map(m => ({
+        id: m.id,
+        senderId: m.senderId,
+        content: m.content,
+        createdAt: m.createdAt,
+        editedAt: m.editedAt,
+      })),
+      messageVersions: messageVersions.map(v => ({
+        messageId: v.messageId,
+        originalContent: v.originalContent,
+        editedAt: v.editedAt,
       })),
       ruling: dispute.rulingDescription
         ? {
@@ -145,7 +233,11 @@ export const GET = withErrorHandler(
         exportedAt: new Date().toISOString(),
         exportedBy: authData.userId,
       },
-    };
+      tenant: {
+        name: 'Soralia Village',
+        csosRegNo,
+      },
+    });
 
     // Log export as NOTE_ADDED DisputeEvent
     await db.insert(disputeEvents).values({
@@ -154,17 +246,28 @@ export const GET = withErrorHandler(
       disputeId: id,
       actorId: authData.userId,
       eventType: 'NOTE_ADDED',
-      metadata: { exportType: 'CSOS', exportedAt: new Date().toISOString() },
+      metadata: { action: 'csos_export', exportedAt: new Date().toISOString() },
       createdAt: now(),
     });
 
-    return apiSuccess(exportData);
+    // Return binary PDF
+    return new NextResponse(pdfBytes, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="csos-export-${dispute.referenceNumber}.pdf"`,
+        'Content-Length': pdfBytes.byteLength.toString(),
+      },
+    });
   }
 );
 
 /** Mask complainant name when confidential and mediation not yet accepted */
 function resolveComplainantName(
-  dispute: { isConfidential: boolean; mediationAcceptedAt: Date | null },
+  dispute: {
+    isConfidential: boolean;
+    mediationAcceptedAt: Date | string | null;
+  },
   authData: { userId: string; role: string }
 ): string {
   if (dispute.isConfidential && !dispute.mediationAcceptedAt) {

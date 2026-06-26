@@ -91,6 +91,9 @@ const mocks = vi.hoisted(() => ({
 
   // Insert tracking (for verifying NOTE_ADDED event)
   insertedEvents: [] as Array<Record<string, unknown>>,
+
+  // DB fallback: export count today
+  dbExportCount: 0,
 }));
 
 // ── server-only mock ──
@@ -119,12 +122,24 @@ vi.mock('@api/server', () => {
 
   // Simulate db.select().from(table)...
   const dbMock = {
-    select: vi.fn((_columns?: unknown) => ({
+    select: vi.fn((columns?: unknown) => ({
       from: vi.fn((_table: unknown) => {
+        // Check if this is a count query (DB fallback)
+        const isCountQuery =
+          columns && typeof columns === 'object' && 'count' in (columns as Record<string, unknown>);
+
         // Drizzle select builder
         const builder = {
           where: vi.fn((_conditions: unknown) => {
             mocks.selectCallCounter++;
+
+            // If count query, return the export count
+            if (isCountQuery) {
+              return {
+                then: (resolve: (v: unknown) => unknown) =>
+                  Promise.resolve([{ count: mocks.dbExportCount }]).then(resolve),
+              };
+            }
 
             // Call routing: each .where() increment
             const call = mocks.selectCallCounter;
@@ -306,6 +321,7 @@ describe('GET /api/disputes/[id]/csos-export — CSOS Form 2 PDF Export', () => 
     mocks.messageVersionsInDb = [];
     mocks.settingsInDb = [];
     mocks.insertedEvents = [];
+    mocks.dbExportCount = 0;
     mocks.selectCallCounter = 0;
   });
 
@@ -494,33 +510,15 @@ describe('GET /api/disputes/[id]/csos-export — CSOS Form 2 PDF Export', () => 
     // Simulate Redis unavailable → rate limit returns null
     mocks.rateLimitReturnNull = true;
 
-    // Simulate 3+ exports already logged today (the DB query returns count >= 3)
-    // We need to route the DB fallback query to return count >= 3
-    // The query goes through db.select({count: sql<number>`count(*)`}).from(disputeEvents).where(...)
-    // This hits the dbMock.select().from().where() pattern
-    // The order of queries (based on selectCallCounter):
-    // 1: User lookup (getSessionAndRole)
-    // 2: Dispute lookup (.limit())
-    // 3: Events (.orderBy())
-    // 4: Evidence (direct where) ... eventually the DB fallback query
-    //
-    // For simplicity and test reliability, we'll use the whereResult fallback
-    // The DB fallback query will call select() with a count column, which
-    // in our mock goes through the same path. Since the fallback query happens
-    // after the main queries, the counter will be higher.
-    // We need to intercept the count query and return [{ count: 3 }]
-    //
-    // Given the mock complexity, this test verifies the route returns 429
-    // when rateLimitReturnNull is true AND the count check trips.
-    // The exact mock routing depends on implementation order.
-    // For RED phase, this test will FAIL because the route doesn't have DB fallback yet.
+    // Simulate 3+ exports already logged today
+    mocks.dbExportCount = 3;
+
     const { GET } = await import('../[id]/csos-export/route');
     const req = createGetRequest('http://localhost/api/disputes/dispute-1/csos-export');
     const res = await GET(req, {
       params: Promise.resolve({ id: 'dispute-1' }),
     } as { params: Promise<{ id: string }> });
 
-    // RED phase: route returns 200 (no DB fallback) → test fails
     expect(res.status).toBe(429);
   });
 });
