@@ -35,7 +35,8 @@ This phase establishes the agent identity model, token lifecycle, delegation fra
 
 ### Owner Delegation (Property Management)
 
-- **D-07:** `Delegation` model — owner delegates specific property tasks to a provider: `{ propertyId, providerId, scopes: ['letting', 'sale', 'maintenance', 'management'], expiresAt, acceptedAt }`
+- **D-07:** `Delegation` model — owner delegates specific property tasks to a provider: `{ propertyId, providerId, scopes: DelegationScope[], expiresAt, acceptedAt }` where `DelegationScope = 'VIEW_LISTING' | 'MANAGE_OCCUPANCY' | 'VIEW_FINANCIALS' | 'CONTACT_OCCUPANTS' | 'MARKET_PROPERTY'` (granular, privacy-preserving — maps to data projection in queries)
+- **D-07a:** Resident opt-out: per-tenant policy setting. Phase 111 builds the mechanism (resident dashboard widget showing active delegations + block toggle per agent). Whether opt-out is available is a tenant-level configuration — the mechanism is universal, the policy is per-tenant.
 - **D-08:** Owner-initiated flow: `/api/properties/[id]/delegate` — creates pending delegation, notifies provider
 - **D-09:** Provider acceptance: `/api/delegations/[id]/accept` — activates delegation, issues scoped agent token
 - **D-10:** Delegation scope limits: provider can only access pages/APIs relevant to their delegation (e.g., letting agent sees maintenance tickets for their managed properties only)
@@ -61,6 +62,15 @@ This phase establishes the agent identity model, token lifecycle, delegation fra
 - Delegation notification channel (in-app notification vs email vs both)
 - Whether delegation revocation triggers email to provider
 - Scope template presets (e.g., `letting-agent` = `{ spaces: ['services'], apis: ['maintenance', 'bookings'], actions: ['read', 'create-ticket'] }`)
+- Resident opt-out widget design (dashboard placement, notification on new delegation)
+
+### ADR-020 Decisions (from AGENT_DELEGATION_DISCUSSION.md)
+
+- **D-19:** Blockchain delegation: app-layer only in Phase 111. Smart contract delegation (immutable records, escrow, ERC-721 Delegation NFT) deferred to Phase 113+ as opt-in for Enterprise tenants
+- **D-20:** Zero-Knowledge Proofs: Phase 111 skips ZKP entirely. Phase 112 will spike a simple ZK ownership proof prototype (Semaphore or circom/snarkjs). Select privacy handled by scope-based data projection in Phase 111
+- **D-21:** Commission/fee model: Phase 111 records delegation actions only — no platform commission logic. Configurable per-tenant commission rates (platform cut + agent %) deferred to a future billing phase. No hardcoded rates
+- **D-22:** AI agent authentication: JWT + scope claims — consistent with D-02 AgentToken model. AI agents get scoped JWTs issued via `/api/agent/tokens`. `X-Agent-Token` header transport. No wallet-based auth in Phase 111
+- **D-23:** Resident privacy dashboard: Phase 111 includes a resident-facing widget showing active delegations on their property. Opt-out toggle per agent (mechanism universal; availability per-tenant policy)
   </decisions>
 
 <canonical_refs>
@@ -78,6 +88,9 @@ This phase establishes the agent identity model, token lifecycle, delegation fra
 <deferred>
 ## Deferred Ideas
 
+- **Phase 112:** ZKP ownership proof spike (Semaphore/circom — prototype only)
+- **Phase 113+:** Blockchain delegation (smart contracts, escrow, Delegation NFT — Enterprise opt-in)
+- **Future billing phase:** Configurable per-tenant commission rates (platform cut + agent %)
 - OAuth2/OIDC provider integration for external agent platforms
 - Rate limiting per agent (separate from user rate limits)
 - Agent marketplace — providers publish agent capabilities, owners browse and delegate
