@@ -117,6 +117,12 @@ import { platformAiTierQuotas } from '@schema/platform-ai-tier-quotas';
 import { aiCapabilityCosts } from '@schema/ai-capability-costs';
 import { tenantAiUsages } from '@schema/tenant-ai-usages';
 import { aiUsageEvents } from '@schema/ai-usage-events';
+import { disputeCases } from '@schema/dispute-cases';
+import { disputeEvents } from '@schema/dispute-events';
+import { disputeEvidences } from '@schema/dispute-evidences';
+import { disputeMessageVersions } from '@schema/dispute-message-versions';
+import { disputeMessages } from '@schema/dispute-messages';
+import { disputeNotifications } from '@schema/dispute-notifications';
 import { dataConsents } from '@schema/data-consents';
 import { dataRevenueStreams } from '@schema/data-revenue-streams';
 import { dataShareBatches } from '@schema/data-share-batches';
@@ -210,6 +216,12 @@ const dbSchema = {
   aiCapabilityCosts,
   tenantAiUsages,
   aiUsageEvents,
+  disputeCases,
+  disputeEvents,
+  disputeEvidences,
+  disputeMessageVersions,
+  disputeMessages,
+  disputeNotifications,
 } as const;
 
 export type DbSchema = typeof dbSchema;
@@ -438,4 +450,10 @@ export {
   aiCapabilityCosts,
   tenantAiUsages,
   aiUsageEvents,
+  disputeCases,
+  disputeEvents,
+  disputeEvidences,
+  disputeMessageVersions,
+  disputeMessages,
+  disputeNotifications,
 };

@@ -80,6 +80,12 @@ export {
   aiCapabilityCosts,
   tenantAiUsages,
   aiUsageEvents,
+  disputeCases,
+  disputeEvents,
+  disputeEvidences,
+  disputeMessageVersions,
+  disputeMessages,
+  disputeNotifications,
 } from '../db';
 export { auth } from '../auth';
 export {
