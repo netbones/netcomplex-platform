@@ -454,3 +454,344 @@ describe('Dispute Messages — [id]/messages/route.ts', () => {
     });
   });
 });
+
+// ── TASK 2: Evidence Upload + Assign Moderator + Issue Ruling Routes ──
+
+// Helper: create a mock Request that supports formData()
+function createFormDataRequest(url: string, file: File | null): Request {
+  const req = new Request(url, {
+    method: 'POST',
+    headers: { 'content-type': 'multipart/form-data' },
+  });
+  // Mock formData on the request
+  Object.defineProperty(req, 'formData', {
+    value: () => {
+      const fd = {
+        get: (name: string) => (name === 'file' ? file : null),
+      };
+      return Promise.resolve(fd as unknown as FormData);
+    },
+    writable: true,
+    configurable: true,
+  });
+  return req;
+}
+
+describe('Dispute Evidence — [id]/evidence/route.ts', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.sessionResult = null;
+    mocks.rateLimitHit = false;
+    mocks.disputeInDb = null;
+    mocks.selectCallCounter = 0;
+
+    const insertReturning = vi.fn(() =>
+      Promise.resolve([
+        {
+          id: 'ev-001',
+          tenantId: 'test-tenant-id',
+          disputeId: 'dispute-1',
+          fileUrl: 'https://s3.example.com/test.png',
+        },
+      ])
+    );
+    const insertValues = vi.fn(() => ({ returning: insertReturning }));
+    (mocks.dbMock as Record<string, unknown>).insert = vi.fn(() => ({ values: insertValues }));
+
+    const selectFrom = vi.fn(() => {
+      const tableLimit = vi.fn(() => {
+        mocks.selectCallCounter++;
+        if (mocks.selectCallCounter === 1) {
+          const userRole = mocks.sessionResult
+            ? ({ 'user-resident': 'RESIDENT', 'user-board': 'BOARD' } as Record<string, string>)[
+                mocks.sessionResult.user.id
+              ] || 'RESIDENT'
+            : 'RESIDENT';
+          return Promise.resolve([{ role: userRole }]);
+        }
+        return Promise.resolve(mocks.disputeInDb ? [mocks.disputeInDb] : []);
+      });
+      const tableWhere = vi.fn(() => ({
+        limit: tableLimit,
+        orderBy: vi.fn(() => Promise.resolve([])),
+      }));
+      return { where: tableWhere };
+    });
+    (mocks.dbMock as Record<string, unknown>).select = vi.fn(() => ({ from: selectFrom }));
+    (mocks.dbMock as Record<string, unknown>).update = vi.fn(() => ({
+      set: vi.fn(() => ({ where: vi.fn(() => ({ returning: vi.fn(() => Promise.resolve([])) })) })),
+    }));
+    (mocks.dbMock as Record<string, unknown>).transaction = vi.fn(
+      (fn: (tx: unknown) => Promise<unknown>) => fn(mocks.dbMock)
+    );
+  });
+
+  describe('POST /api/disputes/[id]/evidence', () => {
+    it('returns 401 without auth', async () => {
+      const { POST } = await import('../[id]/evidence/route');
+      const file = new File(['test'], 'test.png', { type: 'image/png' });
+      const req = createFormDataRequest('http://localhost/api/disputes/dispute-1/evidence', file);
+      const res = await POST(req, {
+        params: Promise.resolve({ id: 'dispute-1' }),
+      } as { params: Promise<{ id: string }> });
+      expect(res.status).toBe(401);
+    });
+
+    it('returns 429 when rate limited', async () => {
+      mocks.sessionResult = { user: { id: 'user-resident' } };
+      mocks.rateLimitHit = true;
+      const { POST } = await import('../[id]/evidence/route');
+      const file = new File(['test'], 'test.png', { type: 'image/png' });
+      const req = createFormDataRequest('http://localhost/api/disputes/dispute-1/evidence', file);
+      const res = await POST(req, {
+        params: Promise.resolve({ id: 'dispute-1' }),
+      } as { params: Promise<{ id: string }> });
+      expect(res.status).toBe(429);
+    });
+
+    it('uploads file via uploadImage, inserts DisputeEvidence, logs EVIDENCE_ADDED', async () => {
+      mocks.sessionResult = { user: { id: 'user-resident' } };
+      mocks.disputeInDb = {
+        id: 'dispute-1',
+        tenantId: 'test-tenant-id',
+        complainantId: 'user-resident',
+        respondentId: null,
+        status: 'SUBMITTED',
+        assignedModeratorId: null,
+        rulingDescription: null,
+        rulingIssuedAt: null,
+      };
+      const { POST } = await import('../[id]/evidence/route');
+      const file = new File(['test'], 'test.png', { type: 'image/png' });
+      const req = createFormDataRequest('http://localhost/api/disputes/dispute-1/evidence', file);
+      const res = await POST(req, {
+        params: Promise.resolve({ id: 'dispute-1' }),
+      } as { params: Promise<{ id: string }> });
+      expect(res.status).toBe(201);
+    });
+
+    it('returns 422 when no file provided', async () => {
+      mocks.sessionResult = { user: { id: 'user-resident' } };
+      mocks.disputeInDb = {
+        id: 'dispute-1',
+        tenantId: 'test-tenant-id',
+        complainantId: 'user-resident',
+        respondentId: null,
+        status: 'SUBMITTED',
+        assignedModeratorId: null,
+        rulingDescription: null,
+        rulingIssuedAt: null,
+      };
+      const { POST } = await import('../[id]/evidence/route');
+      const req = createFormDataRequest('http://localhost/api/disputes/dispute-1/evidence', null);
+      const res = await POST(req, {
+        params: Promise.resolve({ id: 'dispute-1' }),
+      } as { params: Promise<{ id: string }> });
+      expect(res.status).toBe(422);
+    });
+  });
+});
+
+describe('Dispute Assign — [id]/assign/route.ts', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.sessionResult = null;
+    mocks.rateLimitHit = false;
+    mocks.disputeInDb = null;
+    mocks.selectCallCounter = 0;
+
+    const insertReturning = vi.fn(() => Promise.resolve([]));
+    const insertValues = vi.fn(() => ({ returning: insertReturning }));
+    (mocks.dbMock as Record<string, unknown>).insert = vi.fn(() => ({ values: insertValues }));
+
+    const selectFrom = vi.fn(() => {
+      const tableLimit = vi.fn(() => {
+        mocks.selectCallCounter++;
+        if (mocks.selectCallCounter === 1) {
+          const userRole = mocks.sessionResult
+            ? ({ 'user-resident': 'RESIDENT', 'user-board': 'BOARD' } as Record<string, string>)[
+                mocks.sessionResult.user.id
+              ] || 'RESIDENT'
+            : 'RESIDENT';
+          return Promise.resolve([{ role: userRole }]);
+        }
+        return Promise.resolve(mocks.disputeInDb ? [mocks.disputeInDb] : []);
+      });
+      const tableWhere = vi.fn(() => ({
+        limit: tableLimit,
+        orderBy: vi.fn(() => Promise.resolve([])),
+      }));
+      return { where: tableWhere };
+    });
+    (mocks.dbMock as Record<string, unknown>).select = vi.fn(() => ({ from: selectFrom }));
+    (mocks.dbMock as Record<string, unknown>).update = vi.fn(() => ({
+      set: vi.fn(() => ({ where: vi.fn(() => ({ returning: vi.fn(() => Promise.resolve([])) })) })),
+    }));
+    (mocks.dbMock as Record<string, unknown>).transaction = vi.fn(
+      (fn: (tx: unknown) => Promise<unknown>) => fn(mocks.dbMock)
+    );
+  });
+
+  describe('POST /api/disputes/[id]/assign', () => {
+    it('returns 403 for RESIDENT role', async () => {
+      mocks.sessionResult = { user: { id: 'user-resident' } };
+      const { POST } = await import('../[id]/assign/route');
+      const req = new Request('http://localhost/api/disputes/dispute-1/assign', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ moderatorId: '550e8400-e29b-41d4-a716-446655440000' }),
+      });
+      const res = await POST(req, {
+        params: Promise.resolve({ id: 'dispute-1' }),
+      } as { params: Promise<{ id: string }> });
+      expect(res.status).toBe(403);
+    });
+
+    it('returns 422 for invalid moderatorId (not a UUID)', async () => {
+      mocks.sessionResult = { user: { id: 'user-board' } };
+      const { POST } = await import('../[id]/assign/route');
+      const req = new Request('http://localhost/api/disputes/dispute-1/assign', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ moderatorId: 'not-a-uuid' }),
+      });
+      const res = await POST(req, {
+        params: Promise.resolve({ id: 'dispute-1' }),
+      } as { params: Promise<{ id: string }> });
+      expect(res.status).toBe(422);
+    });
+
+    it('sets assignedModeratorId and logs ASSIGNED event (BOARD role)', async () => {
+      mocks.sessionResult = { user: { id: 'user-board' } };
+      mocks.disputeInDb = {
+        id: 'dispute-1',
+        tenantId: 'test-tenant-id',
+        complainantId: 'user-resident',
+        respondentId: null,
+        status: 'UNDER_REVIEW',
+        assignedModeratorId: null,
+        rulingDescription: null,
+        rulingIssuedAt: null,
+      };
+      const { POST } = await import('../[id]/assign/route');
+      const req = new Request('http://localhost/api/disputes/dispute-1/assign', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ moderatorId: '550e8400-e29b-41d4-a716-446655440000' }),
+      });
+      const res = await POST(req, {
+        params: Promise.resolve({ id: 'dispute-1' }),
+      } as { params: Promise<{ id: string }> });
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.success).toBe(true);
+    });
+  });
+});
+
+describe('Dispute Ruling — [id]/ruling/route.ts', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.sessionResult = null;
+    mocks.rateLimitHit = false;
+    mocks.disputeInDb = null;
+    mocks.selectCallCounter = 0;
+
+    const insertReturning = vi.fn(() => Promise.resolve([]));
+    const insertValues = vi.fn(() => ({ returning: insertReturning }));
+    (mocks.dbMock as Record<string, unknown>).insert = vi.fn(() => ({ values: insertValues }));
+
+    const selectFrom = vi.fn(() => {
+      const tableLimit = vi.fn(() => {
+        mocks.selectCallCounter++;
+        if (mocks.selectCallCounter === 1) {
+          const userRole = mocks.sessionResult
+            ? ({ 'user-resident': 'RESIDENT', 'user-board': 'BOARD' } as Record<string, string>)[
+                mocks.sessionResult.user.id
+              ] || 'RESIDENT'
+            : 'RESIDENT';
+          return Promise.resolve([{ role: userRole }]);
+        }
+        return Promise.resolve(mocks.disputeInDb ? [mocks.disputeInDb] : []);
+      });
+      const tableWhere = vi.fn(() => ({
+        limit: tableLimit,
+        orderBy: vi.fn(() => Promise.resolve([])),
+      }));
+      return { where: tableWhere };
+    });
+    (mocks.dbMock as Record<string, unknown>).select = vi.fn(() => ({ from: selectFrom }));
+    (mocks.dbMock as Record<string, unknown>).update = vi.fn(() => ({
+      set: vi.fn(() => ({ where: vi.fn(() => ({ returning: vi.fn(() => Promise.resolve([])) })) })),
+    }));
+    (mocks.dbMock as Record<string, unknown>).transaction = vi.fn(
+      (fn: (tx: unknown) => Promise<unknown>) => fn(mocks.dbMock)
+    );
+  });
+
+  describe('POST /api/disputes/[id]/ruling', () => {
+    it('returns 403 for RESIDENT role', async () => {
+      mocks.sessionResult = { user: { id: 'user-resident' } };
+      const { POST } = await import('../[id]/ruling/route');
+      const req = new Request('http://localhost/api/disputes/dispute-1/ruling', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ rulingDescription: 'Formal ruling with at least 10 chars.' }),
+      });
+      const res = await POST(req, {
+        params: Promise.resolve({ id: 'dispute-1' }),
+      } as { params: Promise<{ id: string }> });
+      expect(res.status).toBe(403);
+    });
+
+    it('returns 409 when canTransition() returns false', async () => {
+      mocks.sessionResult = { user: { id: 'user-board' } };
+      mocks.disputeInDb = {
+        id: 'dispute-1',
+        tenantId: 'test-tenant-id',
+        complainantId: 'user-resident',
+        respondentId: null,
+        status: 'DRAFT',
+        assignedModeratorId: null,
+        rulingDescription: null,
+        rulingIssuedAt: null,
+      };
+      const { POST } = await import('../[id]/ruling/route');
+      const req = new Request('http://localhost/api/disputes/dispute-1/ruling', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ rulingDescription: 'Formal ruling with at least 10 chars.' }),
+      });
+      const res = await POST(req, {
+        params: Promise.resolve({ id: 'dispute-1' }),
+      } as { params: Promise<{ id: string }> });
+      expect(res.status).toBe(409);
+    });
+
+    it('sets ruling fields and logs RULING_ISSUED event (BOARD role)', async () => {
+      mocks.sessionResult = { user: { id: 'user-board' } };
+      mocks.disputeInDb = {
+        id: 'dispute-1',
+        tenantId: 'test-tenant-id',
+        complainantId: 'user-resident',
+        respondentId: null,
+        status: 'UNDER_REVIEW',
+        assignedModeratorId: '550e8400-e29b-41d4-a716-446655440000',
+        rulingDescription: null,
+        rulingIssuedAt: null,
+      };
+      const { POST } = await import('../[id]/ruling/route');
+      const req = new Request('http://localhost/api/disputes/dispute-1/ruling', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ rulingDescription: 'Formal ruling with at least 10 chars.' }),
+      });
+      const res = await POST(req, {
+        params: Promise.resolve({ id: 'dispute-1' }),
+      } as { params: Promise<{ id: string }> });
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.success).toBe(true);
+    });
+  });
+});
