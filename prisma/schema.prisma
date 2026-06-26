@@ -2453,3 +2453,199 @@ model AiUsageEvent {
   @@index([capability])
   @@index([usageId])
 }
+
+// ── Dispute Resolution ──
+
+enum DisputeStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  MEDIATION_OFFERED
+  MEDIATION_ACTIVE
+  MEDIATED_RESOLVED
+  FORMAL_RULING
+  RESOLVED
+  WITHDRAWN
+  ESCALATED_CSOS
+  CSOS_CLOSED
+}
+
+enum DisputeCategory {
+  NOISE
+  PETS
+  PARKING
+  BOUNDARIES
+  COMMON_PROPERTY
+  LEVY_DISPUTE
+  RULE_ENFORCEMENT
+  GOVERNANCE
+  CONDUCT
+  DAMAGE
+  OTHER
+}
+
+enum DisputeSeverity {
+  MINOR
+  MODERATE
+  SERIOUS
+  URGENT
+}
+
+enum DisputeRespondent {
+  RESIDENT
+  HOA
+  BOARD_MEMBER
+  TENANT_PROVIDER
+}
+
+enum DisputeEventType {
+  CREATED
+  SUBMITTED
+  ASSIGNED
+  MEDIATION_OFFERED
+  MEDIATION_ACCEPTED
+  MEDIATION_DECLINED
+  MEDIATION_CONCLUDED
+  RULING_ISSUED
+  RESOLVED
+  WITHDRAWN
+  ESCALATED_CSOS
+  CSOS_CLOSED
+  NOTE_ADDED
+  EVIDENCE_ADDED
+  STATUS_CHANGED
+}
+
+model DisputeCase {
+  id                  String             @id @default(cuid())
+  tenantId            String
+  referenceNumber     String             @unique
+  complainantId       String
+  respondentId        String?
+  respondentType      DisputeRespondent  @default(RESIDENT)
+  category            DisputeCategory
+  subcategory         String?
+  title               String
+  description         String
+  desiredOutcome      String?
+  severity            DisputeSeverity    @default(MODERATE)
+  status              DisputeStatus      @default(DRAFT)
+  intakeCompletedAt   DateTime?
+  coolingOffEndsAt    DateTime?
+  submittedAt         DateTime?
+  assignedModeratorId String?
+  mediationOfferedAt  DateTime?
+  mediationAcceptedAt DateTime?
+  rulingIssuedAt      DateTime?
+  rulingDescription   String?
+  csosReferenceNumber String?
+  csosEscalatedAt     DateTime?
+  csosClosedAt        DateTime?
+  resolvedAt          DateTime?
+  closedById          String?
+  closedReason        String?
+  isConfidential      Boolean            @default(true)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @default(now()) @updatedAt
+  deletedAt           DateTime?
+
+  complainant         user               @relation("DisputeComplainant", fields: [complainantId], references: [id])
+  respondent          user?              @relation("DisputeRespondent", fields: [respondentId], references: [id])
+  assignedModerator   user?              @relation("DisputeModerator", fields: [assignedModeratorId], references: [id])
+  closedBy            user?              @relation("DisputeClosedBy", fields: [closedById], references: [id])
+  evidence            DisputeEvidence[]
+  events              DisputeEvent[]
+  mediationThread     DisputeMessage[]
+  notifications       DisputeNotification[]
+
+  @@index([tenantId])
+  @@index([complainantId])
+  @@index([respondentId])
+  @@index([status])
+  @@index([category])
+  @@index([assignedModeratorId])
+}
+
+model DisputeEvidence {
+  id          String    @id @default(cuid())
+  tenantId    String
+  disputeId   String
+  uploadedBy  String
+  fileUrl     String
+  fileType    String
+  fileName    String
+  description String?
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
+
+  dispute     DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  uploader    user        @relation(fields: [uploadedBy], references: [id])
+
+  @@index([disputeId])
+  @@index([uploadedBy])
+}
+
+model DisputeEvent {
+  id          String           @id @default(cuid())
+  tenantId    String
+  disputeId   String
+  actorId     String?
+  eventType   DisputeEventType
+  fromStatus  DisputeStatus?
+  toStatus    DisputeStatus?
+  note        String?
+  metadata    Json?
+  createdAt   DateTime         @default(now())
+
+  dispute     DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  actor       user?       @relation(fields: [actorId], references: [id])
+
+  @@index([disputeId])
+  @@index([eventType])
+}
+
+model DisputeMessage {
+  id          String    @id @default(cuid())
+  tenantId    String
+  disputeId   String
+  senderId    String
+  content     String
+  isInternal  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  editedAt    DateTime?
+  deletedAt   DateTime?
+
+  dispute     DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  sender      user        @relation(fields: [senderId], references: [id])
+
+  @@index([disputeId])
+  @@index([senderId])
+}
+
+model DisputeMessageVersion {
+  id              String    @id @default(cuid())
+  messageId       String
+  originalContent String
+  editedAt        DateTime
+  createdAt       DateTime  @default(now())
+
+  message         DisputeMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+}
+
+model DisputeNotification {
+  id          String    @id @default(cuid())
+  tenantId    String
+  disputeId   String
+  userId      String
+  type        String
+  read        Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  dispute     DisputeCase @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  user        user        @relation(fields: [userId], references: [id])
+
+  @@index([disputeId])
+  @@index([userId])
+}
