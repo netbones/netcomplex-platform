@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string } } | null,
   tenantResult: { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' },
   rateLimitHit: false,
+  selectCallCounter: 0,
   disputeInDb: null as {
     id: string;
     tenantId: string;
@@ -212,9 +213,6 @@ vi.mock('@shared/lib', () => ({
   apiLogger: { error: vi.fn() },
 }));
 
-// Reset crypto mocks (for crypto.randomUUID)
-const originalRandomUUID = crypto.randomUUID;
-
 // ── TASK 1: Mediation Thread Routes ──
 
 describe('Dispute Messages — [id]/messages/route.ts', () => {
@@ -239,19 +237,42 @@ describe('Dispute Messages — [id]/messages/route.ts', () => {
       ])
     );
     const insertValues = vi.fn(() => ({ returning: insertReturning }));
-    mocks.dbMock.insert = vi.fn(() => ({ values: insertValues }));
+    (mocks.dbMock as Record<string, unknown>).insert = vi.fn(() => ({ values: insertValues }));
 
-    // Fix: re-stub db.select chain
-    const selectWhere = vi.fn(() => ({
-      limit: vi.fn(() => Promise.resolve(mocks.disputeInDb ? [mocks.disputeInDb] : [])),
-    }));
-    const selectFrom = vi.fn(() => ({ where: selectWhere }));
-    mocks.dbMock.select = vi.fn(() => ({ from: selectFrom }));
+    // Build per-table mock chains for db.select()
+    // Shared counter: call 1 = user lookup (getSessionAndRole), call 2+ = dispute/data lookup
+    mocks.selectCallCounter = 0;
+
+    const selectFrom = vi.fn((_table: unknown) => {
+      const tableLimit = vi.fn(() => {
+        mocks.selectCallCounter++;
+        if (mocks.selectCallCounter === 1) {
+          const userRole = mocks.sessionResult
+            ? (
+                {
+                  'user-resident': 'RESIDENT',
+                  'user-board': 'BOARD',
+                  'user-admin': 'ADMIN',
+                  'user-committee': 'COMMITTEE',
+                } as Record<string, string>
+              )[mocks.sessionResult.user.id] || 'RESIDENT'
+            : 'RESIDENT';
+          return Promise.resolve([{ role: userRole }]);
+        }
+        // Lazy read mocks.disputeInDb at call time, not capture time
+        return Promise.resolve(mocks.disputeInDb ? [mocks.disputeInDb] : []);
+      });
+      const tableWhere = vi.fn(() => ({
+        limit: tableLimit,
+        orderBy: vi.fn(() => Promise.resolve([])),
+      }));
+      return { where: tableWhere };
+    });
+    (mocks.dbMock as Record<string, unknown>).select = vi.fn(() => ({ from: selectFrom }));
   });
   afterEach(() => {
-    vi.restoreAllMocks();
-    // Restore crypto.randomUUID in case any test overrides it
-    vi.stubGlobal('crypto', { randomUUID: originalRandomUUID });
+    // Skip restoreAllMocks to avoid resetting mock implementations set up in beforeEach
+    vi.clearAllMocks();
   });
 
   // ── POST tests ──

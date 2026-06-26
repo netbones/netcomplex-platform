@@ -5,7 +5,13 @@
 export * from './model/types';
 export * from './model/constants';
 export * from './model/lifecycle';
-export { disputeCreateSchema, disputeUpdateSchema } from './model/schemas';
+export {
+  disputeCreateSchema,
+  disputeUpdateSchema,
+  disputeMessageCreateSchema,
+  disputeAssignSchema,
+  disputeRulingSchema,
+} from './model/schemas';
 
 // UI components (created in Task 2)
 export { DisputeStatusBadge } from './ui/DisputeStatusBadge';
