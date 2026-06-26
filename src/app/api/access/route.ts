@@ -1,0 +1,148 @@
+/**
+ * GET /api/access — Canonical access resolution endpoint (D-01).
+ *
+ * Returns typed PageAccess (spaces, pages, features, agent) for the
+ * authenticated caller. This is the single source of truth for every
+ * nav component and page guard — replaces scattered role/flag/permission
+ * checks across the codebase.
+ *
+ * Supports human callers (default, via Better Auth session) and agent
+ * callers (query param caller=agent&token=X — stub, future extension point
+ * per D-08/D-09).
+ *
+ * Unauthenticated callers receive empty access (no error).
+ *
+ * Phase 110-01: Entity layer + endpoint for page navigation access control.
+ */
+
+import { type NextRequest } from 'next/server';
+import { withTenant, getPlatformPageFlags } from '@entities/tenant/server';
+import { getProviderRecordForUser } from '@/shared/api/provider-platform';
+import { createComponentLogger } from '@shared/lib';
+
+import { apiError, apiSuccess, getSessionAndRole, requireNotSuspended } from '@api/server';
+
+import { resolvePageAccess } from '@entities/access';
+import type { AccessContext, AccessInput } from '@entities/access';
+import type { Role } from '@shared/lib';
+
+// ═══════════════════════════════════════════════════════════════
+// CONFIGURATION
+// ═══════════════════════════════════════════════════════════════
+
+const log = createComponentLogger('access');
+export const dynamic = 'force-dynamic';
+export const maxDuration = 5; // Cap execution time (D-05 mitigation)
+
+// ═══════════════════════════════════════════════════════════════
+// REVALIDATION TRIGGERS (to be wired in follow-up phases)
+// ═══════════════════════════════════════════════════════════════
+// - Role change via PATCH /api/users/[id] → revalidateTag(`access:${userId}`)
+// - Provider record create/delete → revalidateTag(`access:${userId}`)
+// - Suspension toggle via POST /api/users/[id]/suspend → revalidateTag(`access:${userId}`)
+// - Feature flag change via Vercel flags webhook or polling → revalidateTag(`access:${userId}`)
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Parse caller identity from query parameters.
+ *
+ * Extracts `caller` and `token` from the request URL.
+ * When caller === 'agent' and a non-empty token is present,
+ * returns an agent-flavoured AccessInput. Otherwise returns
+ * an empty input (default human caller).
+ */
+function parseCaller(request: NextRequest): AccessInput {
+  const searchParams = request.nextUrl.searchParams;
+  const caller = searchParams.get('caller');
+  const token = searchParams.get('token');
+
+  if (caller === 'agent' && token && token.trim().length > 0) {
+    return { caller: 'agent', token: token.trim() };
+  }
+
+  return {};
+}
+
+/**
+ * Resolve provider record existence for the authenticated user.
+ *
+ * Checks the serviceProviders table for a record matching the user's email
+ * within the current tenant. Returns a boolean indicating existence.
+ */
+async function resolveProviderExists(
+  tenantId: string,
+  userEmail: string | null | undefined
+): Promise<boolean> {
+  const record = await getProviderRecordForUser(tenantId, userEmail);
+  return record !== null;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ROUTE HANDLER
+// ═══════════════════════════════════════════════════════════════
+
+export async function GET(request: NextRequest) {
+  try {
+    // Resolve tenant context
+    let tenantId: string;
+    try {
+      const tenant = await withTenant();
+      tenantId = tenant.tenantId;
+    } catch {
+      return apiError('NOT_FOUND', 'Tenant not found', 404);
+    }
+
+    // Resolve authenticated user
+    const auth = await getSessionAndRole(request);
+
+    // Unauthenticated callers receive empty access (no error — D-01)
+    if (!auth) {
+      return apiSuccess(
+        { spaces: [], pages: [], features: [], agent: null },
+        {
+          headers: {
+            'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
+          },
+        }
+      );
+    }
+
+    // Check suspension
+    const { suspended: isSuspended } = await requireNotSuspended(request);
+
+    // Resolve provider record
+    const providerRecordExists = await resolveProviderExists(tenantId, auth.session.user.email);
+
+    // Build access context
+    const flags = await getPlatformPageFlags(tenantId);
+
+    const ctx: AccessContext = {
+      tenantId,
+      userId: auth.userId,
+      userEmail: auth.session.user.email ?? null,
+      role: auth.role as Role,
+      providerRecordExists,
+      isSuspended,
+      flags,
+    };
+
+    // Parse caller identity (agent vs human)
+    const input = parseCaller(request);
+
+    // Resolve access
+    const accessResolution = resolvePageAccess(ctx, input);
+
+    // Return with cache headers (per-user, short TTL)
+    return apiSuccess(accessResolution, {
+      headers: {
+        'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
+      },
+    });
+  } catch (error) {
+    log.error({ operation: 'GET' }, 'Failed to resolve access', error);
+    return apiError('INTERNAL_ERROR', 'Failed to resolve access', 500);
+  }
+}
