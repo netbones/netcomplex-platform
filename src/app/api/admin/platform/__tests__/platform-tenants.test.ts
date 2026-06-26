@@ -22,9 +22,15 @@ vi.mock('@api/server', async () => {
     apiCreated: (data: unknown, init?: ResponseInit) =>
       NextResponse.json({ success: true, data }, { status: 201, ...(init || {}) }) as any,
     apiError: (message = 'Error') =>
-      NextResponse.json({ success: false, error: { code: 'ERROR', message } }, { status: 400 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'ERROR', message } },
+        { status: 400 }
+      ) as any,
     apiInternalError: (message = 'Internal server error') =>
-      NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR', message } }, { status: 500 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'INTERNAL_ERROR', message } },
+        { status: 500 }
+      ) as any,
     writeAuditLog: (...args: any[]) => mocks.writeAuditLog(...args),
     auth: { api: { getSession: (...args: any[]) => mocks.getSession(...args) } },
   };

@@ -1,7 +1,12 @@
-import { describe, it, expect } from 'vitest';
-import { eventSchema, adminEventSchema } from '../entities/event/schema';
-import { canManageEvents } from '../entities/event/permissions';
-import { validateEventFields } from '../entities/event/services';
+import { describe, it, expect, vi } from 'vitest';
+
+vi.mock('@shared/api/email/resend', () => ({
+  sendEmail: vi.fn(),
+}));
+
+import { eventSchema, adminEventSchema } from '@/entities/event/schema';
+import { canManageEvents } from '@/entities/event/permissions';
+import { validateEventFields } from '@/entities/event/services';
 
 function futureDate(hours = 24): string {
   const d = new Date(Date.now() + hours * 3600_000);

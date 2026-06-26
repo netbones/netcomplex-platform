@@ -28,10 +28,10 @@ vi.mock('@api/server', () => ({
   users: {},
 }));
 
-import { buildBookingConditions, getTenantFacilities } from '../entities/booking/services';
-import { canViewAllBookings } from '../entities/booking/permissions';
-import { DEFAULT_FACILITIES } from '../entities/booking/model';
-import { makeSelectChain } from './api/helpers';
+import { buildBookingConditions, getTenantFacilities } from '@/entities/booking/services';
+import { canViewAllBookings } from '@/entities/booking/permissions';
+import { DEFAULT_FACILITIES } from '@/entities/booking/model';
+import { makeSelectChain } from '@/test/api/helpers';
 
 describe('buildBookingConditions', () => {
   const tenantId = 'tenant-1';

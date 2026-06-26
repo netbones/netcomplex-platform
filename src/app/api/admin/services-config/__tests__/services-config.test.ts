@@ -27,13 +27,25 @@ vi.mock('@api/server', async () => {
     apiSuccess: (data: unknown, _meta?: unknown, status = 200, init?: ResponseInit) =>
       NextResponse.json({ success: true, data }, { status, ...(init || {}) }) as any,
     apiForbidden: (message = 'Forbidden') =>
-      NextResponse.json({ success: false, error: { code: 'FORBIDDEN', message } }, { status: 403 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'FORBIDDEN', message } },
+        { status: 403 }
+      ) as any,
     apiUnauthorized: (message = 'Authentication required') =>
-      NextResponse.json({ success: false, error: { code: 'AUTH_REQUIRED', message } }, { status: 401 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'AUTH_REQUIRED', message } },
+        { status: 401 }
+      ) as any,
     apiInternalError: (message = 'Internal server error') =>
-      NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR', message } }, { status: 500 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'INTERNAL_ERROR', message } },
+        { status: 500 }
+      ) as any,
     apiValidationError: (details: unknown) =>
-      NextResponse.json({ success: false, error: { code: 'VALIDATION_ERROR', details } }, { status: 422 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'VALIDATION_ERROR', details } },
+        { status: 422 }
+      ) as any,
     withErrorHandler: (handler: any) => handler,
     createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
   };
@@ -58,7 +70,12 @@ vi.mock('@shared/lib', () => ({
 import { GET, PUT } from '@/app/api/admin/services-config/route';
 import { NextRequest } from 'next/server';
 
-const DEFAULT_RLS_CTX = { userId: 'user-1', tenantId: 'test-tenant-id', role: 'ADMIN', isPlatformAdmin: false };
+const DEFAULT_RLS_CTX = {
+  userId: 'user-1',
+  tenantId: 'test-tenant-id',
+  role: 'ADMIN',
+  isPlatformAdmin: false,
+};
 
 const MOCK_DEFAULT_CONFIG = {
   heroVisible: true,
@@ -121,7 +138,13 @@ describe('Admin Services Config API', () => {
         ...MOCK_DEFAULT_CONFIG,
         heroVisible: false,
         categories: [
-          { id: 'cat-1', title: 'Maintenance', subtitle: 'Fix things', icon: 'wrench', items: ['plumbing'] },
+          {
+            id: 'cat-1',
+            title: 'Maintenance',
+            subtitle: 'Fix things',
+            icon: 'wrench',
+            items: ['plumbing'],
+          },
         ],
       };
       mocks.getServicesConfigWithTx.mockResolvedValue(customConfig);

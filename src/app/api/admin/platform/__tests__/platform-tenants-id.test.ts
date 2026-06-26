@@ -21,11 +21,20 @@ vi.mock('@api/server', async () => {
     apiSuccess: (data: unknown, _meta?: unknown, status = 200, init?: ResponseInit) =>
       NextResponse.json({ success: true, data }, { status, ...(init || {}) }) as any,
     apiError: (message = 'Error') =>
-      NextResponse.json({ success: false, error: { code: 'ERROR', message } }, { status: 400 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'ERROR', message } },
+        { status: 400 }
+      ) as any,
     apiInternalError: (message = 'Internal server error') =>
-      NextResponse.json({ success: false, error: { code: 'INTERNAL_ERROR', message } }, { status: 500 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'INTERNAL_ERROR', message } },
+        { status: 500 }
+      ) as any,
     apiNotFound: (message = 'Not found') =>
-      NextResponse.json({ success: false, error: { code: 'NOT_FOUND', message } }, { status: 404 }) as any,
+      NextResponse.json(
+        { success: false, error: { code: 'NOT_FOUND', message } },
+        { status: 404 }
+      ) as any,
     writeAuditLog: (...args: any[]) => mocks.writeAuditLog(...args),
     auth: { api: { getSession: (...args: any[]) => mocks.getSession(...args) } },
   };
