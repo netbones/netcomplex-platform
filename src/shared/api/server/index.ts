@@ -186,6 +186,7 @@ export {
   markTransactionFailedByReference,
   syncTierToTenant,
   recordBillingEvent,
+  ensureOverageInvoiceRecord,
   getOrCreateDefaultBillingPlans,
 } from '../tenant-billing';
 

@@ -1094,3 +1094,78 @@ export async function getTenantBillingSnapshot(tenantId: string) {
 // ---------------------------------------------------------------------------
 
 export { getOrCreateDefaultBillingPlans } from '@shared/lib/billing/seed-plans';
+
+// ---------------------------------------------------------------------------
+// ensureOverageInvoiceRecord — AI pool surcharge invoice (no transaction)
+// ---------------------------------------------------------------------------
+
+export async function ensureOverageInvoiceRecord(params: {
+  tenantId: string;
+  subscriptionId: string;
+  billingMonth: string;
+  overageTokens: number;
+  overageCostZAR: string;
+  pdfUrl: string | null;
+}) {
+  const timestamp = now();
+  const invoiceNumber = `INV-AI-${params.billingMonth}-${params.tenantId.slice(0, 8)}`;
+
+  // Idempotent: check for existing invoice with same invoice number
+  const [existing] = await db
+    .select()
+    .from(tenantInvoices)
+    .where(eq(tenantInvoices.invoiceNumber, invoiceNumber))
+    .limit(1);
+
+  const overageCostNum = parseFloat(params.overageCostZAR) || 0;
+  const vatRate = 0.15;
+  const vatAmount = (overageCostNum * vatRate).toFixed(2);
+  const grandTotal = (overageCostNum * (1 + vatRate)).toFixed(2);
+
+  const payload = {
+    tenantId: params.tenantId,
+    subscriptionId: params.subscriptionId,
+    transactionId: null,
+    invoiceNumber,
+    items: [
+      {
+        description: `AI pool overage surcharge — ${params.billingMonth}`,
+        tokens: params.overageTokens,
+        ratePer1k: 'ZAR 0.38',
+        subtotal: params.overageCostZAR,
+        vat15: vatAmount,
+        total: grandTotal,
+      },
+    ],
+    subtotal: params.overageCostZAR,
+    taxAmount: vatAmount,
+    total: grandTotal,
+    currency: 'ZAR',
+    status: 'PAID' as const,
+    paidAt: timestamp,
+    pdfUrl: params.pdfUrl,
+    downloadReady: params.pdfUrl !== null,
+    updatedAt: timestamp,
+  };
+
+  if (existing) {
+    const [updated] = await db
+      .update(tenantInvoices)
+      .set(payload)
+      .where(eq(tenantInvoices.id, existing.id))
+      .returning();
+
+    return updated;
+  }
+
+  const [created] = await db
+    .insert(tenantInvoices)
+    .values({
+      id: crypto.randomUUID(),
+      ...payload,
+      createdAt: timestamp,
+    })
+    .returning();
+
+  return created;
+}
