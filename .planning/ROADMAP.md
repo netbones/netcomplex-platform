@@ -10,16 +10,16 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 Phases are grouped into milestones (M0–M6+). See `.planning/MILESTONES.md` for full structure, gap analysis, and cadence ritual.
 
-| Milestone                         | Goal                                                                                                      | Phases                                                                                                           | Status           |
-| --------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------- |
-| **M0 Foundation**                 | Multi-tenant substrate + base modules                                                                     | 00, 01, 02, 03, 05, 06, 07, 08, 11                                                                               | ✅ Shipped       |
-| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding                                                       | 09, 10, 18, 19, 20                                                                                               | ✅ Shipped       |
-| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system                                                            | 22, 24, 25, 26, 27, 28, 29, 30, 31                                                                               | ✅ Shipped       |
-| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing                                                     | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40                                                                           | ✅ Shipped       |
-| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration                                                        | 35, 41, 42                                                                                                       | ✅ Complete      |
-| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                                                    | 43 (blockers), then (no new phases)                                                                              | 🚧 Blocked on 43 |
-| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, dWallet, Provider Platform, Service Marketplace, Dispute Resolution | 44 (M5a), 45 (M5b), 46 (Provider Platform), 47 (dWallet), 50 (Service Marketplace), 104–108 (Dispute Resolution) | 📋 Planning      |
-| **M5+ Post-Launch**               | Future features, second tenant                                                                            | deferred                                                                                                         | Deferred         |
+| Milestone                         | Goal                                                                                                                       | Phases                                                                                                                                       | Status           |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| **M0 Foundation**                 | Multi-tenant substrate + base modules                                                                                      | 00, 01, 02, 03, 05, 06, 07, 08, 11                                                                                                           | ✅ Shipped       |
+| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding                                                                        | 09, 10, 18, 19, 20                                                                                                                           | ✅ Shipped       |
+| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system                                                                             | 22, 24, 25, 26, 27, 28, 29, 30, 31                                                                                                           | ✅ Shipped       |
+| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing                                                                      | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40                                                                                                       | ✅ Shipped       |
+| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration                                                                         | 35, 41, 42                                                                                                                                   | ✅ Complete      |
+| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                                                                     | 43 (blockers), then (no new phases)                                                                                                          | 🚧 Blocked on 43 |
+| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, dWallet, Provider Platform, Service Marketplace, Dispute Resolution, AI Pool Billing | 44 (M5a), 45 (M5b), 46 (Provider Platform), 47 (dWallet), 50 (Service Marketplace), 104–108 (Dispute Resolution), 109 (AI Surcharge Billing) | 📋 Planning      |
+| **M5+ Post-Launch**               | Future features, second tenant                                                                                             | deferred                                                                                                                                     | Deferred         |
 
 **Phase numbering note:** IDs are stable (not renumbered on re-order). Duplicates exist: `03` (Localization vs Second Tenant), `11` (Announcements vs Prisma→Drizzle). The duplicate pair has a "Planning Complete (deferred)" status on the second one, except `11-prisma-to-drizzle` which was verified complete (2026-06-03) and moved to M0. Out-of-order numeric IDs (01 after 04; 35 after 39; 99 last) reflect creation sequence, not logical order. See MILESTONES.md Gap ε.
 
@@ -1250,6 +1250,32 @@ Plans:
 
 - [x] 108-01-PLAN.md — PDF builder (build-csos-pdf.ts) + route handler binary PDF response + message queries + DB rate limit fallback
 - [x] 108-02-PLAN.md — CSOSExportButton binary download + component tests
+
+---
+
+## Phase 109: AI Pool Surcharge Billing
+
+**Goal:** Wire the ENTERPRISE SURCHARGE overage policy (from Phase 104 AI pool) into the billing pipeline (from Phase 46.1 billing foundation), generating surcharge invoice PDFs using the pdf-lib pattern from Phase 108 (build-csos-pdf.ts). When an ENTERPRISE tenant exceeds their monthly AI pool quota, the cron rollover generates a surcharge invoice record, records a billing event, and provides a downloadable PDF via a platform admin route.
+
+**Status:** Planned — 1 plan in 1 wave
+
+**Source:** BD soralia-village-fjyw
+
+**Requirements:** BILL-SURCHARGE-01, BILL-SURCHARGE-02
+
+**Depends on:** Phase 104 (AI pool models, SURCHARGE policy, cron rollover), Phase 46.1 (billing foundation, TenantInvoice, BillingEvent), Phase 108 (pdf-lib PDF generation pattern)
+
+**Plans:** 1 plan
+
+| Wave | Plan               | Objective                                                                                         |
+| ---- | ------------------ | ------------------------------------------------------------------------------------------------- |
+| 1    | [ ] 109-01-PLAN.md | PDF generator + cron integration: buildOverageInvoicePdf(), enhanced rollover, PDF download route |
+
+Plans:
+
+- [ ] 109-01-PLAN.md — buildOverageInvoicePdf() pure function + cron surcharge detection + billing event recording + PDF download route
+
+**Out of scope:** Non-ENTERPRISE overage billing (THROTTLE/HARD_STOP), real-time overage alerts, custom surcharge rates per tenant, multi-currency support.
 
 ---
 
