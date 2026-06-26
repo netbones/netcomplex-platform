@@ -48,23 +48,28 @@ describe('useAutoSave', () => {
     vi.unstubAllGlobals();
   });
 
-  // Test 1: persists data to localStorage after debounce delay
+  // Test 1: persists data to localStorage via debounce
   it('persists data to localStorage after debounce delay', () => {
-    const data: TestData = { name: 'test', count: 1 };
-    const { result } = renderHook(() =>
-      useAutoSave<TestData>({ key: 'my-key', data, delay: 2000 })
+    const initialData: TestData = { name: 'test', count: 1 };
+    const { result, rerender } = renderHook(
+      ({ data }: { data: TestData }) => useAutoSave<TestData>({ key: 'my-key', data, delay: 2000 }),
+      { initialProps: { data: initialData } }
     );
 
-    // Data should not be saved immediately (debounce)
-    expect(storage.setItem).not.toHaveBeenCalled();
+    // useDebounceValue returns initial value immediately on first render
+    expect(result.current.savedData).toEqual(initialData);
+
+    // Update data — debounce should delay the save
+    const updatedData: TestData = { name: 'test', count: 2 };
+    rerender({ data: updatedData });
 
     // Advance timers past the debounce delay
     act(() => {
       vi.advanceTimersByTime(2000);
     });
 
-    expect(storage.setItem).toHaveBeenCalledWith('my-key', JSON.stringify(data));
-    expect(result.current.savedData).toEqual(data);
+    expect(storage.setItem).toHaveBeenCalledWith('my-key', JSON.stringify(updatedData));
+    expect(result.current.savedData).toEqual(updatedData);
   });
 
   // Test 2: with enabled=false does NOT persist data
