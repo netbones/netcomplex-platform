@@ -27,8 +27,8 @@ import { announcementSchema } from '@entities/content';
 
 export const maxDuration = 8;
 
-/** Maximum number of notification records to create in a single fanout */
-const FANOUT_CAP = 500;
+/** Fanout batch size for processing notification inserts in chunks */
+const FANOUT_BATCH = 500;
 
 /**
  * Retrieves session and role from the request for API routes.
@@ -201,8 +201,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   let targetUsers: { id: string }[] = await db
     .select({ id: users.id })
     .from(users)
-    .where(and(eq(users.tenantId, tenantId), eq(users.isActive, true)))
-    .limit(FANOUT_CAP);
+    .where(and(eq(users.tenantId, tenantId), eq(users.isActive, true)));
 
   // Step 2: Apply targetFilter (audience by residency type)
   if (data.targetFilter === 'OWNERS_ONLY') {
@@ -216,8 +215,7 @@ export const POST = withErrorHandler(async (request: Request) => {
           eq(users.isActive, true),
           inArray(profiles.residencyType, ['OWNER', 'FAMILY'])
         )
-      )
-      .limit(FANOUT_CAP);
+      );
     targetUsers = ownerUserIds;
   } else if (data.targetFilter === 'RENTERS_ONLY') {
     const renterUserIds = await db
@@ -230,8 +228,7 @@ export const POST = withErrorHandler(async (request: Request) => {
           eq(users.isActive, true),
           eq(profiles.residencyType, 'RENTER')
         )
-      )
-      .limit(FANOUT_CAP);
+      );
     targetUsers = renterUserIds;
   }
   // ALL: no occupancy filter — keep all active users
@@ -247,29 +244,29 @@ export const POST = withErrorHandler(async (request: Request) => {
           eq(users.isActive, true),
           inArray(users.role, data.targetRoles)
         )
-      )
-      .limit(FANOUT_CAP);
+      );
     // Intersect: user must match BOTH filter AND role
     const roleIds = new Set(roleFilteredUsers.map(u => u.id));
     targetUsers = targetUsers.filter(u => roleIds.has(u.id));
   }
 
-  // Step 4: Cap at FANOUT_CAP and bulk insert notifications
-  const cappedUsers = targetUsers.slice(0, FANOUT_CAP);
-
-  if (cappedUsers.length > 0) {
-    await db.insert(notifications).values(
-      cappedUsers.map(user => ({
-        id: crypto.randomUUID(),
-        tenantId,
-        userId: user.id,
-        title: announcement.title as string,
-        message: announcement.content.slice(0, 200),
-        type: 'info',
-        link: `/news#announcement-${announcement.id}`,
-        read: false,
-      })) as (typeof notifications.$inferInsert)[]
-    );
+  // Step 4: Bulk insert notifications in batches for all target users
+  if (targetUsers.length > 0) {
+    for (let i = 0; i < targetUsers.length; i += FANOUT_BATCH) {
+      const batch = targetUsers.slice(i, i + FANOUT_BATCH);
+      await db.insert(notifications).values(
+        batch.map(user => ({
+          id: crypto.randomUUID(),
+          tenantId,
+          userId: user.id,
+          title: announcement.title as string,
+          message: announcement.content.slice(0, 200),
+          type: 'info',
+          link: `/news#announcement-${announcement.id}`,
+          read: false,
+        })) as (typeof notifications.$inferInsert)[]
+      );
+    }
   }
 
   // Revalidate dashboard caches
