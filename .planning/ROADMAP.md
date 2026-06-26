@@ -1201,15 +1201,25 @@ Plans:
 **Goal:** Intake wizard (emotion check-in, self-resolution, frivolity screen, conflict tips), dispute form, mediation thread UI, evidence uploader, dashboard widgets, navigation registration.
 
 **Source:** ADVISORY-017 — Phases 4 + 5
-**Status:** Not planned
+**Status:** Planning Complete
 **Depends on:** Phase 106
 **Requirements:** DISPUTE-06, DISPUTE-07
 
-**Plans:** 0 plans
+**Plans:** 4 plans (3 waves)
+
+| Wave | Plan               | Objective                                                                                   | Requirements |
+| ---- | ------------------ | ------------------------------------------------------------------------------------------- | ------------ |
+| 1    | [ ] 107-01-PLAN.md | Workflow engine, useAutoSave hook, platform page flags + defaults                           | DISPUTE-06   |
+| 2    | [ ] 107-02-PLAN.md | Intake wizard: 5 stage components, DisputeForm, DisputeIntakeWizard, useDisputeIntake       | DISPUTE-06   |
+| 3    | [ ] 107-03-PLAN.md | Dashboard widgets: MyDisputesWidget, AdminDisputesWidget, widget registration               | DISPUTE-07   |
+| 3    | [ ] 107-04-PLAN.md | Dispute detail page: /disputes/[id] route, responsive layout composing 10 entity components | DISPUTE-07   |
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 107 to break down)
+- [ ] 107-01-PLAN.md — Workflow engine + useAutoSave hook + platform page flags (Wave 1)
+- [ ] 107-02-PLAN.md — Intake wizard: 6-stage de-escalation gate + DisputeForm (Wave 2)
+- [ ] 107-03-PLAN.md — Dashboard widgets: my-disputes + admin-disputes + widget registration (Wave 3)
+- [ ] 107-04-PLAN.md — Dispute detail page: /disputes/[id] responsive layout (Wave 3)
 
 ---
 
