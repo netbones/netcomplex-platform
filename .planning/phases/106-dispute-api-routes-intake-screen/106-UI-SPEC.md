@@ -64,28 +64,31 @@ and existing project spacing patterns):
 | 2xl   | 48px  | Major section breaks (e.g., between timeline and thread)  |
 | 3xl   | 64px  | Page-level spacing                                        |
 
-Exceptions:
+Exceptions (all documented as deliberate debt — justified deviations from 8-point scale):
 
-- **Badge internal padding** (inherited from Phase 105):
-  - Status badges: `px-2.5 py-0.5` (maps to 10px x / 2px y — slightly off 8pt but intentional for pill shape)
-  - Category badges: `px-2 py-0.5` (maps to 8px x / 2px y — on scale)
-- **Severity bar height**: `h-2` (8px) — intentional compact indicator
-- **Icon-only touch targets**: 44px minimum for interactive icon buttons (accessibility)
+| Exception                 | Value                      | Justification                                                        | Debt Status             |
+| ------------------------- | -------------------------- | -------------------------------------------------------------------- | ----------------------- |
+| Status badge px padding   | `px-2.5` (10px)            | Inherited from Phase 105; pill shape requires asymmetric x-pad       | Accepted — Phase 105    |
+| Category badge px padding | `px-2` (8px)               | On-scale                                                             | None                    |
+| Severity bar height       | `h-2` (8px)                | Compact indicator; matches scale                                     | None                    |
+| Icon-only touch targets   | `min-h-11 min-w-11` (44px) | WCAG 2.5.5 target size; accessibility requirement                    | Accepted — a11y mandate |
+| Badge py padding          | `py-0.5` (2px)             | Tight vertical for single-line pill labels; inherited from Phase 105 | Accepted — Phase 105    |
 
 ---
 
 ## Typography
 
-| Role        | Size | Weight | Line Height | Tailwind                | Usage                                                     |
-| ----------- | ---- | ------ | ----------- | ----------------------- | --------------------------------------------------------- |
-| Micro       | 12px | 500    | 1.0         | `text-xs font-medium`   | Badge labels, table metadata, timestamps                  |
-| Body        | 14px | 400    | 1.5         | `text-sm`               | Table cell content, form descriptions, mediation messages |
-| Body Strong | 14px | 600    | 1.5         | `text-sm font-semibold` | Table headers, dialog titles, field labels                |
-| Heading     | 20px | 600    | 1.3         | `text-xl font-semibold` | Page section headings, card titles                        |
-| Display     | 28px | 700    | 1.2         | `text-2xl font-bold`    | Page title (Dispute Detail heading)                       |
+| Role        | Size | Weight | Line Height | Tailwind                 | Usage                                                     |
+| ----------- | ---- | ------ | ----------- | ------------------------ | --------------------------------------------------------- |
+| Micro       | 12px | 400    | 1.0         | `text-xs`                | Badge labels, table metadata, timestamps                  |
+| Body        | 14px | 400    | 1.5         | `text-sm`                | Table cell content, form descriptions, mediation messages |
+| Body Strong | 14px | 600    | 1.5         | `text-sm font-semibold`  | Table headers, dialog titles, field labels                |
+| Heading     | 20px | 600    | 1.3         | `text-xl font-semibold`  | Page section headings, card titles                        |
+| Display     | 28px | 600    | 1.2         | `text-2xl font-semibold` | Page title (Dispute Detail heading)                       |
 
-**Weights declared** (exactly 3): 400 (regular), 500 (medium), 600 (semibold).
-Weight 700 (bold) used only for the page display heading.
+**Weights declared** (exactly 2): 400 (regular), 600 (semibold).
+12px size distinguishes Micro from Body without needing an intermediate weight.
+28px size creates sufficient Display hierarchy at weight 600 through size alone.
 
 **Body line height**: 1.5 — matches existing `content-body p` pattern in globals.css (`line-height: 1.6`).
 **Heading line height**: 1.2–1.3 — matches existing heading patterns.
@@ -199,6 +202,34 @@ from the primary accent.
 | -------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Dispute List   | `/admin/disputes`      | `DisputeListTable` + search/filter bar + "File a Dispute" FAB                                                                     |
 | Dispute Detail | `/admin/disputes/[id]` | `DisputeTimeline` + `MediationThread` + `EvidencePreviewGrid` + `DisputeActionsBar` + `AIFrivolityCheckPanel` + `CoolingOffTimer` |
+
+### Focal Points (Visual Anchors)
+
+Each primary screen has a declared visual focal point — the element that draws
+the user's eye first and anchors the page hierarchy.
+
+| Screen         | Focal Point        | Rationale                                                                                                                                                                                   |
+| -------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dispute List   | `DisputeListTable` | The table occupies the majority of viewport space; status badges provide the strongest color contrast, guiding scan-and-filter behavior                                                     |
+| Dispute Detail | `DisputeTimeline`  | The vertical timeline with severity indicators spans the full-height left column and is the primary information anchor; all contextual panels (AI check, evidence, actions) orbit around it |
+
+### Aria Labels for Icon-Only Action Buttons
+
+All icon-only interactive buttons (no visible text label) MUST carry an explicit
+`aria-label`:
+
+| Component                | Icon         | Action                 | `aria-label`                         |
+| ------------------------ | ------------ | ---------------------- | ------------------------------------ |
+| `DisputeActionsBar`      | Download     | Export CSOS            | `"Export dispute case as CSOS JSON"` |
+| `DisputeActionsBar`      | Trash2       | Delete dispute (admin) | `"Permanently delete this dispute"`  |
+| `DisputeActionsBar`      | Flag         | Escalate               | `"Escalate dispute to board review"` |
+| `EvidencePreviewGrid`    | X            | Remove evidence file   | `"Remove file: {filename}"`          |
+| `MediationMessageBubble` | MoreVertical | Message actions menu   | `"Message actions"`                  |
+| `DisputeListTable`       | ChevronRight | Navigate to detail     | `"View dispute {reference}"`         |
+| Any icon button in FAB   | Plus         | Create new dispute     | `"File a new dispute"`               |
+
+All values use descriptive action + target phrasing. Labels are static strings
+except `{filename}` and `{reference}` which are interpolated from row data.
 
 ---
 
