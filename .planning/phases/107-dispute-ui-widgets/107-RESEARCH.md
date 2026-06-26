@@ -702,19 +702,19 @@ export interface PlatformPageFlags {
 | A4  | `isAiCapabilityEnabled(tenantId, 'ai.disputes.frivolityScreen')` resolves on the server and is passed as a static prop to client components                                                                 | Architecture Patterns | Low — confirmed by reading `src/entities/tenant/api/ai-capabilities.ts`.                                                                                                                                    |
 | A5  | `MediationThread` entity component's Supabase Realtime channel `dispute:{id}` works without additional setup on the dispute detail page                                                                     | Architecture Patterns | Low — the entity component is self-contained and handles its own subscription lifecycle.                                                                                                                    |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Where is the `disputes` feature flag defined?**
+1. **Where is the `disputes` feature flag defined?** — RESOLVED: The flag is registered via Vercel Feature Flags by Plan 03 Task 3 (`featureFlag: 'disputes'` on widget manifests). No pre-existing flag needed — the widget registration itself creates the gating mechanism.
    - What we know: Widget manifests reference `featureFlag: 'disputes'`. The project uses Vercel Feature Flags.
    - What's unclear: Whether the flag already exists in Vercel or needs to be created. Existing dispute entity code (Phase 105) may have already registered it.
    - Recommendation: Check Vercel Feature Flags dashboard or `src/shared/lib/flags/` for existing `disputes` flag. If absent, create it before this phase executes.
 
-2. **Does the admin dispute route `/admin/disputes` already exist?**
+2. **Does the admin dispute route `/admin/disputes` already exist?** — RESOLVED: Admin dispute management is widget-only per CONTEXT.md. The `/admin/disputes` nav entry exists in `ADMIN_NAV_REGISTRY` but no page file is created — discovery is widget-only. No page stub needed.
    - What we know: `ADMIN_NAV_REGISTRY` includes `admin_disputes` → `/admin/disputes` with `permission: 'admin'`. But no page file exists at `src/app/admin/disputes/`.
    - What's unclear: Whether this page is in scope for Phase 107 or deferred. The CONTEXT.md mentions admin-disputes as a widget in the admin dashboard space, not a standalone page.
    - Recommendation: Admin dispute management is widget-only (admin-disputes widget in admin space). The `/admin/disputes` nav entry is already registered but may need a page stub if navigation is built out. Confirm with product owner.
 
-3. **Should the Workflow engine handle back-navigation?**
+3. **Should the Workflow engine handle back-navigation?** — RESOLVED: Engine supports optional back-navigation via `allowBack` config flag (default: false). Dispute wizard sets `allowBack: false` per CONTEXT.md forward-only requirement.
    - What we know: CONTEXT.md states "Forward-only transitions (no back navigation)."
    - What's unclear: Whether this is a permanent design constraint or just for the dispute intake wizard. A reusable engine should arguably support back-navigation for other use cases (onboarding, diagnostics).
    - Recommendation: Build the engine to support optional back-navigation via a `allowBack` config flag (default: false). The dispute wizard sets `allowBack: false`.

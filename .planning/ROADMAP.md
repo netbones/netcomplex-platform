@@ -1215,9 +1215,16 @@ Plans:
 | 3    | [ ] 107-04-PLAN.md | Dispute detail page: /disputes/[id] route, responsive layout composing 10 entity components | DISPUTE-07   |
 
 Plans:
+**Wave 1**
 
 - [ ] 107-01-PLAN.md — Workflow engine + useAutoSave hook + platform page flags (Wave 1)
+
+**Wave 2** _(blocked on Wave 1 completion)_
+
 - [ ] 107-02-PLAN.md — Intake wizard: 6-stage de-escalation gate + DisputeForm (Wave 2)
+
+**Wave 3** _(blocked on Wave 2 completion)_
+
 - [ ] 107-03-PLAN.md — Dashboard widgets: my-disputes + admin-disputes + widget registration (Wave 3)
 - [ ] 107-04-PLAN.md — Dispute detail page: /disputes/[id] responsive layout (Wave 3)
 
