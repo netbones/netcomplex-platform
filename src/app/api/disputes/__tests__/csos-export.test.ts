@@ -15,6 +15,9 @@ const mocks = vi.hoisted(() => ({
   // Rate limiting
   rateLimitHit: false,
 
+  // Select call counter (1st call = user lookup in getSessionAndRole)
+  selectCallCounter: 0,
+
   // Dispute in DB
   disputeInDb: null as {
     id: string;
@@ -90,14 +93,60 @@ vi.mock('@api/server', () => {
 
   const dbMock = {
     select: vi.fn(() => ({
-      from: vi.fn((table: unknown) => {
-        // Return appropriate data based on the table
-        return {
-          where: vi.fn(() => ({
-            limit: vi.fn(() => Promise.resolve(mocks.disputeInDb ? [mocks.disputeInDb] : [])),
-            orderBy: vi.fn(() => Promise.resolve(mocks.eventsInDb)),
-          })),
+      from: vi.fn((_table: unknown) => {
+        // Drizzle select builder is thenable + has .where()
+        const builder = {
+          where: vi.fn((_conditions: unknown) => {
+            // .where() returns a select builder that is:
+            // - thenable (for direct await — evidence query)
+            // - has .limit() (dispute query, user query)
+            // - has .orderBy() (events query)
+            const whereResult = () => {
+              mocks.selectCallCounter++;
+              if (mocks.selectCallCounter === 1) {
+                // First call: user lookup in getSessionAndRole
+                return Promise.resolve([
+                  {
+                    role: mocks.authResult?.role || 'RESIDENT',
+                  },
+                ]);
+              }
+              // Default: return evidence data (for queries without .limit/.orderBy)
+              return Promise.resolve(mocks.evidenceInDb);
+            };
+
+            const limitFn = () => {
+              mocks.selectCallCounter++;
+              if (mocks.selectCallCounter === 1) {
+                // User lookup
+                return Promise.resolve([
+                  {
+                    role: mocks.authResult?.role || 'RESIDENT',
+                  },
+                ]);
+              }
+              // Dispute lookup
+              return Promise.resolve(mocks.disputeInDb ? [mocks.disputeInDb] : []);
+            };
+
+            const orderByFn = () => {
+              return Promise.resolve(mocks.eventsInDb);
+            };
+
+            // Return a thenable with .limit() and .orderBy()
+            return {
+              then: (resolve: (v: unknown) => unknown) => whereResult().then(resolve),
+              limit: vi.fn(() => ({
+                then: (resolve: (v: unknown) => unknown) => limitFn().then(resolve),
+              })),
+              orderBy: vi.fn(() => ({
+                then: (resolve: (v: unknown) => unknown) => orderByFn().then(resolve),
+              })),
+            };
+          }),
         };
+        // .from() is not directly awaited — only .where() is
+        return builder;
       }),
     })),
     insert: vi.fn((_table: unknown) => ({
@@ -161,6 +210,7 @@ vi.mock('@api/server', () => {
     ),
 
     withErrorHandler: (fn: (...args: unknown[]) => unknown) => fn,
+    now: () => new Date(),
   };
 });
 
@@ -194,6 +244,7 @@ describe('GET /api/disputes/[id]/csos-export — CSOS Form 2 JSON Export', () =>
     mocks.eventsInDb = [];
     mocks.evidenceInDb = [];
     mocks.insertedEvents = [];
+    mocks.selectCallCounter = 0;
   });
 
   afterEach(() => {
