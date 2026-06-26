@@ -13,7 +13,8 @@ export {
   disputeRulingSchema,
 } from './model/schemas';
 
-// UI components (created in Task 2)
+// UI components
 export { DisputeStatusBadge } from './ui/DisputeStatusBadge';
 export { DisputeCategoryBadge } from './ui/DisputeCategoryBadge';
 export { SeverityIndicator } from './ui/SeverityIndicator';
+export { DisputeListTable } from './ui/DisputeListTable';
