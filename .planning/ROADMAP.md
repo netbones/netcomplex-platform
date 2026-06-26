@@ -1239,7 +1239,7 @@ Plans:
 **Depends on:** Phase 106
 **Requirements:** DISPUTE-08
 
-**Plans:** 2 plans in 1 wave
+**Plans:** 1/2 plans executed
 
 | Wave | Plan           | Objective                                                                                                             |
 | ---- | -------------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -1248,7 +1248,7 @@ Plans:
 
 Plans:
 
-- [ ] 108-01-PLAN.md — PDF builder (build-csos-pdf.ts) + route handler binary PDF response + message queries + DB rate limit fallback
+- [x] 108-01-PLAN.md — PDF builder (build-csos-pdf.ts) + route handler binary PDF response + message queries + DB rate limit fallback
 - [ ] 108-02-PLAN.md — CSOSExportButton binary download + component tests
 
 ---

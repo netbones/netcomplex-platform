@@ -4,12 +4,12 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Completed 107-04-PLAN.md
-last_updated: '2026-06-26T15:27:25.799Z'
+last_updated: '2026-06-26T16:10:53.718Z'
 progress:
   total_phases: 56
   completed_phases: 48
-  total_plans: 146
-  completed_plans: 140
+  total_plans: 148
+  completed_plans: 141
   percent: 86
 ---
 
@@ -17,14 +17,14 @@ progress:
 
 ## Current Position
 
-Phase: 107 (dispute-ui-widgets) — EXECUTING
-Plan: 2 of 4
+Phase: 108 (csos-export-package) — EXECUTING
+Plan: 2 of 2
 
 - **Phase:** Phase 103 (Tenant Gallery & Album Sharing) — 1 plan, 3 waves. Context gathered, ready for execution.
 - **Status:** Ready to execute
 - **Next Step:** Execute phase 103 via GSD worktree workflow.
 
-**Last Session:** 2026-06-26T15:27:25.774Z
+**Last Session:** 2026-06-26T16:10:41.559Z
 **Stopped at:** Completed 107-04-PLAN.md
 
 ## Active Phase Decisions
@@ -179,6 +179,7 @@ Plan: 2 of 4
 - [Phase 105-dispute-schema-entity-layer]: DisputeMessageVersion model designed from plan description (5 fields + FK) — ADVISORY-017 §8 had only Gate G2 decision, not full model definition — Gate G2 resolved to add full version history model for CSOS legal defensibility but did not include Prisma model definition in §8 schema block
 - [Phase 105-dispute-schema-entity-layer]: Named relations used for all 8 dispute FK references on user model to avoid ambiguity with 54 existing relations — Without named relations, Prisma would generate auto-names that could conflict with existing user relations. Named relations follow the existing pattern in the schema (CommunityMeritSubject, CommunityMeritCreatedBy, etc.)
 - [Phase ?]: Used Supabase Realtime channel dispute:{id} for mediation thread live updates
+- [Phase ?]: Used pdf-parse v2 API — pdf-parse on npm only publishes v2.x which uses class-based API
 
 ## Notes
 
@@ -353,6 +354,7 @@ Plan: 2 of 4
 | Phase 106-dispute-api-routes-intake-screen P03  | 11min  | 2 tasks  | 6 files  |
 | Phase 106-dispute-api-routes-intake-screen P04  | 17 min | 3 tasks  | 18 files |
 | Phase 107-dispute-ui-widgets P04                | 19 min | 3 tasks  | 4 files  |
+| Phase 108 P01                                   | 15 min | 2 tasks  | 6 files  |
 
 ## Accumulated Context
 
