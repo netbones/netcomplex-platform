@@ -5,10 +5,9 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSafeTranslation } from '@shared/lib';
-import { authClient } from '@api/client';
 import { useGateContext } from '@features/gate';
-import { useUnreadMessages } from '@shared/lib/hooks';
-import { getVisibleSpaces, SPACES, type SpaceId } from '../model/spaces';
+import { useUnreadMessages, useVisibleSpaces } from '@shared/lib/hooks';
+import { SPACES, type SpaceId } from '../model/spaces';
 
 const SPACE_FALLBACKS: Record<string, string> = {
   'spaces.home': 'Home',
@@ -25,7 +24,7 @@ const SPACE_FALLBACKS: Record<string, string> = {
  * Per Q1 decision: 5 mobile slots (Home, Services, Community, Messages, Admin).
  * Each item shows icon + short label, active state with indigo-600 color.
  *
- * Overflow guard: If getVisibleSpaces() returns >5 items, logs a console warning
+ * Overflow guard: If useVisibleSpaces() returns >5 items, logs a console warning
  * and slices to 5. TODO: implement "More" overflow sheet when 6th space is added.
  *
  * Safe-area handling:
@@ -36,23 +35,22 @@ const SPACE_FALLBACKS: Record<string, string> = {
  *
  * Prerequisite: Ensure root layout has viewport-fit=cover in viewport meta tag
  * for env(safe-area-inset-bottom) to work on iOS.
+ *
+ * Phase 110 — wired to usePageAccess() / useVisibleSpaces() instead of
+ * inline role checks.
  */
 export function MobileSpaceBar() {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const { tx } = useSafeTranslation();
-  const { data: session } = authClient.useSession();
   const ctx = useGateContext();
-  const role = session?.user?.role || 'RESIDENT';
 
   useEffect(() => setMounted(true), []);
 
-  const { data: unreadData } = useUnreadMessages(!!session?.user?.id);
+  const { data: unreadData } = useUnreadMessages(true);
   const unreadCount = (unreadData?.data?.totalUnread as number) ?? 0;
 
-  const visibleSpaces = ctx?.flags
-    ? getVisibleSpaces(role, ctx.flags)
-    : getVisibleSpaces(role, {} as Parameters<typeof getVisibleSpaces>[1]);
+  const { spaces: visibleSpaces } = useVisibleSpaces(ctx?.flags);
 
   // Overflow guard — max 5 slots on mobile
   const mobileSpaces = visibleSpaces.slice(0, 5);

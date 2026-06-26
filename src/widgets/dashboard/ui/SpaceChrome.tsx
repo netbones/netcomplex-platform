@@ -12,20 +12,21 @@
  * bottom padding) so each page owns its own width wrapper. Adding padding or
  * max-width here would duplicate chrome on every admin sub-page.
  *
- * State (collapsed sidebar, pathname, session, flags) lives in this component
+ * State (collapsed sidebar, pathname, flags) lives in this component
  * so it persists across in-section navigations.
  *
- * Phase 48 — extracted from (tenant)/dashboard/layout.tsx verbatim.
+ * Phase 110 — wired to usePageAccess() / useVisibleSpaces() instead of
+ * inline role checks.
  */
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { authClient } from '@api/client';
 import { useGateContext } from '@features/gate';
 import { ErrorBoundary } from '@shared/ui';
+import { useVisibleSpaces } from '@shared/lib/hooks';
 import { SpaceLauncher } from './SpaceLauncher';
 import { MobileSpaceBar } from './MobileSpaceBar';
-import { getActiveSpaceId, getVisibleSpaces } from '../model/spaces';
+import { getActiveSpaceId } from '../model/spaces';
 
 interface SpaceChromeProps {
   children: React.ReactNode;
@@ -34,14 +35,10 @@ interface SpaceChromeProps {
 export function SpaceChrome({ children }: SpaceChromeProps) {
   const [collapsed, setCollapsed] = useState(true);
   const pathname = usePathname();
-  const { data: session } = authClient.useSession();
   const ctx = useGateContext();
+  const { spaces: visibleSpaces, isLoading: accessLoading } = useVisibleSpaces(ctx?.flags);
 
-  const role = session?.user?.role || 'RESIDENT';
   const activeSpaceId = getActiveSpaceId(pathname);
-  const visibleSpaces = ctx?.flags
-    ? getVisibleSpaces(role, ctx.flags)
-    : getVisibleSpaces(role, {} as Parameters<typeof getVisibleSpaces>[1]);
 
   // Navigation is handled by the Link href — callback is for future extensibility
   const handleNavigate = (_spaceId: string) => {};
@@ -51,7 +48,7 @@ export function SpaceChrome({ children }: SpaceChromeProps) {
       <div className="flex min-h-screen bg-gray-50">
         {/* Desktop sidebar — hidden on mobile */}
         <SpaceLauncher
-          spaces={visibleSpaces}
+          spaces={accessLoading ? [] : visibleSpaces}
           activeSpaceId={activeSpaceId}
           collapsed={collapsed}
           onNavigate={handleNavigate}

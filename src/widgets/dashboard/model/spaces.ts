@@ -216,62 +216,32 @@ export function filterSpaces(
 }
 
 /**
- * Get spaces visible for a given role + feature flags.
+ * @deprecated Use filterSpaces(accessibleSpaceIds, flags) — auth logic moved to /api/access.
  *
- * Rules:
- * - Core spaces (home, messages) are always included
- * - Admin space only for admin/board roles
- * - Optional spaces hidden if their requiredFlag is false
- * - Community auto-hides if ALL of events, groups, surveys, competitions, news are false (Q2)
+ * Provides minimal backward compatibility for callers not yet migrated to
+ * useVisibleSpaces() or filterSpaces(). Constructs a SpaceId[] from role
+ * and passes it through filterSpaces as a pure filter.
  */
 export function getVisibleSpaces(role: string, flags: PlatformPageFlags): SpaceDefinition[] {
+  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    console.warn(
+      '[DEPRECATED] getVisibleSpaces() is deprecated. Use useVisibleSpaces() or filterSpaces() + /api/access instead.'
+    );
+  }
+  // Minimal compat: role-based space resolution for callers not yet migrated
   const normalizedRole = role?.toUpperCase() || 'RESIDENT';
   const isAdmin = ADMIN_ROLES.includes(normalizedRole);
-
-  return SPACE_SLUGS.filter(spaceId => {
-    const space = SPACES[spaceId];
-
-    // Admin space: only for admin/board roles
-    if (space.minimumRole === 'admin' && !isAdmin) {
-      return false;
-    }
-
-    // Providers space: only for PROVIDER role (not admin/board — they use /admin/providers)
-    if (spaceId === 'providers') {
-      return normalizedRole === 'PROVIDER';
-    }
-
-    // PROVIDER role: only see providers + messages spaces
-    if (normalizedRole === 'PROVIDER') {
-      return spaceId === 'messages';
-    }
-
-    // Core spaces: always visible (role check already done for admin)
-    if (space.isCore) {
-      return true;
-    }
-
-    // Optional space with a single requiredFlag
-    if (space.requiredFlag) {
-      return flags[space.requiredFlag] !== false;
-    }
-
-    // Community space: auto-hide if ALL sub-flags are off (Q2 hybrid decision)
-    if (spaceId === 'community') {
-      const communityFlags: (keyof PlatformPageFlags)[] = [
-        'events',
-        'groups',
-        'surveys',
-        'competitions',
-        'news',
-      ];
-      const anyCommunityFeatureOn = communityFlags.some(flag => flags[flag] !== false);
-      return anyCommunityFeatureOn;
-    }
-
-    // Default: show
-    return true;
-  }).map(spaceId => SPACES[spaceId]);
+  const spaces: SpaceId[] = ['home', 'messages'];
+  if (isAdmin) spaces.push('admin');
+  if (normalizedRole === 'PROVIDER') spaces.push('providers');
+  if (flags.services !== false) spaces.push('services');
+  if (
+    ['events', 'groups', 'surveys', 'competitions', 'news'].some(
+      f => flags[f as keyof PlatformPageFlags] !== false
+    )
+  )
+    spaces.push('community');
+  return filterSpaces(spaces, flags);
 }
 
 /**
