@@ -6,15 +6,15 @@
 
 ## Decisions Made
 
-| Decision       | Topic             | Resolution                                                                                       |
-| -------------- | ----------------- | ------------------------------------------------------------------------------------------------ |
-| D-07 (updated) | Delegation scopes | Granular: VIEW_LISTING, MANAGE_OCCUPANCY, VIEW_FINANCIALS, CONTACT_OCCUPANTS, MARKET_PROPERTY    |
-| D-07a          | Resident opt-out  | Mechanism universal, availability per-tenant policy. Resident widget with block toggle per agent |
-| D-19           | Blockchain        | App-layer only in 111. Smart contracts deferred to 113+ (Enterprise opt-in)                      |
-| D-20           | ZKP privacy       | Phase 111 skips ZKP. Spike ownership proof prototype in Phase 112                                |
-| D-21           | Commission model  | Phase 111 records delegation actions only. Configurable rates deferred to billing phase          |
-| D-22           | AI agent auth     | JWT + scope claims via X-Agent-Token header. No wallet-based auth in 111                         |
-| D-23           | Resident privacy  | Phase 111 includes resident-facing delegation widget with active delegations + block toggle      |
+| Decision       | Topic             | Resolution                                                                                                                                                                                                                                              |
+| -------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D-07 (updated) | Delegation scopes | Granular: VIEW_LISTING, MANAGE_OCCUPANCY, VIEW_FINANCIALS, CONTACT_OCCUPANTS, MARKET_PROPERTY                                                                                                                                                           |
+| D-07a          | Resident opt-out  | Mechanism universal, availability per-tenant policy. Resident widget with block toggle per agent                                                                                                                                                        |
+| D-19           | Blockchain        | App-layer only in 111. Smart contracts deferred to 113+ (Enterprise opt-in)                                                                                                                                                                             |
+| D-20           | ZKP privacy       | Phase 111 skips ZKP. Spike ownership proof prototype in Phase 112                                                                                                                                                                                       |
+| D-21           | Commission model  | Phase 111 records delegation actions only. Configurable rates deferred to billing phase                                                                                                                                                                 |
+| D-22           | AI agent auth     | JWT + scope claims via X-Agent-Token header. No wallet-based auth in 111                                                                                                                                                                                |
+| D-23           | Resident privacy  | Phase 111 includes resident-facing delegation widget with per-agent block toggle. Complements dWallet (Phase 47): dWallet = data-sharing consent, delegation = agent access consent. Follows dWallet UX pattern (toggle + append-only audit + Pino log) |
 
 ## Deferred to Future Phases
 

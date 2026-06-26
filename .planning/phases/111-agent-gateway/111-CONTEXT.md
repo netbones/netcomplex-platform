@@ -70,7 +70,7 @@ This phase establishes the agent identity model, token lifecycle, delegation fra
 - **D-20:** Zero-Knowledge Proofs: Phase 111 skips ZKP entirely. Phase 112 will spike a simple ZK ownership proof prototype (Semaphore or circom/snarkjs). Select privacy handled by scope-based data projection in Phase 111
 - **D-21:** Commission/fee model: Phase 111 records delegation actions only — no platform commission logic. Configurable per-tenant commission rates (platform cut + agent %) deferred to a future billing phase. No hardcoded rates
 - **D-22:** AI agent authentication: JWT + scope claims — consistent with D-02 AgentToken model. AI agents get scoped JWTs issued via `/api/agent/tokens`. `X-Agent-Token` header transport. No wallet-based auth in Phase 111
-- **D-23:** Resident privacy dashboard: Phase 111 includes a resident-facing widget showing active delegations on their property. Opt-out toggle per agent (mechanism universal; availability per-tenant policy)
+- **D-23:** Resident privacy dashboard: Phase 111 includes a resident-facing widget showing active delegations on their property with per-agent block toggle. Complements dWallet's data-sharing consent (Phase 47) — dWallet governs "do I share my data?", this widget governs "do I allow this agent to access my property data / contact me?". Follows dWallet's UX pattern: toggle + append-only audit log (DelegationAction) + Pino structured log. When `CONTACT_OCCUPANTS` scope is blocked by resident, the agent's effective scopes are narrowed server-side via Phase 110 pipeline
   </decisions>
 
 <canonical_refs>
