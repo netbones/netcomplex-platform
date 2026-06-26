@@ -38,15 +38,17 @@ export function CSOSExportButton({ disputeId, userId }: CSOSExportButtonProps) {
         throw new Error(body.error?.message || 'Export failed');
       }
 
-      const json = await res.json();
-      const data = json.data ?? json;
-
-      // Trigger file download
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      // Binary PDF download (was: JSON blob)
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `csos-export-${disputeId}.json`;
+
+      // Extract filename from Content-Disposition header
+      const disposition = res.headers.get('Content-Disposition');
+      const filenameMatch = disposition?.match(/filename="?(.+?)"?$/);
+      a.download = filenameMatch?.[1] ?? `csos-export-${disputeId}.pdf`;
+
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -72,7 +74,7 @@ export function CSOSExportButton({ disputeId, userId }: CSOSExportButtonProps) {
           : `Export for CSOS (${exportCount}/${MAX_EXPORTS_PER_DAY} used today)`
       }
       className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      aria-label="Export dispute case as CSOS JSON"
+      aria-label="Export dispute case as CSOS PDF"
     >
       {exporting ? (
         <>
