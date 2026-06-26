@@ -147,7 +147,36 @@
 - Exact widget lazy-loading pattern (follow existing widgets.ts conventions)
 - CSOS export button placement (on dispute detail view header)
 - Mediation thread UI approach (follow chat patterns from Phase 09 — MediationThread exists in entity layer)
-- Exact `useMultiStep` hook API design (step progression, validation, skip conditions)
+- Exact Workflow engine API design (Workflow, Step, Condition, Validation, Transition)
+- Auto-save debounce interval and localStorage key naming
+- Empty state copy refinements
+- Evidence upload chronology UI
+- MediationThread visual role distinction (resident/mediator/system message styles)
+- Admin urgency indicator thresholds
+- Breadcrumb implementation pattern during wizard flow
+
+## Addendum Discussion (2026-06-26)
+
+Based on review of DISCUSSION-ADDENDUM.md (405 lines of detailed UX review).
+
+### Structural Changes Adopted
+
+| Change                     | Decision | Impact                                                                                                                  |
+| -------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Review before Submit       | Adopted  | New wizard step: form → review → POST. Shows all fields + AI warning + attachments + estimated process timeline         |
+| Breadcrumb during wizard   | Adopted  | Widget now shows "← Back to My Disputes (N active)" instead of completely hiding list                                   |
+| Elevate timeline to header | Adopted  | DisputeTimeline moved from left sidebar to page header. Layout becomes 2-column below header                            |
+| Generic workflow engine    | Adopted  | Build `src/shared/lib/workflow/` reusing Step→Condition→Validation→Transition pattern. Dispute intake is first consumer |
+
+### UX Refinements Folded into the agent's Discretion
+
+- Auto-save wizard progress to localStorage every few seconds
+- AI advisory banner persists after submission on detail page
+- Evidence uploader encourages chronology (numbered items + optional timestamp notes)
+- MediationThread visually distinguishes resident/mediator/system messages
+- Admin widget adds urgency indicators (oldest pending age, severity, SLA)
+- Empty state improvements for both widgets
+- "Estimated process" timeline shown during Review step (Submit → Moderator Review → Mediation → Resolution, avg 7-14 days)
 
 ## Deferred Ideas
 

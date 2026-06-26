@@ -25,18 +25,20 @@ Depends on: Phase 106 (Dispute API Routes). Reuses entity-layer UI components fr
 ### Intake Wizard (Phase 4)
 
 - Multi-step form gated before DisputeForm.tsx, renders inline in my-disputes widget
-- Widget replaces content when wizard starts: list hides, wizard shows. "Back to list" cancels.
-- State machine: `emotion` → `checklist` → `frivolity` (conditional on AI) → `tips` → `form`
-- 5 components: EmotionCheckIn, SelfResolutionChecklist, FrivolityScreen, ConflictTipsPanel, DisputeIntakeWizard
+- Widget replaces content when wizard starts, but keeps breadcrumb: "← Back to My Disputes (N active)" for orientation
+- State machine: `emotion` → `checklist` → `frivolity` (conditional on AI) → `tips` → `form` → `review` → `submit`
+- 6 components: EmotionCheckIn, SelfResolutionChecklist, FrivolityScreen, ConflictTipsPanel, DisputeForm, ReviewScreen, DisputeIntakeWizard
 - FrivolityScreen calls `POST /api/disputes/intake-screen` (Phase 106 route, Phase 104 AI pool)
-- Frivolity step skipped when AI disabled — wizard collapses from 4 to 3 stages
+- Frivolity step skipped when AI disabled — wizard collapses from 5 to 4 non-AI stages
+- ReviewScreen shows all fields + AI warning (if applicable) + attachments before final submit
 - Emotional state NOT persisted (only intakeCompletedAt timestamp)
 - AI-enabled resolved server-side, passed as prop — no client-side loading flash
 - Forward-only transitions (no back navigation). AI step auto-skipped when disabled.
-- Numbered inline steps (1. Emotion, 2. Checklist, etc.) — no sidebar stepper or horizontal progress bar
+- Numbered inline steps — no sidebar stepper or horizontal progress bar
 - Completed steps show checkmark, current step highlighted
 - Mobile: widget expands to full width during wizard (bypasses widget grid constraints)
-- Extract reusable `useMultiStep` hook to `src/shared/lib/` for step progression, skip logic, validation
+- Build reusable **Workflow engine** (`src/shared/lib/workflow/`) — Workflow → Step → Condition → Validation → Transition — not just useMultiStep, but a generic guided-process framework reusable for onboarding, maintenance diagnostics, CSOS applications, etc. The dispute intake wizard is the first consumer.
+- Auto-save wizard/form progress to localStorage every few seconds; show "saved N seconds ago" indicator
 
 ### Stage 1 — EmotionCheckIn
 
@@ -61,20 +63,31 @@ Depends on: Phase 106 (Dispute API Routes). Reuses entity-layer UI components fr
 - Static content, collapsible, contextual per emotion score
 - Tips for heated disputes (noise, pets, parking), HOA rule disputes, escalation-ready
 
-### Dispute Form
+### Stage 5 — Dispute Form
 
 - DisputeForm.tsx — uses React Hook Form + Zod (existing pattern)
 - Fields: category, title, description, desired outcome, respondent selection, severity
-- On submit: POST to `/api/disputes` to create a DRAFT, then navigate to `/disputes/[id]`
-- Renders inline in widget after wizard completes (same widget space)
+- Evidence uploader encourages chronology: numbered items (Photo 1, Screenshot 2, PDF 3) with optional timestamp notes ("When was this taken?")
+
+### Stage 6 — ReviewScreen
+
+- Shows all fields + AI warning (if applicable) + attachments before final submit
+- Includes "Estimated process" timeline: Submit → Moderator Review → Mediation → Resolution (avg 7-14 days)
+- Reduces accidental submissions and anxiety about what happens next
+
+### Dispute Form (Form Details)
+
+- On submit from ReviewScreen: POST to `/api/disputes` to create a DRAFT, then navigate to `/disputes/[id]`
+- Renders inline in widget after ConflictTipsPanel (same widget space)
 
 ### Dispute Detail Page (/disputes/[id])
 
-- 3-column admin-style layout:
-  - **Header (above all):** DisputeStatusBadge, DisputeCategoryBadge, SeverityIndicator, CSOSExportButton
-  - **Left sidebar:** DisputeTimeline, DisputeActionsBar, CoolingOffTimer
-  - **Center (main):** MediationThread (full height)
-  - **Right sidebar:** EvidenceUploadZone, EvidencePreviewGrid, AIFrivolityCheckPanel
+- **Header (above all):** DisputeTimeline (prominent step tracker: Submitted → Assigned → Mediation → Resolved), DisputeStatusBadge, DisputeCategoryBadge, SeverityIndicator, CSOSExportButton
+- **2-column layout below header:**
+  - **Left (main):** MediationThread (full height), DisputeActionsBar
+  - **Right sidebar:** EvidenceUploadZone, EvidencePreviewGrid, AIFrivolityCheckPanel, CoolingOffTimer
+- AI advisory persists after submission: compact banner "AI noted: tone appears emotional. Consider focusing on facts. [Edit description]"
+- MediationThread visually distinguishes roles: resident messages (neutral), mediator messages (highlighted/accent border), system events (centered, muted)
 - Client component with server data fetch (matches existing chat detail page patterns)
 - Mobile: stacked single column with tabs (Timeline, Thread, Evidence). Thread tab is default. Actions/CoolingOff/CSOS as sticky bottom bar.
 
@@ -88,8 +101,9 @@ Depends on: Phase 106 (Dispute API Routes). Reuses entity-layer UI components fr
   - Widget content replaced during wizard/form flow; "Back to list" to cancel
 - `admin-disputes` widget:
   - Content: Moderation queue with filter tabs (Pending Assignment, In Mediation, Awaiting Ruling)
-  - Each row: status badge, category, filed date, complainant name
+  - Each row: status badge, category, filed date, complainant name, severity indicator, oldest pending age, SLA indicator
   - Quick actions: Assign Moderator, View Detail
+  - Urgency indicators: "URGENT — Pending 6 days — Needs assignment" for overdue items
   - Purely moderation — no "File a Dispute" CTA (board members use their own my-disputes widget)
 - Icons: Scale (my-disputes), Gavel (admin-disputes)
 - Feature flag: `disputes`
@@ -99,10 +113,11 @@ Depends on: Phase 106 (Dispute API Routes). Reuses entity-layer UI components fr
 ### FSD Placement
 
 - `src/features/dispute/model/` — useDisputeIntake, useDisputeThread, useDisputeActions
-- `src/features/dispute/ui/intake/` — wizard components (EmotionCheckIn, SelfResolutionChecklist, FrivolityScreen, ConflictTipsPanel, DisputeIntakeWizard)
+- `src/features/dispute/ui/intake/` — wizard components (EmotionCheckIn, SelfResolutionChecklist, FrivolityScreen, ConflictTipsPanel, ReviewScreen, DisputeIntakeWizard)
 - `src/features/dispute/ui/` — DisputeForm (form, submits to API)
 - `src/entities/dispute/ui/` — status badge, category badge, severity indicator (already built)
-- `src/shared/lib/useMultiStep.ts` — reusable multi-step hook extracted from wizard
+- `src/shared/lib/workflow/` — reusable Workflow engine (Workflow, Step, Condition, Validation, Transition)
+- `src/shared/lib/useAutoSave.ts` — localStorage auto-save hook
 - `src/widgets/dashboard/ui/` — MyDisputesWidget, AdminDisputesWidget
 - `src/app/(dashboard)/disputes/[id]/page.tsx` — dedicated dispute detail page
 
@@ -111,7 +126,13 @@ Depends on: Phase 106 (Dispute API Routes). Reuses entity-layer UI components fr
 - Exact widget lazy-loading pattern (follow existing widgets.ts conventions)
 - CSOS export button placement (on dispute detail view header)
 - Mediation thread UI approach (follow chat patterns from Phase 09 — MediationThread exists in entity layer)
-- Exact `useMultiStep` hook API design (step progression, validation, skip conditions)
+- Exact Workflow engine API design (Step config, Condition guards, Validation hooks, Transition map)
+- Auto-save debounce interval and localStorage key naming
+- Empty state copy refinements per the DISCUSSION-ADDENDUM recommendations
+- Evidence upload chronology UI (numbered items, optional timestamp notes)
+- MediationThread visual role distinction (resident/mediator/system message styles)
+- Admin urgency indicator thresholds (what counts as "URGENT" — configurable via constants)
+- Breadcrumb implementation pattern during wizard flow
   </decisions>
 
 <canonical_refs>
