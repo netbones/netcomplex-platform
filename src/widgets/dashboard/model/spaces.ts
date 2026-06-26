@@ -177,7 +177,7 @@ export const SPACE_SLUGS = Object.keys(SPACES) as SpaceId[];
 // ═══════════════════════════════════════════════════════════════
 
 /** Roles that can access the admin space */
-const ADMIN_ROLES = ['admin', 'board', 'ADMIN', 'BOARD'];
+export const ADMIN_ROLES = ['admin', 'board', 'ADMIN', 'BOARD'];
 
 /**
  * Get spaces visible for a given role + feature flags.

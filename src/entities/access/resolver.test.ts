@@ -106,7 +106,9 @@ describe('resolvePageAccess', () => {
     expect(result.spaces).toContain('providers');
     expect(result.spaces).toContain('messages');
     expect(result.spaces).not.toContain('admin');
-    expect(result.spaces).not.toContain('home');
+    // PROVIDER role does not get home or optional spaces
+    expect(result.spaces).toEqual(expect.arrayContaining(['messages', 'providers']));
+    expect(result.spaces.length).toBe(2);
     expect(result.agent).toBeNull();
   });
 
