@@ -12,6 +12,13 @@ export {
   disputeAssignSchema,
   disputeRulingSchema,
 } from './model/schemas';
+export type {
+  DisputeCreateInput,
+  DisputeUpdateInput,
+  DisputeMessageCreateInput,
+  DisputeAssignInput,
+  DisputeRulingInput,
+} from './model/schemas';
 
 // UI components
 export { DisputeStatusBadge } from './ui/DisputeStatusBadge';
