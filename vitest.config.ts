@@ -32,6 +32,10 @@ export default defineConfig({
         find: '@entities/booking/server',
         replacement: path.resolve(__dirname, './src/entities/booking/index.server'),
       },
+      {
+        find: '@entities/dispute/server',
+        replacement: path.resolve(__dirname, './src/entities/dispute/index.server'),
+      },
       { find: '@', replacement: path.resolve(__dirname, './src') },
       { find: '@app', replacement: path.resolve(__dirname, './src/app') },
       { find: '@shared', replacement: path.resolve(__dirname, './src/shared') },
@@ -62,10 +66,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      include: [
-        'src/app/api/**/*.ts',
-        'src/shared/**/*.{ts,tsx}',
-      ],
+      include: ['src/app/api/**/*.ts', 'src/shared/**/*.{ts,tsx}'],
       exclude: ['src/**/*.d.ts', 'src/shared/api/db.ts'],
     },
   },
