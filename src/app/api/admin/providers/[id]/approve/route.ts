@@ -9,6 +9,7 @@ import {
   db,
   serviceProviders,
   providerVerifications,
+  sendEmail,
   writeAuditLog,
 } from '@api/server';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
@@ -46,6 +47,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .select({
       id: serviceProviders.id,
       companyName: serviceProviders.companyName,
+      email: serviceProviders.email,
       userId: serviceProviders.userId,
     })
     .from(serviceProviders)
@@ -83,6 +85,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     targetId: provider.id,
     details: { method: 'approve', notes: approvalNote },
   });
+
+  if (provider.email) {
+    void sendEmail({
+      to: provider.email,
+      subject: 'Provider Account Approved',
+      html: `<p>Your provider account <strong>${provider.companyName}</strong> has been approved.</p><p>You can now access your provider dashboard and manage your services.</p>`,
+    });
+  }
 
   return apiSuccess({
     provider,

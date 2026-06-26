@@ -9,6 +9,7 @@ import {
   db,
   now,
   serviceProviders,
+  sendEmail,
   writeAuditLog,
 } from '@api/server';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
@@ -47,7 +48,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const { tenantId } = await withTenant();
   const { id } = await params;
   const [provider] = await db
-    .select({ id: serviceProviders.id, companyName: serviceProviders.companyName })
+    .select({
+      id: serviceProviders.id,
+      companyName: serviceProviders.companyName,
+      email: serviceProviders.email,
+    })
     .from(serviceProviders)
     .where(
       and(
@@ -83,6 +88,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     targetId: provider.id,
     details: { reason: parsed.data.reason, mappedStatus: 'SUSPENDED' },
   });
+
+  if (provider.email) {
+    void sendEmail({
+      to: provider.email,
+      subject: 'Provider Application Update',
+      html: `<p>Your provider application for <strong>${provider.companyName}</strong> was not approved at this time.</p><p>Reason: ${parsed.data.reason}</p><p>You may contact the platform administrator for further information.</p>`,
+    });
+  }
 
   return apiSuccess({
     provider,

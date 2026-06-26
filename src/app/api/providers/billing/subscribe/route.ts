@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { apiError, apiInternalError, apiNotFound, apiSuccess } from '@api/server';
+import { apiError, apiInternalError, apiNotFound, apiSuccess, sendEmail } from '@api/server';
 import { createProviderSubscriptionCheckout, requireProviderAccess } from '@shared/api';
 import { providerBillingSubscribeSchema } from '@shared/lib/providers/billing';
 import { logError } from '@shared/lib';
@@ -36,6 +36,12 @@ export async function POST(request: NextRequest) {
     if (!result.ok) {
       return apiError('VALIDATION_ERROR', result.message, result.status);
     }
+
+    void sendEmail({
+      to: providerAccess.providerRecord.email ?? providerAccess.auth.session.user.email,
+      subject: 'Subscription Checkout Ready',
+      html: `<p>Your provider subscription checkout is ready. Follow the link to complete payment and activate your subscription.</p>`,
+    });
 
     return apiSuccess(result.data);
   } catch (error) {

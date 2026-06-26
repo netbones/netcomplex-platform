@@ -8,6 +8,7 @@ import {
   getSessionAndRole,
   now,
   serviceProviders,
+  sendEmail,
   withErrorHandler,
 } from '@api/server';
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
@@ -123,6 +124,12 @@ export const POST = withErrorHandler(async (request: Request) => {
     providerId,
     verificationStatus
   );
+
+  void sendEmail({
+    to: input.email,
+    subject: 'Provider Registration Received',
+    html: `<p>Thank you for registering as a provider, <strong>${input.companyName}</strong>.</p><p>Your registration is under review. We will notify you once your verification is complete.</p>`,
+  });
 
   return apiCreated({
     provider,
