@@ -827,6 +827,24 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   });
 
   registry.register({
+    id: 'service-marketplace',
+    version: '1.0.0',
+    name: 'Service Marketplace',
+    description: 'Browse and book community service providers',
+    author: 'internal',
+    category: 'content',
+    icon: Briefcase,
+    featureFlag: 'services',
+    component: lazy(() =>
+      import('@features/marketplace').then(m => ({ default: m.MarketplaceWidget }))
+    ),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 2, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['services'],
+  });
+
+  registry.register({
     id: 'service-inquiries',
     version: '1.0.0',
     name: 'Service Inquiries',

@@ -27,6 +27,7 @@ const defaultFlags: PlatformPageFlags = {
   bookings: true,
   messages: true,
   providers: true,
+  marketplacePaypal: false,
   headerLinks: ['directory', 'groups', 'services', 'resources'],
 };
 

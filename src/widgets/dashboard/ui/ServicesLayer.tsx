@@ -23,6 +23,8 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.surveys': 'Share your feedback',
   'domains.descriptions.competitions': 'Enter community competitions',
   'domains.descriptions.communication': 'Messages and announcements',
+  'domains.marketplace': 'Marketplace',
+  'domains.descriptions.marketplace': 'Browse and book community service providers',
 };
 
 // ═══════════════════════════════════════════════════════════════

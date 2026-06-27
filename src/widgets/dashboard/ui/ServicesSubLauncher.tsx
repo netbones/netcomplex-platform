@@ -82,4 +82,11 @@ export const SERVICES_DOMAIN_DEFINITIONS: ServicesDomainDef[] = [
     icon: '/platform/communication.svg',
     description: 'Chat, announcements, and messaging',
   },
+  {
+    id: 'marketplace',
+    labelKey: 'domains.marketplace',
+    descriptionKey: 'domains.descriptions.marketplace',
+    icon: '/platform/marketplace.svg',
+    description: 'Browse and book community service providers',
+  },
 ];

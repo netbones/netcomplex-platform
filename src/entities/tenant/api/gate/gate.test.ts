@@ -194,6 +194,7 @@ describe('Mapping completeness', () => {
         providers: true,
         bookings: true,
         messages: true,
+        marketplacePaypal: false,
         headerLinks: ['directory', 'groups', 'services', 'resources'],
       };
       const validFlagKeys = new Set(Object.keys(sampleFlags));
@@ -264,6 +265,7 @@ const ALL_FLAGS_ENABLED: PlatformPageFlags = {
   providers: true,
   bookings: true,
   messages: true,
+  marketplacePaypal: false,
   headerLinks: ['directory', 'groups', 'services', 'resources'],
 };
 

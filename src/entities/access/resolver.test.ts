@@ -34,6 +34,7 @@ const ALL_FLAGS_ON: PlatformPageFlags = {
   providers: true,
   bookings: true,
   messages: true,
+  marketplacePaypal: false,
   headerLinks: [],
 };
 

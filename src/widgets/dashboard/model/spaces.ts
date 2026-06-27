@@ -405,6 +405,7 @@ export const SERVICES_DOMAINS = [
   'surveys',
   'competitions',
   'communication',
+  'marketplace',
 ] as const;
 
 export type ServicesDomain = (typeof SERVICES_DOMAINS)[number];
@@ -419,6 +420,7 @@ const SERVICES_DOMAIN_WIDGET_MAP: Record<ServicesDomain, string[]> = {
   surveys: ['surveys'],
   competitions: ['competitions'],
   communication: ['my-services', 'messages'],
+  marketplace: ['service-marketplace'],
 };
 
 /**
