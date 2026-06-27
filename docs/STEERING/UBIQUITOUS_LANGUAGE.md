@@ -1,6 +1,6 @@
 # Ubiquitous Language — NetComplex / Soralia Village
 
-> **Last updated:** 2026-06-08
+> **Last updated:** 2026-06-27
 > **Purpose:** Canonical definitions for all domain terms. When in doubt, this document is the authority.
 
 ---
@@ -160,7 +160,7 @@ A fine-grained UI toggle with a dot-notation key (e.g., `page.maintenance`, `fea
 A boolean or enum flag stored in the `settings` table, controlling per-tenant page visibility.
 
 - **Code:** `PlatformPageFlags` in `src/entities/tenant/api/flags/platform-flags.ts`
-- **15 flags:** `campaign`, `conservation`, `chat`, `news`, `events`, `directory`, `groups`, `services`, `resources`, `maintenance`, `surveys`, `competitions`, `dashboard`, `bookings`, `messages`
+- **16 flags:** `campaign`, `conservation`, `chat`, `news`, `events`, `directory`, `groups`, `services`, `resources`, `maintenance`, `surveys`, `competitions`, `dashboard`, `bookings`, `messages`, `marketplacePaypal`
 - **Overlap with** FeatureRegistry page flags and ModuleKeys — see Conflicts section
 
 ### Plugin
@@ -230,8 +230,59 @@ Who performs the maintenance work.
 A reservation of a Facility for a specific time period by a User.
 
 - **Code:** `Booking` (Prisma model)
-- **Status flow:** `PENDING` → `CONFIRMED` → `COMPLETED` or `CANCELLED`
+- **Status flow:** `CONFIRMED` → `COMPLETED` or `CANCELLED`
 - **Not called:** "Reservation" (that term is not used anywhere in the codebase)
+- **Not to be confused with:** `ServiceBooking` (marketplace service appointment — different model, different lifecycle)
+
+### ServiceBooking
+
+A marketplace service appointment between a resident and a provider for a specific date and time. Introduced in Phase 50 to separate the marketplace transaction lifecycle from facility reservations.
+
+- **Code:** `ServiceBooking` (Prisma model, separate from `Booking`)
+- **Status flow:** `PENDING_CONFIRMATION` → `CONFIRMED` → `COMPLETED` or `CANCELLED`
+- **Key fields:** `listingId` (→ CommunityServiceListing), `providerId` (→ ServiceProvider), `userId`, `date`, `startTime`, `endTime`, `price`, `paymentStatus`
+- **Not to be confused with:** `Booking` (facility reservation — shared amenity, no provider, no payment)
+
+### CommunityServiceListing
+
+A service offered by a provider in the marketplace. The core listing entity that residents browse, inquire about, and book.
+
+- **Code:** `CommunityServiceListing` (Prisma model)
+- **Key fields:** `providerId`, `title` (jsonb, i18n), `description` (jsonb), `category`, `priceType` (FIXED/HOURLY/QUOTE/FREE), `price`, `availability` (jsonb — weekly schedule), `verified`, `rating`, `reviewCount`
+- **Status:** `DRAFT` → `ACTIVE` (published) → `SOLD` / `RENTED` / `WITHDRAWN`
+
+### CommunityServiceInquiry
+
+A pre-booking inquiry from a resident to a provider about a specific listing. Supports the quote → approve → pay flow for HOURLY/QUOTE services.
+
+- **Code:** `CommunityServiceInquiry` (Prisma model)
+- **Key fields:** `listingId`, `inquirerId`, `preferredDate`, `preferredTime`, `description`, `status` (PENDING → RESPONDED → CLOSED), `providerResponse`
+
+### ServiceProvider
+
+A user who offers services through the marketplace. Links a User account to a provider profile with verification status, reputation scoring, and subscription tier (for platform fees).
+
+- **Code:** `ServiceProvider` (Prisma model)
+- **Key fields:** `userId`, `companyName`, `contactName`, `phone`, `trade`, `isActive`
+- **Status:** `PENDING` → `PROBATION` → `VERIFIED`; can be `SUSPENDED`
+- **Not to be confused with:** `User` (auth identity — a User may or may not be a ServiceProvider), `Provider` as an internal module concept
+
+### Provider (User-Facing Term)
+
+A resident who also offers services through the marketplace. Has a dual identity: a User with a ServiceProvider profile. Displayed in the directory context with provider-specific badges and verification indicators.
+
+- **Code:** No single model — derived from `User` + `ServiceProvider` + `CommunityServiceListing` join
+- **Discovery:** `/directory` services tab lists verified providers; each directory card links to a service profile
+- **Navigation:** Provider login flow adds a `providers` space to SpaceChrome/MobileSpaceBar (gated by `flags.providers` + provider record existence, per Phase 110 access control Layer 1)
+- **Admin view:** Provider moderation, due diligence, and credit-based verification (Phase 46)
+
+### Marketplace
+
+The overall concept encompassing service discovery, inquiry, booking, payment, and notification. Lives under the Services space as a sub-domain alongside maintenance and bookings.
+
+- **Code:** `marketplace` module key, `services` PlatformPageFlag, `SERVICES_DOMAINS.marketplace`
+- **Not a separate Space** — marketplace is a sub-domain within the Services space
+- **User-facing term:** "Services" (not "Marketplace") — residents "browse services," not "browse the marketplace"
 
 ### Facility
 
@@ -376,20 +427,22 @@ The model is `MaintenanceRequest`; users see "Ticket Number" in the UI. This is 
 
 ## Term Decision Log
 
-| Date       | Decision                                                                                         | Rationale                                                                                                                                                                                  |
-| ---------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 2026-06-01 | Established "Tenant" as technical term, "Community" as user-facing term                          | Consistent with codebase convention; no breaking change                                                                                                                                    |
-| 2026-06-01 | Established "Space" as canonical, "Tab" as deprecated                                            | Phase 30 completed the migration; Phase 31 will clean up                                                                                                                                   |
-| 2026-06-01 | Updated C1: field names are consistent (`street`/`unit`); real inconsistency is shape boundaries | All 5 shapes verified to use `street`/`unit` matching Prisma; original proposed resolution (`streetAddress`/`unitNumber`) retracted — would have created the inconsistency it tried to fix |
-| 2026-06-01 | C1 code work deferred to post-Phase 41                                                           | Phase 41 is orthogonal; gate code does not consume any Property shape                                                                                                                      |
-| 2026-06-01 | Documented triple gating system as C2                                                            | Overlap between Module/Feature/Flag systems is undocumented                                                                                                                                |
-| 2026-06-01 | Documented tier naming mismatch as C4                                                            | 3 technical tiers vs 4 business tiers is an open gap                                                                                                                                       |
-| 2026-06-01 | Updated C2 status: Phase 1 infrastructure complete (Plan 41-01..03)                              | Foundation in flight; callsite migration is Phase 2; C2 fully Resolved in Phase 3                                                                                                          |
-| 2026-06-04 | Closed C3: Tab → Space migration                                                                 | Phase 31 work executed; 0 hits for tabId/DashboardTab in audit                                                                                                                             |
-| 2026-06-04 | Updated C1: Now actionable (Phase 41 complete) + 2 new local PropertyListing types               | Code work added to Phase 44 as `2z4`; no field renames — shape boundary clarification only                                                                                                 |
-| 2026-06-04 | Updated C2: Phase 2 + 3 added to Phase 44                                                        | 4 production callsites still use `usePageFlags` (MobileSpaceBar, Header, SideDrawer, Footer); migrate to `useGateContext()`; restrict legacy exports to `@internal`                        |
-| 2026-06-04 | C4 (Tier Naming) deferred to Phase 47 (dWallet)                                                  | 3 vs 4 tier mismatch only matters when dWallet ships tier-gated features; track as open conflict until dWallet surfaces the need                                                           |
-| 2026-06-16 | Closed C5: residencyType vs residentType aligned                                                 | Renamed Invitation.residentType → residencyType, dropped OWNER_RESIDENT → OWNER; all 14+ references updated; migration pending (Phase 44-06/Task 2)                                        |
-| 2026-06-16 | Closed C6: occupantType renamed to householdRole                                                 | Renamed to householdRole across Prisma (HouseholdRole), Drizzle (householdRoleEnum), and all TypeScript/seed references; OccupancyType unchanged (distinct concept)                        |
-| 2026-06-08 | Closed C8: MAINTENANCE_STATUSES synced to Prisma                                                 | Added ASSIGNED, SCHEDULED, PENDING_PARTS; constants + tests updated                                                                                                                        |
-| 2026-06-08 | Closed C9: CONTENT_CATEGORIES synced to Prisma                                                   | Added CONSERVATION, SERVICES, CAMPAIGN; constants + tests updated                                                                                                                          |
+| Date       | Decision                                                                                                                   | Rationale                                                                                                                                                                                                                                                                    |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-06-01 | Established "Tenant" as technical term, "Community" as user-facing term                                                    | Consistent with codebase convention; no breaking change                                                                                                                                                                                                                      |
+| 2026-06-01 | Established "Space" as canonical, "Tab" as deprecated                                                                      | Phase 30 completed the migration; Phase 31 will clean up                                                                                                                                                                                                                     |
+| 2026-06-01 | Updated C1: field names are consistent (`street`/`unit`); real inconsistency is shape boundaries                           | All 5 shapes verified to use `street`/`unit` matching Prisma; original proposed resolution (`streetAddress`/`unitNumber`) retracted — would have created the inconsistency it tried to fix                                                                                   |
+| 2026-06-01 | C1 code work deferred to post-Phase 41                                                                                     | Phase 41 is orthogonal; gate code does not consume any Property shape                                                                                                                                                                                                        |
+| 2026-06-01 | Documented triple gating system as C2                                                                                      | Overlap between Module/Feature/Flag systems is undocumented                                                                                                                                                                                                                  |
+| 2026-06-01 | Documented tier naming mismatch as C4                                                                                      | 3 technical tiers vs 4 business tiers is an open gap                                                                                                                                                                                                                         |
+| 2026-06-01 | Updated C2 status: Phase 1 infrastructure complete (Plan 41-01..03)                                                        | Foundation in flight; callsite migration is Phase 2; C2 fully Resolved in Phase 3                                                                                                                                                                                            |
+| 2026-06-04 | Closed C3: Tab → Space migration                                                                                           | Phase 31 work executed; 0 hits for tabId/DashboardTab in audit                                                                                                                                                                                                               |
+| 2026-06-04 | Updated C1: Now actionable (Phase 41 complete) + 2 new local PropertyListing types                                         | Code work added to Phase 44 as `2z4`; no field renames — shape boundary clarification only                                                                                                                                                                                   |
+| 2026-06-04 | Updated C2: Phase 2 + 3 added to Phase 44                                                                                  | 4 production callsites still use `usePageFlags` (MobileSpaceBar, Header, SideDrawer, Footer); migrate to `useGateContext()`; restrict legacy exports to `@internal`                                                                                                          |
+| 2026-06-04 | C4 (Tier Naming) deferred to Phase 47 (dWallet)                                                                            | 3 vs 4 tier mismatch only matters when dWallet ships tier-gated features; track as open conflict until dWallet surfaces the need                                                                                                                                             |
+| 2026-06-16 | Closed C5: residencyType vs residentType aligned                                                                           | Renamed Invitation.residentType → residencyType, dropped OWNER_RESIDENT → OWNER; all 14+ references updated; migration pending (Phase 44-06/Task 2)                                                                                                                          |
+| 2026-06-16 | Closed C6: occupantType renamed to householdRole                                                                           | Renamed to householdRole across Prisma (HouseholdRole), Drizzle (householdRoleEnum), and all TypeScript/seed references; OccupancyType unchanged (distinct concept)                                                                                                          |
+| 2026-06-08 | Closed C8: MAINTENANCE_STATUSES synced to Prisma                                                                           | Added ASSIGNED, SCHEDULED, PENDING_PARTS; constants + tests updated                                                                                                                                                                                                          |
+| 2026-06-08 | Closed C9: CONTENT_CATEGORIES synced to Prisma                                                                             | Added CONSERVATION, SERVICES, CAMPAIGN; constants + tests updated                                                                                                                                                                                                            |
+| 2026-06-27 | Defined ServiceBooking, CommunityServiceListing, CommunityServiceInquiry, ServiceProvider, Provider, and Marketplace terms | Phase 50 marketplace introduces the transaction flow from discovery → booking → payment → notification. These terms disambiguate ServiceBooking from facility Booking, define the provider dual-identity model, and establish "Services" as the user-facing marketplace term |
+| 2026-06-27 | Added `marketplacePaypal` to PlatformPageFlags (15 → 16 flags)                                                             | Phase 50 feature flag for PayPal payment gateway in marketplace checkout                                                                                                                                                                                                     |
