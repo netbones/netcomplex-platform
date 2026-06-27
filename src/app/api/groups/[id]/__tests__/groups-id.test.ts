@@ -131,7 +131,7 @@ vi.mock('@shared/lib', () => ({
 }));
 
 import { GET, PATCH, DELETE } from '@/app/api/groups/[id]/route';
-import { makeSelectChain, makeUpdateChain } from './helpers';
+import { makeSelectChain, makeUpdateChain } from '@/test/api/helpers';
 
 function makeReq({
   method = 'GET',

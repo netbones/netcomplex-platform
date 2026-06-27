@@ -70,7 +70,7 @@ vi.mock('@shared/lib', () => ({
 }));
 
 import { GET } from '@/app/api/conservation/route';
-import { makeSelectChain } from './helpers';
+import { makeSelectChain } from '@/test/api/helpers';
 
 const sampleContent = [
   {

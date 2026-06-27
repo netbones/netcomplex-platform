@@ -74,7 +74,7 @@ vi.mock('@shared/lib', () => ({
 }));
 
 import { GET, POST } from '@/app/api/invitations/route';
-import { makeSelectChain } from './helpers';
+import { makeSelectChain } from '@/test/api/helpers';
 
 describe('Invitations API', () => {
   beforeEach(() => {

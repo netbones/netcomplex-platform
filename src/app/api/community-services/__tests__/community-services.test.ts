@@ -187,7 +187,12 @@ vi.mock('@shared/lib', () => ({
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
 }));
 
-import { makeSelectChain, makeInsertChain, makeUpdateChain, makeDeleteChain } from './helpers';
+import {
+  makeSelectChain,
+  makeInsertChain,
+  makeUpdateChain,
+  makeDeleteChain,
+} from '@/test/api/helpers';
 
 /**
  * Extended select chain that properly supports orderBy().limit().offset()

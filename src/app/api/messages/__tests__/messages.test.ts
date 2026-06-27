@@ -138,7 +138,7 @@ vi.mock('@supabase/supabase-js', () => ({
 }));
 
 import { GET, POST, DELETE } from '@/app/api/messages/route';
-import { makeSelectChain, makeInsertChain, makeUpdateChain } from './helpers';
+import { makeSelectChain, makeInsertChain, makeUpdateChain } from '@/test/api/helpers';
 import { messageSchema } from '@entities/chat';
 
 describe('Messages API', () => {

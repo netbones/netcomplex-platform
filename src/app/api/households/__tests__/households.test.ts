@@ -104,7 +104,7 @@ vi.mock('@shared/lib', async importOriginal => {
 });
 
 import { GET } from '@/app/api/households/route';
-import { makeSelectChain } from './helpers';
+import { makeSelectChain } from '@/test/api/helpers';
 
 describe('Households API', () => {
   beforeEach(() => {

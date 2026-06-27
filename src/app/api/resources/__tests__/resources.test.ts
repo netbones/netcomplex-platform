@@ -86,7 +86,7 @@ vi.mock('@shared/lib', () => ({
 }));
 
 import { GET, POST } from '@/app/api/resources/route';
-import { makeSelectChain, makeInsertChain } from './helpers';
+import { makeSelectChain, makeInsertChain } from '@/test/api/helpers';
 
 function makeUserSelect(role: string) {
   return makeSelectChain([{ role }]);

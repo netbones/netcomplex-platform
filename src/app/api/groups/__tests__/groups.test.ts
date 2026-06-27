@@ -78,6 +78,7 @@ vi.mock('@api/server', () => ({
   apiError: vi.fn(),
   notDeleted: vi.fn((t: { deletedAt: string }) => ({ isNull: [t, 'deletedAt'] })),
   withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
+  emitEvent: vi.fn(),
 }));
 
 vi.mock('@entities/tenant/server', () => ({
@@ -97,7 +98,7 @@ vi.mock('@shared/lib', async importOriginal => {
 });
 
 import { GET, POST } from '@/app/api/groups/route';
-import { makeSelectChain, makeInsertChain } from './helpers';
+import { makeSelectChain, makeInsertChain } from '@/test/api/helpers';
 
 const mockSession = (role: string) => {
   mocks.sessionResult = { user: { id: 'user-1' } };

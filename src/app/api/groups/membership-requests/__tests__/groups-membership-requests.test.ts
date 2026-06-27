@@ -87,7 +87,7 @@ vi.mock('@shared/lib', () => ({
 }));
 
 import { GET } from '@/app/api/groups/membership-requests/route';
-import { makeSelectChain } from './helpers';
+import { makeSelectChain } from '@/test/api/helpers';
 
 function makeReq(url = 'http://localhost:3000/api/groups/membership-requests'): Request {
   return new Request(url, {

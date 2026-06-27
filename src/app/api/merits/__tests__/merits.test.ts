@@ -90,6 +90,7 @@ vi.mock('@api/server', () => ({
   ),
   withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
   now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
+  rateLimitByUser: vi.fn(() => null),
   writeAuditLog: (...args: unknown[]) => mocks.writeAuditLog(...args),
 }));
 
@@ -107,15 +108,17 @@ vi.mock('@shared/lib', () => ({
 vi.mock('@entities/merit', () => ({
   BEHAVIOR_POINTS: { MERIT: 5, WARNING: 2, INFRACTION: 10 },
   DEFAULT_EXPIRY_DAYS: { MERIT: null, WARNING: 180, INFRACTION: 730 },
+  getStandingTier: vi.fn(() => 'GOOD'),
 }));
 
 vi.mock('@/entities/merit/services', () => ({
   getEffectivePoints: vi.fn(() => Promise.resolve(mocks.getEffectivePointsResult)),
   checkAndEscalateStanding: vi.fn(() => Promise.resolve(mocks.checkAndEscalateResult)),
+  getMeritExpiryDays: vi.fn(() => 180),
 }));
 
 import { GET, POST } from '@/app/api/merits/route';
-import { makeSelectChain } from './helpers';
+import { makeSelectChain } from '@/test/api/helpers';
 
 describe('Merits API', () => {
   beforeEach(() => {

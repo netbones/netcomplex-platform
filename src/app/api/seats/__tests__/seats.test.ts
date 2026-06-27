@@ -110,7 +110,7 @@ vi.mock('@shared/lib', () => ({
 }));
 
 import { POST, DELETE } from '@/app/api/seats/route';
-import { makeSelectChain, makeInsertChain, makeDeleteChain } from './helpers';
+import { makeSelectChain, makeInsertChain, makeDeleteChain } from '@/test/api/helpers';
 
 function makeCountSelect(result: { count: number }) {
   return makeSelectChain([result]);

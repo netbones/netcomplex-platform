@@ -88,12 +88,32 @@ vi.mock('@api/server', () => {
     apiUnauthorized: vi.fn(() => jsonResponse({ error: 'Unauthorized' }, 401)),
     apiForbidden: vi.fn(() => jsonResponse({ error: 'Forbidden' }, 403)),
     apiNotFound: vi.fn((message?: string) => jsonResponse({ error: message || 'Not found' }, 404)),
+    CACHE_TAGS: { resources: 'resources' },
+    withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
+    notDeleted: vi.fn((t: { deletedAt: string }) => ({ isNull: [t, 'deletedAt'] })),
+    now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
   };
 });
 
 // Mock withTenant
 vi.mock('@entities/tenant', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
+}));
+
+vi.mock('@entities/tenant/server', () => ({
+  withTenant: () => Promise.resolve(mocks.tenantResult),
+}));
+
+// Mock @shared/lib
+vi.mock('@shared/lib', () => ({
+  hasPermission: vi.fn((role: string | null | undefined, permission: string) => {
+    if (!role) return false;
+    if (permission === 'admin') return role === 'ADMIN';
+    if (permission === 'content')
+      return role === 'ADMIN' || role === 'MANAGER' || role === 'COMMITTEE' || role === 'BOARD';
+    if (permission === 'contentOwn') return role === 'ADMIN' || role === 'COMMITTEE';
+    return false;
+  }),
 }));
 
 // Import route handlers after mocking

@@ -87,7 +87,7 @@ vi.mock('@shared/lib', async importOriginal => {
 });
 
 import { GET, POST } from '@/app/api/surveys/route';
-import { makeSelectChain } from './helpers';
+import { makeSelectChain } from '@/test/api/helpers';
 
 function setupAuth(role: string) {
   mocks.sessionResult = { user: { id: 'user-1' } };

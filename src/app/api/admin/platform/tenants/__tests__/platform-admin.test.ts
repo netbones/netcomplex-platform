@@ -78,8 +78,14 @@ vi.mock('@api/server', async () => {
     // Revalidation
     revalidateContent: vi.fn(),
 
+    // Cache tags
+    CACHE_TAGS: { platforms: 'platforms' },
+
     // Audit log
     writeAuditLog: vi.fn(),
+
+    // Date helpers
+    now: () => new Date('2026-06-01T12:00:00Z'),
 
     // ── API response helpers ──
     apiSuccess: (data: unknown, meta?: Record<string, unknown>, status = 200) =>
@@ -114,9 +120,21 @@ vi.mock('@entities/tenant', () => ({
   createTenant: (data: unknown) => tenantMocks.createTenant(data),
 }));
 
+// ── Mock @entities/tenant/server separately ──
+vi.mock('@entities/tenant/server', () => ({
+  withTenant: vi.fn(() =>
+    Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' })
+  ),
+  requirePlatformAdmin: (request: any) => tenantMocks.requirePlatformAdmin(request),
+  listTenants: () => tenantMocks.listTenants(),
+  createTenant: (data: unknown) => tenantMocks.createTenant(data),
+}));
+
 // ── Mock @shared/lib ──
 vi.mock('@shared/lib', () => ({
   logError: vi.fn(),
+  MODULES: {},
+  createComponentLogger: vi.fn(() => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() })),
 }));
 
 // ── Import route handlers after mocking ──

@@ -140,7 +140,7 @@ vi.mock('@entities/tenant/server', () => ({
 }));
 
 import { GET } from '@/app/api/users/route';
-import { makeSelectChain } from './helpers';
+import { makeSelectChain } from '@/test/api/helpers';
 
 function setupAuth(role = 'ADMIN') {
   mocks.sessionResult = { user: { id: 'admin-1' } };

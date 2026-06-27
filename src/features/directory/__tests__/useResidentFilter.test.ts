@@ -114,9 +114,12 @@ describe('useResidentFilter', () => {
   });
 
   it('should calculate totalPages correctly', async () => {
-    globalThis.fetch = vi
-      .fn()
-      .mockResolvedValue(createMockResponse({ users: [], total: 12 }) as unknown as Response);
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      json: () => Promise.resolve({ data: { users: [] }, meta: { total: 12 } }),
+    });
 
     const { result } = renderHook(() => useResidentFilter({ defaultLimit: 6 }));
 

@@ -178,7 +178,12 @@ import {
   GET as GETMessagesUnread,
   POST as POSTMessagesUnread,
 } from '@/app/api/messages/unread/route';
-import { makeSelectChain, makeInsertChain, makeUpdateChain, makeDeleteChain } from './helpers';
+import {
+  makeSelectChain,
+  makeInsertChain,
+  makeUpdateChain,
+  makeDeleteChain,
+} from '@/test/api/helpers';
 
 describe('Chat/Conversations API', () => {
   beforeEach(() => {

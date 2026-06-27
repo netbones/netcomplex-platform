@@ -65,7 +65,7 @@ vi.mock('@entities/tenant', () => ({
 }));
 
 import { GET } from '@/app/api/stats/route';
-import { makeSelectChain } from './helpers';
+import { makeSelectChain } from '@/test/api/helpers';
 
 function makeCountSelect(result: { count: number }) {
   return makeSelectChain([result]);

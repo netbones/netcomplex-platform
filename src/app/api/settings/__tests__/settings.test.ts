@@ -71,6 +71,7 @@ vi.mock('@api/server', () => ({
 }));
 
 vi.mock('@entities/tenant/server', () => ({
+  assertModuleEnabled: vi.fn(),
   withTenant: () => Promise.resolve(mocks.tenantResult),
   requireAssistScope: vi.fn(() => Promise.resolve(mocks.requireAssistScopeResult)),
 }));
@@ -87,7 +88,7 @@ vi.mock('@shared/lib/settings/validation', () => ({
 }));
 
 import { GET, POST } from '@/app/api/settings/route';
-import { makeSelectChain } from './helpers';
+import { makeSelectChain } from '@/test/api/helpers';
 
 describe('Settings API', () => {
   beforeEach(() => {

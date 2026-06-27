@@ -99,7 +99,7 @@ vi.mock('@shared/lib', () => ({
 }));
 
 import { GET, PATCH, DELETE } from '@/app/api/resources/[id]/route';
-import { makeSelectChain, makeUpdateChain } from './helpers';
+import { makeSelectChain, makeUpdateChain } from '@/test/api/helpers';
 
 function makeUserSelect(role: string) {
   return makeSelectChain([{ role }]);

@@ -157,7 +157,7 @@ vi.mock('@shared/api', () => ({
   generateNameSlug: vi.fn((title: string) => title.toLowerCase().replace(/\s+/g, '-')),
 }));
 
-import { makeSelectChain, makeInsertChain } from './helpers';
+import { makeSelectChain, makeInsertChain } from '@/test/api/helpers';
 
 /**
  * Extended select chain that supports orderBy/limit/offset chaining after where().

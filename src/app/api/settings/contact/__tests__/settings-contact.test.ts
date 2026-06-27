@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { makeSelectChain } from './helpers';
+import { makeSelectChain } from '@/test/api/helpers';
 
 vi.mock('server-only', () => ({}));
 
@@ -45,6 +45,7 @@ vi.mock('@api/server', async () => {
 });
 
 vi.mock('@entities/tenant/server', () => ({
+  assertModuleEnabled: vi.fn(),
   withTenant: () => Promise.resolve({ tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' }),
   withTenantOptional: () => Promise.resolve(mocks.tenantOptionalResult),
 }));

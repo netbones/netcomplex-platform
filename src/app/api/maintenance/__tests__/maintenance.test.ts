@@ -160,7 +160,7 @@ vi.mock('@shared/lib', () => ({
 }));
 
 import { GET, POST } from '@/app/api/maintenance/route';
-import { makeSelectChain } from './helpers';
+import { makeSelectChain } from '@/test/api/helpers';
 
 describe('Maintenance API', () => {
   beforeEach(() => {

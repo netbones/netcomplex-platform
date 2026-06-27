@@ -209,7 +209,7 @@ vi.mock('@shared/lib', async importOriginal => {
 });
 
 import { GET as listUsers } from '@/app/api/users/route';
-import { makeSelectChain } from './helpers';
+import { makeSelectChain } from '@/test/api/helpers';
 
 function setupAuthAdmin() {
   mocks.sessionResult = { user: { id: 'admin-1' } };

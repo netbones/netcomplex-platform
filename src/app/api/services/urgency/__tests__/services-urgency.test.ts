@@ -28,7 +28,6 @@ vi.mock('@entities/tenant/server', () => ({
 
 vi.mock('@api/server', async () => {
   const { NextResponse } = await import('next/server');
-  const mod = await vi.importActual<typeof import('@api/server')>('@api/server');
   return {
     auth: {
       api: {
@@ -36,8 +35,8 @@ vi.mock('@api/server', async () => {
       },
     },
     db: mocks.dbMock,
-    maintenanceRequests: mod.maintenanceRequests,
-    bookings: mod.bookings,
+    maintenanceRequests: {},
+    bookings: {},
     now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
     apiSuccess: (data: unknown, _meta?: unknown, status = 200, init?: ResponseInit) =>
       NextResponse.json(

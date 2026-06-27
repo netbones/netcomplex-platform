@@ -129,7 +129,7 @@ vi.mock('@shared/lib', () => ({
   createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
 }));
 
-import { makeSelectChain, makeUpdateChain } from './helpers';
+import { makeSelectChain, makeUpdateChain } from '@/test/api/helpers';
 
 /**
  * Extended select chain that supports orderBy/limit/offset chaining after where().

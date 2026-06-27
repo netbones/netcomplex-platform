@@ -72,7 +72,7 @@ vi.mock('@entities/tenant/server', () => ({
 }));
 
 import { GET } from '@/app/api/campaign/route';
-import { makeSelectChain } from './helpers';
+import { makeSelectChain } from '@/test/api/helpers';
 
 describe('Campaign API', () => {
   beforeEach(() => {

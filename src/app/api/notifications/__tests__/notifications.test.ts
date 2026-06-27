@@ -73,6 +73,11 @@ vi.mock('@api/server', () => ({
     },
   },
   now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
+  supabase: {
+    channel: vi.fn(() => ({ send: vi.fn(() => Promise.resolve()) })),
+    client: { from: vi.fn() },
+    admin: { from: vi.fn() },
+  },
 }));
 
 vi.mock('@entities/tenant/server', () => ({
@@ -82,8 +87,13 @@ vi.mock('@entities/tenant', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
 }));
 
+vi.mock('@shared/lib', () => ({
+  logError: vi.fn(),
+  createLogger: vi.fn(() => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() })),
+}));
+
 import { GET, POST, PATCH } from '@/app/api/notifications/route';
-import { makeSelectChain, makeInsertChain, makeUpdateChain } from './helpers';
+import { makeSelectChain, makeInsertChain, makeUpdateChain } from '@/test/api/helpers';
 
 describe('Notifications API', () => {
   beforeEach(() => {
