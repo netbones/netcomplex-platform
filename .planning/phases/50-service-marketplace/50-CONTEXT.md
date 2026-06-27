@@ -1,6 +1,7 @@
 # Phase 50: Service Marketplace - Context
 
 **Gathered:** 2026-06-27
+**Reviewed:** 2026-06-27 (REVIEW.md findings addressed — D-02 schema fix, D-12 converted to gate, D-09 JSON contract added, D-07 aligned with PlatformPageFlags pattern, D-08 source verified)
 **Status:** Ready for planning
 
 <domain>
@@ -18,7 +19,7 @@ This phase wires existing infrastructure — community service listings (`Commun
 ### Notification System (gtm)
 
 - **D-01:** Full lifecycle marketplace notification triggers — inquiry received (→ provider), inquiry response (→ resident), booking confirmed (→ both), payment received (→ provider), review posted (→ provider), listing approved/rejected (→ provider), booking cancelled (→ provider).
-- **D-02:** Reuse existing `Notification` model — add marketplace-specific types (`SERVICE_INQUIRY`, `SERVICE_BOOKING`, `SERVICE_PAYMENT`, `SERVICE_REVIEW`, `SERVICE_APPROVAL`) to the existing `Notification.type` enum. No new table.
+- **D-02:** Reuse existing `Notification` model. `NotificationType` is a severity classifier (`info`, `warning`, `success`, `error`) — do NOT overload it with event-type values. Instead, add a nullable `category` String column to Notification with values `MARKETPLACE`, `SYSTEM`, `COMMUNITY`, etc. Use `payload` JSON for event-specific data (listingId, bookingId, transactionId). The existing notification CRUD API at `src/app/api/notifications/route.ts` already accepts `payload`, so no route changes needed — only schema + trigger code.
 - **D-03:** Dedicated marketplace email templates (branded, service imagery, booking details) — distinct from generic notification emails. Uses existing Resend delivery pipeline (`src/shared/api/email/resend.ts`).
 - **D-04:** Per-inquiry real-time delivery — each inquiry fires an immediate notification. No batching/daily digest for MVP.
 
@@ -26,15 +27,21 @@ This phase wires existing infrastructure — community service listings (`Commun
 
 - **D-05:** Pay-at-booking for FIXED-price services — resident pays when booking, payment held in escrow, released to provider on completion. Booking progresses: PENDING_CONFIRMATION → CONFIRMED (on payment).
 - **D-06:** Quote → approve → pay flow for HOURLY/QUOTE services — provider submits a quote via inquiry response with price, resident approves, then pays. Uses existing `CommunityServiceInquiry` system.
-- **D-07:** Paystack primary gateway for launch (ZAR market via `src/server/payments/paystack.ts`). PayPal gated behind a per-tenant feature flag (`NEXT_PUBLIC_MARKETPLACE_PAYPAL_ENABLED`).
-- **D-08:** Reuse Phase 46 tier-based platform fees from SaaS License Agreement Section 4.7 — fee varies by provider subscription tier. Apply to all marketplace transactions.
+- **D-07:** Paystack primary gateway for launch (ZAR market via `src/server/payments/paystack.ts`). PayPal gated behind a DB-backed `PlatformPageFlags.marketplacePaypal` flag (follows the existing `PlatformPageFlags` + `Setting` table pattern — NOT env-var-only). The PayPal feature flag defaults to `false` and is only enableable when `PAYPAL_CLIENT_ID` env var is set (runtime guard).
+- **D-08:** Reuse Phase 46 tier-based platform fees — source of truth is `SubscriptionTier.platformFeePercent` (default 8.00% in `prisma/schema.prisma:1741`). Confirm the column is seeded before Phase 50 execution. Apply to all marketplace transactions.
 
 ### Booking Calendar UX (qx7)
 
-- **D-09:** Provider-defined availability — providers set weekly schedules per listing via the existing `CommunityServiceListing.availability` jsonb field. The facility-based `Booking` model is a different use case and not conflated.
+- **D-09:** Provider-defined availability — providers set weekly schedules per listing via the existing `CommunityServiceListing.availability` jsonb field. The facility-based `Booking` model is a different use case and not conflated. **Schema contract:** See specifics section below for the defined JSON shape.
 - **D-10:** Custom date picker + time-slot grid built with existing Tailwind CSS and date validation from `bookingSchema`. No new calendar library dependency.
 - **D-11:** Book-first-then-pay flow — resident selects available time-slot, booking created in PENDING_CONFIRMATION status, provider confirms, resident pays → status moves to CONFIRMED.
-- **D-12:** Extend existing `Booking` model with `providerId` and `serviceListingId` columns — one booking system for both facilities and marketplace services.
+- **D-12 (GATE — must be resolved in planning phase):** How to represent marketplace service bookings vs. facility bookings. Two options:
+
+  **Option A — Extend existing `Booking` model:** Add nullable columns `providerId?`, `serviceListingId?`, `price?`, `paymentStatus?`. Add `PENDING_CONFIRMATION` to `BookingStatus` enum. Make `facility` nullable (currently `notNull()`). Requires ALL existing facility booking queries to add `WHERE serviceListingId IS NULL` to remain correct. One table, but carries nullable fields that only apply to one sub-type.
+
+  **Option B — Dedicated `ServiceBooking` model:** New table with `providerId`, `serviceListingId`, `price`, `paymentStatus`, `status` (own enum: PENDING_CONFIRMATION → CONFIRMED → COMPLETED → CANCELLED). Clean separation — no nullable-field leakage, no query gating. Mirrors the `CommunityServiceInquiry` pattern already in the schema. More tables, but each model is coherent.
+
+  The planning agent must choose one and document the rationale in the PLAN.md. The `facility` non-nullable constraint and `BookingStatus` enum additions are blocking migration details that the advisory must address explicitly for Option A.
 
 ### Mobile Marketplace UX (4vk)
 
@@ -50,6 +57,7 @@ This phase wires existing infrastructure — community service listings (`Commun
 - Calendar date-picker component architecture (shared component vs. inline)
 - Pull-to-refresh implementation approach
 - Swipe action gesture library choice (custom CSS transforms vs. library)
+- D-12 booking model gate: Option A (extend Booking) vs. Option B (dedicated ServiceBooking) — either is valid; planning agent must choose one and document rationale
   </decisions>
 
 <canonical_refs>
@@ -78,6 +86,7 @@ This phase wires existing infrastructure — community service listings (`Commun
 - `src/server/payments/paypal.ts` — PayPalService (create/capture order, refund, webhook)
 - `src/db/schema/payment-transactions.ts` — PaymentTransaction model
 - `src/db/schema/provider-subscriptions.ts` — ProviderSubscription model
+- `prisma/schema.prisma:1732-1741` — `SubscriptionTier` model with `platformFeePercent` (default 8.00%)
 - `.planning/phases/46.1-platform-saas-billing-foundation/46.1-CONTEXT.md` — Billing foundation decisions
 
 ### Booking
@@ -137,9 +146,9 @@ This phase wires existing infrastructure — community service listings (`Commun
 
 - **Services space** (`SPACES.services`) — Add marketplace widget IDs to widgetIds array
 - **Navigation** — Add marketplace items to `SERVICES_DOMAINS` (in `spaces.ts`)
-- **Feature flags** — Add `marketplace` flag to `PlatformPageFlags` + `DEFAULT_PAGE_FLAGS`
-- **Notification types** — Extend `NotificationType` enum in `notification-type-enum.ts`
-- **Booking model** — Add `providerId` and `serviceListingId` columns + migration
+- **Feature flags** — Add `marketplace` + `marketplacePaypal` flags to `PlatformPageFlags` + `DEFAULT_PAGE_FLAGS`
+- **Notification model** — Add `category` String column to Notification; use `payload` for event data
+- **Booking model** — Gate decision D-12; either extend Booking or create ServiceBooking
   </code_context>
 
 <specifics>
@@ -149,7 +158,20 @@ This phase wires existing infrastructure — community service listings (`Commun
 - The bottom sheet booking flow should show 3 steps maximum: pick date → pick time → confirm & pay
 - Swipe actions on cards: swipe right = "Inquire", swipe left = "Book" (both with icon + color: blue for inquire, green for book)
 - Calendar date picker should grey out dates with no availability and highlight dates with available slots in soralia-primary (#4F46E5)
-- PayPal feature flag should default to `false` — enabled only when `PAYPAL_CLIENT_ID` env var is set
+- **Availability JSON contract** (for `CommunityServiceListing.availability`):
+  ```json
+  {
+    "monday": [{ "start": "09:00", "end": "17:00" }],
+    "tuesday": [{ "start": "09:00", "end": "17:00" }],
+    "wednesday": [{ "start": "09:00", "end": "17:00" }],
+    "thursday": [{ "start": "09:00", "end": "17:00" }],
+    "friday": [{ "start": "09:00", "end": "17:00" }],
+    "saturday": [],
+    "sunday": []
+  }
+  ```
+  Days are lowercase. Each day is an array of time ranges. Multiple ranges per day are supported (e.g., `[{start: "09:00", end: "12:00"}, {start: "14:00", end: "17:00"}]`). Empty array = unavailable that day. Time format is 24h "HH:MM".
+- PayPal feature flag should default to `false` in `DEFAULT_PAGE_FLAGS` — admin UI shows a runtime guard warning if `PAYPAL_CLIENT_ID` env var is not set
 - Platform fees should appear as a line item on the checkout summary (not hidden)
   </specifics>
 

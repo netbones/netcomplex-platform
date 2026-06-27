@@ -198,3 +198,34 @@
 - Escrow/hold-release payment model with dispute resolution
 - Marketplace dedicated space in MobileSpaceBar
 - Daily digest for inquiries as notification preference
+
+---
+
+## Post-Review Corrections (2026-06-27)
+
+Four issues were identified in REVIEW.md and corrected in CONTEXT.md:
+
+### D-02: NotificationType schema conflict (CRITICAL)
+
+- **Finding:** `NotificationType` enum is a severity classifier (`info`, `warning`, `success`, `error`), not an event-type enum. Adding SCREAMING_SNAKE_CASE category values would break all consumers.
+- **Fix:** D-02 revised — add nullable `category` String column (`MARKETPLACE`, `SYSTEM`, `COMMUNITY`) instead of extending the enum. Use `payload` JSON for event-specific data.
+
+### D-12: Booking model extension (ARCHITECTURAL)
+
+- **Finding:** Extending `Booking` conflates facility reservations (facility-based, CONFIRMED default, no provider) with service bookings (provider-based, PENDING_CONFIRMATION lifecycle, price/payment). The `facility` field is non-nullable and `BookingStatus` lacks `PENDING_CONFIRMATION`.
+- **Fix:** D-12 converted from fixed decision to a GATE with two options (Option A: extend Booking with query gating; Option B: dedicated ServiceBooking model). Planning agent must choose and document rationale.
+
+### D-09: Availability JSON schema missing
+
+- **Finding:** `CommunityServiceListing.availability` is `Json?` with no defined shape. Calendar component and availability form would produce incompatible JSON.
+- **Fix:** Added JSON schema contract to specifics section (weekday keys, time range arrays, 24h "HH:MM" format).
+
+### D-07: PayPal flag pattern misalignment
+
+- **Finding:** `NEXT_PUBLIC_MARKETPLACE_PAYPAL_ENABLED` is an env-var-only flag inconsistent with the DB-backed `PlatformPageFlags` gating architecture.
+- **Fix:** D-07 revised — use `PlatformPageFlags.marketplacePaypal` (DB-backed), with runtime env-var guard on enable action.
+
+### D-08: Platform fee source confirmed
+
+- **Finding:** Context referenced "SaaS License Agreement Section 4.7" but didn't specify where the percentages live in code.
+- **Fix:** D-08 updated — source is `SubscriptionTier.platformFeePercent` (prisma/schema.prisma:1741, default 8.00%).
