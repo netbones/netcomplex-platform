@@ -81,4 +81,11 @@ jobs:
         run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Run API tests
-        run: pnpm vitest run src/test/api/ --reporter=verbose
+        run: >
+          pnpm vitest run
+          src/test/
+          "src/app/api/**/__tests__/**"
+          "src/entities/**/__tests__/**"
+          "src/features/**/__tests__/**"
+          "src/shared/**/__tests__/**"
+          --reporter=verbose
