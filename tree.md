@@ -1,6 +1,8 @@
 .
+├── ADMIN*BILLING_AUDIT.md
 ├── AGENTS.md
 ├── components.json
+├── CONTRIBUTING.md
 ├── coverage
 │   ├── app
 │   │   └── api
@@ -714,10 +716,19 @@
 │   │   ├── ADVISORY-012.md
 │   │   ├── ADVISORY-013.md
 │   │   ├── ADVISORY-014.md
-│   │   └── ADVISORY-015.md
+│   │   ├── ADVISORY-015.md
+│   │   ├── ADVISORY-016.md
+│   │   ├── ADVISORY-017.md
+│   │   ├── ADVISORY-017-SUPPLEMENTAL-2-ADDENDUM.md
+│   │   ├── ADVISORY-017-SUPPLEMENTAL-2.md
+│   │   ├── ADVISORY-017-SUPPLEMENTAL-B.md
+│   │   ├── ADVISORY-017-SUPPLEMENTAL.md
+│   │   ├── ADVISORY-018.md
+│   │   └── SUPPLEMENTAL-015.md
 │   ├── architecture
 │   │   ├── 11-ANNOUNCEMENTS-PROBLEM-DEFINITION.md
-│   │   ├── AGENT*MODEL.md
+│   │   ├── ACCESS-OVERVIEW.md
+│   │   ├── AGENT_MODEL.md
 │   │   ├── API_ARCHITECTURE.md
 │   │   ├── cleaner_react_architecture.md
 │   │   ├── DASHBOARD-PHASE-B-DISCUSSION.md
@@ -762,6 +773,7 @@
 │   ├── CHAT_INFRA_REPORT.md
 │   ├── communiques
 │   │   ├── COMMUNIQUE-02.md
+│   │   ├── COMMUNIQUE-03.md
 │   │   └── COMMUNIQUE.md
 │   ├── CONTEXT_MAP.md
 │   ├── contexts
@@ -778,13 +790,17 @@
 │   │   ├── user.md
 │   │   └── widget.md
 │   ├── discussions
+│   │   ├── AGENT_USER_STORIES.md
+│   │   ├── BILLING.md
 │   │   ├── CHAT_E2EE.md
+│   │   ├── COMMUNITY_TOPICS_DISCUSSION.md
 │   │   ├── DISCUSSION-response.md
 │   │   ├── DISCUSSION-server-only-barrel.md
 │   │   ├── GATE_ADDENDUM.md
 │   │   ├── GATE_DISCUSSION.md
 │   │   ├── RESOURCES_DISCUSSION.md
-│   │   └── SERVICES_DISCUSSION.md
+│   │   ├── SERVICES_DISCUSSION.md
+│   │   └── WALLET_DISCUSSION.md
 │   ├── features
 │   │   ├── admin
 │   │   │   └── feature-management.md
@@ -919,12 +935,14 @@
 │   └── \_journal.json
 ├── drizzle.config.ts
 ├── e2e
-│   └── competition.spec.ts
+│   ├── competition.spec.ts
+│   └── smoke.test.ts
 ├── env.d.ts
 ├── eslint.config.js
 ├── eslint.config.mjs
 ├── fsd-detailed-dependencies.html
 ├── fsd-high-level-dependencies.html
+├── IOREDIS_DEBUG.md
 ├── justfile
 ├── LICENSE
 ├── lint_report.md
@@ -992,9 +1010,26 @@
 │   │   │   └── migration.sql
 │   │   ├── 20260624010000_add_user_id_to_service_provider
 │   │   │   └── migration.sql
+│   │   ├── 20260624020000_fix_service_provider_isactive_default
+│   │   │   └── migration.sql
+│   │   ├── 20260624100000_add_tenant_icon
+│   │   │   └── migration.sql
+│   │   ├── 20260625133302_add_ai_pool_models
+│   │   │   └── migration.sql
+│   │   ├── 20260625143753_add_tenant_billing_models
+│   │   │   └── migration.sql
+│   │   ├── 20260625192155_add_dwallet_module
+│   │   │   └── migration.sql
+│   │   ├── 20260626084137_add_dispute_resolution
+│   │   │   └── migration.sql
+│   │   ├── 20260626100000_add_estimated_cost_usd
+│   │   │   └── migration.sql
+│   │   ├── manual_add_tenant_billing_models
+│   │   │   └── migration.sql
 │   │   └── migration_lock.toml
 │   ├── schema.prisma
 │   ├── seed
+│   │   ├── dwallet-streams.ts
 │   │   └── modules.ts
 │   └── seed.ts
 ├── prod-ca-2021.crt
@@ -1083,8 +1118,10 @@
 │   ├── muizenberg-single-residential-homes-soralia-village-377x288.webp
 │   ├── openapi.json
 │   ├── platform
+│   │   ├── achievements.svg
 │   │   ├── amenities.svg
 │   │   ├── announcements.svg
+│   │   ├── beerpig.svg
 │   │   ├── bookings.svg
 │   │   ├── bookings-two.svg
 │   │   ├── campaigns.svg
@@ -1092,6 +1129,7 @@
 │   │   ├── competitions.svg
 │   │   ├── content.svg
 │   │   ├── events.svg
+│   │   ├── favicon.svg
 │   │   ├── five.webp
 │   │   ├── four.webp
 │   │   ├── four.xcf
@@ -1150,6 +1188,8 @@
 ├── src
 │   ├── app
 │   │   ├── api
+│   │   │   ├── access
+│   │   │   │   └── route.ts
 │   │   │   ├── achievements
 │   │   │   │   ├── progress
 │   │   │   │   │   └── route.ts
@@ -1159,28 +1199,83 @@
 │   │   │   │   │   └── [id]
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── activity
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── activity.test.ts
 │   │   │   │   ├── analytics
 │   │   │   │   │   └── providers
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── board-members
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── board-members.test.ts
 │   │   │   │   ├── bookings
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── bookings.test.ts
+│   │   │   │   ├── dwallet
+│   │   │   │   │   ├── batches
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── payouts
+│   │   │   │   │   │   ├── [id]
+│   │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── stats
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   └── streams
+│   │   │   │   │   ├── [id]
+│   │   │   │   │   │   └── route.ts
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── maintenance-stats
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── maintenance-stats.test.ts
+│   │   │   │   ├── media
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── merits
 │   │   │   │   │   └── recalculate
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── platform
+│   │   │   │   │   ├── ai-pool
+│   │   │   │   │   │   ├── costs
+│   │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── override
+│   │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── quotas
+│   │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── status
+│   │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   └── usage
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── [tenantId]
+│   │   │   │   │   │   └── route.ts
 │   │   │   │   │   ├── assist
 │   │   │   │   │   │   ├── [id]
 │   │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   │   └── route.ts
-│   │   │   │   │   └── tenants
-│   │   │   │   │   ├── [id]
+│   │   │   │   │   ├── billing
+│   │   │   │   │   │   ├── invoices
+│   │   │   │   │   │   │   ├── [id]
+│   │   │   │   │   │   │   │   └── pdf
+│   │   │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── payments
+│   │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── plans
+│   │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   └── subscriptions
 │   │   │   │   │   │   └── route.ts
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── tenants
+│   │   │   │   │   │   ├── [id]
+│   │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── platform-admin.test.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   ├── platform-assist-id.test.ts
+│   │   │   │   │   ├── platform-assist.test.ts
+│   │   │   │   │   ├── platform-tenants-id.test.ts
+│   │   │   │   │   └── platform-tenants.test.ts
 │   │   │   │   ├── providers
 │   │   │   │   │   ├── [id]
 │   │   │   │   │   │   ├── approve
@@ -1205,58 +1300,96 @@
 │   │   │   │   │   └── summary
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── services-config
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── services-config.test.ts
 │   │   │   │   ├── settings
-│   │   │   │   │   └── page-flags
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── page-flags
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── page-flags.test.ts
 │   │   │   │   ├── system
-│   │   │   │   │   └── health
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── health
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── system-health.test.ts
 │   │   │   │   ├── tenant
 │   │   │   │   │   └── provider-registration-mode
 │   │   │   │   │   └── route.ts
+│   │   │   │   ├── **tests**
+│   │   │   │   │   └── admin.test.ts
 │   │   │   │   ├── transactions
 │   │   │   │   │   ├── [id]
 │   │   │   │   │   │   └── refund
 │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   └── route.ts
 │   │   │   │   └── urgency
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── urgency.test.ts
 │   │   │   ├── agents
 │   │   │   │   ├── activity
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── agents-activity.test.ts
 │   │   │   │   ├── managed-properties
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── agents-managed-properties.test.ts
 │   │   │   │   └── marketplace
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── agents-marketplace.test.ts
 │   │   │   ├── announcements
 │   │   │   │   ├── [id]
 │   │   │   │   │   └── route.ts
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   ├── announcements-id.test.ts
+│   │   │   │   └── announcements.test.ts
 │   │   │   ├── auth
 │   │   │   │   ├── [...all]
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   ├── auth-all.test.ts
+│   │   │   │   │   ├── auth-suspension-status.test.ts
+│   │   │   │   │   └── auth.test.ts
 │   │   │   │   ├── signup
 │   │   │   │   │   └── route.ts
-│   │   │   │   └── suspension-status
-│   │   │   │   └── route.ts
+│   │   │   │   ├── suspension-status
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── auth-routes.test.ts
 │   │   │   ├── bookings
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── bookings.test.ts
 │   │   │   ├── campaign
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── campaign.test.ts
+│   │   │   ├── chat
+│   │   │   │   └── **tests**
+│   │   │   │   └── chat.test.ts
 │   │   │   ├── community-services
 │   │   │   │   ├── analytics
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── cs-analytics.test.ts
 │   │   │   │   ├── inquiries
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── listings
 │   │   │   │   │   ├── [id]
 │   │   │   │   │   │   ├── publish
 │   │   │   │   │   │   │   └── route.ts
-│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── cs-listings-id.test.ts
 │   │   │   │   │   ├── related
 │   │   │   │   │   │   └── route.ts
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── cs-listings.test.ts
 │   │   │   │   ├── moderation
 │   │   │   │   │   └── listings
 │   │   │   │   │   └── [id]
@@ -1264,64 +1397,146 @@
 │   │   │   │   ├── provider
 │   │   │   │   │   └── inquiries
 │   │   │   │   │   └── [id]
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── cs-inquiries-id.test.ts
+│   │   │   │   ├── reviews
+│   │   │   │   │   └── [listingId]
 │   │   │   │   │   └── route.ts
-│   │   │   │   └── reviews
-│   │   │   │   └── [listingId]
-│   │   │   │   └── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── community-services.test.ts
 │   │   │   ├── competitions
 │   │   │   │   ├── [id]
-│   │   │   │   │   └── route.ts
-│   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── competitions-id.test.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   ├── competitions-integration.test.ts
+│   │   │   │   └── competitions.test.ts
 │   │   │   ├── conservation
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── conservation.test.ts
 │   │   │   ├── content
 │   │   │   │   ├── $id$
 │   │   │   │   ├── [id]
 │   │   │   │   │   ├── like
 │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   ├── moderate
-│   │   │   │   │   │   └── route.ts
-│   │   │   │   │   └── route.ts
-│   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── content-moderate.test.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── content-id.test.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   ├── content-routes.test.ts
+│   │   │   │   └── content.test.ts
 │   │   │   ├── conversations
 │   │   │   │   ├── find
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── conversations-find.test.ts
 │   │   │   │   └── route.ts
+│   │   │   ├── cron
+│   │   │   │   ├── ai-pool-rollover
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── ai-pool-rollover.test.ts
 │   │   │   ├── dashboard
 │   │   │   │   └── stats
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── dashboard-stats.test.ts
+│   │   │   ├── disputes
+│   │   │   │   ├── [id]
+│   │   │   │   │   ├── assign
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── csos-export
+│   │   │   │   │   │   ├── build-csos-pdf.ts
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── evidence
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── messages
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   ├── ruling
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   └── submit
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── intake-screen
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   ├── build-csos-pdf.test.ts
+│   │   │   │   ├── core-crud.test.ts
+│   │   │   │   ├── csos-export.test.ts
+│   │   │   │   ├── helpers.ts
+│   │   │   │   ├── intake-screen.test.ts
+│   │   │   │   ├── specialized-routes.test.ts
+│   │   │   │   └── submit-cooling-off.test.ts
 │   │   │   ├── events
 │   │   │   │   ├── [id]
 │   │   │   │   │   ├── register
-│   │   │   │   │   │   └── route.ts
-│   │   │   │   │   └── route.ts
-│   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── events-register.test.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── events-id.test.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── events.test.ts
 │   │   │   ├── external-surveys
 │   │   │   │   └── route.ts
 │   │   │   ├── flags
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   ├── flags-fetch.test.ts
+│   │   │   │   └── flags.test.ts
+│   │   │   ├── gate
+│   │   │   │   └── context
 │   │   │   │   └── route.ts
 │   │   │   ├── groups
 │   │   │   │   ├── [id]
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── groups-id.test.ts
 │   │   │   │   ├── members
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── groups-members.test.ts
 │   │   │   │   ├── membership-requests
 │   │   │   │   │   ├── [id]
 │   │   │   │   │   │   └── route.ts
-│   │   │   │   │   └── route.ts
-│   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── groups-membership-requests.test.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── groups.test.ts
 │   │   │   ├── health
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── health.test.ts
 │   │   │   ├── households
 │   │   │   │   ├── [id]
 │   │   │   │   │   └── route.ts
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── households.test.ts
 │   │   │   ├── invitations
 │   │   │   │   ├── accept
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── [id]
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── invitations-id.test.ts
 │   │   │   │   ├── route.ts
+│   │   │   │   ├── **tests**
+│   │   │   │   │   └── invitations.test.ts
 │   │   │   │   └── validate
 │   │   │   │   └── route.ts
 │   │   │   ├── maintenance
@@ -1331,35 +1546,61 @@
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── [id]
 │   │   │   │   │   ├── assign
-│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── maintenance-assign.test.ts
 │   │   │   │   │   ├── history
-│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── maintenance-history.test.ts
 │   │   │   │   │   ├── notes
-│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── maintenance-notes.test.ts
 │   │   │   │   │   ├── notify
 │   │   │   │   │   │   └── route.ts
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── maintenance-id.test.ts
 │   │   │   │   ├── providers
 │   │   │   │   │   ├── [id]
 │   │   │   │   │   │   └── route.ts
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── maintenance-providers.test.ts
 │   │   │   │   ├── route.ts
-│   │   │   │   └── teams
-│   │   │   │   ├── [id]
-│   │   │   │   │   └── route.ts
-│   │   │   │   └── route.ts
+│   │   │   │   ├── teams
+│   │   │   │   │   ├── [id]
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── maintenance-teams-id.test.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── maintenance-teams.test.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── maintenance.test.ts
 │   │   │   ├── media
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── media.test.ts
 │   │   │   ├── merits
 │   │   │   │   ├── [id]
 │   │   │   │   │   ├── dispute
-│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── merits-dispute.test.ts
 │   │   │   │   │   ├── resolve
-│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── merits-resolve.test.ts
 │   │   │   │   │   └── route.ts
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── merits.test.ts
 │   │   │   ├── messages
 │   │   │   │   ├── route.ts
+│   │   │   │   ├── **tests**
+│   │   │   │   │   └── messages.test.ts
 │   │   │   │   ├── unread
 │   │   │   │   │   └── route.ts
 │   │   │   │   └── urgency
@@ -1367,9 +1608,13 @@
 │   │   │   ├── notifications
 │   │   │   │   ├── [id]
 │   │   │   │   │   └── route.ts
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── notifications.test.ts
 │   │   │   ├── openapi.json
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── openapi.test.ts
 │   │   │   ├── payments
 │   │   │   │   ├── paypal
 │   │   │   │   │   ├── capture
@@ -1392,7 +1637,9 @@
 │   │   │   │   └── portfolio
 │   │   │   │   └── route.ts
 │   │   │   ├── pricing
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── pricing.test.ts
 │   │   │   ├── providers
 │   │   │   │   ├── analytics
 │   │   │   │   │   ├── reputation-score
@@ -1412,6 +1659,10 @@
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── dashboard
 │   │   │   │   │   └── route.ts
+│   │   │   │   ├── invoices
+│   │   │   │   │   └── [id]
+│   │   │   │   │   └── pdf
+│   │   │   │   │   └── route.ts
 │   │   │   │   ├── legal
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── register
@@ -1425,72 +1676,126 @@
 │   │   │   │   └── verification
 │   │   │   │   └── route.ts
 │   │   │   ├── purge
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── purge.test.ts
 │   │   │   ├── resources
 │   │   │   │   ├── [id]
 │   │   │   │   │   ├── download
-│   │   │   │   │   │   └── route.ts
-│   │   │   │   │   └── route.ts
-│   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── resources-download.test.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── resources-id.test.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   ├── resources-full.test.ts
+│   │   │   │   └── resources.test.ts
 │   │   │   ├── seats
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── seats.test.ts
 │   │   │   ├── services
 │   │   │   │   └── urgency
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── services-urgency.test.ts
 │   │   │   ├── settings
 │   │   │   │   ├── contact
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── settings-contact.test.ts
 │   │   │   │   ├── [key]
 │   │   │   │   │   └── route.ts
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── settings.test.ts
 │   │   │   ├── stats
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── stats.test.ts
 │   │   │   ├── surveys
 │   │   │   │   ├── [id]
 │   │   │   │   │   ├── questions
 │   │   │   │   │   │   ├── [questionId]
 │   │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   │   ├── reorder
-│   │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   │   └── surveys-reorder-questions.test.ts
 │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   ├── responses
 │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   ├── route.ts
 │   │   │   │   │   └── sections
 │   │   │   │   │   ├── reorder
-│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── surveys-reorder-sections.test.ts
 │   │   │   │   │   ├── route.ts
 │   │   │   │   │   └── [sectionId]
 │   │   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── surveys.test.ts
+│   │   │   ├── tenant
+│   │   │   │   └── billing
+│   │   │   │   ├── checkout
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── invoices
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── snapshot
 │   │   │   │   └── route.ts
 │   │   │   ├── tenants
 │   │   │   │   └── [id]
 │   │   │   │   └── modules
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── tenants-modules.test.ts
+│   │   │   ├── **tests**
+│   │   │   │   └── misc.test.ts
 │   │   │   ├── translate
 │   │   │   │   └── route.ts
 │   │   │   ├── trpc
 │   │   │   │   └── [trpc]
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── trpc.test.ts
 │   │   │   ├── upload
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── upload.test.ts
 │   │   │   ├── user
 │   │   │   │   ├── albums
+│   │   │   │   │   ├── public
+│   │   │   │   │   │   └── route.ts
 │   │   │   │   │   └── route.ts
 │   │   │   │   └── tags
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── user-tags.test.ts
 │   │   │   ├── users
 │   │   │   │   ├── [id]
 │   │   │   │   │   ├── books
-│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── users-books.test.ts
 │   │   │   │   │   ├── route.ts
 │   │   │   │   │   ├── suspend
 │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   ├── suspensions
-│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── users-suspensions.test.ts
+│   │   │   │   │   ├── **tests**
+│   │   │   │   │   │   └── users-id.test.ts
 │   │   │   │   │   └── unsuspend
 │   │   │   │   │   └── route.ts
-│   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   ├── directory.test.ts
+│   │   │   │   └── users.test.ts
 │   │   │   ├── v1
 │   │   │   │   ├── platform
 │   │   │   │   │   ├── onboarding
@@ -1510,7 +1815,9 @@
 │   │   │   │   │   ├── flags
 │   │   │   │   │   │   └── route.ts
 │   │   │   │   │   └── health
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── v1-health.test.ts
 │   │   │   │   └── tenant
 │   │   │   │   ├── agents
 │   │   │   │   │   ├── activity
@@ -1547,6 +1854,34 @@
 │   │   │   │   ├── conversations
 │   │   │   │   │   ├── find
 │   │   │   │   │   │   └── route.ts
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── dwallet
+│   │   │   │   │   ├── consents
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── [streamKey]
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── deletion-request
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── export
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── payout
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   ├── statement
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── streams
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── **tests**
+│   │   │   │   │   │   ├── consent.test.ts
+│   │   │   │   │   │   ├── payout.test.ts
+│   │   │   │   │   │   ├── v1-dwallet-consents.test.ts
+│   │   │   │   │   │   ├── v1-dwallet-deletion.test.ts
+│   │   │   │   │   │   ├── v1-dwallet-export.test.ts
+│   │   │   │   │   │   ├── v1-dwallet-payout.test.ts
+│   │   │   │   │   │   ├── v1-dwallet-streams.test.ts
+│   │   │   │   │   │   ├── v1-dwallet-summary.test.ts
+│   │   │   │   │   │   └── v1-dwallet-transactions.test.ts
+│   │   │   │   │   └── transactions
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── events
 │   │   │   │   │   ├── [id]
@@ -1596,13 +1931,18 @@
 │   │   │   │   │   └── route.ts
 │   │   │   │   ├── surveys
 │   │   │   │   │   └── route.ts
+│   │   │   │   ├── **tests**
+│   │   │   │   │   ├── v1-re-exports.test.ts
+│   │   │   │   │   └── v1-stubs.test.ts
 │   │   │   │   └── users
 │   │   │   │   ├── [id]
 │   │   │   │   │   └── route.ts
 │   │   │   │   └── route.ts
 │   │   │   └── webhooks
 │   │   │   └── payload
-│   │   │   └── route.ts
+│   │   │   ├── route.ts
+│   │   │   └── **tests**
+│   │   │   └── webhooks-payload.test.ts
 │   │   ├── (auth)
 │   │   │   ├── forgot-password
 │   │   │   │   └── page.tsx
@@ -1630,6 +1970,13 @@
 │   │   │   └── page.tsx
 │   │   ├── conservation
 │   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
+│   │   ├── (dashboard)
+│   │   │   └── disputes
+│   │   │   └── [id]
+│   │   │   └── page.tsx
+│   │   ├── dashboard
+│   │   │   └── wallet
 │   │   │   └── page.tsx
 │   │   ├── directory
 │   │   │   ├── layout.tsx
@@ -1726,6 +2073,8 @@
 │   │   │   └── page.tsx
 │   │   ├── (tenant)
 │   │   │   ├── admin
+│   │   │   │   ├── achievements
+│   │   │   │   │   └── page.tsx
 │   │   │   │   ├── announcements
 │   │   │   │   │   └── page.tsx
 │   │   │   │   ├── bookings
@@ -1742,6 +2091,10 @@
 │   │   │   │   │   ├── [id]
 │   │   │   │   │   │   └── page.tsx
 │   │   │   │   │   ├── new
+│   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── disputes
+│   │   │   │   │   ├── [id]
 │   │   │   │   │   │   └── page.tsx
 │   │   │   │   │   └── page.tsx
 │   │   │   │   ├── events
@@ -1851,8 +2204,16 @@
 │   │   │   │   └── page.tsx
 │   │   │   ├── layout.tsx
 │   │   │   ├── page.tsx
-│   │   │   └── providers
-│   │   │   └── register
+│   │   │   ├── providers
+│   │   │   │   └── register
+│   │   │   │   └── page.tsx
+│   │   │   └── tenant
+│   │   │   └── billing
+│   │   │   ├── invoices
+│   │   │   │   └── page.tsx
+│   │   │   ├── layout.tsx
+│   │   │   ├── page.tsx
+│   │   │   └── payment-methods
 │   │   │   └── page.tsx
 │   │   ├── terms
 │   │   │   └── page.tsx
@@ -1888,15 +2249,29 @@
 │   │   ├── agent-permission-enum.ts
 │   │   ├── agent-profiles-relations.ts
 │   │   ├── agent-profiles.ts
+│   │   ├── ai-capability-costs.ts
+│   │   ├── ai-overage-policy-enum.ts
+│   │   ├── ai-usage-events-relations.ts
+│   │   ├── ai-usage-events.ts
+│   │   ├── ai-usage-status-enum.ts
 │   │   ├── albums-relations.ts
 │   │   ├── albums.ts
 │   │   ├── announcements-relations.ts
 │   │   ├── announcements.ts
 │   │   ├── assist-sessions-relations.ts
 │   │   ├── assist-sessions.ts
+│   │   ├── batch-status-enum.ts
 │   │   ├── behavior-category-enum.ts
 │   │   ├── behavior-record-status-enum.ts
 │   │   ├── behavior-type-enum.ts
+│   │   ├── billing-adjustments.ts
+│   │   ├── billing-adjustment-type-enum.ts
+│   │   ├── billing-events-relations.ts
+│   │   ├── billing-events.ts
+│   │   ├── billing-event-type-enum.ts
+│   │   ├── billing-plan-interval-enum.ts
+│   │   ├── billing-plans-relations.ts
+│   │   ├── billing-plans.ts
 │   │   ├── bookings-relations.ts
 │   │   ├── booking-status-enum.ts
 │   │   ├── bookings.ts
@@ -1925,7 +2300,35 @@
 │   │   ├── conversations-relations.ts
 │   │   ├── conversations.ts
 │   │   ├── conversation-type-enum.ts
+│   │   ├── coupon-discount-type-enum.ts
+│   │   ├── coupon-redemptions-relations.ts
+│   │   ├── coupon-redemptions.ts
+│   │   ├── coupons-relations.ts
+│   │   ├── coupons.ts
 │   │   ├── custom-bytes.ts
+│   │   ├── data-consents-relations.ts
+│   │   ├── data-consents.ts
+│   │   ├── data-revenue-streams.ts
+│   │   ├── data-share-batches.ts
+│   │   ├── dispute-cases-relations.ts
+│   │   ├── dispute-cases.ts
+│   │   ├── dispute-category-enum.ts
+│   │   ├── dispute-events-relations.ts
+│   │   ├── dispute-events.ts
+│   │   ├── dispute-event-type-enum.ts
+│   │   ├── dispute-evidences-relations.ts
+│   │   ├── dispute-evidences.ts
+│   │   ├── dispute-messages-relations.ts
+│   │   ├── dispute-messages.ts
+│   │   ├── dispute-message-versions-relations.ts
+│   │   ├── dispute-message-versions.ts
+│   │   ├── dispute-notifications-relations.ts
+│   │   ├── dispute-notifications.ts
+│   │   ├── dispute-respondent-enum.ts
+│   │   ├── dispute-severity-enum.ts
+│   │   ├── dispute-status-enum.ts
+│   │   ├── d-wallets-relations.ts
+│   │   ├── d-wallets.ts
 │   │   ├── entry-status-enum.ts
 │   │   ├── event-attendees-relations.ts
 │   │   ├── event-attendees.ts
@@ -1974,6 +2377,10 @@
 │   │   ├── payment-gateway-enum.ts
 │   │   ├── payment-transactions-relations.ts
 │   │   ├── payment-transactions.ts
+│   │   ├── payout-requests-relations.ts
+│   │   ├── payout-requests.ts
+│   │   ├── payout-status-enum.ts
+│   │   ├── platform-ai-tier-quotas.ts
 │   │   ├── platform-modules-relations.ts
 │   │   ├── platform-modules.ts
 │   │   ├── platform-suspensions-relations.ts
@@ -2052,14 +2459,29 @@
 │   │   ├── surveys.ts
 │   │   ├── survey-type-enum.ts
 │   │   ├── suspension-type-enum.ts
+│   │   ├── tax-jurisdictions-relations.ts
+│   │   ├── tax-jurisdictions.ts
+│   │   ├── tax-rates-relations.ts
+│   │   ├── tax-rates.ts
 │   │   ├── tenant-achievements-relations.ts
 │   │   ├── tenant-achievements.ts
+│   │   ├── tenant-ai-usages-relations.ts
+│   │   ├── tenant-ai-usages.ts
+│   │   ├── tenant-invoices-relations.ts
+│   │   ├── tenant-invoices.ts
 │   │   ├── tenant-modules-relations.ts
 │   │   ├── tenant-modules.ts
+│   │   ├── tenant-payments-relations.ts
+│   │   ├── tenant-payments.ts
 │   │   ├── tenants-relations.ts
 │   │   ├── tenants.ts
+│   │   ├── tenant-subscriptions-relations.ts
+│   │   ├── tenant-subscription-status-enum.ts
+│   │   ├── tenant-subscriptions.ts
 │   │   ├── tier-enum.ts
+│   │   ├── transaction-source-enum.ts
 │   │   ├── transaction-status-enum.ts
+│   │   ├── transaction-type-enum.ts
 │   │   ├── two-factors-relations.ts
 │   │   ├── two-factors.ts
 │   │   ├── user-achievement-progresses-relations.ts
@@ -2072,8 +2494,16 @@
 │   │   ├── user-keys.ts
 │   │   ├── users-relations.ts
 │   │   ├── users.ts
-│   │   └── verifications.ts
+│   │   ├── verifications.ts
+│   │   ├── wallet-status-enum.ts
+│   │   ├── wallet-transactions-relations.ts
+│   │   └── wallet-transactions.ts
 │   ├── entities
+│   │   ├── access
+│   │   │   ├── index.ts
+│   │   │   ├── resolver.test.ts
+│   │   │   ├── resolver.ts
+│   │   │   └── types.ts
 │   │   ├── admin
 │   │   │   ├── index.ts
 │   │   │   └── model
@@ -2095,6 +2525,8 @@
 │   │   │   ├── schema.ts
 │   │   │   ├── services
 │   │   │   │   └── index.ts
+│   │   │   ├── **tests**
+│   │   │   │   └── services.test.ts
 │   │   │   └── ui
 │   │   │   ├── BookingCard.tsx
 │   │   │   ├── FacilityBadge.tsx
@@ -2108,6 +2540,8 @@
 │   │   │   │   ├── types.ts
 │   │   │   │   └── use-presence.ts
 │   │   │   ├── schema.ts
+│   │   │   ├── **tests**
+│   │   │   │   └── chat.test.ts
 │   │   │   └── ui
 │   │   │   ├── ChatMessage.tsx
 │   │   │   ├── EmojiPickerButton.tsx
@@ -2125,8 +2559,11 @@
 │   │   │   ├── permissions
 │   │   │   │   └── index.ts
 │   │   │   ├── schema.ts
-│   │   │   └── services
-│   │   │   └── index.ts
+│   │   │   ├── services
+│   │   │   │   └── index.ts
+│   │   │   └── **tests**
+│   │   │   ├── announcements.test.ts
+│   │   │   └── groups.test.ts
 │   │   ├── directory
 │   │   │   ├── index.ts
 │   │   │   ├── model
@@ -2137,6 +2574,58 @@
 │   │   │   ├── CommunityMap.tsx
 │   │   │   ├── index.ts
 │   │   │   └── UnifiedResidentCard.tsx
+│   │   ├── dispute
+│   │   │   ├── api
+│   │   │   │   └── reference.ts
+│   │   │   ├── index.server.ts
+│   │   │   ├── index.ts
+│   │   │   ├── lib
+│   │   │   │   ├── pii-sanitizer.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── pii-sanitizer.test.ts
+│   │   │   ├── model
+│   │   │   │   ├── constants.ts
+│   │   │   │   ├── lifecycle.ts
+│   │   │   │   ├── schemas.ts
+│   │   │   │   ├── **tests**
+│   │   │   │   │   ├── entity.test.ts
+│   │   │   │   │   └── schemas.test.ts
+│   │   │   │   └── types.ts
+│   │   │   └── ui
+│   │   │   ├── AIFrivolityCheckPanel.tsx
+│   │   │   ├── CoolingOffTimer.tsx
+│   │   │   ├── CSOSExportButton.tsx
+│   │   │   ├── DisputeActionsBar.tsx
+│   │   │   ├── DisputeCategoryBadge.tsx
+│   │   │   ├── DisputeListTable.tsx
+│   │   │   ├── DisputeStatusBadge.tsx
+│   │   │   ├── DisputeTimeline.tsx
+│   │   │   ├── EvidencePreviewGrid.tsx
+│   │   │   ├── EvidenceUploadZone.tsx
+│   │   │   ├── MediationMessageBubble.tsx
+│   │   │   ├── MediationThread.tsx
+│   │   │   ├── SeverityIndicator.tsx
+│   │   │   └── **tests**
+│   │   │   ├── badges.test.tsx
+│   │   │   └── CSOSExportButton.test.tsx
+│   │   ├── dwallet
+│   │   │   ├── api
+│   │   │   │   └── index.ts
+│   │   │   ├── index.server.ts
+│   │   │   ├── index.ts
+│   │   │   ├── model
+│   │   │   │   ├── types.ts
+│   │   │   │   └── useWallet.ts
+│   │   │   ├── schema.ts
+│   │   │   ├── **tests**
+│   │   │   │   ├── batch.test.ts
+│   │   │   │   ├── fixtures.ts
+│   │   │   │   ├── immutable.test.ts
+│   │   │   │   ├── isolation.test.ts
+│   │   │   │   └── ledger.test.ts
+│   │   │   └── ui
+│   │   │   ├── DWalletAdminWidget.tsx
+│   │   │   └── DWalletSummaryWidget.tsx
 │   │   ├── event
 │   │   │   ├── api
 │   │   │   │   └── route.ts
@@ -2147,8 +2636,10 @@
 │   │   │   ├── permissions
 │   │   │   │   └── index.ts
 │   │   │   ├── schema.ts
-│   │   │   └── services
-│   │   │   └── index.ts
+│   │   │   ├── services
+│   │   │   │   └── index.ts
+│   │   │   └── **tests**
+│   │   │   └── events.test.ts
 │   │   ├── maintenance
 │   │   │   ├── api
 │   │   │   │   └── route.ts
@@ -2166,6 +2657,8 @@
 │   │   │   ├── schema.ts
 │   │   │   ├── services
 │   │   │   │   └── index.ts
+│   │   │   ├── **tests**
+│   │   │   │   └── maintenance-transform.test.ts
 │   │   │   └── ui
 │   │   │   ├── MaintenanceCard.tsx
 │   │   │   ├── PriorityBadge.tsx
@@ -2200,6 +2693,7 @@
 │   │   │   └── types.ts
 │   │   ├── tenant
 │   │   │   ├── api
+│   │   │   │   ├── ai-capabilities.ts
 │   │   │   │   ├── assist-scope-guard.ts
 │   │   │   │   ├── base.ts
 │   │   │   │   ├── context.tsx
@@ -2232,17 +2726,23 @@
 │   │   │   ├── lib
 │   │   │   │   ├── modules
 │   │   │   │   │   ├── assert-module-enabled.ts
+│   │   │   │   │   ├── get-tenant-module.ts
 │   │   │   │   │   ├── index.ts
 │   │   │   │   │   └── require-module.ts
 │   │   │   │   ├── navigation-config.ts
 │   │   │   │   └── registry.ts
 │   │   │   ├── model
+│   │   │   │   ├── gate-context-store.ts
 │   │   │   │   ├── roles.ts
 │   │   │   │   ├── **tests**
 │   │   │   │   │   └── roles.test.ts
 │   │   │   │   ├── types.ts
+│   │   │   │   ├── useGateContext.ts
 │   │   │   │   └── useIdentity.ts
 │   │   │   ├── schema.ts
+│   │   │   ├── **tests**
+│   │   │   │   ├── navigation-config.test.ts
+│   │   │   │   └── platform-flags.test.ts
 │   │   │   └── ui
 │   │   │   ├── AuthCheck.tsx
 │   │   │   ├── FeatureGate.tsx
@@ -2250,6 +2750,8 @@
 │   │   │   ├── TenantProvider.tsx
 │   │   │   ├── TenantStyles.tsx
 │   │   │   └── TierGuard.tsx
+│   │   ├── **tests**
+│   │   │   └── schemas.test.ts
 │   │   ├── user
 │   │   │   ├── index.ts
 │   │   │   └── model
@@ -2264,12 +2766,18 @@
 │   │   ├── admin
 │   │   │   ├── index.ts
 │   │   │   ├── model
+│   │   │   │   ├── useAdminActivity.ts
 │   │   │   │   ├── useAdminStats.ts
-│   │   │   │   └── useAdminUrgency.ts
+│   │   │   │   ├── useAdminUrgency.ts
+│   │   │   │   └── useSystemHealth.ts
 │   │   │   └── ui
 │   │   │   ├── BrandingForm.tsx
 │   │   │   ├── FeaturesForm.tsx
 │   │   │   └── NewTenantForm.tsx
+│   │   ├── ai-provider
+│   │   │   ├── index.ts
+│   │   │   └── ui
+│   │   │   └── admin-ai-usage-widget.tsx
 │   │   ├── announcements
 │   │   │   ├── index.ts
 │   │   │   ├── model
@@ -2283,11 +2791,23 @@
 │   │   │   ├── index.ts
 │   │   │   ├── model
 │   │   │   │   └── useSignupForm.ts
+│   │   │   ├── **tests**
+│   │   │   │   └── auth-forms.test.tsx
 │   │   │   └── ui
 │   │   │   ├── index.ts
 │   │   │   ├── SignupCTA.tsx
 │   │   │   ├── SignupFormSection.tsx
 │   │   │   └── SignupHeader.tsx
+│   │   ├── billing
+│   │   │   ├── index.ts
+│   │   │   ├── model
+│   │   │   │   └── types.ts
+│   │   │   └── ui
+│   │   │   ├── BillingOverview.tsx
+│   │   │   ├── CheckoutButton.tsx
+│   │   │   ├── InvoiceList.tsx
+│   │   │   ├── PaymentMethodForm.tsx
+│   │   │   └── PlanSelector.tsx
 │   │   ├── booking
 │   │   │   ├── index.ts
 │   │   │   ├── model
@@ -2300,6 +2820,9 @@
 │   │   │   │   ├── useConversationList.ts
 │   │   │   │   ├── useMessageSend.ts
 │   │   │   │   └── useUnreadUrgency.ts
+│   │   │   ├── **tests**
+│   │   │   │   ├── chat-hooks.test.tsx
+│   │   │   │   └── chat.test.tsx
 │   │   │   └── ui
 │   │   │   └── CreateConversationModal.tsx
 │   │   ├── content
@@ -2318,9 +2841,31 @@
 │   │   │   ├── index.ts
 │   │   │   ├── model
 │   │   │   │   └── useResidentFilter.ts
+│   │   │   ├── **tests**
+│   │   │   │   └── useResidentFilter.test.ts
 │   │   │   └── ui
 │   │   │   ├── DirectoryChatModal.tsx
 │   │   │   └── DirectoryGrid.tsx
+│   │   ├── dispute
+│   │   │   ├── index.ts
+│   │   │   ├── model
+│   │   │   │   ├── useDisputeActions.ts
+│   │   │   │   ├── useDisputeIntake.ts
+│   │   │   │   └── useDisputeThread.ts
+│   │   │   └── ui
+│   │   │   ├── DisputeForm.tsx
+│   │   │   └── intake
+│   │   │   ├── ConflictTipsPanel.tsx
+│   │   │   ├── DisputeIntakeWizard.tsx
+│   │   │   ├── EmotionCheckIn.tsx
+│   │   │   ├── FrivolityScreen.tsx
+│   │   │   ├── ReviewScreen.tsx
+│   │   │   ├── SelfResolutionChecklist.tsx
+│   │   │   └── **tests**
+│   │   │   ├── DisputeForm.test.tsx
+│   │   │   ├── EmotionCheckIn.test.tsx
+│   │   │   ├── FrivolityScreen.test.tsx
+│   │   │   └── SelfResolutionChecklist.test.tsx
 │   │   ├── events
 │   │   │   ├── index.ts
 │   │   │   ├── model
@@ -2331,8 +2876,11 @@
 │   │   │   ├── index.ts
 │   │   │   ├── model
 │   │   │   │   └── gate.ts
+│   │   │   ├── **tests**
+│   │   │   │   └── feature-gate-client.test.tsx
 │   │   │   └── ui
-│   │   │   └── GateGuard.tsx
+│   │   │   ├── GateGuard.tsx
+│   │   │   └── ModuleGateWall.tsx
 │   │   ├── i18n
 │   │   │   ├── index.ts
 │   │   │   └── ui
@@ -2471,6 +3019,12 @@
 │   │   │   ├── index.ts
 │   │   │   └── ui
 │   │   │   └── DirectoryPage.tsx
+│   │   ├── disputes
+│   │   │   ├── index.ts
+│   │   │   └── ui
+│   │   │   ├── DisputeDetailPage.tsx
+│   │   │   └── **tests**
+│   │   │   └── DisputeDetailPage.test.tsx
 │   │   ├── maintenance
 │   │   │   ├── index.ts
 │   │   │   └── ui
@@ -2495,16 +3049,29 @@
 │   ├── shared
 │   │   ├── api
 │   │   │   ├── achievements
+│   │   │   │   ├── defaults.ts
 │   │   │   │   ├── index.ts
 │   │   │   │   ├── listener.ts
-│   │   │   │   ├── seed.ts
 │   │   │   │   └── service.ts
+│   │   │   ├── ai
+│   │   │   │   ├── anthropic.ts
+│   │   │   │   ├── build-overage-invoice-pdf.ts
+│   │   │   │   ├── config.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── null-provider.ts
+│   │   │   │   ├── openai.ts
+│   │   │   │   ├── pool.ts
+│   │   │   │   ├── pricing.ts
+│   │   │   │   ├── provider.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── build-overage-invoice-pdf.test.ts
 │   │   │   ├── api-response.ts
 │   │   │   ├── audit-log.ts
 │   │   │   ├── auth-client.ts
 │   │   │   ├── auth-schemas.ts
 │   │   │   ├── auth.ts
 │   │   │   ├── auth-utils.ts
+│   │   │   ├── build-provider-invoice-pdf.ts
 │   │   │   ├── client
 │   │   │   │   └── index.ts
 │   │   │   ├── client.ts
@@ -2528,6 +3095,10 @@
 │   │   │   │   ├── notification.ts
 │   │   │   │   ├── property.ts
 │   │   │   │   ├── resource.ts
+│   │   │   │   ├── **tests**
+│   │   │   │   │   ├── dto-booking.test.ts
+│   │   │   │   │   ├── dto-event.test.ts
+│   │   │   │   │   └── dto-property.test.ts
 │   │   │   │   └── user.ts
 │   │   │   ├── email
 │   │   │   │   ├── resend.ts
@@ -2538,6 +3109,7 @@
 │   │   │   ├── http-client.ts
 │   │   │   ├── index.ts
 │   │   │   ├── observability.ts
+│   │   │   ├── pdf-utils.ts
 │   │   │   ├── provider-billing.ts
 │   │   │   ├── provider-onboarding.ts
 │   │   │   ├── provider-platform.ts
@@ -2551,8 +3123,11 @@
 │   │   │   ├── slug.ts
 │   │   │   ├── storage.ts
 │   │   │   ├── supabase.ts
+│   │   │   ├── tenant-billing.ts
 │   │   │   ├── **tests**
-│   │   │   │   └── http-client.test.ts
+│   │   │   │   ├── api-response.test.ts
+│   │   │   │   ├── http-client.test.ts
+│   │   │   │   └── pdf-utils.test.ts
 │   │   │   ├── trpc
 │   │   │   │   ├── client.ts
 │   │   │   │   ├── index.ts
@@ -2565,9 +3140,17 @@
 │   │   │   ├── css.d.ts
 │   │   │   └── index.ts
 │   │   ├── lib
+│   │   │   ├── billing
+│   │   │   │   ├── billing.test.ts
+│   │   │   │   ├── helpers.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── seed-plans.ts
+│   │   │   │   └── tier-sync.ts
 │   │   │   ├── constants
 │   │   │   │   └── tiers.ts
 │   │   │   ├── constants.ts
+│   │   │   ├── dispute
+│   │   │   │   └── intake-screen-output.ts
 │   │   │   ├── hooks
 │   │   │   │   ├── index.ts
 │   │   │   │   ├── toast-messages.ts
@@ -2577,6 +3160,8 @@
 │   │   │   │   ├── useApiToast.ts
 │   │   │   │   ├── useContactSettings.ts
 │   │   │   │   ├── useConversations.ts
+│   │   │   │   ├── usePageAccess.test.ts
+│   │   │   │   ├── usePageAccess.ts
 │   │   │   │   ├── usePageFlags.ts
 │   │   │   │   ├── usePageLoading.tsx
 │   │   │   │   ├── usePremiumListings.ts
@@ -2586,7 +3171,9 @@
 │   │   │   │   └── useUpcomingEvents.ts
 │   │   │   ├── i18n
 │   │   │   │   ├── config.ts
-│   │   │   │   └── index.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── content-i18n.test.ts
 │   │   │   ├── index.ts
 │   │   │   ├── logger
 │   │   │   │   └── index.ts
@@ -2611,11 +3198,23 @@
 │   │   │   │   └── validation.ts
 │   │   │   ├── tenant-config
 │   │   │   │   └── tenant.ts
+│   │   │   ├── **tests**
+│   │   │   │   ├── constants.test.ts
+│   │   │   │   ├── permissions.test.ts
+│   │   │   │   └── useAutoSave.test.ts
 │   │   │   ├── types
 │   │   │   │   ├── index.ts
 │   │   │   │   ├── platform-page-flags.ts
 │   │   │   │   └── tenant.ts
-│   │   │   └── utils.ts
+│   │   │   ├── useAutoSave.ts
+│   │   │   ├── utils.ts
+│   │   │   └── workflow
+│   │   │   ├── createWorkflow.ts
+│   │   │   ├── index.ts
+│   │   │   ├── **tests**
+│   │   │   │   └── useWorkflow.test.ts
+│   │   │   ├── types.ts
+│   │   │   └── useWorkflow.ts
 │   │   └── ui
 │   │   ├── Accordion.tsx
 │   │   ├── Bookshelf.tsx
@@ -2628,6 +3227,7 @@
 │   │   ├── FontSize.ts
 │   │   ├── Footer.tsx
 │   │   ├── FrimoussePicker.tsx
+│   │   ├── HeaderImagePicker.tsx
 │   │   ├── Header.tsx
 │   │   ├── Honeypot.tsx
 │   │   ├── ImageUpload.tsx
@@ -2649,136 +3249,22 @@
 │   │   ├── SectionLayout.tsx
 │   │   ├── TagCloud.tsx
 │   │   ├── TagInput.tsx
+│   │   ├── **tests**
+│   │   │   └── ui-components.test.tsx
 │   │   ├── tooltip.tsx
 │   │   └── Turnstile.tsx
 │   ├── test
 │   │   ├── api
-│   │   │   ├── admin-activity.test.ts
-│   │   │   ├── admin-board-members.test.ts
-│   │   │   ├── admin-bookings.test.ts
-│   │   │   ├── admin-maintenance-stats.test.ts
-│   │   │   ├── admin-page-flags.test.ts
-│   │   │   ├── admin-platform-assist-id.test.ts
-│   │   │   ├── admin-platform-assist.test.ts
-│   │   │   ├── admin-platform-tenants-id.test.ts
-│   │   │   ├── admin-platform-tenants.test.ts
-│   │   │   ├── admin-services-config.test.ts
-│   │   │   ├── admin-system-health.test.ts
-│   │   │   ├── admin.test.ts
-│   │   │   ├── admin-urgency.test.ts
-│   │   │   ├── agents-activity.test.ts
-│   │   │   ├── agents-managed-properties.test.ts
-│   │   │   ├── agents-marketplace.test.ts
-│   │   │   ├── announcements-id.test.ts
-│   │   │   ├── announcements.test.ts
-│   │   │   ├── auth-all.test.ts
-│   │   │   ├── auth-suspension-status.test.ts
-│   │   │   ├── auth.test.ts
-│   │   │   ├── bookings.test.ts
-│   │   │   ├── campaign.test.ts
-│   │   │   ├── chat.test.ts
-│   │   │   ├── community-services.test.ts
-│   │   │   ├── competitions-id.test.ts
-│   │   │   ├── competitions.test.ts
-│   │   │   ├── conservation.test.ts
-│   │   │   ├── content-id.test.ts
-│   │   │   ├── content-moderate.test.ts
-│   │   │   ├── content.test.ts
-│   │   │   ├── conversations-find.test.ts
-│   │   │   ├── cs-analytics.test.ts
-│   │   │   ├── cs-inquiries-id.test.ts
-│   │   │   ├── cs-listings-id.test.ts
-│   │   │   ├── cs-listings.test.ts
-│   │   │   ├── dashboard-stats.test.ts
-│   │   │   ├── directory.test.ts
-│   │   │   ├── events-id.test.ts
-│   │   │   ├── events-register.test.ts
-│   │   │   ├── events.test.ts
-│   │   │   ├── flags.test.ts
-│   │   │   ├── groups-id.test.ts
-│   │   │   ├── groups-membership-requests.test.ts
-│   │   │   ├── groups-members.test.ts
-│   │   │   ├── groups.test.ts
-│   │   │   ├── health.test.ts
-│   │   │   ├── helpers.ts
-│   │   │   ├── households.test.ts
-│   │   │   ├── invitations-id.test.ts
-│   │   │   ├── invitations.test.ts
-│   │   │   ├── maintenance-assign.test.ts
-│   │   │   ├── maintenance-history.test.ts
-│   │   │   ├── maintenance-id.test.ts
-│   │   │   ├── maintenance-notes.test.ts
-│   │   │   ├── maintenance-providers.test.ts
-│   │   │   ├── maintenance-teams-id.test.ts
-│   │   │   ├── maintenance-teams.test.ts
-│   │   │   ├── maintenance.test.ts
-│   │   │   ├── media.test.ts
-│   │   │   ├── merits-dispute.test.ts
-│   │   │   ├── merits-resolve.test.ts
-│   │   │   ├── merits.test.ts
-│   │   │   ├── messages.test.ts
-│   │   │   ├── misc.test.ts
-│   │   │   ├── notifications.test.ts
-│   │   │   ├── openapi.test.ts
-│   │   │   ├── pricing.test.ts
-│   │   │   ├── purge.test.ts
-│   │   │   ├── resources-download.test.ts
-│   │   │   ├── resources-id.test.ts
-│   │   │   ├── resources.test.ts
-│   │   │   ├── seats.test.ts
-│   │   │   ├── services-urgency.test.ts
-│   │   │   ├── settings-contact.test.ts
-│   │   │   ├── settings.test.ts
-│   │   │   ├── stats.test.ts
-│   │   │   ├── surveys-reorder-questions.test.ts
-│   │   │   ├── surveys-reorder-sections.test.ts
-│   │   │   ├── surveys.test.ts
-│   │   │   ├── tenants-modules.test.ts
-│   │   │   ├── trpc.test.ts
-│   │   │   ├── upload.test.ts
-│   │   │   ├── users-books.test.ts
-│   │   │   ├── users-id.test.ts
-│   │   │   ├── users-suspensions.test.ts
-│   │   │   ├── users.test.ts
-│   │   │   ├── user-tags.test.ts
-│   │   │   └── webhooks-payload.test.ts
-│   │   ├── api-response.test.ts
-│   │   ├── auth-forms.test.tsx
-│   │   ├── auth-routes.test.ts
-│   │   ├── chat-hooks.test.tsx
-│   │   ├── chat.test.tsx
-│   │   ├── competitions.test.ts
-│   │   ├── constants.test.ts
-│   │   ├── content-i18n.test.ts
-│   │   ├── content-routes.test.ts
-│   │   ├── dto-booking.test.ts
-│   │   ├── dto-event.test.ts
-│   │   ├── dto-property.test.ts
-│   │   ├── entity-announcements.test.ts
-│   │   ├── entity-bookings-services.test.ts
-│   │   ├── entity-chat.test.ts
-│   │   ├── entity-events.test.ts
-│   │   ├── entity-groups.test.ts
-│   │   ├── feature-gate-client.test.tsx
-│   │   ├── flags.test.ts
+│   │   │   └── helpers.ts
+│   │   ├── billing-migration.test.ts
 │   │   ├── helpers
 │   │   │   └── mock-api-server.ts
-│   │   ├── maintenance-transform.test.ts
-│   │   ├── navigation-config.test.ts
-│   │   ├── permissions.test.ts
-│   │   ├── platform-admin.test.ts
-│   │   ├── platform-flags.test.ts
-│   │   ├── registry.test.ts
-│   │   ├── resources.test.ts
-│   │   ├── schemas.test.ts
-│   │   ├── setup.ts
-│   │   ├── sidebar-widget-box.test.ts
-│   │   ├── ui-components.test.tsx
-│   │   └── useResidentFilter.test.ts
+│   │   └── setup.ts
 │   └── widgets
 │   ├── admin
 │   │   ├── index.ts
 │   │   └── ui
+│   │   ├── AdminAchievementsWidget.tsx
 │   │   ├── AdminActivityWidget.tsx
 │   │   ├── AdminAnnouncementsWidget.tsx
 │   │   ├── AdminContentWidget.tsx
@@ -2828,21 +3314,30 @@
 │   │   │   ├── registry.ts
 │   │   │   ├── spaces.test.ts
 │   │   │   ├── spaces.ts
+│   │   │   ├── **tests**
+│   │   │   │   └── widgets-disputes.test.ts
 │   │   │   ├── types.ts
 │   │   │   ├── useNotifSubscription.ts
 │   │   │   └── widgets.ts
+│   │   ├── **tests**
+│   │   │   ├── registry.test.ts
+│   │   │   └── sidebar-widget-box.test.ts
 │   │   └── ui
 │   │   ├── AchievementsWidget.tsx
-│   │   ├── AdminAchievementsWidget.tsx
 │   │   ├── AdminActivityStream.tsx
+│   │   ├── AdminBillingOverviewWidget.tsx
 │   │   ├── AdminCommandBar.tsx
+│   │   ├── AdminDisputesWidget.tsx
 │   │   ├── AdminLayer.tsx
+│   │   ├── AdminRevenueWidget.tsx
 │   │   ├── AdminSubLauncher.tsx
+│   │   ├── AdminSubscriptionsWidget.tsx
 │   │   ├── AgentActivityWidget.tsx
 │   │   ├── AgentDashboardWidget.tsx
 │   │   ├── AgentWidget.tsx
 │   │   ├── AnnouncementsStreamWidget.tsx
 │   │   ├── BookshelfWidget.tsx
+│   │   ├── CommunityGalleryWidget.tsx
 │   │   ├── CommunityGraphWidget.tsx
 │   │   ├── CompetitionsWidget.tsx
 │   │   ├── DashboardSkeleton.tsx
@@ -2857,6 +3352,7 @@
 │   │   ├── MessagesWidget.tsx
 │   │   ├── MobileSpaceBar.tsx
 │   │   ├── MyAlbumWidget.tsx
+│   │   ├── MyDisputesWidget.tsx
 │   │   ├── MyHomeSpace.tsx
 │   │   ├── NotificationsWidget.tsx
 │   │   ├── PremiumPortfolioWidget.tsx
@@ -2887,6 +3383,9 @@
 │   │   ├── SurveysWidget.tsx
 │   │   ├── TabbedProfile.tsx
 │   │   ├── TagCloudWidget.tsx
+│   │   ├── **tests**
+│   │   │   ├── AdminDisputesWidget.test.tsx
+│   │   │   └── MyDisputesWidget.test.tsx
 │   │   ├── UserContentWidget.tsx
 │   │   ├── WeatherWidget.tsx
 │   │   ├── WidgetCard.tsx
@@ -2920,6 +3419,7 @@
 ├── tree.md
 ├── tsconfig.json
 ├── tsconfig.tsbuildinfo
+├── vercel.json
 └── vitest.config.ts
 
-851 directories, 2072 files
+1065 directories, 2358 files
