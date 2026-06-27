@@ -13,8 +13,8 @@ Soralia Village needs a production mobile app (Expo / React Native) with full fe
 | FSD architecture     | Keep FSD per app              | Each app maintains its own FSD tree. Shared code goes to `packages/`.              |
 | Timeline             | 3-6 months                    | Allows thorough UI rebuild and testing                                             |
 | Monorepo tool        | Turborepo                     | Already on Vercel ecosystem, first-class pnpm support                              |
-| Navigation bridge    | Solito + Expo Router          | File-based routing on both platforms, unified `Link` component                     |
-| Mobile framework     | Expo SDK 54                   | Managed workflow, EAS Build, Expo Router, expo-notifications                       |
+| Navigation           | Expo Router (file-based)      | Expo Router v3+ handles file-based routing natively; Solito not needed             |
+| Mobile framework     | Expo SDK 53                   | Managed workflow, EAS Build, Expo Router, expo-notifications                       |
 
 ---
 
@@ -39,7 +39,7 @@ soralia-village/
 │   │   ├── components.json
 │   │   └── package.json       # @soralia/web
 │   │
-│   └── expo/                   # Expo SDK 54
+│   └── expo/                   # Expo SDK 53
 │       ├── src/
 │       │   ├── app/           # Expo Router (file-based routing)
 │       │   ├── features/      # Mobile-only features (push notifs, camera, biometrics)
@@ -395,11 +395,16 @@ Phase branches are named:
 - Prisma migrations (`apps/web/prisma/migrations/`)
 - `prisma-generator-drizzle` configuration
 
-**Critical path**: The Prisma→Drizzle generator currently outputs to `src/db/schema/`. It must be reconfigured to output to `packages/db/src/schema/`. This requires:
+**Critical path**: The Prisma→Drizzle generator currently outputs to `src/db/schema/`. It must be reconfigured to output directly to `packages/db/src/schema/` by updating the `generator drizzle` block in `apps/web/prisma/schema.prisma`:
 
-- Update `prisma-generator-drizzle` config in `schema.prisma`
-- Or add a post-generate copy script
-- Verify the generated output is importable by `@soralia/db`
+```prisma
+generator drizzle {
+  provider = "prisma-generator-drizzle"
+  output   = "../../packages/db/src/schema"
+}
+```
+
+This eliminates the need for a post-generate copy script. Validate the output is importable by `@soralia/db` before proceeding (GATE G-2 in ADVISORY-019). If the generator does not support cross-package output reliably, escalate before continuing.
 
 **Migration workflow after monorepo**:
 
@@ -555,9 +560,10 @@ export const trpc = createTRPCClient<AppRouter>({
     - `@schema/*` imports → `@soralia/db`
     - `@server/*` imports → `@soralia/api`
     - `src/shared/lib/constants` → `@soralia/shared/constants`
-12. Reconfigure `prisma-generator-drizzle` to output to `packages/db/src/schema/`
-13. Add `@soralia/db/schema` to database check scripts
-14. Verify quality gates: `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm test:run`, `pnpm fsd:check`
+12. Reconfigure `prisma-generator-drizzle` to output directly to `packages/db/src/schema/` (see §2b Critical Path)
+13. Update `drizzle.config.ts` to reference new output path
+14. Move `prod-ca-2021.crt` to `apps/web/` and update any env var or config referencing it
+15. Verify quality gates: `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm test:run`, `pnpm fsd:check`
 
 **Expected import breakage**: ~200-400 import path changes across the codebase. Most can be automated with a find-and-replace script. The FSD layer rules (Steiger + ESLint boundaries) need updating to allow workspace package imports from within FSD layers.
 
@@ -586,29 +592,11 @@ export const trpc = createTRPCClient<AppRouter>({
      content: ['./src/**/*.{ts,tsx}'],
    };
    ```
-5. Set up Solito for cross-platform navigation:
-
-   ```tsx
-   // apps/expo/src/app/_layout.tsx
-   import { SolitoProvider } from 'solito';
-   import { Stack } from 'expo-router';
-
-   export default function RootLayout() {
-     return (
-       <SolitoProvider>
-         <Stack screenOptions={{ headerShown: false }}>
-           <Stack.Screen name="(tabs)" />
-           <Stack.Screen name="(auth)" />
-         </Stack>
-       </SolitoProvider>
-     );
-   }
-   ```
-
-6. Wire up tRPC client → `@soralia/api` types
-7. Wire up Better Auth client with Expo SecureStore
-8. Build auth screens: login, register, forgot password, OTP, email verification
-9. Build app shell: tab navigator (Dashboard, Directory, Chat, Maintenance, Settings)
+5. Wire up tRPC client → `@soralia/api` types
+6. Wire up Better Auth client with Expo SecureStore
+7. Build auth screens: login, register, forgot password, OTP, email verification
+8. Build app shell: tab navigator (Dashboard, Directory, Chat, Maintenance, Settings)
+9. **RichTextRenderer spike:** Attempt to render one real TipTap JSON content item in React Native. Write outcome as a comment in the M3 PR. If feasible: plan shared renderer. If not: plan per-app renderers consuming shared JSON types.
 10. Create route mapping table
 
 **Route mapping (web → mobile)**:
@@ -673,21 +661,21 @@ Total: ~35 components. Categorized by portability:
 
 ##### Platform-Specific (not in `@soralia/ui`)
 
-| Component                         | Status            | Reason                                                                                      |
-| --------------------------------- | ----------------- | ------------------------------------------------------------------------------------------- |
-| RichTextEditor (TipTap)           | Web only          | No native TipTap. Use `react-native-pell-rich-editor` or markdown editor.                   |
-| RichTextRenderer (TipTap)         | Shared            | Render TipTap JSON → native text components via a shared renderer                           |
-| MapContent (Leaflet)              | Platform-specific | `react-leaflet` (web) vs `react-native-maps` (mobile). Wrap in platform-specific component. |
-| ImageUpload / MediaLibrary        | Platform-specific | Web: `<input type="file">`. Mobile: `expo-image-picker`. Same API surface.                  |
-| EmojiMartPicker / FrimoussePicker | Platform-specific | Web: emoji-mart. Mobile: `@react-native-emoji-picker` or custom.                            |
-| MobileMenu                        | Mobile only       | Replaced by tab navigator + drawer on mobile                                                |
-| Turnstile (Cloudflare)            | Web only          | CAPTCHA. Use invisible Turnstile. Skip or use alternative on native.                        |
-| PromoBanner / PromoIllustration   | Shared            | Static content, easy to port                                                                |
-| PrimaryCTA                        | Shared            | Standard button composition                                                                 |
-| PageCTA                           | Shared            | Standard call-to-action block                                                               |
-| LanguageSwitcher                  | Shared            | Dropdown/bottom sheet for language selection                                                |
-| Honeypot                          | Web only          | Anti-spam measure. Not needed on mobile (app is trusted).                                   |
-| FontFamily / FontSize             | Shared            | Rendering helpers — platform-agnostic logic                                                 |
+| Component                         | Status            | Reason                                                                                                  |
+| --------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------- |
+| RichTextEditor (TipTap)           | Web only          | No native TipTap. Use `react-native-pell-rich-editor` or markdown editor.                               |
+| RichTextRenderer (TipTap)         | M3 spike          | Render TipTap JSON → native text components. Validate feasibility before committing to shared strategy. |
+| MapContent (Leaflet)              | Platform-specific | `react-leaflet` (web) vs `react-native-maps` (mobile). Wrap in platform-specific component.             |
+| ImageUpload / MediaLibrary        | Platform-specific | Web: `<input type="file">`. Mobile: `expo-image-picker`. Same API surface.                              |
+| EmojiMartPicker / FrimoussePicker | Platform-specific | Web: emoji-mart. Mobile: `@react-native-emoji-picker` or custom.                                        |
+| MobileMenu                        | Mobile only       | Replaced by tab navigator + drawer on mobile                                                            |
+| Turnstile (Cloudflare)            | Web only          | CAPTCHA. Use invisible Turnstile. Skip or use alternative on native.                                    |
+| PromoBanner / PromoIllustration   | Shared            | Static content, easy to port                                                                            |
+| PrimaryCTA                        | Shared            | Standard button composition                                                                             |
+| PageCTA                           | Shared            | Standard call-to-action block                                                                           |
+| LanguageSwitcher                  | Shared            | Dropdown/bottom sheet for language selection                                                            |
+| Honeypot                          | Web only          | Anti-spam measure. Not needed on mobile (app is trusted).                                               |
+| FontFamily / FontSize             | Shared            | Rendering helpers — platform-agnostic logic                                                             |
 
 #### Build Strategy
 
@@ -798,6 +786,8 @@ export function Button({
 | Chat          | Real-time messaging (Supabase Realtime), conversation list, message compose   |
 | Notifications | Notification list, mark read, deep link from notification to content          |
 
+**Entity UI port:** `@entities/chat/ui/` → rebuild `ChatMessage`, `TypingIndicator`, `OnlineIndicator` in `apps/expo/src/entities/chat/ui/`.
+
 #### Wave 2 — Essential Services (Week 12-14)
 
 | Feature      | Scope                                                      |
@@ -807,6 +797,8 @@ export function Button({
 | Content/News | News feed, articles, announcements                         |
 | Resources    | Community resource library with search and categories      |
 
+**Entity UI port:** Rebuild `UnifiedResidentCard`, `AchievementBadgeGrid` (directory), `MaintenanceCard`, `PriorityBadge`, `StatusBadge` (maintenance), `ServiceCard`, `ReviewStars`, `PricingDisplay` (services) in `apps/expo/src/entities/<domain>/ui/`. See ADVISORY-019 §C6 for full entity inventory.
+
 #### Wave 3 — Community Engagement (Week 14-16)
 
 | Feature  | Scope                                                       |
@@ -815,6 +807,8 @@ export function Button({
 | Bookings | Facility booking calendar, availability check, book, cancel |
 | Surveys  | Take surveys, view results                                  |
 | Groups   | Group list, join/leave, group chat                          |
+
+**Entity UI port:** Rebuild `BookingCard`, `StatusBadge` (bookings) in `apps/expo/src/entities/booking/ui/`.
 
 #### Wave 4 — Commerce & Services (Week 16-18)
 
@@ -835,12 +829,14 @@ export function Button({
 | dWallet          | Data wallet, consent management                     |
 | Achievements     | View achievements, track progress                   |
 
+**Entity UI port:** Rebuild `StandingBadge` (merits) in `apps/expo/src/entities/merit/ui/`.
+
 **Feature implementation pattern** (same for every feature):
 
 1. Build screen(s) in `apps/expo/src/features/<name>/ui/`
 2. Use `@soralia/api` tRPC procedures for all data fetching/mutations
 3. Use `@soralia/ui` components for UI primitives
-4. Use `solito/link` for cross-screen navigation
+4. Use Expo Router `Link` for cross-screen navigation
 5. Add routes to Expo Router in `apps/expo/src/app/`
 6. Register feature flag gate (if applicable)
 7. Test against staging API
@@ -991,18 +987,20 @@ jobs:
 
 ## Migration Risks & Mitigations
 
-| Risk                                                 | Severity | Mitigation                                                                                                         |
-| ---------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
-| Prisma→Drizzle generator breaks with new output path | High     | Test thoroughly in Phase 2. Add fallback copy script.                                                              |
-| `server-only` leakage into shared packages           | High     | Audit all moved files. Add ESLint rule: shared packages cannot import `server-only`.                               |
-| FSD boundary rules break with workspace imports      | Medium   | Update Steiger + ESLint configs in Phase 3. Add workspace packages to allowed patterns.                            |
-| Better Auth mobile session handling                  | Medium   | Prototype auth flow in Phase 4 before building all features. Follow t3-turbo pattern.                              |
-| NativeWind v5 breaking changes                       | Medium   | Pin NativeWind version. v5 is relatively new. Monitor releases.                                                    |
-| shadcn/ui rebuild effort underestimated              | High     | Only port the ~15 most-used components. For complex ones (TipTap, maps), accept platform-specific implementations. |
-| tRPC middleware needs refactoring                    | Medium   | Some middleware uses `next/headers` — these stay in `apps/web`, not in `@soralia/api`.                             |
-| Team context switching between platforms             | Medium   | Phase structure isolates concerns. Web devs keep working on web; mobile devs on mobile.                            |
-| Deployment configuration drift                       | Low      | Use shared tooling configs. Test CI pipeline in Phase 1.                                                           |
-| EAS Build failures in CI                             | Medium   | Set up EAS Build early (Phase 4). Test both iOS and Android builds.                                                |
+| Risk                                                 | Severity | Mitigation                                                                                                      |
+| ---------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------- |
+| Prisma→Drizzle generator breaks with new output path | High     | Test thoroughly in Phase 2. Add fallback copy script.                                                           |
+| `server-only` leakage into shared packages           | High     | Audit all moved files. Add ESLint rule: shared packages cannot import `server-only`.                            |
+| FSD boundary rules break with workspace imports      | Medium   | Update Steiger + ESLint configs in Phase 3. Add workspace packages to allowed patterns.                         |
+| Better Auth mobile session handling                  | Medium   | Prototype auth flow in Phase 4 before building all features. Follow t3-turbo pattern.                           |
+| NativeWind v5 breaking changes                       | Medium   | Pin NativeWind version. v5 is relatively new. Monitor releases.                                                 |
+| Entity display components need per-platform rebuilds | Medium   | Not shared — each app builds its own entity UI components using `@soralia/ui` primitives. See ADVISORY-019 §C6. |
+| tRPC middleware needs refactoring                    | Medium   | Some middleware uses `next/headers` — these stay in `apps/web`, not in `@soralia/api`.                          |
+| Team context switching between platforms             | Medium   | Phase structure isolates concerns. Web devs keep working on web; mobile devs on mobile.                         |
+| Deployment configuration drift                       | Low      | Use shared tooling configs. Test CI pipeline in Phase 1.                                                        |
+| EAS Build failures in CI                             | Medium   | Set up EAS Build early (Phase 4). Test both iOS and Android builds.                                             |
+
+> **NOTE:** This document has been updated per ADVISORY-019 (2026-06-27), which supersedes this planning document. See ADVISORY-019 for the canonical architecture decisions, decision gates (G-1 through G-3), pre-execution discovery checklists, and the detailed phase plan with explicit done criteria. The corrections in §4 of ADVISORY-019 have been applied here; the advisory remains authoritative.
 
 ---
 
@@ -1019,14 +1017,13 @@ nativewind               # Tailwind for React Native
 react-native             # (peer dep)
 
 # @apps/expo
-expo                     # ~52
+expo                     # SDK 53 (pin — see ADVISORY-019 G-3)
 expo-router              # ~4
 expo-secure-store        # Auth token storage
 expo-notifications       # Push notifications
 expo-image-picker        # Camera / photo upload
 expo-local-authentication # Biometric auth
 expo-haptics             # Haptic feedback
-solito                   # Cross-platform navigation
 @shopify/flash-list      # High-performance lists
 react-native-maps        # Map component (per-platform, not in @soralia/ui)
 react-native-pell-rich-editor # Rich text editor (mobile)
@@ -1079,7 +1076,7 @@ varlock                  # Web only (compliance scanning)
 
 ## Resolved Decisions
 
-1. **Prisma → Drizzle generator output path**: Post-generate copy script from `apps/web` to `packages/db`. Acceptable as long as the team stays in sync.
+1. **Prisma → Drizzle generator output path**: Update `generator drizzle` in `schema.prisma` to output directly to `../../packages/db/src/schema`. Validate via GATE G-2 before proceeding. If the generator does not support cross-package output, fall back to a CI-enforced copy script with schema drift check.
 
 2. **Push notification server**: Expo Push API. Web app (`apps/web`) gains a push notification service that calls Expo's push API directly. Push tokens stored in `UserDevice` table.
 
@@ -1087,7 +1084,7 @@ varlock                  # Web only (compliance scanning)
 
 4. **Map component**: Accept different implementations per platform — Leaflet (`react-leaflet`) on web, `react-native-maps` on mobile. No shared map abstraction in `@soralia/ui`. Each app owns its map rendering.
 
-5. **Feature flags on mobile**: Deferred. Statsig has a React Native SDK. Decision on shared vs separate flag sets to be made during Phase 4 Expo setup.
+5. **Feature flags on mobile**: Deferred to M3 planning. Statsig has a React Native SDK. Decision on shared vs separate flag sets deferred per ADVISORY-019.
 
 6. **Analytics on mobile**: Shared analytics abstraction. Both platforms use PostHog — `@posthog/next` on web, `posthog-react-native` on mobile. Build a thin `@soralia/analytics` package with a common API that wraps platform-specific SDKs.
 
