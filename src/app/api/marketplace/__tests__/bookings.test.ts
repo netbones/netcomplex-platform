@@ -192,32 +192,51 @@ vi.mock('@entities/marketplace/server', () => ({
   calculatePlatformFee: vi.fn(() => Promise.resolve(40)),
   initializeCheckout: vi.fn(),
   createPaymentTransaction: vi.fn(),
+  serviceBookingSchema: {
+    safeParse: vi.fn((data: unknown) => {
+      const d = data as Record<string, unknown>;
+      if (!d.listingId || !d.date || !d.startTime || !d.endTime) {
+        return { success: false, error: { errors: [{ message: 'Validation error' }] } };
+      }
+      return { success: true, data };
+    }),
+  },
+  getProviderRecordForUser: vi.fn(() => Promise.resolve(mocks.providerRecord)),
 }));
 
 // ---------------------------------------------------------------------------
-// Helper: configure db.select chain to return given rows
+// Helper: configure db.select to return different results per call (sequence)
 // ---------------------------------------------------------------------------
-async function mockDbSelectChain(rows: unknown[]) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function makeChain(rows: unknown[]): any {
+  const chain: Record<string, unknown> = {};
+  // All chain methods return the chain itself for fluent API mocking
+  const chainMethods = [
+    'from',
+    'innerJoin',
+    'leftJoin',
+    'where',
+    'orderBy',
+    'limit',
+    'offset',
+    'groupBy',
+  ];
+  for (const method of chainMethods) {
+    chain[method] = vi.fn(() => chain);
+  }
+  // Resolve with rows when awaited (Drizzle uses thenables)
+  chain.then = (resolve: (v: unknown) => void) => resolve(rows);
+  return chain;
+}
+
+async function mockDbSelectSequence(...sequences: unknown[][]) {
   const { db } = await import('@api/server');
-  vi.mocked(db.select).mockReturnValue({
-    from: vi.fn().mockReturnValue({
-      innerJoin: vi.fn().mockReturnValue({
-        leftJoin: vi.fn().mockReturnValue({
-          where: vi.fn().mockReturnValue({
-            orderBy: vi.fn().mockReturnValue({
-              limit: vi.fn().mockReturnValue({
-                offset: vi.fn().mockResolvedValue(rows),
-              }),
-            }),
-          }),
-        }),
-      }),
-      where: vi.fn().mockReturnValue({
-        limit: vi.fn().mockResolvedValue(rows),
-      }),
-    }),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any);
+  let callIdx = 0;
+  vi.mocked(db.select).mockImplementation(() => {
+    const rows = sequences[callIdx] || sequences[sequences.length - 1] || [];
+    callIdx++;
+    return makeChain(rows);
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -243,12 +262,38 @@ describe('ServiceBookings API — Task 1', () => {
   // -- Test 1: POST creates booking with PENDING_CONFIRMATION -----------------
   describe('POST /api/service-bookings', () => {
     it('creates ServiceBooking with status=PENDING_CONFIRMATION for valid request', async () => {
-      // Mock: listing exists and is published
-      await mockDbSelectChain([
-        {
-          ...mocks.listingStore[0],
-        },
-      ]);
+      // Sequence: [0] listing fetch, [1] conflict check (no conflict), [2] created booking fetch
+      await mockDbSelectSequence(
+        [
+          {
+            id: 'listing-1',
+            providerId: 'provider-1',
+            price: '500',
+            priceType: 'FIXED',
+            isPublished: true,
+            tenantId: 'tenant-1',
+          },
+        ],
+        [], // no conflict
+        [
+          {
+            id: 'booking-new',
+            tenantId: 'tenant-1',
+            listingId: 'listing-1',
+            providerId: 'provider-1',
+            userId: 'user-1',
+            date: new Date('2026-07-15'),
+            startTime: '09:00',
+            endTime: '10:00',
+            price: '500',
+            platformFee: '40',
+            paymentStatus: 'PENDING',
+            status: 'PENDING_CONFIRMATION',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ]
+      );
 
       const request = new Request('http://localhost/api/service-bookings', {
         method: 'POST',
@@ -273,50 +318,28 @@ describe('ServiceBookings API — Task 1', () => {
   // -- Test 2: POST with overlapping time slot returns 409 CONFLICT -----------
   describe('POST /api/service-bookings (double booking)', () => {
     it('returns 409 CONFLICT for overlapping time slot', async () => {
-      // Mock: listing exists
-      await mockDbSelectChain([
-        {
-          ...mocks.listingStore[0],
-        },
-      ]);
-
-      // Mock: conflicting booking exists
-      const { db } = await import('@api/server');
-      // First call: listing fetch (already set up)
-      // Second call: conflict check - need to return an existing booking
-      let callCount = 0;
-      vi.mocked(db.select).mockReturnValue({
-        from: vi.fn().mockReturnValue({
-          where: vi.fn().mockReturnValue({
-            limit: vi.fn().mockImplementation(() => {
-              callCount++;
-              if (callCount === 1) {
-                // Listing fetch
-                return Promise.resolve([
-                  {
-                    id: 'listing-1',
-                    tenantId: 'tenant-1',
-                    providerId: 'provider-1',
-                    price: '500',
-                    isPublished: true,
-                  },
-                ]);
-              }
-              // Conflict check - return existing booking
-              return Promise.resolve([
-                {
-                  id: 'existing-booking',
-                  listingId: 'listing-1',
-                  date: new Date('2026-07-15'),
-                  startTime: '09:00',
-                  status: 'PENDING_CONFIRMATION',
-                },
-              ]);
-            }),
-          }),
-        }),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any);
+      // Sequence: [0] listing fetch, [1] conflict check (conflict exists)
+      await mockDbSelectSequence(
+        [
+          {
+            id: 'listing-1',
+            providerId: 'provider-1',
+            price: '500',
+            priceType: 'FIXED',
+            isPublished: true,
+            tenantId: 'tenant-1',
+          },
+        ],
+        [
+          {
+            id: 'existing-booking',
+            listingId: 'listing-1',
+            date: new Date('2026-07-15'),
+            startTime: '09:00',
+            status: 'PENDING_CONFIRMATION',
+          },
+        ]
+      );
 
       const request = new Request('http://localhost/api/service-bookings', {
         method: 'POST',
@@ -341,7 +364,7 @@ describe('ServiceBookings API — Task 1', () => {
   // -- Test 3: GET filters by resident userId --------------------------------
   describe('GET /api/service-bookings?role=resident', () => {
     it('returns only bookings where userId matches session user', async () => {
-      await mockDbSelectChain([
+      await mockDbSelectSequence([
         {
           id: 'booking-1',
           tenantId: 'tenant-1',
@@ -385,7 +408,7 @@ describe('ServiceBookings API — Task 1', () => {
         businessName: 'Test Provider',
       };
 
-      await mockDbSelectChain([
+      await mockDbSelectSequence([
         {
           id: 'booking-1',
           tenantId: 'tenant-1',
@@ -422,7 +445,7 @@ describe('ServiceBookings API — Task 1', () => {
   describe('GET /api/services/[id]/availability', () => {
     it('returns parsed weekly schedule + booked slots for next 30 days', async () => {
       // Mock the listing with availability JSONB
-      await mockDbSelectChain([
+      await mockDbSelectSequence([
         {
           id: 'listing-1',
           tenantId: 'tenant-1',
@@ -487,7 +510,7 @@ describe('ServiceBookings API — Task 1', () => {
   describe('PATCH /api/service-bookings (status transition)', () => {
     it('updates booking status from PENDING_CONFIRMATION to CONFIRMED', async () => {
       // Mock the booking fetch
-      await mockDbSelectChain([
+      await mockDbSelectSequence([
         {
           id: 'booking-1',
           tenantId: 'tenant-1',

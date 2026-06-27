@@ -16,3 +16,6 @@ export {
   notifyListingRejected,
   notifyBookingCancelled,
 } from './api/notification-triggers';
+
+// Re-export provider-platform helpers for marketplace use cases
+export { getProviderRecordForUser } from '@shared/api';
