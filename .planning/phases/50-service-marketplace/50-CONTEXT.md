@@ -35,13 +35,7 @@ This phase wires existing infrastructure — community service listings (`Commun
 - **D-09:** Provider-defined availability — providers set weekly schedules per listing via the existing `CommunityServiceListing.availability` jsonb field. The facility-based `Booking` model is a different use case and not conflated. **Schema contract:** See specifics section below for the defined JSON shape.
 - **D-10:** Custom date picker + time-slot grid built with existing Tailwind CSS and date validation from `bookingSchema`. No new calendar library dependency.
 - **D-11:** Book-first-then-pay flow — resident selects available time-slot, booking created in PENDING_CONFIRMATION status, provider confirms, resident pays → status moves to CONFIRMED.
-- **D-12 (GATE — must be resolved in planning phase):** How to represent marketplace service bookings vs. facility bookings. Two options:
-
-  **Option A — Extend existing `Booking` model:** Add nullable columns `providerId?`, `serviceListingId?`, `price?`, `paymentStatus?`. Add `PENDING_CONFIRMATION` to `BookingStatus` enum. Make `facility` nullable (currently `notNull()`). Requires ALL existing facility booking queries to add `WHERE serviceListingId IS NULL` to remain correct. One table, but carries nullable fields that only apply to one sub-type.
-
-  **Option B — Dedicated `ServiceBooking` model:** New table with `providerId`, `serviceListingId`, `price`, `paymentStatus`, `status` (own enum: PENDING_CONFIRMATION → CONFIRMED → COMPLETED → CANCELLED). Clean separation — no nullable-field leakage, no query gating. Mirrors the `CommunityServiceInquiry` pattern already in the schema. More tables, but each model is coherent.
-
-  The planning agent must choose one and document the rationale in the PLAN.md. The `facility` non-nullable constraint and `BookingStatus` enum additions are blocking migration details that the advisory must address explicitly for Option A.
+- **D-12:** Dedicated `ServiceBooking` model — new table separate from the facility `Booking` model. Fields: `id`, `tenantId`, `listingId` (→ CommunityServiceListing), `providerId` (→ ServiceProvider), `userId`, `date`, `startTime`, `endTime`, `price`, `paymentStatus` (PENDING/COMPLETED/REFUNDED), `status` (own enum: PENDING_CONFIRMATION → CONFIRMED → COMPLETED → CANCELLED), `createdAt`, `updatedAt`. Mirrors the `CommunityServiceInquiry` pattern already in the schema. The facility `Booking` model stays untouched — no nullable-field leakage, no query gating. Service bookings and facility bookings are distinct domain concepts with different lifecycles.
 
 ### Mobile Marketplace UX (4vk)
 
@@ -57,7 +51,7 @@ This phase wires existing infrastructure — community service listings (`Commun
 - Calendar date-picker component architecture (shared component vs. inline)
 - Pull-to-refresh implementation approach
 - Swipe action gesture library choice (custom CSS transforms vs. library)
-- D-12 booking model gate: Option A (extend Booking) vs. Option B (dedicated ServiceBooking) — either is valid; planning agent must choose one and document rationale
+- D-12 booking model gate: resolved to Option B (dedicated ServiceBooking model)
   </decisions>
 
 <canonical_refs>
@@ -91,7 +85,8 @@ This phase wires existing infrastructure — community service listings (`Commun
 
 ### Booking
 
-- `src/db/schema/bookings.ts` — Booking model (to be extended with providerId/serviceListingId)
+- `src/db/schema/bookings.ts` — Facility Booking model (untouched — ServiceBooking is a separate table)
+- `src/db/schema/community-service-inquiries.ts` — CommunityServiceInquiry model (ServiceBooking mirrors this pattern)
 - `src/entities/booking/schema.ts` — bookingSchema Zod validation
 - `src/entities/booking/services/index.ts` — getTenantFacilities, createBooking, buildBookingConditions
 - `src/entities/booking/model/constants.ts` — PRESET_FACILITIES, FACILITY_LABELS
@@ -103,12 +98,16 @@ This phase wires existing infrastructure — community service listings (`Commun
 - `src/db/schema/service-providers.ts` — ServiceProvider model
 - `src/db/schema/provider-verifications.ts` — Verification status workflow
 
-### Established Patterns
+### Feature Flags & Access Control
 
-- `src/widgets/dashboard/model/widgets.ts` — Widget registration pattern (registerAllWidgets)
-- `src/widgets/dashboard/model/spaces.ts` — SpaceId union + SPACES registry
-- `src/shared/lib/types/platform-page-flags.ts` — PlatformPageFlags interface
-- `src/entities/tenant/api/flags/platform-flags.ts` — DB-backed flag system
+- `src/shared/lib/types/platform-page-flags.ts` — PlatformPageFlags interface (shared by both gate systems)
+- `src/entities/tenant/api/flags/platform-flags.ts` — DB-backed flag system + getPlatformPageFlagsImpl
+- `src/shared/lib/settings/defaults.ts` — DEFAULT_PAGE_FLAGS
+- `src/app/api/access/route.ts` — Phase 110 canonical access endpoint (5-layer pipeline)
+- `src/shared/lib/hooks/usePageAccess.ts` — usePageAccess() + useVisibleSpaces() client hooks
+- `src/entities/access/resolver.ts` — resolvePageAccess() pure function
+- `src/entities/tenant/api/gate/gate.ts` — canAccess() server-side gate (Phase 41)
+- `src/entities/tenant/api/gate/mappings.ts` — FEATURE_TO_MODULE/FLAG/REGISTRY maps
 - `src/shared/lib/nav/index.ts` — NAV_REGISTRY, ADMIN_NAV_REGISTRY
 - `src/features/provider-registration/ui/RegistrationForm.tsx` — React Hook Form + Zod pattern
 
@@ -139,16 +138,23 @@ This phase wires existing infrastructure — community service listings (`Commun
 - **Widget registration:** `registry.register({ component: lazy(...), ... })` in `widgets.ts`
 - **API routes:** `withTenant() → session check → Drizzle query → apiSuccess/Error`
 - **Forms:** `useForm + zodResolver` pattern (see RegistrationForm, DisputeForm)
-- **Feature flags:** Add key to `PlatformPageFlags`, add DB setting, add case in `getPlatformPageFlagsImpl`
 - **FSD entity layout:** `src/entities/marketplace/` with `model/`, `ui/`, `api/`, `schema.ts`
+- **Feature flag registration:**
+  - new flag key → `PlatformPageFlags` interface (`src/shared/lib/types/platform-page-flags.ts`)
+  - defaults → `DEFAULT_PAGE_FLAGS` (`src/shared/lib/settings/defaults.ts`)
+  - DB mapping → `SETTINGS_KEYS` + switch/case in `getPlatformPageFlagsImpl()` (`src/entities/tenant/api/flags/platform-flags.ts`)
+  - Phase 110 `/api/access` automatically picks up new flags via `resolvePageAccess()`
+- **Client-side access:** `usePageAccess()` returns `{ spaces, pages, features }` — marketplace nav should use this
+- **Server-side gating:** `canAccess(ctx, 'services')` resolves through role → tier → module → flag → registry
 
 ### Integration Points
 
 - **Services space** (`SPACES.services`) — Add marketplace widget IDs to widgetIds array
+- **Access control** — Services space already gated by `flags.services` via Phase 110 `resolvePageAccess()`
+- **Feature flags** — Add `marketplacePaypal` to `PlatformPageFlags` + registration pipeline (DB-backed)
 - **Navigation** — Add marketplace items to `SERVICES_DOMAINS` (in `spaces.ts`)
-- **Feature flags** — Add `marketplace` + `marketplacePaypal` flags to `PlatformPageFlags` + `DEFAULT_PAGE_FLAGS`
 - **Notification model** — Add `category` String column to Notification; use `payload` for event data
-- **Booking model** — Gate decision D-12; either extend Booking or create ServiceBooking
+- **Booking model** — Gate resolved: dedicated ServiceBooking table (separate from facility Booking)
   </code_context>
 
 <specifics>
