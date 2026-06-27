@@ -78,14 +78,18 @@ export async function GET(request: Request) {
   }
 
   if (status && ALL_DISPUTE_STATUSES.includes(status as (typeof ALL_DISPUTE_STATUSES)[number])) {
-    filters.push(eq(disputeCases.status, status));
+    filters.push(
+      eq(disputeCases.status, status as (typeof disputeCases.status.enumValues)[number])
+    );
   }
 
   if (
     category &&
     ALL_DISPUTE_CATEGORIES.includes(category as (typeof ALL_DISPUTE_CATEGORIES)[number])
   ) {
-    filters.push(eq(disputeCases.category, category));
+    filters.push(
+      eq(disputeCases.category, category as (typeof disputeCases.category.enumValues)[number])
+    );
   }
 
   const disputes = await db

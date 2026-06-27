@@ -2,10 +2,11 @@ import { DisputeDetailPage } from '@pages/disputes';
 import { Suspense } from 'react';
 import { LoadingSpinner } from '@shared/ui';
 
-export default function DisputeDetailRoute({ params }: { params: { id: string } }) {
+export default async function DisputeDetailRoute({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <DisputeDetailPage disputeId={params.id} />
+      <DisputeDetailPage disputeId={id} />
     </Suspense>
   );
 }

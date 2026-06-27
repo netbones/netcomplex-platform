@@ -11,6 +11,7 @@ export {
   disputeMessageCreateSchema,
   disputeAssignSchema,
   disputeRulingSchema,
+  intakeScreenOutputSchema,
 } from './model/schemas';
 export type {
   DisputeCreateInput,
@@ -18,6 +19,7 @@ export type {
   DisputeMessageCreateInput,
   DisputeAssignInput,
   DisputeRulingInput,
+  IntakeScreenOutput,
 } from './model/schemas';
 
 // UI components

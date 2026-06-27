@@ -17,6 +17,7 @@ export const SETTINGS_KEYS = {
   PAGE_BOOKINGS_ENABLED: 'page_bookings_enabled',
   PAGE_MESSAGES_ENABLED: 'page_messages_enabled',
   PAGE_PROVIDERS_ENABLED: 'page_providers_enabled',
+  PAGE_DISPUTES_ENABLED: 'page_disputes_enabled',
   HEADER_LINKS: 'header_links',
   CUSTOM_PAGES: 'custom_pages',
   CUSTOM_NAV: 'custom_nav',

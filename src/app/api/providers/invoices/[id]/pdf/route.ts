@@ -59,8 +59,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     const pdfBytes = await buildProviderInvoicePdf(data);
 
     const filename = `${invoice.invoice.invoiceNumber}.pdf`;
+    const pdfBuffer = pdfBytes.slice().buffer as ArrayBuffer;
 
-    return new NextResponse(pdfBytes, {
+    return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${filename}"`,

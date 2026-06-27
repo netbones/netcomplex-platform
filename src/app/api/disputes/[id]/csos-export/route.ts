@@ -251,7 +251,8 @@ export const GET = withErrorHandler(
     });
 
     // Return binary PDF
-    return new NextResponse(pdfBytes, {
+    const pdfBuffer = pdfBytes.slice().buffer as ArrayBuffer;
+    return new NextResponse(pdfBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',

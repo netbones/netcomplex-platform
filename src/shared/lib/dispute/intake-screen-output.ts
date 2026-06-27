@@ -5,7 +5,7 @@
  * per AI-SPEC §3: AI response is advisory-only — never persisted.
  * Safe defaults ensure the intake wizard never blocks on malformed AI output.
  */
-import { intakeScreenOutputSchema, type IntakeScreenOutput } from '@entities/dispute/server';
+import { intakeScreenOutputSchema, type IntakeScreenOutput } from '@entities/dispute';
 
 export { intakeScreenOutputSchema };
 export type { IntakeScreenOutput };

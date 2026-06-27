@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { DisputeMessageDTO } from '../model/types';
 import { MediationMessageBubble } from './MediationMessageBubble';
-import { supabase } from '@shared/api';
+import { supabase } from '@api/shared';
 import { LoadingSkeleton } from '@shared/ui';
 import { toast } from 'sonner';
 

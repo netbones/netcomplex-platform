@@ -43,9 +43,9 @@ export interface CsosExportData {
     eventType: string;
     fromStatus: string | null;
     toStatus: string | null;
-    actorId: string;
+    actorId: string | null;
     note: string | null;
-    metadata: Record<string, unknown> | null;
+    metadata: unknown;
     createdAt: Date | string;
   }>;
   evidence: Array<{

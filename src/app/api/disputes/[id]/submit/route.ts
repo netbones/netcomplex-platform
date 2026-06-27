@@ -140,7 +140,7 @@ export const POST = withErrorHandler(
 
       return apiSuccess({
         message: 'Dispute submitted successfully',
-        submittedAt: result.submittedAt.toISOString(),
+        submittedAt: result.submittedAt?.toISOString() ?? new Date().toISOString(),
       });
     } catch (error) {
       apiLogger.error({ err: error, disputeId: id }, 'Dispute submit error');

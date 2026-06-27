@@ -121,8 +121,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   };
 
   const pdfBytes = await buildOverageInvoicePdf(pdfData);
+  const pdfBuffer = pdfBytes.slice().buffer as ArrayBuffer;
 
-  return new NextResponse(pdfBytes, {
+  return new NextResponse(pdfBuffer, {
     status: 200,
     headers: {
       'Content-Type': 'application/pdf',

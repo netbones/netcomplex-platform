@@ -2,8 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { disputeCreateSchema } from '@entities/dispute';
-import type { DisputeCreateInput } from '@entities/dispute';
+import { disputeCreateSchema, type DisputeCreateInput } from '@entities/dispute';
 import {
   CATEGORY_LABELS,
   SEVERITY_LABELS,
@@ -33,7 +32,9 @@ export function DisputeForm({ onComplete, onCancel }: DisputeFormProps) {
     handleSubmit,
     formState: { errors },
   } = useForm<DisputeCreateInput>({
-    resolver: zodResolver(disputeCreateSchema),
+    // zodResolver infers input type (optional defaults) vs useForm infers output type (required defaults)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(disputeCreateSchema) as any,
     defaultValues: {
       category: undefined as unknown as DisputeCreateInput['category'],
       title: '',
