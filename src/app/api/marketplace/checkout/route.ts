@@ -14,7 +14,7 @@ import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 import { checkoutRequestSchema, initializeCheckout } from '@entities/marketplace/server';
 import type { CheckoutResult } from '@entities/marketplace/server';
-import { getPlatformPageFlagsImpl } from '@entities/tenant/server';
+import { getPlatformPageFlags } from '@entities/tenant/server';
 
 export const maxDuration = 8;
 
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 6. Get platform flags for PayPal gate (D-07)
-    const flags = await getPlatformPageFlagsImpl(tenantId);
+    const flags = await getPlatformPageFlags(tenantId);
     const gateway = parsed.data.gateway ?? 'paystack';
 
     // 7. Initialize checkout
