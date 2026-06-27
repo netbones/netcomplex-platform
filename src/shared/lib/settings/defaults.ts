@@ -19,6 +19,7 @@ export const DEFAULT_PAGE_FLAGS: PlatformPageFlags = {
   dWallet: false,
   providers: true,
   bookings: true,
+  marketplacePaypal: false,
   messages: true,
   headerLinks: ['directory', 'groups', 'services', 'resources'] as HeaderLinkId[],
 };

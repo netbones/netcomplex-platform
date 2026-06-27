@@ -11,6 +11,7 @@ import { paymentTransactions } from './payment-transactions';
 import { revenueRecords } from './revenue-records';
 import { providerCharges } from './provider-charges';
 import { providerInvoices } from './provider-invoices';
+import { serviceBookings } from './service-bookings';
 
 export const serviceProvidersRelations = relations(serviceProviders, helpers => ({
   user: helpers.one(users, {
@@ -36,4 +37,5 @@ export const serviceProvidersRelations = relations(serviceProviders, helpers => 
   revenue: helpers.many(revenueRecords, { relationName: 'RevenueRecordToServiceProvider' }),
   charges: helpers.many(providerCharges, { relationName: 'ProviderChargeToServiceProvider' }),
   invoices: helpers.many(providerInvoices, { relationName: 'ProviderInvoiceToServiceProvider' }),
+  serviceBooking: helpers.many(serviceBookings, { relationName: 'ServiceBookingToProvider' }),
 }));

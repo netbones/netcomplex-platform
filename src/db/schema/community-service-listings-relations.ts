@@ -3,6 +3,7 @@ import { communityServiceListings } from './community-service-listings';
 import { communityServiceInquiries } from './community-service-inquiries';
 import { users } from './users';
 import { communityServiceReviews } from './community-service-reviews';
+import { serviceBookings } from './service-bookings';
 
 export const communityServiceListingsRelations = relations(communityServiceListings, helpers => ({
   communityServiceInquiry: helpers.many(communityServiceInquiries, {
@@ -16,4 +17,5 @@ export const communityServiceListingsRelations = relations(communityServiceListi
   communityServiceReview: helpers.many(communityServiceReviews, {
     relationName: 'CommunityServiceListingToCommunityServiceReview',
   }),
+  serviceBooking: helpers.many(serviceBookings, { relationName: 'ServiceBookingToListing' }),
 }));

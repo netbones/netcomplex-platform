@@ -25,6 +25,7 @@ import { albums } from './albums';
 import { communityServiceInquiries } from './community-service-inquiries';
 import { communityServiceListings } from './community-service-listings';
 import { communityServiceReviews } from './community-service-reviews';
+import { serviceBookings } from './service-bookings';
 import { invitations } from './invitations';
 import { members } from './members';
 import { passkeys } from './passkeys';
@@ -92,6 +93,7 @@ export const usersRelations = relations(users, helpers => ({
   communityServiceReview: helpers.many(communityServiceReviews, {
     relationName: 'CommunityServiceReviewTouser',
   }),
+  serviceBooking: helpers.many(serviceBookings, { relationName: 'ServiceBookingToUser' }),
   invitation: helpers.many(invitations, { relationName: 'InvitationTouser' }),
   member: helpers.many(members, { relationName: 'MemberTouser' }),
   passkey: helpers.many(passkeys, { relationName: 'passkeyTouser' }),

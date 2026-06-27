@@ -8,6 +8,7 @@ import * as profiles from './profiles';
 import * as members from './members';
 import * as organizations from './organizations';
 import * as notifications from './notifications';
+import * as serviceBookings from './service-bookings';
 import * as agentProfiles from './agent-profiles';
 import * as premiumSeats from './premium-seats';
 import * as soloSeats from './solo-seats';
@@ -107,6 +108,7 @@ import * as profilesRelations from './profiles-relations';
 import * as membersRelations from './members-relations';
 import * as organizationsRelations from './organizations-relations';
 import * as notificationsRelations from './notifications-relations';
+import * as serviceBookingsRelations from './service-bookings-relations';
 import * as agentProfilesRelations from './agent-profiles-relations';
 import * as premiumSeatsRelations from './premium-seats-relations';
 import * as soloSeatsRelations from './solo-seats-relations';
@@ -201,6 +203,7 @@ export const schema = {
   ...members,
   ...organizations,
   ...notifications,
+  ...serviceBookings,
   ...agentProfiles,
   ...premiumSeats,
   ...soloSeats,
@@ -300,6 +303,7 @@ export const schema = {
   ...membersRelations,
   ...organizationsRelations,
   ...notificationsRelations,
+  ...serviceBookingsRelations,
   ...agentProfilesRelations,
   ...premiumSeatsRelations,
   ...soloSeatsRelations,

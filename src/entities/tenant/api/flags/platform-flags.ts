@@ -82,6 +82,9 @@ export async function getPlatformPageFlagsImpl(tenantId: string): Promise<Platfo
         case SETTINGS_KEYS.PAGE_DISPUTES_ENABLED:
           flags.disputes = setting.value === 'true';
           break;
+        case SETTINGS_KEYS.PAGE_MARKETPLACE_PAYPAL_ENABLED:
+          flags.marketplacePaypal = setting.value === 'true';
+          break;
         case SETTINGS_KEYS.HEADER_LINKS:
           try {
             const parsed = JSON.parse(setting.value);
@@ -226,6 +229,9 @@ export async function getPlatformPageFlagsWithTx(
         case SETTINGS_KEYS.PAGE_DISPUTES_ENABLED:
           flags.disputes = setting.value === 'true';
           break;
+        case SETTINGS_KEYS.PAGE_MARKETPLACE_PAYPAL_ENABLED:
+          flags.marketplacePaypal = setting.value === 'true';
+          break;
         case SETTINGS_KEYS.HEADER_LINKS:
           try {
             const parsed = JSON.parse(setting.value);
@@ -304,6 +310,7 @@ export function mapFlagToSettingKey(key: keyof PlatformPageFlags): string | unde
     providers: SETTINGS_KEYS.PAGE_PROVIDERS_ENABLED,
     disputes: SETTINGS_KEYS.PAGE_DISPUTES_ENABLED,
     bookings: SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED,
+    marketplacePaypal: SETTINGS_KEYS.PAGE_MARKETPLACE_PAYPAL_ENABLED,
     messages: SETTINGS_KEYS.PAGE_MESSAGES_ENABLED,
     headerLinks: SETTINGS_KEYS.HEADER_LINKS,
   };

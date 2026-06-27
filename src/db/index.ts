@@ -7,6 +7,7 @@ export * from '@schema/announcements';
 export * from '@schema/bookings';
 export * from '@schema/community-service-inquiries';
 export * from '@schema/community-service-listings';
+export * from '@schema/service-bookings';
 export * from '@schema/community-service-reviews';
 export * from '@schema/contents';
 export * from '@schema/conversations';

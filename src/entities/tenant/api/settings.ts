@@ -15,6 +15,7 @@ export const SETTINGS_KEYS = {
   PAGE_DASHBOARD_ENABLED: 'page_dashboard_enabled',
   PAGE_DWALLET_ENABLED: 'page_dwallet_enabled',
   PAGE_BOOKINGS_ENABLED: 'page_bookings_enabled',
+  PAGE_MARKETPLACE_PAYPAL_ENABLED: 'page_marketplace_paypal_enabled',
   PAGE_MESSAGES_ENABLED: 'page_messages_enabled',
   PAGE_PROVIDERS_ENABLED: 'page_providers_enabled',
   PAGE_DISPUTES_ENABLED: 'page_disputes_enabled',

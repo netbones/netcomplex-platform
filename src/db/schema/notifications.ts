@@ -9,6 +9,7 @@ export const notifications = pgTable('Notification', {
   title: text('title').notNull(),
   message: text('message').notNull(),
   type: notificationTypeEnum('type').default('info').notNull(),
+  category: text('category'),
   link: text('link'),
   read: boolean('read').default(false).notNull(),
   readAt: timestamp('readAt', { mode: 'date', precision: 3 }),

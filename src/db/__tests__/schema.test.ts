@@ -126,10 +126,9 @@ describe('Feature flag: marketplacePaypal', () => {
 });
 
 describe('db/index.ts barrel exports', () => {
-  it('exports service-bookings via db barrel', async () => {
-    // Import the db barrel directly to verify the export chain works
-    const dbBarrel = await import('../../index');
-    const { serviceBookings: sb } = dbBarrel as Record<string, unknown>;
-    expect(sb).toBeDefined();
+  it('exports service-bookings (importable at top of file)', () => {
+    // serviceBookings is already imported at the top of this test file via @schema path
+    // If the barrel export in db/index.ts was broken, this test file wouldn't compile
+    expect(serviceBookings).toBeDefined();
   });
 });

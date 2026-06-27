@@ -150,6 +150,7 @@ model user {
   communityServiceInquiry                               CommunityServiceInquiry[]
   communityServiceListing                               CommunityServiceListing[]
   communityServiceReview                                CommunityServiceReview[]
+  serviceBooking                                        ServiceBooking[]          @relation("ServiceBookingToUser")
   invitation                                            Invitation[]
   member                                                Member[]
   passkey                                               passkey[]
@@ -252,6 +253,7 @@ model Notification {
   title          String
   message        String
   type           NotificationType @default(info)
+  category       String?
   link           String?
   read           Boolean          @default(false)
   readAt         DateTime?
@@ -262,6 +264,30 @@ model Notification {
   user           user             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, userId])
+}
+
+model ServiceBooking {
+  id            String               @id
+  tenantId      String
+  listingId     String
+  providerId    String
+  userId        String
+  date          DateTime             @db.Date
+  startTime     String
+  endTime       String
+  price         Decimal?             @db.Decimal(65, 30)
+  platformFee   Decimal?             @db.Decimal(65, 30)
+  paymentStatus BookingPaymentStatus @default(PENDING)
+  status        ServiceBookingStatus @default(PENDING_CONFIRMATION)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  deletedAt     DateTime?
+  listing       CommunityServiceListing @relation("ServiceBookingToListing", fields: [listingId], references: [id], onDelete: Cascade)
+  provider      ServiceProvider       @relation("ServiceBookingToProvider", fields: [providerId], references: [id], onDelete: Cascade)
+  user          user                  @relation("ServiceBookingToUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([listingId, date, startTime])
 }
 
 model AgentProfile {
@@ -999,6 +1025,7 @@ model ServiceProvider {
   revenue         RevenueRecord[]
   charges         ProviderCharge[]
   invoices        ProviderInvoice[]
+  serviceBooking  ServiceBooking[]      @relation("ServiceBookingToProvider")
 
   @@index([tenantId])
 }
@@ -1069,6 +1096,7 @@ model CommunityServiceListing {
   communityServiceInquiry CommunityServiceInquiry[]
   user                    user                      @relation(fields: [providerId], references: [id])
   communityServiceReview  CommunityServiceReview[]
+  serviceBooking          ServiceBooking[]          @relation("ServiceBookingToListing")
 
   @@index([category])
   @@index([isPublished])
@@ -2236,6 +2264,19 @@ enum NotificationType {
   warning
   success
   error
+}
+
+enum ServiceBookingStatus {
+  PENDING_CONFIRMATION
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingPaymentStatus {
+  PENDING
+  COMPLETED
+  REFUNDED
 }
 
 enum TransactionStatus {

@@ -33,6 +33,7 @@ export interface PlatformPageFlags {
   dWallet: boolean;
   providers: boolean;
   bookings: boolean;
+  marketplacePaypal: boolean;
   messages: boolean;
   headerLinks: HeaderLinkId[];
 }
