@@ -300,6 +300,15 @@ export const groupsRouter = router({
         })
         .returning();
 
+      await db.insert(groupMembers).values({
+        id: crypto.randomUUID(),
+        tenantId,
+        userId: input.ownerId || ctx.userId!,
+        groupId: group.id,
+        role: 'ADMIN',
+        joinedAt: ts,
+      });
+
       emitEvent('group.joined', {
         tenantId,
         userId: ctx.userId,
@@ -476,7 +485,7 @@ export const groupsRouter = router({
       const memberUsers =
         memberUserIds.length > 0
           ? await db
-              .select({ id: users.id, name: users.name, image: users.image, email: users.email })
+              .select({ id: users.id, name: users.name, image: users.image })
               .from(users)
               .where(inArray(users.id, memberUserIds))
           : [];

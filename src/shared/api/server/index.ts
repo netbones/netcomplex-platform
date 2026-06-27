@@ -65,6 +65,7 @@ export {
   serviceProviders,
   maintenanceCategories,
   requestNotes,
+  internalMaintenanceNotes,
   requestHistories,
   providerVerifications,
   providerLegalAgreements,

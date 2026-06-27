@@ -1,0 +1,124 @@
+import {
+  adminProcedure,
+  db,
+  communityServiceListings,
+  users,
+  now,
+  revalidateAdminChanges,
+} from '@api/server';
+import { TRPCError } from '@trpc/server';
+import { eq, and, desc, sql } from 'drizzle-orm';
+import { ModerateListingInput, ListModerationInput, getTenantListing } from './shared';
+
+export const moderationProcedures = {
+  listModerationQueue: adminProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/marketplace/moderation',
+        protect: true,
+        tags: ['marketplace'],
+      },
+    })
+    .input(ListModerationInput)
+    .query(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const conditions = [eq(communityServiceListings.tenantId, tenantId)];
+
+      if (input.status && input.status !== 'ALL') {
+        conditions.push(
+          eq(
+            communityServiceListings.status,
+            input.status as (typeof communityServiceListings.status.enumValues)[number]
+          )
+        );
+      }
+
+      const listings = await db
+        .select({
+          id: communityServiceListings.id,
+          providerId: communityServiceListings.providerId,
+          title: communityServiceListings.title,
+          category: communityServiceListings.category,
+          priceType: communityServiceListings.priceType,
+          price: communityServiceListings.price,
+          status: communityServiceListings.status,
+          isPublished: communityServiceListings.isPublished,
+          rating: communityServiceListings.rating,
+          verified: communityServiceListings.verified,
+          createdAt: communityServiceListings.createdAt,
+          provider: { id: users.id, name: users.name, email: users.email },
+        })
+        .from(communityServiceListings)
+        .leftJoin(users, eq(communityServiceListings.providerId, users.id))
+        .where(and(...conditions))
+        .orderBy(desc(communityServiceListings.createdAt))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      const [totalResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(communityServiceListings)
+        .where(and(...conditions));
+
+      return {
+        listings,
+        pagination: {
+          total: totalResult?.count || 0,
+          limit: input.limit,
+          offset: input.offset,
+          hasMore: input.offset + input.limit < (totalResult?.count || 0),
+        },
+      };
+    }),
+
+  moderateListing: adminProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/marketplace/moderation/{id}',
+        protect: true,
+        tags: ['marketplace'],
+      },
+    })
+    .input(ModerateListingInput)
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      await getTenantListing(input.id, tenantId);
+
+      const isActive = input.status === 'ACTIVE';
+      await db
+        .update(communityServiceListings)
+        .set({
+          status: input.status,
+          isPublished: input.isPublished ?? isActive,
+          moderatedBy: ctx.userId!,
+          moderatedAt: now(),
+          moderationNotes: input.notes || null,
+          updatedAt: now(),
+        })
+        .where(
+          and(
+            eq(communityServiceListings.id, input.id),
+            eq(communityServiceListings.tenantId, tenantId)
+          )
+        );
+
+      const [listing] = await db
+        .select()
+        .from(communityServiceListings)
+        .where(eq(communityServiceListings.id, input.id))
+        .limit(1);
+
+      revalidateAdminChanges();
+      return { success: true, listing };
+    }),
+};

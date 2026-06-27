@@ -13,7 +13,7 @@ import {
 
 import { TRPCError } from '@trpc/server';
 
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 
 import { getOrCreateWallet } from '@entities/dwallet/server';
 import type {
@@ -37,7 +37,7 @@ const ListTransactionsInput = z
   .optional();
 
 const CreatePayoutInput = z.object({
-  amount: z.number().positive().min(50, 'Minimum payout is R50'),
+  amount: z.number().positive().min(50, 'Minimum payout is R50').multipleOf(0.01),
 });
 
 const ListPayoutsInput = z
@@ -77,25 +77,40 @@ export const dwalletRouter = router({
       .from(dataRevenueStreams)
       .where(and(eq(dataRevenueStreams.tenantId, tenantId), eq(dataRevenueStreams.isActive, true)));
 
-    const consents: ConsentState[] = await Promise.all(
-      streams.map(async stream => {
-        const [latestConsent] = await db
-          .select()
-          .from(dataConsents)
-          .where(and(eq(dataConsents.walletId, wallet.id), eq(dataConsents.streamKey, stream.key)))
-          .orderBy(desc(dataConsents.createdAt))
-          .limit(1);
+    const streamKeys = streams.map(s => s.key);
+    const latestConsentMap = new Map<string, typeof dataConsents.$inferSelect>();
 
-        return {
-          streamKey: stream.key,
-          label: stream.label,
-          description: stream.description,
-          granted: latestConsent?.granted ?? false,
-          grantedAt: latestConsent?.grantedAt?.toISOString() ?? null,
-          revokedAt: latestConsent?.revokedAt?.toISOString() ?? null,
-        };
-      })
-    );
+    if (streamKeys.length > 0) {
+      const latestConsents = await db
+        .selectDistinctOn([dataConsents.streamKey])
+        .from(dataConsents)
+        .where(
+          and(eq(dataConsents.walletId, wallet.id), inArray(dataConsents.streamKey, streamKeys))
+        )
+        .orderBy(dataConsents.streamKey, desc(dataConsents.createdAt));
+
+      for (const c of latestConsents) {
+        if (!latestConsentMap.has(c.streamKey)) {
+          latestConsentMap.set(c.streamKey, c);
+        }
+      }
+    }
+
+    const consents: ConsentState[] = streams.map(stream => {
+      const latestConsent = latestConsentMap.get(stream.key);
+      return {
+        streamKey: stream.key,
+        label: stream.label,
+        description: stream.description,
+        granted: latestConsent?.granted ?? false,
+        grantedAt: latestConsent?.grantedAt
+          ? new Date(latestConsent.grantedAt).toISOString()
+          : null,
+        revokedAt: latestConsent?.revokedAt
+          ? new Date(latestConsent.revokedAt).toISOString()
+          : null,
+      };
+    });
 
     const recentTxns = await db
       .select()
@@ -268,6 +283,13 @@ export const dwalletRouter = router({
       });
     }
 
+    if (input.amount > balanceNum) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Insufficient balance',
+      });
+    }
+
     const timestamp = now();
     const payoutId = crypto.randomUUID();
 
@@ -276,6 +298,7 @@ export const dwalletRouter = router({
       tenantId,
       walletId: wallet.id,
       userId: ctx.userId!,
+      // amount column is decimal(65,30) — Drizzle requires string for precision
       amount: input.amount.toString(),
       currency: wallet.currency,
       status: 'PENDING',
@@ -288,7 +311,7 @@ export const dwalletRouter = router({
 
     return {
       id: payoutId,
-      amount: input.amount.toString(),
+      amount: input.amount,
       status: 'PENDING' as const,
       method: 'bank_transfer',
       createdAt: timestamp.toISOString(),
@@ -325,8 +348,8 @@ export const dwalletRouter = router({
       amount: p.amount,
       status: p.status as PayoutRequestItem['status'],
       method: p.method,
-      createdAt: p.createdAt.toISOString(),
-      processedAt: p.processedAt?.toISOString() ?? null,
+      createdAt: new Date(p.createdAt).toISOString(),
+      processedAt: p.processedAt ? new Date(p.processedAt).toISOString() : null,
       notes: p.notes,
     }));
 
@@ -346,25 +369,40 @@ export const dwalletRouter = router({
       .from(dataRevenueStreams)
       .where(and(eq(dataRevenueStreams.tenantId, tenantId), eq(dataRevenueStreams.isActive, true)));
 
-    const consents: ConsentState[] = await Promise.all(
-      streams.map(async stream => {
-        const [latestConsent] = await db
-          .select()
-          .from(dataConsents)
-          .where(and(eq(dataConsents.walletId, wallet.id), eq(dataConsents.streamKey, stream.key)))
-          .orderBy(desc(dataConsents.createdAt))
-          .limit(1);
+    const streamKeys = streams.map(s => s.key);
+    const latestConsentMap = new Map<string, typeof dataConsents.$inferSelect>();
 
-        return {
-          streamKey: stream.key,
-          label: stream.label,
-          description: stream.description,
-          granted: latestConsent?.granted ?? false,
-          grantedAt: latestConsent?.grantedAt?.toISOString() ?? null,
-          revokedAt: latestConsent?.revokedAt?.toISOString() ?? null,
-        };
-      })
-    );
+    if (streamKeys.length > 0) {
+      const latestConsents = await db
+        .selectDistinctOn([dataConsents.streamKey])
+        .from(dataConsents)
+        .where(
+          and(eq(dataConsents.walletId, wallet.id), inArray(dataConsents.streamKey, streamKeys))
+        )
+        .orderBy(dataConsents.streamKey, desc(dataConsents.createdAt));
+
+      for (const c of latestConsents) {
+        if (!latestConsentMap.has(c.streamKey)) {
+          latestConsentMap.set(c.streamKey, c);
+        }
+      }
+    }
+
+    const consents: ConsentState[] = streams.map(stream => {
+      const latestConsent = latestConsentMap.get(stream.key);
+      return {
+        streamKey: stream.key,
+        label: stream.label,
+        description: stream.description,
+        granted: latestConsent?.granted ?? false,
+        grantedAt: latestConsent?.grantedAt
+          ? new Date(latestConsent.grantedAt).toISOString()
+          : null,
+        revokedAt: latestConsent?.revokedAt
+          ? new Date(latestConsent.revokedAt).toISOString()
+          : null,
+      };
+    });
 
     return consents;
   }),

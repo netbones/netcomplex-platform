@@ -52,10 +52,12 @@ function buildVisibilityFilter(role: string | null | undefined, isOwner: boolean
 
 const ResourceIdInput = z.object({ id: z.string() });
 
+const VisibilityEnum = z.enum(['ALL_RESIDENTS', 'OWNERS_ONLY', 'COMMITTEE_ONLY', 'BOARD_ONLY']);
+
 const ListResourcesInput = z
   .object({
     category: z.string().optional(),
-    visibility: z.string().optional(),
+    visibility: VisibilityEnum.optional(),
   })
   .optional();
 
@@ -69,7 +71,7 @@ const CreateResourceInput = z.object({
   externalUrl: z.string().optional(),
   bodyContent: z.any().optional(),
   version: z.string().optional(),
-  visibility: z.string().default('ALL_RESIDENTS'),
+  visibility: VisibilityEnum.default('ALL_RESIDENTS'),
   publishedAt: z.string().optional(),
 });
 
@@ -85,7 +87,7 @@ const UpdateResourceInput = z.object({
   bodyContent: z.any().optional(),
   version: z.string().optional(),
   versionNotes: z.string().optional(),
-  visibility: z.string().optional(),
+  visibility: VisibilityEnum.optional(),
   publishedAt: z.string().optional(),
 });
 
@@ -121,11 +123,14 @@ export const resourcesRouter = router({
 
       let adminVisibilityFilter: ReturnType<typeof eq> | undefined;
       if (input?.visibility && hasPermission(role, 'content')) {
-        adminVisibilityFilter = eq(resources.visibility, input.visibility as never);
+        adminVisibilityFilter = eq(
+          resources.visibility,
+          input.visibility as (typeof resources.visibility.enumValues)[number]
+        );
       }
 
       const categoryFilter = input?.category
-        ? eq(resources.category, input.category as never)
+        ? eq(resources.category, input.category as (typeof resources.category.enumValues)[number])
         : undefined;
 
       const conditions = [eq(resources.tenantId, tenantId), notDeleted(resources)];
@@ -227,15 +232,15 @@ export const resourcesRouter = router({
           tenantId,
           title: input.title,
           description: input.description || null,
-          category: input.category as never,
+          category: input.category as (typeof resources.category.enumValues)[number],
           fileUrl: input.fileUrl || null,
           fileType: input.fileType || null,
-          fileSize: input.fileSize || null,
+          fileSize: input.fileSize ?? null,
           externalUrl: input.externalUrl || null,
           bodyContent: input.bodyContent || null,
           version: input.version || null,
-          visibility: input.visibility as never,
-          authorId: ctx.role === 'ADMIN' ? null : ctx.userId,
+          visibility: input.visibility as (typeof resources.visibility.enumValues)[number],
+          authorId: ctx.userId,
           publishedAt: input.publishedAt ? new Date(input.publishedAt) : null,
           createdAt: ts,
           updatedAt: ts,

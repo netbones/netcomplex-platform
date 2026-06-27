@@ -22,7 +22,7 @@ const notificationSchema = z.object({
   read: z.boolean(),
   readAt: z.date().nullable(),
   deliveryStatus: z.string(),
-  payload: z.any().nullable(),
+  payload: z.unknown().nullable(),
   createdAt: z.date(),
   deletedAt: z.date().nullable(),
 });
@@ -83,8 +83,6 @@ export const notificationsRouter = router({
     })
     .input(
       z.object({
-        tenantId: z.string(),
-        userId: z.string(),
         title: z.string().min(1),
         message: z.string().min(1),
         type: notificationTypeEnum.default('info'),
@@ -96,14 +94,19 @@ export const notificationsRouter = router({
       })
     )
     .output(notificationSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
       const now = new Date();
       const [created] = await db
         .insert(notifications)
         .values({
           id: crypto.randomUUID(),
-          tenantId: input.tenantId,
-          userId: input.userId,
+          tenantId,
+          userId: ctx.userId!,
           title: input.title,
           message: input.message,
           type: input.type,
@@ -168,10 +171,10 @@ export const notificationsRouter = router({
             )
           );
       } else {
-        // Mark all unread as read
-        await db
-          .update(notifications)
-          .set({ read: true, readAt: now })
+        // Mark up to 500 unread as read
+        const eligible = await db
+          .select({ id: notifications.id })
+          .from(notifications)
           .where(
             and(
               isNull(notifications.deletedAt),
@@ -179,7 +182,20 @@ export const notificationsRouter = router({
               eq(notifications.tenantId, ctx.tenantId!),
               eq(notifications.read, false)
             )
-          );
+          )
+          .limit(500);
+
+        if (eligible.length > 0) {
+          await db
+            .update(notifications)
+            .set({ read: true, readAt: now })
+            .where(
+              inArray(
+                notifications.id,
+                eligible.map(n => n.id)
+              )
+            );
+        }
       }
 
       return { success: true };

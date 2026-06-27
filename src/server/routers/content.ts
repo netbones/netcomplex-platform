@@ -8,6 +8,7 @@ import {
   contentLikes,
   users,
   groups,
+  groupMembers,
   revalidateContent,
   notDeleted,
   emitEvent,
@@ -105,13 +106,13 @@ const ModerateContentInput = z.object({
 // Helpers
 // ──────────────────────────────────────────
 
-function requireContentPermission(role: string | null | undefined): void {
+export function requireContentPermission(role: string | null | undefined): void {
   if (!hasPermission(role, 'content') && !hasPermission(role, 'contentOwn')) {
     throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient permissions' });
   }
 }
 
-function requireFullContentPermission(role: string | null | undefined): void {
+export function requireFullContentPermission(role: string | null | undefined): void {
   if (!hasPermission(role, 'content')) {
     throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient permissions' });
   }
@@ -143,8 +144,8 @@ export const contentRouter = router({
     .input(
       z.object({
         id: z.string(),
-        locale: z.string().optional(),
-        published: z.string().optional(),
+        locale: z.enum(supportedLanguages).optional(),
+        published: z.coerce.boolean().optional(),
       })
     )
     .query(async ({ input, ctx }) => {
@@ -162,7 +163,7 @@ export const contentRouter = router({
       ];
 
       if (input.published !== undefined) {
-        conditions.push(eq(contents.published, input.published === 'true'));
+        conditions.push(eq(contents.published, input.published));
       }
 
       const canViewAll = hasPermission(ctx.role, 'content');
@@ -227,6 +228,25 @@ export const contentRouter = router({
     const tenantId = ctx.tenantId;
     if (!tenantId) {
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+    }
+
+    if (input.groupId) {
+      const [membership] = await db
+        .select({ id: groupMembers.id })
+        .from(groupMembers)
+        .where(
+          and(
+            eq(groupMembers.groupId, input.groupId),
+            eq(groupMembers.userId, ctx.userId!),
+            eq(groupMembers.tenantId, tenantId),
+            isNull(groupMembers.deletedAt)
+          )
+        )
+        .limit(1);
+
+      if (!membership && !hasPermission(ctx.role, 'admin')) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Not a member of this group' });
+      }
     }
 
     const content = await entityCreateContent({
@@ -421,6 +441,18 @@ export const contentRouter = router({
     const tenantId = ctx.tenantId;
     if (!tenantId) {
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+    }
+
+    const [content] = await db
+      .select({ id: contents.id })
+      .from(contents)
+      .where(
+        and(eq(contents.id, input.id), eq(contents.tenantId, tenantId), isNull(contents.deletedAt))
+      )
+      .limit(1);
+
+    if (!content) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Content not found' });
     }
 
     const [existing] = await db

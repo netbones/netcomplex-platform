@@ -43,6 +43,7 @@ import * as maintenanceRequests from './maintenance-requests';
 import * as maintenanceTeams from './maintenance-teams';
 import * as maintenanceCategories from './maintenance-categories';
 import * as requestNotes from './request-notes';
+import * as internalMaintenanceNotes from './internal-maintenance-notes';
 import * as requestHistories from './request-histories';
 import * as serviceProviders from './service-providers';
 import * as communityServiceInquiries from './community-service-inquiries';
@@ -141,6 +142,7 @@ import * as bookingsRelations from './bookings-relations';
 import * as maintenanceRequestsRelations from './maintenance-requests-relations';
 import * as maintenanceTeamsRelations from './maintenance-teams-relations';
 import * as requestNotesRelations from './request-notes-relations';
+import * as internalMaintenanceNotesRelations from './internal-maintenance-notes-relations';
 import * as requestHistoriesRelations from './request-histories-relations';
 import * as serviceProvidersRelations from './service-providers-relations';
 import * as communityServiceInquiriesRelations from './community-service-inquiries-relations';
@@ -238,6 +240,7 @@ export const schema = {
   ...maintenanceTeams,
   ...maintenanceCategories,
   ...requestNotes,
+  ...internalMaintenanceNotes,
   ...requestHistories,
   ...serviceProviders,
   ...communityServiceInquiries,
@@ -336,6 +339,7 @@ export const schema = {
   ...maintenanceRequestsRelations,
   ...maintenanceTeamsRelations,
   ...requestNotesRelations,
+  ...internalMaintenanceNotesRelations,
   ...requestHistoriesRelations,
   ...serviceProvidersRelations,
   ...communityServiceInquiriesRelations,

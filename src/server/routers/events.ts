@@ -14,7 +14,7 @@ import {
 } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
-import { hasPermission } from '@shared/lib';
+import { requireContentPermission } from './content';
 
 import { eq, and, count, inArray } from 'drizzle-orm';
 
@@ -28,7 +28,7 @@ const EventIdInput = z.object({ id: z.string() });
 
 const ListEventsInput = z
   .object({
-    upcoming: z.string().optional(),
+    upcoming: z.coerce.boolean().optional(),
     category: z.string().optional(),
     groupId: z.string().optional(),
     limit: z.coerce.number().optional(),
@@ -109,12 +109,6 @@ async function enrichEvents(
   }));
 }
 
-function requireContentPermission(role: string | null | undefined): void {
-  if (!hasPermission(role, 'content') && !hasPermission(role, 'contentOwn')) {
-    throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient permissions' });
-  }
-}
-
 // ──────────────────────────────────────────
 // Router
 // ──────────────────────────────────────────
@@ -132,7 +126,7 @@ export const eventsRouter = router({
       const eventItems = await listEvents({
         tenantId,
         limit: input?.limit,
-        upcoming: input?.upcoming === 'true',
+        upcoming: input?.upcoming,
       });
 
       const enriched = await enrichEvents(
@@ -348,7 +342,13 @@ export const eventsRouter = router({
 
       const [deleted] = await db
         .delete(eventAttendees)
-        .where(and(eq(eventAttendees.eventId, input.id), eq(eventAttendees.userId, ctx.userId)))
+        .where(
+          and(
+            eq(eventAttendees.eventId, input.id),
+            eq(eventAttendees.userId, ctx.userId),
+            eq(eventAttendees.tenantId, tenantId)
+          )
+        )
         .returning();
 
       if (!deleted) {

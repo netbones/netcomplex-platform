@@ -1,0 +1,155 @@
+import {
+  z,
+  protectedProcedure,
+  db,
+  maintenanceCategories,
+  TRPCError,
+  hasPermission,
+  eq,
+  and,
+  asc,
+  isNull,
+  CategoryInput,
+  UpdateCategoryInput,
+  requireRequestsPermission,
+} from './shared';
+
+export const maintenanceCategoryProcedures = {
+  listCategories: protectedProcedure
+    .input(z.object({ isActive: z.boolean().optional() }).optional())
+    .query(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const conditions = [
+        eq(maintenanceCategories.tenantId, tenantId),
+        isNull(maintenanceCategories.deletedAt),
+      ];
+
+      if (input?.isActive !== undefined) {
+        conditions.push(eq(maintenanceCategories.isActive, input.isActive));
+      }
+
+      return db
+        .select()
+        .from(maintenanceCategories)
+        .where(and(...conditions))
+        .orderBy(asc(maintenanceCategories.label));
+    }),
+
+  createCategory: protectedProcedure.input(CategoryInput).mutation(async ({ input, ctx }) => {
+    requireRequestsPermission(ctx.role);
+
+    const tenantId = ctx.tenantId;
+    if (!tenantId) {
+      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+    }
+
+    // Check for duplicate value
+    const [existing] = await db
+      .select()
+      .from(maintenanceCategories)
+      .where(
+        and(
+          eq(maintenanceCategories.tenantId, tenantId),
+          eq(maintenanceCategories.value, input.value),
+          isNull(maintenanceCategories.deletedAt)
+        )
+      );
+
+    if (existing) {
+      throw new TRPCError({ code: 'CONFLICT', message: 'Category value already exists' });
+    }
+
+    const [created] = await db
+      .insert(maintenanceCategories)
+      .values({
+        id: crypto.randomUUID(),
+        tenantId,
+        value: input.value,
+        label: input.label,
+        description: input.description || null,
+        isActive: true,
+        createdAt: new Date(),
+      })
+      .returning();
+
+    return created;
+  }),
+
+  updateCategory: protectedProcedure.input(UpdateCategoryInput).mutation(async ({ input, ctx }) => {
+    requireRequestsPermission(ctx.role);
+
+    const tenantId = ctx.tenantId;
+    if (!tenantId) {
+      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+    }
+
+    const [existing] = await db
+      .select()
+      .from(maintenanceCategories)
+      .where(
+        and(
+          eq(maintenanceCategories.id, input.id),
+          eq(maintenanceCategories.tenantId, tenantId),
+          isNull(maintenanceCategories.deletedAt)
+        )
+      );
+
+    if (!existing) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'Category not found' });
+    }
+
+    const updateData: Record<string, unknown> = {};
+    if (input.label !== undefined) updateData.label = input.label;
+    if (input.description !== undefined) updateData.description = input.description;
+    if (input.isActive !== undefined) updateData.isActive = input.isActive;
+
+    const [updated] = await db
+      .update(maintenanceCategories)
+      .set(updateData)
+      .where(
+        and(eq(maintenanceCategories.id, input.id), eq(maintenanceCategories.tenantId, tenantId))
+      )
+      .returning();
+
+    return updated;
+  }),
+
+  deleteCategory: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      requireRequestsPermission(ctx.role);
+
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const [existing] = await db
+        .select()
+        .from(maintenanceCategories)
+        .where(
+          and(
+            eq(maintenanceCategories.id, input.id),
+            eq(maintenanceCategories.tenantId, tenantId),
+            isNull(maintenanceCategories.deletedAt)
+          )
+        );
+
+      if (!existing) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Category not found' });
+      }
+
+      await db
+        .update(maintenanceCategories)
+        .set({ deletedAt: new Date() })
+        .where(
+          and(eq(maintenanceCategories.id, input.id), eq(maintenanceCategories.tenantId, tenantId))
+        );
+
+      return { success: true };
+    }),
+};

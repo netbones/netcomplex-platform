@@ -39,7 +39,6 @@ const DEFAULT_EXPIRY_DAYS = {
   MERIT: null,
 } as const;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DEFAULT_TIER_THRESHOLDS = {
   GOLD: 50,
   SILVER: 20,
@@ -182,6 +181,88 @@ async function notifyTierChange(
   }
 }
 
+async function createMeritRecord(
+  input: z.infer<typeof CreateMeritInput>,
+  tenantId: string,
+  createdById: string
+) {
+  let recognitionPoints = 0;
+  let disciplinaryPoints = 0;
+
+  if (input.behaviorType === 'MERIT') {
+    recognitionPoints = BEHAVIOR_POINTS.MERIT;
+  } else if (input.behaviorType === 'WARNING') {
+    disciplinaryPoints = BEHAVIOR_POINTS.WARNING;
+  } else if (input.behaviorType === 'INFRACTION') {
+    disciplinaryPoints = BEHAVIOR_POINTS.INFRACTION;
+  }
+
+  const expiryDays = DEFAULT_EXPIRY_DAYS[input.behaviorType];
+  const configuredMeritExpiryDays =
+    input.behaviorType === 'MERIT' ? await getMeritExpiryDays(tenantId) : null;
+  const effectiveExpiryDays =
+    input.behaviorType === 'MERIT' ? configuredMeritExpiryDays : expiryDays;
+  const expiresAt = effectiveExpiryDays
+    ? new Date(Date.now() + effectiveExpiryDays * 24 * 60 * 60 * 1000)
+    : null;
+
+  const { overall: standingBefore } = await getEffectivePoints(input.userId, tenantId);
+  const standingAfter =
+    standingBefore + (input.behaviorType === 'MERIT' ? recognitionPoints : -disciplinaryPoints);
+
+  const id = crypto.randomUUID();
+  const ts = now();
+
+  await db.insert(communityMerits).values({
+    id,
+    tenantId,
+    userId: input.userId,
+    behaviorType: input.behaviorType,
+    category: input.category,
+    reason: input.reason,
+    description: input.description || null,
+    recognitionPoints,
+    disciplinaryPoints,
+    standingBefore,
+    standingAfter,
+    status: 'ACTIVE',
+    createdById,
+    createdAt: ts,
+    expiresAt,
+  });
+
+  await checkAndEscalateStanding(input.userId, tenantId);
+
+  const tierBefore = getStandingTier(standingBefore);
+  const tierAfter = getStandingTier(standingAfter);
+
+  await notifyTierChange(
+    input.userId,
+    tenantId,
+    tierBefore,
+    tierAfter,
+    'Community standing updated',
+    `Your standing changed from ${STANDING_LABELS[tierBefore]} to ${STANDING_LABELS[tierAfter]}.`
+  );
+
+  await writeAuditLog({
+    tenantId,
+    action: 'MERIT_RECORD_CREATED',
+    targetId: id,
+    actorId: createdById,
+    details: {
+      behaviorType: input.behaviorType,
+      recognitionPoints,
+      disciplinaryPoints,
+      standingBefore,
+      standingAfter,
+    },
+  });
+
+  revalidateAdminChanges();
+  return { id, standingBefore, standingAfter };
+}
+
 // ──────────────────────────────────────────
 // Router
 // ──────────────────────────────────────────
@@ -283,82 +364,7 @@ export const meritsRouter = router({
       }
 
       requireUsersPermission(ctx.role);
-
-      let recognitionPoints = 0;
-      let disciplinaryPoints = 0;
-
-      if (input.behaviorType === 'MERIT') {
-        recognitionPoints = BEHAVIOR_POINTS.MERIT;
-      } else if (input.behaviorType === 'WARNING') {
-        disciplinaryPoints = BEHAVIOR_POINTS.WARNING;
-      } else if (input.behaviorType === 'INFRACTION') {
-        disciplinaryPoints = BEHAVIOR_POINTS.INFRACTION;
-      }
-
-      const expiryDays = DEFAULT_EXPIRY_DAYS[input.behaviorType];
-      const configuredMeritExpiryDays =
-        input.behaviorType === 'MERIT' ? await getMeritExpiryDays(tenantId) : null;
-      const effectiveExpiryDays =
-        input.behaviorType === 'MERIT' ? configuredMeritExpiryDays : expiryDays;
-      const expiresAt = effectiveExpiryDays
-        ? new Date(Date.now() + effectiveExpiryDays * 24 * 60 * 60 * 1000)
-        : null;
-
-      const { overall: standingBefore } = await getEffectivePoints(input.userId, tenantId);
-      const standingAfter =
-        standingBefore + (input.behaviorType === 'MERIT' ? recognitionPoints : -disciplinaryPoints);
-
-      const id = crypto.randomUUID();
-      const ts = now();
-
-      await db.insert(communityMerits).values({
-        id,
-        tenantId,
-        userId: input.userId,
-        behaviorType: input.behaviorType,
-        category: input.category,
-        reason: input.reason,
-        description: input.description || null,
-        recognitionPoints,
-        disciplinaryPoints,
-        standingBefore,
-        standingAfter,
-        status: 'ACTIVE',
-        createdById: ctx.userId!,
-        createdAt: ts,
-        expiresAt,
-      });
-
-      await checkAndEscalateStanding(input.userId, tenantId);
-
-      const tierBefore = getStandingTier(standingBefore);
-      const tierAfter = getStandingTier(standingAfter);
-
-      await notifyTierChange(
-        input.userId,
-        tenantId,
-        tierBefore,
-        tierAfter,
-        'Community standing updated',
-        `Your standing changed from ${STANDING_LABELS[tierBefore]} to ${STANDING_LABELS[tierAfter]}.`
-      );
-
-      await writeAuditLog({
-        tenantId,
-        action: 'MERIT_RECORD_CREATED',
-        targetId: id,
-        actorId: ctx.userId,
-        details: {
-          behaviorType: input.behaviorType,
-          recognitionPoints,
-          disciplinaryPoints,
-          standingBefore,
-          standingAfter,
-        },
-      });
-
-      revalidateAdminChanges();
-      return { id, standingBefore, standingAfter };
+      return createMeritRecord(input, tenantId, ctx.userId!);
     }),
 
   updateMerit: protectedProcedure
@@ -454,82 +460,7 @@ export const meritsRouter = router({
       }
 
       requireUsersPermission(ctx.role);
-
-      let recognitionPoints = 0;
-      let disciplinaryPoints = 0;
-
-      if (input.behaviorType === 'MERIT') {
-        recognitionPoints = BEHAVIOR_POINTS.MERIT;
-      } else if (input.behaviorType === 'WARNING') {
-        disciplinaryPoints = BEHAVIOR_POINTS.WARNING;
-      } else if (input.behaviorType === 'INFRACTION') {
-        disciplinaryPoints = BEHAVIOR_POINTS.INFRACTION;
-      }
-
-      const expiryDays = DEFAULT_EXPIRY_DAYS[input.behaviorType];
-      const configuredMeritExpiryDays =
-        input.behaviorType === 'MERIT' ? await getMeritExpiryDays(tenantId) : null;
-      const effectiveExpiryDays =
-        input.behaviorType === 'MERIT' ? configuredMeritExpiryDays : expiryDays;
-      const expiresAt = effectiveExpiryDays
-        ? new Date(Date.now() + effectiveExpiryDays * 24 * 60 * 60 * 1000)
-        : null;
-
-      const { overall: standingBefore } = await getEffectivePoints(input.userId, tenantId);
-      const standingAfter =
-        standingBefore + (input.behaviorType === 'MERIT' ? recognitionPoints : -disciplinaryPoints);
-
-      const id = crypto.randomUUID();
-      const ts = now();
-
-      await db.insert(communityMerits).values({
-        id,
-        tenantId,
-        userId: input.userId,
-        behaviorType: input.behaviorType,
-        category: input.category,
-        reason: input.reason,
-        description: input.description || null,
-        recognitionPoints,
-        disciplinaryPoints,
-        standingBefore,
-        standingAfter,
-        status: 'ACTIVE',
-        createdById: ctx.userId!,
-        createdAt: ts,
-        expiresAt,
-      });
-
-      await checkAndEscalateStanding(input.userId, tenantId);
-
-      const tierBefore = getStandingTier(standingBefore);
-      const tierAfter = getStandingTier(standingAfter);
-
-      await notifyTierChange(
-        input.userId,
-        tenantId,
-        tierBefore,
-        tierAfter,
-        'Community standing updated',
-        `Your standing changed from ${STANDING_LABELS[tierBefore]} to ${STANDING_LABELS[tierAfter]}.`
-      );
-
-      await writeAuditLog({
-        tenantId,
-        action: 'MERIT_RECORD_CREATED',
-        targetId: id,
-        actorId: ctx.userId,
-        details: {
-          behaviorType: input.behaviorType,
-          recognitionPoints,
-          disciplinaryPoints,
-          standingBefore,
-          standingAfter,
-        },
-      });
-
-      revalidateAdminChanges();
-      return { id, standingBefore, standingAfter };
+      return createMeritRecord(input, tenantId, ctx.userId!);
     }),
 
   // ────────── USER MERITS ──────────

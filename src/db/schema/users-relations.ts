@@ -11,6 +11,7 @@ import { groups } from './groups';
 import { groupMembershipRequests } from './group-membership-requests';
 import { maintenanceRequests } from './maintenance-requests';
 import { requestNotes } from './request-notes';
+import { internalMaintenanceNotes } from './internal-maintenance-notes';
 import { requestHistories } from './request-histories';
 import { messages } from './messages';
 import { notifications } from './notifications';
@@ -68,6 +69,9 @@ export const usersRelations = relations(users, helpers => ({
     relationName: 'MaintenanceRequestTouser',
   }),
   RequestNote: helpers.many(requestNotes, { relationName: 'RequestNoteTouser' }),
+  InternalMaintenanceNote: helpers.many(internalMaintenanceNotes, {
+    relationName: 'InternalMaintenanceNoteTouser',
+  }),
   RequestHistory: helpers.many(requestHistories, { relationName: 'RequestHistoryTouser' }),
   Message: helpers.many(messages, { relationName: 'MessageTouser' }),
   Notification: helpers.many(notifications, { relationName: 'NotificationTouser' }),

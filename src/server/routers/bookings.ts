@@ -35,17 +35,33 @@ const FacilityInput = z.object({ facility: z.string() });
 const ListBookingsInput = z
   .object({
     facility: z.string().optional(),
-    date: z.string().optional(),
+    date: z
+      .union([
+        z.literal('today'),
+        z.string().regex(/^\d{4}-\d{2}-\d{2}/, 'Date must be YYYY-MM-DD format'),
+      ])
+      .optional()
+      .describe('Date in YYYY-MM-DD format, or "today" for current date'),
   })
   .optional();
 
-const CreateBookingInput = z.object({
-  facility: z.string().min(1),
-  date: z.string().min(1),
-  startTime: z.string().min(1),
-  endTime: z.string().min(1),
-  purpose: z.string().max(500).optional().default(''),
-});
+const CreateBookingInput = z
+  .object({
+    facility: z.string().min(1),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}/, 'Date must be ISO 8601 format (YYYY-MM-DD)'),
+    startTime: z.string().regex(/^\d{2}:\d{2}/, 'Time must be HH:MM format'),
+    endTime: z.string().regex(/^\d{2}:\d{2}/, 'Time must be HH:MM format'),
+    purpose: z.string().max(500).optional().default(''),
+  })
+  .refine(
+    data => {
+      if (!data.startTime || !data.endTime) return true;
+      const [sh, sm] = data.startTime.split(':').map(Number);
+      const [eh, em] = data.endTime.split(':').map(Number);
+      return sh * 60 + sm < eh * 60 + em;
+    },
+    { message: 'Start time must be before end time', path: ['startTime'] }
+  );
 
 // ──────────────────────────────────────────
 // Shared helpers

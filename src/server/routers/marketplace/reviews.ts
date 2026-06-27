@@ -1,0 +1,207 @@
+import {
+  publicProcedure,
+  protectedProcedure,
+  db,
+  communityServiceListings,
+  communityServiceReviews,
+  users,
+  now,
+  revalidateAdminChanges,
+} from '@api/server';
+import { TRPCError } from '@trpc/server';
+import { eq, and, desc, sql } from 'drizzle-orm';
+import { ListReviewsInput, CreateReviewInput, updateListingRating } from './shared';
+
+export const reviewProcedures = {
+  listReviews: publicProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/marketplace/reviews/{listingId}',
+        protect: false,
+        tags: ['marketplace'],
+      },
+    })
+    .input(ListReviewsInput)
+    .query(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const reviews = await db
+        .select({
+          id: communityServiceReviews.id,
+          listingId: communityServiceReviews.listingId,
+          reviewerId: communityServiceReviews.reviewerId,
+          rating: communityServiceReviews.rating,
+          title: communityServiceReviews.title,
+          comment: communityServiceReviews.comment,
+          serviceDate: communityServiceReviews.serviceDate,
+          responseQuality: communityServiceReviews.responseQuality,
+          isPublished: communityServiceReviews.isPublished,
+          createdAt: communityServiceReviews.createdAt,
+          reviewer: {
+            id: users.id,
+            name: users.name,
+            avatar: users.avatar,
+          },
+        })
+        .from(communityServiceReviews)
+        .leftJoin(users, eq(communityServiceReviews.reviewerId, users.id))
+        .where(
+          and(
+            eq(communityServiceReviews.listingId, input.listingId),
+            eq(communityServiceReviews.isPublished, true),
+            eq(communityServiceReviews.tenantId, tenantId)
+          )
+        )
+        .orderBy(desc(communityServiceReviews.createdAt))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      const [totalResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(communityServiceReviews)
+        .where(
+          and(
+            eq(communityServiceReviews.listingId, input.listingId),
+            eq(communityServiceReviews.isPublished, true),
+            eq(communityServiceReviews.tenantId, tenantId)
+          )
+        );
+
+      const [ratingStats] = await db
+        .select({
+          avgRating: sql<number>`avg(${communityServiceReviews.rating})`,
+          avgResponse: sql<number>`avg(${communityServiceReviews.responseQuality})`,
+          count: sql<number>`count(*)`,
+        })
+        .from(communityServiceReviews)
+        .where(
+          and(
+            eq(communityServiceReviews.listingId, input.listingId),
+            eq(communityServiceReviews.isPublished, true),
+            eq(communityServiceReviews.tenantId, tenantId)
+          )
+        );
+
+      return {
+        reviews,
+        stats: {
+          averageRating: Number(ratingStats?.avgRating) || 0,
+          averageResponse: Number(ratingStats?.avgResponse) || 0,
+          totalReviews: ratingStats?.count || 0,
+        },
+        pagination: {
+          total: totalResult?.count || 0,
+          limit: input.limit,
+          offset: input.offset,
+          hasMore: input.offset + input.limit < (totalResult?.count || 0),
+        },
+      };
+    }),
+
+  createReview: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/marketplace/reviews/{listingId}',
+        protect: true,
+        tags: ['marketplace'],
+      },
+    })
+    .input(CreateReviewInput)
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const [listing] = await db
+        .select({
+          id: communityServiceListings.id,
+          isPublished: communityServiceListings.isPublished,
+          providerId: communityServiceListings.providerId,
+        })
+        .from(communityServiceListings)
+        .where(
+          and(
+            eq(communityServiceListings.id, input.listingId),
+            eq(communityServiceListings.tenantId, tenantId)
+          )
+        )
+        .limit(1);
+
+      if (!listing || !listing.isPublished) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Listing not found' });
+      }
+
+      if (listing.providerId === ctx.userId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Cannot review your own service' });
+      }
+
+      const [existingReview] = await db
+        .select({ id: communityServiceReviews.id })
+        .from(communityServiceReviews)
+        .where(
+          and(
+            eq(communityServiceReviews.listingId, input.listingId),
+            eq(communityServiceReviews.reviewerId, ctx.userId!)
+          )
+        )
+        .limit(1);
+
+      if (existingReview) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'You have already reviewed this service',
+        });
+      }
+
+      const reviewId = crypto.randomUUID();
+      const ts = now();
+
+      await db.insert(communityServiceReviews).values({
+        id: reviewId,
+        tenantId,
+        listingId: input.listingId,
+        reviewerId: ctx.userId!,
+        rating: input.rating,
+        title: input.title || null,
+        comment: input.comment || null,
+        serviceDate: input.serviceDate ? new Date(input.serviceDate) : null,
+        responseQuality: input.responseQuality || null,
+        isPublished: true,
+        createdAt: ts,
+      });
+
+      await updateListingRating(input.listingId, tenantId);
+
+      const [review] = await db
+        .select({
+          id: communityServiceReviews.id,
+          listingId: communityServiceReviews.listingId,
+          reviewerId: communityServiceReviews.reviewerId,
+          rating: communityServiceReviews.rating,
+          title: communityServiceReviews.title,
+          comment: communityServiceReviews.comment,
+          serviceDate: communityServiceReviews.serviceDate,
+          responseQuality: communityServiceReviews.responseQuality,
+          isPublished: communityServiceReviews.isPublished,
+          createdAt: communityServiceReviews.createdAt,
+          reviewer: {
+            id: users.id,
+            name: users.name,
+            avatar: users.avatar,
+          },
+        })
+        .from(communityServiceReviews)
+        .leftJoin(users, eq(communityServiceReviews.reviewerId, users.id))
+        .where(eq(communityServiceReviews.id, reviewId))
+        .limit(1);
+
+      revalidateAdminChanges();
+      return { success: true, review };
+    }),
+};

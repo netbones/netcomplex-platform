@@ -135,6 +135,7 @@ model user {
   GroupMembershipRequest                                GroupMembershipRequest[]
   MaintenanceRequest                                    MaintenanceRequest[]
   RequestNote                                           RequestNote[]
+  InternalMaintenanceNote                               InternalMaintenanceNote[]
   RequestHistory                                        RequestHistory[]
   Message                                               Message[]
   Notification                                          Notification[]
@@ -931,6 +932,7 @@ model MaintenanceRequest {
   assignedProvider   ServiceProvider? @relation("ProviderAssignments", fields: [assignedProviderId], references: [id])
   histories          RequestHistory[]
   notes              RequestNote[]
+  internalNotes      InternalMaintenanceNote[]
 
   @@index([tenantId])
   @@index([assignedTeamId])
@@ -976,6 +978,22 @@ model RequestNote {
   createdAt  DateTime           @default(now())
   request    MaintenanceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
   user       user               @relation(fields: [userId], references: [id])
+
+  @@index([requestId])
+  @@index([userId])
+}
+
+model InternalMaintenanceNote {
+  id        String             @id @default(cuid())
+  requestId String
+  userId    String
+  content   String
+  category  String?
+  deletedAt DateTime?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  request   MaintenanceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user      user               @relation(fields: [userId], references: [id])
 
   @@index([requestId])
   @@index([userId])
