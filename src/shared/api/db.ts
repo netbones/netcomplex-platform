@@ -59,6 +59,7 @@ import { propertyListings } from '@schema/property-listings';
 import { communityServiceListings } from '@schema/community-service-listings';
 import { communityServiceReviews } from '@schema/community-service-reviews';
 import { communityServiceInquiries } from '@schema/community-service-inquiries';
+import { serviceBookings } from '@schema/service-bookings';
 import { groups } from '@schema/groups';
 import { groupMembers } from '@schema/group-members';
 import { surveys } from '@schema/surveys';
@@ -156,6 +157,7 @@ const dbSchema = {
   communityServiceListings,
   communityServiceReviews,
   communityServiceInquiries,
+  serviceBookings,
   groups,
   groupMembers,
   surveys,
@@ -390,6 +392,7 @@ export {
   communityServiceListings,
   communityServiceReviews,
   communityServiceInquiries,
+  serviceBookings,
   groups,
   groupMembers,
   surveys,

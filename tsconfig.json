@@ -33,6 +33,7 @@
       "@entities/booking/server": ["./src/entities/booking/index.server"],
       "@entities/dwallet/server": ["./src/entities/dwallet/index.server"],
       "@entities/dispute/server": ["./src/entities/dispute/index.server"],
+      "@entities/marketplace/server": ["./src/entities/marketplace/index.server"],
       "@features/*": ["./src/features/*"],
       "@widgets/*": ["./src/widgets/*"],
       "@pages/*": ["./src/page-modules/*"],

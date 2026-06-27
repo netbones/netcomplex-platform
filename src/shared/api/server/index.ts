@@ -23,6 +23,7 @@ export {
   communityServiceListings,
   communityServiceReviews,
   communityServiceInquiries,
+  serviceBookings,
   groups,
   groupMembers,
   surveys,
