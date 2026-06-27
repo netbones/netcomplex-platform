@@ -95,6 +95,11 @@ vi.mock('@api/server', () => {
     db: {
       select: dbSelect,
       insert: dbInsert,
+      update: vi.fn().mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockResolvedValue(undefined),
+        }),
+      }),
     },
     serviceBookings: {},
     providerSubscriptions: {},
@@ -127,7 +132,7 @@ vi.mock('@api/server', () => {
 
 vi.mock('@entities/tenant/server', () => ({
   withTenant: vi.fn(() => Promise.resolve({ tenantId: mocks.tenantId, tenantSlug: 'test-tenant' })),
-  getPlatformPageFlagsImpl: vi.fn(() => Promise.resolve(mocks.flags)),
+  getPlatformPageFlags: vi.fn(() => Promise.resolve(mocks.flags)),
 }));
 
 vi.mock('@shared/lib', () => ({
@@ -150,6 +155,7 @@ vi.mock('@entities/marketplace/server', () => ({
       data,
     })),
   },
+  notifyPaymentReceived: vi.fn(() => Promise.resolve()),
 }));
 
 // ---------------------------------------------------------------------------
@@ -383,6 +389,212 @@ describe('Checkout API — Task 1', () => {
       expect(response.status).toBe(403);
       expect(body.success).toBe(false);
       expect(body.error.code).toBe('FORBIDDEN');
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Task 2: Webhook Tests
+// ---------------------------------------------------------------------------
+import { POST as webhookPOST } from '../webhook/route';
+
+const webhookMocks = vi.hoisted(() => ({
+  verifyWebhookSignature: vi.fn(),
+}));
+
+// Mock PaystackService for webhook
+vi.mock('@/server/payments/paystack', () => ({
+  PaystackService: class {
+    verifyWebhookSignature = webhookMocks.verifyWebhookSignature;
+  },
+}));
+
+describe('Webhook API — Task 2', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Reset mock return values
+    webhookMocks.verifyWebhookSignature.mockReturnValue({ verified: true });
+  });
+
+  // -- Test 1: Valid webhook updates booking ---------------------------------
+  describe('POST /api/marketplace/webhook (charge.success)', () => {
+    it('updates booking to CONFIRMED and paymentStatus to COMPLETED on valid signature', async () => {
+      webhookMocks.verifyWebhookSignature.mockReturnValue({ verified: true });
+
+      // Mock db.select to return a valid booking
+      await mockDbSelectChain([
+        {
+          id: 'booking-1',
+          tenantId: 'tenant-1',
+          listingId: 'listing-1',
+          providerId: 'provider-1',
+          userId: 'user-1',
+          price: '500',
+          platformFee: '40',
+          paymentStatus: 'PENDING',
+          status: 'PENDING_CONFIRMATION',
+          date: new Date('2026-07-01'),
+          startTime: '09:00',
+          endTime: '10:00',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+      ]);
+
+      const request = new Request('http://localhost/api/marketplace/webhook', {
+        method: 'POST',
+        headers: { 'x-paystack-signature': 'valid-sig' },
+        body: JSON.stringify({
+          event: 'charge.success',
+          data: {
+            reference: 'svc-booking-1',
+            status: 'success',
+            id: 'txn-123',
+          },
+        }),
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await webhookPOST(request as any);
+      const body = await response.json();
+
+      // Should return 200
+      expect(response.status).toBe(200);
+      expect(body.data.status).toBe('processed');
+    });
+  });
+
+  // -- Test 2: Invalid signature returns 400 --------------------------------
+  describe('POST /api/marketplace/webhook (invalid signature)', () => {
+    it('returns 400 and does NOT update booking when signature is invalid', async () => {
+      webhookMocks.verifyWebhookSignature.mockReturnValue({ verified: false, reason: 'Invalid' });
+
+      const request = new Request('http://localhost/api/marketplace/webhook', {
+        method: 'POST',
+        headers: { 'x-paystack-signature': 'bad-sig' },
+        body: JSON.stringify({ event: 'charge.success', data: { reference: 'svc-booking-1' } }),
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await webhookPOST(request as any);
+      const body = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(body.error.code).toBe('VALIDATION_ERROR');
+    });
+  });
+
+  // -- Test 3: Duplicate webhook (idempotent) -------------------------------
+  describe('POST /api/marketplace/webhook (duplicate)', () => {
+    it('returns 200 with already_processed when booking is already CONFIRMED', async () => {
+      webhookMocks.verifyWebhookSignature.mockReturnValue({ verified: true });
+
+      // Mock db.select to return an already-CONFIRMED booking
+      await mockDbSelectChain([
+        {
+          id: 'booking-1',
+          tenantId: 'tenant-1',
+          listingId: 'listing-1',
+          providerId: 'provider-1',
+          userId: 'user-1',
+          price: '500',
+          platformFee: '40',
+          paymentStatus: 'COMPLETED',
+          status: 'CONFIRMED',
+          date: new Date('2026-07-01'),
+          startTime: '09:00',
+          endTime: '10:00',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+      ]);
+
+      const request = new Request('http://localhost/api/marketplace/webhook', {
+        method: 'POST',
+        headers: { 'x-paystack-signature': 'valid-sig' },
+        body: JSON.stringify({
+          event: 'charge.success',
+          data: { reference: 'svc-booking-1', status: 'success' },
+        }),
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await webhookPOST(request as any);
+      const body = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(body.data.status).toBe('already_processed');
+    });
+  });
+
+  // -- Test 4: Failed payment webhook ---------------------------------------
+  describe('POST /api/marketplace/webhook (charge.failed)', () => {
+    it('updates paymentStatus to FAILED but leaves booking status unchanged', async () => {
+      webhookMocks.verifyWebhookSignature.mockReturnValue({ verified: true });
+
+      await mockDbSelectChain([
+        {
+          id: 'booking-1',
+          tenantId: 'tenant-1',
+          listingId: 'listing-1',
+          providerId: 'provider-1',
+          userId: 'user-1',
+          price: '500',
+          platformFee: '40',
+          paymentStatus: 'PENDING',
+          status: 'PENDING_CONFIRMATION',
+          date: new Date('2026-07-01'),
+          startTime: '09:00',
+          endTime: '10:00',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        },
+      ]);
+
+      const request = new Request('http://localhost/api/marketplace/webhook', {
+        method: 'POST',
+        headers: { 'x-paystack-signature': 'valid-sig' },
+        body: JSON.stringify({
+          event: 'charge.failed',
+          data: { reference: 'svc-booking-1', status: 'failed' },
+        }),
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await webhookPOST(request as any);
+      const body = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(body.data.status).toBe('processed');
+    });
+  });
+
+  // -- Test 5: Non-existent bookingId returns 404 ---------------------------
+  describe('POST /api/marketplace/webhook (booking not found)', () => {
+    it('returns 404 for non-existent bookingId', async () => {
+      webhookMocks.verifyWebhookSignature.mockReturnValue({ verified: true });
+
+      // Empty result = not found
+      await mockDbSelectChain([]);
+
+      const request = new Request('http://localhost/api/marketplace/webhook', {
+        method: 'POST',
+        headers: { 'x-paystack-signature': 'valid-sig' },
+        body: JSON.stringify({
+          event: 'charge.success',
+          data: { reference: 'svc-non-existent' },
+        }),
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const response = await webhookPOST(request as any);
+      const body = await response.json();
+
+      expect(response.status).toBe(404);
+      expect(body.error.code).toBe('NOT_FOUND');
     });
   });
 });
