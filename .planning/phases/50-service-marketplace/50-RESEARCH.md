@@ -694,22 +694,13 @@ export function BookingBottomSheet({ listing, isOpen, onClose }: Props) {
 | A4  | ServicesLayer component architecture supports adding a marketplace sub-domain without breaking existing service domains | D-15                     | Marketplace may not render correctly within the Services space                            |
 | A5  | `MobileSpaceBar` overflow guard (slices to 5) does not need modification for marketplace widgets                        | D-15                     | If marketplace adds a 6th visible item, navigation breaks silently                        |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Which swipe implementation approach — library or custom CSS?**
-   - What we know: `react-swipeable` is a well-maintained library with 853k weekly downloads. Custom CSS transforms with touch event handlers is a lighter alternative.
-   - What's unclear: Whether Preact compat requires special handling for touch event libraries.
-   - Recommendation: Start with custom CSS + touch events (lighter, no dependency). Fall back to `react-swipeable` if complex gesture handling (velocity thresholds, scroll cancellation) becomes necessary.
+1. **Which swipe implementation approach — library or custom CSS?** RESOLVED: custom CSS + touch events (Plan 50-04 T1). Lighter, no dependency, consistent with D-10's "no new library" principle.
 
-2. **Is the ServicesLayer component ready for a marketplace sub-domain?**
-   - What we know: `SERVICES_DOMAINS` already includes `maintenance`, `bookings`, `amenities`, `my-services`, `events`, `surveys`, `competitions`, `communication`. No `marketplace` domain exists.
-   - What's unclear: Whether ServicesLayer renders domains dynamically from `SERVICES_DOMAINS` or has hardcoded domain sections.
-   - Recommendation: Planner should inspect `ServicesLayer` component structure before tasking marketplace sub-domain integration.
+2. **Is the ServicesLayer component ready for a marketplace sub-domain?** RESOLVED: inspected by planner. ServicesLayer renders domain grid dynamically from `SERVICES_DOMAINS`. Plan 50-01 T3 adds `marketplace` domain; Plan 50-04 T3 wires final integration.
 
-3. **Does `SubscriptionTier.platformFeePercent` have seeded data in dev database?**
-   - What we know: Prisma default is `8.00`. The column exists.
-   - What's unclear: Whether the dev database has actual rows with this value.
-   - Recommendation: Planner should add a pre-flight task to verify `SELECT "platformFeePercent" FROM "SubscriptionTier" LIMIT 1` returns a non-null value.
+3. **Does `SubscriptionTier.platformFeePercent` have seeded data in dev database?** RESOLVED: Planner added pre-flight step in Plan 50-01 Task 1 Part C. Script `scripts/sql/verify-tier-fees.sql` verifies the column returns a non-null value. Manual verification: `SELECT "platformFeePercent" FROM "SubscriptionTier" LIMIT 1` returns 8.00.
 
 ## Metadata
 

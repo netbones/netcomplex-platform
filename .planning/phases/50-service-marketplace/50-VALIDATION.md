@@ -68,6 +68,7 @@ _Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky_
 - [ ] `src/entities/marketplace/__tests__/bottom-sheet.test.tsx` — bottom sheet flow
 - [ ] `src/entities/marketplace/__tests__/swipe-card.test.tsx` — swipe card component
 - [ ] `src/entities/marketplace/__tests__/checkout-summary.test.tsx` — checkout summary with platform fee
+- [ ] `src/features/marketplace/__tests__/marketplace-listings.test.tsx` — marketplace listings page with responsive grid
 - [ ] `src/db/__tests__/schema.test.ts` — schema verification (ServiceBooking table)
 
 ---
