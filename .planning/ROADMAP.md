@@ -986,7 +986,7 @@ Plans:
 
 **Goal:** Ship the Service Marketplace cluster — notification system, payment processing, booking calendar integration, and mobile optimization. These 4 features enable the core marketplace experience for the Soralia Village anchor tenant launch.
 
-**Status:** Planning (restructured from Phase 49 on 2026-06-19)
+**Status:** Planning Complete — 4 plans in 3 waves
 
 **BD sources (4):**
 
@@ -995,11 +995,27 @@ Plans:
 - `qx7` — Booking calendar integration
 - `4vk` — Service marketplace mobile optimization
 
-**Acceptance:** TBD — scope via `/gsd-discuss-phase`
+**Acceptance:** All 14 requirements verified (50-NOTIFY-01 through 50-MOB-04, 50-DB-01), all 16 locked decisions (D-01 through D-16) implemented.
 
 **Dependencies:** None (independent of Community Merits, i18n, OTP, dWallet, Provider Platform). Can execute in parallel with Phase 45, 46, and 47.
 
-**Plans:** TBD. Run `/gsd-plan-phase 50-service-marketplace` when ready.
+**Requirements:** 50-NOTIFY-01, 50-NOTIFY-02, 50-NOTIFY-03, 50-PAY-01, 50-PAY-02, 50-PAY-03, 50-BOOK-01, 50-BOOK-02, 50-BOOK-03, 50-MOB-01, 50-MOB-02, 50-MOB-03, 50-MOB-04, 50-DB-01
+
+**Plans:**
+
+| Wave | Plan          | Objective                                                                                                                                                                                           | Requirements Covered                               |
+| ---- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| 1    | 50-01-PLAN.md | Schema Foundation + Notifications: ServiceBooking model, Notification.category column, marketplacePaypal feature flag, 7 notification trigger functions, email templates, ServicesLayer integration | 50-NOTIFY-01, 50-NOTIFY-02, 50-NOTIFY-03, 50-DB-01 |
+| 2    | 50-02-PLAN.md | Payment Processing: Checkout API (Paystack + gated PayPal), platform fee calculation from SubscriptionTier, webhook handler, CheckoutSummary UI                                                     | 50-PAY-01, 50-PAY-02, 50-PAY-03                    |
+| 2    | 50-03-PLAN.md | Booking Calendar: ServiceBooking CRUD API, availability endpoint, custom DatePicker + TimeSlotGrid (no external library), 3-step BookingBottomSheet                                                 | 50-BOOK-01, 50-BOOK-02, 50-BOOK-03, 50-MOB-02      |
+| 3    | 50-04-PLAN.md | Mobile UX + Integration: SwipeableServiceCard with quick actions, pull-to-refresh listing grid, 44x44px touch targets, iOS safe-area, final ServicesLayer + widget integration                      | 50-MOB-01, 50-MOB-03, 50-MOB-04                    |
+
+Plans:
+
+- [ ] 50-01-PLAN.md — Schema Foundation + Notifications (Wave 1)
+- [ ] 50-02-PLAN.md — Payment Processing + Checkout (Wave 2)
+- [ ] 50-03-PLAN.md — Booking Calendar + Availability (Wave 2)
+- [ ] 50-04-PLAN.md — Mobile UX + Final Integration (Wave 3)
 
 ---
 
