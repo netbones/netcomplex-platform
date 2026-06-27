@@ -1015,7 +1015,7 @@ Plans:
 - [x] 50-01-PLAN.md — Schema Foundation + Notifications (Wave 1)
 - [x] 50-02-PLAN.md — Payment Processing + Checkout (Wave 2)
 - [x] 50-03-PLAN.md — Booking Calendar + Availability (Wave 2)
-- [ ] 50-04-PLAN.md — Mobile UX + Final Integration (Wave 3)
+- [x] 50-04-PLAN.md — Mobile UX + Final Integration (Wave 3)
 
 ---
 
