@@ -34,8 +34,9 @@ export type {
   WalletStatus,
 } from './model/types';
 
-// Server-side helpers
-export { getOrCreateWallet } from './api';
+// Server-side helpers — NOT exported from client barrel.
+// Import via @entities/dwallet/server instead:
+//   @entities/dwallet/server
 
 // Client-side hooks
 export { useWallet } from './model/useWallet';

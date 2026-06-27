@@ -11,13 +11,17 @@ import { NextResponse, type NextRequest } from 'next/server';
  * Host rules:
  * - app.netbones.co.za → allow (platform) routes, deny (tenant) routes
  * - *.netbones.co.za, soralia.org, soralia.com, soralia.co.za → allow (tenant) routes, deny (platform) routes
+ *
+ * Key invariant: plane resolution (isPlatform/isLocalhost) MUST occur before any
+ * API/auth early-return branches.  Platform API/auth calls must receive x-plane: platform,
+ * not x-plane: tenant with slug "app" (which resolves to no tenant, causing downstream
+ * failures in withTenant() guards).  See ADVISORY-018 (RC-1, RC-2).
  */
 
 const PLATFORM_DOMAIN = 'app.netbones.co.za';
 const DEFAULT_TENANT_SLUG = 'soralia';
 
 function isPlatformHost(host: string): boolean {
-  // Only the actual platform domain (strip port for comparison)
   const hostWithoutPort = host.split(':')[0];
   return hostWithoutPort === PLATFORM_DOMAIN;
 }
@@ -85,7 +89,6 @@ function isAuthRoute(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
-  // Generate request ID for observability (API.md §21.1)
   const requestId = crypto.randomUUID?.() || Math.random().toString(36).substring(2, 15);
   response.headers.set('x-request-id', requestId);
   request.headers.set('x-request-id', requestId);
@@ -93,75 +96,75 @@ export async function middleware(request: NextRequest) {
   const host = request.headers.get('host') || '';
   const pathname = request.nextUrl.pathname;
 
-  // Expose pathname for server components that need to determine active route
   response.headers.set('x-pathname', pathname);
   request.headers.set('x-pathname', pathname);
-  const isPlatform = isPlatformHost(host);
 
-  const isApiRoute = pathname.startsWith('/api/');
-  const isAuthRouteCheck = isAuthRoute(pathname);
-
-  // ── 1. Skip redirect logic for static assets, API routes, auth routes, but still set tenant headers ──
+  // ── Static assets: skip all logic ──
   if (pathname.startsWith('/_next') || pathname.startsWith('/static') || pathname.includes('.')) {
     return response;
   }
 
+  // ── Resolve plane and tenant slug FIRST — before any early returns ──
+  const isPlatform = isPlatformHost(host);
+  const isLocalhost = host.includes('localhost');
+
   const hostWithoutPort = host.split(':')[0] || '';
   const subdomain = hostWithoutPort.split('.')[0] || '';
-  const inferredTenantSlug = hostWithoutPort.includes('localhost')
-    ? DEFAULT_TENANT_SLUG
-    : subdomain || DEFAULT_TENANT_SLUG;
+  const inferredTenantSlug = isLocalhost ? DEFAULT_TENANT_SLUG : subdomain || DEFAULT_TENANT_SLUG;
 
-  // For API routes: still set tenant headers but don't do redirects
-  if (isApiRoute) {
-    // Edge-safe: infer tenant from hostname only (no DB access in middleware).
-    response.headers.set('x-plane', 'tenant');
-    response.headers.set('x-tenant-slug', inferredTenantSlug);
-    return response;
-  }
+  const isApiRoute = pathname.startsWith('/api/');
+  const isAuthRouteCheck = isAuthRoute(pathname);
 
-  // For auth routes: set tenant headers but don't redirect
-  if (isAuthRouteCheck) {
-    response.headers.set('x-plane', 'tenant');
-    response.headers.set('x-tenant-slug', inferredTenantSlug);
-    return response;
-  }
-
-  // ── 2. Platform host: allow platform routes, deny tenant routes ──
+  // ── Platform plane: app.netbones.co.za ──
   if (isPlatform) {
-    // Redirect root to /home for platform landing (only for platform host, not localhost)
+    // API and auth routes on the platform domain get platform plane headers.
+    // No tenant headers are set — withTenant() guards on platform API routes
+    // should use withTenantOptional() or skip tenant context entirely.
+    if (isApiRoute || isAuthRouteCheck) {
+      response.headers.set('x-plane', 'platform');
+      return response;
+    }
+
+    // Redirect root to platform home
     if (pathname === '/') {
       return NextResponse.redirect(new URL('/home', request.url));
     }
-    if (!isPlatformRoute(pathname) && !pathname.startsWith('/admin/platform')) {
-      // Platform host trying to access tenant routes → redirect to platform home
-      if (isTenantRoute(pathname)) {
-        return NextResponse.redirect(new URL('/admin/platform', request.url));
-      }
+
+    // Redirect tenant routes to platform home
+    if (isTenantRoute(pathname)) {
+      return NextResponse.redirect(new URL('/home', request.url));
     }
-    // Platform host gets no tenant headers (or could set empty)
+
     response.headers.set('x-plane', 'platform');
     return response;
   }
 
-  // ── 3. For localhost: treat as tenant with fallback ──
-  // Skip platform route checks for localhost - allow all routes
-  if (host.includes('localhost')) {
+  // ── Localhost: treat as tenant with default slug ──
+  if (isLocalhost) {
+    if (isApiRoute || isAuthRouteCheck) {
+      response.headers.set('x-plane', 'tenant');
+      response.headers.set('x-tenant-slug', DEFAULT_TENANT_SLUG);
+      return response;
+    }
     response.headers.set('x-plane', 'tenant');
     response.headers.set('x-tenant-slug', DEFAULT_TENANT_SLUG);
     return response;
   }
 
-  // ── 4. Tenant host: allow tenant routes, deny platform routes ──
+  // ── Tenant plane: *.netbones.co.za / custom domains ──
+  if (isApiRoute || isAuthRouteCheck) {
+    response.headers.set('x-plane', 'tenant');
+    response.headers.set('x-tenant-slug', inferredTenantSlug);
+    return response;
+  }
+
+  // Block platform routes on tenant domains
   if (isPlatformRoute(pathname)) {
-    // Tenant host trying to access platform routes → redirect to tenant home
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // ── 5. Attach inferred tenant headers (edge-safe) ──
   response.headers.set('x-plane', 'tenant');
   response.headers.set('x-tenant-slug', inferredTenantSlug);
-
   return response;
 }
 

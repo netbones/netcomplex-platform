@@ -256,6 +256,14 @@ describe('usePageAccess', () => {
       data: null,
     });
 
+    // When disabled, TanStack Query returns idle state
+    mockUseQuery.mockReturnValue({
+      data: null,
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
     // useQuery should NOT be called when query is disabled
     // The hook itself should return empty values
     const { result } = renderHook(() => usePageAccess());
