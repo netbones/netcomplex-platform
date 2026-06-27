@@ -535,7 +535,7 @@ const handleExport = async () => {
 | A5  | `next@14` App Router route handlers support binary response via `new NextResponse(Uint8Array)`                     | Binary Response Pattern       | If Next.js 14 has issues with binary response in route handlers, may need `Response` from Web API instead. Risk: LOW — NextResponse extends Response.                    |
 | A6  | CSOSExportButton client-side rate limiting (local state counter) is sufficient alongside server-side rate limiting | CSOSExportButton              | Client-side counter resets on page refresh. Server-side is authoritative. The client counter is a UX convenience, not a security control. Risk: LOW.                     |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **DB-based rate limiting fallback for CSOS exports**
    - What we know: The existing `rateLimitByKey()` uses Upstash Redis. When Redis is unavailable, it returns `null` (passes all requests). For CSOS exports, this means rate limiting could be silently bypassed in local dev or Redis outages.
