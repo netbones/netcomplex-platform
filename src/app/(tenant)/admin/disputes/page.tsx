@@ -5,7 +5,10 @@ import { usePageLoading } from '@shared/ui';
 import { DisputeListTable } from '@entities/dispute';
 import Link from 'next/link';
 
-const BREADCRUMBS = [{ label: 'Admin', href: '/admin' }, { label: 'Disputes' }];
+const BREADCRUMBS: Array<{ label: string; href: string }> = [
+  { label: 'Admin', href: '/admin' },
+  { label: 'Disputes', href: '/admin/disputes' },
+];
 
 export default function AdminDisputesPage() {
   const { isReady, LoadingComponent } = usePageLoading(BREADCRUMBS, {

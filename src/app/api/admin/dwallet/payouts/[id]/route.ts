@@ -42,15 +42,16 @@ const logger = createComponentLogger('admin-dwallet-payout');
  * CONSTRAINT 10 (Threat T-47-B11): Only processes PENDING payouts (prevents double-spend).
  */
 export const PATCH = withErrorHandler(
-  async (request: Request, { params }: { params: { id: string } }) => {
+  async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const sessionData = await getSessionAndRole(request);
     if (!sessionData) return apiUnauthorized();
 
     if (!hasPermission(sessionData.role, 'admin')) return apiForbidden();
 
+    const { id: payoutId } = await params;
+
     try {
       const { tenantId } = await withTenant();
-      const { id: payoutId } = params;
       const body = payoutStatusSchema.parse(await request.json());
       const { status, notes } = body;
 
@@ -178,11 +179,7 @@ export const PATCH = withErrorHandler(
 
       return apiSuccess(updated);
     } catch (error) {
-      logger.error(
-        { event: 'payout_update_error', payoutId: params.id },
-        'Failed to update payout',
-        error
-      );
+      logger.error({ event: 'payout_update_error', payoutId }, 'Failed to update payout', error);
       return apiInternalError(String(error));
     }
   }

@@ -27,15 +27,16 @@ const logger = createComponentLogger('admin-dwallet-stream');
  * Only provided fields are updated (partial update via streamUpdateSchema).
  */
 export const PATCH = withErrorHandler(
-  async (request: Request, { params }: { params: { id: string } }) => {
+  async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
     const sessionData = await getSessionAndRole(request);
     if (!sessionData) return apiUnauthorized();
 
     if (!hasPermission(sessionData.role, 'admin')) return apiForbidden();
 
+    const { id: streamId } = await params;
+
     try {
       const { tenantId } = await withTenant();
-      const { id: streamId } = params;
       const body = streamUpdateSchema.parse(await request.json());
 
       // Query stream with tenant isolation
@@ -70,11 +71,7 @@ export const PATCH = withErrorHandler(
 
       return apiSuccess(updated);
     } catch (error) {
-      logger.error(
-        { event: 'update_stream_error', streamId: params.id },
-        'Failed to update stream',
-        error
-      );
+      logger.error({ event: 'update_stream_error', streamId }, 'Failed to update stream', error);
       return apiInternalError(String(error));
     }
   }

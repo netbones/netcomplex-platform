@@ -12,7 +12,7 @@ import {
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
-import { getOrCreateWallet } from '@entities/dwallet';
+import { getOrCreateWallet } from '@entities/dwallet/server';
 import { createComponentLogger } from '@shared/lib';
 
 const logger = createComponentLogger('dwalet-deletion');

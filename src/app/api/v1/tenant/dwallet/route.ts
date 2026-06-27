@@ -11,7 +11,7 @@ import {
 
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
-import { getOrCreateWallet } from '@entities/dwallet';
+import { getOrCreateWallet } from '@entities/dwallet/server';
 import type { DWalletSummary, ConsentState, TransactionItem } from '@entities/dwallet';
 
 export const maxDuration = 8;

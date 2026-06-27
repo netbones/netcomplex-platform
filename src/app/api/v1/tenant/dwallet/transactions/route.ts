@@ -9,7 +9,7 @@ import {
 
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
-import { getOrCreateWallet } from '@entities/dwallet';
+import { getOrCreateWallet } from '@entities/dwallet/server';
 import type { TransactionItem } from '@entities/dwallet';
 import { z } from 'zod';
 

@@ -12,7 +12,7 @@ import {
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
-import { getOrCreateWallet } from '@entities/dwallet';
+import { getOrCreateWallet } from '@entities/dwallet/server';
 import { consentSchema } from '@entities/dwallet';
 import { createComponentLogger } from '@shared/lib';
 
@@ -21,12 +21,12 @@ const logger = createComponentLogger('dwalet-consent');
 export const maxDuration = 8;
 
 export const POST = withErrorHandler(
-  async (request: Request, { params }: { params: { streamKey: string } }) => {
+  async (request: Request, { params }: { params: Promise<{ streamKey: string }> }) => {
     const sessionData = await getSessionAndRole(request);
     if (!sessionData) return apiUnauthorized();
 
     const { tenantId } = await withTenant();
-    const { streamKey } = params as { streamKey: string };
+    const { streamKey } = await params;
 
     // Parse and validate body with Zod
     const body = consentSchema.parse(await request.json());
