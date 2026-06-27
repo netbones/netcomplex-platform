@@ -1003,7 +1003,7 @@ Plans:
 
 **Plans:**
 
-1/4 plans executed
+2/4 plans executed
 | ---- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
 | 1 | 50-01-PLAN.md | Schema Foundation + Notifications: ServiceBooking model, Notification.category column, marketplacePaypal feature flag, 7 notification trigger functions, email templates, ServicesLayer integration | 50-NOTIFY-01, 50-NOTIFY-02, 50-NOTIFY-03, 50-DB-01 |
 | 2 | 50-02-PLAN.md | Payment Processing: Checkout API (Paystack + gated PayPal), platform fee calculation from SubscriptionTier, webhook handler, CheckoutSummary UI | 50-PAY-01, 50-PAY-02, 50-PAY-03 |
@@ -1013,7 +1013,7 @@ Plans:
 Plans:
 
 - [x] 50-01-PLAN.md — Schema Foundation + Notifications (Wave 1)
-- [ ] 50-02-PLAN.md — Payment Processing + Checkout (Wave 2)
+- [x] 50-02-PLAN.md — Payment Processing + Checkout (Wave 2)
 - [ ] 50-03-PLAN.md — Booking Calendar + Availability (Wave 2)
 - [ ] 50-04-PLAN.md — Mobile UX + Final Integration (Wave 3)
 
