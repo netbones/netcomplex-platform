@@ -21,6 +21,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
     "api:generate": "tsx src/server/openapi/generator.ts public/openapi.json",
     "api:lint": "redocly lint --config .redocly.yaml --format=stylish",
     "api:ci": "pnpm api:generate && pnpm api:lint",

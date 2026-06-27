@@ -1,9 +1,9 @@
 # BD Issue Tracker
 
-> **Last updated:** 2026-06-23 (Session 13)
-> **Total remaining:** 30 issues
+> **Last updated:** 2026-06-27 (Session 14)
+> **Total remaining:** 31 issues
 > **Closed this session:** 4 (`0orq`, `7a02`, `gb5p`, `tbtr`)
-> **Created this session:** 5 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`)
+> **Created this session:** 6 (`5z3g`, `0orq`, `7a02`, `gb5p`, `tbtr`, `7tqj`)
 > **Note:** BD is for quick fixes and small tasks. **Any BD issue touching 5+ files across multiple FSD slices, or requiring new directories/types, is GSD territory — escalate it.**
 
 ## Summary by Priority
@@ -156,9 +156,10 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 
 ### In Progress
 
-| ID    | Type | Title                   | Status |
-| ----- | ---- | ----------------------- | ------ |
-| `bgb` | epic | Interests Visualization | ◐      |
+| ID     | Type | Title                                           | Status |
+| ------ | ---- | ----------------------------------------------- | ------ |
+| `bgb`  | epic | Interests Visualization                         | ◐      |
+| `7tqj` | task | Fix mock isolation in remaining colocated tests | ○      |
 
 ---
 

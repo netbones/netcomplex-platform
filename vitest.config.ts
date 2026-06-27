@@ -57,6 +57,10 @@ export default defineConfig({
   test: {
     env: {
       DATABASE_URL: process.env.DATABASE_URL,
+      RESEND_API_KEY: process.env.RESEND_API_KEY || 'placeholder_re_123',
+      NEXT_PUBLIC_SUPABASE_URL:
+        process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder',
     },
     environment: 'jsdom',
     globals: true,
