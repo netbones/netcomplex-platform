@@ -4,12 +4,12 @@ milestone: v1.0
 milestone_name: milestone
 status: verifying
 stopped_at: Phase 50 UI-SPEC approved
-last_updated: '2026-06-27T12:42:48.536Z'
+last_updated: '2026-06-27T13:18:59.804Z'
 progress:
   total_phases: 58
   completed_phases: 52
   total_plans: 155
-  completed_plans: 146
+  completed_plans: 147
   percent: 90
 ---
 
@@ -24,7 +24,7 @@ Plan: 2 of 2
 - **Status:** Ready for verification (checkpoint:human-verify remaining)
 - **Next Step:** Run /gsd-verify-work for Phase 110, then execute Phase 103 via GSD worktree workflow
 
-**Last Session:** 2026-06-27T12:42:48.495Z
+**Last Session:** 2026-06-27T13:18:59.782Z
 **Stopped at:** Phase 50 UI-SPEC approved
 
 ## Active Phase Decisions
@@ -180,6 +180,9 @@ Plan: 2 of 2
 - [Phase 105-dispute-schema-entity-layer]: Named relations used for all 8 dispute FK references on user model to avoid ambiguity with 54 existing relations — Without named relations, Prisma would generate auto-names that could conflict with existing user relations. Named relations follow the existing pattern in the schema (CommunityMeritSubject, CommunityMeritCreatedBy, etc.)
 - [Phase ?]: Used Supabase Realtime channel dispute:{id} for mediation thread live updates
 - [Phase ?]: Used pdf-parse v2 API — pdf-parse on npm only publishes v2.x which uses class-based API
+- [Phase 50-service-marketplace]: ServiceBooking price and platformFee are nullable per plan instruction — price set at checkout, platformFee calculated server-side from SubscriptionTier
+- [Phase 50-service-marketplace]: prisma-generator-drizzle auto-regenerates Drizzle schema files on prisma db push — manual formatting overwritten; generated format is canonical
+- [Phase 50-service-marketplace]: MarketplaceWidget initially renders a placeholder — full listing grid and booking UI deferred to Plan 50-04
 
 ## Notes
 
@@ -358,6 +361,7 @@ Plan: 2 of 2
 | Phase 108-csos-export-package P02               | 4min   | 2 tasks  | 2 files  |
 | Phase 110-page-nav-access-control P01           | 13min  | 2 tasks  | 5 files  |
 | Phase 110-page-nav-access-control P02           | 10min  | 2 tasks  | 6 files  |
+| Phase 50-service-marketplace P01                | 20 min | 3 tasks  | 27 files |
 
 ## Accumulated Context
 
