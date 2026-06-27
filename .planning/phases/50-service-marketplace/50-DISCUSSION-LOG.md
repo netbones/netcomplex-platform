@@ -213,7 +213,7 @@ Four issues were identified in REVIEW.md and corrected in CONTEXT.md:
 ### D-12: Booking model extension (ARCHITECTURAL)
 
 - **Finding:** Extending `Booking` conflates facility reservations (facility-based, CONFIRMED default, no provider) with service bookings (provider-based, PENDING_CONFIRMATION lifecycle, price/payment). The `facility` field is non-nullable and `BookingStatus` lacks `PENDING_CONFIRMATION`.
-- **Fix:** D-12 converted from fixed decision to a GATE with two options (Option A: extend Booking with query gating; Option B: dedicated ServiceBooking model). Planning agent must choose and document rationale.
+- **Resolution:** D-12 GATE resolved to Option B — dedicated `ServiceBooking` model. Clean separation, no nullable-field leakage, mirrors `CommunityServiceInquiry` pattern, facility Booking stays untouched.
 
 ### D-09: Availability JSON schema missing
 
