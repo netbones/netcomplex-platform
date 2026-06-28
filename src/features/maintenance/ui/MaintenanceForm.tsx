@@ -5,20 +5,22 @@ import { MaintenanceRequestForm, MaintenancePriority } from '@entities/maintenan
 
 interface MaintenanceFormProps {
   onSubmit?: (data: MaintenanceRequestForm) => Promise<void>;
+  propertyId?: string | null;
 }
 
-export function MaintenanceForm({ onSubmit }: MaintenanceFormProps) {
+export function MaintenanceForm({ onSubmit, propertyId }: MaintenanceFormProps) {
   const {
     formData,
     submitting,
     error,
     uploading,
+    routingHint,
     fileInputRef,
     handleFileChange,
     removeImage,
     handleSubmit,
     updateFormData,
-  } = useMaintenanceForm(onSubmit);
+  } = useMaintenanceForm(onSubmit, propertyId);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -56,6 +58,33 @@ export function MaintenanceForm({ onSubmit }: MaintenanceFormProps) {
           ))}
         </select>
       </div>
+
+      {routingHint && (
+        <div
+          className={`rounded-md border px-3 py-2 text-sm flex items-center gap-2 ${
+            routingHint === 'LANDLORD'
+              ? 'border-amber-200 bg-amber-50 text-amber-800'
+              : 'border-blue-200 bg-blue-50 text-blue-800'
+          }`}
+        >
+          {routingHint === 'LANDLORD' ? (
+            <>
+              <span>🏠</span>
+              <span>
+                This request will be sent to your <strong>landlord</strong> to arrange. The HOA will
+                not be notified.
+              </span>
+            </>
+          ) : (
+            <>
+              <span>🏢</span>
+              <span>
+                This request will be sent to the <strong>HOA management team</strong>.
+              </span>
+            </>
+          )}
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Description *</label>

@@ -55,7 +55,10 @@ export const priorities = [
   { value: 'EMERGENCY', label: 'Emergency - Immediate danger' },
 ];
 
-export function useMaintenanceForm(onSubmit?: (data: MaintenanceRequestForm) => Promise<void>) {
+export function useMaintenanceForm(
+  onSubmit?: (data: MaintenanceRequestForm) => Promise<void>,
+  propertyId?: string | null
+) {
   const [formData, setFormData] = useState<MaintenanceRequestForm>({
     category: '',
     priority: 'MEDIUM',
@@ -65,7 +68,30 @@ export function useMaintenanceForm(onSubmit?: (data: MaintenanceRequestForm) => 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [routingHint, setRoutingHint] = useState<'HOA' | 'LANDLORD' | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch routing hint when propertyId is available
+  useEffect(() => {
+    if (!propertyId) {
+      setRoutingHint(null);
+      return;
+    }
+
+    let cancelled = false;
+    fetch(`/api/maintenance/routing-hint?propertyId=${encodeURIComponent(propertyId)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (!cancelled) setRoutingHint(data?.data?.routingType ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setRoutingHint(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [propertyId]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -179,6 +205,7 @@ export function useMaintenanceForm(onSubmit?: (data: MaintenanceRequestForm) => 
     submitting,
     error,
     uploading,
+    routingHint,
     fileInputRef,
     handleFileChange,
     removeImage,
