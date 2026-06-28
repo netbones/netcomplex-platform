@@ -134,6 +134,7 @@ model user {
   Group                                                 Group[]
   GroupMembershipRequest                                GroupMembershipRequest[]
   MaintenanceRequest                                    MaintenanceRequest[]
+  maintenanceRequestsAsLandlord                         MaintenanceRequest[]     @relation("MaintenanceRequest_landlord")
   RequestNote                                           RequestNote[]
   InternalMaintenanceNote                               InternalMaintenanceNote[]
   RequestHistory                                        RequestHistory[]
@@ -931,8 +932,11 @@ model MaintenanceRequest {
   preferredTime      String?
   assignedTeamId     String?
   assignedProviderId String?
+  routingType        MaintenanceRouting @default(HOA)
+  landlordId         String?
   property           Property?        @relation(fields: [propertyId], references: [id])
   user               user             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  landlord           user?            @relation("MaintenanceRequest_landlord", fields: [landlordId], references: [id])
   assignedTeam       MaintenanceTeam? @relation("TeamAssignments", fields: [assignedTeamId], references: [id])
   assignedProvider   ServiceProvider? @relation("ProviderAssignments", fields: [assignedProviderId], references: [id])
   histories          RequestHistory[]
@@ -944,6 +948,8 @@ model MaintenanceRequest {
   @@index([assignedProviderId])
   @@index([propertyId])
   @@index([userId])
+  @@index([routingType])
+  @@index([landlordId])
 }
 
 model MaintenanceTeam {
@@ -2290,6 +2296,11 @@ enum BookingStatus {
 }
 
 // ── Enums: Maintenance ──
+
+enum MaintenanceRouting {
+  HOA
+  LANDLORD
+}
 
 enum Priority {
   LOW

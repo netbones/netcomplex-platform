@@ -21,6 +21,8 @@ import { tenants } from './tenants';
 import { groupMembers } from './group-members';
 import { accounts } from './accounts';
 import { agentAccesses } from './agent-accesses';
+import { agentTokens } from './agent-tokens';
+import { residentDelegations } from './resident-delegations';
 import { agentProfiles } from './agent-profiles';
 import { albums } from './albums';
 import { communityServiceInquiries } from './community-service-inquiries';
@@ -68,6 +70,9 @@ export const usersRelations = relations(users, helpers => ({
   MaintenanceRequest: helpers.many(maintenanceRequests, {
     relationName: 'MaintenanceRequestTouser',
   }),
+  maintenanceRequestsAsLandlord: helpers.many(maintenanceRequests, {
+    relationName: 'MaintenanceRequest_landlord',
+  }),
   RequestNote: helpers.many(requestNotes, { relationName: 'RequestNoteTouser' }),
   InternalMaintenanceNote: helpers.many(internalMaintenanceNotes, {
     relationName: 'InternalMaintenanceNoteTouser',
@@ -85,6 +90,11 @@ export const usersRelations = relations(users, helpers => ({
   }),
   agentAccess_agentAccess_grantedByIdTouser: helpers.many(agentAccesses, {
     relationName: 'agentAccess_grantedByIdTouser',
+  }),
+  agentTokensAsAgent: helpers.many(agentTokens, { relationName: 'agentToken_agentIdTouser' }),
+  agentTokensIssued: helpers.many(agentTokens, { relationName: 'agentToken_issuedByIdTouser' }),
+  residentDelegationsGranted: helpers.many(residentDelegations, {
+    relationName: 'ResidentDelegation_owner',
   }),
   agentProfile: helpers.one(agentProfiles),
   album: helpers.many(albums, { relationName: 'AlbumTouser' }),

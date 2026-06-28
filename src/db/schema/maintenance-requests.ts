@@ -1,6 +1,7 @@
 import { pgTable, text, timestamp, decimal } from 'drizzle-orm/pg-core';
 import { priorityEnum } from './priority-enum';
 import { requestStatusEnum } from './request-status-enum';
+import { maintenanceRoutingEnum } from './maintenance-routing-enum';
 
 export const maintenanceRequests = pgTable('MaintenanceRequest', {
   id: text('id').primaryKey(),
@@ -27,4 +28,6 @@ export const maintenanceRequests = pgTable('MaintenanceRequest', {
   preferredTime: text('preferredTime'),
   assignedTeamId: text('assignedTeamId'),
   assignedProviderId: text('assignedProviderId'),
+  routingType: maintenanceRoutingEnum('routingType').default('HOA').notNull(),
+  landlordId: text('landlordId'),
 });

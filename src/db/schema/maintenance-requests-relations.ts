@@ -19,6 +19,11 @@ export const maintenanceRequestsRelations = relations(maintenanceRequests, helpe
     fields: [maintenanceRequests.userId],
     references: [users.id],
   }),
+  landlord: helpers.one(users, {
+    relationName: 'MaintenanceRequest_landlord',
+    fields: [maintenanceRequests.landlordId],
+    references: [users.id],
+  }),
   assignedTeam: helpers.one(maintenanceTeams, {
     relationName: 'TeamAssignments',
     fields: [maintenanceRequests.assignedTeamId],

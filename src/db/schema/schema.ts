@@ -78,6 +78,9 @@ import * as competitions from './competitions';
 import * as competitionEntries from './competition-entries';
 import * as assistSessions from './assist-sessions';
 import * as agentAccesses from './agent-accesses';
+import * as agentTokens from './agent-tokens';
+import * as delegationActions from './delegation-actions';
+import * as residentDelegations from './resident-delegations';
 import * as platformSuspensions from './platform-suspensions';
 import * as subscriptionTiers from './subscription-tiers';
 import * as achievementDefinitions from './achievement-definitions';
@@ -175,6 +178,9 @@ import * as competitionsRelations from './competitions-relations';
 import * as competitionEntriesRelations from './competition-entries-relations';
 import * as assistSessionsRelations from './assist-sessions-relations';
 import * as agentAccessesRelations from './agent-accesses-relations';
+import * as agentTokensRelations from './agent-tokens-relations';
+import * as delegationActionsRelations from './delegation-actions-relations';
+import * as residentDelegationsRelations from './resident-delegations-relations';
 import * as platformSuspensionsRelations from './platform-suspensions-relations';
 import * as subscriptionTiersRelations from './subscription-tiers-relations';
 import * as achievementDefinitionsRelations from './achievement-definitions-relations';
@@ -275,6 +281,9 @@ export const schema = {
   ...competitionEntries,
   ...assistSessions,
   ...agentAccesses,
+  ...agentTokens,
+  ...delegationActions,
+  ...residentDelegations,
   ...platformSuspensions,
   ...subscriptionTiers,
   ...achievementDefinitions,
@@ -372,6 +381,9 @@ export const schema = {
   ...competitionEntriesRelations,
   ...assistSessionsRelations,
   ...agentAccessesRelations,
+  ...agentTokensRelations,
+  ...delegationActionsRelations,
+  ...residentDelegationsRelations,
   ...platformSuspensionsRelations,
   ...subscriptionTiersRelations,
   ...achievementDefinitionsRelations,
