@@ -1,7 +1,12 @@
+import { z } from 'zod';
 import { ERROR_CODES } from './api-response';
 import type { CanonicalErrorCode } from './api-response';
 
 export type { CanonicalErrorCode };
+
+export function toEnvelopeSchema<T extends z.ZodTypeAny>(schema: T) {
+  return z.object({ success: z.literal(true), data: schema });
+}
 
 export interface ApiEnvelope<T> {
   success: true;

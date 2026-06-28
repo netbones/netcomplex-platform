@@ -10,6 +10,7 @@ import {
   users,
   notifications,
   toEnvelope,
+  toEnvelopeSchema,
 } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
@@ -101,32 +102,34 @@ export const competitionRouter = router({
     })
     .input(z.object({}).optional())
     .output(
-      z.array(
-        z.object({
-          id: z.string(),
-          title: z.string(),
-          description: z.string().nullable(),
-          rules: z.string().nullable(),
-          prizeInfo: z.string().nullable(),
-          type: CompetitionTypeEnum,
-          startDate: z.string(),
-          endDate: z.string(),
-          status: z.enum(['DRAFT', 'ACTIVE', 'ENDED', 'CANCELLED']),
-          entryCount: z.number(),
-          maxParticipants: z.number().nullable(),
-          winnersCount: z.number(),
-          image: z.string().nullable(),
-          participantCount: z.number(),
-          topParticipants: z
-            .array(
-              z.object({
-                userId: z.string(),
-                name: z.string(),
-                avatar: z.string().nullable(),
-              })
-            )
-            .optional(),
-        })
+      toEnvelopeSchema(
+        z.array(
+          z.object({
+            id: z.string(),
+            title: z.string(),
+            description: z.string().nullable(),
+            rules: z.string().nullable(),
+            prizeInfo: z.string().nullable(),
+            type: CompetitionTypeEnum,
+            startDate: z.string(),
+            endDate: z.string(),
+            status: z.enum(['DRAFT', 'ACTIVE', 'ENDED', 'CANCELLED']),
+            entryCount: z.number(),
+            maxParticipants: z.number().nullable(),
+            winnersCount: z.number(),
+            image: z.string().nullable(),
+            participantCount: z.number(),
+            topParticipants: z
+              .array(
+                z.object({
+                  userId: z.string(),
+                  name: z.string(),
+                  avatar: z.string().nullable(),
+                })
+              )
+              .optional(),
+          })
+        )
       )
     )
     .query(async ({ ctx }) => {
@@ -224,41 +227,43 @@ export const competitionRouter = router({
     })
     .input(CompetitionIdInput)
     .output(
-      z.object({
-        id: z.string(),
-        title: z.string(),
-        description: z.string().nullable(),
-        rules: z.string().nullable(),
-        prizeInfo: z.string().nullable(),
-        type: CompetitionTypeEnum,
-        startDate: z.string(),
-        endDate: z.string(),
-        status: z.enum(['DRAFT', 'ACTIVE', 'ENDED', 'CANCELLED']),
-        entryCount: z.number(),
-        maxParticipants: z.number().nullable(),
-        winnersCount: z.number(),
-        image: z.string().nullable(),
-        participantCount: z.number(),
-        topParticipants: z
-          .array(
-            z.object({
-              userId: z.string(),
-              name: z.string(),
-              avatar: z.string().nullable(),
+      toEnvelopeSchema(
+        z.object({
+          id: z.string(),
+          title: z.string(),
+          description: z.string().nullable(),
+          rules: z.string().nullable(),
+          prizeInfo: z.string().nullable(),
+          type: CompetitionTypeEnum,
+          startDate: z.string(),
+          endDate: z.string(),
+          status: z.enum(['DRAFT', 'ACTIVE', 'ENDED', 'CANCELLED']),
+          entryCount: z.number(),
+          maxParticipants: z.number().nullable(),
+          winnersCount: z.number(),
+          image: z.string().nullable(),
+          participantCount: z.number(),
+          topParticipants: z
+            .array(
+              z.object({
+                userId: z.string(),
+                name: z.string(),
+                avatar: z.string().nullable(),
+              })
+            )
+            .optional(),
+          currentUserEntry: z
+            .object({
+              id: z.string(),
+              status: EntryStatusEnum,
+              submissionUrl: z.string().nullable(),
+              submissionText: z.string().nullable(),
+              joinedAt: z.string(),
             })
-          )
-          .optional(),
-        currentUserEntry: z
-          .object({
-            id: z.string(),
-            status: EntryStatusEnum,
-            submissionUrl: z.string().nullable(),
-            submissionText: z.string().nullable(),
-            joinedAt: z.string(),
-          })
-          .nullable()
-          .optional(),
-      })
+            .nullable()
+            .optional(),
+        })
+      )
     )
     .query(async ({ input, ctx }) => {
       const conditions = [eq(competitions.id, input.id)];
@@ -366,7 +371,7 @@ export const competitionRouter = router({
       },
     })
     .input(CompetitionIdOnly)
-    .output(ParticipantDTO)
+    .output(toEnvelopeSchema(ParticipantDTO))
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
       if (!tenantId) {
@@ -458,7 +463,7 @@ export const competitionRouter = router({
       },
     })
     .input(SubmitEntryInput)
-    .output(ParticipantDTO)
+    .output(toEnvelopeSchema(ParticipantDTO))
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
       if (!tenantId) {
@@ -558,10 +563,12 @@ export const competitionRouter = router({
     })
     .input(CompetitionIdOnly)
     .output(
-      z.object({
-        participants: z.array(ParticipantDTO),
-        total: z.number(),
-      })
+      toEnvelopeSchema(
+        z.object({
+          participants: z.array(ParticipantDTO),
+          total: z.number(),
+        })
+      )
     )
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
@@ -610,7 +617,7 @@ export const competitionRouter = router({
       },
     })
     .input(UpdateEntryInput)
-    .output(ParticipantDTO)
+    .output(toEnvelopeSchema(ParticipantDTO))
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
       if (!tenantId) {
@@ -666,7 +673,7 @@ export const competitionRouter = router({
       },
     })
     .input(MarkWinnerInput)
-    .output(ParticipantDTO)
+    .output(toEnvelopeSchema(ParticipantDTO))
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
       if (!tenantId) {
@@ -738,7 +745,7 @@ export const competitionRouter = router({
       },
     })
     .input(DrawWinnersInput)
-    .output(z.array(ParticipantDTO))
+    .output(toEnvelopeSchema(z.array(ParticipantDTO)))
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
       if (!tenantId) {
@@ -837,7 +844,7 @@ export const competitionRouter = router({
       },
     })
     .input(z.object({ competitionId: z.string() }))
-    .output(z.array(WinnerDTO))
+    .output(toEnvelopeSchema(z.array(WinnerDTO)))
     .query(async ({ input, ctx }) => {
       // For tenant-scoped access, join with competition to check tenant
       if (ctx.tenantId) {

@@ -22,6 +22,7 @@ import {
   now,
   writeAuditLog,
   toEnvelope,
+  toEnvelopeSchema,
 } from '@api/server';
 import { propertyDto, userDto, profileDto, albumDto, seatDto, premiumSeatDto } from '@server/dto';
 
@@ -1156,7 +1157,7 @@ export const identityRouter = router({
 
   getAgentAccesses: protectedProcedure
     .meta({ openapi: { method: 'GET', path: '/my/agent-accesses', tags: ['Agent Access'] } })
-    .output(z.array(agentAccessSchema))
+    .output(toEnvelopeSchema(z.array(agentAccessSchema)))
     .query(async ({ ctx }) => {
       const rows = await db
         .select()
@@ -1174,7 +1175,7 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ propertyId: z.string() }))
-    .output(z.array(agentAccessSchema))
+    .output(toEnvelopeSchema(z.array(agentAccessSchema)))
     .query(async ({ input }) => {
       const rows = await db
         .select()

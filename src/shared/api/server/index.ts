@@ -158,7 +158,13 @@ export type {
   ApiErrorResponse,
   ApiPaginatedResponse,
 } from '../api-response';
-export { toEnvelope, toPaginatedEnvelope, toErrorEnvelope, tRPCCodeToCanonical } from '../envelope';
+export {
+  toEnvelope,
+  toEnvelopeSchema,
+  toPaginatedEnvelope,
+  toErrorEnvelope,
+  tRPCCodeToCanonical,
+} from '../envelope';
 export type { ApiEnvelope, ApiErrorEnvelope, ApiResult, PaginatedMeta } from '../envelope';
 export {
   createContext,
