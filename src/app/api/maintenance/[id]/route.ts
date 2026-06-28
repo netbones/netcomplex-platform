@@ -6,6 +6,8 @@ import {
   maintenanceTeams,
   serviceProviders,
   requestHistories,
+  notifications,
+  agentAccesses,
   auth,
   revalidateDashboard,
   apiSuccess,
@@ -374,6 +376,121 @@ export const PATCH = withErrorHandler(
 
     if (body.resolution !== undefined && body.resolution !== existing.resolution) {
       updates.resolution = body.resolution || null;
+    }
+
+    // Landlord-specific actions (only for LANDLORD-routed requests)
+    const landlordAction = body.landlordAction as string | undefined;
+
+    if (landlordAction && existing.routingType === 'LANDLORD') {
+      // Verify caller is the landlord
+      if (existing.landlordId !== authData.userId) {
+        return apiForbidden('Only the assigned landlord can perform this action');
+      }
+
+      if (landlordAction === 'acknowledge') {
+        updates.status = 'ASSIGNED';
+
+        // Notify the original requester
+        await db.insert(notifications).values({
+          id: crypto.randomUUID(),
+          tenantId,
+          userId: existing.userId,
+          senderId: authData.userId,
+          title: 'Your maintenance request has been acknowledged',
+          message: 'Your landlord has acknowledged your request and will arrange a contractor.',
+          type: 'success',
+          link: `/maintenance/${id}`,
+          payload: { requestId: id },
+        });
+
+        await db
+          .update(maintenanceRequests)
+          .set(updates)
+          .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)));
+
+        revalidateDashboard();
+
+        return apiSuccess({ id, status: 'ASSIGNED', landlordAction: 'acknowledged' });
+      }
+
+      if (landlordAction === 'assign_contractor') {
+        const contractorId = body.contractorId as string | undefined;
+        if (!contractorId) {
+          return apiForbidden('contractorId is required for assign_contractor');
+        }
+
+        // Verify contractor is an active ServiceProvider
+        const [provider] = await db
+          .select({ id: serviceProviders.id, userId: serviceProviders.userId })
+          .from(serviceProviders)
+          .where(
+            and(
+              eq(serviceProviders.id, contractorId),
+              eq(serviceProviders.tenantId, tenantId),
+              eq(serviceProviders.isActive, true)
+            )
+          )
+          .limit(1);
+
+        if (!provider) {
+          return apiNotFound('ServiceProvider not found or inactive');
+        }
+
+        // Create a scoped AgentAccess delegation for the contractor
+        const delegationId = crypto.randomUUID();
+        const agentUserId = provider.userId ?? contractorId;
+        const delegationNow = new Date();
+        await db.insert(agentAccesses).values({
+          id: delegationId,
+          tenantId,
+          agentId: agentUserId,
+          propertyId: existing.propertyId!,
+          grantedById: authData.userId,
+          permissions: ['maintenance:read', 'maintenance:coordinate'],
+          originalPermissions: ['maintenance:read', 'maintenance:coordinate'],
+          status: 'ACTIVE',
+          acceptedAt: delegationNow,
+          startedAt: delegationNow,
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          createdAt: delegationNow,
+          updatedAt: delegationNow,
+        });
+
+        // Log delegation action
+        try {
+          const { logDelegationAction } = await import('@api/shared');
+          await logDelegationAction({
+            tenantId,
+            delegationId,
+            action: 'accepted' as const,
+            actorId: authData.userId,
+            metadata: {
+              context: 'maintenance_contractor_assignment',
+              requestId: id,
+              contractorId,
+            },
+          });
+        } catch {
+          // Log failure is non-blocking
+        }
+
+        updates.status = 'IN_PROGRESS';
+        updates.assignedProviderId = contractorId;
+
+        await db
+          .update(maintenanceRequests)
+          .set(updates)
+          .where(and(eq(maintenanceRequests.id, id), eq(maintenanceRequests.tenantId, tenantId)));
+
+        revalidateDashboard();
+
+        return apiSuccess({
+          id,
+          status: 'IN_PROGRESS',
+          landlordAction: 'contractor_assigned',
+          delegationId,
+        });
+      }
     }
 
     const [maintenanceRequest] = await db
