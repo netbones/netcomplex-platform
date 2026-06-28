@@ -229,7 +229,10 @@ export const maintenanceRequestProcedures = {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
       }
 
-      const conditions = [eq(requestNotes.requestId, input.requestId)];
+      const conditions = [
+        eq(requestNotes.requestId, input.requestId),
+        eq(requestNotes.isInternal, false),
+      ];
 
       const publicNotes = await db
         .select({
@@ -291,20 +294,39 @@ export const maintenanceRequestProcedures = {
 
     await getTenantRequest(input.requestId, tenantId);
 
+    const noteId = crypto.randomUUID();
+    const createdAt = new Date();
+
+    if (input.isInternal) {
+      const [note] = await db
+        .insert(internalMaintenanceNotes)
+        .values({
+          id: noteId,
+          requestId: input.requestId,
+          userId: ctx.userId!,
+          content: input.content,
+          createdAt,
+          updatedAt: createdAt,
+        })
+        .returning();
+
+      revalidateDashboard();
+      return { ...note, isInternal: true as const };
+    }
+
     const [note] = await db
       .insert(requestNotes)
       .values({
-        id: crypto.randomUUID(),
+        id: noteId,
         requestId: input.requestId,
         userId: ctx.userId!,
         content: input.content,
-        isInternal: input.isInternal,
-        createdAt: new Date(),
+        createdAt,
       })
       .returning();
 
     revalidateDashboard();
-    return note;
+    return { ...note, isInternal: false as const };
   }),
 
   assignRequest: protectedProcedure.input(AssignRequestInput).mutation(async ({ input, ctx }) => {
