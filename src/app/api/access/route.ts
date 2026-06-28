@@ -7,12 +7,14 @@
  * checks across the codebase.
  *
  * Supports human callers (default, via Better Auth session) and agent
- * callers (query param caller=agent&token=X — stub, future extension point
- * per D-08/D-09).
+ * callers (query param caller=agent&token=X — validated via
+ * resolveAgentScope(): JWT verify + DB lookup + delegation check +
+ * owner suspension check per D-17).
  *
  * Unauthenticated callers receive empty access (no error).
  *
  * Phase 110-01: Entity layer + endpoint for page navigation access control.
+ * Phase 111-03: Agent token now fully validated (no longer a stub).
  */
 
 import { type NextRequest } from 'next/server';
@@ -51,8 +53,13 @@ export const maxDuration = 5; // Cap execution time (D-05 mitigation)
  *
  * Extracts `caller` and `token` from the request URL.
  * When caller === 'agent' and a non-empty token is present,
- * returns an agent-flavoured AccessInput. Otherwise returns
- * an empty input (default human caller).
+ * returns an agent-flavoured AccessInput. The token is validated
+ * downstream by resolveAgentScope():
+ * - JWT signature verified (ES256, asymmetric keypair)
+ * - Token lookup in AgentToken table (existence, revocation)
+ * - Delegation grant checked (AgentAccess.status === ACTIVE)
+ * - Owner suspension checked (D-17: suspended owners pause delegations)
+ * Invalid/expired/revoked tokens → agent: null (no access granted).
  */
 function parseCaller(request: NextRequest): AccessInput {
   const searchParams = request.nextUrl.searchParams;
@@ -133,7 +140,7 @@ export async function GET(request: NextRequest) {
     const input = parseCaller(request);
 
     // Resolve access
-    const accessResolution = resolvePageAccess(ctx, input);
+    const accessResolution = await resolvePageAccess(ctx, input);
 
     // Return with cache headers (per-user, short TTL)
     return apiSuccess(accessResolution, {
