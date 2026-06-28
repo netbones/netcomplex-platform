@@ -36,6 +36,7 @@ import {
   Wallet,
   Scale,
   Gavel,
+  UserCheck,
 } from 'lucide-react';
 
 export function registerAllWidgets(registry: { register: (m: WidgetManifest) => void }) {
@@ -162,6 +163,25 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
     ),
     defaultSize: { width: 3, height: 2 },
     minSize: { width: 2, height: 1 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['home'],
+  });
+
+  registry.register({
+    id: 'delegations',
+    version: '1.0.0',
+    name: 'My Delegations',
+    description: 'Manage property delegations and agent permissions',
+    author: 'internal',
+    category: 'core',
+    icon: UserCheck,
+    component: lazy(() =>
+      import('@widgets/delegation').then(m => ({
+        default: m.DelegationWidget,
+      }))
+    ),
+    defaultSize: { width: 3, height: 3 },
+    minSize: { width: 1, height: 2 },
     dragHandleClassName: 'widget-drag-handle',
     spaces: ['home'],
   });
