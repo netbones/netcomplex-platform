@@ -1,70 +1,94 @@
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { communityServiceListings } from '@/db/schema/community-service-listings';
+import { communityServiceReviews } from '@/db/schema/community-service-reviews';
+import { serviceBookings } from '@/db/schema/service-bookings';
 
 const dateSchema = z.date().transform(d => d.toISOString());
 
-export const listingDto = z.object({
-  id: z.string(),
-  providerId: z.string(),
-  providerType: z.string(),
-  title: z.unknown(),
-  description: z.unknown().nullable(),
-  category: z.string(),
-  subcategory: z.string().nullable(),
-  priceType: z.string(),
+export const listingDto = createSelectSchema(communityServiceListings, {
   price: z.number().nullable(),
-  currency: z.string(),
-  serviceAreas: z.array(z.string()),
-  responseTime: z.number(),
-  contactMethods: z.array(z.string()),
-  images: z.array(z.string()),
-  rating: z.number(),
-  reviewCount: z.number(),
-  verified: z.boolean(),
-  isPublished: z.boolean(),
-  isFeatured: z.boolean(),
-  status: z.string(),
-  slug: z.string().nullable(),
-  locale: z.string(),
   createdAt: dateSchema,
   updatedAt: dateSchema,
+}).pick({
+  id: true,
+  providerId: true,
+  providerType: true,
+  title: true,
+  description: true,
+  category: true,
+  subcategory: true,
+  priceType: true,
+  price: true,
+  currency: true,
+  serviceAreas: true,
+  responseTime: true,
+  contactMethods: true,
+  images: true,
+  rating: true,
+  reviewCount: true,
+  verified: true,
+  isPublished: true,
+  isFeatured: true,
+  status: true,
+  slug: true,
+  locale: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
-export const reviewDto = z.object({
-  id: z.string(),
-  listingId: z.string(),
-  rating: z.number(),
-  title: z.string().nullable(),
-  comment: z.string().nullable(),
+export const reviewDto = createSelectSchema(communityServiceReviews, {
   serviceDate: dateSchema.nullable(),
-  responseQuality: z.number().nullable(),
-  isPublished: z.boolean(),
   createdAt: dateSchema,
-  reviewer: z
-    .object({
-      id: z.string(),
-      name: z.string(),
-    })
-    .optional(),
-});
+})
+  .pick({
+    id: true,
+    listingId: true,
+    rating: true,
+    title: true,
+    comment: true,
+    serviceDate: true,
+    responseQuality: true,
+    isPublished: true,
+    createdAt: true,
+  })
+  .extend({
+    reviewer: z.object({ id: z.string(), name: z.string() }).optional(),
+  });
 
-export const serviceBookingDto = z.object({
-  id: z.string(),
-  listingId: z.string(),
-  providerId: z.string(),
-  userId: z.string(),
+export const serviceBookingDto = createSelectSchema(serviceBookings, {
+  price: z
+    .number()
+    .nullable()
+    .transform(v => v ?? 0),
+  platformFee: z
+    .number()
+    .nullable()
+    .transform(v => v ?? 0),
   date: dateSchema,
-  startTime: z.string(),
-  endTime: z.string(),
-  price: z.number(),
-  platformFee: z.number(),
-  paymentStatus: z.string(),
-  status: z.string(),
-  listingTitle: z.string().nullable().optional(),
-  listingCategory: z.string().nullable().optional(),
-  userName: z.string().nullable().optional(),
   createdAt: dateSchema,
   updatedAt: dateSchema,
-});
+})
+  .pick({
+    id: true,
+    listingId: true,
+    providerId: true,
+    userId: true,
+    date: true,
+    startTime: true,
+    endTime: true,
+    price: true,
+    platformFee: true,
+    paymentStatus: true,
+    status: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    listingTitle: z.string().nullable().optional(),
+    listingCategory: z.string().nullable().optional(),
+    userName: z.string().nullable().optional(),
+  });
 
 export const urgencyDto = z.object({
   commandBar: z.object({

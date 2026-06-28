@@ -1,25 +1,32 @@
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { contents } from '@/db/schema/contents';
+import { announcements } from '@/db/schema/announcements';
 
 const dateSchema = z.date().transform(d => d.toISOString());
 
-export const contentDto = z.object({
-  id: z.string(),
-  title: z.unknown(),
-  excerpt: z.unknown().nullable(),
-  content: z.unknown(),
-  image: z.string().nullable(),
-  category: z.string(),
-  tags: z.array(z.string()),
-  published: z.boolean(),
-  featured: z.boolean(),
-  priority: z.string(),
-  defaultLocale: z.string(),
-  contentType: z.string(),
-  viewCount: z.number(),
-  commentsEnabled: z.boolean(),
+export const contentDto = createSelectSchema(contents, {
   publishedAt: dateSchema.nullable(),
   createdAt: dateSchema,
   updatedAt: dateSchema,
+}).pick({
+  id: true,
+  title: true,
+  excerpt: true,
+  content: true,
+  image: true,
+  category: true,
+  tags: true,
+  published: true,
+  featured: true,
+  priority: true,
+  defaultLocale: true,
+  contentType: true,
+  viewCount: true,
+  commentsEnabled: true,
+  publishedAt: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const contentAuthorDto = z.object({
@@ -28,18 +35,22 @@ export const contentAuthorDto = z.object({
   avatar: z.string().nullable(),
 });
 
-export const announcementDto = z.object({
-  id: z.string(),
-  title: z.unknown(),
-  content: z.string(),
-  author: z.string(),
-  priority: z.string(),
-  targetFilter: z.string(),
-  targetRoles: z.array(z.string()),
-  resourceId: z.string().nullable(),
+export const announcementDto = createSelectSchema(announcements, {
   createdAt: dateSchema,
   updatedAt: dateSchema,
   expiresAt: dateSchema.nullable(),
+}).pick({
+  id: true,
+  title: true,
+  content: true,
+  author: true,
+  priority: true,
+  targetFilter: true,
+  targetRoles: true,
+  resourceId: true,
+  createdAt: true,
+  updatedAt: true,
+  expiresAt: true,
 });
 
 export type ContentDto = z.infer<typeof contentDto>;

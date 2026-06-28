@@ -1,78 +1,101 @@
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { users } from '@/db/schema/users';
+import { properties } from '@/db/schema/properties';
+import { profiles } from '@/db/schema/profiles';
+import { albums } from '@/db/schema/albums';
+import { soloSeats } from '@/db/schema/solo-seats';
+import { premiumSeats } from '@/db/schema/premium-seats';
 
 const dateSchema = z.date().transform(d => d.toISOString());
 
-export const userDto = z.object({
-  id: z.string(),
-  name: z.string(),
-  image: z.string().nullable(),
-  avatar: z.string().nullable(),
-  role: z.string(),
-  isActive: z.boolean(),
+export const userDto = createSelectSchema(users, {
   email: z.string().optional(),
   phone: z.string().nullable().optional(),
-  profileSlug: z.string().nullable().optional(),
-  createdAt: z
-    .date()
-    .transform(d => d.toISOString())
-    .optional(),
-});
-
-export const propertyDto = z.object({
-  id: z.string(),
-  street: z.string(),
-  unit: z.string(),
-  platformAddress: z.string(),
-  homeImage: z.string().nullable(),
-  ownerId: z.string().nullable(),
-  createdAt: dateSchema.optional(),
-});
-
-export const profileDto = z.object({
-  id: z.string(),
-  displayName: z.string(),
-  profileAddress: z.string(),
   avatar: z.string().nullable(),
-  occupantImage: z.string().nullable(),
-  rentalImage: z.string().nullable(),
-  residencyType: z.string(),
-  householdRole: z.string(),
-  isPublic: z.boolean(),
-  occupantSince: dateSchema.nullable().optional(),
+  profileSlug: z.string().nullable().optional(),
   createdAt: dateSchema.optional(),
+}).pick({
+  id: true,
+  name: true,
+  image: true,
+  avatar: true,
+  role: true,
+  isActive: true,
+  email: true,
+  phone: true,
+  profileSlug: true,
+  createdAt: true,
 });
 
-export const albumDto = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string().nullable(),
-  isPublic: z.boolean(),
-  mediaIds: z.array(z.string()),
-  userId: z.string(),
+export const propertyDto = createSelectSchema(properties, {
   createdAt: dateSchema.optional(),
   updatedAt: dateSchema.optional(),
+}).pick({
+  id: true,
+  street: true,
+  unit: true,
+  platformAddress: true,
+  homeImage: true,
+  ownerId: true,
+  createdAt: true,
 });
 
-export const seatDto = z.object({
-  id: z.string(),
-  platformAddress: z.string(),
-  seatType: z.string(),
-  isComplimentary: z.boolean().optional(),
-  status: z.string(),
+export const profileDto = createSelectSchema(profiles, {
+  occupantSince: dateSchema.nullable().optional(),
   createdAt: dateSchema.optional(),
+}).pick({
+  id: true,
+  displayName: true,
+  profileAddress: true,
+  avatar: true,
+  occupantImage: true,
+  rentalImage: true,
+  residencyType: true,
+  householdRole: true,
+  isPublic: true,
+  occupantSince: true,
+  createdAt: true,
 });
 
-export const premiumSeatDto = z.object({
-  id: z.string(),
-  platformAddress: z.string(),
-  subscriptionTier: z.string(),
-  tier: z.string(),
-  maxProperties: z.number(),
-  isActive: z.boolean(),
-  portfolioName: z.string().nullable(),
-  status: z.string(),
-  messageRetentionDays: z.number(),
+export const albumDto = createSelectSchema(albums, {
   createdAt: dateSchema.optional(),
+  updatedAt: dateSchema.optional(),
+}).pick({
+  id: true,
+  title: true,
+  description: true,
+  isPublic: true,
+  mediaIds: true,
+  userId: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const seatDto = createSelectSchema(soloSeats, {
+  createdAt: dateSchema.optional(),
+}).pick({
+  id: true,
+  platformAddress: true,
+  seatType: true,
+  isComplimentary: true,
+  status: true,
+  createdAt: true,
+});
+
+export const premiumSeatDto = createSelectSchema(premiumSeats, {
+  createdAt: dateSchema.optional(),
+}).pick({
+  id: true,
+  platformAddress: true,
+  subscriptionTier: true,
+  tier: true,
+  maxProperties: true,
+  isActive: true,
+  portfolioName: true,
+  status: true,
+  messageRetentionDays: true,
+  createdAt: true,
 });
 
 export type UserDto = z.infer<typeof userDto>;

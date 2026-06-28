@@ -1,17 +1,24 @@
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { achievementDefinitions } from '@/db/schema/achievement-definitions';
+import { invitations } from '@/db/schema/invitations';
+import { settings } from '@/db/schema/settings';
+import { agentProfiles } from '@/db/schema/agent-profiles';
 
 const dateSchema = z.date().transform(d => d.toISOString());
 
-export const achievementDto = z.object({
-  id: z.string(),
-  key: z.string(),
-  label: z.string(),
-  description: z.string().nullable(),
-  icon: z.string().nullable(),
-  category: z.string(),
-  threshold: z.number(),
-  eventType: z.string(),
+export const achievementDto = createSelectSchema(achievementDefinitions, {
   createdAt: dateSchema,
+}).pick({
+  id: true,
+  key: true,
+  label: true,
+  description: true,
+  icon: true,
+  category: true,
+  threshold: true,
+  eventType: true,
+  createdAt: true,
 });
 
 export const achievementProgressDto = z.object({
@@ -24,45 +31,51 @@ export const achievementProgressDto = z.object({
   updatedAt: dateSchema.nullable(),
 });
 
-export const invitationDto = z.object({
-  id: z.string(),
-  email: z.string(),
-  name: z.string(),
-  street: z.string().nullable(),
-  unit: z.string().nullable(),
-  residencyType: z.string(),
-  role: z.string(),
-  status: z.string(),
+export const invitationDto = createSelectSchema(invitations, {
   expiresAt: dateSchema.nullable(),
   createdAt: dateSchema,
+}).pick({
+  id: true,
+  email: true,
+  name: true,
+  street: true,
+  unit: true,
+  residencyType: true,
+  role: true,
+  status: true,
+  expiresAt: true,
+  createdAt: true,
 });
 
-export const settingDto = z.object({
-  key: z.string(),
-  value: z.string(),
-});
+export const settingDto = createSelectSchema(settings, {
+  updatedAt: dateSchema.optional(),
+}).pick({ key: true, value: true });
 
-export const agentProfileDto = z.object({
-  id: z.string(),
-  agencyName: z.string().nullable(),
-  licenseNumber: z.string().nullable(),
-  experienceYears: z.number(),
-  specializations: z.array(z.string()),
-  serviceAreas: z.array(z.string()),
-  totalListings: z.number(),
-  activeListings: z.number(),
-  salesCompleted: z.number(),
+export const agentProfileDto = createSelectSchema(agentProfiles, {
   rating: z.number(),
   reviewCount: z.number(),
-  isVerified: z.boolean(),
   verificationDate: dateSchema.nullable(),
-  agent: z
-    .object({
-      id: z.string(),
-      name: z.string(),
-    })
-    .optional(),
-});
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
+})
+  .pick({
+    id: true,
+    agencyName: true,
+    licenseNumber: true,
+    experienceYears: true,
+    specializations: true,
+    serviceAreas: true,
+    totalListings: true,
+    activeListings: true,
+    salesCompleted: true,
+    rating: true,
+    reviewCount: true,
+    isVerified: true,
+    verificationDate: true,
+  })
+  .extend({
+    agent: z.object({ id: z.string(), name: z.string() }).optional(),
+  });
 
 export type AchievementDto = z.infer<typeof achievementDto>;
 export type AchievementProgressDto = z.infer<typeof achievementProgressDto>;

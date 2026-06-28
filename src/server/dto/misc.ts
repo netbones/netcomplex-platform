@@ -1,48 +1,65 @@
+import { createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { events } from '@/db/schema/events';
+import { bookings } from '@/db/schema/bookings';
+import { groups } from '@/db/schema/groups';
+import { communityMerits } from '@/db/schema/community-merits';
+import { notifications } from '@/db/schema/notifications';
 
 const dateSchema = z.date().transform(d => d.toISOString());
 
-export const eventDto = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string(),
+export const eventDto = createSelectSchema(events, {
   date: dateSchema,
-  location: z.string(),
-  organizer: z.string(),
-  image: z.string().nullable(),
-  isPublic: z.boolean(),
   createdAt: dateSchema,
   updatedAt: dateSchema,
+}).pick({
+  id: true,
+  title: true,
+  description: true,
+  date: true,
+  location: true,
+  organizer: true,
+  image: true,
+  isPublic: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
-export const bookingDto = z.object({
-  id: z.string(),
-  propertyId: z.string().nullable(),
-  userId: z.string(),
-  facility: z.string(),
+export const bookingDto = createSelectSchema(bookings, {
   date: dateSchema,
-  startTime: z.string(),
-  endTime: z.string(),
-  purpose: z.string().nullable(),
-  status: z.string(),
   createdAt: dateSchema,
   updatedAt: dateSchema,
+}).pick({
+  id: true,
+  propertyId: true,
+  userId: true,
+  facility: true,
+  date: true,
+  startTime: true,
+  endTime: true,
+  purpose: true,
+  status: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
-export const groupDto = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string().nullable(),
-  category: z.string(),
-  image: z.string().nullable(),
-  color: z.string(),
-  isPublic: z.boolean(),
-  accessType: z.string(),
-  residentFilter: z.string(),
-  isActive: z.boolean(),
-  ownerId: z.string(),
+export const groupDto = createSelectSchema(groups, {
   createdAt: dateSchema,
   updatedAt: dateSchema,
+}).pick({
+  id: true,
+  name: true,
+  description: true,
+  category: true,
+  image: true,
+  color: true,
+  isPublic: true,
+  accessType: true,
+  residentFilter: true,
+  isActive: true,
+  ownerId: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const groupDetailDto = groupDto.extend({
@@ -74,34 +91,44 @@ export const groupDetailDto = groupDto.extend({
   contents: z.array(z.unknown()).optional(),
 });
 
-export const meritDto = z.object({
-  id: z.string(),
-  userId: z.string(),
-  behaviorType: z.string(),
-  category: z.string(),
-  reason: z.string(),
-  description: z.string().nullable(),
+export const meritDto = createSelectSchema(communityMerits, {
   recognitionPoints: z.number(),
   disciplinaryPoints: z.number(),
   standingBefore: z.number().nullable(),
   standingAfter: z.number().nullable(),
-  status: z.string(),
-  createdById: z.string(),
   createdAt: dateSchema,
   expiresAt: dateSchema.nullable(),
+}).pick({
+  id: true,
+  userId: true,
+  behaviorType: true,
+  category: true,
+  reason: true,
+  description: true,
+  recognitionPoints: true,
+  disciplinaryPoints: true,
+  standingBefore: true,
+  standingAfter: true,
+  status: true,
+  createdById: true,
+  createdAt: true,
+  expiresAt: true,
 });
 
-export const notificationDto = z.object({
-  id: z.string(),
-  userId: z.string(),
-  senderId: z.string().nullable(),
-  title: z.string(),
-  message: z.string(),
-  type: z.string(),
-  link: z.string().nullable(),
-  read: z.boolean(),
+export const notificationDto = createSelectSchema(notifications, {
   readAt: dateSchema.nullable(),
   createdAt: dateSchema,
+}).pick({
+  id: true,
+  userId: true,
+  senderId: true,
+  title: true,
+  message: true,
+  type: true,
+  link: true,
+  read: true,
+  readAt: true,
+  createdAt: true,
 });
 
 export type EventDto = z.infer<typeof eventDto>;
