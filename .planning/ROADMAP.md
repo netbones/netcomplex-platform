@@ -10,17 +10,17 @@ Transform Soralia Village from single-tenant to white-label SaaS platform.
 
 Phases are grouped into milestones (M0–M6+). See `.planning/MILESTONES.md` for full structure, gap analysis, and cadence ritual.
 
-| Milestone                         | Goal                                                                                                                                       | Phases                                                                                                                                                             | Status           |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------- |
-| **M0 Foundation**                 | Multi-tenant substrate + base modules                                                                                                      | 00, 01, 02, 03, 05, 06, 07, 08, 11                                                                                                                                 | ✅ Shipped       |
-| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding                                                                                        | 09, 10, 18, 19, 20                                                                                                                                                 | ✅ Shipped       |
-| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system                                                                                             | 22, 24, 25, 26, 27, 28, 29, 30, 31                                                                                                                                 | ✅ Shipped       |
-| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing                                                                                      | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40                                                                                                                             | ✅ Shipped       |
-| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration                                                                                         | 35, 41, 42                                                                                                                                                         | ✅ Complete      |
-| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                                                                                     | 43 (blockers), then (no new phases)                                                                                                                                | 🚧 Blocked on 43 |
-| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, dWallet, Provider Platform, Service Marketplace, Dispute Resolution, AI Pool Billing, Access Control | 44 (M5a), 45 (M5b), 46 (Provider Platform), 47 (dWallet), 50 (Service Marketplace), 104–108 (Dispute Resolution), 109 (AI Surcharge Billing), 110 (Access Control) | 📋 Planning      |
-| **M5+ Post-Launch**               | Future features, second tenant                                                                                                             | deferred                                                                                                                                                           | Deferred         |
-| **M7 Monorepo Migration**         | Turborepo + pnpm monorepo for web + mobile code sharing                                                                                    | 112, 113, 114, 115, 116, 117+                                                                                                                                      | 📋 Planning      |
+| Milestone                         | Goal                                                                                                                                                       | Phases                                                                                                                                                                                   | Status           |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| **M0 Foundation**                 | Multi-tenant substrate + base modules                                                                                                                      | 00, 01, 02, 03, 05, 06, 07, 08, 11                                                                                                                                                       | ✅ Shipped       |
+| **M1 Core Comm & Auth**           | Real-time chat, email, schema hardening, onboarding                                                                                                        | 09, 10, 18, 19, 20                                                                                                                                                                       | ✅ Shipped       |
+| **M2 Dashboard & Navigation**     | Focus Spaces, single-source nav, widget system                                                                                                             | 22, 24, 25, 26, 27, 28, 29, 30, 31                                                                                                                                                       | ✅ Shipped       |
+| **M3 Trust, Safety & Engagement** | Admin command surface, suspension, surveys, ticketing                                                                                                      | 21, 23, 32, 33, 34, 36, 37, 38, 39, 40                                                                                                                                                   | ✅ Shipped       |
+| **M4 Production-Ready**           | API governance, gate consolidation, i18n hydration                                                                                                         | 35, 41, 42                                                                                                                                                                               | ✅ Complete      |
+| **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                                                                                                     | 43 (blockers), then (no new phases)                                                                                                                                                      | 🚧 Blocked on 43 |
+| **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, dWallet, Provider Platform, Service Marketplace, Dispute Resolution, AI Pool Billing, Access Control, API Governance | 44 (M5a), 45 (M5b), 46 (Provider Platform), 47 (dWallet), 50 (Service Marketplace), 104–108 (Dispute Resolution), 109 (AI Surcharge Billing), 110 (Access Control), 120 (API Governance) | 📋 Planning      |
+| **M5+ Post-Launch**               | Future features, second tenant                                                                                                                             | deferred                                                                                                                                                                                 | Deferred         |
+| **M7 Monorepo Migration**         | Turborepo + pnpm monorepo for web + mobile code sharing                                                                                                    | 112, 113, 114, 115, 116, 117+                                                                                                                                                            | 📋 Planning      |
 
 **Phase numbering note:** IDs are stable (not renumbered on re-order). Duplicates exist: `03` (Localization vs Second Tenant), `11` (Announcements vs Prisma→Drizzle). The duplicate pair has a "Planning Complete (deferred)" status on the second one, except `11-prisma-to-drizzle` which was verified complete (2026-06-03) and moved to M0. Out-of-order numeric IDs (01 after 04; 35 after 39; 99 last) reflect creation sequence, not logical order. See MILESTONES.md Gap ε.
 
@@ -1316,6 +1316,24 @@ Plans:
 | 2 | [ ] 110-02-PLAN.md | `usePageAccess()` hook + nav refactor (SpaceChrome, MobileSpaceBar) + `filterSpaces` pure fn |
 
 **Out of scope:** Full agent gateway (token issuance, scope management, audit log), widget-level access, access-based redirects, rate limiting on access endpoint.
+
+## Phase 120: API Governance Hardening
+
+**Goal:** Close 3 systemic gaps between tRPC router implementations and the Netcomplex API Governance Standard: response envelope, canonical error codes, and DTO mapping. Add `tenantProcedure`/`privilegedProcedure` tiers.
+
+**Status:** Planning
+
+**Milestone:** M5 — Anchor Tenant Launch (hardening)
+
+**Depends on:** BD `soralia-village-c2dd` (tRPC audit — complete), BD `soralia-village-wdnk` (ctx narrowing — complete), BD `soralia-village-7fly` (rate limiting — complete)
+
+**Requirements:** GOV-01 through GOV-08
+
+**Plans:**
+
+- [ ] 120-01-PLAN.md — API Governance Hardening (40 tasks across 4 waves)
+
+**Scope:** 20 tRPC router files, 10 DTO files, 3 middleware additions. REST routes and Prisma schema unchanged.
 
 ## Phase 112: Monorepo — Full Milestone
 

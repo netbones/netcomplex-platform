@@ -165,6 +165,7 @@ export {
   protectedProcedure,
   adminProcedure,
   agentProcedure,
+  rateLimitMiddleware,
 } from '../trpc/server';
 export type { Context } from '../trpc/server';
 // appRouter/AppRouter NOT re-exported here to avoid circular dependency:
