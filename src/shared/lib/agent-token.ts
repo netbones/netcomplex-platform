@@ -63,7 +63,7 @@ export const jwtVerifier: CredentialVerifier = {
         return { valid: false, payload: null, reason: 'expired' };
       }
 
-      const { db } = await import('@api/server');
+      const { db } = await import('@/shared/api/db');
       const tokenHashValue = hashToken(rawCredential);
 
       const [stored] = await db
