@@ -29,7 +29,7 @@ const CreatePremiumListingInput = z.object({
   petFriendly: z.boolean().optional(),
 });
 
-const UpgradePortfolioInput = z.object({
+const ActivatePremiumSeatInput = z.object({
   householdIds: z.array(z.string()).min(2),
 });
 
@@ -178,16 +178,16 @@ export const premiumProcedures = {
       return toEnvelope({ hasPortfolio: true, portfolio: seat });
     }),
 
-  upgradePortfolio: protectedProcedure
+  activatePremiumSeat: protectedProcedure
     .meta({
       openapi: {
         method: 'POST',
-        path: '/marketplace/premium/portfolio/upgrade',
+        path: '/marketplace/premium/activate',
         protect: true,
         tags: ['marketplace'],
       },
     })
-    .input(UpgradePortfolioInput)
+    .input(ActivatePremiumSeatInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
       if (!tenantId) {
