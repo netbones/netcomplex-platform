@@ -18,6 +18,7 @@ export {
   type Permission,
 } from './permissions';
 export * from './types';
+export type { PlatformPageFlags, HeaderLinkId } from './types/platform-page-flags';
 export * from './utils';
 export * from './logger';
 export {
