@@ -14,7 +14,7 @@ import {
 } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
-import { hasPermission } from '@shared/lib';
+import { hasPermission, createComponentLogger } from '@shared/lib';
 
 import { eq, and, desc, isNull } from 'drizzle-orm';
 
@@ -47,6 +47,7 @@ function requireInvitePermission(role: string | null | undefined): void {
 }
 
 const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
+const inviteLogger = createComponentLogger('Invitations');
 
 export const invitationsRouter = router({
   listInvitations: protectedProcedure
@@ -78,8 +79,9 @@ export const invitationsRouter = router({
       }
 
       if (input?.status) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        conditions.push(eq(invitations.status, input.status as any));
+        conditions.push(
+          eq(invitations.status, input.status as (typeof invitations.status.enumValues)[number])
+        );
       }
 
       return db
@@ -193,15 +195,12 @@ export const invitationsRouter = router({
           name: input.name,
           street: input.street || null,
           unit: input.unit || null,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          residencyType: input.residencyType as any,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          role: input.role as any,
+          residencyType: input.residencyType,
+          role: input.role,
           inviterId: ctx.userId!,
-          organizationId: input.organizationId || ctx.organizationId || 'placeholder-org-id',
+          organizationId: input.organizationId || ctx.organizationId || crypto.randomUUID(),
           token,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          status: 'PENDING' as any,
+          status: 'PENDING' as (typeof invitations.status.enumValues)[number],
           createdAt: now(),
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         })
@@ -217,7 +216,9 @@ export const invitationsRouter = router({
           acceptUrl,
           input.role
         ),
-      }).catch(() => {});
+      }).catch(err => {
+        inviteLogger.error({ email: input.email }, 'Failed to send invitation email', err);
+      });
 
       revalidateAdminChanges();
 
@@ -313,7 +314,7 @@ export const invitationsRouter = router({
       if (existingUser) {
         const isProviderInvite = invitation.role === 'PROVIDER';
 
-        if (!isProviderInvite && existingUser.role === 'USER') {
+        if (!isProviderInvite && !hasPermission(existingUser.role, 'users')) {
           await db
             .update(users)
             .set({ role: invitation.role })
@@ -498,7 +499,13 @@ export const invitationsRouter = router({
           acceptUrl,
           invitation.role
         ),
-      }).catch(() => {});
+      }).catch(err => {
+        inviteLogger.error(
+          { email: invitation.email, invitationId: input.id },
+          'Failed to resend invitation email',
+          err
+        );
+      });
 
       return { success: true, message: 'Invitation email resent' };
     }),

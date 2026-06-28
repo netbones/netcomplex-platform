@@ -35,7 +35,10 @@ export const externalSurveyProcedures = {
     .input(
       z.object({
         surveyId: z.string(),
-        answers: z.record(z.unknown()),
+        answers: z
+          .record(z.unknown())
+          .refine(val => Object.keys(val).length <= 200, 'Too many answers')
+          .refine(val => JSON.stringify(val).length <= 50000, 'Answer payload too large'),
       })
     )
     .mutation(async ({ ctx, input }) => {

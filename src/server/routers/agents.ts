@@ -36,28 +36,7 @@ export const agentsRouter = router({
         return { activities: [] };
       }
 
-      return {
-        activities: [
-          {
-            id: '1',
-            type: 'communication',
-            description: 'Sent monthly status report',
-            propertyId: 'prop-1',
-            propertyUnit: '101',
-            performedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            agentName: 'John Agent',
-          },
-          {
-            id: '2',
-            type: 'maintenance',
-            description: 'Scheduled HVAC inspection',
-            propertyId: 'prop-1',
-            propertyUnit: '101',
-            performedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-            agentName: 'John Agent',
-          },
-        ],
-      };
+      return { activities: [] };
     }),
 
   listManagedProperties: agentProcedure

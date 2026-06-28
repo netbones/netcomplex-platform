@@ -145,6 +145,19 @@ export const achievementsRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin permission required' });
       }
 
+      const [existing] = await db
+        .select({ id: achievementDefinitions.id })
+        .from(achievementDefinitions)
+        .where(eq(achievementDefinitions.key, input.key))
+        .limit(1);
+
+      if (existing) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: `Achievement with key "${input.key}" already exists`,
+        });
+      }
+
       const id = crypto.randomUUID();
 
       const [created] = await db

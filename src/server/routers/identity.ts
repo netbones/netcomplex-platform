@@ -1374,39 +1374,6 @@ export const identityRouter = router({
       return { success: true, user: updatedUser };
     }),
 
-  // ============ USER TAGS ============
-
-  getTags: protectedProcedure
-    .meta({
-      openapi: {
-        method: 'GET',
-        path: '/identity/user/tags',
-        tags: ['Identity'],
-        summary: 'Get current user tags from content',
-        protect: true,
-      },
-    })
-    .output(z.object({ tags: z.array(z.string()) }))
-    .query(async () => {
-      return { tags: [] };
-    }),
-
-  setTags: protectedProcedure
-    .meta({
-      openapi: {
-        method: 'POST',
-        path: '/identity/user/tags',
-        tags: ['Identity'],
-        summary: 'Set current user tags',
-        protect: true,
-      },
-    })
-    .input(z.object({ tags: z.array(z.string()) }))
-    .output(z.object({ tags: z.array(z.string()) }))
-    .mutation(async ({ input }) => {
-      return { tags: input.tags };
-    }),
-
   // ============ USER ALBUMS ============
 
   listAlbums: protectedProcedure
@@ -1763,43 +1730,42 @@ export const identityRouter = router({
       })
     )
     .query(async ({ ctx }) => {
-      const [{ count: requests }] = await db
-        .select({ count: count() })
-        .from(maintenanceRequests)
-        .where(
-          and(
-            eq(maintenanceRequests.userId, ctx.userId!),
-            eq(maintenanceRequests.tenantId, ctx.tenantId!)
-          )
-        );
-
-      const [{ count: bookingsCount }] = await db
-        .select({ count: count() })
-        .from(bookings)
-        .where(and(eq(bookings.userId, ctx.userId!), eq(bookings.tenantId, ctx.tenantId!)));
-
-      const [{ count: conversationsCount }] = await db
-        .select({ count: count() })
-        .from(conversationParticipants)
-        .where(
-          and(
-            eq(conversationParticipants.userId, ctx.userId!),
-            eq(conversationParticipants.tenantId, ctx.tenantId!)
-          )
-        );
-
-      const [{ count: notificationsCount }] = await db
-        .select({ count: count() })
-        .from(notifications)
-        .where(
-          and(eq(notifications.userId, ctx.userId!), eq(notifications.tenantId, ctx.tenantId!))
-        );
+      const [reqResult, bookingsResult, convResult, notifResult] = await Promise.all([
+        db
+          .select({ count: count() })
+          .from(maintenanceRequests)
+          .where(
+            and(
+              eq(maintenanceRequests.userId, ctx.userId!),
+              eq(maintenanceRequests.tenantId, ctx.tenantId!)
+            )
+          ),
+        db
+          .select({ count: count() })
+          .from(bookings)
+          .where(and(eq(bookings.userId, ctx.userId!), eq(bookings.tenantId, ctx.tenantId!))),
+        db
+          .select({ count: count() })
+          .from(conversationParticipants)
+          .where(
+            and(
+              eq(conversationParticipants.userId, ctx.userId!),
+              eq(conversationParticipants.tenantId, ctx.tenantId!)
+            )
+          ),
+        db
+          .select({ count: count() })
+          .from(notifications)
+          .where(
+            and(eq(notifications.userId, ctx.userId!), eq(notifications.tenantId, ctx.tenantId!))
+          ),
+      ]);
 
       return {
-        requests,
-        bookings: bookingsCount,
-        messages: conversationsCount,
-        notifications: notificationsCount,
+        requests: reqResult[0]?.count ?? 0,
+        bookings: bookingsResult[0]?.count ?? 0,
+        messages: convResult[0]?.count ?? 0,
+        notifications: notifResult[0]?.count ?? 0,
       };
     }),
 
@@ -1818,11 +1784,11 @@ export const identityRouter = router({
     .input(z.object({ userId: z.string() }))
     .output(
       z.object({
-        books: z.array(z.any()),
+        books: z.array(z.unknown()),
       })
     )
     .query(async ({ input, ctx }) => {
-      const isOwnerOrAdmin = ctx.userId === input.userId || ctx.role === 'ADMIN';
+      const isOwnerOrAdmin = ctx.userId === input.userId || hasPermission(ctx.role, 'admin');
       if (!isOwnerOrAdmin) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
       }

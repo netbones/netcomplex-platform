@@ -232,7 +232,9 @@ export const premiumProcedures = {
         }
 
         const user = userResult.rows[0];
-        const platformAddress = `${(user.name || '').toLowerCase().replace(/\s+/g, '.')}@sorialia.org`;
+        const nameSlug = (user.name || '').toLowerCase().replace(/\s+/g, '.');
+        const shortId = userId.slice(0, 8);
+        const platformAddress = `${nameSlug}.${shortId}@sorialia.org`;
 
         try {
           await assertAddressUnique(platformAddress, db);

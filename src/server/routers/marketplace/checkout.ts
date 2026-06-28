@@ -127,11 +127,11 @@ export const checkoutProcedures = {
       }
 
       const reference = event.data?.reference;
-      if (!reference?.startsWith('svc-')) {
+      if (!reference || !reference.startsWith('svc-')) {
         return { status: 'ignored' };
       }
 
-      const bookingId = reference.replace('svc-', '');
+      const bookingId = reference.slice(4);
 
       const [booking] = await db
         .select()
