@@ -810,7 +810,13 @@ export const contentRouter = router({
         const [resource] = await db
           .select({ id: resources.id })
           .from(resources)
-          .where(and(eq(resources.id, input.resourceId), eq(resources.tenantId, tenantId)))
+          .where(
+            and(
+              eq(resources.id, input.resourceId),
+              eq(resources.tenantId, tenantId),
+              isNull(resources.deletedAt)
+            )
+          )
           .limit(1);
 
         if (!resource) {
