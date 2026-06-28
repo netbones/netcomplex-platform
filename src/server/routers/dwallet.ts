@@ -7,6 +7,7 @@ import {
   payoutRequests,
   dataConsents,
   dataRevenueStreams,
+  settings,
   revalidateDashboard,
   now,
 } from '@api/server';
@@ -36,9 +37,21 @@ const ListTransactionsInput = z
   })
   .optional();
 
+const DEFAULT_PAYOUT_MIN = 50;
+
 const CreatePayoutInput = z.object({
-  amount: z.number().positive().min(50, 'Minimum payout is R50').multipleOf(0.01),
+  amount: z.number().positive().multipleOf(0.01),
 });
+
+async function getPayoutMin(tenantId: string): Promise<number> {
+  const [row] = await db
+    .select({ value: settings.value })
+    .from(settings)
+    .where(and(eq(settings.tenantId, tenantId), eq(settings.key, 'dwallet_min_payout')))
+    .limit(1);
+  const parsed = row ? Number(row.value) : NaN;
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_PAYOUT_MIN;
+}
 
 const ListPayoutsInput = z
   .object({
@@ -273,13 +286,22 @@ export const dwalletRouter = router({
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
     }
 
+    const payoutMin = await getPayoutMin(tenantId);
+
+    if (input.amount < payoutMin) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: `Minimum payout is R${payoutMin}`,
+      });
+    }
+
     const wallet = await getOrCreateWallet(ctx.userId, tenantId);
 
     const balanceNum = Number(wallet.balance);
-    if (balanceNum < 50) {
+    if (balanceNum < payoutMin) {
       throw new TRPCError({
         code: 'BAD_REQUEST',
-        message: 'Below minimum payout threshold of R50',
+        message: `Below minimum payout threshold of R${payoutMin}`,
       });
     }
 

@@ -3,6 +3,7 @@ import { db, communityServiceListings, communityServiceReviews, now } from '@api
 import { TRPCError } from '@trpc/server';
 import { eq, and, isNull, sql } from 'drizzle-orm';
 
+// TODO: make tenant-configurable via settings (dwallet R50 fix pattern). Requires DB enum migration.
 export const SERVICE_CATEGORIES = {
   COMMUNITY: [
     'TUTORING',
