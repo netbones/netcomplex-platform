@@ -8,20 +8,18 @@ import {
   revalidateAdminChanges,
   now,
 } from '@api/server';
-
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
-
 import { eq, and } from 'drizzle-orm';
 import { validateSettingValue } from '@shared/lib/settings/validation';
+import { toEnvelope } from '@api/server';
+import { settingDto } from '@server/dto';
 
 const SettingByKeyInput = z.object({ key: z.string() });
-
 const UpsertSettingInput = z.object({
   key: z.string().min(1),
   value: z.string(),
 });
-
 const DeleteSettingInput = z.object({ key: z.string() });
 
 export const settingsRouter = router({
@@ -33,11 +31,13 @@ export const settingsRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
 
-      return db
+      const rows = await db
         .select()
         .from(settings)
         .where(eq(settings.tenantId, tenantId))
         .orderBy(settings.key);
+
+      return toEnvelope(rows.map(r => settingDto.parse(r)));
     }),
 
   getSetting: protectedProcedure
@@ -55,7 +55,7 @@ export const settingsRouter = router({
         .where(and(eq(settings.tenantId, tenantId), eq(settings.key, input.key)))
         .limit(1);
 
-      return setting ?? { key: input.key, value: null };
+      return toEnvelope(setting ? settingDto.parse(setting) : { key: input.key, value: null });
     }),
 
   upsertSetting: protectedProcedure
@@ -89,6 +89,8 @@ export const settingsRouter = router({
 
       const oldValue = existing?.value ?? null;
 
+      let result: typeof settings.$inferSelect;
+
       if (existing) {
         const [updated] = await db
           .update(settings)
@@ -96,33 +98,26 @@ export const settingsRouter = router({
           .where(and(eq(settings.tenantId, tenantId), eq(settings.key, input.key)))
           .returning();
 
-        writeAuditLog({
-          action: 'SETTINGS_CHANGED',
-          actorId: ctx.userId,
-          tenantId,
-          details: { key: input.key, oldValue, newValue: input.value, method: 'tRPC' },
-        });
+        result = updated;
+      } else {
+        const id = `${tenantId}_${input.key}`.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
+        const [created] = await db
+          .insert(settings)
+          .values({ id, tenantId, key: input.key, value: input.value })
+          .returning();
 
-        revalidateAdminChanges();
-        return updated;
+        result = created;
       }
-
-      const id = `${tenantId}_${input.key}`.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
-
-      const [created] = await db
-        .insert(settings)
-        .values({ id, tenantId, key: input.key, value: input.value })
-        .returning();
 
       writeAuditLog({
         action: 'SETTINGS_CHANGED',
         actorId: ctx.userId,
         tenantId,
-        details: { key: input.key, oldValue: null, newValue: input.value, method: 'tRPC' },
+        details: { key: input.key, oldValue, newValue: input.value, method: 'tRPC' },
       });
 
       revalidateAdminChanges();
-      return created;
+      return toEnvelope(settingDto.parse(result));
     }),
 
   deleteSetting: protectedProcedure
@@ -163,8 +158,7 @@ export const settingsRouter = router({
       });
 
       revalidateAdminChanges();
-
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
   getContactSettings: protectedProcedure
@@ -183,9 +177,11 @@ export const settingsRouter = router({
 
       const rows = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
 
-      return rows.reduce<Record<string, string>>((acc, s) => {
+      const map = rows.reduce<Record<string, string>>((acc, s) => {
         acc[s.key] = s.value;
         return acc;
       }, {});
+
+      return toEnvelope(map);
     }),
 });
