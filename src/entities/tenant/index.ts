@@ -17,6 +17,8 @@ export type {
   ServicesPageConfig,
 } from './api/flags/services-config.types';
 
+export type { FeatureKey, GateResult, GateContext, GateReason } from './api/gate/mappings';
+
 // Server-only exports removed from barrel (causes client build errors).
 // Import server-only modules directly from their module paths:
 //   @entities/tenant/api/with-tenant
