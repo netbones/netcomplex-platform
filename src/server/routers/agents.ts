@@ -10,6 +10,8 @@ import {
   properties,
   premiumSeats,
 } from '@api/server';
+import { toEnvelope } from '@api/server';
+import { agentProfileDto } from '@server/dto';
 
 import { TRPCError } from '@trpc/server';
 
@@ -31,10 +33,10 @@ export const agentsRouter = router({
         .limit(1);
 
       if (accessRecords.length === 0) {
-        return { activities: [] };
+        return toEnvelope({ activities: [] });
       }
 
-      return { activities: [] };
+      return toEnvelope({ activities: [] });
     }),
 
   listManagedProperties: agentProcedure
@@ -86,7 +88,7 @@ export const agentsRouter = router({
         grantedAt: row.agentAccess.createdAt.toISOString(),
       }));
 
-      return { properties: managedProperties };
+      return toEnvelope({ properties: managedProperties });
     }),
 
   getMarketplaceActions: protectedProcedure
@@ -131,7 +133,7 @@ export const agentsRouter = router({
         .orderBy(desc(agentProfiles.rating), desc(agentProfiles.reviewCount))
         .limit(20);
 
-      return { agents: agentList };
+      return toEnvelope({ agents: agentList.map(a => agentProfileDto.parse(a)) });
     }),
 
   connectWithAgent: protectedProcedure
@@ -172,10 +174,10 @@ export const agentsRouter = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Agent not found or not verified' });
       }
 
-      return {
+      return toEnvelope({
         success: true,
         message: 'Connection request sent successfully',
         agentId: input.agentId,
-      };
+      });
     }),
 });

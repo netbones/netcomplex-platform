@@ -7,6 +7,7 @@ import {
   communityServiceInquiries,
   now,
 } from '@api/server';
+import { toEnvelope } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { eq, and, sql } from 'drizzle-orm';
 
@@ -117,7 +118,7 @@ export const analyticsProcedures = {
         )
         .groupBy(communityServiceListings.category);
 
-      return {
+      return toEnvelope({
         overview: {
           totalListings: totalListings?.count || 0,
           activeListings: activeListings?.count || 0,
@@ -130,6 +131,6 @@ export const analyticsProcedures = {
         categories: categoryStats.map(c => ({ category: c.category, count: c.count })),
         period: input.period,
         generatedAt: now().toISOString(),
-      };
+      });
     }),
 };

@@ -7,6 +7,7 @@ import {
   now,
   revalidateAdminChanges,
 } from '@api/server';
+import { toEnvelope } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { CreateInquiryInput, ListInquiriesInput, RespondToInquiryInput } from './shared';
@@ -75,7 +76,7 @@ export const inquiryProcedures = {
         .limit(1);
 
       revalidateAdminChanges();
-      return { success: true, inquiry };
+      return toEnvelope({ success: true, inquiry });
     }),
 
   listInquiries: protectedProcedure
@@ -121,7 +122,7 @@ export const inquiryProcedures = {
         .from(communityServiceInquiries)
         .where(and(...conditions));
 
-      return {
+      return toEnvelope({
         inquiries,
         pagination: {
           total: totalResult?.count || 0,
@@ -129,7 +130,7 @@ export const inquiryProcedures = {
           offset: input.offset,
           hasMore: input.offset + input.limit < (totalResult?.count || 0),
         },
-      };
+      });
     }),
 
   listProviderInquiries: protectedProcedure
@@ -161,10 +162,10 @@ export const inquiryProcedures = {
       const listingIds = providerListings.map(l => l.id);
 
       if (listingIds.length === 0) {
-        return {
+        return toEnvelope({
           inquiries: [],
           pagination: { total: 0, limit: input.limit, offset: input.offset, hasMore: false },
-        };
+        });
       }
 
       const conditions: ReturnType<typeof eq>[] = [
@@ -222,7 +223,7 @@ export const inquiryProcedures = {
         .from(communityServiceInquiries)
         .where(and(...conditions));
 
-      return {
+      return toEnvelope({
         inquiries,
         pagination: {
           total: totalResult?.count || 0,
@@ -230,7 +231,7 @@ export const inquiryProcedures = {
           offset: input.offset,
           hasMore: input.offset + input.limit < (totalResult?.count || 0),
         },
-      };
+      });
     }),
 
   respondToInquiry: protectedProcedure
@@ -306,6 +307,6 @@ export const inquiryProcedures = {
         .limit(1);
 
       revalidateAdminChanges();
-      return { success: true, inquiry: updated };
+      return toEnvelope({ success: true, inquiry: updated });
     }),
 };

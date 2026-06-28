@@ -6,6 +6,7 @@ import {
   now,
   revalidateAdminChanges,
 } from '@api/server';
+import { toEnvelope } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { ModerateListingInput, ListModerationInput, getTenantListing } from './shared';
@@ -65,7 +66,7 @@ export const moderationProcedures = {
         .from(communityServiceListings)
         .where(and(...conditions));
 
-      return {
+      return toEnvelope({
         listings,
         pagination: {
           total: totalResult?.count || 0,
@@ -73,7 +74,7 @@ export const moderationProcedures = {
           offset: input.offset,
           hasMore: input.offset + input.limit < (totalResult?.count || 0),
         },
-      };
+      });
     }),
 
   moderateListing: adminProcedure
@@ -119,6 +120,6 @@ export const moderationProcedures = {
         .limit(1);
 
       revalidateAdminChanges();
-      return { success: true, listing };
+      return toEnvelope({ success: true, listing });
     }),
 };

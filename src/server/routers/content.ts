@@ -20,7 +20,9 @@ import {
   profiles,
   resources,
   settings,
+  toEnvelope,
 } from '@api/server';
+import { contentDto, contentAuthorDto, announcementDto } from '@server/dto';
 
 import { TRPCError } from '@trpc/server';
 import {
@@ -205,15 +207,17 @@ export const contentRouter = router({
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
     }
 
-    return entityListContent({
-      tenantId,
-      category: input?.category ?? null,
-      published: input?.published ?? null,
-      featured: input?.featured ?? null,
-      groupId: input?.groupId ?? null,
-      authorId: input?.authorId ?? null,
-      locale: input?.locale ?? defaultLanguage,
-    });
+    return toEnvelope(
+      entityListContent({
+        tenantId,
+        category: input?.category ?? null,
+        published: input?.published ?? null,
+        featured: input?.featured ?? null,
+        groupId: input?.groupId ?? null,
+        authorId: input?.authorId ?? null,
+        locale: input?.locale ?? defaultLanguage,
+      })
+    );
   }),
 
   getContent: publicProcedure
@@ -291,11 +295,11 @@ export const contentRouter = router({
         userLocale
       );
 
-      return {
+      return toEnvelope({
         ...localized,
         author: content.authorId ? { id: content.authorId, name: content.authorName ?? '' } : null,
         group: content.groupId ? { id: content.groupId, name: content.groupName ?? '' } : null,
-      };
+      });
     }),
 
   createContent: protectedProcedure
@@ -357,7 +361,7 @@ export const contentRouter = router({
         category: content.category,
       });
 
-      return content;
+      return toEnvelope(content);
     }),
 
   updateContent: protectedProcedure.input(UpdateContentInput).mutation(async ({ input, ctx }) => {
@@ -431,7 +435,7 @@ export const contentRouter = router({
 
     revalidateContent();
 
-    return updated;
+    return toEnvelope(updated);
   }),
 
   softDeleteContent: protectedProcedure.input(IdInput).mutation(async ({ input, ctx }) => {
@@ -449,7 +453,7 @@ export const contentRouter = router({
 
     revalidateContent();
 
-    return { success: true };
+    return toEnvelope({ success: true });
   }),
 
   moderateContent: protectedProcedure
@@ -483,7 +487,7 @@ export const contentRouter = router({
 
       revalidateContent();
 
-      return { id: input.id, moderationStatus: input.moderationStatus };
+      return toEnvelope({ id: input.id, moderationStatus: input.moderationStatus });
     }),
 
   getLikes: publicProcedure.input(IdInput).query(async ({ input, ctx }) => {
@@ -513,7 +517,7 @@ export const contentRouter = router({
       liked = !!existing;
     }
 
-    return { likes: totalLikes, liked };
+    return toEnvelope({ likes: totalLikes, liked });
   }),
 
   toggleLike: protectedProcedure.input(IdInput).mutation(async ({ input, ctx }) => {
@@ -548,7 +552,7 @@ export const contentRouter = router({
 
     if (existing) {
       await db.delete(contentLikes).where(eq(contentLikes.id, existing.id));
-      return { liked: false };
+      return toEnvelope({ liked: false });
     }
 
     await db.insert(contentLikes).values({
@@ -559,7 +563,7 @@ export const contentRouter = router({
       createdAt: now(),
     });
 
-    return { liked: true };
+    return toEnvelope({ liked: true });
   }),
 
   // ────────── ANNOUNCEMENTS ──────────
@@ -596,12 +600,13 @@ export const contentRouter = router({
 
       const limit = input?.limit ?? 50;
 
-      return db
+      const rows = await db
         .select()
         .from(announcements)
         .where(and(...conditions))
         .orderBy(priorityOrder, desc(announcements.createdAt))
         .limit(limit);
+      return toEnvelope(rows);
     }),
 
   getAnnouncement: protectedProcedure
@@ -631,7 +636,7 @@ export const contentRouter = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Announcement not found' });
       }
 
-      return announcement;
+      return toEnvelope(announcement);
     }),
 
   createAnnouncement: protectedProcedure
@@ -778,7 +783,7 @@ export const contentRouter = router({
         response.warning = `Priority downgraded from ${input.priority} to ${validatedPriority} — your role permits a maximum of ${validatedPriority}`;
       }
 
-      return response;
+      return toEnvelope(response);
     }),
 
   updateAnnouncement: protectedProcedure
@@ -874,7 +879,7 @@ export const contentRouter = router({
         response.warning = `Priority downgraded from ${input.priority} to ${validatedPriority} — your role permits a maximum of ${validatedPriority}`;
       }
 
-      return response;
+      return toEnvelope(response);
     }),
 
   deleteAnnouncement: protectedProcedure
@@ -907,7 +912,7 @@ export const contentRouter = router({
 
       revalidateDashboard();
 
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
   // ────────── CAMPAIGN PAGE ──────────
@@ -1004,7 +1009,7 @@ export const contentRouter = router({
         )
         .orderBy(desc(contents.featured), desc(contents.priority), desc(contents.publishedAt));
 
-      return { config: campaignConfig, content: contentList };
+      return toEnvelope({ config: campaignConfig, content: contentList });
     }),
 
   // ────────── CONSERVATION PAGE ──────────
@@ -1045,6 +1050,6 @@ export const contentRouter = router({
         .orderBy(desc(contents.publishedAt))
         .limit(3);
 
-      return contentList;
+      return toEnvelope(contentList);
     }),
 });

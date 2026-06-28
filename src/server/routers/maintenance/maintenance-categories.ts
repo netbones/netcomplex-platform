@@ -1,3 +1,4 @@
+import { toEnvelope } from '@api/server';
 import {
   z,
   protectedProcedure,
@@ -32,11 +33,13 @@ export const maintenanceCategoryProcedures = {
         conditions.push(eq(maintenanceCategories.isActive, input.isActive));
       }
 
-      return db
-        .select()
-        .from(maintenanceCategories)
-        .where(and(...conditions))
-        .orderBy(asc(maintenanceCategories.label));
+      return toEnvelope(
+        await db
+          .select()
+          .from(maintenanceCategories)
+          .where(and(...conditions))
+          .orderBy(asc(maintenanceCategories.label))
+      );
     }),
 
   createCategory: protectedProcedure.input(CategoryInput).mutation(async ({ input, ctx }) => {
@@ -76,7 +79,7 @@ export const maintenanceCategoryProcedures = {
       })
       .returning();
 
-    return created;
+    return toEnvelope(created);
   }),
 
   updateCategory: protectedProcedure.input(UpdateCategoryInput).mutation(async ({ input, ctx }) => {
@@ -115,7 +118,7 @@ export const maintenanceCategoryProcedures = {
       )
       .returning();
 
-    return updated;
+    return toEnvelope(updated);
   }),
 
   deleteCategory: protectedProcedure
@@ -150,6 +153,6 @@ export const maintenanceCategoryProcedures = {
           and(eq(maintenanceCategories.id, input.id), eq(maintenanceCategories.tenantId, tenantId))
         );
 
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 };

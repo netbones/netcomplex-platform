@@ -21,7 +21,9 @@ import {
   notifications,
   now,
   writeAuditLog,
+  toEnvelope,
 } from '@api/server';
+import { propertyDto, userDto, profileDto, albumDto, seatDto, premiumSeatDto } from '@server/dto';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
@@ -305,7 +307,12 @@ export const identityRouter = router({
         })
       );
 
-      return { properties: propertiesWithRelations, total, page: page || 1, limit: limitVal };
+      return toEnvelope({
+        properties: propertiesWithRelations,
+        total,
+        page: page || 1,
+        limit: limitVal,
+      });
     }),
 
   getProperty: protectedProcedure
@@ -394,12 +401,12 @@ export const identityRouter = router({
           .where(and(eq(profiles.householdId, activeHousehold.id), ne(profiles.status, 'REMOVED')));
       }
 
-      return {
+      return toEnvelope({
         ...property,
         standardSeats: standardSeatsData,
         activeHousehold: activeHousehold ? { ...activeHousehold, profiles: residents } : null,
         soloSeats: soloSeatsData,
-      };
+      });
     }),
 
   createProperty: adminProcedure
@@ -452,7 +459,7 @@ export const identityRouter = router({
         })
         .returning();
 
-      return created;
+      return toEnvelope(created);
     }),
 
   // ============ USERS (Directory) ============
@@ -723,7 +730,7 @@ export const identityRouter = router({
         profiles: profileMap.get(user.id) || [],
       }));
 
-      return { users: usersWithRelations, total, page: pageVal, limit: limitVal };
+      return toEnvelope({ users: usersWithRelations, total, page: pageVal, limit: limitVal });
     }),
 
   // ============ HOUSEHOLDS (The Occupancies) ============
@@ -741,11 +748,12 @@ export const identityRouter = router({
     .input(z.object({ propertyId: z.string() }))
     .output(z.array(householdSchema))
     .query(async ({ input }) => {
-      return db
+      const rows = await db
         .select()
         .from(households)
         .where(eq(households.propertyId, input.propertyId))
         .orderBy(desc(households.moveInDate));
+      return toEnvelope(rows);
     }),
 
   createHousehold: protectedProcedure
@@ -793,7 +801,7 @@ export const identityRouter = router({
         })
         .returning();
 
-      return created;
+      return toEnvelope(created);
     }),
 
   getMyProperties: protectedProcedure
@@ -920,7 +928,7 @@ export const identityRouter = router({
         };
       });
 
-      return propsWithRelations;
+      return toEnvelope(propsWithRelations);
     }),
 
   // ============ PROFILES (Resident Participation) ============
@@ -994,7 +1002,7 @@ export const identityRouter = router({
         })
         .returning();
 
-      return created;
+      return toEnvelope(created);
     }),
 
   updateProfile: protectedProcedure
@@ -1029,7 +1037,7 @@ export const identityRouter = router({
       }
 
       const [updated] = await db.update(profiles).set(data).where(eq(profiles.id, id)).returning();
-      return updated;
+      return toEnvelope(updated);
     }),
 
   getProfile: publicProcedure
@@ -1082,7 +1090,7 @@ export const identityRouter = router({
     )
     .query(async ({ input }) => {
       const [profile] = await db.select().from(profiles).where(eq(profiles.id, input.id));
-      if (!profile || profile.status === 'REMOVED' || !profile.isPublic) return null;
+      if (!profile || profile.status === 'REMOVED' || !profile.isPublic) return toEnvelope(null);
 
       const [household] = await db
         .select()
@@ -1100,11 +1108,11 @@ export const identityRouter = router({
             .then(r => r[0])
         : null;
 
-      return {
+      return toEnvelope({
         ...profile,
         household: household ? { ...household, property } : null,
         user,
-      };
+      });
     }),
 
   // ============ SOLO SEATS ============
@@ -1131,7 +1139,7 @@ export const identityRouter = router({
     )
     .query(async ({ ctx }) => {
       const [seat] = await db.select().from(soloSeats).where(eq(soloSeats.userId, ctx.userId));
-      if (!seat) return null;
+      if (!seat) return toEnvelope(null);
 
       const property = seat.propertyId
         ? await db
@@ -1141,7 +1149,7 @@ export const identityRouter = router({
             .then(r => r[0])
         : null;
 
-      return { ...seat, property };
+      return toEnvelope({ ...seat, property });
     }),
 
   // ============ AGENT ACCESS ============
@@ -1150,7 +1158,11 @@ export const identityRouter = router({
     .meta({ openapi: { method: 'GET', path: '/my/agent-accesses', tags: ['Agent Access'] } })
     .output(z.array(agentAccessSchema))
     .query(async ({ ctx }) => {
-      return db.select().from(agentAccesses).where(eq(agentAccesses.agentId, ctx.userId));
+      const rows = await db
+        .select()
+        .from(agentAccesses)
+        .where(eq(agentAccesses.agentId, ctx.userId));
+      return toEnvelope(rows);
     }),
 
   getPropertyAgentAccesses: protectedProcedure
@@ -1164,7 +1176,11 @@ export const identityRouter = router({
     .input(z.object({ propertyId: z.string() }))
     .output(z.array(agentAccessSchema))
     .query(async ({ input }) => {
-      return db.select().from(agentAccesses).where(eq(agentAccesses.propertyId, input.propertyId));
+      const rows = await db
+        .select()
+        .from(agentAccesses)
+        .where(eq(agentAccesses.propertyId, input.propertyId));
+      return toEnvelope(rows);
     }),
 
   // ============ SUSPENSIONS ============
@@ -1193,7 +1209,7 @@ export const identityRouter = router({
         )
         .orderBy(desc(platformSuspensions.createdAt));
 
-      return { suspensions };
+      return toEnvelope({ suspensions });
     }),
 
   suspendUser: adminProcedure
@@ -1290,7 +1306,7 @@ export const identityRouter = router({
         },
       });
 
-      return result;
+      return toEnvelope(result);
     }),
 
   unsuspendUser: adminProcedure
@@ -1371,7 +1387,7 @@ export const identityRouter = router({
         tenantId: ctx.tenantId!,
       });
 
-      return { success: true, user: updatedUser };
+      return toEnvelope({ success: true, user: updatedUser });
     }),
 
   // ============ USER ALBUMS ============
@@ -1400,7 +1416,7 @@ export const identityRouter = router({
         )
         .orderBy(desc(albums.createdAt));
 
-      return { albums: userAlbums };
+      return toEnvelope({ albums: userAlbums });
     }),
 
   getAlbum: protectedProcedure
@@ -1429,7 +1445,7 @@ export const identityRouter = router({
         )
         .limit(1);
 
-      return album || null;
+      return toEnvelope(album || null);
     }),
 
   createAlbum: protectedProcedure
@@ -1496,7 +1512,7 @@ export const identityRouter = router({
         )
         .orderBy(desc(albums.createdAt));
 
-      return { albums: allAlbums };
+      return toEnvelope({ albums: allAlbums });
     }),
 
   updateAlbum: protectedProcedure
@@ -1554,7 +1570,7 @@ export const identityRouter = router({
         )
         .orderBy(desc(albums.createdAt));
 
-      return { albums: allAlbums };
+      return toEnvelope({ albums: allAlbums });
     }),
 
   deleteAlbum: protectedProcedure
@@ -1596,7 +1612,7 @@ export const identityRouter = router({
         )
         .orderBy(desc(albums.createdAt));
 
-      return { albums: allAlbums };
+      return toEnvelope({ albums: allAlbums });
     }),
 
   listPublicAlbums: protectedProcedure
@@ -1634,7 +1650,7 @@ export const identityRouter = router({
         )
         .orderBy(desc(albums.updatedAt));
 
-      return { albums: publicAlbums };
+      return toEnvelope({ albums: publicAlbums });
     }),
 
   // ============ SEATS ============
@@ -1673,7 +1689,7 @@ export const identityRouter = router({
         .where(and(eq(premiumSeats.userId, ctx.userId), eq(premiumSeats.tenantId, tenantId)))
         .limit(1);
 
-      return { solo: solo || null, premium: premium || null };
+      return toEnvelope({ solo: solo || null, premium: premium || null });
     }),
 
   listSeats: adminProcedure
@@ -1706,7 +1722,7 @@ export const identityRouter = router({
           .orderBy(asc(premiumSeats.createdAt)),
       ]);
 
-      return { soloSeats: allSoloSeats, premiumSeats: allPremiumSeats };
+      return toEnvelope({ soloSeats: allSoloSeats, premiumSeats: allPremiumSeats });
     }),
 
   // ============ DASHBOARD STATS ============
@@ -1761,12 +1777,12 @@ export const identityRouter = router({
           ),
       ]);
 
-      return {
+      return toEnvelope({
         requests: reqResult[0]?.count ?? 0,
         bookings: bookingsResult[0]?.count ?? 0,
         messages: convResult[0]?.count ?? 0,
         notifications: notifResult[0]?.count ?? 0,
-      };
+      });
     }),
 
   // ============ USER BOOKS ============
@@ -1804,6 +1820,6 @@ export const identityRouter = router({
           ? userResult[0].books
           : []
         : [];
-      return { books };
+      return toEnvelope({ books });
     }),
 });

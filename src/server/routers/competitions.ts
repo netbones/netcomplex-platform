@@ -9,6 +9,7 @@ import {
   competitionEntries,
   users,
   notifications,
+  toEnvelope,
 } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
@@ -207,7 +208,7 @@ export const competitionRouter = router({
         })
       );
 
-      return enriched;
+      return toEnvelope(enriched);
     }),
 
   // 2. Get competition detail (public)
@@ -329,7 +330,7 @@ export const competitionRouter = router({
         }
       }
 
-      return {
+      return toEnvelope({
         id: comp.id,
         title: comp.title,
         description: comp.description || null,
@@ -350,7 +351,7 @@ export const competitionRouter = router({
           avatar: u.avatar || null,
         })),
         currentUserEntry,
-      };
+      });
     }),
 
   // 3. Join a RAFFLE competition (protected)
@@ -442,7 +443,7 @@ export const competitionRouter = router({
         .from(users)
         .where(eq(users.id, ctx.userId));
 
-      return toParticipantDTO(entry, user || { name: 'Unknown', avatar: null });
+      return toEnvelope(toParticipantDTO(entry, user || { name: 'Unknown', avatar: null }));
     }),
 
   // 4. Submit photo entry (protected)
@@ -541,7 +542,7 @@ export const competitionRouter = router({
         .from(users)
         .where(eq(users.id, ctx.userId));
 
-      return toParticipantDTO(entry, user || { name: 'Unknown', avatar: null });
+      return toEnvelope(toParticipantDTO(entry, user || { name: 'Unknown', avatar: null }));
     }),
 
   // 5. List participants (admin)
@@ -594,7 +595,7 @@ export const competitionRouter = router({
         toParticipantDTO(entry, userMap.get(entry.userId) || { name: 'Unknown', avatar: null })
       );
 
-      return { participants, total: participants.length };
+      return toEnvelope({ participants, total: participants.length });
     }),
 
   // 6. Update entry score/status/prize (admin)
@@ -650,7 +651,7 @@ export const competitionRouter = router({
         .from(users)
         .where(eq(users.id, updated.userId));
 
-      return toParticipantDTO(updated, user || { name: 'Unknown', avatar: null });
+      return toEnvelope(toParticipantDTO(updated, user || { name: 'Unknown', avatar: null }));
     }),
 
   // 7. Mark entry as winner (admin)
@@ -722,7 +723,7 @@ export const competitionRouter = router({
         .from(users)
         .where(eq(users.id, updated.userId));
 
-      return toParticipantDTO(updated, user || { name: 'Unknown', avatar: null });
+      return toEnvelope(toParticipantDTO(updated, user || { name: 'Unknown', avatar: null }));
     }),
 
   // 8. Draw winners for RAFFLE (admin)
@@ -817,8 +818,10 @@ export const competitionRouter = router({
         : [];
       const userMap = new Map(userRows.map(u => [u.id, u]));
 
-      return updatedEntries.map(entry =>
-        toParticipantDTO(entry, userMap.get(entry.userId) || { name: 'Unknown', avatar: null })
+      return toEnvelope(
+        updatedEntries.map(entry =>
+          toParticipantDTO(entry, userMap.get(entry.userId) || { name: 'Unknown', avatar: null })
+        )
       );
     }),
 
@@ -845,7 +848,7 @@ export const competitionRouter = router({
             and(eq(competitions.id, input.competitionId), eq(competitions.tenantId, ctx.tenantId))
           );
         if (!comp) {
-          return [];
+          return toEnvelope([]);
         }
       }
 
@@ -860,7 +863,7 @@ export const competitionRouter = router({
         )
         .orderBy(asc(competitionEntries.winnerAt));
 
-      if (!winnerEntries.length) return [];
+      if (!winnerEntries.length) return toEnvelope([]);
 
       const userIds = [...new Set(winnerEntries.map(e => e.userId))];
       const userRows = userIds.length
@@ -871,12 +874,14 @@ export const competitionRouter = router({
         : [];
       const userMap = new Map(userRows.map(u => [u.id, u]));
 
-      return winnerEntries.map(entry => ({
-        userId: entry.userId,
-        name: userMap.get(entry.userId)?.name || 'Unknown',
-        avatar: userMap.get(entry.userId)?.avatar || null,
-        prize: entry.prize || null,
-        rank: entry.status === 'WINNER' ? 'WINNER' : 'RUNNER_UP',
-      }));
+      return toEnvelope(
+        winnerEntries.map(entry => ({
+          userId: entry.userId,
+          name: userMap.get(entry.userId)?.name || 'Unknown',
+          avatar: userMap.get(entry.userId)?.avatar || null,
+          prize: entry.prize || null,
+          rank: entry.status === 'WINNER' ? 'WINNER' : 'RUNNER_UP',
+        }))
+      );
     }),
 });

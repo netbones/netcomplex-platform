@@ -10,6 +10,8 @@ import {
   now,
   revalidateAdminChanges,
 } from '@api/server';
+import { toEnvelope } from '@api/server';
+import { listingDto } from '@server/dto';
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
 import { eq, and, desc, isNull, sql, ilike, or, ne } from 'drizzle-orm';
@@ -144,15 +146,7 @@ export const listingProcedures = {
         ),
       }));
 
-      return {
-        listings: localized,
-        pagination: {
-          total,
-          limit: input.limit,
-          offset: input.offset,
-          hasMore: input.offset + input.limit < total,
-        },
-      };
+      return toEnvelope(localized.map(l => listingDto.parse(l)));
     }),
 
   getListing: publicProcedure
@@ -237,7 +231,7 @@ export const listingProcedures = {
         ),
       };
 
-      return { listing: localized };
+      return toEnvelope(listingDto.parse(localized));
     }),
 
   createListing: protectedProcedure
@@ -300,7 +294,7 @@ export const listingProcedures = {
         .limit(1);
 
       revalidateAdminChanges();
-      return { success: true, listing };
+      return toEnvelope(listingDto.parse(listing));
     }),
 
   updateListing: protectedProcedure
@@ -375,7 +369,7 @@ export const listingProcedures = {
         .limit(1);
 
       revalidateAdminChanges();
-      return { success: true, listing };
+      return toEnvelope(listingDto.parse(listing));
     }),
 
   deleteListing: protectedProcedure
@@ -411,7 +405,7 @@ export const listingProcedures = {
         );
 
       revalidateAdminChanges();
-      return { success: true, message: 'Listing deleted' };
+      return toEnvelope({ success: true });
     }),
 
   publishListing: protectedProcedure
@@ -452,11 +446,7 @@ export const listingProcedures = {
         .limit(1);
 
       revalidateAdminChanges();
-      return {
-        success: true,
-        listing,
-        message: input.publish ? 'Listing published' : 'Listing unpublished',
-      };
+      return toEnvelope({ success: true });
     }),
 
   listMyListings: protectedProcedure
@@ -494,15 +484,7 @@ export const listingProcedures = {
         .from(communityServiceListings)
         .where(and(...conditions));
 
-      return {
-        listings,
-        pagination: {
-          total: totalResult?.count || 0,
-          limit: input.limit,
-          offset: input.offset,
-          hasMore: input.offset + input.limit < (totalResult?.count || 0),
-        },
-      };
+      return toEnvelope(listings.map(l => listingDto.parse(l)));
     }),
 
   getCategories: protectedProcedure
@@ -515,10 +497,10 @@ export const listingProcedures = {
       },
     })
     .query(async () => {
-      return {
+      return toEnvelope({
         categories: SERVICE_CATEGORIES,
         flat: [...SERVICE_CATEGORIES.COMMUNITY, ...SERVICE_CATEGORIES.THIRD_PARTY],
-      };
+      });
     }),
 
   getRelatedListings: publicProcedure
@@ -582,7 +564,7 @@ export const listingProcedures = {
         .orderBy(desc(communityServiceListings.rating), desc(communityServiceListings.reviewCount))
         .limit(input.limit);
 
-      return { relatedServices: related };
+      return toEnvelope({ relatedServices: related });
     }),
 
   getAvailability: protectedProcedure
@@ -663,6 +645,6 @@ export const listingProcedures = {
         endTime: b.endTime,
       }));
 
-      return { availability, bookedSlots };
+      return toEnvelope({ availability, bookedSlots });
     }),
 };

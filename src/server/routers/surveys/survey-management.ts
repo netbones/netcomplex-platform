@@ -25,6 +25,8 @@ import {
   requireContentPermission,
   getTenantSurvey,
 } from './shared';
+import { toEnvelope } from '@api/server';
+import { surveyDto, responseDto } from '@server/dto';
 
 export const surveyManagementProcedures = {
   listSurveys: protectedProcedure
@@ -50,7 +52,7 @@ export const surveyManagementProcedures = {
         conditions.push(eq(surveys.status, input.status));
       }
 
-      return db
+      const rows = await db
         .select({
           id: surveys.id,
           tenantId: surveys.tenantId,
@@ -68,6 +70,8 @@ export const surveyManagementProcedures = {
         .from(surveys)
         .where(and(...conditions))
         .orderBy(desc(surveys.createdAt));
+
+      return toEnvelope(rows.map(r => surveyDto.parse(r)));
     }),
 
   getSurvey: protectedProcedure
@@ -101,7 +105,7 @@ export const surveyManagementProcedures = {
         .where(and(eq(questions.surveyId, input.id), isNull(questions.deletedAt)))
         .orderBy(asc(questions.sectionId), asc(questions.order));
 
-      return { survey, questions: surveyQuestions, sections };
+      return toEnvelope({ survey: surveyDto.parse(survey), questions: surveyQuestions, sections });
     }),
 
   createSurvey: protectedProcedure
@@ -143,7 +147,7 @@ export const surveyManagementProcedures = {
 
       revalidateAdminChanges();
 
-      return created;
+      return toEnvelope(surveyDto.parse(created));
     }),
 
   updateSurvey: protectedProcedure
@@ -190,7 +194,7 @@ export const surveyManagementProcedures = {
         .returning();
 
       revalidateAdminChanges();
-      return updated;
+      return toEnvelope(surveyDto.parse(updated));
     }),
 
   deleteSurvey: protectedProcedure
@@ -221,7 +225,7 @@ export const surveyManagementProcedures = {
         .where(and(eq(surveys.id, input.id), eq(surveys.tenantId, tenantId)));
 
       revalidateAdminChanges();
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
   submitResponse: protectedProcedure
@@ -296,7 +300,7 @@ export const surveyManagementProcedures = {
         })
         .returning();
 
-      return response;
+      return toEnvelope(responseDto.parse(response));
     }),
 
   getSurveyResults: protectedProcedure
@@ -420,7 +424,7 @@ export const surveyManagementProcedures = {
         };
       });
 
-      return {
+      return toEnvelope({
         survey: {
           id: surveyData.id,
           title: surveyData.title,
@@ -429,6 +433,6 @@ export const surveyManagementProcedures = {
         },
         totalResponses,
         questions: aggregatedQuestions,
-      };
+      });
     }),
 };

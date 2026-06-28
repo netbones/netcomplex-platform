@@ -12,6 +12,8 @@ import {
   and,
   desc,
 } from './shared';
+import { toEnvelope } from '@api/server';
+import { externalSurveyDto, responseDto } from '@server/dto';
 
 export const externalSurveyProcedures = {
   listExternalSurveys: publicProcedure
@@ -27,7 +29,7 @@ export const externalSurveyProcedures = {
         .where(and(eq(externalSurveys.tenantId, tenantId), eq(externalSurveys.isActive, true)))
         .orderBy(desc(externalSurveys.createdAt));
 
-      return result;
+      return toEnvelope(result.map(r => externalSurveyDto.parse(r)));
     }),
 
   submitExternalSurveyResponse: publicProcedure
@@ -67,6 +69,6 @@ export const externalSurveyProcedures = {
         })
         .returning();
 
-      return response;
+      return toEnvelope(responseDto.parse(response));
     }),
 };

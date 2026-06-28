@@ -9,6 +9,7 @@ import {
   now,
   assertAddressUnique,
 } from '@api/server';
+import { toEnvelope } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { and, eq, desc, sql } from 'drizzle-orm';
 
@@ -87,7 +88,7 @@ export const premiumProcedures = {
         homeImage: l.property.homeImage,
       }));
 
-      return { listings: transformedListings };
+      return toEnvelope({ listings: transformedListings });
     }),
 
   createPremiumListing: protectedProcedure
@@ -143,7 +144,7 @@ export const premiumProcedures = {
         })
         .returning();
 
-      return { success: true, listing: newListing };
+      return toEnvelope({ success: true, listing: newListing });
     }),
 
   getPortfolio: protectedProcedure
@@ -166,10 +167,10 @@ export const premiumProcedures = {
       );
 
       if (!portfolioResult.rows?.length) {
-        return { hasPortfolio: false, message: 'No Premium Seat portfolio found' };
+        return toEnvelope({ hasPortfolio: false, message: 'No Premium Seat portfolio found' });
       }
 
-      return { hasPortfolio: true, portfolio: portfolioResult.rows[0] };
+      return toEnvelope({ hasPortfolio: true, portfolio: portfolioResult.rows[0] });
     }),
 
   upgradePortfolio: protectedProcedure
@@ -276,10 +277,10 @@ export const premiumProcedures = {
         GROUP BY ps.id
       `)) as { rows: { linkedHouseholds: { id: string; street: string; unit: string }[] }[] };
 
-      return {
+      return toEnvelope({
         success: true,
         message: 'Successfully upgraded to Premium Seat with property portfolio',
         portfolio: portfolioResult.rows?.[0],
-      };
+      });
     }),
 };

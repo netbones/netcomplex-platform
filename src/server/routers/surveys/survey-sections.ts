@@ -17,6 +17,7 @@ import {
   requireContentPermission,
   getTenantSurvey,
 } from './shared';
+import { toEnvelope } from '@api/server';
 
 export const surveySectionProcedures = {
   addSection: protectedProcedure
@@ -68,7 +69,7 @@ export const surveySectionProcedures = {
         .returning();
 
       revalidateAdminChanges();
-      return created;
+      return toEnvelope(created);
     }),
 
   updateSection: protectedProcedure
@@ -125,7 +126,7 @@ export const surveySectionProcedures = {
         .returning();
 
       revalidateAdminChanges();
-      return updated;
+      return toEnvelope(updated);
     }),
 
   removeSection: protectedProcedure
@@ -164,7 +165,7 @@ export const surveySectionProcedures = {
       }
 
       revalidateAdminChanges();
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
   reorderSections: protectedProcedure
@@ -219,6 +220,6 @@ export const surveySectionProcedures = {
       });
 
       revalidateAdminChanges();
-      return { reordered };
+      return toEnvelope({ reordered });
     }),
 };

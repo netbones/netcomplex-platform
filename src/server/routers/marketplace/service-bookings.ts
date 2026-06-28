@@ -7,6 +7,8 @@ import {
   users,
   now,
 } from '@api/server';
+import { toEnvelope } from '@api/server';
+import { serviceBookingDto } from '@server/dto';
 import { TRPCError } from '@trpc/server';
 import { eq, and, or, desc, ne, sql } from 'drizzle-orm';
 import {
@@ -53,10 +55,10 @@ export const serviceBookingProcedures = {
         const userEmail = ctx.session?.user?.email ?? '';
         const provider = await getProviderRecordForUser(tenantId, userEmail);
         if (!provider) {
-          return {
+          return toEnvelope({
             bookings: [],
             pagination: { total: 0, limit: input.limit, offset: input.offset, hasMore: false },
-          };
+          });
         }
         conditions.push(eq(serviceBookings.providerId, provider.id));
       } else {
@@ -100,15 +102,7 @@ export const serviceBookingProcedures = {
         .from(serviceBookings)
         .where(and(...conditions));
 
-      return {
-        bookings: bookingsData,
-        pagination: {
-          total: totalResult?.count || 0,
-          limit: input.limit,
-          offset: input.offset,
-          hasMore: input.offset + input.limit < (totalResult?.count || 0),
-        },
-      };
+      return toEnvelope(bookingsData.map(b => serviceBookingDto.parse(b)));
     }),
 
   createServiceBooking: protectedProcedure
@@ -206,7 +200,7 @@ export const serviceBookingProcedures = {
         .where(eq(serviceBookings.id, bookingId))
         .limit(1);
 
-      return { success: true, booking: created };
+      return toEnvelope(serviceBookingDto.parse(created));
     }),
 
   getServiceBooking: protectedProcedure
@@ -241,7 +235,7 @@ export const serviceBookingProcedures = {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Booking not found' });
       }
 
-      return { booking };
+      return toEnvelope(serviceBookingDto.parse(booking));
     }),
 
   cancelServiceBooking: protectedProcedure
@@ -302,6 +296,6 @@ export const serviceBookingProcedures = {
         .where(eq(serviceBookings.id, input.bookingId))
         .limit(1);
 
-      return { success: true, booking: updated };
+      return toEnvelope(serviceBookingDto.parse(updated));
     }),
 };

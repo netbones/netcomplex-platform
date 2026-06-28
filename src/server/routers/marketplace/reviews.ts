@@ -9,6 +9,8 @@ import {
   now,
   revalidateAdminChanges,
 } from '@api/server';
+import { toEnvelope } from '@api/server';
+import { reviewDto } from '@server/dto';
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { ListReviewsInput, CreateReviewInput, updateListingRating } from './shared';
@@ -87,20 +89,7 @@ export const reviewProcedures = {
           )
         );
 
-      return {
-        reviews,
-        stats: {
-          averageRating: Number(ratingStats?.avgRating) || 0,
-          averageResponse: Number(ratingStats?.avgResponse) || 0,
-          totalReviews: ratingStats?.count || 0,
-        },
-        pagination: {
-          total: totalResult?.count || 0,
-          limit: input.limit,
-          offset: input.offset,
-          hasMore: input.offset + input.limit < (totalResult?.count || 0),
-        },
-      };
+      return toEnvelope(reviews.map(r => reviewDto.parse(r)));
     }),
 
   createReview: protectedProcedure
@@ -204,6 +193,6 @@ export const reviewProcedures = {
         .limit(1);
 
       revalidateAdminChanges();
-      return { success: true, review };
+      return toEnvelope(reviewDto.parse(review));
     }),
 };
