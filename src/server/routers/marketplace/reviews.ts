@@ -1,6 +1,7 @@
 import {
   publicProcedure,
   protectedProcedure,
+  rateLimitMiddleware,
   db,
   communityServiceListings,
   communityServiceReviews,
@@ -103,6 +104,7 @@ export const reviewProcedures = {
     }),
 
   createReview: protectedProcedure
+    .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 10 }))
     .meta({
       openapi: {
         method: 'POST',

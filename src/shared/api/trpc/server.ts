@@ -1,6 +1,7 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
+import { rateLimitByUser, type RateLimitConfig } from '../rate-limit';
 import { auth } from '../auth';
 import { db, users, tenants } from '../db';
 import { eq } from 'drizzle-orm';
@@ -75,6 +76,9 @@ const t = initTRPC.context<Context>().create({
 export const router = t.router;
 export const publicProcedure = t.procedure;
 
+export { rateLimitByUser, DEFAULT_RATE_LIMITS };
+export type { RateLimitConfig };
+
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   if (!ctx.session?.user?.id) {
     throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
@@ -106,3 +110,17 @@ export const agentProcedure = protectedProcedure.use(async ({ ctx, next }) => {
   }
   return next({ ctx });
 });
+
+export function rateLimitMiddleware(config: RateLimitConfig) {
+  return t.procedure.use(async ({ ctx, next }) => {
+    if (!ctx.userId) return next({ ctx });
+    const result = await rateLimitByUser(ctx.userId, config);
+    if (result) {
+      throw new TRPCError({
+        code: 'TOO_MANY_REQUESTS',
+        message: 'Too many requests. Please try again later.',
+      });
+    }
+    return next({ ctx });
+  });
+}

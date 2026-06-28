@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   publicProcedure,
   protectedProcedure,
+  rateLimitMiddleware,
   db,
   communityServiceListings,
   serviceBookings,
@@ -240,6 +241,7 @@ export const listingProcedures = {
     }),
 
   createListing: protectedProcedure
+    .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 5 }))
     .meta({
       openapi: {
         method: 'POST',

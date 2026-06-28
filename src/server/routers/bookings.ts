@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   router,
   protectedProcedure,
+  rateLimitMiddleware,
   db,
   bookings,
   users,
@@ -187,6 +188,7 @@ export const bookingsRouter = router({
     }),
 
   createBooking: protectedProcedure
+    .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 10 }))
     .input(CreateBookingInput)
     .meta({
       openapi: { method: 'POST', path: '/bookings/create', protect: true, tags: ['bookings'] },

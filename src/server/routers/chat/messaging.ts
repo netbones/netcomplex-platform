@@ -2,6 +2,7 @@ import {
   z,
   protectedProcedure,
   adminProcedure,
+  rateLimitMiddleware,
   db,
   conversations,
   conversationParticipants,
@@ -108,6 +109,7 @@ export const messagingProcedures = {
     }),
 
   sendMessage: protectedProcedure
+    .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 30 }))
     .input(
       z.object({
         conversationId: z.string(),

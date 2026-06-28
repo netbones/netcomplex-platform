@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   router,
   protectedProcedure,
+  rateLimitMiddleware,
   db,
   events,
   eventAttendees,
@@ -287,6 +288,7 @@ export const eventsRouter = router({
     }),
 
   registerForEvent: protectedProcedure
+    .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 10 }))
     .input(EventIdInput)
     .meta({
       openapi: { method: 'POST', path: '/events/register', protect: true, tags: ['events'] },

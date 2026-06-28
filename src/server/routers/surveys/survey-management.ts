@@ -1,5 +1,6 @@
 import {
   protectedProcedure,
+  rateLimitMiddleware,
   db,
   surveys,
   questions,
@@ -224,6 +225,7 @@ export const surveyManagementProcedures = {
     }),
 
   submitResponse: protectedProcedure
+    .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 10 }))
     .meta({
       openapi: {
         method: 'POST',

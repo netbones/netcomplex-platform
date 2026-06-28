@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { router, protectedProcedure, db, notifications } from '@api/server';
+import { router, protectedProcedure, rateLimitMiddleware, db, notifications } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, inArray, isNull } from 'drizzle-orm';
 
@@ -72,6 +72,7 @@ export const notificationsRouter = router({
 
   // 2. Create a notification
   create: protectedProcedure
+    .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 60 }))
     .meta({
       openapi: {
         method: 'POST',

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   router,
   protectedProcedure,
+  rateLimitMiddleware,
   db,
   walletTransactions,
   payoutRequests,
@@ -280,65 +281,68 @@ export const dwalletRouter = router({
     };
   }),
 
-  createPayout: protectedProcedure.input(CreatePayoutInput).mutation(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
+  createPayout: protectedProcedure
+    .use(rateLimitMiddleware({ windowMs: 300_000, maxRequests: 1 }))
+    .input(CreatePayoutInput)
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
 
-    const payoutMin = await getPayoutMin(tenantId);
+      const payoutMin = await getPayoutMin(tenantId);
 
-    if (input.amount < payoutMin) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: `Minimum payout is R${payoutMin}`,
+      if (input.amount < payoutMin) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `Minimum payout is R${payoutMin}`,
+        });
+      }
+
+      const wallet = await getOrCreateWallet(ctx.userId, tenantId);
+
+      const balanceNum = Number(wallet.balance);
+      if (balanceNum < payoutMin) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `Below minimum payout threshold of R${payoutMin}`,
+        });
+      }
+
+      if (input.amount > balanceNum) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Insufficient balance',
+        });
+      }
+
+      const timestamp = now();
+      const payoutId = crypto.randomUUID();
+
+      await db.insert(payoutRequests).values({
+        id: payoutId,
+        tenantId,
+        walletId: wallet.id,
+        userId: ctx.userId,
+        // amount column is decimal(65,30) — Drizzle requires string for precision
+        amount: input.amount.toString(),
+        currency: wallet.currency,
+        status: 'PENDING',
+        method: 'bank_transfer',
+        createdAt: timestamp,
+        updatedAt: timestamp,
       });
-    }
 
-    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
+      revalidateDashboard();
 
-    const balanceNum = Number(wallet.balance);
-    if (balanceNum < payoutMin) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: `Below minimum payout threshold of R${payoutMin}`,
-      });
-    }
-
-    if (input.amount > balanceNum) {
-      throw new TRPCError({
-        code: 'BAD_REQUEST',
-        message: 'Insufficient balance',
-      });
-    }
-
-    const timestamp = now();
-    const payoutId = crypto.randomUUID();
-
-    await db.insert(payoutRequests).values({
-      id: payoutId,
-      tenantId,
-      walletId: wallet.id,
-      userId: ctx.userId,
-      // amount column is decimal(65,30) — Drizzle requires string for precision
-      amount: input.amount.toString(),
-      currency: wallet.currency,
-      status: 'PENDING',
-      method: 'bank_transfer',
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    });
-
-    revalidateDashboard();
-
-    return {
-      id: payoutId,
-      amount: input.amount,
-      status: 'PENDING' as const,
-      method: 'bank_transfer',
-      createdAt: timestamp.toISOString(),
-    };
-  }),
+      return {
+        id: payoutId,
+        amount: input.amount,
+        status: 'PENDING' as const,
+        method: 'bank_transfer',
+        createdAt: timestamp.toISOString(),
+      };
+    }),
 
   listPayouts: protectedProcedure.input(ListPayoutsInput).query(async ({ input, ctx }) => {
     const tenantId = ctx.tenantId;

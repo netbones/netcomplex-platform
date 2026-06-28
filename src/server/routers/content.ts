@@ -3,6 +3,7 @@ import {
   router,
   publicProcedure,
   protectedProcedure,
+  rateLimitMiddleware,
   db,
   contents,
   contentLikes,
@@ -297,64 +298,67 @@ export const contentRouter = router({
       };
     }),
 
-  createContent: protectedProcedure.input(CreateContentInput).mutation(async ({ input, ctx }) => {
-    requireContentPermission(ctx.role);
+  createContent: protectedProcedure
+    .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 5 }))
+    .input(CreateContentInput)
+    .mutation(async ({ input, ctx }) => {
+      requireContentPermission(ctx.role);
 
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
-    if (input.groupId) {
-      const [membership] = await db
-        .select({ id: groupMembers.id })
-        .from(groupMembers)
-        .where(
-          and(
-            eq(groupMembers.groupId, input.groupId),
-            eq(groupMembers.userId, ctx.userId),
-            eq(groupMembers.tenantId, tenantId),
-            isNull(groupMembers.deletedAt)
-          )
-        )
-        .limit(1);
-
-      if (!membership && !hasPermission(ctx.role, 'admin')) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Not a member of this group' });
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
-    }
 
-    const content = await entityCreateContent({
-      tenantId,
-      title: input.title,
-      content: input.content,
-      excerpt: input.excerpt ?? null,
-      category: input.category,
-      authorId: ctx.userId,
-      groupId: input.groupId ?? null,
-      featured: input.featured,
-      published: input.published,
-      publishedAt: input.publishedAt ?? null,
-      expiresAt: input.expiresAt ?? null,
-      tags: input.tags,
-      priority: input.priority ?? 'normal',
-      defaultLocale: input.defaultLocale,
-      contentType: input.contentType,
-      license: input.license,
-      copyrightHolder: input.copyrightHolder,
-    });
+      if (input.groupId) {
+        const [membership] = await db
+          .select({ id: groupMembers.id })
+          .from(groupMembers)
+          .where(
+            and(
+              eq(groupMembers.groupId, input.groupId),
+              eq(groupMembers.userId, ctx.userId),
+              eq(groupMembers.tenantId, tenantId),
+              isNull(groupMembers.deletedAt)
+            )
+          )
+          .limit(1);
 
-    revalidateContent();
+        if (!membership && !hasPermission(ctx.role, 'admin')) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Not a member of this group' });
+        }
+      }
 
-    emitEvent('content.created', {
-      tenantId,
-      userId: ctx.userId,
-      contentId: content.id,
-      category: content.category,
-    });
+      const content = await entityCreateContent({
+        tenantId,
+        title: input.title,
+        content: input.content,
+        excerpt: input.excerpt ?? null,
+        category: input.category,
+        authorId: ctx.userId,
+        groupId: input.groupId ?? null,
+        featured: input.featured,
+        published: input.published,
+        publishedAt: input.publishedAt ?? null,
+        expiresAt: input.expiresAt ?? null,
+        tags: input.tags,
+        priority: input.priority ?? 'normal',
+        defaultLocale: input.defaultLocale,
+        contentType: input.contentType,
+        license: input.license,
+        copyrightHolder: input.copyrightHolder,
+      });
 
-    return content;
-  }),
+      revalidateContent();
+
+      emitEvent('content.created', {
+        tenantId,
+        userId: ctx.userId,
+        contentId: content.id,
+        category: content.category,
+      });
+
+      return content;
+    }),
 
   updateContent: protectedProcedure.input(UpdateContentInput).mutation(async ({ input, ctx }) => {
     requireContentPermission(ctx.role);
