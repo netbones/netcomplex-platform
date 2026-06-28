@@ -5,7 +5,7 @@
  */
 
 import { eq } from 'drizzle-orm';
-import { db } from '@api/server';
+import { db } from '../db';
 import { delegationActions } from '@schema/delegation-actions';
 
 export type DelegationActionType =
