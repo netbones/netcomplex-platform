@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { router, protectedProcedure, db, revalidateAdminChanges } from '@api/server';
+import { toEnvelope } from '@api/server';
+import { achievementDto, achievementProgressDto } from '@server/dto';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
@@ -73,10 +75,14 @@ export const achievementsRouter = router({
         )
         .where(or(isNull(tenantAchievements.enabled), eq(tenantAchievements.enabled, true)));
 
-      return rows.map(row => ({
-        ...row,
-        threshold: row.customThreshold ?? row.threshold,
-      }));
+      return toEnvelope(
+        rows.map(r =>
+          achievementDto.parse({
+            ...r,
+            threshold: r.customThreshold ?? r.threshold,
+          })
+        )
+      );
     }),
 
   getAchievement: protectedProcedure
@@ -119,10 +125,12 @@ export const achievementsRouter = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Achievement not found' });
       }
 
-      return {
-        ...row,
-        threshold: row.customThreshold ?? row.threshold,
-      };
+      return toEnvelope(
+        achievementDto.parse({
+          ...row,
+          threshold: row.customThreshold ?? row.threshold,
+        })
+      );
     }),
 
   createAchievement: protectedProcedure
@@ -175,7 +183,7 @@ export const achievementsRouter = router({
         .returning();
 
       revalidateAdminChanges();
-      return created;
+      return toEnvelope(achievementDto.parse(created));
     }),
 
   updateAchievement: protectedProcedure
@@ -223,7 +231,7 @@ export const achievementsRouter = router({
         .returning();
 
       revalidateAdminChanges();
-      return updated;
+      return toEnvelope(achievementDto.parse(updated));
     }),
 
   deleteAchievement: protectedProcedure
@@ -263,7 +271,7 @@ export const achievementsRouter = router({
 
       revalidateAdminChanges();
 
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
   getMyProgress: protectedProcedure
@@ -316,20 +324,22 @@ export const achievementsRouter = router({
         )
         .where(and(...conditions));
 
-      return rows
-        .filter(row => row.enabled !== false)
-        .map(row => {
-          const effectiveThreshold = row.customThreshold ?? row.threshold;
-          return {
-            definitionKey: row.definitionKey,
-            definitionId: row.definitionId,
-            label: row.label,
-            count: row.count,
-            threshold: effectiveThreshold,
-            percentage: Math.min(100, Math.round((row.count / effectiveThreshold) * 100)),
-            updatedAt: row.updatedAt,
-          };
-        });
+      return toEnvelope(
+        rows
+          .filter(row => row.enabled !== false)
+          .map(row => {
+            const effectiveThreshold = row.customThreshold ?? row.threshold;
+            return achievementProgressDto.parse({
+              definitionKey: row.definitionKey,
+              definitionId: row.definitionId,
+              label: row.label,
+              count: row.count,
+              threshold: effectiveThreshold,
+              percentage: Math.min(100, Math.round((row.count / effectiveThreshold) * 100)),
+              updatedAt: row.updatedAt,
+            });
+          })
+      );
     }),
 
   getAchievementProgress: protectedProcedure
@@ -387,7 +397,7 @@ export const achievementsRouter = router({
         .limit(1);
 
       if (!row) {
-        return {
+        return toEnvelope({
           definitionKey: null,
           definitionId: input.achievementId,
           label: null,
@@ -395,20 +405,22 @@ export const achievementsRouter = router({
           threshold: 0,
           percentage: 0,
           updatedAt: null,
-        };
+        });
       }
 
       const effectiveThreshold = row.customThreshold ?? row.threshold;
 
-      return {
-        definitionKey: row.definitionKey,
-        definitionId: row.definitionId,
-        label: row.label,
-        count: row.count,
-        threshold: effectiveThreshold,
-        percentage: Math.min(100, Math.round((row.count / effectiveThreshold) * 100)),
-        updatedAt: row.updatedAt,
-      };
+      return toEnvelope(
+        achievementProgressDto.parse({
+          definitionKey: row.definitionKey,
+          definitionId: row.definitionId,
+          label: row.label,
+          count: row.count,
+          threshold: effectiveThreshold,
+          percentage: Math.min(100, Math.round((row.count / effectiveThreshold) * 100)),
+          updatedAt: row.updatedAt,
+        })
+      );
     }),
 
   getUnlocked: protectedProcedure
@@ -441,6 +453,6 @@ export const achievementsRouter = router({
         )
         .orderBy(userAchievements.unlockedAt);
 
-      return rows;
+      return toEnvelope(rows);
     }),
 });

@@ -1,3 +1,4 @@
+import { toEnvelope } from '@api/server';
 import {
   z,
   protectedProcedure,
@@ -32,11 +33,13 @@ export const maintenanceProviderProcedures = {
         conditions.push(eq(serviceProviders.isActive, input.isActive));
       }
 
-      return db
-        .select()
-        .from(serviceProviders)
-        .where(and(...conditions))
-        .orderBy(asc(serviceProviders.companyName));
+      return toEnvelope(
+        await db
+          .select()
+          .from(serviceProviders)
+          .where(and(...conditions))
+          .orderBy(asc(serviceProviders.companyName))
+      );
     }),
 
   createProvider: protectedProcedure.input(ProviderInput).mutation(async ({ input, ctx }) => {
@@ -63,7 +66,7 @@ export const maintenanceProviderProcedures = {
       })
       .returning();
 
-    return created;
+    return toEnvelope(created);
   }),
 
   updateProvider: protectedProcedure.input(UpdateProviderInput).mutation(async ({ input, ctx }) => {
@@ -103,7 +106,7 @@ export const maintenanceProviderProcedures = {
       .where(and(eq(serviceProviders.id, input.id), eq(serviceProviders.tenantId, tenantId)))
       .returning();
 
-    return updated;
+    return toEnvelope(updated);
   }),
 
   deleteProvider: protectedProcedure
@@ -136,6 +139,6 @@ export const maintenanceProviderProcedures = {
         .set({ deletedAt: new Date(), updatedAt: new Date() })
         .where(and(eq(serviceProviders.id, input.id), eq(serviceProviders.tenantId, tenantId)));
 
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 };

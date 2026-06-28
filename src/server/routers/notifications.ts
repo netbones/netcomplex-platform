@@ -2,37 +2,12 @@ import { z } from 'zod';
 import { router, protectedProcedure, rateLimitMiddleware, db, notifications } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, inArray, isNull } from 'drizzle-orm';
-
-// ──────────────────────────────────────────
-// Output schemas
-// ──────────────────────────────────────────
+import { toEnvelope } from '@api/server';
+import { notificationDto } from '@server/dto';
 
 const notificationTypeEnum = z.enum(['info', 'warning', 'success', 'error']);
 
-const notificationSchema = z.object({
-  id: z.string(),
-  tenantId: z.string(),
-  userId: z.string(),
-  senderId: z.string().nullable(),
-  title: z.string(),
-  message: z.string(),
-  type: notificationTypeEnum,
-  category: z.string().nullable(),
-  link: z.string().nullable(),
-  read: z.boolean(),
-  readAt: z.date().nullable(),
-  deliveryStatus: z.string(),
-  payload: z.unknown().nullable(),
-  createdAt: z.date(),
-  deletedAt: z.date().nullable(),
-});
-
-// ──────────────────────────────────────────
-// Router
-// ──────────────────────────────────────────
-
 export const notificationsRouter = router({
-  // 1. List notifications for current user
   list: protectedProcedure
     .meta({
       openapi: {
@@ -50,7 +25,7 @@ export const notificationsRouter = router({
         })
         .optional()
     )
-    .output(z.array(notificationSchema))
+    .output(z.object({ success: z.literal(true), data: z.array(notificationDto) }))
     .query(async ({ input, ctx }) => {
       const conditions = [
         eq(notifications.userId, ctx.userId),
@@ -62,15 +37,16 @@ export const notificationsRouter = router({
         conditions.push(eq(notifications.read, false));
       }
 
-      return db
+      const rows = await db
         .select()
         .from(notifications)
         .where(and(...conditions))
         .orderBy(desc(notifications.createdAt))
         .limit(50);
+
+      return toEnvelope(rows.map(r => notificationDto.parse(r)));
     }),
 
-  // 2. Create a notification
   create: protectedProcedure
     .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 60 }))
     .meta({
@@ -94,7 +70,7 @@ export const notificationsRouter = router({
         deliveryStatus: z.string().optional(),
       })
     )
-    .output(notificationSchema)
+    .output(z.object({ success: z.literal(true), data: notificationDto }))
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
       if (!tenantId) {
@@ -121,10 +97,9 @@ export const notificationsRouter = router({
         })
         .returning();
 
-      return created;
+      return toEnvelope(notificationDto.parse(created));
     }),
 
-  // 3. Mark notification(s) as read
   markRead: protectedProcedure
     .meta({
       openapi: {
@@ -143,7 +118,7 @@ export const notificationsRouter = router({
         })
         .optional()
     )
-    .output(z.object({ success: z.boolean() }))
+    .output(z.object({ success: z.literal(true), data: z.object({ success: z.boolean() }) }))
     .mutation(async ({ input, ctx }) => {
       const now = new Date();
 
@@ -172,7 +147,6 @@ export const notificationsRouter = router({
             )
           );
       } else {
-        // Mark up to 500 unread as read
         const eligible = await db
           .select({ id: notifications.id })
           .from(notifications)
@@ -199,10 +173,9 @@ export const notificationsRouter = router({
         }
       }
 
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
-  // 4. Soft-delete a notification
   delete: protectedProcedure
     .meta({
       openapi: {
@@ -214,7 +187,7 @@ export const notificationsRouter = router({
       },
     })
     .input(z.object({ id: z.string() }))
-    .output(z.object({ deleted: z.boolean() }))
+    .output(z.object({ success: z.literal(true), data: z.object({ deleted: z.boolean() }) }))
     .mutation(async ({ input, ctx }) => {
       const [notification] = await db
         .select({ id: notifications.id })
@@ -237,6 +210,6 @@ export const notificationsRouter = router({
         .set({ deletedAt: new Date() })
         .where(eq(notifications.id, input.id));
 
-      return { deleted: true };
+      return toEnvelope({ deleted: true });
     }),
 });

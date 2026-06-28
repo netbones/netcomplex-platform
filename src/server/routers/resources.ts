@@ -10,6 +10,7 @@ import {
   revalidateContent,
   notDeleted,
   now,
+  toEnvelope,
 } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
@@ -138,11 +139,13 @@ export const resourcesRouter = router({
       if (adminVisibilityFilter) conditions.push(adminVisibilityFilter);
       if (categoryFilter) conditions.push(categoryFilter);
 
-      return db
-        .select()
-        .from(resources)
-        .where(and(...conditions))
-        .orderBy(desc(resources.createdAt));
+      return toEnvelope(
+        await db
+          .select()
+          .from(resources)
+          .where(and(...conditions))
+          .orderBy(desc(resources.createdAt))
+      );
     }),
 
   getResource: protectedProcedure
@@ -199,7 +202,7 @@ export const resourcesRouter = router({
         .where(eq(resourceVersions.resourceId, input.id))
         .orderBy(desc(resourceVersions.createdAt));
 
-      return { ...item, versions };
+      return toEnvelope({ ...item, versions });
     }),
 
   createResource: protectedProcedure
@@ -249,7 +252,7 @@ export const resourcesRouter = router({
 
       revalidateContent();
 
-      return resource;
+      return toEnvelope(resource);
     }),
 
   updateResource: protectedProcedure
@@ -324,7 +327,7 @@ export const resourcesRouter = router({
 
       revalidateContent();
 
-      return updated;
+      return toEnvelope(updated);
     }),
 
   deleteResource: protectedProcedure
@@ -365,7 +368,7 @@ export const resourcesRouter = router({
 
       revalidateContent();
 
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
   incrementDownloadCount: protectedProcedure
@@ -398,6 +401,6 @@ export const resourcesRouter = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Resource not found' });
       }
 
-      return { downloadCount: updated.downloadCount };
+      return toEnvelope({ downloadCount: updated.downloadCount });
     }),
 });

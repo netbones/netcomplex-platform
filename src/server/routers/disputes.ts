@@ -10,6 +10,7 @@ import {
   revalidateDashboard,
   now,
   rateLimitByUser,
+  toEnvelope,
 } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
@@ -154,13 +155,13 @@ export const disputesRouter = router({
       .limit(limit)
       .offset(offset);
 
-    return {
+    return toEnvelope({
       items: disputes,
       total,
       page,
       limit,
       hasMore: page * limit < total,
-    };
+    });
   }),
 
   getDispute: protectedProcedure.input(IdInput).query(async ({ input, ctx }) => {
@@ -184,7 +185,7 @@ export const disputesRouter = router({
       .where(and(eq(disputeEvents.disputeId, input.id), eq(disputeEvents.tenantId, tenantId)))
       .orderBy(asc(disputeEvents.createdAt));
 
-    return { ...dispute, events };
+    return toEnvelope({ ...dispute, events });
   }),
 
   createDispute: protectedProcedure.input(CreateDisputeInput).mutation(async ({ input, ctx }) => {
@@ -231,7 +232,7 @@ export const disputesRouter = router({
     });
 
     revalidateDashboard();
-    return dispute;
+    return toEnvelope(dispute);
   }),
 
   updateDispute: protectedProcedure.input(UpdateDisputeInput).mutation(async ({ input, ctx }) => {
@@ -295,7 +296,7 @@ export const disputesRouter = router({
     });
 
     revalidateAdminChanges();
-    return result;
+    return toEnvelope(result);
   }),
 
   addDisputeMessage: protectedProcedure
@@ -342,7 +343,7 @@ export const disputesRouter = router({
         })
         .returning();
 
-      return message;
+      return toEnvelope(message);
     }),
 
   listDisputeMessages: protectedProcedure
@@ -372,11 +373,13 @@ export const disputesRouter = router({
         conditions.push(eq(disputeMessages.isInternal, false));
       }
 
-      return db
-        .select()
-        .from(disputeMessages)
-        .where(and(...conditions))
-        .orderBy(asc(disputeMessages.createdAt));
+      return toEnvelope(
+        await db
+          .select()
+          .from(disputeMessages)
+          .where(and(...conditions))
+          .orderBy(asc(disputeMessages.createdAt))
+      );
     }),
 
   assignDispute: protectedProcedure.input(AssignDisputeInput).mutation(async ({ input, ctx }) => {
@@ -417,7 +420,7 @@ export const disputesRouter = router({
     });
 
     revalidateAdminChanges();
-    return { success: true, assignedModeratorId: input.moderatorId };
+    return toEnvelope({ success: true, assignedModeratorId: input.moderatorId });
   }),
 
   submitDispute: protectedProcedure.input(IdInput).mutation(async ({ input, ctx }) => {
@@ -476,7 +479,7 @@ export const disputesRouter = router({
     });
 
     revalidateDashboard();
-    return result;
+    return toEnvelope(result);
   }),
 
   resolveDispute: protectedProcedure.input(ResolveDisputeInput).mutation(async ({ input, ctx }) => {
@@ -539,7 +542,7 @@ export const disputesRouter = router({
     });
 
     revalidateAdminChanges();
-    return { success: true };
+    return toEnvelope({ success: true });
   }),
 
   issueRuling: protectedProcedure
@@ -593,7 +596,7 @@ export const disputesRouter = router({
       });
 
       revalidateAdminChanges();
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
   getEvents: protectedProcedure.input(IdInput).query(async ({ input, ctx }) => {
@@ -611,10 +614,12 @@ export const disputesRouter = router({
       throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
     }
 
-    return db
-      .select()
-      .from(disputeEvents)
-      .where(and(eq(disputeEvents.disputeId, input.id), eq(disputeEvents.tenantId, tenantId)))
-      .orderBy(asc(disputeEvents.createdAt));
+    return toEnvelope(
+      await db
+        .select()
+        .from(disputeEvents)
+        .where(and(eq(disputeEvents.disputeId, input.id), eq(disputeEvents.tenantId, tenantId)))
+        .orderBy(asc(disputeEvents.createdAt))
+    );
   }),
 });

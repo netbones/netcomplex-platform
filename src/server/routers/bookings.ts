@@ -11,6 +11,10 @@ import {
   now,
 } from '@api/server';
 
+import { toEnvelope } from '@api/server';
+
+import { bookingDto } from '@server/dto';
+
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
 
@@ -157,7 +161,7 @@ export const bookingsRouter = router({
         };
       });
 
-      return transformed;
+      return toEnvelope(transformed.map(r => bookingDto.parse(r)));
     }),
 
   getBooking: protectedProcedure
@@ -181,10 +185,12 @@ export const bookingsRouter = router({
         .from(users)
         .where(eq(users.id, booking.userId));
 
-      return {
-        ...toBookingDTO(booking),
-        user: user || null,
-      };
+      return toEnvelope(
+        bookingDto.parse({
+          ...toBookingDTO(booking),
+          user: user || null,
+        })
+      );
     }),
 
   createBooking: protectedProcedure
@@ -226,7 +232,7 @@ export const bookingsRouter = router({
         facility: input.facility,
       });
 
-      return booking;
+      return toEnvelope(bookingDto.parse(booking));
     }),
 
   cancelBooking: protectedProcedure
@@ -259,6 +265,6 @@ export const bookingsRouter = router({
 
       revalidateDashboard();
 
-      return updated;
+      return toEnvelope({ success: true, booking: bookingDto.parse(updated) });
     }),
 });

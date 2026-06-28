@@ -16,6 +16,8 @@ import {
   requireContentPermission,
   getTenantSurvey,
 } from './shared';
+import { toEnvelope } from '@api/server';
+import { questionDto } from '@server/dto';
 
 export const surveyQuestionProcedures = {
   addQuestion: protectedProcedure
@@ -71,7 +73,7 @@ export const surveyQuestionProcedures = {
         .returning();
 
       revalidateAdminChanges();
-      return created;
+      return toEnvelope(questionDto.parse(created));
     }),
 
   updateQuestion: protectedProcedure
@@ -132,7 +134,7 @@ export const surveyQuestionProcedures = {
         .returning();
 
       revalidateAdminChanges();
-      return updated;
+      return toEnvelope(questionDto.parse(updated));
     }),
 
   removeQuestion: protectedProcedure
@@ -171,7 +173,7 @@ export const surveyQuestionProcedures = {
       }
 
       revalidateAdminChanges();
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
   reorderQuestions: protectedProcedure
@@ -230,6 +232,6 @@ export const surveyQuestionProcedures = {
       });
 
       revalidateAdminChanges();
-      return { reordered };
+      return toEnvelope({ reordered });
     }),
 };

@@ -7,6 +7,7 @@ import {
   paymentTransactions,
   now,
 } from '@api/server';
+import { toEnvelope } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { eq, and } from 'drizzle-orm';
 import {
@@ -90,10 +91,10 @@ export const checkoutProcedures = {
         });
       }
 
-      return {
+      return toEnvelope({
         paymentUrl: result.paymentUrl,
         reference: result.reference,
-      };
+      });
     }),
 
   handleWebhook: publicProcedure
@@ -128,7 +129,7 @@ export const checkoutProcedures = {
 
       const reference = event.data?.reference;
       if (!reference || !reference.startsWith('svc-')) {
-        return { status: 'ignored' };
+        return toEnvelope({ status: 'ignored' });
       }
 
       const bookingId = reference.slice(4);
@@ -144,7 +145,7 @@ export const checkoutProcedures = {
       }
 
       if (booking.status === 'CONFIRMED') {
-        return { status: 'already_processed' };
+        return toEnvelope({ status: 'already_processed' });
       }
 
       if (event.event === 'charge.success') {
@@ -186,6 +187,6 @@ export const checkoutProcedures = {
           .where(eq(paymentTransactions.externalRef, reference));
       }
 
-      return { status: 'processed' };
+      return toEnvelope({ status: 'processed' });
     }),
 };

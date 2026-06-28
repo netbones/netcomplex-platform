@@ -12,10 +12,13 @@ import {
   and,
   desc,
 } from './shared';
+import { toEnvelope } from '@api/server';
+import { externalSurveyDto, responseDto } from '@server/dto';
 
 export const externalSurveyProcedures = {
+  /** @classification PUBLIC — unauthenticated external survey listing */
   listExternalSurveys: publicProcedure
-    .meta({ openapi: { method: 'GET', path: '/surveys/external' } })
+    .meta({ openapi: { method: 'GET', path: '/surveys/external', tags: ['Surveys'] } })
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
       if (!tenantId)
@@ -27,11 +30,12 @@ export const externalSurveyProcedures = {
         .where(and(eq(externalSurveys.tenantId, tenantId), eq(externalSurveys.isActive, true)))
         .orderBy(desc(externalSurveys.createdAt));
 
-      return result;
+      return toEnvelope(result.map(r => externalSurveyDto.parse(r)));
     }),
 
+  /** @classification PUBLIC — unauthenticated external survey response submission */
   submitExternalSurveyResponse: publicProcedure
-    .meta({ openapi: { method: 'POST', path: '/surveys/external/respond' } })
+    .meta({ openapi: { method: 'POST', path: '/surveys/external/respond', tags: ['Surveys'] } })
     .input(
       z.object({
         surveyId: z.string(),
@@ -67,6 +71,6 @@ export const externalSurveyProcedures = {
         })
         .returning();
 
-      return response;
+      return toEnvelope(responseDto.parse(response));
     }),
 };

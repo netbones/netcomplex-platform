@@ -1,3 +1,5 @@
+import { toEnvelope } from '@api/server';
+import { maintenanceRequestDto, maintenanceRequestDetailDto } from '@server/dto';
 import {
   z,
   protectedProcedure,
@@ -57,7 +59,9 @@ export const maintenanceRequestProcedures = {
       dateTo: input?.dateTo || null,
     });
 
-    return toMaintenanceRequestViewList(rows, scope);
+    return toEnvelope(
+      toMaintenanceRequestViewList(rows, scope).map(r => maintenanceRequestDto.parse(r))
+    );
   }),
 
   getRequest: protectedProcedure.input(RequestIdInput).query(async ({ input, ctx }) => {
@@ -107,13 +111,15 @@ export const maintenanceRequestProcedures = {
     const team = teamResult[0] ?? null;
     const provider = providerResult[0] ?? null;
 
-    return {
-      ...req,
-      user,
-      property,
-      assignedTeam: team,
-      assignedProvider: provider,
-    };
+    return toEnvelope(
+      maintenanceRequestDetailDto.parse({
+        ...req,
+        user,
+        property,
+        assignedTeam: team,
+        assignedProvider: provider,
+      })
+    );
   }),
 
   createRequest: protectedProcedure.input(CreateRequestInput).mutation(async ({ input, ctx }) => {
@@ -143,7 +149,7 @@ export const maintenanceRequestProcedures = {
     });
 
     revalidateDashboard();
-    return created;
+    return toEnvelope(maintenanceRequestDto.parse(created));
   }),
 
   updateRequest: protectedProcedure.input(UpdateRequestInput).mutation(async ({ input, ctx }) => {
@@ -197,7 +203,7 @@ export const maintenanceRequestProcedures = {
     await trackRequestChanges(input.id, ctx.userId, existing, updateData);
 
     revalidateDashboard();
-    return updated;
+    return toEnvelope(maintenanceRequestDto.parse(updated));
   }),
 
   deleteRequest: protectedProcedure.input(RequestIdInput).mutation(async ({ input, ctx }) => {
@@ -216,7 +222,7 @@ export const maintenanceRequestProcedures = {
       .where(and(eq(maintenanceRequests.id, input.id), eq(maintenanceRequests.tenantId, tenantId)));
 
     revalidateDashboard();
-    return { success: true };
+    return toEnvelope({ success: true });
   }),
 
   listNotes: protectedProcedure
@@ -286,7 +292,7 @@ export const maintenanceRequestProcedures = {
         (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
       );
 
-      return allNotes;
+      return toEnvelope(allNotes);
     }),
 
   createNote: protectedProcedure.input(CreateNoteInput).mutation(async ({ input, ctx }) => {
@@ -316,7 +322,7 @@ export const maintenanceRequestProcedures = {
         .returning();
 
       revalidateDashboard();
-      return { ...note, isInternal: true as const };
+      return toEnvelope({ ...note, isInternal: true as const });
     }
 
     const [note] = await db
@@ -331,7 +337,7 @@ export const maintenanceRequestProcedures = {
       .returning();
 
     revalidateDashboard();
-    return { ...note, isInternal: false as const };
+    return toEnvelope({ ...note, isInternal: false as const });
   }),
 
   assignRequest: protectedProcedure.input(AssignRequestInput).mutation(async ({ input, ctx }) => {
@@ -405,6 +411,6 @@ export const maintenanceRequestProcedures = {
     await trackRequestChanges(input.requestId, ctx.userId, existing, updateData);
 
     revalidateDashboard();
-    return updated;
+    return toEnvelope(maintenanceRequestDto.parse(updated));
   }),
 };

@@ -10,6 +10,8 @@ import {
   now,
   writeAuditLog,
 } from '@api/server';
+import { toEnvelope } from '@api/server';
+import { meritDto } from '@server/dto';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
@@ -329,7 +331,7 @@ export const meritsRouter = router({
         .offset(input?.offset ?? 0)
         .orderBy(desc(communityMerits.createdAt));
 
-      return rows;
+      return toEnvelope(rows.map(r => meritDto.parse(r)));
     }),
 
   getMerit: protectedProcedure
@@ -351,7 +353,7 @@ export const meritsRouter = router({
         .where(eq(users.id, record.userId))
         .limit(1);
 
-      return { ...record, user: user ?? null };
+      return toEnvelope(meritDto.parse(record));
     }),
 
   createMerit: protectedProcedure
@@ -364,7 +366,9 @@ export const meritsRouter = router({
       }
 
       requireUsersPermission(ctx.role);
-      return createMeritRecord(input, tenantId, ctx.userId);
+      const result = await createMeritRecord(input, tenantId, ctx.userId);
+      const created = await getTenantMerit(result.id, tenantId);
+      return toEnvelope(meritDto.parse(created));
     }),
 
   updateMerit: protectedProcedure
@@ -413,7 +417,8 @@ export const meritsRouter = router({
       };
 
       revalidateAdminChanges();
-      return { id: input.id, ...updateData, standing };
+      const updated = await getTenantMerit(input.id, tenantId);
+      return toEnvelope(meritDto.parse(updated));
     }),
 
   deleteMerit: protectedProcedure
@@ -443,7 +448,7 @@ export const meritsRouter = router({
       });
 
       revalidateAdminChanges();
-      return { deleted: true };
+      return toEnvelope({ success: true });
     }),
 
   // ────────── AWARD ──────────
@@ -460,7 +465,9 @@ export const meritsRouter = router({
       }
 
       requireUsersPermission(ctx.role);
-      return createMeritRecord(input, tenantId, ctx.userId);
+      const result = await createMeritRecord(input, tenantId, ctx.userId);
+      const created = await getTenantMerit(result.id, tenantId);
+      return toEnvelope(meritDto.parse(created));
     }),
 
   // ────────── USER MERITS ──────────
@@ -507,7 +514,7 @@ export const meritsRouter = router({
         ),
       };
 
-      return { records: rows, standing };
+      return toEnvelope({ records: rows, standing });
     }),
 
   // ────────── DISPUTE ──────────
@@ -569,7 +576,7 @@ export const meritsRouter = router({
       });
 
       revalidateAdminChanges();
-      return { status: 'DISPUTED' };
+      return toEnvelope({ status: 'DISPUTED' });
     }),
 
   // ────────── DISPUTE RESOLUTION ──────────
@@ -646,6 +653,6 @@ export const meritsRouter = router({
       }
 
       revalidateAdminChanges();
-      return { status: input.verdict === 'UPHOLD' ? 'UPHELD' : 'OVERTURNED' };
+      return toEnvelope({ status: input.verdict === 'UPHOLD' ? 'UPHELD' : 'OVERTURNED' });
     }),
 });

@@ -14,6 +14,10 @@ import {
   emitEvent,
 } from '@api/server';
 
+import { toEnvelope } from '@api/server';
+
+import { eventDto } from '@server/dto';
+
 import { TRPCError } from '@trpc/server';
 import { requireContentPermission } from './content';
 
@@ -136,7 +140,7 @@ export const eventsRouter = router({
         tenantId
       );
 
-      return enriched;
+      return toEnvelope(enriched.map(r => eventDto.parse(r)));
     }),
 
   getEvent: protectedProcedure
@@ -156,7 +160,7 @@ export const eventsRouter = router({
         tenantId
       );
 
-      return enriched[0];
+      return toEnvelope(eventDto.parse(enriched[0]));
     }),
 
   createEvent: protectedProcedure
@@ -190,7 +194,7 @@ export const eventsRouter = router({
         eventId: event.id,
       });
 
-      return event;
+      return toEnvelope(eventDto.parse(event));
     }),
 
   updateEvent: protectedProcedure
@@ -226,7 +230,7 @@ export const eventsRouter = router({
 
       revalidateContent();
 
-      return updated;
+      return toEnvelope(eventDto.parse(updated));
     }),
 
   deleteEvent: protectedProcedure
@@ -251,7 +255,7 @@ export const eventsRouter = router({
 
       revalidateContent();
 
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
   // ────────── REGISTRATIONS ──────────
@@ -284,7 +288,7 @@ export const eventsRouter = router({
 
       const registered = attendees.some(a => a.userId === ctx.userId);
 
-      return { attendees, registered };
+      return toEnvelope({ attendees, registered });
     }),
 
   registerForEvent: protectedProcedure
@@ -328,7 +332,7 @@ export const eventsRouter = router({
       });
 
       revalidateAdminChanges();
-      return attendee;
+      return toEnvelope(attendee);
     }),
 
   cancelRegistration: protectedProcedure
@@ -358,6 +362,6 @@ export const eventsRouter = router({
       }
 
       revalidateAdminChanges();
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 });

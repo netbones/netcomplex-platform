@@ -158,6 +158,8 @@ export type {
   ApiErrorResponse,
   ApiPaginatedResponse,
 } from '../api-response';
+export { toEnvelope, toPaginatedEnvelope, toErrorEnvelope, tRPCCodeToCanonical } from '../envelope';
+export type { ApiEnvelope, ApiErrorEnvelope, ApiResult, PaginatedMeta } from '../envelope';
 export {
   createContext,
   router,
@@ -165,6 +167,8 @@ export {
   protectedProcedure,
   adminProcedure,
   agentProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   rateLimitMiddleware,
 } from '../trpc/server';
 export type { Context } from '../trpc/server';

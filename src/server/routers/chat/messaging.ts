@@ -1,8 +1,9 @@
+import { toEnvelope, rateLimitMiddleware } from '@api/server';
+import { messageDto, unreadCountsDto } from '@server/dto';
 import {
   z,
   protectedProcedure,
   adminProcedure,
-  rateLimitMiddleware,
   db,
   conversations,
   conversationParticipants,
@@ -82,7 +83,7 @@ export const messagingProcedures = {
         conditionsArr.push(lt(messages.createdAt, input.cursor));
       }
 
-      return db
+      const rows = await db
         .select({
           id: messages.id,
           conversationId: messages.conversationId,
@@ -105,7 +106,15 @@ export const messagingProcedures = {
         .leftJoin(users, eq(messages.senderId, users.id))
         .where(and(...conditionsArr))
         .orderBy(desc(messages.createdAt))
-        .limit(input.limit);
+        .limit(input.limit + 1);
+
+      const hasMore = rows.length > input.limit;
+      const messages_ = rows.slice(0, input.limit);
+
+      return toEnvelope({
+        messages: messages_.map(r => messageDto.parse(r)),
+        hasMore,
+      });
     }),
 
   sendMessage: protectedProcedure
@@ -184,10 +193,12 @@ export const messagingProcedures = {
 
       revalidateConversations();
 
-      return {
-        ...newMessage,
-        sender: senderInfo,
-      };
+      return toEnvelope(
+        messageDto.parse({
+          ...newMessage,
+          sender: senderInfo,
+        })
+      );
     }),
 
   deleteMessage: adminProcedure
@@ -211,7 +222,7 @@ export const messagingProcedures = {
 
       revalidateConversations();
 
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
   getMessageUrgency: protectedProcedure
@@ -321,7 +332,7 @@ export const messagingProcedures = {
       const unreadAnnouncements = extractCount(unreadAnnouncementsResult);
       const pendingNotifications = extractCount(pendingNotificationsResult);
 
-      return {
+      return toEnvelope({
         commandBar: {
           unreadDirect,
           unreadGroup,
@@ -332,7 +343,7 @@ export const messagingProcedures = {
           announcements: unreadAnnouncements,
           notifications: pendingNotifications,
         },
-      };
+      });
     }),
 
   getUnreadCounts: protectedProcedure
@@ -475,10 +486,12 @@ export const messagingProcedures = {
         totalUnread += unreadCount;
       }
 
-      return {
-        unreadCounts,
-        totalUnread,
-      };
+      return toEnvelope(
+        unreadCountsDto.parse({
+          unreadCounts,
+          totalUnread,
+        })
+      );
     }),
 
   markAsRead: protectedProcedure
@@ -509,6 +522,6 @@ export const messagingProcedures = {
           )
         );
 
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 };

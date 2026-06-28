@@ -11,7 +11,10 @@ import {
   settings,
   revalidateDashboard,
   now,
+  toEnvelope,
 } from '@api/server';
+
+import { walletTransactionDto, consentDto, payoutDto } from '@server/dto';
 
 import { TRPCError } from '@trpc/server';
 
@@ -22,7 +25,6 @@ import type {
   DWalletSummary,
   ConsentState,
   TransactionItem,
-  PayoutRequestItem,
   StreamConfig,
 } from '@entities/dwallet';
 
@@ -156,7 +158,7 @@ export const dwalletRouter = router({
       recentTransactions,
     };
 
-    return summary;
+    return toEnvelope(summary);
   }),
 
   getBalance: protectedProcedure.query(async ({ ctx }) => {
@@ -167,11 +169,11 @@ export const dwalletRouter = router({
 
     const wallet = await getOrCreateWallet(ctx.userId, tenantId);
 
-    return {
+    return toEnvelope({
       balance: wallet.balance,
       currency: wallet.currency,
       status: wallet.status,
-    };
+    });
   }),
 
   listTransactions: protectedProcedure
@@ -225,24 +227,13 @@ export const dwalletRouter = router({
         .limit(limit)
         .offset(offset);
 
-      const transactions: TransactionItem[] = txns.map(txn => ({
-        id: txn.id,
-        type: txn.type as TransactionItem['type'],
-        amount: txn.amount,
-        description: txn.description,
-        sourceType: txn.sourceType as TransactionItem['sourceType'],
-        balanceBefore: txn.balanceBefore,
-        balanceAfter: txn.balanceAfter,
-        createdAt: txn.createdAt.toISOString(),
-      }));
-
-      return {
-        items: transactions,
+      return toEnvelope({
+        items: txns.map(r => walletTransactionDto.parse(r)),
         total,
         page,
         limit,
         hasMore: page * limit < total,
-      };
+      });
     }),
 
   getTransaction: protectedProcedure.input(IdInput).query(async ({ input, ctx }) => {
@@ -269,16 +260,7 @@ export const dwalletRouter = router({
       throw new TRPCError({ code: 'NOT_FOUND', message: 'Transaction not found' });
     }
 
-    return {
-      id: txn.id,
-      type: txn.type as TransactionItem['type'],
-      amount: txn.amount,
-      description: txn.description,
-      sourceType: txn.sourceType as TransactionItem['sourceType'],
-      balanceBefore: txn.balanceBefore,
-      balanceAfter: txn.balanceAfter,
-      createdAt: txn.createdAt.toISOString(),
-    };
+    return toEnvelope(walletTransactionDto.parse(txn));
   }),
 
   createPayout: protectedProcedure
@@ -335,13 +317,19 @@ export const dwalletRouter = router({
 
       revalidateDashboard();
 
-      return {
-        id: payoutId,
-        amount: input.amount,
-        status: 'PENDING' as const,
-        method: 'bank_transfer',
-        createdAt: timestamp.toISOString(),
-      };
+      return toEnvelope(
+        payoutDto.parse({
+          id: payoutId,
+          amount: input.amount,
+          currency: wallet.currency,
+          status: 'PENDING',
+          method: 'bank_transfer',
+          bankReference: null,
+          processedAt: null,
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        })
+      );
     }),
 
   listPayouts: protectedProcedure.input(ListPayoutsInput).query(async ({ input, ctx }) => {
@@ -369,17 +357,7 @@ export const dwalletRouter = router({
       .where(and(...conditions))
       .orderBy(desc(payoutRequests.createdAt));
 
-    const items: PayoutRequestItem[] = payouts.map(p => ({
-      id: p.id,
-      amount: p.amount,
-      status: p.status as PayoutRequestItem['status'],
-      method: p.method,
-      createdAt: new Date(p.createdAt).toISOString(),
-      processedAt: p.processedAt ? new Date(p.processedAt).toISOString() : null,
-      notes: p.notes,
-    }));
-
-    return items;
+    return toEnvelope(payouts.map(r => payoutDto.parse(r)));
   }),
 
   listConsents: protectedProcedure.query(async ({ ctx }) => {
@@ -430,7 +408,7 @@ export const dwalletRouter = router({
       };
     });
 
-    return consents;
+    return toEnvelope(consents);
   }),
 
   createConsent: protectedProcedure.input(CreateConsentInput).mutation(async ({ input, ctx }) => {
@@ -474,7 +452,16 @@ export const dwalletRouter = router({
       createdAt: timestamp,
     });
 
-    return { streamKey: input.streamKey, granted: input.granted };
+    return toEnvelope(
+      consentDto.parse({
+        id: consentId,
+        streamKey: input.streamKey,
+        granted: input.granted,
+        grantedAt: input.granted ? timestamp : null,
+        revokedAt: input.granted ? null : timestamp,
+        createdAt: timestamp,
+      })
+    );
   }),
 
   revokeConsent: protectedProcedure.input(RevokeConsentInput).mutation(async ({ input, ctx }) => {
@@ -518,7 +505,16 @@ export const dwalletRouter = router({
       createdAt: timestamp,
     });
 
-    return { streamKey: input.streamKey, granted: false };
+    return toEnvelope(
+      consentDto.parse({
+        id: consentId,
+        streamKey: input.streamKey,
+        granted: false,
+        grantedAt: null,
+        revokedAt: timestamp,
+        createdAt: timestamp,
+      })
+    );
   }),
 
   listStreams: protectedProcedure.query(async ({ ctx }) => {
@@ -541,7 +537,7 @@ export const dwalletRouter = router({
       isActive: stream.isActive,
     }));
 
-    return configs;
+    return toEnvelope(configs);
   }),
 
   getStream: protectedProcedure.input(GetStreamInput).query(async ({ input, ctx }) => {
@@ -566,13 +562,13 @@ export const dwalletRouter = router({
       throw new TRPCError({ code: 'NOT_FOUND', message: 'Stream not found' });
     }
 
-    return {
+    return toEnvelope({
       id: stream.id,
       key: stream.key,
       label: stream.label,
       description: stream.description,
       residentSharePct: stream.residentSharePct,
       isActive: stream.isActive,
-    } satisfies StreamConfig;
+    } satisfies StreamConfig);
   }),
 });

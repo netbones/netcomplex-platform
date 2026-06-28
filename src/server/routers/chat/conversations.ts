@@ -1,3 +1,5 @@
+import { toEnvelope } from '@api/server';
+import { conversationDto } from '@server/dto';
 import {
   z,
   protectedProcedure,
@@ -88,7 +90,7 @@ export const conversationProcedures = {
       const conversationIds = userConversations.map(c => c.id);
 
       if (conversationIds.length === 0) {
-        return [];
+        return toEnvelope([]);
       }
 
       const allParticipants = await db
@@ -141,14 +143,16 @@ export const conversationProcedures = {
         }
       }
 
-      return userConversations.map(conv => {
-        const latest = latestByConv.get(conv.id);
-        return {
-          ...conv,
-          participants: participantsByConv.get(conv.id) || [],
-          messages: latest ? [latest] : [],
-        };
-      });
+      return toEnvelope(
+        userConversations.map(conv => {
+          const latest = latestByConv.get(conv.id);
+          return conversationDto.parse({
+            ...conv,
+            participants: participantsByConv.get(conv.id) || [],
+            messages: latest ? [latest] : [],
+          });
+        })
+      );
     }),
 
   createConversation: protectedProcedure
@@ -261,11 +265,13 @@ export const conversationProcedures = {
         .leftJoin(users, eq(conversationParticipants.userId, users.id))
         .where(eq(conversationParticipants.conversationId, conversationId));
 
-      return {
-        ...createdConversation!,
-        participants,
-        messages: [],
-      };
+      return toEnvelope(
+        conversationDto.parse({
+          ...createdConversation!,
+          participants,
+          messages: [],
+        })
+      );
     }),
 
   findOrCreateConversation: protectedProcedure
@@ -302,7 +308,7 @@ export const conversationProcedures = {
 
       const validConversation = existing.rows?.length ? existing.rows[0] : null;
       if (validConversation) {
-        return { conversation: validConversation };
+        return toEnvelope({ conversation: validConversation });
       }
 
       const conversationId = crypto.randomUUID();
@@ -335,6 +341,6 @@ export const conversationProcedures = {
         GROUP BY c.id
       `)) as { rows: Record<string, unknown>[] };
 
-      return { conversation: result.rows?.[0] ?? {} };
+      return toEnvelope({ conversation: result.rows?.[0] ?? {} });
     }),
 };

@@ -12,6 +12,8 @@ import {
   sendEmail,
   templates,
 } from '@api/server';
+import { toEnvelope } from '@api/server';
+import { invitationDto } from '@server/dto';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission, createComponentLogger } from '@shared/lib';
@@ -84,11 +86,13 @@ export const invitationsRouter = router({
         );
       }
 
-      return db
+      const rows = await db
         .select()
         .from(invitations)
         .where(and(...conditions))
         .orderBy(desc(invitations.createdAt));
+
+      return toEnvelope(rows.map(r => invitationDto.parse(r)));
     }),
 
   getInvitation: protectedProcedure
@@ -130,7 +134,7 @@ export const invitationsRouter = router({
         }
       }
 
-      return invitation;
+      return toEnvelope(invitationDto.parse(invitation));
     }),
 
   createInvitation: protectedProcedure
@@ -222,7 +226,7 @@ export const invitationsRouter = router({
 
       revalidateAdminChanges();
 
-      return invitation;
+      return toEnvelope(invitationDto.parse(invitation));
     }),
 
   cancelInvitation: protectedProcedure
@@ -266,7 +270,7 @@ export const invitationsRouter = router({
 
       revalidateAdminChanges();
 
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
   acceptInvitation: publicProcedure
@@ -326,15 +330,15 @@ export const invitationsRouter = router({
           .set({ status: 'ACCEPTED' })
           .where(eq(invitations.id, invitation.id));
 
-        return {
+        return toEnvelope({
           success: true,
           message: 'Invitation accepted. You have been added to the community.',
           role: invitation.role,
           tenantId: invitation.tenantId,
-        };
+        });
       }
 
-      return {
+      return toEnvelope({
         success: true,
         requiresSignup: true,
         invitation: {
@@ -344,7 +348,7 @@ export const invitationsRouter = router({
           tenantId: invitation.tenantId,
           token: invitation.token,
         },
-      };
+      });
     }),
 
   validateInvitation: publicProcedure
@@ -407,7 +411,7 @@ export const invitationsRouter = router({
         .where(eq(users.email, invitation.email))
         .limit(1);
 
-      return {
+      return toEnvelope({
         invitation: {
           ...invitation,
           expiresAt: invitation.expiresAt?.toISOString() ?? null,
@@ -422,7 +426,7 @@ export const invitationsRouter = router({
               emailVerified: existingUser.emailVerified,
             }
           : null,
-      };
+      });
     }),
 
   resendInvitation: protectedProcedure
@@ -507,6 +511,6 @@ export const invitationsRouter = router({
         );
       });
 
-      return { success: true, message: 'Invitation email resent' };
+      return toEnvelope({ success: true, message: 'Invitation email resent' });
     }),
 });

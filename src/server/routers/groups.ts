@@ -13,6 +13,10 @@ import {
   emitEvent,
 } from '@api/server';
 
+import { toEnvelope } from '@api/server';
+
+import { groupDto, groupDetailDto } from '@server/dto';
+
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
 
@@ -183,11 +187,15 @@ export const groupsRouter = router({
 
       const countByGroupId = new Map(memberCounts.map(r => [r.groupId, r.count]));
 
-      return groupList.map(group => ({
-        ...group,
-        owner: { id: group.ownerId, name: group.ownerName ?? 'Unknown' },
-        _count: { members: countByGroupId.get(group.id) ?? 0 },
-      }));
+      return toEnvelope(
+        groupList.map(group =>
+          groupDto.parse({
+            ...group,
+            owner: { id: group.ownerId, name: group.ownerName ?? 'Unknown' },
+            _count: { members: countByGroupId.get(group.id) ?? 0 },
+          })
+        )
+      );
     }),
 
   getGroup: protectedProcedure
@@ -260,12 +268,14 @@ export const groupsRouter = router({
         user: userById.get(member.userId) ?? null,
       }));
 
-      return {
-        ...group,
-        owner: owner ? { id: owner.id, name: owner.name, image: owner.image } : null,
-        members: membersWithUsers,
-        contents: contentList,
-      };
+      return toEnvelope(
+        groupDetailDto.parse({
+          ...group,
+          owner: owner ? { id: owner.id, name: owner.name, image: owner.image } : null,
+          members: membersWithUsers,
+          contents: contentList,
+        })
+      );
     }),
 
   createGroup: protectedProcedure
@@ -317,7 +327,7 @@ export const groupsRouter = router({
       });
 
       revalidateDirectory();
-      return group;
+      return toEnvelope(groupDto.parse(group));
     }),
 
   updateGroup: protectedProcedure
@@ -351,7 +361,7 @@ export const groupsRouter = router({
         .returning();
 
       revalidateDirectory();
-      return updated;
+      return toEnvelope(groupDto.parse(updated));
     }),
 
   deleteGroup: protectedProcedure
@@ -373,7 +383,7 @@ export const groupsRouter = router({
         .where(and(eq(groups.id, input.id), eq(groups.tenantId, tenantId)));
 
       revalidateDirectory();
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
   // ────────── MEMBERSHIP ──────────
@@ -415,7 +425,7 @@ export const groupsRouter = router({
         })
         .returning();
 
-      return membership;
+      return toEnvelope(membership);
     }),
 
   leaveGroup: protectedProcedure
@@ -445,7 +455,7 @@ export const groupsRouter = router({
           )
         );
 
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 
   listMembers: protectedProcedure
@@ -492,10 +502,12 @@ export const groupsRouter = router({
           : [];
       const userById = new Map(memberUsers.map(u => [u.id, u]));
 
-      return membersList.map(member => ({
-        ...member,
-        user: userById.get(member.userId) ?? null,
-      }));
+      return toEnvelope(
+        membersList.map(member => ({
+          ...member,
+          user: userById.get(member.userId) ?? null,
+        }))
+      );
     }),
 
   updateMemberRole: protectedProcedure
@@ -539,7 +551,7 @@ export const groupsRouter = router({
         .where(eq(groupMembers.id, membership.id))
         .returning();
 
-      return updated;
+      return toEnvelope(updated);
     }),
 
   removeMember: protectedProcedure
@@ -582,6 +594,6 @@ export const groupsRouter = router({
         .set({ deletedAt: now() })
         .where(eq(groupMembers.id, membership.id));
 
-      return { success: true };
+      return toEnvelope({ success: true });
     }),
 });
