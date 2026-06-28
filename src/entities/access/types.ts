@@ -6,6 +6,7 @@
  * can see: spaces, pages, features, and agent delegation.
  *
  * Phase 110-01: Entity layer for page navigation access control.
+ * Phase 111-03: Extended with real agent scope resolution (tokenId, delegationId).
  */
 
 import type { Role } from '@shared/lib';
@@ -21,13 +22,14 @@ export interface AccessInput {
   /**
    * Caller type.
    * - `'user'`: Human user authenticated via Better Auth session.
-   * - `'agent'`: Automated agent with a bearer token (future extension point per D-08/D-09).
+   * - `'agent'`: Agent with a bearer token — validated via AgentToken/AgentAccess pipeline.
    * - Absent: Defaults to human user.
    */
   caller?: 'user' | 'agent';
   /**
    * Agent bearer token. Only relevant when caller === 'agent'.
-   * Parsed but NOT validated in this phase — full agent gateway is deferred.
+   * Validated against AgentToken table (JWT verify + DB lookup).
+   * Invalid/expired/revoked tokens result in agent: null.
    */
   token?: string;
 }
@@ -90,7 +92,9 @@ export type FeatureAccess = string[];
  * - `spaces`: Layer 0 (role) + Layer 1 (provider record) + Layer 3 (flags), nulled by Layer 2 (suspension)
  * - `pages`: Layer 3 (feature flags) — camelCase keys matching page route slugs
  * - `features`: Layer 0 (role permissions) + Layer 3 (feature flags) — module names enabled
- * - `agent`: Layer 4 (agent token) — null for human callers, stub for agent callers
+ * - `agent`: Layer 4 (agent token) — null for human callers, resolved EffectiveScope for valid agent tokens.
+ *   Invalid tokens result in null (graceful degradation — no access granted).
+ *   Contains resolved scope, expiration, token ID, and delegation ID.
  * - `resolvedAt`: ISO 8601 timestamp set at invocation time for ETag/Last-Modified caching
  */
 export interface AccessResolution {
@@ -101,11 +105,18 @@ export interface AccessResolution {
   /** Enabled module/feature keys. */
   features: string[];
   /**
-   * Agent delegation information.
-   * - `null`: Human caller (default).
-   * - `{ scope: [], expiresAt: null }`: Agent caller stub (full gateway deferred per D-09).
+   * Agent access if resolved from a valid agent token.
+   * - `scope`: Combined space/page/API keys the agent can access
+   * - `expiresAt`: Token expiration (ISO 8601), null for non-expiring
+   * - `tokenId`: AgentToken.id for audit trail
+   * - `delegationId`: AgentAccess.id if token was issued from a delegation
    */
-  agent: { scope: string[]; expiresAt: string | null } | null;
+  agent: {
+    scope: string[];
+    expiresAt: string | null;
+    tokenId?: string;
+    delegationId?: string | null;
+  } | null;
   /** ISO 8601 timestamp of resolution — enables client ETag/Last-Modified caching. */
   resolvedAt: string;
 }
