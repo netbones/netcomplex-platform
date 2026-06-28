@@ -18,3 +18,4 @@ export { apiGet, apiPost, apiPatch, apiDelete } from '../http-client';
 export { ApiClientError } from '../http-client';
 export { supabase } from '../supabase';
 export * from '../dto';
+export { logDelegationAction, type DelegationActionType } from './delegations';
