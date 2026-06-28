@@ -1418,6 +1418,20 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 ---
 
+## Phase 118: Agent Gateway Hardening
+
+**Goal:** Close out deferred and incomplete items from Phase 111 (agent-gateway) — register DelegationWidget in widget registry, apply formal Prisma migration for MaintenanceRouting fields, write ResidentDelegation integration tests, add Phase 111 entry to ROADMAP, and map Phase 111 requirements to REQUIREMENTS.md.
+
+**Status:** Planning
+
+**Milestone:** M5 — Anchor Tenant Launch (hardening)
+
+**Depends on:** Phase 111
+
+**Plans:** 0 plans
+
+---
+
 ## Phase 99: Build Fix
 
 **Goal:** Fix build errors caused by the multi-tenant refactor — broken import paths in 6 API routes, centralize imports via `@/lib/db`, inline Drizzle table definitions for non-generated tables

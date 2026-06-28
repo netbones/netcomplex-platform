@@ -1,4 +1,4 @@
-# Phase 113: Agent Gateway Hardening — Context
+# Phase 118: Agent Gateway Hardening — Context
 
 **Gathered:** 2026-06-28
 **Status:** Ready for planning
