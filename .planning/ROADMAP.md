@@ -1339,11 +1339,16 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Goal:** Running monorepo skeleton — Turborepo CLI + `turbo.json`, `pnpm-workspace.yaml`, `tooling/typescript/eslint/prettier` presets, empty `apps/web` + `apps/expo` + `packages/*` stubs. All `pnpm install/build/lint/typecheck` pass.
 
-**Status:** Not started
+**Status:** Planning complete — 2 plans in 2 waves
 
 **Depends on:** Phase 112 (CONTEXT.md provides cross-cutting decisions)
 
-**Plans:** 0 plans
+**Plans:** 2 plans
+
+| Wave | Plan                                                       | Objective                                                                                                                |
+| ---- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| 1    | [ ] 113-01-PLAN.md — Core Tooling + Presets                | Install Turborepo, create turbo.json + pnpm-workspace.yaml globs, create tooling/ presets (TypeScript, ESLint, Prettier) |
+| 2    | [ ] 113-02-PLAN.md — Stub Packages + Config + Verification | Create 9 stub workspace packages, update .gitignore/tsconfig/eslint ignores, full quality gate verification              |
 
 ---
 
