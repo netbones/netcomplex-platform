@@ -77,15 +77,34 @@ export function useGateContext(): ClientGateContext | null {
  *
  * Skips Layer 1 (Tier) and Layer 2 (Module) — those are server-only.
  *
- * @param ctx       Resolved client gate context
- * @param feature   The canonical FeatureKey being checked
- * @param opts      Optional flags — `skipFlag: true` skips the PageFlag layer
+ * Phase 111-03: Extended with optional agent scope dimension.
+ * When agentScope is present and valid, it governs access (supersedes role).
+ *
+ * @param ctx        Resolved client gate context
+ * @param feature    The canonical FeatureKey being checked
+ * @param opts       Optional flags — `skipFlag: true` skips the PageFlag layer
+ * @param agentScope Optional effective agent scope (from usePageAccess().agent).
+ *                   When present and not expired, supersedes role-based access.
  */
 export function canAccessClient(
   ctx: ClientGateContext,
   feature: FeatureKey,
-  opts?: { skipFlag?: boolean }
+  opts?: { skipFlag?: boolean },
+  agentScope?: { scope: string[]; expiresAt: string | null } | null
 ): GateResult {
+  // Phase 111-03: If an agent scope is present, it governs access (supersedes role)
+  if (agentScope) {
+    // Check expiry
+    if (agentScope.expiresAt && new Date(agentScope.expiresAt) < new Date()) {
+      return { allowed: false, reason: 'role' };
+    }
+    // Check if resource is in the agent's allowed scope
+    if (agentScope.scope.includes(feature)) {
+      return { allowed: true, reason: 'allowed' };
+    }
+    return { allowed: false, reason: 'role' };
+  }
+
   // Layer 0: Role (synchronous, in-memory)
   const rolePermissions = ROLE_PERMISSIONS[ctx.role];
   if (!rolePermissions) {

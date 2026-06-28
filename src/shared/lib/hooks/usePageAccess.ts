@@ -8,6 +8,9 @@
  * of inline role/flag/provider logic. The server (/api/access) is
  * the single source of truth per D-05/D-06.
  *
+ * Phase 111-03: Extended with optional agentToken parameter for agent callers.
+ * When agentToken is provided, the hook adds ?caller=agent&token=X to the request.
+ *
  * Also exports useVisibleSpaces() for consumers that need
  * SpaceDefinition[] directly — combines usePageAccess + filterSpaces.
  */
@@ -29,8 +32,19 @@ export interface PageAccessResult {
   pages: string[];
   /** Enabled module/feature keys */
   features: string[];
-  /** Agent delegation info — null for human callers */
-  agent: { scope: string[]; expiresAt: string | null } | null;
+  /**
+   * Agent access if resolved from a valid agent token.
+   * - `scope`: Combined space/page/API keys the agent can access
+   * - `expiresAt`: Token expiration (ISO 8601), null for non-expiring
+   * - `tokenId`: AgentToken.id for audit trail
+   * - `delegationId`: AgentAccess.id if token was issued from a delegation
+   */
+  agent: {
+    scope: string[];
+    expiresAt: string | null;
+    tokenId?: string;
+    delegationId?: string | null;
+  } | null;
   /** Whether the query is currently loading */
   isLoading: boolean;
   /** Query error if fetch failed */
@@ -44,13 +58,20 @@ export interface PageAccessResult {
 /**
  * Fetch per-user page access from /api/access via TanStack Query.
  *
- * - Query enabled only when session exists (T-110-06 mitigation)
+ * - Query enabled when session exists OR agentToken is provided
  * - staleTime=0 ensures fresh data on every mount
  * - refetchOnWindowFocus=true covers role-switch scenarios
  * - Unauthenticated → returns empty arrays (graceful degradation)
+ *
+ * Phase 111-03: When agentToken is provided, adds ?caller=agent&token=X
+ * to the request URL. The server validates the token and returns resolved
+ * agent scopes.
+ *
+ * @param agentToken - Optional agent bearer token for agent callers
  */
-export function usePageAccess(): PageAccessResult {
+export function usePageAccess(agentToken?: string): PageAccessResult {
   const { data: session } = useSession();
+  const hasSession = !!session?.user?.id;
 
   const {
     data,
@@ -61,12 +82,22 @@ export function usePageAccess(): PageAccessResult {
     spaces: SpaceId[];
     pages: string[];
     features: string[];
-    agent: { scope: string[]; expiresAt: string | null } | null;
+    agent: {
+      scope: string[];
+      expiresAt: string | null;
+      tokenId?: string;
+      delegationId?: string | null;
+    } | null;
     resolvedAt: string;
   }>({
-    queryKey: ['pageAccess', session?.user?.id ?? 'anonymous'],
+    queryKey: ['pageAccess', session?.user?.id ?? 'anonymous', agentToken ?? ''],
     queryFn: async () => {
-      const res = await fetch('/api/access');
+      const url = new URL('/api/access', window.location.origin);
+      if (agentToken) {
+        url.searchParams.set('caller', 'agent');
+        url.searchParams.set('token', agentToken);
+      }
+      const res = await fetch(url.toString());
       if (!res.ok) {
         throw new Error(`/api/access returned ${res.status}`);
       }
@@ -75,7 +106,7 @@ export function usePageAccess(): PageAccessResult {
       const payload = body?.data ?? body;
       return payload;
     },
-    enabled: !!session?.user?.id,
+    enabled: hasSession || !!agentToken,
     staleTime: 0,
     refetchOnWindowFocus: true,
     retry: 1,
@@ -100,13 +131,17 @@ export function usePageAccess(): PageAccessResult {
  * usePageAccess + useMemo(filterSpaces(...)) to reduce boilerplate.
  *
  * @param flags - PlatformPageFlags for optional space sub-filtering
+ * @param agentToken - Optional agent bearer token for agent callers
  */
-export function useVisibleSpaces(flags?: PlatformPageFlags | null): {
+export function useVisibleSpaces(
+  flags?: PlatformPageFlags | null,
+  agentToken?: string
+): {
   spaces: SpaceDefinition[];
   isLoading: boolean;
   error: Error | null;
 } {
-  const { spaces: accessibleSpaceIds, isLoading, error } = usePageAccess();
+  const { spaces: accessibleSpaceIds, isLoading, error } = usePageAccess(agentToken);
   const spaces = useMemo(
     () => filterSpaces(accessibleSpaceIds, flags ?? ({} as PlatformPageFlags)),
     [accessibleSpaceIds, flags]
