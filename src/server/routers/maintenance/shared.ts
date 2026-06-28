@@ -167,6 +167,12 @@ function requireRequestsPermission(role: string | null | undefined): void {
 }
 
 /** Map changed fields on a request update to history entries */
+function safeString(val: unknown): string | null {
+  if (val == null) return null;
+  if (typeof val === 'object') return JSON.stringify(val);
+  return String(val);
+}
+
 async function trackRequestChanges(
   requestId: string,
   userId: string,
@@ -186,8 +192,8 @@ async function trackRequestChanges(
   for (const [key, newVal] of Object.entries(newValues)) {
     if (newVal === undefined) continue;
     const oldVal = oldValues[key];
-    const oldStr = oldVal != null ? String(oldVal) : null;
-    const newStr = newVal != null ? String(newVal) : null;
+    const oldStr = safeString(oldVal);
+    const newStr = safeString(newVal);
     if (oldStr !== newStr) {
       changes.push({
         id: crypto.randomUUID(),

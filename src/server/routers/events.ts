@@ -78,12 +78,12 @@ async function getTenantEvent(eventId: string, tenantId: string) {
 }
 
 /** Enrich events with attendee counts and registration status */
-async function enrichEvents(
-  rows: Array<Record<string, unknown>>,
+async function enrichEvents<T extends Record<string, unknown>>(
+  rows: T[],
   userId: string,
   tenantId: string
-) {
-  if (rows.length === 0) return rows;
+): Promise<(T & { registered: boolean; attendeeCount: number })[]> {
+  if (rows.length === 0) return [];
 
   const eventIds = rows.map(e => e.id as string);
 
@@ -134,11 +134,7 @@ export const eventsRouter = router({
         upcoming: input?.upcoming,
       });
 
-      const enriched = await enrichEvents(
-        eventItems as Array<Record<string, unknown>>,
-        ctx.userId,
-        tenantId
-      );
+      const enriched = await enrichEvents(eventItems, ctx.userId, tenantId);
 
       return toEnvelope(enriched.map(r => eventDto.parse(r)));
     }),
@@ -154,11 +150,7 @@ export const eventsRouter = router({
 
       const event = await getTenantEvent(input.id, tenantId);
 
-      const enriched = await enrichEvents(
-        [event as unknown as Record<string, unknown>],
-        ctx.userId,
-        tenantId
-      );
+      const enriched = await enrichEvents([event!], ctx.userId, tenantId);
 
       return toEnvelope(eventDto.parse(enriched[0]));
     }),
