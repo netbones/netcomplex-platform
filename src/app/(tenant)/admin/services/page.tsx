@@ -10,7 +10,7 @@ import type {
   EmergencyContactConfig,
   HourConfig,
   AdditionalServiceConfig,
-} from '@entities/tenant/server';
+} from '@entities/tenant';
 
 const log = createComponentLogger('admin-services');
 

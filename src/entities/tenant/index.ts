@@ -9,6 +9,14 @@ export * from './api/tenant';
 export * from './model/types';
 export * from './schema';
 
+export type {
+  CategoryConfig,
+  EmergencyContactConfig,
+  HourConfig,
+  AdditionalServiceConfig,
+  ServicesPageConfig,
+} from './api/flags/services-config.types';
+
 // Server-only exports removed from barrel (causes client build errors).
 // Import server-only modules directly from their module paths:
 //   @entities/tenant/api/with-tenant
