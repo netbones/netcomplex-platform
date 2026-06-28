@@ -11,7 +11,7 @@ import {
   getSessionAndRole,
 } from '@api/server';
 import { agentTokens } from '@schema/agent-tokens';
-import { logDelegationAction } from '@api/shared';
+import { logDelegationAction } from '@api/shared/delegations';
 
 export const maxDuration = 5;
 

@@ -14,7 +14,7 @@ import {
 } from '@api/server';
 import { agentTokens } from '@schema/agent-tokens';
 import { signAgentToken, hashToken } from '@shared/lib/agent-token';
-import { logDelegationAction } from '@api/shared';
+import { logDelegationAction } from '@api/shared/delegations';
 import type { AgentScopeConfig } from '@entities/agent';
 
 export const maxDuration = 8;

@@ -16,7 +16,7 @@ import {
   getSessionAndRole,
 } from '@api/server';
 import { SCOPE_BUNDLES, validateScopes } from '@entities/agent';
-import { logDelegationAction } from '@api/shared';
+import { logDelegationAction } from '@api/shared/delegations';
 import type { AgentScope } from '@entities/agent';
 
 export const maxDuration = 8;

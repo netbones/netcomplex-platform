@@ -12,7 +12,7 @@ import {
   apiError,
   getSessionAndRole,
 } from '@api/server';
-import { logDelegationAction } from '@api/shared';
+import { logDelegationAction } from '@api/shared/delegations';
 
 export const maxDuration = 5;
 

@@ -458,7 +458,7 @@ export const PATCH = withErrorHandler(
 
         // Log delegation action
         try {
-          const { logDelegationAction } = await import('@api/shared');
+          const { logDelegationAction } = await import('@api/shared/delegations');
           await logDelegationAction({
             tenantId,
             delegationId,
