@@ -1317,6 +1317,32 @@ Plans:
 
 **Out of scope:** Full agent gateway (token issuance, scope management, audit log), widget-level access, access-based redirects, rate limiting on access endpoint.
 
+---
+
+## Phase 111: Agent Gateway
+
+**Goal:** Build the Agent Gateway — a unified access and delegation layer that mediates ALL caller types (human users, non-human AI agents, cron/webhook processes, and delegated third-party providers) through a single authorization pipeline.
+
+**Status:** Complete
+
+**Milestone:** M5 — Anchor Tenant Launch
+
+**Depends on:** Phase 110
+
+**Source:** Platform architecture — enables Phase 110 extension point D-08/D-09
+
+**Plans:** 5 plans in 5 waves
+
+| Wave | Plan               | Objective                                                                                                                |
+| ---- | ------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| 1    | [x] 111-01-PLAN.md | Agent Token data model & lifecycle — AgentToken, DelegationAction, DelegationStatus, scopes/tokens/revoke API            |
+| 2    | [x] 111-02-PLAN.md | Delegation lifecycle API — owner delegates, provider accepts/rejects, owner revokes, delegation listing                  |
+| 3    | [x] 111-03-PLAN.md | Agent scope resolution pipeline — resolveAgentScope(), access endpoint integration, canAccess() agent dimension          |
+| 4    | [x] 111-04-PLAN.md | Delegation domain entity & resident widget — types, hooks, block/audit API, DelegationWidget, DelegationAuditLog         |
+| 5    | [x] 111-05-PLAN.md | Maintenance request routing — MaintenanceRouting enum, routingType/landlordId, ResidentDelegation API, routing indicator |
+
+---
+
 ## Phase 120: API Governance Hardening
 
 **Goal:** Close 3 systemic gaps between tRPC router implementations and the Netcomplex API Governance Standard: response envelope, canonical error codes, and DTO mapping. Add `tenantProcedure`/`privilegedProcedure` tiers.
