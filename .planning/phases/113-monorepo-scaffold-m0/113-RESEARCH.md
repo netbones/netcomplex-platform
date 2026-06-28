@@ -428,19 +428,19 @@ patchedDependencies:
 | A4  | The `package.json` scripts can be rewritten to delegate to turbo without breaking existing dev workflows                       | Code Examples         | Medium — if user runs `pnpm dev` expecting `next dev` and gets `turbo run dev`, behavior changes if no workspace has a `dev` script |
 | A5  | TypeScript 6.0.2 supports tsconfig `extends` from tooling/ presets at relative paths like `../../tooling/typescript/base.json` | Standard Stack        | Low — `extends` supports relative paths; this is a standard Turborepo pattern                                                       |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **NativeWind version conflict with Expo SDK 53**
+1. **NativeWind version conflict with Expo SDK 53** (RESOLVED - deferred)
    - What we know: ADVISORY-019 D-12 targets Expo SDK 53 + NativeWind v5. NativeWind v5 (preview) requires React Native 0.81+ which ships with Expo SDK 54+, not SDK 53.
    - What's unclear: Should we upgrade to Expo SDK 54, downgrade to NativeWind 4.1.23 (compatible with SDK 53), or use an older Expo SDK version?
    - Recommendation: M0 is unaffected (no Expo code). Defer to pre-M3 per ADVISORY-019 GATE G-3 instructions. The planner should add a `checkpoint:human-verify` before M3 to resolve this.
 
-2. **Existing next.config.mjs may need Monorepo-aware settings**
+2. **Existing next.config.mjs may need Monorepo-aware settings** (RESOLVED - no action)
    - What we know: The current `next.config.mjs` references `./src/` and `./public/` — these work fine at repo root.
    - What's unclear: Whether any config options (like `outputFileTracingRoot`) need updating preemptively for monorepo awareness in M0.
    - Recommendation: No changes to `next.config.mjs` in M0. The existing config continues to work. Only update when the web app moves to `apps/web/` in M2.
 
-3. **CI/CD workflow — no existing GitHub Actions workflow**
+3. **CI/CD workflow — no existing GitHub Actions workflow** (RESOLVED - deferred)
    - What we know: No `.github/workflows/*.yml` files exist. The project has no CI pipeline yet.
    - What's unclear: Whether to create a CI workflow in M0 or defer to later phases.
    - Recommendation: ADVISORY-019 M0 tasks do not mention CI creation. The MOBILE_MONOREPO.md §M4d shows a CI config for reference, but creating CI is not in M0 scope. Add a minimal `.github/workflows/ci.yml` as a stretch goal if time permits, otherwise defer.
