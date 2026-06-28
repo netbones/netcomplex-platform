@@ -88,6 +88,9 @@ export {
   disputeMessageVersions,
   disputeMessages,
   disputeNotifications,
+  residentDelegations,
+  agentTokens,
+  delegationActions,
 } from '../db';
 export { auth } from '../auth';
 export {

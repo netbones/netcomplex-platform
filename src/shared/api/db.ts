@@ -131,6 +131,9 @@ import { dataShareBatches } from '@schema/data-share-batches';
 import { dWallets } from '@schema/d-wallets';
 import { payoutRequests } from '@schema/payout-requests';
 import { walletTransactions } from '@schema/wallet-transactions';
+import { residentDelegations } from '@schema/resident-delegations';
+import { agentTokens } from '@schema/agent-tokens';
+import { delegationActions } from '@schema/delegation-actions';
 
 import { ENV } from 'varlock/env';
 import { dbLogger } from '@shared/lib';
@@ -462,4 +465,7 @@ export {
   disputeMessageVersions,
   disputeMessages,
   disputeNotifications,
+  residentDelegations,
+  agentTokens,
+  delegationActions,
 };
