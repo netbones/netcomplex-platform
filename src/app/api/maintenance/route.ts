@@ -5,10 +5,13 @@ import {
   apiUnauthorized,
   apiInternalError,
   apiValidationError,
+  apiForbidden,
   revalidateDashboard,
   db,
   emitEvent,
   users,
+  notifications,
+  residentDelegations,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -16,12 +19,13 @@ import { maintenanceRequestSchema } from '@entities/maintenance';
 
 import { apiLogger } from '@shared/lib';
 
-import { eq } from 'drizzle-orm';
+import { eq, and, isNull, arrayContains } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import {
   listMaintenanceRequests,
   createMaintenanceRequest,
   toMaintenanceRequestViewList,
+  resolveRoutingType,
 } from '@entities/maintenance/server';
 
 // Limit execution time to 8 seconds to control costs
@@ -145,6 +149,58 @@ export async function POST(request: Request) {
     // Enforce tenant isolation
     const { tenantId } = await withTenant();
 
+    // Resolve routing: HOA or landlord, based on property occupancy
+    let routingCtx = {
+      routingType: 'HOA' as const,
+      landlordId: null as string | null,
+      reason: 'no property',
+    };
+
+    if (propertyId) {
+      routingCtx = await resolveRoutingType(propertyId, tenantId);
+    }
+
+    // If LANDLORD routing: verify caller has permission to raise a request
+    if (routingCtx.routingType === 'LANDLORD') {
+      const isOwner = routingCtx.landlordId === authData.userId;
+      const isAdmin = ['ADMIN', 'BOARD'].includes(authData.role ?? '');
+
+      if (!isOwner && !isAdmin) {
+        // Check ResidentDelegation — renter must have maintenance:create scope
+        const [renterGrant] = await db
+          .select({ id: residentDelegations.id })
+          .from(residentDelegations)
+          .where(
+            and(
+              eq(residentDelegations.propertyId, propertyId!),
+              eq(residentDelegations.tenantId, tenantId),
+              isNull(residentDelegations.revokedAt),
+              // Must be linked to a profile the current user holds
+              eq(residentDelegations.profileId, authData.userId)
+            )
+          )
+          .limit(1);
+
+        // Check if the grant includes maintenance:create scope
+        const hasScope = renterGrant
+          ? (
+              await db
+                .select({ scopes: residentDelegations.scopes })
+                .from(residentDelegations)
+                .where(eq(residentDelegations.id, renterGrant.id))
+                .limit(1)
+            )[0]?.scopes?.includes('maintenance:create')
+          : false;
+
+        if (!hasScope) {
+          return apiForbidden(
+            'You do not have permission to raise maintenance requests on this property. ' +
+              'The property owner must grant you this right.'
+          );
+        }
+      }
+    }
+
     // Delegate to entity service for creation (includes ticket number generation)
     const [maintenanceRequest] = await createMaintenanceRequest({
       id: crypto.randomUUID(),
@@ -157,16 +213,42 @@ export async function POST(request: Request) {
       images: body.images || [],
       preferredDate,
       preferredTime,
+      routingType: routingCtx.routingType,
+      landlordId: routingCtx.landlordId,
     });
 
     // Revalidate dashboard caches immediately when new request is created
     revalidateDashboard();
+
+    // Notify the right party
+    if (routingCtx.routingType === 'LANDLORD' && routingCtx.landlordId) {
+      // Notify the landlord
+      await db.insert(notifications).values({
+        id: crypto.randomUUID(),
+        tenantId,
+        userId: routingCtx.landlordId,
+        senderId: authData.userId,
+        title: 'Maintenance request raised on your property',
+        message:
+          `A maintenance request (${category}) has been submitted for ` +
+          `${propertyId}. Please review and assign a contractor.`,
+        type: 'info',
+        link: `/dashboard/services/maintenance/${maintenanceRequest.id}`,
+        payload: {
+          requestId: maintenanceRequest.id,
+          routingType: 'LANDLORD',
+          category,
+          priority,
+        },
+      });
+    }
 
     emitEvent('maintenance.created', {
       tenantId,
       userId,
       requestId: maintenanceRequest.id,
       category,
+      routingType: routingCtx.routingType,
     });
 
     return apiCreated(maintenanceRequest);

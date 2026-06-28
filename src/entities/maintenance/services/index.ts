@@ -186,6 +186,8 @@ export async function createMaintenanceRequest(data: {
   images: string[];
   preferredDate?: string | null;
   preferredTime?: string | null;
+  routingType?: 'HOA' | 'LANDLORD' | null;
+  landlordId?: string | null;
 }) {
   const now = new Date();
   const ticketNumber = await generateTicketNumber(data.tenantId);
@@ -205,6 +207,8 @@ export async function createMaintenanceRequest(data: {
       ticketNumber,
       preferredDate: data.preferredDate ? new Date(data.preferredDate) : null,
       preferredTime: data.preferredTime || null,
+      routingType: data.routingType || 'HOA',
+      landlordId: data.landlordId || null,
       createdAt: now,
       updatedAt: now,
     })
