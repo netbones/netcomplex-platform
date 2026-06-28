@@ -69,3 +69,11 @@ export interface TicketAssignment {
   team?: { id: string; name: string; trade: string } | null;
   provider?: { id: string; companyName: string; trade: string } | null;
 }
+
+export type MaintenanceRoutingType = 'HOA' | 'LANDLORD';
+
+export interface MaintenanceRoutingContext {
+  routingType: MaintenanceRoutingType;
+  landlordId: string | null;
+  reason: string;
+}

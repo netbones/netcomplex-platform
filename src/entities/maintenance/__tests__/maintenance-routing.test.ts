@@ -10,7 +10,7 @@ vi.mock('@api/server', () => ({
   },
 }));
 
-import { resolveRoutingType } from '../model/constants';
+import { resolveRoutingType } from '../model/routing';
 import type { MaintenanceRoutingContext } from '../model/types';
 
 describe('resolveRoutingType', () => {

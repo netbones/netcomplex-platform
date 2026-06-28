@@ -12,3 +12,5 @@ export {
   createMaintenanceRequest,
   toMaintenanceRequestViewList,
 } from './services';
+
+export { resolveRoutingType } from './model/routing';
