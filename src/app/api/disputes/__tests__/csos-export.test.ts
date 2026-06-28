@@ -5,96 +5,99 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // ── Hoisted mock state ──
-const mocks = vi.hoisted(() => ({
-  // Auth
-  authResult: null as { userId: string; role: string; session: unknown } | null,
+const mocks = vi.hoisted(() => {
+  const data = {
+    // Auth
+    authResult: null as { userId: string; role: string; session: unknown } | null,
 
-  // Tenant
-  tenantResult: { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' },
+    // Tenant
+    tenantResult: { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' },
 
-  // Rate limiting — null means Redis unavailable (DB fallback active)
-  rateLimitResult: null as Response | null,
-  /** When true, rateLimitByKey returns null (Redis unavailable → DB fallback) */
-  rateLimitReturnNull: false,
+    // Rate limiting — null means Redis unavailable (DB fallback active)
+    rateLimitResult: null as Response | null,
+    /** When true, rateLimitByKey returns null (Redis unavailable → DB fallback) */
+    rateLimitReturnNull: false,
 
-  // Select call counter — used to route different queries
-  selectCallCounter: 0,
+    // Select call counter — used to route different queries
+    selectCallCounter: 0,
 
-  // Dispute in DB
-  disputeInDb: null as {
-    id: string;
-    tenantId: string;
-    complainantId: string;
-    respondentId: string | null;
-    respondentType: string;
-    referenceNumber: string;
-    title: string;
-    description: string;
-    category: string;
-    severity: string;
-    status: string;
-    submittedAt: Date | null;
-    resolvedAt: Date | null;
-    rulingDescription: string | null;
-    rulingIssuedAt: Date | null;
-    desiredOutcome: string | null;
-    isConfidential: boolean;
-    mediationAcceptedAt: Date | null;
-    deletedAt: Date | null;
-    createdAt: Date;
-  } | null,
+    // Dispute in DB
+    disputeInDb: null as {
+      id: string;
+      tenantId: string;
+      complainantId: string;
+      respondentId: string | null;
+      respondentType: string;
+      referenceNumber: string;
+      title: string;
+      description: string;
+      category: string;
+      severity: string;
+      status: string;
+      submittedAt: Date | null;
+      resolvedAt: Date | null;
+      rulingDescription: string | null;
+      rulingIssuedAt: Date | null;
+      desiredOutcome: string | null;
+      isConfidential: boolean;
+      mediationAcceptedAt: Date | null;
+      deletedAt: Date | null;
+      createdAt: Date;
+    } | null,
 
-  // Events
-  eventsInDb: Array<{
-    id: string;
-    eventType: string;
-    fromStatus: string | null;
-    toStatus: string | null;
-    actorId: string;
-    note: string | null;
-    metadata: Record<string, unknown> | null;
-    createdAt: Date;
-  }>,
+    // Events (use const assertion-free references)
+    eventsInDb: [] as {
+      id: string;
+      eventType: string;
+      fromStatus: string | null;
+      toStatus: string | null;
+      actorId: string;
+      note: string | null;
+      metadata: Record<string, unknown> | null;
+      createdAt: Date;
+    }[],
 
-  // Evidence
-  evidenceInDb: Array<{
-    id: string;
-    fileName: string;
-    fileType: string;
-    fileUrl: string;
-    uploadedBy: string;
-    createdAt: Date;
-  }>,
+    // Evidence
+    evidenceInDb: [] as {
+      id: string;
+      fileName: string;
+      fileType: string;
+      fileUrl: string;
+      uploadedBy: string;
+      createdAt: Date;
+    }[],
 
-  // Messages
-  messagesInDb: Array<{
-    id: string;
-    senderId: string;
-    content: string;
-    createdAt: Date;
-    editedAt: Date | null;
-  }>,
+    // Messages
+    messagesInDb: [] as {
+      id: string;
+      senderId: string;
+      content: string;
+      createdAt: Date;
+      editedAt: Date | null;
+    }[],
 
-  // Message versions
-  messageVersionsInDb: Array<{
-    messageId: string;
-    originalContent: string;
-    editedAt: Date;
-  }>,
+    // Message versions
+    messageVersionsInDb: [] as {
+      messageId: string;
+      originalContent: string;
+      editedAt: Date;
+    }[],
 
-  // Settings (for tenant CSOS reg)
-  settingsInDb: Array<{
-    tenantId: string;
-    key: string;
-    value: string;
-  }>,
+    // Settings (for tenant CSOS reg)
+    settingsInDb: [] as {
+      tenantId: string;
+      key: string;
+      value: string;
+    }[],
 
-  // Insert tracking (for verifying NOTE_ADDED event)
-  insertedEvents: [] as Array<Record<string, unknown>>,
+    // Insert tracking (for verifying NOTE_ADDED event)
+    insertedEvents: [] as Record<string, unknown>[],
 
-  // DB fallback: export count today
-  dbExportCount: 0,
-}));
+    // DB fallback: export count today
+    dbExportCount: 0,
+  };
+  return data;
+});
 
 // ── server-only mock ──
 vi.mock('server-only', () => ({}));

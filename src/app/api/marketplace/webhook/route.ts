@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       await db
         .update(serviceBookings)
         .set({
-          paymentStatus: 'FAILED',
+          paymentStatus: 'PENDING',
           updatedAt: new Date(),
         })
         .where(eq(serviceBookings.id, bookingId));

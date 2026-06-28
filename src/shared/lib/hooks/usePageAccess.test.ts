@@ -44,7 +44,12 @@ function makeSession(
         role: overrides.role ?? 'RESIDENT',
         email: overrides.email ?? 'test@soralia.village',
       },
+      session: {},
     },
+    isPending: false,
+    isRefetching: false,
+    error: null,
+    refetch: vi.fn(),
   };
 }
 
@@ -76,7 +81,7 @@ describe('usePageAccess', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default: authenticated RESIDENT
-    mockUseSession.mockReturnValue(makeSession());
+    mockUseSession.mockReturnValue(makeSession() as never);
   });
 
   afterEach(() => {

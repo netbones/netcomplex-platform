@@ -188,7 +188,7 @@ describe('Consent API — B-CONSENT', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ granted: true }),
       }),
-      { params: { streamKey: 'survey_participation' } }
+      { params: Promise.resolve({ streamKey: 'survey_participation' }) }
     );
 
     const body = await response.json();
@@ -207,7 +207,7 @@ describe('Consent API — B-CONSENT', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ granted: true }),
       }),
-      { params: { streamKey: 'survey_participation' } }
+      { params: Promise.resolve({ streamKey: 'survey_participation' }) }
     );
 
     await POST(
@@ -216,7 +216,7 @@ describe('Consent API — B-CONSENT', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ granted: false }),
       }),
-      { params: { streamKey: 'survey_participation' } }
+      { params: Promise.resolve({ streamKey: 'survey_participation' }) }
     );
 
     // Insert should have been called twice (append-only — new rows, not updates)
@@ -230,7 +230,7 @@ describe('Consent API — B-CONSENT', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ granted: false }),
       }),
-      { params: { streamKey: 'survey_participation' } }
+      { params: Promise.resolve({ streamKey: 'survey_participation' }) }
     );
 
     const body = await response.json();

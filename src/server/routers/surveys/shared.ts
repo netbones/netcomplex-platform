@@ -1,12 +1,14 @@
 import { z } from 'zod';
 import {
   router,
+  publicProcedure,
   protectedProcedure,
   db,
   surveys,
   questions,
   responses,
   surveySections,
+  externalSurveys,
   revalidateAdminChanges,
   now,
 } from '@api/server';
@@ -17,12 +19,14 @@ import { eq, and, desc, asc, sql, isNull, inArray, count } from 'drizzle-orm';
 export {
   z,
   router,
+  publicProcedure,
   protectedProcedure,
   db,
   surveys,
   questions,
   responses,
   surveySections,
+  externalSurveys,
   revalidateAdminChanges,
   now,
   TRPCError,

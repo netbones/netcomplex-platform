@@ -144,7 +144,7 @@ describe('POST /api/v1/tenant/dwallet/deletion-request', () => {
 
   it('returns early if wallet already closed', async () => {
     mocks.sessionResult = { userId: 'user-1', user: { id: 'user-1' } };
-    const { getOrCreateWallet } = await import('@entities/dwallet');
+    const { getOrCreateWallet } = await import('@entities/dwallet/index.server');
     vi.mocked(getOrCreateWallet).mockResolvedValueOnce(mocks.closedWallet as never);
 
     const response = await POST(makeReq());
@@ -157,7 +157,7 @@ describe('POST /api/v1/tenant/dwallet/deletion-request', () => {
 
   it('does not create rollover transaction for empty wallet', async () => {
     mocks.sessionResult = { userId: 'user-1', user: { id: 'user-1' } };
-    const { getOrCreateWallet } = await import('@entities/dwallet');
+    const { getOrCreateWallet } = await import('@entities/dwallet/index.server');
     vi.mocked(getOrCreateWallet).mockResolvedValueOnce(mocks.emptyWallet as never);
     mocks.dbMock.update.mockReturnValue(makeUpdateChain() as never);
 

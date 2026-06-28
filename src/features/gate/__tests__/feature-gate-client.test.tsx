@@ -35,10 +35,12 @@ function makeFlags(overrides: Partial<PlatformPageFlags> = {}): PlatformPageFlag
     surveys: true,
     competitions: true,
     dashboard: true,
+    disputes: false,
     dWallet: false,
     bookings: true,
     messages: true,
     providers: true,
+    marketplacePaypal: false,
     headerLinks: ['directory', 'groups', 'services', 'resources'],
     ...overrides,
   };

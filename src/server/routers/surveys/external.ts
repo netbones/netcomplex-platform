@@ -1,0 +1,69 @@
+import { z } from 'zod';
+import {
+  publicProcedure,
+  protectedProcedure,
+  db,
+  externalSurveys,
+  responses,
+  revalidateAdminChanges,
+  now,
+  TRPCError,
+  eq,
+  and,
+  desc,
+} from './shared';
+
+export const externalSurveyProcedures = {
+  listExternalSurveys: publicProcedure
+    .meta({ openapi: { method: 'GET', path: '/surveys/external' } })
+    .query(async ({ ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId)
+        throw new TRPCError({ code: 'PRECONDITION_FAILED', message: 'Tenant context required' });
+
+      const result = await db
+        .select()
+        .from(externalSurveys)
+        .where(and(eq(externalSurveys.tenantId, tenantId), eq(externalSurveys.isActive, true)))
+        .orderBy(desc(externalSurveys.createdAt));
+
+      return result;
+    }),
+
+  submitExternalSurveyResponse: publicProcedure
+    .meta({ openapi: { method: 'POST', path: '/surveys/external/respond' } })
+    .input(
+      z.object({
+        surveyId: z.string(),
+        answers: z.record(z.unknown()),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId)
+        throw new TRPCError({ code: 'PRECONDITION_FAILED', message: 'Tenant context required' });
+
+      const survey = await db
+        .select()
+        .from(externalSurveys)
+        .where(and(eq(externalSurveys.id, input.surveyId), eq(externalSurveys.tenantId, tenantId)))
+        .limit(1);
+
+      if (!survey.length)
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'External survey not found' });
+
+      const [response] = await db
+        .insert(responses)
+        .values({
+          id: crypto.randomUUID(),
+          tenantId,
+          surveyId: input.surveyId,
+          userId: ctx.userId ?? undefined,
+          answers: input.answers,
+          createdAt: now(),
+        })
+        .returning();
+
+      return response;
+    }),
+};

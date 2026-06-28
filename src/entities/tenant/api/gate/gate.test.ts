@@ -194,6 +194,7 @@ describe('Mapping completeness', () => {
         providers: true,
         bookings: true,
         messages: true,
+        disputes: false,
         marketplacePaypal: false,
         headerLinks: ['directory', 'groups', 'services', 'resources'],
       };
@@ -262,6 +263,7 @@ const ALL_FLAGS_ENABLED: PlatformPageFlags = {
   competitions: true,
   dashboard: true,
   dWallet: true,
+  disputes: true,
   providers: true,
   bookings: true,
   messages: true,

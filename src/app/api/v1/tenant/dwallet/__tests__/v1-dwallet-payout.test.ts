@@ -165,7 +165,7 @@ describe('POST /api/v1/tenant/dwallet/payout', () => {
 
   it('rejects payout below R50 threshold', async () => {
     mocks.sessionResult = { userId: 'user-1', user: { id: 'user-1' } };
-    const { getOrCreateWallet } = await import('@entities/dwallet');
+    const { getOrCreateWallet } = await import('@entities/dwallet/index.server');
     vi.mocked(getOrCreateWallet).mockResolvedValueOnce(mocks.lowBalanceWallet as never);
 
     const response = await POST(makeReq('POST', { amount: 10 }));

@@ -31,8 +31,8 @@ describe('CSOSExportButton', () => {
     vi.stubGlobal('fetch', mockFetch);
 
     // Mock URL.createObjectURL / revokeObjectURL
-    mockCreateObjectURL = vi.fn<[Blob | MediaSource], string>(() => 'blob:mock-url-test');
-    mockRevokeObjectURL = vi.fn<[string], void>();
+    mockCreateObjectURL = vi.fn(() => 'blob:mock-url-test');
+    mockRevokeObjectURL = vi.fn(() => {});
     vi.spyOn(URL, 'createObjectURL').mockImplementation(
       mockCreateObjectURL as unknown as (obj: Blob | MediaSource) => string
     );
