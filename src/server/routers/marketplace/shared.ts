@@ -1,10 +1,9 @@
 import { z } from 'zod';
-import { db, communityServiceListings, communityServiceReviews, now } from '@api/server';
+import { db, settings, communityServiceListings, communityServiceReviews, now } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { eq, and, isNull, sql } from 'drizzle-orm';
 
-// TODO: make tenant-configurable via settings (dwallet R50 fix pattern). Requires DB enum migration.
-export const SERVICE_CATEGORIES = {
+export const DEFAULT_SERVICE_CATEGORIES = {
   COMMUNITY: [
     'TUTORING',
     'PET_CARE',
@@ -29,6 +28,34 @@ export const SERVICE_CATEGORIES = {
     'OTHER',
   ],
 } as const;
+
+export const SERVICE_CATEGORIES = DEFAULT_SERVICE_CATEGORIES;
+
+export async function getServiceCategories(
+  tenantId: string
+): Promise<typeof DEFAULT_SERVICE_CATEGORIES> {
+  const [row] = await db
+    .select({ value: settings.value })
+    .from(settings)
+    .where(and(eq(settings.tenantId, tenantId), eq(settings.key, 'marketplace_service_categories')))
+    .limit(1);
+  if (row) {
+    try {
+      const parsed = JSON.parse(row.value);
+      if (
+        parsed &&
+        typeof parsed === 'object' &&
+        'COMMUNITY' in parsed &&
+        'THIRD_PARTY' in parsed
+      ) {
+        return parsed as typeof DEFAULT_SERVICE_CATEGORIES;
+      }
+    } catch {
+      /* fall through to default */
+    }
+  }
+  return DEFAULT_SERVICE_CATEGORIES;
+}
 
 export const PriceTypeEnum = z.enum(['FIXED', 'HOURLY', 'QUOTE', 'FREE']);
 export const ListingStatusEnum = z.enum([

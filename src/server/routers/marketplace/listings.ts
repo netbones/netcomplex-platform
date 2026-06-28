@@ -16,7 +16,7 @@ import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
 import { eq, and, desc, isNull, sql, ilike, or, ne } from 'drizzle-orm';
 import {
-  SERVICE_CATEGORIES,
+  getServiceCategories,
   ListListingsInput,
   CreateListingInput,
   UpdateListingInput,
@@ -496,10 +496,11 @@ export const listingProcedures = {
         tags: ['marketplace'],
       },
     })
-    .query(async () => {
+    .query(async ({ ctx }) => {
+      const categories = await getServiceCategories(ctx.tenantId!);
       return toEnvelope({
-        categories: SERVICE_CATEGORIES,
-        flat: [...SERVICE_CATEGORIES.COMMUNITY, ...SERVICE_CATEGORIES.THIRD_PARTY],
+        categories,
+        flat: [...categories.COMMUNITY, ...categories.THIRD_PARTY],
       });
     }),
 

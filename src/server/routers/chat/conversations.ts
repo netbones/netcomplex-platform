@@ -312,17 +312,24 @@ export const conversationProcedures = {
       }
 
       const conversationId = crypto.randomUUID();
-      await db.execute(sql`
-        INSERT INTO "Conversation" (id, name, type, "tenantId")
-        VALUES (${conversationId}, NULL, 'DIRECT', ${tenantId})
-      `);
+      await db.insert(conversations).values({
+        id: conversationId,
+        tenantId,
+        name: null,
+        type: 'DIRECT',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
-      for (const userId of input.participantIds) {
-        await db.execute(sql`
-          INSERT INTO "ConversationParticipant" (id, "conversationId", "userId", "tenantId")
-          VALUES (${crypto.randomUUID()}, ${conversationId}, ${userId}, ${tenantId})
-        `);
-      }
+      await db.insert(conversationParticipants).values(
+        input.participantIds.map(userId => ({
+          id: crypto.randomUUID(),
+          tenantId,
+          conversationId,
+          userId,
+          joinedAt: new Date(),
+        }))
+      );
 
       const result = (await db.execute(sql`
         SELECT c.*,

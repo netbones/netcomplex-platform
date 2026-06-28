@@ -6,12 +6,15 @@ import {
   properties,
   propertyListings,
   propertyPremiumSeats,
+  households,
+  standardSeats,
+  users,
   now,
   assertAddressUnique,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
 import { TRPCError } from '@trpc/server';
-import { and, eq, desc, sql } from 'drizzle-orm';
+import { and, eq, inArray, desc, sql } from 'drizzle-orm';
 
 const CreatePremiumListingInput = z.object({
   propertyId: z.string().min(1),
@@ -162,15 +165,17 @@ export const premiumProcedures = {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
 
-      const portfolioResult = await db.execute(
-        sql`SELECT * FROM "PremiumSeat" WHERE "userId" = ${ctx.userId} AND "tenantId" = ${tenantId} LIMIT 1`
-      );
+      const [seat] = await db
+        .select()
+        .from(premiumSeats)
+        .where(and(eq(premiumSeats.userId, ctx.userId), eq(premiumSeats.tenantId, tenantId)))
+        .limit(1);
 
-      if (!portfolioResult.rows?.length) {
+      if (!seat) {
         return toEnvelope({ hasPortfolio: false, message: 'No Premium Seat portfolio found' });
       }
 
-      return toEnvelope({ hasPortfolio: true, portfolio: portfolioResult.rows[0] });
+      return toEnvelope({ hasPortfolio: true, portfolio: seat });
     }),
 
   upgradePortfolio: protectedProcedure
@@ -192,17 +197,20 @@ export const premiumProcedures = {
       const userId = ctx.userId;
       const { householdIds } = input;
 
-      const householdsResult = (await db.execute(sql`
-        SELECT h.*
-        FROM "Household" h
-        JOIN "StandardSeat" ss ON ss."householdId" = h.id
-        WHERE h.id IN ${sql`${householdIds}`}
-        AND h."tenantId" = ${tenantId}
-        AND ss."userId" = ${userId}
-        AND ss."isPrimaryOwner" = true
-      `)) as { rows: { id: string }[] };
+      const ownedHouseholds = await db
+        .select({ id: households.id })
+        .from(households)
+        .innerJoin(standardSeats, eq(standardSeats.householdId, households.id))
+        .where(
+          and(
+            inArray(households.id, householdIds),
+            eq(households.tenantId, tenantId),
+            eq(standardSeats.userId, userId),
+            eq(standardSeats.isPrimaryOwner, true)
+          )
+        );
 
-      if ((householdsResult.rows?.length || 0) !== householdIds.length) {
+      if (ownedHouseholds.length !== householdIds.length) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'You do not own all specified households',
@@ -224,15 +232,15 @@ export const premiumProcedures = {
           `);
         }
       } else {
-        const userResult = (await db.execute(sql`
-          SELECT email, name FROM "user" WHERE id = ${userId}
-        `)) as { rows: { email: string; name: string | null }[] };
+        const [user] = await db
+          .select({ email: users.email, name: users.name })
+          .from(users)
+          .where(eq(users.id, userId));
 
-        if (!userResult.rows?.length) {
+        if (!user) {
           throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
         }
 
-        const user = userResult.rows[0];
         const nameSlug = (user.name || '').toLowerCase().replace(/\s+/g, '.');
         const shortId = userId.slice(0, 8);
         const platformAddress = `${nameSlug}.${shortId}@sorialia.org`;
@@ -243,16 +251,20 @@ export const premiumProcedures = {
           throw new TRPCError({ code: 'CONFLICT', message: (e as Error).message });
         }
 
-        const newPremiumSeat = (await db.execute(sql`
-          INSERT INTO "PremiumSeat" ("userId", "tenantId", "platformAddress")
-          VALUES (${userId}, ${tenantId}, ${platformAddress})
-          RETURNING id
-        `)) as { rows: { id: string }[] };
+        const [newPremiumSeat] = await db
+          .insert(premiumSeats)
+          .values({
+            id: crypto.randomUUID(),
+            userId,
+            tenantId,
+            platformAddress,
+          })
+          .returning({ id: premiumSeats.id });
 
         for (const householdId of householdIds) {
           await db.execute(sql`
             INSERT INTO "_PremiumSeatPortfolio" ("A", "B")
-            VALUES (${newPremiumSeat.rows?.[0]?.id}, ${householdId})
+            VALUES (${newPremiumSeat.id}, ${householdId})
             ON CONFLICT DO NOTHING
           `);
         }
