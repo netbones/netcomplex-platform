@@ -259,7 +259,11 @@ describe('usePageAccess', () => {
     // No session → query disabled
     mockUseSession.mockReturnValue({
       data: null,
-    });
+      isPending: false,
+      isRefetching: false,
+      error: null,
+      refetch: vi.fn(),
+    } as never);
 
     // When disabled, TanStack Query returns idle state
     mockUseQuery.mockReturnValue({
@@ -287,7 +291,7 @@ describe('usePageAccess', () => {
 describe('useVisibleSpaces', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseSession.mockReturnValue(makeSession());
+    mockUseSession.mockReturnValue(makeSession() as never);
   });
 
   it('filters accessible space IDs through filterSpaces', () => {
@@ -312,7 +316,7 @@ describe('useVisibleSpaces', () => {
         surveys: false,
         competitions: false,
         news: false,
-      })
+      } as never)
     );
 
     expect(result.current.spaces).toHaveLength(3);
@@ -341,7 +345,7 @@ describe('useVisibleSpaces', () => {
         surveys: false,
         competitions: false,
         news: false,
-      })
+      } as never)
     );
 
     // community should be filtered out

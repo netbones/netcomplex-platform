@@ -20,6 +20,7 @@ Phases are grouped into milestones (M0–M6+). See `.planning/MILESTONES.md` for
 | **M4.5 Stabilization**            | 7-day soak, perf baseline, rollback test, locale check                                                                                     | 43 (blockers), then (no new phases)                                                                                                                                | 🚧 Blocked on 43 |
 | **M5 Anchor Tenant Launch**       | Audit closure, Community Merits, OTP, dWallet, Provider Platform, Service Marketplace, Dispute Resolution, AI Pool Billing, Access Control | 44 (M5a), 45 (M5b), 46 (Provider Platform), 47 (dWallet), 50 (Service Marketplace), 104–108 (Dispute Resolution), 109 (AI Surcharge Billing), 110 (Access Control) | 📋 Planning      |
 | **M5+ Post-Launch**               | Future features, second tenant                                                                                                             | deferred                                                                                                                                                           | Deferred         |
+| **M7 Monorepo Migration**         | Turborepo + pnpm monorepo for web + mobile code sharing                                                                                    | 112, 113, 114, 115, 116, 117+                                                                                                                                      | 📋 Planning      |
 
 **Phase numbering note:** IDs are stable (not renumbered on re-order). Duplicates exist: `03` (Localization vs Second Tenant), `11` (Announcements vs Prisma→Drizzle). The duplicate pair has a "Planning Complete (deferred)" status on the second one, except `11-prisma-to-drizzle` which was verified complete (2026-06-03) and moved to M0. Out-of-order numeric IDs (01 after 04; 35 after 39; 99 last) reflect creation sequence, not logical order. See MILESTONES.md Gap ε.
 
@@ -1315,6 +1316,82 @@ Plans:
 | 2 | [ ] 110-02-PLAN.md | `usePageAccess()` hook + nav refactor (SpaceChrome, MobileSpaceBar) + `filterSpaces` pure fn |
 
 **Out of scope:** Full agent gateway (token issuance, scope management, audit log), widget-level access, access-based redirects, rate limiting on access endpoint.
+
+## Phase 112: Monorepo — Full Milestone
+
+**Goal:** Tracking/umbrella phase for the full monorepo migration (M7 milestone). Cross-cutting architecture decisions captured in 112-CONTEXT.md. Sub-phases 113–117+ defined.
+
+**Status:** Complete — CONTEXT.md written (2026-06-28), sub-phases added to roadmap
+
+**Depends on:** Phase 111
+
+**Plans:** 0 plans (tracking phase — see 112-CONTEXT.md)
+
+---
+
+## M7 — Monorepo Migration
+
+_Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sharing. Web dev continues in parallel with coordination restrictions during M1. Verifiable: `pnpm build` runs across all packages, `apps/expo` connects via tRPC, shared types/schemas/DB/schemas live in `packages/`._
+
+---
+
+## Phase 113: Monorepo Scaffold (M0)
+
+**Goal:** Running monorepo skeleton — Turborepo CLI + `turbo.json`, `pnpm-workspace.yaml`, `tooling/typescript/eslint/prettier` presets, empty `apps/web` + `apps/expo` + `packages/*` stubs. All `pnpm install/build/lint/typecheck` pass.
+
+**Status:** Not started
+
+**Depends on:** Phase 112 (CONTEXT.md provides cross-cutting decisions)
+
+**Plans:** 0 plans
+
+---
+
+## Phase 114: Extract Shared Packages (M1)
+
+**Goal:** All shared code lives in `packages/` — `@soralia/shared` (types, schemas, constants, utils, i18n), `@soralia/db` (Drizzle schema files), `@soralia/api` (tRPC router definitions), `@soralia/auth` (Better Auth config). Web app still works as before. Web dev coordinates to avoid editing files being extracted.
+
+**Status:** Not started
+
+**Depends on:** Phase 113
+
+**Plans:** 0 plans
+
+---
+
+## Phase 115: Move Web Into Apps (M2)
+
+**Goal:** Current Next.js app moves to `apps/web/`. 48h freeze window for web dev (bug fixes only). All imports resolve to workspace packages. Pre-schedule around low-traffic days.
+
+**Status:** Not started
+
+**Depends on:** Phase 114
+
+**Plans:** 0 plans
+
+---
+
+## Phase 116: Expo Foundation (M3)
+
+**Goal:** Running `apps/expo` with Expo SDK 53 + Expo Router + NativeWind v5 + tRPC client connected to `apps/web`. Empty shell with navigation skeleton.
+
+**Status:** Not started
+
+**Depends on:** Phase 115
+
+**Plans:** 0 plans
+
+---
+
+## Phase 117+: Mobile Features (M4+)
+
+**Goal:** Port all 24 features to mobile app. Full feature parity with responsive mobile UI.
+
+**Status:** Not started
+
+**Depends on:** Phase 116
+
+**Plans:** 0 plans
 
 ---
 

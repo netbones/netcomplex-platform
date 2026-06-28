@@ -28,7 +28,7 @@ artifacts:
 
 ---
 
-## 2. Milestone Map (Proposed)
+## 2. Milestone Map
 
 Retrospectively grouping the 43 phases by _what the work delivers_, not
 what the phase numbers say. Each milestone gets a name, a "ship to" target,
@@ -125,6 +125,20 @@ forward-looking.
 M5a is "we cleaned up", M5b is "we shipped launch features". Different verifiables, different stakeholders. M5a unblocks future work; M5b unblocks anchor-tenant traffic.
 
 **M5 ready signal (added 2026-06-03 per Section 7 Gap N2):** M5 planning begins when (a) M4 is complete (Phases 41 and 42 shipped) AND (b) the M5 launch checklist (`.planning/M5-LAUNCH-CHECKLIST.md`, Gap η) is drafted. Without both, M5 has no done-state and no launch criteria.
+
+### M7 — Monorepo Migration (📋 PLANNED)
+
+**Goal:** Transform the single-repo Next.js app into a Turborepo monorepo with shared packages and an Expo mobile app. Web dev continues in parallel with coordination restrictions during M1 (extract packages). After M7, the codebase supports web + mobile builds, shared packages, and feature parity across platforms.
+
+**Phase range:** 112 (tracking/umbrella), 113 (M0 scaffold), 114 (M1 extract packages), 115 (M2 move web), 116 (M3 Expo foundation), 117+ (M4+ mobile features)
+
+**Status:** Planning. Phase 112 CONTEXT.md written. Sub-phases defined in ROADMAP.md.
+
+**Verifiable:** `pnpm build` runs across all packages; `apps/expo` connects to `apps/web` via tRPC; all shared types/schemas/DB/schemas live in `packages/`; 24 mobile features ported; no web dev disruption during migration.
+
+**What's NOT in M7:** Second tenant, content i18n, plugin system, event sourcing (M6+ deferred items).
+
+---
 
 ### M6+ — Post-Launch (📋 PARTIALLY PLANNED)
 
