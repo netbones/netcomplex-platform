@@ -2,6 +2,7 @@
  * Tests for resolvePageAccess — 5-layer access resolution pipeline.
  *
  * Phase 110-01: Entity layer for page navigation access control.
+ * Phase 111-03: Extended with real agent scope resolution (Layer 4).
  */
 
 import { describe, it, expect } from 'vitest';
@@ -59,9 +60,9 @@ function residentCtx(overrides: Partial<AccessContext> = {}): AccessContext {
 describe('resolvePageAccess', () => {
   // ──── Test 1: RESIDENT, no provider, not suspended, all flags on ────
 
-  it('returns home/messages/services/community spaces (not admin, not providers) for RESIDENT with all flags', () => {
+  it('returns home/messages/services/community spaces (not admin, not providers) for RESIDENT with all flags', async () => {
     const ctx = residentCtx();
-    const result = resolvePageAccess(ctx);
+    const result = await resolvePageAccess(ctx);
 
     // Spaces
     expect(result.spaces).toContain('home');
@@ -95,14 +96,14 @@ describe('resolvePageAccess', () => {
 
   // ──── Test 2: PROVIDER role + provider record ────
 
-  it('includes providers + messages spaces for PROVIDER with a provider record', () => {
+  it('includes providers + messages spaces for PROVIDER with a provider record', async () => {
     const ctx = residentCtx({
       userId: 'provider-1',
       userEmail: 'provider@village.test',
       role: 'PROVIDER',
       providerRecordExists: true,
     });
-    const result = resolvePageAccess(ctx);
+    const result = await resolvePageAccess(ctx);
 
     expect(result.spaces).toContain('providers');
     expect(result.spaces).toContain('messages');
@@ -115,13 +116,13 @@ describe('resolvePageAccess', () => {
 
   // ──── Test 3: PROVIDER role, NO provider record ────
 
-  it('returns only messages for PROVIDER without a provider record (D-04 gate)', () => {
+  it('returns only messages for PROVIDER without a provider record (D-04 gate)', async () => {
     const ctx = residentCtx({
       userId: 'no-record-provider',
       role: 'PROVIDER',
       providerRecordExists: false,
     });
-    const result = resolvePageAccess(ctx);
+    const result = await resolvePageAccess(ctx);
 
     expect(result.spaces).toEqual(['messages']);
     expect(result.spaces).not.toContain('providers');
@@ -130,18 +131,18 @@ describe('resolvePageAccess', () => {
 
   // ──── Test 4: ADMIN role ────
 
-  it('includes admin space for ADMIN role', () => {
+  it('includes admin space for ADMIN role', async () => {
     const ctx = residentCtx({ role: 'ADMIN', userEmail: 'admin@village.test' });
-    const result = resolvePageAccess(ctx);
+    const result = await resolvePageAccess(ctx);
 
     expect(result.spaces).toContain('admin');
     expect(result.agent).toBeNull();
   });
 
   // Also test BOARD (an ADMIN_ROLES member)
-  it('includes admin space for BOARD role', () => {
+  it('includes admin space for BOARD role', async () => {
     const ctx = residentCtx({ role: 'BOARD', userEmail: 'board@village.test' });
-    const result = resolvePageAccess(ctx);
+    const result = await resolvePageAccess(ctx);
 
     expect(result.spaces).toContain('admin');
     expect(result.agent).toBeNull();
@@ -149,9 +150,9 @@ describe('resolvePageAccess', () => {
 
   // ──── Test 5: Suspended user ────
 
-  it('overrides to messages-only for suspended users (Layer 2)', () => {
+  it('overrides to messages-only for suspended users (Layer 2)', async () => {
     const ctx = residentCtx({ isSuspended: true });
-    const result = resolvePageAccess(ctx);
+    const result = await resolvePageAccess(ctx);
 
     expect(result.spaces).toEqual(['messages']);
     expect(result.pages).toEqual([]);
@@ -159,39 +160,42 @@ describe('resolvePageAccess', () => {
     expect(result.agent).toBeNull();
   });
 
-  // ──── Test 6: Agent caller with token ────
+  // ──── Layer 4: Agent token resolution (Phase 111-03) ────
 
-  it('returns agent stub when caller is agent with token present', () => {
-    const ctx = residentCtx();
-    const input: AccessInput = { caller: 'agent', token: 'test-token-123' };
-    const result = resolvePageAccess(ctx, input);
+  describe('Layer 4 — Agent token resolution', () => {
+    it('returns null agent when no token present (caller=agent but no token)', async () => {
+      const ctx = residentCtx();
+      const input: AccessInput = { caller: 'agent' };
+      const result = await resolvePageAccess(ctx, input);
+      expect(result.agent).toBeNull();
+    });
 
-    expect(result.agent).toEqual({ scope: [], expiresAt: null });
-  });
+    it('returns null agent when caller is user (default)', async () => {
+      const ctx = residentCtx();
+      const result = await resolvePageAccess(ctx);
+      expect(result.agent).toBeNull();
+    });
 
-  it('returns agent null when caller is agent without token', () => {
-    const ctx = residentCtx();
-    const input: AccessInput = { caller: 'agent' };
-    const result = resolvePageAccess(ctx, input);
+    it('returns null agent for invalid token', async () => {
+      const ctx = residentCtx();
+      const input: AccessInput = { caller: 'agent', token: 'invalid-token' };
+      const result = await resolvePageAccess(ctx, input);
+      expect(result.agent).toBeNull();
+    });
 
-    expect(result.agent).toBeNull();
-  });
-
-  it('returns agent null for default (no caller specified)', () => {
-    const ctx = residentCtx();
-    const result = resolvePageAccess(ctx);
-
-    expect(result.agent).toBeNull();
+    // Note: Tests for valid tokens require DB fixtures (AgentToken + AgentAccess rows).
+    // Those are in the integration test suite since resolveAgentScope() calls validateToken()
+    // which queries the agentToken table.
   });
 
   // ──── Edge case: Unauthenticated / unknown role ────
 
-  it('returns only core spaces for unauthenticated/unknown role', () => {
+  it('returns only core spaces for unauthenticated/unknown role', async () => {
     const ctx = residentCtx({
       role: 'ASSOCIATE' as never, // valid role but minimal permissions
       userId: 'associate-1',
     });
-    const result = resolvePageAccess(ctx);
+    const result = await resolvePageAccess(ctx);
 
     // Core spaces only (home, messages)
     expect(result.spaces).toContain('home');
@@ -201,18 +205,18 @@ describe('resolvePageAccess', () => {
 
   // ──── Layer 3: Feature flags ────
 
-  it('hides services space when flags.services is false', () => {
+  it('hides services space when flags.services is false', async () => {
     const ctx = residentCtx({
       flags: { ...ALL_FLAGS_ON, services: false },
     });
-    const result = resolvePageAccess(ctx);
+    const result = await resolvePageAccess(ctx);
 
     expect(result.spaces).not.toContain('services');
     expect(result.spaces).toContain('home');
     expect(result.spaces).toContain('messages');
   });
 
-  it('hides community space when all community flags are false', () => {
+  it('hides community space when all community flags are false', async () => {
     const ctx = residentCtx({
       flags: {
         ...ALL_FLAGS_ON,
@@ -223,14 +227,14 @@ describe('resolvePageAccess', () => {
         news: false,
       },
     });
-    const result = resolvePageAccess(ctx);
+    const result = await resolvePageAccess(ctx);
 
     expect(result.spaces).not.toContain('community');
     expect(result.spaces).toContain('home');
     expect(result.spaces).toContain('messages');
   });
 
-  it('shows community space when at least one community flag is on', () => {
+  it('shows community space when at least one community flag is on', async () => {
     const ctx = residentCtx({
       flags: {
         ...ALL_FLAGS_ON,
@@ -241,20 +245,20 @@ describe('resolvePageAccess', () => {
         news: true, // one community flag on
       },
     });
-    const result = resolvePageAccess(ctx);
+    const result = await resolvePageAccess(ctx);
 
     expect(result.spaces).toContain('community');
   });
 
   // ──── Layer 1: Provider record gate applies regardless of role ────
 
-  it('does NOT include providers for ADMIN without a provider record', () => {
+  it('does NOT include providers for ADMIN without a provider record', async () => {
     const ctx = residentCtx({
       role: 'ADMIN',
       userEmail: 'admin@village.test',
       providerRecordExists: false,
     });
-    const result = resolvePageAccess(ctx);
+    const result = await resolvePageAccess(ctx);
 
     expect(result.spaces).not.toContain('providers');
   });
