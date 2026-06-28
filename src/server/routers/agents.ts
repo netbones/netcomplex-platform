@@ -88,7 +88,7 @@ export const agentsRouter = router({
           and(
             eq(agentAccesses.agentId, ctx.userId!),
             eq(agentAccesses.tenantId, tenantId),
-            eq(agentAccesses.isActive, true),
+            eq(agentAccesses.status, 'ACTIVE'),
             isNull(agentAccesses.deletedAt)
           )
         )

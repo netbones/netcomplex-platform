@@ -1,0 +1,11 @@
+import { pgTable, text, jsonb, timestamp } from 'drizzle-orm/pg-core';
+
+export const delegationActions = pgTable('DelegationAction', {
+  id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
+  delegationId: text('delegationId').notNull(),
+  action: text('action').notNull(),
+  actorId: text('actorId').notNull(),
+  metadata: jsonb('metadata'),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+});

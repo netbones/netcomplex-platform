@@ -2,6 +2,8 @@ import { relations } from 'drizzle-orm';
 import { agentAccesses } from './agent-accesses';
 import { users } from './users';
 import { properties } from './properties';
+import { agentTokens } from './agent-tokens';
+import { delegationActions } from './delegation-actions';
 
 export const agentAccessesRelations = relations(agentAccesses, helpers => ({
   user_agentAccess_agentIdTouser: helpers.one(users, {
@@ -18,5 +20,9 @@ export const agentAccessesRelations = relations(agentAccesses, helpers => ({
     relationName: 'AgentAccessToProperty',
     fields: [agentAccesses.propertyId],
     references: [properties.id],
+  }),
+  agentTokens: helpers.many(agentTokens, { relationName: 'AgentAccessToAgentToken' }),
+  delegationActions: helpers.many(delegationActions, {
+    relationName: 'AgentAccessToDelegationAction',
   }),
 }));

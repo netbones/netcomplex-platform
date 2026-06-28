@@ -131,7 +131,7 @@ const agentAccessSchema = z.object({
   id: z.string(),
   agentId: z.string(),
   propertyId: z.string(),
-  isActive: z.boolean(),
+  status: z.string(),
   expiresAt: z.date(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -376,7 +376,7 @@ export const identityRouter = router({
           and(
             eq(agentAccesses.agentId, ctx.userId),
             eq(agentAccesses.propertyId, input.id),
-            eq(agentAccesses.isActive, true),
+            eq(agentAccesses.status, 'ACTIVE'),
             gt(agentAccesses.expiresAt, new Date())
           )
         );
