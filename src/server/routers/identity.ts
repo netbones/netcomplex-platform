@@ -236,26 +236,28 @@ export const identityRouter = router({
         .optional()
     )
     .output(
-      z.object({
-        properties: z.array(
-          z.object({
-            id: z.string(),
-            tenantId: z.string(),
-            street: z.string(),
-            unit: z.string(),
-            platformAddress: z.string(),
-            homeImage: z.string().nullable(),
-            ownerId: z.string().nullable(),
-            createdAt: z.date(),
-            updatedAt: z.date(),
-            standardSeats: z.array(standardSeatSchema),
-            activeHousehold: householdSchema.nullable(),
-          })
-        ),
-        total: z.number(),
-        page: z.number(),
-        limit: z.number(),
-      })
+      toEnvelopeSchema(
+        z.object({
+          properties: z.array(
+            z.object({
+              id: z.string(),
+              tenantId: z.string(),
+              street: z.string(),
+              unit: z.string(),
+              platformAddress: z.string(),
+              homeImage: z.string().nullable(),
+              ownerId: z.string().nullable(),
+              createdAt: z.date(),
+              updatedAt: z.date(),
+              standardSeats: z.array(standardSeatSchema),
+              activeHousehold: householdSchema.nullable(),
+            })
+          ),
+          total: z.number(),
+          page: z.number(),
+          limit: z.number(),
+        })
+      )
     )
     .query(async ({ input }) => {
       const { search, street, page, limit } = input || {};
@@ -328,33 +330,35 @@ export const identityRouter = router({
     })
     .input(z.object({ id: z.string() }))
     .output(
-      z.object({
-        id: z.string(),
-        tenantId: z.string(),
-        street: z.string(),
-        unit: z.string(),
-        platformAddress: z.string(),
-        homeImage: z.string().nullable(),
-        ownerId: z.string().nullable(),
-        createdAt: z.date(),
-        updatedAt: z.date(),
-        standardSeats: z.array(standardSeatSchema),
-        activeHousehold: z
-          .object({
-            id: z.string(),
-            tenantId: z.string(),
-            propertyId: z.string(),
-            occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
-            status: z.enum(['ACTIVE', 'ARCHIVED']),
-            moveInDate: z.date().nullable(),
-            moveOutDate: z.date().nullable(),
-            createdAt: z.date(),
-            updatedAt: z.date(),
-            profiles: z.array(profileSchema),
-          })
-          .nullable(),
-        soloSeats: z.array(soloSeatSchema),
-      })
+      toEnvelopeSchema(
+        z.object({
+          id: z.string(),
+          tenantId: z.string(),
+          street: z.string(),
+          unit: z.string(),
+          platformAddress: z.string(),
+          homeImage: z.string().nullable(),
+          ownerId: z.string().nullable(),
+          createdAt: z.date(),
+          updatedAt: z.date(),
+          standardSeats: z.array(standardSeatSchema),
+          activeHousehold: z
+            .object({
+              id: z.string(),
+              tenantId: z.string(),
+              propertyId: z.string(),
+              occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
+              status: z.enum(['ACTIVE', 'ARCHIVED']),
+              moveInDate: z.date().nullable(),
+              moveOutDate: z.date().nullable(),
+              createdAt: z.date(),
+              updatedAt: z.date(),
+              profiles: z.array(profileSchema),
+            })
+            .nullable(),
+          soloSeats: z.array(soloSeatSchema),
+        })
+      )
     )
     .query(async ({ input, ctx }) => {
       const [property] = await db.select().from(properties).where(eq(properties.id, input.id));
@@ -429,7 +433,7 @@ export const identityRouter = router({
         ownerId: z.string().optional(),
       })
     )
-    .output(propertySchema)
+    .output(toEnvelopeSchema(propertySchema))
     .mutation(async ({ input, ctx }) => {
       const [existing] = await db
         .select()
@@ -486,76 +490,78 @@ export const identityRouter = router({
         .optional()
     )
     .output(
-      z.object({
-        users: z.array(
-          z.object({
-            id: z.string(),
-            name: z.string(),
-            email: z.string(),
-            phone: z.string().nullable(),
-            interests: z.array(z.string()),
-            avatar: z.string().nullable(),
-            isPublic: z.boolean(),
-            isActive: z.boolean(),
-            role: z.string(),
-            profileSlug: z.string().nullable(),
-            standardSeats: z.array(
-              z.object({
-                property: z.object({
-                  id: z.string(),
-                  street: z.string(),
-                  unit: z.string(),
-                  homeImage: z.string().nullable(),
-                }),
-                isPrimaryOwner: z.boolean(),
-                platformAddress: z.string(),
-              })
-            ),
-            soloSeats: z.array(
-              z.object({
-                property: z
-                  .object({
+      toEnvelopeSchema(
+        z.object({
+          users: z.array(
+            z.object({
+              id: z.string(),
+              name: z.string(),
+              email: z.string(),
+              phone: z.string().nullable(),
+              interests: z.array(z.string()),
+              avatar: z.string().nullable(),
+              isPublic: z.boolean(),
+              isActive: z.boolean(),
+              role: z.string(),
+              profileSlug: z.string().nullable(),
+              standardSeats: z.array(
+                z.object({
+                  property: z.object({
                     id: z.string(),
                     street: z.string(),
                     unit: z.string(),
                     homeImage: z.string().nullable(),
-                  })
-                  .nullable(),
-                seatType: z.string(),
-                platformAddress: z.string(),
-              })
-            ),
-            premiumSeat: z
-              .object({
-                id: z.string(),
-                platformAddress: z.string(),
-                portfolioName: z.string().nullable(),
-                tier: z.string(),
-                isActive: z.boolean(),
-              })
-              .nullable(),
-            profiles: z.array(
-              z.object({
-                householdId: z.string(),
-                householdRole: z.string(),
-                residencyType: z.string(),
-                rentalImage: z.string().nullable(),
-                occupantImage: z.string().nullable(),
-                property: z.object({
-                  id: z.string(),
-                  street: z.string(),
-                  unit: z.string(),
-                  homeImage: z.string().nullable(),
+                  }),
+                  isPrimaryOwner: z.boolean(),
                   platformAddress: z.string(),
-                }),
-              })
-            ),
-          })
-        ),
-        total: z.number(),
-        page: z.number(),
-        limit: z.number(),
-      })
+                })
+              ),
+              soloSeats: z.array(
+                z.object({
+                  property: z
+                    .object({
+                      id: z.string(),
+                      street: z.string(),
+                      unit: z.string(),
+                      homeImage: z.string().nullable(),
+                    })
+                    .nullable(),
+                  seatType: z.string(),
+                  platformAddress: z.string(),
+                })
+              ),
+              premiumSeat: z
+                .object({
+                  id: z.string(),
+                  platformAddress: z.string(),
+                  portfolioName: z.string().nullable(),
+                  tier: z.string(),
+                  isActive: z.boolean(),
+                })
+                .nullable(),
+              profiles: z.array(
+                z.object({
+                  householdId: z.string(),
+                  householdRole: z.string(),
+                  residencyType: z.string(),
+                  rentalImage: z.string().nullable(),
+                  occupantImage: z.string().nullable(),
+                  property: z.object({
+                    id: z.string(),
+                    street: z.string(),
+                    unit: z.string(),
+                    homeImage: z.string().nullable(),
+                    platformAddress: z.string(),
+                  }),
+                })
+              ),
+            })
+          ),
+          total: z.number(),
+          page: z.number(),
+          limit: z.number(),
+        })
+      )
     )
     .query(async ({ input, ctx }) => {
       const { search, role, page, limit } = input || {};
@@ -747,7 +753,7 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ propertyId: z.string() }))
-    .output(z.array(householdSchema))
+    .output(toEnvelopeSchema(z.array(householdSchema)))
     .query(async ({ input }) => {
       const rows = await db
         .select()
@@ -774,7 +780,7 @@ export const identityRouter = router({
         moveInDate: z.date().optional(),
       })
     )
-    .output(householdSchema)
+    .output(toEnvelopeSchema(householdSchema))
     .mutation(async ({ input }) => {
       const [property] = await db
         .select()
@@ -954,7 +960,7 @@ export const identityRouter = router({
         residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER']).default('FAMILY'),
       })
     )
-    .output(profileSchema)
+    .output(toEnvelopeSchema(profileSchema))
     .mutation(async ({ input, ctx }) => {
       const { householdId, displayName, householdRole, residencyType } = input;
 
@@ -1028,7 +1034,7 @@ export const identityRouter = router({
         showPhone: z.boolean().optional(),
       })
     )
-    .output(profileSchema)
+    .output(toEnvelopeSchema(profileSchema))
     .mutation(async ({ input, ctx }) => {
       const { id, ...data } = input;
       const [profile] = await db.select().from(profiles).where(eq(profiles.id, id));
@@ -1203,7 +1209,7 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ userId: z.string() }))
-    .output(z.object({ suspensions: z.array(suspensionSchema) }))
+    .output(toEnvelopeSchema(z.object({ suspensions: z.array(suspensionSchema) })))
     .query(async ({ input, ctx }) => {
       const suspensions = await db
         .select()
@@ -1245,7 +1251,7 @@ export const identityRouter = router({
         endDate: z.string().nullable().optional(),
       })
     )
-    .output(suspensionSchema)
+    .output(toEnvelopeSchema(suspensionSchema))
     .mutation(async ({ input, ctx }) => {
       // Verify target user exists within the same tenant
       const [targetUser] = await db
@@ -1328,16 +1334,18 @@ export const identityRouter = router({
     })
     .input(z.object({ userId: z.string() }))
     .output(
-      z.object({
-        success: z.boolean(),
-        user: z.object({
-          id: z.string(),
-          name: z.string(),
-          email: z.string(),
-          role: z.string(),
-          isActive: z.boolean(),
-        }),
-      })
+      toEnvelopeSchema(
+        z.object({
+          success: z.boolean(),
+          user: z.object({
+            id: z.string(),
+            name: z.string(),
+            email: z.string(),
+            role: z.string(),
+            isActive: z.boolean(),
+          }),
+        })
+      )
     )
     .mutation(async ({ input, ctx }) => {
       // Verify target user exists within the same tenant
@@ -1409,7 +1417,7 @@ export const identityRouter = router({
         protect: true,
       },
     })
-    .output(z.object({ albums: z.array(albumSchema) }))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(albumSchema) })))
     .query(async ({ ctx }) => {
       const userAlbums = await db
         .select()
@@ -1437,7 +1445,7 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ id: z.string() }))
-    .output(albumSchema.nullable())
+    .output(toEnvelopeSchema(albumSchema.nullable()))
     .query(async ({ input, ctx }) => {
       const [album] = await db
         .select()
@@ -1473,7 +1481,7 @@ export const identityRouter = router({
         mediaIds: z.array(z.string()).default([]),
       })
     )
-    .output(z.object({ albums: z.array(albumSchema) }))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(albumSchema) })))
     .mutation(async ({ input, ctx }) => {
       // Check album limit (max 3 per user)
       const existingAlbums = await db
@@ -1541,7 +1549,7 @@ export const identityRouter = router({
         mediaIds: z.array(z.string()).optional(),
       })
     )
-    .output(z.object({ albums: z.array(albumSchema) }))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(albumSchema) })))
     .mutation(async ({ input, ctx }) => {
       const ts = now();
       const { id, ...data } = input;
@@ -1591,7 +1599,7 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ id: z.string() }))
-    .output(z.object({ albums: z.array(albumSchema) }))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(albumSchema) })))
     .mutation(async ({ input, ctx }) => {
       const ts = now();
 
@@ -1632,7 +1640,7 @@ export const identityRouter = router({
         protect: true,
       },
     })
-    .output(z.object({ albums: z.array(publicAlbumSchema) }))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(publicAlbumSchema) })))
     .query(async ({ ctx }) => {
       const publicAlbums = await db
         .select({
@@ -1673,10 +1681,12 @@ export const identityRouter = router({
       },
     })
     .output(
-      z.object({
-        solo: seatSchema.nullable(),
-        premium: premiumSeatSchema.nullable(),
-      })
+      toEnvelopeSchema(
+        z.object({
+          solo: seatSchema.nullable(),
+          premium: premiumSeatSchema.nullable(),
+        })
+      )
     )
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
@@ -1710,10 +1720,12 @@ export const identityRouter = router({
       },
     })
     .output(
-      z.object({
-        soloSeats: z.array(seatSchema),
-        premiumSeats: z.array(premiumSeatSchema),
-      })
+      toEnvelopeSchema(
+        z.object({
+          soloSeats: z.array(seatSchema),
+          premiumSeats: z.array(premiumSeatSchema),
+        })
+      )
     )
     .query(async ({ ctx }) => {
       const [allSoloSeats, allPremiumSeats] = await Promise.all([
@@ -1745,12 +1757,14 @@ export const identityRouter = router({
       },
     })
     .output(
-      z.object({
-        requests: z.number(),
-        bookings: z.number(),
-        messages: z.number(),
-        notifications: z.number(),
-      })
+      toEnvelopeSchema(
+        z.object({
+          requests: z.number(),
+          bookings: z.number(),
+          messages: z.number(),
+          notifications: z.number(),
+        })
+      )
     )
     .query(async ({ ctx }) => {
       const [reqResult, bookingsResult, convResult, notifResult] = await Promise.all([
@@ -1806,9 +1820,11 @@ export const identityRouter = router({
     })
     .input(z.object({ userId: z.string() }))
     .output(
-      z.object({
-        books: z.array(z.unknown()),
-      })
+      toEnvelopeSchema(
+        z.object({
+          books: z.array(z.unknown()),
+        })
+      )
     )
     .query(async ({ input, ctx }) => {
       const isOwnerOrAdmin = ctx.userId === input.userId || hasPermission(ctx.role, 'admin');
