@@ -1428,7 +1428,12 @@ _Turborepo + pnpm workspaces monorepo for web (Next.js) + mobile (Expo) code sha
 
 **Depends on:** Phase 111
 
-**Plans:** 0 plans
+**Plans:** 2 plans in 1 wave
+
+| Wave | Plan               | Objective                                                                                                   |
+| ---- | ------------------ | ----------------------------------------------------------------------------------------------------------- |
+| 1    | [ ] 118-01-PLAN.md | Register DelegationWidget in widget registry + add Phase 111 to ROADMAP.md + create REQUIREMENTS.md mapping |
+| 1    | [ ] 118-02-PLAN.md | Create formal Prisma migration for MaintenanceRouting + rewrite ResidentDelegation integration tests        |
 
 ---
 
