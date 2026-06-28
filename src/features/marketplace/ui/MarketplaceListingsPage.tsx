@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { trpc } from '@api/client';
 import { SwipeableServiceCard } from './SwipeableServiceCard';
 import { PullToRefresh } from './PullToRefresh';
 import { BookingBottomSheet } from '@entities/marketplace';
@@ -8,31 +9,24 @@ import type { ServiceListing } from '@entities/service';
 
 export function MarketplaceListingsPage() {
   const [services, setServices] = useState<ServiceListing[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedListing, setSelectedListing] = useState<ServiceListing | null>(null);
   const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
 
-  const fetchServices = async () => {
-    setError(null);
-    try {
-      const res = await fetch('/api/marketplace/listings');
-      const data = await res.json();
-      setServices(data.success ? data.data : []);
-    } catch {
-      setError('Failed to load services. Pull to refresh to try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data, isLoading, refetch, isError } = trpc.marketplace.listListings.useQuery();
 
   useEffect(() => {
-    void fetchServices();
-  }, []);
-
-  const handleRefresh = async () => {
-    await fetchServices();
-  };
+    if (data) {
+      const raw = Array.isArray(data)
+        ? data
+        : ((data as unknown as { data?: unknown[] }).data ?? []);
+      setServices(raw as ServiceListing[]);
+      setError(null);
+    }
+    if (isError) {
+      setError('Failed to load services. Pull to refresh to try again.');
+    }
+  }, [data, isError]);
 
   const handleBook = (serviceId: string) => {
     const listing = services.find(s => s.id === serviceId);
@@ -56,14 +50,18 @@ export function MarketplaceListingsPage() {
   // D-13: single-column stack on mobile, responsive grid on desktop
   // D-16: 44x44px touch targets on all interactive elements
   return (
-    <PullToRefresh onRefresh={handleRefresh}>
+    <PullToRefresh
+      onRefresh={() => {
+        void refetch();
+      }}
+    >
       <div className="pb-[env(safe-area-inset-bottom,16px)]">
         <div className="px-4 py-3 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">Service Marketplace</h2>
           <span className="text-sm text-gray-500">{services.length} providers</span>
         </div>
 
-        {error && !loading && (
+        {error && !isLoading && (
           <div className="px-4 pb-4">
             <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-3">
               {error}
@@ -71,7 +69,7 @@ export function MarketplaceListingsPage() {
           </div>
         )}
 
-        {loading ? (
+        {isLoading ? (
           <div className="p-8 text-center text-gray-500">Loading services...</div>
         ) : (
           /* D-13: single-column card stack on mobile */
@@ -89,7 +87,7 @@ export function MarketplaceListingsPage() {
                 }}
               />
             ))}
-            {services.length === 0 && !loading && !error && (
+            {services.length === 0 && !isLoading && !error && (
               <p className="col-span-full text-center text-gray-500 py-8">
                 No services available yet.
               </p>

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <!-- Standardized panel background card glow -->
+    <linearGradient id="bgGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8ECFD" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F3F1FB" stop-opacity="0.9"/>
+    </linearGradient>
+    <!-- Vibrant violet-to-indigo gradient for the main marketplace structure -->
+    <linearGradient id="marketPrimary" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A78BFA" />
+      <stop offset="60%" stop-color="#6D28D9" />
+      <stop offset="100%" stop-color="#4C1D95" />
+    </linearGradient>
+    <!-- High-energy pink-to-magenta gradient for the awning stripes -->
+    <linearGradient id="marketAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F472B6" />
+      <stop offset="100%" stop-color="#DB2777" />
+    </linearGradient>
+    <!-- Drop shadow filter for consistent 3D depth -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="1.5" dy="3" stdDeviation="2.5" flood-color="#4C1D95" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base Card -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGlow)" />
+
+  <!-- Marketplace Graphics Group -->
+  <g filter="url(#dropShadow)" transform="translate(14, 15)">
+    <!-- Base Stall Counter / Building Foundation -->
+    <path d="M4,22 H32 V30 C32,32 30,34 28,34 H8 C6,34 4,32 4,30 Z" fill="url(#marketPrimary)" />
+    
+    <!-- Interior Counter Window Cutout (Shadow Depth) -->
+    <rect x="8" y="22" width="20" height="6" fill="#4C1D95" opacity="0.4" rx="1" />
+
+    <!-- Storefront Canopy/Awning Structure -->
+    <path d="M2,6 H34 L31,22 H5 Z" fill="url(#marketAccent)" />
+    
+    <!-- Modern 3D Awning Striping Overlays -->
+    <path d="M7,6 L8,22 H13 L11,6 Z" fill="#FFFFFF" opacity="0.25" />
+    <path d="M16,6 L17,22 H22 L20,6 Z" fill="#FFFFFF" opacity="0.25" />
+    <path d="M25,6 L26,22 H31 L29,6 Z" fill="#FFFFFF" opacity="0.25" />
+
+    <!-- Miniature Floating Shopping Tag / Badge Accent -->
+    <circle cx="31" cy="4" r="4" fill="#22D3EE" />
+    <circle cx="31" cy="4" r="1.5" fill="#FFFFFF" />
+  </g>
+</svg>
