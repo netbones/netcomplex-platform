@@ -1,4 +1,5 @@
-import { db } from '@api/server';
+import { db, properties, households } from '@api/server';
+import { eq, and, isNull } from 'drizzle-orm';
 import type { MaintenanceRoutingContext } from './types';
 
 /**
@@ -16,24 +17,30 @@ export async function resolveRoutingType(
   propertyId: string,
   tenantId: string
 ): Promise<MaintenanceRoutingContext> {
-  const property = await db.property.findFirst({
-    where: { id: propertyId, tenantId },
-    select: {
-      ownerId: true,
-      households: {
-        where: { status: 'ACTIVE', deletedAt: null },
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-        select: { occupancyType: true },
-      },
-    },
-  });
+  // Query property to get ownerId
+  const [property] = await db
+    .select({ ownerId: properties.ownerId })
+    .from(properties)
+    .where(and(eq(properties.id, propertyId), eq(properties.tenantId, tenantId)))
+    .limit(1);
 
   if (!property) {
     return { routingType: 'HOA', landlordId: null, reason: 'property not found' };
   }
 
-  const activeHousehold = property.households[0];
+  // Query the most recent active household for this property
+  const [activeHousehold] = await db
+    .select({ occupancyType: households.occupancyType })
+    .from(households)
+    .where(
+      and(
+        eq(households.propertyId, propertyId),
+        eq(households.status, 'ACTIVE'),
+        isNull(households.deletedAt)
+      )
+    )
+    .orderBy(households.createdAt)
+    .limit(1);
 
   if (!activeHousehold) {
     return { routingType: 'HOA', landlordId: null, reason: 'no active household' };

@@ -1,14 +1,41 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock the db module before importing the resolver
-vi.mock('@api/server', () => ({
-  db: {
-    property: {
-      findFirst: vi.fn(),
-    },
-  },
+const mocks = vi.hoisted(() => ({
+  callCount: 0,
+  propertyRow: null as any,
+  householdRow: null as any,
 }));
+
+vi.mock('@api/server', () => {
+  function makeChain() {
+    const self: any = {
+      select: vi.fn(() => self),
+      from: vi.fn(() => self),
+      where: vi.fn(() => self),
+      orderBy: vi.fn(() => self),
+      limit: vi.fn((_n: number) => {
+        mocks.callCount++;
+        if (mocks.callCount === 1)
+          return Promise.resolve(mocks.propertyRow ? [mocks.propertyRow] : []);
+        return Promise.resolve(mocks.householdRow ? [mocks.householdRow] : []);
+      }),
+    };
+    return self;
+  }
+
+  return {
+    db: makeChain(),
+    properties: { id: 'id', tenantId: 'tenantId', ownerId: 'ownerId' },
+    households: {
+      propertyId: 'propertyId',
+      status: 'status',
+      deletedAt: 'deletedAt',
+      occupancyType: 'occupancyType',
+      createdAt: new Date(),
+    },
+  };
+});
 
 import { resolveRoutingType } from '../model/routing';
 import type { MaintenanceRoutingContext } from '../model/types';
@@ -16,14 +43,14 @@ import type { MaintenanceRoutingContext } from '../model/types';
 describe('resolveRoutingType', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.callCount = 0;
+    mocks.propertyRow = null;
+    mocks.householdRow = null;
   });
 
   it('returns LANDLORD with landlordId for RENTAL household with known owner', async () => {
-    const { db } = await import('@api/server');
-    (db.property.findFirst as any).mockResolvedValue({
-      ownerId: 'owner-1',
-      households: [{ occupancyType: 'RENTAL' }],
-    });
+    mocks.propertyRow = { ownerId: 'owner-1' };
+    mocks.householdRow = { occupancyType: 'RENTAL' };
 
     const result: MaintenanceRoutingContext = await resolveRoutingType('prop-1', 'tenant-1');
 
@@ -33,11 +60,8 @@ describe('resolveRoutingType', () => {
   });
 
   it('returns HOA for OWNER_OCCUPIED household', async () => {
-    const { db } = await import('@api/server');
-    (db.property.findFirst as any).mockResolvedValue({
-      ownerId: 'owner-1',
-      households: [{ occupancyType: 'OWNER_OCCUPIED' }],
-    });
+    mocks.propertyRow = { ownerId: 'owner-1' };
+    mocks.householdRow = { occupancyType: 'OWNER_OCCUPIED' };
 
     const result = await resolveRoutingType('prop-1', 'tenant-1');
 
@@ -47,11 +71,8 @@ describe('resolveRoutingType', () => {
   });
 
   it('returns HOA for VACANT household', async () => {
-    const { db } = await import('@api/server');
-    (db.property.findFirst as any).mockResolvedValue({
-      ownerId: 'owner-1',
-      households: [{ occupancyType: 'VACANT' }],
-    });
+    mocks.propertyRow = { ownerId: 'owner-1' };
+    mocks.householdRow = { occupancyType: 'VACANT' };
 
     const result = await resolveRoutingType('prop-1', 'tenant-1');
 
@@ -61,11 +82,8 @@ describe('resolveRoutingType', () => {
   });
 
   it('returns HOA when no active household found (safe default)', async () => {
-    const { db } = await import('@api/server');
-    (db.property.findFirst as any).mockResolvedValue({
-      ownerId: 'owner-1',
-      households: [],
-    });
+    mocks.propertyRow = { ownerId: 'owner-1' };
+    mocks.householdRow = null;
 
     const result = await resolveRoutingType('prop-1', 'tenant-1');
 
@@ -75,8 +93,8 @@ describe('resolveRoutingType', () => {
   });
 
   it('returns HOA when property not found', async () => {
-    const { db } = await import('@api/server');
-    (db.property.findFirst as any).mockResolvedValue(null);
+    mocks.propertyRow = null;
+    mocks.householdRow = null;
 
     const result = await resolveRoutingType('nonexistent', 'tenant-1');
 
@@ -86,11 +104,8 @@ describe('resolveRoutingType', () => {
   });
 
   it('returns HOA for RENTAL when property has no ownerId', async () => {
-    const { db } = await import('@api/server');
-    (db.property.findFirst as any).mockResolvedValue({
-      ownerId: null,
-      households: [{ occupancyType: 'RENTAL' }],
-    });
+    mocks.propertyRow = { ownerId: null };
+    mocks.householdRow = { occupancyType: 'RENTAL' };
 
     const result = await resolveRoutingType('prop-1', 'tenant-1');
 
