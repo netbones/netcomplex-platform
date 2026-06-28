@@ -2,7 +2,6 @@ import {
   z,
   protectedProcedure,
   adminProcedure,
-  rateLimitMiddleware,
   db,
   conversations,
   conversationParticipants,
@@ -27,6 +26,7 @@ import {
   SQL,
   checkParticipant,
 } from './shared';
+import { rateLimitMiddleware } from '@api/server';
 
 export const messagingProcedures = {
   getMessages: protectedProcedure

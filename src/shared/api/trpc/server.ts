@@ -76,7 +76,7 @@ const t = initTRPC.context<Context>().create({
 export const router = t.router;
 export const publicProcedure = t.procedure;
 
-export { rateLimitByUser, DEFAULT_RATE_LIMITS };
+export { rateLimitByUser };
 export type { RateLimitConfig };
 
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
@@ -111,9 +111,37 @@ export const agentProcedure = protectedProcedure.use(async ({ ctx, next }) => {
   return next({ ctx });
 });
 
+/**
+ * Tenant-scoped procedure — enforces non-null tenantId.
+ * Extends protectedProcedure so authentication is already guaranteed.
+ * Use for endpoints that MUST have tenant context (most tenant-domain operations).
+ */
+export const tenantProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  if (!ctx.tenantId) {
+    throw new TRPCError({
+      code: 'PRECONDITION_FAILED',
+      message: 'Tenant context required',
+    });
+  }
+  return next({ ctx: { ...ctx, tenantId: ctx.tenantId } });
+});
+
+/**
+ * Privileged procedure — extends tenantProcedure with role and suspension checks.
+ * Use for admin, board, committee, and staff endpoints.
+ */
+export const privilegedProcedure = tenantProcedure.use(async ({ ctx, next }) => {
+  if (ctx.role !== 'ADMIN' && ctx.role !== 'BOARD' && ctx.role !== 'COMMITTEE') {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'Privileged access required',
+    });
+  }
+  return next({ ctx });
+});
+
 export function rateLimitMiddleware(config: RateLimitConfig) {
-  return t.procedure.use(async ({ ctx, next }) => {
-    if (!ctx.userId) return next({ ctx });
+  return protectedProcedure.use(async ({ ctx, next }) => {
     const result = await rateLimitByUser(ctx.userId, config);
     if (result) {
       throw new TRPCError({
