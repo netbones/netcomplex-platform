@@ -63,8 +63,9 @@ export type Agent = HumanAgent | AIAgent | CronAgent | DelegatedProviderAgent;
 /**
  * Structured scope assigned to an agent token.
  * Stored as jsonb in AgentToken.scope.
+ * Named AgentScopeConfig to avoid collision with AgentScope union type from scopes.ts.
  */
-export interface AgentScope {
+export interface AgentScopeConfig {
   /** Allowed space IDs from the SPACES registry. */
   spaces: string[];
   /** Allowed page keys (camelCase, matching page route slugs). */
@@ -99,7 +100,7 @@ export interface AgentTokenPayload {
   /** Agent caller type. */
   callerType: AgentCallerType;
   /** Resolved scope at time of issuance. */
-  scope: AgentScope;
+  scope: AgentScopeConfig;
   /** Delegation ID (for DelegatedProviderAgent tokens). */
   delegationId?: string;
   /** Tenant ID. */
@@ -116,7 +117,7 @@ export interface AgentTokenPayload {
  */
 export interface EffectiveScope {
   /** Resolved scope after intersection. */
-  scope: AgentScope;
+  scope: AgentScopeConfig;
   /** Token expiration timestamp (ISO 8601). */
   expiresAt: string;
   /** Token ID for audit trail. */

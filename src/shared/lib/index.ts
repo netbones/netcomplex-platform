@@ -38,6 +38,16 @@ export * from './constants/tiers';
 export { tenantConfig, type TenantConfig } from './tenant-config/tenant';
 export { useSafeTranslation } from './hooks/useSafeTranslation';
 export { userProfileSchema, type UserProfileFormData } from './schemas/user-profile';
+export {
+  signAgentToken,
+  hashToken,
+  validateToken,
+  parseAgentToken,
+  verifyAndDecodeToken,
+  selectVerifier,
+  jwtVerifier,
+  type CredentialVerifier,
+} from './agent-token';
 // NOTE: Client-only hooks (useApiToast, usePageFlags, usePageLoading) are
 // in @shared/lib/hooks — import from that sub-barrel to avoid pulling
 // client-side code (sonner, react context) into server bundles:

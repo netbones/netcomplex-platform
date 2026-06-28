@@ -11,9 +11,11 @@
 
 import { createHash } from 'node:crypto';
 import { SignJWT, jwtVerify, generateKeyPair } from 'jose';
+import { eq } from 'drizzle-orm';
+import { agentTokens } from '@schema/agent-tokens';
 import type {
   AgentTokenPayload,
-  AgentScope,
+  AgentScopeConfig,
   TokenValidationResult,
   AgentCallerType,
 } from '@entities/agent';
@@ -62,11 +64,13 @@ export const jwtVerifier: CredentialVerifier = {
       }
 
       const { db } = await import('@api/server');
-      const tokenHash = hashToken(rawCredential);
+      const tokenHashValue = hashToken(rawCredential);
 
-      const stored = await db.agentToken.findUnique({
-        where: { tokenHash },
-      });
+      const [stored] = await db
+        .select()
+        .from(agentTokens)
+        .where(eq(agentTokens.tokenHash, tokenHashValue))
+        .limit(1);
 
       if (!stored) {
         return { valid: false, payload: null, reason: 'not_found' };
@@ -77,11 +81,10 @@ export const jwtVerifier: CredentialVerifier = {
       }
 
       // Update last used timestamp (fire-and-forget)
-      db.agentToken
-        .update({
-          where: { id: stored.id },
-          data: { lastUsedAt: new Date() },
-        })
+      db.update(agentTokens)
+        .set({ lastUsedAt: new Date() })
+        .where(eq(agentTokens.id, stored.id))
+        .execute()
         .catch(() => {});
 
       return { valid: true, payload: decoded };
@@ -128,7 +131,7 @@ export async function signAgentToken(params: {
   tokenId: string;
   tenantId: string;
   callerType: AgentCallerType;
-  scope: AgentScope;
+  scope: AgentScopeConfig;
   delegationId?: string;
   expiresInSeconds: number;
 }): Promise<string> {
