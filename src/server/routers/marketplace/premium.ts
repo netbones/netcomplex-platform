@@ -198,17 +198,18 @@ export const premiumProcedures = {
       const { householdIds } = input;
 
       const ownedHouseholds = await db
-        .select({ id: households.id })
+        .select({ id: households.id, propertyId: households.propertyId })
         .from(households)
-        .innerJoin(standardSeats, eq(standardSeats.householdId, households.id))
-        .where(
+        .innerJoin(
+          standardSeats,
           and(
-            inArray(households.id, householdIds),
-            eq(households.tenantId, tenantId),
+            eq(households.propertyId, standardSeats.propertyId),
             eq(standardSeats.userId, userId),
+            eq(standardSeats.tenantId, tenantId),
             eq(standardSeats.isPrimaryOwner, true)
           )
-        );
+        )
+        .where(and(inArray(households.id, householdIds), eq(households.tenantId, tenantId)));
 
       if (ownedHouseholds.length !== householdIds.length) {
         throw new TRPCError({
@@ -217,20 +218,18 @@ export const premiumProcedures = {
         });
       }
 
+      const propertyIds = [...new Set(ownedHouseholds.map(h => h.propertyId))];
+
       const [existingPremiumSeat] = await db
         .select({ id: premiumSeats.id })
         .from(premiumSeats)
         .where(and(eq(premiumSeats.userId, userId), eq(premiumSeats.tenantId, tenantId)))
         .limit(1);
 
+      let premiumSeatId: string;
+
       if (existingPremiumSeat) {
-        for (const householdId of householdIds) {
-          await db.execute(sql`
-            INSERT INTO "_PremiumSeatPortfolio" ("A", "B")
-            VALUES (${existingPremiumSeat.id}, ${householdId})
-            ON CONFLICT DO NOTHING
-          `);
-        }
+        premiumSeatId = existingPremiumSeat.id;
       } else {
         const [user] = await db
           .select({ email: users.email, name: users.name })
@@ -251,7 +250,7 @@ export const premiumProcedures = {
           throw new TRPCError({ code: 'CONFLICT', message: (e as Error).message });
         }
 
-        const [newPremiumSeat] = await db
+        const [newSeat] = await db
           .insert(premiumSeats)
           .values({
             id: crypto.randomUUID(),
@@ -261,38 +260,47 @@ export const premiumProcedures = {
           })
           .returning({ id: premiumSeats.id });
 
-        for (const householdId of householdIds) {
-          await db.execute(sql`
-            INSERT INTO "_PremiumSeatPortfolio" ("A", "B")
-            VALUES (${newPremiumSeat.id}, ${householdId})
-            ON CONFLICT DO NOTHING
-          `);
-        }
+        premiumSeatId = newSeat.id;
       }
 
-      const portfolioResult = (await db.execute(sql`
-        SELECT
-          ps.*,
-          json_agg(
-            json_build_object(
-              'id', h.id,
-              'street', h.street,
-              'unit', h.unit,
-              'homeImage', h."homeImage"
-            )
-          ) FILTER (WHERE h.id IS NOT NULL) as "linkedHouseholds"
-        FROM "PremiumSeat" ps
-        JOIN "_PremiumSeatPortfolio" htl ON htl.A = ps.id
-        JOIN "Household" h ON h.id = htl.B
-        WHERE ps."userId" = ${userId}
-        AND ps."tenantId" = ${tenantId}
-        GROUP BY ps.id
-      `)) as { rows: { linkedHouseholds: { id: string; street: string; unit: string }[] }[] };
+      for (const propertyId of propertyIds) {
+        await db
+          .insert(propertyPremiumSeats)
+          .values({
+            id: crypto.randomUUID(),
+            tenantId,
+            propertyId,
+            premiumSeatId,
+          })
+          .onConflictDoNothing();
+      }
+
+      const [seat] = await db
+        .select()
+        .from(premiumSeats)
+        .where(and(eq(premiumSeats.userId, userId), eq(premiumSeats.tenantId, tenantId)));
+
+      const linkedProperties = await db
+        .select({
+          id: properties.id,
+          street: properties.street,
+          unit: properties.unit,
+          homeImage: properties.homeImage,
+        })
+        .from(properties)
+        .innerJoin(
+          propertyPremiumSeats,
+          and(
+            eq(propertyPremiumSeats.propertyId, properties.id),
+            eq(propertyPremiumSeats.premiumSeatId, premiumSeatId)
+          )
+        )
+        .where(eq(properties.tenantId, tenantId));
 
       return toEnvelope({
         success: true,
         message: 'Successfully upgraded to Premium Seat with property portfolio',
-        portfolio: portfolioResult.rows?.[0],
+        portfolio: seat ? { ...seat, linkedProperties } : null,
       });
     }),
 };
