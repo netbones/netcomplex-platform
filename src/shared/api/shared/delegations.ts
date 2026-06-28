@@ -15,7 +15,9 @@ export type DelegationActionType =
   | 'revoked'
   | 'expired'
   | 'scope_modified'
-  | 'token_issued';
+  | 'token_issued'
+  | 'blocked'
+  | 'unblocked';
 
 /**
  * Log a delegation action to the DelegationAction audit trail.
