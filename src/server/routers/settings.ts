@@ -151,7 +151,8 @@ export const settingsRouter = router({
       }
 
       await db
-        .delete(settings)
+        .update(settings)
+        .set({ deletedAt: now(), updatedAt: now() })
         .where(and(eq(settings.tenantId, tenantId), eq(settings.key, input.key)));
 
       writeAuditLog({
@@ -174,6 +175,10 @@ export const settingsRouter = router({
       const tenantId = ctx.tenantId;
       if (!tenantId) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      if (!hasPermission(ctx.role, 'admin')) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin permission required' });
       }
 
       const rows = await db.select().from(settings).where(eq(settings.tenantId, tenantId));

@@ -560,7 +560,7 @@ export const contentRouter = router({
 
   // ────────── ANNOUNCEMENTS ──────────
 
-  listAnnouncements: publicProcedure
+  listAnnouncements: protectedProcedure
     .meta({
       openapi: { method: 'GET', path: '/announcements', protect: true, tags: ['content'] },
     })
@@ -600,7 +600,7 @@ export const contentRouter = router({
         .limit(limit);
     }),
 
-  getAnnouncement: publicProcedure
+  getAnnouncement: protectedProcedure
     .meta({
       openapi: { method: 'GET', path: '/announcements/{id}', protect: true, tags: ['content'] },
     })
@@ -658,7 +658,13 @@ export const contentRouter = router({
         const [resource] = await db
           .select({ id: resources.id })
           .from(resources)
-          .where(and(eq(resources.id, input.resourceId), eq(resources.tenantId, tenantId)))
+          .where(
+            and(
+              eq(resources.id, input.resourceId),
+              eq(resources.tenantId, tenantId),
+              isNull(resources.deletedAt)
+            )
+          )
           .limit(1);
 
         if (!resource) {
@@ -738,6 +744,11 @@ export const contentRouter = router({
       }
 
       const FANOUT_BATCH = 500;
+      const MAX_FANOUT = 2000;
+      if (targetUsers.length > MAX_FANOUT) {
+        targetUsers = targetUsers.slice(0, MAX_FANOUT);
+      }
+
       if (targetUsers.length > 0) {
         for (let i = 0; i < targetUsers.length; i += FANOUT_BATCH) {
           const batch = targetUsers.slice(i, i + FANOUT_BATCH);
@@ -891,7 +902,7 @@ export const contentRouter = router({
 
   // ────────── CAMPAIGN PAGE ──────────
 
-  getCampaignPage: publicProcedure
+  getCampaignPage: protectedProcedure
     .meta({
       openapi: { method: 'GET', path: '/campaign', protect: true, tags: ['content'] },
     })
@@ -926,16 +937,28 @@ export const contentRouter = router({
         contentCategory: 'CAMPAIGN',
       };
 
+      function safeParseSetting<T>(raw: string | undefined, fallback: T): T {
+        if (!raw) return fallback;
+        try {
+          return JSON.parse(raw) as T;
+        } catch {
+          return fallback;
+        }
+      }
+
       const campaignConfig = {
-        linkLabel: settingsMap.campaignLinkLabel
-          ? JSON.parse(settingsMap.campaignLinkLabel)
-          : DEFAULT_CAMPAIGN_CONFIG.linkLabel,
-        pageTitle: settingsMap.campaignPageTitle
-          ? JSON.parse(settingsMap.campaignPageTitle)
-          : DEFAULT_CAMPAIGN_CONFIG.pageTitle,
-        pageDescription: settingsMap.campaignPageDescription
-          ? JSON.parse(settingsMap.campaignPageDescription)
-          : DEFAULT_CAMPAIGN_CONFIG.pageDescription,
+        linkLabel: safeParseSetting(
+          settingsMap.campaignLinkLabel,
+          DEFAULT_CAMPAIGN_CONFIG.linkLabel
+        ),
+        pageTitle: safeParseSetting(
+          settingsMap.campaignPageTitle,
+          DEFAULT_CAMPAIGN_CONFIG.pageTitle
+        ),
+        pageDescription: safeParseSetting(
+          settingsMap.campaignPageDescription,
+          DEFAULT_CAMPAIGN_CONFIG.pageDescription
+        ),
         contentCategory: settingsMap.campaignCategory || DEFAULT_CAMPAIGN_CONFIG.contentCategory,
       };
 
@@ -976,7 +999,7 @@ export const contentRouter = router({
 
   // ────────── CONSERVATION PAGE ──────────
 
-  getConservationPage: publicProcedure
+  getConservationPage: protectedProcedure
     .meta({
       openapi: { method: 'GET', path: '/conservation', protect: true, tags: ['content'] },
     })

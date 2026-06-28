@@ -243,7 +243,10 @@ export const achievementsRouter = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Achievement not found' });
       }
 
-      await db.delete(achievementDefinitions).where(eq(achievementDefinitions.id, input.id));
+      await db
+        .update(achievementDefinitions)
+        .set({ deletedAt: new Date() })
+        .where(eq(achievementDefinitions.id, input.id));
 
       revalidateAdminChanges();
 
@@ -332,6 +335,10 @@ export const achievementsRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
 
+      if (input.userId && input.userId !== ctx.userId && !hasPermission(ctx.role, 'admin')) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot view other users progress' });
+      }
+
       const targetUserId = input.userId ?? ctx.userId;
 
       const conditions = [
@@ -405,6 +412,10 @@ export const achievementsRouter = router({
       const tenantId = ctx.tenantId;
       if (!tenantId) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      if (input?.userId && input.userId !== ctx.userId && !hasPermission(ctx.role, 'admin')) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot view other users achievements' });
       }
 
       const targetUserId = input?.userId ?? ctx.userId;

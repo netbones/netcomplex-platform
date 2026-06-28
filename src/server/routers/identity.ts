@@ -1603,8 +1603,11 @@ export const identityRouter = router({
     .input(z.object({ id: z.string() }))
     .output(z.object({ albums: z.array(albumSchema) }))
     .mutation(async ({ input, ctx }) => {
+      const ts = now();
+
       await db
-        .delete(albums)
+        .update(albums)
+        .set({ deletedAt: ts, updatedAt: ts })
         .where(
           and(
             eq(albums.id, input.id),
@@ -1686,16 +1689,21 @@ export const identityRouter = router({
       })
     )
     .query(async ({ ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
       const [solo] = await db
         .select()
         .from(soloSeats)
-        .where(eq(soloSeats.userId, ctx.userId!))
+        .where(and(eq(soloSeats.userId, ctx.userId!), eq(soloSeats.tenantId, tenantId)))
         .limit(1);
 
       const [premium] = await db
         .select()
         .from(premiumSeats)
-        .where(eq(premiumSeats.userId, ctx.userId!))
+        .where(and(eq(premiumSeats.userId, ctx.userId!), eq(premiumSeats.tenantId, tenantId)))
         .limit(1);
 
       return { solo: solo || null, premium: premium || null };

@@ -8,4 +8,5 @@ export const settings = pgTable('Setting', {
   schemaVersion: integer('schemaVersion').default(1).notNull(),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
 });

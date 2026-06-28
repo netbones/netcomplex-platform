@@ -1,354 +1,515 @@
-# Security Report — 14 tRPC Router Files
+# Security Report — 20 tRPC Router Files
 
-**Found: 21 issues** — 4 critical, 7 high, 6 medium, 4 low.
-**Status:** 16 fixed, 5 deferred.
+**Found: 42 issues** — 7 critical, 15 high, 11 medium, 9 low.
+**Status:** 16 fixed from tranche 2, 21 new from tranche 3 (b80f261f), 5 deferred.
 
 ---
 
 ## CRITICAL
 
+### Tranche 2 (all fixed)
+
 ### 1. `notifications.ts:74–121` — Arbitrary cross-tenant/cross-user notification injection — ✅ FIXED
 
-The `create` procedure accepts `tenantId` and `userId` from user input with zero validation against the session context. Any authenticated user can inject notifications into any tenant for any user.
-
-```typescript
-// notifications.ts:84-99
-.input(
-  z.object({
-    tenantId: z.string(), // ← attacker-controlled
-    userId: z.string(),   // ← attacker-controlled
-    title: z.string().min(1),
-    message: z.string().min(1),
-    ...
-  })
-)
-.mutation(async ({ input }) => {  // ← ctx is not even destructured!
-  await db.insert(notifications).values({
-    tenantId: input.tenantId,  // ← written verbatim
-    userId: input.userId,      // ← written verbatim
-    ...
-  });
-});
-```
-
-- **Impact:** Phishing/spam campaigns targeting any user across any tenant. Attacker can impersonate system notifications.
-- **Fix:** Remove `tenantId` and `userId` from the input schema. Derive both from `ctx`. Gate the procedure behind an admin-like permission or restrict it to system-initiated calls only.
-
----
+The `create` procedure accepts `tenantId` and `userId` from user input with zero validation against the session context.
 
 ### 2. `events.ts:349–352` — Missing `tenantId` in `cancelRegistration` DELETE WHERE clause — ✅ FIXED
 
-```typescript
-// events.ts:349-352
-const [deleted] = await db
-  .delete(eventAttendees)
-  .where(and(eq(eventAttendees.eventId, input.id), eq(eventAttendees.userId, ctx.userId)))
-  .returning();
-```
-
-No `eq(eventAttendees.tenantId, tenantId)` condition. Since RLS is dormant per ADR-019, a user in tenant A could cancel a registration in tenant B if they know (or guess) the event ID.
-
-- **Fix:** Add `eq(eventAttendees.tenantId, ctx.tenantId!)` to the WHERE clause.
-
----
+No `eq(eventAttendees.tenantId, tenantId)` condition.
 
 ### 3. `maintenance.ts:362–366` — Missing `tenantId` on `updateRequest` write path — ✅ FIXED
 
-```typescript
-// maintenance.ts:362-366
-const [updated] = await db
-  .update(maintenanceRequests)
-  .set(updateData)
-  .where(eq(maintenanceRequests.id, input.id)) // ← no tenantId
-  .returning();
-```
-
-While `getTenantRequest` validates tenantId earlier (line 328), the write itself has no tenant guard. Without RLS active, a TOCTOU race or a future code change that weakens the earlier check creates a direct cross-tenant write path.
-
-- **Fix:** Change to `.where(and(eq(maintenanceRequests.id, input.id), eq(maintenanceRequests.tenantId, tenantId)))`.
-
-The same pattern repeats in `maintenance.ts` at lines: 387, 637, 670, 763, 796, 883, 918 and `resources.ts:317, 359` and `groups.ts:529, 573` and `marketplace.ts:697`.
-
----
+Write WHERE clause had no tenant guard.
 
 ### 4. `surveys.ts:707–715` & `surveys.ts:915–923` — Hard DELETE instead of soft delete — ✅ FIXED
 
+`db.delete(questions)` and `db.delete(surveySections)` replaced with `db.update({ deletedAt: now() })`.
+
+---
+
+### Tranche 3 (new)
+
+### 5. `achievements.ts:320–328` & `395–421` — Cross-user data enumeration — 🔴 NEW
+
 ```typescript
-// surveys.ts:707-708
-const [deleted] = await db
-  .delete(questions)  // ← HARD DELETE
-  .where(...)
+// achievements.ts:320-328 — getAchievementProgress
+.input(z.object({ achievementId: z.string(), userId: z.string().optional() }))
+.query(async ({ input, ctx }) => {
+  const targetUserId = input.userId ?? ctx.userId;
+  // No authorization check — any user can view any user's progress
 ```
 
-Every other router uses soft-delete (`deletedAt = now()`). Hard deletes on `questions` and `surveySections` cause irreversible data loss and break referential integrity with responses (which still references deleted question IDs).
+```typescript
+// achievements.ts:395-421 — getUnlocked
+.input(z.object({ userId: z.string().optional() }).optional())
+.query(async ({ input, ctx }) => {
+  const targetUserId = input?.userId ?? ctx.userId;
+  // No authorization check — any user can view any user's unlocked achievements
+```
 
-- **Fix:** Change to `db.update(questions).set({ deletedAt: now() })`.
+- **Impact:** Any authenticated user can enumerate all other users' achievement progress and unlocked achievements. Leaks engagement data across the tenant.
+- **Fix:** Remove `userId` from user-facing input or gate it behind admin/self-only check.
+
+---
+
+### 6. `identity.ts:1688–1702` — Cross-tenant data exposure in `getMySeat` — 🔴 NEW
+
+```typescript
+// identity.ts:1689-1699
+const [solo] = await db
+  .select()
+  .from(soloSeats)
+  .where(eq(soloSeats.userId, ctx.userId!)) // ← no tenantId
+  .limit(1);
+
+const [premium] = await db
+  .select()
+  .from(premiumSeats)
+  .where(eq(premiumSeats.userId, ctx.userId!)) // ← no tenantId
+  .limit(1);
+```
+
+- **Impact:** A user with seats in multiple tenants sees data from all tenants. If seat data contains platform addresses or linked properties, this leaks cross-tenant information.
+- **Fix:** Add `eq(soloSeats.tenantId, ctx.tenantId!)` and `eq(premiumSeats.tenantId, ctx.tenantId!)` to both WHERE clauses.
+
+---
+
+### 7. `settings.ts:169–185` — Full tenant settings disclosure — 🔴 NEW
+
+```typescript
+// settings.ts:169-185 — getContactSettings
+.query(async ({ ctx }) => {
+  const rows = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
+  return rows.reduce<Record<string, string>>((acc, s) => {
+    acc[s.key] = s.value;
+    return acc;
+  }, {});
+});
+```
+
+- **Impact:** Returns ALL tenant settings as a flat key-value map to any authenticated user. If settings contain webhook secrets, API keys, or internal configuration, they are fully exposed. The procedure is named "contact" settings but returns everything.
+- **Fix:** Filter to only contact-related keys (e.g., prefix `contact.*`) or add a permission gate.
 
 ---
 
 ## HIGH
 
-### 5. `marketplace.ts:455–461` — Public endpoint leaks provider email and phone — ✅ FIXED
+### Tranche 2
+
+### 8. `marketplace.ts:455–461` — Public endpoint leaks provider email and phone — ✅ FIXED
+
+### 9. `groups.ts:475–488` — `listMembers` returns user emails without authorization — ✅ FIXED
+
+### 10. `chat.ts:160–222` — `createConversation` does not validate `participantIds` belong to tenant — ✅ FIXED
+
+### 11. `chat.ts:273–325` — `findOrCreateConversation` uses raw SQL with insufficient input guards — ✅ FIXED
+
+### 12. `resources.ts:212–248` — `createResource` uses `input.visibility` without enum validation — ✅ FIXED
+
+### 13. `dwallet.ts:255–296` — `createPayout` has no rate limit — ⏸️ DEFERRED (needs rate-limit infrastructure)
+
+### 14. `merits.ts:276–362` & `merits.ts:445–533` — `createMerit` and `awardMerit` code duplication — ✅ FIXED
+
+---
+
+### Tranche 3 (new)
+
+### 15. `agents.ts:143` — Agent email exposed to all authenticated users — 🔴 NEW
 
 ```typescript
-// marketplace.ts:455-461 (getListing — publicProcedure)
-provider: {
+// agents.ts:140-144 — getMarketplaceActions (protectedProcedure)
+agent: {
   id: users.id,
   name: users.name,
-  email: users.email,   // ← exposed to unauthenticated users
-  avatar: users.avatar,
-  phone: users.phone,   // ← exposed to unauthenticated users
+  email: users.email,   // ← PII exposed to any authenticated user
 },
 ```
 
-Any unauthenticated visitor can scrape all service providers' email addresses and phone numbers without rate limiting.
-
-- **Fix:** Remove `email` and `phone` from the public projection, or restrict this procedure to `protectedProcedure`. Alternatively, only expose them when a user has submitted a legitimate inquiry.
+- **Impact:** Same PII leakage pattern as the previously-fixed `marketplace.ts:455-461`. Any authenticated user can scrape all verified agents' email addresses.
+- **Fix:** Remove `email` from the projection, or gate behind admin/provider-only access.
 
 ---
 
-### 6. `groups.ts:475–488` — `listMembers` returns user emails without authorization — ✅ FIXED
+### 16. `agents.ts:103` — Null reference crash in `listManagedProperties` — 🔴 NEW
 
 ```typescript
-// groups.ts:479
-.select({ id: users.id, name: users.name, image: users.image, email: users.email })
+// agents.ts:103
+accessExpiresAt: row.agentAccess.expiresAt.toISOString(),
 ```
 
-Any authenticated user can list members of ANY group and harvest all their email addresses. No membership check, no group privacy check.
-
-- **Fix:** Either remove `email` from the projection or gate the endpoint behind a role check (e.g., only group members, board, or admin).
+- **Impact:** If `expiresAt` is null in the database, this throws `TypeError: Cannot read properties of null (reading 'toISOString')`, causing a 500 error for the agent.
+- **Fix:** Use `row.agentAccess.expiresAt?.toISOString() ?? null` or default.
 
 ---
 
-### 7. `chat.ts:160–222` — `createConversation` does not validate `participantIds` belong to tenant — ✅ FIXED
+### 17. `content.ts:651–660` — Unbounded notification fanout in `createAnnouncement` — 🔴 NEW
 
 ```typescript
-// chat.ts:166
-participantIds: z.array(z.string()),
-// chat.ts:213-222
-const allParticipantIds = [...new Set([ctx.userId!, ...input.participantIds])];
-await db.insert(conversationParticipants).values(
-  allParticipantIds.map(userId => ({
-    id: crypto.randomUUID(),
-    tenantId,  // ← tenantId from ctx
-    conversationId,
-    userId,    // ← unvalidated userId
-    joinedAt: ts,
-  }))
-);
+// content.ts:651-660
+for (let i = 0; i < targetUsers.length; i += FANOUT_BATCH) {
+  await db.insert(notifications).values(
+    batch.map(user => ({
+      id: crypto.randomUUID(),
+      tenantId,
+      userId: user.id,
+      ...
+    }))
+  );
+}
 ```
 
-A user can add any `userId` from any tenant as a participant. While the conversation itself is tenant-scoped, this pollutes the `ConversationParticipant` table with cross-tenant user references.
-
-- **Fix:** Verify each `participantId` exists in the current tenant before inserting: `SELECT id FROM user WHERE id IN (...) AND tenantId = $tenantId`.
+- **Impact:** For a tenant with 10K+ active users, this fires 20+ sequential INSERT batches inside a single tRPC request. Risks DB connection timeout, request timeout (>60s Vercel limit), and table lock contention.
+- **Fix:** Add a `maxDuration` guard on the procedure, cap fanout to a reasonable maximum (e.g., 2000), or offload to a background job/queue.
 
 ---
 
-### 8. `chat.ts:273–325` — `findOrCreateConversation` uses raw SQL with insufficient input guards — ✅ FIXED
+### 18. `invitations.ts:271–347` — Public invitation accept endpoint — 🔴 NEW
 
 ```typescript
-// chat.ts:287
-AND cp."userId" IN ${sql`${input.participantIds}`}
+// invitations.ts:271 — acceptInvitation: publicProcedure
+.mutation(async ({ input }) => {
+  const [invitation] = await db
+    .select()
+    .from(invitations)
+    .where(eq(invitations.token, input.token))
 ```
 
-While Drizzle's `sql` template tag is parameterized and safe against SQL injection, the `participantIds` array is passed directly without length or content validation beyond `z.array(z.string()).length(2)`. A malformed UUID string could cause Postgres errors that leak schema information.
-
-- **Fix:** Add `.uuid()` refinement to the Zod schema: `z.array(z.string().uuid()).length(2)`.
+- **Impact:** `publicProcedure` with no CSRF protection, no rate limiting, and no tenant validation. An attacker could enumerate invitation tokens or brute-force accept. Line 316 uses hardcoded `role === 'USER'` string comparison bypassing the permission model.
+- **Fix:** Add CSRF token requirement, rate limiting, and use `hasPermission()` for role checks.
 
 ---
 
-### 9. `resources.ts:212–248` — `createResource` uses `input.visibility` without enum validation — ✅ FIXED
+### 19. `achievements.ts:246` — Hard delete on achievement definitions — 🔴 NEW
 
 ```typescript
-// resources.ts:72
-visibility: z.string().default('ALL_RESIDENTS'),
+// achievements.ts:246
+await db.delete(achievementDefinitions).where(eq(achievementDefinitions.id, input.id));
 ```
 
-The `visibility` field is typed as `z.string()` with no enum constraint. An attacker could set it to an arbitrary value, bypassing the `buildVisibilityFilter` logic entirely (which checks for specific string values like `'ALL_RESIDENTS'`, `'OWNERS_ONLY'`, etc.).
-
-- **Fix:** Change to `z.enum(['ALL_RESIDENTS', 'OWNERS_ONLY', 'COMMITTEE_ONLY', 'BOARD_ONLY'])`.
+- **Impact:** Irreversible data loss. Unlike the rest of the system which uses soft-delete (`deletedAt = now()`), this permanently removes achievement definitions. Breaks referential integrity for existing `userAchievementProgresses` records.
+- **Fix:** Change to `db.update(achievementDefinitions).set({ deletedAt: now() })`.
 
 ---
 
-### 10. `dwallet.ts:255–296` — `createPayout` has no rate limit — ⏸️ DEFERRED (needs rate-limit infrastructure)
+### 20. `identity.ts:1606–1615` — Hard delete on albums — 🔴 NEW
 
 ```typescript
-// dwallet.ts:255 — createPayout
-createPayout: protectedProcedure.input(CreatePayoutInput).mutation(...)
+// identity.ts:1606-1615 — deleteAlbum
+await db
+  .delete(albums)
+  .where(
+    and(
+      eq(albums.id, input.id),
+      eq(albums.tenantId, ctx.tenantId!),
+      eq(albums.userId, ctx.userId!),
+      isNull(albums.deletedAt)
+    )
+  );
 ```
 
-No rate limiting exists on payout creation. A malicious user could script repeated payout requests, potentially triggering excessive admin review load or automated banking workflows.
-
-- **Fix:** Add `rateLimitByUser(ctx.userId!, { windowMs: 300_000, maxRequests: 1 })` before the payout insertion.
+- **Impact:** Irreversible data loss. The WHERE clause checks `isNull(albums.deletedAt)`, confirming soft-delete is the intended pattern, but the operation is a hard delete.
+- **Fix:** Change to `db.update(albums).set({ deletedAt: now() })`.
 
 ---
 
-### 11. `merits.ts:276–362` & `merits.ts:445–533` — `createMerit` and `awardMerit` are nearly identical code duplication — ✅ FIXED
+### 21. `settings.ts:153–155` — Hard delete on settings — 🔴 NEW
 
-Both procedures contain the exact same 60+ lines of logic for point calculation, expiry, standing recalculation, notification, and audit logging. This duplication increases the attack surface and risk of divergence bugs.
+```typescript
+// settings.ts:153-155
+await db.delete(settings).where(and(eq(settings.tenantId, tenantId), eq(settings.key, input.key)));
+```
 
-- **Fix:** Extract the shared logic into a single `createMeritRecord()` helper and call it from both procedures.
+- **Impact:** Permanent setting removal with no audit trail beyond the audit log. If a setting is accidentally deleted, there is no recovery.
+- **Fix:** Either use soft-delete, or at minimum store the old value in the audit log details (it already does this, but recovery still requires manual re-insertion).
+
+---
+
+### 22. `content.ts:852–904` — `JSON.parse()` crash in `getCampaignPage` — 🔴 NEW
+
+```typescript
+// content.ts:857-870
+const campaignConfig = {
+  linkLabel: settingsMap.campaignLinkLabel
+    ? JSON.parse(settingsMap.campaignLinkLabel)  // ← can throw
+    : DEFAULT_CAMPAIGN_CONFIG.linkLabel,
+  pageTitle: settingsMap.campaignPageTitle
+    ? JSON.parse(settingsMap.campaignPageTitle)  // ← can throw
+    : DEFAULT_CAMPAIGN_CONFIG.pageTitle,
+  ...
+};
+```
+
+- **Impact:** Malformed JSON in the settings table causes a 500 error on the campaign page with potentially leaked error details. No try-catch wrapping.
+- **Fix:** Wrap each `JSON.parse()` in try-catch and fall back to defaults on parse failure.
 
 ---
 
 ## MEDIUM
 
-### 12. `notifications.ts:171–183` — `markRead` "mark all" can affect unlimited records — ✅ FIXED
+### Tranche 2
 
-```typescript
-// notifications.ts:171-183
-// Mark all unread as read
-await db
-  .update(notifications)
-  .set({ read: true, readAt: now })
-  .where(
-    and(
-      isNull(notifications.deletedAt),
-      eq(notifications.userId, ctx.userId!),
-      eq(notifications.tenantId, ctx.tenantId!),
-      eq(notifications.read, false)
-    )
-  );
-```
+### 23. `notifications.ts:171–183` — `markRead` "mark all" can affect unlimited records — ✅ FIXED
 
-No LIMIT clause. A user with millions of unread notifications could trigger a massive UPDATE that holds locks.
+### 24. `content.ts:164–165` — Boolean filtering via string comparison — ✅ FIXED
 
-- **Fix:** Add a reasonable LIMIT or cap (e.g., 500) with a warning response if more exist.
+### 25. `surveys.ts:369–441` — `submitResponse` allows arbitrary answers payload — ✅ FIXED
+
+### 26. `maintenance.ts:404–414` — Internal notes visible in error path — ⏸️ DEFERRED (needs schema change)
+
+### 27. `content.ts:224–262` — `createContent` has no group membership validation — ✅ FIXED
+
+### 28. Widespread — Missing rate limiting on sensitive mutations — ⏸️ DEFERRED (needs rate-limit infrastructure)
 
 ---
 
-### 13. `content.ts:164–165` — Boolean filtering via string comparison — ✅ FIXED
+### Tranche 3 (new)
+
+### 29. `invitations.ts:81–82, 197, 199, 204` — `as any` type casts on enum columns — 🔴 NEW
 
 ```typescript
-// content.ts:164-165
-if (input.published !== undefined) {
-  conditions.push(eq(contents.published, input.published === 'true'));
-}
+// invitations.ts:82
+conditions.push(eq(invitations.status, input.status as any));
+
+// invitations.ts:197
+residencyType: input.residencyType as any,
+// invitations.ts:199
+role: input.role as any,
+// invitations.ts:204
+status: 'PENDING' as any,
 ```
 
-The `published` input is a string (`z.string().optional()`), then compared with `=== 'true'`. Any value other than the literal string `'true'` is treated as `false`, including nonsensical values like `'banana'`. This silently produces incorrect results.
-
-- **Fix:** Change the input schema to `z.coerce.boolean().optional()` or `z.enum(['true', 'false']).optional()`.
+- **Impact:** Type-system evasion masks potential schema mismatches. If the enum values in the database change, these casts silently allow invalid values to be inserted.
+- **Fix:** Use proper enum types or Zod-refined strings that match the database enum.
 
 ---
 
-### 14. `surveys.ts:369–441` — `submitResponse` allows arbitrary answers payload — ✅ FIXED
+### 30. `invitations.ts:210–220` — Silent email failure — 🔴 NEW
 
 ```typescript
-// surveys.ts:53-55
+// invitations.ts:210-220
+void sendEmail({...}).catch(() => {});
+```
+
+- **Impact:** All email delivery failures are silently swallowed. Users never receive their invitations, and no error is logged or surfaced. No audit trail exists for failed deliveries.
+- **Fix:** Log the error with the component logger and return a partial-success response indicating that the invitation was created but email delivery failed.
+
+---
+
+### 31. `invitations.ts:201` — Hardcoded placeholder organization ID — 🔴 NEW
+
+```typescript
+// invitations.ts:201
+organizationId: input.organizationId || ctx.organizationId || 'placeholder-org-id',
+```
+
+- **Impact:** Fallback `'placeholder-org-id'` will be written to the database when no real organization context exists. This creates orphan records and violates referential integrity if the column has a foreign key constraint.
+- **Fix:** Make `organizationId` required from context or throw an error when it's missing instead of using a placeholder.
+
+---
+
+### 32. `achievements.ts:150–162` — No duplicate key check on create — 🔴 NEW
+
+```typescript
+// achievements.ts:150-162 — createAchievement
+const [created] = await db
+  .insert(achievementDefinitions)
+  .values({ id, key: input.key, ... })
+  .returning();
+// No check for existing key
+```
+
+- **Impact:** Duplicate achievement keys cause unique constraint violations (if the column has a unique index) or silently create duplicate records.
+- **Fix:** Add a pre-insert check for existing `key` value.
+
+---
+
+### 33. `surveys/external.ts:38` — Unbounded answers payload — 🔴 NEW
+
+```typescript
+// surveys/external.ts:38
 answers: z.record(z.unknown()),
 ```
 
-The `answers` blob is stored directly with `input.answers` (line 435) with no size limit, no key validation against existing questions, and no type validation per question type. A user could inject megabytes of data into the JSONB column, causing storage bloat.
-
-- **Fix:** Add `.refine()` to validate keys match existing question IDs, or at minimum add a size check.
+- **Impact:** Same issue as the previously-fixed internal surveys #14. An attacker can submit megabytes of data as `answers`, causing storage bloat and performance degradation.
+- **Fix:** Add `.refine()` for size checking or key validation against the external survey's questions.
 
 ---
 
-### 15. `maintenance.ts:404–414` — Internal notes visible in error path via `isInternal` filtering — ⏸️ DEFERRED (needs schema change)
+### 34. `content.ts:556–610` — Authorization mismatch on `listAnnouncements` — 🔴 NEW
 
 ```typescript
-// maintenance.ts:412-414
-if (!hasPermission(ctx.role, 'requests')) {
-  conditions.push(eq(requestNotes.isInternal, false));
-}
+// content.ts:555 — publicProcedure
+// content.ts:557 — meta says protect: true
+.meta({
+  openapi: { method: 'GET', path: '/announcements', protect: true, tags: ['content'] },
+})
 ```
 
-While `isInternal` notes are correctly filtered for residents, the `listNotes` query returns the full `content` field of notes visible to the user. If an internal note ID is accidentally leaked (e.g., via logs or timing), there's no secondary enforcement at the content level.
-
-- **Fix:** Consider a separate `internalNotes` table that never joins with the public note query, or apply `isInternal` filtering in the SELECT as an additional guard.
+- **Impact:** The procedure is `publicProcedure` but the OpenAPI metadata says `protect: true`. OpenAPI-generated clients may incorrectly assume authentication is required. Runtime behavior is publicly accessible.
+- **Fix:** Either change to `protectedProcedure` if announcements should require auth, or change `protect` to `false` in the meta.
 
 ---
 
-### 16. `content.ts:224–262` — `createContent` has no ownership assignment validation — ✅ FIXED
+### 35. `content.ts:621–632` — Soft-deleted resource reference not blocked — 🔴 NEW
 
 ```typescript
-// content.ts:239
-authorId: ctx.userId!,
+// content.ts:621-632
+const [resource] = await db
+  .select({ id: resources.id })
+  .from(resources)
+  .where(and(eq(resources.id, input.resourceId), eq(resources.tenantId, tenantId)))
+  // ← missing isNull(resources.deletedAt)
+  .limit(1);
 ```
 
-While the author is forced to the current user (good), there's no check that the user can ONLY create content for themself. Anyone with `content` or `contentOwn` permission can create content as themselves, which is fine—but `groupId: input.groupId` (line 240) is accepted without verifying the user is a member of that group.
-
-- **Fix:** Add a group membership check before allowing content creation under a specific group.
+- **Impact:** An announcement can reference a soft-deleted resource, creating a dangling reference that users cannot resolve.
+- **Fix:** Add `isNull(resources.deletedAt)` to the WHERE clause.
 
 ---
 
-### 17. Widespread — Missing rate limiting on sensitive mutations — ⏸️ DEFERRED (needs rate-limit infrastructure)
+### 36. `marketplace/checkout.ts:99–190` — Public webhook endpoint without guards — 🔴 NEW
 
-Only `disputes.ts:325` (`addDisputeMessage`) implements rate limiting. The following procedures lack any rate limiting:
+```typescript
+// checkout.ts:99 — handleWebhook: publicProcedure
+.mutation(async ({ input }) => {
+  const { body, signature } = input;
+  ...
+```
 
-| Procedure                   | Risk               |
-| --------------------------- | ------------------ |
-| `chat.sendMessage`          | Message spam       |
-| `content.createContent`     | Content flooding   |
-| `marketplace.createListing` | Listing spam       |
-| `marketplace.createReview`  | Review bombing     |
-| `notifications.create`      | Notification spam  |
-| `surveys.submitResponse`    | Response flooding  |
-| `events.registerForEvent`   | Registration abuse |
-| `bookings.createBooking`    | Booking abuse      |
-| `dwallet.createPayout`      | Payout abuse       |
+- **Impact:** This webhook endpoint is publicly accessible. While Paystack signature verification protects against forged payloads, there is no IP allowlisting, no rate limiting, and no `maxDuration` guard. A DDoS on this endpoint could exhaust serverless function concurrency.
+- **Fix:** Add rate limiting, `maxDuration` on the procedure, and IP allowlisting at the infrastructure level (e.g., Vercel Firewall).
 
-- **Fix:** Add `rateLimitByUser()` calls to all mutation procedures, especially those exposed via OpenAPI.
+---
+
+### 37. `marketplace/premium.ts` — Widespread raw SQL usage — 🔴 NEW
+
+```typescript
+// premium.ts:164, 194, 219, 243, 250 — all use db.execute(sql`...`)
+```
+
+- **Impact:** While all raw SQL uses parameterized `sql` tags (safe from injection), raw SQL bypasses Drizzle's type safety, schema awareness, and migration tracking. Changes to the database schema won't cause TypeScript errors in these queries.
+- **Fix:** Migrate to Drizzle query builder where possible (`db.select().from().where()`).
 
 ---
 
 ## LOW
 
-### 18. `index.ts:1–38` — No global rate limiter or request timeout configured at tRPC level — ⏸️ DEFERRED (needs rate-limit infrastructure)
+### Tranche 2
 
-No `maxDuration`, no global rate limiting middleware, and no request body size limits are configured on the tRPC router.
+### 38. `index.ts:1–38` — No global rate limiter or request timeout configured — ⏸️ DEFERRED
 
-- **Fix:** Add a tRPC middleware that enforces `maxDuration` and global rate limits.
+### 39. `chat.ts:38–81` — Enormous `.output()` schema — ⏸️ DEFERRED
 
----
+### 40. `content.ts:143–148` — `getContent` locale parameter has no validation — ✅ FIXED
 
-### 19. `chat.ts:38–81` — `listConversations.output` is enormous and will never be validated at runtime — ⏸️ DEFERRED
-
-The `.output()` schema is 44 lines of nested Zod objects. tRPC output validation is typically disabled in production for performance. If enabled, every conversation list response is fully validated, burning CPU.
-
-- **Fix:** Remove `.output()` schemas from query procedures (they add no security value—input validation is what matters). Keep them only for documentation purposes as JSDoc comments.
+### 41. `dwallet.ts:40` — `CreatePayoutInput` uses raw number without decimal validation — ✅ FIXED
 
 ---
 
-### 20. `content.ts:143–148` — `getContent` locale parameter has no validation against supported languages — ✅ FIXED
+### Tranche 3 (new)
+
+### 42. `identity.ts:1390–1408` — Stub `getTags`/`setTags` — 🔴 NEW
 
 ```typescript
-// content.ts:146
-locale: z.string().optional(),
+// identity.ts:1390-1392 — getTags
+.query(async () => {
+  return { tags: [] };  // ← stub, always empty
+});
+
+// identity.ts:1394-1408 — setTags
+.mutation(async ({ input }) => {
+  return { tags: input.tags };  // ← no-op, accepts input, writes nothing
+});
 ```
 
-The `locale` parameter accepts any string value. The `resolveLocale` function (line 156) may handle it gracefully, but the input should be constrained.
-
-- **Fix:** Change to `z.enum(supportedLanguages).optional()` or `z.string().refine(val => supportedLanguages.includes(val))`.
+- **Impact:** `setTags` accepts arbitrary string arrays and returns them as if stored. If a frontend renders these tags without sanitization, it creates a stored-XSS-like vector where user-provided strings flow through a "write" endpoint and back to the UI.
+- **Fix:** Implement actual DB persistence or remove the stub until it's ready.
 
 ---
 
-### 21. `dwallet.ts:40` — `CreatePayoutInput` uses raw number without decimal validation — ✅ FIXED
+### 43. `identity.ts:1813` — `z.any()` in output schema — 🔴 NEW
 
 ```typescript
-// dwallet.ts:39-41
-amount: z.number().positive().min(50, 'Minimum payout is R50'),
+// identity.ts:1813
+.output(z.object({ books: z.array(z.any()) }))
 ```
 
-The amount is later converted to string (line 279: `input.amount.toString()`). A floating-point number like `50.00000000000001` could produce an unexpected string representation.
+- **Impact:** Weakens type safety. If the `books` column type changes, this won't catch it at build time.
+- **Fix:** Define a proper schema for the book type.
 
-- **Fix:** Add `.multipleOf(0.01)` to enforce valid currency amounts, or use `z.string().regex(/^\d+\.\d{2}$/)` and parse explicitly.
+---
+
+### 44. `identity.ts:1800–1834` — Hardcoded role comparison — 🔴 NEW
+
+```typescript
+// identity.ts:1817
+const isOwnerOrAdmin = ctx.userId === input.userId || ctx.role === 'ADMIN';
+```
+
+- **Impact:** Bypasses the centralized permission model (`hasPermission()`). If roles are renamed or the permission model changes, this check silently breaks.
+- **Fix:** Use `hasPermission(ctx.role, 'admin')`.
+
+---
+
+### 45. `agents.ts:19–60` — Hardcoded fake activity data — 🔴 NEW
+
+```typescript
+// agents.ts:39-59
+activities: [
+  { id: '1', type: 'communication', description: 'Sent monthly status report',
+    propertyId: 'prop-1', propertyUnit: '101', agentName: 'John Agent', ... },
+  { id: '2', type: 'maintenance', description: 'Scheduled HVAC inspection', ... },
+]
+```
+
+- **Impact:** Returns fabricated data that looks real. Consumers (frontend, API clients) cannot distinguish between real and fake data. Will cause confusion when real data is finally connected.
+- **Fix:** Return an empty array with a clear message that activity tracking is not yet implemented, or connect to the real data source.
+
+---
+
+### 46. `marketplace/premium.ts:236` — Collision-prone platform address — 🔴 NEW
+
+```typescript
+// premium.ts:235-236
+const platformAddress = `${(user.name || '').toLowerCase().replace(/\s+/g, '.')}@sorialia.org`;
+```
+
+- **Impact:** Two users with the same name (e.g., "John Smith") produce the same `john.smith@sorialia.org`. `assertAddressUnique` on line 238 catches the second insertion, but the error message may confuse users.
+- **Fix:** Append a random suffix or use the user ID in the address.
+
+---
+
+### 47. `marketplace/checkout.ts:134` — Unvalidated reference format — 🔴 NEW
+
+```typescript
+// checkout.ts:134
+const bookingId = reference.replace('svc-', '');
+```
+
+- **Impact:** If a Paystack reference doesn't start with `svc-` for any reason, this incorrectly strips characters from the middle of the reference string.
+- **Fix:** Validate the reference format first: `if (!reference.startsWith('svc-')) return { status: 'ignored' };`
 
 ---
 
 ## Summary
 
-| Severity  | Count  | Fixed  | Deferred | Key Themes                                                          |
-| --------- | ------ | ------ | -------- | ------------------------------------------------------------------- |
-| CRITICAL  | 4      | 4      | 0        | Cross-tenant injection, missing tenantId guards, hard deletes       |
-| HIGH      | 7      | 6      | 1        | PII leakage, participant validation, visibility bypass, rate limits |
-| MEDIUM    | 6      | 4      | 2        | Unbounded updates, oversized payloads, group ownership              |
-| LOW       | 4      | 2      | 2        | Global limits, output schemas, locale validation, float precision   |
-| **Total** | **21** | **16** | **5**    |                                                                     |
+| Severity  | Count  | Fixed  | Deferred | New (Tranche 3) | Key Themes                                                                            |
+| --------- | ------ | ------ | -------- | --------------- | ------------------------------------------------------------------------------------- |
+| CRITICAL  | 7      | 4      | 0        | 3               | Cross-user data enumeration, cross-tenant seat exposure, full settings disclosure     |
+| HIGH      | 15     | 6      | 1        | 8               | PII leakage, null crashes, unbounded fanout, hard deletes, public webhook, JSON crash |
+| MEDIUM    | 11     | 4      | 2        | 5               | `as any` casts, silent failures, placeholder IDs, raw SQL, missing `notDeleted()`     |
+| LOW       | 9      | 2      | 2        | 5               | Stub procedures, `z.any()` schemas, hardcoded roles, fake data, collision-prone IDs   |
+| **Total** | **42** | **16** | **5**    | **21**          |                                                                                       |
 
-### Top 3 Immediate Fixes (all applied)
+---
 
-1. **`notifications.create`** — ✅ Removed `tenantId`/`userId` from input; derive from `ctx`.
-2. **`events.cancelRegistration`** — ✅ Added `tenantId` to DELETE WHERE clause.
-3. **`surveys.removeQuestion` / `removeSection`** — ✅ Replaced `db.delete()` with `db.update({ deletedAt: now() })`.
+## Top Immediate Fixes (Tranche 3)
+
+1. **`identity.ts:1688-1702`** — Add `tenantId` filter to `getMySeat` seat queries.
+2. **`settings.ts:169-185`** — Filter `getContactSettings` to contact-only keys or add admin gate.
+3. **`achievements.ts:320-328, 395-421`** — Remove `userId` from user-facing input or gate behind self/admin check.
+4. **`achievements.ts:246` / `identity.ts:1606` / `settings.ts:153`** — Replace hard `db.delete()` with soft-delete `db.update({ deletedAt: now() })`.
+5. **`agents.ts:143`** — Remove `email` from `getMarketplaceActions` public projection.
+6. **`agents.ts:103`** — Null-safe `expiresAt?.toISOString()`.
+7. **`content.ts:852-904`** — Wrap `JSON.parse()` in try-catch with defaults.
+8. **`content.ts:651-660`** — Cap announcement notification fanout or add `maxDuration`.

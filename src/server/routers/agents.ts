@@ -100,7 +100,7 @@ export const agentsRouter = router({
         unit: row.property?.unit ?? '',
         platformAddress: row.property?.platformAddress ?? '',
         homeImage: row.property?.homeImage ?? null,
-        accessExpiresAt: row.agentAccess.expiresAt.toISOString(),
+        accessExpiresAt: row.agentAccess.expiresAt?.toISOString() ?? null,
         accessLevel: row.agentAccess.accessLevel,
         grantedBy: {
           id: row.grantedBy?.id ?? '',
@@ -140,7 +140,6 @@ export const agentsRouter = router({
           agent: {
             id: users.id,
             name: users.name,
-            email: users.email,
           },
         })
         .from(agentProfiles)

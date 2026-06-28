@@ -474,13 +474,14 @@ model Tenant {
 }
 
 model Setting {
-  id            String   @id
+  id            String    @id
   tenantId      String
   key           String
   value         String
-  schemaVersion Int      @default(1)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now()) @updatedAt
+  schemaVersion Int       @default(1)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+  deletedAt     DateTime?
 
   @@unique([tenantId, key])
 }
@@ -1885,16 +1886,17 @@ model SubscriptionTier {
 // ── Achievements System ──
 
 model AchievementDefinition {
-  id                String              @id @default(cuid())
-  key               String              @unique
-  label             String
-  description       String?
-  icon              String?
-  eventType         String
-  threshold         Int                 @default(1)
-  category          AchievementCategory @default(ENGAGEMENT)
-  createdAt         DateTime            @default(now())
-  tenantAchievements TenantAchievement[]
+  id                  String              @id @default(cuid())
+  key                 String              @unique
+  label               String
+  description         String?
+  icon                String?
+  eventType           String
+  threshold           Int                 @default(1)
+  category            AchievementCategory @default(ENGAGEMENT)
+  createdAt           DateTime            @default(now())
+  deletedAt           DateTime?
+  tenantAchievements  TenantAchievement[]
 }
 
 model TenantAchievement {

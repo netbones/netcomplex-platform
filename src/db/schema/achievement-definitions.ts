@@ -11,4 +11,5 @@ export const achievementDefinitions = pgTable('AchievementDefinition', {
   threshold: integer('threshold').default(1).notNull(),
   category: achievementCategoryEnum('category').default('ENGAGEMENT').notNull(),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
 });
