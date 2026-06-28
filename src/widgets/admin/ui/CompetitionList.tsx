@@ -73,8 +73,8 @@ function DrawWinnersModal({
   const utils = trpc.useUtils();
 
   const drawMutation = trpc.competitions.drawWinners.useMutation({
-    onSuccess: data => {
-      toast.success(`${data.length} winner(s) drawn!`);
+    onSuccess: envelope => {
+      toast.success(`${envelope.data.length} winner(s) drawn!`);
       utils.competitions.listParticipants.invalidate({ competitionId });
       onClose();
     },
@@ -145,7 +145,8 @@ function AutoSelectModal({
   });
 
   const handleAutoSelect = async () => {
-    const { participants } = await utils.competitions.listParticipants.fetch({ competitionId });
+    const result = await utils.competitions.listParticipants.fetch({ competitionId });
+    const { participants } = result.data;
 
     // Filter to JOINED entries, sort by score descending
     const joinEntries = participants
@@ -255,7 +256,7 @@ function ParticipantsPanel({ competition }: { competition: Competition }) {
     );
   }
 
-  const participants = data?.participants || [];
+  const participants = data?.data?.participants ?? [];
 
   if (participants.length === 0) {
     return <div className="p-6 text-center text-sm text-gray-500">No participants yet</div>;

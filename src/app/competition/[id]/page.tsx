@@ -71,18 +71,21 @@ function CompetitionDetailContent() {
   const utils = trpc.useUtils();
 
   const {
-    data: competition,
+    data: envelope,
     isLoading,
     isError,
     error,
     refetch,
   } = trpc.competitions.getCompetitionDetail.useQuery({ id }, { enabled: !!id });
 
+  const competition = envelope?.data;
+
   // Fetch winners for ENDED competitions
-  const { data: winners } = trpc.competitions.listWinners.useQuery(
+  const { data: winnersEnvelope } = trpc.competitions.listWinners.useQuery(
     { competitionId: id },
     { enabled: !!id && competition?.status === 'ENDED' }
   );
+  const winners = winnersEnvelope?.data ?? [];
 
   // Mutations
   const joinMutation = trpc.competitions.joinCompetition.useMutation({

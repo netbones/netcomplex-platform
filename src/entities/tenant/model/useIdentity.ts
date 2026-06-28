@@ -25,20 +25,20 @@ export function useIdentityState(): IdentityState {
     }
   }, [session?.user?.id]);
 
-  const { data: propertiesData, isLoading: loadingProperties } =
+  const { data: propertiesEnvelope, isLoading: loadingProperties } =
     trpc.identity.getMyProperties.useQuery(undefined, { enabled: !!userId });
 
-  const { data: agentAccessesData, isLoading: loadingManaged } =
+  const { data: agentAccessesEnvelope, isLoading: loadingManaged } =
     trpc.identity.getAgentAccesses.useQuery(undefined, { enabled: !!userId });
 
-  const { data: SoloSeatData, isLoading: loadingSolo } = trpc.identity.getMySoloSeat.useQuery(
+  const { data: soloSeatEnvelope, isLoading: loadingSolo } = trpc.identity.getMySoloSeat.useQuery(
     undefined,
     { enabled: !!userId }
   );
 
-  const ownedProperties = propertiesData || [];
-  const agentAccesses = agentAccessesData || [];
-  const SoloSeat = SoloSeatData || null;
+  const ownedProperties = propertiesEnvelope?.data || [];
+  const agentAccesses = agentAccessesEnvelope?.data || [];
+  const SoloSeat = soloSeatEnvelope?.data || null;
 
   const isLoading = loadingProperties || loadingManaged || loadingSolo;
   const isAgent = !loadingManaged && agentAccesses.length > 0;

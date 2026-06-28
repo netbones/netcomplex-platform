@@ -816,33 +816,35 @@ export const identityRouter = router({
       },
     })
     .output(
-      z.array(
-        z.object({
-          id: z.string(),
-          tenantId: z.string(),
-          street: z.string(),
-          unit: z.string(),
-          platformAddress: z.string(),
-          homeImage: z.string().nullable(),
-          ownerId: z.string().nullable(),
-          createdAt: z.date(),
-          updatedAt: z.date(),
-          activeHousehold: z
-            .object({
-              id: z.string(),
-              tenantId: z.string(),
-              propertyId: z.string(),
-              occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
-              status: z.enum(['ACTIVE', 'ARCHIVED']),
-              moveInDate: z.date().nullable(),
-              moveOutDate: z.date().nullable(),
-              createdAt: z.date(),
-              updatedAt: z.date(),
-              profiles: z.array(profileSchema),
-            })
-            .nullable(),
-          standardSeats: z.array(standardSeatSchema),
-        })
+      toEnvelopeSchema(
+        z.array(
+          z.object({
+            id: z.string(),
+            tenantId: z.string(),
+            street: z.string(),
+            unit: z.string(),
+            platformAddress: z.string(),
+            homeImage: z.string().nullable(),
+            ownerId: z.string().nullable(),
+            createdAt: z.date(),
+            updatedAt: z.date(),
+            activeHousehold: z
+              .object({
+                id: z.string(),
+                tenantId: z.string(),
+                propertyId: z.string(),
+                occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
+                status: z.enum(['ACTIVE', 'ARCHIVED']),
+                moveInDate: z.date().nullable(),
+                moveOutDate: z.date().nullable(),
+                createdAt: z.date(),
+                updatedAt: z.date(),
+                profiles: z.array(profileSchema),
+              })
+              .nullable(),
+            standardSeats: z.array(standardSeatSchema),
+          })
+        )
       )
     )
     .query(async ({ ctx }) => {
@@ -1053,41 +1055,43 @@ export const identityRouter = router({
     })
     .input(z.object({ id: z.string() }))
     .output(
-      z
-        .object({
-          id: z.string(),
-          tenantId: z.string(),
-          householdId: z.string(),
-          userId: z.string().nullable(),
-          displayName: z.string(),
-          profileAddress: z.string(),
-          householdRole: z.enum(['OCCUPANT', 'FAMILY', 'MINOR']),
-          residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER']),
-          avatar: z.string().nullable(),
-          occupantSince: z.date(),
-          status: z.enum(['ACTIVE', 'UPGRADED', 'REMOVED', 'EVICTED', 'LEASE_ENDED']),
-          isPublic: z.boolean(),
-          showEmail: z.boolean(),
-          showPhone: z.boolean(),
-          createdAt: z.date(),
-          updatedAt: z.date(),
-          household: z
-            .object({
-              id: z.string(),
-              tenantId: z.string(),
-              propertyId: z.string(),
-              occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
-              status: z.enum(['ACTIVE', 'ARCHIVED']),
-              moveInDate: z.date().nullable(),
-              moveOutDate: z.date().nullable(),
-              createdAt: z.date(),
-              updatedAt: z.date(),
-              property: propertySchema.nullable(),
-            })
-            .nullable(),
-          user: userSchema.nullable(),
-        })
-        .nullable()
+      toEnvelopeSchema(
+        z
+          .object({
+            id: z.string(),
+            tenantId: z.string(),
+            householdId: z.string(),
+            userId: z.string().nullable(),
+            displayName: z.string(),
+            profileAddress: z.string(),
+            householdRole: z.enum(['OCCUPANT', 'FAMILY', 'MINOR']),
+            residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER']),
+            avatar: z.string().nullable(),
+            occupantSince: z.date(),
+            status: z.enum(['ACTIVE', 'UPGRADED', 'REMOVED', 'EVICTED', 'LEASE_ENDED']),
+            isPublic: z.boolean(),
+            showEmail: z.boolean(),
+            showPhone: z.boolean(),
+            createdAt: z.date(),
+            updatedAt: z.date(),
+            household: z
+              .object({
+                id: z.string(),
+                tenantId: z.string(),
+                propertyId: z.string(),
+                occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
+                status: z.enum(['ACTIVE', 'ARCHIVED']),
+                moveInDate: z.date().nullable(),
+                moveOutDate: z.date().nullable(),
+                createdAt: z.date(),
+                updatedAt: z.date(),
+                property: propertySchema.nullable(),
+              })
+              .nullable(),
+            user: userSchema.nullable(),
+          })
+          .nullable()
+      )
     )
     .query(async ({ input }) => {
       const [profile] = await db.select().from(profiles).where(eq(profiles.id, input.id));
@@ -1121,22 +1125,24 @@ export const identityRouter = router({
   getMySoloSeat: protectedProcedure
     .meta({ openapi: { method: 'GET', path: '/my/solo-seat', tags: ['Solo Seats'] } })
     .output(
-      z
-        .object({
-          id: z.string(),
-          tenantId: z.string(),
-          userId: z.string(),
-          platformAddress: z.string(),
-          propertyId: z.string().nullable(),
-          seatType: z.string(),
-          isComplimentary: z.boolean(),
-          linkedFromProfileId: z.string().nullable(),
-          organizationId: z.string().nullable(),
-          createdAt: z.date(),
-          updatedAt: z.date(),
-          property: propertySchema.nullable(),
-        })
-        .nullable()
+      toEnvelopeSchema(
+        z
+          .object({
+            id: z.string(),
+            tenantId: z.string(),
+            userId: z.string(),
+            platformAddress: z.string(),
+            propertyId: z.string().nullable(),
+            seatType: z.string(),
+            isComplimentary: z.boolean(),
+            linkedFromProfileId: z.string().nullable(),
+            organizationId: z.string().nullable(),
+            createdAt: z.date(),
+            updatedAt: z.date(),
+            property: propertySchema.nullable(),
+          })
+          .nullable()
+      )
     )
     .query(async ({ ctx }) => {
       const [seat] = await db.select().from(soloSeats).where(eq(soloSeats.userId, ctx.userId));

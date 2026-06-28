@@ -180,13 +180,14 @@ function CompetitionGridSkeleton() {
 
 function CompetitionContent() {
   const {
-    data: competitions,
+    data: envelope,
     isLoading,
     isError,
     refetch,
   } = trpc.competitions.listPublicCompetitions.useQuery(undefined, {
     staleTime: 30_000,
   });
+  const competitions = envelope?.data ?? [];
   const router = useRouter();
 
   if (isLoading) {

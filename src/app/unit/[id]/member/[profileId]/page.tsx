@@ -13,10 +13,11 @@ function ProfileContent() {
   const { t: tCommon } = useTranslation('common');
 
   const {
-    data: profile,
+    data: envelope,
     isLoading,
     error,
   } = trpc.identity.getProfile.useQuery({ id: profileId! }, { enabled: !!profileId });
+  const profile = envelope?.data;
 
   if (isLoading) {
     return (

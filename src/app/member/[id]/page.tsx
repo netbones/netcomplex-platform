@@ -11,10 +11,11 @@ function MemberContent() {
   const id = params?.id as string | undefined;
 
   const {
-    data: SoloSeat,
+    data: envelope,
     isLoading,
     error,
   } = trpc.identity.getMySoloSeat.useQuery(undefined, { enabled: !!id }); // Using getMySoloSeat as getSoloSeat was replaced
+  const SoloSeat = envelope?.data;
 
   if (isLoading) {
     return (
