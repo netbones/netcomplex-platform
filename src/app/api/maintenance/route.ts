@@ -151,7 +151,7 @@ export async function POST(request: Request) {
 
     // Resolve routing: HOA or landlord, based on property occupancy
     let routingCtx = {
-      routingType: 'HOA' as const,
+      routingType: 'HOA',
       landlordId: null as string | null,
       reason: 'no property',
     };
@@ -213,7 +213,7 @@ export async function POST(request: Request) {
       images: body.images || [],
       preferredDate,
       preferredTime,
-      routingType: routingCtx.routingType,
+      routingType: routingCtx.routingType as 'HOA' | 'LANDLORD',
       landlordId: routingCtx.landlordId,
     });
 
@@ -248,7 +248,7 @@ export async function POST(request: Request) {
       userId,
       requestId: maintenanceRequest.id,
       category,
-      routingType: routingCtx.routingType,
+      routingType: routingCtx.routingType as 'HOA' | 'LANDLORD',
     });
 
     return apiCreated(maintenanceRequest);

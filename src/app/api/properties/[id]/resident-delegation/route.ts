@@ -216,7 +216,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const isOwner = prop?.ownerId === authData.userId;
   const isAdmin = ['ADMIN', 'BOARD'].includes(authData.role ?? '');
   if (!isOwner && !isAdmin) {
-    return apiError('FORBIDDEN', 403, 'Only the property owner can revoke this delegation');
+    return apiError('FORBIDDEN', 'Only the property owner can revoke this delegation', 403);
   }
 
   await db

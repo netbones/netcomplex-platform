@@ -55,7 +55,7 @@ export async function PATCH(
 
   const parsed = blockSchema.safeParse(body);
   if (!parsed.success) {
-    return apiError('VALIDATION_ERROR', parsed.error.issues, 400);
+    return apiError('VALIDATION_ERROR', 'Validation failed', 400, parsed.error.issues);
   }
 
   const { blocked } = parsed.data;

@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { NextRequest } from 'next/server';
 
 // Mock server-only
 vi.mock('server-only', () => ({}));
@@ -38,7 +39,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@api/server', () => ({
   db: {
     property: { findFirst: vi.fn(() => Promise.resolve(mocks.propertyResult)) },
-    residentDelegation: {
+    residentDelegations: {
       findFirst: vi.fn(),
       findMany: vi.fn(() => Promise.resolve([])),
       create: vi.fn(() => Promise.resolve(mocks.delegationResult)),
@@ -74,10 +75,10 @@ vi.mock('@entities/tenant/server', () => ({
 
 import { POST, GET, DELETE } from '../route';
 
-function createRequest(method: string, body?: unknown, role = 'RESIDENT'): Request {
+function createRequest(method: string, body?: unknown, role = 'RESIDENT'): NextRequest {
   mocks.sessionResult = { user: { id: 'owner-1', role } } as any;
   const url = 'http://localhost/api/properties/prop-1/resident-delegation';
-  return new Request(url, {
+  return new NextRequest(url, {
     method,
     headers: { 'Content-Type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,
@@ -116,8 +117,8 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
   });
 
   it('GET returns active delegations for a property', async () => {
-    const { db } = await import('@api/server');
-    (db.residentDelegation.findMany as any).mockResolvedValue([
+    const { db } = (await import('@api/server')) as any;
+    (db.residentDelegations.findMany as any).mockResolvedValue([
       {
         id: 'del-1',
         profileId: 'profile-1',
@@ -133,8 +134,8 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
   });
 
   it('DELETE revokes an existing delegation', async () => {
-    const { db } = await import('@api/server');
-    (db.residentDelegation.findFirst as any).mockResolvedValue({
+    const { db } = (await import('@api/server')) as any;
+    (db.residentDelegations.findFirst as any).mockResolvedValue({
       id: 'del-1',
       propertyId: 'prop-1',
       tenantId: 'test-tenant-id',
@@ -147,8 +148,8 @@ describe('POST /api/properties/[id]/resident-delegation', () => {
   });
 
   it('DELETE by non-owner → 403 FORBIDDEN', async () => {
-    const { db } = await import('@api/server');
-    (db.residentDelegation.findFirst as any).mockResolvedValue({
+    const { db } = (await import('@api/server')) as any;
+    (db.residentDelegations.findFirst as any).mockResolvedValue({
       id: 'del-1',
       propertyId: 'prop-2',
       tenantId: 'test-tenant-id',

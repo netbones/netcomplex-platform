@@ -55,12 +55,12 @@ function createWrapper() {
 // Helpers
 // ═══════════════════════════════════════════════════════════════
 
-function mockFetchResponse(data: unknown, status = 200) {
-  return Promise.resolve({
+function mockFetchResponse(data: unknown, status = 200): Response {
+  return {
     ok: status >= 200 && status < 300,
     status,
     json: () => Promise.resolve(data),
-  } as Response);
+  } as Response;
 }
 
 function resetMockSession() {
