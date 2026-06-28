@@ -114,7 +114,7 @@ export const disputesRouter = router({
 
     if (!canViewAll) {
       conditions.push(
-        or(eq(disputeCases.complainantId, ctx.userId!), eq(disputeCases.respondentId, ctx.userId!))
+        or(eq(disputeCases.complainantId, ctx.userId), eq(disputeCases.respondentId, ctx.userId))
       );
     }
 
@@ -172,7 +172,7 @@ export const disputesRouter = router({
     const dispute = await getTenantDispute(input.id, tenantId);
 
     const mod = isModerator(ctx.role);
-    const party = isParty(dispute, ctx.userId!);
+    const party = isParty(dispute, ctx.userId);
 
     if (!party && !mod) {
       throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
@@ -203,7 +203,7 @@ export const disputesRouter = router({
         id,
         tenantId,
         referenceNumber,
-        complainantId: ctx.userId!,
+        complainantId: ctx.userId,
         respondentId: input.respondentId ?? null,
         respondentType: input.respondentType ?? 'RESIDENT',
         category: input.category,
@@ -223,7 +223,7 @@ export const disputesRouter = router({
       id: crypto.randomUUID(),
       tenantId,
       disputeId: id,
-      actorId: ctx.userId!,
+      actorId: ctx.userId,
       eventType: 'CREATED',
       fromStatus: null,
       toStatus: 'DRAFT',
@@ -243,7 +243,7 @@ export const disputesRouter = router({
     const existing = await getTenantDispute(input.id, tenantId);
 
     const mod = isModerator(ctx.role);
-    const party = isParty(existing, ctx.userId!);
+    const party = isParty(existing, ctx.userId);
 
     if (!party && !mod) {
       throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
@@ -283,7 +283,7 @@ export const disputesRouter = router({
           id: crypto.randomUUID(),
           tenantId,
           disputeId: input.id,
-          actorId: ctx.userId!,
+          actorId: ctx.userId,
           eventType: 'STATUS_CHANGED',
           fromStatus: existing.status,
           toStatus: input.updates.status,
@@ -309,7 +309,7 @@ export const disputesRouter = router({
       const dispute = await getTenantDispute(input.disputeId, tenantId);
 
       const mod = isModerator(ctx.role);
-      const party = isParty(dispute, ctx.userId!);
+      const party = isParty(dispute, ctx.userId);
 
       if (!party && !mod) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
@@ -322,7 +322,7 @@ export const disputesRouter = router({
         });
       }
 
-      await rateLimitByUser(ctx.userId!, {
+      await rateLimitByUser(ctx.userId, {
         windowMs: 60_000,
         maxRequests: 30,
       });
@@ -335,7 +335,7 @@ export const disputesRouter = router({
           id: crypto.randomUUID(),
           tenantId,
           disputeId: input.disputeId,
-          senderId: ctx.userId!,
+          senderId: ctx.userId,
           content: sanitizedContent,
           isInternal: input.isInternal,
           createdAt: now(),
@@ -356,7 +356,7 @@ export const disputesRouter = router({
       const dispute = await getTenantDispute(input.disputeId, tenantId);
 
       const mod = isModerator(ctx.role);
-      const party = isParty(dispute, ctx.userId!);
+      const party = isParty(dispute, ctx.userId);
 
       if (!party && !mod) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
@@ -409,7 +409,7 @@ export const disputesRouter = router({
         id: crypto.randomUUID(),
         tenantId,
         disputeId: input.disputeId,
-        actorId: ctx.userId!,
+        actorId: ctx.userId,
         eventType: 'ASSIGNED',
         metadata: { assignedModeratorId: input.moderatorId },
         createdAt: ts,
@@ -465,7 +465,7 @@ export const disputesRouter = router({
         id: crypto.randomUUID(),
         tenantId,
         disputeId: input.id,
-        actorId: ctx.userId!,
+        actorId: ctx.userId,
         eventType: 'SUBMITTED',
         fromStatus: 'DRAFT',
         toStatus: 'SUBMITTED',
@@ -517,7 +517,7 @@ export const disputesRouter = router({
 
       if (input.closedReason) {
         updateData.closedReason = input.closedReason;
-        updateData.closedById = ctx.userId!;
+        updateData.closedById = ctx.userId;
       }
 
       await tx
@@ -529,7 +529,7 @@ export const disputesRouter = router({
         id: crypto.randomUUID(),
         tenantId,
         disputeId: input.disputeId,
-        actorId: ctx.userId!,
+        actorId: ctx.userId,
         eventType: input.status === 'RESOLVED' ? 'RESOLVED' : 'WITHDRAWN',
         fromStatus: dispute.status,
         toStatus: input.status,
@@ -583,7 +583,7 @@ export const disputesRouter = router({
           id: crypto.randomUUID(),
           tenantId,
           disputeId: input.disputeId,
-          actorId: ctx.userId!,
+          actorId: ctx.userId,
           eventType: 'RULING_ISSUED',
           fromStatus: dispute.status,
           toStatus: 'FORMAL_RULING',
@@ -605,7 +605,7 @@ export const disputesRouter = router({
     const dispute = await getTenantDispute(input.id, tenantId);
 
     const mod = isModerator(ctx.role);
-    const party = isParty(dispute, ctx.userId!);
+    const party = isParty(dispute, ctx.userId);
 
     if (!party && !mod) {
       throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });

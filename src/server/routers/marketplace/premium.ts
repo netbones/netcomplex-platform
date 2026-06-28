@@ -50,7 +50,7 @@ export const premiumProcedures = {
         .from(properties)
         .innerJoin(propertyPremiumSeats, eq(properties.id, propertyPremiumSeats.propertyId))
         .innerJoin(premiumSeats, eq(premiumSeats.id, propertyPremiumSeats.premiumSeatId))
-        .where(and(eq(premiumSeats.userId, ctx.userId!), eq(premiumSeats.tenantId, tenantId)));
+        .where(and(eq(premiumSeats.userId, ctx.userId), eq(premiumSeats.tenantId, tenantId)));
 
       if (!linkedProperties.length) {
         throw new TRPCError({
@@ -70,7 +70,7 @@ export const premiumProcedures = {
         .innerJoin(properties, eq(propertyListings.propertyId, properties.id))
         .where(
           and(
-            eq(propertyListings.ownerId, ctx.userId!),
+            eq(propertyListings.ownerId, ctx.userId),
             eq(propertyListings.tenantId, tenantId),
             sql`${propertyListings.propertyId} = ANY((${sql.join(
               propertyIds.map(id => sql`${id}`),
@@ -109,7 +109,7 @@ export const premiumProcedures = {
       const [premiumSeatExists] = await db
         .select({ id: premiumSeats.id })
         .from(premiumSeats)
-        .where(and(eq(premiumSeats.userId, ctx.userId!), eq(premiumSeats.tenantId, tenantId)))
+        .where(and(eq(premiumSeats.userId, ctx.userId), eq(premiumSeats.tenantId, tenantId)))
         .limit(1);
 
       if (!premiumSeatExists) {
@@ -125,7 +125,7 @@ export const premiumProcedures = {
           id: crypto.randomUUID(),
           tenantId,
           propertyId: input.propertyId,
-          ownerId: ctx.userId!,
+          ownerId: ctx.userId,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           listingType: (input.listingType || 'SALE') as any,
           title: input.title,
@@ -162,7 +162,7 @@ export const premiumProcedures = {
       }
 
       const portfolioResult = await db.execute(
-        sql`SELECT * FROM "PremiumSeat" WHERE "userId" = ${ctx.userId!} AND "tenantId" = ${tenantId} LIMIT 1`
+        sql`SELECT * FROM "PremiumSeat" WHERE "userId" = ${ctx.userId} AND "tenantId" = ${tenantId} LIMIT 1`
       );
 
       if (!portfolioResult.rows?.length) {
@@ -188,7 +188,7 @@ export const premiumProcedures = {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
 
-      const userId = ctx.userId!;
+      const userId = ctx.userId;
       const { householdIds } = input;
 
       const householdsResult = (await db.execute(sql`

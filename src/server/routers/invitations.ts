@@ -69,7 +69,7 @@ export const invitationsRouter = router({
         const [user] = await db
           .select({ email: users.email })
           .from(users)
-          .where(eq(users.id, ctx.userId!))
+          .where(eq(users.id, ctx.userId))
           .limit(1);
         if (user?.email) {
           conditions.push(eq(invitations.email, user.email));
@@ -123,7 +123,7 @@ export const invitationsRouter = router({
         const [user] = await db
           .select({ email: users.email })
           .from(users)
-          .where(eq(users.id, ctx.userId!))
+          .where(eq(users.id, ctx.userId))
           .limit(1);
         if (user?.email !== invitation.email) {
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
@@ -180,7 +180,7 @@ export const invitationsRouter = router({
       const [inviter] = await db
         .select({ name: users.name })
         .from(users)
-        .where(eq(users.id, ctx.userId!))
+        .where(eq(users.id, ctx.userId))
         .limit(1);
 
       const token = crypto.randomUUID();
@@ -197,7 +197,7 @@ export const invitationsRouter = router({
           unit: input.unit || null,
           residencyType: input.residencyType,
           role: input.role,
-          inviterId: ctx.userId!,
+          inviterId: ctx.userId,
           organizationId: input.organizationId || ctx.organizationId || crypto.randomUUID(),
           token,
           status: 'PENDING' as (typeof invitations.status.enumValues)[number],
@@ -475,7 +475,7 @@ export const invitationsRouter = router({
       const [inviter] = await db
         .select({ name: users.name })
         .from(users)
-        .where(eq(users.id, ctx.userId!))
+        .where(eq(users.id, ctx.userId))
         .limit(1);
 
       const token = crypto.randomUUID();

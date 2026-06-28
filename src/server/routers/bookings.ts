@@ -136,7 +136,7 @@ export const bookingsRouter = router({
 
       const bookingResults = await entityListBookings({
         tenantId,
-        userId: ctx.userId!,
+        userId: ctx.userId,
         canViewAll,
         facility: input?.facility || null,
         date: date || null,
@@ -207,7 +207,7 @@ export const bookingsRouter = router({
 
       const [booking] = await entityCreateBooking({
         tenantId,
-        userId: ctx.userId!,
+        userId: ctx.userId,
         facility: input.facility,
         date: new Date(input.date),
         startTime: input.startTime,

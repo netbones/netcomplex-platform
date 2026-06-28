@@ -81,10 +81,7 @@ export const conversationProcedures = {
           eq(conversations.id, conversationParticipants.conversationId)
         )
         .where(
-          and(
-            eq(conversationParticipants.userId, ctx.userId!),
-            eq(conversations.tenantId, tenantId)
-          )
+          and(eq(conversationParticipants.userId, ctx.userId), eq(conversations.tenantId, tenantId))
         )
         .orderBy(desc(conversations.updatedAt));
 
@@ -195,7 +192,7 @@ export const conversationProcedures = {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
 
-      const allParticipantIds = [...new Set([ctx.userId!, ...input.participantIds])];
+      const allParticipantIds = [...new Set([ctx.userId, ...input.participantIds])];
 
       if (input.participantIds.length > 0) {
         const validUsers = await db

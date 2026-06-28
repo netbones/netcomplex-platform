@@ -147,7 +147,7 @@ export const reviewProcedures = {
         .where(
           and(
             eq(communityServiceReviews.listingId, input.listingId),
-            eq(communityServiceReviews.reviewerId, ctx.userId!)
+            eq(communityServiceReviews.reviewerId, ctx.userId)
           )
         )
         .limit(1);
@@ -166,7 +166,7 @@ export const reviewProcedures = {
         id: reviewId,
         tenantId,
         listingId: input.listingId,
-        reviewerId: ctx.userId!,
+        reviewerId: ctx.userId,
         rating: input.rating,
         title: input.title || null,
         comment: input.comment || null,

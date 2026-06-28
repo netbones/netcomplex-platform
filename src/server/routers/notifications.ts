@@ -53,7 +53,7 @@ export const notificationsRouter = router({
     .output(z.array(notificationSchema))
     .query(async ({ input, ctx }) => {
       const conditions = [
-        eq(notifications.userId, ctx.userId!),
+        eq(notifications.userId, ctx.userId),
         eq(notifications.tenantId, ctx.tenantId!),
         isNull(notifications.deletedAt),
       ];
@@ -106,7 +106,7 @@ export const notificationsRouter = router({
         .values({
           id: crypto.randomUUID(),
           tenantId,
-          userId: ctx.userId!,
+          userId: ctx.userId,
           title: input.title,
           message: input.message,
           type: input.type,
@@ -154,7 +154,7 @@ export const notificationsRouter = router({
             and(
               isNull(notifications.deletedAt),
               eq(notifications.id, input.id),
-              eq(notifications.userId, ctx.userId!),
+              eq(notifications.userId, ctx.userId),
               eq(notifications.tenantId, ctx.tenantId!)
             )
           );
@@ -166,7 +166,7 @@ export const notificationsRouter = router({
             and(
               isNull(notifications.deletedAt),
               inArray(notifications.id, input.ids),
-              eq(notifications.userId, ctx.userId!),
+              eq(notifications.userId, ctx.userId),
               eq(notifications.tenantId, ctx.tenantId!)
             )
           );
@@ -178,7 +178,7 @@ export const notificationsRouter = router({
           .where(
             and(
               isNull(notifications.deletedAt),
-              eq(notifications.userId, ctx.userId!),
+              eq(notifications.userId, ctx.userId),
               eq(notifications.tenantId, ctx.tenantId!),
               eq(notifications.read, false)
             )
@@ -222,7 +222,7 @@ export const notificationsRouter = router({
           and(
             eq(notifications.id, input.id),
             eq(notifications.tenantId, ctx.tenantId!),
-            eq(notifications.userId, ctx.userId!)
+            eq(notifications.userId, ctx.userId)
           )
         )
         .limit(1);

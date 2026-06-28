@@ -312,7 +312,7 @@ export const contentRouter = router({
         .where(
           and(
             eq(groupMembers.groupId, input.groupId),
-            eq(groupMembers.userId, ctx.userId!),
+            eq(groupMembers.userId, ctx.userId),
             eq(groupMembers.tenantId, tenantId),
             isNull(groupMembers.deletedAt)
           )
@@ -330,7 +330,7 @@ export const contentRouter = router({
       content: input.content,
       excerpt: input.excerpt ?? null,
       category: input.category,
-      authorId: ctx.userId!,
+      authorId: ctx.userId,
       groupId: input.groupId ?? null,
       featured: input.featured,
       published: input.published,
@@ -551,7 +551,7 @@ export const contentRouter = router({
       id: crypto.randomUUID(),
       tenantId,
       contentId: input.id,
-      userId: ctx.userId!,
+      userId: ctx.userId,
       createdAt: now(),
     });
 

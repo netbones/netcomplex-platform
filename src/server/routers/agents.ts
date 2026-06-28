@@ -27,9 +27,7 @@ export const agentsRouter = router({
       const accessRecords = await db
         .select({ agentId: agentAccesses.agentId })
         .from(agentAccesses)
-        .where(
-          and(eq(agentAccesses.grantedById, ctx.userId!), eq(agentAccesses.tenantId, tenantId))
-        )
+        .where(and(eq(agentAccesses.grantedById, ctx.userId), eq(agentAccesses.tenantId, tenantId)))
         .limit(1);
 
       if (accessRecords.length === 0) {
@@ -65,7 +63,7 @@ export const agentsRouter = router({
         .leftJoin(users, eq(agentAccesses.grantedById, users.id))
         .where(
           and(
-            eq(agentAccesses.agentId, ctx.userId!),
+            eq(agentAccesses.agentId, ctx.userId),
             eq(agentAccesses.tenantId, tenantId),
             eq(agentAccesses.status, 'ACTIVE'),
             isNull(agentAccesses.deletedAt)
@@ -148,7 +146,7 @@ export const agentsRouter = router({
       const [seat] = await db
         .select()
         .from(premiumSeats)
-        .where(and(eq(premiumSeats.userId, ctx.userId!), eq(premiumSeats.tenantId, tenantId)))
+        .where(and(eq(premiumSeats.userId, ctx.userId), eq(premiumSeats.tenantId, tenantId)))
         .limit(1);
 
       if (!seat) {

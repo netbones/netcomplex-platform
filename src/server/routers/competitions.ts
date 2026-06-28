@@ -410,7 +410,7 @@ export const competitionRouter = router({
         .where(
           and(
             eq(competitionEntries.competitionId, comp.id),
-            eq(competitionEntries.userId, ctx.userId!)
+            eq(competitionEntries.userId, ctx.userId)
           )
         );
       if (existing) {
@@ -423,7 +423,7 @@ export const competitionRouter = router({
         .values({
           id: crypto.randomUUID(),
           competitionId: comp.id,
-          userId: ctx.userId!,
+          userId: ctx.userId,
           status: 'JOINED',
           joinedAt: nowDate,
           createdAt: nowDate,
@@ -440,7 +440,7 @@ export const competitionRouter = router({
       const [user] = await db
         .select({ name: users.name, avatar: users.avatar })
         .from(users)
-        .where(eq(users.id, ctx.userId!));
+        .where(eq(users.id, ctx.userId));
 
       return toParticipantDTO(entry, user || { name: 'Unknown', avatar: null });
     }),
@@ -507,7 +507,7 @@ export const competitionRouter = router({
         .where(
           and(
             eq(competitionEntries.competitionId, comp.id),
-            eq(competitionEntries.userId, ctx.userId!)
+            eq(competitionEntries.userId, ctx.userId)
           )
         );
       if (existing) {
@@ -520,7 +520,7 @@ export const competitionRouter = router({
         .values({
           id: crypto.randomUUID(),
           competitionId: comp.id,
-          userId: ctx.userId!,
+          userId: ctx.userId,
           status: 'JOINED',
           joinedAt: nowDate,
           submissionUrl: input.submissionUrl || null,
@@ -539,7 +539,7 @@ export const competitionRouter = router({
       const [user] = await db
         .select({ name: users.name, avatar: users.avatar })
         .from(users)
-        .where(eq(users.id, ctx.userId!));
+        .where(eq(users.id, ctx.userId));
 
       return toParticipantDTO(entry, user || { name: 'Unknown', avatar: null });
     }),

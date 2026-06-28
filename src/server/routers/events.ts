@@ -131,7 +131,7 @@ export const eventsRouter = router({
 
       const enriched = await enrichEvents(
         eventItems as Array<Record<string, unknown>>,
-        ctx.userId!,
+        ctx.userId,
         tenantId
       );
 
@@ -151,7 +151,7 @@ export const eventsRouter = router({
 
       const enriched = await enrichEvents(
         [event as unknown as Record<string, unknown>],
-        ctx.userId!,
+        ctx.userId,
         tenantId
       );
 
@@ -315,7 +315,7 @@ export const eventsRouter = router({
           id: crypto.randomUUID(),
           tenantId,
           eventId: input.id,
-          userId: ctx.userId!,
+          userId: ctx.userId,
         })
         .returning();
 

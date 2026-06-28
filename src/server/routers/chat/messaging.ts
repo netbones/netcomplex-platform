@@ -66,7 +66,7 @@ export const messagingProcedures = {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
 
-      const participant = await checkParticipant(input.conversationId, ctx.userId!, tenantId);
+      const participant = await checkParticipant(input.conversationId, ctx.userId, tenantId);
       if (!participant && !hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
       }
@@ -145,7 +145,7 @@ export const messagingProcedures = {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
 
-      const participant = await checkParticipant(input.conversationId, ctx.userId!, tenantId);
+      const participant = await checkParticipant(input.conversationId, ctx.userId, tenantId);
       if (!participant && !hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
       }
@@ -160,7 +160,7 @@ export const messagingProcedures = {
           id: crypto.randomUUID(),
           tenantId,
           conversationId: input.conversationId,
-          senderId: ctx.userId!,
+          senderId: ctx.userId,
           content: input.content.trim(),
           type: input.type as 'TEXT' | 'IMAGE' | 'SYSTEM',
           messageVersion: 1,
@@ -178,7 +178,7 @@ export const messagingProcedures = {
           avatar: users.avatar,
         })
         .from(users)
-        .where(eq(users.id, ctx.userId!));
+        .where(eq(users.id, ctx.userId));
 
       revalidateConversations();
 
@@ -234,7 +234,7 @@ export const messagingProcedures = {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
 
-      const userId = ctx.userId!;
+      const userId = ctx.userId;
 
       const [
         unreadDirectResult,
@@ -347,7 +347,7 @@ export const messagingProcedures = {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
 
-      const userId = ctx.userId!;
+      const userId = ctx.userId;
 
       const userConversationsData = await db
         .select({
@@ -502,7 +502,7 @@ export const messagingProcedures = {
         .where(
           and(
             eq(conversationParticipants.conversationId, input.conversationId),
-            eq(conversationParticipants.userId, ctx.userId!),
+            eq(conversationParticipants.userId, ctx.userId),
             eq(conversationParticipants.tenantId, tenantId)
           )
         );

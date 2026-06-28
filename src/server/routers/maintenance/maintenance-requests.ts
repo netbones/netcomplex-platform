@@ -47,7 +47,7 @@ export const maintenanceRequestProcedures = {
 
     const rows = await listMaintenanceRequests({
       tenantId,
-      userId: ctx.userId!,
+      userId: ctx.userId,
       canViewAll,
       scope: scope === 'community' ? 'all' : scope,
       status: input?.status || null,
@@ -125,7 +125,7 @@ export const maintenanceRequestProcedures = {
     const [created] = await createMaintenanceRequest({
       id: crypto.randomUUID(),
       tenantId,
-      userId: ctx.userId!,
+      userId: ctx.userId,
       propertyId: input.propertyId || null,
       category: input.category,
       priority: input.priority,
@@ -194,7 +194,7 @@ export const maintenanceRequestProcedures = {
       .where(and(eq(maintenanceRequests.id, input.id), eq(maintenanceRequests.tenantId, tenantId)))
       .returning();
 
-    await trackRequestChanges(input.id, ctx.userId!, existing, updateData);
+    await trackRequestChanges(input.id, ctx.userId, existing, updateData);
 
     revalidateDashboard();
     return updated;
@@ -308,7 +308,7 @@ export const maintenanceRequestProcedures = {
         .values({
           id: noteId,
           requestId: input.requestId,
-          userId: ctx.userId!,
+          userId: ctx.userId,
           content: input.content,
           createdAt,
           updatedAt: createdAt,
@@ -324,7 +324,7 @@ export const maintenanceRequestProcedures = {
       .values({
         id: noteId,
         requestId: input.requestId,
-        userId: ctx.userId!,
+        userId: ctx.userId,
         content: input.content,
         createdAt,
       })
@@ -402,7 +402,7 @@ export const maintenanceRequestProcedures = {
       .where(eq(maintenanceRequests.id, input.requestId))
       .returning();
 
-    await trackRequestChanges(input.requestId, ctx.userId!, existing, updateData);
+    await trackRequestChanges(input.requestId, ctx.userId, existing, updateData);
 
     revalidateDashboard();
     return updated;

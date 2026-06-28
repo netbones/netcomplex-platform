@@ -100,7 +100,7 @@ export const moderationProcedures = {
         .set({
           status: input.status,
           isPublished: input.isPublished ?? isActive,
-          moderatedBy: ctx.userId!,
+          moderatedBy: ctx.userId,
           moderatedAt: now(),
           moderationNotes: input.notes || null,
           updatedAt: now(),

@@ -263,7 +263,7 @@ export const listingProcedures = {
       await db.insert(communityServiceListings).values({
         id: listingId,
         tenantId,
-        providerId: ctx.userId!,
+        providerId: ctx.userId,
         providerType: input.providerType,
         title: titleJsonb,
         description: descriptionJsonb as Record<string, string>,
@@ -475,7 +475,7 @@ export const listingProcedures = {
 
       const conditions = [
         eq(communityServiceListings.tenantId, tenantId),
-        eq(communityServiceListings.providerId, ctx.userId!),
+        eq(communityServiceListings.providerId, ctx.userId),
         isNull(communityServiceListings.deletedAt),
       ];
 

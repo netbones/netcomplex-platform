@@ -364,7 +364,7 @@ export const meritsRouter = router({
       }
 
       requireUsersPermission(ctx.role);
-      return createMeritRecord(input, tenantId, ctx.userId!);
+      return createMeritRecord(input, tenantId, ctx.userId);
     }),
 
   updateMerit: protectedProcedure
@@ -460,7 +460,7 @@ export const meritsRouter = router({
       }
 
       requireUsersPermission(ctx.role);
-      return createMeritRecord(input, tenantId, ctx.userId!);
+      return createMeritRecord(input, tenantId, ctx.userId);
     }),
 
   // ────────── USER MERITS ──────────
@@ -488,7 +488,7 @@ export const meritsRouter = router({
         .from(communityMerits)
         .where(
           and(
-            eq(communityMerits.userId, ctx.userId!),
+            eq(communityMerits.userId, ctx.userId),
             eq(communityMerits.tenantId, tenantId),
             isNull(communityMerits.deletedAt)
           )
@@ -497,7 +497,7 @@ export const meritsRouter = router({
         .offset(input?.offset ?? 0)
         .orderBy(desc(communityMerits.createdAt));
 
-      const points = await getEffectivePoints(ctx.userId!, tenantId);
+      const points = await getEffectivePoints(ctx.userId, tenantId);
       const thresholds = await getMeritTierThresholds(tenantId);
       const standing = {
         ...points,
@@ -599,7 +599,7 @@ export const meritsRouter = router({
       const ts = now();
       const currentHistory: unknown[] = (record.disputeHistory as unknown[]) ?? [];
       const updateData: Record<string, unknown> = {
-        resolvedById: ctx.userId!,
+        resolvedById: ctx.userId,
         resolvedAt: ts,
         disputeHistory: [
           ...currentHistory,

@@ -70,7 +70,7 @@ export const dwalletRouter = router({
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
     }
 
-    const wallet = await getOrCreateWallet(ctx.userId!, tenantId);
+    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
 
     const streams = await db
       .select()
@@ -151,7 +151,7 @@ export const dwalletRouter = router({
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
     }
 
-    const wallet = await getOrCreateWallet(ctx.userId!, tenantId);
+    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
 
     return {
       balance: wallet.balance,
@@ -168,7 +168,7 @@ export const dwalletRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
 
-      const wallet = await getOrCreateWallet(ctx.userId!, tenantId);
+      const wallet = await getOrCreateWallet(ctx.userId, tenantId);
 
       const page = input?.page ?? 1;
       const limit = input?.limit ?? 20;
@@ -237,7 +237,7 @@ export const dwalletRouter = router({
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
     }
 
-    const wallet = await getOrCreateWallet(ctx.userId!, tenantId);
+    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
 
     const [txn] = await db
       .select()
@@ -273,7 +273,7 @@ export const dwalletRouter = router({
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
     }
 
-    const wallet = await getOrCreateWallet(ctx.userId!, tenantId);
+    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
 
     const balanceNum = Number(wallet.balance);
     if (balanceNum < 50) {
@@ -297,7 +297,7 @@ export const dwalletRouter = router({
       id: payoutId,
       tenantId,
       walletId: wallet.id,
-      userId: ctx.userId!,
+      userId: ctx.userId,
       // amount column is decimal(65,30) — Drizzle requires string for precision
       amount: input.amount.toString(),
       currency: wallet.currency,
@@ -324,7 +324,7 @@ export const dwalletRouter = router({
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
     }
 
-    const wallet = await getOrCreateWallet(ctx.userId!, tenantId);
+    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
 
     const conditions = [
       eq(payoutRequests.walletId, wallet.id),
@@ -362,7 +362,7 @@ export const dwalletRouter = router({
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
     }
 
-    const wallet = await getOrCreateWallet(ctx.userId!, tenantId);
+    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
 
     const streams = await db
       .select()
@@ -413,7 +413,7 @@ export const dwalletRouter = router({
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
     }
 
-    const wallet = await getOrCreateWallet(ctx.userId!, tenantId);
+    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
 
     const [stream] = await db
       .select()
@@ -440,7 +440,7 @@ export const dwalletRouter = router({
       id: consentId,
       tenantId,
       walletId: wallet.id,
-      userId: ctx.userId!,
+      userId: ctx.userId,
       streamKey: input.streamKey,
       granted: input.granted,
       grantedAt: input.granted ? timestamp : null,
@@ -457,7 +457,7 @@ export const dwalletRouter = router({
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
     }
 
-    const wallet = await getOrCreateWallet(ctx.userId!, tenantId);
+    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
 
     const [stream] = await db
       .select()
@@ -484,7 +484,7 @@ export const dwalletRouter = router({
       id: consentId,
       tenantId,
       walletId: wallet.id,
-      userId: ctx.userId!,
+      userId: ctx.userId,
       streamKey: input.streamKey,
       granted: false,
       grantedAt: null,

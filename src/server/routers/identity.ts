@@ -840,13 +840,13 @@ export const identityRouter = router({
       const owned = await db
         .select()
         .from(properties)
-        .where(eq(properties.ownerId, ctx.userId!))
+        .where(eq(properties.ownerId, ctx.userId))
         .orderBy(asc(properties.unit));
 
       const seats = await db
         .select()
         .from(standardSeats)
-        .where(eq(standardSeats.userId, ctx.userId!));
+        .where(eq(standardSeats.userId, ctx.userId));
 
       const seatPropertyIds = seats.map(s => s.propertyId);
       const seatProperties =
@@ -1130,7 +1130,7 @@ export const identityRouter = router({
         .nullable()
     )
     .query(async ({ ctx }) => {
-      const [seat] = await db.select().from(soloSeats).where(eq(soloSeats.userId, ctx.userId!));
+      const [seat] = await db.select().from(soloSeats).where(eq(soloSeats.userId, ctx.userId));
       if (!seat) return null;
 
       const property = seat.propertyId
@@ -1150,7 +1150,7 @@ export const identityRouter = router({
     .meta({ openapi: { method: 'GET', path: '/my/agent-accesses', tags: ['Agent Access'] } })
     .output(z.array(agentAccessSchema))
     .query(async ({ ctx }) => {
-      return db.select().from(agentAccesses).where(eq(agentAccesses.agentId, ctx.userId!));
+      return db.select().from(agentAccesses).where(eq(agentAccesses.agentId, ctx.userId));
     }),
 
   getPropertyAgentAccesses: protectedProcedure
@@ -1267,7 +1267,7 @@ export const identityRouter = router({
             endDate: parsedEndDate,
             isPermanent,
             isActive: true,
-            createdById: ctx.userId!,
+            createdById: ctx.userId,
             createdAt: ts,
             updatedAt: ts,
           })
@@ -1280,7 +1280,7 @@ export const identityRouter = router({
 
       writeAuditLog({
         action: 'USER_SUSPENDED',
-        actorId: ctx.userId!,
+        actorId: ctx.userId,
         targetId: input.userId,
         tenantId: ctx.tenantId!,
         details: {
@@ -1366,7 +1366,7 @@ export const identityRouter = router({
 
       writeAuditLog({
         action: 'USER_UNSUSPENDED',
-        actorId: ctx.userId!,
+        actorId: ctx.userId,
         targetId: input.userId,
         tenantId: ctx.tenantId!,
       });
@@ -1394,7 +1394,7 @@ export const identityRouter = router({
         .where(
           and(
             eq(albums.tenantId, ctx.tenantId!),
-            eq(albums.userId, ctx.userId!),
+            eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
         )
@@ -1423,7 +1423,7 @@ export const identityRouter = router({
           and(
             eq(albums.id, input.id),
             eq(albums.tenantId, ctx.tenantId!),
-            eq(albums.userId, ctx.userId!),
+            eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
         )
@@ -1459,7 +1459,7 @@ export const identityRouter = router({
         .where(
           and(
             eq(albums.tenantId, ctx.tenantId!),
-            eq(albums.userId, ctx.userId!),
+            eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
         );
@@ -1474,7 +1474,7 @@ export const identityRouter = router({
         .values({
           id: crypto.randomUUID(),
           tenantId: ctx.tenantId!,
-          userId: ctx.userId!,
+          userId: ctx.userId,
           title: input.title,
           description: input.description || null,
           isPublic: input.isPublic,
@@ -1490,7 +1490,7 @@ export const identityRouter = router({
         .where(
           and(
             eq(albums.tenantId, ctx.tenantId!),
-            eq(albums.userId, ctx.userId!),
+            eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
         )
@@ -1537,7 +1537,7 @@ export const identityRouter = router({
           and(
             eq(albums.id, id),
             eq(albums.tenantId, ctx.tenantId!),
-            eq(albums.userId, ctx.userId!),
+            eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
         );
@@ -1548,7 +1548,7 @@ export const identityRouter = router({
         .where(
           and(
             eq(albums.tenantId, ctx.tenantId!),
-            eq(albums.userId, ctx.userId!),
+            eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
         )
@@ -1579,7 +1579,7 @@ export const identityRouter = router({
           and(
             eq(albums.id, input.id),
             eq(albums.tenantId, ctx.tenantId!),
-            eq(albums.userId, ctx.userId!),
+            eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
         );
@@ -1590,7 +1590,7 @@ export const identityRouter = router({
         .where(
           and(
             eq(albums.tenantId, ctx.tenantId!),
-            eq(albums.userId, ctx.userId!),
+            eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
         )
@@ -1664,13 +1664,13 @@ export const identityRouter = router({
       const [solo] = await db
         .select()
         .from(soloSeats)
-        .where(and(eq(soloSeats.userId, ctx.userId!), eq(soloSeats.tenantId, tenantId)))
+        .where(and(eq(soloSeats.userId, ctx.userId), eq(soloSeats.tenantId, tenantId)))
         .limit(1);
 
       const [premium] = await db
         .select()
         .from(premiumSeats)
-        .where(and(eq(premiumSeats.userId, ctx.userId!), eq(premiumSeats.tenantId, tenantId)))
+        .where(and(eq(premiumSeats.userId, ctx.userId), eq(premiumSeats.tenantId, tenantId)))
         .limit(1);
 
       return { solo: solo || null, premium: premium || null };
@@ -1736,20 +1736,20 @@ export const identityRouter = router({
           .from(maintenanceRequests)
           .where(
             and(
-              eq(maintenanceRequests.userId, ctx.userId!),
+              eq(maintenanceRequests.userId, ctx.userId),
               eq(maintenanceRequests.tenantId, ctx.tenantId!)
             )
           ),
         db
           .select({ count: count() })
           .from(bookings)
-          .where(and(eq(bookings.userId, ctx.userId!), eq(bookings.tenantId, ctx.tenantId!))),
+          .where(and(eq(bookings.userId, ctx.userId), eq(bookings.tenantId, ctx.tenantId!))),
         db
           .select({ count: count() })
           .from(conversationParticipants)
           .where(
             and(
-              eq(conversationParticipants.userId, ctx.userId!),
+              eq(conversationParticipants.userId, ctx.userId),
               eq(conversationParticipants.tenantId, ctx.tenantId!)
             )
           ),
@@ -1757,7 +1757,7 @@ export const identityRouter = router({
           .select({ count: count() })
           .from(notifications)
           .where(
-            and(eq(notifications.userId, ctx.userId!), eq(notifications.tenantId, ctx.tenantId!))
+            and(eq(notifications.userId, ctx.userId), eq(notifications.tenantId, ctx.tenantId!))
           ),
       ]);
 

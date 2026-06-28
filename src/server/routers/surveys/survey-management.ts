@@ -269,7 +269,7 @@ export const surveyManagementProcedures = {
         .where(
           and(
             eq(responses.surveyId, input.surveyId),
-            eq(responses.userId, ctx.userId!),
+            eq(responses.userId, ctx.userId),
             isNull(responses.deletedAt)
           )
         )
@@ -288,7 +288,7 @@ export const surveyManagementProcedures = {
           id: crypto.randomUUID(),
           tenantId,
           surveyId: input.surveyId,
-          userId: ctx.userId!,
+          userId: ctx.userId,
           answers: input.answers,
           createdAt: now(),
         })

@@ -295,7 +295,7 @@ export const groupsRouter = router({
           accessType: input.accessType,
           residentFilter: input.residentFilter,
           isActive: true,
-          ownerId: input.ownerId || ctx.userId!,
+          ownerId: input.ownerId || ctx.userId,
           createdAt: ts,
           updatedAt: ts,
         })
@@ -304,7 +304,7 @@ export const groupsRouter = router({
       await db.insert(groupMembers).values({
         id: crypto.randomUUID(),
         tenantId,
-        userId: input.ownerId || ctx.userId!,
+        userId: input.ownerId || ctx.userId,
         groupId: group.id,
         role: 'ADMIN',
         joinedAt: ts,
@@ -398,7 +398,7 @@ export const groupsRouter = router({
         });
       }
 
-      const existing = await isGroupMember(ctx.userId!, input.groupId, tenantId);
+      const existing = await isGroupMember(ctx.userId, input.groupId, tenantId);
       if (existing) {
         throw new TRPCError({ code: 'CONFLICT', message: 'Already a member of this group' });
       }
@@ -408,7 +408,7 @@ export const groupsRouter = router({
         .values({
           id: crypto.randomUUID(),
           tenantId,
-          userId: ctx.userId!,
+          userId: ctx.userId,
           groupId: input.groupId,
           role: 'MEMBER',
           joinedAt: now(),
@@ -429,7 +429,7 @@ export const groupsRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
 
-      const existing = await isGroupMember(ctx.userId!, input.groupId, tenantId);
+      const existing = await isGroupMember(ctx.userId, input.groupId, tenantId);
       if (!existing) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Not a member of this group' });
       }
@@ -439,7 +439,7 @@ export const groupsRouter = router({
         .set({ deletedAt: now() })
         .where(
           and(
-            eq(groupMembers.userId, ctx.userId!),
+            eq(groupMembers.userId, ctx.userId),
             eq(groupMembers.groupId, input.groupId),
             eq(groupMembers.tenantId, tenantId)
           )

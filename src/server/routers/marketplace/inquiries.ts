@@ -56,7 +56,7 @@ export const inquiryProcedures = {
         id: inquiryId,
         tenantId,
         listingId: input.listingId,
-        inquirerId: ctx.userId!,
+        inquirerId: ctx.userId,
         serviceType: input.serviceType || null,
         preferredDate: input.preferredDate ? new Date(input.preferredDate) : null,
         preferredTime: input.preferredTime || null,
@@ -96,7 +96,7 @@ export const inquiryProcedures = {
 
       const conditions = [
         eq(communityServiceInquiries.tenantId, tenantId),
-        eq(communityServiceInquiries.inquirerId, ctx.userId!),
+        eq(communityServiceInquiries.inquirerId, ctx.userId),
       ];
 
       if (input.status && input.status !== 'ALL') {
@@ -153,7 +153,7 @@ export const inquiryProcedures = {
         .from(communityServiceListings)
         .where(
           and(
-            eq(communityServiceListings.providerId, ctx.userId!),
+            eq(communityServiceListings.providerId, ctx.userId),
             eq(communityServiceListings.tenantId, tenantId)
           )
         );

@@ -60,7 +60,7 @@ export const serviceBookingProcedures = {
         }
         conditions.push(eq(serviceBookings.providerId, provider.id));
       } else {
-        conditions.push(eq(serviceBookings.userId, ctx.userId!));
+        conditions.push(eq(serviceBookings.userId, ctx.userId));
       }
 
       const bookingsData = await db
@@ -188,7 +188,7 @@ export const serviceBookingProcedures = {
         tenantId,
         listingId,
         providerId,
-        userId: ctx.userId!,
+        userId: ctx.userId,
         date: new Date(date),
         startTime,
         endTime,
@@ -232,7 +232,7 @@ export const serviceBookingProcedures = {
           and(
             eq(serviceBookings.id, input.bookingId),
             eq(serviceBookings.tenantId, tenantId),
-            or(eq(serviceBookings.userId, ctx.userId!), eq(serviceBookings.providerId, ctx.userId!))
+            or(eq(serviceBookings.userId, ctx.userId), eq(serviceBookings.providerId, ctx.userId))
           )
         )
         .limit(1);

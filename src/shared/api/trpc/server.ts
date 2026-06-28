@@ -79,12 +79,16 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   if (!ctx.session?.user?.id) {
     throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
   }
+  const userId = ctx.session.user.id;
   return next({
     ctx: {
-      ...ctx,
+      db: ctx.db,
       session: ctx.session,
-      userId: ctx.session.user.id,
-      role: ctx.role as string,
+      userId,
+      role: (ctx.role ?? 'RESIDENT') as string,
+      tenantId: ctx.tenantId,
+      tenantSlug: ctx.tenantSlug,
+      organizationId: ctx.organizationId,
     },
   });
 });

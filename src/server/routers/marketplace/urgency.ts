@@ -33,7 +33,7 @@ export const urgencyProcedures = {
               and(
                 eq(maintenanceRequests.tenantId, tenantId),
                 eq(maintenanceRequests.status, 'SUBMITTED'),
-                eq(maintenanceRequests.userId, ctx.userId!)
+                eq(maintenanceRequests.userId, ctx.userId)
               )
             ),
           db
