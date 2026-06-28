@@ -15,6 +15,10 @@ import { dwalletRouter } from './dwallet';
 import { marketplaceRouter } from './marketplace';
 import { groupsRouter } from './groups';
 import { meritsRouter } from './merits';
+import { settingsRouter } from './settings';
+import { achievementsRouter } from './achievements';
+import { invitationsRouter } from './invitations';
+import { agentsRouter } from './agents';
 
 // Domain routers are added here as they migrate to tRPC
 export const appRouter = router({
@@ -33,6 +37,10 @@ export const appRouter = router({
   marketplace: marketplaceRouter,
   groups: groupsRouter,
   merits: meritsRouter,
+  settings: settingsRouter,
+  achievements: achievementsRouter,
+  invitations: invitationsRouter,
+  agents: agentsRouter,
 });
 
 export type AppRouter = typeof appRouter;

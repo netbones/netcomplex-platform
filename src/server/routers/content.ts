@@ -12,12 +12,22 @@ import {
   notDeleted,
   emitEvent,
   now,
+  announcements,
+  revalidateDashboard,
+  notifications,
+  profiles,
+  resources,
+  settings,
 } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
-import { hasPermission, defaultLanguage, supportedLanguages } from '@shared/lib';
+import { hasPermission, defaultLanguage, canPublishAnnouncements } from '@shared/lib';
+import { validatePriorityForRole } from '@features/announcements';
+import type { AnnouncementPriority } from '@features/announcements';
 
-import { eq, and, or, desc, isNull, lte, gt, count, type SQL } from 'drizzle-orm';
+import { eq, and, or, desc, isNull, lte, gt, count, inArray, sql, type SQL } from 'drizzle-orm';
+
+import { withTenantOptional, isModuleEnabled } from '@entities/tenant/server';
 
 import {
   listContent as entityListContent,
@@ -99,6 +109,66 @@ const UpdateContentInput = z.object({
 const ModerateContentInput = z.object({
   id: z.string(),
   moderationStatus: ModerationEnum,
+});
+
+const TargetFilterEnum = z.enum(['ALL', 'OWNERS_ONLY', 'RENTERS_ONLY']);
+const AnnouncementPriorityEnum = z.enum(['urgent', 'high', 'normal', 'low']);
+
+const ListAnnouncementsInput = z
+  .object({
+    priority: AnnouncementPriorityEnum.optional(),
+    active: z.string().optional(),
+    limit: z.coerce.number().int().min(1).max(200).optional(),
+  })
+  .optional();
+
+const CreateAnnouncementInput = z.object({
+  title: z.string().min(1).max(200).trim(),
+  content: z.string().min(1).max(5000).trim(),
+  author: z.string().min(1).max(100).trim(),
+  priority: AnnouncementPriorityEnum.default('normal'),
+  targetFilter: TargetFilterEnum.default('ALL'),
+  targetRoles: z
+    .array(
+      z.enum([
+        'RESIDENT',
+        'GROUP_ADMIN',
+        'COMMITTEE',
+        'BOARD',
+        'ADMIN',
+        'AGENT',
+        'MANAGER',
+        'ASSOCIATE',
+      ])
+    )
+    .default([]),
+  resourceId: z.string().optional(),
+  expiresAt: z.string().optional(),
+});
+
+const UpdateAnnouncementInput = z.object({
+  id: z.string(),
+  title: z.string().min(1).max(200).trim().optional(),
+  content: z.string().min(1).max(5000).trim().optional(),
+  author: z.string().min(1).max(100).trim().optional(),
+  priority: AnnouncementPriorityEnum.optional(),
+  targetFilter: TargetFilterEnum.optional(),
+  targetRoles: z
+    .array(
+      z.enum([
+        'RESIDENT',
+        'GROUP_ADMIN',
+        'COMMITTEE',
+        'BOARD',
+        'ADMIN',
+        'AGENT',
+        'MANAGER',
+        'ASSOCIATE',
+      ])
+    )
+    .optional(),
+  resourceId: z.string().optional().nullable(),
+  expiresAt: z.string().optional().nullable(),
 });
 
 // ──────────────────────────────────────────
@@ -450,4 +520,461 @@ export const contentRouter = router({
 
     return { liked: true };
   }),
+
+  // ────────── ANNOUNCEMENTS ──────────
+
+  listAnnouncements: publicProcedure
+    .meta({
+      openapi: { method: 'GET', path: '/announcements', protect: true, tags: ['content'] },
+    })
+    .input(ListAnnouncementsInput)
+    .query(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const priorityOrder = sql`CASE ${announcements.priority}
+        WHEN 'urgent' THEN 0
+        WHEN 'high' THEN 1
+        WHEN 'normal' THEN 2
+        WHEN 'low' THEN 3
+        ELSE 4 END`;
+
+      const conditions = [eq(announcements.tenantId, tenantId), isNull(announcements.deletedAt)];
+
+      if (input?.priority) {
+        conditions.push(eq(announcements.priority, input.priority));
+      }
+
+      if (input?.active === 'true') {
+        conditions.push(
+          sql`(${announcements.expiresAt} IS NULL OR ${announcements.expiresAt} > ${now()})`
+        );
+      }
+
+      const limit = input?.limit ?? 50;
+
+      return db
+        .select()
+        .from(announcements)
+        .where(and(...conditions))
+        .orderBy(priorityOrder, desc(announcements.createdAt))
+        .limit(limit);
+    }),
+
+  getAnnouncement: publicProcedure
+    .meta({
+      openapi: { method: 'GET', path: '/announcements/{id}', protect: true, tags: ['content'] },
+    })
+    .input(IdInput)
+    .query(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const [announcement] = await db
+        .select()
+        .from(announcements)
+        .where(
+          and(
+            notDeleted(announcements),
+            eq(announcements.id, input.id),
+            eq(announcements.tenantId, tenantId)
+          )
+        )
+        .limit(1);
+
+      if (!announcement) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Announcement not found' });
+      }
+
+      return announcement;
+    }),
+
+  createAnnouncement: protectedProcedure
+    .meta({
+      openapi: { method: 'POST', path: '/announcements', protect: true, tags: ['content'] },
+    })
+    .input(CreateAnnouncementInput)
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      if (!canPublishAnnouncements(ctx.role)) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Insufficient permissions to publish announcements',
+        });
+      }
+
+      const validatedPriority = validatePriorityForRole(
+        input.priority,
+        ctx.role
+      ) as AnnouncementPriority;
+      const priorityDowngraded = validatedPriority !== input.priority;
+
+      if (input.resourceId) {
+        const [resource] = await db
+          .select({ id: resources.id })
+          .from(resources)
+          .where(and(eq(resources.id, input.resourceId), eq(resources.tenantId, tenantId)))
+          .limit(1);
+
+        if (!resource) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Resource not found or does not belong to this tenant',
+          });
+        }
+      }
+
+      const ts = now();
+
+      const [announcement] = await db
+        .insert(announcements)
+        .values({
+          id: crypto.randomUUID(),
+          tenantId,
+          title: input.title,
+          content: input.content,
+          author: input.author,
+          priority: validatedPriority,
+          targetFilter: input.targetFilter,
+          targetRoles: input.targetRoles,
+          resourceId: input.resourceId ?? null,
+          createdAt: ts,
+          updatedAt: ts,
+          expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
+        })
+        .returning();
+
+      let targetUsers: { id: string }[] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(and(eq(users.tenantId, tenantId), eq(users.isActive, true)));
+
+      if (input.targetFilter === 'OWNERS_ONLY') {
+        const ownerUserIds = await db
+          .select({ id: users.id })
+          .from(users)
+          .innerJoin(profiles, eq(profiles.userId, users.id))
+          .where(
+            and(
+              eq(users.tenantId, tenantId),
+              eq(users.isActive, true),
+              inArray(profiles.residencyType, ['OWNER', 'FAMILY'])
+            )
+          );
+        targetUsers = ownerUserIds;
+      } else if (input.targetFilter === 'RENTERS_ONLY') {
+        const renterUserIds = await db
+          .select({ id: users.id })
+          .from(users)
+          .innerJoin(profiles, eq(profiles.userId, users.id))
+          .where(
+            and(
+              eq(users.tenantId, tenantId),
+              eq(users.isActive, true),
+              eq(profiles.residencyType, 'RENTER')
+            )
+          );
+        targetUsers = renterUserIds;
+      }
+
+      if (input.targetRoles && input.targetRoles.length > 0) {
+        const roleFilteredUsers = await db
+          .select({ id: users.id })
+          .from(users)
+          .where(
+            and(
+              eq(users.tenantId, tenantId),
+              eq(users.isActive, true),
+              inArray(users.role, input.targetRoles)
+            )
+          );
+        const roleIds = new Set(roleFilteredUsers.map(u => u.id));
+        targetUsers = targetUsers.filter(u => roleIds.has(u.id));
+      }
+
+      const FANOUT_BATCH = 500;
+      if (targetUsers.length > 0) {
+        for (let i = 0; i < targetUsers.length; i += FANOUT_BATCH) {
+          const batch = targetUsers.slice(i, i + FANOUT_BATCH);
+          await db.insert(notifications).values(
+            batch.map(user => ({
+              id: crypto.randomUUID(),
+              tenantId,
+              userId: user.id,
+              title: announcement.title,
+              message: announcement.content.slice(0, 200),
+              type: 'info',
+              link: `/news#announcement-${announcement.id}`,
+              read: false,
+            })) as (typeof notifications.$inferInsert)[]
+          );
+        }
+      }
+
+      revalidateDashboard();
+
+      const response: Record<string, unknown> = { ...announcement };
+      if (priorityDowngraded) {
+        response.warning = `Priority downgraded from ${input.priority} to ${validatedPriority} — your role permits a maximum of ${validatedPriority}`;
+      }
+
+      return response;
+    }),
+
+  updateAnnouncement: protectedProcedure
+    .meta({
+      openapi: { method: 'PATCH', path: '/announcements/{id}', protect: true, tags: ['content'] },
+    })
+    .input(UpdateAnnouncementInput)
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      if (!canPublishAnnouncements(ctx.role)) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Insufficient permissions to edit announcements',
+        });
+      }
+
+      let priorityDowngraded = false;
+      let validatedPriority: AnnouncementPriority | undefined;
+
+      if (input.priority) {
+        validatedPriority = validatePriorityForRole(
+          input.priority,
+          ctx.role
+        ) as AnnouncementPriority;
+        priorityDowngraded = validatedPriority !== input.priority;
+      }
+
+      if (input.resourceId) {
+        const [resource] = await db
+          .select({ id: resources.id })
+          .from(resources)
+          .where(and(eq(resources.id, input.resourceId), eq(resources.tenantId, tenantId)))
+          .limit(1);
+
+        if (!resource) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Resource not found or does not belong to this tenant',
+          });
+        }
+      }
+
+      const updateData: Record<string, unknown> = {
+        updatedAt: now(),
+      };
+
+      if (input.title !== undefined) updateData.title = input.title;
+      if (input.content !== undefined) updateData.content = input.content;
+      if (input.author !== undefined) updateData.author = input.author;
+      if (validatedPriority !== undefined) updateData.priority = validatedPriority;
+      else if (input.priority !== undefined) updateData.priority = input.priority;
+      if (input.targetFilter !== undefined) updateData.targetFilter = input.targetFilter;
+      if (input.targetRoles !== undefined) updateData.targetRoles = input.targetRoles;
+      if (input.resourceId !== undefined) updateData.resourceId = input.resourceId || null;
+      if (input.expiresAt !== undefined) {
+        updateData.expiresAt = input.expiresAt ? new Date(input.expiresAt) : null;
+      }
+
+      const [existing] = await db
+        .select({ deletedAt: announcements.deletedAt })
+        .from(announcements)
+        .where(and(eq(announcements.id, input.id), eq(announcements.tenantId, tenantId)))
+        .limit(1);
+
+      if (!existing) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Announcement not found' });
+      }
+
+      if (existing.deletedAt) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'This announcement has been deleted' });
+      }
+
+      const [announcement] = await db
+        .update(announcements)
+        .set(updateData)
+        .where(and(eq(announcements.id, input.id), eq(announcements.tenantId, tenantId)))
+        .returning();
+
+      revalidateDashboard();
+
+      const response: Record<string, unknown> = { ...announcement };
+      if (priorityDowngraded && validatedPriority) {
+        response.warning = `Priority downgraded from ${input.priority} to ${validatedPriority} — your role permits a maximum of ${validatedPriority}`;
+      }
+
+      return response;
+    }),
+
+  deleteAnnouncement: protectedProcedure
+    .meta({
+      openapi: { method: 'DELETE', path: '/announcements/{id}', protect: true, tags: ['content'] },
+    })
+    .input(IdInput)
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      if (!canPublishAnnouncements(ctx.role)) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Insufficient permissions to delete announcements',
+        });
+      }
+
+      const [announcement] = await db
+        .update(announcements)
+        .set({ deletedAt: now(), updatedAt: now() })
+        .where(and(eq(announcements.id, input.id), eq(announcements.tenantId, tenantId)))
+        .returning();
+
+      if (!announcement) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Announcement not found' });
+      }
+
+      revalidateDashboard();
+
+      return { success: true };
+    }),
+
+  // ────────── CAMPAIGN PAGE ──────────
+
+  getCampaignPage: publicProcedure
+    .meta({
+      openapi: { method: 'GET', path: '/campaign', protect: true, tags: ['content'] },
+    })
+    .query(async ({ ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const tenantSettings = await db
+        .select()
+        .from(settings)
+        .where(eq(settings.tenantId, tenantId));
+
+      const settingsMap = tenantSettings.reduce(
+        (acc, s) => {
+          acc[s.key] = s.value;
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+
+      const DEFAULT_CAMPAIGN_CONFIG = {
+        linkLabel: { en: 'Campaign', af: 'Veldtog', xh: 'Icampaign', zu: 'I-Campaign' },
+        pageTitle: { en: 'Campaign', af: 'Veldtog', xh: 'Icampaign', zu: 'I-Campaign' },
+        pageDescription: {
+          en: 'Support our community campaign',
+          af: 'Ondersteun ons gemeenskap se veldtog',
+          xh: 'Uxhaso lomphefumlo wethu',
+          zu: 'Sisekela umcamango weqembu lethu',
+        },
+        contentCategory: 'CAMPAIGN',
+      };
+
+      const campaignConfig = {
+        linkLabel: settingsMap.campaignLinkLabel
+          ? JSON.parse(settingsMap.campaignLinkLabel)
+          : DEFAULT_CAMPAIGN_CONFIG.linkLabel,
+        pageTitle: settingsMap.campaignPageTitle
+          ? JSON.parse(settingsMap.campaignPageTitle)
+          : DEFAULT_CAMPAIGN_CONFIG.pageTitle,
+        pageDescription: settingsMap.campaignPageDescription
+          ? JSON.parse(settingsMap.campaignPageDescription)
+          : DEFAULT_CAMPAIGN_CONFIG.pageDescription,
+        contentCategory: settingsMap.campaignCategory || DEFAULT_CAMPAIGN_CONFIG.contentCategory,
+      };
+
+      const campaignCategory =
+        campaignConfig.contentCategory as (typeof contents.category.enumValues)[number];
+
+      const contentList = await db
+        .select({
+          id: contents.id,
+          title: contents.title,
+          content: contents.content,
+          excerpt: contents.excerpt,
+          image: contents.image,
+          category: contents.category,
+          publishedAt: contents.publishedAt,
+          featured: contents.featured,
+          priority: contents.priority,
+          defaultLocale: contents.defaultLocale,
+          author: {
+            id: users.id,
+            name: users.name,
+            avatar: users.avatar,
+          },
+        })
+        .from(contents)
+        .leftJoin(users, eq(contents.authorId, users.id))
+        .where(
+          and(
+            eq(contents.published, true),
+            eq(contents.category, campaignCategory),
+            eq(contents.tenantId, tenantId)
+          )
+        )
+        .orderBy(desc(contents.featured), desc(contents.priority), desc(contents.publishedAt));
+
+      return { config: campaignConfig, content: contentList };
+    }),
+
+  // ────────── CONSERVATION PAGE ──────────
+
+  getConservationPage: publicProcedure
+    .meta({
+      openapi: { method: 'GET', path: '/conservation', protect: true, tags: ['content'] },
+    })
+    .query(async ({ ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const conservationEnabled = await isModuleEnabled(tenantId, 'conservation');
+      if (!conservationEnabled) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Conservation feature is not available for this community',
+        });
+      }
+
+      const contentList = await db
+        .select({
+          id: contents.id,
+          title: contents.title,
+          excerpt: contents.excerpt,
+          image: contents.image,
+          category: contents.category,
+          publishedAt: contents.publishedAt,
+          author: {
+            name: users.name,
+          },
+        })
+        .from(contents)
+        .leftJoin(users, eq(contents.authorId, users.id))
+        .where(and(eq(contents.published, true), eq(contents.tenantId, tenantId)))
+        .orderBy(desc(contents.publishedAt))
+        .limit(3);
+
+      return contentList;
+    }),
 });

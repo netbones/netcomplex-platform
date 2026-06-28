@@ -7,6 +7,7 @@ import {
   questions,
   responses,
   surveySections,
+  externalSurveys,
   revalidateAdminChanges,
   now,
 } from '@api/server';
@@ -135,6 +136,17 @@ const ReorderSectionsInput = z.object({
       })
     )
     .min(1),
+});
+
+const ListExternalSurveysInput = z
+  .object({
+    isActive: z.string().optional(),
+  })
+  .optional();
+
+const SubmitExternalSurveyResponseInput = z.object({
+  externalSurveyId: z.string(),
+  answers: z.record(z.unknown()),
 });
 
 // ──────────────────────────────────────────
@@ -984,5 +996,95 @@ export const surveysRouter = router({
 
       revalidateAdminChanges();
       return { reordered };
+    }),
+
+  // ────────── EXTERNAL SURVEYS ──────────
+
+  listExternalSurveys: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/external-surveys',
+        tags: ['Surveys'],
+        summary: 'List external (non-resident) surveys',
+        protect: true,
+      },
+    })
+    .input(ListExternalSurveysInput)
+    .query(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      requireContentPermission(ctx.role);
+
+      const conditions = [eq(externalSurveys.tenantId, tenantId)];
+
+      if (input?.isActive === 'true') {
+        conditions.push(eq(externalSurveys.isActive, true));
+      } else if (input?.isActive === 'false') {
+        conditions.push(eq(externalSurveys.isActive, false));
+      }
+
+      return db
+        .select()
+        .from(externalSurveys)
+        .where(and(...conditions))
+        .orderBy(desc(externalSurveys.createdAt));
+    }),
+
+  submitExternalSurveyResponse: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/external-surveys/{externalSurveyId}/responses',
+        tags: ['Surveys'],
+        summary: 'Submit response to an external survey',
+        protect: true,
+      },
+    })
+    .input(SubmitExternalSurveyResponseInput)
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const [survey] = await db
+        .select({ id: externalSurveys.id, isActive: externalSurveys.isActive })
+        .from(externalSurveys)
+        .where(
+          and(
+            eq(externalSurveys.id, input.externalSurveyId),
+            eq(externalSurveys.tenantId, tenantId)
+          )
+        )
+        .limit(1);
+
+      if (!survey) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'External survey not found' });
+      }
+
+      if (!survey.isActive) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'External survey is not active',
+        });
+      }
+
+      const [response] = await db
+        .insert(responses)
+        .values({
+          id: crypto.randomUUID(),
+          tenantId,
+          surveyId: input.externalSurveyId,
+          userId: ctx.userId!,
+          answers: input.answers,
+          createdAt: now(),
+        })
+        .returning();
+
+      return response;
     }),
 });

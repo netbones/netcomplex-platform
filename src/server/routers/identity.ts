@@ -13,6 +13,14 @@ import {
   premiumSeats,
   agentAccesses,
   users,
+  platformSuspensions,
+  albums,
+  maintenanceRequests,
+  bookings,
+  conversationParticipants,
+  notifications,
+  now,
+  writeAuditLog,
 } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
@@ -31,6 +39,7 @@ import {
   ilike,
   inArray,
   sql,
+  isNull,
   InferSelectModel,
 } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
@@ -126,6 +135,78 @@ const agentAccessSchema = z.object({
   expiresAt: z.date(),
   createdAt: z.date(),
   updatedAt: z.date(),
+});
+
+const suspensionSchema = z.object({
+  id: z.string(),
+  tenantId: z.string(),
+  userId: z.string(),
+  suspensionType: z.string(),
+  reason: z.string(),
+  description: z.string().nullable(),
+  startDate: z.date(),
+  endDate: z.date().nullable(),
+  isPermanent: z.boolean(),
+  isActive: z.boolean(),
+  createdById: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+const albumSchema = z.object({
+  id: z.string(),
+  tenantId: z.string(),
+  userId: z.string(),
+  title: z.string(),
+  description: z.string().nullable(),
+  isPublic: z.boolean(),
+  mediaIds: z.array(z.string()),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+const publicAlbumSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string().nullable(),
+  mediaIds: z.array(z.string()),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  userId: z.string(),
+  userName: z.string(),
+  userAvatar: z.string().nullable(),
+});
+
+const seatSchema = z.object({
+  id: z.string(),
+  tenantId: z.string(),
+  userId: z.string(),
+  platformAddress: z.string(),
+  propertyId: z.string().nullable(),
+  seatType: z.string(),
+  isComplimentary: z.boolean(),
+  linkedFromProfileId: z.string().nullable(),
+  organizationId: z.string().nullable(),
+  status: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+const premiumSeatSchema = z.object({
+  id: z.string(),
+  tenantId: z.string(),
+  userId: z.string(),
+  isActive: z.boolean(),
+  portfolioName: z.string().nullable(),
+  subscriptionTier: z.string(),
+  maxProperties: z.number(),
+  platformAddress: z.string(),
+  organizationId: z.string().nullable(),
+  status: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  messageRetentionDays: z.number(),
+  tier: z.string(),
 });
 
 export const identityRouter = router({
@@ -355,7 +436,7 @@ export const identityRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context is required' });
       }
 
-      const now = new Date();
+      const ts = now();
       const [created] = await db
         .insert(properties)
         .values({
@@ -366,8 +447,8 @@ export const identityRouter = router({
           platformAddress: input.platformAddress,
           homeImage: input.homeImage || null,
           ownerId: input.ownerId || null,
-          createdAt: now,
-          updatedAt: now,
+          createdAt: ts,
+          updatedAt: ts,
         })
         .returning();
 
@@ -1084,5 +1165,671 @@ export const identityRouter = router({
     .output(z.array(agentAccessSchema))
     .query(async ({ input }) => {
       return db.select().from(agentAccesses).where(eq(agentAccesses.propertyId, input.propertyId));
+    }),
+
+  // ============ SUSPENSIONS ============
+
+  listSuspensions: adminProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/users/{id}/suspensions',
+        tags: ['Identity'],
+        summary: 'List suspension history for a user',
+        protect: true,
+      },
+    })
+    .input(z.object({ userId: z.string() }))
+    .output(z.object({ suspensions: z.array(suspensionSchema) }))
+    .query(async ({ input, ctx }) => {
+      const suspensions = await db
+        .select()
+        .from(platformSuspensions)
+        .where(
+          and(
+            eq(platformSuspensions.userId, input.userId),
+            eq(platformSuspensions.tenantId, ctx.tenantId!)
+          )
+        )
+        .orderBy(desc(platformSuspensions.createdAt));
+
+      return { suspensions };
+    }),
+
+  suspendUser: adminProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/identity/users/{id}/suspend',
+        tags: ['Identity'],
+        summary: 'Suspend a user',
+        protect: true,
+      },
+    })
+    .input(
+      z.object({
+        userId: z.string(),
+        suspensionType: z.enum([
+          'VIOLATION',
+          'DISRUPTION',
+          'BEHAVIOR',
+          'PROPERTY',
+          'NON_PAYMENT',
+          'OTHER',
+        ]),
+        reason: z.string().min(3),
+        description: z.string().optional(),
+        endDate: z.string().nullable().optional(),
+      })
+    )
+    .output(suspensionSchema)
+    .mutation(async ({ input, ctx }) => {
+      // Verify target user exists within the same tenant
+      const [targetUser] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(and(eq(users.id, input.userId), eq(users.tenantId, ctx.tenantId!)))
+        .limit(1);
+
+      if (!targetUser) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+      }
+
+      // Check if user already has an active suspension
+      const [existingSuspension] = await db
+        .select({ id: platformSuspensions.id })
+        .from(platformSuspensions)
+        .where(
+          and(eq(platformSuspensions.userId, input.userId), eq(platformSuspensions.isActive, true))
+        )
+        .limit(1);
+
+      if (existingSuspension) {
+        throw new TRPCError({ code: 'CONFLICT', message: 'User already has an active suspension' });
+      }
+
+      const ts = now();
+      const suspensionId = crypto.randomUUID();
+      const parsedEndDate = input.endDate ? new Date(input.endDate) : null;
+      const isPermanent = !input.endDate;
+
+      const result = await db.transaction(async tx => {
+        const [suspension] = await tx
+          .insert(platformSuspensions)
+          .values({
+            id: suspensionId,
+            tenantId: ctx.tenantId!,
+            userId: input.userId,
+            suspensionType: input.suspensionType,
+            reason: input.reason.trim(),
+            description: input.description || null,
+            startDate: ts,
+            endDate: parsedEndDate,
+            isPermanent,
+            isActive: true,
+            createdById: ctx.userId!,
+            createdAt: ts,
+            updatedAt: ts,
+          })
+          .returning();
+
+        await tx.update(users).set({ isActive: false }).where(eq(users.id, input.userId));
+
+        return suspension;
+      });
+
+      writeAuditLog({
+        action: 'USER_SUSPENDED',
+        actorId: ctx.userId!,
+        targetId: input.userId,
+        tenantId: ctx.tenantId!,
+        details: {
+          suspensionType: input.suspensionType,
+          reason: input.reason,
+          endDate: input.endDate || null,
+        },
+      });
+
+      return result;
+    }),
+
+  unsuspendUser: adminProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/identity/users/{id}/unsuspend',
+        tags: ['Identity'],
+        summary: 'Unsuspend a user',
+        protect: true,
+      },
+    })
+    .input(z.object({ userId: z.string() }))
+    .output(
+      z.object({
+        success: z.boolean(),
+        user: z.object({
+          id: z.string(),
+          name: z.string(),
+          email: z.string(),
+          role: z.string(),
+          isActive: z.boolean(),
+        }),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      // Verify target user exists within the same tenant
+      const [targetUser] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(and(eq(users.id, input.userId), eq(users.tenantId, ctx.tenantId!)))
+        .limit(1);
+
+      if (!targetUser) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+      }
+
+      // Find active suspension for this user
+      const [activeSuspension] = await db
+        .select({ id: platformSuspensions.id })
+        .from(platformSuspensions)
+        .where(
+          and(eq(platformSuspensions.userId, input.userId), eq(platformSuspensions.isActive, true))
+        )
+        .limit(1);
+
+      if (!activeSuspension) {
+        throw new TRPCError({ code: 'CONFLICT', message: 'User has no active suspension' });
+      }
+
+      const ts = now();
+
+      const updatedUser = await db.transaction(async tx => {
+        await tx
+          .update(platformSuspensions)
+          .set({ isActive: false, updatedAt: ts })
+          .where(eq(platformSuspensions.id, activeSuspension.id));
+
+        const [user] = await tx
+          .update(users)
+          .set({ isActive: true })
+          .where(eq(users.id, input.userId))
+          .returning({
+            id: users.id,
+            name: users.name,
+            email: users.email,
+            role: users.role,
+            isActive: users.isActive,
+          });
+
+        return user;
+      });
+
+      writeAuditLog({
+        action: 'USER_UNSUSPENDED',
+        actorId: ctx.userId!,
+        targetId: input.userId,
+        tenantId: ctx.tenantId!,
+      });
+
+      return { success: true, user: updatedUser };
+    }),
+
+  // ============ USER TAGS ============
+
+  getTags: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/user/tags',
+        tags: ['Identity'],
+        summary: 'Get current user tags from content',
+        protect: true,
+      },
+    })
+    .output(z.object({ tags: z.array(z.string()) }))
+    .query(async () => {
+      return { tags: [] };
+    }),
+
+  setTags: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/identity/user/tags',
+        tags: ['Identity'],
+        summary: 'Set current user tags',
+        protect: true,
+      },
+    })
+    .input(z.object({ tags: z.array(z.string()) }))
+    .output(z.object({ tags: z.array(z.string()) }))
+    .mutation(async ({ input }) => {
+      return { tags: input.tags };
+    }),
+
+  // ============ USER ALBUMS ============
+
+  listAlbums: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/user/albums',
+        tags: ['Identity'],
+        summary: 'List current user albums',
+        protect: true,
+      },
+    })
+    .output(z.object({ albums: z.array(albumSchema) }))
+    .query(async ({ ctx }) => {
+      const userAlbums = await db
+        .select()
+        .from(albums)
+        .where(
+          and(
+            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.userId, ctx.userId!),
+            isNull(albums.deletedAt)
+          )
+        )
+        .orderBy(desc(albums.createdAt));
+
+      return { albums: userAlbums };
+    }),
+
+  getAlbum: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/user/albums/{id}',
+        tags: ['Identity'],
+        summary: 'Get a single album',
+        protect: true,
+      },
+    })
+    .input(z.object({ id: z.string() }))
+    .output(albumSchema.nullable())
+    .query(async ({ input, ctx }) => {
+      const [album] = await db
+        .select()
+        .from(albums)
+        .where(
+          and(
+            eq(albums.id, input.id),
+            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.userId, ctx.userId!),
+            isNull(albums.deletedAt)
+          )
+        )
+        .limit(1);
+
+      return album || null;
+    }),
+
+  createAlbum: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/identity/user/albums',
+        tags: ['Identity'],
+        summary: 'Create an album',
+        protect: true,
+      },
+    })
+    .input(
+      z.object({
+        title: z.string().min(1),
+        description: z.string().optional(),
+        isPublic: z.boolean().default(false),
+        mediaIds: z.array(z.string()).default([]),
+      })
+    )
+    .output(z.object({ albums: z.array(albumSchema) }))
+    .mutation(async ({ input, ctx }) => {
+      // Check album limit (max 3 per user)
+      const existingAlbums = await db
+        .select({ id: albums.id })
+        .from(albums)
+        .where(
+          and(
+            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.userId, ctx.userId!),
+            isNull(albums.deletedAt)
+          )
+        );
+
+      if (existingAlbums.length >= 3) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Maximum 3 albums allowed' });
+      }
+
+      const ts = now();
+      await db
+        .insert(albums)
+        .values({
+          id: crypto.randomUUID(),
+          tenantId: ctx.tenantId!,
+          userId: ctx.userId!,
+          title: input.title,
+          description: input.description || null,
+          isPublic: input.isPublic,
+          mediaIds: input.mediaIds,
+          createdAt: ts,
+          updatedAt: ts,
+        })
+        .returning();
+
+      const allAlbums = await db
+        .select()
+        .from(albums)
+        .where(
+          and(
+            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.userId, ctx.userId!),
+            isNull(albums.deletedAt)
+          )
+        )
+        .orderBy(desc(albums.createdAt));
+
+      return { albums: allAlbums };
+    }),
+
+  updateAlbum: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'PATCH',
+        path: '/identity/user/albums/{id}',
+        tags: ['Identity'],
+        summary: 'Update an album',
+        protect: true,
+      },
+    })
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string().min(1).optional(),
+        description: z.string().optional(),
+        isPublic: z.boolean().optional(),
+        mediaIds: z.array(z.string()).optional(),
+      })
+    )
+    .output(z.object({ albums: z.array(albumSchema) }))
+    .mutation(async ({ input, ctx }) => {
+      const ts = now();
+      const { id, ...data } = input;
+
+      const updateData: Record<string, unknown> = {};
+      if (data.title !== undefined) updateData.title = data.title;
+      if (data.description !== undefined) updateData.description = data.description || null;
+      if (data.isPublic !== undefined) updateData.isPublic = data.isPublic;
+      if (data.mediaIds !== undefined) updateData.mediaIds = data.mediaIds;
+      updateData.updatedAt = ts;
+
+      await db
+        .update(albums)
+        .set(updateData)
+        .where(
+          and(
+            eq(albums.id, id),
+            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.userId, ctx.userId!),
+            isNull(albums.deletedAt)
+          )
+        );
+
+      const allAlbums = await db
+        .select()
+        .from(albums)
+        .where(
+          and(
+            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.userId, ctx.userId!),
+            isNull(albums.deletedAt)
+          )
+        )
+        .orderBy(desc(albums.createdAt));
+
+      return { albums: allAlbums };
+    }),
+
+  deleteAlbum: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'DELETE',
+        path: '/identity/user/albums/{id}',
+        tags: ['Identity'],
+        summary: 'Delete an album',
+        protect: true,
+      },
+    })
+    .input(z.object({ id: z.string() }))
+    .output(z.object({ albums: z.array(albumSchema) }))
+    .mutation(async ({ input, ctx }) => {
+      await db
+        .delete(albums)
+        .where(
+          and(
+            eq(albums.id, input.id),
+            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.userId, ctx.userId!),
+            isNull(albums.deletedAt)
+          )
+        );
+
+      const allAlbums = await db
+        .select()
+        .from(albums)
+        .where(
+          and(
+            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.userId, ctx.userId!),
+            isNull(albums.deletedAt)
+          )
+        )
+        .orderBy(desc(albums.createdAt));
+
+      return { albums: allAlbums };
+    }),
+
+  listPublicAlbums: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/user/albums/public',
+        tags: ['Identity'],
+        summary: 'List public albums',
+        protect: true,
+      },
+    })
+    .output(z.object({ albums: z.array(publicAlbumSchema) }))
+    .query(async ({ ctx }) => {
+      const publicAlbums = await db
+        .select({
+          id: albums.id,
+          title: albums.title,
+          description: albums.description,
+          mediaIds: albums.mediaIds,
+          createdAt: albums.createdAt,
+          updatedAt: albums.updatedAt,
+          userId: albums.userId,
+          userName: users.name,
+          userAvatar: users.avatar,
+        })
+        .from(albums)
+        .innerJoin(users, eq(albums.userId, users.id))
+        .where(
+          and(
+            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.isPublic, true),
+            isNull(albums.deletedAt)
+          )
+        )
+        .orderBy(desc(albums.updatedAt));
+
+      return { albums: publicAlbums };
+    }),
+
+  // ============ SEATS ============
+
+  getMySeat: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/seats/my',
+        tags: ['Identity'],
+        summary: 'Get current user seat info',
+        protect: true,
+      },
+    })
+    .output(
+      z.object({
+        solo: seatSchema.nullable(),
+        premium: premiumSeatSchema.nullable(),
+      })
+    )
+    .query(async ({ ctx }) => {
+      const [solo] = await db
+        .select()
+        .from(soloSeats)
+        .where(eq(soloSeats.userId, ctx.userId!))
+        .limit(1);
+
+      const [premium] = await db
+        .select()
+        .from(premiumSeats)
+        .where(eq(premiumSeats.userId, ctx.userId!))
+        .limit(1);
+
+      return { solo: solo || null, premium: premium || null };
+    }),
+
+  listSeats: adminProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/seats',
+        tags: ['Identity'],
+        summary: 'List all seats (admin)',
+        protect: true,
+      },
+    })
+    .output(
+      z.object({
+        soloSeats: z.array(seatSchema),
+        premiumSeats: z.array(premiumSeatSchema),
+      })
+    )
+    .query(async ({ ctx }) => {
+      const [allSoloSeats, allPremiumSeats] = await Promise.all([
+        db
+          .select()
+          .from(soloSeats)
+          .where(eq(soloSeats.tenantId, ctx.tenantId!))
+          .orderBy(asc(soloSeats.createdAt)),
+        db
+          .select()
+          .from(premiumSeats)
+          .where(eq(premiumSeats.tenantId, ctx.tenantId!))
+          .orderBy(asc(premiumSeats.createdAt)),
+      ]);
+
+      return { soloSeats: allSoloSeats, premiumSeats: allPremiumSeats };
+    }),
+
+  // ============ DASHBOARD STATS ============
+
+  getDashboardStats: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/dashboard/stats',
+        tags: ['Identity'],
+        summary: 'Get dashboard summary stats',
+        protect: true,
+      },
+    })
+    .output(
+      z.object({
+        requests: z.number(),
+        bookings: z.number(),
+        messages: z.number(),
+        notifications: z.number(),
+      })
+    )
+    .query(async ({ ctx }) => {
+      const [{ count: requests }] = await db
+        .select({ count: count() })
+        .from(maintenanceRequests)
+        .where(
+          and(
+            eq(maintenanceRequests.userId, ctx.userId!),
+            eq(maintenanceRequests.tenantId, ctx.tenantId!)
+          )
+        );
+
+      const [{ count: bookingsCount }] = await db
+        .select({ count: count() })
+        .from(bookings)
+        .where(and(eq(bookings.userId, ctx.userId!), eq(bookings.tenantId, ctx.tenantId!)));
+
+      const [{ count: conversationsCount }] = await db
+        .select({ count: count() })
+        .from(conversationParticipants)
+        .where(
+          and(
+            eq(conversationParticipants.userId, ctx.userId!),
+            eq(conversationParticipants.tenantId, ctx.tenantId!)
+          )
+        );
+
+      const [{ count: notificationsCount }] = await db
+        .select({ count: count() })
+        .from(notifications)
+        .where(
+          and(eq(notifications.userId, ctx.userId!), eq(notifications.tenantId, ctx.tenantId!))
+        );
+
+      return {
+        requests,
+        bookings: bookingsCount,
+        messages: conversationsCount,
+        notifications: notificationsCount,
+      };
+    }),
+
+  // ============ USER BOOKS ============
+
+  listUserBooks: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/identity/users/{id}/books',
+        tags: ['Identity'],
+        summary: 'List books for a user',
+        protect: true,
+      },
+    })
+    .input(z.object({ userId: z.string() }))
+    .output(
+      z.object({
+        books: z.array(z.any()),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const isOwnerOrAdmin = ctx.userId === input.userId || ctx.role === 'ADMIN';
+      if (!isOwnerOrAdmin) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
+      }
+
+      const userResult = await db
+        .select({ books: users.books })
+        .from(users)
+        .where(and(eq(users.id, input.userId), eq(users.tenantId, ctx.tenantId!)))
+        .limit(1);
+
+      const books = userResult[0]
+        ? Array.isArray(userResult[0].books)
+          ? userResult[0].books
+          : []
+        : [];
+      return { books };
     }),
 });

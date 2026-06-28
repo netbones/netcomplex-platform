@@ -9,15 +9,33 @@ import {
   communityServiceReviews,
   communityServiceInquiries,
   serviceBookings,
+  paymentTransactions,
+  premiumSeats,
+  properties,
+  propertyListings,
+  propertyPremiumSeats,
+  maintenanceRequests,
+  bookings,
   users,
   now,
   revalidateAdminChanges,
+  assertAddressUnique,
 } from '@api/server';
 
 import { TRPCError } from '@trpc/server';
-import { hasPermission } from '@shared/lib';
+import { hasPermission, createComponentLogger } from '@shared/lib';
+import {
+  initializeCheckout,
+  calculatePlatformFee,
+  serviceBookingSchema,
+  checkoutRequestSchema,
+  getProviderRecordForUser,
+  notifyPaymentReceived,
+} from '@entities/marketplace/server';
+import { getPlatformPageFlags } from '@entities/tenant/server';
+import { PaystackService } from '@/server/payments';
 
-import { eq, and, desc, isNull, sql, ilike, inArray, or, ne } from 'drizzle-orm';
+import { eq, and, desc, isNull, sql, ilike, inArray, or, ne, gte, lte, count } from 'drizzle-orm';
 
 const SERVICE_CATEGORIES = {
   COMMUNITY: [
@@ -208,6 +226,69 @@ const ListModerationInput = z
   })
   .optional()
   .default({ limit: 20, offset: 0 });
+
+// ──────────────────────────────────────────
+// Booking Schemas
+// ──────────────────────────────────────────
+
+const ListServiceBookingsInput = z
+  .object({
+    role: z.enum(['resident', 'provider']).default('resident'),
+    limit: z.number().int().positive().default(20),
+    offset: z.number().int().min(0).default(0),
+  })
+  .default({ role: 'resident', limit: 20, offset: 0 });
+
+const BookingIdParam = z.object({ bookingId: z.string().min(1) });
+
+const CancelBookingInput = z.object({
+  bookingId: z.string().min(1),
+  status: z.literal('CANCELLED'),
+});
+
+// ──────────────────────────────────────────
+// Checkout Schemas
+// ──────────────────────────────────────────
+
+// Reuses checkoutRequestSchema from @entities/marketplace/server
+
+// ──────────────────────────────────────────
+// Webhook Schemas
+// ──────────────────────────────────────────
+
+const WebhookInput = z.object({
+  body: z.string(),
+  signature: z.string(),
+});
+
+// ──────────────────────────────────────────
+// Urgency Schemas
+// ──────────────────────────────────────────
+
+// No input params needed for getUrgencyLevels
+
+// ──────────────────────────────────────────
+// Premium/Portfolio Schemas
+// ──────────────────────────────────────────
+
+const CreatePremiumListingInput = z.object({
+  propertyId: z.string().min(1),
+  listingType: z.string().optional(),
+  title: z.string().min(1),
+  description: z.string().optional(),
+  price: z.number().positive().optional(),
+  bedrooms: z.number().int().positive().optional(),
+  bathrooms: z.number().int().positive().optional(),
+  parkingSpaces: z.number().int().positive().optional(),
+  gardenSize: z.number().positive().optional(),
+  petFriendly: z.boolean().optional(),
+});
+
+const UpgradePortfolioInput = z.object({
+  householdIds: z.array(z.string()).min(2),
+});
+
+const UrgencyLogger = createComponentLogger('trpc-marketplace-urgency');
 
 // ──────────────────────────────────────────
 // Helpers
@@ -1527,6 +1608,782 @@ export const marketplaceRouter = router({
       }));
 
       return { availability, bookedSlots };
+    }),
+
+  // ────────── CHECKOUT ──────────
+
+  createCheckoutSession: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/marketplace/checkout',
+        protect: true,
+        tags: ['marketplace'],
+      },
+    })
+    .input(checkoutRequestSchema)
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const [booking] = await db
+        .select()
+        .from(serviceBookings)
+        .where(eq(serviceBookings.id, input.bookingId))
+        .limit(1);
+
+      if (!booking) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Booking not found' });
+      }
+
+      if (booking.userId !== ctx.userId) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Not your booking' });
+      }
+
+      if (booking.tenantId !== tenantId) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Booking not found' });
+      }
+
+      if (booking.status !== 'PENDING_CONFIRMATION') {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Booking is not in a payable state' });
+      }
+
+      const flags = await getPlatformPageFlags(tenantId);
+      const gateway = input.gateway ?? 'paystack';
+
+      const result = await initializeCheckout({
+        booking: {
+          id: booking.id,
+          tenantId: booking.tenantId,
+          providerId: booking.providerId,
+          userId: booking.userId,
+          price: Number(booking.price ?? 0),
+          listingId: booking.listingId,
+        },
+        listing: {
+          id: booking.listingId,
+          title: '',
+          priceType: 'FIXED',
+        },
+        userEmail: ctx.session?.user?.email ?? '',
+        flags,
+        gateway,
+      });
+
+      if (result.status === 'configuration_required') {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: result.message ?? 'Payment gateway not available',
+        });
+      }
+
+      return {
+        paymentUrl: result.paymentUrl,
+        reference: result.reference,
+      };
+    }),
+
+  // ────────── WEBHOOK ──────────
+
+  handleWebhook: publicProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/marketplace/webhook',
+        protect: false,
+        tags: ['marketplace'],
+      },
+    })
+    .input(WebhookInput)
+    .mutation(async ({ input }) => {
+      const { body, signature } = input;
+
+      if (!signature) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Missing signature' });
+      }
+
+      const paystack = new PaystackService();
+      const verification = paystack.verifyWebhookSignature(body, signature);
+      if (!verification.verified) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid signature' });
+      }
+
+      let event: { event?: string; data?: { reference?: string; status?: string; id?: string } };
+      try {
+        event = JSON.parse(body);
+      } catch {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invalid JSON body' });
+      }
+
+      const reference = event.data?.reference;
+      if (!reference?.startsWith('svc-')) {
+        return { status: 'ignored' };
+      }
+
+      const bookingId = reference.replace('svc-', '');
+
+      const [booking] = await db
+        .select()
+        .from(serviceBookings)
+        .where(eq(serviceBookings.id, bookingId))
+        .limit(1);
+
+      if (!booking) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Booking not found' });
+      }
+
+      if (booking.status === 'CONFIRMED') {
+        return { status: 'already_processed' };
+      }
+
+      if (event.event === 'charge.success') {
+        await db
+          .update(serviceBookings)
+          .set({
+            status: 'CONFIRMED',
+            paymentStatus: 'COMPLETED',
+            updatedAt: now(),
+          })
+          .where(eq(serviceBookings.id, bookingId));
+
+        await db
+          .update(paymentTransactions)
+          .set({ status: 'COMPLETED' })
+          .where(eq(paymentTransactions.externalRef, reference));
+
+        notifyPaymentReceived({
+          tenantId: booking.tenantId,
+          providerId: booking.providerId,
+          listingId: booking.listingId,
+          listingTitle: 'Service Booking',
+          amount: Number(booking.price ?? 0),
+          transactionId: event.data?.id ?? reference,
+        }).catch(() => {});
+      } else if (event.event === 'charge.failed') {
+        await db
+          .update(serviceBookings)
+          .set({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            paymentStatus: 'FAILED' as any,
+            updatedAt: now(),
+          })
+          .where(eq(serviceBookings.id, bookingId));
+
+        await db
+          .update(paymentTransactions)
+          .set({ status: 'FAILED' })
+          .where(eq(paymentTransactions.externalRef, reference));
+      }
+
+      return { status: 'processed' };
+    }),
+
+  // ────────── SERVICE BOOKINGS ──────────
+
+  listServiceBookings: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/marketplace/bookings',
+        protect: true,
+        tags: ['marketplace'],
+      },
+    })
+    .input(ListServiceBookingsInput)
+    .query(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const conditions = [eq(serviceBookings.tenantId, tenantId)];
+
+      if (input.role === 'provider') {
+        const userEmail = ctx.session?.user?.email ?? '';
+        const provider = await getProviderRecordForUser(tenantId, userEmail);
+        if (!provider) {
+          return {
+            bookings: [],
+            pagination: { total: 0, limit: input.limit, offset: input.offset, hasMore: false },
+          };
+        }
+        conditions.push(eq(serviceBookings.providerId, provider.id));
+      } else {
+        conditions.push(eq(serviceBookings.userId, ctx.userId!));
+      }
+
+      const bookingsData = await db
+        .select({
+          id: serviceBookings.id,
+          tenantId: serviceBookings.tenantId,
+          listingId: serviceBookings.listingId,
+          providerId: serviceBookings.providerId,
+          userId: serviceBookings.userId,
+          date: serviceBookings.date,
+          startTime: serviceBookings.startTime,
+          endTime: serviceBookings.endTime,
+          price: serviceBookings.price,
+          platformFee: serviceBookings.platformFee,
+          paymentStatus: serviceBookings.paymentStatus,
+          status: serviceBookings.status,
+          createdAt: serviceBookings.createdAt,
+          updatedAt: serviceBookings.updatedAt,
+          listingTitle: communityServiceListings.title,
+          listingCategory: communityServiceListings.category,
+          userName: users.name,
+          userEmail: users.email,
+        })
+        .from(serviceBookings)
+        .leftJoin(
+          communityServiceListings,
+          eq(serviceBookings.listingId, communityServiceListings.id)
+        )
+        .leftJoin(users, eq(serviceBookings.userId, users.id))
+        .where(and(...conditions))
+        .orderBy(desc(serviceBookings.createdAt))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      const [totalResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(serviceBookings)
+        .where(and(...conditions));
+
+      return {
+        bookings: bookingsData,
+        pagination: {
+          total: totalResult?.count || 0,
+          limit: input.limit,
+          offset: input.offset,
+          hasMore: input.offset + input.limit < (totalResult?.count || 0),
+        },
+      };
+    }),
+
+  createServiceBooking: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/marketplace/bookings',
+        protect: true,
+        tags: ['marketplace'],
+      },
+    })
+    .input(serviceBookingSchema)
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const { listingId, date, startTime, endTime } = input;
+
+      const [listing] = await db
+        .select({
+          id: communityServiceListings.id,
+          providerId: communityServiceListings.providerId,
+          price: communityServiceListings.price,
+          priceType: communityServiceListings.priceType,
+          isPublished: communityServiceListings.isPublished,
+          tenantId: communityServiceListings.tenantId,
+        })
+        .from(communityServiceListings)
+        .where(
+          and(
+            eq(communityServiceListings.id, listingId),
+            eq(communityServiceListings.tenantId, tenantId)
+          )
+        )
+        .limit(1);
+
+      if (!listing || !listing.isPublished) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Service listing not found' });
+      }
+
+      const providerId = listing.providerId;
+
+      if (providerId === ctx.userId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Cannot book your own service' });
+      }
+
+      const [conflicting] = await db
+        .select({ id: serviceBookings.id })
+        .from(serviceBookings)
+        .where(
+          and(
+            eq(serviceBookings.listingId, listingId),
+            eq(serviceBookings.date, new Date(date)),
+            eq(serviceBookings.startTime, startTime),
+            ne(serviceBookings.status, 'CANCELLED')
+          )
+        )
+        .limit(1);
+
+      if (conflicting) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: 'This time slot is no longer available. Please choose another time.',
+        });
+      }
+
+      const bookingPrice = listing.price ? Number(listing.price) : 0;
+      const platformFeeAmount = await calculatePlatformFee(providerId, bookingPrice);
+
+      const bookingId = crypto.randomUUID();
+      const ts = now();
+
+      await db.insert(serviceBookings).values({
+        id: bookingId,
+        tenantId,
+        listingId,
+        providerId,
+        userId: ctx.userId!,
+        date: new Date(date),
+        startTime,
+        endTime,
+        price: String(bookingPrice),
+        platformFee: String(platformFeeAmount),
+        paymentStatus: 'PENDING',
+        status: 'PENDING_CONFIRMATION',
+        createdAt: ts,
+        updatedAt: ts,
+      });
+
+      const [created] = await db
+        .select()
+        .from(serviceBookings)
+        .where(eq(serviceBookings.id, bookingId))
+        .limit(1);
+
+      return { success: true, booking: created };
+    }),
+
+  getServiceBooking: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/marketplace/bookings/{bookingId}',
+        protect: true,
+        tags: ['marketplace'],
+      },
+    })
+    .input(BookingIdParam)
+    .query(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const [booking] = await db
+        .select()
+        .from(serviceBookings)
+        .where(
+          and(
+            eq(serviceBookings.id, input.bookingId),
+            eq(serviceBookings.tenantId, tenantId),
+            or(eq(serviceBookings.userId, ctx.userId!), eq(serviceBookings.providerId, ctx.userId!))
+          )
+        )
+        .limit(1);
+
+      if (!booking) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Booking not found' });
+      }
+
+      return { booking };
+    }),
+
+  cancelServiceBooking: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/marketplace/bookings/{bookingId}/cancel',
+        protect: true,
+        tags: ['marketplace'],
+      },
+    })
+    .input(CancelBookingInput)
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const [booking] = await db
+        .select()
+        .from(serviceBookings)
+        .where(and(eq(serviceBookings.id, input.bookingId), eq(serviceBookings.tenantId, tenantId)))
+        .limit(1);
+
+      if (!booking) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Booking not found' });
+      }
+
+      const allowedTransitions = ['PENDING_CONFIRMATION', 'CONFIRMED'] as const;
+      if (!allowedTransitions.includes(booking.status as (typeof allowedTransitions)[number])) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: `Cannot cancel booking in status ${booking.status}`,
+        });
+      }
+
+      const isBookingUser = booking.userId === ctx.userId;
+      const provider = await getProviderRecordForUser(tenantId, ctx.session?.user?.email ?? '');
+      const isProvider = provider?.id === booking.providerId;
+
+      if (!isBookingUser && !isProvider) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Not authorized to cancel this booking',
+        });
+      }
+
+      await db
+        .update(serviceBookings)
+        .set({ status: 'CANCELLED', updatedAt: now() })
+        .where(
+          and(eq(serviceBookings.id, input.bookingId), eq(serviceBookings.tenantId, tenantId))
+        );
+
+      const [updated] = await db
+        .select()
+        .from(serviceBookings)
+        .where(eq(serviceBookings.id, input.bookingId))
+        .limit(1);
+
+      return { success: true, booking: updated };
+    }),
+
+  // ────────── URGENCY ──────────
+
+  getUrgencyLevels: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/marketplace/urgency',
+        protect: true,
+        tags: ['marketplace'],
+      },
+    })
+    .query(async ({ ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const today = now();
+      const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+      try {
+        const [openMaintenanceResult, upcomingBookingsResult] = await Promise.all([
+          db
+            .select({ count: count() })
+            .from(maintenanceRequests)
+            .where(
+              and(
+                eq(maintenanceRequests.tenantId, tenantId),
+                eq(maintenanceRequests.status, 'SUBMITTED'),
+                eq(maintenanceRequests.userId, ctx.userId!)
+              )
+            ),
+          db
+            .select({ count: count() })
+            .from(bookings)
+            .where(
+              and(
+                eq(bookings.tenantId, tenantId),
+                gte(bookings.date, today),
+                lte(bookings.date, sevenDaysFromNow)
+              )
+            ),
+        ]);
+
+        const extractCount = (result: { count: number }[]) => result[0]?.count ?? 0;
+
+        const openMaintenance = extractCount(openMaintenanceResult);
+        const upcomingBookings = extractCount(upcomingBookingsResult);
+
+        return {
+          commandBar: {
+            openMaintenance,
+            upcomingBookings,
+          },
+          domainBadges: {
+            maintenance: openMaintenance,
+            bookings: upcomingBookings,
+            amenities: 0,
+            'my-services': 0,
+            events: 0,
+          },
+        };
+      } catch (error) {
+        UrgencyLogger.error(
+          { operation: 'getUrgencyLevels' },
+          'Failed to get urgency counts',
+          error
+        );
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to get urgency levels',
+        });
+      }
+    }),
+
+  // ────────── PREMIUM LISTINGS ──────────
+
+  listPremiumListings: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/marketplace/premium/listings',
+        protect: true,
+        tags: ['marketplace'],
+      },
+    })
+    .query(async ({ ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const linkedProperties = await db
+        .select({ id: properties.id })
+        .from(properties)
+        .innerJoin(propertyPremiumSeats, eq(properties.id, propertyPremiumSeats.propertyId))
+        .innerJoin(premiumSeats, eq(premiumSeats.id, propertyPremiumSeats.premiumSeatId))
+        .where(and(eq(premiumSeats.userId, ctx.userId!), eq(premiumSeats.tenantId, tenantId)));
+
+      if (!linkedProperties.length) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Premium Seat required to access listings',
+        });
+      }
+
+      const propertyIds = linkedProperties.map(p => p.id);
+
+      const listings = await db
+        .select({
+          listing: propertyListings,
+          property: properties,
+        })
+        .from(propertyListings)
+        .innerJoin(properties, eq(propertyListings.propertyId, properties.id))
+        .where(
+          and(
+            eq(propertyListings.ownerId, ctx.userId!),
+            eq(propertyListings.tenantId, tenantId),
+            sql`${propertyListings.propertyId} = ANY((${sql.join(
+              propertyIds.map(id => sql`${id}`),
+              sql`, `
+            )})::text[])`
+          )
+        )
+        .orderBy(desc(propertyListings.createdAt));
+
+      const transformedListings = listings.map(l => ({
+        ...l.listing,
+        street: l.property.street,
+        unit: l.property.unit,
+        homeImage: l.property.homeImage,
+      }));
+
+      return { listings: transformedListings };
+    }),
+
+  createPremiumListing: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/marketplace/premium/listings',
+        protect: true,
+        tags: ['marketplace'],
+      },
+    })
+    .input(CreatePremiumListingInput)
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const [premiumSeatExists] = await db
+        .select({ id: premiumSeats.id })
+        .from(premiumSeats)
+        .where(and(eq(premiumSeats.userId, ctx.userId!), eq(premiumSeats.tenantId, tenantId)))
+        .limit(1);
+
+      if (!premiumSeatExists) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Premium Seat required to create listings',
+        });
+      }
+
+      const [newListing] = await db
+        .insert(propertyListings)
+        .values({
+          id: crypto.randomUUID(),
+          tenantId,
+          propertyId: input.propertyId,
+          ownerId: ctx.userId!,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          listingType: (input.listingType || 'SALE') as any,
+          title: input.title,
+          description: input.description ?? null,
+          bedrooms: input.bedrooms ?? null,
+          bathrooms: input.bathrooms ?? null,
+          parkingSpaces: input.parkingSpaces ?? null,
+          gardenSize: input.gardenSize ?? null,
+          petFriendly: input.petFriendly ?? false,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          status: 'DRAFT' as any,
+          isPublished: false,
+          createdAt: now(),
+          updatedAt: now(),
+        })
+        .returning();
+
+      return { success: true, listing: newListing };
+    }),
+
+  // ────────── PREMIUM PORTFOLIO ──────────
+
+  getPortfolio: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'GET',
+        path: '/marketplace/premium/portfolio',
+        protect: true,
+        tags: ['marketplace'],
+      },
+    })
+    .query(async ({ ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const portfolioResult = await db.execute(
+        sql`SELECT * FROM "PremiumSeat" WHERE "userId" = ${ctx.userId!} AND "tenantId" = ${tenantId} LIMIT 1`
+      );
+
+      if (!portfolioResult.rows?.length) {
+        return { hasPortfolio: false, message: 'No Premium Seat portfolio found' };
+      }
+
+      return { hasPortfolio: true, portfolio: portfolioResult.rows[0] };
+    }),
+
+  upgradePortfolio: protectedProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/marketplace/premium/portfolio/upgrade',
+        protect: true,
+        tags: ['marketplace'],
+      },
+    })
+    .input(UpgradePortfolioInput)
+    .mutation(async ({ input, ctx }) => {
+      const tenantId = ctx.tenantId;
+      if (!tenantId) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+      }
+
+      const userId = ctx.userId!;
+      const { householdIds } = input;
+
+      const householdsResult = (await db.execute(sql`
+        SELECT h.*
+        FROM "Household" h
+        JOIN "StandardSeat" ss ON ss."householdId" = h.id
+        WHERE h.id IN ${sql`${householdIds}`}
+        AND h."tenantId" = ${tenantId}
+        AND ss."userId" = ${userId}
+        AND ss."isPrimaryOwner" = true
+      `)) as { rows: { id: string }[] };
+
+      if ((householdsResult.rows?.length || 0) !== householdIds.length) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'You do not own all specified households',
+        });
+      }
+
+      const [existingPremiumSeat] = await db
+        .select({ id: premiumSeats.id })
+        .from(premiumSeats)
+        .where(and(eq(premiumSeats.userId, userId), eq(premiumSeats.tenantId, tenantId)))
+        .limit(1);
+
+      if (existingPremiumSeat) {
+        for (const householdId of householdIds) {
+          await db.execute(sql`
+            INSERT INTO "_PremiumSeatPortfolio" ("A", "B")
+            VALUES (${existingPremiumSeat.id}, ${householdId})
+            ON CONFLICT DO NOTHING
+          `);
+        }
+      } else {
+        const userResult = (await db.execute(sql`
+          SELECT email, name FROM "user" WHERE id = ${userId}
+        `)) as { rows: { email: string; name: string | null }[] };
+
+        if (!userResult.rows?.length) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
+        }
+
+        const user = userResult.rows[0];
+        const platformAddress = `${(user.name || '').toLowerCase().replace(/\s+/g, '.')}@sorialia.org`;
+
+        try {
+          await assertAddressUnique(platformAddress, db);
+        } catch (e) {
+          throw new TRPCError({ code: 'CONFLICT', message: (e as Error).message });
+        }
+
+        const newPremiumSeat = (await db.execute(sql`
+          INSERT INTO "PremiumSeat" ("userId", "tenantId", "platformAddress")
+          VALUES (${userId}, ${tenantId}, ${platformAddress})
+          RETURNING id
+        `)) as { rows: { id: string }[] };
+
+        for (const householdId of householdIds) {
+          await db.execute(sql`
+            INSERT INTO "_PremiumSeatPortfolio" ("A", "B")
+            VALUES (${newPremiumSeat.rows?.[0]?.id}, ${householdId})
+            ON CONFLICT DO NOTHING
+          `);
+        }
+      }
+
+      const portfolioResult = (await db.execute(sql`
+        SELECT
+          ps.*,
+          json_agg(
+            json_build_object(
+              'id', h.id,
+              'street', h.street,
+              'unit', h.unit,
+              'homeImage', h."homeImage"
+            )
+          ) FILTER (WHERE h.id IS NOT NULL) as "linkedHouseholds"
+        FROM "PremiumSeat" ps
+        JOIN "_PremiumSeatPortfolio" htl ON htl.A = ps.id
+        JOIN "Household" h ON h.id = htl.B
+        WHERE ps."userId" = ${userId}
+        AND ps."tenantId" = ${tenantId}
+        GROUP BY ps.id
+      `)) as { rows: { linkedHouseholds: { id: string; street: string; unit: string }[] }[] };
+
+      return {
+        success: true,
+        message: 'Successfully upgraded to Premium Seat with property portfolio',
+        portfolio: portfolioResult.rows?.[0],
+      };
     }),
 
   // ────────── ANALYTICS ──────────
