@@ -73,34 +73,39 @@ export const maintenanceRequestProcedures = {
       throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
     }
 
-    const [user] = await db
-      .select({ id: users.id, name: users.name, email: users.email })
-      .from(users)
-      .where(eq(users.id, req.userId));
+    const [userResult, propertyResult, teamResult, providerResult] = await Promise.all([
+      db
+        .select({ id: users.id, name: users.name, email: users.email })
+        .from(users)
+        .where(eq(users.id, req.userId))
+        .limit(1),
+      req.propertyId
+        ? db
+            .select({ id: properties.id, street: properties.street, unit: properties.unit })
+            .from(properties)
+            .where(eq(properties.id, req.propertyId))
+            .limit(1)
+        : Promise.resolve([]),
+      req.assignedTeamId
+        ? db
+            .select()
+            .from(maintenanceTeams)
+            .where(eq(maintenanceTeams.id, req.assignedTeamId))
+            .limit(1)
+        : Promise.resolve([]),
+      req.assignedProviderId
+        ? db
+            .select()
+            .from(serviceProviders)
+            .where(eq(serviceProviders.id, req.assignedProviderId))
+            .limit(1)
+        : Promise.resolve([]),
+    ]);
 
-    let property = null;
-    if (req.propertyId) {
-      [property] = await db
-        .select({ id: properties.id, street: properties.street, unit: properties.unit })
-        .from(properties)
-        .where(eq(properties.id, req.propertyId));
-    }
-
-    let team = null;
-    if (req.assignedTeamId) {
-      [team] = await db
-        .select()
-        .from(maintenanceTeams)
-        .where(eq(maintenanceTeams.id, req.assignedTeamId));
-    }
-
-    let provider = null;
-    if (req.assignedProviderId) {
-      [provider] = await db
-        .select()
-        .from(serviceProviders)
-        .where(eq(serviceProviders.id, req.assignedProviderId));
-    }
+    const user = userResult[0] ?? null;
+    const property = propertyResult[0] ?? null;
+    const team = teamResult[0] ?? null;
+    const provider = providerResult[0] ?? null;
 
     return {
       ...req,

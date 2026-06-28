@@ -198,31 +198,52 @@ export const groupsRouter = router({
       if (!tenantId) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
-
       const group = await getTenantGroup(input.id, tenantId);
 
-      const [owner] = await db
-        .select({ id: users.id, name: users.name, image: users.image })
-        .from(users)
-        .where(eq(users.id, group.ownerId))
-        .limit(1);
+      const [ownerResult, membersList, contentList] = await Promise.all([
+        db
+          .select({ id: users.id, name: users.name, image: users.image })
+          .from(users)
+          .where(eq(users.id, group.ownerId))
+          .limit(1),
+        db
+          .select({
+            id: groupMembers.id,
+            userId: groupMembers.userId,
+            groupId: groupMembers.groupId,
+            role: groupMembers.role,
+            joinedAt: groupMembers.joinedAt,
+          })
+          .from(groupMembers)
+          .where(
+            and(
+              notDeleted(groupMembers),
+              eq(groupMembers.groupId, input.id),
+              eq(groupMembers.tenantId, tenantId)
+            )
+          ),
+        db
+          .select({
+            id: contents.id,
+            title: contents.title,
+            excerpt: contents.excerpt,
+            category: contents.category,
+            authorId: contents.authorId,
+            groupId: contents.groupId,
+            published: contents.published,
+            featured: contents.featured,
+            priority: contents.priority,
+            createdAt: contents.createdAt,
+            updatedAt: contents.updatedAt,
+            publishedAt: contents.publishedAt,
+          })
+          .from(contents)
+          .where(eq(contents.groupId, input.id))
+          .orderBy(desc(contents.publishedAt))
+          .limit(10),
+      ]);
 
-      const membersList = await db
-        .select({
-          id: groupMembers.id,
-          userId: groupMembers.userId,
-          groupId: groupMembers.groupId,
-          role: groupMembers.role,
-          joinedAt: groupMembers.joinedAt,
-        })
-        .from(groupMembers)
-        .where(
-          and(
-            notDeleted(groupMembers),
-            eq(groupMembers.groupId, input.id),
-            eq(groupMembers.tenantId, tenantId)
-          )
-        );
+      const owner = ownerResult[0] ?? null;
 
       const memberUserIds = membersList.map(m => m.userId);
       const memberUsers =
@@ -238,26 +259,6 @@ export const groupsRouter = router({
         ...member,
         user: userById.get(member.userId) ?? null,
       }));
-
-      const contentList = await db
-        .select({
-          id: contents.id,
-          title: contents.title,
-          excerpt: contents.excerpt,
-          category: contents.category,
-          authorId: contents.authorId,
-          groupId: contents.groupId,
-          published: contents.published,
-          featured: contents.featured,
-          priority: contents.priority,
-          createdAt: contents.createdAt,
-          updatedAt: contents.updatedAt,
-          publishedAt: contents.publishedAt,
-        })
-        .from(contents)
-        .where(eq(contents.groupId, input.id))
-        .orderBy(desc(contents.publishedAt))
-        .limit(10);
 
       return {
         ...group,
