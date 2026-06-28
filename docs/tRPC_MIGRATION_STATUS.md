@@ -1,24 +1,30 @@
 # REST API Route Coverage Report: tRPC Migration Status
 
-## 1. Existing tRPC Routers (15 domains)
+**Updated:** 2026-06-28 — Phase 120 complete. 20 domains live.
 
-| tRPC Router     | Key Procedures                                                                                                                                                                                                                                                                                                                                        |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `identity`      | `listProperties`, `getProperty`, `createProperty`, `listUsers`, `listHouseholds`, `createHousehold`, `getMyProperties`, `createProfile`, `updateProfile`, `getProfile`, `getMySoloSeat`, `getAgentAccesses`, `getPropertyAgentAccesses`                                                                                                               |
-| `competitions`  | `listPublicCompetitions`, `getCompetitionDetail`, `joinCompetition`, `submitPhotoEntry`, `listParticipants`, `updateEntry`, `markWinner`, `drawWinners`, `listWinners`                                                                                                                                                                                |
-| `content`       | `listContent`, `getContent`, `createContent`, `updateContent`, `softDeleteContent`, `moderateContent`, `getLikes`, `toggleLike`                                                                                                                                                                                                                       |
-| `notifications` | `list`, `create`, `markRead`, `delete`                                                                                                                                                                                                                                                                                                                |
-| `resources`     | `listResources`, `getResource`, `createResource`, `updateResource`, `deleteResource`, `incrementDownloadCount`                                                                                                                                                                                                                                        |
-| `maintenance`   | `listRequests`, `getRequest`, `createRequest`, `updateRequest`, `deleteRequest`, `listNotes`, `createNote`, `assignRequest`, `listCategories`, `createCategory`, `updateCategory`, `deleteCategory`, `listProviders`, `createProvider`, `updateProvider`, `deleteProvider`, `listTeams`, `createTeam`, `updateTeam`, `deleteTeam`                     |
-| `chat`          | `listConversations`, `createConversation`, `findOrCreateConversation`, `getMessages`, `sendMessage`, `deleteMessage`, `getMessageUrgency`, `getUnreadCounts`, `markAsRead`                                                                                                                                                                            |
-| `surveys`       | `listSurveys`, `getSurvey`, `createSurvey`, `updateSurvey`, `deleteSurvey`, `submitResponse`, `getSurveyResults`, `addQuestion`, `updateQuestion`, `removeQuestion`, `reorderQuestions`, `addSection`, `updateSection`, `removeSection`, `reorderSections`                                                                                            |
-| `events`        | `listEvents`, `getEvent`, `createEvent`, `updateEvent`, `deleteEvent`, `listRegistrations`, `registerForEvent`, `cancelRegistration`                                                                                                                                                                                                                  |
-| `bookings`      | `listFacilities`, `getFacility`, `listBookings`, `getBooking`, `createBooking`, `cancelBooking`                                                                                                                                                                                                                                                       |
-| `disputes`      | `listDisputes`, `getDispute`, `createDispute`, `updateDispute`, `addDisputeMessage`, `listDisputeMessages`, `assignDispute`, `submitDispute`, `resolveDispute`, `issueRuling`, `getEvents`                                                                                                                                                            |
-| `dwallet`       | `getWalletSummary`, `getBalance`, `listTransactions`, `getTransaction`, `createPayout`, `listPayouts`, `listConsents`, `createConsent`, `revokeConsent`, `listStreams`, `getStream`                                                                                                                                                                   |
-| `marketplace`   | `listListings`, `getListing`, `createListing`, `updateListing`, `deleteListing`, `publishListing`, `listMyListings`, `getCategories`, `createInquiry`, `listInquiries`, `listProviderInquiries`, `respondToInquiry`, `listReviews`, `createReview`, `listModerationQueue`, `moderateListing`, `getRelatedListings`, `getAvailability`, `getAnalytics` |
-| `groups`        | `listGroups`, `getGroup`, `createGroup`, `updateGroup`, `deleteGroup`, `joinGroup`, `leaveGroup`, `listMembers`, `updateMemberRole`, `removeMember`                                                                                                                                                                                                   |
-| `merits`        | `listMerits`, `getMerit`, `createMerit`, `updateMerit`, `deleteMerit`, `awardMerit`, `getUserMerits`, `dispute`, `resolveDispute`                                                                                                                                                                                                                     |
+## 1. Existing tRPC Routers (20 domains, 34 files)
+
+| tRPC Router     | Sub-Routers                                                                                       | Key Procedures                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| --------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `identity`      | —                                                                                                 | `listProperties`, `getProperty`, `createProperty`, `listUsers`, `listHouseholds`, `createHousehold`, `getMySeat`, `listSeats`, `listAlbums`, `getAlbum`, `createAlbum`, `updateAlbum`, `deleteAlbum`, `listPublicAlbums`, `listSuspensions`, `suspendUser`, `unsuspendUser`, `listAgentAccesses`, `getDashboardStats`, `listUserBooks`                                                                                                                                 |
+| `competitions`  | —                                                                                                 | `listPublicCompetitions`, `getCompetitionDetail`, `joinCompetition`, `submitPhotoEntry`, `listParticipants`, `updateEntry`, `markWinner`, `drawWinners`, `listWinners`                                                                                                                                                                                                                                                                                                 |
+| `content`       | —                                                                                                 | `listContent`, `getContent`, `createContent`, `updateContent`, `softDeleteContent`, `moderateContent`, `toggleLike`, `listAnnouncements`, `getAnnouncement`, `createAnnouncement`, `updateAnnouncement`, `deleteAnnouncement`, `getCampaignPage`, `getConservationPage`                                                                                                                                                                                                |
+| `notifications` | —                                                                                                 | `list`, `create`, `markRead`, `delete`                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `resources`     | —                                                                                                 | `listResources`, `getResource`, `createResource`, `updateResource`, `deleteResource`, `incrementDownloadCount`                                                                                                                                                                                                                                                                                                                                                         |
+| `maintenance`   | requests, teams, cats, providers                                                                  | `listRequests`, `getRequest`, `createRequest`, `updateRequest`, `deleteRequest`, `listNotes`, `createNote`, `assignRequest`, `listCategories`, `createCategory`, `updateCategory`, `deleteCategory`, `listProviders`, `createProvider`, `updateProvider`, `deleteProvider`, `listTeams`, `createTeam`, `updateTeam`, `deleteTeam`                                                                                                                                      |
+| `chat`          | conversations, messaging                                                                          | `listConversations`, `createConversation`, `findOrCreateConversation`, `getMessages`, `sendMessage`, `deleteMessage`, `getMessageUrgency`, `getUnreadCounts`, `markAsRead`                                                                                                                                                                                                                                                                                             |
+| `surveys`       | management, questions, sections, external                                                         | `listSurveys`, `getSurvey`, `createSurvey`, `updateSurvey`, `deleteSurvey`, `submitResponse`, `getSurveyResults`, `addQuestion`, `updateQuestion`, `removeQuestion`, `reorderQuestions`, `addSection`, `updateSection`, `removeSection`, `reorderSections`, `listExternalSurveys`, `submitExternalSurveyResponse`                                                                                                                                                      |
+| `events`        | —                                                                                                 | `listEvents`, `getEvent`, `createEvent`, `updateEvent`, `deleteEvent`, `listRegistrations`, `registerForEvent`, `cancelRegistration`                                                                                                                                                                                                                                                                                                                                   |
+| `bookings`      | —                                                                                                 | `listFacilities`, `getFacility`, `listBookings`, `getBooking`, `createBooking`, `cancelBooking`                                                                                                                                                                                                                                                                                                                                                                        |
+| `disputes`      | —                                                                                                 | `listDisputes`, `getDispute`, `createDispute`, `updateDispute`, `addDisputeMessage`, `listDisputeMessages`, `assignDispute`, `submitDispute`, `resolveDispute`, `issueRuling`, `getEvents`                                                                                                                                                                                                                                                                             |
+| `dwallet`       | —                                                                                                 | `getWalletSummary`, `getBalance`, `listTransactions`, `getTransaction`, `createPayout`, `listPayouts`, `listConsents`, `createConsent`, `revokeConsent`, `listStreams`, `getStream`                                                                                                                                                                                                                                                                                    |
+| `marketplace`   | listings, reviews, inquiries, moderation, analytics, checkout, premium, service-bookings, urgency | `listListings`, `getListing`, `createListing`, `updateListing`, `deleteListing`, `publishListing`, `createReview`, `listReviews`, `createInquiry`, `listInquiries`, `respondToInquiry`, `moderateListing`, `getAnalytics`, `createCheckoutSession`, `handleWebhook`, `listPremiumListings`, `createPremiumListing`, `getPortfolio`, `upgradePortfolio`, `listServiceBookings`, `createServiceBooking`, `getServiceBooking`, `cancelServiceBooking`, `getUrgencyLevels` |
+| `groups`        | —                                                                                                 | `listGroups`, `getGroup`, `createGroup`, `updateGroup`, `deleteGroup`, `joinGroup`, `leaveGroup`, `listMembers`, `updateMemberRole`, `removeMember`                                                                                                                                                                                                                                                                                                                    |
+| `merits`        | —                                                                                                 | `listMerits`, `getMerit`, `createMerit`, `updateMerit`, `deleteMerit`, `awardMerit`, `getUserMerits`, `dispute`, `resolveDispute`                                                                                                                                                                                                                                                                                                                                      |
+| `settings`      | —                                                                                                 | `listSettings`, `getSetting`, `upsertSetting`, `deleteSetting`, `getContactSettings`                                                                                                                                                                                                                                                                                                                                                                                   |
+| `achievements`  | —                                                                                                 | `listAchievements`, `getAchievement`, `createAchievement`, `updateAchievement`, `deleteAchievement`, `getMyProgress`, `getAchievementProgress`, `getUnlocked`                                                                                                                                                                                                                                                                                                          |
+| `invitations`   | —                                                                                                 | `listInvitations`, `getInvitation`, `createInvitation`, `cancelInvitation`, `acceptInvitation`, `validateInvitation`, `resendInvitation`                                                                                                                                                                                                                                                                                                                               |
+| `agents`        | —                                                                                                 | `getActivity`, `listManagedProperties`, `getMarketplaceActions`, `connectWithAgent`                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ---
 
@@ -442,79 +448,60 @@ All routes under `src/app/api/v1/` are either re-exports from canonical REST rou
 
 ## 4. Coverage Summary by Domain
 
-| Status     | Domain                     | Notes                                                                       |
-| ---------- | -------------------------- | --------------------------------------------------------------------------- |
-| ✅ FULL    | Competitions               | All REST routes covered by tRPC                                             |
-| ✅ FULL    | Content                    | All REST routes covered by tRPC                                             |
-| ✅ FULL    | Events                     | All REST routes covered by tRPC                                             |
-| ✅ FULL    | Bookings                   | All REST routes covered by tRPC                                             |
-| ✅ FULL    | Groups                     | All REST routes covered by tRPC                                             |
-| ✅ FULL    | Disputes                   | All core REST routes covered by tRPC                                        |
-| ✅ FULL    | Chat/Messages              | All REST routes covered by tRPC                                             |
-| ✅ FULL    | Resources                  | All REST routes covered by tRPC                                             |
-| ✅ FULL    | Notifications              | All REST routes covered by tRPC                                             |
-| ✅ FULL    | Maintenance                | All REST routes covered by tRPC                                             |
-| ✅ FULL    | Surveys                    | All REST routes covered by tRPC                                             |
-| ✅ FULL    | DWallet                    | All core REST routes covered by tRPC                                        |
-| ✅ FULL    | Merits                     | All REST routes covered by tRPC                                             |
-| ⬜️ PARTIAL | Identity/Users             | User suspension, tags, albums, books not in tRPC                            |
-| ⬜️ PARTIAL | Marketplace/Community Svcs | Checkout, webhooks, service-bookings, urgency, premium listings not in tRPC |
-| ❌ NONE    | Achievements               | No tRPC router exists                                                       |
-| ❌ NONE    | Access Control             | Special case — navigation guard data                                        |
-| ❌ NONE    | Agents                     | Agent-specific endpoints                                                    |
-| ❌ NONE    | Announcements              | Could be merged into content router                                         |
-| ❌ NONE    | Campaign                   | Could be merged into content router                                         |
-| ❌ NONE    | Conservation               | Could be merged into content router                                         |
-| ❌ NONE    | Dashboard Stats            | No tRPC router exists                                                       |
-| ❌ NONE    | External Surveys           | Could extend surveys router                                                 |
-| ❌ NONE    | Invitations                | No tRPC router exists                                                       |
-| ❌ NONE    | Payments                   | Should stay REST (third-party webhooks)                                     |
-| ❌ NONE    | Platform/Tenant Billing    | Some could migrate, billing stays REST                                      |
-| ❌ NONE    | Pricing                    | Static data, stay REST                                                      |
-| ❌ NONE    | Providers (full domain)    | Registration, billing, reputation — large migration                         |
-| ❌ NONE    | Settings                   | No tRPC router exists                                                       |
-| ❌ NONE    | Stats (public)             | Stay REST                                                                   |
-| ❌ NONE    | Translate                  | Stay REST (AI service)                                                      |
-| ❌ NONE    | Webhooks                   | Stay REST                                                                   |
-| N/A        | Admin (all)                | Intended to stay REST                                                       |
-| N/A        | Auth (all)                 | Better Auth, stay REST                                                      |
-| N/A        | System/Infra (all)         | Stay REST                                                                   |
-| N/A        | V1 Public API              | External-facing, stay REST                                                  |
+| Status  | Domain                     | Notes                                                                |
+| ------- | -------------------------- | -------------------------------------------------------------------- |
+| ✅ FULL | Competitions               | All REST routes covered by tRPC                                      |
+| ✅ FULL | Content                    | All REST routes covered by tRPC                                      |
+| ✅ FULL | Events                     | All REST routes covered by tRPC                                      |
+| ✅ FULL | Bookings                   | All REST routes covered by tRPC                                      |
+| ✅ FULL | Groups                     | All REST routes covered by tRPC                                      |
+| ✅ FULL | Disputes                   | All core REST routes covered by tRPC                                 |
+| ✅ FULL | Chat/Messages              | All REST routes covered by tRPC                                      |
+| ✅ FULL | Resources                  | All REST routes covered by tRPC                                      |
+| ✅ FULL | Notifications              | All REST routes covered by tRPC                                      |
+| ✅ FULL | Maintenance                | All REST routes covered by tRPC                                      |
+| ✅ FULL | Surveys                    | All REST routes covered by tRPC                                      |
+| ✅ FULL | DWallet                    | All core REST routes covered by tRPC                                 |
+| ✅ FULL | Merits                     | All REST routes covered by tRPC                                      |
+| ✅ FULL | Identity/Users             | User suspension, albums, seats, books all in tRPC (tags removed)     |
+| ✅ FULL | Marketplace/Community Svcs | Checkout, service-bookings, urgency, premium now in tRPC sub-routers |
+| ✅ FULL | Achievements               | Dedicated achievements router (7 procedures)                         |
+| ✅ FULL | Agents                     | Dedicated agents router (4 procedures)                               |
+| ✅ FULL | Announcements              | Integrated into content router (6 procedures)                        |
+| ✅ FULL | Campaign                   | Integrated into content router                                       |
+| ✅ FULL | Conservation               | Integrated into content router                                       |
+| ✅ FULL | Dashboard Stats            | `identity.getDashboardStats`                                         |
+| ✅ FULL | External Surveys           | `surveys/external.ts` (2 procedures)                                 |
+| ✅ FULL | Invitations                | Dedicated invitations router (7 procedures)                          |
+| ✅ FULL | Settings                   | Dedicated settings router (5 procedures)                             |
+| ❌ NONE | Access Control             | Special case — navigation guard data                                 |
+| ❌ NONE | Payments                   | Should stay REST (third-party webhooks)                              |
+| ❌ NONE | Platform/Tenant Billing    | Some could migrate, billing stays REST                               |
+| ❌ NONE | Pricing                    | Static data, stay REST                                               |
+| ❌ NONE | Providers (full domain)    | Registration, billing, reputation — large migration                  |
+| ❌ NONE | Stats (public)             | Stay REST                                                            |
+| ❌ NONE | Translate                  | Stay REST (AI service)                                               |
+| ❌ NONE | Webhooks                   | Stay REST                                                            |
+| N/A     | Admin (all)                | Intended to stay REST                                                |
+| N/A     | Auth (all)                 | Better Auth, stay REST                                               |
+| N/A     | System/Infra (all)         | Stay REST                                                            |
+| N/A     | V1 Public API              | External-facing, stay REST                                           |
 
 ---
 
-## 5. Estimated Migration Effort
+## 5. Migration Complete
 
-### High Priority (Small–Medium Effort)
+**All 20 tRPC routers are live** covering all tenant-facing domains. Phase 120 (2026-06-28) completed the final governance pass: response envelope, DTO mapping, procedure tiers, rate limiting, and OpenAPI completeness.
 
-| Domain           | REST Routes | Effort | Reason                                                           |
-| ---------------- | ----------- | ------ | ---------------------------------------------------------------- |
-| Announcements    | 2           | Small  | Can extend content router (announcements are a content category) |
-| Campaign         | 1           | Small  | Can extend content router                                        |
-| Conservation     | 1           | Small  | Can extend content router                                        |
-| External Surveys | 1           | Small  | Can extend surveys router                                        |
-| Settings         | 3           | Medium | New settings router (tenant-wide key-value)                      |
-| User Suspensions | 3           | Small  | Extend identity router                                           |
-| User Tags/Albums | 3           | Small  | Extend identity router                                           |
-| Dashboard Stats  | 1           | Small  | New dashboard router or extend identity                          |
-| Achievements     | 2           | Small  | New achievements router                                          |
+### Three Steps Remaining
 
-### Medium Priority (Medium Effort)
+| Domain       | Effort | Notes                                              |
+| ------------ | ------ | -------------------------------------------------- |
+| Providers    | Large  | Registration, billing, reputation, verification    |
+| Platform     | Medium | Tenant management, onboarding, billing             |
+| Paystack SSR | Small  | Migrate checkout from server-side calls to BFF API |
 
-| Domain      | REST Routes | Effort | Reason                                                |
-| ----------- | ----------- | ------ | ----------------------------------------------------- |
-| Invitations | 4           | Medium | New invitations router with email workflow            |
-| Agents      | 3           | Medium | Extend identity router or new agents router           |
-| Seats       | 1           | Medium | Extend identity router (solo/premium seat management) |
-
-### Large Migration (Large Effort)
-
-| Domain           | REST Routes | Effort | Reason                                                                   |
-| ---------------- | ----------- | ------ | ------------------------------------------------------------------------ |
-| Providers        | 14+         | Large  | Entire provider registration, billing, reputation, verification pipeline |
-| Platform/Tenants | 5           | Large  | Multi-tenant management, billing, modules                                |
-
-### Should Stay as REST (No Migration Needed)
+### Should Stay as REST
 
 | Domain                      | Reason                                          |
 | --------------------------- | ----------------------------------------------- |
@@ -534,12 +521,15 @@ All routes under `src/app/api/v1/` are either re-exports from canonical REST rou
 
 ## 6. Raw Counts
 
-| Category                                 | Count |
-| ---------------------------------------- | ----- |
-| Total REST route files                   | 219   |
-| Routes covered by tRPC (inc. re-exports) | ~110  |
-| Admin routes (stay REST)                 | ~40   |
-| Auth/system/infra routes (stay REST)     | ~10   |
-| V1 legacy re-exports (stay REST)         | ~30   |
-| Uncovered, candidate for migration       | ~30   |
-| Uncovered, should stay REST              | ~25   |
+| Category                             | Count |
+| ------------------------------------ | ----- |
+| Total REST route files               | 219   |
+| Routes covered by tRPC               | ~150  |
+| Admin routes (stay REST)             | ~40   |
+| Auth/system/infra routes (stay REST) | ~10   |
+| V1 legacy re-exports (stay REST)     | ~30   |
+| Uncovered, should stay REST          | ~25   |
+| Uncovered, candidate for migration   | ~8    |
+| tRPC routers deployed                | 20    |
+| tRPC sub-routers                     | 14    |
+| DTO files (drizzle-zod)              | 10    |
