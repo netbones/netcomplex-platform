@@ -14,7 +14,7 @@ import {
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
 import { agentTokens } from '@schema/agent-tokens';
-import { signAgentToken, hashToken } from '@shared/lib';
+import { signAgentToken, hashToken } from '@shared/lib/agent-token';
 
 export const maxDuration = 5;
 

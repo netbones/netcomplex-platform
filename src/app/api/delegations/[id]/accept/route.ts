@@ -13,7 +13,7 @@ import {
   getSessionAndRole,
 } from '@api/server';
 import { agentTokens } from '@schema/agent-tokens';
-import { signAgentToken, hashToken } from '@shared/lib';
+import { signAgentToken, hashToken } from '@shared/lib/agent-token';
 import { logDelegationAction } from '@api/shared';
 import type { AgentScopeConfig } from '@entities/agent';
 

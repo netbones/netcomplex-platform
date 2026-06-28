@@ -30,7 +30,7 @@ export default [
           patterns: [
             // Enforce slice public API (no deep imports)
             {
-              regex: '^@shared/(?!lib/hooks)[^/]+/[^/]+$',
+              regex: '^@shared/(?!lib/hooks|lib/agent-token|lib/sanitize|lib/i18n)[^/]+/[^/]+$',
               message: 'Use public API from @shared instead of deep imports.',
             },
             // Block deep imports from entities except for the server.ts

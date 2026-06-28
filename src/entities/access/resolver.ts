@@ -19,7 +19,8 @@
 import type { AccessContext, AccessInput, AccessResolution } from './types';
 import type { SpaceId } from '@widgets/dashboard';
 import { ADMIN_ROLES } from '@widgets/dashboard';
-import { ROLE_PERMISSIONS, validateToken } from '@shared/lib';
+import { ROLE_PERMISSIONS } from '@shared/lib';
+import { validateToken } from '@shared/lib/agent-token';
 import type { PlatformPageFlags } from '@shared/lib';
 import { eq, and } from 'drizzle-orm';
 import { agentAccesses } from '@schema/agent-accesses';
