@@ -7,15 +7,9 @@ interface SwipeableServiceCardProps {
   service: ServiceListing;
   onInquire: (serviceId: string) => void;
   onBook: (serviceId: string) => void;
-  onCardClick: (serviceId: string) => void;
 }
 
-export function SwipeableServiceCard({
-  service,
-  onInquire,
-  onBook,
-  onCardClick,
-}: SwipeableServiceCardProps) {
+export function SwipeableServiceCard({ service, onInquire, onBook }: SwipeableServiceCardProps) {
   const [translateX, setTranslateX] = useState(0);
   const translateXRef = useRef(0);
   const startX = useRef(0);
@@ -78,12 +72,6 @@ export function SwipeableServiceCard({
     isHorizontalSwipe.current = false;
   };
 
-  const handleClick = () => {
-    if (!isHorizontalSwipe.current && !isSwiping.current) {
-      onCardClick(service.id);
-    }
-  };
-
   // Action indicators shown based on swipe direction
   const showInquireHint = translateX > 20;
   const showBookHint = translateX < -20;
@@ -115,11 +103,10 @@ export function SwipeableServiceCard({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        onClick={handleClick}
         className="relative z-10 bg-white transition-transform duration-200"
         style={{ transform: `translateX(${translateX}px)` }}
       >
-        <ServiceCard service={service} />
+        <ServiceCard service={service} onInquiry={onInquire} />
       </div>
     </div>
   );

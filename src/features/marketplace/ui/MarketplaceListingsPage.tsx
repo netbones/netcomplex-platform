@@ -5,6 +5,7 @@ import { trpc } from '@api/client';
 import { SwipeableServiceCard } from './SwipeableServiceCard';
 import { PullToRefresh } from './PullToRefresh';
 import { BookingBottomSheet } from '@entities/marketplace';
+import { InquireModal } from './InquireModal';
 import type { ServiceListing } from '@entities/service';
 
 export function MarketplaceListingsPage() {
@@ -12,6 +13,7 @@ export function MarketplaceListingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedListing, setSelectedListing] = useState<ServiceListing | null>(null);
   const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
+  const [inquireListing, setInquireListing] = useState<ServiceListing | null>(null);
 
   const { data, isLoading, refetch, isError } = trpc.marketplace.listListings.useQuery();
 
@@ -33,6 +35,13 @@ export function MarketplaceListingsPage() {
     if (listing) {
       setSelectedListing(listing);
       setBottomSheetOpen(true);
+    }
+  };
+
+  const handleInquire = (serviceId: string) => {
+    const listing = services.find(s => s.id === serviceId);
+    if (listing) {
+      setInquireListing(listing);
     }
   };
 
@@ -78,13 +87,8 @@ export function MarketplaceListingsPage() {
               <SwipeableServiceCard
                 key={service.id}
                 service={service}
-                onInquire={id => {
-                  window.location.href = `/dashboard/services/inquire?listing=${id}`;
-                }}
+                onInquire={handleInquire}
                 onBook={handleBook}
-                onCardClick={id => {
-                  window.location.href = `/dashboard/services/marketplace/${id}`;
-                }}
               />
             ))}
             {services.length === 0 && !isLoading && !error && (
@@ -120,6 +124,14 @@ export function MarketplaceListingsPage() {
             setBottomSheetOpen(false);
             window.location.href = `/dashboard/services/bookings/${bookingId}`;
           }}
+        />
+      )}
+
+      {inquireListing && (
+        <InquireModal
+          listing={inquireListing}
+          isOpen={!!inquireListing}
+          onClose={() => setInquireListing(null)}
         />
       )}
     </PullToRefresh>
