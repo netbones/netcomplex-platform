@@ -212,6 +212,9 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
               ) : (
                 messages.map(msg => {
                   const isOwn = msg.senderId === currentUserId;
+                  const isType = (msg as { type?: string }).type;
+                  const mediaUrl = (msg as { mediaUrl?: string }).mediaUrl;
+                  const isImage = isType === 'IMAGE' && mediaUrl;
                   return (
                     <div key={msg.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                       <div
@@ -219,7 +222,15 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                           isOwn ? 'bg-soralia-primary text-white' : 'bg-gray-100 text-gray-900'
                         }`}
                       >
-                        <p className="text-sm break-words">{msg.content}</p>
+                        {isImage && mediaUrl ? (
+                          <img
+                            src={mediaUrl}
+                            alt="Shared image"
+                            className="max-w-full max-h-[200px] object-cover rounded-lg my-1"
+                          />
+                        ) : (
+                          <p className="text-sm break-words">{msg.content}</p>
+                        )}
                         <p className={`text-xs mt-1 ${isOwn ? 'text-white/70' : 'text-gray-500'}`}>
                           {formatTime(msg.createdAt)}
                         </p>
