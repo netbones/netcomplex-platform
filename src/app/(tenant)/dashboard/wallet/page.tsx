@@ -11,7 +11,6 @@ import type {
   StreamConfig,
 } from '@entities/dwallet';
 import {
-  Wallet,
   Download,
   MoreHorizontal,
   Info,
@@ -157,7 +156,7 @@ function PageHeader({ balance, isLoading }: { balance: string | undefined; isLoa
     <div className="mb-6">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
-          <Wallet className="w-7 h-7 text-indigo-600" />
+          <img src="/platform/wallet-red.svg" alt="dWallet" className="w-7 h-7" />
           <h2 className="text-2xl font-bold text-slate-800">My dWallet</h2>
         </div>
         <div className="flex items-center gap-2">
@@ -276,7 +275,7 @@ function OverviewTab({
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center mb-4">
-          <Wallet className="w-8 h-8 text-indigo-400" />
+          <img src="/platform/wallet-red.svg" alt="dWallet" className="w-8 h-8" />
         </div>
         <h3 className="text-base font-semibold text-slate-700 mb-2">No community activity yet</h3>
         <p className="text-sm text-slate-500 max-w-xs">
