@@ -320,7 +320,7 @@ function OverviewTab({
         ) : (
           <div className="space-y-2">
             {streams.map(stream => {
-              const consent = (consents ?? []).find(c => c.streamKey === stream.key);
+              const consent = consents.find(c => c.streamKey === stream.key);
               const granted = consent?.granted ?? false;
               // Show stream contribution info
               const pct = Number(stream.residentSharePct) || 0;
@@ -806,10 +806,8 @@ function ConsentsTab({
     return <LoadingSkeleton className="space-y-3" />;
   }
 
-  const safe = consents ?? [];
-
-  const masterConsent = safe.find(c => c.streamKey === 'resident_data_share');
-  const perStreamConsents = safe.filter(c => c.streamKey !== 'resident_data_share');
+  const masterConsent = consents.find(c => c.streamKey === 'resident_data_share');
+  const perStreamConsents = consents.filter(c => c.streamKey !== 'resident_data_share');
 
   return (
     <div>
@@ -1213,7 +1211,7 @@ function DWalletPageContent() {
         {activeTab === 'impact' && <ImpactTab streams={streams} />}
         {activeTab === 'consents' && (
           <ConsentsTab
-            consents={consents ?? []}
+            consents={consents}
             isLoading={isLoading}
             isUpdating={isUpdatingConsent}
             onToggle={handleConsentToggle}

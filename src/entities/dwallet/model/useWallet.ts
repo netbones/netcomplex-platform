@@ -4,22 +4,23 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { DWalletSummary, ConsentState, TransactionItem } from './types';
 import type { ConsentInput, PayoutRequestInput } from '../schema';
 
+async function fetchEnvelope<T>(url: string): Promise<T> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch ${url}`);
+  const body = await res.json();
+  return (body.success ? body.data : body) as T;
+}
+
 async function fetchWallet(): Promise<DWalletSummary> {
-  const res = await fetch('/api/v1/tenant/dwallet');
-  if (!res.ok) throw new Error('Failed to fetch wallet');
-  return res.json();
+  return fetchEnvelope<DWalletSummary>('/api/v1/tenant/dwallet');
 }
 
 async function fetchConsents(): Promise<ConsentState[]> {
-  const res = await fetch('/api/v1/tenant/dwallet/consents');
-  if (!res.ok) throw new Error('Failed to fetch consents');
-  return res.json();
+  return fetchEnvelope<ConsentState[]>('/api/v1/tenant/dwallet/consents');
 }
 
 async function fetchTransactions(): Promise<TransactionItem[]> {
-  const res = await fetch('/api/v1/tenant/dwallet/transactions');
-  if (!res.ok) throw new Error('Failed to fetch transactions');
-  return res.json();
+  return fetchEnvelope<TransactionItem[]>('/api/v1/tenant/dwallet/transactions');
 }
 
 async function updateConsent(streamKey: string, input: ConsentInput): Promise<void> {
