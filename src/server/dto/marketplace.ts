@@ -10,32 +10,44 @@ export const listingDto = createSelectSchema(communityServiceListings, {
   price: z.coerce.number().nullable(),
   createdAt: dateSchema,
   updatedAt: dateSchema,
-}).pick({
-  id: true,
-  providerId: true,
-  providerType: true,
-  title: true,
-  description: true,
-  category: true,
-  subcategory: true,
-  priceType: true,
-  price: true,
-  currency: true,
-  serviceAreas: true,
-  responseTime: true,
-  contactMethods: true,
-  images: true,
-  rating: true,
-  reviewCount: true,
-  verified: true,
-  isPublished: true,
-  isFeatured: true,
-  status: true,
-  slug: true,
-  locale: true,
-  createdAt: true,
-  updatedAt: true,
-});
+})
+  .pick({
+    id: true,
+    providerId: true,
+    providerType: true,
+    title: true,
+    description: true,
+    category: true,
+    subcategory: true,
+    priceType: true,
+    price: true,
+    currency: true,
+    serviceAreas: true,
+    responseTime: true,
+    contactMethods: true,
+    images: true,
+    rating: true,
+    reviewCount: true,
+    verified: true,
+    isPublished: true,
+    isFeatured: true,
+    status: true,
+    slug: true,
+    locale: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    provider: z
+      .object({
+        id: z.string().optional(),
+        name: z.string().optional(),
+        email: z.string().nullable().optional(),
+        avatar: z.string().nullable().optional(),
+      })
+      .nullable()
+      .optional(),
+  });
 
 export const reviewDto = createSelectSchema(communityServiceReviews, {
   serviceDate: dateSchema.nullable(),
