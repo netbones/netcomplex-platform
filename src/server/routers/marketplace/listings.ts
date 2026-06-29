@@ -204,6 +204,8 @@ export const listingProcedures = {
           provider: {
             id: users.id,
             name: users.name,
+            email: users.email,
+            phone: users.phone,
             avatar: users.avatar,
           },
         })

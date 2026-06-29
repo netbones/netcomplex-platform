@@ -295,6 +295,16 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                       </a>
                     )}
 
+                    {listing.provider.phone && (
+                      <a
+                        href={`tel:${listing.provider.phone}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-green-700 bg-green-50 rounded-full hover:bg-green-100 min-w-[44px] min-h-[44px]"
+                      >
+                        <i className="fas fa-phone text-xs" />
+                        Call
+                      </a>
+                    )}
+
                     {session?.user?.id && listing.provider.id && (
                       <button
                         onClick={handleOpenChat}

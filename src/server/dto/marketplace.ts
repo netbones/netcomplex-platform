@@ -43,6 +43,7 @@ export const listingDto = createSelectSchema(communityServiceListings, {
         id: z.string().optional(),
         name: z.string().optional(),
         email: z.string().nullable().optional(),
+        phone: z.string().nullable().optional(),
         avatar: z.string().nullable().optional(),
       })
       .nullable()
