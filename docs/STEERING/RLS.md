@@ -49,6 +49,9 @@ GRANT USAGE ON SCHEMA public TO app_user;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO app_user;
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO app_user;
 
+-- app_user needs public in its search_path so SET ROLE finds tables.
+ALTER ROLE app_user SET search_path TO public;
+
 -- Future tables created by the owner role also become accessible to app_user.
 -- Supabase uses 'postgres' as the owner. Replace if your owner differs.
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public

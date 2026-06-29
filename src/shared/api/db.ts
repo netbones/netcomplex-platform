@@ -324,6 +324,7 @@ export async function runWithRLS<T>(
   return getDb().transaction(async tx => {
     try {
       await tx.execute(sql`SET LOCAL ROLE app_user`);
+      await tx.execute(sql`SET LOCAL search_path TO public`);
     } catch {
       log.warn(
         {},
