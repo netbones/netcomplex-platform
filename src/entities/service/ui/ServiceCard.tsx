@@ -26,6 +26,7 @@ export interface ServiceListing {
     id?: string;
     name?: string;
     email?: string;
+    phone?: string;
     avatar?: string;
   };
   isPublished: boolean;

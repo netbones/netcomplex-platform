@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import type { ServiceListing } from '@entities/service';
 import type { ConversationMessage } from '@entities/chat';
+import { EmojiPickerButton } from '@entities/chat';
 import { trpc, useSession } from '@api/client';
 import { apiGet, apiPost } from '@api/shared';
 
@@ -232,6 +233,39 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
 
             <div className="p-3 border-t border-gray-100">
               <div className="flex gap-2">
+                <EmojiPickerButton
+                  onEmojiSelect={emoji => {
+                    setInput(prev => prev + emoji);
+                    inputRef.current?.focus();
+                  }}
+                />
+                <label className="cursor-pointer p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async e => {
+                      const file = e.target.files?.[0];
+                      if (!file || !conversationId) return;
+                      const reader = new FileReader();
+                      reader.onloadend = async () => {
+                        try {
+                          const newMsg = await apiPost<ConversationMessage>('/api/messages', {
+                            conversationId,
+                            content: '',
+                            type: 'IMAGE',
+                            mediaUrl: reader.result as string,
+                          });
+                          setMessages(prev => [...prev, newMsg]);
+                        } catch {
+                          // silent
+                        }
+                      };
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                  <i className="fas fa-image text-lg" />
+                </label>
                 <input
                   ref={inputRef}
                   type="text"
