@@ -1,5 +1,5 @@
 import { createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { communityServiceListings } from '@/db/schema/community-service-listings';
 import { communityServiceReviews } from '@/db/schema/community-service-reviews';
 import { serviceBookings } from '@/db/schema/service-bookings';
@@ -7,7 +7,7 @@ import { serviceBookings } from '@/db/schema/service-bookings';
 const dateSchema = z.date().transform(d => d.toISOString());
 
 export const listingDto = createSelectSchema(communityServiceListings, {
-  price: z.number().nullable(),
+  price: z.coerce.number().nullable(),
   createdAt: dateSchema,
   updatedAt: dateSchema,
 }).pick({

@@ -1,8 +1,9 @@
 import { createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { surveys } from '@/db/schema/surveys';
 import { questions } from '@/db/schema/questions';
 import { responses } from '@/db/schema/responses';
+import { externalSurveys } from '@/db/schema/external-surveys';
 
 const dateSchema = z.date().transform(d => d.toISOString());
 
@@ -46,7 +47,7 @@ export const responseDto = createSelectSchema(responses, {
   createdAt: true,
 });
 
-export const externalSurveyDto = createSelectSchema(surveys, {
+export const externalSurveyDto = createSelectSchema(externalSurveys, {
   createdAt: dateSchema,
 }).pick({ id: true, isActive: true, createdAt: true });
 

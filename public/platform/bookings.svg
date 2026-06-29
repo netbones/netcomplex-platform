@@ -1,36 +1,56 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
   <defs>
+    <!-- Standardized panel background card glow -->
     <linearGradient id="bgGlow" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#E8ECFD" stop-opacity="0.8"/>
       <stop offset="100%" stop-color="#F3F1FB" stop-opacity="0.9"/>
     </linearGradient>
-    <linearGradient id="calBody" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#BAC9F9" />
-      <stop offset="60%" stop-color="#809BF6" />
-      <stop offset="100%" stop-color="#4D6FE2" />
+    
+    <!-- Deep violet primary gradient for the booking stack -->
+    <linearGradient id="bookingPrimary" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A78BFA" />
+      <stop offset="60%" stop-color="#6D28D9" />
+      <stop offset="100%" stop-color="#4C1D95" />
     </linearGradient>
-    <linearGradient id="calHeader" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#7B6FE9" />
-      <stop offset="100%" stop-color="#503FD4" />
+    
+    <!-- Teal/Emerald gradient for the foreground active slot checkmark -->
+    <linearGradient id="bookingSecondary" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#047857" />
     </linearGradient>
-    <filter id="subtleShadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="1" dy="3" stdDeviation="2" flood-color="#4D6FE2" flood-opacity="0.2"/>
+    
+    <!-- Drop shadow filter for consistent depth -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="1.5" dy="3" stdDeviation="2.5" flood-color="#4C1D95" flood-opacity="0.2"/>
     </filter>
   </defs>
 
+  <!-- Container Base Card -->
   <rect width="64" height="64" rx="16" fill="url(#bgGlow)" />
 
-  <!-- Calendar Base -->
-  <g filter="url(#subtleShadow)">
-    <rect x="14" y="16" width="36" height="34" rx="6" fill="url(#calBody)" />
-    <!-- Top Header Bar -->
-    <path d="M14,22 C14,18.68 16.68,16 20,16 L44,16 C47.32,16 50,18.68 50,22 L50,26 L14,26 Z" fill="url(#calHeader)" />
-    
-    <!-- Rings/Binder holes -->
-    <rect x="22" y="12" width="4" height="8" rx="2" fill="#7B6FE9" />
-    <rect x="38" y="12" width="4" height="8" rx="2" fill="#7B6FE9" />
+  <!-- Facility Bookings Graphics Group -->
+  <g filter="url(#dropShadow)" transform="translate(13, 14)">
+    <!-- Main stacked time/facility slots -->
+    <g transform="translate(0, 0)">
+      <!-- Back, inactive slots (lower opacity) -->
+      <rect x="0" y="2" width="30" height="8" rx="2.5" fill="url(#bookingPrimary)" opacity="0.3" />
+      <rect x="2" y="10" width="30" height="8" rx="2.5" fill="url(#bookingPrimary)" opacity="0.5" />
+      
+      <!-- Middle slot -->
+      <rect x="4" y="18" width="30" height="8" rx="2.5" fill="url(#bookingPrimary)" opacity="0.8" />
+      
+      <!-- Detailing lines (e.g., time separators) -->
+      <line x1="8" y1="22" x2="30" y2="22" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+    </g>
 
-    <!-- "31" Text stylized -->
-    <text x="32" y="44" font-family="system-ui, sans-serif" font-weight="bold" font-size="15" fill="#FFFFFF" text-anchor="middle">31</text>
+    <!-- Foreground confirmed reservation indicator -->
+    <g transform="translate(12, 14)">
+      <!-- Target confirmed slot -->
+      <rect x="0" y="0" width="22" height="22" rx="6" fill="#FFFFFF" opacity="0.9" />
+      
+      <!-- Status checkmark and ring -->
+      <circle cx="11" cy="11" r="8" fill="url(#bookingSecondary)" />
+      <path d="M7,11 L10,14 L15,8" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    </g>
   </g>
 </svg>

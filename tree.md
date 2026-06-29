@@ -724,6 +724,7 @@
 │   │   ├── ADVISORY-017-SUPPLEMENTAL-B.md
 │   │   ├── ADVISORY-017-SUPPLEMENTAL.md
 │   │   ├── ADVISORY-018.md
+│   │   ├── ADVISORY-019.md
 │   │   └── SUPPLEMENTAL-015.md
 │   ├── architecture
 │   │   ├── 11-ANNOUNCEMENTS-PROBLEM-DEFINITION.md
@@ -791,6 +792,7 @@
 │   │   └── widget.md
 │   ├── discussions
 │   │   ├── AGENT_USER_STORIES.md
+│   │   ├── AI_PROVIDERS.md
 │   │   ├── BILLING.md
 │   │   ├── CHAT_E2EE.md
 │   │   ├── COMMUNITY_TOPICS_DISCUSSION.md
@@ -853,6 +855,7 @@
 │   │   ├── homeowners_data_sets.md
 │   │   ├── REVIEW.md
 │   │   └── soralia-village.code-workspace
+│   ├── MOBILE_MONOREPO.md
 │   ├── multi-tenant
 │   │   ├── multi-tenant.md
 │   │   ├── MULTI_TENANT.md
@@ -929,7 +932,10 @@
 │   │   └── UBIQUITOUS_LANGUAGE.md
 │   ├── steiger.md
 │   ├── SURVEY_TESTING.md
-│   └── tech-debt-register.md
+│   ├── tech-debt-register.md
+│   ├── TRPC_ARCHI_REVIEW.md
+│   ├── tRPC_MIGRATION_STATUS.md
+│   └── TRPC_SECURITY_REPORT.md
 ├── drizzle
 │   └── meta
 │   └── \_journal.json
@@ -1024,6 +1030,10 @@
 │   │   │   └── migration.sql
 │   │   ├── 20260626100000_add_estimated_cost_usd
 │   │   │   └── migration.sql
+│   │   ├── 20260627000000_add_internal_maintenance_notes
+│   │   │   └── migration.sql
+│   │   ├── 20260628104925_add_maintenance_routing_fields
+│   │   │   └── migration.sql
 │   │   ├── manual_add_tenant_billing_models
 │   │   │   └── migration.sql
 │   │   └── migration_lock.toml
@@ -1044,6 +1054,7 @@
 │   │   ├── 7.jpg
 │   │   └── 8.jpg
 │   ├── conservation.webp
+│   ├── favicon.ico
 │   ├── house.webp
 │   ├── locales
 │   │   ├── af
@@ -1122,8 +1133,8 @@
 │   │   ├── amenities.svg
 │   │   ├── announcements.svg
 │   │   ├── beerpig.svg
+│   │   ├── bookings-alt.svg
 │   │   ├── bookings.svg
-│   │   ├── bookings-two.svg
 │   │   ├── campaigns.svg
 │   │   ├── communication.svg
 │   │   ├── competitions.svg
@@ -1136,6 +1147,7 @@
 │   │   ├── gemini-svg.svg
 │   │   ├── households.svg
 │   │   ├── maintenance.svg
+│   │   ├── marketplace.svg
 │   │   ├── merits.svg
 │   │   ├── my-services.svg
 │   │   ├── news.svg
@@ -1174,7 +1186,8 @@
 │   ├── seed-drizzle.ts
 │   ├── sql
 │   │   ├── 20260620-add-profileData.sql
-│   │   └── 20260620-fix-tenant-id-slug.sql
+│   │   ├── 20260620-fix-tenant-id-slug.sql
+│   │   └── 20260628-add-deletedAt-to-Setting.DONE.sql
 │   ├── steiger-staged.sh
 │   ├── test-explicit.ts
 │   ├── test-insert.ts
@@ -1327,6 +1340,12 @@
 │   │   │   │   ├── route.ts
 │   │   │   │   └── **tests**
 │   │   │   │   └── urgency.test.ts
+│   │   │   ├── agent
+│   │   │   │   └── tokens
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── revoke
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
 │   │   │   ├── agents
 │   │   │   │   ├── activity
 │   │   │   │   │   ├── route.ts
@@ -1450,6 +1469,21 @@
 │   │   │   │   ├── route.ts
 │   │   │   │   └── **tests**
 │   │   │   │   └── dashboard-stats.test.ts
+│   │   │   ├── delegations
+│   │   │   │   ├── [id]
+│   │   │   │   │   ├── accept
+│   │   │   │   │   │   ├── route.ts
+│   │   │   │   │   │   └── **tests**
+│   │   │   │   │   │   └── accept.test.ts
+│   │   │   │   │   ├── audit
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── block
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   ├── reject
+│   │   │   │   │   │   └── route.ts
+│   │   │   │   │   └── revoke
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
 │   │   │   ├── disputes
 │   │   │   │   ├── [id]
 │   │   │   │   │   ├── assign
@@ -1569,6 +1603,8 @@
 │   │   │   │   │   └── **tests**
 │   │   │   │   │   └── maintenance-providers.test.ts
 │   │   │   │   ├── route.ts
+│   │   │   │   ├── routing-hint
+│   │   │   │   │   └── route.ts
 │   │   │   │   ├── teams
 │   │   │   │   │   ├── [id]
 │   │   │   │   │   │   ├── route.ts
@@ -1579,6 +1615,14 @@
 │   │   │   │   │   └── maintenance-teams.test.ts
 │   │   │   │   └── **tests**
 │   │   │   │   └── maintenance.test.ts
+│   │   │   ├── marketplace
+│   │   │   │   ├── checkout
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── **tests**
+│   │   │   │   │   ├── bookings.test.ts
+│   │   │   │   │   └── checkout.test.ts
+│   │   │   │   └── webhook
+│   │   │   │   └── route.ts
 │   │   │   ├── media
 │   │   │   │   ├── route.ts
 │   │   │   │   └── **tests**
@@ -1640,6 +1684,16 @@
 │   │   │   │   ├── route.ts
 │   │   │   │   └── **tests**
 │   │   │   │   └── pricing.test.ts
+│   │   │   ├── properties
+│   │   │   │   └── [id]
+│   │   │   │   ├── delegate
+│   │   │   │   │   ├── route.ts
+│   │   │   │   │   └── **tests**
+│   │   │   │   │   └── delegate.test.ts
+│   │   │   │   └── resident-delegation
+│   │   │   │   ├── route.ts
+│   │   │   │   └── **tests**
+│   │   │   │   └── resident-delegation.test.ts
 │   │   │   ├── providers
 │   │   │   │   ├── analytics
 │   │   │   │   │   ├── reputation-score
@@ -1696,7 +1750,12 @@
 │   │   │   │   ├── route.ts
 │   │   │   │   └── **tests**
 │   │   │   │   └── seats.test.ts
+│   │   │   ├── service-bookings
+│   │   │   │   └── route.ts
 │   │   │   ├── services
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── availability
+│   │   │   │   │   └── route.ts
 │   │   │   │   └── urgency
 │   │   │   │   ├── route.ts
 │   │   │   │   └── **tests**
@@ -2237,277 +2296,300 @@
 │   │   └── VerificationQueue.tsx
 │   ├── db
 │   │   ├── index.ts
-│   │   └── schema
-│   │   ├── accounts-relations.ts
-│   │   ├── accounts.ts
-│   │   ├── achievement-category-enum.ts
-│   │   ├── achievement-definitions-relations.ts
-│   │   ├── achievement-definitions.ts
-│   │   ├── agent-accesses-relations.ts
-│   │   ├── agent-accesses.ts
-│   │   ├── agent-access-level-enum.ts
-│   │   ├── agent-permission-enum.ts
-│   │   ├── agent-profiles-relations.ts
-│   │   ├── agent-profiles.ts
-│   │   ├── ai-capability-costs.ts
-│   │   ├── ai-overage-policy-enum.ts
-│   │   ├── ai-usage-events-relations.ts
-│   │   ├── ai-usage-events.ts
-│   │   ├── ai-usage-status-enum.ts
-│   │   ├── albums-relations.ts
-│   │   ├── albums.ts
-│   │   ├── announcements-relations.ts
-│   │   ├── announcements.ts
-│   │   ├── assist-sessions-relations.ts
-│   │   ├── assist-sessions.ts
-│   │   ├── batch-status-enum.ts
-│   │   ├── behavior-category-enum.ts
-│   │   ├── behavior-record-status-enum.ts
-│   │   ├── behavior-type-enum.ts
-│   │   ├── billing-adjustments.ts
-│   │   ├── billing-adjustment-type-enum.ts
-│   │   ├── billing-events-relations.ts
-│   │   ├── billing-events.ts
-│   │   ├── billing-event-type-enum.ts
-│   │   ├── billing-plan-interval-enum.ts
-│   │   ├── billing-plans-relations.ts
-│   │   ├── billing-plans.ts
-│   │   ├── bookings-relations.ts
-│   │   ├── booking-status-enum.ts
-│   │   ├── bookings.ts
-│   │   ├── community-merits-relations.ts
-│   │   ├── community-merits.ts
-│   │   ├── community-service-inquiries-relations.ts
-│   │   ├── community-service-inquiries.ts
-│   │   ├── community-service-listings-relations.ts
-│   │   ├── community-service-listings.ts
-│   │   ├── community-service-reviews-relations.ts
-│   │   ├── community-service-reviews.ts
-│   │   ├── competition-entries-relations.ts
-│   │   ├── competition-entries.ts
-│   │   ├── competitions-relations.ts
-│   │   ├── competition-status-enum.ts
-│   │   ├── competitions.ts
-│   │   ├── competition-type-enum.ts
-│   │   ├── content-category-enum.ts
-│   │   ├── content-license-enum.ts
-│   │   ├── content-likes-relations.ts
-│   │   ├── content-likes.ts
-│   │   ├── contents-relations.ts
-│   │   ├── contents.ts
-│   │   ├── conversation-participants-relations.ts
-│   │   ├── conversation-participants.ts
-│   │   ├── conversations-relations.ts
-│   │   ├── conversations.ts
-│   │   ├── conversation-type-enum.ts
-│   │   ├── coupon-discount-type-enum.ts
-│   │   ├── coupon-redemptions-relations.ts
-│   │   ├── coupon-redemptions.ts
-│   │   ├── coupons-relations.ts
-│   │   ├── coupons.ts
-│   │   ├── custom-bytes.ts
-│   │   ├── data-consents-relations.ts
-│   │   ├── data-consents.ts
-│   │   ├── data-revenue-streams.ts
-│   │   ├── data-share-batches.ts
-│   │   ├── dispute-cases-relations.ts
-│   │   ├── dispute-cases.ts
-│   │   ├── dispute-category-enum.ts
-│   │   ├── dispute-events-relations.ts
-│   │   ├── dispute-events.ts
-│   │   ├── dispute-event-type-enum.ts
-│   │   ├── dispute-evidences-relations.ts
-│   │   ├── dispute-evidences.ts
-│   │   ├── dispute-messages-relations.ts
-│   │   ├── dispute-messages.ts
-│   │   ├── dispute-message-versions-relations.ts
-│   │   ├── dispute-message-versions.ts
-│   │   ├── dispute-notifications-relations.ts
-│   │   ├── dispute-notifications.ts
-│   │   ├── dispute-respondent-enum.ts
-│   │   ├── dispute-severity-enum.ts
-│   │   ├── dispute-status-enum.ts
-│   │   ├── d-wallets-relations.ts
-│   │   ├── d-wallets.ts
-│   │   ├── entry-status-enum.ts
-│   │   ├── event-attendees-relations.ts
-│   │   ├── event-attendees.ts
-│   │   ├── events-relations.ts
-│   │   ├── events.ts
-│   │   ├── external-surveys.ts
-│   │   ├── group-access-enum.ts
-│   │   ├── group-membership-requests-relations.ts
-│   │   ├── group-membership-requests.ts
-│   │   ├── group-members-relations.ts
-│   │   ├── group-members.ts
-│   │   ├── group-role-enum.ts
-│   │   ├── groups-relations.ts
-│   │   ├── groups.ts
-│   │   ├── household-role-enum.ts
-│   │   ├── households-relations.ts
-│   │   ├── household-status-enum.ts
-│   │   ├── households.ts
-│   │   ├── inquiry-status-enum.ts
-│   │   ├── invitations-relations.ts
-│   │   ├── invitation-status-enum.ts
-│   │   ├── invitations.ts
-│   │   ├── invoice-status-enum.ts
-│   │   ├── listing-status-enum.ts
-│   │   ├── listing-type-enum.ts
-│   │   ├── maintenance-categories.ts
-│   │   ├── maintenance-requests-relations.ts
-│   │   ├── maintenance-requests.ts
-│   │   ├── maintenance-teams-relations.ts
-│   │   ├── maintenance-teams.ts
-│   │   ├── membership-status-enum.ts
-│   │   ├── members-relations.ts
-│   │   ├── members.ts
-│   │   ├── messages-relations.ts
-│   │   ├── messages.ts
-│   │   ├── message-type-enum.ts
-│   │   ├── moderation-status-enum.ts
-│   │   ├── notifications-relations.ts
-│   │   ├── notifications.ts
-│   │   ├── notification-type-enum.ts
-│   │   ├── occupancy-type-enum.ts
-│   │   ├── organizations-relations.ts
-│   │   ├── organizations.ts
-│   │   ├── passkeys-relations.ts
-│   │   ├── passkeys.ts
-│   │   ├── payment-gateway-enum.ts
-│   │   ├── payment-transactions-relations.ts
-│   │   ├── payment-transactions.ts
-│   │   ├── payout-requests-relations.ts
-│   │   ├── payout-requests.ts
-│   │   ├── payout-status-enum.ts
-│   │   ├── platform-ai-tier-quotas.ts
-│   │   ├── platform-modules-relations.ts
-│   │   ├── platform-modules.ts
-│   │   ├── platform-suspensions-relations.ts
-│   │   ├── platform-suspensions.ts
-│   │   ├── premium-seats-relations.ts
-│   │   ├── premium-seats.ts
-│   │   ├── price-type-enum.ts
-│   │   ├── priority-enum.ts
-│   │   ├── profiles-relations.ts
-│   │   ├── profile-status-enum.ts
-│   │   ├── profiles.ts
-│   │   ├── properties-relations.ts
-│   │   ├── properties.ts
-│   │   ├── property-listings-relations.ts
-│   │   ├── property-listings.ts
-│   │   ├── property-premium-seats-relations.ts
-│   │   ├── property-premium-seats.ts
-│   │   ├── provider-charges-relations.ts
-│   │   ├── provider-charge-status-enum.ts
-│   │   ├── provider-charges.ts
-│   │   ├── provider-invoices-relations.ts
-│   │   ├── provider-invoices.ts
-│   │   ├── provider-legal-agreements-relations.ts
-│   │   ├── provider-legal-agreements.ts
-│   │   ├── provider-merits-relations.ts
-│   │   ├── provider-merits.ts
-│   │   ├── provider-merit-type-enum.ts
-│   │   ├── provider-reputations-relations.ts
-│   │   ├── provider-reputations.ts
-│   │   ├── provider-subscriptions-relations.ts
-│   │   ├── provider-subscriptions.ts
-│   │   ├── provider-type-enum.ts
-│   │   ├── provider-verifications-relations.ts
-│   │   ├── provider-verification-status-enum.ts
-│   │   ├── provider-verifications.ts
-│   │   ├── questions-relations.ts
-│   │   ├── questions.ts
-│   │   ├── question-type-enum.ts
-│   │   ├── request-histories-relations.ts
-│   │   ├── request-histories.ts
-│   │   ├── request-notes-relations.ts
-│   │   ├── request-notes.ts
-│   │   ├── request-status-enum.ts
-│   │   ├── residency-type-enum.ts
-│   │   ├── resident-filter-enum.ts
-│   │   ├── resource-category-enum.ts
-│   │   ├── resources-relations.ts
-│   │   ├── resources.ts
-│   │   ├── resource-versions-relations.ts
-│   │   ├── resource-versions.ts
-│   │   ├── resource-visibility-enum.ts
-│   │   ├── responses-relations.ts
-│   │   ├── responses.ts
-│   │   ├── revenue-records-relations.ts
-│   │   ├── revenue-records.ts
-│   │   ├── role-enum.ts
-│   │   ├── schema.ts
-│   │   ├── seat-status-enum.ts
-│   │   ├── service-providers-relations.ts
-│   │   ├── service-providers.ts
-│   │   ├── sessions-relations.ts
-│   │   ├── sessions.ts
-│   │   ├── settings.ts
-│   │   ├── solo-seats-relations.ts
-│   │   ├── solo-seats.ts
-│   │   ├── solo-seat-type-enum.ts
-│   │   ├── standard-seats-relations.ts
-│   │   ├── standard-seats.ts
-│   │   ├── subscription-status-enum.ts
-│   │   ├── subscription-tiers-relations.ts
-│   │   ├── subscription-tiers.ts
-│   │   ├── survey-sections-relations.ts
-│   │   ├── survey-sections.ts
-│   │   ├── surveys-relations.ts
-│   │   ├── survey-status-enum.ts
-│   │   ├── surveys.ts
-│   │   ├── survey-type-enum.ts
-│   │   ├── suspension-type-enum.ts
-│   │   ├── tax-jurisdictions-relations.ts
-│   │   ├── tax-jurisdictions.ts
-│   │   ├── tax-rates-relations.ts
-│   │   ├── tax-rates.ts
-│   │   ├── tenant-achievements-relations.ts
-│   │   ├── tenant-achievements.ts
-│   │   ├── tenant-ai-usages-relations.ts
-│   │   ├── tenant-ai-usages.ts
-│   │   ├── tenant-invoices-relations.ts
-│   │   ├── tenant-invoices.ts
-│   │   ├── tenant-modules-relations.ts
-│   │   ├── tenant-modules.ts
-│   │   ├── tenant-payments-relations.ts
-│   │   ├── tenant-payments.ts
-│   │   ├── tenants-relations.ts
-│   │   ├── tenants.ts
-│   │   ├── tenant-subscriptions-relations.ts
-│   │   ├── tenant-subscription-status-enum.ts
-│   │   ├── tenant-subscriptions.ts
-│   │   ├── tier-enum.ts
-│   │   ├── transaction-source-enum.ts
-│   │   ├── transaction-status-enum.ts
-│   │   ├── transaction-type-enum.ts
-│   │   ├── two-factors-relations.ts
-│   │   ├── two-factors.ts
-│   │   ├── user-achievement-progresses-relations.ts
-│   │   ├── user-achievement-progresses.ts
-│   │   ├── user-achievements-relations.ts
-│   │   ├── user-achievements.ts
-│   │   ├── user-devices-relations.ts
-│   │   ├── user-devices.ts
-│   │   ├── user-keys-relations.ts
-│   │   ├── user-keys.ts
-│   │   ├── users-relations.ts
-│   │   ├── users.ts
-│   │   ├── verifications.ts
-│   │   ├── wallet-status-enum.ts
-│   │   ├── wallet-transactions-relations.ts
-│   │   └── wallet-transactions.ts
+│   │   ├── schema
+│   │   │   ├── accounts-relations.ts
+│   │   │   ├── accounts.ts
+│   │   │   ├── achievement-category-enum.ts
+│   │   │   ├── achievement-definitions-relations.ts
+│   │   │   ├── achievement-definitions.ts
+│   │   │   ├── agent-accesses-relations.ts
+│   │   │   ├── agent-accesses.ts
+│   │   │   ├── agent-access-level-enum.ts
+│   │   │   ├── agent-profiles-relations.ts
+│   │   │   ├── agent-profiles.ts
+│   │   │   ├── agent-tokens-relations.ts
+│   │   │   ├── agent-tokens.ts
+│   │   │   ├── ai-capability-costs.ts
+│   │   │   ├── ai-overage-policy-enum.ts
+│   │   │   ├── ai-usage-events-relations.ts
+│   │   │   ├── ai-usage-events.ts
+│   │   │   ├── ai-usage-status-enum.ts
+│   │   │   ├── albums-relations.ts
+│   │   │   ├── albums.ts
+│   │   │   ├── announcements-relations.ts
+│   │   │   ├── announcements.ts
+│   │   │   ├── assist-sessions-relations.ts
+│   │   │   ├── assist-sessions.ts
+│   │   │   ├── batch-status-enum.ts
+│   │   │   ├── behavior-category-enum.ts
+│   │   │   ├── behavior-record-status-enum.ts
+│   │   │   ├── behavior-type-enum.ts
+│   │   │   ├── billing-adjustments.ts
+│   │   │   ├── billing-adjustment-type-enum.ts
+│   │   │   ├── billing-events-relations.ts
+│   │   │   ├── billing-events.ts
+│   │   │   ├── billing-event-type-enum.ts
+│   │   │   ├── billing-plan-interval-enum.ts
+│   │   │   ├── billing-plans-relations.ts
+│   │   │   ├── billing-plans.ts
+│   │   │   ├── booking-payment-status-enum.ts
+│   │   │   ├── bookings-relations.ts
+│   │   │   ├── booking-status-enum.ts
+│   │   │   ├── bookings.ts
+│   │   │   ├── community-merits-relations.ts
+│   │   │   ├── community-merits.ts
+│   │   │   ├── community-service-inquiries-relations.ts
+│   │   │   ├── community-service-inquiries.ts
+│   │   │   ├── community-service-listings-relations.ts
+│   │   │   ├── community-service-listings.ts
+│   │   │   ├── community-service-reviews-relations.ts
+│   │   │   ├── community-service-reviews.ts
+│   │   │   ├── competition-entries-relations.ts
+│   │   │   ├── competition-entries.ts
+│   │   │   ├── competitions-relations.ts
+│   │   │   ├── competition-status-enum.ts
+│   │   │   ├── competitions.ts
+│   │   │   ├── competition-type-enum.ts
+│   │   │   ├── content-category-enum.ts
+│   │   │   ├── content-license-enum.ts
+│   │   │   ├── content-likes-relations.ts
+│   │   │   ├── content-likes.ts
+│   │   │   ├── contents-relations.ts
+│   │   │   ├── contents.ts
+│   │   │   ├── conversation-participants-relations.ts
+│   │   │   ├── conversation-participants.ts
+│   │   │   ├── conversations-relations.ts
+│   │   │   ├── conversations.ts
+│   │   │   ├── conversation-type-enum.ts
+│   │   │   ├── coupon-discount-type-enum.ts
+│   │   │   ├── coupon-redemptions-relations.ts
+│   │   │   ├── coupon-redemptions.ts
+│   │   │   ├── coupons-relations.ts
+│   │   │   ├── coupons.ts
+│   │   │   ├── custom-bytes.ts
+│   │   │   ├── data-consents-relations.ts
+│   │   │   ├── data-consents.ts
+│   │   │   ├── data-revenue-streams.ts
+│   │   │   ├── data-share-batches.ts
+│   │   │   ├── delegation-actions-relations.ts
+│   │   │   ├── delegation-actions.ts
+│   │   │   ├── delegation-status-enum.ts
+│   │   │   ├── dispute-cases-relations.ts
+│   │   │   ├── dispute-cases.ts
+│   │   │   ├── dispute-category-enum.ts
+│   │   │   ├── dispute-events-relations.ts
+│   │   │   ├── dispute-events.ts
+│   │   │   ├── dispute-event-type-enum.ts
+│   │   │   ├── dispute-evidences-relations.ts
+│   │   │   ├── dispute-evidences.ts
+│   │   │   ├── dispute-messages-relations.ts
+│   │   │   ├── dispute-messages.ts
+│   │   │   ├── dispute-message-versions-relations.ts
+│   │   │   ├── dispute-message-versions.ts
+│   │   │   ├── dispute-notifications-relations.ts
+│   │   │   ├── dispute-notifications.ts
+│   │   │   ├── dispute-respondent-enum.ts
+│   │   │   ├── dispute-severity-enum.ts
+│   │   │   ├── dispute-status-enum.ts
+│   │   │   ├── d-wallets-relations.ts
+│   │   │   ├── d-wallets.ts
+│   │   │   ├── entry-status-enum.ts
+│   │   │   ├── event-attendees-relations.ts
+│   │   │   ├── event-attendees.ts
+│   │   │   ├── events-relations.ts
+│   │   │   ├── events.ts
+│   │   │   ├── external-surveys.ts
+│   │   │   ├── group-access-enum.ts
+│   │   │   ├── group-membership-requests-relations.ts
+│   │   │   ├── group-membership-requests.ts
+│   │   │   ├── group-members-relations.ts
+│   │   │   ├── group-members.ts
+│   │   │   ├── group-role-enum.ts
+│   │   │   ├── groups-relations.ts
+│   │   │   ├── groups.ts
+│   │   │   ├── household-role-enum.ts
+│   │   │   ├── households-relations.ts
+│   │   │   ├── household-status-enum.ts
+│   │   │   ├── households.ts
+│   │   │   ├── inquiry-status-enum.ts
+│   │   │   ├── internal-maintenance-notes-relations.ts
+│   │   │   ├── internal-maintenance-notes.ts
+│   │   │   ├── invitations-relations.ts
+│   │   │   ├── invitation-status-enum.ts
+│   │   │   ├── invitations.ts
+│   │   │   ├── invoice-status-enum.ts
+│   │   │   ├── listing-status-enum.ts
+│   │   │   ├── listing-type-enum.ts
+│   │   │   ├── maintenance-categories.ts
+│   │   │   ├── maintenance-requests-relations.ts
+│   │   │   ├── maintenance-requests.ts
+│   │   │   ├── maintenance-routing-enum.ts
+│   │   │   ├── maintenance-teams-relations.ts
+│   │   │   ├── maintenance-teams.ts
+│   │   │   ├── membership-status-enum.ts
+│   │   │   ├── members-relations.ts
+│   │   │   ├── members.ts
+│   │   │   ├── messages-relations.ts
+│   │   │   ├── messages.ts
+│   │   │   ├── message-type-enum.ts
+│   │   │   ├── moderation-status-enum.ts
+│   │   │   ├── notifications-relations.ts
+│   │   │   ├── notifications.ts
+│   │   │   ├── notification-type-enum.ts
+│   │   │   ├── occupancy-type-enum.ts
+│   │   │   ├── organizations-relations.ts
+│   │   │   ├── organizations.ts
+│   │   │   ├── passkeys-relations.ts
+│   │   │   ├── passkeys.ts
+│   │   │   ├── payment-gateway-enum.ts
+│   │   │   ├── payment-transactions-relations.ts
+│   │   │   ├── payment-transactions.ts
+│   │   │   ├── payout-requests-relations.ts
+│   │   │   ├── payout-requests.ts
+│   │   │   ├── payout-status-enum.ts
+│   │   │   ├── platform-ai-tier-quotas.ts
+│   │   │   ├── platform-modules-relations.ts
+│   │   │   ├── platform-modules.ts
+│   │   │   ├── platform-suspensions-relations.ts
+│   │   │   ├── platform-suspensions.ts
+│   │   │   ├── premium-seats-relations.ts
+│   │   │   ├── premium-seats.ts
+│   │   │   ├── price-type-enum.ts
+│   │   │   ├── priority-enum.ts
+│   │   │   ├── profiles-relations.ts
+│   │   │   ├── profile-status-enum.ts
+│   │   │   ├── profiles.ts
+│   │   │   ├── properties-relations.ts
+│   │   │   ├── properties.ts
+│   │   │   ├── property-listings-relations.ts
+│   │   │   ├── property-listings.ts
+│   │   │   ├── property-premium-seats-relations.ts
+│   │   │   ├── property-premium-seats.ts
+│   │   │   ├── provider-charges-relations.ts
+│   │   │   ├── provider-charge-status-enum.ts
+│   │   │   ├── provider-charges.ts
+│   │   │   ├── provider-invoices-relations.ts
+│   │   │   ├── provider-invoices.ts
+│   │   │   ├── provider-legal-agreements-relations.ts
+│   │   │   ├── provider-legal-agreements.ts
+│   │   │   ├── provider-merits-relations.ts
+│   │   │   ├── provider-merits.ts
+│   │   │   ├── provider-merit-type-enum.ts
+│   │   │   ├── provider-reputations-relations.ts
+│   │   │   ├── provider-reputations.ts
+│   │   │   ├── provider-subscriptions-relations.ts
+│   │   │   ├── provider-subscriptions.ts
+│   │   │   ├── provider-type-enum.ts
+│   │   │   ├── provider-verifications-relations.ts
+│   │   │   ├── provider-verification-status-enum.ts
+│   │   │   ├── provider-verifications.ts
+│   │   │   ├── questions-relations.ts
+│   │   │   ├── questions.ts
+│   │   │   ├── question-type-enum.ts
+│   │   │   ├── request-histories-relations.ts
+│   │   │   ├── request-histories.ts
+│   │   │   ├── request-notes-relations.ts
+│   │   │   ├── request-notes.ts
+│   │   │   ├── request-status-enum.ts
+│   │   │   ├── residency-type-enum.ts
+│   │   │   ├── resident-delegations-relations.ts
+│   │   │   ├── resident-delegations.ts
+│   │   │   ├── resident-filter-enum.ts
+│   │   │   ├── resource-category-enum.ts
+│   │   │   ├── resources-relations.ts
+│   │   │   ├── resources.ts
+│   │   │   ├── resource-versions-relations.ts
+│   │   │   ├── resource-versions.ts
+│   │   │   ├── resource-visibility-enum.ts
+│   │   │   ├── responses-relations.ts
+│   │   │   ├── responses.ts
+│   │   │   ├── revenue-records-relations.ts
+│   │   │   ├── revenue-records.ts
+│   │   │   ├── role-enum.ts
+│   │   │   ├── schema.ts
+│   │   │   ├── seat-status-enum.ts
+│   │   │   ├── service-bookings-relations.ts
+│   │   │   ├── service-booking-status-enum.ts
+│   │   │   ├── service-bookings.ts
+│   │   │   ├── service-providers-relations.ts
+│   │   │   ├── service-providers.ts
+│   │   │   ├── sessions-relations.ts
+│   │   │   ├── sessions.ts
+│   │   │   ├── settings.ts
+│   │   │   ├── solo-seats-relations.ts
+│   │   │   ├── solo-seats.ts
+│   │   │   ├── solo-seat-type-enum.ts
+│   │   │   ├── standard-seats-relations.ts
+│   │   │   ├── standard-seats.ts
+│   │   │   ├── subscription-status-enum.ts
+│   │   │   ├── subscription-tiers-relations.ts
+│   │   │   ├── subscription-tiers.ts
+│   │   │   ├── survey-sections-relations.ts
+│   │   │   ├── survey-sections.ts
+│   │   │   ├── surveys-relations.ts
+│   │   │   ├── survey-status-enum.ts
+│   │   │   ├── surveys.ts
+│   │   │   ├── survey-type-enum.ts
+│   │   │   ├── suspension-type-enum.ts
+│   │   │   ├── tax-jurisdictions-relations.ts
+│   │   │   ├── tax-jurisdictions.ts
+│   │   │   ├── tax-rates-relations.ts
+│   │   │   ├── tax-rates.ts
+│   │   │   ├── tenant-achievements-relations.ts
+│   │   │   ├── tenant-achievements.ts
+│   │   │   ├── tenant-ai-usages-relations.ts
+│   │   │   ├── tenant-ai-usages.ts
+│   │   │   ├── tenant-invoices-relations.ts
+│   │   │   ├── tenant-invoices.ts
+│   │   │   ├── tenant-modules-relations.ts
+│   │   │   ├── tenant-modules.ts
+│   │   │   ├── tenant-payments-relations.ts
+│   │   │   ├── tenant-payments.ts
+│   │   │   ├── tenants-relations.ts
+│   │   │   ├── tenants.ts
+│   │   │   ├── tenant-subscriptions-relations.ts
+│   │   │   ├── tenant-subscription-status-enum.ts
+│   │   │   ├── tenant-subscriptions.ts
+│   │   │   ├── tier-enum.ts
+│   │   │   ├── transaction-source-enum.ts
+│   │   │   ├── transaction-status-enum.ts
+│   │   │   ├── transaction-type-enum.ts
+│   │   │   ├── two-factors-relations.ts
+│   │   │   ├── two-factors.ts
+│   │   │   ├── user-achievement-progresses-relations.ts
+│   │   │   ├── user-achievement-progresses.ts
+│   │   │   ├── user-achievements-relations.ts
+│   │   │   ├── user-achievements.ts
+│   │   │   ├── user-devices-relations.ts
+│   │   │   ├── user-devices.ts
+│   │   │   ├── user-keys-relations.ts
+│   │   │   ├── user-keys.ts
+│   │   │   ├── users-relations.ts
+│   │   │   ├── users.ts
+│   │   │   ├── verifications.ts
+│   │   │   ├── wallet-status-enum.ts
+│   │   │   ├── wallet-transactions-relations.ts
+│   │   │   └── wallet-transactions.ts
+│   │   └── **tests**
+│   │   └── schema.test.ts
 │   ├── entities
 │   │   ├── access
 │   │   │   ├── index.ts
 │   │   │   ├── resolver.test.ts
 │   │   │   ├── resolver.ts
+│   │   │   ├── types.test.ts
 │   │   │   └── types.ts
 │   │   ├── admin
 │   │   │   ├── index.ts
 │   │   │   └── model
 │   │   │   ├── constants.ts
+│   │   │   └── types.ts
+│   │   ├── agent
+│   │   │   ├── index.ts
+│   │   │   ├── scopes.ts
+│   │   │   ├── **tests**
+│   │   │   │   ├── schema.test.ts
+│   │   │   │   └── types.test.ts
 │   │   │   └── types.ts
 │   │   ├── booking
 │   │   │   ├── api
@@ -2564,6 +2646,12 @@
 │   │   │   └── **tests**
 │   │   │   ├── announcements.test.ts
 │   │   │   └── groups.test.ts
+│   │   ├── delegation
+│   │   │   ├── api.ts
+│   │   │   ├── index.ts
+│   │   │   ├── **tests**
+│   │   │   │   └── api.test.tsx
+│   │   │   └── types.ts
 │   │   ├── directory
 │   │   │   ├── index.ts
 │   │   │   ├── model
@@ -2649,6 +2737,7 @@
 │   │   │   ├── index.ts
 │   │   │   ├── model
 │   │   │   │   ├── constants.ts
+│   │   │   │   ├── routing.ts
 │   │   │   │   └── types.ts
 │   │   │   ├── permissions
 │   │   │   │   ├── index.ts
@@ -2658,11 +2747,32 @@
 │   │   │   ├── services
 │   │   │   │   └── index.ts
 │   │   │   ├── **tests**
+│   │   │   │   ├── maintenance-routing.test.ts
 │   │   │   │   └── maintenance-transform.test.ts
 │   │   │   └── ui
 │   │   │   ├── MaintenanceCard.tsx
 │   │   │   ├── PriorityBadge.tsx
 │   │   │   └── StatusBadge.tsx
+│   │   ├── marketplace
+│   │   │   ├── api
+│   │   │   │   ├── checkout.ts
+│   │   │   │   └── notification-triggers.ts
+│   │   │   ├── index.server.ts
+│   │   │   ├── index.ts
+│   │   │   ├── schema.ts
+│   │   │   ├── **tests**
+│   │   │   │   ├── bottom-sheet.test.tsx
+│   │   │   │   ├── checkout-summary.test.tsx
+│   │   │   │   ├── date-picker.test.tsx
+│   │   │   │   ├── email-templates.test.ts
+│   │   │   │   ├── notification-triggers.test.ts
+│   │   │   │   ├── swipe-card.test.tsx
+│   │   │   │   └── time-slot-grid.test.tsx
+│   │   │   └── ui
+│   │   │   ├── BookingBottomSheet.tsx
+│   │   │   ├── CheckoutSummary.tsx
+│   │   │   ├── DatePicker.tsx
+│   │   │   └── TimeSlotGrid.tsx
 │   │   ├── merit
 │   │   │   ├── index.ts
 │   │   │   ├── model
@@ -2706,6 +2816,7 @@
 │   │   │   │   │   ├── platform-flags.test.ts
 │   │   │   │   │   ├── platform-flags.ts
 │   │   │   │   │   ├── services-config.ts
+│   │   │   │   │   ├── services-config.types.ts
 │   │   │   │   │   └── statsig-flags.ts
 │   │   │   │   ├── gate
 │   │   │   │   │   ├── feature-gate.ts
@@ -2904,6 +3015,16 @@
 │   │   │   ├── index.ts
 │   │   │   ├── MissionSection.tsx
 │   │   │   └── PrimaryCTA.tsx
+│   │   ├── marketplace
+│   │   │   ├── index.ts
+│   │   │   ├── **tests**
+│   │   │   │   └── marketplace-listings.test.tsx
+│   │   │   └── ui
+│   │   │   ├── MarketplaceDetailPage.tsx
+│   │   │   ├── MarketplaceListingsPage.tsx
+│   │   │   ├── MarketplaceWidget.tsx
+│   │   │   ├── PullToRefresh.tsx
+│   │   │   └── SwipeableServiceCard.tsx
 │   │   ├── onboarding
 │   │   │   ├── index.ts
 │   │   │   ├── model
@@ -3035,6 +3156,17 @@
 │   │   └── ServicesPage.tsx
 │   ├── README.md
 │   ├── server
+│   │   ├── dto
+│   │   │   ├── chat.ts
+│   │   │   ├── content.ts
+│   │   │   ├── dwallet.ts
+│   │   │   ├── identity.ts
+│   │   │   ├── index.ts
+│   │   │   ├── maintenance.ts
+│   │   │   ├── marketplace.ts
+│   │   │   ├── misc.ts
+│   │   │   ├── more.ts
+│   │   │   └── surveys.ts
 │   │   ├── openapi
 │   │   │   └── generator.ts
 │   │   ├── payments
@@ -3043,9 +3175,53 @@
 │   │   │   ├── paystack.test.ts
 │   │   │   └── paystack.ts
 │   │   └── routers
+│   │   ├── achievements.ts
+│   │   ├── agents.ts
+│   │   ├── bookings.ts
+│   │   ├── chat
+│   │   │   ├── conversations.ts
+│   │   │   ├── messaging.ts
+│   │   │   └── shared.ts
+│   │   ├── chat.ts
 │   │   ├── competitions.ts
+│   │   ├── content.ts
+│   │   ├── disputes.ts
+│   │   ├── dwallet.ts
+│   │   ├── events.ts
+│   │   ├── groups.ts
 │   │   ├── identity.ts
-│   │   └── index.ts
+│   │   ├── index.ts
+│   │   ├── invitations.ts
+│   │   ├── maintenance
+│   │   │   ├── maintenance-categories.ts
+│   │   │   ├── maintenance-providers.ts
+│   │   │   ├── maintenance-requests.ts
+│   │   │   ├── maintenance-teams.ts
+│   │   │   └── shared.ts
+│   │   ├── maintenance.ts
+│   │   ├── marketplace
+│   │   │   ├── analytics.ts
+│   │   │   ├── checkout.ts
+│   │   │   ├── inquiries.ts
+│   │   │   ├── listings.ts
+│   │   │   ├── moderation.ts
+│   │   │   ├── premium.ts
+│   │   │   ├── reviews.ts
+│   │   │   ├── service-bookings.ts
+│   │   │   ├── shared.ts
+│   │   │   └── urgency.ts
+│   │   ├── marketplace.ts
+│   │   ├── merits.ts
+│   │   ├── notifications.ts
+│   │   ├── resources.ts
+│   │   ├── settings.ts
+│   │   ├── surveys
+│   │   │   ├── external.ts
+│   │   │   ├── shared.ts
+│   │   │   ├── survey-management.ts
+│   │   │   ├── survey-questions.ts
+│   │   │   └── survey-sections.ts
+│   │   └── surveys.ts
 │   ├── shared
 │   │   ├── api
 │   │   │   ├── achievements
@@ -3101,8 +3277,10 @@
 │   │   │   │   │   └── dto-property.test.ts
 │   │   │   │   └── user.ts
 │   │   │   ├── email
+│   │   │   │   ├── marketplace-templates.ts
 │   │   │   │   ├── resend.ts
 │   │   │   │   └── templates.ts
+│   │   │   ├── envelope.ts
 │   │   │   ├── events
 │   │   │   │   ├── emitter.ts
 │   │   │   │   └── index.ts
@@ -3119,6 +3297,7 @@
 │   │   │   ├── server
 │   │   │   │   └── index.ts
 │   │   │   ├── shared
+│   │   │   │   ├── delegations.ts
 │   │   │   │   └── index.ts
 │   │   │   ├── slug.ts
 │   │   │   ├── storage.ts
@@ -3129,6 +3308,7 @@
 │   │   │   │   ├── http-client.test.ts
 │   │   │   │   └── pdf-utils.test.ts
 │   │   │   ├── trpc
+│   │   │   │   ├── app-router.types.ts
 │   │   │   │   ├── client.ts
 │   │   │   │   ├── index.ts
 │   │   │   │   ├── routers.ts
@@ -3140,6 +3320,7 @@
 │   │   │   ├── css.d.ts
 │   │   │   └── index.ts
 │   │   ├── lib
+│   │   │   ├── agent-token.ts
 │   │   │   ├── billing
 │   │   │   │   ├── billing.test.ts
 │   │   │   │   ├── helpers.ts
@@ -3199,6 +3380,7 @@
 │   │   │   ├── tenant-config
 │   │   │   │   └── tenant.ts
 │   │   │   ├── **tests**
+│   │   │   │   ├── agent-token.test.ts
 │   │   │   │   ├── constants.test.ts
 │   │   │   │   ├── permissions.test.ts
 │   │   │   │   └── useAutoSave.test.ts
@@ -3390,6 +3572,10 @@
 │   │   ├── WeatherWidget.tsx
 │   │   ├── WidgetCard.tsx
 │   │   └── WidgetRenderer.tsx
+│   ├── delegation
+│   │   ├── DelegationAuditLog.tsx
+│   │   ├── DelegationWidget.tsx
+│   │   └── index.ts
 │   ├── maintenance
 │   │   ├── index.ts
 │   │   └── ui
@@ -3419,7 +3605,8 @@
 ├── tree.md
 ├── tsconfig.json
 ├── tsconfig.tsbuildinfo
+├── typecheck_report.md
 ├── vercel.json
 └── vitest.config.ts
 
-1065 directories, 2358 files
+1111 directories, 2499 files

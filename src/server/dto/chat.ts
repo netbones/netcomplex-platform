@@ -1,5 +1,5 @@
 import { createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { conversations } from '@/db/schema/conversations';
 import { messages } from '@/db/schema/messages';
 

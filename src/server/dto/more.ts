@@ -1,5 +1,5 @@
 import { createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { achievementDefinitions } from '@/db/schema/achievement-definitions';
 import { invitations } from '@/db/schema/invitations';
 import { settings } from '@/db/schema/settings';

@@ -1,5 +1,5 @@
 import { createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { dWallets } from '@/db/schema/d-wallets';
 import { walletTransactions } from '@/db/schema/wallet-transactions';
 import { dataConsents } from '@/db/schema/data-consents';

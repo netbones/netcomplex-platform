@@ -24,7 +24,7 @@ export function MarketplaceListingsPage() {
       setError(null);
     }
     if (isError) {
-      setError('Failed to load services. Pull to refresh to try again.');
+      setError('Failed to load marketplace listings. Please try again.');
     }
   }, [data, isError]);
 

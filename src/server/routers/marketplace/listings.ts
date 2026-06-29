@@ -93,6 +93,7 @@ export const listingProcedures = {
         .select({
           id: communityServiceListings.id,
           providerId: communityServiceListings.providerId,
+          providerType: communityServiceListings.providerType,
           title: communityServiceListings.title,
           description: communityServiceListings.description,
           category: communityServiceListings.category,
@@ -101,6 +102,8 @@ export const listingProcedures = {
           price: communityServiceListings.price,
           currency: communityServiceListings.currency,
           serviceAreas: communityServiceListings.serviceAreas,
+          responseTime: communityServiceListings.responseTime,
+          contactMethods: communityServiceListings.contactMethods,
           verified: communityServiceListings.verified,
           rating: communityServiceListings.rating,
           reviewCount: communityServiceListings.reviewCount,
@@ -109,6 +112,7 @@ export const listingProcedures = {
           status: communityServiceListings.status,
           images: communityServiceListings.images,
           createdAt: communityServiceListings.createdAt,
+          updatedAt: communityServiceListings.updatedAt,
           slug: communityServiceListings.slug,
           locale: communityServiceListings.locale,
           provider: {

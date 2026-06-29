@@ -1,5 +1,5 @@
 import { createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { events } from '@/db/schema/events';
 import { bookings } from '@/db/schema/bookings';
 import { groups } from '@/db/schema/groups';

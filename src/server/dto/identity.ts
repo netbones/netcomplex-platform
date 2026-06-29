@@ -1,5 +1,5 @@
 import { createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 import { users } from '@/db/schema/users';
 import { properties } from '@/db/schema/properties';
 import { profiles } from '@/db/schema/profiles';
