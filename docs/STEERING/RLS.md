@@ -46,14 +46,18 @@ END
 $setup$;
 
 GRANT USAGE ON SCHEMA public TO app_user;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO app_user;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO app_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO app_user;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO app_user;
 
 -- Future tables created by the owner role also become accessible to app_user.
--- Adjust <owner_role> if your DATABASE_URL uses something other than the
--- role that owns the schema.
-ALTER DEFAULT PRIVILEGES FOR ROLE <owner_role> IN SCHEMA public
-  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO app_user;
+-- Supabase uses 'postgres' as the owner. Replace if your owner differs.
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+  GRANT ALL ON TABLES TO app_user;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+  GRANT USAGE ON SEQUENCES TO app_user;
+
+-- Run this after any schema migration that adds new tables:
+--   GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO app_user;
 SQL
 ```
 
@@ -62,7 +66,15 @@ SQL
 ```sql
 SELECT rolname, rolcanlogin, rolbypassrls FROM pg_roles WHERE rolname IN ('app_user', current_user);
 -- Expect: app_user rolcanlogin=true rolbypassrls=false
--- Expect: <owner> rolcanlogin=true rolbypassrls=true
+-- Expect: postgres rolcanlogin=true rolbypassrls=true
+```
+
+```sql
+-- All tables must be accessible to app_user. Expect: 0 rows (no missing grants)
+SELECT t.tablename
+  FROM pg_tables t
+ WHERE t.schemaname = 'public'
+   AND NOT has_table_privilege('app_user', quote_ident(t.tablename), 'SELECT');
 ```
 
 ## Step 2 — Apply the RLS migration
