@@ -236,7 +236,7 @@ export async function POST(request: Request) {
     revalidateConversations();
 
     // Broadcast via Supabase Realtime
-    await supabase.channel(`chat:${conversationId}`).httpSend({
+    await supabase.channel(`chat:${conversationId}`).send({
       type: 'broadcast',
       event: 'new-message',
       payload: message,
