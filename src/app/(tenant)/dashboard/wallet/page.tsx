@@ -157,7 +157,10 @@ function PageHeader({ balance, isLoading }: { balance: string | undefined; isLoa
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <img src="/platform/wallet-red.svg" alt="dWallet" className="w-7 h-7" />
-          <h2 className="text-2xl font-bold text-slate-800">My dWallet</h2>
+          <div>
+            <h2 className="text-2xl font-bold text-slate-800">My dWallet</h2>
+            <p className="text-sm text-slate-500">Your data, your consent, your rewards</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button
