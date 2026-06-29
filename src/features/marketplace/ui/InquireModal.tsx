@@ -1,6 +1,9 @@
 'use client';
 
+import { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import type { ServiceListing } from '@entities/service';
+import { trpc, useSession } from '@api/client';
 
 interface InquireModalProps {
   listing: ServiceListing;
@@ -9,6 +12,23 @@ interface InquireModalProps {
 }
 
 export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const findOrCreate = trpc.chat.findOrCreateConversation.useMutation();
+
+  const handleChat = useCallback(() => {
+    if (!session?.user?.id || !listing.provider?.id) return;
+    findOrCreate.mutate(
+      { participantIds: [session.user.id, listing.provider.id] },
+      {
+        onSuccess: () => {
+          onClose();
+          router.push('/messages');
+        },
+      }
+    );
+  }, [session, listing.provider, findOrCreate, onClose, router]);
+
   if (!isOpen) return null;
 
   return (
@@ -41,15 +61,39 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
             <div className="bg-gray-50 rounded-lg p-4 space-y-3">
               <h5 className="text-sm font-medium text-gray-700">Provider Details</h5>
               <p className="text-sm text-gray-900">{listing.provider.name}</p>
-              {listing.provider.email && (
-                <a
-                  href={`mailto:${listing.provider.email}`}
-                  className="flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-800"
-                >
-                  <i className="fas fa-envelope w-4" />
-                  {listing.provider.email}
-                </a>
-              )}
+
+              <div className="flex flex-wrap items-center gap-2">
+                {listing.provider.email && (
+                  <a
+                    href={`mailto:${listing.provider.email}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-indigo-700 bg-indigo-50 rounded-full hover:bg-indigo-100 min-w-[44px] min-h-[44px]"
+                  >
+                    <i className="fas fa-envelope text-xs" />
+                    Email
+                  </a>
+                )}
+
+                {listing.provider.phone && (
+                  <a
+                    href={`tel:${listing.provider.phone}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-green-700 bg-green-50 rounded-full hover:bg-green-100 min-w-[44px] min-h-[44px]"
+                  >
+                    <i className="fas fa-phone text-xs" />
+                    Call
+                  </a>
+                )}
+
+                {session?.user?.id && listing.provider.id && (
+                  <button
+                    onClick={handleChat}
+                    disabled={findOrCreate.isPending}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-700 bg-blue-50 rounded-full hover:bg-blue-100 disabled:opacity-50 min-w-[44px] min-h-[44px]"
+                  >
+                    <i className="fas fa-comment text-xs" />
+                    {findOrCreate.isPending ? 'Starting...' : 'Chat'}
+                  </button>
+                )}
+              </div>
             </div>
           )}
 

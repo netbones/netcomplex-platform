@@ -119,6 +119,7 @@ export const listingProcedures = {
             id: users.id,
             name: users.name,
             email: users.email,
+            phone: users.phone,
             avatar: users.avatar,
           },
         })
