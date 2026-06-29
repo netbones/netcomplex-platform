@@ -209,7 +209,7 @@ export const POST = withErrorHandler(
         .returning();
 
       // Broadcast via Supabase Realtime
-      await supabase.channel(`dispute:${id}`).send({
+      await supabase.channel(`dispute:${id}`).httpSend({
         type: 'broadcast',
         event: 'new-mediation-message',
         payload: newMessage,

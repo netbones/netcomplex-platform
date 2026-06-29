@@ -252,7 +252,7 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                         try {
                           const newMsg = await apiPost<ConversationMessage>('/api/messages', {
                             conversationId,
-                            content: '',
+                            content: 'Image',
                             type: 'IMAGE',
                             mediaUrl: reader.result as string,
                           });
