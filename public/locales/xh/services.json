@@ -46,6 +46,19 @@
   "dWallet": {
     "subheading": "Idatha yakho, ukuvuma kwakho, umvuzo wakho"
   },
+  "shortcuts": {
+    "add": "Yongeza",
+    "new-request": "Isicelo esiTsha",
+    "book-facility": "Bhukha iNcedo",
+    "maintenance": "Ukugcinwa",
+    "bookings": "Ubuchule",
+    "amenities": "Izincedo",
+    "events": "Iziganeko",
+    "surveys": "Uphando",
+    "marketplace": "Imarike",
+    "communication": "Unxibelelwano",
+    "my-services": "Iinkonzo Zam"
+  },
   "settings": {
     "title": "Useto",
     "description": "Lawula iakhawunti yakho, iimfihlo, kunye nezinto okhetha zona"

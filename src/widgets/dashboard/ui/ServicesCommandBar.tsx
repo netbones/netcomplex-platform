@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useSafeTranslation } from '@shared/lib';
 import {
   Wrench,
   Calendar,
@@ -148,6 +149,7 @@ function UrgencyChip({ href, icon, label, colour }: UrgencyChipProps) {
 // ═══════════════════════════════════════════════════════════════
 
 function ShortcutButton({ shortcut }: { shortcut: ShortcutDef }) {
+  const { tx } = useSafeTranslation('services');
   const ShortcutIcon = shortcut.icon;
   return (
     <Link
@@ -155,7 +157,7 @@ function ShortcutButton({ shortcut }: { shortcut: ShortcutDef }) {
       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-200 bg-white text-gray-700 text-sm hover:bg-gray-50 hover:border-gray-300 transition-colors"
     >
       <ShortcutIcon className="w-3.5 h-3.5 text-indigo-600" />
-      {shortcut.label}
+      {tx(`shortcuts.${shortcut.id}`, shortcut.label)}
     </Link>
   );
 }
@@ -173,6 +175,7 @@ function AddShortcutPopover({
   activeShortcuts: string[];
   onToggle: (id: string) => void;
 }) {
+  const { tx } = useSafeTranslation('services');
   const [open, setOpen] = useState(false);
 
   return (
@@ -181,11 +184,11 @@ function AddShortcutPopover({
         type="button"
         onClick={() => setOpen(prev => !prev)}
         className="inline-flex items-center gap-1 px-2 py-1.5 rounded-md border border-dashed border-gray-300 bg-gray-50 text-gray-500 text-sm hover:bg-gray-100 hover:border-gray-400 transition-colors"
-        aria-label="Add shortcut"
+        aria-label={tx('shortcuts.add', 'Add shortcut')}
         aria-expanded={open}
       >
         <Plus className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline">Add</span>
+        <span className="hidden sm:inline">{tx('shortcuts.add', 'Add')}</span>
       </button>
 
       {open && (
@@ -224,7 +227,7 @@ function AddShortcutPopover({
                     {isActive && <Check className="w-3 h-3 text-white" />}
                   </span>
                   <ShortcutIcon className="w-4 h-4 text-gray-400" />
-                  <span className="truncate">{shortcut.label}</span>
+                  <span className="truncate">{tx(`shortcuts.${shortcut.id}`, shortcut.label)}</span>
                 </button>
               );
             })}

@@ -46,6 +46,19 @@
   "dWallet": {
     "subheading": "Idatha yakho, imvume yakho, imivuzo yakho"
   },
+  "shortcuts": {
+    "add": "Engeza",
+    "new-request": "Isicelo Elisha",
+    "book-facility": "Bhukha Indawo",
+    "maintenance": "Ukunakekelwa",
+    "bookings": "Ukubhukha",
+    "amenities": "Izinto",
+    "events": "Izehlakalo",
+    "surveys": "Inhlolovo",
+    "marketplace": "Imakethe",
+    "communication": "Ukuxhumana",
+    "my-services": "Amasevisi Ami"
+  },
   "settings": {
     "title": "Izilungiselelo",
     "description": "Phatha i-akhawunti yakho, ubumfihlo, nezintandokazi"

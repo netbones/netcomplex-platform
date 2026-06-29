@@ -46,6 +46,19 @@
   "dWallet": {
     "subheading": "Your data, your consent, your rewards"
   },
+  "shortcuts": {
+    "add": "Add",
+    "new-request": "New Request",
+    "book-facility": "Book Facility",
+    "maintenance": "Maintenance",
+    "bookings": "Bookings",
+    "amenities": "Amenities",
+    "events": "Events",
+    "surveys": "Surveys",
+    "marketplace": "Marketplace",
+    "communication": "Communication",
+    "my-services": "My Services"
+  },
   "settings": {
     "title": "Settings",
     "description": "Manage your account, privacy, and preferences"

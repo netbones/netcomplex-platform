@@ -46,6 +46,19 @@
   "dWallet": {
     "subheading": "Jou data, jou toestemming, jou belonings"
   },
+  "shortcuts": {
+    "add": "Voeg",
+    "new-request": "Nuwe Versoek",
+    "book-facility": "Bespreek Gerief",
+    "maintenance": "Instandhouding",
+    "bookings": "Besprekings",
+    "amenities": "Geriefs",
+    "events": "Gebeure",
+    "surveys": "Opnames",
+    "marketplace": "Markplek",
+    "communication": "Kommunikasie",
+    "my-services": "My Dienste"
+  },
   "settings": {
     "title": "Instellings",
     "description": "Bestuur jou rekening, privaatheid en voorkeure"
