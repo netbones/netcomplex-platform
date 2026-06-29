@@ -50,6 +50,7 @@ import { revenueRecords } from '@schema/revenue-records';
 
 import { billingPlans } from '@schema/billing-plans';
 import { getOrCreateDefaultBillingPlans } from '@shared/lib/billing/seed-plans';
+import { platformModules } from '@schema/platform-modules';
 
 import { achievementDefinitions } from '@schema/achievement-definitions';
 
@@ -553,6 +554,107 @@ async function main() {
   console.log(
     `📦 Seeding ${targets.length} tenant(s): ${targets.map(t => t.tenant.slug).join(', ')}`
   );
+
+  // Global seed: platform modules (not per-tenant)
+  const PLATFORM_MODULE_SEEDS = [
+    { key: 'dashboard', label: 'Dashboard', defaultEnabled: true, minTier: 'STANDARD' as const },
+    { key: 'auth', label: 'Authentication', defaultEnabled: true, minTier: 'STANDARD' as const },
+    {
+      key: 'notifications',
+      label: 'Notifications',
+      defaultEnabled: true,
+      minTier: 'STANDARD' as const,
+    },
+    { key: 'settings', label: 'Settings', defaultEnabled: true, minTier: 'STANDARD' as const },
+    { key: 'directory', label: 'Directory', defaultEnabled: true, minTier: 'STANDARD' as const },
+    { key: 'groups', label: 'Groups', defaultEnabled: true, minTier: 'STANDARD' as const },
+    {
+      key: 'maintenance',
+      label: 'Maintenance Requests',
+      defaultEnabled: true,
+      minTier: 'STANDARD' as const,
+    },
+    {
+      key: 'community_services',
+      label: 'Community Services',
+      defaultEnabled: true,
+      minTier: 'STANDARD' as const,
+    },
+    {
+      key: 'content',
+      label: 'Content Management',
+      defaultEnabled: true,
+      minTier: 'STANDARD' as const,
+    },
+    {
+      key: 'bookings',
+      label: 'Facility Booking',
+      defaultEnabled: true,
+      minTier: 'STANDARD' as const,
+    },
+    {
+      key: 'competitions',
+      label: 'Competitions',
+      defaultEnabled: true,
+      minTier: 'STANDARD' as const,
+    },
+    {
+      key: 'providers',
+      label: 'Service Providers',
+      defaultEnabled: true,
+      minTier: 'STANDARD' as const,
+    },
+    {
+      key: 'conservation',
+      label: 'Conservation',
+      defaultEnabled: true,
+      minTier: 'STANDARD' as const,
+    },
+    {
+      key: 'premium-seats',
+      label: 'Premium Seats',
+      defaultEnabled: true,
+      minTier: 'STANDARD' as const,
+    },
+    {
+      key: 'property-listings',
+      label: 'Property Listings',
+      defaultEnabled: true,
+      minTier: 'STANDARD' as const,
+    },
+    {
+      key: 'ai-provider',
+      label: 'AI Provider',
+      defaultEnabled: false,
+      minTier: 'PREMIUM' as const,
+    },
+    {
+      key: 'disputes',
+      label: 'Dispute Resolution',
+      defaultEnabled: false,
+      minTier: 'PREMIUM' as const,
+    },
+    { key: 'dWallet', label: 'dWallet', defaultEnabled: false, minTier: 'PREMIUM' as const },
+    {
+      key: 'agent-marketplace',
+      label: 'Agent Marketplace',
+      defaultEnabled: false,
+      minTier: 'PREMIUM' as const,
+    },
+    {
+      key: 'white-label',
+      label: 'White Label',
+      defaultEnabled: false,
+      minTier: 'ENTERPRISE' as const,
+    },
+  ];
+  for (const seed of PLATFORM_MODULE_SEEDS) {
+    await db
+      .insert(platformModules)
+      .values({ id: crypto.randomUUID(), ...seed })
+      .onConflictDoNothing({ target: [platformModules.key] });
+  }
+  console.log(`  ✓ ${PLATFORM_MODULE_SEEDS.length} platform modules`);
 
   // Global seed: achievement definitions (not per-tenant)
   const ACHIEVEMENT_SEEDS = [

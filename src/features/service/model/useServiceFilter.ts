@@ -80,7 +80,7 @@ export function useServiceFilter(options: ServiceFilterOptions = {}): UseService
       if (category !== 'ALL') params.set('category', category);
       if (serviceType !== 'ALL') params.set('type', serviceType);
       if (verifiedOnly) params.set('verified', 'true');
-      params.set('page', String(page));
+      params.set('offset', String((page - 1) * limit));
       params.set('limit', String(limit));
 
       const res = await fetch(`${apiEndpoint}?${params}`);
