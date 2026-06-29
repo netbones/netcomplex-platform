@@ -28,8 +28,11 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
   const [input, setInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [recording, setRecording] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const currentUserId = session?.user?.id || '';
   const recipientId = listing.provider?.id || '';
@@ -142,6 +145,56 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const formatDuration = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const startRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      mediaRecorderRef.current = recorder;
+      audioChunksRef.current = [];
+
+      recorder.ondataavailable = e => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+
+      recorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          if (!conversationId) return;
+          try {
+            const newMsg = await apiPost<ConversationMessage>('/api/messages', {
+              conversationId,
+              content: '',
+              type: 'VOICE',
+              mediaUrl: reader.result as string,
+            });
+            setMessages(prev => [...prev, newMsg]);
+          } catch {
+            // silent
+          }
+        };
+        reader.readAsDataURL(blob);
+      };
+
+      recorder.start();
+      setRecording(true);
+    } catch {
+      // mic denied or unavailable
+    }
+  }, [conversationId]);
+
+  const stopRecording = useCallback(() => {
+    mediaRecorderRef.current?.stop();
+    setRecording(false);
+  }, []);
+
   const handleClose = useCallback(() => {
     setChatView(false);
     setConversationId(null);
@@ -215,6 +268,8 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                   const isType = (msg as { type?: string }).type;
                   const mediaUrl = (msg as { mediaUrl?: string }).mediaUrl;
                   const isImage = isType === 'IMAGE' && mediaUrl;
+                  const isVoice = isType === 'VOICE' && mediaUrl;
+                  const payload = (msg as { payload?: { duration?: number } }).payload;
                   return (
                     <div key={msg.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                       <div
@@ -222,7 +277,16 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                           isOwn ? 'bg-soralia-primary text-white' : 'bg-gray-100 text-gray-900'
                         }`}
                       >
-                        {isImage && mediaUrl ? (
+                        {isVoice && mediaUrl ? (
+                          <div className="flex items-center gap-2 my-1">
+                            <audio src={mediaUrl} controls className="max-w-full h-8" />
+                            {payload?.duration != null && (
+                              <span className="text-xs opacity-70">
+                                {formatDuration(payload.duration)}
+                              </span>
+                            )}
+                          </div>
+                        ) : isImage && mediaUrl ? (
                           <img
                             src={mediaUrl}
                             alt="Shared image"
@@ -277,6 +341,18 @@ export function InquireModal({ listing, isOpen, onClose }: InquireModalProps) {
                   />
                   <i className="fas fa-image text-lg" />
                 </label>
+                <button
+                  onClick={recording ? stopRecording : startRecording}
+                  className={`p-2.5 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center ${
+                    recording
+                      ? 'bg-red-500 text-white animate-pulse'
+                      : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                  }`}
+                  aria-label={recording ? 'Stop recording' : 'Record voice note'}
+                  type="button"
+                >
+                  <i className={`fas ${recording ? 'fa-stop' : 'fa-microphone'} text-lg`} />
+                </button>
                 <input
                   ref={inputRef}
                   type="text"
