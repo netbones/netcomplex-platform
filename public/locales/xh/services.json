@@ -34,6 +34,22 @@
   "waste": "Ukulahlwa kwenkukuma",
   "amenities": "Izincedo",
   "other": "Enye",
+  "sections": {
+    "serviceAreas": "Iindawo zeNkonzo",
+    "competitionsAndSurveys": "Ukhuphiswano & Uphando",
+    "financeAndMarkets": "AmaFayini & iMarike"
+  },
+  "campaigns": {
+    "title": "Amaphulo",
+    "description": "Amaphulo okuzingca oluntu kunye namanyathelo"
+  },
+  "dWallet": {
+    "subheading": "Idatha yakho, ukuvuma kwakho, umvuzo wakho"
+  },
+  "settings": {
+    "title": "Useto",
+    "description": "Lawula iakhawunti yakho, iimfihlo, kunye nezinto okhetha zona"
+  },
   "domains": {
     "maintenance": "Ukugcinwa",
     "bookings": "Ubuchule",
@@ -43,6 +59,7 @@
     "surveys": "Uphando",
     "competitions": "Ukhuphiswano",
     "communication": "Unxibelelwano",
+    "marketplace": "Imarike",
     "descriptions": {
       "maintenance": "Thumela kwaye ulandele isicelo sokugcinwa",
       "bookings": "Buka iindawo zoluntu kunye nezincedo",
@@ -51,7 +68,8 @@
       "events": "Iziganeko ezizayo zoluntu kunye nemisebenzi",
       "surveys": "Uphando loluntu kunye nemibuzo",
       "competitions": "Ukhuphiswano loluntu kunye nemiceli-mngeni",
-      "communication": "Incoko, izaziso, kunye nemiyalezo"
+      "communication": "Incoko, izaziso, kunye nemiyalezo",
+      "marketplace": "Khangela kwaye ubhukhe ababoneleli beenkonzo zoluntu"
     }
   },
   "quickNav": "Iindidi zeNkonzo",

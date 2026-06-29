@@ -34,6 +34,22 @@
   "waste": "Waste Management",
   "amenities": "Amenities",
   "other": "Other",
+  "sections": {
+    "serviceAreas": "Service Areas",
+    "competitionsAndSurveys": "Competitions & Surveys",
+    "financeAndMarkets": "Finance & Markets"
+  },
+  "campaigns": {
+    "title": "Campaigns",
+    "description": "Community pride campaigns and initiatives"
+  },
+  "dWallet": {
+    "subheading": "Your data, your consent, your rewards"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account, privacy, and preferences"
+  },
   "domains": {
     "maintenance": "Maintenance",
     "bookings": "Bookings",
@@ -43,6 +59,7 @@
     "surveys": "Surveys",
     "competitions": "Competitions",
     "communication": "Communication",
+    "marketplace": "Marketplace",
     "descriptions": {
       "maintenance": "Submit and track maintenance requests",
       "bookings": "Book community facilities and amenities",
@@ -51,7 +68,8 @@
       "events": "Upcoming community events and activities",
       "surveys": "Community surveys and questionnaires",
       "competitions": "Community competitions and contests",
-      "communication": "Chat, announcements, and messaging"
+      "communication": "Chat, announcements, and messaging",
+      "marketplace": "Browse and book community service providers"
     }
   },
   "quickNav": "Service Categories",

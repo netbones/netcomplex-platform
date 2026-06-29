@@ -34,6 +34,22 @@
   "waste": "Afvalbestuur",
   "amenities": "Geriefs",
   "other": "Ander",
+  "sections": {
+    "serviceAreas": "Diens Areas",
+    "competitionsAndSurveys": "Kompetisies & Opnames",
+    "financeAndMarkets": "Finansies & Markplek"
+  },
+  "campaigns": {
+    "title": "Veldtogte",
+    "description": "Gemeenskap trots veldtogte en inisiatiewe"
+  },
+  "dWallet": {
+    "subheading": "Jou data, jou toestemming, jou belonings"
+  },
+  "settings": {
+    "title": "Instellings",
+    "description": "Bestuur jou rekening, privaatheid en voorkeure"
+  },
   "domains": {
     "maintenance": "Instandhouding",
     "bookings": "Besprekings",
@@ -43,6 +59,7 @@
     "surveys": "Opnames",
     "competitions": "Kompetisies",
     "communication": "Kommunikasie",
+    "marketplace": "Markplek",
     "descriptions": {
       "maintenance": "Dien onderhoudsversoeke in en volg dit op",
       "bookings": "Bespreek gemeenskap fasiliteite en geriefs",
@@ -51,7 +68,8 @@
       "events": "Komende gemeenskap gebeure en aktiwiteite",
       "surveys": "Gemeenskap opnames en vraelyste",
       "competitions": "Gemeenskap kompetisies en wedstryde",
-      "communication": "Klets, aankondigings en boodskappe"
+      "communication": "Klets, aankondigings en boodskappe",
+      "marketplace": "Blaai en bespreek gemeenskap diensverskaffers"
     }
   },
   "quickNav": "Diens Kategorieë",

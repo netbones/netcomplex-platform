@@ -34,6 +34,22 @@
   "waste": "Ukulahlwa kwenkukuma",
   "amenities": "Izinto",
   "other": "Okunye",
+  "sections": {
+    "serviceAreas": "Izindawo Zesevisi",
+    "competitionsAndSurveys": "Imiqhudelwano & Inhlolovo",
+    "financeAndMarkets": "EzeMali & Ezimakethe"
+  },
+  "campaigns": {
+    "title": "Imikhankaso",
+    "description": "Imikhankaso yokuziqhenya komphakathi nezinhlelo"
+  },
+  "dWallet": {
+    "subheading": "Idatha yakho, imvume yakho, imivuzo yakho"
+  },
+  "settings": {
+    "title": "Izilungiselelo",
+    "description": "Phatha i-akhawunti yakho, ubumfihlo, nezintandokazi"
+  },
   "domains": {
     "maintenance": "Ukunakekelwa",
     "bookings": "Ukubhukha",
@@ -43,6 +59,7 @@
     "surveys": "Inhlolovo",
     "competitions": "Imiqhudelwano",
     "communication": "Ukuxhumana",
+    "marketplace": "Imakethe",
     "descriptions": {
       "maintenance": "Thumela futhi ulandele izicelo zokunakekelwa",
       "bookings": "Bhukha izindawo zomphakathi nezinto",
@@ -51,7 +68,8 @@
       "events": "Izehlakalo ezizayo zomphakathi nemisebenzi",
       "surveys": "Inhlolovo yomphakathi nemibuzo",
       "competitions": "Imiqhudelwano yomphakathi nezincintiswano",
-      "communication": "Ingxoxo, izimemezelo, kanye nemiyalezo"
+      "communication": "Ingxoxo, izimemezelo, kanye nemiyalezo",
+      "marketplace": "Buka futhi ubhukhe abahlinzeki bamasevisi omphakathi"
     }
   },
   "quickNav": "Izigaba zeSevisi",

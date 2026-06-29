@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useSafeTranslation } from '@shared/lib';
+import { useLocalStorage } from 'usehooks-ts';
 import { ServicesCommandBar, type ServicesCommandBarUrgency } from './ServicesCommandBar';
 import { SERVICES_DOMAIN_DEFINITIONS, type ServicesDomainDef } from './ServicesSubLauncher';
 
@@ -125,6 +126,8 @@ function ServicesLayerError({ onRetry }: { onRetry: () => void }) {
 // ═══════════════════════════════════════════════════════════════
 
 export function ServicesLayer() {
+  const { tx } = useSafeTranslation('services');
+  const [activeShortcuts, setActiveShortcuts] = useLocalStorage<string[]>('services-shortcuts', []);
   const [urgency, setUrgency] = useState<UrgencyResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -159,7 +162,7 @@ export function ServicesLayer() {
   }
 
   const serviceDomains = SERVICES_DOMAIN_DEFINITIONS.filter(
-    d => d.id !== 'surveys' && d.id !== 'competitions'
+    d => d.id !== 'surveys' && d.id !== 'competitions' && d.id !== 'marketplace'
   );
   const engagementDomains = SERVICES_DOMAIN_DEFINITIONS.filter(
     d => d.id === 'surveys' || d.id === 'competitions'
@@ -169,12 +172,18 @@ export function ServicesLayer() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       {/* Section: Command Bar (reactive CTAs + creation shortcuts) */}
       <section aria-label="Services command bar">
-        <ServicesCommandBar urgency={urgency.commandBar} />
+        <ServicesCommandBar
+          urgency={urgency.commandBar}
+          activeShortcuts={activeShortcuts}
+          onShortcutsChange={setActiveShortcuts}
+        />
       </section>
 
       {/* Section: Service Areas */}
       <section aria-label="Service areas">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Service Areas</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          {tx('sections.serviceAreas', 'Service Areas')}
+        </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {serviceDomains.map(domain => (
             <DomainCard
@@ -188,7 +197,9 @@ export function ServicesLayer() {
 
       {/* Section: Competitions, Surveys & Campaigns */}
       <section aria-label="Competitions, surveys and campaigns">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Competitions &amp; Surveys</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          {tx('sections.competitionsAndSurveys', 'Competitions & Surveys')}
+        </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           {engagementDomains.map(domain => (
             <DomainCard
@@ -206,19 +217,53 @@ export function ServicesLayer() {
             </div>
             <div className="min-w-0 flex-1">
               <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
-                Campaigns
+                {tx('campaigns.title', 'Campaigns')}
               </h3>
               <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
-                Community pride campaigns and initiatives
+                {tx('campaigns.description', 'Community pride campaigns and initiatives')}
               </p>
             </div>
           </Link>
         </div>
       </section>
 
+      {/* Section: Finance & Markets */}
+      <section aria-label="Finance & Markets">
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          {tx('sections.financeAndMarkets', 'Finance & Markets')}
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          <Link
+            href="/dashboard/wallet"
+            className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
+          >
+            <div className="flex-shrink-0 w-10 h-10">
+              <img src="/platform/wallet-red.svg" alt="" className="w-full h-full" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
+                dWallet
+              </h3>
+              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+                {tx('dWallet.subheading', 'Your data, your consent, your rewards')}
+              </p>
+            </div>
+          </Link>
+          {SERVICES_DOMAIN_DEFINITIONS.filter(d => d.id === 'marketplace').map(domain => (
+            <DomainCard
+              key={domain.id}
+              domain={domain}
+              badge={urgency.domainBadges[domain.id] ?? 0}
+            />
+          ))}
+        </div>
+      </section>
+
       {/* Section: Settings */}
       <section aria-label="Settings">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">Settings</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          {tx('settings.title', 'Settings')}
+        </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           <Link
             href="/settings"
@@ -229,10 +274,10 @@ export function ServicesLayer() {
             </div>
             <div className="min-w-0 flex-1">
               <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
-                Settings
+                {tx('settings.title', 'Settings')}
               </h3>
               <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
-                Manage your account, privacy, and preferences
+                {tx('settings.description', 'Manage your account, privacy, and preferences')}
               </p>
             </div>
           </Link>
