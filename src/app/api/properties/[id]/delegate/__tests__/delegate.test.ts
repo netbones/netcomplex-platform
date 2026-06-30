@@ -162,13 +162,9 @@ vi.mock('@entities/agent', () => ({
 }));
 
 // ── Mock @api/shared (logDelegationAction) ────────────────────
-vi.mock('@api/shared', async importOriginal => {
-  const actual = await importOriginal<typeof import('@api/shared')>();
-  return {
-    ...actual,
-    logDelegationAction: vi.fn(() => Promise.resolve()),
-  };
-});
+vi.mock('@api/shared/delegations', () => ({
+  logDelegationAction: vi.fn(() => Promise.resolve()),
+}));
 
 // ── Mock @shared/lib/agent-token ─────────────────────────────
 vi.mock('@shared/lib', async importOriginal => {
@@ -488,7 +484,7 @@ describe('POST /api/properties/[id]/delegate', () => {
       ])
     );
 
-    const { logDelegationAction } = await import('@api/shared');
+    const { logDelegationAction } = await import('@api/shared/delegations');
     const request = makeReq({
       body: { providerId: 'provider-1', scopes: ['maintenance:read'] },
     });
