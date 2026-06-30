@@ -131,6 +131,7 @@ const SETTING_DEFS = [
     defaultValue: ['directory', 'groups', 'services', 'resources'] as HeaderLinkId[],
   },
   { dbKey: 'services_config', type: 'json', defaultValue: null },
+  { dbKey: 'hero_carousel', type: 'json', defaultValue: null },
   {
     dbKey: 'provider_registration_mode',
     type: 'enum',
@@ -178,6 +179,7 @@ export const SETTINGS_KEYS = {
   CUSTOM_PAGES: 'custom_pages',
   CUSTOM_NAV: 'custom_nav',
   SERVICES_CONFIG: 'services_config',
+  HERO_CAROUSEL: 'hero_carousel',
   PROVIDER_REGISTRATION_MODE: 'provider_registration_mode',
   STATS_HOMES: 'stats_homes',
   STATS_YEARS: 'stats_years',
