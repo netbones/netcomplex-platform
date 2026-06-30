@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ErrorBoundary, LoadingCard } from '@shared/ui';
 import { Wallet, CheckCircle, XCircle } from 'lucide-react';
-import type { AdminStats, PayoutRequestItem, BatchRecord } from '../model/types';
+import type { AdminStats, PayoutRequestItem, BatchRecord, StreamConfig } from '../model/types';
 
 // ── Data fetching helpers ──────────────────────────────────────────────────
 
@@ -31,6 +31,12 @@ async function fetchBatches(): Promise<BatchRecord[]> {
   const res = await fetch('/api/admin/dwallet/batches');
   if (!res.ok) throw new Error('Failed to fetch batches');
   return unwrapEnvelope<BatchRecord[]>(res);
+}
+
+async function fetchStreams(): Promise<StreamConfig[]> {
+  const res = await fetch('/api/admin/dwallet/streams');
+  if (!res.ok) throw new Error('Failed to fetch streams');
+  return unwrapEnvelope<StreamConfig[]>(res);
 }
 
 async function patchPayoutStatus(
@@ -68,6 +74,7 @@ function AdminEmptyState({ message }: { message: string }) {
 // ── Distribution Batch Form ────────────────────────────────────────────────
 
 interface DistributionFormProps {
+  streams: StreamConfig[];
   onSubmit: (data: {
     streamKey: string;
     periodStart: string;
@@ -78,8 +85,8 @@ interface DistributionFormProps {
   isSubmitting: boolean;
 }
 
-function DistributionForm({ onSubmit, onCancel, isSubmitting }: DistributionFormProps) {
-  const [streamKey, setStreamKey] = useState('anonymised_analytics');
+function DistributionForm({ streams, onSubmit, onCancel, isSubmitting }: DistributionFormProps) {
+  const [streamKey, setStreamKey] = useState(streams[0]?.key ?? '');
   const [periodStart, setPeriodStart] = useState('');
   const [periodEnd, setPeriodEnd] = useState('');
   const [totalRevenue, setTotalRevenue] = useState('');
@@ -114,10 +121,15 @@ function DistributionForm({ onSubmit, onCancel, isSubmitting }: DistributionForm
             onChange={e => setStreamKey(e.target.value)}
             className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
-            <option value="anonymised_analytics">Anonymised Usage Analytics</option>
-            <option value="market_research">Market Research Surveys</option>
-            <option value="community_benchmarking">Community Benchmarking</option>
-            <option value="service_matching">Service Provider Matching</option>
+            {streams.length === 0 ? (
+              <option value="">No revenue streams configured</option>
+            ) : (
+              streams.map(s => (
+                <option key={s.key} value={s.key}>
+                  {s.label}
+                </option>
+              ))
+            )}
           </select>
         </div>
 
@@ -348,9 +360,11 @@ function DWalletAdminWidgetContent() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [payouts, setPayouts] = useState<PayoutRequestItem[]>([]);
   const [batches, setBatches] = useState<BatchRecord[]>([]);
+  const [streams, setStreams] = useState<StreamConfig[]>([]);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [isLoadingPayouts, setIsLoadingPayouts] = useState(true);
   const [isLoadingBatches, setIsLoadingBatches] = useState(true);
+  const [isLoadingStreams, setIsLoadingStreams] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch data on mount
@@ -359,11 +373,17 @@ function DWalletAdminWidgetContent() {
 
     async function loadData() {
       try {
-        const [s, p, b] = await Promise.all([fetchAdminStats(), fetchPayouts(), fetchBatches()]);
+        const [s, p, b, streamsData] = await Promise.all([
+          fetchAdminStats(),
+          fetchPayouts(),
+          fetchBatches(),
+          fetchStreams(),
+        ]);
         if (!cancelled) {
           setStats(s);
           setPayouts(p);
           setBatches(b);
+          setStreams(streamsData);
         }
       } catch (err) {
         if (!cancelled) {
@@ -374,6 +394,7 @@ function DWalletAdminWidgetContent() {
           setIsLoadingStats(false);
           setIsLoadingPayouts(false);
           setIsLoadingBatches(false);
+          setIsLoadingStreams(false);
         }
       }
     }
@@ -448,7 +469,7 @@ function DWalletAdminWidgetContent() {
   }, []);
 
   // ── Loading state ──────────────────────────────────────────────────────
-  const isLoading = isLoadingStats || isLoadingPayouts || isLoadingBatches;
+  const isLoading = isLoadingStats || isLoadingPayouts || isLoadingBatches || isLoadingStreams;
   if (isLoading) {
     return (
       <div className="flex flex-col gap-4">
@@ -509,6 +530,7 @@ function DWalletAdminWidgetContent() {
         </button>
       ) : (
         <DistributionForm
+          streams={streams}
           onSubmit={handleRunDistribution}
           onCancel={() => setShowDistributionForm(false)}
           isSubmitting={isSubmittingBatch}

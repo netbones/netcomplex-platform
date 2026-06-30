@@ -51,6 +51,7 @@ import { revenueRecords } from '@schema/revenue-records';
 import { billingPlans } from '@schema/billing-plans';
 import { getOrCreateDefaultBillingPlans } from '@shared/lib/billing/seed-plans';
 import { platformModules } from '@schema/platform-modules';
+import { dataRevenueStreams } from '@schema/data-revenue-streams';
 
 import { achievementDefinitions } from '@schema/achievement-definitions';
 
@@ -58,6 +59,7 @@ import type { TenantSeedData } from './seed-data/types';
 import { withTenantPrefix, withTenantId, newTenantId } from './seed-data/builder';
 import { SORALIA_VILLAGE } from './seed-data/soralia-village';
 import { SOLARIS_HEIGHTS } from './seed-data/solaris-heights';
+import { DWalletStreams } from './seed-data/dwallet-streams';
 import type { UserInput, HouseholdInput, ProfileInput } from './seed-data/types';
 
 // ---------------------------------------------------------------------------
@@ -529,6 +531,38 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
     await db.insert(announcements).values(a).onConflictDoNothing();
   }
   console.log(`  ✓ ${annRows.length} announcements`);
+
+  // dWallet data revenue streams (per-tenant)
+  console.log('dWallet revenue streams...');
+  const now = new Date();
+  let streamCount = 0;
+  for (const s of DWalletStreams) {
+    await db
+      .insert(dataRevenueStreams)
+      .values({
+        id: crypto.randomUUID(),
+        tenantId,
+        key: s.key,
+        label: s.label,
+        description: s.description,
+        residentSharePct: String(s.residentSharePct),
+        isActive: s.isActive,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: [dataRevenueStreams.tenantId, dataRevenueStreams.key],
+        set: {
+          label: s.label,
+          description: s.description,
+          residentSharePct: String(s.residentSharePct),
+          isActive: s.isActive,
+          updatedAt: now,
+        },
+      });
+    streamCount++;
+  }
+  console.log(`  ✓ ${streamCount} revenue streams`);
 
   console.log(`\n✅ ${data.tenant.name} seeded.\n`);
 }

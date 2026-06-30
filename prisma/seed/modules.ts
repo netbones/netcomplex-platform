@@ -197,9 +197,6 @@ async function main() {
   console.log('Seeded', modules.length, 'platform modules');
 }
 
-// Run dWallet data revenue stream seed
-import './dwallet-streams';
-
 main()
   .catch(console.error)
   .finally(() => prisma.$disconnect());

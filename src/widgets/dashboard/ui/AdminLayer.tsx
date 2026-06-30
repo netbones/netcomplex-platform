@@ -62,6 +62,8 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.system': 'Platform configuration and health',
   'domains.descriptions.providers': 'Provider management, revenue, and moderation',
   'domains.descriptions.services': 'Configure the public services page',
+  'domains.dwallet': 'dWallet',
+  'domains.descriptions.dwallet': 'Community value distribution and payout management',
   'domains.descriptions.adminBookings': 'Manage bookable facilities and settings',
 };
 

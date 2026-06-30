@@ -66,6 +66,7 @@
     "announcements": "Izimemezelo",
     "system": "Uhlelo",
     "services": "Amasevisi",
+    "dwallet": "iWallet",
     "providers": "Abahlinzeki",
     "descriptions": {
       "users": "Phatha amalungu omphakathi nezindima",
@@ -79,6 +80,7 @@
       "announcements": "Ukudalwa kwezimemezelo nokuphathwa",
       "system": "Ukumiswa kwesikhulumi nempilo",
       "services": "Lungiselela ikhasi lamasevisi omphakathi",
+      "dwallet": "Ukuphathwa kokusatshalaliswa kwenani lomphakathi nezinkokhelo",
       "providers": "Ukuphathwa kwabahlinzeki, imali engenayo nokumodareyitha"
     }
   },

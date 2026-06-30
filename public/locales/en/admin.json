@@ -67,6 +67,7 @@
     "system": "System",
     "services": "Services",
     "bookings": "Bookings",
+    "dwallet": "dWallet",
     "providers": "Providers",
     "descriptions": {
       "users": "Manage community members and roles",
@@ -81,6 +82,7 @@
       "system": "Platform configuration and health",
       "services": "Configure the public services page",
       "adminBookings": "Manage bookable facilities and settings",
+      "dwallet": "Community value distribution and payout management",
       "providers": "Provider management, revenue, and moderation"
     }
   },

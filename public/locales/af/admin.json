@@ -66,6 +66,7 @@
     "announcements": "Aankondigings",
     "system": "Stelsel",
     "services": "Dienste",
+    "dwallet": "dWallet",
     "providers": "Verskaffers",
     "descriptions": {
       "users": "Bestuur gemeenskapslede en rolle",
@@ -79,6 +80,7 @@
       "announcements": "Aankondigingskepping en bestuur",
       "system": "Platformkonfigurasie en gesondheid",
       "services": "Konfigureer die publieke dienste bladsy",
+      "dwallet": "Gemeenskapswaardeverspreiding en uitbetalingsbestuur",
       "providers": "Verskafferbestuur, inkomste en moderering"
     }
   },

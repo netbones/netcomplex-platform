@@ -1,12 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-
-// TODO: Make tenant-aware — currently hardcoded to Soralia Village.
-// When multi-tenant seeding is implemented, read tenantId from env/config.
-const SORALIA_TENANT_ID = 'soralia';
-
-const streams = [
+export const DWalletStreams = [
   {
     key: 'survey_participation',
     label: 'Survey Participation',
@@ -64,28 +56,3 @@ const streams = [
     isActive: true,
   },
 ];
-
-async function main() {
-  for (const s of streams) {
-    await prisma.dataRevenueStream.upsert({
-      where: {
-        tenantId_key: {
-          tenantId: SORALIA_TENANT_ID,
-          key: s.key,
-        },
-      },
-      update: s,
-      create: {
-        ...s,
-        tenantId: SORALIA_TENANT_ID,
-      },
-    });
-  }
-
-  console.log(`Seeded ${streams.length} data revenue streams for tenant ${SORALIA_TENANT_ID}`);
-  // TODO: confirm against Schedule F Table 2 — placeholder percentages used until prod confirmation
-}
-
-main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect());

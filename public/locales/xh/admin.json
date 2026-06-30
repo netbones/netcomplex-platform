@@ -66,6 +66,7 @@
     "announcements": "Izibhengezo",
     "system": "Inkqubo",
     "services": "Iinkonzo",
+    "dwallet": "iWallet",
     "providers": "Ababoneleli",
     "descriptions": {
       "users": "Lawula amalungu oluntu kunye neendima",
@@ -79,6 +80,7 @@
       "announcements": "Ukuyilwa kwezibhengezo kunye nolawulo",
       "system": "Uqwalaselo lweqonga kunye nempilo",
       "services": "Qwalasela iphepha leenkonzo zoluntu",
+      "dwallet": "Ulawulo lokusasazwa kwexabiso loluntu kunye nentlawulo",
       "providers": "Ul awulo lwababoneleli, ingeniso kunye nokumodareyitha"
     }
   },
