@@ -1,8 +1,6 @@
 import {
   db,
   settings,
-  users,
-  auth,
   apiError,
   apiForbidden,
   apiInternalError,
@@ -11,6 +9,7 @@ import {
   writeAuditLog,
   rateLimitByUser,
   revalidateAdminChanges,
+  getSessionAndRole,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -22,27 +21,6 @@ import { apiLogger } from '@shared/lib';
 import { validateSettingValue } from '@shared/lib/settings/validation';
 
 export const maxDuration = 8;
-
-/**
- * Retrieves session and role from the request for API routes.
- */
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const userResult = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: userResult[0]?.role || 'RESIDENT',
-  };
-}
 
 /**
  * GET /api/settings/[key] — Fetch a single setting by key for the current tenant.

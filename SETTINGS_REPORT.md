@@ -428,9 +428,9 @@ same domain objects.
 
 ### Immediate (fix bugs)
 
-1. **Add missing admin check** to `POST /api/settings/contact/` — currently any authenticated user can bulk-upsert tenant settings.
-2. **Add `revalidateAdminChanges()` or `revalidateTag(CACHE_TAGS.SETTINGS)`** to all REST mutation endpoints.
-3. **Add `writeAuditLog`** to `POST /api/settings/contact/`.
+1. ✅ **Add missing admin check** to `POST /api/settings/contact/` — fixed in `soralia-village-71gn`
+2. ✅ **Add `revalidateAdminChanges()` or `revalidateTag(CACHE_TAGS.SETTINGS)`** to all REST mutation endpoints — fixed in `soralia-village-71gn`
+3. ✅ **Add `writeAuditLog`** to `POST /api/settings/contact/` — fixed in `soralia-village-71gn`
 
 ### Short-term (reduce debt)
 

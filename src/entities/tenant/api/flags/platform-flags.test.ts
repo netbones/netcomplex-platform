@@ -19,6 +19,7 @@ vi.mock('@api/server', () => ({
     key: 'key',
     value: 'value',
   },
+  CACHE_TAGS: { SETTINGS: 'settings' },
 }));
 
 vi.mock('@shared/lib', () => ({

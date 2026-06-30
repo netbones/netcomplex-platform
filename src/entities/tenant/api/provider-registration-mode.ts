@@ -1,5 +1,5 @@
 import { unstable_cache } from 'next/cache';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 
 import { CACHE_TAGS, db, settings } from '@api/server';
@@ -19,12 +19,18 @@ export async function getProviderRegistrationModeImpl(
   tenantId: string
 ): Promise<ProviderRegistrationMode> {
   try {
-    const tenantSettings = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
-    const rawValue = tenantSettings.find(
-      setting => setting.key === SETTINGS_KEYS.PROVIDER_REGISTRATION_MODE
-    )?.value;
+    const [row] = await db
+      .select()
+      .from(settings)
+      .where(
+        and(
+          eq(settings.tenantId, tenantId),
+          eq(settings.key, SETTINGS_KEYS.PROVIDER_REGISTRATION_MODE)
+        )
+      )
+      .limit(1);
 
-    return normalizeProviderRegistrationMode(rawValue);
+    return normalizeProviderRegistrationMode(row?.value);
   } catch (error) {
     log.error(
       { operation: 'getProviderRegistrationMode', tenantId },
@@ -50,10 +56,16 @@ export async function setProviderRegistrationMode(
 ): Promise<boolean> {
   try {
     const normalizedMode = providerRegistrationModeSchema.parse(mode);
-    const tenantSettings = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
-    const existing = tenantSettings.find(
-      setting => setting.key === SETTINGS_KEYS.PROVIDER_REGISTRATION_MODE
-    );
+    const [existing] = await db
+      .select()
+      .from(settings)
+      .where(
+        and(
+          eq(settings.tenantId, tenantId),
+          eq(settings.key, SETTINGS_KEYS.PROVIDER_REGISTRATION_MODE)
+        )
+      )
+      .limit(1);
 
     if (existing) {
       await db.update(settings).set({ value: normalizedMode }).where(eq(settings.id, existing.id));

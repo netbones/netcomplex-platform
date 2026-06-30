@@ -1,5 +1,5 @@
 import { db, settings } from '@api/server';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { SETTINGS_KEYS } from '../settings';
 import { createComponentLogger } from '@shared/lib';
@@ -60,8 +60,7 @@ export async function getServicesConfig(tenantId: string): Promise<ServicesPageC
     const rows = await db
       .select()
       .from(settings)
-      .where(eq(settings.tenantId, tenantId))
-      .then(r => r.filter(s => s.key === SETTINGS_KEYS.SERVICES_CONFIG));
+      .where(and(eq(settings.tenantId, tenantId), eq(settings.key, SETTINGS_KEYS.SERVICES_CONFIG)));
 
     if (rows.length === 0) return defaultServicesConfig();
 
@@ -87,8 +86,7 @@ export async function getServicesConfigWithTx(
     const rows = await tx
       .select()
       .from(settings)
-      .where(eq(settings.tenantId, tenantId))
-      .then(r => r.filter(s => s.key === SETTINGS_KEYS.SERVICES_CONFIG));
+      .where(and(eq(settings.tenantId, tenantId), eq(settings.key, SETTINGS_KEYS.SERVICES_CONFIG)));
 
     if (rows.length === 0) return defaultServicesConfig();
 
@@ -106,11 +104,11 @@ export async function upsertServicesConfig(
   config: ServicesPageConfig
 ): Promise<boolean> {
   try {
-    const existing = await tx
+    const [existing] = await tx
       .select()
       .from(settings)
-      .where(eq(settings.tenantId, tenantId))
-      .then(r => r.find(s => s.key === SETTINGS_KEYS.SERVICES_CONFIG));
+      .where(and(eq(settings.tenantId, tenantId), eq(settings.key, SETTINGS_KEYS.SERVICES_CONFIG)))
+      .limit(1);
 
     const value = JSON.stringify(config);
 

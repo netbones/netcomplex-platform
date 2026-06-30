@@ -15,91 +15,88 @@ export type { PlatformPageFlags };
 
 import { DEFAULT_PAGE_FLAGS } from '@shared/lib/settings/defaults';
 
+type FlagType = 'boolean' | 'enum' | 'json';
+
+interface FlagDef {
+  settingKey: string;
+  type: FlagType;
+  enumValues?: string[];
+}
+
+const FLAG_DEFS: Record<keyof PlatformPageFlags, FlagDef> = {
+  campaign: { settingKey: SETTINGS_KEYS.PAGE_CAMPAIGN_ENABLED, type: 'boolean' },
+  conservation: {
+    settingKey: SETTINGS_KEYS.PAGE_CONSERVATION_MODE,
+    type: 'enum',
+    enumValues: ['default', 'managed', 'external'],
+  },
+  conservationExternalUrl: {
+    settingKey: SETTINGS_KEYS.PAGE_CONSERVATION_URL,
+    type: 'enum',
+  },
+  chat: { settingKey: SETTINGS_KEYS.PAGE_CHAT_ENABLED, type: 'boolean' },
+  education: { settingKey: SETTINGS_KEYS.PAGE_EDUCATION_ENABLED, type: 'boolean' },
+  news: { settingKey: SETTINGS_KEYS.PAGE_NEWS_ENABLED, type: 'boolean' },
+  events: { settingKey: SETTINGS_KEYS.PAGE_EVENTS_ENABLED, type: 'boolean' },
+  directory: { settingKey: SETTINGS_KEYS.PAGE_DIRECTORY_ENABLED, type: 'boolean' },
+  groups: { settingKey: SETTINGS_KEYS.PAGE_GROUPS_ENABLED, type: 'boolean' },
+  services: { settingKey: SETTINGS_KEYS.PAGE_SERVICES_ENABLED, type: 'boolean' },
+  resources: { settingKey: SETTINGS_KEYS.PAGE_RESOURCES_ENABLED, type: 'boolean' },
+  maintenance: { settingKey: SETTINGS_KEYS.PAGE_MAINTENANCE_ENABLED, type: 'boolean' },
+  surveys: { settingKey: SETTINGS_KEYS.PAGE_SURVEYS_ENABLED, type: 'boolean' },
+  competitions: { settingKey: SETTINGS_KEYS.PAGE_COMPETITIONS_ENABLED, type: 'boolean' },
+  dashboard: { settingKey: SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED, type: 'boolean' },
+  disputes: { settingKey: SETTINGS_KEYS.PAGE_DISPUTES_ENABLED, type: 'boolean' },
+  dWallet: { settingKey: SETTINGS_KEYS.PAGE_DWALLET_ENABLED, type: 'boolean' },
+  providers: { settingKey: SETTINGS_KEYS.PAGE_PROVIDERS_ENABLED, type: 'boolean' },
+  bookings: { settingKey: SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED, type: 'boolean' },
+  marketplacePaypal: { settingKey: SETTINGS_KEYS.PAGE_MARKETPLACE_PAYPAL_ENABLED, type: 'boolean' },
+  messages: { settingKey: SETTINGS_KEYS.PAGE_MESSAGES_ENABLED, type: 'boolean' },
+  headerLinks: { settingKey: SETTINGS_KEYS.HEADER_LINKS, type: 'json' },
+};
+
+function applySettingToFlags(flags: PlatformPageFlags, key: string, value: string): void {
+  const entry = Object.entries(FLAG_DEFS).find(([_, def]) => def.settingKey === key) as
+    | [keyof PlatformPageFlags, FlagDef]
+    | undefined;
+  if (!entry) return;
+
+  const [flagKey, def] = entry;
+
+  if (def.type === 'boolean') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (flags as any)[flagKey] = value === 'true';
+  } else if (def.type === 'json') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (flags as any)[flagKey] = parsed;
+      }
+    } catch {
+      /* keep default */
+    }
+  } else {
+    const raw = value as unknown;
+    if (!def.enumValues || def.enumValues.includes(raw as string)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (flags as any)[flagKey] = raw;
+    }
+  }
+}
+
+function buildFlagsFromSettings(rows: { key: string; value: string }[]): PlatformPageFlags {
+  const flags: PlatformPageFlags = { ...DEFAULT_PAGE_FLAGS };
+  for (const row of rows) {
+    applySettingToFlags(flags, row.key, row.value);
+  }
+  return flags;
+}
+
 export async function getPlatformPageFlagsImpl(tenantId: string): Promise<PlatformPageFlags> {
   try {
     const tenantSettings = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
-
-    const flags: PlatformPageFlags = { ...DEFAULT_PAGE_FLAGS };
-
-    for (const setting of tenantSettings) {
-      switch (setting.key) {
-        case SETTINGS_KEYS.PAGE_CAMPAIGN_ENABLED:
-          flags.campaign = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_CONSERVATION_MODE:
-          if (['default', 'managed', 'external'].includes(setting.value)) {
-            flags.conservation = setting.value as PlatformPageFlags['conservation'];
-          }
-          break;
-        case SETTINGS_KEYS.PAGE_CONSERVATION_URL:
-          flags.conservationExternalUrl = setting.value;
-          break;
-        case SETTINGS_KEYS.PAGE_CHAT_ENABLED:
-          flags.chat = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_EDUCATION_ENABLED:
-          flags.education = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_NEWS_ENABLED:
-          flags.news = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_EVENTS_ENABLED:
-          flags.events = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_DIRECTORY_ENABLED:
-          flags.directory = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_GROUPS_ENABLED:
-          flags.groups = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_SERVICES_ENABLED:
-          flags.services = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_RESOURCES_ENABLED:
-          flags.resources = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_MAINTENANCE_ENABLED:
-          flags.maintenance = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_SURVEYS_ENABLED:
-          flags.surveys = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_COMPETITIONS_ENABLED:
-          flags.competitions = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED:
-          flags.dashboard = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_DWALLET_ENABLED:
-          flags.dWallet = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED:
-          flags.bookings = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_MESSAGES_ENABLED:
-          flags.messages = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_PROVIDERS_ENABLED:
-          flags.providers = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_DISPUTES_ENABLED:
-          flags.disputes = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_MARKETPLACE_PAYPAL_ENABLED:
-          flags.marketplacePaypal = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.HEADER_LINKS:
-          try {
-            const parsed = JSON.parse(setting.value);
-            if (Array.isArray(parsed)) flags.headerLinks = parsed;
-          } catch {
-            /* keep default */
-          }
-          break;
-      }
-    }
-
-    return flags;
+    return buildFlagsFromSettings(tenantSettings);
   } catch (error) {
     log.error({ operation: 'getPageFlags' }, 'Failed to get platform page flags', error);
     return DEFAULT_PAGE_FLAGS;
@@ -156,109 +153,19 @@ export async function setPlatformPageFlag(
   }
 }
 
-/**
- * Tx-aware sibling of getPlatformPageFlags; used by routes that wrap
- * in runWithRLS() so the query executes under the app_user role.
- * Original getPlatformPageFlags(tenantId) is kept UNCHANGED for callers
- * outside RLS (src/app/api/flags/route.ts, src/shared/api/gate.ts, tests).
- */
 export async function getPlatformPageFlagsWithTx(
   tx: NodePgDatabase<DbSchema>,
   tenantId: string
 ): Promise<PlatformPageFlags> {
   try {
     const tenantSettings = await tx.select().from(settings).where(eq(settings.tenantId, tenantId));
-
-    const flags: PlatformPageFlags = { ...DEFAULT_PAGE_FLAGS };
-
-    for (const setting of tenantSettings) {
-      switch (setting.key) {
-        case SETTINGS_KEYS.PAGE_CAMPAIGN_ENABLED:
-          flags.campaign = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_CONSERVATION_MODE:
-          if (['default', 'managed', 'external'].includes(setting.value)) {
-            flags.conservation = setting.value as PlatformPageFlags['conservation'];
-          }
-          break;
-        case SETTINGS_KEYS.PAGE_CONSERVATION_URL:
-          flags.conservationExternalUrl = setting.value;
-          break;
-        case SETTINGS_KEYS.PAGE_CHAT_ENABLED:
-          flags.chat = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_EDUCATION_ENABLED:
-          flags.education = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_NEWS_ENABLED:
-          flags.news = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_EVENTS_ENABLED:
-          flags.events = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_DIRECTORY_ENABLED:
-          flags.directory = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_GROUPS_ENABLED:
-          flags.groups = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_SERVICES_ENABLED:
-          flags.services = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_RESOURCES_ENABLED:
-          flags.resources = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_MAINTENANCE_ENABLED:
-          flags.maintenance = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_SURVEYS_ENABLED:
-          flags.surveys = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_COMPETITIONS_ENABLED:
-          flags.competitions = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED:
-          flags.dashboard = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_DWALLET_ENABLED:
-          flags.dWallet = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED:
-          flags.bookings = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_MESSAGES_ENABLED:
-          flags.messages = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_PROVIDERS_ENABLED:
-          flags.providers = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_DISPUTES_ENABLED:
-          flags.disputes = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.PAGE_MARKETPLACE_PAYPAL_ENABLED:
-          flags.marketplacePaypal = setting.value === 'true';
-          break;
-        case SETTINGS_KEYS.HEADER_LINKS:
-          try {
-            const parsed = JSON.parse(setting.value);
-            if (Array.isArray(parsed)) flags.headerLinks = parsed;
-          } catch {
-            /* keep default */
-          }
-          break;
-      }
-    }
-
-    return flags;
+    return buildFlagsFromSettings(tenantSettings);
   } catch (error) {
     log.error({ operation: 'getPageFlagsWithTx' }, 'Failed to get platform page flags', error);
     return DEFAULT_PAGE_FLAGS;
   }
 }
 
-/**
- * Tx-aware sibling of setPlatformPageFlag; see comment on getPlatformPageFlagsWithTx.
- */
 export async function setPlatformPageFlagWithTx(
   tx: NodePgDatabase<DbSchema>,
   tenantId: string,
@@ -297,29 +204,5 @@ export async function setPlatformPageFlagWithTx(
 }
 
 export function mapFlagToSettingKey(key: keyof PlatformPageFlags): string | undefined {
-  const mapping: Record<keyof PlatformPageFlags, string> = {
-    campaign: SETTINGS_KEYS.PAGE_CAMPAIGN_ENABLED,
-    conservation: SETTINGS_KEYS.PAGE_CONSERVATION_MODE,
-    conservationExternalUrl: SETTINGS_KEYS.PAGE_CONSERVATION_URL,
-    chat: SETTINGS_KEYS.PAGE_CHAT_ENABLED,
-    education: SETTINGS_KEYS.PAGE_EDUCATION_ENABLED,
-    news: SETTINGS_KEYS.PAGE_NEWS_ENABLED,
-    events: SETTINGS_KEYS.PAGE_EVENTS_ENABLED,
-    directory: SETTINGS_KEYS.PAGE_DIRECTORY_ENABLED,
-    groups: SETTINGS_KEYS.PAGE_GROUPS_ENABLED,
-    services: SETTINGS_KEYS.PAGE_SERVICES_ENABLED,
-    resources: SETTINGS_KEYS.PAGE_RESOURCES_ENABLED,
-    maintenance: SETTINGS_KEYS.PAGE_MAINTENANCE_ENABLED,
-    surveys: SETTINGS_KEYS.PAGE_SURVEYS_ENABLED,
-    competitions: SETTINGS_KEYS.PAGE_COMPETITIONS_ENABLED,
-    dashboard: SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED,
-    dWallet: SETTINGS_KEYS.PAGE_DWALLET_ENABLED,
-    providers: SETTINGS_KEYS.PAGE_PROVIDERS_ENABLED,
-    disputes: SETTINGS_KEYS.PAGE_DISPUTES_ENABLED,
-    bookings: SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED,
-    marketplacePaypal: SETTINGS_KEYS.PAGE_MARKETPLACE_PAYPAL_ENABLED,
-    messages: SETTINGS_KEYS.PAGE_MESSAGES_ENABLED,
-    headerLinks: SETTINGS_KEYS.HEADER_LINKS,
-  };
-  return mapping[key];
+  return FLAG_DEFS[key]?.settingKey;
 }

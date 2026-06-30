@@ -47,6 +47,11 @@ const enabledFlags = [
   'page_dashboard_enabled',
   'page_bookings_enabled',
   'page_messages_enabled',
+  'page_education_enabled',
+  'page_dwallet_enabled',
+  'page_disputes_enabled',
+  'page_providers_enabled',
+  'page_marketplace_paypal_enabled',
 ];
 
 export const SETTINGS_VALUE_SCHEMAS: Record<string, z.ZodTypeAny> = Object.fromEntries([
@@ -61,6 +66,8 @@ export const SETTINGS_VALUE_SCHEMAS: Record<string, z.ZodTypeAny> = Object.fromE
   ['interest_categories', jsonStringArraySchema()],
   ['merit_tier_thresholds', jsonStringSchema()],
   ['merit_expiry_days', z.string().regex(/^\d*$/, 'Must be a non-negative integer or empty')],
+  ['translation_provider', z.string()],
+  ['translation_api_key', z.string()],
 ] as [string, z.ZodTypeAny][]);
 
 const fallbackSchema = z.string();

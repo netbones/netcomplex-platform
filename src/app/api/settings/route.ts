@@ -1,7 +1,5 @@
 import {
-  auth,
   db,
-  users,
   settings,
   apiError,
   apiForbidden,
@@ -10,6 +8,7 @@ import {
   rateLimitByUser,
   withErrorHandler,
   revalidateAdminChanges,
+  getSessionAndRole,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -19,28 +18,6 @@ import { assertModuleEnabled, withTenant, requireAssistScope } from '@entities/t
 import { validateSettingValue } from '@shared/lib/settings/validation';
 
 export const maxDuration = 8;
-
-async function getSessionAndRole(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
-
-  if (!session?.user?.id) {
-    return null;
-  }
-
-  const userResult = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1);
-
-  return {
-    session,
-    userId: session.user.id,
-    role: userResult[0]?.role || 'RESIDENT',
-  };
-}
 
 export const GET = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
