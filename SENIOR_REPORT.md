@@ -375,9 +375,7 @@ Client-side `console.*` calls in `DWalletAdminWidget.tsx` and `useAutoSave.ts` â
 | #   | Action                                                     | Effort  | Status                                        |
 | --- | ---------------------------------------------------------- | ------- | --------------------------------------------- |
 | 1   | Fix 21 test failures (specialized-routes, users, delegate) | 2-3 hrs | In Progress (mock fixes, 1 timeout remaining) |
-| 2   | Resolve remaining ~18 TypeScript errors                    | 2 hrs   | Blocked\*                                     |
+| 2   | Resolve remaining TypeScript errors                        | 2 hrs   | In Progress (~18 errors, typecheck slow)      |
 | 3   | Add missing FK relations (UserAchievement)                 | 1 hr    | Pending                                       |
 | 4   | Add middleware unit tests                                  | 2 hrs   | Pending                                       |
-| 5   | Remove FeatureGate.tsx dead code (verify first)            | 10 min  | Pending\*                                     |
-
-\* TypeScript errors and FeatureGate removal require verification before proceeding.
+| 5   | Remove FeatureGate.tsx dead code                           | 10 min  | âœ… Done                                       |
