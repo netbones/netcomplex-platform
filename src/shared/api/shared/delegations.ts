@@ -7,6 +7,7 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { delegationActions } from '@schema/delegation-actions';
+import { createPrefixedId } from '@shared/lib/id';
 
 export type DelegationActionType =
   | 'created'
@@ -33,7 +34,7 @@ export async function logDelegationAction(params: {
   actorId: string;
   metadata?: Record<string, unknown>;
 }): Promise<void> {
-  const id = `da_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const id = createPrefixedId('da');
   await db.insert(delegationActions).values({
     id,
     tenantId: params.tenantId,

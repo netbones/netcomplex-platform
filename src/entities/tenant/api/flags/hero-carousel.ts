@@ -1,6 +1,6 @@
 import { db, settings } from '@api/server';
 import { eq, and } from 'drizzle-orm';
-import { v4 as uuidv4 } from 'uuid';
+import { createId } from '@shared/lib/id';
 import { SETTINGS_KEYS } from '../settings';
 import { createComponentLogger } from '@shared/lib';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -109,7 +109,7 @@ export async function upsertHeroCarouselConfig(
       await tx.update(settings).set({ value }).where(eq(settings.id, existing.id));
     } else {
       await tx.insert(settings).values({
-        id: uuidv4(),
+        id: createId(),
         tenantId,
         key: SETTINGS_KEYS.HERO_CAROUSEL,
         value,

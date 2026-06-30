@@ -26,6 +26,7 @@ import { requireContentPermission } from './content';
 import { eq, and, count, inArray } from 'drizzle-orm';
 
 import { listEvents, createEvent } from '@entities/event/server';
+import { createId } from '@shared/lib/id';
 
 // ──────────────────────────────────────────
 // Input schemas
@@ -172,7 +173,7 @@ export const eventsRouter = router({
       const tenantId = ctx.tenantId;
 
       const event = await createEvent({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         title: input.title,
         description: input.description,
@@ -318,7 +319,7 @@ export const eventsRouter = router({
       const [attendee] = await db
         .insert(eventAttendees)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           eventId: input.id,
           userId: ctx.userId,

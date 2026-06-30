@@ -22,6 +22,7 @@ import { eq, and, or, asc, ilike, count, ne, sql, inArray } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { toUserDTO } from '@api/shared';
+import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
 
 /**
@@ -222,7 +223,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const newUser = await db
     .insert(users)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       email: body.email,
       name: body.name,

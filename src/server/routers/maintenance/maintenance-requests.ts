@@ -37,6 +37,7 @@ import {
   requireRequestsPermission,
   trackRequestChanges,
 } from './shared';
+import { createId } from '@shared/lib/id';
 
 export const maintenanceRequestProcedures = {
   /**
@@ -133,7 +134,7 @@ export const maintenanceRequestProcedures = {
     const tenantId = ctx.tenantId;
 
     const [created] = await createMaintenanceRequest({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       userId: ctx.userId,
       propertyId: input.propertyId || null,
@@ -313,7 +314,7 @@ export const maintenanceRequestProcedures = {
 
     await getTenantRequest(input.requestId, tenantId);
 
-    const noteId = crypto.randomUUID();
+    const noteId = createId();
     const createdAt = new Date();
 
     if (input.isInternal) {

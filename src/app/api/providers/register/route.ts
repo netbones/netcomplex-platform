@@ -28,6 +28,7 @@ import {
 } from '@shared/api';
 import { getProviderRegistrationModeImpl } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 export const dynamic = 'force-dynamic';
@@ -81,7 +82,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   }
 
   const timestamp = now();
-  const providerId = crypto.randomUUID();
+  const providerId = createId();
 
   const [provider] = await db
     .insert(serviceProviders)

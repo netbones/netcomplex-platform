@@ -1320,6 +1320,32 @@ The `due-diligence` PATCH endpoint reviews documentation and may set `status=VER
 
 ## A suspended provider retains `role: PROVIDER` in the `user` table. Access is blocked entirely through `requireProviderAccess()` checking `verification.isSuspended`. This is intentional — role is an identity classification, not a live access token. Reinstatement restores access without requiring a role re-grant.
 
+## ADR-023: UUID v4 as Canonical ID Format
+
+**Status:** Accepted
+
+**Context:** The project historically used a mix of ID strategies: Prisma `@default(cuid())` on ~65 models, `@default(uuid())` on 1 model (Tenant), and `String @id` with no default on ~40 models. At the application layer, IDs were generated via three methods: `crypto.randomUUID()` (~100+ call sites), the `uuid` v4 npm package (8 files), and ad-hoc `Date.now()` + `Math.random()` prefixes for delegation tokens. This inconsistency caused fragility in multi-tenant queries where ID format predictability matters, and made it impossible to reason about cross-tenant ID collision properties.
+
+The `prisma-generator-drizzle` tool does **not** translate Prisma-level `@default(cuid())` or `@default(uuid())` to Drizzle column defaults, meaning Prisma defaults were vestigial — every insert had to generate its own ID in application code anyway.
+
+**Decision:** Standardize on **UUID v4** as the sole ID format for all models. Implement this via:
+
+1. A centralized `createId()` function in `src/shared/lib/id.ts` wrapping `crypto.randomUUID()` with a CSPRNG fallback.
+2. A `createPrefixedId(prefix)` helper for delegation/agent tokens (e.g., `del_<uuid>`, `at_<uuid>`) replacing ad-hoc `Date.now()` + `Math.random()` patterns.
+3. All 115+ call sites migrated from `crypto.randomUUID()` and `uuid` v4 to `createId()`.
+4. Prisma schema `@default()` annotations retained for introspection compatibility only — documented as non-functional.
+
+**Alternatives considered:**
+
+- **cuid2:** Added complexity (npm dependency, Zod validator updates for non-UUID format, less native DB support). Rejected because UUID v4 already dominated runtime usage and is better supported by PostgreSQL (`gen_random_uuid()`) and Zod (`.uuid()` validators).
+- **cuid (v1):** Collision-prone in distributed systems due to time-based prefix. Rejected.
+- **nanoid:** Excellent but not natively supported by `crypto.randomUUID()` or PostgreSQL. Rejected.
+
+**Consequences:**
+
+- **Positive:** Single ID format across all models. Centralized generation enables future changes (e.g., switching to UUID v7). Zod `.uuid()` validators are now guaranteed correct. `uuid` npm package can be removed as a dependency.
+- **Negative:** Existing records in production may have cuid-format IDs; Zod `.uuid()` validators on update/mutation endpoints may reject them. Migration of existing data is deferred — new records will be UUID v4, old records remain as-is. The `uuid` package removal requires verifying no dynamic imports or edge cases depend on it.
+
 _More ADRs will be added as we make architectural decisions. Use the template above to propose new ADRs._
 
 ---

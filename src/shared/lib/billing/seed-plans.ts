@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { billingPlans } from '@schema/billing-plans';
+import { createId } from '@shared/lib/id';
 
 function now() {
   return new Date();
@@ -130,7 +131,7 @@ export async function getOrCreateDefaultBillingPlans(db: any, tenantId: string) 
   if (missing.length > 0) {
     const timestamp = now();
     const rows = missing.map(plan => ({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       name: plan.name,
       description: `${plan.name} plan`,

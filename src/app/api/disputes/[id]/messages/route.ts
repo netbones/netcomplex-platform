@@ -22,6 +22,7 @@ import { apiLogger, hasPermission } from '@shared/lib';
 import { sanitizeHtml } from '@/shared/lib/sanitize/server';
 import { eq, and, isNull, asc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -198,7 +199,7 @@ export const POST = withErrorHandler(
       const [newMessage] = await db
         .insert(disputeMessages)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           disputeId: id,
           senderId: authData.userId,

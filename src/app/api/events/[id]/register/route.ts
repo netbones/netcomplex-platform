@@ -12,6 +12,7 @@ import {
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -75,7 +76,7 @@ export const POST = withErrorHandler(
     const [attendee] = await db
       .insert(eventAttendees)
       .values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         eventId: id,
         userId,

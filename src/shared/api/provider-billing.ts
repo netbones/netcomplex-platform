@@ -23,6 +23,7 @@ import {
   type ProviderSubscriptionStatus,
 } from '@shared/lib/providers/billing';
 import { PayPalService, PaystackService } from '@server/payments';
+import { createId } from '@shared/lib/id';
 
 const paystackService = new PaystackService();
 const paypalService = new PayPalService();
@@ -82,7 +83,7 @@ async function getOrCreateDefaultSubscriptionTiers(tenantId: string) {
   if (missing.length > 0) {
     await db.insert(subscriptionTiers).values(
       missing.map(tier => ({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         name: tier.name,
         description: tier.description,
@@ -249,7 +250,7 @@ async function ensureProviderChargeRecord(params: {
   const [created] = await db
     .insert(providerCharges)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       ...payload,
       createdAt: now(),
     })
@@ -300,7 +301,7 @@ async function ensureProviderInvoiceRecord(params: {
   const [created] = await db
     .insert(providerInvoices)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       ...payload,
       createdAt: now(),
     })
@@ -328,7 +329,7 @@ async function ensureRevenueRecordForTransaction(
   const [created] = await db
     .insert(revenueRecords)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId: transaction.tenantId,
       providerId: transaction.providerId,
       transactionId: transaction.id,
@@ -703,11 +704,11 @@ export async function createProviderSubscriptionCheckout(params: {
       );
   }
 
-  const subscriptionId = crypto.randomUUID();
+  const subscriptionId = createId();
   const nextBillingDate = addBillingCycleMonths(timestamp);
 
   if (price <= 0) {
-    const transactionId = crypto.randomUUID();
+    const transactionId = createId();
 
     await db.transaction(async tx => {
       await tx.insert(providerSubscriptions).values({
@@ -744,7 +745,7 @@ export async function createProviderSubscriptionCheckout(params: {
       });
 
       await tx.insert(providerCharges).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         providerId: params.providerId,
         tenantId: params.tenantId,
         subscriptionId,
@@ -800,7 +801,7 @@ export async function createProviderSubscriptionCheckout(params: {
     };
   }
 
-  const transactionId = crypto.randomUUID();
+  const transactionId = createId();
   const reference = `prov-${subscriptionId.slice(0, 8)}-${transactionId.slice(0, 8)}`;
   const billing = calculateBillingBreakdown({
     amount: tier.price,
@@ -843,7 +844,7 @@ export async function createProviderSubscriptionCheckout(params: {
     });
 
     await tx.insert(providerCharges).values({
-      id: crypto.randomUUID(),
+      id: createId(),
       providerId: params.providerId,
       tenantId: params.tenantId,
       subscriptionId,

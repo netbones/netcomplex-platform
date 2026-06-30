@@ -15,6 +15,7 @@ import {
 import { agentTokens } from '@schema/agent-tokens';
 import { signAgentToken, hashToken } from '@shared/lib/agent-token';
 import { logDelegationAction } from '@api/shared/delegations';
+import { createPrefixedId } from '@shared/lib/id';
 import type { AgentScopeConfig } from '@entities/agent';
 
 export const maxDuration = 8;
@@ -147,7 +148,7 @@ export async function POST(
     .where(eq(agentAccesses.id, delegationId));
 
   // Issue an AgentToken linked to this delegation
-  const tokenId = `dt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const tokenId = createPrefixedId('dt');
   const rawToken = await signAgentToken({
     agentId: delegation.agentId,
     tokenId,

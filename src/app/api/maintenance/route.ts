@@ -27,6 +27,7 @@ import {
   toMaintenanceRequestViewList,
   resolveRoutingType,
 } from '@entities/maintenance/server';
+import { createId } from '@shared/lib/id';
 
 // Limit execution time to 8 seconds to control costs
 export const maxDuration = 8;
@@ -203,7 +204,7 @@ export async function POST(request: Request) {
 
     // Delegate to entity service for creation (includes ticket number generation)
     const [maintenanceRequest] = await createMaintenanceRequest({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       userId,
       propertyId,
@@ -224,7 +225,7 @@ export async function POST(request: Request) {
     if (routingCtx.routingType === 'LANDLORD' && routingCtx.landlordId) {
       // Notify the landlord
       await db.insert(notifications).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         userId: routingCtx.landlordId,
         senderId: authData.userId,

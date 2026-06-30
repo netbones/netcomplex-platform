@@ -1,5 +1,6 @@
 import * as eventsService from '../services';
 import { toEventDTO } from '@api/shared';
+import { createId } from '@shared/lib/id';
 
 /**
  * Lists events for a tenant with optional limit and upcoming filter.
@@ -23,7 +24,7 @@ export async function createEvent(data: {
   isPublic: boolean;
 }) {
   return eventsService.createEvent({
-    id: crypto.randomUUID(),
+    id: createId(),
     ...data,
   });
 }

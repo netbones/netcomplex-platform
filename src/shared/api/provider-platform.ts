@@ -17,6 +17,7 @@ import {
   type SessionAndRole,
 } from './server';
 import { hasPermission } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export type ProviderDisplayStatus = 'UNVERIFIED' | 'PROBATION' | 'VERIFIED' | 'SUSPENDED';
 export type ProviderVerificationStatus = 'PENDING' | 'PROBATION' | 'VERIFIED' | 'SUSPENDED';
@@ -316,7 +317,7 @@ export async function upsertProviderVerification(params: {
   const [created] = await db
     .insert(providerVerifications)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       providerId: params.providerId,
       tenantId: params.tenantId,
       status: params.status,
@@ -341,7 +342,7 @@ export async function upsertProviderVerification(params: {
  */
 export async function createProviderStub(userId: string, tenantId: string, companyName?: string) {
   const timestamp = now();
-  const providerId = crypto.randomUUID();
+  const providerId = createId();
 
   const [provider] = await db
     .insert(serviceProviders)
@@ -358,7 +359,7 @@ export async function createProviderStub(userId: string, tenantId: string, compa
     .returning();
 
   await db.insert(providerVerifications).values({
-    id: crypto.randomUUID(),
+    id: createId(),
     providerId,
     tenantId,
     status: 'PROBATION',

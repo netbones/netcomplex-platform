@@ -6,6 +6,7 @@ import { tenantAchievements } from '@schema/tenant-achievements';
 import { userAchievementProgresses } from '@schema/user-achievement-progresses';
 import { userAchievements } from '@schema/user-achievements';
 import { notifications } from '@schema/notifications';
+import { createId } from '@shared/lib/id';
 
 const log = createComponentLogger('achievements');
 
@@ -48,7 +49,7 @@ export async function processAchievementEvent({
       await db
         .insert(userAchievementProgresses)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           userId,
           definitionId: def.id,
@@ -85,14 +86,14 @@ export async function processAchievementEvent({
 
         if (!existing) {
           await db.insert(userAchievements).values({
-            id: crypto.randomUUID(),
+            id: createId(),
             tenantId,
             userId,
             definitionId: def.id,
           });
 
           await db.insert(notifications).values({
-            id: crypto.randomUUID(),
+            id: createId(),
             tenantId,
             userId,
             title: 'Achievement Unlocked!',

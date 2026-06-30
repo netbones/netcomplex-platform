@@ -31,6 +31,7 @@ import {
   buildMaintenanceConditions,
   toMaintenanceRequestViewList,
 } from '@entities/maintenance/server';
+import { createId } from '@shared/lib/id';
 
 // ──────────────────────────────────────────
 // Input schemas
@@ -196,7 +197,7 @@ async function trackRequestChanges(
     const newStr = safeString(newVal);
     if (oldStr !== newStr) {
       changes.push({
-        id: crypto.randomUUID(),
+        id: createId(),
         requestId,
         userId,
         field: key,

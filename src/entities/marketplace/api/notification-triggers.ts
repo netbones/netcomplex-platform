@@ -1,5 +1,6 @@
 import { db, notifications, supabase } from '@api/server';
 import { createComponentLogger } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 const log = createComponentLogger('marketplace-notifications');
 
@@ -19,7 +20,7 @@ async function createMarketplaceNotification(params: CreateNotificationParams): 
     const [notification] = await db
       .insert(notifications)
       .values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId: params.tenantId,
         userId: params.recipientUserId,
         senderId: params.senderId || null,

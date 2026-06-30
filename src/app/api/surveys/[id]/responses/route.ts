@@ -19,6 +19,7 @@ import { hasPermission } from '@shared/lib';
 
 import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -232,7 +233,7 @@ export const POST = withErrorHandler(
     const [response] = await db
       .insert(responses)
       .values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         surveyId,
         userId: authData.userId,

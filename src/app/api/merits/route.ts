@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { createId } from '@shared/lib/id';
 import {
   auth,
   db,
@@ -128,7 +128,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     );
   }
 
-  const id = uuidv4();
+  const id = createId();
   const ts = now();
   let recognitionPoints = 0;
   let disciplinaryPoints = 0;
@@ -184,7 +184,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       PROBATION: 'Probation',
     };
     await db.insert(notifications).values({
-      id: uuidv4(),
+      id: createId(),
       tenantId,
       userId,
       title: 'Community standing updated',

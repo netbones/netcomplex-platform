@@ -57,6 +57,7 @@ import {
   InferSelectModel,
 } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
+import { createId } from '@shared/lib/id';
 
 export const identityRouter = router({
   // ============ PROPERTIES (The Assets) ============
@@ -315,7 +316,7 @@ export const identityRouter = router({
       const [created] = await ctx.db
         .insert(properties)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId: ctx.tenantId,
           street: input.street,
           unit: input.unit,
@@ -704,7 +705,7 @@ export const identityRouter = router({
       const [created] = await ctx.db
         .insert(households)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId: property.tenantId,
           propertyId: input.propertyId,
           occupancyType: input.occupancyType,
@@ -910,7 +911,7 @@ export const identityRouter = router({
       const [created] = await ctx.db
         .insert(profiles)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId: property.tenantId,
           householdId,
           displayName,
@@ -1230,7 +1231,7 @@ export const identityRouter = router({
       }
 
       const ts = now();
-      const suspensionId = crypto.randomUUID();
+      const suspensionId = createId();
       const parsedEndDate = input.endDate ? new Date(input.endDate) : null;
       const isPermanent = !input.endDate;
 
@@ -1471,7 +1472,7 @@ export const identityRouter = router({
       await ctx.db
         .insert(albums)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId: ctx.tenantId,
           userId: ctx.userId,
           title: input.title,

@@ -17,6 +17,7 @@ import {
 
 import { eq, and, gt } from 'drizzle-orm';
 import { logError } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -114,7 +115,7 @@ export async function POST(request: NextRequest) {
     const [newSession] = await db
       .insert(assistSessions)
       .values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         staffId: session.user.id,
         scope: 'metadata',

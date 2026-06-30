@@ -21,6 +21,7 @@ import { TRPCError } from '@trpc/server';
 import { hasPermission, createComponentLogger } from '@shared/lib';
 
 import { eq, and, desc, isNull } from 'drizzle-orm';
+import { createId } from '@shared/lib/id';
 
 const IdInput = z.object({ id: z.string() });
 const TokenInput = z.object({ token: z.string() });
@@ -192,13 +193,13 @@ export const invitationsRouter = router({
         .where(eq(users.id, ctx.userId))
         .limit(1);
 
-      const token = crypto.randomUUID();
+      const token = createId();
       const acceptUrl = `${BETTER_AUTH_URL}/invite/${token}`;
 
       const [invitation] = await db
         .insert(invitations)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           email: input.email,
           name: input.name,
@@ -207,7 +208,7 @@ export const invitationsRouter = router({
           residencyType: input.residencyType,
           role: input.role,
           inviterId: ctx.userId,
-          organizationId: input.organizationId || ctx.organizationId || crypto.randomUUID(),
+          organizationId: input.organizationId || ctx.organizationId || createId(),
           token,
           status: 'PENDING' as (typeof invitations.status.enumValues)[number],
           createdAt: now(),
@@ -497,7 +498,7 @@ export const invitationsRouter = router({
         .where(eq(users.id, ctx.userId))
         .limit(1);
 
-      const token = crypto.randomUUID();
+      const token = createId();
       const acceptUrl = `${BETTER_AUTH_URL}/invite/${token}`;
 
       await db

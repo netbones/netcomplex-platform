@@ -12,6 +12,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ── ID Strategy ──
+// All IDs are UUID v4 generated at the application layer via `createId()` from
+// `@shared/lib/id`. Prisma `@default(cuid())` annotations are vestigial — the
+// prisma-generator-drizzle tool does not translate them to Drizzle column
+// defaults, and all queries use Drizzle. Schema-level `@default()` annotations
+// have no runtime effect and are retained for Prisma introspection compatibility.
+// See ADR-023 for the full decision record.
+
 // ── Auth & Sessions (Better Auth) ──
 
 model account {

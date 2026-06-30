@@ -20,6 +20,7 @@ import { eq, and } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { requireAssistScope } from '@entities/tenant/server';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -123,7 +124,7 @@ export const POST = withErrorHandler(
     }
 
     // Create suspension record + deactivate user atomically
-    const suspensionId = crypto.randomUUID();
+    const suspensionId = createId();
     const parsedEndDate = body.endDate ? new Date(body.endDate) : null;
     const isPermanent = !body.endDate;
 

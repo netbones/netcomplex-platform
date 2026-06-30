@@ -17,6 +17,7 @@ import {
 import { toEnvelope } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { and, eq, inArray, desc, sql } from 'drizzle-orm';
+import { createId } from '@shared/lib/id';
 
 const CreatePremiumListingInput = z.object({
   propertyId: z.string().min(1),
@@ -122,7 +123,7 @@ export const premiumProcedures = {
       const [newListing] = await db
         .insert(propertyListings)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           propertyId: input.propertyId,
           ownerId: ctx.userId,
@@ -254,7 +255,7 @@ export const premiumProcedures = {
             const [newSeat] = await tx
               .insert(premiumSeats)
               .values({
-                id: crypto.randomUUID(),
+                id: createId(),
                 userId,
                 tenantId,
                 platformAddress,
@@ -283,7 +284,7 @@ export const premiumProcedures = {
         await db
           .insert(propertyPremiumSeats)
           .values({
-            id: crypto.randomUUID(),
+            id: createId(),
             tenantId,
             propertyId,
             premiumSeatId,

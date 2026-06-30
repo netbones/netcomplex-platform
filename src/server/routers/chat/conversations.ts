@@ -15,6 +15,7 @@ import {
   inArray,
   sql,
 } from './shared';
+import { createId } from '@shared/lib/id';
 
 export const conversationProcedures = {
   /**
@@ -216,7 +217,7 @@ export const conversationProcedures = {
         }
       }
 
-      const conversationId = crypto.randomUUID();
+      const conversationId = createId();
       const ts = new Date();
 
       await db.insert(conversations).values({
@@ -230,7 +231,7 @@ export const conversationProcedures = {
 
       await db.insert(conversationParticipants).values(
         allParticipantIds.map(userId => ({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           conversationId,
           userId,
@@ -314,7 +315,7 @@ export const conversationProcedures = {
         return toEnvelope({ conversation: validConversation });
       }
 
-      const conversationId = crypto.randomUUID();
+      const conversationId = createId();
       await db.insert(conversations).values({
         id: conversationId,
         tenantId,
@@ -326,7 +327,7 @@ export const conversationProcedures = {
 
       await db.insert(conversationParticipants).values(
         input.participantIds.map(userId => ({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           conversationId,
           userId,

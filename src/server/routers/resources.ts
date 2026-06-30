@@ -19,6 +19,7 @@ import { resourceDto } from '@server/dto';
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, inArray, sql } from 'drizzle-orm';
 import { hasPermission } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 // ──────────────────────────────────────────
 // Helpers
@@ -232,7 +233,7 @@ export const resourcesRouter = router({
       const [resource] = await db
         .insert(resources)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId: ctx.tenantId,
           title: input.title,
           description: input.description || null,
@@ -292,7 +293,7 @@ export const resourcesRouter = router({
         const oldVersion = input.version ? existing.version : undefined;
         if (oldFileUrl || oldVersion) {
           await db.insert(resourceVersions).values({
-            id: crypto.randomUUID(),
+            id: createId(),
             resourceId: input.id,
             fileUrl: oldFileUrl,
             fileType: input.fileUrl ? existing.fileType : undefined,

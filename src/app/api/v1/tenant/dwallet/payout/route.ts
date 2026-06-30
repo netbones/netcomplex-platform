@@ -15,6 +15,7 @@ import { withTenant } from '@entities/tenant/server';
 import { getOrCreateWallet } from '@entities/dwallet/server';
 import { payoutRequestSchema } from '@entities/dwallet';
 import type { PayoutRequestItem } from '@entities/dwallet';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -64,7 +65,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   }
 
   const timestamp = now();
-  const payoutId = crypto.randomUUID();
+  const payoutId = createId();
 
   // INSERT PayoutRequest with PENDING status
   // Balance is NOT modified — debited only when admin marks COMPLETED

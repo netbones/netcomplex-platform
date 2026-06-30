@@ -18,6 +18,7 @@ import {
 import { SCOPE_BUNDLES, validateScopes } from '@entities/agent';
 import { logDelegationAction } from '@api/shared/delegations';
 import type { AgentScope } from '@entities/agent';
+import { createPrefixedId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -123,7 +124,7 @@ export async function POST(
   // Default expiry: 90 days from now if not specified
   const expiry = expiresAt ? new Date(expiresAt) : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
 
-  const delegationId = `del_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const delegationId = createPrefixedId('del');
 
   // Create the delegation (AgentAccess record)
   await db.insert(agentAccesses).values({

@@ -20,6 +20,7 @@ import { withTenant } from '@entities/tenant/server';
 
 import { hasPermission } from '@shared/lib';
 import { eq, and } from 'drizzle-orm';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -150,7 +151,7 @@ export const POST = withErrorHandler(
       }
 
       await db.insert(requestHistories).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         requestId: id,
         userId: authData.userId,
         field: 'assignedTeam',
@@ -163,7 +164,7 @@ export const POST = withErrorHandler(
       if (existing.status === 'SUBMITTED' && teamId) {
         updates.status = 'ASSIGNED';
         await db.insert(requestHistories).values({
-          id: crypto.randomUUID(),
+          id: createId(),
           requestId: id,
           userId: authData.userId,
           field: 'status',
@@ -202,7 +203,7 @@ export const POST = withErrorHandler(
       }
 
       await db.insert(requestHistories).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         requestId: id,
         userId: authData.userId,
         field: 'assignedProvider',
@@ -215,7 +216,7 @@ export const POST = withErrorHandler(
       if (existing.status === 'SUBMITTED' && providerId && !teamId) {
         updates.status = 'ASSIGNED';
         await db.insert(requestHistories).values({
-          id: crypto.randomUUID(),
+          id: createId(),
           requestId: id,
           userId: authData.userId,
           field: 'status',

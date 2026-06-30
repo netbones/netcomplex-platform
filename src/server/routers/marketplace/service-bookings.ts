@@ -16,6 +16,7 @@ import {
   serviceBookingSchema,
   getProviderRecordForUser,
 } from '@entities/marketplace/server';
+import { createId } from '@shared/lib/id';
 
 const ListServiceBookingsInput = z
   .object({
@@ -168,7 +169,7 @@ export const serviceBookingProcedures = {
       const bookingPrice = listing.price ? Number(listing.price) : 0;
       const platformFeeAmount = await calculatePlatformFee(providerId, bookingPrice);
 
-      const bookingId = crypto.randomUUID();
+      const bookingId = createId();
       const ts = now();
 
       await db.insert(serviceBookings).values({

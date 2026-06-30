@@ -11,6 +11,7 @@ import { toEnvelope } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { CreateInquiryInput, ListInquiriesInput, RespondToInquiryInput } from './shared';
+import { createId } from '@shared/lib/id';
 
 export const inquiryProcedures = {
   createInquiry: tenantProcedure
@@ -47,7 +48,7 @@ export const inquiryProcedures = {
         });
       }
 
-      const inquiryId = crypto.randomUUID();
+      const inquiryId = createId();
       const ts = now();
 
       await db.insert(communityServiceInquiries).values({

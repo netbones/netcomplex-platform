@@ -21,6 +21,7 @@ import {
 import { eq, desc, and, sql, inArray } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -225,7 +226,7 @@ export async function POST(request: NextRequest) {
     const { tenantId } = await withTenant();
 
     // Create inquiry with Drizzle
-    const inquiryId = crypto.randomUUID();
+    const inquiryId = createId();
     const ts = now();
 
     await db.insert(communityServiceInquiries).values({
@@ -267,7 +268,7 @@ export async function POST(request: NextRequest) {
         .limit(1);
 
       if (!existingConv) {
-        conversationId = crypto.randomUUID();
+        conversationId = createId();
         await db.insert(conversations).values({
           id: conversationId,
           tenantId,
@@ -277,14 +278,14 @@ export async function POST(request: NextRequest) {
         });
         await db.insert(conversationParticipants).values([
           {
-            id: crypto.randomUUID(),
+            id: createId(),
             tenantId,
             conversationId,
             userId: session.user.id,
             joinedAt: ts,
           },
           {
-            id: crypto.randomUUID(),
+            id: createId(),
             tenantId,
             conversationId,
             userId: listing.providerId,
@@ -298,7 +299,7 @@ export async function POST(request: NextRequest) {
       // Insert initial inquiry message
       if (conversationId) {
         await db.insert(messages).values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           conversationId,
           senderId: session.user.id,

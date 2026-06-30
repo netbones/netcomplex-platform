@@ -4,12 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import type { HeroCarouselConfig, CarouselItem } from '@entities/tenant';
+import { createId } from '@shared/lib/id';
 
 const log = createComponentLogger('admin-carousel');
 
 function newItem(): CarouselItem {
   return {
-    id: crypto.randomUUID(),
+    id: createId(),
     image: '',
     title: '',
     subtitle: '',

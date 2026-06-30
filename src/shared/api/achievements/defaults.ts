@@ -1,5 +1,6 @@
 import { db } from '../db';
 import { achievementDefinitions } from '@schema/achievement-definitions';
+import { createId } from '@shared/lib/id';
 
 const ACHIEVEMENT_SEEDS = [
   {
@@ -105,7 +106,7 @@ export async function seedAchievementDefinitions(): Promise<void> {
     await db
       .insert(achievementDefinitions)
       .values({
-        id: crypto.randomUUID(),
+        id: createId(),
         ...seed,
       })
       .onConflictDoNothing();

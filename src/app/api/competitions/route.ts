@@ -17,6 +17,7 @@ import { eq, and, desc, lte, gte, isNull } from 'drizzle-orm';
 
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -162,7 +163,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const [competition] = await db
     .insert(competitions)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       title: body.title,
       description: body.description || null,

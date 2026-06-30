@@ -17,6 +17,7 @@ import { TRPCError } from '@trpc/server';
 
 import { eq, and, desc, asc, count, lte, gte, inArray, InferSelectModel } from 'drizzle-orm';
 import { CompetitionTypeEnum, EntryStatusEnum, ParticipantDTO, WinnerDTO } from '@api/shared';
+import { createId } from '@shared/lib/id';
 
 // ──────────────────────────────────────────
 // Input schemas
@@ -437,7 +438,7 @@ export const competitionRouter = router({
       const [entry] = await db
         .insert(competitionEntries)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           competitionId: comp.id,
           userId: ctx.userId,
           status: 'JOINED',
@@ -530,7 +531,7 @@ export const competitionRouter = router({
       const [entry] = await db
         .insert(competitionEntries)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           competitionId: comp.id,
           userId: ctx.userId,
           status: 'JOINED',
@@ -711,7 +712,7 @@ export const competitionRouter = router({
       // Create notification for the winner
       await db.insert(notifications).values([
         {
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId: ctx.tenantId,
           userId: updated.userId,
           title: `You won ${comp.title}!`,
@@ -796,7 +797,7 @@ export const competitionRouter = router({
       if (selected.length > 0) {
         await db.insert(notifications).values(
           selected.map(entry => ({
-            id: crypto.randomUUID(),
+            id: createId(),
             tenantId: ctx.tenantId,
             userId: entry.userId,
             title: `You won ${comp.title}!`,

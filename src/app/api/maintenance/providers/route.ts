@@ -12,6 +12,7 @@ import {
 import { withTenant } from '@entities/tenant/server';
 
 import { eq, and, isNull, desc } from 'drizzle-orm';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -71,7 +72,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const provider = await db
     .insert(serviceProviders)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       companyName,
       trade,

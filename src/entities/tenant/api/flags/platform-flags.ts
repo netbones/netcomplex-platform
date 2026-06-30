@@ -5,7 +5,7 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 import { SETTINGS_KEYS } from '../settings';
-import { v4 as uuidv4 } from 'uuid';
+import { createId } from '@shared/lib/id';
 import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('platform-flags');
@@ -99,7 +99,7 @@ export async function setPlatformPageFlag(
         .where(eq(settings.id, existing.id));
     } else {
       await db.insert(settings).values({
-        id: uuidv4(),
+        id: createId(),
         tenantId,
         key: settingKey,
         value: serializeValue(value),
@@ -149,7 +149,7 @@ export async function setPlatformPageFlagWithTx(
         .where(eq(settings.id, existing.id));
     } else {
       await tx.insert(settings).values({
-        id: uuidv4(),
+        id: createId(),
         tenantId,
         key: settingKey,
         value: serializeValue(value),

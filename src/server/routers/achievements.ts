@@ -18,6 +18,7 @@ import { achievementDefinitions } from '@schema/achievement-definitions';
 import { tenantAchievements } from '@schema/tenant-achievements';
 import { userAchievements } from '@schema/user-achievements';
 import { userAchievementProgresses } from '@schema/user-achievement-progresses';
+import { createId } from '@shared/lib/id';
 
 const IdInput = z.object({ id: z.string() });
 
@@ -176,7 +177,7 @@ export const achievementsRouter = router({
         });
       }
 
-      const id = crypto.randomUUID();
+      const id = createId();
 
       const [created] = await db
         .insert(achievementDefinitions)

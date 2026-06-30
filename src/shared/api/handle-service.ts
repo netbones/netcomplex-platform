@@ -3,6 +3,7 @@ import { eq, and, ilike } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { db, addresses, handles } from './db';
 import type { DbSchema } from './db';
+import { createId } from '@shared/lib/id';
 
 // ---------------------------------------------------------------------------
 // Reserved platform names (same list as AddressService)
@@ -117,7 +118,7 @@ export class HandleService {
     }
 
     // Insert
-    const id = crypto.randomUUID();
+    const id = createId();
     const now = new Date();
 
     const [record] = await this.db

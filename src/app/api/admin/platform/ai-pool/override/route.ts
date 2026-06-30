@@ -11,6 +11,7 @@ import {
   auth,
 } from '@api/server';
 import { getCurrentBillingMonth } from '@api/server';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
     await db
       .insert(tenantAiUsages)
       .values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         billingMonth: month,
         tokensAllotted: customTokens,

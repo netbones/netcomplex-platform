@@ -56,6 +56,7 @@ import {
   questions,
   responses,
 } from '@api/server';
+import { createId } from '@shared/lib/id';
 
 export type { Tenant };
 
@@ -153,7 +154,7 @@ export async function createTenant(data: {
   ownerId?: string | null;
 }): Promise<Tenant> {
   const row: typeof tenants.$inferInsert = {
-    id: data.id ?? crypto.randomUUID(),
+    id: data.id ?? createId(),
     name: data.name,
     slug: data.slug,
     customDomain: data.customDomain ?? null,

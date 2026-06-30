@@ -22,6 +22,7 @@ import {
 import { apiLogger, hasPermission } from '@shared/lib';
 import { eq, and, isNull } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -124,7 +125,7 @@ export const POST = withErrorHandler(
       const [evidence] = await db
         .insert(disputeEvidences)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           disputeId: id,
           uploadedBy: authData.userId,
@@ -137,7 +138,7 @@ export const POST = withErrorHandler(
 
       // Log EVIDENCE_ADDED event
       await db.insert(disputeEvents).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         disputeId: id,
         actorId: authData.userId,

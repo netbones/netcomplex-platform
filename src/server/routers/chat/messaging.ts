@@ -28,6 +28,7 @@ import {
   SQL,
   checkParticipant,
 } from './shared';
+import { createId } from '@shared/lib/id';
 
 export const messagingProcedures = {
   /**
@@ -170,7 +171,7 @@ export const messagingProcedures = {
       const [newMessage] = await db
         .insert(messages)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           conversationId: input.conversationId,
           senderId: ctx.userId,

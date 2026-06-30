@@ -29,6 +29,7 @@ import { withTenant } from '@entities/tenant/server';
 import { sanitizeHtml } from '@/shared/lib/sanitize/server';
 
 import { hasPermission } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -204,7 +205,7 @@ export async function POST(request: Request) {
     const [newMessage] = await db
       .insert(messages)
       .values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         conversationId,
         senderId: authData.userId,

@@ -15,6 +15,7 @@ import {
   UpdateProviderInput,
   requireRequestsPermission,
 } from './shared';
+import { createId } from '@shared/lib/id';
 
 export const maintenanceProviderProcedures = {
   /**
@@ -56,7 +57,7 @@ export const maintenanceProviderProcedures = {
     const [created] = await db
       .insert(serviceProviders)
       .values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         companyName: input.companyName,
         trade: input.trade,

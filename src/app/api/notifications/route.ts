@@ -17,6 +17,7 @@ import { eq, and, desc, inArray, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
 import { createLogger } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -119,7 +120,7 @@ export async function PUT(request: Request) {
   const [newNotification] = await db
     .insert(notifications)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       userId: targetUserId,
       senderId: body.senderId || null,
@@ -192,7 +193,7 @@ export async function POST(request: Request) {
   const [newNotification] = await db
     .insert(notifications)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       userId: targetUserId,
       senderId: body.senderId || null,

@@ -14,6 +14,7 @@ import { eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { getOrCreateWallet } from '@entities/dwallet/server';
 import { createComponentLogger } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 const logger = createComponentLogger('dwalet-deletion');
 
@@ -41,7 +42,7 @@ export const POST = withErrorHandler(async (request: Request) => {
 
     // Insert immutable ROLLOVER transaction (Constraint 1 — append-only)
     await db.insert(walletTransactions).values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       walletId: wallet.id,
       type: 'ROLLOVER',

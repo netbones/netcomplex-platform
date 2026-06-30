@@ -18,6 +18,7 @@ import {
   getTenantSurvey,
 } from './shared';
 import { toEnvelope } from '@api/server';
+import { createId } from '@shared/lib/id';
 
 export const surveySectionProcedures = {
   addSection: privilegedProcedure
@@ -53,7 +54,7 @@ export const surveySectionProcedures = {
       const [created] = await db
         .insert(surveySections)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           surveyId: input.surveyId,
           title: input.title ?? null,

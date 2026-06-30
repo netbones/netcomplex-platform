@@ -1,4 +1,5 @@
 import * as maintenanceService from '../services';
+import { createId } from '@shared/lib/id';
 
 /**
  * Lists maintenance requests for a tenant with optional filtering.
@@ -39,7 +40,7 @@ export async function createMaintenanceRequest(data: {
   preferredTime?: string | null;
 }) {
   const [request] = await maintenanceService.createMaintenanceRequest({
-    id: crypto.randomUUID(),
+    id: createId(),
     tenantId: data.tenantId,
     userId: data.userId,
     propertyId: data.propertyId,

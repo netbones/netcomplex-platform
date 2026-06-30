@@ -7,8 +7,7 @@ import { isAdmin } from '@shared/lib';
 import { getTenantFacilities } from '@entities/booking/server';
 import { createComponentLogger } from '@shared/lib';
 import type { TenantFacility } from '@entities/booking';
-import { v4 as uuidv4 } from 'uuid';
-
+import { createId } from '@shared/lib/id';
 export const maxDuration = 8;
 
 const log = createComponentLogger('admin-bookings-api');
@@ -56,7 +55,7 @@ export async function PUT(request: NextRequest) {
       await db.update(settings).set({ value }).where(eq(settings.id, existing[0].id));
     } else {
       await db.insert(settings).values({
-        id: uuidv4(),
+        id: createId(),
         tenantId,
         key: 'booking_facilities',
         value,

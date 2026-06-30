@@ -9,6 +9,7 @@ import { tenantInvoices } from '@schema/tenant-invoices';
 import { tenantPayments } from '@schema/tenant-payments';
 import { billingEvents } from '@schema/billing-events';
 import { tenants } from '@schema/tenants';
+import { createId } from '@shared/lib/id';
 
 type BillingEventType = (typeof billingEvents.$inferSelect)['eventType'];
 import {
@@ -144,7 +145,7 @@ export async function recordBillingEvent(params: {
   eventType: (typeof billingEvents.$inferSelect)['eventType'];
   metadata?: Record<string, unknown>;
 }) {
-  const id = crypto.randomUUID();
+  const id = createId();
   const timestamp = now();
 
   await db.insert(billingEvents).values({
@@ -223,7 +224,7 @@ async function ensureTenantInvoiceRecord(params: {
   const [created] = await db
     .insert(tenantInvoices)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       ...payload,
       createdAt: timestamp,
     })
@@ -394,12 +395,12 @@ export async function createTenantSubscriptionCheckout(params: {
     }
   }
 
-  const subscriptionId = crypto.randomUUID();
+  const subscriptionId = createId();
   const nextBillingDate = addBillingCycleMonths(timestamp);
 
   // Free plan — activate immediately
   if (price <= 0) {
-    const transactionId = crypto.randomUUID();
+    const transactionId = createId();
 
     await db.transaction(async tx => {
       await tx.insert(tenantSubscriptions).values({
@@ -474,7 +475,7 @@ export async function createTenantSubscriptionCheckout(params: {
   }
 
   // Paid plan — initialize gateway payment
-  const transactionId = crypto.randomUUID();
+  const transactionId = createId();
   const reference = generateReference(subscriptionId, transactionId);
   const billing = calculateBillingBreakdown({
     amount: plan.monthlyPrice,
@@ -1161,7 +1162,7 @@ export async function ensureOverageInvoiceRecord(params: {
   const [created] = await db
     .insert(tenantInvoices)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       ...payload,
       createdAt: timestamp,
     })

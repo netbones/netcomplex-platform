@@ -13,6 +13,7 @@ import {
 } from '../db';
 import type { AiCapabilityKey } from '@entities/tenant/server';
 import { estimateCostUSD } from './pricing';
+import { createId } from '@shared/lib/id';
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -52,7 +53,7 @@ export async function getOrCreateUsage(tenantId: string, month: string, tx = db)
   const [created] = await tx
     .insert(tenantAiUsages)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       billingMonth: month,
       tokensAllotted: quota.monthlyTokens,
@@ -189,7 +190,7 @@ export async function recordUsage(
       .where(eq(tenantAiUsages.id, usage.id));
 
     await trx.insert(aiUsageEvents).values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId: options.tenantId,
       usageId: usage.id,
       capability: options.capability,
@@ -221,7 +222,7 @@ export async function recordUsage(
       if (adminUsers.length > 0) {
         await tx.insert(notifications).values(
           adminUsers.map(u => ({
-            id: crypto.randomUUID(),
+            id: createId(),
             tenantId: u.tenantId,
             userId: u.id,
             title: 'AI token quota at 80%',

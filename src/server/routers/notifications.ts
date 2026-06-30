@@ -11,6 +11,7 @@ import { TRPCError } from '@trpc/server';
 import { eq, and, desc, inArray, isNull } from 'drizzle-orm';
 import { toEnvelope } from '@api/server';
 import { notificationDto } from '@server/dto';
+import { createId } from '@shared/lib/id';
 
 const notificationTypeEnum = z.enum(['info', 'warning', 'success', 'error']);
 
@@ -93,7 +94,7 @@ export const notificationsRouter = router({
       const [created] = await db
         .insert(notifications)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           userId: ctx.userId,
           title: input.title,

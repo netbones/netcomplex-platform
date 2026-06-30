@@ -4,7 +4,7 @@ import {
   DeleteObjectCommand,
   ListObjectsV2Command,
 } from '@aws-sdk/client-s3';
-import { v4 as uuidv4 } from 'uuid';
+import { createId } from '@shared/lib/id';
 import { logError } from '@shared/lib';
 
 // Validate required environment variables at startup
@@ -72,7 +72,7 @@ export async function uploadImage(file: File, userId: string): Promise<UploadRes
     const buffer = Buffer.from(arrayBuffer);
 
     const ext = file.name.split('.').pop() || 'jpg';
-    const key = `users/${userId}/${uuidv4()}.${ext}`;
+    const key = `users/${userId}/${createId()}.${ext}`;
 
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
@@ -164,7 +164,7 @@ export async function uploadTenantImage(file: File, tenantId: string): Promise<U
     const buffer = Buffer.from(arrayBuffer);
 
     const ext = file.name.split('.').pop() || 'jpg';
-    const key = `tenants/${tenantId}/system/${uuidv4()}.${ext}`;
+    const key = `tenants/${tenantId}/system/${createId()}.${ext}`;
 
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,

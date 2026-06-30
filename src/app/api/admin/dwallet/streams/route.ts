@@ -16,6 +16,7 @@ import { createComponentLogger } from '@shared/lib';
 import { withTenant } from '@entities/tenant/server';
 import { streamConfigSchema } from '@entities/dwallet';
 import { eq, and } from 'drizzle-orm';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -74,7 +75,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       return apiConflict('A stream with this key already exists');
     }
 
-    const id = crypto.randomUUID();
+    const id = createId();
     const timestamp = now();
 
     const [stream] = await db

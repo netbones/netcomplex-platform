@@ -27,6 +27,7 @@ import type {
   TransactionItem,
   StreamConfig,
 } from '@entities/dwallet';
+import { createId } from '@shared/lib/id';
 
 const IdInput = z.object({ id: z.string() });
 
@@ -294,7 +295,7 @@ export const dwalletRouter = router({
     }
 
     const timestamp = now();
-    const payoutId = crypto.randomUUID();
+    const payoutId = createId();
 
     await db.insert(payoutRequests).values({
       id: payoutId,
@@ -426,7 +427,7 @@ export const dwalletRouter = router({
     }
 
     const timestamp = now();
-    const consentId = crypto.randomUUID();
+    const consentId = createId();
 
     await db.insert(dataConsents).values({
       id: consentId,
@@ -476,7 +477,7 @@ export const dwalletRouter = router({
     }
 
     const timestamp = now();
-    const consentId = crypto.randomUUID();
+    const consentId = createId();
 
     await db.insert(dataConsents).values({
       id: consentId,

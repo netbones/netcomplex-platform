@@ -18,6 +18,7 @@ import { hasPermission } from '@shared/lib';
 
 import { eq, and, asc, sql, inArray } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -146,7 +147,7 @@ export const POST = withErrorHandler(
     const [created] = await db
       .insert(surveySections)
       .values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         surveyId,
         title: body.title ?? null,

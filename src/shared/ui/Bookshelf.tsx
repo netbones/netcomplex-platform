@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSafeTranslation } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 interface Book {
   id: string;
@@ -48,7 +49,7 @@ export function Bookshelf({
 
     setSaving(true);
     const book: Book = {
-      id: crypto.randomUUID(),
+      id: createId(),
       title: newBook.title.trim(),
       author: newBook.author.trim(),
       coverUrl: newBook.coverUrl.trim() || undefined,

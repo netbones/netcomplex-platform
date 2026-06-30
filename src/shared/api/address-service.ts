@@ -1,12 +1,12 @@
 import 'server-only';
 import { eq, and, ilike } from 'drizzle-orm';
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { db, addresses, handles, tenants } from './db';
 import type { DbSchema } from './db';
 import { standardSeats } from '@schema/standard-seats';
 import { soloSeats } from '@schema/solo-seats';
 import { premiumSeats } from '@schema/premium-seats';
 import { profiles } from '@schema/profiles';
+import { createId } from '@shared/lib/id';
 
 // ---------------------------------------------------------------------------
 // Domain Errors
@@ -55,9 +55,11 @@ const RESERVED_NAMES = new Set([
 // ---------------------------------------------------------------------------
 
 export class AddressService {
-  private db: NodePgDatabase<DbSchema>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private db: any;
 
-  constructor(tx?: NodePgDatabase<DbSchema>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(tx?: any) {
     this.db = tx ?? db;
   }
 
@@ -125,7 +127,7 @@ export class AddressService {
     }
 
     // Insert the address
-    const id = crypto.randomUUID();
+    const id = createId();
     const now = new Date();
 
     const [record] = await this.db
@@ -320,9 +322,10 @@ export class AddressService {
       .select()
       .from(standardSeats)
       .where(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         and(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           eq((standardSeats as any).userId, userId),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           eq((standardSeats as any).tenantId, tenantId)
         )
       )

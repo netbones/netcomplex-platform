@@ -1,3 +1,4 @@
+import { createId } from '@shared/lib/id';
 /**
  * Tenant billing utility helpers.
  *
@@ -21,7 +22,7 @@ export function deriveInvoiceNumber(params: { tenantSlug: string }): string {
   const now = new Date();
   const year = now.getUTCFullYear();
   const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-  const random = crypto.randomUUID().slice(0, 4);
+  const random = createId().slice(0, 4);
   return `INV-${params.tenantSlug}-${year}${month}-${random}`;
 }
 

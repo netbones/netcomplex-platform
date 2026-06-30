@@ -14,6 +14,7 @@ import {
 } from './shared';
 import { toEnvelope } from '@api/server';
 import { externalSurveyDto, responseDto } from '@server/dto';
+import { createId } from '@shared/lib/id';
 
 export const externalSurveyProcedures = {
   /** @classification PUBLIC — unauthenticated external survey listing */
@@ -62,7 +63,7 @@ export const externalSurveyProcedures = {
       const [response] = await db
         .insert(responses)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           surveyId: input.surveyId,
           userId: ctx.userId ?? undefined,

@@ -14,6 +14,7 @@ import { reviewDto } from '@server/dto';
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { ListReviewsInput, CreateReviewInput, updateListingRating } from './shared';
+import { createId } from '@shared/lib/id';
 
 export const reviewProcedures = {
   listReviews: publicProcedure
@@ -147,7 +148,7 @@ export const reviewProcedures = {
         });
       }
 
-      const reviewId = crypto.randomUUID();
+      const reviewId = createId();
       const ts = now();
 
       await db.insert(communityServiceReviews).values({

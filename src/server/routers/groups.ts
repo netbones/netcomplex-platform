@@ -23,6 +23,7 @@ import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
 
 import { eq, and, desc, asc, isNull, inArray, sql } from 'drizzle-orm';
+import { createId } from '@shared/lib/id';
 
 // ──────────────────────────────────────────
 // Input schemas
@@ -299,7 +300,7 @@ export const groupsRouter = router({
       const [group] = await db
         .insert(groups)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           name: input.name,
           description: input.description || null,
@@ -317,7 +318,7 @@ export const groupsRouter = router({
         .returning();
 
       await db.insert(groupMembers).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         userId: input.ownerId || ctx.userId,
         groupId: group.id,
@@ -424,7 +425,7 @@ export const groupsRouter = router({
       const [membership] = await db
         .insert(groupMembers)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           userId: ctx.userId,
           groupId: input.groupId,

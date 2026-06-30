@@ -13,6 +13,7 @@ import {
 import { eq, desc, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
         await db
           .insert(albums)
           .values({
-            id: crypto.randomUUID(),
+            id: createId(),
             tenantId,
             userId,
             title: album.title,

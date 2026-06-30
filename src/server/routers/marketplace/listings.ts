@@ -27,6 +27,7 @@ import {
   resolveLocaleText,
   getTenantListing,
 } from './shared';
+import { createId } from '@shared/lib/id';
 
 export const listingProcedures = {
   listListings: publicProcedure
@@ -255,7 +256,7 @@ export const listingProcedures = {
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
 
-      const listingId = crypto.randomUUID();
+      const listingId = createId();
       const ts = now();
       const titleJsonb = { [input.locale]: input.title };
       const descriptionJsonb = input.description ? { [input.locale]: input.description } : null;

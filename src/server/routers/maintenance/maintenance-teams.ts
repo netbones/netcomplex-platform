@@ -15,6 +15,7 @@ import {
   UpdateTeamInput,
   requireRequestsPermission,
 } from './shared';
+import { createId } from '@shared/lib/id';
 
 export const maintenanceTeamProcedures = {
   /**
@@ -56,7 +57,7 @@ export const maintenanceTeamProcedures = {
     const [created] = await db
       .insert(maintenanceTeams)
       .values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         name: input.name,
         trade: input.trade,

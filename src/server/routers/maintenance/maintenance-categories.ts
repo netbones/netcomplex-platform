@@ -15,6 +15,7 @@ import {
   UpdateCategoryInput,
   requireRequestsPermission,
 } from './shared';
+import { createId } from '@shared/lib/id';
 
 export const maintenanceCategoryProcedures = {
   /**
@@ -72,7 +73,7 @@ export const maintenanceCategoryProcedures = {
     const [created] = await db
       .insert(maintenanceCategories)
       .values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         value: input.value,
         label: input.label,

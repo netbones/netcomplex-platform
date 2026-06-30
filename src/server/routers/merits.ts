@@ -26,6 +26,7 @@ import {
 } from '@/entities/merit/services';
 
 import { eq, and, desc, isNull } from 'drizzle-orm';
+import { createId } from '@shared/lib/id';
 
 // ──────────────────────────────────────────
 // Constants
@@ -174,7 +175,7 @@ async function notifyTierChange(
 ) {
   if (tierBefore !== tierAfter) {
     await db.insert(notifications).values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       userId,
       title,
@@ -214,7 +215,7 @@ async function createMeritRecord(
   const standingAfter =
     standingBefore + (input.behaviorType === 'MERIT' ? recognitionPoints : -disciplinaryPoints);
 
-  const id = crypto.randomUUID();
+  const id = createId();
   const ts = now();
 
   await db.insert(communityMerits).values({

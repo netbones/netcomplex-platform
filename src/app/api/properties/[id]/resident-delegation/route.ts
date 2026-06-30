@@ -13,6 +13,7 @@ import {
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
 import { eq, and, isNull } from 'drizzle-orm';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       )
     );
 
-  const delegationId = crypto.randomUUID();
+  const delegationId = createId();
   const now = new Date();
   await db.insert(residentDelegations).values({
     id: delegationId,

@@ -9,7 +9,7 @@ import {
 } from '@api/server';
 
 import { eq } from 'drizzle-orm';
-import { v4 as uuidv4 } from 'uuid';
+import { createId } from '@shared/lib/id';
 import { logError } from '@shared/lib';
 
 export const maxDuration = 8;
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
           .where(eq(settings.id, existing.id));
       } else {
         await tx.insert(settings).values({
-          id: uuidv4(),
+          id: createId(),
           tenantId,
           key: settingKey,
           value: JSON.stringify(data),
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
             .where(eq(settings.id, completedExisting.id));
         } else {
           await tx.insert(settings).values({
-            id: uuidv4(),
+            id: createId(),
             tenantId,
             key: completedKey,
             value: 'true',

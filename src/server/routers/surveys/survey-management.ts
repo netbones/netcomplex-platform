@@ -28,6 +28,7 @@ import {
 } from './shared';
 import { toEnvelope } from '@api/server';
 import { surveyDto, responseDto } from '@server/dto';
+import { createId } from '@shared/lib/id';
 
 export const surveyManagementProcedures = {
   /**
@@ -135,7 +136,7 @@ export const surveyManagementProcedures = {
       const [created] = await db
         .insert(surveys)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           title: input.title,
           description: input.description ?? null,
@@ -298,7 +299,7 @@ export const surveyManagementProcedures = {
       const [response] = await db
         .insert(responses)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           surveyId: input.surveyId,
           userId: ctx.userId,

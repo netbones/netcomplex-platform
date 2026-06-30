@@ -20,6 +20,7 @@ import { createComponentLogger } from '@shared/lib';
 import { withTenant } from '@entities/tenant/server';
 import { batchSchema } from '@entities/dwallet';
 import { eq, and, desc } from 'drizzle-orm';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -113,7 +114,7 @@ export const POST = withErrorHandler(async (request: Request) => {
     const perResidentAmount = residentPool / optedInWalletIds.length;
     const perResidentAmountStr = perResidentAmount.toFixed(2);
 
-    const batchId = crypto.randomUUID();
+    const batchId = createId();
 
     // Step 5: Atomic transaction — all credits or none
     try {
@@ -138,7 +139,7 @@ export const POST = withErrorHandler(async (request: Request) => {
 
           // Insert immutable WalletTransaction CREDIT
           await tx.insert(walletTransactions).values({
-            id: crypto.randomUUID(),
+            id: createId(),
             tenantId,
             walletId,
             type: 'CREDIT',

@@ -15,6 +15,7 @@ import {
 import { withTenant } from '@entities/tenant/server';
 import { agentTokens } from '@schema/agent-tokens';
 import { signAgentToken, hashToken } from '@shared/lib/agent-token';
+import { createPrefixedId } from '@shared/lib/id';
 
 export const maxDuration = 5;
 
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Create token record (id first, then sign with it)
-  const tokenId = `at_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const tokenId = createPrefixedId('at');
 
   // Sign the JWT
   const rawToken = await signAgentToken({

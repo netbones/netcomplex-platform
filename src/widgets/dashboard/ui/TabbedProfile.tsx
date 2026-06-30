@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { ImageUpload } from '@shared/ui';
 import { Plus, Trash2, GripVertical, User } from 'lucide-react';
+import { createId } from '@shared/lib/id';
 
 interface SocialAccount {
   platform: string;
@@ -133,7 +134,7 @@ export function TabbedProfile({
   const addExperience = () => {
     setEditExperience([
       ...editExperience,
-      { id: crypto.randomUUID(), title: '', organization: '', description: '', startDate: '' },
+      { id: createId(), title: '', organization: '', description: '', startDate: '' },
     ]);
   };
 

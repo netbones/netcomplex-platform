@@ -1,7 +1,6 @@
 import { unstable_cache } from 'next/cache';
 import { eq, and } from 'drizzle-orm';
-import { v4 as uuidv4 } from 'uuid';
-
+import { createId } from '@shared/lib/id';
 import { CACHE_TAGS, db, settings } from '@api/server';
 import { createComponentLogger } from '@shared/lib';
 import {
@@ -71,7 +70,7 @@ export async function setProviderRegistrationMode(
       await db.update(settings).set({ value: normalizedMode }).where(eq(settings.id, existing.id));
     } else {
       await db.insert(settings).values({
-        id: uuidv4(),
+        id: createId(),
         tenantId,
         key: SETTINGS_KEYS.PROVIDER_REGISTRATION_MODE,
         value: normalizedMode,

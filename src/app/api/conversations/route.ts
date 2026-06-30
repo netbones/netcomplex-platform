@@ -15,6 +15,7 @@ import {
 
 import { eq, and, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -120,7 +121,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const { tenantId } = await withTenant();
 
   // Create conversation with Drizzle
-  const conversationId = crypto.randomUUID();
+  const conversationId = createId();
   const ts = now();
 
   // Insert conversation
@@ -137,7 +138,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const allParticipantIds = [...new Set([session.user.id, ...(participantIds || [])])];
   await db.insert(conversationParticipants).values(
     allParticipantIds.map((userId: string) => ({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       conversationId,
       userId,

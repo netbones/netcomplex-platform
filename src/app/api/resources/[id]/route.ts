@@ -19,6 +19,7 @@ import { eq, desc, and } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -176,7 +177,7 @@ export const PATCH = withErrorHandler(
       const oldVersion = body.version ? existing.version : undefined;
       if (oldFileUrl || oldVersion) {
         await db.insert(resourceVersions).values({
-          id: crypto.randomUUID(),
+          id: createId(),
           resourceId: id,
           fileUrl: oldFileUrl,
           fileType: body.fileUrl ? existing.fileType : undefined,

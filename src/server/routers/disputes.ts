@@ -29,6 +29,7 @@ import {
 } from '@entities/dispute/server';
 
 import { canTransition, ALL_DISPUTE_STATUSES, ALL_DISPUTE_CATEGORIES } from '@entities/dispute';
+import { createId } from '@shared/lib/id';
 
 const IdInput = z.object({ id: z.string() });
 
@@ -191,7 +192,7 @@ export const disputesRouter = router({
   /** Create a new dispute case in DRAFT status.
    * @tenant */
   createDispute: tenantProcedure.input(CreateDisputeInput).mutation(async ({ input, ctx }) => {
-    const id = crypto.randomUUID();
+    const id = createId();
     const referenceNumber = await generateDisputeReference(ctx.tenantId);
     const coolingOffEndsAt = new Date(Date.now() + 24 * 3600_000);
 
@@ -218,7 +219,7 @@ export const disputesRouter = router({
       .returning();
 
     await db.insert(disputeEvents).values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId: ctx.tenantId,
       disputeId: id,
       actorId: ctx.userId,
@@ -275,7 +276,7 @@ export const disputesRouter = router({
 
       if (input.updates.status && input.updates.status !== existing.status) {
         await tx.insert(disputeEvents).values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId: ctx.tenantId,
           disputeId: input.id,
           actorId: ctx.userId,
@@ -324,7 +325,7 @@ export const disputesRouter = router({
       const [message] = await db
         .insert(disputeMessages)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId: ctx.tenantId,
           disputeId: input.disputeId,
           senderId: ctx.userId,
@@ -394,7 +395,7 @@ export const disputesRouter = router({
         .where(and(eq(disputeCases.id, input.disputeId), eq(disputeCases.tenantId, ctx.tenantId)));
 
       await tx.insert(disputeEvents).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId: ctx.tenantId,
         disputeId: input.disputeId,
         actorId: ctx.userId,
@@ -447,7 +448,7 @@ export const disputesRouter = router({
         .returning();
 
       await tx.insert(disputeEvents).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId: ctx.tenantId,
         disputeId: input.id,
         actorId: ctx.userId,
@@ -512,7 +513,7 @@ export const disputesRouter = router({
           );
 
         await tx.insert(disputeEvents).values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId: ctx.tenantId,
           disputeId: input.disputeId,
           actorId: ctx.userId,
@@ -565,7 +566,7 @@ export const disputesRouter = router({
           );
 
         await tx.insert(disputeEvents).values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId: ctx.tenantId,
           disputeId: input.disputeId,
           actorId: ctx.userId,

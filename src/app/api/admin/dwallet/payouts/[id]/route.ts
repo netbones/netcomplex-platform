@@ -18,6 +18,7 @@ import { createComponentLogger } from '@shared/lib';
 import { withTenant } from '@entities/tenant/server';
 import { payoutStatusSchema } from '@entities/dwallet';
 import { eq, and } from 'drizzle-orm';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -99,7 +100,7 @@ export const PATCH = withErrorHandler(
 
           // Insert immutable WalletTransaction DEBIT
           await tx.insert(walletTransactions).values({
-            id: crypto.randomUUID(),
+            id: createId(),
             tenantId,
             walletId: wallet.id,
             type: 'DEBIT',

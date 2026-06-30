@@ -20,6 +20,7 @@ import { eq, and, isNull, asc, gte, inArray, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { NextResponse } from 'next/server';
 import { buildCsosExportPdf } from './build-csos-pdf';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -241,7 +242,7 @@ export const GET = withErrorHandler(
 
     // Log export as NOTE_ADDED DisputeEvent
     await db.insert(disputeEvents).values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       disputeId: id,
       actorId: authData.userId,

@@ -3,6 +3,7 @@ import 'server-only';
 import { db, dWallets, now } from '@api/server';
 import { createComponentLogger } from '@shared/lib';
 import { eq, and } from 'drizzle-orm';
+import { createId } from '@shared/lib/id';
 
 const logger = createComponentLogger('dwallet-api');
 
@@ -22,7 +23,7 @@ export async function getOrCreateWallet(userId: string, tenantId: string) {
 
   if (existing) return existing;
 
-  const id = crypto.randomUUID();
+  const id = createId();
   const timestamp = now();
 
   const [wallet] = await db

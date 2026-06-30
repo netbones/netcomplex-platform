@@ -1,4 +1,5 @@
 import * as contentService from '../services';
+import { createId } from '@shared/lib/id';
 
 /**
  * Lists content items with localization.
@@ -43,7 +44,7 @@ export async function createContent(data: {
   copyrightHolder?: string | null;
 }) {
   return contentService.createContent({
-    id: crypto.randomUUID(),
+    id: createId(),
     tenantId: data.tenantId,
     title: data.title,
     content: data.content,

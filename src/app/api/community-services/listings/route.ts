@@ -22,6 +22,7 @@ import { eq, desc, and, or, sql, ilike, inArray, isNull } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
 import { generateNameSlug } from '@shared/api';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -345,7 +346,7 @@ export async function POST(request: NextRequest) {
     const descriptionJsonb = description ? { [listingLocale]: description } : null;
 
     // Create listing with Drizzle
-    const listingId = crypto.randomUUID();
+    const listingId = createId();
     const ts = now();
 
     // Enforce tenant isolation

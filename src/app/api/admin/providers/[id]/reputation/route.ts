@@ -18,6 +18,7 @@ import {
 import { assertModuleEnabled, withTenant } from '@entities/tenant/server';
 import { getProviderReputationSnapshot } from '@shared/api';
 import { logError } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -92,7 +93,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         .where(eq(providerReputations.id, existing.id));
     } else {
       await db.insert(providerReputations).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         providerId: provider.id,
         totalScore: nextTotalScore,
@@ -110,7 +111,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const delta = nextTotalScore - baseScore;
     if (delta !== 0) {
       await db.insert(providerMerits).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         providerId: provider.id,
         meritType: 'REFERENCE',

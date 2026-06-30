@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { createId } from '@shared/lib/id';
 
 vi.mock('varlock/env', () => ({
   ENV: {
@@ -26,7 +27,7 @@ import type { conversations, messages } from '@api/server';
 type ConversationRow = InferSelectModel<typeof conversations>;
 type MessageRow = InferSelectModel<typeof messages>;
 
-const uuid = () => crypto.randomUUID();
+const uuid = () => createId();
 
 function makeConversationRow(overrides: Partial<ConversationRow> = {}): ConversationRow {
   return {

@@ -15,6 +15,7 @@ import { withTenant } from '@entities/tenant/server';
 import { getOrCreateWallet } from '@entities/dwallet/server';
 import { consentSchema } from '@entities/dwallet';
 import { createComponentLogger } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 const logger = createComponentLogger('dwalet-consent');
 
@@ -51,7 +52,7 @@ export const POST = withErrorHandler(
     }
 
     const timestamp = now();
-    const consentId = crypto.randomUUID();
+    const consentId = createId();
 
     // INSERT new DataConsent row (append-only — never UPDATE)
     await db.insert(dataConsents).values({

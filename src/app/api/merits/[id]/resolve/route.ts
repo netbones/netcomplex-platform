@@ -17,6 +17,7 @@ import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import { getStandingTier } from '@entities/merit';
 import { getEffectivePoints } from '@/entities/merit/services';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -103,7 +104,7 @@ export const POST = withErrorHandler(
           PROBATION: 'Probation',
         };
         await db.insert(notifications).values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           userId: record.userId,
           title: 'Dispute resolved — standing updated',

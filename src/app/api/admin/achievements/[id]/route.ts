@@ -16,6 +16,7 @@ import {
 import { achievementDefinitions } from '@schema/achievement-definitions';
 import { tenantAchievements } from '@schema/tenant-achievements';
 import { hasPermission, createComponentLogger } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -90,7 +91,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             .where(eq(tenantAchievements.id, existing.id));
         } else {
           await tx.insert(tenantAchievements).values({
-            id: crypto.randomUUID(),
+            id: createId(),
             tenantId: ctx.tenantId,
             definitionId,
             enabled: enabled ?? true,

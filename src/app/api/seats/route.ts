@@ -18,6 +18,7 @@ import {
 import { count, eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -72,7 +73,7 @@ export const POST = withErrorHandler(async (request: Request) => {
         const [newSeat] = await tx
           .insert(soloSeats)
           .values({
-            id: crypto.randomUUID(),
+            id: createId(),
             userId,
             tenantId,
             platformAddress,
@@ -120,7 +121,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       const [newSeat] = await tx
         .insert(premiumSeats)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           userId,
           tenantId,
           platformAddress,

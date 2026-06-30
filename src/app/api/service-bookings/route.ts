@@ -24,6 +24,7 @@ import {
   calculatePlatformFee,
   getProviderRecordForUser,
 } from '@entities/marketplace/server';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -222,7 +223,7 @@ export async function POST(request: NextRequest) {
     const platformFeeAmount = await calculatePlatformFee(providerId, bookingPrice);
 
     // Create booking
-    const bookingId = crypto.randomUUID();
+    const bookingId = createId();
     const ts = now();
 
     await db.insert(serviceBookings).values({

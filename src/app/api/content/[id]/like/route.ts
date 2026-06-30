@@ -11,6 +11,7 @@ import {
 
 import { count, eq, and } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -71,7 +72,7 @@ export const POST = withErrorHandler(
     const [like] = await db
       .insert(contentLikes)
       .values({
-        id: crypto.randomUUID(),
+        id: createId(),
         tenantId,
         contentId: id,
         userId,

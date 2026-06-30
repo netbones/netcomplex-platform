@@ -16,6 +16,7 @@ import {
 import { eq, and, isNull, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { apiLogger } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -64,13 +65,13 @@ export async function POST(request: Request) {
     .where(eq(users.id, inviterId))
     .limit(1);
 
-  const token = crypto.randomUUID();
+  const token = createId();
   const acceptUrl = `${BETTER_AUTH_URL}/invite/${token}`;
 
   const [invitation] = await db
     .insert(invitations)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       email: body.email,
       name: body.name,

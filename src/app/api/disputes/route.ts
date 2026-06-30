@@ -17,6 +17,7 @@ import { generateDisputeReference } from '@entities/dispute/server';
 import { eq, and, isNull, desc } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { ALL_DISPUTE_CATEGORIES, ALL_DISPUTE_STATUSES } from '@entities/dispute';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -133,7 +134,7 @@ export async function POST(request: Request) {
 
     const { tenantId } = await withTenant();
 
-    const id = crypto.randomUUID();
+    const id = createId();
     const referenceNumber = await generateDisputeReference(tenantId);
     const coolingOffEndsAt = new Date(Date.now() + 24 * 3600_000); // 24h default
 
@@ -161,7 +162,7 @@ export async function POST(request: Request) {
 
     // Log CREATED event
     await db.insert(disputeEvents).values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       disputeId: id,
       actorId: authData.userId,

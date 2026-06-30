@@ -24,6 +24,7 @@ import { canPublishAnnouncements } from '@shared/lib';
 import { validatePriorityForRole } from '@features/announcements';
 import type { AnnouncementPriority } from '@features/announcements';
 import { announcementSchema } from '@entities/content';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -177,7 +178,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const [announcement] = await db
     .insert(announcements)
     .values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       title: data.title,
       content: data.content,
@@ -256,7 +257,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       const batch = targetUsers.slice(i, i + FANOUT_BATCH);
       await db.insert(notifications).values(
         batch.map(user => ({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           userId: user.id,
           title: announcement.title as string,

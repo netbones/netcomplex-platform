@@ -17,6 +17,7 @@ import { eq, inArray, and, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { hasPermission } from '@shared/lib';
 import { listEvents, createEvent, validateEventFields } from '@entities/event/server';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -168,7 +169,7 @@ export const POST = withErrorHandler(async (request: Request) => {
 
   // Delegate to entity service for creation
   const event = await createEvent({
-    id: crypto.randomUUID(),
+    id: createId(),
     tenantId,
     title: body.title,
     description: body.description,

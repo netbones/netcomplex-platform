@@ -9,6 +9,7 @@ import {
 
 import { sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -59,7 +60,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   }
 
   // Create new direct conversation
-  const conversationId = crypto.randomUUID();
+  const conversationId = createId();
   await db.execute(sql`
     INSERT INTO "Conversation" (id, name, type, "tenantId")
     VALUES (${conversationId}, NULL, 'DIRECT', ${tenantId})
@@ -69,7 +70,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   for (const userId of participantIds) {
     await db.execute(sql`
       INSERT INTO "ConversationParticipant" (id, "conversationId", "userId", "tenantId")
-      VALUES (${crypto.randomUUID()}, ${conversationId}, ${userId}, ${tenantId})
+      VALUES (${createId()}, ${conversationId}, ${userId}, ${tenantId})
     `);
   }
 

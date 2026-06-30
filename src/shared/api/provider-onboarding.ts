@@ -16,6 +16,7 @@ import {
   type ProviderLegalAcceptanceInput,
 } from '@shared/lib/providers/registration';
 import type { ProviderVerificationStatus } from './provider-platform';
+import { createId } from '@shared/lib/id';
 
 export function getRequestMetadata(request: Request): {
   ipAddress: string | null;
@@ -131,7 +132,7 @@ export async function recordProviderLegalAgreements(params: {
   const newRows = acceptedDocuments
     .filter(document => !existingKeys.has(`${document.agreementType}:${document.version}`))
     .map(document => ({
-      id: crypto.randomUUID(),
+      id: createId(),
       providerId: params.providerId,
       tenantId: params.tenantId,
       agreementType: document.agreementType,

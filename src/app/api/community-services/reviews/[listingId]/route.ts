@@ -18,6 +18,7 @@ import {
 import { eq, desc, and, sql } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import { logError } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -192,7 +193,7 @@ export async function POST(
     }
 
     // Create review with Drizzle
-    const reviewId = crypto.randomUUID();
+    const reviewId = createId();
     const ts = now();
 
     await db.insert(communityServiceReviews).values({

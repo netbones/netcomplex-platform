@@ -12,6 +12,7 @@ import {
 
 import { eq } from 'drizzle-orm';
 import { logError } from '@shared/lib';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
         const [newTenant] = await tx
           .insert(tenants)
           .values({
-            id: crypto.randomUUID(),
+            id: createId(),
             name: body.name,
             slug: body.slug,
             customDomain: null,

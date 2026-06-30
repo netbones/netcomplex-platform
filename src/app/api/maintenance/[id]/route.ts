@@ -22,6 +22,7 @@ import { hasPermission } from '@shared/lib';
 import { eq, and } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
+import { createId } from '@shared/lib/id';
 
 export const maxDuration = 8;
 
@@ -220,7 +221,7 @@ export const PATCH = withErrorHandler(
         updates.completedAt = ts;
       }
       await db.insert(requestHistories).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         requestId: id,
         userId: authData.userId,
         field: 'status',
@@ -233,7 +234,7 @@ export const PATCH = withErrorHandler(
     if (body.priority && body.priority !== existing.priority) {
       updates.priority = body.priority;
       await db.insert(requestHistories).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         requestId: id,
         userId: authData.userId,
         field: 'priority',
@@ -250,7 +251,7 @@ export const PATCH = withErrorHandler(
     if (body.assignedTo !== undefined && body.assignedTo !== existing.assignedTo) {
       updates.assignedTo = body.assignedTo || null;
       await db.insert(requestHistories).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         requestId: id,
         userId: authData.userId,
         field: 'assignedTo',
@@ -263,7 +264,7 @@ export const PATCH = withErrorHandler(
     if (body.vendor !== undefined && body.vendor !== existing.vendor) {
       updates.vendor = body.vendor || null;
       await db.insert(requestHistories).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         requestId: id,
         userId: authData.userId,
         field: 'vendor',
@@ -299,7 +300,7 @@ export const PATCH = withErrorHandler(
       }
 
       await db.insert(requestHistories).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         requestId: id,
         userId: authData.userId,
         field: 'assignedTeam',
@@ -338,7 +339,7 @@ export const PATCH = withErrorHandler(
       }
 
       await db.insert(requestHistories).values({
-        id: crypto.randomUUID(),
+        id: createId(),
         requestId: id,
         userId: authData.userId,
         field: 'assignedProvider',
@@ -355,7 +356,7 @@ export const PATCH = withErrorHandler(
       if (newDateStr !== oldDate) {
         updates.scheduledDate = newDate;
         await db.insert(requestHistories).values({
-          id: crypto.randomUUID(),
+          id: createId(),
           requestId: id,
           userId: authData.userId,
           field: 'scheduledDate',
@@ -392,7 +393,7 @@ export const PATCH = withErrorHandler(
 
         // Notify the original requester
         await db.insert(notifications).values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           userId: existing.userId,
           senderId: authData.userId,
@@ -437,7 +438,7 @@ export const PATCH = withErrorHandler(
         }
 
         // Create a scoped AgentAccess delegation for the contractor
-        const delegationId = crypto.randomUUID();
+        const delegationId = createId();
         const agentUserId = provider.userId ?? contractorId;
         const delegationNow = new Date();
         await db.insert(agentAccesses).values({
