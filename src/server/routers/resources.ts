@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import {
   router,
-  protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   resources,
   resourceVersions,
@@ -12,6 +13,8 @@ import {
   now,
   toEnvelope,
 } from '@api/server';
+
+import { resourceDto } from '@server/dto';
 
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, inArray, sql } from 'drizzle-orm';
@@ -97,7 +100,9 @@ const UpdateResourceInput = z.object({
 // ──────────────────────────────────────────
 
 export const resourcesRouter = router({
-  listResources: protectedProcedure
+  /** List resources filtered by visibility (tenant-scoped) and optional category.
+   * @tenant */
+  listResources: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -109,15 +114,10 @@ export const resourcesRouter = router({
     })
     .input(ListResourcesInput)
     .query(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       const role = ctx.role;
       let isOwner = false;
       if (ctx.userId) {
-        isOwner = await checkUserOwnsProperty(ctx.userId, tenantId);
+        isOwner = await checkUserOwnsProperty(ctx.userId, ctx.tenantId);
       }
 
       const visibilityFilter = buildVisibilityFilter(role, isOwner);
@@ -134,21 +134,23 @@ export const resourcesRouter = router({
         ? eq(resources.category, input.category as (typeof resources.category.enumValues)[number])
         : undefined;
 
-      const conditions = [eq(resources.tenantId, tenantId), notDeleted(resources)];
+      const conditions = [eq(resources.tenantId, ctx.tenantId), notDeleted(resources)];
       if (visibilityFilter) conditions.push(visibilityFilter);
       if (adminVisibilityFilter) conditions.push(adminVisibilityFilter);
       if (categoryFilter) conditions.push(categoryFilter);
 
-      return toEnvelope(
-        await db
-          .select()
-          .from(resources)
-          .where(and(...conditions))
-          .orderBy(desc(resources.createdAt))
-      );
+      const rows = await db
+        .select()
+        .from(resources)
+        .where(and(...conditions))
+        .orderBy(desc(resources.createdAt));
+
+      return toEnvelope(rows.map(r => resourceDto.parse(r)));
     }),
 
-  getResource: protectedProcedure
+  /** Get a single resource by ID with visibility enforcement.
+   * @tenant */
+  getResource: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -160,16 +162,15 @@ export const resourcesRouter = router({
     })
     .input(ResourceIdInput)
     .query(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       const [item] = await db
         .select()
         .from(resources)
         .where(
-          and(notDeleted(resources), eq(resources.id, input.id), eq(resources.tenantId, tenantId))
+          and(
+            notDeleted(resources),
+            eq(resources.id, input.id),
+            eq(resources.tenantId, ctx.tenantId)
+          )
         );
 
       if (!item) {
@@ -181,7 +182,7 @@ export const resourcesRouter = router({
 
       let isOwner = false;
       if (ctx.userId) {
-        isOwner = await checkUserOwnsProperty(ctx.userId, tenantId);
+        isOwner = await checkUserOwnsProperty(ctx.userId, ctx.tenantId);
       }
 
       if (hasPermission(role, 'admin') || role === 'MANAGER' || role === 'BOARD') {
@@ -202,10 +203,15 @@ export const resourcesRouter = router({
         .where(eq(resourceVersions.resourceId, input.id))
         .orderBy(desc(resourceVersions.createdAt));
 
-      return toEnvelope({ ...item, versions });
+      return toEnvelope({
+        ...resourceDto.parse(item),
+        versions,
+      });
     }),
 
-  createResource: protectedProcedure
+  /** Create a new resource — content managers only.
+   * @privileged */
+  createResource: privilegedProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -221,18 +227,13 @@ export const resourcesRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Content permission required' });
       }
 
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       const ts = now();
 
       const [resource] = await db
         .insert(resources)
         .values({
           id: crypto.randomUUID(),
-          tenantId,
+          tenantId: ctx.tenantId,
           title: input.title,
           description: input.description || null,
           category: input.category as (typeof resources.category.enumValues)[number],
@@ -252,10 +253,12 @@ export const resourcesRouter = router({
 
       revalidateContent();
 
-      return toEnvelope(resource);
+      return toEnvelope(resourceDto.parse(resource));
     }),
 
-  updateResource: protectedProcedure
+  /** Update an existing resource — content managers only.
+   * @privileged */
+  updateResource: privilegedProcedure
     .meta({
       openapi: {
         method: 'PATCH',
@@ -271,15 +274,10 @@ export const resourcesRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Content permission required' });
       }
 
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       const [existing] = await db
         .select()
         .from(resources)
-        .where(and(eq(resources.id, input.id), eq(resources.tenantId, tenantId)));
+        .where(and(eq(resources.id, input.id), eq(resources.tenantId, ctx.tenantId)));
 
       if (!existing) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Resource not found' });
@@ -327,10 +325,12 @@ export const resourcesRouter = router({
 
       revalidateContent();
 
-      return toEnvelope(updated);
+      return toEnvelope(resourceDto.parse(updated));
     }),
 
-  deleteResource: protectedProcedure
+  /** Soft-delete a resource — admin only.
+   * @privileged */
+  deleteResource: privilegedProcedure
     .meta({
       openapi: {
         method: 'DELETE',
@@ -346,15 +346,10 @@ export const resourcesRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin permission required' });
       }
 
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       const [existing] = await db
         .select({ id: resources.id })
         .from(resources)
-        .where(and(eq(resources.id, input.id), eq(resources.tenantId, tenantId)));
+        .where(and(eq(resources.id, input.id), eq(resources.tenantId, ctx.tenantId)));
 
       if (!existing) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Resource not found' });
@@ -371,7 +366,9 @@ export const resourcesRouter = router({
       return toEnvelope({ success: true });
     }),
 
-  incrementDownloadCount: protectedProcedure
+  /** Increment the download count for a resource.
+   * @tenant */
+  incrementDownloadCount: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -383,18 +380,13 @@ export const resourcesRouter = router({
     })
     .input(ResourceIdInput)
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       const [updated] = await db
         .update(resources)
         .set({
           downloadCount: sql`${resources.downloadCount} + 1`,
           updatedAt: now(),
         })
-        .where(and(eq(resources.id, input.id), eq(resources.tenantId, tenantId)))
+        .where(and(eq(resources.id, input.id), eq(resources.tenantId, ctx.tenantId)))
         .returning({ downloadCount: resources.downloadCount });
 
       if (!updated) {
