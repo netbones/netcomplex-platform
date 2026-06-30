@@ -14,6 +14,11 @@ import {
 } from '../data';
 import type { Bursary, Resource, EducationTabId } from '@entities/education';
 
+interface EducationData {
+  bursaries: Bursary[];
+  resources: Resource[];
+}
+
 function countClosing(bursaries: Bursary[]): number {
   return bursaries.filter(b => {
     const days = Math.round((new Date(b.deadline).getTime() - Date.now()) / 86400000);
@@ -425,7 +430,7 @@ function ResourcesTab({
   onToggleSave,
   tx,
 }: {
-  resources: typeof RESOURCES;
+  resources: Resource[];
   saved: Set<string>;
   onToggleSave: (id: string) => void;
   tx: (key: string, fallback: string) => string;
@@ -578,7 +583,20 @@ export function EducationPortal() {
   const { tx } = useSafeTranslation('education');
   const [activeTab, setActiveTab] = useState<EducationTabId>('bursaries');
   const [saved, setSaved] = useState<Set<string>>(new Set());
+  const [apiData, setApiData] = useState<EducationData | null>(null);
   const savedCountEl = useRef<HTMLSpanElement>(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch('/api/education');
+      const json = await res.json();
+      if (json?.data?.bursaries?.length > 0 || json?.data?.resources?.length > 0) {
+        setApiData(json.data);
+      }
+    } catch {
+      /* fall through to static data */
+    }
+  }, []);
 
   const toggleSave = useCallback((id: string) => {
     setSaved(prev => {
@@ -602,8 +620,16 @@ export function EducationPortal() {
   }, []);
 
   useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
     localStorage.setItem('edu-saved', JSON.stringify([...saved]));
   }, [saved]);
+
+  // Use API data if available, fallback to static data
+  const bursaries = apiData?.bursaries ?? BURSARIES;
+  const resources = apiData?.resources ?? RESOURCES;
 
   return (
     <ErrorBoundary>
@@ -687,7 +713,7 @@ export function EducationPortal() {
           className="tab-panel"
           style={{ display: activeTab === 'bursaries' ? 'block' : 'none' }}
         >
-          <BursariesTab bursaries={BURSARIES} saved={saved} onToggleSave={toggleSave} tx={tx} />
+          <BursariesTab bursaries={bursaries} saved={saved} onToggleSave={toggleSave} tx={tx} />
         </div>
 
         <div
@@ -695,7 +721,7 @@ export function EducationPortal() {
           className="tab-panel"
           style={{ display: activeTab === 'resources' ? 'block' : 'none' }}
         >
-          <ResourcesTab resources={RESOURCES} saved={saved} onToggleSave={toggleSave} tx={tx} />
+          <ResourcesTab resources={resources} saved={saved} onToggleSave={toggleSave} tx={tx} />
         </div>
 
         <div
@@ -704,8 +730,8 @@ export function EducationPortal() {
           style={{ display: activeTab === 'saved' ? 'block' : 'none' }}
         >
           <SavedTab
-            bursaries={BURSARIES}
-            resources={RESOURCES}
+            bursaries={bursaries}
+            resources={resources}
             saved={saved}
             onToggleSave={toggleSave}
             tx={tx}
