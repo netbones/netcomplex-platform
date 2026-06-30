@@ -15,6 +15,11 @@ import {
   writeAuditLog,
   auth,
   withErrorHandler,
+  AddressService,
+  AddressConflictError,
+  AddressValidationError,
+  apiConflict,
+  apiError,
 } from '@api/server';
 
 import { eq, and, desc } from 'drizzle-orm';
@@ -381,45 +386,62 @@ export const PATCH = withErrorHandler(
     if (body.platformAddress !== undefined) {
       const addr = String(body.platformAddress);
 
-      const [premium] = await db
-        .select({ id: premiumSeats.id })
-        .from(premiumSeats)
-        .where(eq(premiumSeats.userId, id))
-        .limit(1);
+      // Resolve existing address record for this user via the Address table
+      const addressService = new AddressService(db);
+      const existingAddress = await addressService.lookupByOwnerInSeats(id, tenantId);
 
-      if (premium) {
-        await db
-          .update(premiumSeats)
-          .set({ platformAddress: addr })
-          .where(eq(premiumSeats.id, premium.id));
-        updatedSeat = { type: 'premium', platformAddress: addr };
-      } else {
-        const [solo] = await db
-          .select({ id: soloSeats.id })
-          .from(soloSeats)
-          .where(eq(soloSeats.userId, id))
-          .limit(1)
-          .orderBy(soloSeats.createdAt);
+      if (existingAddress) {
+        // Move the address (updates Address table)
+        try {
+          await addressService.move(existingAddress.id as string, addr, tenantId);
+        } catch (e) {
+          if (e instanceof AddressConflictError) return apiConflict(e.message);
+          if (e instanceof AddressValidationError)
+            return apiError('VALIDATION_ERROR', e.message, 400);
+          throw e;
+        }
 
-        if (solo) {
+        // Update the legacy platformAddress on the source seat table
+        // for backward compatibility during Phase 1
+        const [premium] = await db
+          .select({ id: premiumSeats.id })
+          .from(premiumSeats)
+          .where(eq(premiumSeats.userId, id))
+          .limit(1);
+        if (premium) {
           await db
-            .update(soloSeats)
+            .update(premiumSeats)
             .set({ platformAddress: addr })
-            .where(eq(soloSeats.id, solo.id));
-          updatedSeat = { type: 'solo', platformAddress: addr };
+            .where(eq(premiumSeats.id, premium.id));
+          updatedSeat = { type: 'premium', platformAddress: addr };
         } else {
-          const [standard] = await db
-            .select({ id: standardSeats.id })
-            .from(standardSeats)
-            .where(eq(standardSeats.userId, id))
-            .limit(1);
+          const [solo] = await db
+            .select({ id: soloSeats.id })
+            .from(soloSeats)
+            .where(eq(soloSeats.userId, id))
+            .limit(1)
+            .orderBy(soloSeats.createdAt);
 
-          if (standard) {
+          if (solo) {
             await db
-              .update(standardSeats)
+              .update(soloSeats)
               .set({ platformAddress: addr })
-              .where(eq(standardSeats.id, standard.id));
-            updatedSeat = { type: 'standard', platformAddress: addr };
+              .where(eq(soloSeats.id, solo.id));
+            updatedSeat = { type: 'solo', platformAddress: addr };
+          } else {
+            const [standard] = await db
+              .select({ id: standardSeats.id })
+              .from(standardSeats)
+              .where(eq(standardSeats.userId, id))
+              .limit(1);
+
+            if (standard) {
+              await db
+                .update(standardSeats)
+                .set({ platformAddress: addr })
+                .where(eq(standardSeats.id, standard.id));
+              updatedSeat = { type: 'standard', platformAddress: addr };
+            }
           }
         }
       }
