@@ -14,21 +14,45 @@ vi.mock('next/headers', () => ({
   ),
 }));
 
-const mocks = vi.hoisted(() => ({
-  tenantResult: { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' },
-  session: { user: { id: 'user-1', role: 'admin' } },
-  dbMock: {
-    select: vi.fn(),
-    insert: vi.fn(),
-    delete: vi.fn(),
-  },
-  authMock: {
-    api: {
-      getSession: vi.fn(),
+const mocks = vi.hoisted(() => {
+  const mockDbSelect = vi.fn();
+  const mockDbInsert = vi.fn();
+  const mockDbDelete = vi.fn();
+  const mockDbUpdate = vi.fn(() => ({
+    set: vi.fn(() => ({
+      where: vi.fn(() => Promise.resolve({})),
+      returning: vi.fn(() => Promise.resolve([])),
+    })),
+  }));
+  const mockAddressReserve = vi.fn(() => ({ id: 'addr-1' }));
+  const dbMock = {
+    select: mockDbSelect,
+    insert: mockDbInsert,
+    delete: mockDbDelete,
+    update: mockDbUpdate,
+    execute: vi.fn(() => ({ rows: [] })),
+    transaction: vi.fn((cb: (tx: typeof dbMock) => Promise<unknown>) => cb(dbMock)),
+  };
+
+  return {
+    tenantResult: { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' },
+    session: { user: { id: 'user-1', role: 'admin' } },
+    dbMock,
+    authMock: {
+      api: {
+        getSession: vi.fn(),
+      },
     },
-  },
-  hasPermission: vi.fn(() => true),
-}));
+    hasPermission: vi.fn(() => true),
+    mockAddressReserve,
+    MockAddressConflictError: class extends Error {
+      constructor(message: string) {
+        super(message);
+        this.name = 'AddressConflictError';
+      }
+    },
+  };
+});
 
 vi.mock('@api/server', () => ({
   db: mocks.dbMock,
@@ -99,6 +123,24 @@ vi.mock('@api/server', () => ({
       })
   ),
   withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
+  AddressService: class {
+    constructor() {}
+    async reserve(...args: unknown[]) {
+      return mocks.mockAddressReserve(...args);
+    }
+  },
+  AddressConflictError: class extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'AddressConflictError';
+    }
+  },
+  AddressValidationError: class extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'AddressValidationError';
+    }
+  },
 }));
 
 vi.mock('@entities/tenant/server', () => ({
@@ -110,6 +152,7 @@ vi.mock('@shared/lib', () => ({
 }));
 
 import { POST, DELETE } from '@/app/api/seats/route';
+import { AddressConflictError } from '@api/server';
 import { makeSelectChain, makeInsertChain, makeDeleteChain } from '@/test/api/helpers';
 
 function makeCountSelect(result: { count: number }) {
@@ -118,15 +161,24 @@ function makeCountSelect(result: { count: number }) {
 
 describe('Seats API', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     mocks.tenantResult = { tenantId: 'test-tenant-id', tenantSlug: 'test-tenant' };
     mocks.session = { user: { id: 'user-1', role: 'admin' } };
     mocks.authMock.api.getSession.mockResolvedValue(mocks.session);
     mocks.hasPermission.mockReturnValue(true);
+    mocks.mockAddressReserve.mockReturnValue({ id: 'addr-1' });
+    // Restore default update mock (resetAllMocks clears it)
+    mocks.dbMock.update.mockImplementation(() => ({
+      set: vi.fn(() => ({
+        where: vi.fn(() => Promise.resolve({})),
+        returning: vi.fn(() => Promise.resolve([])),
+      })),
+    }));
+    mocks.dbMock.execute.mockReturnValue({ rows: [] });
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.resetAllMocks();
   });
 
   describe('POST /api/seats', () => {
@@ -296,8 +348,12 @@ describe('Seats API', () => {
     it('returns 409 if platform address already allocated', async () => {
       mocks.dbMock.select
         .mockReturnValueOnce(makeSelectChain([{ id: 'user-1' }]))
-        .mockReturnValueOnce(makeCountSelect({ count: 0 }))
-        .mockReturnValueOnce(makeSelectChain([{ id: 'existing' }]));
+        .mockReturnValueOnce(makeCountSelect({ count: 0 }));
+
+      // Simulate AddressService.reserve throwing a conflict
+      mocks.mockAddressReserve.mockRejectedValueOnce(
+        new AddressConflictError("Address '0xabc' is already in use in this tenant")
+      );
 
       const req = makePostRequest({
         userId: 'user-1',

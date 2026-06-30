@@ -9,7 +9,9 @@ import {
   apiSuccess,
   apiUnauthorized,
   apiConflict,
-  assertAddressUnique,
+  AddressService,
+  AddressConflictError,
+  AddressValidationError,
 } from '@api/server';
 
 import { eq, sql, and } from 'drizzle-orm';
@@ -86,27 +88,51 @@ export async function POST(request: NextRequest) {
       }
 
       const user = userResult.rows[0];
-      const platformAddress = `${(user.name || '').toLowerCase().replace(/\s+/g, '.')}@sorialia.org`;
+      const localPart = (user.name || user.email || 'premium')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '.');
+      const platformAddress = await AddressService.generate('PREMIUM', tenantId, {
+        custom: localPart,
+      });
 
-      // Cross-table address uniqueness guard
+      // Reserve address + create PremiumSeat + backfill addressId in a single transaction
+      let newSeatId: string;
       try {
-        await assertAddressUnique(platformAddress, db);
-      } catch (e) {
-        return apiConflict((e as Error).message);
-      }
+        newSeatId = await db.transaction(async tx => {
+          const addressService = new AddressService(tx);
+          const addressRecord = await addressService.reserve(platformAddress, tenantId, 'PREMIUM', {
+            ownerType: 'PREMIUM_SEAT',
+            ownerId: userId,
+          });
 
-      // Create new Premium Seat
-      const newPremiumSeat = (await db.execute(sql`
-        INSERT INTO "PremiumSeat" ("userId", "tenantId", "platformAddress")
-        VALUES (${userId}, ${tenantId}, ${platformAddress})
-        RETURNING id
-      `)) as { rows: { id: string }[] };
+          const result = (await tx.execute(sql`
+            INSERT INTO "PremiumSeat" ("userId", "tenantId", "platformAddress")
+            VALUES (${userId}, ${tenantId}, ${platformAddress})
+            RETURNING id
+          `)) as { rows: { id: string }[] };
+
+          const seatId = result.rows?.[0]?.id;
+          if (!seatId) throw new Error('Failed to create PremiumSeat');
+
+          await tx
+            .update(premiumSeats)
+            .set({ addressId: addressRecord.id as string })
+            .where(eq(premiumSeats.id, seatId));
+
+          return seatId;
+        });
+      } catch (e) {
+        if (e instanceof AddressConflictError) return apiConflict(e.message);
+        if (e instanceof AddressValidationError)
+          return apiSuccess({ error: e.message }, { status: 400 });
+        throw e;
+      }
 
       // Link households
       for (const householdId of householdIds) {
         await db.execute(sql`
           INSERT INTO "_PremiumSeatPortfolio" ("A", "B")
-          VALUES (${newPremiumSeat.rows?.[0]?.id}, ${householdId})
+          VALUES (${newSeatId}, ${householdId})
           ON CONFLICT DO NOTHING
         `);
       }

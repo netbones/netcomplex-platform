@@ -10,7 +10,9 @@ import {
   apiError,
   auth,
   withErrorHandler,
-  assertAddressUnique,
+  AddressService,
+  AddressConflictError,
+  AddressValidationError,
 } from '@api/server';
 
 import { count, eq, and } from 'drizzle-orm';
@@ -58,37 +60,39 @@ export const POST = withErrorHandler(async (request: Request) => {
       return apiConflict('User already has 5 soloSeats (maximum)');
     }
 
-    // Cross-table address uniqueness guard
+    // Reserve address via AddressService + insert + backfill in a single transaction
+    let seat;
     try {
-      await assertAddressUnique(platformAddress, db);
+      seat = await db.transaction(async tx => {
+        const addressService = new AddressService(tx);
+        const addressRecord = await addressService.reserve(platformAddress, tenantId, 'SOLO', {
+          ownerType: 'SOLO_SEAT',
+        });
+
+        const [newSeat] = await tx
+          .insert(soloSeats)
+          .values({
+            id: crypto.randomUUID(),
+            userId,
+            tenantId,
+            platformAddress,
+            seatType: soloSeatType || 'RESIDENT',
+            isComplimentary: true,
+          })
+          .returning();
+
+        await tx
+          .update(soloSeats)
+          .set({ addressId: addressRecord.id as string })
+          .where(eq(soloSeats.id, newSeat.id));
+
+        return newSeat;
+      });
     } catch (e) {
-      return apiConflict((e as Error).message);
+      if (e instanceof AddressConflictError) return apiConflict(e.message);
+      if (e instanceof AddressValidationError) return apiError('VALIDATION_ERROR', e.message, 400);
+      throw e;
     }
-
-    // Check platformAddress uniqueness within soloSeats
-    const [existingAddr] = await db
-      .select({ id: soloSeats.id })
-      .from(soloSeats)
-      .where(eq(soloSeats.platformAddress, platformAddress))
-      .limit(1);
-    if (existingAddr) {
-      return apiConflict(
-        `Platform address "${platformAddress}" is already allocated to another user`
-      );
-    }
-
-    const seat = await db
-      .insert(soloSeats)
-      .values({
-        id: crypto.randomUUID(),
-        userId,
-        tenantId,
-        platformAddress,
-        seatType: soloSeatType || 'RESIDENT',
-        isComplimentary: true,
-      })
-      .returning()
-      .then(r => r[0]);
 
     return apiSuccess({ seat });
   }
@@ -104,21 +108,42 @@ export const POST = withErrorHandler(async (request: Request) => {
     return apiConflict('User already has a premiumSeat');
   }
 
-  const seat = await db
-    .insert(premiumSeats)
-    .values({
-      id: crypto.randomUUID(),
-      userId,
-      tenantId,
-      platformAddress,
-      portfolioName: portfolioName || null,
-      subscriptionTier: 'basic',
-      maxProperties: 5,
-      messageRetentionDays: 30,
-      tier: 'foundation',
-    })
-    .returning()
-    .then(r => r[0]);
+  // Reserve address via AddressService + insert + backfill in a single transaction
+  let seat;
+  try {
+    seat = await db.transaction(async tx => {
+      const addressService = new AddressService(tx);
+      const addressRecord = await addressService.reserve(platformAddress, tenantId, 'PREMIUM', {
+        ownerType: 'PREMIUM_SEAT',
+      });
+
+      const [newSeat] = await tx
+        .insert(premiumSeats)
+        .values({
+          id: crypto.randomUUID(),
+          userId,
+          tenantId,
+          platformAddress,
+          portfolioName: portfolioName || null,
+          subscriptionTier: 'basic',
+          maxProperties: 5,
+          messageRetentionDays: 30,
+          tier: 'foundation',
+        })
+        .returning();
+
+      await tx
+        .update(premiumSeats)
+        .set({ addressId: addressRecord.id as string })
+        .where(eq(premiumSeats.id, newSeat.id));
+
+      return newSeat;
+    });
+  } catch (e) {
+    if (e instanceof AddressConflictError) return apiConflict(e.message);
+    if (e instanceof AddressValidationError) return apiError('VALIDATION_ERROR', e.message, 400);
+    throw e;
+  }
 
   return apiSuccess({ seat });
 });
