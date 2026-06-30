@@ -91,9 +91,9 @@ export default defineConfig({
         'src/features/**/index.{ts,tsx}',
       ],
       thresholds: {
-        lines: 20,
-        branches: 15,
-        functions: 10,
+        lines: 30,
+        branches: 20,
+        functions: 15,
       },
     },
   },

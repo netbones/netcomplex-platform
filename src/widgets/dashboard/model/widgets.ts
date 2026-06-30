@@ -689,6 +689,22 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   });
 
   registry.register({
+    id: 'admin-education',
+    version: '1.0.0',
+    name: 'Education Portal',
+    description: 'Manage bursaries and learning resources',
+    author: 'internal',
+    category: 'core',
+    icon: FileText,
+    permissions: ['admin'],
+    component: lazy(() => import('@widgets/admin').then(m => ({ default: m.EducationList }))),
+    defaultSize: { width: 4, height: 3 },
+    minSize: { width: 3, height: 2 },
+    dragHandleClassName: 'widget-drag-handle',
+    spaces: ['admin'],
+  });
+
+  registry.register({
     id: 'admin-merits',
     version: '1.0.0',
     name: 'Merits Escalation',

@@ -24,6 +24,8 @@ function makeFlags(overrides: Partial<PlatformPageFlags> = {}): PlatformPageFlag
     campaign: true,
     conservation: 'default',
     conservationExternalUrl: '',
+    conservationManagedUrl: '',
+    education: true,
     chat: true,
     news: true,
     events: true,

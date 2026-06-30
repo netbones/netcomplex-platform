@@ -1,5 +1,6 @@
 import { onEvent } from '../events';
 import { processAchievementEvent } from './service';
+import { logger } from '@/shared/lib/logger';
 
 onEvent('booking.created', async event => {
   try {
@@ -9,7 +10,10 @@ onEvent('booking.created', async event => {
       eventType: 'booking.created',
     });
   } catch (err) {
-    console.error('[achievements] Failed to process booking.created:', err);
+    logger.error(
+      { component: 'achievements', event: 'booking.created', error: err },
+      'Failed to process booking.created'
+    );
   }
 });
 
@@ -21,7 +25,10 @@ onEvent('maintenance.created', async event => {
       eventType: 'maintenance.created',
     });
   } catch (err) {
-    console.error('[achievements] Failed to process maintenance.created:', err);
+    logger.error(
+      { component: 'achievements', event: 'maintenance.created', error: err },
+      'Failed to process maintenance.created'
+    );
   }
 });
 
@@ -33,7 +40,10 @@ onEvent('event.rsvp', async event => {
       eventType: 'event.rsvp',
     });
   } catch (err) {
-    console.error('[achievements] Failed to process event.rsvp:', err);
+    logger.error(
+      { component: 'achievements', event: 'event.rsvp', error: err },
+      'Failed to process event.rsvp'
+    );
   }
 });
 
@@ -45,7 +55,10 @@ onEvent('content.created', async event => {
       eventType: 'content.created',
     });
   } catch (err) {
-    console.error('[achievements] Failed to process content.created:', err);
+    logger.error(
+      { component: 'achievements', event: 'content.created', error: err },
+      'Failed to process content.created'
+    );
   }
 });
 
@@ -57,7 +70,10 @@ onEvent('group.joined', async event => {
       eventType: 'group.joined',
     });
   } catch (err) {
-    console.error('[achievements] Failed to process group.joined:', err);
+    logger.error(
+      { component: 'achievements', event: 'group.joined', error: err },
+      'Failed to process group.joined'
+    );
   }
 });
 
@@ -69,6 +85,9 @@ onEvent('competition.entered', async event => {
       eventType: 'competition.entered',
     });
   } catch (err) {
-    console.error('[achievements] Failed to process competition.entered:', err);
+    logger.error(
+      { component: 'achievements', event: 'competition.entered', error: err },
+      'Failed to process competition.entered'
+    );
   }
 });

@@ -231,6 +231,14 @@ export const ADMIN_ITEMS: NavItem[] = [
     icon: 'tags',
   },
   {
+    href: '/admin/education',
+    adminLabelKey: 'education',
+    labelKey: 'nav.admin',
+    section: 'admin',
+    permissionKey: 'content',
+    icon: 'graduation-cap',
+  },
+  {
     href: '/admin/carousel',
     adminLabelKey: 'carousel',
     labelKey: 'nav.admin',

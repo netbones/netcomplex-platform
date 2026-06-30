@@ -31,7 +31,7 @@ export default [
             // Enforce slice public API (no deep imports)
             {
               regex:
-                '^@shared/(?!lib/hooks|lib/agent-token|lib/sanitize|lib/i18n|lib/id)[^/]+/[^/]+$',
+                '^@shared/(?!lib/hooks|lib/agent-token|lib/sanitize|lib/i18n|lib/id|lib/format-date)[^/]+/[^/]+$',
               message: 'Use public API from @shared instead of deep imports.',
             },
             // Block deep imports from entities except for the server.ts
@@ -93,7 +93,7 @@ export default [
             // Keep all patterns EXCEPT the entities deep-import rule,
             // which traps the intentionally deep @entities/tenant/api/gate/mappings import.
             {
-              regex: '^@shared/(?!lib/hooks)[^/]+/[^/]+$',
+              regex: '^@shared/(?!lib/hooks|lib/format-date)[^/]+/[^/]+$',
               message: 'Use public API from @shared instead of deep imports.',
             },
             {

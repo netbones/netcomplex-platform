@@ -19,6 +19,7 @@ import type {
   TokenValidationResult,
   AgentCallerType,
 } from '@entities/agent';
+import { logger } from '@/shared/lib/logger';
 
 let KEY_PAIR: { privateKey: CryptoKey; publicKey: CryptoKey } | null = null;
 
@@ -110,8 +111,9 @@ export async function selectVerifier(credentialType: string): Promise<Credential
     // Future: case 'wallet_es256k': return walletVerifier;
     // Future: case 'onchain_eth': return onChainVerifier;
     default:
-      console.warn(
-        `[agent-gateway] Unknown credential type: ${credentialType}, falling back to jwt_es256`
+      logger.warn(
+        { component: 'agent-gateway', credentialType },
+        'Unknown credential type, falling back to jwt_es256'
       );
       return jwtVerifier;
   }

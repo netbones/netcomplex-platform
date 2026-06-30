@@ -10,6 +10,7 @@ import {
 } from '@api/server';
 import { eq, and, lt, isNotNull } from 'drizzle-orm';
 import { hasPermission } from '@shared/lib';
+import { apiLogger } from '@/shared/lib/logger';
 
 export const maxDuration = 60;
 
@@ -34,7 +35,7 @@ export async function GET(request: Request) {
 
     return apiSuccess({ purged: { messages: purgedMessages.length } });
   } catch (error) {
-    console.error('[PURGE] Error:', error);
+    apiLogger.error({ error }, '[PURGE] Error');
     return apiInternalError();
   }
 }

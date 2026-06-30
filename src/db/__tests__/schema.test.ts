@@ -92,6 +92,8 @@ describe('Feature flag: marketplacePaypal', () => {
       campaign: true,
       conservation: 'default',
       conservationExternalUrl: '',
+      conservationManagedUrl: '',
+      education: true,
       chat: true,
       news: true,
       events: true,

@@ -19,6 +19,8 @@ const ALL_FLAGS_ON: PlatformPageFlags = {
   campaign: true,
   conservation: 'default',
   conservationExternalUrl: '',
+  conservationManagedUrl: '',
+  education: true,
   chat: true,
   news: true,
   events: true,

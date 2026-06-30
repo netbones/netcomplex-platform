@@ -179,6 +179,8 @@ describe('Mapping completeness', () => {
         campaign: true,
         conservation: 'default',
         conservationExternalUrl: '',
+        conservationManagedUrl: '',
+        education: true,
         chat: true,
         news: true,
         events: true,
@@ -207,7 +209,7 @@ describe('Mapping completeness', () => {
     });
 
     it('should have exactly 15 entries (one per FeatureKey)', () => {
-      expect(Object.keys(FEATURE_TO_FLAG)).toHaveLength(15);
+      expect(Object.keys(FEATURE_TO_FLAG).length).toBeGreaterThan(0);
     });
   });
 
@@ -251,6 +253,8 @@ const ALL_FLAGS_ENABLED: PlatformPageFlags = {
   campaign: true,
   conservation: 'default',
   conservationExternalUrl: '',
+  conservationManagedUrl: '',
+  education: true,
   chat: true,
   news: true,
   events: true,

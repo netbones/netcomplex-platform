@@ -68,6 +68,9 @@
     "services": "Iinkonzo",
     "dwallet": "iWallet",
     "providers": "Ababoneleli",
+    "education": "Iphothali yemfundo",
+    "educationBursaries": "Lawula iiinzamo zemfundo",
+    "educationResources": "Lawula iitholakala zemfundo ezivumelekileyo",
     "descriptions": {
       "users": "Lawula amalungu oluntu kunye neendima",
       "maintenance": "Ul awulo lwezicelo zokugcina kunye nohlalutyo",
@@ -81,7 +84,10 @@
       "system": "Uqwalaselo lweqonga kunye nempilo",
       "services": "Qwalasela iphepha leenkonzo zoluntu",
       "dwallet": "Ulawulo lokusasazwa kwexabiso loluntu kunye nentlawulo",
-      "providers": "Ul awulo lwababoneleli, ingeniso kunye nokumodareyitha"
+      "providers": "Ul awulo lwababoneleli, ingeniso kunye nokumodareyitha",
+      "education": "Lawula iphothali yemfundo",
+      "educationBursaries": "Lawula iiinzamo zemfundo",
+      "educationResources": "Lawula iitholakala zemfundo ezivumelekileyo"
     }
   },
   "unsuspend": "Buyisela uMsebenzisi",
@@ -176,6 +182,10 @@
       "completed": "Igqityiwe",
       "failed": "Ayiphumelelanga",
       "processing": "Iyasebenza"
+    },
+    "forms": {
+      "addBursary": "Yongeza iBursary",
+      "addResource": "Yongeza iMithombo"
     }
   }
 }

@@ -50,7 +50,20 @@ function BursaryCard({
     <div className="edu-card" id={`card-${bursary.id}`}>
       <div className="edu-card-header">
         <div className="edu-card-icon bursary">
-          <i className="ti ti-award" aria-hidden="true" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="8" r="6" />
+            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+          </svg>
         </div>
         <div>
           <div className="edu-card-title">{bursary.title}</div>
@@ -83,13 +96,39 @@ function BursaryCard({
             onClick={() => onToggleSave(bursary.id)}
             aria-label={isSaved ? tx('card.remove', 'Remove') : tx('card.save', 'Save')}
           >
-            <i
-              className={`ti ${isSaved ? 'ti-bookmark-filled' : 'ti-bookmark'}`}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill={isSaved ? 'currentColor' : 'none'}
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               aria-hidden="true"
-            />
+            >
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
           </button>
           <a href={NSFAS_URL} target="_blank" rel="noopener noreferrer" className="edu-btn-small">
-            {tx('card.details', 'Details')} ↗
+            {tx('card.details', 'Details')}{' '}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ verticalAlign: '-1px' }}
+            >
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
           </a>
         </div>
       </div>
@@ -112,7 +151,20 @@ function ResourceCard({
     <div className="edu-card" id={`card-${resource.id}`}>
       <div className="edu-card-header">
         <div className="edu-card-icon resource">
-          <i className="ti ti-book" aria-hidden="true" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          </svg>
         </div>
         <div>
           <div className="edu-card-title">{resource.title}</div>
@@ -138,7 +190,21 @@ function ResourceCard({
             gap: '4px',
           }}
         >
-          <i className="ti ti-lock-open" style={{ fontSize: '13px' }} aria-hidden="true" />{' '}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+          </svg>{' '}
           {tx('card.freeAccess', 'Free access')}
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
@@ -147,10 +213,20 @@ function ResourceCard({
             onClick={() => onToggleSave(resource.id)}
             aria-label={isSaved ? tx('card.remove', 'Remove') : tx('card.save', 'Save')}
           >
-            <i
-              className={`ti ${isSaved ? 'ti-bookmark-filled' : 'ti-bookmark'}`}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill={isSaved ? 'currentColor' : 'none'}
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               aria-hidden="true"
-            />
+            >
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
           </button>
           <a
             href={resource.link}
@@ -158,7 +234,23 @@ function ResourceCard({
             rel="noopener noreferrer"
             className="edu-btn-small"
           >
-            {tx('card.open', 'Open')} <i className="ti ti-external-link" />
+            {tx('card.open', 'Open')}{' '}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ verticalAlign: '-1px' }}
+            >
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
           </a>
         </div>
       </div>
@@ -249,7 +341,23 @@ function BursariesTab({
         </div>
         <div className="edu-featured-action">
           <a href={NSFAS_URL} target="_blank" rel="noopener noreferrer" className="edu-btn-small">
-            {tx('card.apply', 'Apply')} <i className="ti ti-external-link" />
+            {tx('card.apply', 'Apply')}{' '}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ verticalAlign: '-1px' }}
+            >
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
           </a>
         </div>
       </div>
@@ -286,7 +394,24 @@ function BursariesTab({
       </div>
       {filtered.length === 0 ? (
         <div className="edu-empty">
-          <i className="ti ti-mood-confuzed-filled" aria-hidden="true" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            style={{ display: 'block', margin: '0 auto 8px' }}
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M8 15h8" />
+            <line x1="9" y1="9" x2="9.01" y2="9" />
+            <line x1="15" y1="9" x2="15.01" y2="9" />
+          </svg>
           {tx('empty.bursaries', 'No bursaries match those filters. Try broadening your search.')}
         </div>
       ) : null}
@@ -356,7 +481,24 @@ function ResourcesTab({
       </div>
       {filtered.length === 0 ? (
         <div className="edu-empty">
-          <i className="ti ti-mood-confuzed-filled" aria-hidden="true" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            style={{ display: 'block', margin: '0 auto 8px' }}
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M8 15h8" />
+            <line x1="9" y1="9" x2="9.01" y2="9" />
+            <line x1="15" y1="9" x2="15.01" y2="9" />
+          </svg>
           {tx('empty.resources', 'No resources match. Try a different search or type.')}
         </div>
       ) : null}
@@ -383,7 +525,21 @@ function SavedTab({
   if (saved.size === 0) {
     return (
       <div className="edu-empty">
-        <i className="ti ti-bookmark" aria-hidden="true" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          style={{ display: 'block', margin: '0 auto 8px' }}
+        >
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+        </svg>
         {tx(
           'saved.empty',
           'Nothing saved yet. Bookmark bursaries and resources to find them here.'
@@ -466,9 +622,56 @@ export function EducationPortal() {
               onClick={() => setActiveTab(tab)}
               aria-selected={activeTab === tab}
             >
-              {tab === 'bursaries' ? <i className="ti ti-award" aria-hidden="true" /> : null}
-              {tab === 'resources' ? <i className="ti ti-books" aria-hidden="true" /> : null}
-              {tab === 'saved' ? <i className="ti ti-bookmark" aria-hidden="true" /> : null}
+              {tab === 'bursaries' ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ verticalAlign: '-2px', marginRight: '6px' }}
+                >
+                  <circle cx="12" cy="8" r="6" />
+                  <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+                </svg>
+              ) : null}
+              {tab === 'resources' ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ verticalAlign: '-2px', marginRight: '6px' }}
+                >
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg>
+              ) : null}
+              {tab === 'saved' ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ verticalAlign: '-2px', marginRight: '6px' }}
+                >
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                </svg>
+              ) : null}
               {tx(`tabs.${tab}`, tab)}
               {tab === 'saved' && saved.size > 0 ? (
                 <span ref={savedCountEl} className="edu-saved-badge">

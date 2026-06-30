@@ -62,13 +62,14 @@
     "competitions": "Competitions",
     "resources": "Resources",
     "surveys": "Surveys",
-    "achievements": "Achievements",
+    "achievements": "Achieviments",
     "announcements": "Announcements",
     "system": "System",
     "services": "Services",
     "bookings": "Bookings",
     "dwallet": "dWallet",
     "providers": "Providers",
+    "education": "Education Portal",
     "descriptions": {
       "users": "Manage community members and roles",
       "maintenance": "Maintenance request management and analytics",
@@ -83,7 +84,10 @@
       "services": "Configure the public services page",
       "adminBookings": "Manage bookable facilities and settings",
       "dwallet": "Community value distribution and payout management",
-      "providers": "Provider management, revenue, and moderation"
+      "providers": "Provider management, revenue, and moderation",
+      "education": "Manage bursaries, scholarships and learning resources",
+      "educationBursaries": "Manage bursary and scholarship opportunities",
+      "educationResources": "Manage free learning resources, courses, and books"
     }
   },
   "unsuspend": "Unsuspend",
@@ -178,6 +182,10 @@
       "completed": "Completed",
       "failed": "Failed",
       "processing": "Processing"
+    },
+    "forms": {
+      "addBursary": "Add Bursary",
+      "addResource": "Add Resource"
     }
   }
 }

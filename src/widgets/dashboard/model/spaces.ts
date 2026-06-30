@@ -12,6 +12,7 @@
 import type { LucideIcon } from 'lucide-react';
 import { Home, Briefcase, Users, MessageSquare, Shield, Tractor } from 'lucide-react';
 import type { PlatformPageFlags } from '@shared/lib';
+import { logger } from '@/shared/lib/logger';
 
 // ═══════════════════════════════════════════════════════════════
 // SPACE ID TYPE
@@ -224,7 +225,8 @@ export function filterSpaces(
  */
 export function getVisibleSpaces(role: string, flags: PlatformPageFlags): SpaceDefinition[] {
   if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    console.warn(
+    logger.warn(
+      { component: 'spaces' },
       '[DEPRECATED] getVisibleSpaces() is deprecated. Use useVisibleSpaces() or filterSpaces() + /api/access instead.'
     );
   }
@@ -346,6 +348,7 @@ export const ADMIN_DOMAINS = [
   'announcements',
   'providers',
   'dwallet',
+  'education',
   'system',
   'services',
   'carousel',
@@ -372,6 +375,7 @@ const ADMIN_DOMAIN_WIDGET_MAP: Record<AdminDomain, string[]> = {
   system: ['admin-system', 'page-settings'],
   providers: ['admin-providers'],
   dwallet: ['admin-dwallet'],
+  education: ['admin-education'],
   services: ['services-config'],
   carousel: [],
   campaigns: [],

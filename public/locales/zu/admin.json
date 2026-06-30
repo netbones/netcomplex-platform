@@ -68,6 +68,9 @@
     "services": "Amasevisi",
     "dwallet": "iWallet",
     "providers": "Abahlinzeki",
+    "education": "Iphothali yemfundo",
+    "educationBursaries": "Phatha iiinzamo zemfundo",
+    "educationResources": "Phatha izinsiza zemfundo ezivumelekileyo",
     "descriptions": {
       "users": "Phatha amalungu omphakathi nezindima",
       "maintenance": "Ukuphathwa kwezicelo zokugcina nokuhlaziywa",
@@ -81,7 +84,10 @@
       "system": "Ukumiswa kwesikhulumi nempilo",
       "services": "Lungiselela ikhasi lamasevisi omphakathi",
       "dwallet": "Ukuphathwa kokusatshalaliswa kwenani lomphakathi nezinkokhelo",
-      "providers": "Ukuphathwa kwabahlinzeki, imali engenayo nokumodareyitha"
+      "providers": "Ukuphathwa kwabahlinzeki, imali engenayo nokumodareyitha",
+      "education": "Phatha iphothali yemfundo",
+      "educationBursaries": "Phatha iiinzamo zemfundo",
+      "educationResources": "Phatha izinsiza zemfundo ezivumelekileyo"
     }
   },
   "unsuspend": "Buyisela uMsebenzisi",
@@ -176,6 +182,10 @@
       "completed": "Kuphethwe",
       "failed": "Kwehlulekile",
       "processing": "Iyacubungula"
+    },
+    "forms": {
+      "addBursary": "Engeza iBursary",
+      "addResource": "Engeza iMithombo"
     }
   }
 }

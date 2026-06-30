@@ -17,6 +17,7 @@ import { ResourceList } from './ResourceList';
 import { SurveysWidget } from './SurveysWidget';
 import { AdminAnnouncementsWidget } from './AdminAnnouncementsWidget';
 import { GroupModerationWidgetWithErrorBoundary } from './GroupModerationWidget';
+import { EducationList } from './EducationList';
 
 interface WidgetRendererProps {
   widgetId: string;
@@ -141,6 +142,12 @@ export function AdminWidgetRenderer({ widgetId }: WidgetRendererProps): ReactNod
       );
     case 'group-moderation':
       return <GroupModerationWidgetWithErrorBoundary />;
+    case 'admin-education':
+      return (
+        <WidgetWithBoundary widgetId={widgetId}>
+          <EducationList />
+        </WidgetWithBoundary>
+      );
     default:
       return (
         <ErrorBoundary>

@@ -8,6 +8,8 @@ export * from './ui/AdminWidgetRenderer';
 export * from './ui/CompetitionForm';
 export * from './ui/CompetitionList';
 export * from './ui/ContentForm';
+export * from './ui/EducationList';
+export * from './ui/EducationForm';
 export * from './ui/EventForm';
 export * from './ui/EventList';
 export * from './ui/EventsWidget';

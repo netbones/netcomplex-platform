@@ -6,6 +6,7 @@ import { tenants } from '@schema/tenants';
 import { eq } from 'drizzle-orm';
 import { buildProviderInvoicePdf } from '@shared/api';
 import { auth } from '@api/server';
+import { apiLogger } from '@/shared/lib/logger';
 
 export const maxDuration = 8;
 
@@ -68,7 +69,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       },
     });
   } catch (error) {
-    console.error('Provider invoice PDF generation failed:', error);
+    apiLogger.error({ error }, 'Provider invoice PDF generation failed');
     return apiInternalError('Failed to generate invoice PDF');
   }
 }

@@ -120,6 +120,13 @@ export const ADMIN_DOMAIN_DEFINITIONS: AdminDomainDef[] = [
     description: 'Community value distribution and payout management',
   },
   {
+    id: 'education',
+    labelKey: 'domains.education',
+    descriptionKey: 'domains.descriptions.education',
+    icon: '/platform/education-red.svg',
+    description: 'Manage education portal content',
+  },
+  {
     id: 'system',
     labelKey: 'domains.system',
     descriptionKey: 'domains.descriptions.system',
@@ -154,6 +161,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.dwallet': 'dWallet',
   'domains.system': 'System',
   'domains.services': 'Services',
+  'domains.education': 'Education Portal',
   'domains.descriptions.users': 'Manage community members and roles',
   'domains.descriptions.maintenance': 'Maintenance request management and analytics',
   'domains.descriptions.content': 'Content publishing and moderation',
@@ -168,6 +176,7 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.system': 'Platform configuration and health',
   'domains.descriptions.services': 'Configure the public services page',
   'domains.descriptions.adminBookings': 'Manage bookable facilities and settings',
+  'domains.descriptions.education': 'Manage education portal content',
 };
 
 export function AdminSubLauncher() {
