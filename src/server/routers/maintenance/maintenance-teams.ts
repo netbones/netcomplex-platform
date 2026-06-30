@@ -1,7 +1,8 @@
 import { toEnvelope } from '@api/server';
 import {
   z,
-  protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   maintenanceTeams,
   TRPCError,
@@ -17,16 +18,13 @@ import {
 
 export const maintenanceTeamProcedures = {
   /**
-   * List maintenance teams for the current tenant.
+   * List maintenance teams in the current tenant.
    * @tenant
    */
-  listTeams: protectedProcedure
+  listTeams: tenantProcedure
     .input(z.object({ isActive: z.boolean().optional() }).optional())
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const conditions = [
         eq(maintenanceTeams.tenantId, tenantId),
@@ -47,16 +45,13 @@ export const maintenanceTeamProcedures = {
     }),
 
   /**
-   * Create a maintenance team — staff only.
-   * @tenant
+   * Create a maintenance team. Requires elevated permissions.
+   * @privileged
    */
-  createTeam: protectedProcedure.input(TeamInput).mutation(async ({ input, ctx }) => {
+  createTeam: privilegedProcedure.input(TeamInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     const [created] = await db
       .insert(maintenanceTeams)
@@ -76,16 +71,13 @@ export const maintenanceTeamProcedures = {
   }),
 
   /**
-   * Update a maintenance team — staff only.
-   * @tenant
+   * Update a maintenance team. Requires elevated permissions.
+   * @privileged
    */
-  updateTeam: protectedProcedure.input(UpdateTeamInput).mutation(async ({ input, ctx }) => {
+  updateTeam: privilegedProcedure.input(UpdateTeamInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     const [existing] = await db
       .select()
@@ -118,18 +110,15 @@ export const maintenanceTeamProcedures = {
   }),
 
   /**
-   * Delete a maintenance team — staff only.
-   * @tenant
+   * Soft-delete a maintenance team. Requires elevated permissions.
+   * @privileged
    */
-  deleteTeam: protectedProcedure
+  deleteTeam: privilegedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       requireRequestsPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [existing] = await db
         .select()

@@ -1,7 +1,8 @@
 import { toEnvelope } from '@api/server';
 import {
   z,
-  protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   maintenanceCategories,
   TRPCError,
@@ -17,16 +18,13 @@ import {
 
 export const maintenanceCategoryProcedures = {
   /**
-   * List maintenance categories for the current tenant.
+   * List maintenance categories in the current tenant.
    * @tenant
    */
-  listCategories: protectedProcedure
+  listCategories: tenantProcedure
     .input(z.object({ isActive: z.boolean().optional() }).optional())
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const conditions = [
         eq(maintenanceCategories.tenantId, tenantId),
@@ -47,16 +45,13 @@ export const maintenanceCategoryProcedures = {
     }),
 
   /**
-   * Create a maintenance category — staff only.
-   * @tenant
+   * Create a maintenance category. Requires elevated permissions.
+   * @privileged
    */
-  createCategory: protectedProcedure.input(CategoryInput).mutation(async ({ input, ctx }) => {
+  createCategory: privilegedProcedure.input(CategoryInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     // Check for duplicate value
     const [existing] = await db
@@ -91,61 +86,57 @@ export const maintenanceCategoryProcedures = {
   }),
 
   /**
-   * Update a maintenance category — staff only.
-   * @tenant
+   * Update a maintenance category. Requires elevated permissions.
+   * @privileged
    */
-  updateCategory: protectedProcedure.input(UpdateCategoryInput).mutation(async ({ input, ctx }) => {
-    requireRequestsPermission(ctx.role);
+  updateCategory: privilegedProcedure
+    .input(UpdateCategoryInput)
+    .mutation(async ({ input, ctx }) => {
+      requireRequestsPermission(ctx.role);
 
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
+      const tenantId = ctx.tenantId;
 
-    const [existing] = await db
-      .select()
-      .from(maintenanceCategories)
-      .where(
-        and(
-          eq(maintenanceCategories.id, input.id),
-          eq(maintenanceCategories.tenantId, tenantId),
-          isNull(maintenanceCategories.deletedAt)
+      const [existing] = await db
+        .select()
+        .from(maintenanceCategories)
+        .where(
+          and(
+            eq(maintenanceCategories.id, input.id),
+            eq(maintenanceCategories.tenantId, tenantId),
+            isNull(maintenanceCategories.deletedAt)
+          )
+        );
+
+      if (!existing) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Category not found' });
+      }
+
+      const updateData: Record<string, unknown> = {};
+      if (input.label !== undefined) updateData.label = input.label;
+      if (input.description !== undefined) updateData.description = input.description;
+      if (input.isActive !== undefined) updateData.isActive = input.isActive;
+
+      const [updated] = await db
+        .update(maintenanceCategories)
+        .set(updateData)
+        .where(
+          and(eq(maintenanceCategories.id, input.id), eq(maintenanceCategories.tenantId, tenantId))
         )
-      );
+        .returning();
 
-    if (!existing) {
-      throw new TRPCError({ code: 'NOT_FOUND', message: 'Category not found' });
-    }
-
-    const updateData: Record<string, unknown> = {};
-    if (input.label !== undefined) updateData.label = input.label;
-    if (input.description !== undefined) updateData.description = input.description;
-    if (input.isActive !== undefined) updateData.isActive = input.isActive;
-
-    const [updated] = await db
-      .update(maintenanceCategories)
-      .set(updateData)
-      .where(
-        and(eq(maintenanceCategories.id, input.id), eq(maintenanceCategories.tenantId, tenantId))
-      )
-      .returning();
-
-    return toEnvelope(updated);
-  }),
+      return toEnvelope(updated);
+    }),
 
   /**
-   * Delete a maintenance category — staff only.
-   * @tenant
+   * Soft-delete a maintenance category. Requires elevated permissions.
+   * @privileged
    */
-  deleteCategory: protectedProcedure
+  deleteCategory: privilegedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       requireRequestsPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [existing] = await db
         .select()

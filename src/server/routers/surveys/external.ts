@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import {
   publicProcedure,
-  protectedProcedure,
+  tenantProcedure,
   db,
   externalSurveys,
   responses,
@@ -16,14 +16,9 @@ import { toEnvelope } from '@api/server';
 import { externalSurveyDto, responseDto } from '@server/dto';
 
 export const externalSurveyProcedures = {
-  /**
-   * List active external surveys — public access, no auth required.
-   * @public
-   */
+  /** @classification PUBLIC — unauthenticated external survey listing */
   listExternalSurveys: publicProcedure
-    .meta({
-      openapi: { method: 'GET', path: '/surveys/external', tags: ['Surveys'], protect: false },
-    })
+    .meta({ openapi: { method: 'GET', path: '/surveys/external', tags: ['Surveys'] } })
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
       if (!tenantId)
@@ -38,19 +33,9 @@ export const externalSurveyProcedures = {
       return toEnvelope(result.map(r => externalSurveyDto.parse(r)));
     }),
 
-  /**
-   * Submit a response to an external survey — public access, no auth required.
-   * @public
-   */
+  /** @classification PUBLIC — unauthenticated external survey response submission */
   submitExternalSurveyResponse: publicProcedure
-    .meta({
-      openapi: {
-        method: 'POST',
-        path: '/surveys/external/respond',
-        tags: ['Surveys'],
-        protect: false,
-      },
-    })
+    .meta({ openapi: { method: 'POST', path: '/surveys/external/respond', tags: ['Surveys'] } })
     .input(
       z.object({
         surveyId: z.string(),

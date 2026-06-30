@@ -1,5 +1,6 @@
 import {
-  protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   rateLimitMiddleware,
   db,
   surveys,
@@ -30,10 +31,10 @@ import { surveyDto, responseDto } from '@server/dto';
 
 export const surveyManagementProcedures = {
   /**
-   * List surveys for the current tenant with optional status filter.
+   * List surveys in the current tenant.
    * @tenant
    */
-  listSurveys: protectedProcedure
+  listSurveys: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -46,9 +47,6 @@ export const surveyManagementProcedures = {
     .input(ListSurveysInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const conditions = [eq(surveys.tenantId, tenantId), isNull(surveys.deletedAt)];
 
@@ -79,10 +77,10 @@ export const surveyManagementProcedures = {
     }),
 
   /**
-   * Get a single survey with questions and sections — tenant-scoped.
+   * Get a single survey in the current tenant.
    * @tenant
    */
-  getSurvey: protectedProcedure
+  getSurvey: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -95,9 +93,6 @@ export const surveyManagementProcedures = {
     .input(IdInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const survey = await getTenantSurvey(input.id, tenantId);
 
@@ -117,10 +112,10 @@ export const surveyManagementProcedures = {
     }),
 
   /**
-   * Create a new survey — staff only.
-   * @tenant
+   * Create a new survey. Requires elevated permissions.
+   * @privileged
    */
-  createSurvey: protectedProcedure
+  createSurvey: privilegedProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -135,9 +130,6 @@ export const surveyManagementProcedures = {
       requireContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const ts = now();
       const [created] = await db
@@ -163,10 +155,10 @@ export const surveyManagementProcedures = {
     }),
 
   /**
-   * Update a survey — staff only.
-   * @tenant
+   * Update a survey. Requires elevated permissions.
+   * @privileged
    */
-  updateSurvey: protectedProcedure
+  updateSurvey: privilegedProcedure
     .meta({
       openapi: {
         method: 'PUT',
@@ -181,9 +173,6 @@ export const surveyManagementProcedures = {
       requireContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       await getTenantSurvey(input.id, tenantId);
 
@@ -214,10 +203,10 @@ export const surveyManagementProcedures = {
     }),
 
   /**
-   * Soft-delete a survey — staff only.
-   * @tenant
+   * Soft-delete a survey. Requires elevated permissions.
+   * @privileged
    */
-  deleteSurvey: protectedProcedure
+  deleteSurvey: privilegedProcedure
     .meta({
       openapi: {
         method: 'DELETE',
@@ -232,9 +221,6 @@ export const surveyManagementProcedures = {
       requireContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       await getTenantSurvey(input.id, tenantId);
 
@@ -249,10 +235,10 @@ export const surveyManagementProcedures = {
     }),
 
   /**
-   * Submit a response to a survey — tenant-scoped, rate-limited.
+   * Submit a response to a survey. Rate-limited to 10/min.
    * @tenant
    */
-  submitResponse: protectedProcedure
+  submitResponse: tenantProcedure
     .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 10 }))
     .meta({
       openapi: {
@@ -266,9 +252,6 @@ export const surveyManagementProcedures = {
     .input(SubmitResponseInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [survey] = await db
         .select({ id: surveys.id, status: surveys.status })
@@ -328,10 +311,10 @@ export const surveyManagementProcedures = {
     }),
 
   /**
-   * Get aggregated survey results — tenant-scoped.
+   * Get aggregated survey results.
    * @tenant
    */
-  getSurveyResults: protectedProcedure
+  getSurveyResults: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -344,9 +327,6 @@ export const surveyManagementProcedures = {
     .input(GetSurveyResultsInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const surveyData = await getTenantSurvey(input.id, tenantId);
 

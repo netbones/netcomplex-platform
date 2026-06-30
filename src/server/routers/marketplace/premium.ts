@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import {
-  protectedProcedure,
+  tenantProcedure,
   db,
   premiumSeats,
   properties,
@@ -34,11 +34,7 @@ const ActivatePremiumSeatInput = z.object({
 });
 
 export const premiumProcedures = {
-  /**
-   * List premium property listings — tenant-scoped, premium seat required.
-   * @tenant
-   */
-  listPremiumListings: protectedProcedure
+  listPremiumListings: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -49,9 +45,6 @@ export const premiumProcedures = {
     })
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const linkedProperties = await db
         .select({ id: properties.id })
@@ -98,11 +91,7 @@ export const premiumProcedures = {
       return toEnvelope({ listings: transformedListings });
     }),
 
-  /**
-   * Create a premium property listing — tenant-scoped, premium seat required.
-   * @tenant
-   */
-  createPremiumListing: protectedProcedure
+  createPremiumListing: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -114,9 +103,6 @@ export const premiumProcedures = {
     .input(CreatePremiumListingInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [premiumSeatExists] = await db
         .select({ id: premiumSeats.id })
@@ -158,11 +144,7 @@ export const premiumProcedures = {
       return toEnvelope({ success: true, listing: newListing });
     }),
 
-  /**
-   * Get the current user's premium seat portfolio — tenant-scoped.
-   * @tenant
-   */
-  getPortfolio: protectedProcedure
+  getPortfolio: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -173,9 +155,6 @@ export const premiumProcedures = {
     })
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [seat] = await db
         .select()
@@ -190,11 +169,7 @@ export const premiumProcedures = {
       return toEnvelope({ hasPortfolio: true, portfolio: seat });
     }),
 
-  /**
-   * Activate a premium seat with household linking — tenant-scoped.
-   * @tenant
-   */
-  activatePremiumSeat: protectedProcedure
+  activatePremiumSeat: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -206,9 +181,6 @@ export const premiumProcedures = {
     .input(ActivatePremiumSeatInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const userId = ctx.userId;
       const { householdIds } = input;

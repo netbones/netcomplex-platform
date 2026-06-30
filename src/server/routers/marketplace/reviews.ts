@@ -1,6 +1,6 @@
 import {
   publicProcedure,
-  protectedProcedure,
+  tenantProcedure,
   rateLimitMiddleware,
   db,
   communityServiceListings,
@@ -16,10 +16,6 @@ import { eq, and, desc, sql } from 'drizzle-orm';
 import { ListReviewsInput, CreateReviewInput, updateListingRating } from './shared';
 
 export const reviewProcedures = {
-  /**
-   * List reviews for a marketplace listing — public access.
-   * @public
-   */
   listReviews: publicProcedure
     .meta({
       openapi: {
@@ -96,11 +92,7 @@ export const reviewProcedures = {
       return toEnvelope(reviews.map(r => reviewDto.parse(r)));
     }),
 
-  /**
-   * Create a review for a marketplace listing — tenant-scoped, rate-limited.
-   * @tenant
-   */
-  createReview: protectedProcedure
+  createReview: tenantProcedure
     .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 10 }))
     .meta({
       openapi: {
@@ -113,9 +105,6 @@ export const reviewProcedures = {
     .input(CreateReviewInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [listing] = await db
         .select({

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import {
   publicProcedure,
-  protectedProcedure,
+  tenantProcedure,
   db,
   serviceBookings,
   paymentTransactions,
@@ -24,11 +24,7 @@ const WebhookInput = z.object({
 });
 
 export const checkoutProcedures = {
-  /**
-   * Create a checkout session for a service booking — tenant-scoped.
-   * @tenant
-   */
-  createCheckoutSession: protectedProcedure
+  createCheckoutSession: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -40,9 +36,6 @@ export const checkoutProcedures = {
     .input(checkoutRequestSchema)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [booking] = await db
         .select()
@@ -101,10 +94,6 @@ export const checkoutProcedures = {
       });
     }),
 
-  /**
-   * Handle Paystack payment webhook — public endpoint, no auth.
-   * @public
-   */
   handleWebhook: publicProcedure
     .meta({
       openapi: {

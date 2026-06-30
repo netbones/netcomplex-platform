@@ -2,8 +2,8 @@ import { toEnvelope, rateLimitMiddleware } from '@api/server';
 import { messageDto, unreadCountsDto } from '@server/dto';
 import {
   z,
-  protectedProcedure,
-  adminProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   conversations,
   conversationParticipants,
@@ -31,10 +31,10 @@ import {
 
 export const messagingProcedures = {
   /**
-   * Get messages for a conversation — tenant-scoped.
+   * Get messages for a conversation. User must be a participant or admin.
    * @tenant
    */
-  getMessages: protectedProcedure
+  getMessages: tenantProcedure
     .input(
       z.object({
         conversationId: z.string(),
@@ -68,9 +68,6 @@ export const messagingProcedures = {
     )
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const participant = await checkParticipant(input.conversationId, ctx.userId, tenantId);
       if (!participant && !hasPermission(ctx.role, 'admin')) {
@@ -122,10 +119,10 @@ export const messagingProcedures = {
     }),
 
   /**
-   * Send a message in a conversation — tenant-scoped, rate-limited.
+   * Send a message to a conversation. Rate-limited to 30/minute.
    * @tenant
    */
-  sendMessage: protectedProcedure
+  sendMessage: tenantProcedure
     .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 30 }))
     .input(
       z.object({
@@ -160,9 +157,6 @@ export const messagingProcedures = {
     )
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const participant = await checkParticipant(input.conversationId, ctx.userId, tenantId);
       if (!participant && !hasPermission(ctx.role, 'admin')) {
@@ -210,10 +204,10 @@ export const messagingProcedures = {
     }),
 
   /**
-   * Delete a message — admin only.
+   * Soft-delete a message. Requires privileged access.
    * @privileged
    */
-  deleteMessage: adminProcedure
+  deleteMessage: privilegedProcedure
     .input(z.object({ messageId: z.string() }))
     .output(z.object({ success: z.boolean() }))
     .mutation(async ({ input }) => {
@@ -238,10 +232,10 @@ export const messagingProcedures = {
     }),
 
   /**
-   * Get unread message urgency counts — tenant-scoped.
+   * Get urgency counts for the current tenant (unread messages, announcements, notifications).
    * @tenant
    */
-  getMessageUrgency: protectedProcedure
+  getMessageUrgency: tenantProcedure
     .input(z.void())
     .output(
       z.object({
@@ -259,9 +253,6 @@ export const messagingProcedures = {
     )
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const userId = ctx.userId;
 
@@ -363,10 +354,10 @@ export const messagingProcedures = {
     }),
 
   /**
-   * Get unread message counts per conversation — tenant-scoped.
+   * Get unread message counts for the current user in the current tenant.
    * @tenant
    */
-  getUnreadCounts: protectedProcedure
+  getUnreadCounts: tenantProcedure
     .input(z.void())
     .output(
       z.object({
@@ -376,9 +367,6 @@ export const messagingProcedures = {
     )
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const userId = ctx.userId;
 
@@ -515,10 +503,10 @@ export const messagingProcedures = {
     }),
 
   /**
-   * Mark a conversation as read — tenant-scoped.
+   * Mark a conversation as read up to a specific message.
    * @tenant
    */
-  markAsRead: protectedProcedure
+  markAsRead: tenantProcedure
     .input(
       z.object({
         conversationId: z.string(),
@@ -528,9 +516,6 @@ export const messagingProcedures = {
     .output(z.object({ success: z.boolean() }))
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       await db
         .update(conversationParticipants)

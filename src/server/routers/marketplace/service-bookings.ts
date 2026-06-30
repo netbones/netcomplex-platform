@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import {
-  protectedProcedure,
+  tenantProcedure,
   db,
   serviceBookings,
   communityServiceListings,
@@ -33,11 +33,7 @@ const CancelBookingInput = z.object({
 });
 
 export const serviceBookingProcedures = {
-  /**
-   * List service bookings — tenant-scoped, filtered by role.
-   * @tenant
-   */
-  listServiceBookings: protectedProcedure
+  listServiceBookings: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -49,9 +45,6 @@ export const serviceBookingProcedures = {
     .input(ListServiceBookingsInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const conditions = [eq(serviceBookings.tenantId, tenantId)];
 
@@ -109,11 +102,7 @@ export const serviceBookingProcedures = {
       return toEnvelope(bookingsData.map(b => serviceBookingDto.parse(b)));
     }),
 
-  /**
-   * Create a service booking — tenant-scoped.
-   * @tenant
-   */
-  createServiceBooking: protectedProcedure
+  createServiceBooking: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -125,9 +114,6 @@ export const serviceBookingProcedures = {
     .input(serviceBookingSchema)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const { listingId, date, startTime, endTime } = input;
 
@@ -211,11 +197,7 @@ export const serviceBookingProcedures = {
       return toEnvelope(serviceBookingDto.parse(created));
     }),
 
-  /**
-   * Get a single service booking by ID — tenant-scoped.
-   * @tenant
-   */
-  getServiceBooking: protectedProcedure
+  getServiceBooking: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -227,9 +209,6 @@ export const serviceBookingProcedures = {
     .input(BookingIdParam)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [booking] = await db
         .select()
@@ -250,11 +229,7 @@ export const serviceBookingProcedures = {
       return toEnvelope(serviceBookingDto.parse(booking));
     }),
 
-  /**
-   * Cancel a service booking — tenant-scoped.
-   * @tenant
-   */
-  cancelServiceBooking: protectedProcedure
+  cancelServiceBooking: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -266,9 +241,6 @@ export const serviceBookingProcedures = {
     .input(CancelBookingInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [booking] = await db
         .select()

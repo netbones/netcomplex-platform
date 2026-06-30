@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import {
   publicProcedure,
-  protectedProcedure,
+  tenantProcedure,
   rateLimitMiddleware,
   db,
   communityServiceListings,
@@ -29,10 +29,6 @@ import {
 } from './shared';
 
 export const listingProcedures = {
-  /**
-   * List marketplace service listings — public access.
-   * @public
-   */
   listListings: publicProcedure
     .meta({
       openapi: {
@@ -158,10 +154,6 @@ export const listingProcedures = {
       return toEnvelope(localized.map(l => listingDto.parse(l)));
     }),
 
-  /**
-   * Get a single marketplace listing by ID — public access.
-   * @public
-   */
   getListing: publicProcedure
     .meta({
       openapi: {
@@ -249,11 +241,7 @@ export const listingProcedures = {
       return toEnvelope(listingDto.parse(localized));
     }),
 
-  /**
-   * Create a marketplace service listing — tenant-scoped, rate-limited.
-   * @tenant
-   */
-  createListing: protectedProcedure
+  createListing: tenantProcedure
     .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 5 }))
     .meta({
       openapi: {
@@ -266,9 +254,6 @@ export const listingProcedures = {
     .input(CreateListingInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const listingId = crypto.randomUUID();
       const ts = now();
@@ -316,11 +301,7 @@ export const listingProcedures = {
       return toEnvelope(listingDto.parse(listing));
     }),
 
-  /**
-   * Update a marketplace listing — tenant-scoped, owner only.
-   * @tenant
-   */
-  updateListing: protectedProcedure
+  updateListing: tenantProcedure
     .meta({
       openapi: {
         method: 'PATCH',
@@ -332,9 +313,6 @@ export const listingProcedures = {
     .input(UpdateListingInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const existing = await getTenantListing(input.id, tenantId);
 
@@ -395,11 +373,7 @@ export const listingProcedures = {
       return toEnvelope(listingDto.parse(listing));
     }),
 
-  /**
-   * Delete a marketplace listing — tenant-scoped, owner or staff.
-   * @tenant
-   */
-  deleteListing: protectedProcedure
+  deleteListing: tenantProcedure
     .meta({
       openapi: {
         method: 'DELETE',
@@ -411,9 +385,6 @@ export const listingProcedures = {
     .input(IdInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const existing = await getTenantListing(input.id, tenantId);
 
@@ -435,11 +406,7 @@ export const listingProcedures = {
       return toEnvelope({ success: true });
     }),
 
-  /**
-   * Publish or unpublish a marketplace listing — tenant-scoped, owner only.
-   * @tenant
-   */
-  publishListing: protectedProcedure
+  publishListing: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -451,9 +418,6 @@ export const listingProcedures = {
     .input(PublishListingInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const existing = await getTenantListing(input.id, tenantId);
 
@@ -480,11 +444,7 @@ export const listingProcedures = {
       return toEnvelope({ success: true });
     }),
 
-  /**
-   * List the current user's own marketplace listings — tenant-scoped.
-   * @tenant
-   */
-  listMyListings: protectedProcedure
+  listMyListings: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -496,9 +456,6 @@ export const listingProcedures = {
     .input(PaginationInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const conditions = [
         eq(communityServiceListings.tenantId, tenantId),
@@ -522,11 +479,7 @@ export const listingProcedures = {
       return toEnvelope(listings.map(l => listingDto.parse(l)));
     }),
 
-  /**
-   * Get marketplace service categories — tenant-scoped.
-   * @tenant
-   */
-  getCategories: protectedProcedure
+  getCategories: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -543,10 +496,6 @@ export const listingProcedures = {
       });
     }),
 
-  /**
-   * Get related marketplace listings by category — public access.
-   * @public
-   */
   getRelatedListings: publicProcedure
     .meta({
       openapi: {
@@ -611,11 +560,7 @@ export const listingProcedures = {
       return toEnvelope({ relatedServices: related });
     }),
 
-  /**
-   * Get availability slots for a marketplace listing — tenant-scoped.
-   * @tenant
-   */
-  getAvailability: protectedProcedure
+  getAvailability: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -627,9 +572,6 @@ export const listingProcedures = {
     .input(IdInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [listing] = await db
         .select({

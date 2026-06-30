@@ -1,5 +1,5 @@
 import {
-  adminProcedure,
+  privilegedProcedure,
   db,
   communityServiceListings,
   users,
@@ -13,10 +13,10 @@ import { ModerateListingInput, ListModerationInput, getTenantListing } from './s
 
 export const moderationProcedures = {
   /**
-   * List marketplace moderation queue — admin only.
+   * List marketplace listings for moderation. Requires elevated permissions.
    * @privileged
    */
-  listModerationQueue: adminProcedure
+  listModerationQueue: privilegedProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -28,9 +28,6 @@ export const moderationProcedures = {
     .input(ListModerationInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const conditions = [eq(communityServiceListings.tenantId, tenantId)];
 
@@ -82,10 +79,10 @@ export const moderationProcedures = {
     }),
 
   /**
-   * Moderate a marketplace listing — admin only.
+   * Moderate a marketplace listing. Requires elevated permissions.
    * @privileged
    */
-  moderateListing: adminProcedure
+  moderateListing: privilegedProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -97,9 +94,6 @@ export const moderationProcedures = {
     .input(ModerateListingInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       await getTenantListing(input.id, tenantId);
 

@@ -1,4 +1,4 @@
-import { protectedProcedure, db, maintenanceRequests, bookings, now } from '@api/server';
+import { tenantProcedure, db, maintenanceRequests, bookings, now } from '@api/server';
 import { toEnvelope } from '@api/server';
 import { urgencyDto } from '@server/dto';
 import { TRPCError } from '@trpc/server';
@@ -8,11 +8,7 @@ import { createComponentLogger } from '@shared/lib';
 const UrgencyLogger = createComponentLogger('MarketplaceUrgency');
 
 export const urgencyProcedures = {
-  /**
-   * Get marketplace urgency levels (maintenance, bookings) — tenant-scoped.
-   * @tenant
-   */
-  getUrgencyLevels: protectedProcedure
+  getUrgencyLevels: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -23,9 +19,6 @@ export const urgencyProcedures = {
     })
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const today = now();
       const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);

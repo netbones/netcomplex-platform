@@ -1,5 +1,5 @@
 import {
-  protectedProcedure,
+  privilegedProcedure,
   db,
   surveySections,
   revalidateAdminChanges,
@@ -20,11 +20,7 @@ import {
 import { toEnvelope } from '@api/server';
 
 export const surveySectionProcedures = {
-  /**
-   * Add a section to a survey — staff only.
-   * @tenant
-   */
-  addSection: protectedProcedure
+  addSection: privilegedProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -39,9 +35,6 @@ export const surveySectionProcedures = {
       requireContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       await getTenantSurvey(input.surveyId, tenantId);
 
@@ -76,11 +69,7 @@ export const surveySectionProcedures = {
       return toEnvelope(created);
     }),
 
-  /**
-   * Update a survey section — staff only.
-   * @tenant
-   */
-  updateSection: protectedProcedure
+  updateSection: privilegedProcedure
     .meta({
       openapi: {
         method: 'PATCH',
@@ -95,9 +84,6 @@ export const surveySectionProcedures = {
       requireContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [existing] = await db
         .select()
@@ -137,11 +123,7 @@ export const surveySectionProcedures = {
       return toEnvelope(updated);
     }),
 
-  /**
-   * Remove a section from a survey — staff only.
-   * @tenant
-   */
-  removeSection: protectedProcedure
+  removeSection: privilegedProcedure
     .meta({
       openapi: {
         method: 'DELETE',
@@ -156,9 +138,6 @@ export const surveySectionProcedures = {
       requireContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [deleted] = await db
         .update(surveySections)
@@ -180,11 +159,7 @@ export const surveySectionProcedures = {
       return toEnvelope({ success: true });
     }),
 
-  /**
-   * Reorder sections in a survey — staff only.
-   * @tenant
-   */
-  reorderSections: protectedProcedure
+  reorderSections: privilegedProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -199,9 +174,6 @@ export const surveySectionProcedures = {
       requireContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       await getTenantSurvey(input.surveyId, tenantId);
 

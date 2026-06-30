@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import {
-  adminProcedure,
+  privilegedProcedure,
   db,
   communityServiceListings,
   communityServiceReviews,
@@ -13,10 +13,10 @@ import { eq, and, sql } from 'drizzle-orm';
 
 export const analyticsProcedures = {
   /**
-   * Get marketplace analytics dashboard — admin only.
+   * Get marketplace analytics. Requires elevated permissions.
    * @privileged
    */
-  getAnalytics: adminProcedure
+  getAnalytics: privilegedProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -33,9 +33,6 @@ export const analyticsProcedures = {
     )
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const ts = now();
       let startDate: Date;

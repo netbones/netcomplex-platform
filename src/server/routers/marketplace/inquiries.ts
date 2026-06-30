@@ -1,5 +1,5 @@
 import {
-  protectedProcedure,
+  tenantProcedure,
   db,
   communityServiceListings,
   communityServiceInquiries,
@@ -13,11 +13,7 @@ import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { CreateInquiryInput, ListInquiriesInput, RespondToInquiryInput } from './shared';
 
 export const inquiryProcedures = {
-  /**
-   * Create a service inquiry — tenant-scoped.
-   * @tenant
-   */
-  createInquiry: protectedProcedure
+  createInquiry: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -29,9 +25,6 @@ export const inquiryProcedures = {
     .input(CreateInquiryInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [listing] = await db
         .select({
@@ -83,11 +76,7 @@ export const inquiryProcedures = {
       return toEnvelope({ success: true, inquiry });
     }),
 
-  /**
-   * List inquiries sent by the current user — tenant-scoped.
-   * @tenant
-   */
-  listInquiries: protectedProcedure
+  listInquiries: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -99,9 +88,6 @@ export const inquiryProcedures = {
     .input(ListInquiriesInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const conditions = [
         eq(communityServiceInquiries.tenantId, tenantId),
@@ -141,11 +127,7 @@ export const inquiryProcedures = {
       });
     }),
 
-  /**
-   * List inquiries received as a provider — tenant-scoped.
-   * @tenant
-   */
-  listProviderInquiries: protectedProcedure
+  listProviderInquiries: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -157,9 +139,6 @@ export const inquiryProcedures = {
     .input(ListInquiriesInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const providerListings = await db
         .select({ id: communityServiceListings.id })
@@ -246,11 +225,7 @@ export const inquiryProcedures = {
       });
     }),
 
-  /**
-   * Respond to a service inquiry as a provider — tenant-scoped.
-   * @tenant
-   */
-  respondToInquiry: protectedProcedure
+  respondToInquiry: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -262,9 +237,6 @@ export const inquiryProcedures = {
     .input(RespondToInquiryInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [inquiry] = await db
         .select({

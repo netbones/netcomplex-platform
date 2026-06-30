@@ -2,7 +2,8 @@ import { toEnvelope } from '@api/server';
 import { maintenanceRequestDto, maintenanceRequestDetailDto } from '@server/dto';
 import {
   z,
-  protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   maintenanceRequests,
   maintenanceTeams,
@@ -39,14 +40,11 @@ import {
 
 export const maintenanceRequestProcedures = {
   /**
-   * List maintenance requests for the current tenant.
+   * List maintenance requests in the current tenant.
    * @tenant
    */
-  listRequests: protectedProcedure.input(ListRequestsInput).query(async ({ input, ctx }) => {
+  listRequests: tenantProcedure.input(ListRequestsInput).query(async ({ input, ctx }) => {
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     const canViewAll = hasPermission(ctx.role, 'requests');
     const scope = input?.scope || 'all';
@@ -69,14 +67,11 @@ export const maintenanceRequestProcedures = {
   }),
 
   /**
-   * Get a single maintenance request by ID — tenant-scoped.
+   * Get a single maintenance request in the current tenant.
    * @tenant
    */
-  getRequest: protectedProcedure.input(RequestIdInput).query(async ({ input, ctx }) => {
+  getRequest: tenantProcedure.input(RequestIdInput).query(async ({ input, ctx }) => {
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     const req = await getTenantRequest(input.id, tenantId);
 
@@ -131,14 +126,11 @@ export const maintenanceRequestProcedures = {
   }),
 
   /**
-   * Create a new maintenance request — tenant-scoped.
+   * Create a maintenance request in the current tenant.
    * @tenant
    */
-  createRequest: protectedProcedure.input(CreateRequestInput).mutation(async ({ input, ctx }) => {
+  createRequest: tenantProcedure.input(CreateRequestInput).mutation(async ({ input, ctx }) => {
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     const [created] = await createMaintenanceRequest({
       id: crypto.randomUUID(),
@@ -165,16 +157,13 @@ export const maintenanceRequestProcedures = {
   }),
 
   /**
-   * Update a maintenance request — staff only.
-   * @tenant
+   * Update a maintenance request. Requires elevated permissions.
+   * @privileged
    */
-  updateRequest: protectedProcedure.input(UpdateRequestInput).mutation(async ({ input, ctx }) => {
+  updateRequest: privilegedProcedure.input(UpdateRequestInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     const existing = await getTenantRequest(input.id, tenantId);
 
@@ -223,16 +212,13 @@ export const maintenanceRequestProcedures = {
   }),
 
   /**
-   * Delete a maintenance request — staff only.
-   * @tenant
+   * Soft-delete a maintenance request. Requires elevated permissions.
+   * @privileged
    */
-  deleteRequest: protectedProcedure.input(RequestIdInput).mutation(async ({ input, ctx }) => {
+  deleteRequest: privilegedProcedure.input(RequestIdInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     await getTenantRequest(input.id, tenantId);
 
@@ -246,16 +232,13 @@ export const maintenanceRequestProcedures = {
   }),
 
   /**
-   * List notes for a maintenance request — tenant-scoped.
+   * List notes for a maintenance request in the current tenant.
    * @tenant
    */
-  listNotes: protectedProcedure
+  listNotes: tenantProcedure
     .input(z.object({ requestId: z.string() }))
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const req = await getTenantRequest(input.requestId, tenantId);
 
@@ -320,16 +303,13 @@ export const maintenanceRequestProcedures = {
     }),
 
   /**
-   * Create a note on a maintenance request — staff only.
-   * @tenant
+   * Create a note on a maintenance request. Requires elevated permissions.
+   * @privileged
    */
-  createNote: protectedProcedure.input(CreateNoteInput).mutation(async ({ input, ctx }) => {
+  createNote: privilegedProcedure.input(CreateNoteInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     await getTenantRequest(input.requestId, tenantId);
 
@@ -369,16 +349,13 @@ export const maintenanceRequestProcedures = {
   }),
 
   /**
-   * Assign a maintenance request to a team or provider — staff only.
-   * @tenant
+   * Assign a maintenance request to a team or provider. Requires elevated permissions.
+   * @privileged
    */
-  assignRequest: protectedProcedure.input(AssignRequestInput).mutation(async ({ input, ctx }) => {
+  assignRequest: privilegedProcedure.input(AssignRequestInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     if (!input.teamId && !input.providerId) {
       throw new TRPCError({

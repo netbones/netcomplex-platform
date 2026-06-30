@@ -2,6 +2,8 @@ import { z } from 'zod';
 import {
   protectedProcedure,
   adminProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   conversations,
   conversationParticipants,
@@ -11,6 +13,8 @@ import {
   notifications,
   revalidateConversations,
 } from '@api/server';
+import { toEnvelope } from '@api/server';
+import { conversationDto, conversationDetailDto, messageDto, unreadCountsDto } from '@server/dto';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
@@ -22,6 +26,8 @@ export {
   z,
   protectedProcedure,
   adminProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   conversations,
   conversationParticipants,
@@ -30,6 +36,11 @@ export {
   announcements,
   notifications,
   revalidateConversations,
+  toEnvelope,
+  conversationDto,
+  conversationDetailDto,
+  messageDto,
+  unreadCountsDto,
   TRPCError,
   hasPermission,
   eq,

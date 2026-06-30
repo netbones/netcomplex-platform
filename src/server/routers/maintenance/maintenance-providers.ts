@@ -1,7 +1,8 @@
 import { toEnvelope } from '@api/server';
 import {
   z,
-  protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   serviceProviders,
   TRPCError,
@@ -17,16 +18,13 @@ import {
 
 export const maintenanceProviderProcedures = {
   /**
-   * List service providers for the current tenant.
+   * List service providers in the current tenant.
    * @tenant
    */
-  listProviders: protectedProcedure
+  listProviders: tenantProcedure
     .input(z.object({ isActive: z.boolean().optional() }).optional())
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const conditions = [
         eq(serviceProviders.tenantId, tenantId),
@@ -47,16 +45,13 @@ export const maintenanceProviderProcedures = {
     }),
 
   /**
-   * Create a service provider — staff only.
-   * @tenant
+   * Create a service provider. Requires elevated permissions.
+   * @privileged
    */
-  createProvider: protectedProcedure.input(ProviderInput).mutation(async ({ input, ctx }) => {
+  createProvider: privilegedProcedure.input(ProviderInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     const [created] = await db
       .insert(serviceProviders)
@@ -78,62 +73,58 @@ export const maintenanceProviderProcedures = {
   }),
 
   /**
-   * Update a service provider — staff only.
-   * @tenant
+   * Update a service provider. Requires elevated permissions.
+   * @privileged
    */
-  updateProvider: protectedProcedure.input(UpdateProviderInput).mutation(async ({ input, ctx }) => {
-    requireRequestsPermission(ctx.role);
+  updateProvider: privilegedProcedure
+    .input(UpdateProviderInput)
+    .mutation(async ({ input, ctx }) => {
+      requireRequestsPermission(ctx.role);
 
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
+      const tenantId = ctx.tenantId;
 
-    const [existing] = await db
-      .select()
-      .from(serviceProviders)
-      .where(
-        and(
-          eq(serviceProviders.id, input.id),
-          eq(serviceProviders.tenantId, tenantId),
-          isNull(serviceProviders.deletedAt)
-        )
-      );
+      const [existing] = await db
+        .select()
+        .from(serviceProviders)
+        .where(
+          and(
+            eq(serviceProviders.id, input.id),
+            eq(serviceProviders.tenantId, tenantId),
+            isNull(serviceProviders.deletedAt)
+          )
+        );
 
-    if (!existing) {
-      throw new TRPCError({ code: 'NOT_FOUND', message: 'Provider not found' });
-    }
+      if (!existing) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Provider not found' });
+      }
 
-    const updateData: Record<string, unknown> = { updatedAt: new Date() };
-    if (input.companyName !== undefined) updateData.companyName = input.companyName;
-    if (input.trade !== undefined) updateData.trade = input.trade;
-    if (input.contactName !== undefined) updateData.contactName = input.contactName;
-    if (input.phone !== undefined) updateData.phone = input.phone;
-    if (input.email !== undefined) updateData.email = input.email;
-    if (input.isActive !== undefined) updateData.isActive = input.isActive;
+      const updateData: Record<string, unknown> = { updatedAt: new Date() };
+      if (input.companyName !== undefined) updateData.companyName = input.companyName;
+      if (input.trade !== undefined) updateData.trade = input.trade;
+      if (input.contactName !== undefined) updateData.contactName = input.contactName;
+      if (input.phone !== undefined) updateData.phone = input.phone;
+      if (input.email !== undefined) updateData.email = input.email;
+      if (input.isActive !== undefined) updateData.isActive = input.isActive;
 
-    const [updated] = await db
-      .update(serviceProviders)
-      .set(updateData)
-      .where(and(eq(serviceProviders.id, input.id), eq(serviceProviders.tenantId, tenantId)))
-      .returning();
+      const [updated] = await db
+        .update(serviceProviders)
+        .set(updateData)
+        .where(and(eq(serviceProviders.id, input.id), eq(serviceProviders.tenantId, tenantId)))
+        .returning();
 
-    return toEnvelope(updated);
-  }),
+      return toEnvelope(updated);
+    }),
 
   /**
-   * Delete a service provider — staff only.
-   * @tenant
+   * Soft-delete a service provider. Requires elevated permissions.
+   * @privileged
    */
-  deleteProvider: protectedProcedure
+  deleteProvider: privilegedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       requireRequestsPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [existing] = await db
         .select()

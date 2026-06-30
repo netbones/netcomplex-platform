@@ -1,5 +1,5 @@
 import {
-  protectedProcedure,
+  privilegedProcedure,
   db,
   questions,
   revalidateAdminChanges,
@@ -20,11 +20,7 @@ import { toEnvelope } from '@api/server';
 import { questionDto } from '@server/dto';
 
 export const surveyQuestionProcedures = {
-  /**
-   * Add a question to a survey — staff only.
-   * @tenant
-   */
-  addQuestion: protectedProcedure
+  addQuestion: privilegedProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -39,9 +35,6 @@ export const surveyQuestionProcedures = {
       requireContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       await getTenantSurvey(input.surveyId, tenantId);
 
@@ -80,11 +73,7 @@ export const surveyQuestionProcedures = {
       return toEnvelope(questionDto.parse(created));
     }),
 
-  /**
-   * Update a survey question — staff only.
-   * @tenant
-   */
-  updateQuestion: protectedProcedure
+  updateQuestion: privilegedProcedure
     .meta({
       openapi: {
         method: 'PATCH',
@@ -99,9 +88,6 @@ export const surveyQuestionProcedures = {
       requireContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [existing] = await db
         .select()
@@ -145,11 +131,7 @@ export const surveyQuestionProcedures = {
       return toEnvelope(questionDto.parse(updated));
     }),
 
-  /**
-   * Remove a question from a survey — staff only.
-   * @tenant
-   */
-  removeQuestion: protectedProcedure
+  removeQuestion: privilegedProcedure
     .meta({
       openapi: {
         method: 'DELETE',
@@ -164,9 +146,6 @@ export const surveyQuestionProcedures = {
       requireContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [deleted] = await db
         .update(questions)
@@ -188,11 +167,7 @@ export const surveyQuestionProcedures = {
       return toEnvelope({ success: true });
     }),
 
-  /**
-   * Reorder questions in a survey — staff only.
-   * @tenant
-   */
-  reorderQuestions: protectedProcedure
+  reorderQuestions: privilegedProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -207,9 +182,6 @@ export const surveyQuestionProcedures = {
       requireContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       await getTenantSurvey(input.surveyId, tenantId);
 

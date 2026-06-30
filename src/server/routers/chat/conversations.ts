@@ -2,7 +2,7 @@ import { toEnvelope } from '@api/server';
 import { conversationDto } from '@server/dto';
 import {
   z,
-  protectedProcedure,
+  tenantProcedure,
   db,
   conversations,
   conversationParticipants,
@@ -18,10 +18,10 @@ import {
 
 export const conversationProcedures = {
   /**
-   * List conversations for the current user in the current tenant.
+   * List conversations for the authenticated user in the current tenant.
    * @tenant
    */
-  listConversations: protectedProcedure
+  listConversations: tenantProcedure
     .input(z.void())
     .output(
       z.array(
@@ -68,9 +68,6 @@ export const conversationProcedures = {
     )
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const userConversations = await db
         .select({
@@ -160,10 +157,10 @@ export const conversationProcedures = {
     }),
 
   /**
-   * Create a new conversation — tenant-scoped.
+   * Create a new conversation in the current tenant.
    * @tenant
    */
-  createConversation: protectedProcedure
+  createConversation: tenantProcedure
     .input(
       z.object({
         name: z.string().optional(),
@@ -200,9 +197,6 @@ export const conversationProcedures = {
     )
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const allParticipantIds = [...new Set([ctx.userId, ...input.participantIds])];
 
@@ -283,10 +277,10 @@ export const conversationProcedures = {
     }),
 
   /**
-   * Find or create a direct conversation between two users — tenant-scoped.
+   * Find or create a direct conversation between two users in the current tenant.
    * @tenant
    */
-  findOrCreateConversation: protectedProcedure
+  findOrCreateConversation: tenantProcedure
     .input(
       z.object({
         participantIds: z.array(z.string().uuid()).length(2),
@@ -295,9 +289,6 @@ export const conversationProcedures = {
     .output(z.object({ conversation: z.record(z.unknown()) }))
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const existing = (await db.execute(sql`
         SELECT c.*,
