@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { ErrorBoundary, LoadingCard } from '@shared/ui';
-import { Wallet, CheckCircle, XCircle } from 'lucide-react';
+import { Wallet, CheckCircle, XCircle, Plus, Edit2, ToggleLeft, ToggleRight } from 'lucide-react';
 import type { AdminStats, PayoutRequestItem, BatchRecord, StreamConfig } from '../model/types';
+import type { StreamConfigInput, StreamUpdateInput } from '../schema';
 
 // ── Data fetching helpers ──────────────────────────────────────────────────
 
@@ -39,6 +40,26 @@ async function fetchStreams(): Promise<StreamConfig[]> {
   return unwrapEnvelope<StreamConfig[]>(res);
 }
 
+async function createStream(data: StreamConfigInput): Promise<StreamConfig> {
+  const res = await fetch('/api/admin/dwallet/streams', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to create stream');
+  return unwrapEnvelope<StreamConfig>(res);
+}
+
+async function updateStream(id: string, data: StreamUpdateInput): Promise<StreamConfig> {
+  const res = await fetch(`/api/admin/dwallet/streams/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Failed to update stream');
+  return unwrapEnvelope<StreamConfig>(res);
+}
+
 async function patchPayoutStatus(
   payoutId: string,
   status: 'COMPLETED' | 'REJECTED',
@@ -67,6 +88,311 @@ function AdminEmptyState({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
       <p className="text-sm text-slate-400">{message}</p>
+    </div>
+  );
+}
+
+// ── Manage Streams Panel ────────────────────────────────────────────────────
+
+interface ManageStreamsProps {
+  streams: StreamConfig[];
+  onStreamCreated: () => void;
+  onStreamUpdated: () => void;
+}
+
+function ManageStreams({ streams, onStreamCreated, onStreamUpdated }: ManageStreamsProps) {
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // ── Add form state ──────────────────────────────────────────────────────
+  const [newKey, setNewKey] = useState('');
+  const [newLabel, setNewLabel] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newPct, setNewPct] = useState('20');
+
+  // ── Edit form state ─────────────────────────────────────────────────────
+  const [editLabel, setEditLabel] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editPct, setEditPct] = useState('');
+
+  const beginEdit = useCallback((s: StreamConfig) => {
+    setEditId(s.id);
+    setEditLabel(s.label);
+    setEditDescription(s.description ?? '');
+    setEditPct(s.residentSharePct);
+  }, []);
+
+  const cancelEdit = useCallback(() => {
+    setEditId(null);
+  }, []);
+
+  const handleCreate = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setError(null);
+      setIsSubmitting(true);
+      try {
+        await createStream({
+          key: newKey,
+          label: newLabel,
+          description: newDescription || undefined,
+          residentSharePct: parseFloat(newPct),
+          isActive: true,
+        });
+        setShowAddForm(false);
+        setNewKey('');
+        setNewLabel('');
+        setNewDescription('');
+        setNewPct('20');
+        onStreamCreated();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to create stream');
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [newKey, newLabel, newDescription, newPct, onStreamCreated]
+  );
+
+  const handleUpdate = useCallback(
+    async (id: string) => {
+      setError(null);
+      try {
+        await updateStream(id, {
+          label: editLabel,
+          description: editDescription || undefined,
+          residentSharePct: parseFloat(editPct),
+        });
+        cancelEdit();
+        onStreamUpdated();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to update stream');
+      }
+    },
+    [editLabel, editDescription, editPct, cancelEdit, onStreamUpdated]
+  );
+
+  const handleToggleActive = useCallback(
+    async (s: StreamConfig) => {
+      setError(null);
+      try {
+        await updateStream(s.id, { isActive: !s.isActive });
+        onStreamUpdated();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to toggle stream');
+      }
+    },
+    [onStreamUpdated]
+  );
+
+  return (
+    <div className="flex flex-col gap-3">
+      {error && (
+        <div className="border border-red-200 rounded-lg p-3 bg-red-50 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      {/* ── Header + Add button ──────────────────────────────────────────── */}
+      <div className="flex items-center justify-between">
+        <h4 className="text-sm font-semibold text-slate-700">Revenue Streams</h4>
+        {!showAddForm && (
+          <button
+            type="button"
+            onClick={() => setShowAddForm(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-50 transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Add Stream
+          </button>
+        )}
+      </div>
+
+      {/* ── Add form ─────────────────────────────────────────────────────── */}
+      {showAddForm && (
+        <form
+          onSubmit={handleCreate}
+          className="border border-indigo-200 rounded-lg p-4 bg-indigo-50/50"
+        >
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label className="block text-xs text-slate-500 mb-1">Key</label>
+              <input
+                value={newKey}
+                onChange={e => setNewKey(e.target.value)}
+                placeholder="e.g. survey_participation"
+                className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-500 mb-1">Label</label>
+              <input
+                value={newLabel}
+                onChange={e => setNewLabel(e.target.value)}
+                placeholder="e.g. Survey Participation"
+                className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-500 mb-1">Description (optional)</label>
+              <input
+                value={newDescription}
+                onChange={e => setNewDescription(e.target.value)}
+                placeholder="What this stream controls"
+                className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-500 mb-1">Resident Share %</label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={newPct}
+                onChange={e => setNewPct(e.target.value)}
+                className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                required
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+            >
+              {isSubmitting ? 'Creating...' : 'Create Stream'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAddForm(false)}
+              className="px-4 py-2 text-sm text-slate-600 border border-slate-300 rounded-lg hover:bg-white transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* ── Streams table ────────────────────────────────────────────────── */}
+      {streams.length === 0 ? (
+        <AdminEmptyState message="No revenue streams configured" />
+      ) : (
+        <div className="border border-slate-200 rounded-lg bg-white overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
+                    Key
+                  </th>
+                  <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
+                    Label
+                  </th>
+                  <th className="text-right py-2 px-3 text-xs font-medium text-slate-400 uppercase">
+                    Share %
+                  </th>
+                  <th className="text-center py-2 px-3 text-xs font-medium text-slate-400 uppercase">
+                    Active
+                  </th>
+                  <th className="text-right py-2 px-3 text-xs font-medium text-slate-400 uppercase">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {streams.map(s => (
+                  <tr key={s.id} className="border-b border-slate-100 hover:bg-slate-50">
+                    {editId === s.id ? (
+                      <>
+                        <td className="py-2 px-3 text-slate-500 font-mono text-xs">{s.key}</td>
+                        <td className="py-2 px-3">
+                          <input
+                            value={editLabel}
+                            onChange={e => setEditLabel(e.target.value)}
+                            className="w-full border border-slate-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          />
+                        </td>
+                        <td className="py-2 px-3">
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={editPct}
+                            onChange={e => setEditPct(e.target.value)}
+                            className="w-16 border border-slate-300 rounded px-2 py-1 text-sm text-right focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                          />
+                        </td>
+                        <td className="py-2 px-3 text-center">
+                          <span
+                            className={`inline-flex px-2 py-0.5 text-xs rounded-full ${s.isActive ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-500'}`}
+                          >
+                            {s.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="py-2 px-3 text-right">
+                          <div className="inline-flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdate(s.id)}
+                              className="px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                            >
+                              Save
+                            </button>
+                            <button
+                              type="button"
+                              onClick={cancelEdit}
+                              className="px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 rounded transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td className="py-2 px-3 text-slate-500 font-mono text-xs">{s.key}</td>
+                        <td className="py-2 px-3 text-slate-700">{s.label}</td>
+                        <td className="py-2 px-3 text-right text-slate-700">
+                          {s.residentSharePct}%
+                        </td>
+                        <td className="py-2 px-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleActive(s)}
+                            className="inline-flex items-center"
+                            aria-label={s.isActive ? 'Deactivate stream' : 'Activate stream'}
+                          >
+                            {s.isActive ? (
+                              <ToggleRight className="w-5 h-5 text-green-600" />
+                            ) : (
+                              <ToggleLeft className="w-5 h-5 text-slate-300" />
+                            )}
+                          </button>
+                        </td>
+                        <td className="py-2 px-3 text-right">
+                          <button
+                            type="button"
+                            onClick={() => beginEdit(s)}
+                            className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded transition-colors"
+                          >
+                            <Edit2 className="w-3 h-3" />
+                            Edit
+                          </button>
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -352,6 +678,7 @@ function BatchesList({ batches }: BatchesListProps) {
 // ── Main Component ─────────────────────────────────────────────────────────
 
 function DWalletAdminWidgetContent() {
+  const [activeTab, setActiveTab] = useState<'streams' | 'distribute'>('streams');
   const [showDistributionForm, setShowDistributionForm] = useState(false);
   const [isSubmittingBatch, setIsSubmittingBatch] = useState(false);
   const [actioningPayoutId, setActioningPayoutId] = useState<string | null>(null);
@@ -457,7 +784,6 @@ function DWalletAdminWidgetContent() {
     setActioningPayoutId(payoutId);
     try {
       await patchPayoutStatus(payoutId, 'REJECTED');
-      // Refresh
       const [s, p] = await Promise.all([fetchAdminStats(), fetchPayouts()]);
       setStats(s);
       setPayouts(p);
@@ -465,6 +791,15 @@ function DWalletAdminWidgetContent() {
       console.error('Failed to reject payout:', err);
     } finally {
       setActioningPayoutId(null);
+    }
+  }, []);
+
+  const refreshStreams = useCallback(async () => {
+    try {
+      const streamsData = await fetchStreams();
+      setStreams(streamsData);
+    } catch (err) {
+      console.error('Failed to refresh streams:', err);
     }
   }, []);
 
@@ -519,8 +854,42 @@ function DWalletAdminWidgetContent() {
         <StatCard label="Pending Payouts" value={stats?.pendingPayouts ?? 0} />
       </div>
 
-      {/* ── Run Distribution CTA ─────────────────────────────────────── */}
-      {!showDistributionForm ? (
+      {/* ── Tabs: Manage Streams | Run Distribution ────────────────────── */}
+      <div className="border-b border-slate-200">
+        <nav className="-mb-px flex gap-4">
+          <button
+            type="button"
+            onClick={() => setActiveTab('streams')}
+            className={`pb-2.5 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'streams'
+                ? 'border-indigo-600 text-indigo-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+            }`}
+          >
+            Manage Streams
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('distribute')}
+            className={`pb-2.5 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'distribute'
+                ? 'border-indigo-600 text-indigo-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+            }`}
+          >
+            Run Distribution
+          </button>
+        </nav>
+      </div>
+
+      {/* ── Tab content ───────────────────────────────────────────────── */}
+      {activeTab === 'streams' ? (
+        <ManageStreams
+          streams={streams}
+          onStreamCreated={refreshStreams}
+          onStreamUpdated={refreshStreams}
+        />
+      ) : !showDistributionForm ? (
         <button
           type="button"
           onClick={() => setShowDistributionForm(true)}
