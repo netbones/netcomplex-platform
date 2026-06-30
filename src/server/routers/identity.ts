@@ -720,6 +720,7 @@ export const identityRouter = router({
 
   /**
    * Get current user's properties — user-scoped.
+   * @tenant
    */
   getMyProperties: protectedProcedure
     .meta({
@@ -928,6 +929,7 @@ export const identityRouter = router({
 
   /**
    * Update a profile — user-scoped.
+   * @tenant
    */
   updateProfile: protectedProcedure
     .meta({
@@ -1053,6 +1055,7 @@ export const identityRouter = router({
 
   /**
    * Get current user's solo seat — user-scoped.
+   * @tenant
    */
   getMySoloSeat: protectedProcedure
     .meta({ openapi: { method: 'GET', path: '/my/solo-seat', tags: ['Solo Seats'] } })
@@ -1095,6 +1098,7 @@ export const identityRouter = router({
 
   /**
    * Get current user's agent accesses — user-scoped.
+   * @tenant
    */
   getAgentAccesses: protectedProcedure
     .meta({ openapi: { method: 'GET', path: '/my/agent-accesses', tags: ['Agent Access'] } })

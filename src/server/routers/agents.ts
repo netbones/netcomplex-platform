@@ -20,6 +20,10 @@ import { TRPCError } from '@trpc/server';
 import { eq, and, desc, isNull } from 'drizzle-orm';
 
 export const agentsRouter = router({
+  /**
+   * Get agent activity for the current tenant.
+   * @privileged
+   */
   getActivity: agentProcedure
     .meta({ openapi: { method: 'GET', path: '/agents/activity', protect: true, tags: ['agents'] } })
     .query(async ({ ctx }) => {
@@ -41,6 +45,10 @@ export const agentsRouter = router({
       return toEnvelope({ activities: [] });
     }),
 
+  /**
+   * List properties managed by the current agent.
+   * @privileged
+   */
   listManagedProperties: agentProcedure
     .meta({
       openapi: {

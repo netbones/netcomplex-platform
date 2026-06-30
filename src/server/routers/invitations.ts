@@ -279,6 +279,10 @@ export const invitationsRouter = router({
       return toEnvelope({ success: true });
     }),
 
+  /**
+   * Accept an invitation via public token — no auth required.
+   * @public
+   */
   acceptInvitation: publicProcedure
     .input(TokenInput)
     .meta({
@@ -357,6 +361,10 @@ export const invitationsRouter = router({
       });
     }),
 
+  /**
+   * Validate an invitation token — no auth required.
+   * @public
+   */
   validateInvitation: publicProcedure
     .input(TokenInput)
     .meta({

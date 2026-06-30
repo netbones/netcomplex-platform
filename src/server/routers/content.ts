@@ -203,6 +203,10 @@ export function requireFullContentPermission(role: string | null | undefined): v
 // ──────────────────────────────────────────
 
 export const contentRouter = router({
+  /**
+   * List published content for the current tenant — public access.
+   * @public
+   */
   listContent: publicProcedure.input(ListContentInput).query(async ({ input, ctx }) => {
     const tenantId = ctx.tenantId;
     if (!tenantId) {
@@ -222,6 +226,10 @@ export const contentRouter = router({
     );
   }),
 
+  /**
+   * Get a single content item by ID — public access.
+   * @public
+   */
   getContent: publicProcedure
     .input(
       z.object({
@@ -496,6 +504,10 @@ export const contentRouter = router({
       return toEnvelope({ id: input.id, moderationStatus: input.moderationStatus });
     }),
 
+  /**
+   * Get like count and user like status for content — public access.
+   * @public
+   */
   getLikes: publicProcedure.input(IdInput).query(async ({ input, ctx }) => {
     const tenantId = ctx.tenantId;
     if (!tenantId) {

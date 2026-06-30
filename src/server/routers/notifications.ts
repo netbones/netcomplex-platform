@@ -15,6 +15,10 @@ import { notificationDto } from '@server/dto';
 const notificationTypeEnum = z.enum(['info', 'warning', 'success', 'error']);
 
 export const notificationsRouter = router({
+  /**
+   * List notifications for the current user.
+   * @tenant
+   */
   list: protectedProcedure
     .meta({
       openapi: {
@@ -108,6 +112,10 @@ export const notificationsRouter = router({
       return toEnvelope(notificationDto.parse(created));
     }),
 
+  /**
+   * Mark notification(s) as read for the current user.
+   * @tenant
+   */
   markRead: protectedProcedure
     .meta({
       openapi: {
@@ -184,6 +192,10 @@ export const notificationsRouter = router({
       return toEnvelope({ success: true });
     }),
 
+  /**
+   * Soft-delete a notification for the current user.
+   * @tenant
+   */
   delete: protectedProcedure
     .meta({
       openapi: {
