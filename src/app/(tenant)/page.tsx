@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { Carousel, Pagination } from '@shared/ui';
 import { STREETS, CARD_HEADER_COLORS } from '@shared/lib';
 import { useResidentFilter } from '@features/directory';
+import type { CarouselItem } from '@entities/tenant';
+import type { HeroCarouselConfig } from '@entities/tenant';
 
 const CommunityMap = dynamic(() => import('@entities/directory').then(mod => mod.CommunityMap), {
   ssr: false,
@@ -14,9 +16,29 @@ const CommunityMap = dynamic(() => import('@entities/directory').then(mod => mod
 
 import { UnifiedResidentCard } from '@entities/directory';
 
+const DEFAULT_CAROUSEL_ITEMS: CarouselItem[] = [
+  {
+    id: '1',
+    image: '/carousel/1.jpg',
+    title: 'For Sale',
+    subtitle: '2 Bedroom Family Home',
+    link: '#',
+  },
+  { id: '2', image: '/carousel/2.jpg', title: 'To Let', subtitle: 'Modern Lifestyle', link: '#' },
+  {
+    id: '3',
+    image: '/carousel/3.jpg',
+    title: 'Community',
+    subtitle: 'Soralia Village Living',
+    link: '#',
+  },
+  { id: '4', image: '/carousel/4.jpg', title: 'Events', subtitle: 'Join Our Community', link: '#' },
+];
+
 export default function HomePage() {
   const { t, ready } = useTranslation('common');
   const [mounted, setMounted] = useState(false);
+  const [carouselItems, setCarouselItems] = useState<CarouselItem[]>(DEFAULT_CAROUSEL_ITEMS);
 
   const {
     residents,
@@ -39,6 +61,18 @@ export default function HomePage() {
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/admin/settings/hero-carousel')
+      .then(r => r.json())
+      .then(body => {
+        const data: HeroCarouselConfig | undefined = body?.data ?? body;
+        if (data?.items?.length) {
+          setCarouselItems(data.items.filter(item => item.image));
+        }
+      })
+      .catch(() => {});
   }, []);
 
   if (!mounted || !ready) {
@@ -85,38 +119,7 @@ export default function HomePage() {
     <div className="container mx-auto px-4 py-8">
       {/* Carousel for For Sale / To Let / etc */}
       <div className="relative mb-8">
-        <Carousel
-          items={[
-            {
-              id: '1',
-              image: '/carousel/1.jpg',
-              title: 'For Sale',
-              subtitle: '2 Bedroom Family Home',
-              link: '#',
-            },
-            {
-              id: '2',
-              image: '/carousel/2.jpg',
-              title: 'To Let',
-              subtitle: 'Modern Lifestyle',
-              link: '#',
-            },
-            {
-              id: '3',
-              image: '/carousel/3.jpg',
-              title: 'Community',
-              subtitle: 'Soralia Village Living',
-              link: '#',
-            },
-            {
-              id: '4',
-              image: '/carousel/4.jpg',
-              title: 'Events',
-              subtitle: 'Join Our Community',
-              link: '#',
-            },
-          ]}
-        />
+        <Carousel items={carouselItems} />
       </div>
 
       {/* Community Map */}

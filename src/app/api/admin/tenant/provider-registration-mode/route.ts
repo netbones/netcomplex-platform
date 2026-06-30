@@ -9,6 +9,7 @@ import {
   CACHE_TAGS,
   getSessionAndRole,
   writeAuditLog,
+  rateLimitByUser,
 } from '@api/server';
 import { withTenant } from '@entities/tenant/server';
 import {
@@ -57,6 +58,9 @@ export async function PATCH(request: Request) {
   if (!canManageMode(auth.role)) {
     return apiForbidden('Board or admin access required');
   }
+
+  const rateLimit = await rateLimitByUser(auth.userId, { windowMs: 60_000, maxRequests: 10 });
+  if (rateLimit) return rateLimit;
 
   const body = (await request.json()) as { mode?: string };
   const { tenantId } = await withTenant();

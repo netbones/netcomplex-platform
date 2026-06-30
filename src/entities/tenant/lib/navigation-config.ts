@@ -230,6 +230,14 @@ export const ADMIN_ITEMS: NavItem[] = [
     permissionKey: 'content',
     icon: 'tags',
   },
+  {
+    href: '/admin/carousel',
+    adminLabelKey: 'carousel',
+    labelKey: 'nav.admin',
+    section: 'admin',
+    permissionKey: 'content',
+    icon: 'image',
+  },
 ];
 
 export interface BurgerSections {

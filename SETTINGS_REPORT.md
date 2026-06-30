@@ -434,12 +434,12 @@ same domain objects.
 
 ### Short-term (reduce debt)
 
-4. **Extract the switch statement** in `platform-flags.ts` into a data-driven design (see 7.4).
-5. **Add missing validators** for `page_education_enabled`, `page_dwallet_enabled`, `page_disputes_enabled`, `page_providers_enabled`, `page_marketplace_paypal_enabled`, `translation_provider`, `translation_api_key` in `validation.ts`.
-6. **Fill missing keys** in `SettingValueMap` in `types.ts`.
-7. **Add proper DB WHERE clauses** in `services-config.ts` and `provider-registration-mode.ts` instead of filtering all rows in JS.
-8. **Unify `getSessionAndRole`** — use the shared import consistently.
-9. **Convert `usePageFlags`** to TanStack Query for consistency with `useSettings`.
+4. ✅ **Extract the switch statement** in `platform-flags.ts` into a data-driven design — fixed in `soralia-village-7dfv`
+5. ✅ **Add missing validators** for `page_education_enabled`, `page_dwallet_enabled`, `page_disputes_enabled`, `page_providers_enabled`, `page_marketplace_paypal_enabled`, `translation_provider`, `translation_api_key` — fixed in `soralia-village-7dfv`
+6. ✅ **Fill missing keys** in `SettingValueMap` in `types.ts` — fixed in `soralia-village-7dfv`
+7. ✅ **Add proper DB WHERE clauses** in `services-config.ts` and `provider-registration-mode.ts` — fixed in `soralia-village-7dfv`
+8. ✅ **Unify `getSessionAndRole`** — removed inline copies, use shared import — fixed in `soralia-village-7dfv`
+9. ✅ **Convert `usePageFlags`** to TanStack Query — fixed in `soralia-village-7dfv`
 
 ### Medium-term (architecture)
 

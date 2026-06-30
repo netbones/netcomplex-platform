@@ -78,3 +78,13 @@ export {
 } from './api/provider-registration-mode';
 
 export { servicesConfigSchema, type ServicesConfigFormData } from './schema';
+export { heroCarouselConfigSchema, type HeroCarouselConfigFormData } from './schema';
+
+export {
+  getHeroCarouselConfig,
+  getHeroCarouselConfigWithTx,
+  upsertHeroCarouselConfig,
+  defaultHeroCarouselConfig,
+  type HeroCarouselConfig,
+  type CarouselItem,
+} from './api/flags/hero-carousel';

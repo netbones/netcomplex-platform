@@ -17,6 +17,8 @@ export type {
   ServicesPageConfig,
 } from './api/flags/services-config.types';
 
+export type { CarouselItem, HeroCarouselConfig } from './api/flags/hero-carousel.types';
+
 export type { FeatureKey, GateResult, GateContext, GateReason } from './api/gate/mappings';
 
 // Server-only exports removed from barrel (causes client build errors).

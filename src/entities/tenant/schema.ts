@@ -86,3 +86,17 @@ export const servicesConfigSchema = z.object({
 });
 
 export type ServicesConfigFormData = z.infer<typeof servicesConfigSchema>;
+
+const carouselItemSchema = z.object({
+  id: z.string().min(1),
+  image: z.string().min(1, 'Image URL is required'),
+  title: z.string().min(1, 'Title is required').max(100),
+  subtitle: z.string().max(200).optional(),
+  link: z.string().optional(),
+});
+
+export const heroCarouselConfigSchema = z.object({
+  items: z.array(carouselItemSchema),
+});
+
+export type HeroCarouselConfigFormData = z.infer<typeof heroCarouselConfigSchema>;

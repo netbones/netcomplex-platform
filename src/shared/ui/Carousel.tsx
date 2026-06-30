@@ -57,7 +57,7 @@ export function Carousel({ items, autoPlay = true, interval = 5000 }: CarouselPr
             }`}
           >
             {item.link ? (
-              <a href={item.link} className="block w-full h-full relative">
+              <a href={item.link} className="block absolute inset-0 group" aria-label={item.title}>
                 <Image
                   src={item.image}
                   alt={item.title}
@@ -65,6 +65,20 @@ export function Carousel({ items, autoPlay = true, interval = 5000 }: CarouselPr
                   className="object-cover"
                   priority={index === 0}
                 />
+                {(item.title || item.subtitle) && (
+                  <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/70 transition-colors">
+                    <div className="p-4 md:p-8">
+                      {item.title && (
+                        <h3 className="text-xl md:text-3xl font-bold text-white mb-1">
+                          {item.title}
+                        </h3>
+                      )}
+                      {item.subtitle && (
+                        <p className="text-sm md:text-lg text-white/90">{item.subtitle}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </a>
             ) : (
               <div className="absolute inset-0">
@@ -75,18 +89,20 @@ export function Carousel({ items, autoPlay = true, interval = 5000 }: CarouselPr
                   className="object-cover"
                   priority={index === 0}
                 />
-              </div>
-            )}
-            {(item.title || item.subtitle) && (
-              <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 to-transparent">
-                <div className="p-4 md:p-8">
-                  {item.title && (
-                    <h3 className="text-xl md:text-3xl font-bold text-white mb-1">{item.title}</h3>
-                  )}
-                  {item.subtitle && (
-                    <p className="text-sm md:text-lg text-white/90">{item.subtitle}</p>
-                  )}
-                </div>
+                {(item.title || item.subtitle) && (
+                  <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 to-transparent">
+                    <div className="p-4 md:p-8">
+                      {item.title && (
+                        <h3 className="text-xl md:text-3xl font-bold text-white mb-1">
+                          {item.title}
+                        </h3>
+                      )}
+                      {item.subtitle && (
+                        <p className="text-sm md:text-lg text-white/90">{item.subtitle}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

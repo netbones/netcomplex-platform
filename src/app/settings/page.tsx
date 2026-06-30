@@ -3,12 +3,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { Breadcrumbs, ErrorBoundary, ImageUpload } from '@shared/ui';
+import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { authClient } from '@api/client';
 import { supportedLanguages, languageNames } from '@/shared/lib/i18n';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
 import { useSettings } from '@shared/lib/hooks';
+import {
+  ProfileSection,
+  LanguageSection,
+  PropertySection,
+  AccountSection,
+  NotificationSection,
+  PrivacySection,
+} from '@widgets/settings';
 
 const log = createComponentLogger('settings-page');
 
@@ -33,9 +41,10 @@ export default function SettingsPage() {
   ]);
   const { data: session, isPending: sessionLoading } = authClient.useSession();
   const tToast = (key: string, entity: string) => tCommon(`toast.${key}`, { entity });
+
   const [language, setLanguage] = useState<string>('en');
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [langSaving, setLangSaving] = useState(false);
+  const [langSaved, setLangSaved] = useState(false);
   const [showEmail, setShowEmail] = useState(true);
   const [showPhone, setShowPhone] = useState(true);
   const [householdId, setHouseholdId] = useState<string | null>(null);
@@ -47,14 +56,7 @@ export default function SettingsPage() {
     Record<string, { inApp: boolean; email: boolean }>
   >({});
   const [notifSaving, setNotifSaving] = useState(false);
-
-  const NOTIF_TYPES = ['info', 'warning', 'success', 'error'] as const;
-  const NOTIF_LABELS: Record<string, string> = {
-    info: 'General updates',
-    warning: 'Warnings & alerts',
-    success: 'Success confirmations',
-    error: 'Error notices',
-  };
+  const [privacySaving, setPrivacySaving] = useState(false);
 
   const { data: userData, isLoading: loadingHousehold } = useSettings(session?.user?.id);
 
@@ -92,17 +94,58 @@ export default function SettingsPage() {
   }, [i18n.language]);
 
   const handleLanguageChange = async (newLang: string) => {
-    setSaving(true);
-    setSaved(false);
+    setLangSaving(true);
+    setLangSaved(false);
     try {
       await i18n.changeLanguage(newLang);
       setLanguage(newLang);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      setLangSaved(true);
+      setTimeout(() => setLangSaved(false), 2000);
     } catch (error) {
       log.error({}, 'Failed to change language', error);
     } finally {
-      setSaving(false);
+      setLangSaving(false);
+    }
+  };
+
+  const handleAvatarChange = async (url: string) => {
+    setUserAvatar(url);
+    try {
+      const res = await fetch(`/api/users/${session?.user?.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avatar: url, image: url }),
+      });
+      try {
+        await authClient.updateUser({ image: url });
+      } catch (e) {
+        log.error({}, 'Failed to update better-auth session image', e);
+      }
+      if (res.ok) {
+        toast.success(tToast('uploaded', 'Profile image'));
+      } else {
+        toast.error(tToast('failedToUpload', 'profile image'));
+      }
+    } catch {
+      toast.error(tToast('failedToUpload', 'profile image'));
+    }
+  };
+
+  const handleHouseholdImageChange = async (url: string) => {
+    setHouseholdImage(url);
+    try {
+      const res = await fetch(`/api/households/${householdId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ homeImage: url }),
+      });
+      if (res.ok) {
+        toast.success(tToast('uploaded', 'Property image'));
+      } else {
+        toast.error(tToast('failedToUpload', 'property image'));
+      }
+    } catch {
+      toast.error(tToast('failedToUpload', 'property image'));
     }
   };
 
@@ -115,6 +158,48 @@ export default function SettingsPage() {
       },
     }));
   }, []);
+
+  const saveNotificationPrefs = async () => {
+    if (!session?.user?.id) return;
+    setNotifSaving(true);
+    try {
+      const res = await fetch(`/api/users/${session.user.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationPreferences: notificationPrefs }),
+      });
+      if (res.ok) {
+        toast.success(tToast('updated', 'Notification preferences'));
+      } else {
+        toast.error(tToast('failedToSave', 'notification preferences'));
+      }
+    } catch {
+      toast.error(tToast('failedToSave', 'notification preferences'));
+    } finally {
+      setNotifSaving(false);
+    }
+  };
+
+  const savePrivacySettings = async () => {
+    if (!session?.user?.id) return;
+    setPrivacySaving(true);
+    try {
+      const res = await fetch(`/api/users/${session.user.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ showEmail, showPhone }),
+      });
+      if (res.ok) {
+        toast.success(tToast('updated', 'Privacy settings'));
+      } else {
+        toast.error(tToast('failedToSave', 'settings'));
+      }
+    } catch {
+      toast.error(tToast('failedToSave', 'settings'));
+    } finally {
+      setPrivacySaving(false);
+    }
+  };
 
   if (sessionLoading || !isReady) {
     return LoadingComponent;
@@ -132,270 +217,52 @@ export default function SettingsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Profile</h2>
-          <div className="space-y-4">
-            <div className="flex items-center gap-6">
-              <div className="flex-shrink-0">
-                {userAvatar && isSafeImageUrl(userAvatar) ? (
-                  <img
-                    src={userAvatar}
-                    alt="Profile"
-                    className="w-20 h-20 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-500 text-2xl">
-                      {session?.user?.name?.charAt(0) || '?'}
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="flex-1">
-                <ImageUpload
-                  value={userAvatar}
-                  onChange={async url => {
-                    setUserAvatar(url);
-                    try {
-                      const res = await fetch(`/api/users/${session?.user?.id}`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ avatar: url, image: url }),
-                      });
+        <ProfileSection
+          userName={session?.user?.name ?? ''}
+          userEmail={session?.user?.email ?? ''}
+          userAvatar={userAvatar}
+          onAvatarChange={handleAvatarChange}
+          isSafeImageUrl={isSafeImageUrl}
+        />
 
-                      // Update better-auth session so the header updates instantly
-                      try {
-                        await authClient.updateUser({ image: url });
-                      } catch (e) {
-                        log.error({}, 'Failed to update better-auth session image', e);
-                      }
+        <LanguageSection
+          language={language}
+          languages={supportedLanguages}
+          languageNames={languageNames}
+          onLanguageChange={handleLanguageChange}
+          saving={langSaving}
+          saved={langSaved}
+        />
 
-                      if (res.ok) {
-                        toast.success(tToast('uploaded', 'Profile image'));
-                      } else {
-                        toast.error(tToast('failedToUpload', 'profile image'));
-                      }
-                    } catch {
-                      toast.error(tToast('failedToUpload', 'profile image'));
-                    }
-                  }}
-                  label="Change profile photo"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Name</label>
-              <p className="mt-1 text-gray-900">{session?.user?.name || 'Not set'}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
-              <p className="mt-1 text-gray-900">{session?.user?.email || 'Not set'}</p>
-            </div>
-          </div>
-        </div>
+        <PropertySection
+          householdId={householdId}
+          householdImage={householdImage}
+          isOwner={isOwner}
+          loading={loadingHousehold}
+          onImageChange={handleHouseholdImageChange}
+          isSafeImageUrl={isSafeImageUrl}
+        />
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Language</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            Select your preferred language for the interface.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            {supportedLanguages.map(lang => (
-              <button
-                key={lang}
-                onClick={() => handleLanguageChange(lang)}
-                disabled={saving}
-                className={`px-4 py-2 rounded-lg border transition-colors ${
-                  language === lang
-                    ? 'bg-soralia-primary text-white border-soralia-primary'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                {languageNames[lang]}
-              </button>
-            ))}
-          </div>
-          {saved && <p className="mt-2 text-green-600 text-sm">Language saved!</p>}
-        </div>
+        <AccountSection
+          role={session?.user?.role?.toLowerCase() || 'resident'}
+          planType={planType}
+        />
 
-        {householdId && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Property Image</h2>
-            <p className="text-sm text-gray-600 mb-4">
-              {isOwner
-                ? 'Upload a photo of your property. This will be displayed in the directory.'
-                : 'Your property photo (managed by property owner).'}
-            </p>
-            {loadingHousehold ? (
-              <p className="text-gray-500">Loading...</p>
-            ) : isOwner ? (
-              <ImageUpload
-                value={householdImage}
-                onChange={async url => {
-                  setHouseholdImage(url);
-                  try {
-                    const res = await fetch(`/api/households/${householdId}`, {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ homeImage: url }),
-                    });
-                    if (res.ok) {
-                      toast.success(tToast('uploaded', 'Property image'));
-                    } else {
-                      toast.error(tToast('failedToUpload', 'property image'));
-                    }
-                  } catch {
-                    toast.error(tToast('failedToUpload', 'property image'));
-                  }
-                }}
-                label=""
-              />
-            ) : householdImage && isSafeImageUrl(householdImage) ? (
-              <div className="relative w-32 h-32 rounded-lg overflow-hidden">
-                <img src={householdImage} alt="Property" className="w-full h-full object-cover" />
-              </div>
-            ) : (
-              <p className="text-gray-400 italic">No property image available</p>
-            )}
-          </div>
-        )}
+        <NotificationSection
+          notificationPrefs={notificationPrefs}
+          onToggle={toggleNotifPref}
+          onSave={saveNotificationPrefs}
+          saving={notifSaving}
+        />
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Account</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Role</label>
-              <p className="mt-1 text-gray-900 capitalize">
-                {session?.user?.role?.toLowerCase() || 'resident'}
-              </p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Plan</label>
-              <p className="mt-1 text-gray-900 capitalize">{planType || 'Loading...'}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Notifications</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            Choose which types of notifications you receive and how.
-          </p>
-          <div className="space-y-3">
-            {NOTIF_TYPES.map(type => {
-              const pref = notificationPrefs[type] || { inApp: true, email: true };
-              return (
-                <div
-                  key={type}
-                  className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
-                >
-                  <span className="text-sm font-medium text-gray-700 capitalize w-32">
-                    {NOTIF_LABELS[type]}
-                  </span>
-                  <div className="flex items-center gap-6">
-                    <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={pref.inApp}
-                        onChange={() => toggleNotifPref(type, 'inApp')}
-                        className="w-4 h-4 text-soralia-primary border-gray-300 rounded focus:ring-soralia-primary"
-                      />
-                      In-app
-                    </label>
-                    <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={pref.email}
-                        onChange={() => toggleNotifPref(type, 'email')}
-                        className="w-4 h-4 text-soralia-primary border-gray-300 rounded focus:ring-soralia-primary"
-                      />
-                      Email
-                    </label>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <button
-            onClick={async () => {
-              if (!session?.user?.id) return;
-              setNotifSaving(true);
-              try {
-                const res = await fetch(`/api/users/${session.user.id}`, {
-                  method: 'PATCH',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ notificationPreferences: notificationPrefs }),
-                });
-                if (res.ok) {
-                  toast.success(tToast('updated', 'Notification preferences'));
-                } else {
-                  toast.error(tToast('failedToSave', 'notification preferences'));
-                }
-              } catch {
-                toast.error(tToast('failedToSave', 'notification preferences'));
-              } finally {
-                setNotifSaving(false);
-              }
-            }}
-            disabled={notifSaving}
-            className="mt-4 px-4 py-2 bg-soralia-primary text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {notifSaving ? 'Saving...' : 'Save Notification Preferences'}
-          </button>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Privacy</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            Control what information is visible on your public profile.
-          </p>
-          <div className="space-y-4">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showEmail}
-                onChange={e => setShowEmail(e.target.checked)}
-                className="w-4 h-4 text-soralia-primary border-gray-300 rounded focus:ring-soralia-primary"
-              />
-              <span className="text-gray-700">Show email on public profile</span>
-            </label>
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showPhone}
-                onChange={e => setShowPhone(e.target.checked)}
-                className="w-4 h-4 text-soralia-primary border-gray-300 rounded focus:ring-soralia-primary"
-              />
-              <span className="text-gray-700">Show phone number on public profile</span>
-            </label>
-          </div>
-          <button
-            onClick={async () => {
-              if (!session?.user?.id) return;
-              setSaving(true);
-              try {
-                const res = await fetch(`/api/users/${session.user.id}`, {
-                  method: 'PATCH',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ showEmail, showPhone }),
-                });
-                if (res.ok) {
-                  toast.success(tToast('updated', 'Privacy settings'));
-                } else {
-                  toast.error(tToast('failedToSave', 'settings'));
-                }
-              } catch {
-                toast.error(tToast('failedToSave', 'settings'));
-              } finally {
-                setSaving(false);
-              }
-            }}
-            disabled={saving}
-            className="mt-4 px-4 py-2 bg-soralia-primary text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {saving ? 'Saving...' : 'Save Privacy Settings'}
-          </button>
-        </div>
+        <PrivacySection
+          showEmail={showEmail}
+          showPhone={showPhone}
+          onToggleEmail={setShowEmail}
+          onTogglePhone={setShowPhone}
+          onSave={savePrivacySettings}
+          saving={privacySaving}
+        />
       </div>
     </ErrorBoundary>
   );

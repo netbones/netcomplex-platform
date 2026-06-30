@@ -24,6 +24,7 @@ export const SETTINGS_KEYS = {
   CUSTOM_PAGES: 'custom_pages',
   CUSTOM_NAV: 'custom_nav',
   SERVICES_CONFIG: 'services_config',
+  HERO_CAROUSEL: 'hero_carousel',
   PROVIDER_REGISTRATION_MODE: 'provider_registration_mode',
 
   // Community stats (non-editable, set during onboarding/seed)
