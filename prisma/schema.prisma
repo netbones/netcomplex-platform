@@ -1923,6 +1923,8 @@ model AchievementDefinition {
   createdAt           DateTime            @default(now())
   deletedAt           DateTime?
   tenantAchievements  TenantAchievement[]
+  userAchievements    UserAchievement[]
+  userAchievementProgress UserAchievementProgress[]
 }
 
 model TenantAchievement {
@@ -1947,6 +1949,7 @@ model UserAchievementProgress {
   count        Int      @default(0)
   updatedAt    DateTime @updatedAt
   user         user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  definition   AchievementDefinition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
 
   @@unique([userId, definitionId])
   @@index([tenantId])
@@ -1959,6 +1962,7 @@ model UserAchievement {
   definitionId String
   unlockedAt   DateTime @default(now())
   user         user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  definition   AchievementDefinition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
 
   @@unique([userId, definitionId])
   @@index([tenantId])
