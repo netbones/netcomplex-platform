@@ -370,12 +370,14 @@ Client-side `console.*` calls in `DWalletAdminWidget.tsx` and `useAutoSave.ts` �
 
 ---
 
-## Sprint 3 — Test Failures & Stability (Next)
+## Sprint 3 — Test Failures & Stability (In Progress)
 
-| #   | Action                                                     | Effort  | Status  |
-| --- | ---------------------------------------------------------- | ------- | ------- |
-| 1   | Fix 21 test failures (specialized-routes, users, delegate) | 2-3 hrs | Pending |
-| 2   | Resolve remaining ~18 TypeScript errors                    | 2 hrs   | Pending |
-| 3   | Add missing FK relations (UserAchievement)                 | 1 hr    | Pending |
-| 4   | Add middleware unit tests                                  | 2 hrs   | Pending |
-| 5   | Remove FeatureGate.tsx dead code                           | 10 min  | Pending |
+| #   | Action                                                     | Effort  | Status                                        |
+| --- | ---------------------------------------------------------- | ------- | --------------------------------------------- |
+| 1   | Fix 21 test failures (specialized-routes, users, delegate) | 2-3 hrs | In Progress (mock fixes, 1 timeout remaining) |
+| 2   | Resolve remaining ~18 TypeScript errors                    | 2 hrs   | Blocked\*                                     |
+| 3   | Add missing FK relations (UserAchievement)                 | 1 hr    | Pending                                       |
+| 4   | Add middleware unit tests                                  | 2 hrs   | Pending                                       |
+| 5   | Remove FeatureGate.tsx dead code (verify first)            | 10 min  | Pending\*                                     |
+
+\* TypeScript errors and FeatureGate removal require verification before proceeding.
