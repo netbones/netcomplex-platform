@@ -1421,6 +1421,32 @@ Plans:
 
 **Scope:** 20 tRPC router files (42 source files total), 2 new DTO files, 1 middleware file modified, 2 doc files updated. REST routes and Prisma schema unchanged.
 
+## Phase 121: Settings Unification & Integration Testing
+
+**Goal:** Merge the 5 settings definition files into a single source of truth, add integration tests for mutation→cache-invalidation lifecycle, and assess the dual REST/tRPC surface for consolidation.
+
+**Status:** Planning Complete — 3 plans
+
+**Milestone:** M5 — Anchor Tenant Launch (hardening)
+
+**Depends on:** BD `soralia-village-71gn` (critical fixes — complete), BD `soralia-village-7dfv` (debt reduction — complete), BD `soralia-village-iswf` (medium-term — complete)
+
+**Requirements:** SETTINGS-10, SETTINGS-14, SETTINGS-15
+
+**Plans:**
+
+- [ ] 121-01-PLAN.md — Single Source of Truth (SSOT)
+- [ ] 121-02-PLAN.md — Integration Test Suite
+- [ ] 121-03-PLAN.md — REST/tRPC Surface Assessment
+
+| Wave | Plan                                    | Objective                                                                                                                                                          | Reqs        |
+| ---- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- |
+| 1    | [ ] 121-01-PLAN.md — SSOT               | Merge 5 files into one data-driven definition. Generate SETTINGS_KEYS, SettingValueMap, SETTINGS_VALUE_SCHEMAS, FLAG_DEFS, DEFAULT_PAGE_FLAGS from a single array. | SETTINGS-14 |
+| 2    | [ ] 121-02-PLAN.md — Integration Tests  | Add 13 integration tests covering 6 write + 2 read endpoints. Verify mutation → audit log → revalidation lifecycle.                                                | SETTINGS-15 |
+| 3    | [ ] 121-03-PLAN.md — Surface Assessment | Audit dual REST/tRPC surface. Produce migration roadmap with 3 phases (feature parity → consolidation → cleanup). Decision doc on canonical surface.               | SETTINGS-10 |
+
+**Scope:** 1 new SSOT file, 5 existing files updated to re-export, 2 new integration test files, 1 assessment doc. Total ~400 lines new code, ~200 lines removed (dead code consolidation).
+
 ## Phase 112: Monorepo — Full Milestone
 
 **Goal:** Tracking/umbrella phase for the full monorepo migration (M7 milestone). Cross-cutting architecture decisions captured in 112-CONTEXT.md. Sub-phases 113–117+ defined.

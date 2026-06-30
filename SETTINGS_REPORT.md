@@ -443,19 +443,18 @@ same domain objects.
 
 ### Medium-term (architecture)
 
-10. **Unify the REST and tRPC settings surfaces** — either migrate REST routes to tRPC (as the
-    v1 wrapper comments suggest) or consolidate into one pattern. Currently mutations exist in
-    both places with different guarantees.
-11. **Split `src/app/settings/page.tsx`** into section components (ProfileSection,
-    NotificationSection, PrivacySection, etc.).
-12. **Remove or implement the v1 wrappers** — don't leave placeholder code in the repo.
-13. **Add `rateLimitByUser`** to `provider-registration-mode` PATCH (all other write endpoints
-    have it).
+10. **Unify the REST and tRPC settings surfaces** — DEFERRED. Full migration is a large architectural change best scoped as a GSD phase.
+11. ✅ **Split `src/app/settings/page.tsx`** into section components (ProfileSection, LanguageSection, PropertySection, AccountSection, NotificationSection, PrivacySection) — fixed in `soralia-village-iswf`
+12. ✅ **Remove the v1 wrappers** — deleted 3 thin re-export files with no consumers — fixed in `soralia-village-iswf`
+13. ✅ **Add `rateLimitByUser`** to `provider-registration-mode` PATCH — fixed in `soralia-village-iswf`
 
 ### Long-term (design)
 
-14. **Consider merging `PlatformPageFlags`, `SettingValueMap`, `SETTINGS_KEYS`, and `validation.ts`**
-    into a single source of truth. Generate types, validators, defaults, and the switch statement
-    from a single data definition.
-15. **Add integration tests** that verify end-to-end: REST mutation → cache invalidation →
-    ISR re-render.
+14. 📋 **Merging `PlatformPageFlags`, `SettingValueMap`, `SETTINGS_KEYS`, and `validation.ts`** into a single source of truth — scoped as **Phase 121 Plan 01 (SSOT)**
+15. 📋 **Add integration tests** — scoped as **Phase 121 Plan 02 (Integration Test Suite)**
+
+### Medium-term (deferred)
+
+10. 📋 **Unify the REST and tRPC settings surfaces** — scoped as **Phase 121 Plan 03 (Surface Assessment)**
+
+See `.planning/phases/121-settings-unification/` for full phase plan.
