@@ -3,6 +3,8 @@ import {
   router,
   publicProcedure,
   protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   invitations,
   tenants,
@@ -52,16 +54,17 @@ const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 const inviteLogger = createComponentLogger('Invitations');
 
 export const invitationsRouter = router({
-  listInvitations: protectedProcedure
+  /**
+   * List invitations for the current tenant.
+   * @tenant
+   */
+  listInvitations: tenantProcedure
     .input(ListInvitationsInput)
     .meta({
       openapi: { method: 'GET', path: '/invitations/list', protect: true, tags: ['invitations'] },
     })
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const canViewAll = hasPermission(ctx.role, 'users') || hasPermission(ctx.role, 'admin');
 
@@ -95,16 +98,17 @@ export const invitationsRouter = router({
       return toEnvelope(rows.map(r => invitationDto.parse(r)));
     }),
 
-  getInvitation: protectedProcedure
+  /**
+   * Get a single invitation by ID.
+   * @tenant
+   */
+  getInvitation: tenantProcedure
     .input(IdInput)
     .meta({
       openapi: { method: 'GET', path: '/invitations/get', protect: true, tags: ['invitations'] },
     })
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [invitation] = await db
         .select()
@@ -137,7 +141,11 @@ export const invitationsRouter = router({
       return toEnvelope(invitationDto.parse(invitation));
     }),
 
-  createInvitation: protectedProcedure
+  /**
+   * Create a new invitation — staff only.
+   * @privileged
+   */
+  createInvitation: privilegedProcedure
     .input(CreateInvitationInput)
     .meta({
       openapi: {
@@ -151,9 +159,6 @@ export const invitationsRouter = router({
       requireInvitePermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [existing] = await db
         .select()
@@ -229,7 +234,11 @@ export const invitationsRouter = router({
       return toEnvelope(invitationDto.parse(invitation));
     }),
 
-  cancelInvitation: protectedProcedure
+  /**
+   * Cancel/revoke an invitation — staff only.
+   * @privileged
+   */
+  cancelInvitation: privilegedProcedure
     .input(IdInput)
     .meta({
       openapi: {
@@ -243,9 +252,6 @@ export const invitationsRouter = router({
       requireInvitePermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [existing] = await db
         .select()
@@ -429,7 +435,11 @@ export const invitationsRouter = router({
       });
     }),
 
-  resendInvitation: protectedProcedure
+  /**
+   * Resend an invitation email — staff only.
+   * @privileged
+   */
+  resendInvitation: privilegedProcedure
     .input(IdInput)
     .meta({
       openapi: {
@@ -443,9 +453,6 @@ export const invitationsRouter = router({
       requireInvitePermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [invitation] = await db
         .select()

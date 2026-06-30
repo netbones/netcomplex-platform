@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { router, protectedProcedure, rateLimitMiddleware, db, notifications } from '@api/server';
+import {
+  router,
+  protectedProcedure,
+  privilegedProcedure,
+  rateLimitMiddleware,
+  db,
+  notifications,
+} from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { eq, and, desc, inArray, isNull } from 'drizzle-orm';
 import { toEnvelope } from '@api/server';
@@ -47,7 +54,11 @@ export const notificationsRouter = router({
       return toEnvelope(rows.map(r => notificationDto.parse(r)));
     }),
 
-  create: protectedProcedure
+  /**
+   * Create a new notification — staff only.
+   * @privileged
+   */
+  create: privilegedProcedure
     .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 60 }))
     .meta({
       openapi: {
@@ -73,9 +84,6 @@ export const notificationsRouter = router({
     .output(z.object({ success: z.literal(true), data: notificationDto }))
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const now = new Date();
       const [created] = await db

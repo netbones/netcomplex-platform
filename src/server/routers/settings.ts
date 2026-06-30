@@ -2,6 +2,8 @@ import { z } from 'zod';
 import {
   router,
   protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   settings,
   writeAuditLog,
@@ -23,13 +25,14 @@ const UpsertSettingInput = z.object({
 const DeleteSettingInput = z.object({ key: z.string() });
 
 export const settingsRouter = router({
-  listSettings: protectedProcedure
+  /**
+   * List all settings for the current tenant.
+   * @tenant
+   */
+  listSettings: tenantProcedure
     .meta({ openapi: { method: 'GET', path: '/settings/list', protect: true, tags: ['settings'] } })
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const rows = await db
         .select()
@@ -40,14 +43,15 @@ export const settingsRouter = router({
       return toEnvelope(rows.map(r => settingDto.parse(r)));
     }),
 
-  getSetting: protectedProcedure
+  /**
+   * Get a single setting by key.
+   * @tenant
+   */
+  getSetting: tenantProcedure
     .input(SettingByKeyInput)
     .meta({ openapi: { method: 'GET', path: '/settings/get', protect: true, tags: ['settings'] } })
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [setting] = await db
         .select()
@@ -58,20 +62,21 @@ export const settingsRouter = router({
       return toEnvelope(setting ? settingDto.parse(setting) : { key: input.key, value: null });
     }),
 
-  upsertSetting: protectedProcedure
+  /**
+   * Upsert a setting value — staff only.
+   * @privileged
+   */
+  upsertSetting: privilegedProcedure
     .input(UpsertSettingInput)
     .meta({
       openapi: { method: 'POST', path: '/settings/upsert', protect: true, tags: ['settings'] },
     })
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       if (!hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin permission required' });
       }
+
+      const tenantId = ctx.tenantId;
 
       const validation = validateSettingValue(input.key, input.value);
       if (!validation.valid) {
@@ -120,20 +125,21 @@ export const settingsRouter = router({
       return toEnvelope(settingDto.parse(result));
     }),
 
-  deleteSetting: protectedProcedure
+  /**
+   * Delete a setting — staff only.
+   * @privileged
+   */
+  deleteSetting: privilegedProcedure
     .input(DeleteSettingInput)
     .meta({
       openapi: { method: 'DELETE', path: '/settings/delete', protect: true, tags: ['settings'] },
     })
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       if (!hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin permission required' });
       }
+
+      const tenantId = ctx.tenantId;
 
       const [existing] = await db
         .select()
@@ -161,19 +167,20 @@ export const settingsRouter = router({
       return toEnvelope({ success: true });
     }),
 
-  getContactSettings: protectedProcedure
+  /**
+   * Get contact settings — staff only.
+   * @privileged
+   */
+  getContactSettings: privilegedProcedure
     .meta({
       openapi: { method: 'GET', path: '/settings/contact', protect: true, tags: ['settings'] },
     })
     .query(async ({ ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       if (!hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin permission required' });
       }
+
+      const tenantId = ctx.tenantId;
 
       const rows = await db.select().from(settings).where(eq(settings.tenantId, tenantId));
 

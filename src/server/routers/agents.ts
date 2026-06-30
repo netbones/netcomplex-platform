@@ -2,6 +2,8 @@ import { z } from 'zod';
 import {
   router,
   protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   agentProcedure,
   db,
   agentAccesses,
@@ -91,15 +93,16 @@ export const agentsRouter = router({
       return toEnvelope({ properties: managedProperties });
     }),
 
-  getMarketplaceActions: protectedProcedure
+  /**
+   * Browse agent marketplace listings — tenant-scoped.
+   * @tenant
+   */
+  getMarketplaceActions: tenantProcedure
     .meta({
       openapi: { method: 'GET', path: '/agents/marketplace', protect: true, tags: ['agents'] },
     })
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const agentList = await db
         .select({
@@ -136,14 +139,15 @@ export const agentsRouter = router({
       return toEnvelope({ agents: agentList.map(a => agentProfileDto.parse(a)) });
     }),
 
-  connectWithAgent: protectedProcedure
+  /**
+   * Connect with a verified agent — tenant-scoped, premium seat required.
+   * @tenant
+   */
+  connectWithAgent: tenantProcedure
     .input(z.object({ agentId: z.string() }))
     .meta({ openapi: { method: 'POST', path: '/agents/connect', protect: true, tags: ['agents'] } })
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [seat] = await db
         .select()
