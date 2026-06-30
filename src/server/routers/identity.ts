@@ -1356,9 +1356,10 @@ export const identityRouter = router({
   // ============ USER ALBUMS ============
 
   /**
-   * List current user's albums — user-scoped.
+   * List current user's albums — tenant-scoped.
+   * @tenant
    */
-  listAlbums: protectedProcedure
+  listAlbums: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -1375,7 +1376,7 @@ export const identityRouter = router({
         .from(albums)
         .where(
           and(
-            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.tenantId, ctx.tenantId),
             eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
@@ -1386,9 +1387,10 @@ export const identityRouter = router({
     }),
 
   /**
-   * Get a single album — user-scoped.
+   * Get a single album — tenant-scoped.
+   * @tenant
    */
-  getAlbum: protectedProcedure
+  getAlbum: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -1407,7 +1409,7 @@ export const identityRouter = router({
         .where(
           and(
             eq(albums.id, input.id),
-            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.tenantId, ctx.tenantId),
             eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
@@ -1418,9 +1420,10 @@ export const identityRouter = router({
     }),
 
   /**
-   * Create an album — user-scoped.
+   * Create an album — tenant-scoped.
+   * @tenant
    */
-  createAlbum: protectedProcedure
+  createAlbum: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -1446,7 +1449,7 @@ export const identityRouter = router({
         .from(albums)
         .where(
           and(
-            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.tenantId, ctx.tenantId),
             eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
@@ -1461,7 +1464,7 @@ export const identityRouter = router({
         .insert(albums)
         .values({
           id: crypto.randomUUID(),
-          tenantId: ctx.tenantId!,
+          tenantId: ctx.tenantId,
           userId: ctx.userId,
           title: input.title,
           description: input.description || null,
@@ -1477,7 +1480,7 @@ export const identityRouter = router({
         .from(albums)
         .where(
           and(
-            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.tenantId, ctx.tenantId),
             eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
@@ -1488,9 +1491,10 @@ export const identityRouter = router({
     }),
 
   /**
-   * Update an album — user-scoped.
+   * Update an album — tenant-scoped.
+   * @tenant
    */
-  updateAlbum: protectedProcedure
+  updateAlbum: tenantProcedure
     .meta({
       openapi: {
         method: 'PATCH',
@@ -1527,7 +1531,7 @@ export const identityRouter = router({
         .where(
           and(
             eq(albums.id, id),
-            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.tenantId, ctx.tenantId),
             eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
@@ -1538,7 +1542,7 @@ export const identityRouter = router({
         .from(albums)
         .where(
           and(
-            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.tenantId, ctx.tenantId),
             eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
@@ -1549,9 +1553,10 @@ export const identityRouter = router({
     }),
 
   /**
-   * Delete an album — user-scoped.
+   * Delete an album — tenant-scoped.
+   * @tenant
    */
-  deleteAlbum: protectedProcedure
+  deleteAlbum: tenantProcedure
     .meta({
       openapi: {
         method: 'DELETE',
@@ -1572,7 +1577,7 @@ export const identityRouter = router({
         .where(
           and(
             eq(albums.id, input.id),
-            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.tenantId, ctx.tenantId),
             eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
@@ -1583,7 +1588,7 @@ export const identityRouter = router({
         .from(albums)
         .where(
           and(
-            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.tenantId, ctx.tenantId),
             eq(albums.userId, ctx.userId),
             isNull(albums.deletedAt)
           )
@@ -1638,9 +1643,10 @@ export const identityRouter = router({
   // ============ SEATS ============
 
   /**
-   * Get current user's seat info — user-scoped.
+   * Get current user's seat info — tenant-scoped.
+   * @tenant
    */
-  getMySeat: protectedProcedure
+  getMySeat: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -1659,21 +1665,16 @@ export const identityRouter = router({
       )
     )
     .query(async ({ ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       const [solo] = await ctx.db
         .select()
         .from(soloSeats)
-        .where(and(eq(soloSeats.userId, ctx.userId), eq(soloSeats.tenantId, tenantId)))
+        .where(and(eq(soloSeats.userId, ctx.userId), eq(soloSeats.tenantId, ctx.tenantId)))
         .limit(1);
 
       const [premium] = await ctx.db
         .select()
         .from(premiumSeats)
-        .where(and(eq(premiumSeats.userId, ctx.userId), eq(premiumSeats.tenantId, tenantId)))
+        .where(and(eq(premiumSeats.userId, ctx.userId), eq(premiumSeats.tenantId, ctx.tenantId)))
         .limit(1);
 
       return toEnvelope({ solo: solo || null, premium: premium || null });
@@ -1721,9 +1722,10 @@ export const identityRouter = router({
   // ============ DASHBOARD STATS ============
 
   /**
-   * Get dashboard summary stats — user-scoped.
+   * Get dashboard summary stats — tenant-scoped.
+   * @tenant
    */
-  getDashboardStats: protectedProcedure
+  getDashboardStats: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -1751,27 +1753,27 @@ export const identityRouter = router({
           .where(
             and(
               eq(maintenanceRequests.userId, ctx.userId),
-              eq(maintenanceRequests.tenantId, ctx.tenantId!)
+              eq(maintenanceRequests.tenantId, ctx.tenantId)
             )
           ),
         ctx.db
           .select({ count: count() })
           .from(bookings)
-          .where(and(eq(bookings.userId, ctx.userId), eq(bookings.tenantId, ctx.tenantId!))),
+          .where(and(eq(bookings.userId, ctx.userId), eq(bookings.tenantId, ctx.tenantId))),
         ctx.db
           .select({ count: count() })
           .from(conversationParticipants)
           .where(
             and(
               eq(conversationParticipants.userId, ctx.userId),
-              eq(conversationParticipants.tenantId, ctx.tenantId!)
+              eq(conversationParticipants.tenantId, ctx.tenantId)
             )
           ),
         ctx.db
           .select({ count: count() })
           .from(notifications)
           .where(
-            and(eq(notifications.userId, ctx.userId), eq(notifications.tenantId, ctx.tenantId!))
+            and(eq(notifications.userId, ctx.userId), eq(notifications.tenantId, ctx.tenantId))
           ),
       ]);
 
@@ -1786,9 +1788,10 @@ export const identityRouter = router({
   // ============ USER BOOKS ============
 
   /**
-   * List books for a user — user-scoped.
+   * List books for a user — tenant-scoped.
+   * @tenant
    */
-  listUserBooks: protectedProcedure
+  listUserBooks: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -1815,7 +1818,7 @@ export const identityRouter = router({
       const userResult = await ctx.db
         .select({ books: users.books })
         .from(users)
-        .where(and(eq(users.id, input.userId), eq(users.tenantId, ctx.tenantId!)))
+        .where(and(eq(users.id, input.userId), eq(users.tenantId, ctx.tenantId)))
         .limit(1);
 
       const books = userResult[0]
