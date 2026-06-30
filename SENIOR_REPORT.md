@@ -122,9 +122,9 @@ The entire component at `src/entities/tenant/ui/FeatureGate.tsx` has all its log
 
 ### 10. Database — Missing Foreign Keys
 
-- `UserAchievementProgress.definitionId` and `UserAchievement.definitionId`: no `@relation` declared — **no FK constraint at DB level**
-- `DelegationAction.actorId`: same issue
+- `DelegationAction.actorId`: no `@relation` declared — **no FK constraint at DB level**
 - 20+ tenant-scoped models have `tenantId` as a plain String with no FK to `Tenant`. Tenant deletion would leave orphans across ~20 tables.
+- ✅ **FIXED**: `UserAchievement[Progress].definitionId` now has FK relation to `AchievementDefinition`
 
 ### 11. Database — Missing Indexes
 
@@ -210,7 +210,7 @@ Client-side `console.*` calls in `DWalletAdminWidget.tsx` and `useAutoSave.ts` �
 | **Documentation**    | ✅ 7/10 | Excellent API.md, ADR.md, SPEC.md; AGENTS.md thorough; GAPS.md tracks debt                              |
 | **Maintainability**  | ⚠️ 5/10 | Massive duplication; some dead code; inconsistent patterns; but FSD structure is solid                  |
 
-**Overall: 6.2/10** — Sprint 2 improvements: formatDate consolidated, CORS added, security headers, Pino migration, coverage thresholds raised, dead code removed. Remaining: test failures (21), typecheck errors (~18), database FK/index work.
+**Overall: 6.4/10** — Sprint 3 progress: test failures down to 6 (from 21), middleware tests added (9 tests), FK relations fixed. Remaining: 6 test failures, TypeScript errors.
 
 ---
 
@@ -374,8 +374,10 @@ Client-side `console.*` calls in `DWalletAdminWidget.tsx` and `useAutoSave.ts` �
 
 | #   | Action                                                     | Effort  | Status                                   |
 | --- | ---------------------------------------------------------- | ------- | ---------------------------------------- |
-| 1   | Fix 21 test failures (specialized-routes, users, delegate) | 2-3 hrs | In Progress (mock fixes applied)         |
+| 1   | Fix 21 test failures (specialized-routes, users, delegate) | 2-3 hrs | In Progress (6 failures remaining)       |
 | 2   | Resolve remaining TypeScript errors                        | 2 hrs   | In Progress (~18 errors, typecheck slow) |
 | 3   | Add missing FK relations (UserAchievement)                 | 1 hr    | ✅ Done                                  |
-| 4   | Add middleware unit tests                                  | 2 hrs   | In Progress                              |
+| 4   | Add middleware unit tests                                  | 2 hrs   | ✅ Done (9 tests passing)                |
 | 5   | Remove FeatureGate.tsx dead code                           | 10 min  | ✅ Done                                  |
+
+**Progress**: Test failures reduced from 21 → 6; middleware tests added (9 tests); FK relations fixed.
