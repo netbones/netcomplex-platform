@@ -12,6 +12,7 @@
 
 import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { eq } from 'drizzle-orm';
 import { Pool } from 'pg';
 
 import { tenants } from '@schema/tenants';
@@ -49,6 +50,7 @@ import { providerInvoices } from '@schema/provider-invoices';
 import { revenueRecords } from '@schema/revenue-records';
 
 import { billingPlans } from '@schema/billing-plans';
+import { addresses } from '@schema/addresses';
 import { getOrCreateDefaultBillingPlans } from '@shared/lib/billing/seed-plans';
 import { platformModules } from '@schema/platform-modules';
 import { dataRevenueStreams } from '@schema/data-revenue-streams';
@@ -564,7 +566,64 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
   }
   console.log(`  ✓ ${streamCount} revenue streams`);
 
+  // System-reserved addresses
+  await seedSystemAddresses(tenantId);
+  console.log(`  ✓ system addresses seeded`);
+
   console.log(`\n✅ ${data.tenant.name} seeded.\n`);
+}
+
+// ---------------------------------------------------------------------------
+// System-reserved addresses
+// ---------------------------------------------------------------------------
+
+const RESERVED_SYSTEM_NAMES = [
+  'admin',
+  'support',
+  'system',
+  'billing',
+  'help',
+  'maintenance',
+  'security',
+  'office',
+  'community',
+  'events',
+];
+
+async function seedSystemAddresses(tenantId: string): Promise<void> {
+  const [tenant] = await db
+    .select({ slug: tenants.slug, customDomain: tenants.customDomain })
+    .from(tenants)
+    .where(eq(tenants.id, tenantId))
+    .limit(1);
+
+  if (!tenant) {
+    console.log('  ⚠ no tenant found for system addresses');
+    return;
+  }
+
+  const domain = tenant.customDomain ?? `${tenant.slug}.netbones.co.za`;
+  const now = new Date();
+
+  for (const name of RESERVED_SYSTEM_NAMES) {
+    const addr = `${name}@${domain}`;
+    await db
+      .insert(addresses)
+      .values({
+        id: crypto.randomUUID(),
+        tenantId,
+        address: addr,
+        localPart: name,
+        domain,
+        kind: 'SYSTEM',
+        status: 'ACTIVE',
+        ownerType: 'SYSTEM',
+        receiveExternal: false,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .onConflictDoNothing({ target: [addresses.tenantId, addresses.address] });
+  }
 }
 
 // ---------------------------------------------------------------------------

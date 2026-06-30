@@ -10,7 +10,9 @@ import {
   standardSeats,
   users,
   now,
-  assertAddressUnique,
+  AddressService,
+  AddressConflictError,
+  AddressValidationError,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
 import { TRPCError } from '@trpc/server';
@@ -228,27 +230,53 @@ export const premiumProcedures = {
           throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found' });
         }
 
-        const nameSlug = (user.name || '').toLowerCase().replace(/\s+/g, '.');
+        const nameSlug = (user.name || user.email || 'premium')
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '.');
         const shortId = userId.slice(0, 8);
-        const platformAddress = `${nameSlug}.${shortId}@sorialia.org`;
+        const localPart = `${nameSlug}.${shortId}`;
+        // Use tenant domain dynamically — NOT hardcoded soralia.org
+        const platformAddress = await AddressService.generate('PREMIUM', tenantId, {
+          custom: localPart,
+        });
 
+        // Reserve address + create PremiumSeat + backfill addressId in a single transaction
         try {
-          await assertAddressUnique(platformAddress, db);
+          premiumSeatId = await db.transaction(async tx => {
+            const addressService = new AddressService(tx);
+            const addressRecord = await addressService.reserve(
+              platformAddress,
+              tenantId,
+              'PREMIUM',
+              { ownerType: 'PREMIUM_SEAT', ownerId: userId }
+            );
+
+            const [newSeat] = await tx
+              .insert(premiumSeats)
+              .values({
+                id: crypto.randomUUID(),
+                userId,
+                tenantId,
+                platformAddress,
+              })
+              .returning({ id: premiumSeats.id });
+
+            await tx
+              .update(premiumSeats)
+              .set({ addressId: addressRecord.id as string })
+              .where(eq(premiumSeats.id, newSeat.id));
+
+            return newSeat.id;
+          });
         } catch (e) {
-          throw new TRPCError({ code: 'CONFLICT', message: (e as Error).message });
+          if (e instanceof AddressConflictError) {
+            throw new TRPCError({ code: 'CONFLICT', message: e.message });
+          }
+          if (e instanceof AddressValidationError) {
+            throw new TRPCError({ code: 'BAD_REQUEST', message: e.message });
+          }
+          throw e;
         }
-
-        const [newSeat] = await db
-          .insert(premiumSeats)
-          .values({
-            id: crypto.randomUUID(),
-            userId,
-            tenantId,
-            platformAddress,
-          })
-          .returning({ id: premiumSeats.id });
-
-        premiumSeatId = newSeat.id;
       }
 
       for (const propertyId of propertyIds) {
