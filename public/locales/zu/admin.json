@@ -115,5 +115,67 @@
     "failedThreshold": "Ukubuyekeza isilinganiso kuhlulekile",
     "failedLoad": "Iimpumelelo azilayishiwe",
     "customThreshold": "Isilinganiso esikhethekile (kungenalutho = okujwayelekile)"
+  },
+  "dwalletAdmin": {
+    "heading": "Ukuphathwa kwe-Wallet",
+    "residentsOptedIn": "Izakhamuzi Ezibhalisile",
+    "monthRewards": "Imivuzo Yanyanga",
+    "pendingPayouts": "Izinkokhelo Ezilindile",
+    "recentBatches": "Amaqoqo Akamuva",
+    "errorHeading": "Ayikwazanga ukulayisha i-Wallet yokuphatha",
+    "errorGeneric": "Sicela uvuselele ikhasi noma uzame futhi kamuva.",
+    "streams": {
+      "heading": "Imithombo Yemali Engenayo",
+      "addStream": "Engeza Umthombo",
+      "key": "Ukhiye",
+      "label": "Ilebula",
+      "description": "Incazelo (okukhetho)",
+      "residentShare": "Ingxenye Yomhlali %",
+      "keyPlaceholder": "isb. survey_participation",
+      "labelPlaceholder": "isb. Ukubamba iqhaza Ocwaningweni",
+      "descPlaceholder": "Okulawulwa yilo mthombo",
+      "creating": "Iyakha...",
+      "createStream": "Dala Umthombo",
+      "cancel": "Khansela",
+      "empty": "Awukho umthombo wemali engenayo omisiwe",
+      "shareCol": "Ingxenye %",
+      "activeCol": "Iyasebenza",
+      "actionsCol": "Izenzo",
+      "active": "Iyasebenza",
+      "inactive": "Ayisebenzi",
+      "save": "Londoloza",
+      "edit": "Lungisa",
+      "deactivateLabel": "Vala umthombo",
+      "activateLabel": "Vula umthombo"
+    },
+    "distribution": {
+      "heading": "Qalisa Ukusabalalisa",
+      "revenueStream": "Umthombo Wemali Engenayo",
+      "noStreams": "Awukho umthombo wemali engenayo omisiwe",
+      "periodStart": "Isikhathi Sokuqala",
+      "periodEnd": "Isikhathi Sokuphela",
+      "totalRevenue": "Imali Engenayo Isiyonke (ZAR)",
+      "amountPlaceholder": "0.00",
+      "goBack": "Buyela Emuva",
+      "processing": "Iyacubungula...",
+      "runDistribution": "Qalisa Ukusabalalisa"
+    },
+    "payouts": {
+      "empty": "Azikho izinkokhelo ezilindile",
+      "resident": "Umhlali",
+      "amount": "Inani",
+      "dateRequested": "Usuku Oluceliwe",
+      "actions": "Izenzo",
+      "approve": "Gunyaza",
+      "reject": "Enqaba",
+      "approveLabel": "Gunyaza inkokhelo",
+      "rejectLabel": "Enqaba inkokhelo"
+    },
+    "batches": {
+      "empty": "Awekho amaqoqo okusabalalisa",
+      "completed": "Kuphethwe",
+      "failed": "Kwehlulekile",
+      "processing": "Iyacubungula"
+    }
   }
 }

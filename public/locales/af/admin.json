@@ -115,5 +115,67 @@
     "failedThreshold": "Drempel opdatering misluk",
     "failedLoad": "Kon nie prestasies laai nie",
     "customThreshold": "Aangepaste drempel (leeg = standaard)"
+  },
+  "dwalletAdmin": {
+    "heading": "dWallet Admin",
+    "residentsOptedIn": "Inwoners Ingeteken",
+    "monthRewards": "Maandelikse Belonings",
+    "pendingPayouts": "Hangende Uitbetalings",
+    "recentBatches": "Onlangse Groepe",
+    "errorHeading": "Kon nie dWallet admin laai nie",
+    "errorGeneric": "Verfris asseblief die bladsy of probeer later weer.",
+    "streams": {
+      "heading": "Inkomstestrome",
+      "addStream": "Voeg Stroom By",
+      "key": "Sleutel",
+      "label": "Etiket",
+      "description": "Beskrywing (opsioneel)",
+      "residentShare": "Inwoner Deel %",
+      "keyPlaceholder": "bv. survey_participation",
+      "labelPlaceholder": "bv. Opname Deelname",
+      "descPlaceholder": "Wat hierdie stroom beheer",
+      "creating": "Besig om te skep...",
+      "createStream": "Skep Stroom",
+      "cancel": "Kanselleer",
+      "empty": "Geen inkomstestrome opgestel nie",
+      "shareCol": "Deel %",
+      "activeCol": "Aktief",
+      "actionsCol": "Aksies",
+      "active": "Aktief",
+      "inactive": "Onaktief",
+      "save": "Stoor",
+      "edit": "Wysig",
+      "deactivateLabel": "Deaktiveer stroom",
+      "activateLabel": "Aktiveer stroom"
+    },
+    "distribution": {
+      "heading": "Voer Verspreiding Uit",
+      "revenueStream": "Inkomstestroom",
+      "noStreams": "Geen inkomstestrome opgestel nie",
+      "periodStart": "Periode Begin",
+      "periodEnd": "Periode Einde",
+      "totalRevenue": "Totale Inkomste (ZAR)",
+      "amountPlaceholder": "0.00",
+      "goBack": "Gaan Terug",
+      "processing": "Besig om te verwerk...",
+      "runDistribution": "Voer Verspreiding Uit"
+    },
+    "payouts": {
+      "empty": "Geen hangende uitbetalings nie",
+      "resident": "Inwoner",
+      "amount": "Bedrag",
+      "dateRequested": "Datum Aangevra",
+      "actions": "Aksies",
+      "approve": "Goedkeur",
+      "reject": "Verwerp",
+      "approveLabel": "Keur uitbetaling goed",
+      "rejectLabel": "Verwerp uitbetaling"
+    },
+    "batches": {
+      "empty": "Geen verspreidingsgroepe nie",
+      "completed": "Voltooi",
+      "failed": "Misluk",
+      "processing": "Besig om te verwerk"
+    }
   }
 }

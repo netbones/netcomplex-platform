@@ -115,5 +115,67 @@
     "failedThreshold": "Umda uhlaziyo aluphumelelanga",
     "failedLoad": "Iimpumelelo azilayishwanga",
     "customThreshold": "Umda oqhelekileyo (ungenanto = umgangatho)"
+  },
+  "dwalletAdmin": {
+    "heading": "iWallet yoLawulo",
+    "residentsOptedIn": "Abahlali Ababhalisile",
+    "monthRewards": "Imivuzo yeNyanga",
+    "pendingPayouts": "Iintlawulo eziLindeleyo",
+    "recentBatches": "Imithwalo yeNtsha",
+    "errorHeading": "Ayikwazanga ukulayisha iWallet yolawulo",
+    "errorGeneric": "Nceda uhlaziye iphepha okanye uzame kwakhona kamva.",
+    "streams": {
+      "heading": "Imithombo yeNgeniso",
+      "addStream": "Yongeza uMthombo",
+      "key": "Isitshixo",
+      "label": "Ileyibhile",
+      "description": "Inkcazelo (ukhethelo)",
+      "residentShare": "Isabelo soMhlali %",
+      "keyPlaceholder": "umz. survey_participation",
+      "labelPlaceholder": "umz. Ukuthatha iNxaxheba kuVavanyo",
+      "descPlaceholder": "Into elawulwa ngulo mthombo",
+      "creating": "Iyayila...",
+      "createStream": "Yila uMthombo",
+      "cancel": "Rhoxisa",
+      "empty": "Akukho mithombo yengeniso iqwalaselweyo",
+      "shareCol": "Isabelo %",
+      "activeCol": "Iyasebenza",
+      "actionsCol": "Izenzo",
+      "active": "Iyasebenza",
+      "inactive": "Ayisebenzi",
+      "save": "Gcina",
+      "edit": "Lungisa",
+      "deactivateLabel": "Yekela ukusebenza komthombo",
+      "activateLabel": "Qalisa ukusebenza komthombo"
+    },
+    "distribution": {
+      "heading": "Qhuba uSasahwano",
+      "revenueStream": "Umthombo weNgeniso",
+      "noStreams": "Akukho mithombo yengeniso iqwalaselweyo",
+      "periodStart": "Ukuqala kweXesha",
+      "periodEnd": "Ukuphela kweXesha",
+      "totalRevenue": "Ingeniso iYonke (ZAR)",
+      "amountPlaceholder": "0.00",
+      "goBack": "Buyela uMva",
+      "processing": "Iyasebenza...",
+      "runDistribution": "Qhuba uSasahwano"
+    },
+    "payouts": {
+      "empty": "Akukho zintlawulo zilindeleyo",
+      "resident": "Ummi",
+      "amount": "Isixa",
+      "dateRequested": "Umhla oCeliweyo",
+      "actions": "Izenzo",
+      "approve": "Yamkela",
+      "reject": "Yala",
+      "approveLabel": "Yamkela intlawulo",
+      "rejectLabel": "Yala intlawulo"
+    },
+    "batches": {
+      "empty": "Akukho mithwalo yosasaho",
+      "completed": "Igqityiwe",
+      "failed": "Ayiphumelelanga",
+      "processing": "Iyasebenza"
+    }
   }
 }

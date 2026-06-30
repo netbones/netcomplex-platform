@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { ErrorBoundary, LoadingCard } from '@shared/ui';
+import { useSafeTranslation } from '@shared/lib';
 import { Wallet, CheckCircle, XCircle, Plus, Edit2, ToggleLeft, ToggleRight } from 'lucide-react';
 import type { AdminStats, PayoutRequestItem, BatchRecord, StreamConfig } from '../model/types';
 import type { StreamConfigInput, StreamUpdateInput } from '../schema';
+type TxFn = (key: string, fallback: string, options?: Record<string, unknown>) => string;
 
 // ── Data fetching helpers ──────────────────────────────────────────────────
 
@@ -98,9 +100,10 @@ interface ManageStreamsProps {
   streams: StreamConfig[];
   onStreamCreated: () => void;
   onStreamUpdated: () => void;
+  tx: TxFn;
 }
 
-function ManageStreams({ streams, onStreamCreated, onStreamUpdated }: ManageStreamsProps) {
+function ManageStreams({ streams, onStreamCreated, onStreamUpdated, tx }: ManageStreamsProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -197,7 +200,9 @@ function ManageStreams({ streams, onStreamCreated, onStreamUpdated }: ManageStre
 
       {/* ── Header + Add button ──────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-slate-700">Revenue Streams</h4>
+        <h4 className="text-sm font-semibold text-slate-700">
+          {tx('dwalletAdmin.streams.heading', 'Revenue Streams')}
+        </h4>
         {!showAddForm && (
           <button
             type="button"
@@ -205,7 +210,7 @@ function ManageStreams({ streams, onStreamCreated, onStreamUpdated }: ManageStre
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 border border-indigo-200 rounded-lg hover:bg-indigo-50 transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
-            Add Stream
+            {tx('dwalletAdmin.streams.addStream', 'Add Stream')}
           </button>
         )}
       </div>
@@ -218,36 +223,50 @@ function ManageStreams({ streams, onStreamCreated, onStreamUpdated }: ManageStre
         >
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Key</label>
+              <label className="block text-xs text-slate-500 mb-1">
+                {tx('dwalletAdmin.streams.key', 'Key')}
+              </label>
               <input
                 value={newKey}
                 onChange={e => setNewKey(e.target.value)}
-                placeholder="e.g. survey_participation"
+                placeholder={tx('dwalletAdmin.streams.keyPlaceholder', 'e.g. survey_participation')}
                 className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Label</label>
+              <label className="block text-xs text-slate-500 mb-1">
+                {tx('dwalletAdmin.streams.label', 'Label')}
+              </label>
               <input
                 value={newLabel}
                 onChange={e => setNewLabel(e.target.value)}
-                placeholder="e.g. Survey Participation"
+                placeholder={tx(
+                  'dwalletAdmin.streams.labelPlaceholder',
+                  'e.g. Survey Participation'
+                )}
                 className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Description (optional)</label>
+              <label className="block text-xs text-slate-500 mb-1">
+                {tx('dwalletAdmin.streams.description', 'Description (optional)')}
+              </label>
               <input
                 value={newDescription}
                 onChange={e => setNewDescription(e.target.value)}
-                placeholder="What this stream controls"
+                placeholder={tx(
+                  'dwalletAdmin.streams.descPlaceholder',
+                  'What this stream controls'
+                )}
                 className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Resident Share %</label>
+              <label className="block text-xs text-slate-500 mb-1">
+                {tx('dwalletAdmin.streams.residentShare', 'Resident Share %')}
+              </label>
               <input
                 type="number"
                 min="0"
@@ -265,14 +284,16 @@ function ManageStreams({ streams, onStreamCreated, onStreamUpdated }: ManageStre
               disabled={isSubmitting}
               className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
             >
-              {isSubmitting ? 'Creating...' : 'Create Stream'}
+              {isSubmitting
+                ? tx('dwalletAdmin.streams.creating', 'Creating...')
+                : tx('dwalletAdmin.streams.createStream', 'Create Stream')}
             </button>
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
               className="px-4 py-2 text-sm text-slate-600 border border-slate-300 rounded-lg hover:bg-white transition-colors"
             >
-              Cancel
+              {tx('dwalletAdmin.streams.cancel', 'Cancel')}
             </button>
           </div>
         </form>
@@ -280,7 +301,9 @@ function ManageStreams({ streams, onStreamCreated, onStreamUpdated }: ManageStre
 
       {/* ── Streams table ────────────────────────────────────────────────── */}
       {streams.length === 0 ? (
-        <AdminEmptyState message="No revenue streams configured" />
+        <AdminEmptyState
+          message={tx('dwalletAdmin.streams.empty', 'No revenue streams configured')}
+        />
       ) : (
         <div className="border border-slate-200 rounded-lg bg-white overflow-hidden">
           <div className="overflow-x-auto">
@@ -288,19 +311,19 @@ function ManageStreams({ streams, onStreamCreated, onStreamUpdated }: ManageStre
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50">
                   <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                    Key
+                    {tx('dwalletAdmin.streams.key', 'Key')}
                   </th>
                   <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                    Label
+                    {tx('dwalletAdmin.streams.label', 'Label')}
                   </th>
                   <th className="text-right py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                    Share %
+                    {tx('dwalletAdmin.streams.shareCol', 'Share %')}
                   </th>
                   <th className="text-center py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                    Active
+                    {tx('dwalletAdmin.streams.activeCol', 'Active')}
                   </th>
                   <th className="text-right py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-                    Actions
+                    {tx('dwalletAdmin.streams.actionsCol', 'Actions')}
                   </th>
                 </tr>
               </thead>
@@ -331,7 +354,9 @@ function ManageStreams({ streams, onStreamCreated, onStreamUpdated }: ManageStre
                           <span
                             className={`inline-flex px-2 py-0.5 text-xs rounded-full ${s.isActive ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-500'}`}
                           >
-                            {s.isActive ? 'Active' : 'Inactive'}
+                            {s.isActive
+                              ? tx('dwalletAdmin.streams.active', 'Active')
+                              : tx('dwalletAdmin.streams.inactive', 'Inactive')}
                           </span>
                         </td>
                         <td className="py-2 px-3 text-right">
@@ -341,14 +366,14 @@ function ManageStreams({ streams, onStreamCreated, onStreamUpdated }: ManageStre
                               onClick={() => handleUpdate(s.id)}
                               className="px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
                             >
-                              Save
+                              {tx('dwalletAdmin.streams.save', 'Save')}
                             </button>
                             <button
                               type="button"
                               onClick={cancelEdit}
                               className="px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 rounded transition-colors"
                             >
-                              Cancel
+                              {tx('dwalletAdmin.streams.cancel', 'Cancel')}
                             </button>
                           </div>
                         </td>
@@ -365,7 +390,11 @@ function ManageStreams({ streams, onStreamCreated, onStreamUpdated }: ManageStre
                             type="button"
                             onClick={() => handleToggleActive(s)}
                             className="inline-flex items-center"
-                            aria-label={s.isActive ? 'Deactivate stream' : 'Activate stream'}
+                            aria-label={
+                              s.isActive
+                                ? tx('dwalletAdmin.streams.deactivateLabel', 'Deactivate stream')
+                                : tx('dwalletAdmin.streams.activateLabel', 'Activate stream')
+                            }
                           >
                             {s.isActive ? (
                               <ToggleRight className="w-5 h-5 text-green-600" />
@@ -381,7 +410,7 @@ function ManageStreams({ streams, onStreamCreated, onStreamUpdated }: ManageStre
                             className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded transition-colors"
                           >
                             <Edit2 className="w-3 h-3" />
-                            Edit
+                            {tx('dwalletAdmin.streams.edit', 'Edit')}
                           </button>
                         </td>
                       </>
@@ -409,9 +438,16 @@ interface DistributionFormProps {
   }) => void;
   onCancel: () => void;
   isSubmitting: boolean;
+  tx: TxFn;
 }
 
-function DistributionForm({ streams, onSubmit, onCancel, isSubmitting }: DistributionFormProps) {
+function DistributionForm({
+  streams,
+  onSubmit,
+  onCancel,
+  isSubmitting,
+  tx,
+}: DistributionFormProps) {
   const [streamKey, setStreamKey] = useState(streams[0]?.key ?? '');
   const [periodStart, setPeriodStart] = useState('');
   const [periodEnd, setPeriodEnd] = useState('');
@@ -434,12 +470,14 @@ function DistributionForm({ streams, onSubmit, onCancel, isSubmitting }: Distrib
 
   return (
     <div className="border border-slate-200 rounded-lg p-4 bg-slate-50">
-      <h4 className="text-sm font-semibold text-slate-700 mb-3">Run Distribution</h4>
+      <h4 className="text-sm font-semibold text-slate-700 mb-3">
+        {tx('dwalletAdmin.distribution.heading', 'Run Distribution')}
+      </h4>
       <form onSubmit={handleSubmit} className="space-y-3">
         {/* Stream selector */}
         <div>
           <label htmlFor="batch-stream" className="block text-xs text-slate-500 mb-1">
-            Revenue Stream
+            {tx('dwalletAdmin.distribution.revenueStream', 'Revenue Stream')}
           </label>
           <select
             id="batch-stream"
@@ -448,7 +486,9 @@ function DistributionForm({ streams, onSubmit, onCancel, isSubmitting }: Distrib
             className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             {streams.length === 0 ? (
-              <option value="">No revenue streams configured</option>
+              <option value="">
+                {tx('dwalletAdmin.distribution.noStreams', 'No revenue streams configured')}
+              </option>
             ) : (
               streams.map(s => (
                 <option key={s.key} value={s.key}>
@@ -462,7 +502,7 @@ function DistributionForm({ streams, onSubmit, onCancel, isSubmitting }: Distrib
         {/* Period Start */}
         <div>
           <label htmlFor="batch-start" className="block text-xs text-slate-500 mb-1">
-            Period Start
+            {tx('dwalletAdmin.distribution.periodStart', 'Period Start')}
           </label>
           <input
             id="batch-start"
@@ -477,7 +517,7 @@ function DistributionForm({ streams, onSubmit, onCancel, isSubmitting }: Distrib
         {/* Period End */}
         <div>
           <label htmlFor="batch-end" className="block text-xs text-slate-500 mb-1">
-            Period End
+            {tx('dwalletAdmin.distribution.periodEnd', 'Period End')}
           </label>
           <input
             id="batch-end"
@@ -492,7 +532,7 @@ function DistributionForm({ streams, onSubmit, onCancel, isSubmitting }: Distrib
         {/* Total Revenue */}
         <div>
           <label htmlFor="batch-revenue" className="block text-xs text-slate-500 mb-1">
-            Total Revenue (ZAR)
+            {tx('dwalletAdmin.distribution.totalRevenue', 'Total Revenue (ZAR)')}
           </label>
           <input
             id="batch-revenue"
@@ -501,7 +541,7 @@ function DistributionForm({ streams, onSubmit, onCancel, isSubmitting }: Distrib
             step="0.01"
             value={totalRevenue}
             onChange={e => setTotalRevenue(e.target.value)}
-            placeholder="0.00"
+            placeholder={tx('dwalletAdmin.distribution.amountPlaceholder', '0.00')}
             className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             required
           />
@@ -514,14 +554,16 @@ function DistributionForm({ streams, onSubmit, onCancel, isSubmitting }: Distrib
             onClick={onCancel}
             className="px-4 py-2 text-sm text-slate-600 border border-slate-300 rounded-lg hover:bg-white transition-colors"
           >
-            Go Back
+            {tx('dwalletAdmin.distribution.goBack', 'Go Back')}
           </button>
           <button
             type="submit"
             disabled={!isValid || isSubmitting}
             className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
           >
-            {isSubmitting ? 'Processing...' : 'Run Distribution'}
+            {isSubmitting
+              ? tx('dwalletAdmin.distribution.processing', 'Processing...')
+              : tx('dwalletAdmin.distribution.runDistribution', 'Run Distribution')}
           </button>
         </div>
       </form>
@@ -537,6 +579,7 @@ interface PayoutsTableProps {
   onReject: (id: string) => void;
   isActioning: boolean;
   actioningId: string | null;
+  tx: TxFn;
 }
 
 function PayoutsTable({
@@ -545,10 +588,11 @@ function PayoutsTable({
   onReject,
   isActioning,
   actioningId: _actioningId,
+  tx,
 }: PayoutsTableProps) {
   void _actioningId;
   if (payouts.length === 0) {
-    return <AdminEmptyState message="No pending payouts" />;
+    return <AdminEmptyState message={tx('dwalletAdmin.payouts.empty', 'No pending payouts')} />;
   }
 
   return (
@@ -557,16 +601,16 @@ function PayoutsTable({
         <thead>
           <tr className="border-b border-slate-200">
             <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-              Resident
+              {tx('dwalletAdmin.payouts.resident', 'Resident')}
             </th>
             <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-              Amount
+              {tx('dwalletAdmin.payouts.amount', 'Amount')}
             </th>
             <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-              Date Requested
+              {tx('dwalletAdmin.payouts.dateRequested', 'Date Requested')}
             </th>
             <th className="text-left py-2 px-3 text-xs font-medium text-slate-400 uppercase">
-              Actions
+              {tx('dwalletAdmin.payouts.actions', 'Actions')}
             </th>
           </tr>
         </thead>
@@ -589,21 +633,21 @@ function PayoutsTable({
                     type="button"
                     onClick={() => onApprove(payout.id)}
                     disabled={isActioning}
-                    aria-label={`Approve payout`}
+                    aria-label={tx('dwalletAdmin.payouts.approveLabel', 'Approve payout')}
                     className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded transition-colors disabled:opacity-50"
                   >
                     <CheckCircle className="w-3.5 h-3.5" />
-                    Approve
+                    {tx('dwalletAdmin.payouts.approve', 'Approve')}
                   </button>
                   <button
                     type="button"
                     onClick={() => onReject(payout.id)}
                     disabled={isActioning}
-                    aria-label={`Reject payout`}
+                    aria-label={tx('dwalletAdmin.payouts.rejectLabel', 'Reject payout')}
                     className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded transition-colors disabled:opacity-50"
                   >
                     <XCircle className="w-3.5 h-3.5" />
-                    Reject
+                    {tx('dwalletAdmin.payouts.reject', 'Reject')}
                   </button>
                 </div>
               </td>
@@ -619,11 +663,14 @@ function PayoutsTable({
 
 interface BatchesListProps {
   batches: BatchRecord[];
+  tx: TxFn;
 }
 
-function BatchesList({ batches }: BatchesListProps) {
+function BatchesList({ batches, tx }: BatchesListProps) {
   if (batches.length === 0) {
-    return <AdminEmptyState message="No distribution batches" />;
+    return (
+      <AdminEmptyState message={tx('dwalletAdmin.batches.empty', 'No distribution batches')} />
+    );
   }
 
   const statusBadge = (status: string) => {
@@ -631,19 +678,19 @@ function BatchesList({ batches }: BatchesListProps) {
       case 'COMPLETED':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-green-50 text-green-700">
-            <CheckCircle className="w-3 h-3" /> Completed
+            <CheckCircle className="w-3 h-3" /> {tx('dwalletAdmin.batches.completed', 'Completed')}
           </span>
         );
       case 'FAILED':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-red-50 text-red-700">
-            <XCircle className="w-3 h-3" /> Failed
+            <XCircle className="w-3 h-3" /> {tx('dwalletAdmin.batches.failed', 'Failed')}
           </span>
         );
       case 'PROCESSING':
         return (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-indigo-50 text-indigo-700">
-            Processing
+            {tx('dwalletAdmin.batches.processing', 'Processing')}
           </span>
         );
       default:
@@ -678,6 +725,7 @@ function BatchesList({ batches }: BatchesListProps) {
 // ── Main Component ─────────────────────────────────────────────────────────
 
 function DWalletAdminWidgetContent() {
+  const { tx } = useSafeTranslation('admin');
   const [activeTab, setActiveTab] = useState<'streams' | 'distribute'>('streams');
   const [showDistributionForm, setShowDistributionForm] = useState(false);
   const [isSubmittingBatch, setIsSubmittingBatch] = useState(false);
@@ -888,6 +936,7 @@ function DWalletAdminWidgetContent() {
           streams={streams}
           onStreamCreated={refreshStreams}
           onStreamUpdated={refreshStreams}
+          tx={tx}
         />
       ) : !showDistributionForm ? (
         <button
@@ -895,7 +944,7 @@ function DWalletAdminWidgetContent() {
           onClick={() => setShowDistributionForm(true)}
           className="inline-flex items-center gap-2 px-4 py-2.5 min-h-[44px] bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors self-start"
         >
-          Run Distribution
+          {tx('dwalletAdmin.distribution.runDistribution', 'Run Distribution')}
         </button>
       ) : (
         <DistributionForm
@@ -903,12 +952,15 @@ function DWalletAdminWidgetContent() {
           onSubmit={handleRunDistribution}
           onCancel={() => setShowDistributionForm(false)}
           isSubmitting={isSubmittingBatch}
+          tx={tx}
         />
       )}
 
       {/* ── Pending Payouts ──────────────────────────────────────────── */}
       <div>
-        <h4 className="text-sm font-semibold text-slate-700 mb-2">Pending Payouts</h4>
+        <h4 className="text-sm font-semibold text-slate-700 mb-2">
+          {tx('dwalletAdmin.pendingPayouts', 'Pending Payouts')}
+        </h4>
         <div className="border border-slate-200 rounded-lg bg-white overflow-hidden">
           <PayoutsTable
             payouts={payouts.filter(p => p.status === 'PENDING' || p.status === 'PROCESSING')}
@@ -916,15 +968,18 @@ function DWalletAdminWidgetContent() {
             onReject={handleRejectPayout}
             isActioning={actioningPayoutId !== null}
             actioningId={actioningPayoutId}
+            tx={tx}
           />
         </div>
       </div>
 
       {/* ── Recent Batches ───────────────────────────────────────────── */}
       <div>
-        <h4 className="text-sm font-semibold text-slate-700 mb-2">Recent Batches</h4>
+        <h4 className="text-sm font-semibold text-slate-700 mb-2">
+          {tx('dwalletAdmin.recentBatches', 'Recent Batches')}
+        </h4>
         <div className="border border-slate-200 rounded-lg bg-white overflow-hidden">
-          <BatchesList batches={batches.slice(0, 5)} />
+          <BatchesList batches={batches.slice(0, 5)} tx={tx} />
         </div>
       </div>
     </div>
@@ -934,13 +989,16 @@ function DWalletAdminWidgetContent() {
 // ── Exported widget wrapped in ErrorBoundary ───────────────────────────────
 
 export function DWalletAdminWidget() {
+  const { tx } = useSafeTranslation('admin');
   return (
     <ErrorBoundary
       fallback={
         <div className="flex flex-col items-center justify-center min-h-[200px] p-8 text-center bg-red-50 border border-red-200 rounded-lg">
-          <h3 className="text-lg font-semibold text-red-800 mb-2">Could not load dWallet admin</h3>
+          <h3 className="text-lg font-semibold text-red-800 mb-2">
+            {tx('dwalletAdmin.errorHeading', 'Could not load dWallet admin')}
+          </h3>
           <p className="text-sm text-red-600 mb-4 max-w-md">
-            Please refresh the page or try again later.
+            {tx('dwalletAdmin.errorGeneric', 'Please refresh the page or try again later.')}
           </p>
         </div>
       }

@@ -117,5 +117,67 @@
     "failedThreshold": "Failed to update threshold",
     "failedLoad": "Failed to load achievements",
     "customThreshold": "Custom threshold (blank = default)"
+  },
+  "dwalletAdmin": {
+    "heading": "dWallet Admin",
+    "residentsOptedIn": "Residents Opted In",
+    "monthRewards": "Month Rewards",
+    "pendingPayouts": "Pending Payouts",
+    "recentBatches": "Recent Batches",
+    "errorHeading": "Could not load dWallet admin",
+    "errorGeneric": "Please refresh the page or try again later.",
+    "streams": {
+      "heading": "Revenue Streams",
+      "addStream": "Add Stream",
+      "key": "Key",
+      "label": "Label",
+      "description": "Description (optional)",
+      "residentShare": "Resident Share %",
+      "keyPlaceholder": "e.g. survey_participation",
+      "labelPlaceholder": "e.g. Survey Participation",
+      "descPlaceholder": "What this stream controls",
+      "creating": "Creating...",
+      "createStream": "Create Stream",
+      "cancel": "Cancel",
+      "empty": "No revenue streams configured",
+      "shareCol": "Share %",
+      "activeCol": "Active",
+      "actionsCol": "Actions",
+      "active": "Active",
+      "inactive": "Inactive",
+      "save": "Save",
+      "edit": "Edit",
+      "deactivateLabel": "Deactivate stream",
+      "activateLabel": "Activate stream"
+    },
+    "distribution": {
+      "heading": "Run Distribution",
+      "revenueStream": "Revenue Stream",
+      "noStreams": "No revenue streams configured",
+      "periodStart": "Period Start",
+      "periodEnd": "Period End",
+      "totalRevenue": "Total Revenue (ZAR)",
+      "amountPlaceholder": "0.00",
+      "goBack": "Go Back",
+      "processing": "Processing...",
+      "runDistribution": "Run Distribution"
+    },
+    "payouts": {
+      "empty": "No pending payouts",
+      "resident": "Resident",
+      "amount": "Amount",
+      "dateRequested": "Date Requested",
+      "actions": "Actions",
+      "approve": "Approve",
+      "reject": "Reject",
+      "approveLabel": "Approve payout",
+      "rejectLabel": "Reject payout"
+    },
+    "batches": {
+      "empty": "No distribution batches",
+      "completed": "Completed",
+      "failed": "Failed",
+      "processing": "Processing"
+    }
   }
 }
