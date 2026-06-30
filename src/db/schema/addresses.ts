@@ -1,0 +1,25 @@
+import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core';
+import { addressKindEnum } from './address-kind-enum';
+import { addressStatusEnum } from './address-status-enum';
+import { addressOwnerTypeEnum } from './address-owner-type-enum';
+import { forwardStrategyEnum } from './forward-strategy-enum';
+
+export const addresses = pgTable('Address', {
+  id: text('id').primaryKey(),
+  tenantId: text('tenantId').notNull(),
+  address: text('address').notNull(),
+  localPart: text('localPart').notNull(),
+  domain: text('domain').notNull(),
+  kind: addressKindEnum('kind').notNull(),
+  status: addressStatusEnum('status').default('ACTIVE').notNull(),
+  ownerType: addressOwnerTypeEnum('ownerType'),
+  ownerId: text('ownerId'),
+  canonicalAddressId: text('canonicalAddressId'),
+  forwardStrategy: forwardStrategyEnum('forwardStrategy'),
+  receiveExternal: boolean('receiveExternal').default(false).notNull(),
+  coolingUntil: timestamp('coolingUntil', { mode: 'date', precision: 3 }),
+  archivedUntil: timestamp('archivedUntil', { mode: 'date', precision: 3 }),
+  releasedAt: timestamp('releasedAt', { mode: 'date', precision: 3 }),
+  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
+});
