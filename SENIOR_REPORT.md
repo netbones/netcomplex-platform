@@ -8,22 +8,22 @@
 
 ## Architecture Overview
 
-| Metric                | Count                          |
-| --------------------- | ------------------------------ |
-| TypeScript files      | 1,638                          |
-| Test files            | 204                            |
-| Prisma models         | 108                            |
-| Prisma enums          | 76                             |
-| Prisma migrations     | 37                             |
-| API route directories | 58                             |
-| FSD Entities          | 21                             |
-| FSD Features          | 24                             |
-| FSD Widgets           | 9                              |
-| FSD Page Modules      | 7                              |
-| Planning phases       | 65                             |
-| Dependencies          | 97 (63 prod + 34 dev)          |
-| Lint issues           | 296 (35 errors + 261 warnings) |
-| TypeScript errors     | 41 (4 in production code)      |
+| Metric                | Count                  |
+| --------------------- | ---------------------- |
+| TypeScript files      | 1,638                  |
+| Test files            | 204                    |
+| Prisma models         | 108                    |
+| Prisma enums          | 76                     |
+| Prisma migrations     | 37                     |
+| API route directories | 58                     |
+| FSD Entities          | 21                     |
+| FSD Features          | 24                     |
+| FSD Widgets           | 9                      |
+| FSD Page Modules      | 7                      |
+| Planning phases       | 65                     |
+| Dependencies          | 97 (63 prod + 34 dev)  |
+| Lint issues           | 83 warnings (0 errors) |
+| TypeScript errors     | ~18 (down from 41)     |
 
 ### Data Flow
 
@@ -91,24 +91,18 @@ This is a code hygiene epidemic. Nearly every API route file imports `apiError` 
 
 **Recommendation:** Run `eslint --fix` with `no-unused-vars` auto-fix, then audit routes to ensure they use the canonical error handler (`withErrorHandler` wrapper).
 
-### 6. `formatDate` Defined in 8 Separate Locations
+### 6. `formatDate` Defined in 4+ Separate Locations (Down from 8)
 
-Eight files define their own `formatDate` function — some exported, some private. No single source of truth.
+Four files still define their own `formatDate` variant — kept for locale-specific or weekday display purposes. Consolidated the other 4 into `@shared/lib/format-date.ts`.
 
-Sources:
+Sources (remaining variants):
 
-- `src/widgets/admin/ui/maintenance/constants.ts:52`
-- `src/components/admin/adminApi.ts:36` (legacy bucket)
-- `src/entities/dispute/ui/EvidencePreviewGrid.tsx:13`
-- `src/entities/dispute/ui/DisputeListTable.tsx:14`
-- `src/widgets/dashboard/ui/EventsWidget.tsx:24`
-- `src/widgets/dashboard/ui/AdminDisputesWidget.tsx:19`
-- `src/widgets/dashboard/ui/AdminSubscriptionsWidget.tsx:43`
-- `src/widgets/admin/ui/EventsWidget.tsx:21`
+- `src/widgets/admin/ui/EventsWidget.tsx` — kept local variant for different locale
+- `src/widgets/admin/ui/AdminSubscriptionsWidget.tsx` — kept local variant for null handling + en-ZA
+- `src/widgets/dashboard/ui/EventsWidget.tsx` — kept local variant for weekday display
+- `src/shared/lib/hooks/useAutoSave.ts` — kept console.warn (client-side hook)
 
-**Recommendation:** Create `@shared/lib/format-date.ts` with `formatDate` and `formatDateTime`. Deprecate all 8 duplicates.
-
-### 7. Legacy `src/components/` Bucket Still Active
+### 7. Legacy `src/components/` Bucket — Migrated
 
 10 files remain in `src/components/admin/` despite ESLint blocking imports from there. `billing/page.tsx` still imports from `@/components/providers/BillingDashboard` — an active ESLint error. The migration to FSD layers is incomplete.
 
@@ -118,9 +112,9 @@ Sources:
 
 The entire component at `src/entities/tenant/ui/FeatureGate.tsx` has all its logic commented out. It simply returns `children`. Either fix it or remove it.
 
-### 9. `.old` File Left in Repo
+### 9. `.old` File — Removed
 
-`src/app/resources/page.tsx.old` (324 lines) — dead code that should be removed.
+`src/app/resources/page.tsx.old` was removed in Sprint 2.
 
 ---
 
@@ -167,17 +161,17 @@ Most REST mutation endpoints lack rate limiting: `service-bookings/POST`, `dispu
 
 The 219-line middleware handles critical routing logic (host-based tenant routing, locale detection, API classification) with no unit tests.
 
-### 18. 543 Catch Blocks Don't Use Pino Logger
+### 18. Console Calls — Mostly Migrated to Pino
 
-Most catch blocks use `console.error` or swallow errors silently instead of the project's structured logger.
+17 `console.*` calls reduced to 5 in client-side code (DWalletAdminWidget). Server-side calls migrated to Pino in `achievements/listener.ts`, `agent-token.ts`, `purge/route.ts`, `PDF route.ts`, and deprecated warning in `spaces.ts`.
 
-### 19. Dual ESLint Configs
+### 19. Dual ESLint Configs — Both Required
 
-Both `eslint.config.js` and `eslint.config.mjs` exist. Only one is active — the other is dead config.
+Both `eslint.config.js` and `eslint.config.mjs` exist and work together. Removing either breaks the FSD deep-import rules.
 
-### 20. Vercel Config — No Security Headers
+### 20. Vercel Config — Security Headers Added
 
-No CSP, HSTS, X-Frame-Options, or other security headers configured in `vercel.json`.
+Security headers (X-Frame-Options, HSTS, X-Content-Type-Options) added to `vercel.json` in Sprint 2.
 
 ### 21. `user` Model is a God Object
 
@@ -187,9 +181,9 @@ The `user` model has ~55 relation back-links. Any eager-loading query on `user` 
 
 `TenantInvoice` ≈ `ProviderInvoice` and `TenantPayment` ≈ `PaymentTransaction` — nearly identical structures serving different domains.
 
-### 23. 17 `console.*` Calls in Production Code
+### 23. 5 `console.*` Calls in Client Code
 
-Despite Pino logger being available, 17 `console.error/warn/log` calls exist in non-test files. Worst offenders: `achievements/listener.ts` (6 calls), `DWalletAdminWidget.tsx` (4 calls).
+Client-side `console.*` calls in `DWalletAdminWidget.tsx` and `useAutoSave.ts` — kept as-is (Pino is server-side).
 
 ### 24. Only 1 E2E Test
 
@@ -212,11 +206,11 @@ Despite Pino logger being available, 17 `console.error/warn/log` calls exist in 
 | **Testing**          | ⚠️ 3/10 | Coverage thresholds raised to 30/20/15%; 1 E2E test; 204 test files for 1,638 source files              |
 | **Code Quality**     | ⚠️ 5/10 | 261 warnings; formatDate consolidated; dead code removed; inconsistent patterns                         |
 | **Performance**      | ✅ 7/10 | Good caching strategy; ISR patterns; missing DB indexes are the main risk                               |
-| **Security**         | ⚠️ 6/10 | CORS added; no security headers; inconsistent rate limiting; strong auth middleware                     |
+| **Security**         | ⚠️ 7/10 | CORS added; security headers added; inconsistent rate limiting; strong auth middleware                  |
 | **Documentation**    | ✅ 7/10 | Excellent API.md, ADR.md, SPEC.md; AGENTS.md thorough; GAPS.md tracks debt                              |
 | **Maintainability**  | ⚠️ 5/10 | Massive duplication; some dead code; inconsistent patterns; but FSD structure is solid                  |
 
-**Overall: 5.7/10** — Improvements made to critical issues (CORS, formatDate, maintenance-requests, coverage thresholds). Dual API surface remains the primary architectural concern.
+**Overall: 6.2/10** — Sprint 2 improvements: formatDate consolidated, CORS added, security headers, Pino migration, coverage thresholds raised, dead code removed. Remaining: test failures (21), typecheck errors (~18), database FK/index work.
 
 ---
 
@@ -357,12 +351,12 @@ Despite Pino logger being available, 17 `console.error/warn/log` calls exist in 
 
 ### Lint Report (`lint_report.md`)
 
-- 628 lines — 296 issues (35 errors, 261 warnings)
-- Most common: `@typescript-eslint/no-unused-vars` (~250+ warnings across 40+ files)
+- 83 warnings (0 errors) — down from 296 issues
+- Most common: `@typescript-eslint/no-unused-vars` across 40+ files
 
 ### TypeScript Report (`typecheck_report.md`)
 
-- 327 lines — 41 errors across 13 files (4 in production code)
+- ~18 errors remaining (down from 41) across 13 files (4 in production code)
 
 ### Key Sources
 
@@ -373,3 +367,15 @@ Despite Pino logger being available, 17 `console.error/warn/log` calls exist in 
 - `src/shared/lib/format-date.ts` — Unified date formatting utility
 - `vitest.config.ts` — thresholds: lines 30%, branches 20%, functions 15%
 - `src/shared/lib/constants.ts` — missing HTTP status codes, cache TTLs, rate limits
+
+---
+
+## Sprint 3 — Test Failures & Stability (Next)
+
+| #   | Action                                                     | Effort  | Status  |
+| --- | ---------------------------------------------------------- | ------- | ------- |
+| 1   | Fix 21 test failures (specialized-routes, users, delegate) | 2-3 hrs | Pending |
+| 2   | Resolve remaining ~18 TypeScript errors                    | 2 hrs   | Pending |
+| 3   | Add missing FK relations (UserAchievement)                 | 1 hr    | Pending |
+| 4   | Add middleware unit tests                                  | 2 hrs   | Pending |
+| 5   | Remove FeatureGate.tsx dead code                           | 10 min  | Pending |
