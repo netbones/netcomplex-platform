@@ -790,11 +790,13 @@
 │   │   ├── tenant.md
 │   │   ├── user.md
 │   │   └── widget.md
+│   ├── DEFERRED.md
 │   ├── discussions
 │   │   ├── AGENT_USER_STORIES.md
 │   │   ├── AI_PROVIDERS.md
 │   │   ├── BILLING.md
 │   │   ├── CHAT_E2EE.md
+│   │   ├── COMMINIQUE-01_RESPONSE.md
 │   │   ├── COMMUNITY_TOPICS_DISCUSSION.md
 │   │   ├── DISCUSSION-response.md
 │   │   ├── DISCUSSION-server-only-barrel.md
@@ -812,6 +814,7 @@
 │   │   ├── dashboard
 │   │   │   ├── emojis.md
 │   │   │   └── TIPTAP_BLUEPRINT.md
+│   │   ├── education_portal_widget.html
 │   │   ├── hub.md
 │   │   ├── Implementing-roll-up-feature-with-rnd.md
 │   │   ├── localisation
@@ -904,6 +907,11 @@
 │   │   └── TOAST_TOOLTIPS_REVIEW.md
 │   ├── REVIEW_OUTSTANDING.md
 │   ├── SETTINGS_INFRA_REVIEW.md
+│   ├── skills
+│   │   └── senior-engineer-audit
+│   │   ├── performance-optimisation-engineer
+│   │   │   └── SKILL.md
+│   │   └── SKILL.md
 │   ├── standards
 │   │   ├── DATABASE_DESIGN_BEST_PRACTICE.md
 │   │   ├── dependency-analysis-recommendations.md
@@ -1034,12 +1042,15 @@
 │   │   │   └── migration.sql
 │   │   ├── 20260628104925_add_maintenance_routing_fields
 │   │   │   └── migration.sql
+│   │   ├── 20260629120000_add_rls_achievements
+│   │   │   └── migration.sql
+│   │   ├── 20260629130000_fix_rls_schema_usage
+│   │   │   └── migration.sql
 │   │   ├── manual_add_tenant_billing_models
 │   │   │   └── migration.sql
 │   │   └── migration_lock.toml
 │   ├── schema.prisma
 │   ├── seed
-│   │   ├── dwallet-streams.ts
 │   │   └── modules.ts
 │   └── seed.ts
 ├── prod-ca-2021.crt
@@ -1140,6 +1151,7 @@
 │   │   ├── competitions.svg
 │   │   ├── content.svg
 │   │   ├── events.svg
+│   │   ├── favicon.ico
 │   │   ├── favicon.svg
 │   │   ├── five.webp
 │   │   ├── four.webp
@@ -1162,13 +1174,17 @@
 │   │   ├── system.svg
 │   │   ├── three.webp
 │   │   ├── two.webp
-│   │   └── users.svg
+│   │   ├── users.svg
+│   │   ├── wallet-blue.svg
+│   │   ├── wallet-red.svg
+│   │   └── wallet.svg
 │   ├── soralia.jpg
 │   └── soralia.png
 ├── README.md
 ├── scripts
 │   ├── audit-tenant-isolation.ts
 │   ├── backfill-tenant-records.ts
+│   ├── changelog.sh
 │   ├── check-categories.ts
 │   ├── check-existing-props.ts
 │   ├── check-fk.ts
@@ -1180,6 +1196,7 @@
 │   ├── migrate-renter-relationships.ts
 │   ├── seed-data
 │   │   ├── builder.ts
+│   │   ├── dwallet-streams.ts
 │   │   ├── solaris-heights.ts
 │   │   ├── soralia-village.ts
 │   │   └── types.ts
@@ -2035,8 +2052,6 @@
 │   │   │   └── [id]
 │   │   │   └── page.tsx
 │   │   ├── dashboard
-│   │   │   └── wallet
-│   │   │   └── page.tsx
 │   │   ├── directory
 │   │   │   ├── layout.tsx
 │   │   │   └── page.tsx
@@ -2118,7 +2133,6 @@
 │   │   │   └── page.tsx.old
 │   │   ├── services
 │   │   │   ├── [id]
-│   │   │   │   ├── layout.tsx
 │   │   │   │   └── page.tsx
 │   │   │   ├── layout.tsx
 │   │   │   └── page.tsx
@@ -2155,6 +2169,8 @@
 │   │   │   │   ├── disputes
 │   │   │   │   │   ├── [id]
 │   │   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── dwallet
 │   │   │   │   │   └── page.tsx
 │   │   │   │   ├── events
 │   │   │   │   │   ├── [id]
@@ -2258,8 +2274,10 @@
 │   │   │   │   │   │   └── page.tsx
 │   │   │   │   │   └── new
 │   │   │   │   │   └── page.tsx
-│   │   │   │   └── [space]
-│   │   │   │   ├── layout.tsx
+│   │   │   │   ├── [space]
+│   │   │   │   │   ├── layout.tsx
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── wallet
 │   │   │   │   └── page.tsx
 │   │   │   ├── layout.tsx
 │   │   │   ├── page.tsx
@@ -2712,6 +2730,13 @@
 │   │   │   │   ├── isolation.test.ts
 │   │   │   │   └── ledger.test.ts
 │   │   │   └── ui
+│   │   │   ├── admin
+│   │   │   │   ├── api.ts
+│   │   │   │   ├── BatchesList.tsx
+│   │   │   │   ├── DistributionForm.tsx
+│   │   │   │   ├── ManageStreams.tsx
+│   │   │   │   ├── PayoutsTable.tsx
+│   │   │   │   └── shared.tsx
 │   │   │   ├── DWalletAdminWidget.tsx
 │   │   │   └── DWalletSummaryWidget.tsx
 │   │   ├── event
@@ -3020,6 +3045,7 @@
 │   │   │   ├── **tests**
 │   │   │   │   └── marketplace-listings.test.tsx
 │   │   │   └── ui
+│   │   │   ├── InquireModal.tsx
 │   │   │   ├── MarketplaceDetailPage.tsx
 │   │   │   ├── MarketplaceListingsPage.tsx
 │   │   │   ├── MarketplaceWidget.tsx
@@ -3159,6 +3185,7 @@
 │   │   ├── dto
 │   │   │   ├── chat.ts
 │   │   │   ├── content.ts
+│   │   │   ├── disputes.ts
 │   │   │   ├── dwallet.ts
 │   │   │   ├── identity.ts
 │   │   │   ├── index.ts
@@ -3166,6 +3193,7 @@
 │   │   │   ├── marketplace.ts
 │   │   │   ├── misc.ts
 │   │   │   ├── more.ts
+│   │   │   ├── resources.ts
 │   │   │   └── surveys.ts
 │   │   ├── openapi
 │   │   │   └── generator.ts
@@ -3437,11 +3465,16 @@
 │   │   └── Turnstile.tsx
 │   ├── test
 │   │   ├── api
-│   │   │   └── helpers.ts
+│   │   │   ├── helpers.ts
+│   │   │   ├── trpc-dto-mapping.test.ts
+│   │   │   ├── trpc-envelope.test.ts
+│   │   │   ├── trpc-error-codes.test.ts
+│   │   │   └── trpc-procedures.test.ts
 │   │   ├── billing-migration.test.ts
 │   │   ├── helpers
 │   │   │   └── mock-api-server.ts
 │   │   └── setup.ts
+│   ├── test-120-03-task1.sh
 │   └── widgets
 │   ├── admin
 │   │   ├── index.ts
@@ -3463,6 +3496,14 @@
 │   │   ├── EventsWidget.tsx
 │   │   ├── GroupForm.tsx
 │   │   ├── GroupModerationWidget.tsx
+│   │   ├── maintenance
+│   │   │   ├── CategoryManager.tsx
+│   │   │   ├── constants.ts
+│   │   │   ├── index.ts
+│   │   │   ├── RequestCards.tsx
+│   │   │   ├── RequestDetail.tsx
+│   │   │   ├── RequestFilters.tsx
+│   │   │   └── types.ts
 │   │   ├── PageSettingsWidget.tsx
 │   │   ├── ResourceForm.tsx
 │   │   ├── ResourceList.tsx
@@ -3609,4 +3650,4 @@
 ├── vercel.json
 └── vitest.config.ts
 
-1111 directories, 2499 files
+1119 directories, 2532 files

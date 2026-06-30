@@ -1,0 +1,61 @@
+{
+  "title": "Education Portal",
+  "subtitle": "Scholarships, bursaries, and free learning resources",
+  "tabs": {
+    "bursaries": "Bursaries & scholarships",
+    "resources": "Free resources",
+    "saved": "Saved"
+  },
+  "stats": {
+    "open": "Open opportunities",
+    "funding": "Total funding available",
+    "closing": "Closing this month"
+  },
+  "search": {
+    "bursaries": "Search bursaries...",
+    "resources": "Search textbooks, guides, courses..."
+  },
+  "filter": {
+    "allFields": "All fields",
+    "allTypes": "All types",
+    "fieldSTEM": "STEM",
+    "fieldCommerce": "Commerce",
+    "fieldArts": "Arts & humanities",
+    "fieldHealth": "Health sciences",
+    "fieldLaw": "Law",
+    "fieldEducation": "Education",
+    "typeBook": "Book",
+    "typeCourse": "Online course",
+    "typeJournal": "Journal / article",
+    "typeVideo": "Video series"
+  },
+  "card": {
+    "freeAccess": "Free access",
+    "details": "Details",
+    "open": "Open",
+    "apply": "Apply",
+    "save": "Save",
+    "remove": "Remove",
+    "closingSoon": "Closing soon",
+    "daysLeft": "{{count}}d left",
+    "closed": "Closed"
+  },
+  "shelf": {
+    "gutenberg": "Gutenberg classics — free to read"
+  },
+  "saved": {
+    "empty": "Nothing saved yet. Bookmark bursaries and resources to find them here.",
+    "bursaries": "Saved bursaries",
+    "resources": "Saved resources"
+  },
+  "featured": {
+    "pinned": "Pinned",
+    "nsfasTitle": "NSFAS 2026 applications are open",
+    "nsfasDesc": "All SA citizens at public universities and TVET colleges — closes 31 Jan 2026"
+  },
+  "empty": {
+    "bursaries": "No bursaries match those filters. Try broadening your search.",
+    "resources": "No resources match. Try a different search or type."
+  },
+  "allResources": "All resources"
+}

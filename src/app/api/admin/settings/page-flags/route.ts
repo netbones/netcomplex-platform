@@ -15,7 +15,9 @@ import {
   apiUnauthorized,
   writeAuditLog,
   rateLimitByUser,
+  CACHE_TAGS,
 } from '@api/server';
+import { revalidateTag } from 'next/cache';
 
 import { hasPermission } from '@shared/lib';
 import { createComponentLogger } from '@shared/lib';
@@ -44,6 +46,7 @@ const VALID_KEYS: (keyof PlatformPageFlags)[] = [
   'conservation',
   'conservationExternalUrl',
   'chat',
+  'education',
   'news',
   'events',
   'directory',
@@ -99,6 +102,7 @@ export async function POST(request: NextRequest) {
         tenantId: ctx.tenantId,
         details: { key, oldValue: result.oldValue, newValue: value, method: 'POST' },
       });
+      revalidateTag(CACHE_TAGS.SETTINGS);
       return apiSuccess({ success: true, key, value });
     }
 
@@ -166,6 +170,7 @@ export async function PUT(request: NextRequest) {
       });
     }
 
+    revalidateTag(CACHE_TAGS.SETTINGS);
     return apiSuccess({ results });
   } catch (error) {
     log.error({ operation: 'PUT' }, 'Failed to batch update page flags', error);

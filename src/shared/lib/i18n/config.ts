@@ -118,4 +118,5 @@ export const namespaces = [
   'admin',
   'platform',
   'home',
+  'education',
 ];

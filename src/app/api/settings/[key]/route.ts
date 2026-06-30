@@ -10,6 +10,7 @@ import {
   apiUnauthorized,
   writeAuditLog,
   rateLimitByUser,
+  revalidateAdminChanges,
 } from '@api/server';
 
 import { eq, and } from 'drizzle-orm';
@@ -143,6 +144,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ ke
       details: { key, oldValue, newValue: value, method: 'PATCH' },
     });
 
+    revalidateAdminChanges();
     return apiSuccess({ key, value });
   } catch (error) {
     apiLogger.error({ err: error, key, tenantId }, 'Settings upsert error');

@@ -1,0 +1,61 @@
+{
+  "title": "IPhothali yemfundo",
+  "subtitle": "Imifundaze, izibonelelo kanye nezinsiza zokufunda zamahhala",
+  "tabs": {
+    "bursaries": "Izibonelelo & imifundaze",
+    "resources": "Izinsiza zamahhala",
+    "saved": "Okulondoloziwe"
+  },
+  "stats": {
+    "open": "Amathuba avulekile",
+    "funding": "Isamba sonxhaso-mali olukhona",
+    "closing": "Kuvala kule nyanga"
+  },
+  "search": {
+    "bursaries": "Sesha izibonelelo...",
+    "resources": "Sesha izincwadi, imihlahlandlela, izifundo..."
+  },
+  "filter": {
+    "allFields": "Yonke imikhakha",
+    "allTypes": "Zonke izinhlobo",
+    "fieldSTEM": "I-STEM",
+    "fieldCommerce": "Ezentengiselwano",
+    "fieldArts": "Ubuciko & ezabantu",
+    "fieldHealth": "Isayensi yezempilo",
+    "fieldLaw": "Umthetho",
+    "fieldEducation": "Imfundo",
+    "typeBook": "Incwadi",
+    "typeCourse": "Isifundo se-inthanethi",
+    "typeJournal": "Ijenali / i-athikili",
+    "typeVideo": "Uchungechunge lwevidiyo"
+  },
+  "card": {
+    "freeAccess": "Ukufinyelela kwamahhala",
+    "details": "Imininingwane",
+    "open": "Vula",
+    "apply": "Faka isicelo",
+    "save": "Londoloza",
+    "remove": "Susa",
+    "closingSoon": "Ivala maduze",
+    "daysLeft": "{{count}}d asele",
+    "closed": "Ivaliwe"
+  },
+  "shelf": {
+    "gutenberg": "Izincwadi zakudala zeGutenberg — mahhala ukuzifunda"
+  },
+  "saved": {
+    "empty": "Akukho okulondoloziwe okwamanje. Beka ibhukhimakhi izibonelelo nezinsiza ukuze uzithole lapha.",
+    "bursaries": "Izibonelelo ezilondoloziwe",
+    "resources": "Izinsiza ezilondoloziwe"
+  },
+  "featured": {
+    "pinned": "Iphiniwe",
+    "nsfasTitle": "Izicelo ze-NSFAS zika-2026 zivuliwe",
+    "nsfasDesc": "Bonke izakhamuzi zaseNingizimu Afrika emanyuvesi omphakathi nasemakolishi e-TVET — kuvala ngomhla ka-31 Jan 2026"
+  },
+  "empty": {
+    "bursaries": "Azikho izibonelelo ezihambisana naleyo mihlungo. Zama ukunweba ukusesha kwakho.",
+    "resources": "Azikho izinsiza ezihambisanayo. Zama ukusesha okuhlukile noma uhlobo."
+  },
+  "allResources": "Zonke izinsiza"
+}

@@ -1,0 +1,190 @@
+import type { Bursary, Resource, GutenbergBook } from '@entities/education';
+
+export const BURSARIES: Bursary[] = [
+  {
+    id: 'b1',
+    title: 'Sasol Bursary Programme',
+    org: 'Sasol Ltd',
+    field: 'STEM',
+    amount: 'R90 000',
+    period: 'per year',
+    desc: 'Full bursary for engineering and physical sciences at SA universities. Includes vacation work placement.',
+    deadline: '28 Feb 2026',
+    status: 'open',
+  },
+  {
+    id: 'b2',
+    title: 'Old Mutual Education Trust',
+    org: 'Old Mutual',
+    field: 'Commerce',
+    amount: 'R60 000',
+    period: 'per year',
+    desc: 'For BCom and accounting students at accredited institutions. Merit and need-based assessment.',
+    deadline: '15 Mar 2026',
+    status: 'open',
+  },
+  {
+    id: 'b3',
+    title: 'Department of Health Bursary',
+    org: 'Western Cape DoH',
+    field: 'Health',
+    amount: 'R120 000',
+    period: 'per year',
+    desc: 'Service-linked bursary for medical, nursing, and allied health students. Must work in WC public sector after qualifying.',
+    deadline: '10 Jan 2026',
+    status: 'closing',
+  },
+  {
+    id: 'b4',
+    title: 'Fulbright Foreign Student Program',
+    org: 'US Embassy',
+    field: 'Arts',
+    amount: 'Full tuition',
+    period: '',
+    desc: 'Covers tuition, living stipend, and airfare for postgraduate study in the United States. High academic merit required.',
+    deadline: '30 Apr 2026',
+    status: 'open',
+  },
+  {
+    id: 'b5',
+    title: 'Nedbank Education Fund',
+    org: 'Nedbank',
+    field: 'Commerce',
+    amount: 'R50 000',
+    period: 'per year',
+    desc: 'For students studying finance, economics, or business science. Preference for first-generation university students.',
+    deadline: '31 Mar 2026',
+    status: 'open',
+  },
+  {
+    id: 'b6',
+    title: 'Funza Lushaka Teaching Bursary',
+    org: 'Dept. of Education',
+    field: 'Education',
+    amount: 'Full cost',
+    period: '',
+    desc: 'Full bursary for education degrees. Recipients must teach at a public school for the same number of years funded.',
+    deadline: '01 Feb 2026',
+    status: 'closing',
+  },
+  {
+    id: 'b7',
+    title: 'National Research Foundation Bursary',
+    org: 'NRF',
+    field: 'STEM',
+    amount: 'R90 000',
+    period: 'per year',
+    desc: 'For Masters and PhD students in science, engineering, and technology. Linked to approved research projects.',
+    deadline: '15 May 2026',
+    status: 'open',
+  },
+  {
+    id: 'b8',
+    title: 'LPC Legal Bursary',
+    org: 'Legal Practice Council',
+    field: 'Law',
+    amount: 'R45 000',
+    period: 'per year',
+    desc: 'Need-based bursary for LLB students at accredited law schools. Must demonstrate community involvement.',
+    deadline: '28 Feb 2026',
+    status: 'open',
+  },
+];
+
+export const RESOURCES: Resource[] = [
+  {
+    id: 'r1',
+    title: 'Khan Academy',
+    org: 'Khan Academy',
+    type: 'Course',
+    desc: 'Free maths, science, computing, and test-prep courses from Grade 1 through university level. Fully interactive.',
+    link: 'https://www.khanacademy.org',
+    tags: ['Maths', 'Science', 'Coding'],
+  },
+  {
+    id: 'r2',
+    title: 'MIT OpenCourseWare',
+    org: 'MIT',
+    type: 'Course',
+    desc: 'Lecture notes, assignments, and exams from hundreds of actual MIT courses. No registration needed.',
+    link: 'https://ocw.mit.edu',
+    tags: ['University', 'Engineering', 'Economics'],
+  },
+  {
+    id: 'r3',
+    title: 'African Storybook',
+    org: 'SAIDE',
+    type: 'Book',
+    desc: 'Freely available picture books in many African languages, including Zulu, Xhosa, Afrikaans, and Sesotho.',
+    link: 'https://www.africanstorybook.org',
+    tags: ['Literacy', 'isiZulu', 'isiXhosa'],
+  },
+  {
+    id: 'r4',
+    title: 'Siyavula open textbooks',
+    org: 'Siyavula Education',
+    type: 'Book',
+    desc: 'CAPS-aligned Maths and Physical Sciences textbooks for Grades 10–12. Free to read online, low-cost to print.',
+    link: 'https://www.siyavula.com',
+    tags: ['Matric', 'Maths', 'Science'],
+  },
+  {
+    id: 'r5',
+    title: 'Coursera — financial aid',
+    org: 'Coursera',
+    type: 'Course',
+    desc: 'Apply for financial aid on any paid course. Hundreds of SA students access free certificates this way each year.',
+    link: 'https://www.coursera.org',
+    tags: ['Certificates', 'Professional'],
+  },
+  {
+    id: 'r6',
+    title: 'OpenStax textbooks',
+    org: 'Rice University',
+    type: 'Book',
+    desc: 'Peer-reviewed, openly licensed textbooks for university subjects — biology, economics, physics, anatomy, and more.',
+    link: 'https://openstax.org',
+    tags: ['University', 'Textbooks'],
+  },
+  {
+    id: 'r7',
+    title: 'Ted-Ed video lessons',
+    org: 'TED',
+    type: 'Video',
+    desc: 'Animated lessons covering science, history, literature, and critical thinking. Ideal for ages 12 and up.',
+    link: 'https://ed.ted.com',
+    tags: ['Video', 'General'],
+  },
+  {
+    id: 'r8',
+    title: 'Directory of Open Access Journals',
+    org: 'DOAJ',
+    type: 'Journal',
+    desc: 'Over 18 000 peer-reviewed open-access journals across all academic disciplines.',
+    link: 'https://doaj.org',
+    tags: ['Research', 'Journals'],
+  },
+];
+
+export const GUTENBERG: GutenbergBook[] = [
+  { title: 'Treasure Island', author: 'R. L. Stevenson', id: '120', stripe: '#3B6D11' },
+  { title: 'Pride and Prejudice', author: 'Jane Austen', id: '1342', stripe: '#185FA5' },
+  { title: 'The Republic', author: 'Plato', id: '1497', stripe: '#854F0B' },
+  { title: 'Frankenstein', author: 'M. Shelley', id: '84', stripe: '#993556' },
+  { title: 'Jane Eyre', author: 'Charlotte Brontë', id: '1260', stripe: '#534AB7' },
+  { title: 'Great Expectations', author: 'Charles Dickens', id: '1400', stripe: '#993C1D' },
+  { title: 'The Art of War', author: 'Sun Tzu', id: '132', stripe: '#0F6E56' },
+  { title: 'Middlemarch', author: 'George Eliot', id: '145', stripe: '#3C3489' },
+];
+
+export const FIELDS = ['STEM', 'Commerce', 'Arts', 'Health', 'Law', 'Education'];
+export const RESOURCE_TYPES = ['Book', 'Course', 'Journal', 'Video'];
+
+export function deadlineLabel(deadline: string): string {
+  const days = Math.round((new Date(deadline).getTime() - Date.now()) / 86400000);
+  if (days < 0) return 'closed';
+  if (days < 14) return `${days}d left`;
+  return deadline;
+}
+
+export const NSFAS_URL = 'https://www.nsfas.org.za';

@@ -42,9 +42,14 @@ vi.mock('@api/server', async () => {
         { success: false, error: { code: 'INTERNAL_ERROR', message } },
         { status: 500 }
       ) as any,
+    CACHE_TAGS: { SETTINGS: 'settings' },
     createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
   };
 });
+
+vi.mock('next/cache', () => ({
+  revalidateTag: vi.fn(),
+}));
 
 vi.mock('@entities/tenant/server', () => ({
   getPlatformPageFlagsWithTx: (...args: any[]) => mocks.getPlatformPageFlagsWithTx(...args),

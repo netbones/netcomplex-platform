@@ -47,6 +47,13 @@ const STATIC_HEADER_ITEMS: NavItem[] = [
     flagKey: 'resources',
     icon: 'file',
   },
+  {
+    href: '/education',
+    labelKey: 'nav.education',
+    section: 'explore',
+    flagKey: 'education',
+    icon: 'graduation-cap',
+  },
 ];
 
 const CONSERVATION_NAV_ITEM: NavItem = {
@@ -255,6 +262,7 @@ const LINK_ID_TO_ITEM: Record<string, NavItem> = {
   directory: STATIC_HEADER_ITEMS[1],
   services: STATIC_HEADER_ITEMS[2],
   resources: STATIC_HEADER_ITEMS[3],
+  education: STATIC_HEADER_ITEMS[4],
   conservation: CONSERVATION_NAV_ITEM,
   campaign: CAMPAIGN_NAV_ITEM,
   news: MORE_DROPDOWN_ITEMS[0],

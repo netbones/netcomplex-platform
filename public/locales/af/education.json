@@ -1,0 +1,61 @@
+{
+  "title": "Onderwysportaal",
+  "subtitle": "Beurse, toelaes en gratis leerhulpbronne",
+  "tabs": {
+    "bursaries": "Beurse & studiebeurse",
+    "resources": "Gratis hulpbronne",
+    "saved": "Gestoorde"
+  },
+  "stats": {
+    "open": "Oop geleenthede",
+    "funding": "Totale fondse beskikbaar",
+    "closing": "Sluit hierdie maand"
+  },
+  "search": {
+    "bursaries": "Soek beurse...",
+    "resources": "Soek handboeke, gidse, kursusse..."
+  },
+  "filter": {
+    "allFields": "Alle velde",
+    "allTypes": "Alle tipes",
+    "fieldSTEM": "STEM",
+    "fieldCommerce": "Handel",
+    "fieldArts": "Kuns & geesteswetenskappe",
+    "fieldHealth": "Gesondheidswetenskappe",
+    "fieldLaw": "Regte",
+    "fieldEducation": "Onderwys",
+    "typeBook": "Boek",
+    "typeCourse": "Aanlyn kursus",
+    "typeJournal": "Joernaal / artikel",
+    "typeVideo": "Video-reeks"
+  },
+  "card": {
+    "freeAccess": "Gratis toegang",
+    "details": "Besonderhede",
+    "open": "Oop",
+    "apply": "Doen aansoek",
+    "save": "Stoor",
+    "remove": "Verwyder",
+    "closingSoon": "Sluit binnekort",
+    "daysLeft": "{{count}}d oor",
+    "closed": "Gesluit"
+  },
+  "shelf": {
+    "gutenberg": "Gutenberg-klassiekers — gratis om te lees"
+  },
+  "saved": {
+    "empty": "Nog niks gestoor nie. Boekmerk beurse en hulpbronne om hulle hier te vind.",
+    "bursaries": "Gestoorde beurse",
+    "resources": "Gestoorde hulpbronne"
+  },
+  "featured": {
+    "pinned": "Vasgepen",
+    "nsfasTitle": "NSFAS 2026 aansoeke is oop",
+    "nsfasDesc": "Alle SA burgers by openbare universiteite en TVET-kolleges — sluit 31 Jan 2026"
+  },
+  "empty": {
+    "bursaries": "Geen beurse pas daardie filters nie. Probeer jou soektog verbreed.",
+    "resources": "Geen hulpbronne pas nie. Probeer 'n ander soektog of tipe."
+  },
+  "allResources": "Alle hulpbronne"
+}

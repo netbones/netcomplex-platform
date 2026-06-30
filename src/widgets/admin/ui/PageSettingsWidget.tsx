@@ -91,6 +91,12 @@ export function PageSettingsWidget({ initialFlags }: PageFlagsWidgetProps) {
       description: 'Show news & announcements',
     },
     {
+      key: 'education' as const,
+      label: 'Education Portal',
+      icon: 'fa-graduation-cap',
+      description: 'Show education portal (bursaries, scholarships, resources)',
+    },
+    {
       key: 'events' as const,
       label: 'Events',
       icon: 'fa-calendar',

@@ -1,5 +1,5 @@
 {
-  "model_profile": "balanced",
+  "model_profile": "adaptive",
   "commit_docs": true,
   "search_gitignored": false,
   "phase_branch_template": "gsd/phase-{phase}-{slug}",
@@ -9,13 +9,36 @@
     "plan_check": true,
     "verifier": true,
     "nyquist_validation": true,
-    "_auto_chain_active": false
+    "_auto_chain_active": false,
+    "skip_discuss": false,
+    "use_worktrees": true,
+    "auto_advance": false,
+    "research_before_questions": true,
+    "pattern_mapper": true,
+    "ui_phase": true,
+    "ui_safety_gate": true,
+    "ui_review": true,
+    "ai_integration_phase": true,
+    "tdd_mode": true,
+    "code_review": true,
+    "code_review_depth": "standard"
   },
   "parallelization": true,
   "brave_search": true,
   "resolve_model_ids": "omit",
   "git": {
-    "branching_strategy": "none"
+    "branching_strategy": "none",
+    "create_tag": false
   },
-  "runtime": "opencode"
+  "runtime": "opencode",
+  "plan_review": {
+    "source_grounding": true
+  },
+  "graphify": {
+    "auto_update": false,
+    "enabled": true
+  },
+  "hooks": {
+    "context_warnings": true
+  }
 }

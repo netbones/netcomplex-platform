@@ -5,6 +5,7 @@ export const DEFAULT_PAGE_FLAGS: PlatformPageFlags = {
   conservation: 'default',
   conservationExternalUrl: '',
   chat: true,
+  education: true,
   news: true,
   events: true,
   directory: true,

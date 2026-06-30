@@ -38,8 +38,15 @@ vi.mock('@api/server', async () => {
         { success: false, error: { code: 'AUTH_REQUIRED', message } },
         { status: 401 }
       ) as any,
+    apiForbidden: (message = 'Forbidden') =>
+      NextResponse.json(
+        { success: false, error: { code: 'FORBIDDEN', message } },
+        { status: 403 }
+      ) as any,
     apiError: (code: string, message: string, status = 500) =>
       NextResponse.json({ success: false, error: { code, message } }, { status }) as any,
+    writeAuditLog: vi.fn(),
+    revalidateAdminChanges: vi.fn(),
     withErrorHandler: (handler: any) => handler,
   };
 });
@@ -50,7 +57,9 @@ vi.mock('@entities/tenant/server', () => ({
   withTenantOptional: () => Promise.resolve(mocks.tenantOptionalResult),
 }));
 
-vi.mock('@shared/lib', () => ({}));
+vi.mock('@shared/lib', () => ({
+  hasPermission: vi.fn(() => true),
+}));
 
 import { GET, POST } from '@/app/api/settings/contact/route';
 

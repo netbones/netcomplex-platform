@@ -67,6 +67,7 @@ vi.mock('@api/server', () => ({
       })
   ),
   withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
+  revalidateAdminChanges: vi.fn(),
   now: vi.fn(() => new Date('2026-06-21T12:00:00Z')),
 }));
 

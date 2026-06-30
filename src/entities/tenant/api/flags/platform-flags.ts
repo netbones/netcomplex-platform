@@ -37,6 +37,9 @@ export async function getPlatformPageFlagsImpl(tenantId: string): Promise<Platfo
         case SETTINGS_KEYS.PAGE_CHAT_ENABLED:
           flags.chat = setting.value === 'true';
           break;
+        case SETTINGS_KEYS.PAGE_EDUCATION_ENABLED:
+          flags.education = setting.value === 'true';
+          break;
         case SETTINGS_KEYS.PAGE_NEWS_ENABLED:
           flags.news = setting.value === 'true';
           break;
@@ -184,6 +187,9 @@ export async function getPlatformPageFlagsWithTx(
         case SETTINGS_KEYS.PAGE_CHAT_ENABLED:
           flags.chat = setting.value === 'true';
           break;
+        case SETTINGS_KEYS.PAGE_EDUCATION_ENABLED:
+          flags.education = setting.value === 'true';
+          break;
         case SETTINGS_KEYS.PAGE_NEWS_ENABLED:
           flags.news = setting.value === 'true';
           break;
@@ -296,6 +302,7 @@ export function mapFlagToSettingKey(key: keyof PlatformPageFlags): string | unde
     conservation: SETTINGS_KEYS.PAGE_CONSERVATION_MODE,
     conservationExternalUrl: SETTINGS_KEYS.PAGE_CONSERVATION_URL,
     chat: SETTINGS_KEYS.PAGE_CHAT_ENABLED,
+    education: SETTINGS_KEYS.PAGE_EDUCATION_ENABLED,
     news: SETTINGS_KEYS.PAGE_NEWS_ENABLED,
     events: SETTINGS_KEYS.PAGE_EVENTS_ENABLED,
     directory: SETTINGS_KEYS.PAGE_DIRECTORY_ENABLED,

@@ -9,6 +9,7 @@ import {
   writeAuditLog,
   rateLimitByUser,
   withErrorHandler,
+  revalidateAdminChanges,
 } from '@api/server';
 
 import { hasPermission } from '@shared/lib';
@@ -124,6 +125,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       details: { key: body.key, oldValue, newValue: body.value, method: 'POST' },
     });
 
+    revalidateAdminChanges();
     return apiSuccess(updated[0]);
   } else {
     // Generate ID for new setting
@@ -140,6 +142,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       details: { key: body.key, oldValue: null, newValue: body.value, method: 'POST' },
     });
 
+    revalidateAdminChanges();
     return apiSuccess(created[0]);
   }
 });

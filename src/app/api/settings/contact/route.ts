@@ -2,13 +2,17 @@ import {
   db,
   settings,
   apiSuccess,
+  apiForbidden,
   apiUnauthorized,
   getSessionAndRole,
   withErrorHandler,
+  writeAuditLog,
+  revalidateAdminChanges,
 } from '@api/server';
 
 import { eq, sql } from 'drizzle-orm';
 import { assertModuleEnabled, withTenant, withTenantOptional } from '@entities/tenant/server';
+import { hasPermission } from '@shared/lib';
 
 export const maxDuration = 8;
 
@@ -39,6 +43,8 @@ export const POST = withErrorHandler(async (request: Request) => {
   const authData = await getSessionAndRole(request);
   if (!authData) return apiUnauthorized();
 
+  if (!hasPermission(authData.role, 'admin')) return apiForbidden();
+
   const moduleCheck = await assertModuleEnabled('settings');
   if (moduleCheck) return moduleCheck;
 
@@ -60,7 +66,15 @@ export const POST = withErrorHandler(async (request: Request) => {
         target: [settings.tenantId, settings.key],
         set: { value: sql`excluded.value` },
       });
+
+    writeAuditLog({
+      action: 'SETTINGS_CHANGED',
+      actorId: authData.userId,
+      tenantId,
+      details: { keys: Object.keys(body), method: 'POST' },
+    });
   }
 
+  revalidateAdminChanges();
   return apiSuccess({ success: true });
 });

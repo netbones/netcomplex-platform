@@ -47,9 +47,14 @@ vi.mock('@api/server', async () => {
         { status: 422 }
       ) as any,
     withErrorHandler: (handler: any) => handler,
+    CACHE_TAGS: { SETTINGS: 'settings' },
     createComponentLogger: () => ({ error: vi.fn(), info: vi.fn(), warn: vi.fn() }),
   };
 });
+
+vi.mock('next/cache', () => ({
+  revalidateTag: vi.fn(),
+}));
 
 vi.mock('@entities/tenant/server', () => ({
   getServicesConfigWithTx: (...args: unknown[]) => mocks.getServicesConfigWithTx(...args),

@@ -5,6 +5,7 @@ export const HEADER_LINK_IDS = [
   'dashboard',
   'directory',
   'dWallet',
+  'education',
   'groups',
   'news',
   'resources',
@@ -19,6 +20,7 @@ export interface PlatformPageFlags {
   conservation: 'default' | 'managed' | 'external';
   conservationExternalUrl: string;
   chat: boolean;
+  education: boolean;
   news: boolean;
   events: boolean;
   directory: boolean;

@@ -17,7 +17,9 @@ import {
   apiValidationError,
   writeAuditLog,
   rateLimitByUser,
+  CACHE_TAGS,
 } from '@api/server';
+import { revalidateTag } from 'next/cache';
 import { hasPermission } from '@shared/lib';
 import { createComponentLogger } from '@shared/lib';
 
@@ -82,6 +84,7 @@ export async function PUT(request: NextRequest) {
           method: 'PUT',
         },
       });
+      revalidateTag(CACHE_TAGS.SETTINGS);
       return apiSuccess({ success: true });
     }
 

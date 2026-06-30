@@ -1,0 +1,61 @@
+{
+  "title": "IPortal yemfundo",
+  "subtitle": "Iskolarshini, iibhasari kunye nezixhobo zokufunda zasimahla",
+  "tabs": {
+    "bursaries": "Iibhasari & izifundi",
+    "resources": "Ixhaso zasimahla",
+    "saved": "Ezigciniweyo"
+  },
+  "stats": {
+    "open": "Amathuba avulekileyo",
+    "funding": "Inkxaso-mali ekhoyo iyonke",
+    "closing": "Ivala kule nyanga"
+  },
+  "search": {
+    "bursaries": "Khangela iibhasari...",
+    "resources": "Khangela iincwadi, izikhokelo, izifundo..."
+  },
+  "filter": {
+    "allFields": "Onke amacandelo",
+    "allTypes": "Zonke iintlobo",
+    "fieldSTEM": "STEM",
+    "fieldCommerce": "URhwebo",
+    "fieldArts": "UbuGcisa & uluntu",
+    "fieldHealth": "ISayensi yezempilo",
+    "fieldLaw": "Umthetho",
+    "fieldEducation": "Imfundo",
+    "typeBook": "Incwadi",
+    "typeCourse": "Isifundo se-intanethi",
+    "typeJournal": "Ijenali / inqaku",
+    "typeVideo": "Uthotho lwevidiyo"
+  },
+  "card": {
+    "freeAccess": "Ukufikelela simahla",
+    "details": "Iinkcukacha",
+    "open": "Vula",
+    "apply": "Faka isicelo",
+    "save": "Gcina",
+    "remove": "Susa",
+    "closingSoon": "Ivala kungekudala",
+    "daysLeft": "{{count}}d ishiye",
+    "closed": "Ivaliwe"
+  },
+  "shelf": {
+    "gutenberg": "Iincwadi zakudala zeGutenberg — simahla ukuzifunda"
+  },
+  "saved": {
+    "empty": "Akukho nto igciniweyo okwangoku. Faka i-bookmark iibhasari nezixhobo ukuzifumana apha.",
+    "bursaries": "Iibhasari ezigciniweyo",
+    "resources": "Ixhaso eligciniweyo"
+  },
+  "featured": {
+    "pinned": "Iphiniwe",
+    "nsfasTitle": "Izicelo ze-NSFAS 2026 zivulekile",
+    "nsfasDesc": "Bonke abemi baseMzantsi Afrika kwiiyunivesithi zikarhulumente nakwiikholeji zeTVET — ivala ngomhla wama-31 kuJanuwari 2026"
+  },
+  "empty": {
+    "bursaries": "Akukho bhasari ihambelana nezo zihluzi. Zama ukwandisa uphendlo lwakho.",
+    "resources": "Akukho zixhobo zihambelanayo. Zama uphendlo olwahlukileyo okanye uhlobo."
+  },
+  "allResources": "Zonke izixhobo"
+}
