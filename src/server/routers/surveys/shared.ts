@@ -12,6 +12,7 @@ import {
   externalSurveys,
   revalidateAdminChanges,
   now,
+  tenantProcedure,
 } from '@api/server';
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
@@ -22,6 +23,7 @@ export {
   router,
   publicProcedure,
   protectedProcedure,
+  tenantProcedure,
   rateLimitMiddleware,
   db,
   surveys,
