@@ -1,8 +1,7 @@
 import { z } from 'zod';
 import {
   router,
-  protectedProcedure,
-  rateLimitMiddleware,
+  tenantProcedure,
   db,
   walletTransactions,
   payoutRequests,
@@ -17,6 +16,7 @@ import {
 import { walletTransactionDto, consentDto, payoutDto } from '@server/dto';
 
 import { TRPCError } from '@trpc/server';
+import { rateLimitByUser } from '@api/server';
 
 import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 
@@ -80,18 +80,17 @@ const GetStreamInput = z.object({
 // ──────────────────────────────────────────
 
 export const dwalletRouter = router({
-  getWalletSummary: protectedProcedure.query(async ({ ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
-    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
+  /** Get the current user's wallet summary including balance, consents, and recent transactions.
+   * @tenant */
+  getWalletSummary: tenantProcedure.query(async ({ ctx }) => {
+    const wallet = await getOrCreateWallet(ctx.userId, ctx.tenantId);
 
     const streams = await db
       .select()
       .from(dataRevenueStreams)
-      .where(and(eq(dataRevenueStreams.tenantId, tenantId), eq(dataRevenueStreams.isActive, true)));
+      .where(
+        and(eq(dataRevenueStreams.tenantId, ctx.tenantId), eq(dataRevenueStreams.isActive, true))
+      );
 
     const streamKeys = streams.map(s => s.key);
     const latestConsentMap = new Map<string, typeof dataConsents.$inferSelect>();
@@ -132,7 +131,10 @@ export const dwalletRouter = router({
       .select()
       .from(walletTransactions)
       .where(
-        and(eq(walletTransactions.walletId, wallet.id), eq(walletTransactions.tenantId, tenantId))
+        and(
+          eq(walletTransactions.walletId, wallet.id),
+          eq(walletTransactions.tenantId, ctx.tenantId)
+        )
       )
       .orderBy(desc(walletTransactions.createdAt))
       .limit(5);
@@ -161,13 +163,10 @@ export const dwalletRouter = router({
     return toEnvelope(summary);
   }),
 
-  getBalance: protectedProcedure.query(async ({ ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
-    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
+  /** Get the current user's wallet balance.
+   * @tenant */
+  getBalance: tenantProcedure.query(async ({ ctx }) => {
+    const wallet = await getOrCreateWallet(ctx.userId, ctx.tenantId);
 
     return toEnvelope({
       balance: wallet.balance,
@@ -176,73 +175,65 @@ export const dwalletRouter = router({
     });
   }),
 
-  listTransactions: protectedProcedure
-    .input(ListTransactionsInput)
-    .query(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
+  /** List wallet transactions with optional pagination, type, and date filters.
+   * @tenant */
+  listTransactions: tenantProcedure.input(ListTransactionsInput).query(async ({ input, ctx }) => {
+    const wallet = await getOrCreateWallet(ctx.userId, ctx.tenantId);
 
-      const wallet = await getOrCreateWallet(ctx.userId, tenantId);
+    const page = input?.page ?? 1;
+    const limit = input?.limit ?? 20;
+    const offset = (page - 1) * limit;
 
-      const page = input?.page ?? 1;
-      const limit = input?.limit ?? 20;
-      const offset = (page - 1) * limit;
+    const conditions = [
+      eq(walletTransactions.walletId, wallet.id),
+      eq(walletTransactions.tenantId, ctx.tenantId),
+    ];
 
-      const conditions = [
-        eq(walletTransactions.walletId, wallet.id),
-        eq(walletTransactions.tenantId, tenantId),
-      ];
-
-      if (input?.type) {
-        conditions.push(
-          eq(
-            walletTransactions.type,
-            input.type as (typeof walletTransactions.type.enumValues)[number]
-          )
-        );
-      }
-
-      if (input?.startDate) {
-        conditions.push(sql`${walletTransactions.createdAt} >= ${new Date(input.startDate)}`);
-      }
-
-      if (input?.endDate) {
-        conditions.push(sql`${walletTransactions.createdAt} <= ${new Date(input.endDate)}`);
-      }
-
-      const [countResult] = await db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(walletTransactions)
-        .where(and(...conditions));
-
-      const total = countResult?.count ?? 0;
-
-      const txns = await db
-        .select()
-        .from(walletTransactions)
-        .where(and(...conditions))
-        .orderBy(desc(walletTransactions.createdAt))
-        .limit(limit)
-        .offset(offset);
-
-      return toEnvelope({
-        items: txns.map(r => walletTransactionDto.parse(r)),
-        total,
-        page,
-        limit,
-        hasMore: page * limit < total,
-      });
-    }),
-
-  getTransaction: protectedProcedure.input(IdInput).query(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
+    if (input?.type) {
+      conditions.push(
+        eq(
+          walletTransactions.type,
+          input.type as (typeof walletTransactions.type.enumValues)[number]
+        )
+      );
     }
 
-    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
+    if (input?.startDate) {
+      conditions.push(sql`${walletTransactions.createdAt} >= ${new Date(input.startDate)}`);
+    }
+
+    if (input?.endDate) {
+      conditions.push(sql`${walletTransactions.createdAt} <= ${new Date(input.endDate)}`);
+    }
+
+    const [countResult] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(walletTransactions)
+      .where(and(...conditions));
+
+    const total = countResult?.count ?? 0;
+
+    const txns = await db
+      .select()
+      .from(walletTransactions)
+      .where(and(...conditions))
+      .orderBy(desc(walletTransactions.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return toEnvelope({
+      items: txns.map(r => walletTransactionDto.parse(r)),
+      total,
+      page,
+      limit,
+      hasMore: page * limit < total,
+    });
+  }),
+
+  /** Get a single wallet transaction by ID.
+   * @tenant */
+  getTransaction: tenantProcedure.input(IdInput).query(async ({ input, ctx }) => {
+    const wallet = await getOrCreateWallet(ctx.userId, ctx.tenantId);
 
     const [txn] = await db
       .select()
@@ -251,7 +242,7 @@ export const dwalletRouter = router({
         and(
           eq(walletTransactions.id, input.id),
           eq(walletTransactions.walletId, wallet.id),
-          eq(walletTransactions.tenantId, tenantId)
+          eq(walletTransactions.tenantId, ctx.tenantId)
         )
       )
       .limit(1);
@@ -263,86 +254,87 @@ export const dwalletRouter = router({
     return toEnvelope(walletTransactionDto.parse(txn));
   }),
 
-  createPayout: protectedProcedure
-    .use(rateLimitMiddleware({ windowMs: 300_000, maxRequests: 1 }))
-    .input(CreatePayoutInput)
-    .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
+  /** Request a payout from the user's wallet balance. Rate-limited: 1 request per 5 minutes.
+   * @tenant */
+  createPayout: tenantProcedure.input(CreatePayoutInput).mutation(async ({ input, ctx }) => {
+    const rateLimitResult = await rateLimitByUser(ctx.userId, {
+      windowMs: 300_000,
+      maxRequests: 1,
+    });
+    if (rateLimitResult) {
+      throw new TRPCError({
+        code: 'TOO_MANY_REQUESTS',
+        message: 'Too many requests. Please try again later.',
+      });
+    }
+    const payoutMin = await getPayoutMin(ctx.tenantId);
 
-      const payoutMin = await getPayoutMin(tenantId);
+    if (input.amount < payoutMin) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: `Minimum payout is R${payoutMin}`,
+      });
+    }
 
-      if (input.amount < payoutMin) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: `Minimum payout is R${payoutMin}`,
-        });
-      }
+    const wallet = await getOrCreateWallet(ctx.userId, ctx.tenantId);
 
-      const wallet = await getOrCreateWallet(ctx.userId, tenantId);
+    const balanceNum = Number(wallet.balance);
+    if (balanceNum < payoutMin) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: `Below minimum payout threshold of R${payoutMin}`,
+      });
+    }
 
-      const balanceNum = Number(wallet.balance);
-      if (balanceNum < payoutMin) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: `Below minimum payout threshold of R${payoutMin}`,
-        });
-      }
+    if (input.amount > balanceNum) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Insufficient balance',
+      });
+    }
 
-      if (input.amount > balanceNum) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'Insufficient balance',
-        });
-      }
+    const timestamp = now();
+    const payoutId = crypto.randomUUID();
 
-      const timestamp = now();
-      const payoutId = crypto.randomUUID();
+    await db.insert(payoutRequests).values({
+      id: payoutId,
+      tenantId: ctx.tenantId,
+      walletId: wallet.id,
+      userId: ctx.userId,
+      // amount column is decimal(65,30) — Drizzle requires string for precision
+      amount: input.amount.toString(),
+      currency: wallet.currency,
+      status: 'PENDING',
+      method: 'bank_transfer',
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
 
-      await db.insert(payoutRequests).values({
+    revalidateDashboard();
+
+    return toEnvelope(
+      payoutDto.parse({
         id: payoutId,
-        tenantId,
-        walletId: wallet.id,
-        userId: ctx.userId,
-        // amount column is decimal(65,30) — Drizzle requires string for precision
-        amount: input.amount.toString(),
+        amount: input.amount,
         currency: wallet.currency,
         status: 'PENDING',
         method: 'bank_transfer',
+        bankReference: null,
+        processedAt: null,
         createdAt: timestamp,
         updatedAt: timestamp,
-      });
+      })
+    );
+  }),
 
-      revalidateDashboard();
-
-      return toEnvelope(
-        payoutDto.parse({
-          id: payoutId,
-          amount: input.amount,
-          currency: wallet.currency,
-          status: 'PENDING',
-          method: 'bank_transfer',
-          bankReference: null,
-          processedAt: null,
-          createdAt: timestamp,
-          updatedAt: timestamp,
-        })
-      );
-    }),
-
-  listPayouts: protectedProcedure.input(ListPayoutsInput).query(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
-    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
+  /** List the user's payout requests with optional status filter.
+   * @tenant */
+  listPayouts: tenantProcedure.input(ListPayoutsInput).query(async ({ input, ctx }) => {
+    const wallet = await getOrCreateWallet(ctx.userId, ctx.tenantId);
 
     const conditions = [
       eq(payoutRequests.walletId, wallet.id),
-      eq(payoutRequests.tenantId, tenantId),
+      eq(payoutRequests.tenantId, ctx.tenantId),
     ];
 
     if (input?.status) {
@@ -360,18 +352,17 @@ export const dwalletRouter = router({
     return toEnvelope(payouts.map(r => payoutDto.parse(r)));
   }),
 
-  listConsents: protectedProcedure.query(async ({ ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
-    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
+  /** List the user's data consent states across all active revenue streams.
+   * @tenant */
+  listConsents: tenantProcedure.query(async ({ ctx }) => {
+    const wallet = await getOrCreateWallet(ctx.userId, ctx.tenantId);
 
     const streams = await db
       .select()
       .from(dataRevenueStreams)
-      .where(and(eq(dataRevenueStreams.tenantId, tenantId), eq(dataRevenueStreams.isActive, true)));
+      .where(
+        and(eq(dataRevenueStreams.tenantId, ctx.tenantId), eq(dataRevenueStreams.isActive, true))
+      );
 
     const streamKeys = streams.map(s => s.key);
     const latestConsentMap = new Map<string, typeof dataConsents.$inferSelect>();
@@ -411,20 +402,17 @@ export const dwalletRouter = router({
     return toEnvelope(consents);
   }),
 
-  createConsent: protectedProcedure.input(CreateConsentInput).mutation(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
-    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
+  /** Grant or revoke consent for a specific data revenue stream.
+   * @tenant */
+  createConsent: tenantProcedure.input(CreateConsentInput).mutation(async ({ input, ctx }) => {
+    const wallet = await getOrCreateWallet(ctx.userId, ctx.tenantId);
 
     const [stream] = await db
       .select()
       .from(dataRevenueStreams)
       .where(
         and(
-          eq(dataRevenueStreams.tenantId, tenantId),
+          eq(dataRevenueStreams.tenantId, ctx.tenantId),
           eq(dataRevenueStreams.key, input.streamKey),
           eq(dataRevenueStreams.isActive, true)
         )
@@ -442,7 +430,7 @@ export const dwalletRouter = router({
 
     await db.insert(dataConsents).values({
       id: consentId,
-      tenantId,
+      tenantId: ctx.tenantId,
       walletId: wallet.id,
       userId: ctx.userId,
       streamKey: input.streamKey,
@@ -464,20 +452,17 @@ export const dwalletRouter = router({
     );
   }),
 
-  revokeConsent: protectedProcedure.input(RevokeConsentInput).mutation(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
-    const wallet = await getOrCreateWallet(ctx.userId, tenantId);
+  /** Revoke consent for a specific data revenue stream.
+   * @tenant */
+  revokeConsent: tenantProcedure.input(RevokeConsentInput).mutation(async ({ input, ctx }) => {
+    const wallet = await getOrCreateWallet(ctx.userId, ctx.tenantId);
 
     const [stream] = await db
       .select()
       .from(dataRevenueStreams)
       .where(
         and(
-          eq(dataRevenueStreams.tenantId, tenantId),
+          eq(dataRevenueStreams.tenantId, ctx.tenantId),
           eq(dataRevenueStreams.key, input.streamKey),
           eq(dataRevenueStreams.isActive, true)
         )
@@ -495,7 +480,7 @@ export const dwalletRouter = router({
 
     await db.insert(dataConsents).values({
       id: consentId,
-      tenantId,
+      tenantId: ctx.tenantId,
       walletId: wallet.id,
       userId: ctx.userId,
       streamKey: input.streamKey,
@@ -517,16 +502,15 @@ export const dwalletRouter = router({
     );
   }),
 
-  listStreams: protectedProcedure.query(async ({ ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
+  /** List active data revenue streams for the current tenant.
+   * @tenant */
+  listStreams: tenantProcedure.query(async ({ ctx }) => {
     const streams = await db
       .select()
       .from(dataRevenueStreams)
-      .where(and(eq(dataRevenueStreams.tenantId, tenantId), eq(dataRevenueStreams.isActive, true)));
+      .where(
+        and(eq(dataRevenueStreams.tenantId, ctx.tenantId), eq(dataRevenueStreams.isActive, true))
+      );
 
     const configs: StreamConfig[] = streams.map(stream => ({
       id: stream.id,
@@ -540,18 +524,15 @@ export const dwalletRouter = router({
     return toEnvelope(configs);
   }),
 
-  getStream: protectedProcedure.input(GetStreamInput).query(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
+  /** Get a specific data revenue stream by key.
+   * @tenant */
+  getStream: tenantProcedure.input(GetStreamInput).query(async ({ input, ctx }) => {
     const [stream] = await db
       .select()
       .from(dataRevenueStreams)
       .where(
         and(
-          eq(dataRevenueStreams.tenantId, tenantId),
+          eq(dataRevenueStreams.tenantId, ctx.tenantId),
           eq(dataRevenueStreams.key, input.streamKey),
           eq(dataRevenueStreams.isActive, true)
         )
