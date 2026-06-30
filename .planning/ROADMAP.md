@@ -1401,10 +1401,10 @@ Plans:
 
 **Requirements:** GOV-01, GOV-02, GOV-03, GOV-04, GOV-05, GOV-06, GOV-07, GOV-08
 
-**Plans:** 1/6 plans executed
+**Plans:** 2/6 plans executed
 
 - [x] 120-01-PLAN.md
-- [ ] 120-02-PLAN.md
+- [x] 120-02-PLAN.md
 - [ ] 120-03-PLAN.md
 - [ ] 120-04-PLAN.md
 - [ ] 120-05-PLAN.md
@@ -1413,7 +1413,7 @@ Plans:
 | Wave | Plan                                            | Objective                                                                                                                       | Reqs                                   |
 | ---- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
 | 1    | [ ] 120-01-PLAN.md — Foundation Wiring          | Wire errorFormatter + suspension middleware + create missing DTOs (disputes, resources)                                         | GOV-02, GOV-03, GOV-04, GOV-05, GOV-06 |
-| 2    | [ ] 120-02-PLAN.md — Identity Router            | Replace inline schemas with DTOs, adopt tenantProcedure/privilegedProcedure                                                     | GOV-01, GOV-03, GOV-04, GOV-05         |
+| 2    | [x] 120-02-PLAN.md — Identity Router            | Replace inline schemas with DTOs, adopt tenantProcedure/privilegedProcedure                                                     | GOV-01, GOV-03, GOV-04, GOV-05         |
 | 2    | [ ] 120-03-PLAN.md — Core Router Migration      | Migrate 10 flat routers (content, achievements, events, bookings, groups, merits, notifications, invitations, settings, agents) | GOV-01, GOV-03                         |
 | 2    | [ ] 120-04-PLAN.md — Remaining Router Migration | Migrate dwallet, competitions, disputes, resources routers                                                                      | GOV-01, GOV-03                         |
 | 2    | [ ] 120-05-PLAN.md — Sub-Router Migration       | Migrate chat/, maintenance/, marketplace/, surveys/ (22 files)                                                                  | GOV-01, GOV-03                         |
