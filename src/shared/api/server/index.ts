@@ -1,6 +1,18 @@
 export { db, runWithRLS, notDeleted, assertAddressUnique } from '../db';
 export type { RLSContext, DbSchema } from '../db';
 export { getRLSContext } from '../rls-context';
+
+// ---------------------------------------------------------------------------
+// Address Registry — service layer (Phase 46.2)
+// ---------------------------------------------------------------------------
+
+export {
+  AddressService,
+  AddressConflictError,
+  AddressValidationError,
+  AddressNotFoundError,
+} from '../address-service';
+export { HandleService, HandleConflictError, HandleNotFoundError } from '../handle-service';
 export {
   messages,
   conversations,
