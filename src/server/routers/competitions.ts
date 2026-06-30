@@ -2,8 +2,8 @@ import { z } from 'zod';
 import {
   router,
   publicProcedure,
-  protectedProcedure,
-  adminProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   competitions,
   competitionEntries,
@@ -89,7 +89,14 @@ function toParticipantDTO(
 // ──────────────────────────────────────────
 
 export const competitionRouter = router({
-  // 1. List active competitions (public)
+  /** List active competitions — no auth required.
+   * @public
+   *
+   * TODO(BD): Create competitionDto in src/server/dto/misc.ts.
+   * The inline output schema below should be replaced with competitionDto
+   * derived via drizzle-zod createSelectSchema from the competitions table.
+   * Tracked in netcomplex BD-21.
+   */
   listPublicCompetitions: publicProcedure
     .meta({
       openapi: {
@@ -102,6 +109,7 @@ export const competitionRouter = router({
     })
     .input(z.object({}).optional())
     .output(
+      // Inline Zod output schema — replacement tracked in BD-21
       toEnvelopeSchema(
         z.array(
           z.object({
@@ -214,7 +222,12 @@ export const competitionRouter = router({
       return toEnvelope(enriched);
     }),
 
-  // 2. Get competition detail (public)
+  /** Get competition detail including participant info and current user entry status.
+   * @public
+   *
+   * TODO(BD): Replace inline output schema with competitionDto once created.
+   * See BD-21 — competitionDto should be derived via drizzle-zod from competitions table.
+   */
   getCompetitionDetail: publicProcedure
     .meta({
       openapi: {
@@ -227,6 +240,7 @@ export const competitionRouter = router({
     })
     .input(CompetitionIdInput)
     .output(
+      // Inline Zod output schema — replacement tracked in BD-21
       toEnvelopeSchema(
         z.object({
           id: z.string(),
@@ -359,8 +373,9 @@ export const competitionRouter = router({
       });
     }),
 
-  // 3. Join a RAFFLE competition (protected)
-  joinCompetition: protectedProcedure
+  /** Join a RAFFLE competition as the authenticated user.
+   * @tenant */
+  joinCompetition: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -373,12 +388,7 @@ export const competitionRouter = router({
     .input(CompetitionIdOnly)
     .output(toEnvelopeSchema(ParticipantDTO))
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
-      const comp = await getTenantCompetition(input.competitionId, tenantId);
+      const comp = await getTenantCompetition(input.competitionId, ctx.tenantId);
       if (comp.status !== 'ACTIVE') {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Competition is not active' });
       }
@@ -451,8 +461,9 @@ export const competitionRouter = router({
       return toEnvelope(toParticipantDTO(entry, user || { name: 'Unknown', avatar: null }));
     }),
 
-  // 4. Submit photo entry (protected)
-  submitPhotoEntry: protectedProcedure
+  /** Submit a photo entry to a PHOTO competition.
+   * @tenant */
+  submitPhotoEntry: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -465,12 +476,7 @@ export const competitionRouter = router({
     .input(SubmitEntryInput)
     .output(toEnvelopeSchema(ParticipantDTO))
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
-      const comp = await getTenantCompetition(input.competitionId, tenantId);
+      const comp = await getTenantCompetition(input.competitionId, ctx.tenantId);
       if (comp.status !== 'ACTIVE') {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Competition is not active' });
       }
@@ -550,8 +556,9 @@ export const competitionRouter = router({
       return toEnvelope(toParticipantDTO(entry, user || { name: 'Unknown', avatar: null }));
     }),
 
-  // 5. List participants (admin)
-  listParticipants: adminProcedure
+  /** List all participants in a competition — staff only.
+   * @privileged */
+  listParticipants: privilegedProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -571,13 +578,8 @@ export const competitionRouter = router({
       )
     )
     .query(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       // Verify competition exists in tenant
-      await getTenantCompetition(input.competitionId, tenantId);
+      await getTenantCompetition(input.competitionId, ctx.tenantId);
 
       const entries = await db
         .select()
@@ -605,8 +607,9 @@ export const competitionRouter = router({
       return toEnvelope({ participants, total: participants.length });
     }),
 
-  // 6. Update entry score/status/prize (admin)
-  updateEntry: adminProcedure
+  /** Update entry score, status, or prize — staff only.
+   * @privileged */
+  updateEntry: privilegedProcedure
     .meta({
       openapi: {
         method: 'PATCH',
@@ -619,11 +622,6 @@ export const competitionRouter = router({
     .input(UpdateEntryInput)
     .output(toEnvelopeSchema(ParticipantDTO))
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       const [entry] = await db
         .select()
         .from(competitionEntries)
@@ -637,7 +635,9 @@ export const competitionRouter = router({
       const [comp] = await db
         .select()
         .from(competitions)
-        .where(and(eq(competitions.id, entry.competitionId), eq(competitions.tenantId, tenantId)));
+        .where(
+          and(eq(competitions.id, entry.competitionId), eq(competitions.tenantId, ctx.tenantId))
+        );
       if (!comp) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Competition not in your tenant' });
       }
@@ -661,8 +661,9 @@ export const competitionRouter = router({
       return toEnvelope(toParticipantDTO(updated, user || { name: 'Unknown', avatar: null }));
     }),
 
-  // 7. Mark entry as winner (admin)
-  markWinner: adminProcedure
+  /** Mark an entry as winner — staff only.
+   * @privileged */
+  markWinner: privilegedProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -675,11 +676,6 @@ export const competitionRouter = router({
     .input(MarkWinnerInput)
     .output(toEnvelopeSchema(ParticipantDTO))
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       const [entry] = await db
         .select()
         .from(competitionEntries)
@@ -693,7 +689,9 @@ export const competitionRouter = router({
       const [comp] = await db
         .select()
         .from(competitions)
-        .where(and(eq(competitions.id, entry.competitionId), eq(competitions.tenantId, tenantId)));
+        .where(
+          and(eq(competitions.id, entry.competitionId), eq(competitions.tenantId, ctx.tenantId))
+        );
       if (!comp) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Competition not in your tenant' });
       }
@@ -714,7 +712,7 @@ export const competitionRouter = router({
       await db.insert(notifications).values([
         {
           id: crypto.randomUUID(),
-          tenantId,
+          tenantId: ctx.tenantId,
           userId: updated.userId,
           title: `You won ${comp.title}!`,
           message: `Congratulations! You won ${comp.title}.`,
@@ -733,8 +731,9 @@ export const competitionRouter = router({
       return toEnvelope(toParticipantDTO(updated, user || { name: 'Unknown', avatar: null }));
     }),
 
-  // 8. Draw winners for RAFFLE (admin)
-  drawWinners: adminProcedure
+  /** Draw random winners for a RAFFLE competition — staff only.
+   * @privileged */
+  drawWinners: privilegedProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -747,12 +746,7 @@ export const competitionRouter = router({
     .input(DrawWinnersInput)
     .output(toEnvelopeSchema(z.array(ParticipantDTO)))
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
-      const comp = await getTenantCompetition(input.competitionId, tenantId);
+      const comp = await getTenantCompetition(input.competitionId, ctx.tenantId);
       if (comp.type !== 'RAFFLE') {
         throw new TRPCError({
           code: 'BAD_REQUEST',
@@ -803,7 +797,7 @@ export const competitionRouter = router({
         await db.insert(notifications).values(
           selected.map(entry => ({
             id: crypto.randomUUID(),
-            tenantId,
+            tenantId: ctx.tenantId,
             userId: entry.userId,
             title: `You won ${comp.title}!`,
             message: `Congratulations! You won ${comp.title}.`,
@@ -832,7 +826,8 @@ export const competitionRouter = router({
       );
     }),
 
-  // 9. List winners (public)
+  /** List winners for a competition — no auth required.
+   * @public */
   listWinners: publicProcedure
     .meta({
       openapi: {
