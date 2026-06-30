@@ -3,8 +3,8 @@ import superjson from 'superjson';
 import { ZodError } from 'zod';
 import { rateLimitByUser, type RateLimitConfig } from '../rate-limit';
 import { auth } from '../auth';
-import { db, users, tenants } from '../db';
-import { eq } from 'drizzle-orm';
+import { db, users, tenants, platformSuspensions } from '../db';
+import { eq, and, or, isNull, gt } from 'drizzle-orm';
 import { tRPCCodeToCanonical } from '../envelope';
 
 export interface Context {
@@ -128,6 +128,48 @@ export const agentProcedure = protectedProcedure.use(async ({ ctx, next }) => {
 });
 
 /**
+ * Suspension check helper — queries platformSuspensions for active suspensions.
+ * Auto-unsuspends expired timed suspensions before blocking.
+ *
+ * Used by privilegedProcedure (Step 4 of 5-step auth middleware).
+ */
+async function checkNotSuspended(ctx: { userId: string; tenantId: string | null; db: typeof db }) {
+  // No-op when there's no user or tenant context
+  if (!ctx.userId || !ctx.tenantId) return;
+
+  const [activeSuspension] = await ctx.db
+    .select({
+      id: platformSuspensions.id,
+      endDate: platformSuspensions.endDate,
+    })
+    .from(platformSuspensions)
+    .where(
+      and(
+        eq(platformSuspensions.userId, ctx.userId),
+        eq(platformSuspensions.tenantId, ctx.tenantId),
+        eq(platformSuspensions.isActive, true)
+      )
+    )
+    .limit(1);
+
+  if (activeSuspension) {
+    // Auto-unsuspend expired timed suspensions
+    if (activeSuspension.endDate && new Date(activeSuspension.endDate) < new Date()) {
+      await ctx.db
+        .update(platformSuspensions)
+        .set({ isActive: false, updatedAt: new Date() })
+        .where(eq(platformSuspensions.id, activeSuspension.id));
+      await ctx.db.update(users).set({ isActive: true }).where(eq(users.id, ctx.userId));
+      return;
+    }
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'SUSPENDED_USER',
+    });
+  }
+}
+
+/**
  * Tenant-scoped procedure — enforces non-null tenantId.
  * Extends protectedProcedure so authentication is already guaranteed.
  * Use for endpoints that MUST have tenant context (most tenant-domain operations).
@@ -153,6 +195,8 @@ export const privilegedProcedure = tenantProcedure.use(async ({ ctx, next }) => 
       message: 'Privileged access required',
     });
   }
+  // Step 4: Suspension check
+  await checkNotSuspended(ctx);
   return next({ ctx });
 });
 
