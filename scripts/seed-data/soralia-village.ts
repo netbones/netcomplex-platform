@@ -2879,6 +2879,56 @@ export const SORALIA_VILLAGE: TenantSeedData = {
     { id: 'setting-stats-years', key: 'stats_years', value: '15' },
     { id: 'setting-stats-bird-species', key: 'stats_bird_species', value: '47' },
     { id: 'setting-stats-native-plants', key: 'stats_native_plants', value: '150' },
+    {
+      id: 'setting-education-data',
+      key: 'education_data',
+      value: JSON.stringify({
+        bursaries: [
+          {
+            id: 'b1',
+            title: 'Sasol Bursary Programme',
+            org: 'Sasol Ltd',
+            field: 'STEM',
+            amount: 'R90 000',
+            period: 'per year',
+            desc: 'Full bursary for engineering and physical sciences at SA universities.',
+            deadline: '28 Feb 2026',
+            status: 'open',
+          },
+          {
+            id: 'b2',
+            title: 'Old Mutual Education Trust',
+            org: 'Old Mutual',
+            field: 'Commerce',
+            amount: 'R60 000',
+            period: 'per year',
+            desc: 'For BCom and accounting students.',
+            deadline: '15 Mar 2026',
+            status: 'open',
+          },
+        ],
+        resources: [
+          {
+            id: 'r1',
+            title: 'Khan Academy',
+            org: 'Khan Academy',
+            type: 'Course',
+            desc: 'Free maths, science, computing courses.',
+            link: 'https://www.khanacademy.org',
+            tags: ['Maths', 'Science'],
+          },
+          {
+            id: 'r2',
+            title: 'MIT OpenCourseWare',
+            org: 'MIT',
+            type: 'Course',
+            desc: 'Lecture notes and exams from MIT courses.',
+            link: 'https://ocw.mit.edu',
+            tags: ['University'],
+          },
+        ],
+      }),
+    },
   ],
 
   // -------------------------------------------------------------------------
