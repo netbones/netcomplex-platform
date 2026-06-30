@@ -33,10 +33,8 @@
 1. /admin/users how does Admin invite Board member?
    Admin can currently invite user (must test)
 
-## F. Conservation Page
+## F. Conservation Page ✅
 
-1. Default content
-
-2. Managed Content via CMS ( we need to be able to input cms url)
-
-3. External Portal (requires input of API etc)
+1. Default content ✅
+2. Managed Content via CMS ( we need to be able to input cms url) ✅
+3. External Portal (requires input of API etc) ✅

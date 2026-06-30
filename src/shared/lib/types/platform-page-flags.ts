@@ -19,6 +19,7 @@ export interface PlatformPageFlags {
   campaign: boolean;
   conservation: 'default' | 'managed' | 'external';
   conservationExternalUrl: string;
+  conservationManagedUrl: string;
   chat: boolean;
   education: boolean;
   news: boolean;

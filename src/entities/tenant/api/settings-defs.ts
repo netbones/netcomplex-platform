@@ -31,6 +31,12 @@ const SETTING_DEFS = [
     type: 'string',
     defaultValue: '',
   },
+  {
+    dbKey: 'page_conservation_managed_url',
+    flagKey: 'conservationManagedUrl',
+    type: 'string',
+    defaultValue: '',
+  },
   { dbKey: 'page_chat_enabled', flagKey: 'chat', type: 'boolean', defaultValue: true },
   {
     dbKey: 'page_education_enabled',
@@ -157,6 +163,7 @@ export const SETTINGS_KEYS = {
   PAGE_CAMPAIGN_ENABLED: 'page_campaign_enabled',
   PAGE_CONSERVATION_MODE: 'page_conservation_mode',
   PAGE_CONSERVATION_URL: 'page_conservation_external_url',
+  PAGE_CONSERVATION_MANAGED_URL: 'page_conservation_managed_url',
   PAGE_CHAT_ENABLED: 'page_chat_enabled',
   PAGE_EDUCATION_ENABLED: 'page_education_enabled',
   PAGE_NEWS_ENABLED: 'page_news_enabled',

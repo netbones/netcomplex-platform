@@ -41,6 +41,8 @@ export default function ConservationPage() {
     'default'
   );
   const [externalUrl, setExternalUrl] = useState<string>('');
+  const [managedUrl, setManagedUrl] = useState<string>('');
+  const [managedContent, setManagedContent] = useState<ContentItem[]>([]);
 
   const getLocalizedContent = (field: Record<string, string> | null | undefined): string => {
     if (!field) return '';
@@ -84,23 +86,52 @@ export default function ConservationPage() {
         log.error({}, 'Failed to fetch conservation external URL', error);
       }
     }
+
+    // Fetch managed URL
+    async function fetchManagedUrl() {
+      try {
+        const res = await fetch('/api/flags?flag=conservationManagedUrl');
+        const data = await res.json();
+        if (data.value) {
+          setManagedUrl(data.value);
+        }
+      } catch (error) {
+        log.error({}, 'Failed to fetch conservation managed URL', error);
+      }
+    }
+
     fetchExternalUrl();
+    fetchManagedUrl();
   }, []);
 
   useEffect(() => {
-    if (conservationMode === 'managed') {
+    if (conservationMode === 'managed' && managedUrl) {
+      fetch(managedUrl)
+        .then(r => r.json())
+        .then(body => {
+          const items = Array.isArray(body) ? body : (body?.data ?? body?.items ?? []);
+          setManagedContent(items);
+          setLoading(false);
+        })
+        .catch(error => {
+          log.error({}, 'Failed to fetch managed conservation content', error);
+          setManagedContent([]);
+          setLoading(false);
+        });
+    } else if (conservationMode === 'managed') {
+      // Managed mode without a URL — fall back to platform content
       getContent().then(body => {
-        setContent(body?.data ?? []);
+        setManagedContent(body?.data ?? []);
         setLoading(false);
       });
     } else {
-      // For default mode, we still fetch content for the dynamic articles section
+      // Default mode — fetch platform content for the articles section
       getContent().then(body => {
         setContent(body?.data ?? []);
         setLoading(false);
       });
     }
-  }, [conservationMode]);
+  }, [conservationMode, managedUrl]);
 
   // Render based on mode
   if (conservationMode === 'external' && externalUrl) {
@@ -218,41 +249,87 @@ export default function ConservationPage() {
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">
             <i className="fas fa-seedling text-green-600 mr-3"></i>
-            {t('initiatives.title')}
+            {conservationMode === 'managed' && managedUrl
+              ? 'Managed Content'
+              : t('initiatives.title')}
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {content.map(article => (
-              <div
-                key={article.id}
-                className={`rounded-lg p-6 border ${article.featured ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200' : 'border-gray-200'}`}
-              >
-                <div className="flex items-center mb-4">
-                  {article.featured && (
-                    <span className="bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full mr-3">
-                      FEATURED
-                    </span>
-                  )}
-                  <span className="text-sm text-gray-500">
-                    {article.publishedAt
-                      ? new Date(article.publishedAt).toLocaleDateString('en-ZA', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                        })
-                      : ''}
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
-                  {getLocalizedContent(article.title)}
-                </h3>
-                <p className="text-gray-700 mb-4">{getLocalizedContent(article.content)}</p>
-                <div className="flex items-center text-green-600 font-medium">
-                  <i className="fas fa-user mr-2"></i>
-                  <span>{article.author?.name}</span>
-                </div>
+          {conservationMode === 'managed' && managedUrl ? (
+            managedContent.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {managedContent.map((article: ContentItem) => (
+                  <div
+                    key={article.id ?? Math.random()}
+                    className="rounded-lg p-6 border border-gray-200"
+                  >
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">
+                      {getLocalizedContent(article.title) || article.title}
+                    </h3>
+                    <p className="text-gray-700 mb-4">
+                      {getLocalizedContent(article.content) || article.content}
+                    </p>
+                    {article.author?.name && (
+                      <div className="flex items-center text-green-600 font-medium">
+                        <i className="fas fa-user mr-2"></i>
+                        <span>{article.author.name}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            ) : (
+              <p className="text-gray-500 text-center py-8">
+                No content available from the managed CMS.{' '}
+                <a
+                  href={managedUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  Verify the CMS URL
+                </a>
+                .
+              </p>
+            )
+          ) : conservationMode === 'managed' && !managedUrl ? (
+            <p className="text-gray-500 text-center py-8">
+              Managed content mode is enabled but no CMS URL has been configured. An administrator
+              can set the CMS URL in Page Settings.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {content.map(article => (
+                <div
+                  key={article.id}
+                  className={`rounded-lg p-6 border ${article.featured ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200' : 'border-gray-200'}`}
+                >
+                  <div className="flex items-center mb-4">
+                    {article.featured && (
+                      <span className="bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full mr-3">
+                        FEATURED
+                      </span>
+                    )}
+                    <span className="text-sm text-gray-500">
+                      {article.publishedAt
+                        ? new Date(article.publishedAt).toLocaleDateString('en-ZA', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          })
+                        : ''}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">
+                    {getLocalizedContent(article.title)}
+                  </h3>
+                  <p className="text-gray-700 mb-4">{getLocalizedContent(article.content)}</p>
+                  <div className="flex items-center text-green-600 font-medium">
+                    <i className="fas fa-user mr-2"></i>
+                    <span>{article.author?.name}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
