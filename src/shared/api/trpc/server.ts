@@ -5,6 +5,7 @@ import { rateLimitByUser, type RateLimitConfig } from '../rate-limit';
 import { auth } from '../auth';
 import { db, users, tenants } from '../db';
 import { eq } from 'drizzle-orm';
+import { tRPCCodeToCanonical } from '../envelope';
 
 export interface Context {
   session: Awaited<ReturnType<typeof auth.api.getSession>>;
@@ -63,11 +64,26 @@ export async function createContext(opts: { headers: Headers }): Promise<Context
 const t = initTRPC.context<Context>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
+    // Determine canonical code — check for special message signals first
+    let canonicalCode: string;
+    if (error.message === 'SUSPENDED_USER') {
+      canonicalCode = 'SUSPENDED_USER';
+    } else if (error.message === 'FEATURE_DISABLED') {
+      canonicalCode = 'FEATURE_DISABLED';
+    } else {
+      canonicalCode = tRPCCodeToCanonical(error.code);
+    }
+
     return {
       ...shape,
       data: {
         ...shape.data,
-        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
+        code: canonicalCode,
+        httpStatus: shape.data.httpStatus,
+        zodError:
+          error.code === 'BAD_REQUEST' && error.cause instanceof ZodError
+            ? error.cause.flatten()
+            : null,
       },
     };
   },
