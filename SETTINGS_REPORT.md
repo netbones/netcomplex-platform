@@ -450,11 +450,9 @@ same domain objects.
 
 ### Long-term (design)
 
-14. 📋 **Merging `PlatformPageFlags`, `SettingValueMap`, `SETTINGS_KEYS`, and `validation.ts`** into a single source of truth — scoped as **Phase 121 Plan 01 (SSOT)**
-15. 📋 **Add integration tests** — scoped as **Phase 121 Plan 02 (Integration Test Suite)**
+14. ✅ **Merging `PlatformPageFlags`, `SettingValueMap`, `SETTINGS_KEYS`, and `validation.ts`** into a single source of truth — completed in Phase 121-01 (SSOT). New `settings-defs.ts` generates all artifacts from one array.
+15. ✅ **Add integration tests** — completed in Phase 121-02 (13 tests covering all 8 endpoints)
 
 ### Medium-term (deferred)
 
-10. 📋 **Unify the REST and tRPC settings surfaces** — scoped as **Phase 121 Plan 03 (Surface Assessment)**
-
-See `.planning/phases/121-settings-unification/` for full phase plan.
+10. ✅ **Unify the REST and tRPC settings surfaces** — assessed in Phase 121-03. REST recommended as canonical. 3-phase migration roadmap produced. Deferred to follow-up BD issue.
