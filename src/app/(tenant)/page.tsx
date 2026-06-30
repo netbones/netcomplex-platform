@@ -69,7 +69,7 @@ export default function HomePage() {
       .then(body => {
         const data: HeroCarouselConfig | undefined = body?.data ?? body;
         if (data?.items?.length) {
-          setCarouselItems(data.items.filter(item => item.image));
+          setCarouselItems(data.items.filter((item: CarouselItem) => item.image));
         }
       })
       .catch(() => {});

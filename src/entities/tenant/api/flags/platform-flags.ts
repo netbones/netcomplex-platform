@@ -13,47 +13,7 @@ const log = createComponentLogger('platform-flags');
 import { type PlatformPageFlags } from '@shared/lib';
 export type { PlatformPageFlags };
 
-import { DEFAULT_PAGE_FLAGS } from '@shared/lib/settings/defaults';
-
-type FlagType = 'boolean' | 'enum' | 'json';
-
-interface FlagDef {
-  settingKey: string;
-  type: FlagType;
-  enumValues?: string[];
-}
-
-const FLAG_DEFS: Record<keyof PlatformPageFlags, FlagDef> = {
-  campaign: { settingKey: SETTINGS_KEYS.PAGE_CAMPAIGN_ENABLED, type: 'boolean' },
-  conservation: {
-    settingKey: SETTINGS_KEYS.PAGE_CONSERVATION_MODE,
-    type: 'enum',
-    enumValues: ['default', 'managed', 'external'],
-  },
-  conservationExternalUrl: {
-    settingKey: SETTINGS_KEYS.PAGE_CONSERVATION_URL,
-    type: 'enum',
-  },
-  chat: { settingKey: SETTINGS_KEYS.PAGE_CHAT_ENABLED, type: 'boolean' },
-  education: { settingKey: SETTINGS_KEYS.PAGE_EDUCATION_ENABLED, type: 'boolean' },
-  news: { settingKey: SETTINGS_KEYS.PAGE_NEWS_ENABLED, type: 'boolean' },
-  events: { settingKey: SETTINGS_KEYS.PAGE_EVENTS_ENABLED, type: 'boolean' },
-  directory: { settingKey: SETTINGS_KEYS.PAGE_DIRECTORY_ENABLED, type: 'boolean' },
-  groups: { settingKey: SETTINGS_KEYS.PAGE_GROUPS_ENABLED, type: 'boolean' },
-  services: { settingKey: SETTINGS_KEYS.PAGE_SERVICES_ENABLED, type: 'boolean' },
-  resources: { settingKey: SETTINGS_KEYS.PAGE_RESOURCES_ENABLED, type: 'boolean' },
-  maintenance: { settingKey: SETTINGS_KEYS.PAGE_MAINTENANCE_ENABLED, type: 'boolean' },
-  surveys: { settingKey: SETTINGS_KEYS.PAGE_SURVEYS_ENABLED, type: 'boolean' },
-  competitions: { settingKey: SETTINGS_KEYS.PAGE_COMPETITIONS_ENABLED, type: 'boolean' },
-  dashboard: { settingKey: SETTINGS_KEYS.PAGE_DASHBOARD_ENABLED, type: 'boolean' },
-  disputes: { settingKey: SETTINGS_KEYS.PAGE_DISPUTES_ENABLED, type: 'boolean' },
-  dWallet: { settingKey: SETTINGS_KEYS.PAGE_DWALLET_ENABLED, type: 'boolean' },
-  providers: { settingKey: SETTINGS_KEYS.PAGE_PROVIDERS_ENABLED, type: 'boolean' },
-  bookings: { settingKey: SETTINGS_KEYS.PAGE_BOOKINGS_ENABLED, type: 'boolean' },
-  marketplacePaypal: { settingKey: SETTINGS_KEYS.PAGE_MARKETPLACE_PAYPAL_ENABLED, type: 'boolean' },
-  messages: { settingKey: SETTINGS_KEYS.PAGE_MESSAGES_ENABLED, type: 'boolean' },
-  headerLinks: { settingKey: SETTINGS_KEYS.HEADER_LINKS, type: 'json' },
-};
+import { FLAG_DEFS, DEFAULT_PAGE_FLAGS, type FlagDef } from '../settings-defs';
 
 function applySettingToFlags(flags: PlatformPageFlags, key: string, value: string): void {
   const entry = Object.entries(FLAG_DEFS).find(([_, def]) => def.settingKey === key) as

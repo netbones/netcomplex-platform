@@ -5,6 +5,7 @@ import { SETTINGS_KEYS } from '../settings';
 import { createComponentLogger } from '@shared/lib';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { DbSchema } from '@api/server';
+import type { HeroCarouselConfig } from './hero-carousel.types';
 
 export type { CarouselItem, HeroCarouselConfig } from './hero-carousel.types';
 

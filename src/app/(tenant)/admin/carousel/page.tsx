@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
-import { useSafeTranslation } from '@shared/lib';
 import { createComponentLogger } from '@shared/lib';
 import type { HeroCarouselConfig, CarouselItem } from '@entities/tenant';
 
@@ -19,7 +18,6 @@ function newItem(): CarouselItem {
 }
 
 export default function AdminCarouselPage() {
-  const { tx } = useSafeTranslation(['common', 'admin']);
   const [config, setConfig] = useState<HeroCarouselConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -104,9 +102,7 @@ export default function AdminCarouselPage() {
   return (
     <ErrorBoundary>
       <div className="container mx-auto px-4 py-8">
-        <Breadcrumbs
-          items={[{ label: tx('admin.dashboard'), href: '/admin' }, { label: 'Carousel' }]}
-        />
+        <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Carousel' }]} />
 
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-soralia-dark">Home Page Carousel</h1>

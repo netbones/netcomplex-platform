@@ -1,11 +1,10 @@
 # REVIEW
 
-## A. Front page: "Home"
+## A. Front page: "Home" ✅
 
-1. Carousel requires Management under Admin Domains
-   Admin will periodically change the carousel images, and Headings/Subheadings.
-
-   The Subheading and Image will need to be clickable. For example, a For Sale may elicit a potential buyer inquiry. An Event may link to an event page etc.
+1. Carousel requires Management under Admin Domains ✅
+   Admin will periodically change the carousel images, and Headings/Subheadings. ✅
+   The Subheading and Image will need to be clickable. For example, a For Sale may elicit a potential buyer inquiry. An Event may link to an event page etc. ✅
 
 ## B. User induction and Property Images?
 

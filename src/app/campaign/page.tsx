@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { Breadcrumbs, ErrorBoundary } from '@shared/ui';
 import { usePageLoading } from '@shared/ui';
@@ -142,9 +143,10 @@ export default function CampaignPage() {
           ) : campaignData?.content && campaignData.content.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {campaignData.content.map(item => (
-                <div
+                <Link
                   key={item.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                  href={`/news/${item.id}`}
+                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow block"
                 >
                   {item.image && (
                     <img
@@ -171,7 +173,7 @@ export default function CampaignPage() {
                       </div>
                     )}
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (

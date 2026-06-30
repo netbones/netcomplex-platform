@@ -1,26 +1,2 @@
-import { type HeaderLinkId, type PlatformPageFlags } from '../types/platform-page-flags';
-
-export const DEFAULT_PAGE_FLAGS: PlatformPageFlags = {
-  campaign: true,
-  conservation: 'default',
-  conservationExternalUrl: '',
-  chat: true,
-  education: true,
-  news: true,
-  events: true,
-  directory: true,
-  groups: true,
-  services: true,
-  resources: true,
-  maintenance: true,
-  surveys: true,
-  competitions: true,
-  dashboard: true,
-  disputes: true,
-  dWallet: false,
-  providers: true,
-  bookings: true,
-  marketplacePaypal: false,
-  messages: true,
-  headerLinks: ['directory', 'groups', 'services', 'resources'] as HeaderLinkId[],
-};
+export { DEFAULT_PAGE_FLAGS } from '@/entities/tenant/api/settings-defs';
+export type { PlatformPageFlags, HeaderLinkId } from '@shared/lib';
