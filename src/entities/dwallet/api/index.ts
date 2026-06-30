@@ -33,8 +33,19 @@ export async function getOrCreateWallet(userId: string, tenantId: string) {
       userId,
       updatedAt: timestamp,
     })
+    .onConflictDoNothing()
     .returning();
 
-  logger.info({ event: 'wallet_created', userId, tenantId, walletId: wallet.id });
-  return wallet;
+  if (wallet) {
+    logger.info({ event: 'wallet_created', userId, tenantId, walletId: wallet.id });
+    return wallet;
+  }
+
+  const [retried] = await db
+    .select()
+    .from(dWallets)
+    .where(and(eq(dWallets.userId, userId), eq(dWallets.tenantId, tenantId)))
+    .limit(1);
+
+  return retried;
 }

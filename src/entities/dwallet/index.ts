@@ -40,3 +40,6 @@ export type {
 
 // Client-side hooks
 export { useWallet } from './model/useWallet';
+
+// Client-side components
+export { DWalletAdminWidget } from './ui/DWalletAdminWidget';

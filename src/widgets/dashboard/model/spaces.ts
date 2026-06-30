@@ -345,6 +345,7 @@ export const ADMIN_DOMAINS = [
   'achievements',
   'announcements',
   'providers',
+  'dwallet',
   'system',
   'services',
 ] as const;
@@ -368,6 +369,7 @@ const ADMIN_DOMAIN_WIDGET_MAP: Record<AdminDomain, string[]> = {
   announcements: ['admin-announcements'],
   system: ['admin-system', 'page-settings'],
   providers: ['admin-providers'],
+  dwallet: ['admin-dwallet'],
   services: ['services-config'],
 };
 

@@ -64,6 +64,14 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
 SQL
 ```
 
+> **⚠️ Retroactive fix:** The `GRANT USAGE ON SCHEMA public` on the line above was
+> accidentally omitted during the initial runbook execution. This caused
+> `app_user` to be invisible to the `public` schema — every query inside
+> `runWithRLS` failed with _"relation does not exist"_ regardless of per-table
+> grants. Fixed retroactively by migration `20260629130000_fix_rls_schema_usage`.
+> If you're setting up a new environment, the SQL below is correct; skip that
+> migration.
+
 **Verify:**
 
 ```sql
@@ -92,17 +100,19 @@ The first migration includes a `DO $$ ... RAISE EXCEPTION` block at the end that
 **Verify:**
 
 ```sql
--- All 15 expected tables should have rowsecurity = true
+-- All 18 expected tables should have rowsecurity = true
+-- (15 original + 3 achievement tables from 20260629120000_add_rls_achievements)
 SELECT tablename, rowsecurity, forcerowsecurity
 FROM pg_tables
 WHERE schemaname = 'public'
   AND tablename IN (
     'user', 'session', 'account', 'passkey', 'twoFactor', 'profile',
     'Notification', 'MaintenanceRequest', 'Content', 'Survey', 'Event',
-    'GroupMembershipRequest', 'Announcement', 'Competition', 'Setting'
+    'GroupMembershipRequest', 'Announcement', 'Competition', 'Setting',
+    'TenantAchievement', 'UserAchievementProgress', 'UserAchievement'
   )
 ORDER BY tablename;
--- Expect: 15 rows, all with rowsecurity = true and forcerowsecurity = true
+-- Expect: 18 rows, all with rowsecurity = true and forcerowsecurity = true
 ```
 
 ## Step 3 — Confirm app is still on the owner role
@@ -130,7 +140,7 @@ Once Stage A is verified, Phase 43 plan 43-04 (BD `oqw`) wraps the 5 admin route
 - `GET /api/admin/urgency` (uses `maintenanceRequests, groupMembershipRequests, surveys, announcements, contents, competitions`)
 - `GET/POST /api/admin/settings/page-flags` (uses `settings` via `platform-flags.ts`)
 
-Each `tx.*` call inside the wrap executes under `app_user` and is subject to the policies. The 14 other tables in the migration scope (sensitive + admin-route) are also live for any code that wraps them in `runWithRLS`.
+Each `tx.*` call inside the wrap executes under `app_user` and is subject to the policies. The 17 other tables in the migration scope (sensitive + admin-route + achievement tables from migration `20260629120000_add_rls_achievements`) are also live for any code that wraps them in `runWithRLS`.
 
 **Verify after 43-04 lands:**
 
@@ -176,6 +186,14 @@ SELECT count(*) FROM "Content";
 -- Setting: tenant-only, should see all in tenant
 SELECT count(*) FROM "Setting";
 -- Expect: all rows where tenantId = <tenant-A-id>
+
+-- TenantAchievement: tenant-only, same pattern
+SELECT count(*) FROM "TenantAchievement";
+-- Expect: all rows where tenantId = <tenant-A-id>
+
+-- UserAchievement: user-scoped (like Notification), should see own rows only
+SELECT count(*) FROM "UserAchievement";
+-- Expect: only rows where userId = <some-user-in-A>
 ```
 
 **Idempotency test:**
@@ -208,7 +226,9 @@ Each route migration is its own small PR. Add a per-route test that verifies:
 - **`set_config(..., true)` is transaction-scoped** — the GUC values reset on commit/rollback. Safe by construction.
 - **The "skipped" auth tables (`session`, `account`, `verification`, `passkey`)** are explicitly out of scope. Better Auth connects as the owner role. Adding RLS to these tables would break login.
 - **30 non-sensitive tenant tables** (Announcement was added back to the in-scope set, but the 30 others — Booking, Group, Resource, Household, Property, etc.) are deliberately not in this migration. They follow ADR-019's application-layer auth model. A future phase (BD `t78`, M6+ second-tenant onboarding) should revisit this.
-- **If a new sensitive or admin-route table is added to the schema**, a follow-up migration must add the matching RLS policy. Add a CI check that diffs `pg_tables WHERE rowsecurity = false` against the 15-table whitelist.
+- **If a new sensitive or admin-route table is added to the schema**, a follow-up migration must add the matching RLS policy. Add a CI check that diffs `pg_tables WHERE rowsecurity = false` against the 18-table whitelist.
+
+  **Example — Achievement tables added post-launch:** Migration `20260629120000_add_rls_achievements` added GRANTs + RLS policies for `AchievementDefinition` (catalog, no RLS), `TenantAchievement`, `UserAchievementProgress`, and `UserAchievement`. It follows the same pattern as the original migration — see that file for the template.
 
 ## Rollback
 
@@ -228,7 +248,8 @@ WHERE schemaname = 'public' AND rowsecurity = true
   AND tablename IN (
     'user', 'session', 'account', 'passkey', 'twoFactor', 'profile',
     'Notification', 'MaintenanceRequest', 'Content', 'Survey', 'Event',
-    'GroupMembershipRequest', 'Announcement', 'Competition', 'Setting'
+    'GroupMembershipRequest', 'Announcement', 'Competition', 'Setting',
+    'TenantAchievement', 'UserAchievementProgress', 'UserAchievement'
   );
 ```
 

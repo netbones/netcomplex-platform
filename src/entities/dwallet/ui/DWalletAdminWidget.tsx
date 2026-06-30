@@ -7,22 +7,30 @@ import type { AdminStats, PayoutRequestItem, BatchRecord } from '../model/types'
 
 // ── Data fetching helpers ──────────────────────────────────────────────────
 
+async function unwrapEnvelope<T>(res: Response): Promise<T> {
+  const body = await res.json();
+  if (body && typeof body === 'object' && 'success' in body && 'data' in body) {
+    return body.data as T;
+  }
+  return body as T;
+}
+
 async function fetchAdminStats(): Promise<AdminStats> {
   const res = await fetch('/api/admin/dwallet/stats');
   if (!res.ok) throw new Error('Failed to fetch admin stats');
-  return res.json();
+  return unwrapEnvelope<AdminStats>(res);
 }
 
 async function fetchPayouts(): Promise<PayoutRequestItem[]> {
   const res = await fetch('/api/admin/dwallet/payouts');
   if (!res.ok) throw new Error('Failed to fetch payouts');
-  return res.json();
+  return unwrapEnvelope<PayoutRequestItem[]>(res);
 }
 
 async function fetchBatches(): Promise<BatchRecord[]> {
   const res = await fetch('/api/admin/dwallet/batches');
   if (!res.ok) throw new Error('Failed to fetch batches');
-  return res.json();
+  return unwrapEnvelope<BatchRecord[]>(res);
 }
 
 async function patchPayoutStatus(

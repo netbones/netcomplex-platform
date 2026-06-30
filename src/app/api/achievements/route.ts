@@ -19,7 +19,7 @@ const log = createComponentLogger('achievements-api');
 
 export async function GET(request: NextRequest) {
   try {
-    const sessionRole = await getSessionAndRole();
+    const sessionRole = await getSessionAndRole(request);
     if (!sessionRole) return apiUnauthorized();
 
     const ctx = await getRLSContext(request);

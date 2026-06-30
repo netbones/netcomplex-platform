@@ -2,15 +2,25 @@ packages:
   - . # single-project workspace, set to '.' if not in a monorepo
 allowBuilds:
   '-': true
+  '@prisma/client': true
+  '@prisma/engines': true
   a: true
+  better-sqlite3: true
   c: true
+  core-js: true
   d: true
   e: true
+  esbuild: true
   i: true
+  msw: false
   n: true
   o: true
   p: true
+  prisma: true
+  protobufjs: true
+  sharp: true
   supabase: true
+  unrs-resolver: true
 
 # Overrides moved from package.json#pnpm.overrides (deprecated in pnpm 10+).
 # See https://pnpm.io/settings for the authoritative config reference.

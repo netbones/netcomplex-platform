@@ -1,0 +1,743 @@
+<style>
+  .edu-root {
+    padding: 1rem 0;
+    font-family: var(--font-sans);
+  }
+  .edu-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+  .edu-tab {
+    padding: 0.5rem 1.1rem;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s;
+  }
+  .edu-tab:hover {
+    color: var(--text-primary);
+  }
+  .edu-tab.active {
+    color: var(--text-accent);
+    border-bottom-color: var(--border-accent);
+    font-weight: 500;
+  }
+  .edu-tab i {
+    margin-right: 6px;
+    font-size: 15px;
+    vertical-align: -2px;
+  }
+
+  .edu-search {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+  }
+  .edu-search input {
+    flex: 1;
+  }
+  .edu-search select {
+    width: 160px;
+  }
+
+  .edu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+
+  .edu-card {
+    background: var(--surface-2);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.125rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .edu-card:hover {
+    border-color: var(--border-strong);
+  }
+  .edu-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .edu-card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .edu-card-icon.bursary {
+    background: var(--bg-accent);
+    color: var(--text-accent);
+  }
+  .edu-card-icon.resource {
+    background: var(--bg-success);
+    color: var(--text-success);
+  }
+  .edu-card-icon.scholarship {
+    background: var(--bg-pro);
+    color: var(--text-pro);
+  }
+  .edu-card-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+  .edu-card-org {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+  .edu-card-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+  .edu-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 0.25rem;
+  }
+  .edu-pill {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    border: 0.5px solid var(--border);
+    color: var(--text-secondary);
+    background: var(--surface-1);
+  }
+  .edu-pill.deadline {
+    border-color: var(--border-warning);
+    color: var(--text-warning);
+    background: var(--bg-warning);
+  }
+  .edu-pill.open {
+    border-color: var(--border-success);
+    color: var(--text-success);
+    background: var(--bg-success);
+  }
+  .edu-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 0.5rem;
+    border-top: 0.5px solid var(--border);
+  }
+  .edu-card-amount {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .edu-card-amount span {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-left: 3px;
+  }
+  .edu-btn-small {
+    font-size: 12px;
+    padding: 4px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .edu-btn-small i {
+    font-size: 13px;
+  }
+
+  .edu-section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 1.5rem 0 0.75rem;
+  }
+  .edu-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  .edu-empty i {
+    font-size: 32px;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .edu-featured {
+    background: var(--surface-1);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .edu-featured-badge {
+    font-size: 11px;
+    background: var(--bg-pro);
+    color: var(--text-pro);
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .edu-featured-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .edu-featured-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .edu-featured-sub {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .edu-featured-action {
+    flex-shrink: 0;
+  }
+
+  .edu-shelf {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 1.25rem;
+    scrollbar-width: none;
+  }
+  .edu-shelf::-webkit-scrollbar {
+    display: none;
+  }
+  .edu-spine {
+    min-width: 100px;
+    max-width: 120px;
+    border-radius: 6px;
+    padding: 0.75rem 0.6rem;
+    cursor: pointer;
+    border: 0.5px solid var(--border);
+    background: var(--surface-2);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .edu-spine:hover {
+    border-color: var(--border-strong);
+    background: var(--surface-1);
+  }
+  .edu-spine-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.35;
+  }
+  .edu-spine-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .edu-spine-stripe {
+    height: 3px;
+    border-radius: 99px;
+    margin-bottom: 6px;
+    width: 100%;
+  }
+
+  .edu-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+  .edu-stat {
+    background: var(--surface-1);
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+  }
+  .edu-stat-num {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .edu-stat-lbl {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .tab-panel {
+    display: none;
+  }
+  .tab-panel.active {
+    display: block;
+  }
+</style>
+
+<div class="edu-root">
+  <h2 class="sr-only">Education portal — scholarships, bursaries, and free learning resources</h2>
+
+  <div class="edu-tabs" role="tablist">
+    <button
+      class="edu-tab active"
+      role="tab"
+      onclick="switchTab('bursaries', this)"
+      aria-selected="true"
+    >
+      <i class="ti ti-award" aria-hidden="true"></i>Bursaries & scholarships
+    </button>
+    <button class="edu-tab" role="tab" onclick="switchTab('resources', this)" aria-selected="false">
+      <i class="ti ti-books" aria-hidden="true"></i>Free resources
+    </button>
+    <button class="edu-tab" role="tab" onclick="switchTab('saved', this)" aria-selected="false">
+      <i class="ti ti-bookmark" aria-hidden="true"></i>Saved<span
+        id="saved-count"
+        style="
+          margin-left: 5px;
+          font-size: 11px;
+          background: var(--bg-accent);
+          color: var(--text-accent);
+          border-radius: 99px;
+          padding: 1px 6px;
+        "
+        >0</span
+      >
+    </button>
+  </div>
+
+  <!-- BURSARIES TAB -->
+  <div id="tab-bursaries" class="tab-panel active">
+    <div class="edu-stats">
+      <div class="edu-stat">
+        <div class="edu-stat-num">14</div>
+        <div class="edu-stat-lbl">Open opportunities</div>
+      </div>
+      <div class="edu-stat">
+        <div class="edu-stat-num">R2.4M</div>
+        <div class="edu-stat-lbl">Total funding available</div>
+      </div>
+      <div class="edu-stat">
+        <div class="edu-stat-num">6</div>
+        <div class="edu-stat-lbl">Closing this month</div>
+      </div>
+    </div>
+
+    <div class="edu-featured">
+      <span class="edu-featured-badge">Pinned</span>
+      <div class="edu-featured-body">
+        <div class="edu-featured-title">NSFAS 2026 applications are open</div>
+        <div class="edu-featured-sub">
+          All SA citizens at public universities and TVET colleges — closes 31 Jan 2026
+        </div>
+      </div>
+      <div class="edu-featured-action">
+        <button class="edu-btn-small" onclick="openLink('https://www.nsfas.org.za')">
+          Apply <i class="ti ti-external-link"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="edu-search">
+      <input
+        type="text"
+        id="bursary-search"
+        placeholder="Search bursaries..."
+        oninput="filterBursaries()"
+      />
+      <select id="bursary-field" onchange="filterBursaries()">
+        <option value="">All fields</option>
+        <option value="STEM">STEM</option>
+        <option value="Commerce">Commerce</option>
+        <option value="Arts">Arts & humanities</option>
+        <option value="Health">Health sciences</option>
+        <option value="Law">Law</option>
+        <option value="Education">Education</option>
+      </select>
+    </div>
+
+    <div id="bursary-grid" class="edu-grid"></div>
+  </div>
+
+  <!-- RESOURCES TAB -->
+  <div id="tab-resources" class="tab-panel">
+    <div class="edu-search">
+      <input
+        type="text"
+        id="res-search"
+        placeholder="Search textbooks, guides, courses..."
+        oninput="filterResources()"
+      />
+      <select id="res-type" onchange="filterResources()">
+        <option value="">All types</option>
+        <option value="Book">Book</option>
+        <option value="Course">Online course</option>
+        <option value="Journal">Journal / article</option>
+        <option value="Video">Video series</option>
+      </select>
+    </div>
+
+    <div class="edu-section-label">Gutenberg classics — free to read</div>
+    <div class="edu-shelf" id="gutenberg-shelf"></div>
+
+    <div class="edu-section-label">All resources</div>
+    <div id="resource-grid" class="edu-grid"></div>
+  </div>
+
+  <!-- SAVED TAB -->
+  <div id="tab-saved" class="tab-panel">
+    <div id="saved-list"></div>
+  </div>
+</div>
+
+<script>
+  const saved = new Set();
+
+  const bursaries = [
+    {
+      id: 'b1',
+      title: 'Sasol Bursary Programme',
+      org: 'Sasol Ltd',
+      field: 'STEM',
+      amount: 'R90 000',
+      period: 'per year',
+      desc: 'Full bursary for engineering and physical sciences at SA universities. Includes vacation work placement.',
+      deadline: '28 Feb 2026',
+      status: 'open',
+    },
+    {
+      id: 'b2',
+      title: 'Old Mutual Education Trust',
+      org: 'Old Mutual',
+      field: 'Commerce',
+      amount: 'R60 000',
+      period: 'per year',
+      desc: 'For BCom and accounting students at accredited institutions. Merit and need-based assessment.',
+      deadline: '15 Mar 2026',
+      status: 'open',
+    },
+    {
+      id: 'b3',
+      title: 'Department of Health Bursary',
+      org: 'Western Cape DoH',
+      field: 'Health',
+      amount: 'R120 000',
+      period: 'per year',
+      desc: 'Service-linked bursary for medical, nursing, and allied health students. Must work in WC public sector after qualifying.',
+      deadline: '10 Jan 2026',
+      status: 'closing',
+    },
+    {
+      id: 'b4',
+      title: 'Fulbright Foreign Student Program',
+      org: 'US Embassy',
+      field: 'Arts',
+      amount: 'Full tuition',
+      period: '',
+      desc: 'Covers tuition, living stipend, and airfare for postgraduate study in the United States. High academic merit required.',
+      deadline: '30 Apr 2026',
+      status: 'open',
+    },
+    {
+      id: 'b5',
+      title: 'Nedbank Education Fund',
+      org: 'Nedbank',
+      field: 'Commerce',
+      amount: 'R50 000',
+      period: 'per year',
+      desc: 'For students studying finance, economics, or business science. Preference for first-generation university students.',
+      deadline: '31 Mar 2026',
+      status: 'open',
+    },
+    {
+      id: 'b6',
+      title: 'Funza Lushaka Teaching Bursary',
+      org: 'Dept. of Education',
+      field: 'Education',
+      amount: 'Full cost',
+      period: '',
+      desc: 'Full bursary for education degrees. Recipients must teach at a public school for the same number of years funded.',
+      deadline: '01 Feb 2026',
+      status: 'closing',
+    },
+    {
+      id: 'b7',
+      title: 'National Research Foundation Bursary',
+      org: 'NRF',
+      field: 'STEM',
+      amount: 'R90 000',
+      period: 'per year',
+      desc: 'For Masters and PhD students in science, engineering, and technology. Linked to approved research projects.',
+      deadline: '15 May 2026',
+      status: 'open',
+    },
+    {
+      id: 'b8',
+      title: 'LPC Legal Bursary',
+      org: 'Legal Practice Council',
+      field: 'Law',
+      amount: 'R45 000',
+      period: 'per year',
+      desc: 'Need-based bursary for LLB students at accredited law schools. Must demonstrate community involvement.',
+      deadline: '28 Feb 2026',
+      status: 'open',
+    },
+  ];
+
+  const resources = [
+    {
+      id: 'r1',
+      title: 'Khan Academy',
+      org: 'Khan Academy',
+      type: 'Course',
+      desc: 'Free maths, science, computing, and test-prep courses from Grade 1 through university level. Fully interactive.',
+      link: 'https://www.khanacademy.org',
+      tags: ['Maths', 'Science', 'Coding'],
+    },
+    {
+      id: 'r2',
+      title: 'MIT OpenCourseWare',
+      org: 'MIT',
+      type: 'Course',
+      desc: 'Lecture notes, assignments, and exams from hundreds of actual MIT courses. No registration needed.',
+      link: 'https://ocw.mit.edu',
+      tags: ['University', 'Engineering', 'Economics'],
+    },
+    {
+      id: 'r3',
+      title: 'African Storybook',
+      org: 'SAIDE',
+      type: 'Book',
+      desc: 'Freely available picture books in many African languages, including Zulu, Xhosa, Afrikaans, and Sesotho.',
+      link: 'https://www.africanstorybook.org',
+      tags: ['Literacy', 'isiZulu', 'isiXhosa'],
+    },
+    {
+      id: 'r4',
+      title: 'Siyavula open textbooks',
+      org: 'Siyavula Education',
+      type: 'Book',
+      desc: 'CAPS-aligned Maths and Physical Sciences textbooks for Grades 10–12. Free to read online, low-cost to print.',
+      link: 'https://www.siyavula.com',
+      tags: ['Matric', 'Maths', 'Science'],
+    },
+    {
+      id: 'r5',
+      title: 'Coursera — financial aid',
+      org: 'Coursera',
+      type: 'Course',
+      desc: 'Apply for financial aid on any paid course. Hundreds of SA students access free certificates this way each year.',
+      link: 'https://www.coursera.org',
+      tags: ['Certificates', 'Professional'],
+    },
+    {
+      id: 'r6',
+      title: 'OpenStax textbooks',
+      org: 'Rice University',
+      type: 'Book',
+      desc: 'Peer-reviewed, openly licensed textbooks for university subjects — biology, economics, physics, anatomy, and more.',
+      link: 'https://openstax.org',
+      tags: ['University', 'Textbooks'],
+    },
+    {
+      id: 'r7',
+      title: 'Ted-Ed video lessons',
+      org: 'TED',
+      type: 'Video',
+      desc: 'Animated lessons covering science, history, literature, and critical thinking. Ideal for ages 12 and up.',
+      link: 'https://ed.ted.com',
+      tags: ['Video', 'General'],
+    },
+    {
+      id: 'r8',
+      title: 'Directory of Open Access Journals',
+      org: 'DOAJ',
+      type: 'Journal',
+      desc: 'Over 18 000 peer-reviewed open-access journals across all academic disciplines.',
+      link: 'https://doaj.org',
+      tags: ['Research', 'Journals'],
+    },
+  ];
+
+  const gutenberg = [
+    { title: 'Treasure Island', author: 'R. L. Stevenson', id: '120', stripe: '#3B6D11' },
+    { title: 'Pride and Prejudice', author: 'Jane Austen', id: '1342', stripe: '#185FA5' },
+    { title: 'The Republic', author: 'Plato', id: '1497', stripe: '#854F0B' },
+    { title: 'Frankenstein', author: 'M. Shelley', id: '84', stripe: '#993556' },
+    { title: 'Jane Eyre', author: 'Charlotte Brontë', id: '1260', stripe: '#534AB7' },
+    { title: 'Great Expectations', author: 'Charles Dickens', id: '1400', stripe: '#993C1D' },
+    { title: 'The Art of War', author: 'Sun Tzu', id: '132', stripe: '#0F6E56' },
+    { title: 'Middlemarch', author: 'George Eliot', id: '145', stripe: '#3C3489' },
+  ];
+
+  function switchTab(name, el) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.edu-tab').forEach(t => {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected', 'false');
+    });
+    document.getElementById('tab-' + name).classList.add('active');
+    el.classList.add('active');
+    el.setAttribute('aria-selected', 'true');
+    if (name === 'saved') renderSaved();
+  }
+
+  function deadlineLabel(d) {
+    const days = Math.round((new Date(d) - new Date()) / 86400000);
+    if (days < 0) return 'Closed';
+    if (days < 14) return `${days}d left`;
+    return d;
+  }
+
+  function renderBursary(b) {
+    const isSaved = saved.has(b.id);
+    const dl = deadlineLabel(b.deadline);
+    const urgent = dl.endsWith('d left');
+    return `<div class="edu-card" id="card-${b.id}">
+    <div class="edu-card-header">
+      <div class="edu-card-icon bursary"><i class="ti ti-award" aria-hidden="true"></i></div>
+      <div><div class="edu-card-title">${b.title}</div><div class="edu-card-org">${b.org}</div></div>
+    </div>
+    <div class="edu-card-desc">${b.desc}</div>
+    <div class="edu-card-meta">
+      <span class="edu-pill">${b.field}</span>
+      <span class="edu-pill ${urgent ? 'deadline' : b.status === 'open' ? 'open' : ''}">${urgent ? '⚡ ' + dl : b.status === 'closing' ? 'Closing soon' : dl}</span>
+    </div>
+    <div class="edu-card-footer">
+      <div class="edu-card-amount">${b.amount} <span>${b.period}</span></div>
+      <div style="display:flex;gap:6px">
+        <button class="edu-btn-small" onclick="toggleSave('${b.id}','bursary',this)" aria-label="${isSaved ? 'Remove from saved' : 'Save'}">
+          <i class="ti ${isSaved ? 'ti-bookmark-filled' : 'ti-bookmark'}" aria-hidden="true"></i>
+        </button>
+        <button class="edu-btn-small" onclick="sendPrompt('Tell me more about the ${b.title} bursary and how to apply')">Details ↗</button>
+      </div>
+    </div>
+  </div>`;
+  }
+
+  function renderResource(r) {
+    const isSaved = saved.has(r.id);
+    return `<div class="edu-card" id="card-${r.id}">
+    <div class="edu-card-header">
+      <div class="edu-card-icon resource"><i class="ti ti-book" aria-hidden="true"></i></div>
+      <div><div class="edu-card-title">${r.title}</div><div class="edu-card-org">${r.org}</div></div>
+    </div>
+    <div class="edu-card-desc">${r.desc}</div>
+    <div class="edu-card-meta">${r.tags.map(t => `<span class="edu-pill">${t}</span>`).join('')}<span class="edu-pill">${r.type}</span></div>
+    <div class="edu-card-footer">
+      <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:4px;"><i class="ti ti-lock-open" style="font-size:13px" aria-hidden="true"></i> Free access</div>
+      <div style="display:flex;gap:6px">
+        <button class="edu-btn-small" onclick="toggleSave('${r.id}','resource',this)" aria-label="${isSaved ? 'Remove' : 'Save'}"><i class="ti ${isSaved ? 'ti-bookmark-filled' : 'ti-bookmark'}" aria-hidden="true"></i></button>
+        <button class="edu-btn-small" onclick="openLink('${r.link}')">Open <i class="ti ti-external-link"></i></button>
+      </div>
+    </div>
+  </div>`;
+  }
+
+  function renderGutenberg() {
+    const shelf = document.getElementById('gutenberg-shelf');
+    shelf.innerHTML = gutenberg
+      .map(
+        b => `
+    <div class="edu-spine" onclick="openLink('https://www.gutenberg.org/ebooks/${b.id}')" title="${b.title}">
+      <div class="edu-spine-stripe" style="background:${b.stripe}"></div>
+      <div class="edu-spine-title">${b.title}</div>
+      <div class="edu-spine-meta">${b.author}</div>
+    </div>`
+      )
+      .join('');
+  }
+
+  function filterBursaries() {
+    const q = document.getElementById('bursary-search').value.toLowerCase();
+    const f = document.getElementById('bursary-field').value;
+    const filtered = bursaries.filter(
+      b =>
+        (!q ||
+          b.title.toLowerCase().includes(q) ||
+          b.org.toLowerCase().includes(q) ||
+          b.desc.toLowerCase().includes(q)) &&
+        (!f || b.field === f)
+    );
+    const grid = document.getElementById('bursary-grid');
+    grid.innerHTML = filtered.length
+      ? filtered.map(renderBursary).join('')
+      : '<div class="edu-empty"><i class="ti ti-mood-confuzed-filled" aria-hidden="true"></i>No bursaries match those filters. Try broadening your search.</div>';
+  }
+
+  function filterResources() {
+    const q = document.getElementById('res-search').value.toLowerCase();
+    const t = document.getElementById('res-type').value;
+    const filtered = resources.filter(
+      r =>
+        (!q ||
+          r.title.toLowerCase().includes(q) ||
+          r.desc.toLowerCase().includes(q) ||
+          r.tags.some(x => x.toLowerCase().includes(q))) &&
+        (!t || r.type === t)
+    );
+    const grid = document.getElementById('resource-grid');
+    grid.innerHTML = filtered.length
+      ? filtered.map(renderResource).join('')
+      : '<div class="edu-empty"><i class="ti ti-mood-confuzed-filled" aria-hidden="true"></i>No resources match. Try a different search or type.</div>';
+  }
+
+  function toggleSave(id, kind, btn) {
+    if (saved.has(id)) {
+      saved.delete(id);
+    } else {
+      saved.add(id);
+    }
+    const i = btn.querySelector('i');
+    i.className = saved.has(id) ? 'ti ti-bookmark-filled' : 'ti ti-bookmark';
+    document.getElementById('saved-count').textContent = saved.size;
+  }
+
+  function renderSaved() {
+    const list = document.getElementById('saved-list');
+    if (saved.size === 0) {
+      list.innerHTML =
+        '<div class="edu-empty"><i class="ti ti-bookmark" aria-hidden="true"></i>Nothing saved yet. Bookmark bursaries and resources to find them here.</div>';
+      return;
+    }
+    const savedBursaries = bursaries.filter(b => saved.has(b.id));
+    const savedResources = resources.filter(r => saved.has(r.id));
+    let html = '';
+    if (savedBursaries.length)
+      html +=
+        '<div class="edu-section-label">Saved bursaries</div><div class="edu-grid">' +
+        savedBursaries.map(renderBursary).join('') +
+        '</div>';
+    if (savedResources.length)
+      html +=
+        '<div class="edu-section-label">Saved resources</div><div class="edu-grid">' +
+        savedResources.map(renderResource).join('') +
+        '</div>';
+    list.innerHTML = html;
+  }
+
+  filterBursaries();
+  filterResources();
+  renderGutenberg();
+</script>
