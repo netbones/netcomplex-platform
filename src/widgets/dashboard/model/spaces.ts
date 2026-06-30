@@ -349,6 +349,7 @@ export const ADMIN_DOMAINS = [
   'system',
   'services',
   'carousel',
+  'campaigns',
 ] as const;
 
 export type AdminDomain = (typeof ADMIN_DOMAINS)[number];
@@ -373,6 +374,7 @@ const ADMIN_DOMAIN_WIDGET_MAP: Record<AdminDomain, string[]> = {
   dwallet: ['admin-dwallet'],
   services: ['services-config'],
   carousel: [],
+  campaigns: [],
 };
 
 /**

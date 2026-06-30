@@ -21,14 +21,6 @@ interface CampaignItem {
   author: { name: string | null } | null;
 }
 
-const LICENSE_OPTIONS = [
-  { value: 'CC0', label: 'CC0 — Public Domain' },
-  { value: 'CC_BY', label: 'CC BY — Attribution' },
-  { value: 'CC_BY_SA', label: 'CC BY-SA — ShareAlike' },
-  { value: 'CC_BY_NC', label: 'CC BY-NC — Non-Commercial' },
-  { value: 'ALL_RIGHTS_RESERVED', label: 'All Rights Reserved' },
-];
-
 function emptyForm() {
   return {
     title: '',

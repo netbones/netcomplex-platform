@@ -22,11 +22,11 @@
    /services
    ~~The page needs to be managed by Admin, will want to change information/content, requires management under Admin domains.~~
 
-## D. Campaign Page
+## D. Campaign Page ✅
 
-1. Campaigns (how is this page managed by Admin?)
-   Campaign cards need to click through to /campaign [x]
-   Admin will need to manage the campaigns (add, edit, remove images, text etc)
+1. Campaigns (how is this page managed by Admin?) ✅
+   Campaign cards need to click through to /campaign ✅
+   Admin will need to manage the campaigns (add, edit, remove images, text etc) ✅
 
 ## E. Admin / Users
 

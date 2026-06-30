@@ -238,6 +238,14 @@ export const ADMIN_ITEMS: NavItem[] = [
     permissionKey: 'content',
     icon: 'image',
   },
+  {
+    href: '/admin/campaigns',
+    adminLabelKey: 'campaigns',
+    labelKey: 'nav.admin',
+    section: 'admin',
+    permissionKey: 'content',
+    icon: 'bullhorn',
+  },
 ];
 
 export interface BurgerSections {
