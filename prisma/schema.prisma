@@ -208,6 +208,8 @@ model Profile {
   createdAt                     DateTime      @default(now())
   updatedAt                     DateTime      @default(now()) @updatedAt
   deletedAt                     DateTime?
+  aliasAddressId                String?
+  aliasAddress                  Address?               @relation(fields: [aliasAddressId], references: [id])
   occupantImage                 String?
   rentalImage                   String?
   landlordId                    String?
@@ -222,6 +224,7 @@ model Profile {
   @@index([landlordId])
   @@index([organizationId])
   @@index([userId])
+  @@index([aliasAddressId])
 }
 
 model Member {
@@ -343,11 +346,14 @@ model PremiumSeat {
   updatedAt            DateTime              @default(now()) @updatedAt
   messageRetentionDays Int                   @default(30)
   tier                 String                @default("foundation")
+  addressId            String?
+  address              Address?              @relation(fields: [addressId], references: [id])
   user                 user                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   propertyPremiumSeats PropertyPremiumSeat[]
 
   @@index([organizationId])
   @@index([userId])
+  @@index([addressId])
 }
 
 model SoloSeat {
@@ -364,12 +370,15 @@ model SoloSeat {
   archivedAt          DateTime?
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @default(now()) @updatedAt
+  addressId           String?
+  address             Address?     @relation(fields: [addressId], references: [id])
   property            Property?    @relation(fields: [propertyId], references: [id])
   user                user         @relation(fields: [userId], references: [id])
 
   @@index([propertyId])
   @@index([organizationId])
   @@index([userId])
+  @@index([addressId])
 }
 
 model StandardSeat {
@@ -384,6 +393,8 @@ model StandardSeat {
   archivedAt      DateTime?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @default(now()) @updatedAt
+  addressId       String?
+  address         Address?   @relation(fields: [addressId], references: [id])
   property        Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   user            user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -391,6 +402,7 @@ model StandardSeat {
   @@index([propertyId])
   @@index([organizationId])
   @@index([userId])
+  @@index([addressId])
 }
 
 model UserKey {
@@ -499,6 +511,8 @@ model Property {
   createdAt           DateTime              @default(now())
   updatedAt           DateTime              @updatedAt
   deletedAt           DateTime?
+  addressId           String?
+  address             Address?              @relation(fields: [addressId], references: [id])
   Booking             Booking[]
   households          Household[]
   MaintenanceRequest  MaintenanceRequest[]
@@ -511,6 +525,7 @@ model Property {
   PropertyPremiumSeat PropertyPremiumSeat[]
 
   @@index([ownerId])
+  @@index([addressId])
 }
 
 model Household {
@@ -1043,6 +1058,8 @@ model ServiceProvider {
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
   deletedAt   DateTime?
+  addressId   String?
+  address     Address?              @relation(fields: [addressId], references: [id])
   user        user?                @relation(fields: [userId], references: [id])
   assignments MaintenanceRequest[] @relation("ProviderAssignments")
 
@@ -1058,6 +1075,7 @@ model ServiceProvider {
   serviceBooking  ServiceBooking[]      @relation("ServiceBookingToProvider")
 
   @@index([tenantId])
+  @@index([addressId])
 }
 
 model CommunityServiceInquiry {
@@ -2505,6 +2523,125 @@ enum SuspensionType {
 enum SoloSeatType {
   RESIDENT
   MEMBER
+}
+
+// ── Address Registry ──
+
+model Address {
+  id                  String             @id @default(cuid())
+  tenantId            String
+  address             String
+  localPart           String
+  domain              String
+  kind                AddressKind
+  status              AddressStatus      @default(ACTIVE)
+  ownerType           AddressOwnerType?
+  ownerId             String?
+  canonicalAddressId  String?
+  forwardStrategy     ForwardStrategy?
+  receiveExternal     Boolean            @default(false)
+  coolingUntil        DateTime?
+  archivedUntil       DateTime?
+  releasedAt          DateTime?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  // Self-referencing: alias → canonical address
+  canonicalAddress    Address?           @relation("AddressCanonical", fields: [canonicalAddressId], references: [id])
+  aliases             Address[]          @relation("AddressCanonical")
+
+  // FK consumers
+  handles             Handle[]
+  endpoints           AddressEndpoint[]
+  standardSeats       StandardSeat[]
+  soloSeats           SoloSeat[]
+  premiumSeats        PremiumSeat[]
+  profiles            Profile[]
+  properties          Property[]
+  serviceProviders    ServiceProvider[]
+
+  @@unique([tenantId, address])
+  @@index([tenantId])
+  @@index([ownerType, ownerId])
+  @@index([status])
+  @@index([canonicalAddressId])
+}
+
+model Handle {
+  id          String       @id @default(cuid())
+  tenantId    String
+  handle      String
+  addressId   String
+  status      HandleStatus @default(ACTIVE)
+  createdAt   DateTime     @default(now())
+
+  address     Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, handle])
+  @@index([addressId])
+}
+
+model AddressEndpoint {
+  id          String       @id @default(cuid())
+  addressId   String
+  type        EndpointType
+  enabled     Boolean      @default(true)
+  config      Json?
+  createdAt   DateTime     @default(now())
+
+  address     Address      @relation(fields: [addressId], references: [id], onDelete: Cascade)
+
+  @@index([addressId])
+}
+
+// ── Enums: Address Registry ──
+
+enum AddressKind {
+  STANDARD
+  ALIAS
+  SOLO
+  PREMIUM
+  PROVIDER
+  SYSTEM
+}
+
+enum AddressStatus {
+  ACTIVE
+  RESERVED
+  COOLING_OFF
+  ARCHIVED
+  DELETED
+}
+
+enum AddressOwnerType {
+  STANDARD_SEAT
+  PROFILE
+  SOLO_SEAT
+  PREMIUM_SEAT
+  PROPERTY
+  PROVIDER
+  SYSTEM
+}
+
+enum ForwardStrategy {
+  DIRECT
+  HOUSEHOLD
+}
+
+enum HandleStatus {
+  ACTIVE
+  RESERVED
+  RELEASED
+}
+
+enum EndpointType {
+  INTERNAL_CHAT
+  EMAIL
+  WEBFORM
+  API
+  SMS
+  WHATSAPP
+  PUSH
 }
 
 // ── Enums: User & Identity ──
