@@ -1,5 +1,12 @@
 import { z } from 'zod';
-import { router, protectedProcedure, db, revalidateAdminChanges } from '@api/server';
+import {
+  router,
+  protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
+  db,
+  revalidateAdminChanges,
+} from '@api/server';
 import { toEnvelope } from '@api/server';
 import { achievementDto, achievementProgressDto } from '@server/dto';
 
@@ -41,15 +48,16 @@ const GetProgressInput = z.object({
 });
 
 export const achievementsRouter = router({
-  listAchievements: protectedProcedure
+  /**
+   * List all achievements for the current tenant.
+   * @tenant
+   */
+  listAchievements: tenantProcedure
     .meta({
       openapi: { method: 'GET', path: '/achievements/list', protect: true, tags: ['achievements'] },
     })
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const rows = await db
         .select({
@@ -85,16 +93,17 @@ export const achievementsRouter = router({
       );
     }),
 
-  getAchievement: protectedProcedure
+  /**
+   * Get a single achievement by ID.
+   * @tenant
+   */
+  getAchievement: tenantProcedure
     .input(IdInput)
     .meta({
       openapi: { method: 'GET', path: '/achievements/get', protect: true, tags: ['achievements'] },
     })
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [row] = await db
         .select({
@@ -133,7 +142,11 @@ export const achievementsRouter = router({
       );
     }),
 
-  createAchievement: protectedProcedure
+  /**
+   * Create a new achievement definition — staff only.
+   * @privileged
+   */
+  createAchievement: privilegedProcedure
     .input(CreateAchievementInput)
     .meta({
       openapi: {
@@ -145,9 +158,6 @@ export const achievementsRouter = router({
     })
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       if (!hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin permission required' });
@@ -186,7 +196,11 @@ export const achievementsRouter = router({
       return toEnvelope(achievementDto.parse(created));
     }),
 
-  updateAchievement: protectedProcedure
+  /**
+   * Update an achievement definition — staff only.
+   * @privileged
+   */
+  updateAchievement: privilegedProcedure
     .input(UpdateAchievementInput)
     .meta({
       openapi: {
@@ -198,9 +212,6 @@ export const achievementsRouter = router({
     })
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       if (!hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin permission required' });
@@ -234,7 +245,11 @@ export const achievementsRouter = router({
       return toEnvelope(achievementDto.parse(updated));
     }),
 
-  deleteAchievement: protectedProcedure
+  /**
+   * Delete an achievement definition — staff only.
+   * @privileged
+   */
+  deleteAchievement: privilegedProcedure
     .input(IdInput)
     .meta({
       openapi: {
@@ -246,9 +261,6 @@ export const achievementsRouter = router({
     })
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       if (!hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin permission required' });
@@ -274,7 +286,11 @@ export const achievementsRouter = router({
       return toEnvelope({ success: true });
     }),
 
-  getMyProgress: protectedProcedure
+  /**
+   * Get the current user's achievement progress.
+   * @tenant
+   */
+  getMyProgress: tenantProcedure
     .input(GetProgressInput.optional())
     .meta({
       openapi: {
@@ -286,9 +302,6 @@ export const achievementsRouter = router({
     })
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const conditions = [
         eq(userAchievementProgresses.userId, ctx.userId),
@@ -342,7 +355,11 @@ export const achievementsRouter = router({
       );
     }),
 
-  getAchievementProgress: protectedProcedure
+  /**
+   * Get achievement progress for a specific user or achievement.
+   * @tenant
+   */
+  getAchievementProgress: tenantProcedure
     .input(z.object({ achievementId: z.string(), userId: z.string().optional() }))
     .meta({
       openapi: {
@@ -354,9 +371,6 @@ export const achievementsRouter = router({
     })
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       if (input.userId && input.userId !== ctx.userId && !hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot view other users progress' });
@@ -423,7 +437,11 @@ export const achievementsRouter = router({
       );
     }),
 
-  getUnlocked: protectedProcedure
+  /**
+   * Get unlocked achievements for a user.
+   * @tenant
+   */
+  getUnlocked: tenantProcedure
     .input(z.object({ userId: z.string().optional() }).optional())
     .meta({
       openapi: {
@@ -435,9 +453,6 @@ export const achievementsRouter = router({
     })
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       if (input?.userId && input.userId !== ctx.userId && !hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot view other users achievements' });

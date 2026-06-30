@@ -2,6 +2,8 @@ import { z } from 'zod';
 import {
   router,
   protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   rateLimitMiddleware,
   db,
   events,
@@ -119,14 +121,15 @@ async function enrichEvents<T extends Record<string, unknown>>(
 // ──────────────────────────────────────────
 
 export const eventsRouter = router({
-  listEvents: protectedProcedure
+  /**
+   * List events for the current tenant.
+   * @tenant
+   */
+  listEvents: tenantProcedure
     .input(ListEventsInput)
     .meta({ openapi: { method: 'GET', path: '/events/list', protect: true, tags: ['events'] } })
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const eventItems = await listEvents({
         tenantId,
@@ -139,14 +142,15 @@ export const eventsRouter = router({
       return toEnvelope(enriched.map(r => eventDto.parse(r)));
     }),
 
-  getEvent: protectedProcedure
+  /**
+   * Get a single event by ID.
+   * @tenant
+   */
+  getEvent: tenantProcedure
     .input(EventIdInput)
     .meta({ openapi: { method: 'GET', path: '/events/get', protect: true, tags: ['events'] } })
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const event = await getTenantEvent(input.id, tenantId);
 
@@ -155,16 +159,17 @@ export const eventsRouter = router({
       return toEnvelope(eventDto.parse(enriched[0]));
     }),
 
-  createEvent: protectedProcedure
+  /**
+   * Create a new event — staff only.
+   * @privileged
+   */
+  createEvent: privilegedProcedure
     .input(CreateEventInput)
     .meta({ openapi: { method: 'POST', path: '/events/create', protect: true, tags: ['events'] } })
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       requireContentPermission(ctx.role);
+
+      const tenantId = ctx.tenantId;
 
       const event = await createEvent({
         id: crypto.randomUUID(),
@@ -189,19 +194,19 @@ export const eventsRouter = router({
       return toEnvelope(eventDto.parse(event));
     }),
 
-  updateEvent: protectedProcedure
+  /**
+   * Update an existing event — staff only.
+   * @privileged
+   */
+  updateEvent: privilegedProcedure
     .input(UpdateEventInput)
     .meta({ openapi: { method: 'PATCH', path: '/events/update', protect: true, tags: ['events'] } })
     .mutation(async ({ input, ctx }) => {
       requireContentPermission(ctx.role);
 
+      await getTenantEvent(input.id, ctx.tenantId);
+
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
-      await getTenantEvent(input.id, tenantId);
-
       const updateData: Record<string, unknown> = {
         updatedAt: now(),
       };
@@ -225,7 +230,11 @@ export const eventsRouter = router({
       return toEnvelope(eventDto.parse(updated));
     }),
 
-  deleteEvent: protectedProcedure
+  /**
+   * Soft-delete an event — staff only.
+   * @privileged
+   */
+  deleteEvent: privilegedProcedure
     .input(EventIdInput)
     .meta({
       openapi: { method: 'DELETE', path: '/events/delete', protect: true, tags: ['events'] },
@@ -234,9 +243,6 @@ export const eventsRouter = router({
       requireContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       await getTenantEvent(input.id, tenantId);
 
@@ -252,16 +258,17 @@ export const eventsRouter = router({
 
   // ────────── REGISTRATIONS ──────────
 
-  listRegistrations: protectedProcedure
+  /**
+   * List registrations for an event.
+   * @tenant
+   */
+  listRegistrations: tenantProcedure
     .input(EventIdInput)
     .meta({
       openapi: { method: 'GET', path: '/events/registrations', protect: true, tags: ['events'] },
     })
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       await getTenantEvent(input.id, tenantId);
 
@@ -283,7 +290,11 @@ export const eventsRouter = router({
       return toEnvelope({ attendees, registered });
     }),
 
-  registerForEvent: protectedProcedure
+  /**
+   * Register for an event — authenticated user action.
+   * @tenant
+   */
+  registerForEvent: tenantProcedure
     .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 10 }))
     .input(EventIdInput)
     .meta({
@@ -291,9 +302,6 @@ export const eventsRouter = router({
     })
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       await getTenantEvent(input.id, tenantId);
 
@@ -327,16 +335,17 @@ export const eventsRouter = router({
       return toEnvelope(attendee);
     }),
 
-  cancelRegistration: protectedProcedure
+  /**
+   * Cancel event registration — authenticated user action.
+   * @tenant
+   */
+  cancelRegistration: tenantProcedure
     .input(EventIdInput)
     .meta({
       openapi: { method: 'DELETE', path: '/events/register', protect: true, tags: ['events'] },
     })
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [deleted] = await db
         .delete(eventAttendees)

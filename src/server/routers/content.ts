@@ -3,6 +3,8 @@ import {
   router,
   publicProcedure,
   protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   rateLimitMiddleware,
   db,
   contents,
@@ -302,16 +304,17 @@ export const contentRouter = router({
       });
     }),
 
-  createContent: protectedProcedure
+  /**
+   * Create new content — staff only.
+   * @privileged
+   */
+  createContent: privilegedProcedure
     .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 5 }))
     .input(CreateContentInput)
     .mutation(async ({ input, ctx }) => {
       requireContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       if (input.groupId) {
         const [membership] = await db
@@ -361,16 +364,17 @@ export const contentRouter = router({
         category: content.category,
       });
 
-      return toEnvelope(content);
+      return toEnvelope(contentDto.parse(content));
     }),
 
-  updateContent: protectedProcedure.input(UpdateContentInput).mutation(async ({ input, ctx }) => {
+  /**
+   * Update existing content — staff only.
+   * @privileged
+   */
+  updateContent: privilegedProcedure.input(UpdateContentInput).mutation(async ({ input, ctx }) => {
     requireContentPermission(ctx.role);
 
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     const updateData: Record<string, unknown> = {
       updatedAt: now(),
@@ -435,16 +439,17 @@ export const contentRouter = router({
 
     revalidateContent();
 
-    return toEnvelope(updated);
+    return toEnvelope(contentDto.parse(updated));
   }),
 
-  softDeleteContent: protectedProcedure.input(IdInput).mutation(async ({ input, ctx }) => {
+  /**
+   * Soft-delete content — staff only.
+   * @privileged
+   */
+  softDeleteContent: privilegedProcedure.input(IdInput).mutation(async ({ input, ctx }) => {
     requireContentPermission(ctx.role);
 
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     await db
       .update(contents)
@@ -456,15 +461,16 @@ export const contentRouter = router({
     return toEnvelope({ success: true });
   }),
 
-  moderateContent: protectedProcedure
+  /**
+   * Moderate content — staff only (requires full content permission).
+   * @privileged
+   */
+  moderateContent: privilegedProcedure
     .input(ModerateContentInput)
     .mutation(async ({ input, ctx }) => {
       requireFullContentPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [existing] = await db
         .select({ id: contents.id })
@@ -520,11 +526,12 @@ export const contentRouter = router({
     return toEnvelope({ likes: totalLikes, liked });
   }),
 
-  toggleLike: protectedProcedure.input(IdInput).mutation(async ({ input, ctx }) => {
+  /**
+   * Toggle like on content — authenticated user action.
+   * @tenant
+   */
+  toggleLike: tenantProcedure.input(IdInput).mutation(async ({ input, ctx }) => {
     const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
 
     const [content] = await db
       .select({ id: contents.id })
@@ -568,16 +575,17 @@ export const contentRouter = router({
 
   // ────────── ANNOUNCEMENTS ──────────
 
-  listAnnouncements: protectedProcedure
+  /**
+   * List announcements for the current tenant.
+   * @tenant
+   */
+  listAnnouncements: tenantProcedure
     .meta({
       openapi: { method: 'GET', path: '/announcements', protect: true, tags: ['content'] },
     })
     .input(ListAnnouncementsInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const priorityOrder = sql`CASE ${announcements.priority}
         WHEN 'urgent' THEN 0
@@ -606,19 +614,20 @@ export const contentRouter = router({
         .where(and(...conditions))
         .orderBy(priorityOrder, desc(announcements.createdAt))
         .limit(limit);
-      return toEnvelope(rows);
+      return toEnvelope(rows.map(r => announcementDto.parse(r)));
     }),
 
-  getAnnouncement: protectedProcedure
+  /**
+   * Get a single announcement by ID.
+   * @tenant
+   */
+  getAnnouncement: tenantProcedure
     .meta({
       openapi: { method: 'GET', path: '/announcements/{id}', protect: true, tags: ['content'] },
     })
     .input(IdInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [announcement] = await db
         .select()
@@ -636,19 +645,20 @@ export const contentRouter = router({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Announcement not found' });
       }
 
-      return toEnvelope(announcement);
+      return toEnvelope(announcementDto.parse(announcement));
     }),
 
-  createAnnouncement: protectedProcedure
+  /**
+   * Create an announcement — staff only.
+   * @privileged
+   */
+  createAnnouncement: privilegedProcedure
     .meta({
       openapi: { method: 'POST', path: '/announcements', protect: true, tags: ['content'] },
     })
     .input(CreateAnnouncementInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       if (!canPublishAnnouncements(ctx.role)) {
         throw new TRPCError({
@@ -778,25 +788,24 @@ export const contentRouter = router({
 
       revalidateDashboard();
 
-      const response: Record<string, unknown> = { ...announcement };
+      const parsed = announcementDto.parse(announcement) as Record<string, unknown>;
       if (priorityDowngraded) {
-        response.warning = `Priority downgraded from ${input.priority} to ${validatedPriority} — your role permits a maximum of ${validatedPriority}`;
+        parsed.warning = `Priority downgraded from ${input.priority} to ${validatedPriority} — your role permits a maximum of ${validatedPriority}`;
       }
 
-      return toEnvelope(response);
+      return toEnvelope(parsed);
     }),
 
-  updateAnnouncement: protectedProcedure
+  /**
+   * Update an existing announcement — staff only.
+   * @privileged
+   */
+  updateAnnouncement: privilegedProcedure
     .meta({
       openapi: { method: 'PATCH', path: '/announcements/{id}', protect: true, tags: ['content'] },
     })
     .input(UpdateAnnouncementInput)
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       if (!canPublishAnnouncements(ctx.role)) {
         throw new TRPCError({
           code: 'FORBIDDEN',
@@ -804,6 +813,7 @@ export const contentRouter = router({
         });
       }
 
+      const tenantId = ctx.tenantId;
       let priorityDowngraded = false;
       let validatedPriority: AnnouncementPriority | undefined;
 
@@ -874,24 +884,25 @@ export const contentRouter = router({
 
       revalidateDashboard();
 
-      const response: Record<string, unknown> = { ...announcement };
+      const parsed = announcementDto.parse(announcement) as Record<string, unknown>;
       if (priorityDowngraded && validatedPriority) {
-        response.warning = `Priority downgraded from ${input.priority} to ${validatedPriority} — your role permits a maximum of ${validatedPriority}`;
+        parsed.warning = `Priority downgraded from ${input.priority} to ${validatedPriority} — your role permits a maximum of ${validatedPriority}`;
       }
 
-      return toEnvelope(response);
+      return toEnvelope(parsed);
     }),
 
-  deleteAnnouncement: protectedProcedure
+  /**
+   * Delete an announcement — staff only.
+   * @privileged
+   */
+  deleteAnnouncement: privilegedProcedure
     .meta({
       openapi: { method: 'DELETE', path: '/announcements/{id}', protect: true, tags: ['content'] },
     })
     .input(IdInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       if (!canPublishAnnouncements(ctx.role)) {
         throw new TRPCError({
@@ -917,15 +928,16 @@ export const contentRouter = router({
 
   // ────────── CAMPAIGN PAGE ──────────
 
-  getCampaignPage: protectedProcedure
+  /**
+   * Get the campaign page configuration and content.
+   * @tenant
+   */
+  getCampaignPage: tenantProcedure
     .meta({
       openapi: { method: 'GET', path: '/campaign', protect: true, tags: ['content'] },
     })
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const tenantSettings = await db
         .select()
@@ -1009,20 +1021,24 @@ export const contentRouter = router({
         )
         .orderBy(desc(contents.featured), desc(contents.priority), desc(contents.publishedAt));
 
-      return toEnvelope({ config: campaignConfig, content: contentList });
+      return toEnvelope({
+        config: campaignConfig,
+        content: contentList.map(c => contentDto.parse(c as Record<string, unknown>)),
+      });
     }),
 
   // ────────── CONSERVATION PAGE ──────────
 
-  getConservationPage: protectedProcedure
+  /**
+   * Get the conservation page content.
+   * @tenant
+   */
+  getConservationPage: tenantProcedure
     .meta({
       openapi: { method: 'GET', path: '/conservation', protect: true, tags: ['content'] },
     })
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const conservationEnabled = await isModuleEnabled(tenantId, 'conservation');
       if (!conservationEnabled) {
@@ -1050,6 +1066,6 @@ export const contentRouter = router({
         .orderBy(desc(contents.publishedAt))
         .limit(3);
 
-      return toEnvelope(contentList);
+      return toEnvelope(contentList.map(c => contentDto.parse(c as Record<string, unknown>)));
     }),
 });
