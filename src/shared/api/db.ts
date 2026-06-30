@@ -134,6 +134,12 @@ import { walletTransactions } from '@schema/wallet-transactions';
 import { residentDelegations } from '@schema/resident-delegations';
 import { agentTokens } from '@schema/agent-tokens';
 import { delegationActions } from '@schema/delegation-actions';
+import { addresses } from '@schema/addresses';
+import { addressesRelations } from '@schema/addresses-relations';
+import { handles } from '@schema/handles';
+import { handlesRelations } from '@schema/handles-relations';
+import { addressEndpoints } from '@schema/address-endpoints';
+import { addressEndpointsRelations } from '@schema/address-endpoints-relations';
 
 import { ENV } from 'varlock/env';
 import { dbLogger } from '@shared/lib';
@@ -229,6 +235,12 @@ const dbSchema = {
   disputeMessageVersions,
   disputeMessages,
   disputeNotifications,
+  addresses,
+  addressesRelations,
+  handles,
+  handlesRelations,
+  addressEndpoints,
+  addressEndpointsRelations,
 } as const;
 
 export type DbSchema = typeof dbSchema;
@@ -350,27 +362,19 @@ export function notDeleted(table: { deletedAt: unknown }): SQL {
 }
 
 /**
- * ADVISORY-015 Phase 4: Cross-table address uniqueness guard.
- * Checks all three seat tables before insertion — belt-and-suspenders over per-table @unique.
+ * Phase 46.2: Canonical address uniqueness guard using the Address registry.
+ * Replaces the 3-table seat check with a single Address table query — the source of truth.
  */
 export async function assertAddressUnique(
   platformAddress: string,
   tx: NodePgDatabase<Record<string, unknown>>
 ): Promise<void> {
-  const [standard, solo, premium] = await Promise.all([
-    tx
-      .select()
-      .from(standardSeats)
-      .where(eq(standardSeats.platformAddress, platformAddress))
-      .limit(1),
-    tx.select().from(soloSeats).where(eq(soloSeats.platformAddress, platformAddress)).limit(1),
-    tx
-      .select()
-      .from(premiumSeats)
-      .where(eq(premiumSeats.platformAddress, platformAddress))
-      .limit(1),
-  ]);
-  if (standard.length || solo.length || premium.length) {
+  const existing = await tx
+    .select()
+    .from(addresses)
+    .where(eq(addresses.address, platformAddress))
+    .limit(1);
+  if (existing.length) {
     throw new Error(`Platform address '${platformAddress}' is already in use`);
   }
 }
@@ -469,4 +473,10 @@ export {
   residentDelegations,
   agentTokens,
   delegationActions,
+  addresses,
+  addressesRelations,
+  handles,
+  handlesRelations,
+  addressEndpoints,
+  addressEndpointsRelations,
 };

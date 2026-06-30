@@ -91,6 +91,9 @@ export {
   residentDelegations,
   agentTokens,
   delegationActions,
+  addresses,
+  handles,
+  addressEndpoints,
 } from '../db';
 export { auth } from '../auth';
 export {
