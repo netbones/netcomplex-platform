@@ -914,6 +914,52 @@ Plans:
 - [ ] 46.1-03-PLAN.md — Platform admin billing routes + admin billing widgets
 - [ ] 46.1-04-PLAN.md — Tenant billing portal pages + billing feature UI components
 
+---
+
+### Phase 46.2: Platform Address Registry (INSERTED)
+
+**Goal:** Build the central Platform Address Registry — the canonical namespace for all addresses within a tenant. Replace the current 5-table address scatter (`StandardSeat`, `SoloSeat`, `PremiumSeat`, `Profile`, `Property`) with a single `Address` table as source of truth, add a `Handle` model for `@mention` resolution, and add `AddressEndpoint` for transport decoupling. This is foundational infrastructure consumed by chat mentions, provider onboarding, dWallet identity, and future federation.
+
+**Status:** Planned — 3 plans in 3 waves
+
+**Requirements:** ADDR-01, ADDR-02, ADDR-03, ADDR-04, ADDR-05, ADDR-06, ADDR-07
+
+**Depends on:** Phase 46 (Provider Platform — provider records exist, provider addresses needed). Phase 35 (API Governance — DTO layer, error envelopes).
+
+**Priority:** P1 — Foundational infrastructure. Chat mentions, provider addresses, and dWallet identity all depend on a unified address namespace.
+
+**Source:** COMMUNIQUE-02 Response (COMMINIQUE-01_RESPONSE.md) — Architecture recommendation for Central Address Registry (Option A++).
+
+| Requirement | Description                                                         | Plan             |
+| ----------- | ------------------------------------------------------------------- | ---------------- |
+| ADDR-01     | `Address` model: central registry with unique address per tenant    | 46.2-01          |
+| ADDR-02     | `Handle` model: tenant-scoped short handles for @mention resolution | 46.2-01          |
+| ADDR-03     | `AddressEndpoint` model: transport decoupling (chat, email, API)    | 46.2-01          |
+| ADDR-04     | Address lifecycle states: ACTIVE, COOLING_OFF, ARCHIVED, DELETED    | 46.2-01          |
+| ADDR-05     | Cross-table uniqueness: single @unique replaces 5-table scatter     | 46.2-01          |
+| ADDR-06     | Migration: populate from existing seat tables + Profile             | 46.2-01          |
+| ADDR-07     | Service layer: AddressService (reserve, release, resolve, etc.)     | 46.2-02, 46.2-03 |
+
+**Acceptance:** `Address` table populated from all 5 existing seat/profile tables. `addressId` FKs added to `StandardSeat`, `SoloSeat`, `PremiumSeat`, `Profile`, `Property`, `ServiceProvider`. `@unique` constraint enforces cross-type uniqueness. `assertAddressUnique()` updated to check Address table. Migration reversible. All existing seat creation/update routes use `AddressService`.
+
+**Plans:** 3 plans
+
+| Wave | Plan                | Objective                                                                                              |
+| ---- | ------------------- | ------------------------------------------------------------------------------------------------------ |
+| 1    | [ ] 46.2-01-PLAN.md | Schema Foundation: 3 Prisma models + 6 enums + migration with backfill + Drizzle wiring + registration |
+| 2    | [ ] 46.2-02-PLAN.md | Service Layer: AddressService (9 methods) + HandleService (4 methods) + Vitest tests                   |
+| 3    | [ ] 46.2-03-PLAN.md | Route Integration + Seed: Update 3 route files + seed system addresses + tRPC premium route            |
+
+Plans:
+
+- [ ] 46.2-01-PLAN.md — Schema + migration + Drizzle wiring
+- [ ] 46.2-02-PLAN.md — Service layer (AddressService + HandleService) + tests
+- [ ] 46.2-03-PLAN.md — Route integration (seats, premium, users) + seed
+
+**Out of scope:** Chat routing refactor (enabled, not implemented). External email gateway. Federation. Admin UI for address management. Phase 2/3 legacy column removal.
+
+---
+
 ## Phase 47: dWallet Planning & Build
 
 **Goal:** Implement the dWallet module — per-resident data rights, granular consent, and revenue-share rewards — as defined in `docs/architecture/DWALLET_SPEC.md` (Schedule G of the Soralia Village v10 SaaS agreement). **The headline anchor-tenant selling point:** "You own your data, you grant consent per use, you earn revenue share." Without dWallet, the Soralia pitch collapses to a generic community portal.
