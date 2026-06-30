@@ -1401,12 +1401,12 @@ Plans:
 
 **Requirements:** GOV-01, GOV-02, GOV-03, GOV-04, GOV-05, GOV-06, GOV-07, GOV-08
 
-**Plans:** 3/6 plans executed
+**Plans:** 4/6 plans executed
 
 - [x] 120-01-PLAN.md
 - [x] 120-02-PLAN.md
 - [x] 120-03-PLAN.md
-- [ ] 120-04-PLAN.md
+- [x] 120-04-PLAN.md
 - [ ] 120-05-PLAN.md
 - [ ] 120-06-PLAN.md
 
