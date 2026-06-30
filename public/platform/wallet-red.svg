@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <!-- Standardized panel background card glow -->
+    <linearGradient id="bgGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8ECFD" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F3F1FB" stop-opacity="0.9"/>
+    </linearGradient>
+    <!-- Premium red-to-magenta primary wallet body gradient -->
+    <linearGradient id="walletPrimaryRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F472B6" />
+      <stop offset="50%" stop-color="#DB2777" />
+      <stop offset="100%" stop-color="#831843" />
+    </linearGradient>
+    <!-- High-visibility secondary rose accent for the peeking card layer -->
+    <linearGradient id="walletAccentRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDA4AF" />
+      <stop offset="100%" stop-color="#F43F5E" />
+    </linearGradient>
+    <!-- Drop shadow filter tuned to match the deep red/crimson undertones -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="1.5" dy="3" stdDeviation="2.5" flood-color="#831843" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Container Base Card -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGlow)" />
+
+  <!-- Wallet Graphic Group -->
+  <g filter="url(#dropShadow)" transform="translate(14, 16)">
+    <!-- Peeking Digital Asset Card (Background Layer) -->
+    <path d="M6,2 C6,0.9 6.9,0 8,0 H26 C27.1,0 28,0.9 28,2 V10 H6 Z" fill="url(#walletAccentRed)" opacity="0.85" />
+    <line x1="10" y1="4" x2="18" y2="4" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" opacity="0.7" />
+
+    <!-- Main Wallet Back Shell -->
+    <rect x="0" y="6" width="34" height="24" rx="5" fill="url(#walletPrimaryRed)" />
+    
+    <!-- Front Flap / Bi-fold Layer (Creates 3D structural overlapping depth) -->
+    <path d="M0,10 C0,7.8 1.8,6 4,6 H30 C32.2,6 34,7.8 34,10 V26 C34,28.2 32.2,30 30,30 H4 C1.8,30 0,28.2 0,26 Z" fill="url(#walletPrimaryRed)" />
+
+    <!-- Metallic Fastening Clasp Geometry -->
+    <path d="M22,14 H34 V22 H22 C19.8,22 18,20.2 18,18 C18,15.8 19.8,14 22,14 Z" fill="#831843" opacity="0.5" />
+    <circle cx="24" cy="18" r="2.5" fill="#FFFFFF" />
+    <circle cx="24" cy="18" r="1" fill="#FDA4AF" />
+  </g>
+</svg>
