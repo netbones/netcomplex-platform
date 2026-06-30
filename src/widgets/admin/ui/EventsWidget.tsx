@@ -18,7 +18,7 @@ export interface EventItem {
   isPublic: boolean;
 }
 
-function formatDate(dateString: string): string {
+function formatDateFull(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', {
     weekday: 'short',
@@ -141,7 +141,7 @@ export function EventsWidget() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-900 truncate">{event.title}</p>
-                <p className="text-xs text-gray-500">{formatDate(event.date)}</p>
+                <p className="text-xs text-gray-500">{formatDateFull(event.date)}</p>
                 {event.location && (
                   <p className="text-xs text-gray-400">
                     <i className="fas fa-map-marker-alt mr-1"></i>

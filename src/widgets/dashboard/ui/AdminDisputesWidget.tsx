@@ -3,8 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { cn } from '@shared/lib';
-import { ErrorBoundary } from '@shared/ui';
+import { cn, formatDate } from '@shared/lib';
 import { LoadingSkeleton } from '@shared/ui';
 import { DisputeStatusBadge, DisputeCategoryBadge, SeverityIndicator } from '@entities/dispute';
 import type { DisputeCaseDTO, DisputeStatus } from '@entities/dispute';
@@ -15,14 +14,6 @@ import type { DisputeCaseDTO, DisputeStatus } from '@entities/dispute';
 const URGENT_DAYS_THRESHOLD = 5;
 
 // ── Helpers ───────────────────────────────────────────────────
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
 
 function daysPending(dateStr: string): number {
   const created = new Date(dateStr).getTime();

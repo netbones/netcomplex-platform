@@ -1,4 +1,5 @@
 import type { HistoryEntry } from './types';
+import { formatDate, formatDateTime } from '@shared/lib/format-date';
 
 export const statusOptions = [
   'SUBMITTED',
@@ -49,23 +50,7 @@ export const workflowTransitions: Record<string, string[]> = {
   CANCELLED: [],
 };
 
-export function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
-
-export function formatDateTime(dateStr: string) {
-  return new Date(dateStr).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-}
+export { formatDate, formatDateTime };
 
 export function getDaysOld(dateStr: string): number {
   const created = new Date(dateStr);

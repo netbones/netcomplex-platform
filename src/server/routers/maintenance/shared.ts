@@ -2,6 +2,8 @@ import { z } from 'zod';
 import {
   router,
   protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   adminProcedure,
   db,
   maintenanceRequests,
@@ -217,6 +219,8 @@ export {
   z,
   router,
   protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   adminProcedure,
   db,
   maintenanceRequests,

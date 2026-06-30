@@ -4,18 +4,11 @@ import { useState, useEffect } from 'react';
 import type { DisputeEvidenceDTO } from '../model/types';
 import { EvidenceUploadZone } from './EvidenceUploadZone';
 import { LoadingSkeleton } from '@shared/ui';
+import { formatDate } from '@shared/lib/format-date';
 
 interface EvidencePreviewGridProps {
   disputeId: string;
   userId: string;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
 }
 
 function isImage(fileType: string): boolean {

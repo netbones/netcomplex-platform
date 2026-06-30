@@ -8,16 +8,9 @@ import { DisputeCategoryBadge } from './DisputeCategoryBadge';
 import { SeverityIndicator } from './SeverityIndicator';
 import { LoadingSkeleton } from '@shared/ui';
 import Link from 'next/link';
+import { formatDate } from '@shared/lib';
 
 /* ── Helpers ───────────────────────────────────────────── */
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
 
 function getComplainantLabel(dispute: DisputeCaseDTO): string {
   // The API includes complainant info; fallback to "Resident"

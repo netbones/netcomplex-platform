@@ -40,7 +40,7 @@ async function fetchSubscriptions(status: string, search: string): Promise<Subsc
   return json.data || [];
 }
 
-function formatDate(dateStr: string | null): string {
+function formatDateView(dateStr: string | null): string {
   if (!dateStr) return '—';
   return new Date(dateStr).toLocaleDateString('en-ZA', {
     year: 'numeric',
@@ -147,8 +147,8 @@ export function AdminSubscriptionsWidget() {
                         {sub.status}
                       </span>
                     </td>
-                    <td className="py-2 text-gray-500">{formatDate(sub.startDate)}</td>
-                    <td className="py-2 text-gray-500">{formatDate(sub.nextBillingDate)}</td>
+                    <td className="py-2 text-gray-500">{formatDateView(sub.startDate)}</td>
+                    <td className="py-2 text-gray-500">{formatDateView(sub.nextBillingDate)}</td>
                     <td className="py-2 text-right text-gray-700">{formatAmount(sub.planTier)}</td>
                   </tr>
                 ))}

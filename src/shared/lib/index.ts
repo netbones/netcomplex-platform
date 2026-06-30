@@ -20,6 +20,7 @@ export {
 export * from './types';
 export type { PlatformPageFlags, HeaderLinkId } from './types/platform-page-flags';
 export * from './utils';
+export * from './format-date';
 export * from './logger';
 export {
   supportedLanguages,

@@ -7,7 +7,7 @@ import superjson from 'superjson';
 import { Toaster } from 'sonner';
 import { authClient, trpc } from '@api/client';
 import { TooltipProvider } from '@shared/ui';
-// eslint-disable-next-line no-restricted-imports -- barrel deliberately excludes client-only i18n
+
 import '@shared/lib/i18n';
 import * as React from 'react';
 

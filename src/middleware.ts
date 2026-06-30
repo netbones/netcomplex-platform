@@ -24,6 +24,35 @@ const SUPPORTED_LOCALES = ['en', 'af', 'xh', 'zu'] as const;
 const DEFAULT_LOCALE = 'en';
 const LOCALE_COOKIE = 'i18n-locale';
 
+// CORS configuration for API routes
+const CORS_ALLOWED_ORIGINS = [
+  'https://app.netbones.co.za',
+  'https://soralia.org',
+  'https://soralia.com',
+  'https://soralia.co.za',
+  process.env.NEXT_PUBLIC_ANDROID_URL || '',
+  process.env.NEXT_PUBLIC_ADMIN_DASHBOARD_URL || '',
+].filter(Boolean);
+
+function addCorsHeaders(response: NextResponse, origin: string | null): NextResponse {
+  const requestOrigin = origin || '';
+  const isAllowed =
+    CORS_ALLOWED_ORIGINS.includes(requestOrigin) ||
+    CORS_ALLOWED_ORIGINS.some(allowed => allowed && requestOrigin.startsWith(allowed));
+
+  if (isAllowed) {
+    response.headers.set('Access-Control-Allow-Origin', requestOrigin);
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    response.headers.set(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, x-plane, x-tenant-slug'
+    );
+    response.headers.set('Access-Control-Max-Age', '86400');
+  }
+  return response;
+}
+
 function isPlatformHost(host: string): boolean {
   const hostWithoutPort = host.split(':')[0];
   return hostWithoutPort === PLATFORM_DOMAIN;
@@ -165,8 +194,14 @@ export async function middleware(request: NextRequest) {
     // No tenant headers are set — withTenant() guards on platform API routes
     // should use withTenantOptional() or skip tenant context entirely.
     if (isApiRoute || isAuthRouteCheck) {
+      // Handle CORS preflight for API routes
+      if (request.method === 'OPTIONS') {
+        const origin = request.headers.get('origin');
+        const corsResponse = addCorsHeaders(NextResponse.next(), origin);
+        return corsResponse;
+      }
       response.headers.set('x-plane', 'platform');
-      return withLocaleHeaders(response);
+      return addCorsHeaders(withLocaleHeaders(response), request.headers.get('origin'));
     }
 
     // Redirect root to platform home
@@ -186,9 +221,17 @@ export async function middleware(request: NextRequest) {
   // ── Localhost: treat as tenant with default slug ──
   if (isLocalhost) {
     if (isApiRoute || isAuthRouteCheck) {
+      // Handle CORS preflight for API routes
+      if (request.method === 'OPTIONS') {
+        const origin = request.headers.get('origin');
+        const corsResponse = addCorsHeaders(NextResponse.next(), origin);
+        corsResponse.headers.set('x-plane', 'tenant');
+        corsResponse.headers.set('x-tenant-slug', DEFAULT_TENANT_SLUG);
+        return corsResponse;
+      }
       response.headers.set('x-plane', 'tenant');
       response.headers.set('x-tenant-slug', DEFAULT_TENANT_SLUG);
-      return withLocaleHeaders(response);
+      return addCorsHeaders(withLocaleHeaders(response), request.headers.get('origin'));
     }
     response.headers.set('x-plane', 'tenant');
     response.headers.set('x-tenant-slug', DEFAULT_TENANT_SLUG);
@@ -197,9 +240,17 @@ export async function middleware(request: NextRequest) {
 
   // ── Tenant plane: *.netbones.co.za / custom domains ──
   if (isApiRoute || isAuthRouteCheck) {
+    // Handle CORS preflight for API routes
+    if (request.method === 'OPTIONS') {
+      const origin = request.headers.get('origin');
+      const corsResponse = addCorsHeaders(NextResponse.next(), origin);
+      corsResponse.headers.set('x-plane', 'tenant');
+      corsResponse.headers.set('x-tenant-slug', inferredTenantSlug);
+      return corsResponse;
+    }
     response.headers.set('x-plane', 'tenant');
     response.headers.set('x-tenant-slug', inferredTenantSlug);
-    return withLocaleHeaders(response);
+    return addCorsHeaders(withLocaleHeaders(response), request.headers.get('origin'));
   }
 
   // Block platform routes on tenant domains

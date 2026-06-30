@@ -2,7 +2,7 @@
 
 import { useTranslation as useI18nextTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-// eslint-disable-next-line no-restricted-imports -- barrel deliberately excludes client-only i18n
+
 import { defaultLanguage } from '@shared/lib/i18n';
 
 /**
