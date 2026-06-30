@@ -1,4 +1,14 @@
-export { userDto, propertyDto, profileDto, albumDto, seatDto, premiumSeatDto } from './identity';
+export {
+  userDto,
+  propertyDto,
+  profileDto,
+  albumDto,
+  seatDto,
+  premiumSeatDto,
+  standardSeatDto,
+  agentAccessDto,
+  suspensionDto,
+} from './identity';
 export type {
   UserDto,
   PropertyDto,
@@ -6,6 +16,9 @@ export type {
   AlbumDto,
   SeatDto,
   PremiumSeatDto,
+  StandardSeatDto,
+  AgentAccessDto,
+  SuspensionDto,
 } from './identity';
 
 export { contentDto, contentAuthorDto, announcementDto } from './content';

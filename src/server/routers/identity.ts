@@ -3,7 +3,8 @@ import {
   router,
   publicProcedure,
   protectedProcedure,
-  adminProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   properties,
   households,
@@ -24,7 +25,17 @@ import {
   toEnvelope,
   toEnvelopeSchema,
 } from '@api/server';
-import { propertyDto, userDto, profileDto, albumDto, seatDto, premiumSeatDto } from '@server/dto';
+import {
+  propertyDto,
+  userDto,
+  profileDto,
+  albumDto,
+  seatDto,
+  premiumSeatDto,
+  standardSeatDto,
+  agentAccessDto,
+  suspensionDto,
+} from '@server/dto';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
@@ -47,175 +58,14 @@ import {
 } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 
-// Output Schemas
-const propertySchema = z.object({
-  id: z.string(),
-  tenantId: z.string(),
-  street: z.string(),
-  unit: z.string(),
-  platformAddress: z.string(),
-  homeImage: z.string().nullable(),
-  ownerId: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-const standardSeatSchema = z.object({
-  id: z.string(),
-  propertyId: z.string(),
-  userId: z.string(),
-  isPrimaryOwner: z.boolean(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-const householdSchema = z.object({
-  id: z.string(),
-  tenantId: z.string(),
-  propertyId: z.string(),
-  occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
-  status: z.enum(['ACTIVE', 'ARCHIVED']),
-  moveInDate: z.date().nullable(),
-  moveOutDate: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-const profileSchema = z.object({
-  id: z.string(),
-  tenantId: z.string(),
-  householdId: z.string(),
-  userId: z.string().nullable(),
-  displayName: z.string(),
-  profileAddress: z.string(),
-  householdRole: z.enum(['OCCUPANT', 'FAMILY', 'MINOR']),
-  residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER']),
-  avatar: z.string().nullable(),
-  occupantSince: z.date(),
-  status: z.enum(['ACTIVE', 'UPGRADED', 'REMOVED', 'EVICTED', 'LEASE_ENDED']),
-  isPublic: z.boolean(),
-  showEmail: z.boolean(),
-  showPhone: z.boolean(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  organizationId: z.string().nullable(),
-  occupantImage: z.string().nullable(),
-  rentalImage: z.string().nullable(),
-  landlordId: z.string().nullable(),
-  leaseStartDate: z.date().nullable(),
-  leaseEndDate: z.date().nullable(),
-});
-
-const userSchema = z.object({
-  id: z.string(),
-  email: z.string(),
-  name: z.string(),
-  image: z.string().nullable(),
-  role: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-const soloSeatSchema = z.object({
-  id: z.string(),
-  tenantId: z.string(),
-  userId: z.string(),
-  platformAddress: z.string(),
-  propertyId: z.string().nullable(),
-  seatType: z.string(),
-  isComplimentary: z.boolean(),
-  linkedFromProfileId: z.string().nullable(),
-  organizationId: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-const agentAccessSchema = z.object({
-  id: z.string(),
-  agentId: z.string(),
-  propertyId: z.string(),
-  status: z.string(),
-  expiresAt: z.date(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-const suspensionSchema = z.object({
-  id: z.string(),
-  tenantId: z.string(),
-  userId: z.string(),
-  suspensionType: z.string(),
-  reason: z.string(),
-  description: z.string().nullable(),
-  startDate: z.date(),
-  endDate: z.date().nullable(),
-  isPermanent: z.boolean(),
-  isActive: z.boolean(),
-  createdById: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-const albumSchema = z.object({
-  id: z.string(),
-  tenantId: z.string(),
-  userId: z.string(),
-  title: z.string(),
-  description: z.string().nullable(),
-  isPublic: z.boolean(),
-  mediaIds: z.array(z.string()),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-const publicAlbumSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string().nullable(),
-  mediaIds: z.array(z.string()),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  userId: z.string(),
-  userName: z.string(),
-  userAvatar: z.string().nullable(),
-});
-
-const seatSchema = z.object({
-  id: z.string(),
-  tenantId: z.string(),
-  userId: z.string(),
-  platformAddress: z.string(),
-  propertyId: z.string().nullable(),
-  seatType: z.string(),
-  isComplimentary: z.boolean(),
-  linkedFromProfileId: z.string().nullable(),
-  organizationId: z.string().nullable(),
-  status: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-const premiumSeatSchema = z.object({
-  id: z.string(),
-  tenantId: z.string(),
-  userId: z.string(),
-  isActive: z.boolean(),
-  portfolioName: z.string().nullable(),
-  subscriptionTier: z.string(),
-  maxProperties: z.number(),
-  platformAddress: z.string(),
-  organizationId: z.string().nullable(),
-  status: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  messageRetentionDays: z.number(),
-  tier: z.string(),
-});
-
 export const identityRouter = router({
   // ============ PROPERTIES (The Assets) ============
 
-  listProperties: adminProcedure
+  /**
+   * List all properties in the current tenant — staff only.
+   * @privileged
+   */
+  listProperties: privilegedProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -239,18 +89,23 @@ export const identityRouter = router({
       toEnvelopeSchema(
         z.object({
           properties: z.array(
-            z.object({
-              id: z.string(),
+            propertyDto.extend({
               tenantId: z.string(),
-              street: z.string(),
-              unit: z.string(),
-              platformAddress: z.string(),
-              homeImage: z.string().nullable(),
-              ownerId: z.string().nullable(),
-              createdAt: z.date(),
               updatedAt: z.date(),
-              standardSeats: z.array(standardSeatSchema),
-              activeHousehold: householdSchema.nullable(),
+              standardSeats: z.array(standardSeatDto.passthrough()),
+              activeHousehold: z
+                .object({
+                  id: z.string(),
+                  tenantId: z.string(),
+                  propertyId: z.string(),
+                  occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
+                  status: z.enum(['ACTIVE', 'ARCHIVED']),
+                  moveInDate: z.date().nullable(),
+                  moveOutDate: z.date().nullable(),
+                  createdAt: z.date(),
+                  updatedAt: z.date(),
+                })
+                .nullable(),
             })
           ),
           total: z.number(),
@@ -259,7 +114,7 @@ export const identityRouter = router({
         })
       )
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const { search, street, page, limit } = input || {};
       const skip = ((page || 1) - 1) * (limit || 20);
       const limitVal = limit || 20;
@@ -279,14 +134,14 @@ export const identityRouter = router({
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       const [propertiesResult, totalResult] = await Promise.all([
-        db
+        ctx.db
           .select()
           .from(properties)
           .where(whereClause)
           .limit(limitVal)
           .offset(skip)
           .orderBy(asc(properties.unit)),
-        db.select({ total: count() }).from(properties).where(whereClause),
+        ctx.db.select({ total: count() }).from(properties).where(whereClause),
       ]);
 
       const total = totalResult[0]?.total || 0;
@@ -294,8 +149,8 @@ export const identityRouter = router({
       const propertiesWithRelations = await Promise.all(
         propertiesResult.map(async prop => {
           const [seats, activeHousehold] = await Promise.all([
-            db.select().from(standardSeats).where(eq(standardSeats.propertyId, prop.id)),
-            db
+            ctx.db.select().from(standardSeats).where(eq(standardSeats.propertyId, prop.id)),
+            ctx.db
               .select()
               .from(households)
               .where(and(eq(households.propertyId, prop.id), eq(households.status, 'ACTIVE')))
@@ -303,7 +158,9 @@ export const identityRouter = router({
               .then(r => r[0]),
           ]);
           return {
-            ...prop,
+            ...propertyDto.parse(prop),
+            tenantId: prop.tenantId,
+            updatedAt: prop.updatedAt,
             standardSeats: seats,
             activeHousehold,
           };
@@ -318,7 +175,11 @@ export const identityRouter = router({
       });
     }),
 
-  getProperty: protectedProcedure
+  /**
+   * Get a property by ID — tenant-scoped.
+   * @tenant
+   */
+  getProperty: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -341,7 +202,7 @@ export const identityRouter = router({
           ownerId: z.string().nullable(),
           createdAt: z.date(),
           updatedAt: z.date(),
-          standardSeats: z.array(standardSeatSchema),
+          standardSeats: z.array(standardSeatDto.passthrough()),
           activeHousehold: z
             .object({
               id: z.string(),
@@ -353,35 +214,35 @@ export const identityRouter = router({
               moveOutDate: z.date().nullable(),
               createdAt: z.date(),
               updatedAt: z.date(),
-              profiles: z.array(profileSchema),
+              profiles: z.array(profileDto.passthrough()),
             })
             .nullable(),
-          soloSeats: z.array(soloSeatSchema),
+          soloSeats: z.array(seatDto.passthrough()),
         })
       )
     )
     .query(async ({ input, ctx }) => {
-      const [property] = await db.select().from(properties).where(eq(properties.id, input.id));
+      const [property] = await ctx.db.select().from(properties).where(eq(properties.id, input.id));
 
       if (!property) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Property not found' });
       }
 
       const [standardSeatsData, activeHousehold, soloSeatsData] = await Promise.all([
-        db.select().from(standardSeats).where(eq(standardSeats.propertyId, input.id)),
-        db
+        ctx.db.select().from(standardSeats).where(eq(standardSeats.propertyId, input.id)),
+        ctx.db
           .select()
           .from(households)
           .where(and(eq(households.propertyId, input.id), eq(households.status, 'ACTIVE')))
           .limit(1)
           .then(r => r[0]),
-        db.select().from(soloSeats).where(eq(soloSeats.propertyId, input.id)),
+        ctx.db.select().from(soloSeats).where(eq(soloSeats.propertyId, input.id)),
       ]);
 
       const isOwner =
         property.ownerId === ctx.userId || standardSeatsData.some(s => s.userId === ctx.userId);
 
-      const [isAgent] = await db
+      const [isAgent] = await ctx.db
         .select()
         .from(agentAccesses)
         .where(
@@ -400,21 +261,27 @@ export const identityRouter = router({
       // Fetch residents if we have an active household
       let residents: InferSelectModel<typeof profiles>[] = [];
       if (activeHousehold) {
-        residents = await db
+        residents = await ctx.db
           .select()
           .from(profiles)
           .where(and(eq(profiles.householdId, activeHousehold.id), ne(profiles.status, 'REMOVED')));
       }
 
       return toEnvelope({
-        ...property,
+        ...propertyDto.parse(property),
+        tenantId: property.tenantId,
+        updatedAt: property.updatedAt,
         standardSeats: standardSeatsData,
         activeHousehold: activeHousehold ? { ...activeHousehold, profiles: residents } : null,
         soloSeats: soloSeatsData,
       });
     }),
 
-  createProperty: adminProcedure
+  /**
+   * Create a new property — staff only.
+   * @privileged
+   */
+  createProperty: privilegedProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -433,9 +300,9 @@ export const identityRouter = router({
         ownerId: z.string().optional(),
       })
     )
-    .output(toEnvelopeSchema(propertySchema))
+    .output(toEnvelopeSchema(propertyDto))
     .mutation(async ({ input, ctx }) => {
-      const [existing] = await db
+      const [existing] = await ctx.db
         .select()
         .from(properties)
         .where(and(eq(properties.street, input.street), eq(properties.unit, input.unit)));
@@ -444,12 +311,8 @@ export const identityRouter = router({
         throw new TRPCError({ code: 'CONFLICT', message: 'Property already exists' });
       }
 
-      if (!ctx.tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context is required' });
-      }
-
       const ts = now();
-      const [created] = await db
+      const [created] = await ctx.db
         .insert(properties)
         .values({
           id: crypto.randomUUID(),
@@ -464,12 +327,16 @@ export const identityRouter = router({
         })
         .returning();
 
-      return toEnvelope(created);
+      return toEnvelope(propertyDto.parse(created));
     }),
 
   // ============ USERS (Directory) ============
 
-  listUsers: protectedProcedure
+  /**
+   * List tenant users with optional filters — tenant-scoped.
+   * @tenant
+   */
+  listUsers: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -493,17 +360,13 @@ export const identityRouter = router({
       toEnvelopeSchema(
         z.object({
           users: z.array(
-            z.object({
-              id: z.string(),
-              name: z.string(),
-              email: z.string(),
+            userDto.extend({
               phone: z.string().nullable(),
               interests: z.array(z.string()),
               avatar: z.string().nullable(),
               isPublic: z.boolean(),
-              isActive: z.boolean(),
-              role: z.string(),
               profileSlug: z.string().nullable(),
+              updatedAt: z.date(),
               standardSeats: z.array(
                 z.object({
                   property: z.object({
@@ -573,7 +436,7 @@ export const identityRouter = router({
 
       // Build base conditions — mirroring GET /api/users REST handler
       const conditions: SQL<unknown>[] = [
-        eq(users.tenantId, ctx.tenantId!),
+        eq(users.tenantId, ctx.tenantId),
         eq(users.isActive, true),
         ne(users.role, 'AGENT'),
         sql`(
@@ -606,7 +469,7 @@ export const identityRouter = router({
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       // Get users with pagination
-      const userResults = await db
+      const userResults = await ctx.db
         .select({
           id: users.id,
           name: users.name,
@@ -626,7 +489,7 @@ export const identityRouter = router({
         .offset(skip);
 
       // Get total count
-      const totalResult = await db.select({ total: count() }).from(users).where(whereClause);
+      const totalResult = await ctx.db.select({ total: count() }).from(users).where(whereClause);
       const total = totalResult[0]?.total || 0;
 
       // Batch fetch all related data in 4 queries instead of 4N
@@ -634,7 +497,7 @@ export const identityRouter = router({
       const [allSeats, allSoloSeats, allPremiumSeats, allProfiles] =
         userIds.length > 0
           ? await Promise.all([
-              db
+              ctx.db
                 .select({
                   userId: standardSeats.userId,
                   property: {
@@ -649,7 +512,7 @@ export const identityRouter = router({
                 .from(standardSeats)
                 .innerJoin(properties, eq(standardSeats.propertyId, properties.id))
                 .where(inArray(standardSeats.userId, userIds)),
-              db
+              ctx.db
                 .select({
                   userId: soloSeats.userId,
                   property: {
@@ -664,7 +527,7 @@ export const identityRouter = router({
                 .from(soloSeats)
                 .leftJoin(properties, eq(soloSeats.propertyId, properties.id))
                 .where(inArray(soloSeats.userId, userIds)),
-              db
+              ctx.db
                 .select({
                   userId: premiumSeats.userId,
                   id: premiumSeats.id,
@@ -675,7 +538,7 @@ export const identityRouter = router({
                 })
                 .from(premiumSeats)
                 .where(inArray(premiumSeats.userId, userIds)),
-              db
+              ctx.db
                 .select({
                   userId: profiles.userId,
                   householdId: profiles.householdId,
@@ -696,7 +559,7 @@ export const identityRouter = router({
                 .innerJoin(properties, eq(households.propertyId, properties.id))
                 .where(
                   and(
-                    eq(profiles.tenantId, ctx.tenantId!),
+                    eq(profiles.tenantId, ctx.tenantId),
                     inArray(profiles.userId, userIds),
                     eq(profiles.status, 'ACTIVE' as const)
                   )
@@ -730,7 +593,13 @@ export const identityRouter = router({
       }
 
       const usersWithRelations = userResults.map(user => ({
-        ...user,
+        ...userDto.parse(user),
+        phone: user.phone,
+        interests: user.interests,
+        avatar: user.avatar,
+        isPublic: user.isPublic,
+        profileSlug: user.profileSlug,
+        updatedAt: new Date(), // not fetched from DB — placeholder
         standardSeats: seatMap.get(user.id) || [],
         soloSeats: soloMap.get(user.id) || [],
         premiumSeat: premiumMap.get(user.id) || null,
@@ -742,7 +611,11 @@ export const identityRouter = router({
 
   // ============ HOUSEHOLDS (The Occupancies) ============
 
-  listHouseholds: protectedProcedure
+  /**
+   * List households for a property — tenant-scoped.
+   * @tenant
+   */
+  listHouseholds: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -753,9 +626,25 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ propertyId: z.string() }))
-    .output(toEnvelopeSchema(z.array(householdSchema)))
-    .query(async ({ input }) => {
-      const rows = await db
+    .output(
+      toEnvelopeSchema(
+        z.array(
+          z.object({
+            id: z.string(),
+            tenantId: z.string(),
+            propertyId: z.string(),
+            occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
+            status: z.enum(['ACTIVE', 'ARCHIVED']),
+            moveInDate: z.date().nullable(),
+            moveOutDate: z.date().nullable(),
+            createdAt: z.date(),
+            updatedAt: z.date(),
+          })
+        )
+      )
+    )
+    .query(async ({ input, ctx }) => {
+      const rows = await ctx.db
         .select()
         .from(households)
         .where(eq(households.propertyId, input.propertyId))
@@ -763,7 +652,11 @@ export const identityRouter = router({
       return toEnvelope(rows);
     }),
 
-  createHousehold: protectedProcedure
+  /**
+   * Create a household — tenant-scoped.
+   * @tenant
+   */
+  createHousehold: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -780,21 +673,35 @@ export const identityRouter = router({
         moveInDate: z.date().optional(),
       })
     )
-    .output(toEnvelopeSchema(householdSchema))
-    .mutation(async ({ input }) => {
-      const [property] = await db
+    .output(
+      toEnvelopeSchema(
+        z.object({
+          id: z.string(),
+          tenantId: z.string(),
+          propertyId: z.string(),
+          occupancyType: z.enum(['OWNER_OCCUPIED', 'RENTAL', 'VACANT']),
+          status: z.enum(['ACTIVE', 'ARCHIVED']),
+          moveInDate: z.date().nullable(),
+          moveOutDate: z.date().nullable(),
+          createdAt: z.date(),
+          updatedAt: z.date(),
+        })
+      )
+    )
+    .mutation(async ({ input, ctx }) => {
+      const [property] = await ctx.db
         .select()
         .from(properties)
         .where(eq(properties.id, input.propertyId));
       if (!property) throw new TRPCError({ code: 'NOT_FOUND', message: 'Property not found' });
 
       // Deactivate current active household for this property
-      await db
+      await ctx.db
         .update(households)
         .set({ status: 'ARCHIVED', moveOutDate: new Date() })
         .where(and(eq(households.propertyId, input.propertyId), eq(households.status, 'ACTIVE')));
 
-      const [created] = await db
+      const [created] = await ctx.db
         .insert(households)
         .values({
           id: crypto.randomUUID(),
@@ -811,6 +718,9 @@ export const identityRouter = router({
       return toEnvelope(created);
     }),
 
+  /**
+   * Get current user's properties — user-scoped.
+   */
   getMyProperties: protectedProcedure
     .meta({
       openapi: {
@@ -824,15 +734,8 @@ export const identityRouter = router({
     .output(
       toEnvelopeSchema(
         z.array(
-          z.object({
-            id: z.string(),
+          propertyDto.extend({
             tenantId: z.string(),
-            street: z.string(),
-            unit: z.string(),
-            platformAddress: z.string(),
-            homeImage: z.string().nullable(),
-            ownerId: z.string().nullable(),
-            createdAt: z.date(),
             updatedAt: z.date(),
             activeHousehold: z
               .object({
@@ -845,22 +748,22 @@ export const identityRouter = router({
                 moveOutDate: z.date().nullable(),
                 createdAt: z.date(),
                 updatedAt: z.date(),
-                profiles: z.array(profileSchema),
+                profiles: z.array(profileDto.passthrough()),
               })
               .nullable(),
-            standardSeats: z.array(standardSeatSchema),
+            standardSeats: z.array(standardSeatDto.passthrough()),
           })
         )
       )
     )
     .query(async ({ ctx }) => {
-      const owned = await db
+      const owned = await ctx.db
         .select()
         .from(properties)
         .where(eq(properties.ownerId, ctx.userId))
         .orderBy(asc(properties.unit));
 
-      const seats = await db
+      const seats = await ctx.db
         .select()
         .from(standardSeats)
         .where(eq(standardSeats.userId, ctx.userId));
@@ -868,7 +771,7 @@ export const identityRouter = router({
       const seatPropertyIds = seats.map(s => s.propertyId);
       const seatProperties =
         seatPropertyIds.length > 0
-          ? await db.select().from(properties).where(inArray(properties.id, seatPropertyIds))
+          ? await ctx.db.select().from(properties).where(inArray(properties.id, seatPropertyIds))
           : [];
 
       // Combine and unique
@@ -882,13 +785,13 @@ export const identityRouter = router({
       const [allHouseholds, allSeatsData] =
         propIds.length > 0
           ? await Promise.all([
-              db
+              ctx.db
                 .select()
                 .from(households)
                 .where(
                   and(inArray(households.propertyId, propIds), eq(households.status, 'ACTIVE'))
                 ),
-              db.select().from(standardSeats).where(inArray(standardSeats.propertyId, propIds)),
+              ctx.db.select().from(standardSeats).where(inArray(standardSeats.propertyId, propIds)),
             ])
           : [[], []];
 
@@ -908,7 +811,7 @@ export const identityRouter = router({
       const activeHouseholdIds = allHouseholds.map(h => h.id);
       const allProfiles =
         activeHouseholdIds.length > 0
-          ? await db
+          ? await ctx.db
               .select()
               .from(profiles)
               .where(
@@ -929,7 +832,9 @@ export const identityRouter = router({
       const propsWithRelations = allProps.map(prop => {
         const activeHousehold = householdMap.get(prop.id) || null;
         return {
-          ...prop,
+          ...propertyDto.parse(prop),
+          tenantId: prop.tenantId,
+          updatedAt: prop.updatedAt,
           activeHousehold: activeHousehold
             ? { ...activeHousehold, profiles: profileMap.get(activeHousehold.id) || [] }
             : null,
@@ -942,7 +847,11 @@ export const identityRouter = router({
 
   // ============ PROFILES (Resident Participation) ============
 
-  createProfile: protectedProcedure
+  /**
+   * Create a profile — tenant-scoped.
+   * @tenant
+   */
+  createProfile: tenantProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -960,19 +869,22 @@ export const identityRouter = router({
         residencyType: z.enum(['FAMILY', 'RENTER', 'OWNER']).default('FAMILY'),
       })
     )
-    .output(toEnvelopeSchema(profileSchema))
+    .output(toEnvelopeSchema(profileDto.passthrough()))
     .mutation(async ({ input, ctx }) => {
       const { householdId, displayName, householdRole, residencyType } = input;
 
-      const [household] = await db.select().from(households).where(eq(households.id, householdId));
+      const [household] = await ctx.db
+        .select()
+        .from(households)
+        .where(eq(households.id, householdId));
       if (!household) throw new TRPCError({ code: 'NOT_FOUND', message: 'Household not found' });
 
-      const [property] = await db
+      const [property] = await ctx.db
         .select()
         .from(properties)
         .where(eq(properties.id, household.propertyId));
 
-      const [seats] = await db
+      const [seats] = await ctx.db
         .select()
         .from(standardSeats)
         .where(eq(standardSeats.propertyId, household.propertyId));
@@ -994,7 +906,7 @@ export const identityRouter = router({
         });
       }
 
-      const [created] = await db
+      const [created] = await ctx.db
         .insert(profiles)
         .values({
           id: crypto.randomUUID(),
@@ -1011,9 +923,12 @@ export const identityRouter = router({
         })
         .returning();
 
-      return toEnvelope(created);
+      return toEnvelope(profileDto.parse(created));
     }),
 
+  /**
+   * Update a profile — user-scoped.
+   */
   updateProfile: protectedProcedure
     .meta({
       openapi: {
@@ -1034,10 +949,10 @@ export const identityRouter = router({
         showPhone: z.boolean().optional(),
       })
     )
-    .output(toEnvelopeSchema(profileSchema))
+    .output(toEnvelopeSchema(profileDto.passthrough()))
     .mutation(async ({ input, ctx }) => {
       const { id, ...data } = input;
-      const [profile] = await db.select().from(profiles).where(eq(profiles.id, id));
+      const [profile] = await ctx.db.select().from(profiles).where(eq(profiles.id, id));
       if (!profile) throw new TRPCError({ code: 'NOT_FOUND', message: 'Profile not found' });
 
       const isProfileOwner = profile.userId === ctx.userId;
@@ -1045,10 +960,18 @@ export const identityRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot update this profile' });
       }
 
-      const [updated] = await db.update(profiles).set(data).where(eq(profiles.id, id)).returning();
-      return toEnvelope(updated);
+      const [updated] = await ctx.db
+        .update(profiles)
+        .set(data)
+        .where(eq(profiles.id, id))
+        .returning();
+      return toEnvelope(profileDto.parse(updated));
     }),
 
+  /**
+   * Get a public profile — no auth required.
+   * @public
+   */
   getProfile: publicProcedure
     .meta({
       openapi: {
@@ -1091,10 +1014,10 @@ export const identityRouter = router({
                 moveOutDate: z.date().nullable(),
                 createdAt: z.date(),
                 updatedAt: z.date(),
-                property: propertySchema.nullable(),
+                property: propertyDto.nullable(),
               })
               .nullable(),
-            user: userSchema.nullable(),
+            user: userDto.nullable(),
           })
           .nullable()
       )
@@ -1128,6 +1051,9 @@ export const identityRouter = router({
 
   // ============ SOLO SEATS ============
 
+  /**
+   * Get current user's solo seat — user-scoped.
+   */
   getMySoloSeat: protectedProcedure
     .meta({ openapi: { method: 'GET', path: '/my/solo-seat', tags: ['Solo Seats'] } })
     .output(
@@ -1145,17 +1071,17 @@ export const identityRouter = router({
             organizationId: z.string().nullable(),
             createdAt: z.date(),
             updatedAt: z.date(),
-            property: propertySchema.nullable(),
+            property: propertyDto.nullable(),
           })
           .nullable()
       )
     )
     .query(async ({ ctx }) => {
-      const [seat] = await db.select().from(soloSeats).where(eq(soloSeats.userId, ctx.userId));
+      const [seat] = await ctx.db.select().from(soloSeats).where(eq(soloSeats.userId, ctx.userId));
       if (!seat) return toEnvelope(null);
 
       const property = seat.propertyId
-        ? await db
+        ? await ctx.db
             .select()
             .from(properties)
             .where(eq(properties.id, seat.propertyId))
@@ -1167,18 +1093,25 @@ export const identityRouter = router({
 
   // ============ AGENT ACCESS ============
 
+  /**
+   * Get current user's agent accesses — user-scoped.
+   */
   getAgentAccesses: protectedProcedure
     .meta({ openapi: { method: 'GET', path: '/my/agent-accesses', tags: ['Agent Access'] } })
-    .output(toEnvelopeSchema(z.array(agentAccessSchema)))
+    .output(toEnvelopeSchema(z.array(agentAccessDto.passthrough())))
     .query(async ({ ctx }) => {
-      const rows = await db
+      const rows = await ctx.db
         .select()
         .from(agentAccesses)
         .where(eq(agentAccesses.agentId, ctx.userId));
       return toEnvelope(rows);
     }),
 
-  getPropertyAgentAccesses: protectedProcedure
+  /**
+   * Get agent accesses for a property — tenant-scoped.
+   * @tenant
+   */
+  getPropertyAgentAccesses: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -1187,9 +1120,9 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ propertyId: z.string() }))
-    .output(toEnvelopeSchema(z.array(agentAccessSchema)))
-    .query(async ({ input }) => {
-      const rows = await db
+    .output(toEnvelopeSchema(z.array(agentAccessDto.passthrough())))
+    .query(async ({ input, ctx }) => {
+      const rows = await ctx.db
         .select()
         .from(agentAccesses)
         .where(eq(agentAccesses.propertyId, input.propertyId));
@@ -1198,7 +1131,11 @@ export const identityRouter = router({
 
   // ============ SUSPENSIONS ============
 
-  listSuspensions: adminProcedure
+  /**
+   * List suspension history for a user — staff only.
+   * @privileged
+   */
+  listSuspensions: privilegedProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -1209,15 +1146,15 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ userId: z.string() }))
-    .output(toEnvelopeSchema(z.object({ suspensions: z.array(suspensionSchema) })))
+    .output(toEnvelopeSchema(z.object({ suspensions: z.array(suspensionDto.passthrough()) })))
     .query(async ({ input, ctx }) => {
-      const suspensions = await db
+      const suspensions = await ctx.db
         .select()
         .from(platformSuspensions)
         .where(
           and(
             eq(platformSuspensions.userId, input.userId),
-            eq(platformSuspensions.tenantId, ctx.tenantId!)
+            eq(platformSuspensions.tenantId, ctx.tenantId)
           )
         )
         .orderBy(desc(platformSuspensions.createdAt));
@@ -1225,7 +1162,11 @@ export const identityRouter = router({
       return toEnvelope({ suspensions });
     }),
 
-  suspendUser: adminProcedure
+  /**
+   * Suspend a user — staff only.
+   * @privileged
+   */
+  suspendUser: privilegedProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -1251,13 +1192,13 @@ export const identityRouter = router({
         endDate: z.string().nullable().optional(),
       })
     )
-    .output(toEnvelopeSchema(suspensionSchema))
+    .output(toEnvelopeSchema(suspensionDto.passthrough()))
     .mutation(async ({ input, ctx }) => {
       // Verify target user exists within the same tenant
-      const [targetUser] = await db
+      const [targetUser] = await ctx.db
         .select({ id: users.id })
         .from(users)
-        .where(and(eq(users.id, input.userId), eq(users.tenantId, ctx.tenantId!)))
+        .where(and(eq(users.id, input.userId), eq(users.tenantId, ctx.tenantId)))
         .limit(1);
 
       if (!targetUser) {
@@ -1265,7 +1206,7 @@ export const identityRouter = router({
       }
 
       // Check if user already has an active suspension
-      const [existingSuspension] = await db
+      const [existingSuspension] = await ctx.db
         .select({ id: platformSuspensions.id })
         .from(platformSuspensions)
         .where(
@@ -1274,7 +1215,10 @@ export const identityRouter = router({
         .limit(1);
 
       if (existingSuspension) {
-        throw new TRPCError({ code: 'CONFLICT', message: 'User already has an active suspension' });
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: 'User already has an active suspension',
+        });
       }
 
       const ts = now();
@@ -1282,12 +1226,12 @@ export const identityRouter = router({
       const parsedEndDate = input.endDate ? new Date(input.endDate) : null;
       const isPermanent = !input.endDate;
 
-      const result = await db.transaction(async tx => {
+      const result = await ctx.db.transaction(async tx => {
         const [suspension] = await tx
           .insert(platformSuspensions)
           .values({
             id: suspensionId,
-            tenantId: ctx.tenantId!,
+            tenantId: ctx.tenantId,
             userId: input.userId,
             suspensionType: input.suspensionType,
             reason: input.reason.trim(),
@@ -1311,7 +1255,7 @@ export const identityRouter = router({
         action: 'USER_SUSPENDED',
         actorId: ctx.userId,
         targetId: input.userId,
-        tenantId: ctx.tenantId!,
+        tenantId: ctx.tenantId,
         details: {
           suspensionType: input.suspensionType,
           reason: input.reason,
@@ -1322,7 +1266,11 @@ export const identityRouter = router({
       return toEnvelope(result);
     }),
 
-  unsuspendUser: adminProcedure
+  /**
+   * Unsuspend a user — staff only.
+   * @privileged
+   */
+  unsuspendUser: privilegedProcedure
     .meta({
       openapi: {
         method: 'POST',
@@ -1349,10 +1297,10 @@ export const identityRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       // Verify target user exists within the same tenant
-      const [targetUser] = await db
+      const [targetUser] = await ctx.db
         .select({ id: users.id })
         .from(users)
-        .where(and(eq(users.id, input.userId), eq(users.tenantId, ctx.tenantId!)))
+        .where(and(eq(users.id, input.userId), eq(users.tenantId, ctx.tenantId)))
         .limit(1);
 
       if (!targetUser) {
@@ -1360,7 +1308,7 @@ export const identityRouter = router({
       }
 
       // Find active suspension for this user
-      const [activeSuspension] = await db
+      const [activeSuspension] = await ctx.db
         .select({ id: platformSuspensions.id })
         .from(platformSuspensions)
         .where(
@@ -1374,7 +1322,7 @@ export const identityRouter = router({
 
       const ts = now();
 
-      const updatedUser = await db.transaction(async tx => {
+      const updatedUser = await ctx.db.transaction(async tx => {
         await tx
           .update(platformSuspensions)
           .set({ isActive: false, updatedAt: ts })
@@ -1399,7 +1347,7 @@ export const identityRouter = router({
         action: 'USER_UNSUSPENDED',
         actorId: ctx.userId,
         targetId: input.userId,
-        tenantId: ctx.tenantId!,
+        tenantId: ctx.tenantId,
       });
 
       return toEnvelope({ success: true, user: updatedUser });
@@ -1407,6 +1355,9 @@ export const identityRouter = router({
 
   // ============ USER ALBUMS ============
 
+  /**
+   * List current user's albums — user-scoped.
+   */
   listAlbums: protectedProcedure
     .meta({
       openapi: {
@@ -1417,9 +1368,9 @@ export const identityRouter = router({
         protect: true,
       },
     })
-    .output(toEnvelopeSchema(z.object({ albums: z.array(albumSchema) })))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(albumDto) })))
     .query(async ({ ctx }) => {
-      const userAlbums = await db
+      const userAlbums = await ctx.db
         .select()
         .from(albums)
         .where(
@@ -1431,9 +1382,12 @@ export const identityRouter = router({
         )
         .orderBy(desc(albums.createdAt));
 
-      return toEnvelope({ albums: userAlbums });
+      return toEnvelope({ albums: userAlbums.map(a => albumDto.parse(a)) });
     }),
 
+  /**
+   * Get a single album — user-scoped.
+   */
   getAlbum: protectedProcedure
     .meta({
       openapi: {
@@ -1445,9 +1399,9 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ id: z.string() }))
-    .output(toEnvelopeSchema(albumSchema.nullable()))
+    .output(toEnvelopeSchema(albumDto.nullable()))
     .query(async ({ input, ctx }) => {
-      const [album] = await db
+      const [album] = await ctx.db
         .select()
         .from(albums)
         .where(
@@ -1460,9 +1414,12 @@ export const identityRouter = router({
         )
         .limit(1);
 
-      return toEnvelope(album || null);
+      return toEnvelope(album ? albumDto.parse(album) : null);
     }),
 
+  /**
+   * Create an album — user-scoped.
+   */
   createAlbum: protectedProcedure
     .meta({
       openapi: {
@@ -1481,10 +1438,10 @@ export const identityRouter = router({
         mediaIds: z.array(z.string()).default([]),
       })
     )
-    .output(toEnvelopeSchema(z.object({ albums: z.array(albumSchema) })))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(albumDto) })))
     .mutation(async ({ input, ctx }) => {
       // Check album limit (max 3 per user)
-      const existingAlbums = await db
+      const existingAlbums = await ctx.db
         .select({ id: albums.id })
         .from(albums)
         .where(
@@ -1500,7 +1457,7 @@ export const identityRouter = router({
       }
 
       const ts = now();
-      await db
+      await ctx.db
         .insert(albums)
         .values({
           id: crypto.randomUUID(),
@@ -1515,7 +1472,7 @@ export const identityRouter = router({
         })
         .returning();
 
-      const allAlbums = await db
+      const allAlbums = await ctx.db
         .select()
         .from(albums)
         .where(
@@ -1527,9 +1484,12 @@ export const identityRouter = router({
         )
         .orderBy(desc(albums.createdAt));
 
-      return toEnvelope({ albums: allAlbums });
+      return toEnvelope({ albums: allAlbums.map(a => albumDto.parse(a)) });
     }),
 
+  /**
+   * Update an album — user-scoped.
+   */
   updateAlbum: protectedProcedure
     .meta({
       openapi: {
@@ -1549,7 +1509,7 @@ export const identityRouter = router({
         mediaIds: z.array(z.string()).optional(),
       })
     )
-    .output(toEnvelopeSchema(z.object({ albums: z.array(albumSchema) })))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(albumDto) })))
     .mutation(async ({ input, ctx }) => {
       const ts = now();
       const { id, ...data } = input;
@@ -1561,7 +1521,7 @@ export const identityRouter = router({
       if (data.mediaIds !== undefined) updateData.mediaIds = data.mediaIds;
       updateData.updatedAt = ts;
 
-      await db
+      await ctx.db
         .update(albums)
         .set(updateData)
         .where(
@@ -1573,7 +1533,7 @@ export const identityRouter = router({
           )
         );
 
-      const allAlbums = await db
+      const allAlbums = await ctx.db
         .select()
         .from(albums)
         .where(
@@ -1585,9 +1545,12 @@ export const identityRouter = router({
         )
         .orderBy(desc(albums.createdAt));
 
-      return toEnvelope({ albums: allAlbums });
+      return toEnvelope({ albums: allAlbums.map(a => albumDto.parse(a)) });
     }),
 
+  /**
+   * Delete an album — user-scoped.
+   */
   deleteAlbum: protectedProcedure
     .meta({
       openapi: {
@@ -1599,11 +1562,11 @@ export const identityRouter = router({
       },
     })
     .input(z.object({ id: z.string() }))
-    .output(toEnvelopeSchema(z.object({ albums: z.array(albumSchema) })))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(albumDto) })))
     .mutation(async ({ input, ctx }) => {
       const ts = now();
 
-      await db
+      await ctx.db
         .update(albums)
         .set({ deletedAt: ts, updatedAt: ts })
         .where(
@@ -1615,7 +1578,7 @@ export const identityRouter = router({
           )
         );
 
-      const allAlbums = await db
+      const allAlbums = await ctx.db
         .select()
         .from(albums)
         .where(
@@ -1627,10 +1590,14 @@ export const identityRouter = router({
         )
         .orderBy(desc(albums.createdAt));
 
-      return toEnvelope({ albums: allAlbums });
+      return toEnvelope({ albums: allAlbums.map(a => albumDto.parse(a)) });
     }),
 
-  listPublicAlbums: protectedProcedure
+  /**
+   * List public albums — tenant-scoped.
+   * @tenant
+   */
+  listPublicAlbums: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -1640,9 +1607,9 @@ export const identityRouter = router({
         protect: true,
       },
     })
-    .output(toEnvelopeSchema(z.object({ albums: z.array(publicAlbumSchema) })))
+    .output(toEnvelopeSchema(z.object({ albums: z.array(albumDto.passthrough()) })))
     .query(async ({ ctx }) => {
-      const publicAlbums = await db
+      const publicAlbums = await ctx.db
         .select({
           id: albums.id,
           title: albums.title,
@@ -1658,7 +1625,7 @@ export const identityRouter = router({
         .innerJoin(users, eq(albums.userId, users.id))
         .where(
           and(
-            eq(albums.tenantId, ctx.tenantId!),
+            eq(albums.tenantId, ctx.tenantId),
             eq(albums.isPublic, true),
             isNull(albums.deletedAt)
           )
@@ -1670,6 +1637,9 @@ export const identityRouter = router({
 
   // ============ SEATS ============
 
+  /**
+   * Get current user's seat info — user-scoped.
+   */
   getMySeat: protectedProcedure
     .meta({
       openapi: {
@@ -1683,8 +1653,8 @@ export const identityRouter = router({
     .output(
       toEnvelopeSchema(
         z.object({
-          solo: seatSchema.nullable(),
-          premium: premiumSeatSchema.nullable(),
+          solo: seatDto.passthrough().nullable(),
+          premium: premiumSeatDto.passthrough().nullable(),
         })
       )
     )
@@ -1694,13 +1664,13 @@ export const identityRouter = router({
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
       }
 
-      const [solo] = await db
+      const [solo] = await ctx.db
         .select()
         .from(soloSeats)
         .where(and(eq(soloSeats.userId, ctx.userId), eq(soloSeats.tenantId, tenantId)))
         .limit(1);
 
-      const [premium] = await db
+      const [premium] = await ctx.db
         .select()
         .from(premiumSeats)
         .where(and(eq(premiumSeats.userId, ctx.userId), eq(premiumSeats.tenantId, tenantId)))
@@ -1709,7 +1679,11 @@ export const identityRouter = router({
       return toEnvelope({ solo: solo || null, premium: premium || null });
     }),
 
-  listSeats: adminProcedure
+  /**
+   * List all seats — staff only.
+   * @privileged
+   */
+  listSeats: privilegedProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -1722,22 +1696,22 @@ export const identityRouter = router({
     .output(
       toEnvelopeSchema(
         z.object({
-          soloSeats: z.array(seatSchema),
-          premiumSeats: z.array(premiumSeatSchema),
+          soloSeats: z.array(seatDto.passthrough()),
+          premiumSeats: z.array(premiumSeatDto.passthrough()),
         })
       )
     )
     .query(async ({ ctx }) => {
       const [allSoloSeats, allPremiumSeats] = await Promise.all([
-        db
+        ctx.db
           .select()
           .from(soloSeats)
-          .where(eq(soloSeats.tenantId, ctx.tenantId!))
+          .where(eq(soloSeats.tenantId, ctx.tenantId))
           .orderBy(asc(soloSeats.createdAt)),
-        db
+        ctx.db
           .select()
           .from(premiumSeats)
-          .where(eq(premiumSeats.tenantId, ctx.tenantId!))
+          .where(eq(premiumSeats.tenantId, ctx.tenantId))
           .orderBy(asc(premiumSeats.createdAt)),
       ]);
 
@@ -1746,6 +1720,9 @@ export const identityRouter = router({
 
   // ============ DASHBOARD STATS ============
 
+  /**
+   * Get dashboard summary stats — user-scoped.
+   */
   getDashboardStats: protectedProcedure
     .meta({
       openapi: {
@@ -1768,7 +1745,7 @@ export const identityRouter = router({
     )
     .query(async ({ ctx }) => {
       const [reqResult, bookingsResult, convResult, notifResult] = await Promise.all([
-        db
+        ctx.db
           .select({ count: count() })
           .from(maintenanceRequests)
           .where(
@@ -1777,11 +1754,11 @@ export const identityRouter = router({
               eq(maintenanceRequests.tenantId, ctx.tenantId!)
             )
           ),
-        db
+        ctx.db
           .select({ count: count() })
           .from(bookings)
           .where(and(eq(bookings.userId, ctx.userId), eq(bookings.tenantId, ctx.tenantId!))),
-        db
+        ctx.db
           .select({ count: count() })
           .from(conversationParticipants)
           .where(
@@ -1790,7 +1767,7 @@ export const identityRouter = router({
               eq(conversationParticipants.tenantId, ctx.tenantId!)
             )
           ),
-        db
+        ctx.db
           .select({ count: count() })
           .from(notifications)
           .where(
@@ -1808,6 +1785,9 @@ export const identityRouter = router({
 
   // ============ USER BOOKS ============
 
+  /**
+   * List books for a user — user-scoped.
+   */
   listUserBooks: protectedProcedure
     .meta({
       openapi: {
@@ -1832,7 +1812,7 @@ export const identityRouter = router({
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
       }
 
-      const userResult = await db
+      const userResult = await ctx.db
         .select({ books: users.books })
         .from(users)
         .where(and(eq(users.id, input.userId), eq(users.tenantId, ctx.tenantId!)))
