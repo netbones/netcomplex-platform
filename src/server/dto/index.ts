@@ -50,3 +50,14 @@ export type {
   SettingDto,
   AgentProfileDto,
 } from './more';
+
+export { disputeCaseDto, disputeEventDto, disputeEvidenceDto, disputeMessageDto } from './disputes';
+export type {
+  DisputeCaseDto,
+  DisputeEventDto,
+  DisputeEvidenceDto,
+  DisputeMessageDto,
+} from './disputes';
+
+export { resourceDto } from './resources';
+export type { ResourceDto } from './resources';
