@@ -16,6 +16,10 @@ import {
 } from './shared';
 
 export const maintenanceCategoryProcedures = {
+  /**
+   * List maintenance categories for the current tenant.
+   * @tenant
+   */
   listCategories: protectedProcedure
     .input(z.object({ isActive: z.boolean().optional() }).optional())
     .query(async ({ input, ctx }) => {
@@ -42,6 +46,10 @@ export const maintenanceCategoryProcedures = {
       );
     }),
 
+  /**
+   * Create a maintenance category — staff only.
+   * @tenant
+   */
   createCategory: protectedProcedure.input(CategoryInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
@@ -82,6 +90,10 @@ export const maintenanceCategoryProcedures = {
     return toEnvelope(created);
   }),
 
+  /**
+   * Update a maintenance category — staff only.
+   * @tenant
+   */
   updateCategory: protectedProcedure.input(UpdateCategoryInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
@@ -121,6 +133,10 @@ export const maintenanceCategoryProcedures = {
     return toEnvelope(updated);
   }),
 
+  /**
+   * Delete a maintenance category — staff only.
+   * @tenant
+   */
   deleteCategory: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {

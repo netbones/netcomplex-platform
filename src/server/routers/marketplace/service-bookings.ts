@@ -33,6 +33,10 @@ const CancelBookingInput = z.object({
 });
 
 export const serviceBookingProcedures = {
+  /**
+   * List service bookings — tenant-scoped, filtered by role.
+   * @tenant
+   */
   listServiceBookings: protectedProcedure
     .meta({
       openapi: {
@@ -105,6 +109,10 @@ export const serviceBookingProcedures = {
       return toEnvelope(bookingsData.map(b => serviceBookingDto.parse(b)));
     }),
 
+  /**
+   * Create a service booking — tenant-scoped.
+   * @tenant
+   */
   createServiceBooking: protectedProcedure
     .meta({
       openapi: {
@@ -203,6 +211,10 @@ export const serviceBookingProcedures = {
       return toEnvelope(serviceBookingDto.parse(created));
     }),
 
+  /**
+   * Get a single service booking by ID — tenant-scoped.
+   * @tenant
+   */
   getServiceBooking: protectedProcedure
     .meta({
       openapi: {
@@ -238,6 +250,10 @@ export const serviceBookingProcedures = {
       return toEnvelope(serviceBookingDto.parse(booking));
     }),
 
+  /**
+   * Cancel a service booking — tenant-scoped.
+   * @tenant
+   */
   cancelServiceBooking: protectedProcedure
     .meta({
       openapi: {

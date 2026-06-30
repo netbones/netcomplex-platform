@@ -24,6 +24,10 @@ const WebhookInput = z.object({
 });
 
 export const checkoutProcedures = {
+  /**
+   * Create a checkout session for a service booking — tenant-scoped.
+   * @tenant
+   */
   createCheckoutSession: protectedProcedure
     .meta({
       openapi: {
@@ -97,6 +101,10 @@ export const checkoutProcedures = {
       });
     }),
 
+  /**
+   * Handle Paystack payment webhook — public endpoint, no auth.
+   * @public
+   */
   handleWebhook: publicProcedure
     .meta({
       openapi: {

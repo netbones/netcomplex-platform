@@ -29,6 +29,10 @@ import { toEnvelope } from '@api/server';
 import { surveyDto, responseDto } from '@server/dto';
 
 export const surveyManagementProcedures = {
+  /**
+   * List surveys for the current tenant with optional status filter.
+   * @tenant
+   */
   listSurveys: protectedProcedure
     .meta({
       openapi: {
@@ -74,6 +78,10 @@ export const surveyManagementProcedures = {
       return toEnvelope(rows.map(r => surveyDto.parse(r)));
     }),
 
+  /**
+   * Get a single survey with questions and sections — tenant-scoped.
+   * @tenant
+   */
   getSurvey: protectedProcedure
     .meta({
       openapi: {
@@ -108,6 +116,10 @@ export const surveyManagementProcedures = {
       return toEnvelope({ survey: surveyDto.parse(survey), questions: surveyQuestions, sections });
     }),
 
+  /**
+   * Create a new survey — staff only.
+   * @tenant
+   */
   createSurvey: protectedProcedure
     .meta({
       openapi: {
@@ -150,6 +162,10 @@ export const surveyManagementProcedures = {
       return toEnvelope(surveyDto.parse(created));
     }),
 
+  /**
+   * Update a survey — staff only.
+   * @tenant
+   */
   updateSurvey: protectedProcedure
     .meta({
       openapi: {
@@ -197,6 +213,10 @@ export const surveyManagementProcedures = {
       return toEnvelope(surveyDto.parse(updated));
     }),
 
+  /**
+   * Soft-delete a survey — staff only.
+   * @tenant
+   */
   deleteSurvey: protectedProcedure
     .meta({
       openapi: {
@@ -228,6 +248,10 @@ export const surveyManagementProcedures = {
       return toEnvelope({ success: true });
     }),
 
+  /**
+   * Submit a response to a survey — tenant-scoped, rate-limited.
+   * @tenant
+   */
   submitResponse: protectedProcedure
     .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 10 }))
     .meta({
@@ -303,6 +327,10 @@ export const surveyManagementProcedures = {
       return toEnvelope(responseDto.parse(response));
     }),
 
+  /**
+   * Get aggregated survey results — tenant-scoped.
+   * @tenant
+   */
   getSurveyResults: protectedProcedure
     .meta({
       openapi: {

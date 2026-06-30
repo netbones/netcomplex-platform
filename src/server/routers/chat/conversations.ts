@@ -17,6 +17,10 @@ import {
 } from './shared';
 
 export const conversationProcedures = {
+  /**
+   * List conversations for the current user in the current tenant.
+   * @tenant
+   */
   listConversations: protectedProcedure
     .input(z.void())
     .output(
@@ -155,6 +159,10 @@ export const conversationProcedures = {
       );
     }),
 
+  /**
+   * Create a new conversation — tenant-scoped.
+   * @tenant
+   */
   createConversation: protectedProcedure
     .input(
       z.object({
@@ -274,6 +282,10 @@ export const conversationProcedures = {
       );
     }),
 
+  /**
+   * Find or create a direct conversation between two users — tenant-scoped.
+   * @tenant
+   */
   findOrCreateConversation: protectedProcedure
     .input(
       z.object({

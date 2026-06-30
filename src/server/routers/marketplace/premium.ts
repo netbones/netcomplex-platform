@@ -34,6 +34,10 @@ const ActivatePremiumSeatInput = z.object({
 });
 
 export const premiumProcedures = {
+  /**
+   * List premium property listings — tenant-scoped, premium seat required.
+   * @tenant
+   */
   listPremiumListings: protectedProcedure
     .meta({
       openapi: {
@@ -94,6 +98,10 @@ export const premiumProcedures = {
       return toEnvelope({ listings: transformedListings });
     }),
 
+  /**
+   * Create a premium property listing — tenant-scoped, premium seat required.
+   * @tenant
+   */
   createPremiumListing: protectedProcedure
     .meta({
       openapi: {
@@ -150,6 +158,10 @@ export const premiumProcedures = {
       return toEnvelope({ success: true, listing: newListing });
     }),
 
+  /**
+   * Get the current user's premium seat portfolio — tenant-scoped.
+   * @tenant
+   */
   getPortfolio: protectedProcedure
     .meta({
       openapi: {
@@ -178,6 +190,10 @@ export const premiumProcedures = {
       return toEnvelope({ hasPortfolio: true, portfolio: seat });
     }),
 
+  /**
+   * Activate a premium seat with household linking — tenant-scoped.
+   * @tenant
+   */
   activatePremiumSeat: protectedProcedure
     .meta({
       openapi: {

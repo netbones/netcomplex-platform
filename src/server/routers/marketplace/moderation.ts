@@ -12,6 +12,10 @@ import { eq, and, desc, sql } from 'drizzle-orm';
 import { ModerateListingInput, ListModerationInput, getTenantListing } from './shared';
 
 export const moderationProcedures = {
+  /**
+   * List marketplace moderation queue — admin only.
+   * @privileged
+   */
   listModerationQueue: adminProcedure
     .meta({
       openapi: {
@@ -77,6 +81,10 @@ export const moderationProcedures = {
       });
     }),
 
+  /**
+   * Moderate a marketplace listing — admin only.
+   * @privileged
+   */
   moderateListing: adminProcedure
     .meta({
       openapi: {

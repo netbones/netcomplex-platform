@@ -16,7 +16,10 @@ import { toEnvelope } from '@api/server';
 import { externalSurveyDto, responseDto } from '@server/dto';
 
 export const externalSurveyProcedures = {
-  /** @classification PUBLIC — unauthenticated external survey listing */
+  /**
+   * List active external surveys — public access, no auth required.
+   * @public
+   */
   listExternalSurveys: publicProcedure
     .meta({ openapi: { method: 'GET', path: '/surveys/external', tags: ['Surveys'] } })
     .query(async ({ ctx }) => {
@@ -33,7 +36,10 @@ export const externalSurveyProcedures = {
       return toEnvelope(result.map(r => externalSurveyDto.parse(r)));
     }),
 
-  /** @classification PUBLIC — unauthenticated external survey response submission */
+  /**
+   * Submit a response to an external survey — public access, no auth required.
+   * @public
+   */
   submitExternalSurveyResponse: publicProcedure
     .meta({ openapi: { method: 'POST', path: '/surveys/external/respond', tags: ['Surveys'] } })
     .input(

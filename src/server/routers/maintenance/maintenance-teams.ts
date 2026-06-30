@@ -16,6 +16,10 @@ import {
 } from './shared';
 
 export const maintenanceTeamProcedures = {
+  /**
+   * List maintenance teams for the current tenant.
+   * @tenant
+   */
   listTeams: protectedProcedure
     .input(z.object({ isActive: z.boolean().optional() }).optional())
     .query(async ({ input, ctx }) => {
@@ -42,6 +46,10 @@ export const maintenanceTeamProcedures = {
       );
     }),
 
+  /**
+   * Create a maintenance team — staff only.
+   * @tenant
+   */
   createTeam: protectedProcedure.input(TeamInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
@@ -67,6 +75,10 @@ export const maintenanceTeamProcedures = {
     return toEnvelope(created);
   }),
 
+  /**
+   * Update a maintenance team — staff only.
+   * @tenant
+   */
   updateTeam: protectedProcedure.input(UpdateTeamInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
@@ -105,6 +117,10 @@ export const maintenanceTeamProcedures = {
     return toEnvelope(updated);
   }),
 
+  /**
+   * Delete a maintenance team — staff only.
+   * @tenant
+   */
   deleteTeam: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {

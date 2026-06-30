@@ -16,6 +16,10 @@ import { eq, and, desc, sql } from 'drizzle-orm';
 import { ListReviewsInput, CreateReviewInput, updateListingRating } from './shared';
 
 export const reviewProcedures = {
+  /**
+   * List reviews for a marketplace listing — public access.
+   * @public
+   */
   listReviews: publicProcedure
     .meta({
       openapi: {
@@ -92,6 +96,10 @@ export const reviewProcedures = {
       return toEnvelope(reviews.map(r => reviewDto.parse(r)));
     }),
 
+  /**
+   * Create a review for a marketplace listing — tenant-scoped, rate-limited.
+   * @tenant
+   */
   createReview: protectedProcedure
     .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 10 }))
     .meta({

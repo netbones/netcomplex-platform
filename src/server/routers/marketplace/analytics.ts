@@ -12,6 +12,10 @@ import { TRPCError } from '@trpc/server';
 import { eq, and, sql } from 'drizzle-orm';
 
 export const analyticsProcedures = {
+  /**
+   * Get marketplace analytics dashboard — admin only.
+   * @privileged
+   */
   getAnalytics: adminProcedure
     .meta({
       openapi: {

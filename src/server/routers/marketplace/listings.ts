@@ -29,6 +29,10 @@ import {
 } from './shared';
 
 export const listingProcedures = {
+  /**
+   * List marketplace service listings — public access.
+   * @public
+   */
   listListings: publicProcedure
     .meta({
       openapi: {
@@ -154,6 +158,10 @@ export const listingProcedures = {
       return toEnvelope(localized.map(l => listingDto.parse(l)));
     }),
 
+  /**
+   * Get a single marketplace listing by ID — public access.
+   * @public
+   */
   getListing: publicProcedure
     .meta({
       openapi: {
@@ -241,6 +249,10 @@ export const listingProcedures = {
       return toEnvelope(listingDto.parse(localized));
     }),
 
+  /**
+   * Create a marketplace service listing — tenant-scoped, rate-limited.
+   * @tenant
+   */
   createListing: protectedProcedure
     .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 5 }))
     .meta({
@@ -304,6 +316,10 @@ export const listingProcedures = {
       return toEnvelope(listingDto.parse(listing));
     }),
 
+  /**
+   * Update a marketplace listing — tenant-scoped, owner only.
+   * @tenant
+   */
   updateListing: protectedProcedure
     .meta({
       openapi: {
@@ -379,6 +395,10 @@ export const listingProcedures = {
       return toEnvelope(listingDto.parse(listing));
     }),
 
+  /**
+   * Delete a marketplace listing — tenant-scoped, owner or staff.
+   * @tenant
+   */
   deleteListing: protectedProcedure
     .meta({
       openapi: {
@@ -415,6 +435,10 @@ export const listingProcedures = {
       return toEnvelope({ success: true });
     }),
 
+  /**
+   * Publish or unpublish a marketplace listing — tenant-scoped, owner only.
+   * @tenant
+   */
   publishListing: protectedProcedure
     .meta({
       openapi: {
@@ -456,6 +480,10 @@ export const listingProcedures = {
       return toEnvelope({ success: true });
     }),
 
+  /**
+   * List the current user's own marketplace listings — tenant-scoped.
+   * @tenant
+   */
   listMyListings: protectedProcedure
     .meta({
       openapi: {
@@ -494,6 +522,10 @@ export const listingProcedures = {
       return toEnvelope(listings.map(l => listingDto.parse(l)));
     }),
 
+  /**
+   * Get marketplace service categories — tenant-scoped.
+   * @tenant
+   */
   getCategories: protectedProcedure
     .meta({
       openapi: {
@@ -511,6 +543,10 @@ export const listingProcedures = {
       });
     }),
 
+  /**
+   * Get related marketplace listings by category — public access.
+   * @public
+   */
   getRelatedListings: publicProcedure
     .meta({
       openapi: {
@@ -575,6 +611,10 @@ export const listingProcedures = {
       return toEnvelope({ relatedServices: related });
     }),
 
+  /**
+   * Get availability slots for a marketplace listing — tenant-scoped.
+   * @tenant
+   */
   getAvailability: protectedProcedure
     .meta({
       openapi: {

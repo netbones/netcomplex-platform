@@ -20,6 +20,10 @@ import { toEnvelope } from '@api/server';
 import { questionDto } from '@server/dto';
 
 export const surveyQuestionProcedures = {
+  /**
+   * Add a question to a survey — staff only.
+   * @tenant
+   */
   addQuestion: protectedProcedure
     .meta({
       openapi: {
@@ -76,6 +80,10 @@ export const surveyQuestionProcedures = {
       return toEnvelope(questionDto.parse(created));
     }),
 
+  /**
+   * Update a survey question — staff only.
+   * @tenant
+   */
   updateQuestion: protectedProcedure
     .meta({
       openapi: {
@@ -137,6 +145,10 @@ export const surveyQuestionProcedures = {
       return toEnvelope(questionDto.parse(updated));
     }),
 
+  /**
+   * Remove a question from a survey — staff only.
+   * @tenant
+   */
   removeQuestion: protectedProcedure
     .meta({
       openapi: {
@@ -176,6 +188,10 @@ export const surveyQuestionProcedures = {
       return toEnvelope({ success: true });
     }),
 
+  /**
+   * Reorder questions in a survey — staff only.
+   * @tenant
+   */
   reorderQuestions: protectedProcedure
     .meta({
       openapi: {

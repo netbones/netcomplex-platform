@@ -16,6 +16,10 @@ import {
 } from './shared';
 
 export const maintenanceProviderProcedures = {
+  /**
+   * List service providers for the current tenant.
+   * @tenant
+   */
   listProviders: protectedProcedure
     .input(z.object({ isActive: z.boolean().optional() }).optional())
     .query(async ({ input, ctx }) => {
@@ -42,6 +46,10 @@ export const maintenanceProviderProcedures = {
       );
     }),
 
+  /**
+   * Create a service provider — staff only.
+   * @tenant
+   */
   createProvider: protectedProcedure.input(ProviderInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
@@ -69,6 +77,10 @@ export const maintenanceProviderProcedures = {
     return toEnvelope(created);
   }),
 
+  /**
+   * Update a service provider — staff only.
+   * @tenant
+   */
   updateProvider: protectedProcedure.input(UpdateProviderInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
@@ -109,6 +121,10 @@ export const maintenanceProviderProcedures = {
     return toEnvelope(updated);
   }),
 
+  /**
+   * Delete a service provider — staff only.
+   * @tenant
+   */
   deleteProvider: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {

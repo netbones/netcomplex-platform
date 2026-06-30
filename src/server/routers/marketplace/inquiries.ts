@@ -13,6 +13,10 @@ import { eq, and, desc, sql, inArray } from 'drizzle-orm';
 import { CreateInquiryInput, ListInquiriesInput, RespondToInquiryInput } from './shared';
 
 export const inquiryProcedures = {
+  /**
+   * Create a service inquiry — tenant-scoped.
+   * @tenant
+   */
   createInquiry: protectedProcedure
     .meta({
       openapi: {
@@ -79,6 +83,10 @@ export const inquiryProcedures = {
       return toEnvelope({ success: true, inquiry });
     }),
 
+  /**
+   * List inquiries sent by the current user — tenant-scoped.
+   * @tenant
+   */
   listInquiries: protectedProcedure
     .meta({
       openapi: {
@@ -133,6 +141,10 @@ export const inquiryProcedures = {
       });
     }),
 
+  /**
+   * List inquiries received as a provider — tenant-scoped.
+   * @tenant
+   */
   listProviderInquiries: protectedProcedure
     .meta({
       openapi: {
@@ -234,6 +246,10 @@ export const inquiryProcedures = {
       });
     }),
 
+  /**
+   * Respond to a service inquiry as a provider — tenant-scoped.
+   * @tenant
+   */
   respondToInquiry: protectedProcedure
     .meta({
       openapi: {

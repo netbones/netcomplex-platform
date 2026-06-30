@@ -38,6 +38,10 @@ import {
 } from './shared';
 
 export const maintenanceRequestProcedures = {
+  /**
+   * List maintenance requests for the current tenant.
+   * @tenant
+   */
   listRequests: protectedProcedure.input(ListRequestsInput).query(async ({ input, ctx }) => {
     const tenantId = ctx.tenantId;
     if (!tenantId) {
@@ -64,6 +68,10 @@ export const maintenanceRequestProcedures = {
     );
   }),
 
+  /**
+   * Get a single maintenance request by ID — tenant-scoped.
+   * @tenant
+   */
   getRequest: protectedProcedure.input(RequestIdInput).query(async ({ input, ctx }) => {
     const tenantId = ctx.tenantId;
     if (!tenantId) {
@@ -122,6 +130,10 @@ export const maintenanceRequestProcedures = {
     );
   }),
 
+  /**
+   * Create a new maintenance request — tenant-scoped.
+   * @tenant
+   */
   createRequest: protectedProcedure.input(CreateRequestInput).mutation(async ({ input, ctx }) => {
     const tenantId = ctx.tenantId;
     if (!tenantId) {
@@ -152,6 +164,10 @@ export const maintenanceRequestProcedures = {
     return toEnvelope(maintenanceRequestDto.parse(created));
   }),
 
+  /**
+   * Update a maintenance request — staff only.
+   * @tenant
+   */
   updateRequest: protectedProcedure.input(UpdateRequestInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
@@ -206,6 +222,10 @@ export const maintenanceRequestProcedures = {
     return toEnvelope(maintenanceRequestDto.parse(updated));
   }),
 
+  /**
+   * Delete a maintenance request — staff only.
+   * @tenant
+   */
   deleteRequest: protectedProcedure.input(RequestIdInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
@@ -225,6 +245,10 @@ export const maintenanceRequestProcedures = {
     return toEnvelope({ success: true });
   }),
 
+  /**
+   * List notes for a maintenance request — tenant-scoped.
+   * @tenant
+   */
   listNotes: protectedProcedure
     .input(z.object({ requestId: z.string() }))
     .query(async ({ input, ctx }) => {
@@ -295,6 +319,10 @@ export const maintenanceRequestProcedures = {
       return toEnvelope(allNotes);
     }),
 
+  /**
+   * Create a note on a maintenance request — staff only.
+   * @tenant
+   */
   createNote: protectedProcedure.input(CreateNoteInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 
@@ -340,6 +368,10 @@ export const maintenanceRequestProcedures = {
     return toEnvelope({ ...note, isInternal: false as const });
   }),
 
+  /**
+   * Assign a maintenance request to a team or provider — staff only.
+   * @tenant
+   */
   assignRequest: protectedProcedure.input(AssignRequestInput).mutation(async ({ input, ctx }) => {
     requireRequestsPermission(ctx.role);
 

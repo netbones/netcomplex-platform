@@ -20,6 +20,10 @@ import {
 import { toEnvelope } from '@api/server';
 
 export const surveySectionProcedures = {
+  /**
+   * Add a section to a survey — staff only.
+   * @tenant
+   */
   addSection: protectedProcedure
     .meta({
       openapi: {
@@ -72,6 +76,10 @@ export const surveySectionProcedures = {
       return toEnvelope(created);
     }),
 
+  /**
+   * Update a survey section — staff only.
+   * @tenant
+   */
   updateSection: protectedProcedure
     .meta({
       openapi: {
@@ -129,6 +137,10 @@ export const surveySectionProcedures = {
       return toEnvelope(updated);
     }),
 
+  /**
+   * Remove a section from a survey — staff only.
+   * @tenant
+   */
   removeSection: protectedProcedure
     .meta({
       openapi: {
@@ -168,6 +180,10 @@ export const surveySectionProcedures = {
       return toEnvelope({ success: true });
     }),
 
+  /**
+   * Reorder sections in a survey — staff only.
+   * @tenant
+   */
   reorderSections: protectedProcedure
     .meta({
       openapi: {

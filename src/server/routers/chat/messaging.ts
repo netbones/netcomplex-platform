@@ -30,6 +30,10 @@ import {
 } from './shared';
 
 export const messagingProcedures = {
+  /**
+   * Get messages for a conversation — tenant-scoped.
+   * @tenant
+   */
   getMessages: protectedProcedure
     .input(
       z.object({
@@ -117,6 +121,10 @@ export const messagingProcedures = {
       });
     }),
 
+  /**
+   * Send a message in a conversation — tenant-scoped, rate-limited.
+   * @tenant
+   */
   sendMessage: protectedProcedure
     .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 30 }))
     .input(
@@ -201,6 +209,10 @@ export const messagingProcedures = {
       );
     }),
 
+  /**
+   * Delete a message — admin only.
+   * @privileged
+   */
   deleteMessage: adminProcedure
     .input(z.object({ messageId: z.string() }))
     .output(z.object({ success: z.boolean() }))
@@ -225,6 +237,10 @@ export const messagingProcedures = {
       return toEnvelope({ success: true });
     }),
 
+  /**
+   * Get unread message urgency counts — tenant-scoped.
+   * @tenant
+   */
   getMessageUrgency: protectedProcedure
     .input(z.void())
     .output(
@@ -346,6 +362,10 @@ export const messagingProcedures = {
       });
     }),
 
+  /**
+   * Get unread message counts per conversation — tenant-scoped.
+   * @tenant
+   */
   getUnreadCounts: protectedProcedure
     .input(z.void())
     .output(
@@ -494,6 +514,10 @@ export const messagingProcedures = {
       );
     }),
 
+  /**
+   * Mark a conversation as read — tenant-scoped.
+   * @tenant
+   */
   markAsRead: protectedProcedure
     .input(
       z.object({

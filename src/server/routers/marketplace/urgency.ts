@@ -8,6 +8,10 @@ import { createComponentLogger } from '@shared/lib';
 const UrgencyLogger = createComponentLogger('MarketplaceUrgency');
 
 export const urgencyProcedures = {
+  /**
+   * Get marketplace urgency levels (maintenance, bookings) — tenant-scoped.
+   * @tenant
+   */
   getUrgencyLevels: protectedProcedure
     .meta({
       openapi: {
