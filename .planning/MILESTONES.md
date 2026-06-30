@@ -111,7 +111,7 @@ forward-looking.
 - BD `5u2` — maintenance API transform dedup
 - BD `1ei` — widget useEffect+fetch → useQuery migration
 - BD `2at` — Community Merits & Standing System
-- BD `l23` / `0f7` — i18n for all pages (37-widget batch + TipTap content)
+- BD `l23` / `0f7` — i18n for all pages (✅ delivered Phase 45-04/45-05). Remaining structural i18n tracked in `7qkl`
 - BD `cs5` — MyHomeSpace property linking bug
 - BD `0tb` — OTP password reset
 
@@ -120,7 +120,7 @@ forward-looking.
 **Decomposition (added 2026-06-03 per Section 7 Gap C1):** M5 has 10 work items with no priority or scope. Proposed split:
 
 - **M5a — Audit Closure (5 items).** qig, fpc, 9xr, 5u2, 1ei. Verifiable: `docs/cleaner_react_architecture.md` marked "all chapters resolved" + 5 unit-test suites.
-- **M5b — Anchor Tenant Features (13 items).** 2at, l23, 0f7, cs5, 0tb + the missing i18n router extension phase + Phase 47 dWallet (2 items: 7cp, jc1) + Phase 46 Provider Platform (4 items: kia, 9e8, 69c, 4fh) + Phase 50 Service Marketplace (4 items: gtm, cp8, qx7, 4vk). Verifiable: Soralia admin can invite 180 homes via batch import + the M5 launch checklist (Gap η) is green.
+- **M5b — Anchor Tenant Features (13 items).** 2at, l23 ✅, 0f7 ✅, cs5, 0tb + 7qkl (structural i18n — replaces l23/0f7 scope) + Phase 47 dWallet (2 items: 7cp, jc1) + Phase 46 Provider Platform (4 items: kia, 9e8, 69c, 4fh) + Phase 50 Service Marketplace (4 items: gtm, cp8, qx7, 4vk). Verifiable: Soralia admin can invite 180 homes via batch import + the M5 launch checklist (Gap η) is green.
 
 M5a is "we cleaned up", M5b is "we shipped launch features". Different verifiables, different stakeholders. M5a unblocks future work; M5b unblocks anchor-tenant traffic.
 
@@ -301,7 +301,7 @@ Resolution: Added `lint-staged` rule in `package.json` that runs `gsd-sdk query 
 
 Evidence: MILESTONES.md §2 M5 lists 9 BD issues + 1 missing i18n router phase = 10 work items. No priority order, no effort estimate, no dependency graph. The "Verifiable" line is vague ("audit document marked 'all chapters resolved'") — it's a single binary signal, not the 10 separate verifications we'd actually need.
 
-Remedy: Decompose M5 into M5a (audit closure — qig, fpc, 9xr, 5u2, 1ei) and M5b (anchor-tenant features — 2at, l23, 0f7, cs5, 0tb, i18n router). M5a is "we cleaned up", M5b is "we shipped the launch features". Different verifiables. Different stakeholders.
+Remedy: Decompose M5 into M5a (audit closure — qig, fpc, 9xr, 5u2, 1ei) and M5b (anchor-tenant features — 2at, l23 ✅, 0f7 ✅, cs5, 0tb, 7qkl). M5a is "we cleaned up", M5b is "we shipped the launch features". Different verifiables. Different stakeholders.
 
 **Gap C2 — M3 is the largest single milestone (10 phases) in retrospect.**
 

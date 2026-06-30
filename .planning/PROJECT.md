@@ -87,8 +87,8 @@ Community, Messages, Admin).
 - [ ] **Phase 35 follow-up**: Community Merits & Standing System (`2at`) —
       behaviour tracking (merit / warning / infraction), standing tiers
       (Gold/Silver/Bronze/Probation), admin dashboard, resident badge
-- [ ] **i18n for all pages** (`l23`, `0f7`) — Tiptap content localization,
-      database-backed translations
+- [x] **i18n for all pages** (`l23`, `0f7`) — delivered Phase 45-04/45-05, closed
+- [ ] **i18n structural: server-side locale routing** (`7qkl`) — `[lng]` on tenant/auth routes, middleware, content API locale transformation
 - [ ] **MyHomeSpace property linking bug** (`cs5`) — user has property
       (183 Pagoda Rd) but link not reflected in UI
 - [ ] **OTP-based password reset** — upgrade from link to 6-digit OTP via

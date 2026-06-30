@@ -117,17 +117,17 @@ STATE.md "Current Position" also corrected: was pointing to Phase 36 execution (
 | Phase                             | Plans | Why it matters                                                                                                                           |
 | --------------------------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | **41-feature-gate-consolidation** | 3     | Adds `canAccess()` foundation; Phase 2/3 callsite migration is blocked on this. CI drift test (GATE-07) cannot be written until shipped. |
-| **42-i18n-hydration-fix**         | 3     | 37 widget i18n migrations queued in BD `0f7` waiting on this.                                                                            |
+| **42-i18n-hydration-fix**         | 3     | ✅ Delivered — enabled 23-widget i18n batch (Phase 45-04) + TipTap localization (Phase 45-05)                                            |
 
 **Active backlog = 6 plans across 2 phases.**
 
 ### 🟡 Gap D: 3 planning-only phases (1 plan each) deferred to other workstreams
 
-| Phase                  | Deferred to                           | Disposition                          |
-| ---------------------- | ------------------------------------- | ------------------------------------ |
-| `03-second-tenant`     | Phase 20 (self-service inception)     | Stale planning artifact — superseded |
-| `04-content-i18n`      | BD epic `l23`                         | Stale planning artifact — superseded |
-| `11-prisma-to-drizzle` | Adopted incrementally (per AGENTS.md) | Stale planning artifact — superseded |
+| Phase                  | Deferred to                           | Disposition                                                      |
+| ---------------------- | ------------------------------------- | ---------------------------------------------------------------- |
+| `03-second-tenant`     | Phase 20 (self-service inception)     | Stale planning artifact — superseded                             |
+| `04-content-i18n`      | BD epic `7qkl`                        | Stale planning artifact — superseded — plan rewritten 2026-06-30 |
+| `11-prisma-to-drizzle` | Adopted incrementally (per AGENTS.md) | Stale planning artifact — superseded                             |
 
 These pollute the `bd ready` and `/gsd-progress` output. **Recommended: archive to milestones in a follow-up pass.**
 
@@ -160,7 +160,7 @@ What "Ready to execute" means here:
   - Phase 42 (3 plans, 2 waves, i18next provider + tx() helper)
   - 5 architecture audit issues (qig, fpc, 9xr, 5u2, 1ei) from
     docs/cleaner_react_architecture.md
-  - 4 P2 issues: l23, 0f7, cs5, 0tb (OTP reset)
+  - 4 P2 issues: l23 ✅, 0f7 ✅, cs5, 0tb (OTP reset) — l23/0f7 closed, remaining structural i18n in 7qkl
 ```
 
 ---

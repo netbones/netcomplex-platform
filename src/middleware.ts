@@ -20,6 +20,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 const PLATFORM_DOMAIN = 'app.netbones.co.za';
 const DEFAULT_TENANT_SLUG = 'soralia';
+const SUPPORTED_LOCALES = ['en', 'af', 'xh', 'zu'] as const;
+const DEFAULT_LOCALE = 'en';
+const LOCALE_COOKIE = 'i18n-locale';
 
 function isPlatformHost(host: string): boolean {
   const hostWithoutPort = host.split(':')[0];
@@ -87,6 +90,30 @@ function isAuthRoute(pathname: string): boolean {
  * Flat /api/* routes are legacy — new routes should use v1 structure.
  * See docs/STEERING/API.md §5 and docs/architecture/API_ARCHITECTURE.md §10
  */
+
+/**
+ * Detects the user's preferred locale from cookie → accept-language → default.
+ */
+function detectLocale(request: NextRequest): string {
+  const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
+  if (
+    cookieLocale &&
+    SUPPORTED_LOCALES.includes(cookieLocale as (typeof SUPPORTED_LOCALES)[number])
+  ) {
+    return cookieLocale;
+  }
+
+  const acceptLanguage = request.headers.get('accept-language');
+  if (acceptLanguage) {
+    const preferred = acceptLanguage.split(',')[0]?.split('-')[0]?.toLowerCase();
+    if (preferred && SUPPORTED_LOCALES.includes(preferred as (typeof SUPPORTED_LOCALES)[number])) {
+      return preferred;
+    }
+  }
+
+  return DEFAULT_LOCALE;
+}
+
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
@@ -105,6 +132,10 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  // ── Locale detection: cookie → accept-language → 'en' ──
+  const locale = detectLocale(request);
+  request.headers.set('x-locale', locale);
+
   // ── Resolve plane and tenant slug FIRST — before any early returns ──
   const isPlatform = isPlatformHost(host);
   const isLocalhost = host.includes('localhost');
@@ -116,6 +147,18 @@ export async function middleware(request: NextRequest) {
   const isApiRoute = pathname.startsWith('/api/');
   const isAuthRouteCheck = isAuthRoute(pathname);
 
+  function withLocaleHeaders(res: NextResponse): NextResponse {
+    res.headers.set('x-locale', locale);
+    if (request.cookies.get(LOCALE_COOKIE)?.value !== locale) {
+      res.cookies.set(LOCALE_COOKIE, locale, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: 'lax',
+      });
+    }
+    return res;
+  }
+
   // ── Platform plane: app.netbones.co.za ──
   if (isPlatform) {
     // API and auth routes on the platform domain get platform plane headers.
@@ -123,21 +166,21 @@ export async function middleware(request: NextRequest) {
     // should use withTenantOptional() or skip tenant context entirely.
     if (isApiRoute || isAuthRouteCheck) {
       response.headers.set('x-plane', 'platform');
-      return response;
+      return withLocaleHeaders(response);
     }
 
     // Redirect root to platform home
     if (pathname === '/') {
-      return NextResponse.redirect(new URL('/home', request.url));
+      return withLocaleHeaders(NextResponse.redirect(new URL('/home', request.url)));
     }
 
     // Redirect tenant routes to platform home
     if (isTenantRoute(pathname)) {
-      return NextResponse.redirect(new URL('/home', request.url));
+      return withLocaleHeaders(NextResponse.redirect(new URL('/home', request.url)));
     }
 
     response.headers.set('x-plane', 'platform');
-    return response;
+    return withLocaleHeaders(response);
   }
 
   // ── Localhost: treat as tenant with default slug ──
@@ -145,28 +188,28 @@ export async function middleware(request: NextRequest) {
     if (isApiRoute || isAuthRouteCheck) {
       response.headers.set('x-plane', 'tenant');
       response.headers.set('x-tenant-slug', DEFAULT_TENANT_SLUG);
-      return response;
+      return withLocaleHeaders(response);
     }
     response.headers.set('x-plane', 'tenant');
     response.headers.set('x-tenant-slug', DEFAULT_TENANT_SLUG);
-    return response;
+    return withLocaleHeaders(response);
   }
 
   // ── Tenant plane: *.netbones.co.za / custom domains ──
   if (isApiRoute || isAuthRouteCheck) {
     response.headers.set('x-plane', 'tenant');
     response.headers.set('x-tenant-slug', inferredTenantSlug);
-    return response;
+    return withLocaleHeaders(response);
   }
 
   // Block platform routes on tenant domains
   if (isPlatformRoute(pathname)) {
-    return NextResponse.redirect(new URL('/', request.url));
+    return withLocaleHeaders(NextResponse.redirect(new URL('/', request.url)));
   }
 
   response.headers.set('x-plane', 'tenant');
   response.headers.set('x-tenant-slug', inferredTenantSlug);
-  return response;
+  return withLocaleHeaders(response);
 }
 
 export const config = {

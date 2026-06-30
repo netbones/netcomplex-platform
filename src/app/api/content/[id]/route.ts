@@ -81,7 +81,7 @@ export const GET = withErrorHandler(
     const { tenantId } = await withTenant();
 
     const { searchParams } = new URL(request.url);
-    const locale = searchParams.get('locale') || defaultLanguage;
+    const locale = searchParams.get('locale') || request.headers.get('x-locale') || defaultLanguage;
     const published = searchParams.get('published');
     const userLocale = supportedLanguages.includes(locale as (typeof supportedLanguages)[number])
       ? locale

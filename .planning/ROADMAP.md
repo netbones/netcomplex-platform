@@ -824,25 +824,25 @@ _Harden the codebase to launch-readiness, ship the launch-blocking features: Com
 **BD sources (4 features = 4 total):**
 
 - `2at` (P2 feature) — Community Merits & Standing System (flagship)
-- `l23` (P2 epic) — i18n for all pages (25+ widget batch, prioritized by visibility)
-- `0f7` (P2 feature) — Tiptap content localization (blocked by l23)
+- `l23` (P2 epic) — i18n for all pages (✅ delivered — 25+ widget batch via 45-04)
+- `0f7` (P2 feature) — Tiptap content localization (✅ delivered — locale-aware editor via 45-05)
 - `0tb` (P4 feature) — OTP-based password reset
 
-**Execution order (locked):** OTP first (quickest win) → Community Merits (flagship, most complex) → i18n batch → Tiptap i18n (blocked on l23).
+**Execution order:** OTP first → Community Merits → i18n batch → Tiptap i18n. Plans 4-5 are delivered. Remaining structural i18n work (server-side `[lng]` routing, middleware, content API locale transformation) tracked in `7qkl`.
 
 **Acceptance:** Community Merits system live with `CommunityMerit` model (`community_merits` table), hardcoded tier thresholds, event-driven auto-escalation, admin page at `/admin/merits`, and standing badges on directory + profile. OTP password reset works end-to-end via Better Auth emailOTP plugin. Most visible widgets (HomeLayer, admin domain grids, navigation) available in 4 locales. Tiptap editors can save/load content in any locale.
 
-**Dependencies:** l23 blocks 0f7. cs5 (MyHomeSpace) ideally resolved in Phase 44.
+**Dependencies:** cs5 (MyHomeSpace) ideally resolved in Phase 44. Remaining i18n structural work tracked in `7qkl`.
 
 **Plans:** 5 plans
 
-| Wave | Plan                                                   | Objective                                                                                                                                                                       | Requirements |
-| ---- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| 1    | [ ] 45-01-PLAN.md — OTP password reset                 | Wire Better Auth emailOTP plugin + OTP verify page + Resend email template                                                                                                      | 0tb          |
-| 2    | [ ] 45-02-PLAN.md — Community Merits schema + API      | CommunityMerit model, Drizzle table, merits helpers, CRUD API with standing calc + auto-escalation                                                                              | 2at          |
-| 3    | [ ] 45-03-PLAN.md — Community Merits admin UI + badges | Admin CRUD pages at /admin/merits, StandingBadge on UnifiedResidentCard + profile, ADMIN_ITEMS/ADMIN_DOMAINS registration                                                       | 2at          |
-| 4    | [ ] 45-04-PLAN.md — i18n batch for visible widgets     | Migrate 24 widget files from useTranslation → useSafeTranslation+tx() — HomeLayer, AdminLayer, SpaceLauncher, MobileSpaceBar, ServicesLayer, MessagesLayer, marketing, platform | l23          |
-| 5    | [ ] 45-05-PLAN.md — Tiptap content localization        | Unsaved-changes warning on locale switch, LocaleAwareEditor integration, per-locale save/load hardening                                                                         | 0f7          |
+| Wave | Plan                                                   | Objective                                                                                                                             | Requirements |
+| ---- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| 1    | [ ] 45-01-PLAN.md — OTP password reset                 | Wire Better Auth emailOTP plugin + OTP verify page + Resend email template                                                            | 0tb          |
+| 2    | [ ] 45-02-PLAN.md — Community Merits schema + API      | CommunityMerit model, Drizzle table, merits helpers, CRUD API with standing calc + auto-escalation                                    | 2at          |
+| 3    | [ ] 45-03-PLAN.md — Community Merits admin UI + badges | Admin CRUD pages at /admin/merits, StandingBadge on UnifiedResidentCard + profile, ADMIN_ITEMS/ADMIN_DOMAINS registration             | 2at          |
+| 4    | [x] 45-04-PLAN.md — i18n batch for visible widgets     | ✅ 23 widget files migrated — HomeLayer, AdminLayer, SpaceLauncher, MobileSpaceBar, ServicesLayer, MessagesLayer, marketing, platform | l23          |
+| 5    | [x] 45-05-PLAN.md — Tiptap content localization        | ✅ Unsaved-changes warning, LocaleAwareEditor, per-locale save/load hardening                                                         | 0f7          |
 
 **Out of scope:** 7-day production soak (deferred to its own phase), dWallet (Phase 47), M4.5 fixes (Phase 43), Phase 44 hardening, Provider Platform (Phase 46), Service Marketplace (Phase 50).
 
@@ -1090,17 +1090,19 @@ _Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md 
 
 ## Phase 04: Content I18n
 
-**Goal:** Localize content authored via TipTap editor — store translations per locale, render in user's active language
+**Goal:** Content-level locale transformation and frontend display — API returns locale-resolved strings, UI renders in user's active language
 
 **Status:** Planning Complete (deferred — blocked on i18n router extension)
 
-**Blocker (2026-06-03):** The i18n router currently exists at `src/app/[lng]/` for **platform routes only** (3 files: layout, platform/layout, platform/home/page). Tenant routes (the bulk of the app — `(dashboard)`, `(tenant)`, services, maintenance, messages, etc.) do NOT route through the dynamic locale segment; they rely on client-side i18next. Phase 04 (TipTap content localization per locale) requires the i18n router to be extended to tenant routes first. This is upstream work — likely a new phase (43+) that introduces `/[lng]/(tenant)/...` routing, after which Phase 04 can execute. Related work is tracked in BD epic `l23` and task `0f7`.
+**Note:** This phase was originally scoped as a greenfield exploration (schema options, TipTap editor design). Since then, the schema (`title Json`, `content Json`, `excerpt Json?`, `defaultLocale`) and editor (`LocaleAwareEditor` + `ContentForm` with per-locale save/dirty tracking) have been delivered in Phases 42 and 45. The remaining scope is **frontend locale-aware content rendering**.
+
+**Status update (2026-06-30):** BD `7qkl` delivered middleware locale detection (cookie → accept-language, `x-locale` header, `i18n-locale` cookie) and root layout dynamic `<html lang>`. Content API locale transformation wired in REST `/api/content` and tRPC `content.listContent`/`getContent`. The `[lng]` routing dependency is resolved at the middleware level (rewrite approach). What remains is **frontend content display** — content card/detail pages consuming locale-resolved API.
 
 **Requirements:** CONTENT-I18N-01, CONTENT-I18N-02, CONTENT-I18N-03
 
 **Plans:**
 
-- [ ] 04-01-PLAN.md — Content i18n with TipTap editor (deferred — see BD issue `l23`; needs `/[lng]/` router extended to tenant routes first)
+- [ ] 04-01-PLAN.md — Content-level i18n: API locale transformation + frontend display (updated 2026-06-30 — old exploration doc replaced; see plan for current scope)
 
 ---
 

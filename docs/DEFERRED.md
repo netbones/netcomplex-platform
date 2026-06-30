@@ -9,7 +9,7 @@ Tracks all deferred items — phases, features, BD issues, and cross-cutting wor
 | Phase                | Status                       | Blocker / Depends On                                                                                                                                            | Plan            |
 | -------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
 | **03-second-tenant** | Planning Complete (deferred) | Requires production deployment + a willing second tenant. Cannot run against a synthetic tenant — the test validates onboarding under real adoption conditions. | `03-01-PLAN.md` |
-| **04-content-i18n**  | Planning Complete (deferred) | Blocked on BD `l23` — i18n router must be extended to tenant routes (`/[lng]/(tenant)/...`) before TipTap content localization per locale can execute.          | `04-01-PLAN.md` |
+| **04-content-i18n**  | Planning Complete (deferred) | Blocked on BD `7qkl` — i18n router must be extended to tenant routes (`/[lng]/(tenant)/...`) before TipTap content localization per locale can execute.         | `04-01-PLAN.md` |
 
 ## Milestone-Level Deferrals
 
@@ -44,20 +44,27 @@ Tracks all deferred items — phases, features, BD issues, and cross-cutting wor
 | **Phase 102**     | Merits as achievement trigger source (G3)                                                                                               | 6 domains only for v1 per ADVISORY-013                                                                            | Not resolved        |
 | **Phase 102**     | Status-change events (cancelled bookings, resolved maintenance)                                                                         | Deferred to v2 for richer achievement types                                                                       | Not resolved        |
 | **Phase 111/118** | Agent Gateway — close out deferred/incomplete items (DelegationWidget registration, Prisma migration, integration tests, ROADMAP entry) | Hardening phase                                                                                                   | Resolved in `118`   |
+| **Phase 120**     | `competitionDto` creation — competitions use inline Zod output schemas with BD-21 TODO markers                                          | Out of scope for router migration wave; awaiting dedicated DTO file in `src/server/dto/misc.ts`                   | Not resolved        |
+| **Phase 120**     | `userAchievementDto` missing — `getUnlocked` returns raw DB rows via `toEnvelope()`                                                     | No DTO exists for userAchievements; deferred to future DTO coverage expansion                                     | Not resolved        |
+| **Phase 121**     | Settings REST/tRPC consolidation — Phase A (DELETE endpoint + tRPC rate limiting)                                                       | Assessment complete; implementation deferred to follow-up BD issue (`aadd`)                                       | Future plan         |
+| **Phase 46.2**    | `NOT NULL` enforcement on 6 Address FK columns                                                                                          | Phase 1 keeps all FKs nullable; enforcement deferred to Phase 3 (46.2-03) after full backfill                     | Future plan         |
+| **Phase 46.2**    | Future Address Registry consumers (chat mentions, provider onboarding, dWallet identity)                                                | Service layer built; integration with consumers deferred beyond initial Address Registry rollout                  | Not resolved        |
 
 ## BD Issues Deferred
 
-| Issue  | Description                                      | Disposition                                                                    |
-| ------ | ------------------------------------------------ | ------------------------------------------------------------------------------ |
-| `t78`  | RLS expansion to more tables                     | Deferred to M6+                                                                |
-| `nn39` | 19 high-severity pnpm audit findings             | Reclassified P1→P3 (dev/build-only paths); defer to runtime-impact-only filter |
-| `mls9` | `prisma.seed` config in package.json             | Pre-existing blocker for soak AC                                               |
-| `n0rh` | `gen_random_uuid` default on `Tenant.id`         | Pre-existing blocker for soak AC                                               |
-| `cs5`  | MyHomeSpace: Property not linked (183 Pagoda Rd) | Data/linking issue, not architecture bug. Deferred from Phase 30 checkpoint    |
-| `ka6`  | Widget placement across Focus Spaces             | UX decision needed. Deferred from Phase 30 checkpoint                          |
-| `byj`  | Add search/filter to AddWidgetModal              | Enhancement. Deferred from Phase 30 checkpoint                                 |
-| `l23`  | i18n router extension to tenant routes           | Blocks Phase 04 (Content i18n)                                                 |
-| `0f7`  | TipTap content localization                      | Blocked by `l23`                                                               |
+| Issue  | Description                                                          | Disposition                                                                         |
+| ------ | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `t78`  | RLS expansion to more tables                                         | Deferred to M6+                                                                     |
+| `nn39` | 19 high-severity pnpm audit findings                                 | ✅ **RESOLVED** — closed 2026-06-30                                                 |
+| `mls9` | `prisma.seed` config in package.json                                 | Pre-existing blocker for soak AC                                                    |
+| `n0rh` | `gen_random_uuid` default on `Tenant.id`                             | Pre-existing blocker for soak AC                                                    |
+| `cs5`  | MyHomeSpace: Property not linked (183 Pagoda Rd)                     | Data/linking issue, not architecture bug. Deferred from Phase 30 checkpoint         |
+| `ka6`  | Widget placement across Focus Spaces                                 | UX decision needed. Deferred from Phase 30 checkpoint                               |
+| `byj`  | Add search/filter to AddWidgetModal                                  | Enhancement. Deferred from Phase 30 checkpoint                                      |
+| `l23`  | i18n for all pages (epic)                                            | ✅ **RESOLVED** — all 11 child tasks delivered. Superseded by `7qkl`                |
+| `0f7`  | TipTap content localization                                          | ✅ **RESOLVED** — delivered in Phase 45-05. Superseded by `7qkl`                    |
+| `7qkl` | i18n: server-side locale routing + content localization (structural) | ✅ **PARTIALLY RESOLVED** — middleware + content API done. Frontend display pending |
+| `aadd` | Settings REST canonical — DELETE endpoint + tRPC rate limiting       | Deferred from Phase 121 — assessment complete, implementation pending               |
 
 ## Cross-Cutting / Infra Deferred
 
@@ -79,4 +86,4 @@ Tracks all deferred items — phases, features, BD issues, and cross-cutting wor
 - **Deferred to M6+** — explicitly pushed to post-launch milestone
 - **Revisit** — acknowledged but no committed timeline
 
-_Last updated: 2026-06-29_
+_Last updated: 2026-06-30_

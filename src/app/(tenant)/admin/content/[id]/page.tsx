@@ -17,6 +17,11 @@ interface Content {
   tags: string[];
   featured: boolean;
   published: boolean;
+  _raw?: {
+    title: Record<string, string>;
+    content: Record<string, string>;
+    excerpt: Record<string, string> | null;
+  };
 }
 
 export default function EditContentPage() {
@@ -50,9 +55,9 @@ export default function EditContentPage() {
 
   const initialData = {
     id: content.id,
-    title: { en: content.title },
-    content: { en: content.content },
-    excerpt: content.excerpt ? { en: content.excerpt } : undefined,
+    title: content._raw?.title || { en: content.title },
+    content: content._raw?.content || { en: content.content },
+    excerpt: content._raw?.excerpt || (content.excerpt ? { en: content.excerpt } : undefined),
     category: content.category as 'NEWS' | 'ANNOUNCEMENT' | 'EVENT' | 'BLOG',
     groupId: content.groupId || null,
     tags: content.tags || [],

@@ -36,7 +36,7 @@
 
 | ID    | Type | Title                    | Status |
 | ----- | ---- | ------------------------ | ------ |
-| `l23` | epic | Epic: i18n for all pages | ○      |
+| `l23` | epic | Epic: i18n for all pages | ✅     |
 
 ### Features & Tasks
 
@@ -57,10 +57,11 @@
 
 ### Blocked Tasks
 
-| ID    | Title                                          | Blocked By | Status |
-| ----- | ---------------------------------------------- | ---------- | ------ |
-| `0f7` | i18n: Database content localization for Tiptap | `l23`      | ○      |
-| `oqw` | Phase 3: Wrap API routes with runWithRLS()     | `4a6`      | ○      |
+| ID     | Title                                                                | Blocked By | Status |
+| ------ | -------------------------------------------------------------------- | ---------- | ------ |
+| `0f7`  | i18n: Database content localization for Tiptap                       | `l23`      | ✅     |
+| `7qkl` | i18n: server-side locale routing + content localization (structural) | —          | ○      |
+| `oqw`  | Phase 3: Wrap API routes with runWithRLS()                           | `4a6`      | ○      |
 
 ---
 
@@ -308,7 +309,7 @@ Phase 47 is now M5b (anchor tenant launch) because dWallet is the **headline sel
 3. **`cs5`** — MyHomeSpace property linking bug (user has property but shows "No property linked")
 4. **`ka6`** — Design decision: widget placement across Focus Spaces (UX call needed)
 5. **`6d8`** — Migrate React imports to Preact (performance)
-6. **`l23`** — Epic: i18n for all pages (large scope)
+6. **`l23`** — Epic: i18n for all pages ✅ (delivered Phase 45-04/45-05; superseded by `7qkl`)
 7. **`ltn`** — Add request validation plugin (security)
 8. **`byj`** — AddWidgetModal search/filter enhancement
 9. **`bgb`** — Epic: Interests Visualization (in-progress)

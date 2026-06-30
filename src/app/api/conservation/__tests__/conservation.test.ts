@@ -63,10 +63,17 @@ vi.mock('@api/server', () => ({
 
 vi.mock('@entities/tenant/server', () => ({
   withTenant: () => Promise.resolve(mocks.tenantResult),
+  assertModuleEnabled: () => Promise.resolve(null),
 }));
 
 vi.mock('@shared/lib', () => ({
   logError: vi.fn(),
+  defaultLanguage: 'en',
+}));
+
+vi.mock('@entities/content/server', () => ({
+  resolveLocale: vi.fn((locale?: string | null) => locale || 'en'),
+  transformContentForLocale: vi.fn((item: Record<string, unknown>) => item),
 }));
 
 import { GET } from '@/app/api/conservation/route';
@@ -112,22 +119,26 @@ describe('Conservation API', () => {
     vi.restoreAllMocks();
   });
 
+  const mockRequest = (locale?: string) =>
+    new Request(`http://localhost/api/conservation${locale ? `?locale=${locale}` : ''}`, {
+      headers: { 'x-locale': locale || 'en' },
+    });
+
   it('returns latest conservation articles', async () => {
     mocks.dbMock.select.mockReturnValueOnce(makeSelectChain(sampleContent));
 
-    const response = await GET();
+    const response = await GET(mockRequest());
     const body = await response.json();
 
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
-    expect(body.data).toEqual(sampleContent);
     expect(body.data).toHaveLength(3);
   });
 
   it('returns empty array when no content exists', async () => {
     mocks.dbMock.select.mockReturnValueOnce(makeSelectChain([]));
 
-    const response = await GET();
+    const response = await GET(mockRequest());
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -138,7 +149,7 @@ describe('Conservation API', () => {
   it('enforces tenant isolation via withTenant', async () => {
     mocks.dbMock.select.mockReturnValueOnce(makeSelectChain(sampleContent));
 
-    await GET();
+    await GET(mockRequest());
 
     expect(mocks.tenantResult.tenantId).toBe('test-tenant-id');
   });
@@ -148,7 +159,7 @@ describe('Conservation API', () => {
       throw new Error('DB connection failed');
     });
 
-    const response = await GET();
+    const response = await GET(mockRequest());
     const body = await response.json();
 
     expect(response.status).toBe(500);

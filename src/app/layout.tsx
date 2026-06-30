@@ -3,6 +3,7 @@ import { PostHogProvider, PostHogPageView } from '@posthog/next';
 import { Providers } from './providers';
 import { Suspense } from 'react';
 import { Metadata, Viewport } from 'next';
+import { headers } from 'next/headers';
 import { Header } from '@shared/ui';
 import { Footer } from '@shared/ui';
 
@@ -20,8 +21,10 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const headersList = await headers();
+  const locale = headersList.get('x-locale') || 'en';
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         <link
           rel="stylesheet"

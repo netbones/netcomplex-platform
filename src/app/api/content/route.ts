@@ -17,7 +17,12 @@ import { requireAssistScope } from '@entities/tenant/server';
 import { eq } from 'drizzle-orm';
 
 import { withTenant } from '@entities/tenant/server';
-import { listContent, createContent } from '@entities/content/server';
+import {
+  listContent,
+  createContent,
+  resolveLocale,
+  transformContentForLocale,
+} from '@entities/content/server';
 import { defaultLanguage } from '@shared/lib';
 
 export const maxDuration = 8;
@@ -80,7 +85,12 @@ export const GET = withErrorHandler(async (request: Request) => {
     locale,
   });
 
-  return apiSuccess(contentItems);
+  const resolvedLocale = resolveLocale(locale);
+  const transformed = contentItems.map(item =>
+    transformContentForLocale(item as Record<string, unknown>, resolvedLocale)
+  );
+
+  return apiSuccess(transformed);
 });
 
 /**

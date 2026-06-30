@@ -8,8 +8,8 @@ import { createComponentLogger } from '@shared/lib';
 
 const log = createComponentLogger('conservation-page');
 
-async function getContent() {
-  const response = await fetch('/api/conservation');
+async function getContent(locale: string) {
+  const response = await fetch(`/api/conservation?locale=${locale}`);
   if (!response.ok) {
     throw new Error('Failed to fetch conservation content');
   }
@@ -18,9 +18,9 @@ async function getContent() {
 
 type ContentItem = {
   id: string;
-  title: Record<string, string>;
-  content: Record<string, string>;
-  excerpt?: Record<string, string>;
+  title: string;
+  content: string;
+  excerpt: string | null;
   image?: string;
   category: string;
   tags: string[];
@@ -44,8 +44,11 @@ export default function ConservationPage() {
   const [managedUrl, setManagedUrl] = useState<string>('');
   const [managedContent, setManagedContent] = useState<ContentItem[]>([]);
 
-  const getLocalizedContent = (field: Record<string, string> | null | undefined): string => {
+  const getLocalizedContent = (
+    field: Record<string, string> | string | null | undefined
+  ): string => {
     if (!field) return '';
+    if (typeof field === 'string') return field;
     return field[i18n.language] || field.en || '';
   };
 
@@ -120,13 +123,13 @@ export default function ConservationPage() {
         });
     } else if (conservationMode === 'managed') {
       // Managed mode without a URL — fall back to platform content
-      getContent().then(body => {
+      getContent(i18n.language).then(body => {
         setManagedContent(body?.data ?? []);
         setLoading(false);
       });
     } else {
       // Default mode — fetch platform content for the articles section
-      getContent().then(body => {
+      getContent(i18n.language).then(body => {
         setContent(body?.data ?? []);
         setLoading(false);
       });

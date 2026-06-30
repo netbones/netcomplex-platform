@@ -46,7 +46,7 @@ import {
   resolveLocale,
   transformContentForLocale,
 } from '@entities/content/server';
-
+import { createId } from '@shared';
 // ──────────────────────────────────────────
 // Input Schemas
 // ──────────────────────────────────────────
@@ -213,16 +213,19 @@ export const contentRouter = router({
       throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
     }
 
+    const userLocale = resolveLocale(input?.locale ?? defaultLanguage);
+    const items = await entityListContent({
+      tenantId,
+      category: input?.category ?? null,
+      published: input?.published ?? null,
+      featured: input?.featured ?? null,
+      groupId: input?.groupId ?? null,
+      authorId: input?.authorId ?? null,
+      locale: userLocale,
+    });
+
     return toEnvelope(
-      entityListContent({
-        tenantId,
-        category: input?.category ?? null,
-        published: input?.published ?? null,
-        featured: input?.featured ?? null,
-        groupId: input?.groupId ?? null,
-        authorId: input?.authorId ?? null,
-        locale: input?.locale ?? defaultLanguage,
-      })
+      items.map(item => transformContentForLocale(item as Record<string, unknown>, userLocale))
     );
   }),
 
@@ -575,7 +578,7 @@ export const contentRouter = router({
     }
 
     await db.insert(contentLikes).values({
-      id: crypto.randomUUID(),
+      id: createId(),
       tenantId,
       contentId: input.id,
       userId: ctx.userId,
@@ -711,7 +714,7 @@ export const contentRouter = router({
       const [announcement] = await db
         .insert(announcements)
         .values({
-          id: crypto.randomUUID(),
+          id: createId(),
           tenantId,
           title: input.title,
           content: input.content,
@@ -785,7 +788,7 @@ export const contentRouter = router({
           const batch = targetUsers.slice(i, i + FANOUT_BATCH);
           await db.insert(notifications).values(
             batch.map(user => ({
-              id: crypto.randomUUID(),
+              id: createId(),
               tenantId,
               userId: user.id,
               title: announcement.title,
