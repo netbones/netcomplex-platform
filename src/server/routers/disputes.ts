@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import {
   router,
-  protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   disputeCases,
   disputeEvents,
@@ -12,6 +13,8 @@ import {
   rateLimitByUser,
   toEnvelope,
 } from '@api/server';
+
+import { disputeCaseDto, disputeEventDto, disputeMessageDto } from '@server/dto';
 
 import { TRPCError } from '@trpc/server';
 import { hasPermission } from '@shared/lib';
@@ -97,19 +100,16 @@ function isParty(
 }
 
 export const disputesRouter = router({
-  listDisputes: protectedProcedure.input(ListDisputesInput).query(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
+  /** List disputes for the current tenant. Moderators see all; users see only their own.
+   * @tenant */
+  listDisputes: tenantProcedure.input(ListDisputesInput).query(async ({ input, ctx }) => {
     const canViewAll = isModerator(ctx.role);
     const page = input?.page ?? 1;
     const limit = input?.limit ?? 20;
     const offset = (page - 1) * limit;
 
     const conditions: (SQL | undefined)[] = [
-      eq(disputeCases.tenantId, tenantId),
+      eq(disputeCases.tenantId, ctx.tenantId),
       isNull(disputeCases.deletedAt),
     ];
 
@@ -156,7 +156,7 @@ export const disputesRouter = router({
       .offset(offset);
 
     return toEnvelope({
-      items: disputes,
+      items: disputes.map(d => disputeCaseDto.parse(d)),
       total,
       page,
       limit,
@@ -164,13 +164,10 @@ export const disputesRouter = router({
     });
   }),
 
-  getDispute: protectedProcedure.input(IdInput).query(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
-    const dispute = await getTenantDispute(input.id, tenantId);
+  /** Get a single dispute with its event timeline. Access restricted to parties and moderators.
+   * @tenant */
+  getDispute: tenantProcedure.input(IdInput).query(async ({ input, ctx }) => {
+    const dispute = await getTenantDispute(input.id, ctx.tenantId);
 
     const mod = isModerator(ctx.role);
     const party = isParty(dispute, ctx.userId);
@@ -182,27 +179,27 @@ export const disputesRouter = router({
     const events = await db
       .select()
       .from(disputeEvents)
-      .where(and(eq(disputeEvents.disputeId, input.id), eq(disputeEvents.tenantId, tenantId)))
+      .where(and(eq(disputeEvents.disputeId, input.id), eq(disputeEvents.tenantId, ctx.tenantId)))
       .orderBy(asc(disputeEvents.createdAt));
 
-    return toEnvelope({ ...dispute, events });
+    return toEnvelope({
+      ...disputeCaseDto.parse(dispute),
+      events: events.map(e => disputeEventDto.parse(e)),
+    });
   }),
 
-  createDispute: protectedProcedure.input(CreateDisputeInput).mutation(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
+  /** Create a new dispute case in DRAFT status.
+   * @tenant */
+  createDispute: tenantProcedure.input(CreateDisputeInput).mutation(async ({ input, ctx }) => {
     const id = crypto.randomUUID();
-    const referenceNumber = await generateDisputeReference(tenantId);
+    const referenceNumber = await generateDisputeReference(ctx.tenantId);
     const coolingOffEndsAt = new Date(Date.now() + 24 * 3600_000);
 
     const [dispute] = await db
       .insert(disputeCases)
       .values({
         id,
-        tenantId,
+        tenantId: ctx.tenantId,
         referenceNumber,
         complainantId: ctx.userId,
         respondentId: input.respondentId ?? null,
@@ -222,7 +219,7 @@ export const disputesRouter = router({
 
     await db.insert(disputeEvents).values({
       id: crypto.randomUUID(),
-      tenantId,
+      tenantId: ctx.tenantId,
       disputeId: id,
       actorId: ctx.userId,
       eventType: 'CREATED',
@@ -232,16 +229,13 @@ export const disputesRouter = router({
     });
 
     revalidateDashboard();
-    return toEnvelope(dispute);
+    return toEnvelope(disputeCaseDto.parse(dispute));
   }),
 
-  updateDispute: protectedProcedure.input(UpdateDisputeInput).mutation(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
-    const existing = await getTenantDispute(input.id, tenantId);
+  /** Update a dispute case. Access restricted to parties and moderators.
+   * @tenant */
+  updateDispute: tenantProcedure.input(UpdateDisputeInput).mutation(async ({ input, ctx }) => {
+    const existing = await getTenantDispute(input.id, ctx.tenantId);
 
     const mod = isModerator(ctx.role);
     const party = isParty(existing, ctx.userId);
@@ -276,13 +270,13 @@ export const disputesRouter = router({
       const [updated] = await tx
         .update(disputeCases)
         .set(updateData)
-        .where(and(eq(disputeCases.id, input.id), eq(disputeCases.tenantId, tenantId)))
+        .where(and(eq(disputeCases.id, input.id), eq(disputeCases.tenantId, ctx.tenantId)))
         .returning();
 
       if (input.updates.status && input.updates.status !== existing.status) {
         await tx.insert(disputeEvents).values({
           id: crypto.randomUUID(),
-          tenantId,
+          tenantId: ctx.tenantId,
           disputeId: input.id,
           actorId: ctx.userId,
           eventType: 'STATUS_CHANGED',
@@ -296,18 +290,15 @@ export const disputesRouter = router({
     });
 
     revalidateAdminChanges();
-    return toEnvelope(result);
+    return toEnvelope(disputeCaseDto.parse(result));
   }),
 
-  addDisputeMessage: protectedProcedure
+  /** Add a message to a dispute thread. Rate-limited: 30 messages per minute.
+   * @tenant */
+  addDisputeMessage: tenantProcedure
     .input(AddDisputeMessageInput)
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
-      const dispute = await getTenantDispute(input.disputeId, tenantId);
+      const dispute = await getTenantDispute(input.disputeId, ctx.tenantId);
 
       const mod = isModerator(ctx.role);
       const party = isParty(dispute, ctx.userId);
@@ -334,7 +325,7 @@ export const disputesRouter = router({
         .insert(disputeMessages)
         .values({
           id: crypto.randomUUID(),
-          tenantId,
+          tenantId: ctx.tenantId,
           disputeId: input.disputeId,
           senderId: ctx.userId,
           content: sanitizedContent,
@@ -343,18 +334,15 @@ export const disputesRouter = router({
         })
         .returning();
 
-      return toEnvelope(message);
+      return toEnvelope(disputeMessageDto.parse(message));
     }),
 
-  listDisputeMessages: protectedProcedure
+  /** List messages for a dispute. Non-moderators only see public messages.
+   * @tenant */
+  listDisputeMessages: tenantProcedure
     .input(ListDisputeMessagesInput)
     .query(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
-      const dispute = await getTenantDispute(input.disputeId, tenantId);
+      const dispute = await getTenantDispute(input.disputeId, ctx.tenantId);
 
       const mod = isModerator(ctx.role);
       const party = isParty(dispute, ctx.userId);
@@ -365,7 +353,7 @@ export const disputesRouter = router({
 
       const conditions = [
         eq(disputeMessages.disputeId, input.disputeId),
-        eq(disputeMessages.tenantId, tenantId),
+        eq(disputeMessages.tenantId, ctx.tenantId),
         isNull(disputeMessages.deletedAt),
       ];
 
@@ -373,21 +361,18 @@ export const disputesRouter = router({
         conditions.push(eq(disputeMessages.isInternal, false));
       }
 
-      return toEnvelope(
-        await db
-          .select()
-          .from(disputeMessages)
-          .where(and(...conditions))
-          .orderBy(asc(disputeMessages.createdAt))
-      );
+      const rows = await db
+        .select()
+        .from(disputeMessages)
+        .where(and(...conditions))
+        .orderBy(asc(disputeMessages.createdAt));
+
+      return toEnvelope(rows.map(m => disputeMessageDto.parse(m)));
     }),
 
-  assignDispute: protectedProcedure.input(AssignDisputeInput).mutation(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
+  /** Assign a moderator to a dispute. Board members and admins only.
+   * @privileged */
+  assignDispute: privilegedProcedure.input(AssignDisputeInput).mutation(async ({ input, ctx }) => {
     if (ctx.role !== 'BOARD' && !hasPermission(ctx.role, 'admin')) {
       throw new TRPCError({
         code: 'FORBIDDEN',
@@ -395,7 +380,7 @@ export const disputesRouter = router({
       });
     }
 
-    await getTenantDispute(input.disputeId, tenantId);
+    await getTenantDispute(input.disputeId, ctx.tenantId);
 
     const ts = now();
 
@@ -406,11 +391,11 @@ export const disputesRouter = router({
           assignedModeratorId: input.moderatorId,
           updatedAt: ts,
         })
-        .where(and(eq(disputeCases.id, input.disputeId), eq(disputeCases.tenantId, tenantId)));
+        .where(and(eq(disputeCases.id, input.disputeId), eq(disputeCases.tenantId, ctx.tenantId)));
 
       await tx.insert(disputeEvents).values({
         id: crypto.randomUUID(),
-        tenantId,
+        tenantId: ctx.tenantId,
         disputeId: input.disputeId,
         actorId: ctx.userId,
         eventType: 'ASSIGNED',
@@ -423,13 +408,10 @@ export const disputesRouter = router({
     return toEnvelope({ success: true, assignedModeratorId: input.moderatorId });
   }),
 
-  submitDispute: protectedProcedure.input(IdInput).mutation(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
-    const dispute = await getTenantDispute(input.id, tenantId);
+  /** Submit a dispute from DRAFT to SUBMITTED status. Complainant only.
+   * @tenant */
+  submitDispute: tenantProcedure.input(IdInput).mutation(async ({ input, ctx }) => {
+    const dispute = await getTenantDispute(input.id, ctx.tenantId);
 
     if (dispute.status !== 'DRAFT') {
       throw new TRPCError({ code: 'CONFLICT', message: 'Dispute is not in draft status' });
@@ -461,12 +443,12 @@ export const disputesRouter = router({
           submittedAt: ts,
           updatedAt: ts,
         })
-        .where(and(eq(disputeCases.id, input.id), eq(disputeCases.tenantId, tenantId)))
+        .where(and(eq(disputeCases.id, input.id), eq(disputeCases.tenantId, ctx.tenantId)))
         .returning();
 
       await tx.insert(disputeEvents).values({
         id: crypto.randomUUID(),
-        tenantId,
+        tenantId: ctx.tenantId,
         disputeId: input.id,
         actorId: ctx.userId,
         eventType: 'SUBMITTED',
@@ -479,80 +461,78 @@ export const disputesRouter = router({
     });
 
     revalidateDashboard();
-    return toEnvelope(result);
+    return toEnvelope(disputeCaseDto.parse(result));
   }),
 
-  resolveDispute: protectedProcedure.input(ResolveDisputeInput).mutation(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
-    if (ctx.role !== 'BOARD' && !hasPermission(ctx.role, 'admin')) {
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'Only board members and admins can resolve disputes',
-      });
-    }
-
-    const dispute = await getTenantDispute(input.disputeId, tenantId);
-
-    if (!canTransition(dispute.status, input.status)) {
-      throw new TRPCError({
-        code: 'CONFLICT',
-        message: `Cannot transition from ${dispute.status} to ${input.status}`,
-      });
-    }
-
-    const ts = now();
-
-    await db.transaction(async tx => {
-      const updateData: Record<string, unknown> = {
-        status: input.status,
-        resolvedAt: ts,
-        updatedAt: ts,
-      };
-
-      if (input.rulingDescription) {
-        updateData.rulingDescription = input.rulingDescription;
-        updateData.rulingIssuedAt = ts;
+  /** Resolve or withdraw a dispute. Board members and admins only.
+   * @privileged */
+  resolveDispute: privilegedProcedure
+    .input(ResolveDisputeInput)
+    .mutation(async ({ input, ctx }) => {
+      if (ctx.role !== 'BOARD' && !hasPermission(ctx.role, 'admin')) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Only board members and admins can resolve disputes',
+        });
       }
 
-      if (input.closedReason) {
-        updateData.closedReason = input.closedReason;
-        updateData.closedById = ctx.userId;
+      const dispute = await getTenantDispute(input.disputeId, ctx.tenantId);
+
+      if (!canTransition(dispute.status, input.status)) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: `Cannot transition from ${dispute.status} to ${input.status}`,
+        });
       }
 
-      await tx
-        .update(disputeCases)
-        .set(updateData)
-        .where(and(eq(disputeCases.id, input.disputeId), eq(disputeCases.tenantId, tenantId)));
+      const ts = now();
 
-      await tx.insert(disputeEvents).values({
-        id: crypto.randomUUID(),
-        tenantId,
-        disputeId: input.disputeId,
-        actorId: ctx.userId,
-        eventType: input.status === 'RESOLVED' ? 'RESOLVED' : 'WITHDRAWN',
-        fromStatus: dispute.status,
-        toStatus: input.status,
-        note: input.rulingDescription ?? null,
-        createdAt: ts,
+      await db.transaction(async tx => {
+        const updateData: Record<string, unknown> = {
+          status: input.status,
+          resolvedAt: ts,
+          updatedAt: ts,
+        };
+
+        if (input.rulingDescription) {
+          updateData.rulingDescription = input.rulingDescription;
+          updateData.rulingIssuedAt = ts;
+        }
+
+        if (input.closedReason) {
+          updateData.closedReason = input.closedReason;
+          updateData.closedById = ctx.userId;
+        }
+
+        await tx
+          .update(disputeCases)
+          .set(updateData)
+          .where(
+            and(eq(disputeCases.id, input.disputeId), eq(disputeCases.tenantId, ctx.tenantId))
+          );
+
+        await tx.insert(disputeEvents).values({
+          id: crypto.randomUUID(),
+          tenantId: ctx.tenantId,
+          disputeId: input.disputeId,
+          actorId: ctx.userId,
+          eventType: input.status === 'RESOLVED' ? 'RESOLVED' : 'WITHDRAWN',
+          fromStatus: dispute.status,
+          toStatus: input.status,
+          note: input.rulingDescription ?? null,
+          createdAt: ts,
+        });
       });
-    });
 
-    revalidateAdminChanges();
-    return toEnvelope({ success: true });
-  }),
+      revalidateAdminChanges();
+      return toEnvelope({ success: true });
+    }),
 
-  issueRuling: protectedProcedure
+  /** Issue a formal ruling on a dispute. Board members and admins only.
+   * @privileged */
+  issueRuling: privilegedProcedure
     .input(z.object({ disputeId: z.string(), rulingDescription: z.string().min(10).max(5000) }))
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       if (ctx.role !== 'BOARD' && !hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({
           code: 'FORBIDDEN',
@@ -560,7 +540,7 @@ export const disputesRouter = router({
         });
       }
 
-      const dispute = await getTenantDispute(input.disputeId, tenantId);
+      const dispute = await getTenantDispute(input.disputeId, ctx.tenantId);
 
       if (!canTransition(dispute.status, 'FORMAL_RULING')) {
         throw new TRPCError({
@@ -580,11 +560,13 @@ export const disputesRouter = router({
             rulingIssuedAt: ts,
             updatedAt: ts,
           })
-          .where(and(eq(disputeCases.id, input.disputeId), eq(disputeCases.tenantId, tenantId)));
+          .where(
+            and(eq(disputeCases.id, input.disputeId), eq(disputeCases.tenantId, ctx.tenantId))
+          );
 
         await tx.insert(disputeEvents).values({
           id: crypto.randomUUID(),
-          tenantId,
+          tenantId: ctx.tenantId,
           disputeId: input.disputeId,
           actorId: ctx.userId,
           eventType: 'RULING_ISSUED',
@@ -599,13 +581,10 @@ export const disputesRouter = router({
       return toEnvelope({ success: true });
     }),
 
-  getEvents: protectedProcedure.input(IdInput).query(async ({ input, ctx }) => {
-    const tenantId = ctx.tenantId;
-    if (!tenantId) {
-      throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-    }
-
-    const dispute = await getTenantDispute(input.id, tenantId);
+  /** Get the event timeline for a dispute. Access restricted to parties and moderators.
+   * @tenant */
+  getEvents: tenantProcedure.input(IdInput).query(async ({ input, ctx }) => {
+    const dispute = await getTenantDispute(input.id, ctx.tenantId);
 
     const mod = isModerator(ctx.role);
     const party = isParty(dispute, ctx.userId);
@@ -614,12 +593,12 @@ export const disputesRouter = router({
       throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
     }
 
-    return toEnvelope(
-      await db
-        .select()
-        .from(disputeEvents)
-        .where(and(eq(disputeEvents.disputeId, input.id), eq(disputeEvents.tenantId, tenantId)))
-        .orderBy(asc(disputeEvents.createdAt))
-    );
+    const rows = await db
+      .select()
+      .from(disputeEvents)
+      .where(and(eq(disputeEvents.disputeId, input.id), eq(disputeEvents.tenantId, ctx.tenantId)))
+      .orderBy(asc(disputeEvents.createdAt));
+
+    return toEnvelope(rows.map(e => disputeEventDto.parse(e)));
   }),
 });
