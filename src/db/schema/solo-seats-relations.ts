@@ -1,9 +1,15 @@
 import { relations } from 'drizzle-orm';
 import { soloSeats } from './solo-seats';
+import { addresses } from './addresses';
 import { properties } from './properties';
 import { users } from './users';
 
 export const soloSeatsRelations = relations(soloSeats, helpers => ({
+  address: helpers.one(addresses, {
+    relationName: 'AddressToSoloSeat',
+    fields: [soloSeats.addressId],
+    references: [addresses.id],
+  }),
   property: helpers.one(properties, {
     relationName: 'PropertyToSoloSeat',
     fields: [soloSeats.propertyId],

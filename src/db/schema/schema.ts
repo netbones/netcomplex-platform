@@ -93,6 +93,9 @@ import * as dataConsents from './data-consents';
 import * as payoutRequests from './payout-requests';
 import * as dataRevenueStreams from './data-revenue-streams';
 import * as dataShareBatches from './data-share-batches';
+import * as addresses from './addresses';
+import * as handles from './handles';
+import * as addressEndpoints from './address-endpoints';
 import * as platformAiTierQuotas from './platform-ai-tier-quotas';
 import * as aiCapabilityCosts from './ai-capability-costs';
 import * as tenantAiUsages from './tenant-ai-usages';
@@ -191,6 +194,9 @@ import * as dWalletsRelations from './d-wallets-relations';
 import * as walletTransactionsRelations from './wallet-transactions-relations';
 import * as dataConsentsRelations from './data-consents-relations';
 import * as payoutRequestsRelations from './payout-requests-relations';
+import * as addressesRelations from './addresses-relations';
+import * as handlesRelations from './handles-relations';
+import * as addressEndpointsRelations from './address-endpoints-relations';
 import * as tenantAiUsagesRelations from './tenant-ai-usages-relations';
 import * as aiUsageEventsRelations from './ai-usage-events-relations';
 import * as disputeCasesRelations from './dispute-cases-relations';
@@ -296,6 +302,9 @@ export const schema = {
   ...payoutRequests,
   ...dataRevenueStreams,
   ...dataShareBatches,
+  ...addresses,
+  ...handles,
+  ...addressEndpoints,
   ...platformAiTierQuotas,
   ...aiCapabilityCosts,
   ...tenantAiUsages,
@@ -394,6 +403,9 @@ export const schema = {
   ...walletTransactionsRelations,
   ...dataConsentsRelations,
   ...payoutRequestsRelations,
+  ...addressesRelations,
+  ...handlesRelations,
+  ...addressEndpointsRelations,
   ...tenantAiUsagesRelations,
   ...aiUsageEventsRelations,
   ...disputeCasesRelations,

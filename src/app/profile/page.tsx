@@ -8,7 +8,7 @@ import { authClient } from '@api/client';
 import { supportedLanguages, languageNames } from '@/shared/lib/i18n';
 import { usePageLoading } from '@shared/ui';
 import { createComponentLogger } from '@shared/lib';
-import { useSettings } from '@shared/lib/hooks';
+import { useUserProfile } from '@shared/lib/hooks';
 import {
   ProfileSection,
   LanguageSection,
@@ -18,7 +18,7 @@ import {
   PrivacySection,
 } from '@widgets/settings';
 
-const log = createComponentLogger('settings-page');
+const log = createComponentLogger('profile-page');
 
 const SAFE_IMAGE_PROTOCOLS = ['https:', 'http:'];
 
@@ -37,7 +37,7 @@ export default function SettingsPage() {
 
   const { isReady, LoadingComponent } = usePageLoading([
     { label: 'Home', href: '/' },
-    { label: 'Settings', href: '/settings' },
+    { label: 'Profile', href: '/profile' },
   ]);
   const { data: session, isPending: sessionLoading } = authClient.useSession();
   const tToast = (key: string, entity: string) => tCommon(`toast.${key}`, { entity });
@@ -58,7 +58,7 @@ export default function SettingsPage() {
   const [notifSaving, setNotifSaving] = useState(false);
   const [privacySaving, setPrivacySaving] = useState(false);
 
-  const { data: userData, isLoading: loadingHousehold } = useSettings(session?.user?.id);
+  const { data: userData, isLoading: loadingHousehold } = useUserProfile(session?.user?.id);
 
   useEffect(() => {
     if (!userData) return;
@@ -208,13 +208,11 @@ export default function SettingsPage() {
   return (
     <ErrorBoundary>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Breadcrumbs
-          items={[{ label: tCommon('nav.home'), href: '/' }, { label: tCommon('nav.settings') }]}
-        />
+        <Breadcrumbs items={[{ label: tCommon('nav.home'), href: '/' }, { label: 'Profile' }]} />
 
         <div className="flex items-center gap-3 mb-8">
           <img src="/platform/settings.svg" alt="" className="w-10 h-10" />
-          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
         </div>
 
         <ProfileSection

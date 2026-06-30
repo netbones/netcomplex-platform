@@ -148,14 +148,14 @@ describe('getWorkspaceItems', () => {
       true
     );
     expect(items.some(i => i.href === '/notifications')).toBe(true);
-    expect(items.some(i => i.href === '/settings')).toBe(true);
-    expect(items).toHaveLength(2); // Only notifications + settings survive
+    expect(items.some(i => i.href === '/profile')).toBe(true);
+    expect(items).toHaveLength(2); // Only notifications + profile survive
   });
 
-  it('notifications and settings are always last in workspace list', () => {
+  it('notifications and profile are always last in workspace list', () => {
     const items = getWorkspaceItems(defaultFlags, true);
     expect(items[items.length - 2].href).toBe('/notifications');
-    expect(items[items.length - 1].href).toBe('/settings');
+    expect(items[items.length - 1].href).toBe('/profile');
   });
 });
 
@@ -230,7 +230,7 @@ describe('getBurgerSections', () => {
   it('workspace section includes notifications and settings', () => {
     const sections = getBurgerSections(defaultFlags, true, 'RESIDENT');
     expect(sections.workspace.some(i => i.href === '/notifications')).toBe(true);
-    expect(sections.workspace.some(i => i.href === '/settings')).toBe(true);
+    expect(sections.workspace.some(i => i.href === '/profile')).toBe(true);
   });
 });
 

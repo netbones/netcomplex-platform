@@ -3,7 +3,7 @@
 import { SpaceChrome } from '@widgets/dashboard';
 import { authClient } from '@api/client';
 
-export default function ConservationLayout({ children }: { children: React.ReactNode }) {
+export default function ProfileLayout({ children }: { children: React.ReactNode }) {
   const { data: session } = authClient.useSession();
 
   if (session) {

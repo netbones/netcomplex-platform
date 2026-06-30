@@ -38,6 +38,7 @@ function isTenantRoute(pathname: string): boolean {
     pathname.startsWith('/messages') ||
     pathname.startsWith('/notifications') ||
     pathname.startsWith('/settings') ||
+    pathname.startsWith('/profile') ||
     pathname.startsWith('/residents') ||
     pathname.startsWith('/member') ||
     pathname.startsWith('/unit') ||

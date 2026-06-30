@@ -230,7 +230,7 @@ function AvatarDropdown({
           )}
           <div className="border-t border-gray-100 my-1" />
           <Link
-            href="/settings"
+            href="/profile"
             onClick={() => setOpen(false)}
             className="block px-4 py-2 text-sm hover:bg-gray-100 text-gray-700"
           >

@@ -266,7 +266,7 @@ export function ServicesLayer() {
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           <Link
-            href="/settings"
+            href="/profile"
             className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
           >
             <div className="flex-shrink-0 w-10 h-10">

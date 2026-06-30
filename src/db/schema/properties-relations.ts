@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { properties } from './properties';
+import { addresses } from './addresses';
 import { bookings } from './bookings';
 import { households } from './households';
 import { maintenanceRequests } from './maintenance-requests';
@@ -12,6 +13,11 @@ import { standardSeats } from './standard-seats';
 import { propertyPremiumSeats } from './property-premium-seats';
 
 export const propertiesRelations = relations(properties, helpers => ({
+  address: helpers.one(addresses, {
+    relationName: 'AddressToProperty',
+    fields: [properties.addressId],
+    references: [addresses.id],
+  }),
   Booking: helpers.many(bookings, { relationName: 'BookingToProperty' }),
   households: helpers.many(households, { relationName: 'HouseholdToProperty' }),
   MaintenanceRequest: helpers.many(maintenanceRequests, {

@@ -147,7 +147,7 @@ export const WORKSPACE_ITEMS: NavItem[] = [
     icon: 'bell',
   },
   {
-    href: '/settings',
+    href: '/profile',
     labelKey: 'nav.settings',
     section: 'workspace',
     requiresAuth: true,

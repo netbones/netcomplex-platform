@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { serviceProviders } from './service-providers';
+import { addresses } from './addresses';
 import { users } from './users';
 import { maintenanceRequests } from './maintenance-requests';
 import { providerVerifications } from './provider-verifications';
@@ -14,6 +15,11 @@ import { providerInvoices } from './provider-invoices';
 import { serviceBookings } from './service-bookings';
 
 export const serviceProvidersRelations = relations(serviceProviders, helpers => ({
+  address: helpers.one(addresses, {
+    relationName: 'AddressToServiceProvider',
+    fields: [serviceProviders.addressId],
+    references: [addresses.id],
+  }),
   user: helpers.one(users, {
     relationName: 'ServiceProviderTouser',
     fields: [serviceProviders.userId],

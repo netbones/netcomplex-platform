@@ -13,4 +13,5 @@ export const standardSeats = pgTable('StandardSeat', {
   archivedAt: timestamp('archivedAt', { mode: 'date', precision: 3 }),
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
+  addressId: text('addressId'),
 });

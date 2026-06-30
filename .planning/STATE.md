@@ -6,21 +6,21 @@ current_phase: 120
 current_phase_name: api-governance-hardening
 status: executing
 stopped_at: Phase 50 executed (4/4 plans complete)
-last_updated: '2026-06-30T11:47:40.788Z'
+last_updated: '2026-06-30T12:27:29.167Z'
 progress:
   total_phases: 68
-  completed_phases: 54
+  completed_phases: 56
   total_plans: 179
-  completed_plans: 162
-  percent: 79
+  completed_plans: 166
+  percent: 82
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 120 (api-governance-hardening) — EXECUTING
-Plan: 6 of 6
+Phase: 46.2 (address-registry) — EXECUTING
+Plan: 1 of 3
 
 - **Phase:** Phase 120 (api-governance-hardening) — Plan 2 complete (identity router migration)
 

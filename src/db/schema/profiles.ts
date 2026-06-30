@@ -23,6 +23,7 @@ export const profiles = pgTable('Profile', {
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
+  aliasAddressId: text('aliasAddressId'),
   occupantImage: text('occupantImage'),
   rentalImage: text('rentalImage'),
   landlordId: text('landlordId'),

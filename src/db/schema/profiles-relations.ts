@@ -1,10 +1,16 @@
 import { relations } from 'drizzle-orm';
 import { profiles } from './profiles';
+import { addresses } from './addresses';
 import { households } from './households';
 import { users } from './users';
 import { residentDelegations } from './resident-delegations';
 
 export const profilesRelations = relations(profiles, helpers => ({
+  aliasAddress: helpers.one(addresses, {
+    relationName: 'AddressToProfile',
+    fields: [profiles.aliasAddressId],
+    references: [addresses.id],
+  }),
   household: helpers.one(households, {
     relationName: 'HouseholdToProfile',
     fields: [profiles.householdId],

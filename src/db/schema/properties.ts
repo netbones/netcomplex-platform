@@ -11,4 +11,5 @@ export const properties = pgTable('Property', {
   createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
   deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
+  addressId: text('addressId'),
 });
