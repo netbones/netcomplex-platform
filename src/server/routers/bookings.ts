@@ -2,6 +2,8 @@ import { z } from 'zod';
 import {
   router,
   protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   rateLimitMiddleware,
   db,
   bookings,
@@ -89,30 +91,32 @@ async function getTenantBooking(bookingId: string, tenantId: string) {
 // ──────────────────────────────────────────
 
 export const bookingsRouter = router({
-  listFacilities: protectedProcedure
+  /**
+   * List available facilities for the current tenant.
+   * @tenant
+   */
+  listFacilities: tenantProcedure
     .meta({
       openapi: { method: 'GET', path: '/bookings/facilities', protect: true, tags: ['bookings'] },
     })
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const facilities = await getTenantFacilities(tenantId);
       return facilities;
     }),
 
-  getFacility: protectedProcedure
+  /**
+   * Get details for a specific facility.
+   * @tenant
+   */
+  getFacility: tenantProcedure
     .input(FacilityInput)
     .meta({
       openapi: { method: 'GET', path: '/bookings/facility', protect: true, tags: ['bookings'] },
     })
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const facilities = await getTenantFacilities(tenantId);
       const facility = facilities.find(f => f.value === input.facility);
@@ -123,14 +127,15 @@ export const bookingsRouter = router({
       return facility;
     }),
 
-  listBookings: protectedProcedure
+  /**
+   * List bookings for the current tenant.
+   * @tenant
+   */
+  listBookings: tenantProcedure
     .input(ListBookingsInput)
     .meta({ openapi: { method: 'GET', path: '/bookings/list', protect: true, tags: ['bookings'] } })
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const canViewAll = hasPermission(ctx.role, 'bookings');
 
@@ -164,14 +169,15 @@ export const bookingsRouter = router({
       return toEnvelope(transformed.map(r => bookingDto.parse(r)));
     }),
 
-  getBooking: protectedProcedure
+  /**
+   * Get a single booking by ID.
+   * @tenant
+   */
+  getBooking: tenantProcedure
     .input(BookingIdInput)
     .meta({ openapi: { method: 'GET', path: '/bookings/get', protect: true, tags: ['bookings'] } })
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const booking = await getTenantBooking(input.id, tenantId);
 
@@ -193,7 +199,11 @@ export const bookingsRouter = router({
       );
     }),
 
-  createBooking: protectedProcedure
+  /**
+   * Create a new booking — authenticated user action.
+   * @tenant
+   */
+  createBooking: tenantProcedure
     .use(rateLimitMiddleware({ windowMs: 60_000, maxRequests: 10 }))
     .input(CreateBookingInput)
     .meta({
@@ -201,9 +211,6 @@ export const bookingsRouter = router({
     })
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const validation = await validateFacility(input.facility, tenantId);
       if (!validation.valid) {
@@ -235,16 +242,17 @@ export const bookingsRouter = router({
       return toEnvelope(bookingDto.parse(booking));
     }),
 
-  cancelBooking: protectedProcedure
+  /**
+   * Cancel a booking — authenticated user action.
+   * @tenant
+   */
+  cancelBooking: tenantProcedure
     .input(BookingIdInput)
     .meta({
       openapi: { method: 'POST', path: '/bookings/cancel', protect: true, tags: ['bookings'] },
     })
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const booking = await getTenantBooking(input.id, tenantId);
 

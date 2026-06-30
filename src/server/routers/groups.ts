@@ -2,6 +2,8 @@ import { z } from 'zod';
 import {
   router,
   protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   groups,
   groupMembers,
@@ -125,14 +127,15 @@ async function isGroupMember(userId: string, groupId: string, tenantId: string):
 export const groupsRouter = router({
   // ────────── GROUPS ──────────
 
-  listGroups: protectedProcedure
+  /**
+   * List groups for the current tenant.
+   * @tenant
+   */
+  listGroups: tenantProcedure
     .meta({ openapi: { method: 'GET', path: '/groups', protect: true, tags: ['groups'] } })
     .input(ListGroupsInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const conditions = [notDeleted(groups), eq(groups.tenantId, tenantId)];
 
@@ -198,14 +201,15 @@ export const groupsRouter = router({
       );
     }),
 
-  getGroup: protectedProcedure
+  /**
+   * Get a single group with members and content.
+   * @tenant
+   */
+  getGroup: tenantProcedure
     .meta({ openapi: { method: 'GET', path: '/groups/{id}', protect: true, tags: ['groups'] } })
     .input(IdInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
       const group = await getTenantGroup(input.id, tenantId);
 
       const [ownerResult, membersList, contentList] = await Promise.all([
@@ -278,16 +282,17 @@ export const groupsRouter = router({
       );
     }),
 
-  createGroup: protectedProcedure
+  /**
+   * Create a new group — staff only.
+   * @privileged
+   */
+  createGroup: privilegedProcedure
     .meta({ openapi: { method: 'POST', path: '/groups', protect: true, tags: ['groups'] } })
     .input(CreateGroupInput)
     .mutation(async ({ input, ctx }) => {
       requireGroupsPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const ts = now();
 
@@ -330,16 +335,17 @@ export const groupsRouter = router({
       return toEnvelope(groupDto.parse(group));
     }),
 
-  updateGroup: protectedProcedure
+  /**
+   * Update an existing group — staff only.
+   * @privileged
+   */
+  updateGroup: privilegedProcedure
     .meta({ openapi: { method: 'PATCH', path: '/groups/{id}', protect: true, tags: ['groups'] } })
     .input(UpdateGroupInput)
     .mutation(async ({ input, ctx }) => {
       requireGroupsPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       await getTenantGroup(input.id, tenantId);
 
@@ -364,16 +370,17 @@ export const groupsRouter = router({
       return toEnvelope(groupDto.parse(updated));
     }),
 
-  deleteGroup: protectedProcedure
+  /**
+   * Soft-delete a group — staff only.
+   * @privileged
+   */
+  deleteGroup: privilegedProcedure
     .meta({ openapi: { method: 'DELETE', path: '/groups/{id}', protect: true, tags: ['groups'] } })
     .input(IdInput)
     .mutation(async ({ input, ctx }) => {
       requireGroupsPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       await getTenantGroup(input.id, tenantId);
 
@@ -388,16 +395,17 @@ export const groupsRouter = router({
 
   // ────────── MEMBERSHIP ──────────
 
-  joinGroup: protectedProcedure
+  /**
+   * Join an open group — authenticated user action.
+   * @tenant
+   */
+  joinGroup: tenantProcedure
     .meta({
       openapi: { method: 'POST', path: '/groups/{groupId}/join', protect: true, tags: ['groups'] },
     })
     .input(JoinLeaveInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const group = await getTenantGroup(input.groupId, tenantId);
 
@@ -428,16 +436,17 @@ export const groupsRouter = router({
       return toEnvelope(membership);
     }),
 
-  leaveGroup: protectedProcedure
+  /**
+   * Leave a group — authenticated user action.
+   * @tenant
+   */
+  leaveGroup: tenantProcedure
     .meta({
       openapi: { method: 'POST', path: '/groups/{groupId}/leave', protect: true, tags: ['groups'] },
     })
     .input(JoinLeaveInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const existing = await isGroupMember(ctx.userId, input.groupId, tenantId);
       if (!existing) {
@@ -458,7 +467,11 @@ export const groupsRouter = router({
       return toEnvelope({ success: true });
     }),
 
-  listMembers: protectedProcedure
+  /**
+   * List members of a group.
+   * @tenant
+   */
+  listMembers: tenantProcedure
     .meta({
       openapi: {
         method: 'GET',
@@ -470,9 +483,6 @@ export const groupsRouter = router({
     .input(JoinLeaveInput)
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const membersList = await db
         .select({
@@ -510,7 +520,11 @@ export const groupsRouter = router({
       );
     }),
 
-  updateMemberRole: protectedProcedure
+  /**
+   * Update a member's role — staff only.
+   * @privileged
+   */
+  updateMemberRole: privilegedProcedure
     .meta({
       openapi: {
         method: 'PATCH',
@@ -524,9 +538,6 @@ export const groupsRouter = router({
       requireFullGroupsPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [membership] = await db
         .select()
@@ -554,7 +565,11 @@ export const groupsRouter = router({
       return toEnvelope(updated);
     }),
 
-  removeMember: protectedProcedure
+  /**
+   * Remove a member from a group — staff only.
+   * @privileged
+   */
+  removeMember: privilegedProcedure
     .meta({
       openapi: {
         method: 'DELETE',
@@ -568,9 +583,6 @@ export const groupsRouter = router({
       requireFullGroupsPermission(ctx.role);
 
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const [membership] = await db
         .select()

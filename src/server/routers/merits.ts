@@ -2,6 +2,8 @@ import { z } from 'zod';
 import {
   router,
   protectedProcedure,
+  tenantProcedure,
+  privilegedProcedure,
   db,
   communityMerits,
   notifications,
@@ -272,16 +274,17 @@ async function createMeritRecord(
 export const meritsRouter = router({
   // ────────── MERITS ──────────
 
-  listMerits: protectedProcedure
+  /**
+   * List merit records for the tenant — staff only.
+   * @privileged
+   */
+  listMerits: privilegedProcedure
     .meta({ openapi: { method: 'GET', path: '/merits', protect: true, tags: ['merits'] } })
     .input(ListMeritsInput)
     .query(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       requireUsersPermission(ctx.role);
+
+      const tenantId = ctx.tenantId;
 
       const conditions = [
         eq(communityMerits.tenantId, tenantId),
@@ -334,16 +337,17 @@ export const meritsRouter = router({
       return toEnvelope(rows.map(r => meritDto.parse(r)));
     }),
 
-  getMerit: protectedProcedure
+  /**
+   * Get a single merit record — staff only.
+   * @privileged
+   */
+  getMerit: privilegedProcedure
     .meta({ openapi: { method: 'GET', path: '/merits/{id}', protect: true, tags: ['merits'] } })
     .input(IdInput)
     .query(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       requireUsersPermission(ctx.role);
+
+      const tenantId = ctx.tenantId;
 
       const record = await getTenantMerit(input.id, tenantId);
 
@@ -356,31 +360,34 @@ export const meritsRouter = router({
       return toEnvelope(meritDto.parse(record));
     }),
 
-  createMerit: protectedProcedure
+  /**
+   * Create a new merit record — staff only.
+   * @privileged
+   */
+  createMerit: privilegedProcedure
     .meta({ openapi: { method: 'POST', path: '/merits', protect: true, tags: ['merits'] } })
     .input(CreateMeritInput)
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       requireUsersPermission(ctx.role);
+
+      const tenantId = ctx.tenantId;
+
       const result = await createMeritRecord(input, tenantId, ctx.userId);
       const created = await getTenantMerit(result.id, tenantId);
       return toEnvelope(meritDto.parse(created));
     }),
 
-  updateMerit: protectedProcedure
+  /**
+   * Update a merit record — staff only.
+   * @privileged
+   */
+  updateMerit: privilegedProcedure
     .meta({ openapi: { method: 'PATCH', path: '/merits/{id}', protect: true, tags: ['merits'] } })
     .input(UpdateMeritInput)
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       requireUsersPermission(ctx.role);
+
+      const tenantId = ctx.tenantId;
 
       const record = await getTenantMerit(input.id, tenantId);
 
@@ -421,16 +428,17 @@ export const meritsRouter = router({
       return toEnvelope(meritDto.parse(updated));
     }),
 
-  deleteMerit: protectedProcedure
+  /**
+   * Soft-delete a merit record — staff only.
+   * @privileged
+   */
+  deleteMerit: privilegedProcedure
     .meta({ openapi: { method: 'DELETE', path: '/merits/{id}', protect: true, tags: ['merits'] } })
     .input(IdInput)
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       requireUsersPermission(ctx.role);
+
+      const tenantId = ctx.tenantId;
 
       await getTenantMerit(input.id, tenantId);
 
@@ -453,18 +461,20 @@ export const meritsRouter = router({
 
   // ────────── AWARD ──────────
 
-  awardMerit: protectedProcedure
+  /**
+   * Award a merit to a user — staff only.
+   * @privileged
+   */
+  awardMerit: privilegedProcedure
     .meta({
       openapi: { method: 'POST', path: '/merits/award', protect: true, tags: ['merits'] },
     })
     .input(CreateMeritInput)
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       requireUsersPermission(ctx.role);
+
+      const tenantId = ctx.tenantId;
+
       const result = await createMeritRecord(input, tenantId, ctx.userId);
       const created = await getTenantMerit(result.id, tenantId);
       return toEnvelope(meritDto.parse(created));
@@ -472,7 +482,11 @@ export const meritsRouter = router({
 
   // ────────── USER MERITS ──────────
 
-  getUserMerits: protectedProcedure
+  /**
+   * Get the current user's own merit records.
+   * @tenant
+   */
+  getUserMerits: tenantProcedure
     .meta({
       openapi: { method: 'GET', path: '/merits/me', protect: true, tags: ['merits'] },
     })
@@ -486,9 +500,6 @@ export const meritsRouter = router({
     )
     .query(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const rows = await db
         .select()
@@ -519,16 +530,17 @@ export const meritsRouter = router({
 
   // ────────── DISPUTE ──────────
 
-  dispute: protectedProcedure
+  /**
+   * Dispute a merit record — authenticated user action.
+   * @tenant
+   */
+  dispute: tenantProcedure
     .meta({
       openapi: { method: 'POST', path: '/merits/{id}/dispute', protect: true, tags: ['merits'] },
     })
     .input(DisputeMeritInput)
     .mutation(async ({ input, ctx }) => {
       const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
 
       const record = await getTenantMerit(input.id, tenantId);
 
@@ -581,18 +593,19 @@ export const meritsRouter = router({
 
   // ────────── DISPUTE RESOLUTION ──────────
 
-  resolveDispute: protectedProcedure
+  /**
+   * Resolve a merit dispute — staff only.
+   * @privileged
+   */
+  resolveDispute: privilegedProcedure
     .meta({
       openapi: { method: 'POST', path: '/merits/{id}/resolve', protect: true, tags: ['merits'] },
     })
     .input(ResolveDisputeInput)
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-      if (!tenantId) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Tenant context required' });
-      }
-
       requireUsersPermission(ctx.role);
+
+      const tenantId = ctx.tenantId;
 
       const record = await getTenantMerit(input.id, tenantId);
 
