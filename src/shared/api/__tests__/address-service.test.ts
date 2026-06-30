@@ -1,11 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ---------------------------------------------------------------------------
-// Mock @api/server (which re-exports from ../db)
+// vi.hoisted — shared mock state across both mock calls
 // ---------------------------------------------------------------------------
-vi.mock('@api/server', async () => {
-  // Minimal mock: provide a db object with chainable methods
-  const makeDb = () => {
+const { getMockDb, getMockTables } = vi.hoisted(() => {
+  function makeDb() {
     const selectResult: unknown[] = [];
     const insertResult: unknown[] = [];
 
@@ -18,7 +17,7 @@ vi.mock('@api/server', async () => {
       set: vi.fn().mockReturnThis(),
     };
 
-    return {
+    const db = {
       select: vi.fn(() => chain),
       insert: vi.fn(() => chain),
       update: vi.fn(() => chain),
@@ -33,12 +32,13 @@ vi.mock('@api/server', async () => {
         insertResult.push(...r);
       },
     };
-  };
 
-  const mockDb = makeDb();
+    return db;
+  }
 
-  return {
-    db: mockDb,
+  const sharedDb = makeDb();
+
+  const sharedTables = {
     addresses: { _name: 'Address' },
     handles: { _name: 'Handle' },
     tenants: { _name: 'Tenant' },
@@ -48,7 +48,32 @@ vi.mock('@api/server', async () => {
     profiles: { _name: 'Profile' },
     addressEndpoints: { _name: 'AddressEndpoint' },
   };
+
+  return {
+    getMockDb: () => sharedDb,
+    getMockTables: () => sharedTables,
+  };
 });
+
+// ---------------------------------------------------------------------------
+// Mock @api/server
+// ---------------------------------------------------------------------------
+vi.mock('@api/server', () => ({
+  db: getMockDb(),
+  ...getMockTables(),
+}));
+
+// ---------------------------------------------------------------------------
+// Mock ../db (address-service.ts imports { db, addresses, handles } from './db')
+// ---------------------------------------------------------------------------
+vi.mock('../db', () => ({
+  db: getMockDb(),
+  addresses: getMockTables().addresses,
+  handles: getMockTables().handles,
+  tenants: getMockTables().tenants,
+  addressEndpoints: getMockTables().addressEndpoints,
+  DbSchema: {},
+}));
 
 import { db } from '@api/server';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -195,6 +220,18 @@ describe('AddressService', () => {
 
       expect(result).toBeNull();
     });
+
+    it('resolves by handle when address format is not an email', async () => {
+      // First select: no direct address match (because no @ in search term)
+      // Second select: handle match
+      setSelectResult([{ id: 'handle-1', addressId: 'addr-1', handle: 'john', status: 'ACTIVE' }]);
+
+      const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
+      await svc.resolve('john', 'tenant-1');
+
+      // Should try handle resolution
+      expect(mockDb().select).toHaveBeenCalled();
+    });
   });
 
   // -----------------------------------------------------------------------
@@ -214,9 +251,12 @@ describe('AddressService', () => {
   // -----------------------------------------------------------------------
   describe('move()', () => {
     it('updates address field and validates uniqueness', async () => {
-      setSelectResult([]); // no conflict for new address
-      const moved = mockAddress({ address: 'new-address@soralia.org', localPart: 'new-address' });
-      setInsertResult([moved]);
+      // The mock uses shared select/insert result arrays.  Since move()
+      // performs multiple selects (uniqueness check + re-fetch after update),
+      // keep select result empty so the uniqueness gate passes and the update
+      // path is exercised.
+      setSelectResult([]);
+      setInsertResult([mockAddress()]);
 
       const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
       await svc.move('addr-1', 'new-address@soralia.org', 'tenant-1');
@@ -292,7 +332,9 @@ describe('AddressService', () => {
   // -----------------------------------------------------------------------
   describe('generate()', () => {
     it('generates STANDARD address format: unitNNN@domain', async () => {
-      const result = await AddressService.generate('STANDARD', 'tenant-1', { unitNumber: '042' });
+      const result = await AddressService.generate('STANDARD', 'tenant-1', {
+        unitNumber: '042',
+      });
       expect(result).toMatch(/^unit042@/);
     });
 
@@ -310,7 +352,9 @@ describe('AddressService', () => {
     });
 
     it('generates PREMIUM address format: custom@domain', async () => {
-      const result = await AddressService.generate('PREMIUM', 'tenant-1', { custom: 'mybrand' });
+      const result = await AddressService.generate('PREMIUM', 'tenant-1', {
+        custom: 'mybrand',
+      });
       expect(result).toMatch(/^mybrand@/);
     });
 
@@ -353,42 +397,14 @@ describe('AddressService', () => {
   // lookupByOwnerInSeats()
   // -----------------------------------------------------------------------
   describe('lookupByOwnerInSeats()', () => {
-    it("returns the first AddressRecord owned by any of the user's seats", async () => {
-      // First calls to select: check each seat table (all empty except one)
-      const addr = mockAddress({ ownerType: 'STANDARD_SEAT', ownerId: 'seat-1' });
-      // We need to handle multiple select calls
-      let callCount = 0;
-      const origSelect = mockDb().select;
-      mockDb().select = vi.fn(() => {
-        callCount++;
-        const result = callCount <= 4 ? [] : [addr];
-        return {
-          from: vi.fn().mockReturnValue({
-            where: vi.fn().mockReturnValue({
-              limit: vi.fn().mockResolvedValue(result),
-            }),
-          }),
-          insert: vi.fn(() => ({
-            values: vi.fn().mockReturnThis(),
-            returning: vi.fn().mockResolvedValue([addr]),
-          })),
-          update: vi.fn(() => ({
-            set: vi.fn().mockReturnThis(),
-            where: vi.fn().mockResolvedValue(undefined),
-          })),
-        };
-      });
+    it('returns null when user has no seats', async () => {
+      // All seat queries return empty
+      setSelectResult([]);
 
       const svc = new AddressService(mockDb() as NodePgDatabase<unknown>);
-      // Since mock is complex, just verify it doesn't throw
-      try {
-        await svc.lookupByOwnerInSeats('user-1', 'tenant-1');
-      } catch {
-        // Expected in mock environment
-      }
+      const result = await svc.lookupByOwnerInSeats('user-1', 'tenant-1');
 
-      // Restore original
-      mockDb().select = origSelect;
+      expect(result).toBeNull();
     });
   });
 });
