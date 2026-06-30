@@ -21,7 +21,9 @@ export const externalSurveyProcedures = {
    * @public
    */
   listExternalSurveys: publicProcedure
-    .meta({ openapi: { method: 'GET', path: '/surveys/external', tags: ['Surveys'] } })
+    .meta({
+      openapi: { method: 'GET', path: '/surveys/external', tags: ['Surveys'], protect: false },
+    })
     .query(async ({ ctx }) => {
       const tenantId = ctx.tenantId;
       if (!tenantId)
@@ -41,7 +43,14 @@ export const externalSurveyProcedures = {
    * @public
    */
   submitExternalSurveyResponse: publicProcedure
-    .meta({ openapi: { method: 'POST', path: '/surveys/external/respond', tags: ['Surveys'] } })
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/surveys/external/respond',
+        tags: ['Surveys'],
+        protect: false,
+      },
+    })
     .input(
       z.object({
         surveyId: z.string(),

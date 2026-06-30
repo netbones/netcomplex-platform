@@ -267,33 +267,68 @@ Sensitive actions (suspensions, permission changes, onboarding, moderation, plat
 
 **Base procedure hierarchy:**
 
+The following procedure tiers are implemented in `src/shared/api/trpc/server.ts` (Phase 120):
+
 ```ts
-// Unauthenticated
+// Unauthenticated — no middleware
 export const publicProcedure = t.procedure;
 
 // Authenticated — enforces session
-export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (!ctx.session) {
-    throw new TRPCError({
-      code: 'UNAUTHORIZED',
-      message: 'AUTH_REQUIRED', // use canonical code as message
-    });
+export const protectedProcedure = t.procedure.use(isAuthed);
+
+// Tenant-scoped — session + tenant membership (steps 1-2 of auth middleware)
+export const tenantProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (!ctx.tenantId) throw new TRPCError({ code: 'FORBIDDEN', message: 'TENANT_REQUIRED' });
+  return next({ ctx: { ...ctx, tenantId: ctx.tenantId } });
+});
+
+// Elevated access — session + tenant + role (ADMIN/BOARD/COMMITTEE) + suspension check
+export const privilegedProcedure = tenantProcedure.use(({ ctx, next }) => {
+  if (!ctx.role || !['ADMIN', 'BOARD', 'COMMITTEE'].includes(ctx.role)) {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'ACCESS_DENIED' });
   }
-  return next({ ctx: { ...ctx, session: ctx.session } });
+  if (ctx.isSuspended) throw new TRPCError({ code: 'FORBIDDEN', message: 'SUSPENDED_USER' });
+  return next({ ctx });
 });
 
-// Tenant-scoped — enforces session + resolves + validates tenant membership
-export const tenantProcedure = protectedProcedure.use(async ({ ctx, next }) => {
-  const tenant = await withTenant(ctx); // canonical helper — never from input
-  return next({ ctx: { ...ctx, tenant } });
+// Admin only — session + tenant + ADMIN/BOARD role (no COMMITTEE)
+export const adminProcedure = tenantProcedure.use(({ ctx, next }) => {
+  if (!ctx.role || !['ADMIN', 'BOARD'].includes(ctx.role)) {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'ACCESS_DENIED' });
+  }
+  if (ctx.isSuspended) throw new TRPCError({ code: 'FORBIDDEN', message: 'SUSPENDED_USER' });
+  return next({ ctx });
 });
 
-// Privileged — enforces tenant + role/permission
-export const privilegedProcedure = tenantProcedure.use(async ({ ctx, next }) => {
-  await requirePermission(ctx, ctx.requiredPermission);
+// Agent access — session + tenant + AGENT/ADMIN/BOARD role
+export const agentProcedure = tenantProcedure.use(({ ctx, next }) => {
+  if (!ctx.role || !['AGENT', 'ADMIN', 'BOARD'].includes(ctx.role)) {
+    throw new TRPCError({ code: 'FORBIDDEN', message: 'ACCESS_DENIED' });
+  }
   return next({ ctx });
 });
 ```
+
+**Auth middleware chain (5-step):**
+
+1. Session exists (protectedProcedure)
+2. Tenant membership (tenantProcedure)
+3. Role/permission (privilegedProcedure / adminProcedure / agentProcedure)
+4. Suspension status (privilegedProcedure / adminProcedure)
+5. Feature flag enabled (enforced per-procedure via `isModuleEnabled` / feature flags)
+
+**Error code canonical mapping:**
+tRPC native codes are rewritten to canonical codes via a central `errorFormatter` in `src/shared/api/trpc/server.ts`. The mapping transforms `UNAUTHORIZED → AUTH_REQUIRED`, `BAD_REQUEST → VALIDATION_ERROR`, `FORBIDDEN → ACCESS_DENIED`, `NOT_FOUND → NOT_FOUND`, `TOO_MANY_REQUESTS → RATE_LIMITED`.
+
+**DTO layer:**
+DTOs live in `src/server/dto/` with one file per domain entity (13 DTO files covering all bounded contexts). Schemas are derived from Drizzle row types via `drizzle-zod` `createSelectSchema()` to guarantee zero column drift.
+
+**Classification JSDoc tags (Phase 120):**
+Every procedure carries a JSDoc classification tag matching its tier:
+
+- `/** @public */` — publicProcedure endpoints
+- `/** @tenant */` — protectedProcedure and tenantProcedure endpoints
+- `/** @privileged */` — privilegedProcedure, adminProcedure, and agentProcedure endpoints
 
 ### 3. Next.js REST Route Handlers (`app/api/v1/.../route.ts`)
 

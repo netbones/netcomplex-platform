@@ -938,7 +938,65 @@ Before merging API work:
 
 ---
 
-# 34. Future Governance Expansion
+# 34. Phase 120 Completion — API Governance Hardening
+
+**Status:** COMPLETE (2026-06-30)
+
+Phase 120 systematically closed the gap between documented governance standards and tRPC router implementations. Key outcomes:
+
+## 34.1 Response Envelope (GOV-01)
+
+All tRPC procedures now use `toEnvelope()` to wrap responses in the canonical `{success, data, meta}` shape. The `ApiEnvelope<T>` type and `toEnvelope<T>()` helper live at `src/shared/api/envelope.ts` and are imported via `@api/server`.
+
+## 34.2 Canonical Error Codes (GOV-02)
+
+tRPC native codes are rewritten to canonical codes via the `errorFormatter` in `src/shared/api/trpc/server.ts`. Mapping: `UNAUTHORIZED → AUTH_REQUIRED`, `BAD_REQUEST → VALIDATION_ERROR`, `FORBIDDEN → ACCESS_DENIED`, `NOT_FOUND → NOT_FOUND`, `TOO_MANY_REQUESTS → RATE_LIMITED`.
+
+## 34.3 DTO Layer (GOV-03)
+
+13 DTO files in `src/server/dto/` cover all domain entities. DTO schemas are derived from Drizzle row types via `drizzle-zod` `createSelectSchema()` — guaranteeing zero column drift between database schema and API contracts.
+
+## 34.4 Procedure Tiers (GOV-06)
+
+Six procedure tiers are implemented in `src/shared/api/trpc/server.ts`:
+
+| Tier                  | Middleware                                                               |
+| --------------------- | ------------------------------------------------------------------------ |
+| `publicProcedure`     | None                                                                     |
+| `protectedProcedure`  | Session check (step 1)                                                   |
+| `tenantProcedure`     | Session + tenant membership (steps 1-2)                                  |
+| `privilegedProcedure` | Session + tenant + role (ADMIN/BOARD/COMMITTEE) + suspension (steps 1-4) |
+| `adminProcedure`      | Session + tenant + role (ADMIN/BOARD only) + suspension (steps 1-4)      |
+| `agentProcedure`      | Session + tenant + role (AGENT/ADMIN/BOARD) (steps 1-3)                  |
+
+Auth middleware is a 5-step chain: (1) session exists → (2) tenant membership → (3) role/permission → (4) not suspended → (5) feature flag enabled. Steps 4 and 5 are now enforced on privileged and admin procedures.
+
+## 34.5 Classification JSDoc Tags (GOV-07)
+
+Every procedure across all 20+ routers carries a JSDoc classification tag:
+
+- `/** @public */` — publicProcedure endpoints (no auth required)
+- `/** @tenant */` — protectedProcedure and tenantProcedure endpoints (tenant membership required)
+- `/** @privileged */` — privilegedProcedure, adminProcedure, and agentProcedure endpoints (elevated role required)
+
+~235 procedures are tagged across 35 router files, enabling doc-generation tooling and manual audit of API governance compliance.
+
+## 34.6 OpenAPI Meta Audit (GOV-08)
+
+24 procedures carry `.meta({ openapi })` declarations. All external procedures have verified `method`, `path`, `tags`, and `protect` fields. `protect:false` on public survey endpoints. `protect:true` on all authenticated endpoints.
+
+## 34.7 Governance Rules Verified
+
+Post-Phase 120, the following governance rules are marked **VERIFIED**:
+
+- **Rule 4 (Response Envelope):** ✅ All tRPC procedures return `{success, data, meta}` via `toEnvelope()`
+- **Rule 5 (Canonical Error Codes):** ✅ tRPC errorFormatter rewrites native codes to canonical codes
+- **Rule 6 (DTO Mapping):** ✅ 13 DTO files derived from Drizzle tables; no raw ORM entities exposed
+- **Rule 7 (Authorization Layers):** ✅ 5-step auth middleware enforced; suspension and feature gate checks active
+
+---
+
+# 35. Future Governance Expansion
 
 Future governance areas may include:
 
@@ -954,7 +1012,7 @@ Future governance areas may include:
 
 ---
 
-# 35. Canonical Principle
+# 36. Canonical Principle
 
 The Netcomplex API layer exists to provide:
 

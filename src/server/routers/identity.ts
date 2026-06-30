@@ -1058,7 +1058,9 @@ export const identityRouter = router({
    * @tenant
    */
   getMySoloSeat: protectedProcedure
-    .meta({ openapi: { method: 'GET', path: '/my/solo-seat', tags: ['Solo Seats'] } })
+    .meta({
+      openapi: { method: 'GET', path: '/my/solo-seat', tags: ['Solo Seats'], protect: true },
+    })
     .output(
       toEnvelopeSchema(
         z
@@ -1101,7 +1103,9 @@ export const identityRouter = router({
    * @tenant
    */
   getAgentAccesses: protectedProcedure
-    .meta({ openapi: { method: 'GET', path: '/my/agent-accesses', tags: ['Agent Access'] } })
+    .meta({
+      openapi: { method: 'GET', path: '/my/agent-accesses', tags: ['Agent Access'], protect: true },
+    })
     .output(toEnvelopeSchema(z.array(agentAccessDto.passthrough())))
     .query(async ({ ctx }) => {
       const rows = await ctx.db
