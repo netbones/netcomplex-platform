@@ -1,6 +1,6 @@
 # Ubiquitous Language — NetComplex / Soralia Village
 
-> **Last updated:** 2026-06-27
+> **Last updated:** 2026-06-30
 > **Purpose:** Canonical definitions for all domain terms. When in doubt, this document is the authority.
 
 ---
@@ -80,6 +80,54 @@ A **derived display concept** used in the Directory context. Merges User + Seat 
 - **Code:** `Resident` interface in `src/entities/directory/model/types.ts`
 - **Not a DB model** — a UI convenience wrapper
 
+### Platform Address
+
+A tenant-scoped address string (format: `localPart@domain`) that identifies a resident, seat, or property within the community. Examples: `john.doe@property.soralia`, `42-main-st@property.soralia`. The Address Registry (Phase 46.2) consolidates addresses from 5 source tables into a single model with lifecycle management (cooling-off, archival), alias/canonical relationships, handles, and delivery endpoints.
+
+- **Code:** `Address`, `Handle`, `AddressEndpoint` (Prisma models, `prisma/schema.prisma:2528`)
+- **Source tables (backfilled):** `StandardSeat`, `SoloSeat`, `PremiumSeat` (each have `platformAddress`), `Profile` (`profileAddress`), `Property` (`platformAddress`)
+- **Not to be confused with:** Email address (a platform address is internal to the community, not an internet email)
+
+### Address Kind
+
+Classifies how a Platform Address is used.
+
+- **Canonical values:** `STANDARD` (household seat), `ALIAS` (secondary address pointing to a canonical), `SOLO` (individual non-household seat), `PREMIUM` (agent/premium seat), `PROVIDER` (service provider), `SYSTEM` (platform-internal)
+
+### Address Status
+
+Lifecycle state of a Platform Address.
+
+- **Canonical values:** `ACTIVE`, `RESERVED` (pending assignment), `COOLING_OFF` (unlinked, held for reuse prevention), `ARCHIVED` (historical record), `DELETED` (soft-deleted)
+
+### Address Owner Type
+
+The source entity type that owns a Platform Address.
+
+- **Canonical values:** `STANDARD_SEAT`, `PROFILE`, `SOLO_SEAT`, `PREMIUM_SEAT`, `PROPERTY`, `PROVIDER`, `SYSTEM`
+
+### Handle
+
+A human-friendly label pointing to a Platform Address. Provides an alternative lookup mechanism (e.g., `john.doe` → `john.doe@property.soralia`).
+
+- **Code:** `Handle` (Prisma model)
+- **Status:** `ACTIVE`, `RESERVED`, `RELEASED`
+
+### AddressEndpoint
+
+A delivery channel configuration attached to a Platform Address. Defines how to reach the address owner for a given communication mode.
+
+- **Code:** `AddressEndpoint` (Prisma model)
+- **Endpoint types:** `INTERNAL_CHAT`, `EMAIL`, `WEBFORM`, `API`, `SMS`, `WHATSAPP`, `PUSH`
+- **Config:** JSON blob per endpoint type (e.g., webhook URL for API, phone number for SMS/WhatsApp)
+
+### Canonical Address
+
+The authoritative Platform Address that aliases point to. An ALIAS-kind Address references a CANONICAL-kind Address via `canonicalAddressId`.
+
+- **Code:** Self-referential `Address.canonicalAddressId` → `Address.id`
+- **ForwardStrategy:** `DIRECT` (forward to alias owner directly) or `HOUSEHOLD` (forward to household members)
+
 ---
 
 ## Property & Household Terms
@@ -157,10 +205,12 @@ A fine-grained UI toggle with a dot-notation key (e.g., `page.maintenance`, `fea
 
 ### PlatformPageFlag
 
-A boolean or enum flag stored in the `settings` table, controlling per-tenant page visibility.
+A boolean or enum flag controlling per-tenant page visibility. Backed by the `settings` table via `SETTING_DEFS` (Phase 121 SSOT consolidation) — stored as rows in the generic `Setting` table, mapped to typed flags at read time through `getPlatformPageFlags()`.
 
-- **Code:** `PlatformPageFlags` in `src/entities/tenant/api/flags/platform-flags.ts`
-- **16 flags:** `campaign`, `conservation`, `chat`, `news`, `events`, `directory`, `groups`, `services`, `resources`, `maintenance`, `surveys`, `competitions`, `dashboard`, `bookings`, `messages`, `marketplacePaypal`
+- **Code:** `PlatformPageFlags` interface in `src/shared/lib/types/platform-page-flags.ts`, `SETTING_DEFS` mapping in `src/entities/tenant/api/settings-defs.ts`, loader in `src/entities/tenant/api/flags/platform-flags.ts`
+- **17 flags:** `campaign`, `conservation`, `chat`, `education`, `news`, `events`, `directory`, `groups`, `services`, `resources`, `maintenance`, `surveys`, `competitions`, `dashboard`, `bookings`, `messages`, `marketplacePaypal`
+- **6 additional string/enum settings beyond page flags:** `conservationExternalUrl`, `headerLinks`, `servicesConfig`, `providerRegistrationMode`, `customPages`, `customNav`
+- **Non-flag settings (Community Config):** `heroCarousel`, `statsHomes`, `statsYears`, `statsBirdSpecies`, `statsNativePlants`, `meritTierThresholds`, `meritExpiryDays`, `translationProvider`, `translationApiKey`
 - **Overlap with** FeatureRegistry page flags and ModuleKeys — see Conflicts section
 
 ### Plugin
@@ -446,3 +496,5 @@ The model is `MaintenanceRequest`; users see "Ticket Number" in the UI. This is 
 | 2026-06-08 | Closed C9: CONTENT_CATEGORIES synced to Prisma                                                                             | Added CONSERVATION, SERVICES, CAMPAIGN; constants + tests updated                                                                                                                                                                                                            |
 | 2026-06-27 | Defined ServiceBooking, CommunityServiceListing, CommunityServiceInquiry, ServiceProvider, Provider, and Marketplace terms | Phase 50 marketplace introduces the transaction flow from discovery → booking → payment → notification. These terms disambiguate ServiceBooking from facility Booking, define the provider dual-identity model, and establish "Services" as the user-facing marketplace term |
 | 2026-06-27 | Added `marketplacePaypal` to PlatformPageFlags (15 → 16 flags)                                                             | Phase 50 feature flag for PayPal payment gateway in marketplace checkout                                                                                                                                                                                                     |
+| 2026-06-30 | Consolidated PlatformPageFlags backing store to Setting SSOT (Phase 121, 5 def files → 1)                                  | Settings system now uses a single `settings-defs.ts` source of truth. `PlatformPageFlags` remains as a typed read interface mapped from Setting rows. Added 9 non-flag community-config setting keys                                                                         |
+| 2026-06-30 | Defined Platform Address Registry terms (Phase 46.2)                                                                       | New Address, Handle, AddressEndpoint models with 6 enums (AddressKind, AddressStatus, AddressOwnerType, HandleStatus, ForwardStrategy, EndpointType). Consolidates platformAddress/profileAddress from 5 source tables into one model with lifecycle management              |
