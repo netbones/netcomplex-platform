@@ -210,7 +210,9 @@ vi.mock('@shared/lib', () => ({
     if (perm === 'admin') return role === 'ADMIN';
     return false;
   }),
-  apiLogger: { error: vi.fn() },
+  apiLogger: { error: vi.fn(), warn: vi.fn() },
+  logger: { error: vi.fn(), warn: vi.fn() },
+  createComponentLogger: vi.fn(() => ({ error: vi.fn(), warn: vi.fn() })),
 }));
 
 // ── TASK 1: Mediation Thread Routes ──
