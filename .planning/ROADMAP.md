@@ -1345,21 +1345,28 @@ Plans:
 
 ## Phase 120: API Governance Hardening
 
-**Goal:** Close 3 systemic gaps between tRPC router implementations and the Netcomplex API Governance Standard: response envelope, canonical error codes, and DTO mapping. Add `tenantProcedure`/`privilegedProcedure` tiers.
+**Goal:** Close 3 systemic gaps between tRPC router implementations and the Netcomplex API Governance Standard: response envelope, canonical error codes, and DTO mapping. Wire existing `tenantProcedure`/`privilegedProcedure` tiers and add suspension checks.
 
-**Status:** Planning
+**Status:** Planning Complete — 6 plans in 3 waves
 
 **Milestone:** M5 — Anchor Tenant Launch (hardening)
 
 **Depends on:** BD `soralia-village-c2dd` (tRPC audit — complete), BD `soralia-village-wdnk` (ctx narrowing — complete), BD `soralia-village-7fly` (rate limiting — complete)
 
-**Requirements:** GOV-01 through GOV-08
+**Requirements:** GOV-01, GOV-02, GOV-03, GOV-04, GOV-05, GOV-06, GOV-07, GOV-08
 
-**Plans:**
+**Plans:** 6 plans
 
-- [ ] 120-01-PLAN.md — API Governance Hardening (40 tasks across 4 waves)
+| Wave | Plan                                            | Objective                                                                                                                       | Reqs                                   |
+| ---- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| 1    | [ ] 120-01-PLAN.md — Foundation Wiring          | Wire errorFormatter + suspension middleware + create missing DTOs (disputes, resources)                                         | GOV-02, GOV-03, GOV-04, GOV-05, GOV-06 |
+| 2    | [ ] 120-02-PLAN.md — Identity Router            | Replace inline schemas with DTOs, adopt tenantProcedure/privilegedProcedure                                                     | GOV-01, GOV-03, GOV-04, GOV-05         |
+| 2    | [ ] 120-03-PLAN.md — Core Router Migration      | Migrate 10 flat routers (content, achievements, events, bookings, groups, merits, notifications, invitations, settings, agents) | GOV-01, GOV-03                         |
+| 2    | [ ] 120-04-PLAN.md — Remaining Router Migration | Migrate dwallet, competitions, disputes, resources routers                                                                      | GOV-01, GOV-03                         |
+| 2    | [ ] 120-05-PLAN.md — Sub-Router Migration       | Migrate chat/, maintenance/, marketplace/, surveys/ (22 files)                                                                  | GOV-01, GOV-03                         |
+| 3    | [ ] 120-06-PLAN.md — Classification & Docs      | JSDoc @public/@tenant/@privileged tags + governance docs update                                                                 | GOV-07, GOV-08                         |
 
-**Scope:** 20 tRPC router files, 10 DTO files, 3 middleware additions. REST routes and Prisma schema unchanged.
+**Scope:** 20 tRPC router files (42 source files total), 2 new DTO files, 1 middleware file modified, 2 doc files updated. REST routes and Prisma schema unchanged.
 
 ## Phase 112: Monorepo — Full Milestone
 
