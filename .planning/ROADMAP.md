@@ -1100,8 +1100,9 @@ _Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md 
 
 **Plans:**
 
-- [x] 04-01-PLAN.md — Wire locale param to 5 public content pages (news, news/[id], services, resident/[id]) + news locale tests
-- [ ] 04-02-PLAN.md — Wire locale param to dashboard widgets + admin content + remove redundant helpers (UserContentWidget, TagCloudWidget, HomeLayer, conservation, useAdminContent, admin/content)
+2/2 plans complete
+
+- [x] 04-02-PLAN.md — Wire locale param to dashboard widgets + admin content + remove redundant helpers (UserContentWidget, TagCloudWidget, HomeLayer, conservation, useAdminContent, admin/content)
 
 ---
 
@@ -1117,6 +1118,8 @@ _Out-of-band maintenance phases that don't fit the milestone structure. Moved ou
 **Plans:** 0 plans
 
 Plans:
+
+- [x] 04-01-PLAN.md
 
 - [ ] TBD (run /gsd-plan-phase 100 to break down)
 
