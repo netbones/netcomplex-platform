@@ -1090,19 +1090,18 @@ _Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md 
 
 ## Phase 04: Content I18n
 
-**Goal:** Content-level locale transformation and frontend display — API returns locale-resolved strings, UI renders in user's active language
+**Goal:** Content-displaying routes and pages respect the user's active locale — all content fetches pass `&locale=${i18n.language}`, and redundant client-side locale helpers are removed.
 
-**Status:** Planning Complete (deferred — blocked on i18n router extension)
+**Status:** Planned — 2 plans in 1 wave (wiring-only phase)
 
-**Note:** This phase was originally scoped as a greenfield exploration (schema options, TipTap editor design). Since then, the schema (`title Json`, `content Json`, `excerpt Json?`, `defaultLocale`) and editor (`LocaleAwareEditor` + `ContentForm` with per-locale save/dirty tracking) have been delivered in Phases 42 and 45. The remaining scope is **frontend locale-aware content rendering**.
-
-**Status update (2026-06-30):** BD `7qkl` delivered middleware locale detection (cookie → accept-language, `x-locale` header, `i18n-locale` cookie) and root layout dynamic `<html lang>`. Content API locale transformation wired in REST `/api/content` and tRPC `content.listContent`/`getContent`. The `[lng]` routing dependency is resolved at the middleware level (rewrite approach). What remains is **frontend content display** — content card/detail pages consuming locale-resolved API.
+**Note:** The API layer, middleware locale detection, and i18next infrastructure were all delivered in prior work (Phases 42/45, BD `7qkl`). This phase is exclusively frontend wiring — adding locale query params to 9 content-fetching sites and removing 2 redundant client-side helpers. No new UI, no schema changes, no new packages.
 
 **Requirements:** CONTENT-I18N-01, CONTENT-I18N-02, CONTENT-I18N-03
 
 **Plans:**
 
-- [ ] 04-01-PLAN.md — Content-level i18n: API locale transformation + frontend display (updated 2026-06-30 — old exploration doc replaced; see plan for current scope)
+- [ ] 04-01-PLAN.md — Wire locale param to 5 public content pages (news, news/[id], services, resident/[id]) + news locale tests
+- [ ] 04-02-PLAN.md — Wire locale param to dashboard widgets + admin content + remove redundant helpers (UserContentWidget, TagCloudWidget, HomeLayer, conservation, useAdminContent, admin/content)
 
 ---
 
