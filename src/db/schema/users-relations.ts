@@ -23,6 +23,7 @@ import { accounts } from './accounts';
 import { agentAccesses } from './agent-accesses';
 import { agentTokens } from './agent-tokens';
 import { residentDelegations } from './resident-delegations';
+import { delegationActions } from './delegation-actions';
 import { agentProfiles } from './agent-profiles';
 import { albums } from './albums';
 import { communityServiceInquiries } from './community-service-inquiries';
@@ -52,6 +53,7 @@ import { disputeEvidences } from './dispute-evidences';
 import { disputeEvents } from './dispute-events';
 import { disputeMessages } from './dispute-messages';
 import { disputeNotifications } from './dispute-notifications';
+import { supports } from './supports';
 
 export const usersRelations = relations(users, helpers => ({
   assistSessions: helpers.many(assistSessions, { relationName: 'AssistSessionTouser' }),
@@ -95,6 +97,9 @@ export const usersRelations = relations(users, helpers => ({
   agentTokensIssued: helpers.many(agentTokens, { relationName: 'agentToken_issuedByIdTouser' }),
   residentDelegationsGranted: helpers.many(residentDelegations, {
     relationName: 'ResidentDelegation_owner',
+  }),
+  delegationActionsAsActor: helpers.many(delegationActions, {
+    relationName: 'DelegationActionTouser',
   }),
   agentProfile: helpers.one(agentProfiles),
   album: helpers.many(albums, { relationName: 'AlbumTouser' }),
@@ -156,4 +161,6 @@ export const usersRelations = relations(users, helpers => ({
   disputeNotification_user: helpers.many(disputeNotifications, {
     relationName: 'DisputeNotificationUser',
   }),
+  sentSupports: helpers.many(supports, { relationName: 'SentSupports' }),
+  receivedSupports: helpers.many(supports, { relationName: 'ReceivedSupports' }),
 }));

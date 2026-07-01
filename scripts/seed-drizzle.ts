@@ -36,6 +36,7 @@ import { responses } from '@schema/responses';
 import { competitions } from '@schema/competitions';
 import { maintenanceCategories } from '@schema/maintenance-categories';
 import { maintenanceTeams } from '@schema/maintenance-teams';
+import { bursaryFields } from '@schema/bursary-fields';
 import { serviceProviders } from '@schema/service-providers';
 import { maintenanceRequests } from '@schema/maintenance-requests';
 import { settings } from '@schema/settings';
@@ -313,7 +314,9 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
 
   // Resources
   console.log('Resources...');
-  const resRows = withTimestamps(withTenantId(tenantId, withTenantPrefix(slug, data.resources)));
+  const resRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.resources))
+  ).map(r => ({ ...r, tags: r.tags ?? [], featured: r.featured ?? false }));
   for (const r of resRows) {
     await db.insert(resources).values(r).onConflictDoNothing();
   }
@@ -395,6 +398,16 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
     await db.insert(maintenanceTeams).values(t).onConflictDoNothing();
   }
   console.log(`  ✓ ${teamRows.length} maintenance teams`);
+
+  // Bursary fields (education portal)
+  console.log('Bursary fields...');
+  const bursaryFieldRows = withTimestamps(
+    withTenantId(tenantId, withTenantPrefix(slug, data.bursaryFields))
+  );
+  for (const bf of bursaryFieldRows) {
+    await db.insert(bursaryFields).values(bf).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${bursaryFieldRows.length} bursary fields`);
 
   // Service providers
   console.log('Service providers...');
@@ -726,6 +739,12 @@ async function main() {
       label: 'Dispute Resolution',
       defaultEnabled: false,
       minTier: 'PREMIUM' as const,
+    },
+    {
+      key: 'education',
+      label: 'Education Portal',
+      defaultEnabled: true,
+      minTier: 'STANDARD' as const,
     },
     { key: 'dWallet', label: 'dWallet', defaultEnabled: false, minTier: 'PREMIUM' as const },
     {

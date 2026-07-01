@@ -1,0 +1,403 @@
+
+<style>
+  .adm-root { padding: 1rem 0; font-family: var(--font-sans); }
+  .adm-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .adm-title { font-size: 15px; font-weight: 500; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+  .adm-title i { font-size: 18px; }
+
+  .adm-tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--border); margin-bottom: 1.25rem; }
+  .adm-tab { padding: 0.5rem 1rem; font-size: 13px; color: var(--text-secondary); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .adm-tab.active { color: var(--text-accent); border-bottom-color: var(--border-accent); font-weight: 500; }
+  .adm-tab i { margin-right: 5px; font-size: 14px; vertical-align: -2px; }
+
+  .adm-toolbar { display: flex; gap: 8px; margin-bottom: 0.75rem; align-items: center; justify-content: space-between; }
+  .adm-toolbar input { flex: 1; max-width: 260px; }
+  .adm-count { font-size: 12px; color: var(--text-muted); }
+
+  .adm-row { display: grid; grid-template-columns: 28px 1fr auto auto auto; align-items: center; gap: 10px; padding: 10px 12px; border: 0.5px solid var(--border); border-radius: var(--radius); margin-bottom: 6px; background: var(--surface-2); }
+  .adm-row-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .adm-row-icon.bursary { background: var(--bg-accent); color: var(--text-accent); }
+  .adm-row-icon.resource { background: var(--bg-success); color: var(--text-success); }
+  .adm-row-body { min-width: 0; }
+  .adm-row-title { font-size: 13px; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .adm-row-sub { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .adm-status { font-size: 11px; padding: 2px 8px; border-radius: 99px; border: 0.5px solid var(--border); white-space: nowrap; }
+  .adm-status.published { color: var(--text-success); background: var(--bg-success); border-color: var(--border-success); }
+  .adm-status.draft { color: var(--text-secondary); background: var(--surface-1); }
+  .adm-status.expired { color: var(--text-danger); background: var(--bg-danger); border-color: var(--border-danger); }
+  .adm-icon-btn { width: 30px; height: 30px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); }
+  .adm-icon-btn:hover { background: var(--surface-1); }
+  .adm-icon-btn.danger:hover { color: var(--text-danger); border-color: var(--border-danger); background: var(--bg-danger); }
+  .adm-row-actions { display: flex; gap: 6px; }
+
+  .adm-panel { background: var(--surface-1); border-radius: 12px; padding: 1rem 1.125rem; margin-bottom: 1.25rem; }
+  .adm-panel-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 6px; }
+  .adm-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  .adm-field-row.full { grid-template-columns: 1fr; }
+  .adm-field label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 3px; }
+  .adm-field input, .adm-field select, .adm-field textarea { width: 100%; }
+  .adm-field textarea { min-height: 56px; resize: vertical; padding: 8px; border-radius: var(--radius); border: 0.5px solid var(--border); background: var(--fill-field); font-size: 13px; font-family: var(--font-sans); }
+  .adm-panel-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+  .adm-shelf-manager { display: flex; flex-wrap: wrap; gap: 8px; }
+  .adm-shelf-item { display: flex; align-items: center; gap: 8px; border: 0.5px solid var(--border); border-radius: var(--radius); padding: 6px 10px; background: var(--surface-2); }
+  .adm-shelf-stripe { width: 4px; height: 20px; border-radius: 2px; }
+  .adm-shelf-title { font-size: 12px; font-weight: 500; }
+  .adm-shelf-remove { cursor: pointer; color: var(--text-muted); font-size: 13px; }
+  .adm-shelf-remove:hover { color: var(--text-danger); }
+  .adm-shelf-add { display: flex; gap: 6px; align-items: center; border: 0.5px dashed var(--border-strong); border-radius: var(--radius); padding: 6px 10px; }
+  .adm-shelf-add input { width: 130px; font-size: 12px; height: 28px; }
+
+  .adm-pin-current { border: 2px solid var(--border-accent); border-radius: 12px; padding: 0.875rem 1rem; margin-bottom: 1rem; background: var(--surface-2); }
+  .adm-pin-label { font-size: 11px; background: var(--bg-accent); color: var(--text-accent); border-radius: 4px; padding: 2px 7px; font-weight: 500; display: inline-block; margin-bottom: 8px; }
+  .adm-pin-title { font-size: 14px; font-weight: 500; }
+  .adm-pin-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+  .adm-empty { text-align: center; padding: 1.5rem; color: var(--text-muted); font-size: 13px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+</style>
+
+<div class="adm-root">
+  <h2 class="sr-only">Education portal admin — manage bursaries, resources, the free-reading shelf, and the pinned item</h2>
+
+  <div class="adm-head">
+    <div class="adm-title"><i class="ti ti-school" aria-hidden="true"></i> Education portal content</div>
+    <button class="adm-icon-btn" style="width:auto;padding:0 12px;gap:6px;display:flex;" onclick="sendPrompt('Show me the resident-facing view of the education portal')">
+      <i class="ti ti-eye" aria-hidden="true"></i><span style="font-size:12px">Preview live</span>
+    </button>
+  </div>
+
+  <div class="adm-tabs" role="tablist">
+    <button class="adm-tab active" onclick="aSwitch('pin',this)"><i class="ti ti-pin" aria-hidden="true"></i>Pinned</button>
+    <button class="adm-tab" onclick="aSwitch('bursaries',this)"><i class="ti ti-award" aria-hidden="true"></i>Bursaries</button>
+    <button class="adm-tab" onclick="aSwitch('resources',this)"><i class="ti ti-books" aria-hidden="true"></i>Resources</button>
+    <button class="adm-tab" onclick="aSwitch('shelf',this)"><i class="ti ti-bookshelf" aria-hidden="true"></i>Gutenberg shelf</button>
+  </div>
+
+  <!-- PIN TAB -->
+  <div id="atab-pin" class="tab-panel active">
+    <div class="adm-pin-current" id="pin-current"></div>
+    <div class="adm-panel">
+      <div class="adm-panel-label"><i class="ti ti-edit" aria-hidden="true"></i>Set pinned item</div>
+      <div class="adm-field-row full">
+        <div class="adm-field">
+          <label>Headline</label>
+          <input type="text" id="pin-title" placeholder="e.g. NSFAS 2026 applications are open" />
+        </div>
+      </div>
+      <div class="adm-field-row full">
+        <div class="adm-field">
+          <label>Subtext</label>
+          <input type="text" id="pin-sub" placeholder="e.g. All SA citizens at public universities — closes 31 Jan 2026" />
+        </div>
+      </div>
+      <div class="adm-field-row">
+        <div class="adm-field">
+          <label>Link URL</label>
+          <input type="text" id="pin-link" placeholder="https://..." />
+        </div>
+        <div class="adm-field">
+          <label>Button label</label>
+          <input type="text" id="pin-btn" placeholder="Apply" value="Apply" />
+        </div>
+      </div>
+      <div class="adm-panel-actions">
+        <button onclick="clearPin()">Clear pin</button>
+        <button onclick="savePin()"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>Save pin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BURSARIES TAB -->
+  <div id="atab-bursaries" class="tab-panel">
+    <div class="adm-toolbar">
+      <input type="text" id="b-search" placeholder="Filter bursaries..." oninput="renderBursaryRows()" />
+      <span class="adm-count" id="b-count"></span>
+      <button onclick="openForm('bursary')"><i class="ti ti-plus" aria-hidden="true" style="margin-right:4px"></i>Add bursary</button>
+    </div>
+    <div id="bursary-form-slot"></div>
+    <div id="bursary-rows"></div>
+  </div>
+
+  <!-- RESOURCES TAB -->
+  <div id="atab-resources" class="tab-panel">
+    <div class="adm-toolbar">
+      <input type="text" id="r-search" placeholder="Filter resources..." oninput="renderResourceRows()" />
+      <span class="adm-count" id="r-count"></span>
+      <button onclick="openForm('resource')"><i class="ti ti-plus" aria-hidden="true" style="margin-right:4px"></i>Add resource</button>
+    </div>
+    <div id="resource-form-slot"></div>
+    <div id="resource-rows"></div>
+  </div>
+
+  <!-- SHELF TAB -->
+  <div id="atab-shelf" class="tab-panel">
+    <div class="adm-panel">
+      <div class="adm-panel-label"><i class="ti ti-bookshelf" aria-hidden="true"></i>Gutenberg shelf — up to 10 titles shown to residents</div>
+      <div class="adm-shelf-manager" id="shelf-manager"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let bursaries = [
+  { id:'b1', title:'Sasol Bursary Programme', org:'Sasol Ltd', field:'STEM', amount:'R90 000/yr', deadline:'2026-02-28', status:'published' },
+  { id:'b2', title:'Old Mutual Education Trust', org:'Old Mutual', field:'Commerce', amount:'R60 000/yr', deadline:'2026-03-15', status:'published' },
+  { id:'b3', title:'Department of Health Bursary', org:'Western Cape DoH', field:'Health', amount:'R120 000/yr', deadline:'2026-01-10', status:'expired' },
+  { id:'b4', title:'Fulbright Foreign Student Program', org:'US Embassy', field:'Arts', amount:'Full tuition', deadline:'2026-04-30', status:'published' },
+  { id:'b5', title:'Community trust top-up grant', org:'Soralia HOA', field:'General', amount:'R15 000', deadline:'2026-06-01', status:'draft' },
+];
+
+let resources = [
+  { id:'r1', title:'Khan Academy', org:'Khan Academy', type:'Course', link:'https://www.khanacademy.org', status:'published' },
+  { id:'r2', title:'MIT OpenCourseWare', org:'MIT', type:'Course', link:'https://ocw.mit.edu', status:'published' },
+  { id:'r3', title:'Siyavula open textbooks', org:'Siyavula Education', type:'Book', link:'https://www.siyavula.com', status:'published' },
+  { id:'r4', title:'New matric revision hub', org:'WCED', type:'Course', link:'https://wcedonline.westerncape.gov.za', status:'draft' },
+];
+
+let shelf = [
+  { title:'Treasure Island', author:'R. L. Stevenson', gutId:'120', stripe:'#3B6D11' },
+  { title:'Pride and Prejudice', author:'Jane Austen', gutId:'1342', stripe:'#185FA5' },
+  { title:'The Republic', author:'Plato', gutId:'1497', stripe:'#854F0B' },
+  { title:'Frankenstein', author:'M. Shelley', gutId:'84', stripe:'#993556' },
+];
+
+let pin = { title:'NSFAS 2026 applications are open', sub:'All SA citizens at public universities and TVET colleges — closes 31 Jan 2026', link:'https://www.nsfas.org.za', btn:'Apply' };
+
+const stripePool = ['#3B6D11','#185FA5','#854F0B','#993556','#534AB7','#993C1D','#0F6E56','#3C3489'];
+
+function aSwitch(name, el) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.adm-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('atab-'+name).classList.add('active');
+  el.classList.add('active');
+  if(name==='pin') renderPin();
+  if(name==='bursaries') renderBursaryRows();
+  if(name==='resources') renderResourceRows();
+  if(name==='shelf') renderShelf();
+}
+
+function statusBadge(s) {
+  const label = s==='published' ? 'Published' : s==='draft' ? 'Draft' : 'Expired';
+  return `<span class="adm-status ${s}">${label}</span>`;
+}
+
+function renderBursaryRows() {
+  const q = document.getElementById('b-search').value.toLowerCase();
+  const filtered = bursaries.filter(b => !q || b.title.toLowerCase().includes(q) || b.org.toLowerCase().includes(q));
+  document.getElementById('b-count').textContent = filtered.length + ' of ' + bursaries.length;
+  const el = document.getElementById('bursary-rows');
+  el.innerHTML = filtered.length ? filtered.map(b => `
+    <div class="adm-row">
+      <div class="adm-row-icon bursary"><i class="ti ti-award" aria-hidden="true"></i></div>
+      <div class="adm-row-body">
+        <div class="adm-row-title">${b.title}</div>
+        <div class="adm-row-sub">${b.org} · ${b.field} · ${b.amount} · closes ${b.deadline}</div>
+      </div>
+      ${statusBadge(b.status)}
+      <div class="adm-row-actions">
+        <button class="adm-icon-btn" aria-label="Edit" onclick="openForm('bursary','${b.id}')"><i class="ti ti-edit" aria-hidden="true"></i></button>
+        <button class="adm-icon-btn" aria-label="Toggle publish" onclick="togglePublish('bursary','${b.id}')"><i class="ti ${b.status==='published'?'ti-eye-off':'ti-eye'}" aria-hidden="true"></i></button>
+      </div>
+      <button class="adm-icon-btn danger" aria-label="Delete" onclick="deleteItem('bursary','${b.id}')"><i class="ti ti-trash" aria-hidden="true"></i></button>
+    </div>`).join('') : '<div class="adm-empty">No bursaries match. Try a different search or add a new one.</div>';
+}
+
+function renderResourceRows() {
+  const q = document.getElementById('r-search').value.toLowerCase();
+  const filtered = resources.filter(r => !q || r.title.toLowerCase().includes(q) || r.org.toLowerCase().includes(q));
+  document.getElementById('r-count').textContent = filtered.length + ' of ' + resources.length;
+  const el = document.getElementById('resource-rows');
+  el.innerHTML = filtered.length ? filtered.map(r => `
+    <div class="adm-row">
+      <div class="adm-row-icon resource"><i class="ti ti-book" aria-hidden="true"></i></div>
+      <div class="adm-row-body">
+        <div class="adm-row-title">${r.title}</div>
+        <div class="adm-row-sub">${r.org} · ${r.type}</div>
+      </div>
+      ${statusBadge(r.status)}
+      <div class="adm-row-actions">
+        <button class="adm-icon-btn" aria-label="Edit" onclick="openForm('resource','${r.id}')"><i class="ti ti-edit" aria-hidden="true"></i></button>
+        <button class="adm-icon-btn" aria-label="Toggle publish" onclick="togglePublish('resource','${r.id}')"><i class="ti ${r.status==='published'?'ti-eye-off':'ti-eye'}" aria-hidden="true"></i></button>
+      </div>
+      <button class="adm-icon-btn danger" aria-label="Delete" onclick="deleteItem('resource','${r.id}')"><i class="ti ti-trash" aria-hidden="true"></i></button>
+    </div>`).join('') : '<div class="adm-empty">No resources match. Try a different search or add a new one.</div>';
+}
+
+function openForm(kind, id) {
+  const isBursary = kind === 'bursary';
+  const list = isBursary ? bursaries : resources;
+  const item = id ? list.find(x => x.id === id) : null;
+  const slot = document.getElementById(isBursary ? 'bursary-form-slot' : 'resource-form-slot');
+
+  if (isBursary) {
+    slot.innerHTML = `
+      <div class="adm-panel">
+        <div class="adm-panel-label"><i class="ti ti-edit" aria-hidden="true"></i>${item ? 'Edit bursary' : 'New bursary'}</div>
+        <div class="adm-field-row">
+          <div class="adm-field"><label>Title</label><input id="f-title" value="${item?item.title:''}" placeholder="Bursary name" /></div>
+          <div class="adm-field"><label>Organisation</label><input id="f-org" value="${item?item.org:''}" placeholder="Funder" /></div>
+        </div>
+        <div class="adm-field-row">
+          <div class="adm-field"><label>Field of study</label>
+            <select id="f-field">
+              ${['STEM','Commerce','Arts','Health','Law','Education','General'].map(f=>`<option ${item&&item.field===f?'selected':''}>${f}</option>`).join('')}
+            </select>
+          </div>
+          <div class="adm-field"><label>Amount</label><input id="f-amount" value="${item?item.amount:''}" placeholder="e.g. R90 000/yr" /></div>
+        </div>
+        <div class="adm-field-row">
+          <div class="adm-field"><label>Closing date</label><input type="date" id="f-deadline" value="${item?item.deadline:''}" /></div>
+          <div class="adm-field"><label>Status</label>
+            <select id="f-status">
+              ${['draft','published','expired'].map(s=>`<option value="${s}" ${item&&item.status===s?'selected':''}>${s[0].toUpperCase()+s.slice(1)}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="adm-panel-actions">
+          <button onclick="closeForm('bursary')">Cancel</button>
+          <button onclick="saveForm('bursary','${item?item.id:''}')"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>${item?'Save changes':'Create bursary'}</button>
+        </div>
+      </div>`;
+  } else {
+    slot.innerHTML = `
+      <div class="adm-panel">
+        <div class="adm-panel-label"><i class="ti ti-edit" aria-hidden="true"></i>${item ? 'Edit resource' : 'New resource'}</div>
+        <div class="adm-field-row">
+          <div class="adm-field"><label>Title</label><input id="f-title" value="${item?item.title:''}" placeholder="Resource name" /></div>
+          <div class="adm-field"><label>Provider</label><input id="f-org" value="${item?item.org:''}" placeholder="Organisation" /></div>
+        </div>
+        <div class="adm-field-row">
+          <div class="adm-field"><label>Type</label>
+            <select id="f-type">
+              ${['Book','Course','Journal','Video'].map(t=>`<option ${item&&item.type===t?'selected':''}>${t}</option>`).join('')}
+            </select>
+          </div>
+          <div class="adm-field"><label>Status</label>
+            <select id="f-status">
+              ${['draft','published'].map(s=>`<option value="${s}" ${item&&item.status===s?'selected':''}>${s[0].toUpperCase()+s.slice(1)}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="adm-field-row full">
+          <div class="adm-field"><label>Link URL</label><input id="f-link" value="${item?item.link:''}" placeholder="https://..." /></div>
+        </div>
+        <div class="adm-panel-actions">
+          <button onclick="closeForm('resource')">Cancel</button>
+          <button onclick="saveForm('resource','${item?item.id:''}')"><i class="ti ti-check" aria-hidden="true" style="margin-right:4px"></i>${item?'Save changes':'Create resource'}</button>
+        </div>
+      </div>`;
+  }
+}
+
+function closeForm(kind) {
+  document.getElementById(kind==='bursary'?'bursary-form-slot':'resource-form-slot').innerHTML = '';
+}
+
+function saveForm(kind, id) {
+  if (kind === 'bursary') {
+    const data = {
+      title: document.getElementById('f-title').value || 'Untitled bursary',
+      org: document.getElementById('f-org').value,
+      field: document.getElementById('f-field').value,
+      amount: document.getElementById('f-amount').value,
+      deadline: document.getElementById('f-deadline').value,
+      status: document.getElementById('f-status').value,
+    };
+    if (id) { Object.assign(bursaries.find(b=>b.id===id), data); }
+    else { bursaries.unshift({ id:'b'+Date.now(), ...data }); }
+    closeForm('bursary');
+    renderBursaryRows();
+  } else {
+    const data = {
+      title: document.getElementById('f-title').value || 'Untitled resource',
+      org: document.getElementById('f-org').value,
+      type: document.getElementById('f-type').value,
+      link: document.getElementById('f-link').value,
+      status: document.getElementById('f-status').value,
+    };
+    if (id) { Object.assign(resources.find(r=>r.id===id), data); }
+    else { resources.unshift({ id:'r'+Date.now(), ...data }); }
+    closeForm('resource');
+    renderResourceRows();
+  }
+}
+
+function togglePublish(kind, id) {
+  const item = (kind==='bursary'?bursaries:resources).find(x=>x.id===id);
+  item.status = item.status === 'published' ? 'draft' : 'published';
+  kind==='bursary' ? renderBursaryRows() : renderResourceRows();
+}
+
+function deleteItem(kind, id) {
+  if (kind === 'bursary') { bursaries = bursaries.filter(b=>b.id!==id); renderBursaryRows(); }
+  else { resources = resources.filter(r=>r.id!==id); renderResourceRows(); }
+}
+
+function renderShelf() {
+  const el = document.getElementById('shelf-manager');
+  el.innerHTML = shelf.map((b,i) => `
+    <div class="adm-shelf-item">
+      <div class="adm-shelf-stripe" style="background:${b.stripe}"></div>
+      <div>
+        <div class="adm-shelf-title">${b.title}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${b.author} · #${b.gutId}</div>
+      </div>
+      <i class="ti ti-x adm-shelf-remove" aria-hidden="true" onclick="removeShelfItem(${i})"></i>
+    </div>`).join('') + `
+    <div class="adm-shelf-add">
+      <input type="text" id="shelf-title" placeholder="Title" />
+      <input type="text" id="shelf-author" placeholder="Author" />
+      <input type="text" id="shelf-gutid" placeholder="Gutenberg ID" style="width:90px" />
+      <button class="adm-icon-btn" aria-label="Add title" onclick="addShelfItem()"><i class="ti ti-plus" aria-hidden="true"></i></button>
+    </div>`;
+}
+
+function addShelfItem() {
+  const title = document.getElementById('shelf-title').value.trim();
+  const author = document.getElementById('shelf-author').value.trim();
+  const gutId = document.getElementById('shelf-gutid').value.trim();
+  if (!title || !gutId) return;
+  shelf.push({ title, author: author || 'Unknown', gutId, stripe: stripePool[shelf.length % stripePool.length] });
+  renderShelf();
+}
+
+function removeShelfItem(i) {
+  shelf.splice(i,1);
+  renderShelf();
+}
+
+function renderPin() {
+  document.getElementById('pin-current').innerHTML = pin.title ? `
+    <span class="adm-pin-label">Currently pinned</span>
+    <div class="adm-pin-title">${pin.title}</div>
+    <div class="adm-pin-sub">${pin.sub}</div>` : `
+    <span class="adm-pin-label" style="background:var(--surface-1);color:var(--text-muted)">No pin set</span>
+    <div class="adm-pin-title" style="color:var(--text-muted)">No pinned item is showing to residents</div>`;
+  document.getElementById('pin-title').value = pin.title;
+  document.getElementById('pin-sub').value = pin.sub;
+  document.getElementById('pin-link').value = pin.link;
+  document.getElementById('pin-btn').value = pin.btn;
+}
+
+function savePin() {
+  pin = {
+    title: document.getElementById('pin-title').value,
+    sub: document.getElementById('pin-sub').value,
+    link: document.getElementById('pin-link').value,
+    btn: document.getElementById('pin-btn').value || 'Apply',
+  };
+  renderPin();
+}
+
+function clearPin() {
+  pin = { title:'', sub:'', link:'', btn:'Apply' };
+  renderPin();
+}
+
+renderPin();
+renderBursaryRows();
+renderResourceRows();
+renderShelf();
+</script>

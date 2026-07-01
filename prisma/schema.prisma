@@ -195,6 +195,8 @@ model user {
   disputeEvent_actor                                  DisputeEvent[]            @relation("DisputeEventActor")
   disputeMessage_sender                               DisputeMessage[]          @relation("DisputeMessageSender")
   disputeNotification_user                            DisputeNotification[]     @relation("DisputeNotificationUser")
+  sentSupports                                                Support[]                 @relation("SentSupports")
+  receivedSupports                                                Support[]                 @relation("ReceivedSupports")
 }
 
 model Profile {
@@ -844,6 +846,10 @@ model Resource {
   fileSize      Int?
   externalUrl   String?
   bodyContent   Json?
+  provider      String?
+  tags          String[]             @default([])
+  mediaType     ResourceMediaType?
+  featured      Boolean              @default(false)
   version       String?
   downloadCount Int                @default(0)
   visibility    ResourceVisibility @default(ALL_RESIDENTS)
@@ -1027,6 +1033,20 @@ model MaintenanceCategory {
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   deletedAt   DateTime?
+
+  @@index([tenantId])
+}
+
+model BursaryField {
+  id          String     @id @default(cuid())
+  tenantId    String
+  value       String
+  label       String
+  description String?
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  deletedAt   DateTime?
+  bursaries   Bursary[]
 
   @@index([tenantId])
 }
@@ -2355,6 +2375,7 @@ enum ResourceCategory {
   DIY
   FINANCIAL
   LEGAL
+  EDUCATION
   OTHER
 }
 
@@ -2363,6 +2384,19 @@ enum ResourceVisibility {
   OWNERS_ONLY
   BOARD_ONLY
   COMMITTEE_ONLY
+}
+
+enum BursaryStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ResourceMediaType {
+  BOOK
+  COURSE
+  JOURNAL
+  VIDEO
 }
 
 // ── Enums: Bookings ──
@@ -3002,4 +3036,26 @@ model DisputeNotification {
 
   @@index([disputeId])
   @@index([userId])
+}
+
+model Bursary {
+  id          String        @id @default(cuid())
+  tenantId    String
+  title       String
+  funder      String
+  fieldId     String
+  amount      String
+  description String
+  applyUrl    String?
+  deadline    DateTime
+  status      BursaryStatus @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+  field       BursaryField  @relation(fields: [fieldId], references: [id])
+
+  @@index([tenantId])
+  @@index([deadline])
+  @@index([status])
+  @@index([fieldId])
 }

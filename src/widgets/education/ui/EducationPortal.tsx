@@ -14,9 +14,67 @@ import {
 } from '../data';
 import type { Bursary, Resource, EducationTabId } from '@entities/education';
 
-interface EducationData {
-  bursaries: Bursary[];
-  resources: Resource[];
+interface DbBursary {
+  id: string;
+  title: string;
+  funder: string;
+  fieldId: string;
+  amount: string;
+  description: string;
+  applyUrl: string | null;
+  deadline: string;
+  status: string;
+}
+
+interface DbResource {
+  id: string;
+  title: string;
+  provider: string | null;
+  externalUrl: string | null;
+  mediaType: string | null;
+  featured: boolean;
+  tags: string[];
+  description: string | null;
+}
+
+interface PinData {
+  title: string;
+  sub: string;
+  link: string;
+  btn: string;
+}
+
+interface ShelfBook {
+  title: string;
+  author: string;
+  gutId: string;
+  stripe: string;
+}
+
+function mapBursary(db: DbBursary, fieldLabel?: string): Bursary {
+  return {
+    id: db.id,
+    title: db.title,
+    org: db.funder,
+    field: fieldLabel ?? db.fieldId,
+    amount: db.amount,
+    period: '',
+    desc: db.description,
+    deadline: db.deadline,
+    status: db.status === 'PUBLISHED' ? 'open' : db.status === 'DRAFT' ? 'closing' : 'closed',
+  };
+}
+
+function mapResource(db: DbResource): Resource {
+  return {
+    id: db.id,
+    title: db.title,
+    org: db.provider ?? '',
+    type: db.mediaType ? db.mediaType.charAt(0) + db.mediaType.slice(1).toLowerCase() : 'Course',
+    desc: db.description ?? '',
+    link: db.externalUrl ?? '',
+    tags: db.tags,
+  };
 }
 
 function countClosing(bursaries: Bursary[]): number {
@@ -263,18 +321,25 @@ function ResourceCard({
   );
 }
 
-function GutenbergShelf({ tx }: { tx: (key: string, fallback: string) => string }) {
+function GutenbergShelf({
+  books,
+  tx,
+}: {
+  books: ShelfBook[];
+  tx: (key: string, fallback: string) => string;
+}) {
+  if (!books.length) return null;
   return (
     <>
       <div className="edu-section-label">
         {tx('shelf.gutenberg', 'Gutenberg classics — free to read')}
       </div>
       <div className="edu-shelf">
-        {GUTENBERG.map(book => (
+        {books.map(book => (
           <a
-            key={book.id}
+            key={book.gutId}
             className="edu-spine"
-            href={`https://www.gutenberg.org/ebooks/${book.id}`}
+            href={`https://www.gutenberg.org/ebooks/${book.gutId}`}
             target="_blank"
             rel="noopener noreferrer"
             title={book.title}
@@ -293,11 +358,13 @@ function BursariesTab({
   bursaries,
   saved,
   onToggleSave,
+  pin,
   tx,
 }: {
   bursaries: Bursary[];
   saved: Set<string>;
   onToggleSave: (id: string) => void;
+  pin: PinData | null;
   tx: (key: string, fallback: string) => string;
 }) {
   const [query, setQuery] = useState('');
@@ -331,41 +398,45 @@ function BursariesTab({
         </div>
       </div>
 
-      <div className="edu-featured">
-        <span className="edu-featured-badge">{tx('featured.pinned', 'Pinned')}</span>
-        <div className="edu-featured-body">
-          <div className="edu-featured-title">
-            {tx('featured.nsfasTitle', 'NSFAS 2026 applications are open')}
+      {pin?.title ? (
+        <div className="edu-featured">
+          <span className="edu-featured-badge">{tx('featured.pinned', 'Pinned')}</span>
+          <div className="edu-featured-body">
+            <div className="edu-featured-title">{pin.title}</div>
+            <div className="edu-featured-sub">{pin.sub}</div>
           </div>
-          <div className="edu-featured-sub">
-            {tx(
-              'featured.nsfasDesc',
-              'All SA citizens at public universities and TVET colleges — closes 31 Jan 2026'
-            )}
-          </div>
-        </div>
-        <div className="edu-featured-action">
-          <a href={NSFAS_URL} target="_blank" rel="noopener noreferrer" className="edu-btn-small">
-            {tx('card.apply', 'Apply')}{' '}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{ verticalAlign: '-1px' }}
+          <div className="edu-featured-action">
+            <a
+              href={pin.link || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="edu-btn-small"
             >
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              <polyline points="15 3 21 3 21 9" />
-              <line x1="10" y1="14" x2="21" y2="3" />
-            </svg>
-          </a>
+              {pin.btn || 'Apply'}
+            </a>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="edu-featured">
+          <span className="edu-featured-badge">{tx('featured.pinned', 'Pinned')}</span>
+          <div className="edu-featured-body">
+            <div className="edu-featured-title">
+              {tx('featured.nsfasTitle', 'NSFAS 2026 applications are open')}
+            </div>
+            <div className="edu-featured-sub">
+              {tx(
+                'featured.nsfasDesc',
+                'All SA citizens at public universities and TVET colleges — closes 31 Jan 2026'
+              )}
+            </div>
+          </div>
+          <div className="edu-featured-action">
+            <a href={NSFAS_URL} target="_blank" rel="noopener noreferrer" className="edu-btn-small">
+              {tx('card.apply', 'Apply')}
+            </a>
+          </div>
+        </div>
+      )}
 
       <div className="edu-search">
         <input
@@ -428,11 +499,13 @@ function ResourcesTab({
   resources,
   saved,
   onToggleSave,
+  books,
   tx,
 }: {
   resources: Resource[];
   saved: Set<string>;
   onToggleSave: (id: string) => void;
+  books: ShelfBook[];
   tx: (key: string, fallback: string) => string;
 }) {
   const [query, setQuery] = useState('');
@@ -468,7 +541,7 @@ function ResourcesTab({
         </select>
       </div>
 
-      <GutenbergShelf tx={tx} />
+      <GutenbergShelf books={books} tx={tx} />
 
       <div className="edu-section-label">{tx('allResources', 'All resources')}</div>
       <div className="edu-grid">
@@ -519,7 +592,7 @@ function SavedTab({
   tx,
 }: {
   bursaries: Bursary[];
-  resources: typeof RESOURCES;
+  resources: Resource[];
   saved: Set<string>;
   onToggleSave: (id: string) => void;
   tx: (key: string, fallback: string) => string;
@@ -583,15 +656,43 @@ export function EducationPortal() {
   const { tx } = useSafeTranslation('education');
   const [activeTab, setActiveTab] = useState<EducationTabId>('bursaries');
   const [saved, setSaved] = useState<Set<string>>(new Set());
-  const [apiData, setApiData] = useState<EducationData | null>(null);
+  const [apiBursaries, setApiBursaries] = useState<Bursary[] | null>(null);
+  const [apiResources, setApiResources] = useState<Resource[] | null>(null);
+  const [shelfBooks, setShelfBooks] = useState<ShelfBook[]>([]);
+  const [pin, setPin] = useState<PinData | null>(null);
   const savedCountEl = useRef<HTMLSpanElement>(null);
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch('/api/education');
-      const json = await res.json();
-      if (json?.data?.bursaries?.length > 0 || json?.data?.resources?.length > 0) {
-        setApiData(json.data);
+      const [bRes, rRes, fRes, sRes] = await Promise.all([
+        fetch('/api/education/bursaries'),
+        fetch('/api/education/resources'),
+        fetch('/api/education/bursary-fields'),
+        fetch('/api/education/settings'),
+      ]);
+      const bJson = await bRes.json();
+      const rJson = await rRes.json();
+      const fJson = await fRes.json();
+      const sJson = await sRes.json();
+
+      const fields: { id: string; label: string }[] = fJson.data ?? [];
+      const fieldMap = new Map(fields.map(f => [f.id, f.label]));
+
+      const rawBursaries = (bJson.data ?? []) as DbBursary[];
+      const rawResources = (rJson.data ?? []) as DbResource[];
+      const settings = sJson.data ?? {};
+
+      if (rawBursaries.length > 0) {
+        setApiBursaries(rawBursaries.map(b => mapBursary(b, fieldMap.get(b.fieldId))));
+      }
+      if (rawResources.length > 0) {
+        setApiResources(rawResources.map(mapResource));
+      }
+      if (settings.shelf?.length > 0) {
+        setShelfBooks(settings.shelf);
+      }
+      if (settings.pin?.title) {
+        setPin(settings.pin);
       }
     } catch {
       /* fall through to static data */
@@ -628,8 +729,12 @@ export function EducationPortal() {
   }, [saved]);
 
   // Use API data if available, fallback to static data
-  const bursaries = apiData?.bursaries ?? BURSARIES;
-  const resources = apiData?.resources ?? RESOURCES;
+  const bursaries = apiBursaries ?? BURSARIES;
+  const resources = apiResources ?? RESOURCES;
+  const shelf: ShelfBook[] =
+    shelfBooks.length > 0
+      ? shelfBooks
+      : GUTENBERG.map(g => ({ title: g.title, author: g.author, gutId: g.id, stripe: g.stripe }));
 
   return (
     <ErrorBoundary>
@@ -713,7 +818,13 @@ export function EducationPortal() {
           className="tab-panel"
           style={{ display: activeTab === 'bursaries' ? 'block' : 'none' }}
         >
-          <BursariesTab bursaries={bursaries} saved={saved} onToggleSave={toggleSave} tx={tx} />
+          <BursariesTab
+            bursaries={bursaries}
+            saved={saved}
+            onToggleSave={toggleSave}
+            pin={pin}
+            tx={tx}
+          />
         </div>
 
         <div
@@ -721,7 +832,13 @@ export function EducationPortal() {
           className="tab-panel"
           style={{ display: activeTab === 'resources' ? 'block' : 'none' }}
         >
-          <ResourcesTab resources={resources} saved={saved} onToggleSave={toggleSave} tx={tx} />
+          <ResourcesTab
+            resources={resources}
+            saved={saved}
+            onToggleSave={toggleSave}
+            books={shelf}
+            tx={tx}
+          />
         </div>
 
         <div

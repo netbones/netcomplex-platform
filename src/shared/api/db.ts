@@ -98,6 +98,8 @@ import { competitionEntries } from '@schema/competition-entries';
 import { maintenanceTeams } from '@schema/maintenance-teams';
 import { serviceProviders } from '@schema/service-providers';
 import { maintenanceCategories } from '@schema/maintenance-categories';
+import { bursaryFields } from '@schema/bursary-fields';
+import { bursaries } from '@schema/bursaries';
 import { requestNotes } from '@schema/request-notes';
 import { internalMaintenanceNotes } from '@schema/internal-maintenance-notes';
 import { requestHistories } from '@schema/request-histories';
@@ -207,6 +209,8 @@ const dbSchema = {
   maintenanceTeams,
   serviceProviders,
   maintenanceCategories,
+  bursaryFields,
+  bursaries,
   requestNotes,
   internalMaintenanceNotes,
   requestHistories,
@@ -473,6 +477,8 @@ export {
   residentDelegations,
   agentTokens,
   delegationActions,
+  bursaryFields,
+  bursaries,
   addresses,
   addressesRelations,
   handles,

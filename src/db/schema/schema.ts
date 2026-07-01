@@ -29,6 +29,7 @@ import * as conversationParticipants from './conversation-participants';
 import * as messages from './messages';
 import * as contents from './contents';
 import * as contentLikes from './content-likes';
+import * as supports from './supports';
 import * as groups from './groups';
 import * as groupMembers from './group-members';
 import * as groupMembershipRequests from './group-membership-requests';
@@ -42,6 +43,7 @@ import * as bookings from './bookings';
 import * as maintenanceRequests from './maintenance-requests';
 import * as maintenanceTeams from './maintenance-teams';
 import * as maintenanceCategories from './maintenance-categories';
+import * as bursaryFields from './bursary-fields';
 import * as requestNotes from './request-notes';
 import * as internalMaintenanceNotes from './internal-maintenance-notes';
 import * as requestHistories from './request-histories';
@@ -106,6 +108,7 @@ import * as disputeEvents from './dispute-events';
 import * as disputeMessages from './dispute-messages';
 import * as disputeMessageVersions from './dispute-message-versions';
 import * as disputeNotifications from './dispute-notifications';
+import * as bursaries from './bursaries';
 import * as accountsRelations from './accounts-relations';
 import * as passkeysRelations from './passkeys-relations';
 import * as sessionsRelations from './sessions-relations';
@@ -135,6 +138,7 @@ import * as conversationParticipantsRelations from './conversation-participants-
 import * as messagesRelations from './messages-relations';
 import * as contentsRelations from './contents-relations';
 import * as contentLikesRelations from './content-likes-relations';
+import * as supportsRelations from './supports-relations';
 import * as groupsRelations from './groups-relations';
 import * as groupMembersRelations from './group-members-relations';
 import * as groupMembershipRequestsRelations from './group-membership-requests-relations';
@@ -147,6 +151,7 @@ import * as eventAttendeesRelations from './event-attendees-relations';
 import * as bookingsRelations from './bookings-relations';
 import * as maintenanceRequestsRelations from './maintenance-requests-relations';
 import * as maintenanceTeamsRelations from './maintenance-teams-relations';
+import * as bursaryFieldsRelations from './bursary-fields-relations';
 import * as requestNotesRelations from './request-notes-relations';
 import * as internalMaintenanceNotesRelations from './internal-maintenance-notes-relations';
 import * as requestHistoriesRelations from './request-histories-relations';
@@ -205,6 +210,7 @@ import * as disputeEventsRelations from './dispute-events-relations';
 import * as disputeMessagesRelations from './dispute-messages-relations';
 import * as disputeMessageVersionsRelations from './dispute-message-versions-relations';
 import * as disputeNotificationsRelations from './dispute-notifications-relations';
+import * as bursariesRelations from './bursaries-relations';
 
 export const schema = {
   ...accounts,
@@ -238,6 +244,7 @@ export const schema = {
   ...messages,
   ...contents,
   ...contentLikes,
+  ...supports,
   ...groups,
   ...groupMembers,
   ...groupMembershipRequests,
@@ -251,6 +258,7 @@ export const schema = {
   ...maintenanceRequests,
   ...maintenanceTeams,
   ...maintenanceCategories,
+  ...bursaryFields,
   ...requestNotes,
   ...internalMaintenanceNotes,
   ...requestHistories,
@@ -315,6 +323,7 @@ export const schema = {
   ...disputeMessages,
   ...disputeMessageVersions,
   ...disputeNotifications,
+  ...bursaries,
   ...accountsRelations,
   ...passkeysRelations,
   ...sessionsRelations,
@@ -344,6 +353,7 @@ export const schema = {
   ...messagesRelations,
   ...contentsRelations,
   ...contentLikesRelations,
+  ...supportsRelations,
   ...groupsRelations,
   ...groupMembersRelations,
   ...groupMembershipRequestsRelations,
@@ -356,6 +366,7 @@ export const schema = {
   ...bookingsRelations,
   ...maintenanceRequestsRelations,
   ...maintenanceTeamsRelations,
+  ...bursaryFieldsRelations,
   ...requestNotesRelations,
   ...internalMaintenanceNotesRelations,
   ...requestHistoriesRelations,
@@ -414,4 +425,5 @@ export const schema = {
   ...disputeMessagesRelations,
   ...disputeMessageVersionsRelations,
   ...disputeNotificationsRelations,
+  ...bursariesRelations,
 };

@@ -154,6 +154,22 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
     description: 'Advanced analytics and insights',
     icon: 'chart-line',
   },
+  'page.disputes': {
+    key: 'page.disputes',
+    tier: 'depth',
+    category: 'page',
+    label: 'Dispute Resolution',
+    description: 'CSOS-compliant dispute filing and mediation',
+    icon: 'balance-scale',
+  },
+  'page.education': {
+    key: 'page.education',
+    tier: 'foundation',
+    category: 'page',
+    label: 'Education Portal',
+    description: 'Bursaries, scholarships, and free learning resources',
+    icon: 'graduation-cap',
+  },
   'page.admin': {
     key: 'page.admin',
     tier: 'foundation',
@@ -251,6 +267,22 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
     label: 'External Surveys',
     description: 'Integrate external survey tools',
     icon: 'external-link',
+  },
+  'feature.education.bursaries': {
+    key: 'feature.education.bursaries',
+    tier: 'foundation',
+    category: 'feature',
+    label: 'Bursaries',
+    description: 'Manage and display bursary listings',
+    icon: 'money-bill-wave',
+  },
+  'feature.education.resources': {
+    key: 'feature.education.resources',
+    tier: 'foundation',
+    category: 'feature',
+    label: 'Education Resources',
+    description: 'Curated learning resources and Gutenberg shelf',
+    icon: 'book-open',
   },
 };
 
@@ -399,6 +431,14 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
     category: 'admin',
     label: 'dWallet Admin',
     description: 'Community value distribution, payout management, and compliance overview',
+    page: 'admin',
+  },
+  'education-admin': {
+    key: 'education-admin',
+    tier: 'foundation',
+    category: 'admin',
+    label: 'Education Portal Admin',
+    description: 'Manage bursaries, resources, and education settings',
     page: 'admin',
   },
   'stats-widget': {

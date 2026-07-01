@@ -76,6 +76,8 @@ export {
   maintenanceTeams,
   serviceProviders,
   maintenanceCategories,
+  bursaryFields,
+  bursaries,
   requestNotes,
   internalMaintenanceNotes,
   requestHistories,

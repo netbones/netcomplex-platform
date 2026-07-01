@@ -212,7 +212,8 @@ export type ResourceCategory =
   | 'FINANCIAL'
   | 'LEGAL'
   | 'DIY'
-  | 'BOARD_REPORT';
+  | 'BOARD_REPORT'
+  | 'EDUCATION';
 
 export type ResourceVisibility = 'ALL_RESIDENTS' | 'OWNERS_ONLY' | 'COMMITTEE_ONLY';
 
@@ -228,6 +229,10 @@ export interface ResourceInput {
   visibility: ResourceVisibility;
   authorId: string;
   publishedAt: Date;
+  provider?: string;
+  tags?: string[];
+  mediaType?: 'BOOK' | 'COURSE' | 'JOURNAL' | 'VIDEO';
+  featured?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -326,6 +331,14 @@ export interface CompetitionInput {
 // ---------------------------------------------------------------------------
 // Maintenance
 // ---------------------------------------------------------------------------
+
+export interface BursaryFieldInput {
+  id: string;
+  value: string;
+  label: string;
+  description?: string;
+  isActive: boolean;
+}
 
 export interface MaintenanceCategoryInput {
   id: string;
@@ -531,6 +544,7 @@ export interface TenantSeedData {
   competitions: CompetitionInput[];
   maintenanceCategories: MaintenanceCategoryInput[];
   maintenanceTeams: MaintenanceTeamInput[];
+  bursaryFields: BursaryFieldInput[];
   serviceProviders: ServiceProviderInput[];
   maintenanceRequests: MaintenanceRequestInput[];
   settings: SettingInput[];

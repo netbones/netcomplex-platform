@@ -25,6 +25,7 @@ export type ModuleKey =
   | 'property'
   | 'agentGateway'
   | 'analytics'
+  | 'education'
   | 'adminAdvanced';
 
 export interface ModuleDefinition {
@@ -160,6 +161,12 @@ export const MODULES: Record<ModuleKey, ModuleDefinition> = {
     label: 'Admin (Advanced)',
     description: 'Full admin with analytics',
     tier: 'core',
+  },
+  education: {
+    key: 'education',
+    label: 'Education Portal',
+    description: 'Bursaries, scholarships, and free learning resources',
+    tier: 'foundation',
   },
 };
 

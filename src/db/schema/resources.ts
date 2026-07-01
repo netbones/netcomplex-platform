@@ -1,5 +1,6 @@
-import { pgTable, text, integer, jsonb, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, jsonb, boolean, timestamp } from 'drizzle-orm/pg-core';
 import { resourceCategoryEnum } from './resource-category-enum';
+import { resourceMediaTypeEnum } from './resource-media-type-enum';
 import { resourceVisibilityEnum } from './resource-visibility-enum';
 
 export const resources = pgTable('Resource', {
@@ -13,6 +14,10 @@ export const resources = pgTable('Resource', {
   fileSize: integer('fileSize'),
   externalUrl: text('externalUrl'),
   bodyContent: jsonb('bodyContent'),
+  provider: text('provider'),
+  tags: text('tags').array().default([]).notNull(),
+  mediaType: resourceMediaTypeEnum('mediaType'),
+  featured: boolean('featured').default(false).notNull(),
   version: text('version'),
   downloadCount: integer('downloadCount').default(0).notNull(),
   visibility: resourceVisibilityEnum('visibility').default('ALL_RESIDENTS').notNull(),

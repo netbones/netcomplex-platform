@@ -1686,6 +1686,58 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
     },
   ],
 
+  bursaryFields: [
+    {
+      id: 'sh-bf-stem',
+      value: 'STEM',
+      label: 'STEM',
+      description: 'Science, Technology, Engineering, Mathematics',
+      isActive: true,
+    },
+    {
+      id: 'sh-bf-commerce',
+      value: 'Commerce',
+      label: 'Commerce',
+      description: 'Business, Finance, Accounting, Economics',
+      isActive: true,
+    },
+    {
+      id: 'sh-bf-arts',
+      value: 'Arts',
+      label: 'Arts',
+      description: 'Visual Arts, Performing Arts, Design, Music',
+      isActive: true,
+    },
+    {
+      id: 'sh-bf-health',
+      value: 'Health',
+      label: 'Health',
+      description: 'Medicine, Nursing, Pharmacy, Public Health',
+      isActive: true,
+    },
+    {
+      id: 'sh-bf-law',
+      value: 'Law',
+      label: 'Law',
+      description: 'Legal studies, Human Rights, Criminology',
+      isActive: true,
+    },
+    {
+      id: 'sh-bf-education',
+      value: 'Education',
+      label: 'Education',
+      description: 'Teaching, Curriculum Development, Educational Psychology',
+      isActive: true,
+    },
+    {
+      id: 'sh-bf-general',
+      value: 'General',
+      label: 'General',
+      description: 'Any field of study',
+      isActive: true,
+    },
+  ],
+
   maintenanceTeams: [
     {
       id: 'slh-team-lifts',
