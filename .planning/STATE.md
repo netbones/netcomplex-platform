@@ -6,12 +6,12 @@ current_phase: 120
 current_phase_name: api-governance-hardening
 status: executing
 stopped_at: Phase 04 UI-SPEC approved
-last_updated: '2026-07-01T13:57:36.596Z'
+last_updated: '2026-07-01T15:57:15.948Z'
 progress:
   total_phases: 68
   completed_phases: 57
-  total_plans: 179
-  completed_plans: 169
+  total_plans: 180
+  completed_plans: 170
   percent: 84
 ---
 
@@ -20,11 +20,11 @@ progress:
 ## Current Position
 
 Phase: 46.2 — COMPLETE
-Plan: 1 of 3
+Plan: 2 of 3
 
 - **Phase:** Phase 120 (api-governance-hardening) — Plan 2 complete (identity router migration)
 
-**Last Session:** 2026-07-01T13:57:36.541Z
+**Last Session:** 2026-07-01T15:56:24.019Z
 **Stopped at:** Phase 04 UI-SPEC approved
 
 ## Active Phase Decisions
@@ -184,6 +184,7 @@ Plan: 1 of 3
 - [Phase 50-service-marketplace]: prisma-generator-drizzle auto-regenerates Drizzle schema files on prisma db push — manual formatting overwritten; generated format is canonical
 - [Phase 50-service-marketplace]: MarketplaceWidget initially renders a placeholder — full listing grid and booking UI deferred to Plan 50-04
 - [Phase ?]: TDD RED-GREEN cycle used for all 3 booking calendar tasks — Each task has separate test and feat commits ensuring test-first development
+- [Phase 04-content-i18n]: Use i18n.language from existing useTranslation() hook — no new imports or wrappers needed — Pattern used across all 4 pages consistently
 
 ## Notes
 
@@ -367,6 +368,7 @@ Plan: 1 of 3
 | Phase 50-service-marketplace P04                | 13 min | 3 tasks  | 7 files  |
 | Phase 120-api-governance-hardening P01          | 28m    | 3 tasks  | 4 files  |
 | Phase 120-api-governance-hardening P04          | 19min  | 2 tasks  | 4 files  |
+| Phase 04-content-i18n P01                       | 7min   | 3 tasks  | 5 files  |
 
 ## Accumulated Context
 

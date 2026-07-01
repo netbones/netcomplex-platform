@@ -1100,7 +1100,7 @@ _Items explicitly deferred to post-launch. These have PLAN.md but no SUMMARY.md 
 
 **Plans:**
 
-- [ ] 04-01-PLAN.md — Wire locale param to 5 public content pages (news, news/[id], services, resident/[id]) + news locale tests
+- [x] 04-01-PLAN.md — Wire locale param to 5 public content pages (news, news/[id], services, resident/[id]) + news locale tests
 - [ ] 04-02-PLAN.md — Wire locale param to dashboard widgets + admin content + remove redundant helpers (UserContentWidget, TagCloudWidget, HomeLayer, conservation, useAdminContent, admin/content)
 
 ---
