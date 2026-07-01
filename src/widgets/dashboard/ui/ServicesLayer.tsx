@@ -171,11 +171,7 @@ export function ServicesLayer() {
   }
 
   const serviceDomains = SERVICES_DOMAIN_DEFINITIONS.filter(
-    d =>
-      d.id !== 'surveys' &&
-      d.id !== 'competitions' &&
-      d.id !== 'marketplace' &&
-      d.id !== 'education'
+    d => d.id !== 'surveys' && d.id !== 'competitions' && d.id !== 'marketplace'
   );
   const engagementDomains = SERVICES_DOMAIN_DEFINITIONS.filter(
     d => d.id === 'surveys' || d.id === 'competitions'
@@ -246,13 +242,25 @@ export function ServicesLayer() {
           {tx('sections.myLearning', 'My Learning')}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {SERVICES_DOMAIN_DEFINITIONS.filter(d => d.id === 'education').map(domain => (
-            <DomainCard
-              key={domain.id}
-              domain={domain}
-              badge={urgency.domainBadges[domain.id] ?? 0}
-            />
-          ))}
+          <Link
+            href="/education"
+            className="group relative flex items-start gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 hover:shadow-md transition-all border border-gray-100"
+          >
+            <div className="flex-shrink-0 w-10 h-10">
+              <img src="/platform/education-red.svg" alt="" className="w-full h-full" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold text-gray-900 group-hover:text-indigo-600 transition truncate">
+                {tx('domains.education', 'Education Portal')}
+              </h3>
+              <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+                {tx(
+                  'domains.descriptions.education',
+                  'Bursaries, scholarships, and free learning resources'
+                )}
+              </p>
+            </div>
+          </Link>
         </div>
       </section>
 

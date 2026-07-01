@@ -254,14 +254,18 @@ Most REST routes do **not** have rate limiting applied, including high-risk endp
 
 ## 9. CORS Configuration
 
-**CRITICAL FINDING:** No CORS configuration found anywhere in the codebase. A search for `cors`, `CORS`, `Access-Control-Allow`, and `cross-origin` across all source files returned zero results. This means:
+**STATUS (2026-06-25): RESOLVED — See SENIOR_REPORT.md Sprint 1 T1**
 
-- No `Access-Control-Allow-Origin` headers are set
-- No `Access-Control-Allow-Methods` headers
-- No `Access-Control-Allow-Headers` headers
-- No preflight (`OPTIONS`) handlers in any API route
+`addCorsHeaders()` was added to `src/middleware.ts` with an OPTIONS handler during the Sprint 1 audit. Cross-origin headers are now served by the middleware.
 
-The system likely relies on Vercel's default CORS behavior or Next.js middleware defaults, but any external client (Android app, third-party integration, mobile browser on a different origin) will encounter CORS errors when making API calls. This is a significant gap given the documented mobile/Android consumption goals in `API.md`.
+~~**CRITICAL FINDING:** No CORS configuration found anywhere in the codebase. A search for `cors`, `CORS`, `Access-Control-Allow`, and `cross-origin` across all source files returned zero results. This means:~~
+
+~~- No `Access-Control-Allow-Origin` headers are set~~
+~~- No `Access-Control-Allow-Methods` headers~~
+~~- No `Access-Control-Allow-Headers` headers~~
+~~- No preflight (`OPTIONS`) handlers in any API route~~
+
+~~The system likely relies on Vercel's default CORS behavior or Next.js middleware defaults, but any external client (Android app, third-party integration, mobile browser on a different origin) will encounter CORS errors when making API calls. This is a significant gap given the documented mobile/Android consumption goals in `API.md`.~~
 
 ## 10. API Governance Documentation
 
@@ -294,7 +298,7 @@ The governance document is thorough and well-structured, covering:
 
 ### High Severity
 
-1. **No CORS configuration** — Zero CORS-related code found. Android/mobile clients and external integrations will fail on cross-origin requests.
+1. **~~No CORS configuration~~** — ✅ Resolved: `addCorsHeaders()` added to `src/middleware.ts` (SENIOR_REPORT.md T1).
 2. **Massive tRPC/REST duplication** — 16+ domains have both tRPC routers AND parallel REST handlers implementing the same operations. This doubles maintenance surface and creates potential behavioral drift.
 3. **Inconsistent auth in REST routes** — Three different REST files define their own `getSessionAndRole()` inline instead of importing the canonical version from `@api/server`. Most REST routes do not check suspension status.
 
@@ -310,3 +314,16 @@ The governance document is thorough and well-structured, covering:
 8. **Massive barrel file** — `src/shared/api/server/index.ts` at 234 lines re-exports everything. This is convenient but creates tight coupling and slow type-checking.
 9. **Only ~10% of tRPC procedures are OpenAPI-exported** — 24 of 235+ procedures have `.meta({ openapi })`. This is by design (internal-only procedures vs. external contracts) but limits the reach of the canonical contract flow.
 10. **No CI enforcement of `npx redocly lint`** — Documented as required but not visibly enforced in the codebase.
+
+---
+
+## Reconciliation: Post-Audit Fixes (SENIOR_REPORT.md)
+
+This analysis was snapshotted before the Senior Engineer Audit (2026-06-25). The following items were subsequently resolved:
+
+| SENIOR_REPORT Ref                | Issue                            | Fix                                                         |
+| -------------------------------- | -------------------------------- | ----------------------------------------------------------- |
+| T1 (Sprint 1)                    | No CORS configuration            | `addCorsHeaders()` in `src/middleware.ts` + OPTIONS handler |
+| S5-1 to S5-6, S6-2 (Sprints 5–6) | TypeScript errors in REST routes | Path aliases, `Promise<params>`, import/export fixes        |
+
+Issues #2–#10 above remain open as of the audit close.

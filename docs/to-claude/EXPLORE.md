@@ -389,7 +389,7 @@ webhooks/ payload/
 - profile/ (layout, page)
 - proudly-soralia/page.tsx
 - resident/ (layout, id/page, page)
-- resources/ (layout, page, page.tsx.old)
+- resources/ (layout, page)
 - services/ (layout, page, id/)
 - surveys/ (layout, id/page, page)
 - terms/page.tsx

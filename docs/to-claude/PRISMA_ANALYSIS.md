@@ -218,15 +218,15 @@ TenantPayment Has indexes, but missing on couponId
 
 ### Key findings about missing indexes:
 
-1.  Conversation -- no indexes at all. If conversations are ever queried by tenantId, this will full-scan.
-2.  Survey -- no indexes. Queries by tenantId, status, date range will be slow.
-3.  ExternalSurvey -- no indexes.
+1.  ~~Conversation -- no indexes at all. If conversations are ever queried by tenantId, this will full-scan.~~ → **RESOLVED per S4-2: `@@index([tenantId])` added**
+2.  ~~Survey -- no indexes. Queries by tenantId, status, date range will be slow.~~ → **RESOLVED per S4-2: `@@index([tenantId, status])` added**
+3.  ~~ExternalSurvey -- no indexes.~~ → **RESOLVED per S4-2: `@@index([tenantId, isActive])` added**
 4.  Organization -- queried by slug (unique) but no tenant-scoped index.
 5.  AiCapabilityCost -- no indexes at all.
 6.  PlatformAiTierQuota -- no indexes at all (queried by tier which is @unique).
 7.  Response -- missing @@index([tenantId]). Survey responses are tenant-scoped.
-8.  Event -- missing index on date for chronological queries.
-9.  Content -- missing @@index([tenantId]) even though it is tenant-scoped. Missing @@index([published])/@@index([category]) for content filtering.
+8.  ~~Event -- missing index on date for chronological queries.~~ → **RESOLVED per S5-7: `@@index([date])` added**
+9.  ~~Content -- missing @@index([tenantId]) even though it is tenant-scoped.~~ → **RESOLVED per S5-7: `@@index([tenantId])` added**
 10. Resource -- indexed on tenantId, category, visibility, authorId but missing on downloadCount or publishedAt if sorting is needed.
 
 ## 4. Missing Foreign Key Relationships
@@ -245,14 +245,14 @@ Where naming is mismatched or missing
 |UserAchievement Same issue: has definitionId but no @relation to AchievementDefinition.
 |CommunityMerit Has tenantId but no FK to Tenant.
 |AgentToken Has tenantId but no FK to Tenant.
-|DelegationAction Has tenantId but no FK to Tenant. Has actorId but no @relation to user.
+|DelegationAction Has tenantId but no FK to Tenant. ~~Has actorId but no @relation to user.~~ → **RESOLVED per S4-1: relation + back-link added**
 |PlatformSuspension Has tenantId but no FK to Tenant.
 
 ## Critical missing FKs (no @relation at all):
 
 1. UserAchievementProgress.definitionId -- Contains an FK value with no relation declaration. This will NOT create a DB FK constraint.
 2. UserAchievement.definitionId -- Same issue.
-3. DelegationAction.actorId -- Has a plain actorId String field with no @relation. No FK constraint.
+3. ~~DelegationAction.actorId -- Has a plain actorId String field with no @relation. No FK constraint.~~ → **RESOLVED per S4-1**
 4. N+1 Query Risks Based on Relation Patterns
 
 ## High Risk
@@ -399,16 +399,31 @@ strict: true,
 9. No migration SQL files exist under ./drizzle/
    Implication: The database schema is likely managed entirely through Prisma Migrate (not Drizzle Kit). The Drizzle configuration appears to be set up for future use but is not currently active. The generator drizzle block in the Prisma schema outputs to ../src/db/schema (i.e., src/db/schema), which is where the Drizzle schema types are generated for use in application code. The Drizzle Kit migration pipeline (drizzle.config.ts → ./drizzle/ → \_journal.json) is a separate mechanism that is configured but unused.
 
-# Consolidated Summary of Critical Findings
+# Consolidated Summary of Critical Findings (reconciled against SENIOR_REPORT.md 2026-06-25)
 
 |Severity| Finding|
 1 HIGH drizzle.config.ts points to ./prisma/drizzle/schema.ts which does not exist. The Prisma generator outputs to ../src/db/schema instead.
 2 HIGH UserAchievementProgress.definitionId and UserAchievement.definitionId have no @relation declared. No FK constraint will be created in the database.
-3 HIGH DelegationAction.actorId has no @relation declared. Dangling foreign key with no integrity constraint.
-4 MEDIUM 19 models have zero composite indexes. Conversation, Survey, ExternalSurvey, Organization, AiCapabilityCost, PlatformAiTierQuota are the most impactful.
+~~3 HIGH DelegationAction.actorId has no @relation declared. Dangling foreign key with no integrity constraint.~~ → ✅ RESOLVED per S4-1
+4 MEDIUM 19 models have zero composite indexes. ~~Conversation, Survey, ExternalSurvey~~ → **All 3 resolved per S4-2 + S5-7. Organization, AiCapabilityCost, PlatformAiTierQuota remain.**
 5 MEDIUM ~20 tenant-scoped models have a tenantId String field but no FK relation to Tenant. Tenant deletion will leave orphans across the database.
 6 MEDIUM 3 seat models (PremiumSeat, SoloSeat, StandardSeat) share ~10 fields. Polymorphism via separate tables adds maintenance burden.
 7 MEDIUM TenantInvoice and ProviderInvoice are near-duplicates. TenantPayment and PaymentTransaction are also near-duplicates.
 8 MEDIUM 8 models have computed/denormalized fields (rating, reviewCount, entryCount, balance, viewCount, downloadCount, totalListings, activeListings, salesCompleted) that could drift from source-of-truth.
 9 LOW user model has 55 relation back-links. This is a god-model anti-pattern and creates N+1 risk for any eager-loading query.
 10 LOW Soft-delete (deletedAt) is applied inconsistently: 38 models have it, 70 do not. No clear policy on when to soft-delete vs hard-delete.
+
+---
+
+## Reconciliation: Post-Audit Fixes (SENIOR_REPORT.md)
+
+This analysis was snapshotted before the Senior Engineer Audit (2026-06-25). The following items were subsequently resolved:
+
+| SENIOR_REPORT Ref | Issue                                                                                                       | Fix                                       |
+| ----------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| S4-1 (Sprint 4)   | `DelegationAction.actorId` no FK relation                                                                   | Added `@relation` + back-link             |
+| S4-2 (Sprint 4)   | Missing indexes: `Conversation(tenantId)`, `Survey(tenantId, status)`, `ExternalSurvey(tenantId, isActive)` | Added `@@index` declarations              |
+| S4-3 (Sprint 4)   | Missing `SurveySection` back-link on Survey                                                                 | Added `sections SurveySection[]` relation |
+| S5-7 (Sprint 5)   | Missing indexes: `Content(tenantId)`, `Event(date)`                                                         | Added `@@index` declarations              |
+
+Remaining open: Drizzle config mismatch, UserAchievement FK gap, tenant-id orphan risk, model duplication, denormalized aggregates, soft-delete inconsistency.

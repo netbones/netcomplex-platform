@@ -705,22 +705,6 @@ export function registerAllWidgets(registry: { register: (m: WidgetManifest) => 
   });
 
   registry.register({
-    id: 'education-portal',
-    version: '1.0.0',
-    name: 'Education Portal',
-    description: 'Bursaries, scholarships, and free learning resources',
-    author: 'internal',
-    category: 'core',
-    icon: FileText,
-    permissions: ['RESIDENT'],
-    component: lazy(() => import('@widgets/education').then(m => ({ default: m.EducationPortal }))),
-    defaultSize: { width: 4, height: 3 },
-    minSize: { width: 3, height: 2 },
-    dragHandleClassName: 'widget-drag-handle',
-    spaces: ['services'],
-  });
-
-  registry.register({
     id: 'admin-merits',
     version: '1.0.0',
     name: 'Merits Escalation',
