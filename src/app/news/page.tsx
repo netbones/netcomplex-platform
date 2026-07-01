@@ -28,7 +28,7 @@ interface ContentItem {
 }
 
 export default function NewsPage() {
-  const { t } = useTranslation(['common', 'news']);
+  const { t, i18n } = useTranslation(['common', 'news']);
   const [content, setContent] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -43,12 +43,14 @@ export default function NewsPage() {
 
   useEffect(() => {
     fetchContent();
-  }, [selectedCategory]);
+  }, [selectedCategory, i18n.language]);
 
   const fetchContent = async () => {
     try {
       const categoryParam = selectedCategory !== 'ALL' ? `&category=${selectedCategory}` : '';
-      const res = await fetch(`/api/content?published=true${categoryParam}`);
+      const res = await fetch(
+        `/api/content?published=true&locale=${i18n.language}${categoryParam}`
+      );
       if (res.ok) {
         const body = await res.json();
         const data = body?.data ?? body;
