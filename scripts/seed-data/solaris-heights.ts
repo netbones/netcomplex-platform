@@ -1956,6 +1956,22 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
 
   settings: [
     { id: 'slh-setting-ticket-format', key: 'ticket_number_format', value: 'SLH-{YYYY}-{NNNN}' },
+    {
+      id: 'slh-setting-education-settings',
+      key: 'education_settings',
+      value: JSON.stringify({
+        pin: { title: '', sub: '', link: '', btn: 'Apply' },
+        shelf: [
+          { title: 'Treasure Island', author: 'R. L. Stevenson', gutId: '120', stripe: '#3B6D11' },
+          {
+            title: 'Great Expectations',
+            author: 'Charles Dickens',
+            gutId: '1400',
+            stripe: '#534AB7',
+          },
+        ],
+      }),
+    },
   ],
 
   subscriptionTiers: [],

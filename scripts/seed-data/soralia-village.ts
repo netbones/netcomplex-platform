@@ -3221,6 +3221,24 @@ export const SORALIA_VILLAGE: TenantSeedData = {
         ],
       }),
     },
+    {
+      id: 'setting-education-settings',
+      key: 'education_settings',
+      value: JSON.stringify({
+        pin: {
+          title: 'NSFAS 2026 applications are open',
+          sub: 'All SA citizens at public universities and TVET colleges — closes 31 Jan 2026',
+          link: 'https://www.nsfas.org.za',
+          btn: 'Apply',
+        },
+        shelf: [
+          { title: 'Treasure Island', author: 'R. L. Stevenson', gutId: '120', stripe: '#3B6D11' },
+          { title: 'Pride and Prejudice', author: 'Jane Austen', gutId: '1342', stripe: '#185FA5' },
+          { title: 'The Republic', author: 'Plato', gutId: '1497', stripe: '#854F0B' },
+          { title: 'Frankenstein', author: 'M. Shelley', gutId: '84', stripe: '#993556' },
+        ],
+      }),
+    },
   ],
 
   // -------------------------------------------------------------------------
