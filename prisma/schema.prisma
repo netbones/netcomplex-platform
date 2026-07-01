@@ -158,6 +158,7 @@ model user {
   agentTokensAsAgent                                    AgentToken[]              @relation("agentToken_agentIdTouser")
   agentTokensIssued                                     AgentToken[]              @relation("agentToken_issuedByIdTouser")
   residentDelegationsGranted                            ResidentDelegation[]      @relation("ResidentDelegation_owner")
+  delegationActionsAsActor                              DelegationAction[]
   agentProfile                                          AgentProfile?
   album                                                 Album[]
   communityServiceInquiry                               CommunityServiceInquiry[]
@@ -644,6 +645,8 @@ model Conversation {
   deletedAt               DateTime?
   ConversationParticipant ConversationParticipant[]
   Message                 Message[]
+
+  @@index([tenantId])
 }
 
 model ConversationParticipant {
@@ -1589,7 +1592,10 @@ model Survey {
   deletedAt   DateTime?
   Question    Question[]
   Response    Response[]
-  Section     SurveySection[]
+  SurveySection SurveySection[]
+
+  @@index([tenantId, status])
+  @@index([tenantId])
 }
 
 model Question {
@@ -1652,6 +1658,9 @@ model ExternalSurvey {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @default(now()) @updatedAt
   deletedAt  DateTime?
+
+  @@index([tenantId])
+  @@index([tenantId, isActive])
 }
 
 // ── Community Merits ──
@@ -1839,6 +1848,7 @@ model DelegationAction {
   createdAt    DateTime  @default(now())
 
   delegation AgentAccess @relation(fields: [delegationId], references: [id])
+  actor         user      @relation(fields: [actorId], references: [id])
 
   @@index([delegationId])
   @@index([tenantId])
