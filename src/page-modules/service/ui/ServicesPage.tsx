@@ -76,7 +76,7 @@ const FORM_INITIAL = {
 };
 
 export function ServicesPage() {
-  const { t } = useTranslation('services');
+  const { t, i18n } = useTranslation('services');
   const { t: tCommon } = useTranslation('common');
   const router = useRouter();
   const [serviceCategories, setServiceCategories] = useState(defaultCats);
@@ -97,7 +97,7 @@ export function ServicesPage() {
     async function fetchAll() {
       try {
         const [contentRes, configRes] = await Promise.all([
-          fetch('/api/content?category=SERVICES&published=true'),
+          fetch('/api/content?category=SERVICES&published=true&locale=${i18n.language}'),
           fetch('/api/admin/services-config'),
         ]);
 
@@ -143,7 +143,7 @@ export function ServicesPage() {
       }
     }
     fetchAll();
-  }, []);
+  }, [i18n.language]);
 
   const openForm = useCallback((serviceId: string, serviceTitle: string) => {
     setSelectedService(serviceTitle);

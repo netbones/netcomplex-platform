@@ -61,7 +61,7 @@ function getCategoryLabel(category: string) {
 }
 
 export default function NewsPostPage() {
-  const { t } = useTranslation(['common', 'news']);
+  const { t, i18n } = useTranslation(['common', 'news']);
   const params = useParams();
   const id = params?.id as string;
 
@@ -86,7 +86,7 @@ export default function NewsPostPage() {
     const fetchPost = async () => {
       try {
         const [postRes, likeRes] = await Promise.all([
-          fetch(`/api/content/${id}?published=true`),
+          fetch(`/api/content/${id}?published=true&locale=${i18n.language}`),
           fetch(`/api/content/${id}/like`),
         ]);
 
@@ -113,7 +113,7 @@ export default function NewsPostPage() {
     };
 
     fetchPost();
-  }, [id]);
+  }, [id, i18n.language]);
 
   if (!isReady) {
     return LoadingComponent;

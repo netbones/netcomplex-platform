@@ -21,7 +21,7 @@ interface SidebarWidget {
 }
 
 // Public sidebar widgets component for resident profiles
-function PublicSidebarWidgets({ userId }: { userId: string }) {
+function PublicSidebarWidgets({ userId, locale }: { userId: string; locale: string }) {
   const [widgets, setWidgets] = useState<SidebarWidget[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -46,7 +46,7 @@ function PublicSidebarWidgets({ userId }: { userId: string }) {
           return (
             <div key={widget.id} className="bg-white rounded-lg shadow-md p-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Content Tags</h3>
-              <TagCloudWidgetForUser userId={userId} />
+              <TagCloudWidgetForUser userId={userId} locale={locale} />
             </div>
           );
         }
@@ -57,7 +57,7 @@ function PublicSidebarWidgets({ userId }: { userId: string }) {
 }
 
 // Tag cloud widget that shows tags from a specific user's content
-function TagCloudWidgetForUser({ userId }: { userId: string }) {
+function TagCloudWidgetForUser({ userId, locale }: { userId: string; locale: string }) {
   const [tags, setTags] = useState<{ name: string; size: string; count: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -65,7 +65,9 @@ function TagCloudWidgetForUser({ userId }: { userId: string }) {
     const fetchUserTags = async () => {
       try {
         // Fetch user's published content and extract tags
-        const response = await fetch(`/api/content?authorId=${userId}&published=true`);
+        const response = await fetch(
+          `/api/content?authorId=${userId}&published=true&locale=${locale}`
+        );
         if (response.ok) {
           const body = await response.json();
           const content = body?.data ?? body;
@@ -104,7 +106,7 @@ function TagCloudWidgetForUser({ userId }: { userId: string }) {
     };
 
     fetchUserTags();
-  }, [userId]);
+  }, [userId, locale]);
 
   const getTagSize = (count: number): string => {
     if (count >= 5) return 'text-lg';
@@ -204,7 +206,7 @@ interface ResidentUser {
 function ProfileContent() {
   const params = useParams();
   const id = params?.id as string | undefined;
-  const { tx: txCommon } = useSafeTranslation('common');
+  const { tx: txCommon, language } = useSafeTranslation('common');
   const { data: session } = authClient.useSession();
   const [user, setUser] = useState<ResidentUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -474,7 +476,7 @@ function ProfileContent() {
 
         {/* Sidebar column */}
         <div className="lg:col-span-1">
-          <PublicSidebarWidgets userId={user.id} />
+          <PublicSidebarWidgets userId={user.id} locale={language} />
         </div>
       </div>
 
