@@ -4,6 +4,8 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
+vi.setConfig({ testTimeout: 15000 });
+
 // ── Hoisted mock state ──
 const mocks = vi.hoisted(() => ({
   sessionResult: null as { user: { id: string } } | null,

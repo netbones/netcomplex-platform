@@ -17,6 +17,34 @@ vi.mock('next/headers', () => ({
 }));
 
 const mocks = vi.hoisted(() => {
+  class MockAddressService {
+    constructor(_db: unknown) {}
+    isAddressTaken = vi.fn().mockResolvedValue(false);
+    searchAddresses = vi.fn().mockResolvedValue([]);
+    generateAddress = vi.fn().mockResolvedValue({ platformAddress: '123-test-addr' });
+    createAddress = vi.fn().mockResolvedValue({ platformAddress: '123-test-addr', id: 'addr-1' });
+    updateAddress = vi.fn().mockResolvedValue({ platformAddress: '456-updated-addr' });
+    deleteAddress = vi.fn().mockResolvedValue({});
+    lookupByOwnerInSeats = vi
+      .fn()
+      .mockResolvedValue({ id: 'existing-addr-1', platformAddress: '123-old-addr' });
+    move = vi.fn().mockResolvedValue({ id: 'moved-addr', platformAddress: '456-moved-addr' });
+  }
+
+  class MockAddressConflictError extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'AddressConflictError';
+    }
+  }
+
+  class MockAddressValidationError extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'AddressValidationError';
+    }
+  }
+
   const apiSuccess = vi.fn(
     (data: unknown) =>
       new Response(JSON.stringify({ success: true, data }), {
@@ -53,6 +81,9 @@ const mocks = vi.hoisted(() => {
     apiNotFound,
     apiUnauthorized,
     writeAuditLog: vi.fn(),
+    MockAddressService,
+    MockAddressConflictError,
+    MockAddressValidationError,
   };
 });
 
@@ -149,6 +180,9 @@ vi.mock('@api/server', () => ({
   throwIfSuspended: vi.fn(() => Promise.resolve(mocks.throwIfSuspendedResult)),
   writeAuditLog: (...args: unknown[]) => mocks.writeAuditLog(...args),
   withErrorHandler: (handler: any) => handler,
+  AddressService: mocks.MockAddressService,
+  AddressConflictError: mocks.MockAddressConflictError,
+  AddressValidationError: mocks.MockAddressValidationError,
 }));
 
 vi.mock('@entities/tenant/server', () => ({
