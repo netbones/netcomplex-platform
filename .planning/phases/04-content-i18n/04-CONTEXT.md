@@ -79,14 +79,15 @@ This phase delivers **frontend content locale responsiveness** — ensuring all 
 <specifics>
 ## Specific Ideas
 
-### Ten Content-Fetching Sites Affected (from RESEARCH.md)
+### Nine Content-Fetching Sites Affected (from RESEARCH.md)
 
 1. `/news/page.tsx` — News listing
 2. `/news/[id]/page.tsx` — News article detail
 3. `ServicesPage.tsx` — Services listing
 4. `/resident/[id]/page.tsx` — Resident profile
-5. `/unit/[id]/page.tsx` — Unit detail
-   6-10. Dashboard widgets and admin views
+   5-9. Dashboard widgets and admin views
+
+**Excluded:** `/unit/[id]/page.tsx` fetches `/api/households/${id}` (not `/api/content`) — out of scope for content-i18n phase.
 
 ### Redundant Helpers to Remove
 
