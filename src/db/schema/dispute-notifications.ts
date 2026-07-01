@@ -1,11 +1,3 @@
 import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core';
 
-export const disputeNotifications = pgTable('DisputeNotification', {
-  id: text('id').primaryKey(),
-  tenantId: text('tenantId').notNull(),
-  disputeId: text('disputeId').notNull(),
-  userId: text('userId').notNull(),
-  type: text('type').notNull(),
-  read: boolean('read').default(false).notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-});
+export const disputeNotifications = pgTable('DisputeNotification', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), disputeId: text('disputeId').notNull(), userId: text('userId').notNull(), type: text('type').notNull(), read: boolean('read').default(false).notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull() });

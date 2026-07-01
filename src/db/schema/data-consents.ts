@@ -1,15 +1,3 @@
 import { pgTable, text, boolean, timestamp } from 'drizzle-orm/pg-core';
 
-export const dataConsents = pgTable('DataConsent', {
-  id: text('id').primaryKey(),
-  tenantId: text('tenantId').notNull(),
-  walletId: text('walletId').notNull(),
-  userId: text('userId').notNull(),
-  streamKey: text('streamKey').notNull(),
-  granted: boolean('granted').notNull(),
-  ipAddress: text('ipAddress'),
-  userAgent: text('userAgent'),
-  grantedAt: timestamp('grantedAt', { mode: 'date', precision: 3 }),
-  revokedAt: timestamp('revokedAt', { mode: 'date', precision: 3 }),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-});
+export const dataConsents = pgTable('DataConsent', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), walletId: text('walletId').notNull(), userId: text('userId').notNull(), streamKey: text('streamKey').notNull(), granted: boolean('granted').notNull(), ipAddress: text('ipAddress'), userAgent: text('userAgent'), grantedAt: timestamp('grantedAt', { mode: 'date', precision: 3 }), revokedAt: timestamp('revokedAt', { mode: 'date', precision: 3 }), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull() });

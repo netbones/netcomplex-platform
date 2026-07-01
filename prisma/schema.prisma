@@ -263,6 +263,8 @@ model Organization {
   metadata   String?
   invitation Invitation[]
   member     Member[]
+
+  @@index([tenantId])
 }
 
 model Notification {

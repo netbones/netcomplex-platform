@@ -1,12 +1,3 @@
 import { pgTable, text, decimal, boolean, timestamp } from 'drizzle-orm/pg-core';
 
-export const taxRates = pgTable('TaxRate', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  rate: decimal('rate', { precision: 65, scale: 30 }).notNull(),
-  country: text('country').default('ZA').notNull(),
-  jurisdictionId: text('jurisdictionId'),
-  isActive: boolean('isActive').default(true).notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
-});
+export const taxRates = pgTable('TaxRate', { id: text('id').primaryKey(), name: text('name').notNull(), rate: decimal('rate', { precision: 65, scale: 30 }).notNull(), country: text('country').default('ZA').notNull(), jurisdictionId: text('jurisdictionId'), isActive: boolean('isActive').default(true).notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull() });

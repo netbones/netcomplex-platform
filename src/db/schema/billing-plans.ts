@@ -2,24 +2,4 @@ import { pgTable, text, decimal, jsonb, integer, boolean, timestamp } from 'driz
 import { billingPlanIntervalEnum } from './billing-plan-interval-enum';
 import { tierEnum } from './tier-enum';
 
-export const billingPlans = pgTable('BillingPlan', {
-  id: text('id').primaryKey(),
-  tenantId: text('tenantId').notNull(),
-  name: text('name').notNull(),
-  description: text('description'),
-  monthlyPrice: decimal('monthlyPrice', { precision: 65, scale: 30 }).default('0').notNull(),
-  annualPrice: decimal('annualPrice', { precision: 65, scale: 30 }).default('0').notNull(),
-  currency: text('currency').default('ZAR').notNull(),
-  interval: billingPlanIntervalEnum('interval').default('MONTHLY').notNull(),
-  modulesIncluded: jsonb('modulesIncluded').default([]).notNull(),
-  pageLimits: jsonb('pageLimits').default({}).notNull(),
-  seatLimits: jsonb('seatLimits').default({}).notNull(),
-  aiQuota: integer('aiQuota').default(0).notNull(),
-  features: jsonb('features').default({}).notNull(),
-  tier: tierEnum('tier').default('STANDARD').notNull(),
-  isDefault: boolean('isDefault').default(false).notNull(),
-  isActive: boolean('isActive').default(true).notNull(),
-  sortOrder: integer('sortOrder').default(0).notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
-});
+export const billingPlans = pgTable('BillingPlan', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), name: text('name').notNull(), description: text('description'), monthlyPrice: decimal('monthlyPrice', { precision: 65, scale: 30 }).default('0').notNull(), annualPrice: decimal('annualPrice', { precision: 65, scale: 30 }).default('0').notNull(), currency: text('currency').default('ZAR').notNull(), interval: billingPlanIntervalEnum('interval').default('MONTHLY').notNull(), modulesIncluded: jsonb('modulesIncluded').default([]).notNull(), pageLimits: jsonb('pageLimits').default({}).notNull(), seatLimits: jsonb('seatLimits').default({}).notNull(), aiQuota: integer('aiQuota').default(0).notNull(), features: jsonb('features').default({}).notNull(), tier: tierEnum('tier').default('STANDARD').notNull(), isDefault: boolean('isDefault').default(false).notNull(), isActive: boolean('isActive').default(true).notNull(), sortOrder: integer('sortOrder').default(0).notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull() });

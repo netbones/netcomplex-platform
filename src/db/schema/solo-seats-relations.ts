@@ -4,20 +4,4 @@ import { addresses } from './addresses';
 import { properties } from './properties';
 import { users } from './users';
 
-export const soloSeatsRelations = relations(soloSeats, helpers => ({
-  address: helpers.one(addresses, {
-    relationName: 'AddressToSoloSeat',
-    fields: [soloSeats.addressId],
-    references: [addresses.id],
-  }),
-  property: helpers.one(properties, {
-    relationName: 'PropertyToSoloSeat',
-    fields: [soloSeats.propertyId],
-    references: [properties.id],
-  }),
-  user: helpers.one(users, {
-    relationName: 'SoloSeatTouser',
-    fields: [soloSeats.userId],
-    references: [users.id],
-  }),
-}));
+export const soloSeatsRelations = relations(soloSeats, (helpers) => ({ address: helpers.one(addresses, { relationName: 'AddressToSoloSeat', fields: [ soloSeats.addressId ], references: [ addresses.id ] }), property: helpers.one(properties, { relationName: 'PropertyToSoloSeat', fields: [ soloSeats.propertyId ], references: [ properties.id ] }), user: helpers.one(users, { relationName: 'SoloSeatTouser', fields: [ soloSeats.userId ], references: [ users.id ] }) }));

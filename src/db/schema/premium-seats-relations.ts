@@ -4,18 +4,4 @@ import { addresses } from './addresses';
 import { users } from './users';
 import { propertyPremiumSeats } from './property-premium-seats';
 
-export const premiumSeatsRelations = relations(premiumSeats, helpers => ({
-  address: helpers.one(addresses, {
-    relationName: 'AddressToPremiumSeat',
-    fields: [premiumSeats.addressId],
-    references: [addresses.id],
-  }),
-  user: helpers.one(users, {
-    relationName: 'PremiumSeatTouser',
-    fields: [premiumSeats.userId],
-    references: [users.id],
-  }),
-  propertyPremiumSeats: helpers.many(propertyPremiumSeats, {
-    relationName: 'PremiumSeatToPropertyPremiumSeat',
-  }),
-}));
+export const premiumSeatsRelations = relations(premiumSeats, (helpers) => ({ address: helpers.one(addresses, { relationName: 'AddressToPremiumSeat', fields: [ premiumSeats.addressId ], references: [ addresses.id ] }), user: helpers.one(users, { relationName: 'PremiumSeatTouser', fields: [ premiumSeats.userId ], references: [ users.id ] }), propertyPremiumSeats: helpers.many(propertyPremiumSeats, { relationName: 'PremiumSeatToPropertyPremiumSeat' }) }));

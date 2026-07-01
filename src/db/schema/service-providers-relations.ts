@@ -14,34 +14,4 @@ import { providerCharges } from './provider-charges';
 import { providerInvoices } from './provider-invoices';
 import { serviceBookings } from './service-bookings';
 
-export const serviceProvidersRelations = relations(serviceProviders, helpers => ({
-  address: helpers.one(addresses, {
-    relationName: 'AddressToServiceProvider',
-    fields: [serviceProviders.addressId],
-    references: [addresses.id],
-  }),
-  user: helpers.one(users, {
-    relationName: 'ServiceProviderTouser',
-    fields: [serviceProviders.userId],
-    references: [users.id],
-  }),
-  assignments: helpers.many(maintenanceRequests, { relationName: 'ProviderAssignments' }),
-  verifications: helpers.many(providerVerifications, {
-    relationName: 'ProviderVerificationToServiceProvider',
-  }),
-  legalAgreements: helpers.many(providerLegalAgreements, {
-    relationName: 'ProviderLegalAgreementToServiceProvider',
-  }),
-  reputation: helpers.one(providerReputations),
-  merits: helpers.many(providerMerits, { relationName: 'ProviderMeritToServiceProvider' }),
-  subscriptions: helpers.many(providerSubscriptions, {
-    relationName: 'ProviderSubscriptionToServiceProvider',
-  }),
-  transactions: helpers.many(paymentTransactions, {
-    relationName: 'PaymentTransactionToServiceProvider',
-  }),
-  revenue: helpers.many(revenueRecords, { relationName: 'RevenueRecordToServiceProvider' }),
-  charges: helpers.many(providerCharges, { relationName: 'ProviderChargeToServiceProvider' }),
-  invoices: helpers.many(providerInvoices, { relationName: 'ProviderInvoiceToServiceProvider' }),
-  serviceBooking: helpers.many(serviceBookings, { relationName: 'ServiceBookingToProvider' }),
-}));
+export const serviceProvidersRelations = relations(serviceProviders, (helpers) => ({ address: helpers.one(addresses, { relationName: 'AddressToServiceProvider', fields: [ serviceProviders.addressId ], references: [ addresses.id ] }), user: helpers.one(users, { relationName: 'ServiceProviderTouser', fields: [ serviceProviders.userId ], references: [ users.id ] }), assignments: helpers.many(maintenanceRequests, { relationName: 'ProviderAssignments' }), verifications: helpers.many(providerVerifications, { relationName: 'ProviderVerificationToServiceProvider' }), legalAgreements: helpers.many(providerLegalAgreements, { relationName: 'ProviderLegalAgreementToServiceProvider' }), reputation: helpers.one(providerReputations), merits: helpers.many(providerMerits, { relationName: 'ProviderMeritToServiceProvider' }), subscriptions: helpers.many(providerSubscriptions, { relationName: 'ProviderSubscriptionToServiceProvider' }), transactions: helpers.many(paymentTransactions, { relationName: 'PaymentTransactionToServiceProvider' }), revenue: helpers.many(revenueRecords, { relationName: 'RevenueRecordToServiceProvider' }), charges: helpers.many(providerCharges, { relationName: 'ProviderChargeToServiceProvider' }), invoices: helpers.many(providerInvoices, { relationName: 'ProviderInvoiceToServiceProvider' }), serviceBooking: helpers.many(serviceBookings, { relationName: 'ServiceBookingToProvider' }) }));

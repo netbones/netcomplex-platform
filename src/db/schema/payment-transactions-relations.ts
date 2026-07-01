@@ -6,18 +6,4 @@ import { providerCharges } from './provider-charges';
 import { providerInvoices } from './provider-invoices';
 import { revenueRecords } from './revenue-records';
 
-export const paymentTransactionsRelations = relations(paymentTransactions, helpers => ({
-  provider: helpers.one(serviceProviders, {
-    relationName: 'PaymentTransactionToServiceProvider',
-    fields: [paymentTransactions.providerId],
-    references: [serviceProviders.id],
-  }),
-  subscription: helpers.one(providerSubscriptions, {
-    relationName: 'PaymentTransactionToProviderSubscription',
-    fields: [paymentTransactions.subscriptionId],
-    references: [providerSubscriptions.id],
-  }),
-  charges: helpers.many(providerCharges, { relationName: 'PaymentTransactionToProviderCharge' }),
-  invoices: helpers.many(providerInvoices, { relationName: 'PaymentTransactionToProviderInvoice' }),
-  revenue: helpers.many(revenueRecords, { relationName: 'PaymentTransactionToRevenueRecord' }),
-}));
+export const paymentTransactionsRelations = relations(paymentTransactions, (helpers) => ({ provider: helpers.one(serviceProviders, { relationName: 'PaymentTransactionToServiceProvider', fields: [ paymentTransactions.providerId ], references: [ serviceProviders.id ] }), subscription: helpers.one(providerSubscriptions, { relationName: 'PaymentTransactionToProviderSubscription', fields: [ paymentTransactions.subscriptionId ], references: [ providerSubscriptions.id ] }), charges: helpers.many(providerCharges, { relationName: 'PaymentTransactionToProviderCharge' }), invoices: helpers.many(providerInvoices, { relationName: 'PaymentTransactionToProviderInvoice' }), revenue: helpers.many(revenueRecords, { relationName: 'PaymentTransactionToRevenueRecord' }) }));

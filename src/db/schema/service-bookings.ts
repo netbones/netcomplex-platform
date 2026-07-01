@@ -2,20 +2,4 @@ import { pgTable, text, timestamp, decimal } from 'drizzle-orm/pg-core';
 import { bookingPaymentStatusEnum } from './booking-payment-status-enum';
 import { serviceBookingStatusEnum } from './service-booking-status-enum';
 
-export const serviceBookings = pgTable('ServiceBooking', {
-  id: text('id').primaryKey(),
-  tenantId: text('tenantId').notNull(),
-  listingId: text('listingId').notNull(),
-  providerId: text('providerId').notNull(),
-  userId: text('userId').notNull(),
-  date: timestamp('date', { mode: 'date', precision: 3 }).notNull(),
-  startTime: text('startTime').notNull(),
-  endTime: text('endTime').notNull(),
-  price: decimal('price', { precision: 65, scale: 30 }),
-  platformFee: decimal('platformFee', { precision: 65, scale: 30 }),
-  paymentStatus: bookingPaymentStatusEnum('paymentStatus').default('PENDING').notNull(),
-  status: serviceBookingStatusEnum('status').default('PENDING_CONFIRMATION').notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
-  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
-});
+export const serviceBookings = pgTable('ServiceBooking', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), listingId: text('listingId').notNull(), providerId: text('providerId').notNull(), userId: text('userId').notNull(), date: timestamp('date', { mode: 'date', precision: 3 }).notNull(), startTime: text('startTime').notNull(), endTime: text('endTime').notNull(), price: decimal('price', { precision: 65, scale: 30 }), platformFee: decimal('platformFee', { precision: 65, scale: 30 }), paymentStatus: bookingPaymentStatusEnum('paymentStatus').default('PENDING').notNull(), status: serviceBookingStatusEnum('status').default('PENDING_CONFIRMATION').notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }) });

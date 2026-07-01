@@ -250,9 +250,9 @@ Where naming is mismatched or missing
 
 ## Critical missing FKs (no @relation at all):
 
-1. UserAchievementProgress.definitionId -- Contains an FK value with no relation declaration. This will NOT create a DB FK constraint.
-2. UserAchievement.definitionId -- Same issue.
-3. ~~DelegationAction.actorId -- Has a plain actorId String field with no @relation. No FK constraint.~~ → **RESOLVED per S4-1**
+~~1. UserAchievementProgress.definitionId -- Contains an FK value with no relation declaration. This will NOT create a DB FK constraint.~~ → **FALSE POSITIVE: `@relation` is present on line 2006 of schema.prisma**
+~~2. UserAchievement.definitionId -- Same issue.~~ → **FALSE POSITIVE: `@relation` is present on line 2019 of schema.prisma**
+~~3. DelegationAction.actorId~~ → **RESOLVED per S4-1**
 4. N+1 Query Risks Based on Relation Patterns
 
 ## High Risk
@@ -403,7 +403,7 @@ strict: true,
 
 |Severity| Finding|
 1 HIGH drizzle.config.ts points to ./prisma/drizzle/schema.ts which does not exist. The Prisma generator outputs to ../src/db/schema instead.
-2 HIGH UserAchievementProgress.definitionId and UserAchievement.definitionId have no @relation declared. No FK constraint will be created in the database.
+~~2 HIGH UserAchievementProgress.definitionId and UserAchievement.definitionId have no @relation declared.~~ → FALSE POSITIVE — both have valid `@relation` declarations (schema.prisma:2006, :2019)
 ~~3 HIGH DelegationAction.actorId has no @relation declared. Dangling foreign key with no integrity constraint.~~ → ✅ RESOLVED per S4-1
 4 MEDIUM 19 models have zero composite indexes. ~~Conversation, Survey, ExternalSurvey~~ → **All 3 resolved per S4-2 + S5-7. Organization, AiCapabilityCost, PlatformAiTierQuota remain.**
 5 MEDIUM ~20 tenant-scoped models have a tenantId String field but no FK relation to Tenant. Tenant deletion will leave orphans across the database.
@@ -426,4 +426,4 @@ This analysis was snapshotted before the Senior Engineer Audit (2026-06-25). The
 | S4-3 (Sprint 4)   | Missing `SurveySection` back-link on Survey                                                                 | Added `sections SurveySection[]` relation |
 | S5-7 (Sprint 5)   | Missing indexes: `Content(tenantId)`, `Event(date)`                                                         | Added `@@index` declarations              |
 
-Remaining open: Drizzle config mismatch, UserAchievement FK gap, tenant-id orphan risk, model duplication, denormalized aggregates, soft-delete inconsistency.
+Remaining open: Drizzle config mismatch, tenant-id orphan risk, model duplication, denormalized aggregates, soft-delete inconsistency.

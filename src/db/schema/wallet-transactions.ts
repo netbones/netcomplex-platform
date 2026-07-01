@@ -2,18 +2,4 @@ import { pgTable, text, decimal, timestamp } from 'drizzle-orm/pg-core';
 import { transactionTypeEnum } from './transaction-type-enum';
 import { transactionSourceEnum } from './transaction-source-enum';
 
-export const walletTransactions = pgTable('WalletTransaction', {
-  id: text('id').primaryKey(),
-  tenantId: text('tenantId').notNull(),
-  walletId: text('walletId').notNull(),
-  type: transactionTypeEnum('type').notNull(),
-  amount: decimal('amount', { precision: 65, scale: 30 }).notNull(),
-  currency: text('currency').default('ZAR').notNull(),
-  description: text('description').notNull(),
-  referenceId: text('referenceId'),
-  referenceType: text('referenceType'),
-  balanceBefore: decimal('balanceBefore', { precision: 65, scale: 30 }).notNull(),
-  balanceAfter: decimal('balanceAfter', { precision: 65, scale: 30 }).notNull(),
-  sourceType: transactionSourceEnum('sourceType').default('RESIDENT_DATA_SHARE').notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-});
+export const walletTransactions = pgTable('WalletTransaction', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), walletId: text('walletId').notNull(), type: transactionTypeEnum('type').notNull(), amount: decimal('amount', { precision: 65, scale: 30 }).notNull(), currency: text('currency').default('ZAR').notNull(), description: text('description').notNull(), referenceId: text('referenceId'), referenceType: text('referenceType'), balanceBefore: decimal('balanceBefore', { precision: 65, scale: 30 }).notNull(), balanceAfter: decimal('balanceAfter', { precision: 65, scale: 30 }).notNull(), sourceType: transactionSourceEnum('sourceType').default('RESIDENT_DATA_SHARE').notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull() });

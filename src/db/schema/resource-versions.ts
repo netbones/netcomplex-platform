@@ -1,13 +1,3 @@
 import { pgTable, text, integer, timestamp } from 'drizzle-orm/pg-core';
 
-export const resourceVersions = pgTable('ResourceVersion', {
-  id: text('id').primaryKey(),
-  resourceId: text('resourceId').notNull(),
-  fileUrl: text('fileUrl'),
-  fileType: text('fileType'),
-  fileSize: integer('fileSize'),
-  version: text('version'),
-  notes: text('notes'),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
-});
+export const resourceVersions = pgTable('ResourceVersion', { id: text('id').primaryKey(), resourceId: text('resourceId').notNull(), fileUrl: text('fileUrl'), fileType: text('fileType'), fileSize: integer('fileSize'), version: text('version'), notes: text('notes'), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }) });

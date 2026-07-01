@@ -1,12 +1,3 @@
 import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
-export const internalMaintenanceNotes = pgTable('InternalMaintenanceNote', {
-  id: text('id').primaryKey(),
-  requestId: text('requestId').notNull(),
-  userId: text('userId').notNull(),
-  content: text('content').notNull(),
-  category: text('category'),
-  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull(),
-});
+export const internalMaintenanceNotes = pgTable('InternalMaintenanceNote', { id: text('id').primaryKey(), requestId: text('requestId').notNull(), userId: text('userId').notNull(), content: text('content').notNull(), category: text('category'), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).notNull() });

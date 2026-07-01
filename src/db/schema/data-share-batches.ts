@@ -1,17 +1,4 @@
 import { pgTable, text, timestamp, decimal, integer } from 'drizzle-orm/pg-core';
 import { batchStatusEnum } from './batch-status-enum';
 
-export const dataShareBatches = pgTable('DataShareBatch', {
-  id: text('id').primaryKey(),
-  tenantId: text('tenantId').notNull(),
-  periodStart: timestamp('periodStart', { mode: 'date', precision: 3 }).notNull(),
-  periodEnd: timestamp('periodEnd', { mode: 'date', precision: 3 }).notNull(),
-  streamKey: text('streamKey').notNull(),
-  totalRevenue: decimal('totalRevenue', { precision: 65, scale: 30 }).notNull(),
-  residentPool: decimal('residentPool', { precision: 65, scale: 30 }).notNull(),
-  participantCount: integer('participantCount').notNull(),
-  status: batchStatusEnum('status').default('PENDING').notNull(),
-  processedAt: timestamp('processedAt', { mode: 'date', precision: 3 }),
-  processedBy: text('processedBy'),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-});
+export const dataShareBatches = pgTable('DataShareBatch', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), periodStart: timestamp('periodStart', { mode: 'date', precision: 3 }).notNull(), periodEnd: timestamp('periodEnd', { mode: 'date', precision: 3 }).notNull(), streamKey: text('streamKey').notNull(), totalRevenue: decimal('totalRevenue', { precision: 65, scale: 30 }).notNull(), residentPool: decimal('residentPool', { precision: 65, scale: 30 }).notNull(), participantCount: integer('participantCount').notNull(), status: batchStatusEnum('status').default('PENDING').notNull(), processedAt: timestamp('processedAt', { mode: 'date', precision: 3 }), processedBy: text('processedBy'), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull() });

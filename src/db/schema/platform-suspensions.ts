@@ -1,19 +1,4 @@
 import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 import { suspensionTypeEnum } from './suspension-type-enum';
 
-export const platformSuspensions = pgTable('PlatformSuspension', {
-  id: text('id').primaryKey(),
-  tenantId: text('tenantId').notNull(),
-  userId: text('userId').notNull(),
-  suspensionType: suspensionTypeEnum('suspensionType').notNull(),
-  reason: text('reason').notNull(),
-  description: text('description'),
-  startDate: timestamp('startDate', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  endDate: timestamp('endDate', { mode: 'date', precision: 3 }),
-  isPermanent: boolean('isPermanent').default(false).notNull(),
-  isActive: boolean('isActive').default(true).notNull(),
-  createdById: text('createdById').notNull(),
-  createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(),
-  deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }),
-});
+export const platformSuspensions = pgTable('PlatformSuspension', { id: text('id').primaryKey(), tenantId: text('tenantId').notNull(), userId: text('userId').notNull(), suspensionType: suspensionTypeEnum('suspensionType').notNull(), reason: text('reason').notNull(), description: text('description'), startDate: timestamp('startDate', { mode: 'date', precision: 3 }).defaultNow().notNull(), endDate: timestamp('endDate', { mode: 'date', precision: 3 }), isPermanent: boolean('isPermanent').default(false).notNull(), isActive: boolean('isActive').default(true).notNull(), createdById: text('createdById').notNull(), createdAt: timestamp('createdAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), updatedAt: timestamp('updatedAt', { mode: 'date', precision: 3 }).defaultNow().notNull(), deletedAt: timestamp('deletedAt', { mode: 'date', precision: 3 }) });
