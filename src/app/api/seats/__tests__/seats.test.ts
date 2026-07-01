@@ -24,7 +24,14 @@ const mocks = vi.hoisted(() => {
       returning: vi.fn(() => Promise.resolve([])),
     })),
   }));
-  const mockAddressReserve = vi.fn(() => ({ id: 'addr-1' }));
+  const mockAddressReserve = vi.fn(
+    async (
+      _address: string,
+      _tenantId: string,
+      _kind: string,
+      _opts?: Record<string, unknown>
+    ) => ({ id: 'addr-1' })
+  );
   const dbMock = {
     select: mockDbSelect,
     insert: mockDbInsert,
@@ -125,9 +132,13 @@ vi.mock('@api/server', () => ({
   withErrorHandler: vi.fn((handler: (req: Request) => Promise<Response>) => handler as never),
   AddressService: class {
     constructor() {}
-    async reserve(...args: unknown[]) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return mocks.mockAddressReserve(...(args as any));
+    async reserve(
+      _address: string,
+      _tenantId: string,
+      _kind: string,
+      _opts?: Record<string, unknown>
+    ) {
+      return mocks.mockAddressReserve(_address, _tenantId, _kind, _opts);
     }
   },
   AddressConflictError: class extends Error {

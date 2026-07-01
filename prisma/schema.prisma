@@ -720,6 +720,7 @@ model Content {
 
   @@index([authorId])
   @@index([groupId])
+  @@index([tenantId])
 }
 
 model ContentLike {
@@ -893,6 +894,7 @@ model Event {
   attendees   EventAttendee[]
 
   @@index([tenantId])
+  @@index([date])
 }
 
 model EventAttendee {

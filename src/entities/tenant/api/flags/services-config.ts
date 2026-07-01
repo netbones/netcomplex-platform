@@ -11,7 +11,13 @@ import {
 } from '@entities/service';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { DbSchema } from '@api/server';
-import type { ServicesPageConfig } from './services-config.types';
+import type {
+  CategoryConfig,
+  EmergencyContactConfig,
+  HourConfig,
+  AdditionalServiceConfig,
+  ServicesPageConfig,
+} from './services-config.types';
 
 export type { CategoryConfig, EmergencyContactConfig, HourConfig, AdditionalServiceConfig };
 

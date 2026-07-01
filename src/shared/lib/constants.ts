@@ -10,6 +10,50 @@ export const APP_TAGLINE = 'A Community of Neighbors';
 
 /** Default language code */
 export const DEFAULT_LANGUAGE = 'en';
+
+/** HTTP status codes */
+export const HTTP = {
+  OK: 200,
+  CREATED: 201,
+  ACCEPTED: 202,
+  NO_CONTENT: 204,
+  MOVED_PERMANENTLY: 301,
+  FOUND: 302,
+  NOT_MODIFIED: 304,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  METHOD_NOT_ALLOWED: 405,
+  CONFLICT: 409,
+  UNPROCESSABLE: 422,
+  TOO_MANY_REQUESTS: 429,
+  INTERNAL_SERVER_ERROR: 500,
+  BAD_GATEWAY: 502,
+  SERVICE_UNAVAILABLE: 503,
+} as const;
+
+/** Cache time-to-live values in seconds */
+export const CACHE_TTL = {
+  SHORT: 30,
+  DEFAULT: 300,
+  LONG: 600,
+  DAY: 86400,
+  WEEK: 604800,
+} as const;
+
+/** Cookie names */
+export const COOKIES = {
+  SESSION: 'session',
+  THEME: 'theme',
+} as const;
+
+/** File size limits in bytes */
+export const FILE_SIZE = {
+  AVATAR: 2 * 1024 * 1024,
+  IMAGE: 5 * 1024 * 1024,
+  DOCUMENT: 10 * 1024 * 1024,
+} as const;
 /** Supported language codes for i18n */
 export const SUPPORTED_LANGUAGES = ['en', 'af', 'xh', 'zu'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
