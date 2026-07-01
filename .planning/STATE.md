@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 120
 current_phase_name: api-governance-hardening
 status: executing
-stopped_at: Phase 50 executed (4/4 plans complete)
-last_updated: '2026-06-30T13:25:02.025Z'
+stopped_at: Phase 04 UI-SPEC approved
+last_updated: '2026-07-01T13:57:36.596Z'
 progress:
   total_phases: 68
   completed_phases: 57
@@ -24,8 +24,8 @@ Plan: 1 of 3
 
 - **Phase:** Phase 120 (api-governance-hardening) — Plan 2 complete (identity router migration)
 
-**Last Session:** 2026-06-30T11:47:40.763Z
-**Stopped at:** Phase 50 executed (4/4 plans complete)
+**Last Session:** 2026-07-01T13:57:36.541Z
+**Stopped at:** Phase 04 UI-SPEC approved
 
 ## Active Phase Decisions
 
@@ -411,3 +411,9 @@ Plan: 1 of 3
 - [Phase 110-02]: getVisibleSpaces() preserved as deprecated shim with dev-mode console.warn — Phase 2 migration will remove
 - [Phase 110-02]: staleTime=0 on usePageAccess — client always refetches on mount; server ISR cache handles response caching
 - [Phase 110-02]: SpaceLauncher.tsx unchanged — already a pure presentational component receiving SpaceDefinition[] as prop
+
+## Session
+
+**Last session:** 2026-07-01T13:57:36.541Z
+**Stopped at:** Phase 04 UI-SPEC approved
+**Resume file:** .planning/phases/04-content-i18n/04-UI-SPEC.md

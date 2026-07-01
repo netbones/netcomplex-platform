@@ -1963,7 +1963,12 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
         pin: { title: '', sub: '', link: '', btn: 'Apply' },
         shelf: [
           { title: 'Treasure Island', author: 'R. L. Stevenson', gutId: '120', stripe: '#3B6D11' },
-          { title: 'Great Expectations', author: 'Charles Dickens', gutId: '1400', stripe: '#534AB7' },
+          {
+            title: 'Great Expectations',
+            author: 'Charles Dickens',
+            gutId: '1400',
+            stripe: '#534AB7',
+          },
         ],
       }),
     },
