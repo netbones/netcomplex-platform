@@ -95,7 +95,7 @@ export const serviceBookingProcedures = {
         .limit(input.limit)
         .offset(input.offset);
 
-      const [totalResult] = await db
+      await db
         .select({ count: sql<number>`count(*)` })
         .from(serviceBookings)
         .where(and(...conditions));

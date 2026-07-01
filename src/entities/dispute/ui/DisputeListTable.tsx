@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type { DisputeCaseDTO, DisputeStatus, DisputeCategory } from '../model/types';
+import type { DisputeCaseDTO } from '../model/types';
 import { ALL_DISPUTE_STATUSES, ALL_DISPUTE_CATEGORIES } from '../model/constants';
 import { DisputeStatusBadge } from './DisputeStatusBadge';
 import { DisputeCategoryBadge } from './DisputeCategoryBadge';
@@ -12,7 +12,7 @@ import { formatDate } from '@shared/lib';
 
 /* ── Helpers ───────────────────────────────────────────── */
 
-function getComplainantLabel(dispute: DisputeCaseDTO): string {
+function getComplainantLabel(_dispute: DisputeCaseDTO): string {
   // The API includes complainant info; fallback to "Resident"
   return 'Resident';
 }
@@ -52,7 +52,7 @@ export function DisputeListTable() {
       const json = await res.json();
       const data = json.data ?? json;
       setDisputes(Array.isArray(data) ? data : []);
-    } catch (err) {
+    } catch {
       setError('Failed to load disputes. Please try again.');
       setDisputes([]);
     } finally {
@@ -88,12 +88,6 @@ export function DisputeListTable() {
     }
     return sortDir === 'asc' ? cmp : -cmp;
   });
-
-  /* ── Sort indicator ──────────────────────────────────── */
-  const sortIcon = (field: typeof sortField) => {
-    if (sortField !== field) return '';
-    return sortDir === 'asc' ? ' ▲' : ' ▼';
-  };
 
   /* ── Render helpers ──────────────────────────────────── */
   const SortHeader = ({ field, label }: { field: typeof sortField; label: string }) => (

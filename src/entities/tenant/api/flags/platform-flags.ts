@@ -4,7 +4,7 @@ import type { DbSchema } from '@api/server';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
-import { SETTINGS_KEYS } from '../settings';
+
 import { createId } from '@shared/lib/id';
 import { createComponentLogger } from '@shared/lib';
 

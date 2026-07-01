@@ -6,7 +6,7 @@
  * Will FAIL because agent-token.ts doesn't exist yet.
  */
 
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 describe('signAgentToken', () => {
   it('should be importable', async () => {

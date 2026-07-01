@@ -10,7 +10,7 @@ interface CSOSExportButtonProps {
 
 const MAX_EXPORTS_PER_DAY = 3;
 
-export function CSOSExportButton({ disputeId, userId }: CSOSExportButtonProps) {
+export function CSOSExportButton({ disputeId, userId: _userId }: CSOSExportButtonProps) {
   const [exporting, setExporting] = useState(false);
   const [exportCount, setExportCount] = useState(0);
 

@@ -1,6 +1,6 @@
 'use client';
 
-import type { DisputeEventDTO, DisputeEventType, DisputeStatus } from '../model/types';
+import type { DisputeEventDTO, DisputeEventType } from '../model/types';
 import { EVENT_TYPE_LABELS } from '../model/constants';
 
 interface DisputeTimelineProps {
@@ -67,7 +67,7 @@ export function DisputeTimeline({ events }: DisputeTimelineProps) {
       {/* Vertical line */}
       <div className="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gray-200" aria-hidden="true" />
 
-      {sorted.map((event, idx) => {
+      {sorted.map((event, _idx) => {
         const isStatusChange =
           event.eventType === 'STATUS_CHANGED' && event.fromStatus && event.toStatus;
 

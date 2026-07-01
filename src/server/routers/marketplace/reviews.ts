@@ -64,7 +64,7 @@ export const reviewProcedures = {
         .limit(input.limit)
         .offset(input.offset);
 
-      const [totalResult] = await db
+      await db
         .select({ count: sql<number>`count(*)` })
         .from(communityServiceReviews)
         .where(
@@ -75,7 +75,7 @@ export const reviewProcedures = {
           )
         );
 
-      const [ratingStats] = await db
+      await db
         .select({
           avgRating: sql<number>`avg(${communityServiceReviews.rating})`,
           avgResponse: sql<number>`avg(${communityServiceReviews.responseQuality})`,

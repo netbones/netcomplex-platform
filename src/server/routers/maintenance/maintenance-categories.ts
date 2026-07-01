@@ -6,7 +6,6 @@ import {
   db,
   maintenanceCategories,
   TRPCError,
-  hasPermission,
   eq,
   and,
   asc,

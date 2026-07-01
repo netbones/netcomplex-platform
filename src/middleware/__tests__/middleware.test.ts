@@ -1,8 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
 const PLATFORM_DOMAIN = 'app.netbones.co.za';
-const SUPPORTED_LOCALES = ['en', 'af', 'xh', 'zu'] as const;
-const DEFAULT_LOCALE = 'en';
 
 function isPlatformHost(host: string): boolean {
   const hostWithoutPort = host.split(':')[0];

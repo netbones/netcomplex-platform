@@ -19,7 +19,7 @@ import { maintenanceRequestSchema } from '@entities/maintenance';
 
 import { apiLogger } from '@shared/lib';
 
-import { eq, and, isNull, arrayContains } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
 import { withTenant } from '@entities/tenant/server';
 import {
   listMaintenanceRequests,

@@ -1,7 +1,7 @@
 import 'server-only';
 import { eq, and, ilike } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { db, addresses, handles } from './db';
+import { db, handles } from './db';
 import type { DbSchema } from './db';
 import { createId } from '@shared/lib/id';
 

@@ -197,7 +197,7 @@ describe('useBlockDelegation', () => {
     await act(async () => {
       try {
         await result.current.mutateAsync({ delegationId: 'da-1', blocked: true });
-      } catch (_) {
+      } catch {
         // Expected — 403
       }
     });

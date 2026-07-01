@@ -9,7 +9,6 @@ import {
   maintenanceTeams,
   serviceProviders,
   requestNotes,
-  requestHistories,
   internalMaintenanceNotes,
   users,
   properties,

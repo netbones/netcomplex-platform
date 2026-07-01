@@ -1,6 +1,5 @@
 import {
   auth,
-  apiSuccess,
   apiCreated,
   apiUnauthorized,
   apiForbidden,

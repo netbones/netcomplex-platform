@@ -6,7 +6,6 @@ import {
   db,
   serviceProviders,
   TRPCError,
-  hasPermission,
   eq,
   and,
   asc,

@@ -6,7 +6,6 @@ import { describe, it, expect } from 'vitest';
 import {
   disputeCreateSchema,
   disputeUpdateSchema,
-  disputeSubmitSchema,
   disputeMessageCreateSchema,
   disputeEvidenceSchema,
   disputeAssignSchema,
@@ -14,7 +13,6 @@ import {
   intakeScreenRequestSchema,
   intakeScreenOutputSchema,
 } from '../schemas';
-import { ALL_DISPUTE_CATEGORIES, ALL_DISPUTE_STATUSES } from '../constants';
 
 // ============================================
 // disputeCreateSchema

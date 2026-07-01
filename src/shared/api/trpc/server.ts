@@ -4,7 +4,7 @@ import { ZodError } from 'zod';
 import { rateLimitByUser, type RateLimitConfig } from '../rate-limit';
 import { auth } from '../auth';
 import { db, users, tenants, platformSuspensions } from '../db';
-import { eq, and, or, isNull, gt } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { tRPCCodeToCanonical } from '../envelope';
 
 export interface Context {

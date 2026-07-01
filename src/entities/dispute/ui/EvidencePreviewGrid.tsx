@@ -51,7 +51,7 @@ export function EvidencePreviewGrid({ disputeId, userId }: EvidencePreviewGridPr
     fetchEvidence();
   }, [disputeId, refreshKey]);
 
-  const handleRemove = async (evidenceId: string, fileName: string) => {
+  const handleRemove = async (evidenceId: string, _fileName: string) => {
     try {
       const res = await fetch(`/api/disputes/${disputeId}/evidence/${evidenceId}`, {
         method: 'DELETE',

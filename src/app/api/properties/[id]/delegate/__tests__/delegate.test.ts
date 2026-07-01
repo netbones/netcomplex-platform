@@ -156,7 +156,7 @@ vi.mock('@entities/tenant/server', () => ({
 // ── Mock @entities/agent ─────────────────────────────────────
 vi.mock('@entities/agent', () => ({
   SCOPE_BUNDLES: mocks.scopeBundles,
-  validateScopes: vi.fn((requested: string[]) => {
+  validateScopes: vi.fn((_requested: string[]) => {
     return mocks.unknownScopes;
   }),
 }));
@@ -178,7 +178,6 @@ vi.mock('@shared/lib', async importOriginal => {
 
 import { POST } from '@/app/api/properties/[id]/delegate/route';
 import { makeSelectChain, makeInsertChain, createMockRequest } from '@/test/api/helpers';
-import type { DelegatedProviderAgent } from '@/entities/agent/types';
 
 function makeReq({
   method = 'POST',

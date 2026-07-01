@@ -3,7 +3,7 @@
  * Plan 105-02 Task 1 — TDD RED phase.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   STATUS_LABELS,
   CATEGORY_LABELS,
@@ -14,18 +14,7 @@ import {
   ALL_DISPUTE_STATUSES,
   ALL_DISPUTE_CATEGORIES,
 } from '../constants';
-import type {
-  DisputeStatus,
-  DisputeCategory,
-  DisputeSeverity,
-  DisputeRespondent,
-  DisputeEventType,
-  DisputeCaseDTO,
-  DisputeEventDTO,
-  DisputeMessageDTO,
-  DisputeEvidenceDTO,
-  DisputeNotificationDTO,
-} from '../types';
+import type { DisputeStatus, DisputeCategory } from '../types';
 import { VALID_TRANSITIONS, canTransition, isTerminalStatus } from '../lifecycle';
 
 // ── Mock @api/server for reference generator tests ──
@@ -69,7 +58,7 @@ describe('STATUS_LABELS', () => {
   });
 
   it('every label is a non-empty string', () => {
-    for (const [key, label] of Object.entries(STATUS_LABELS)) {
+    for (const label of Object.values(STATUS_LABELS)) {
       expect(typeof label).toBe('string');
       expect(label.length).toBeGreaterThan(0);
     }
@@ -105,7 +94,7 @@ describe('CATEGORY_LABELS', () => {
   });
 
   it('every label is a non-empty string', () => {
-    for (const [key, label] of Object.entries(CATEGORY_LABELS)) {
+    for (const label of Object.values(CATEGORY_LABELS)) {
       expect(typeof label).toBe('string');
       expect(label.length).toBeGreaterThan(0);
     }

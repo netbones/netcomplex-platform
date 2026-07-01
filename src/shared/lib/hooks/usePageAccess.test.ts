@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 
 // ── Mock useSession ──────────────────────────────────────────────
 vi.mock('@api/client', () => ({
@@ -49,28 +49,6 @@ function makeSession(
     isPending: false,
     isRefetching: false,
     error: null,
-    refetch: vi.fn(),
-  };
-}
-
-/** Build a mock useQuery return with access response data */
-function makeQueryResult(
-  overrides: Partial<{
-    data: {
-      spaces: string[];
-      pages: string[];
-      features: string[];
-      agent: { scope: string[]; expiresAt: string | null } | null;
-      resolvedAt: string;
-    };
-    isLoading: boolean;
-    error: Error | null;
-  }> = {}
-) {
-  return {
-    data: overrides.data ?? null,
-    isLoading: overrides.isLoading ?? false,
-    error: overrides.error ?? null,
     refetch: vi.fn(),
   };
 }

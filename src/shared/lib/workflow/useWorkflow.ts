@@ -4,7 +4,7 @@ import { useReducer, useCallback, useMemo } from 'react';
 import type { WorkflowConfig, WorkflowState } from './types';
 import { createWorkflow } from './createWorkflow';
 
-type WorkflowAction<S extends string, C extends Record<string, unknown>> =
+type WorkflowAction<C extends Record<string, unknown>> =
   | { type: 'NEXT' }
   | { type: 'UPDATE_CTX'; patch: Partial<C> }
   | { type: 'SET_ERROR'; error: string | null };
@@ -12,7 +12,7 @@ type WorkflowAction<S extends string, C extends Record<string, unknown>> =
 function createWorkflowReducer<S extends string, C extends Record<string, unknown>>(
   config: WorkflowConfig<S, C>
 ) {
-  return (state: WorkflowState<S, C>, action: WorkflowAction<S, C>): WorkflowState<S, C> => {
+  return (state: WorkflowState<S, C>, action: WorkflowAction<C>): WorkflowState<S, C> => {
     switch (action.type) {
       case 'UPDATE_CTX': {
         return { ...state, ctx: { ...state.ctx, ...action.patch } };

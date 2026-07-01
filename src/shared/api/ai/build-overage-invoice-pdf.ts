@@ -9,10 +9,7 @@
 import { PDFDocument, rgb } from 'pdf-lib';
 import {
   A4_WIDTH,
-  A4_HEIGHT,
   MARGIN,
-  BODY_SIZE,
-  HEADER_SIZE,
   TITLE_SIZE,
   LINE_HEIGHT,
   createPdfContext,

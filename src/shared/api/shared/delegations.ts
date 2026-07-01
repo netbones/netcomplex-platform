@@ -4,7 +4,6 @@
  * Cross-cutting delegation utilities consumed by all delegation route handlers.
  */
 
-import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { delegationActions } from '@schema/delegation-actions';
 import { createPrefixedId } from '@shared/lib/id';

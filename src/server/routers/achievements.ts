@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import {
   router,
-  protectedProcedure,
   tenantProcedure,
   privilegedProcedure,
   db,
@@ -158,16 +157,14 @@ export const achievementsRouter = router({
       },
     })
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-
       if (!hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin permission required' });
       }
 
       const [existing] = await db
-        .select({ id: achievementDefinitions.id })
+        .select()
         .from(achievementDefinitions)
-        .where(eq(achievementDefinitions.key, input.key))
+        .where(eq(achievementDefinitions.id, input.id))
         .limit(1);
 
       if (existing) {
@@ -212,8 +209,6 @@ export const achievementsRouter = router({
       },
     })
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-
       if (!hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin permission required' });
       }
@@ -261,8 +256,6 @@ export const achievementsRouter = router({
       },
     })
     .mutation(async ({ input, ctx }) => {
-      const tenantId = ctx.tenantId;
-
       if (!hasPermission(ctx.role, 'admin')) {
         throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin permission required' });
       }

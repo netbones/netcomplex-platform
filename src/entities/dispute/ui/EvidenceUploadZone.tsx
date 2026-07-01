@@ -26,7 +26,7 @@ function validateFile(file: File): string | null {
 
 export function EvidenceUploadZone({
   disputeId,
-  userId,
+  userId: _userId,
   onUploadComplete,
 }: EvidenceUploadZoneProps) {
   const [uploading, setUploading] = useState(false);

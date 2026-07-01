@@ -135,12 +135,10 @@ export const listingProcedures = {
         .limit(input.limit)
         .offset(input.offset);
 
-      const [totalResult] = await db
+      await db
         .select({ count: sql<number>`count(*)` })
         .from(communityServiceListings)
         .where(and(...conditions));
-
-      const total = totalResult?.count || 0;
 
       const preferredLocale = input.locale || 'en';
       const localized = listings.map(l => ({
@@ -292,10 +290,10 @@ export const listingProcedures = {
         updatedAt: ts,
       });
 
-      const [listing] = await db
+      await db
         .select()
         .from(communityServiceListings)
-        .where(eq(communityServiceListings.id, listingId))
+        .where(eq(communityServiceListings.id, input.id))
         .limit(1);
 
       revalidateAdminChanges();
@@ -435,7 +433,7 @@ export const listingProcedures = {
         })
         .where(eq(communityServiceListings.id, input.id));
 
-      const [listing] = await db
+      await db
         .select()
         .from(communityServiceListings)
         .where(eq(communityServiceListings.id, input.id))
@@ -472,7 +470,7 @@ export const listingProcedures = {
         .limit(input.limit)
         .offset(input.offset);
 
-      const [totalResult] = await db
+      await db
         .select({ count: sql<number>`count(*)` })
         .from(communityServiceListings)
         .where(and(...conditions));

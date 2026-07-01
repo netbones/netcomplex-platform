@@ -8,7 +8,6 @@ import {
   now,
 } from '@api/server';
 import { toEnvelope } from '@api/server';
-import { TRPCError } from '@trpc/server';
 import { eq, and, sql } from 'drizzle-orm';
 
 export const analyticsProcedures = {

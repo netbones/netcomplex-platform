@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import {
   router,
-  protectedProcedure,
   tenantProcedure,
   privilegedProcedure,
   db,
@@ -22,7 +21,6 @@ import {
   getEffectivePoints,
   checkAndEscalateStanding,
   getMeritExpiryDays,
-  getMeritTierThresholds,
 } from '@/entities/merit/services';
 
 import { eq, and, desc, isNull } from 'drizzle-orm';
@@ -42,13 +40,6 @@ const DEFAULT_EXPIRY_DAYS = {
   WARNING: 180,
   INFRACTION: 730,
   MERIT: null,
-} as const;
-
-const DEFAULT_TIER_THRESHOLDS = {
-  GOLD: 50,
-  SILVER: 20,
-  BRONZE: 0,
-  PROBATION: -20,
 } as const;
 
 const STANDING_LABELS: Record<string, string> = {
@@ -352,7 +343,7 @@ export const meritsRouter = router({
 
       const record = await getTenantMerit(input.id, tenantId);
 
-      const [user] = await db
+      await db
         .select({ id: users.id, name: users.name, email: users.email })
         .from(users)
         .where(eq(users.id, record.userId))
@@ -390,8 +381,6 @@ export const meritsRouter = router({
 
       const tenantId = ctx.tenantId;
 
-      const record = await getTenantMerit(input.id, tenantId);
-
       const updateData: Record<string, unknown> = {};
       if (input.reason !== undefined) updateData.reason = input.reason;
       if (input.description !== undefined) updateData.description = input.description;
@@ -413,16 +402,6 @@ export const meritsRouter = router({
         actorId: ctx.userId,
         details: updateData,
       });
-
-      const points = await getEffectivePoints(record.userId, tenantId);
-      const thresholds = await getMeritTierThresholds(tenantId);
-      const standing = {
-        overall: points.overall,
-        tier: getStandingTier(
-          points.overall,
-          thresholds as Partial<typeof DEFAULT_TIER_THRESHOLDS>
-        ),
-      };
 
       revalidateAdminChanges();
       const updated = await getTenantMerit(input.id, tenantId);
@@ -516,17 +495,7 @@ export const meritsRouter = router({
         .offset(input?.offset ?? 0)
         .orderBy(desc(communityMerits.createdAt));
 
-      const points = await getEffectivePoints(ctx.userId, tenantId);
-      const thresholds = await getMeritTierThresholds(tenantId);
-      const standing = {
-        ...points,
-        tier: getStandingTier(
-          points.overall,
-          thresholds as Partial<typeof DEFAULT_TIER_THRESHOLDS>
-        ),
-      };
-
-      return toEnvelope({ records: rows, standing });
+      return toEnvelope({ records: rows });
     }),
 
   // ────────── DISPUTE ──────────

@@ -1,9 +1,7 @@
 import { z } from 'zod';
 import {
   router,
-  protectedProcedure,
   tenantProcedure,
-  privilegedProcedure,
   agentProcedure,
   db,
   agentAccesses,

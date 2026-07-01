@@ -92,7 +92,7 @@ export default function AdminDisputeDetailPage() {
         }
 
         setState({ dispute, events, loading: false, error: null });
-      } catch (err) {
+      } catch {
         setState(prev => ({
           ...prev,
           loading: false,

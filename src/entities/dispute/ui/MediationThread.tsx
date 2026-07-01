@@ -40,7 +40,7 @@ export function MediationThread({ disputeId, userRole, userId }: MediationThread
       const json = await res.json();
       const data = json.data ?? json;
       setMessages(Array.isArray(data) ? data : []);
-    } catch (err) {
+    } catch {
       setError('Failed to load messages.');
     } finally {
       setLoading(false);

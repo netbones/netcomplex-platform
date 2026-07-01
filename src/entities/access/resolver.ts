@@ -27,7 +27,7 @@ import { agentAccesses } from '@schema/agent-accesses';
 import { users } from '@schema/users';
 import { platformSuspensions } from '@schema/platform-suspensions';
 import { db } from '@api/server';
-import type { EffectiveScope, AgentScopeConfig, AgentTokenPayload } from '@entities/agent';
+import type { EffectiveScope, AgentScopeConfig } from '@entities/agent';
 
 // ═══════════════════════════════════════════════════════════════
 // CONSTANTS

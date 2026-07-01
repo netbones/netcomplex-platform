@@ -67,14 +67,10 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 let HandleService: any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let HandleConflictError: any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let HandleNotFoundError: any;
-
 beforeAll(async () => {
   const mod = await import('../handle-service');
   HandleService = mod.HandleService;
   HandleConflictError = mod.HandleConflictError;
-  HandleNotFoundError = mod.HandleNotFoundError;
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

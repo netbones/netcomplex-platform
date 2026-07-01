@@ -1,7 +1,7 @@
 import 'server-only';
 import { eq, and, ilike } from 'drizzle-orm';
 import { db, addresses, handles, tenants } from './db';
-import type { DbSchema } from './db';
+
 import { standardSeats } from '@schema/standard-seats';
 import { soloSeats } from '@schema/solo-seats';
 import { premiumSeats } from '@schema/premium-seats';

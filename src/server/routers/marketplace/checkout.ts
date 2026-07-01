@@ -9,7 +9,7 @@ import {
 } from '@api/server';
 import { toEnvelope } from '@api/server';
 import { TRPCError } from '@trpc/server';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import {
   initializeCheckout,
   checkoutRequestSchema,

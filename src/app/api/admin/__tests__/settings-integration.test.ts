@@ -99,10 +99,7 @@ vi.mock('@shared/lib/providers/registration', () => ({
 
 import { POST as POST_FLAGS, PUT as PUT_FLAGS } from '@/app/api/admin/settings/page-flags/route';
 import { PUT as PUT_SERVICES } from '@/app/api/admin/services-config/route';
-import {
-  GET as GET_REG,
-  PATCH as PATCH_REG,
-} from '@/app/api/admin/tenant/provider-registration-mode/route';
+import { PATCH as PATCH_REG } from '@/app/api/admin/tenant/provider-registration-mode/route';
 
 const DEFAULT_RLS_CTX = {
   userId: 'user-1',

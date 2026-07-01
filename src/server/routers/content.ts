@@ -2,7 +2,6 @@ import { z } from 'zod';
 import {
   router,
   publicProcedure,
-  protectedProcedure,
   tenantProcedure,
   privilegedProcedure,
   rateLimitMiddleware,
@@ -24,7 +23,7 @@ import {
   settings,
   toEnvelope,
 } from '@api/server';
-import { contentDto, contentAuthorDto, announcementDto } from '@server/dto';
+import { contentDto, announcementDto } from '@server/dto';
 
 import { TRPCError } from '@trpc/server';
 import {
@@ -38,7 +37,7 @@ import type { AnnouncementPriority } from '@features/announcements';
 
 import { eq, and, or, desc, isNull, lte, gt, count, inArray, sql, type SQL } from 'drizzle-orm';
 
-import { withTenantOptional, isModuleEnabled } from '@entities/tenant/server';
+import { isModuleEnabled } from '@entities/tenant/server';
 
 import {
   listContent as entityListContent,
