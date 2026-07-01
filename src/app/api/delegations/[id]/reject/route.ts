@@ -16,12 +16,14 @@ export const maxDuration = 5;
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   const { tenantId } = await withTenant();
 
   const session = await getSessionAndRole(request);
   if (!session) return apiUnauthorized();
+
+  const { id } = await params;
 
   const [delegation] = await db
     .select({
@@ -31,7 +33,7 @@ export async function POST(
       status: agentAccesses.status,
     })
     .from(agentAccesses)
-    .where(eq(agentAccesses.id, params.id))
+    .where(eq(agentAccesses.id, id))
     .limit(1);
 
   if (!delegation || delegation.tenantId !== tenantId) {
@@ -49,14 +51,14 @@ export async function POST(
   await db
     .update(agentAccesses)
     .set({ status: 'REJECTED', rejectedAt: new Date(), updatedAt: new Date() })
-    .where(eq(agentAccesses.id, params.id));
+    .where(eq(agentAccesses.id, id));
 
   await logDelegationAction({
     tenantId,
-    delegationId: params.id,
+    delegationId: id,
     action: 'rejected',
     actorId: session.userId,
   });
 
-  return apiSuccess({ id: params.id, status: 'REJECTED' });
+  return apiSuccess({ id: id, status: 'REJECTED' });
 }

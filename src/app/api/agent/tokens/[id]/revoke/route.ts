@@ -16,11 +16,13 @@ import { agentTokens } from '@schema/agent-tokens';
 
 export const maxDuration = 5;
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { tenantId } = await withTenant();
 
   const session = await getSessionAndRole(request);
   if (!session) return apiUnauthorized();
+
+  const { id } = await params;
 
   const [issuingUser] = await db
     .select({ id: users.id, role: users.role })
@@ -35,7 +37,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   const [token] = await db
     .select()
     .from(agentTokens)
-    .where(and(eq(agentTokens.id, params.id), eq(agentTokens.tenantId, tenantId)))
+    .where(and(eq(agentTokens.id, id), eq(agentTokens.tenantId, tenantId)))
     .limit(1);
 
   if (!token) {
@@ -46,7 +48,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     return apiConflict('Token already revoked');
   }
 
-  await db.update(agentTokens).set({ revokedAt: new Date() }).where(eq(agentTokens.id, params.id));
+  await db.update(agentTokens).set({ revokedAt: new Date() }).where(eq(agentTokens.id, id));
 
-  return apiSuccess({ id: params.id, revoked: true });
+  return apiSuccess({ id, revoked: true });
 }

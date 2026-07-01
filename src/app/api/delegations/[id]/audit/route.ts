@@ -15,12 +15,14 @@ export const maxDuration = 5;
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   const { tenantId } = await withTenant();
 
   const session = await getSessionAndRole(request);
   if (!session) return apiUnauthorized();
+
+  const { id } = await params;
 
   const [delegation] = await db
     .select({
@@ -30,7 +32,7 @@ export async function GET(
       agentId: agentAccesses.agentId,
     })
     .from(agentAccesses)
-    .where(eq(agentAccesses.id, params.id))
+    .where(eq(agentAccesses.id, id))
     .limit(1);
 
   if (!delegation || delegation.tenantId !== tenantId) {
@@ -55,7 +57,7 @@ export async function GET(
       createdAt: delegationActions.createdAt,
     })
     .from(delegationActions)
-    .where(eq(delegationActions.delegationId, params.id))
+    .where(eq(delegationActions.delegationId, id))
     .orderBy(desc(delegationActions.createdAt))
     .limit(50);
 

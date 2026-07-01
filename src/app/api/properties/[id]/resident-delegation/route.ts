@@ -38,12 +38,13 @@ const revokeSchema = z.object({
 });
 
 // POST — owner grants renter initiation rights
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { tenantId } = await withTenant();
   const authData = await getSessionAndRole(request);
   if (!authData) return apiError('UNAUTHORIZED', 'Authentication required', 401);
 
-  const propertyId = params.id;
+  const { id } = await params;
+  const propertyId = id;
 
   // Verify caller owns the property
   const [prop] = await db
@@ -130,12 +131,12 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 }
 
 // GET — list active resident delegations for a property
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { tenantId } = await withTenant();
   const authData = await getSessionAndRole(request);
   if (!authData) return apiError('UNAUTHORIZED', 'Authentication required', 401);
 
-  const propertyId = params.id;
+  const { id: propertyId } = await params;
 
   const [prop] = await db
     .select({ ownerId: properties.ownerId })
@@ -183,10 +184,15 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // DELETE — owner revokes a resident delegation
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const { tenantId } = await withTenant();
   const authData = await getSessionAndRole(request);
   if (!authData) return apiError('UNAUTHORIZED', 'Authentication required', 401);
+
+  const { id } = await params;
 
   const body = await request.json();
   const parsed = revokeSchema.safeParse(body);
@@ -211,7 +217,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   const [prop] = await db
     .select({ ownerId: properties.ownerId })
     .from(properties)
-    .where(eq(properties.id, params.id))
+    .where(eq(properties.id, id))
     .limit(1);
 
   const isOwner = prop?.ownerId === authData.userId;

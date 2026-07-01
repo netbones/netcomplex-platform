@@ -17,12 +17,14 @@ export const maxDuration = 5;
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   const { tenantId } = await withTenant();
 
   const session = await getSessionAndRole(request);
   if (!session) return apiUnauthorized();
+
+  const { id } = await params;
 
   const [delegation] = await db
     .select({
@@ -32,7 +34,7 @@ export async function PATCH(
       status: agentAccesses.status,
     })
     .from(agentAccesses)
-    .where(eq(agentAccesses.id, params.id))
+    .where(eq(agentAccesses.id, id))
     .limit(1);
 
   if (!delegation || delegation.tenantId !== tenantId) {
@@ -55,21 +57,18 @@ export async function PATCH(
   await db
     .update(agentAccesses)
     .set({ status: 'REVOKED', revokedAt: new Date(), updatedAt: new Date() })
-    .where(eq(agentAccesses.id, params.id));
+    .where(eq(agentAccesses.id, id));
 
   // Cascade: revoke all linked agent tokens
-  await db
-    .update(agentTokens)
-    .set({ revokedAt: new Date() })
-    .where(eq(agentTokens.accessId, params.id));
+  await db.update(agentTokens).set({ revokedAt: new Date() }).where(eq(agentTokens.accessId, id));
 
   await logDelegationAction({
     tenantId,
-    delegationId: params.id,
+    delegationId: id,
     action: 'revoked',
     actorId: session.userId,
     metadata: { revokedBy: isAdmin ? 'admin' : 'owner' },
   });
 
-  return apiSuccess({ id: params.id, status: 'REVOKED' });
+  return apiSuccess({ id: id, status: 'REVOKED' });
 }

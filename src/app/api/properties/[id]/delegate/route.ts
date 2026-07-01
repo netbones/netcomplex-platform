@@ -38,14 +38,15 @@ const delegateSchema = z
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   const { tenantId } = await withTenant();
 
   const session = await getSessionAndRole(request);
   if (!session) return apiUnauthorized();
 
-  const propertyId = params.id;
+  const { id } = await params;
+  const propertyId = id;
 
   // Verify property exists and caller owns it
   const [property] = await db

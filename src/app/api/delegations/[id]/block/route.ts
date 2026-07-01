@@ -22,12 +22,14 @@ const blockSchema = z.object({
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   const { tenantId } = await withTenant();
 
   const session = await getSessionAndRole(request);
   if (!session) return apiUnauthorized();
+
+  const { id } = await params;
 
   const [delegation] = await db
     .select({
@@ -39,7 +41,7 @@ export async function PATCH(
       grantedById: agentAccesses.grantedById,
     })
     .from(agentAccesses)
-    .where(eq(agentAccesses.id, params.id))
+    .where(eq(agentAccesses.id, id))
     .limit(1);
 
   if (!delegation || delegation.tenantId !== tenantId) {
@@ -103,11 +105,11 @@ export async function PATCH(
   await db
     .update(agentAccesses)
     .set({ permissions: newPermissions, updatedAt: new Date() })
-    .where(eq(agentAccesses.id, params.id));
+    .where(eq(agentAccesses.id, id));
 
   await logDelegationAction({
     tenantId,
-    delegationId: params.id,
+    delegationId: id,
     action: blocked ? 'blocked' : 'unblocked',
     actorId: session.userId,
     metadata: {
@@ -117,7 +119,7 @@ export async function PATCH(
   });
 
   return apiSuccess({
-    id: params.id,
+    id: id,
     blocked,
     permissions: newPermissions,
   });

@@ -58,14 +58,14 @@ function getWriteActions(permissions: string[]): string[] {
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   const { tenantId } = await withTenant();
 
   const session = await getSessionAndRole(request);
   if (!session) return apiUnauthorized();
 
-  const delegationId = params.id;
+  const { id: delegationId } = await params;
 
   const [delegation] = await db
     .select({
