@@ -1738,6 +1738,90 @@ export const SOLARIS_HEIGHTS: TenantSeedData = {
     },
   ],
 
+  educationBursaries: [
+    {
+      id: 'sh-eb-nedbank',
+      title: 'Nedbank Bursary Fund',
+      funder: 'Nedbank',
+      fieldId: 'sh-bf-commerce',
+      amount: 'R80 000/yr',
+      description:
+        'Supporting students in commerce, finance, and IT fields. Includes mentorship and vacation work opportunities.',
+      deadline: new Date('2026-05-15'),
+      status: 'PUBLISHED',
+    },
+    {
+      id: 'sh-eb-nrf',
+      title: 'National Research Foundation Bursary',
+      funder: 'NRF',
+      fieldId: 'sh-bf-stem',
+      amount: 'R75 000/yr',
+      description:
+        'Postgraduate funding for research in science, engineering, and technology at South African institutions.',
+      applyUrl: 'https://www.nrf.ac.za',
+      deadline: new Date('2026-08-31'),
+      status: 'PUBLISHED',
+    },
+    {
+      id: 'sh-eb-lpc',
+      title: 'Legal Practice Council Bursary',
+      funder: 'LPC',
+      fieldId: 'sh-bf-law',
+      amount: 'R70 000/yr',
+      description:
+        'Support for LLB students from historically disadvantaged backgrounds. Includes practical vocational training.',
+      deadline: new Date('2026-04-30'),
+      status: 'PUBLISHED',
+    },
+    {
+      id: 'sh-eb-community',
+      title: 'Community Trust Top-Up Grant',
+      funder: 'Solaris Heights HOA',
+      fieldId: 'sh-bf-general',
+      amount: 'R15 000',
+      description:
+        'One-time top-up grant for residents pursuing any field of study. Limited to 5 recipients per year.',
+      deadline: new Date('2026-09-30'),
+      status: 'DRAFT',
+    },
+  ],
+
+  educationResources: [
+    {
+      id: 'sh-er-openstax',
+      title: 'OpenStax',
+      description:
+        'Free, peer-reviewed, openly licensed textbooks covering maths, science, social sciences, and humanities.',
+      provider: 'Rice University',
+      externalUrl: 'https://openstax.org',
+      mediaType: 'BOOK',
+      tags: ['textbook', 'university', 'free'],
+      featured: false,
+    },
+    {
+      id: 'sh-er-african',
+      title: 'African Storybook',
+      description:
+        "Open access to picture storybooks in the languages of Africa, for children's literacy and enjoyment.",
+      provider: 'Saide',
+      externalUrl: 'https://www.africanstorybook.org',
+      mediaType: 'BOOK',
+      tags: ['literacy', 'children', 'african-languages'],
+      featured: false,
+    },
+    {
+      id: 'sh-er-doaj',
+      title: 'Directory of Open Access Journals',
+      description:
+        'Community-curated online directory that indexes and provides access to high quality, open access, peer-reviewed journals.',
+      provider: 'DOAJ',
+      externalUrl: 'https://doaj.org',
+      mediaType: 'JOURNAL',
+      tags: ['journals', 'research', 'open-access'],
+      featured: false,
+    },
+  ],
+
   maintenanceTeams: [
     {
       id: 'slh-team-lifts',

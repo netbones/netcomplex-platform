@@ -37,6 +37,7 @@ import { competitions } from '@schema/competitions';
 import { maintenanceCategories } from '@schema/maintenance-categories';
 import { maintenanceTeams } from '@schema/maintenance-teams';
 import { bursaryFields } from '@schema/bursary-fields';
+import { bursaries } from '@schema/bursaries';
 import { serviceProviders } from '@schema/service-providers';
 import { maintenanceRequests } from '@schema/maintenance-requests';
 import { settings } from '@schema/settings';
@@ -408,6 +409,46 @@ async function seedTenant(data: TenantSeedData): Promise<void> {
     await db.insert(bursaryFields).values(bf).onConflictDoNothing();
   }
   console.log(`  ✓ ${bursaryFieldRows.length} bursary fields`);
+
+  // Education bursaries
+  console.log('Education bursaries...');
+  const bursaryRows = withTenantId(tenantId, withTenantPrefix(slug, data.educationBursaries)).map(
+    b => ({
+      ...b,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+      applyUrl: b.applyUrl ?? null,
+    })
+  );
+  for (const b of bursaryRows) {
+    await db.insert(bursaries).values(b).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${bursaryRows.length} bursaries`);
+
+  // Education resources (category=EDUCATION)
+  console.log('Education resources...');
+  const eduResRows = withTenantId(tenantId, withTenantPrefix(slug, data.educationResources)).map(
+    r => ({
+      ...r,
+      category: 'EDUCATION' as const,
+      fileUrl: null as string | null,
+      fileType: null as string | null,
+      fileSize: null as number | null,
+      version: null as string | null,
+      visibility: 'ALL_RESIDENTS' as const,
+      authorId: null as string | null,
+      publishedAt: null as Date | null,
+      downloadCount: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null as Date | null,
+    })
+  );
+  for (const r of eduResRows) {
+    await db.insert(resources).values(r).onConflictDoNothing();
+  }
+  console.log(`  ✓ ${eduResRows.length} education resources`);
 
   // Service providers
   console.log('Service providers...');

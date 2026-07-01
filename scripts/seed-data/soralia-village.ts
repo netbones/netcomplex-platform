@@ -2766,6 +2766,126 @@ export const SORALIA_VILLAGE: TenantSeedData = {
     },
   ],
 
+  educationBursaries: [
+    {
+      id: 'eb-sasol',
+      title: 'Sasol Bursary Programme',
+      funder: 'Sasol Ltd',
+      fieldId: 'bf-stem',
+      amount: 'R90 000/yr',
+      description:
+        'Full-cost bursaries for STEM students at South African universities. Covers tuition, accommodation, meals, and a book allowance.',
+      applyUrl: 'https://www.sasolbursaries.com',
+      deadline: new Date('2026-03-31'),
+      status: 'PUBLISHED',
+    },
+    {
+      id: 'eb-oldmutual',
+      title: 'Old Mutual Education Trust',
+      funder: 'Old Mutual',
+      fieldId: 'bf-commerce',
+      amount: 'R60 000/yr',
+      description:
+        'Funding for commerce and business students. Preference given to dependents of Old Mutual members and staff.',
+      applyUrl: 'https://www.oldmutual.co.za',
+      deadline: new Date('2026-04-15'),
+      status: 'PUBLISHED',
+    },
+    {
+      id: 'eb-doh',
+      title: 'Department of Health Bursary',
+      funder: 'Western Cape DoH',
+      fieldId: 'bf-health',
+      amount: 'R120 000/yr',
+      description:
+        'Provincial health bursary for medical, nursing, and allied health students. Includes a service obligation upon graduation.',
+      deadline: new Date('2026-07-31'),
+      status: 'PUBLISHED',
+    },
+    {
+      id: 'eb-fulbright',
+      title: 'Fulbright Foreign Student Program',
+      funder: 'US Embassy',
+      fieldId: 'bf-arts',
+      amount: 'Full tuition',
+      description:
+        'Prestigious international scholarship for South African graduates to study in the United States. Covers full tuition, travel, and living stipend.',
+      applyUrl: 'https://za.usembassy.gov',
+      deadline: new Date('2026-05-31'),
+      status: 'PUBLISHED',
+    },
+    {
+      id: 'eb-funza',
+      title: 'Funza Lushaka Teaching Bursary',
+      funder: 'Department of Basic Education',
+      fieldId: 'bf-education',
+      amount: 'R100 000/yr',
+      description:
+        'National bursary for students pursuing teaching qualifications. Includes a service obligation in public schools.',
+      applyUrl: 'https://www.funzalushaka.doe.gov.za',
+      deadline: new Date('2026-04-30'),
+      status: 'PUBLISHED',
+    },
+  ],
+
+  educationResources: [
+    {
+      id: 'er-khan',
+      title: 'Khan Academy',
+      description:
+        'Free world-class education covering maths, science, computing, and more. Interactive exercises and instructional videos.',
+      provider: 'Khan Academy',
+      externalUrl: 'https://www.khanacademy.org',
+      mediaType: 'COURSE',
+      tags: ['maths', 'science', 'computing'],
+      featured: false,
+    },
+    {
+      id: 'er-mit',
+      title: 'MIT OpenCourseWare',
+      description:
+        'Nearly all MIT undergraduate and graduate course materials — free, open, and available to everyone.',
+      provider: 'MIT',
+      externalUrl: 'https://ocw.mit.edu',
+      mediaType: 'COURSE',
+      tags: ['university', 'engineering', 'science'],
+      featured: false,
+    },
+    {
+      id: 'er-siyavula',
+      title: 'Siyavula Open Textbooks',
+      description:
+        'Free, CAPS-aligned maths and science textbooks for Grades 4–12, available in English and Afrikaans.',
+      provider: 'Siyavula Education',
+      externalUrl: 'https://www.siyavula.com',
+      mediaType: 'BOOK',
+      tags: ['textbook', 'maths', 'science', 'caps'],
+      featured: false,
+    },
+    {
+      id: 'er-coursera',
+      title: 'Coursera',
+      description:
+        'Access free courses from top universities and companies worldwide. Earn certificates and build career skills.',
+      provider: 'Coursera',
+      externalUrl: 'https://www.coursera.org',
+      mediaType: 'COURSE',
+      tags: ['university', 'career', 'certificates'],
+      featured: false,
+    },
+    {
+      id: 'er-teded',
+      title: 'TED-Ed',
+      description:
+        'Short, award-winning animated videos about ideas that spark curiosity. Lessons worth sharing for learners of all ages.',
+      provider: 'TED',
+      externalUrl: 'https://ed.ted.com',
+      mediaType: 'VIDEO',
+      tags: ['curiosity', 'animation', 'lessons'],
+      featured: false,
+    },
+  ],
+
   maintenanceTeams: [
     {
       id: 'team-plumbing',

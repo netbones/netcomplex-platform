@@ -340,6 +340,29 @@ export interface BursaryFieldInput {
   isActive: boolean;
 }
 
+export interface EducationBursaryInput {
+  id: string;
+  title: string;
+  funder: string;
+  fieldId: string;
+  amount: string;
+  description: string;
+  applyUrl?: string | null;
+  deadline: Date;
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+}
+
+export interface EducationResourceInput {
+  id: string;
+  title: string;
+  description: string;
+  provider: string;
+  externalUrl: string;
+  mediaType: 'BOOK' | 'COURSE' | 'JOURNAL' | 'VIDEO';
+  tags: string[];
+  featured: boolean;
+}
+
 export interface MaintenanceCategoryInput {
   id: string;
   value: string;
@@ -545,6 +568,8 @@ export interface TenantSeedData {
   maintenanceCategories: MaintenanceCategoryInput[];
   maintenanceTeams: MaintenanceTeamInput[];
   bursaryFields: BursaryFieldInput[];
+  educationBursaries: EducationBursaryInput[];
+  educationResources: EducationResourceInput[];
   serviceProviders: ServiceProviderInput[];
   maintenanceRequests: MaintenanceRequestInput[];
   settings: SettingInput[];
