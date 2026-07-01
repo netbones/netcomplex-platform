@@ -1451,6 +1451,35 @@ Plans:
 
 **Scope:** 1 new SSOT file, 5 existing files updated to re-export, 2 new integration test files, 1 assessment doc. Total ~400 lines new code, ~200 lines removed (dead code consolidation).
 
+## Phase 122: WorkspaceContext Architecture
+
+**Goal:** Establish the `WorkspaceContext` frontend abstraction as the runtime lens for rendering the entire platform — decoupling UI behaviour from `Role` and identity details. Ships the frontend precondition for the `Principal` backend refactor (Phase 1d).
+
+**Status:** Planning — Context gathered, CONTEXT.md written
+
+**Milestone:** M5+ — Post-Launch Architecture Evolution
+
+**Depends on:** Phase 111 (AgentGateway — delegation models exist), Phase 110 (page access control)
+
+**Source decisions:** ADDENDUM-023 (4 binding constraints + Workspace Registry), AGENT_DISCUSSION.md Parts 1-3 (advisor guidance), COMMUNIQUE-07 (revised P1a-c roadmap)
+
+**Requirements:** WS-01 (WorkspaceRegistry), WS-02 (WorkspaceContext abstraction), WS-03 (atomic switching logic), WS-04 (hierarchical selector), WS-05 (empty states), WS-06 (workspace scope panel)
+
+**Plans:**
+
+| Step  | Plan   | Objective                                                                                            |
+| ----- | ------ | ---------------------------------------------------------------------------------------------------- |
+| P1a-1 | 122-01 | WorkspaceRegistry — canonical registry of workspace types, navigation, actions, widgets, permissions |
+| P1a-2 | 122-02 | WorkspaceContext — React context provider + `useWorkspaceContext()` hook                             |
+| P1a-3 | 122-03 | Atomic switching logic — `switchWorkspace()` (resolve → replace → navigate → render → notify)        |
+| P1a-4 | 122-04 | Hierarchical workspace selector — registry-driven tree (Personal/Provider/Owner) with search/recent  |
+| P1a-5 | 122-05 | Empty states — welcome surface for zero-delegation users (onboarding + marketplace + learn)          |
+| P1a-6 | 122-06 | Workspace scope panel — first-class workspace object (scope, delegator, permissions, expiry)         |
+
+**Out of scope:** Principal backend model (Phase 1d), AGENT role removal (Phase 1e), property workspace `/properties/[id]` (Phase 2), MechanicalAgent workspace (Phase 113+).
+
+---
+
 ## Phase 112: Monorepo — Full Milestone
 
 **Goal:** Tracking/umbrella phase for the full monorepo migration (M7 milestone). Cross-cutting architecture decisions captured in 112-CONTEXT.md. Sub-phases 113–117+ defined.
