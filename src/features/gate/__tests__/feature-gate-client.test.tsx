@@ -2,7 +2,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, renderHook } from '@testing-library/react';
-import type { PlatformPageFlags, Role, TierLevel } from '@shared/lib';
+import type { PlatformPageFlags, HeaderLinkId, Role, TierLevel } from '@shared/lib';
 
 vi.mock('@api/client', () => ({
   useSession: vi.fn(),
@@ -22,10 +22,11 @@ const mockUsePageFlags = vi.mocked(usePageFlags);
 function makeFlags(overrides: Partial<PlatformPageFlags> = {}): PlatformPageFlags {
   return {
     campaign: true,
-    conservation: 'default',
+    conservation: 'default' as const,
     conservationExternalUrl: '',
     conservationManagedUrl: '',
     education: true,
+    'agent-gateway': true,
     chat: true,
     news: true,
     events: true,
@@ -45,7 +46,7 @@ function makeFlags(overrides: Partial<PlatformPageFlags> = {}): PlatformPageFlag
     marketplacePaypal: false,
     headerLinks: ['directory', 'groups', 'services', 'resources'],
     ...overrides,
-  };
+  } satisfies PlatformPageFlags;
 }
 
 function makeCtx(
