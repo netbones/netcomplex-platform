@@ -46,7 +46,7 @@ import {
   resolveLocale,
   transformContentForLocale,
 } from '@entities/content/server';
-import { createId } from '@shared';
+import { createId } from '@shared/lib';
 // ──────────────────────────────────────────
 // Input Schemas
 // ──────────────────────────────────────────
