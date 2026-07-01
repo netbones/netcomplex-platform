@@ -1455,7 +1455,7 @@ Plans:
 
 **Goal:** Establish the `WorkspaceContext` frontend abstraction as the runtime lens for rendering the entire platform — decoupling UI behaviour from `Role` and identity details. Ships the frontend precondition for the `Principal` backend refactor (Phase 1d).
 
-**Status:** Planning — Context gathered, CONTEXT.md written
+**Status:** Planning Complete — 6 plans in 5 waves (WS-01..WS-06 covered)
 
 **Milestone:** M5+ — Post-Launch Architecture Evolution
 
@@ -1465,7 +1465,7 @@ Plans:
 
 **Requirements:** WS-01 (WorkspaceRegistry), WS-02 (WorkspaceContext abstraction), WS-03 (atomic switching logic), WS-04 (hierarchical selector), WS-05 (empty states), WS-06 (workspace scope panel)
 
-**Plans:**
+**Plans:** 6 plans in 5 waves (WS-01..WS-06; no schema push — frontend-only phase)
 
 | Step  | Plan   | Objective                                                                                            |
 | ----- | ------ | ---------------------------------------------------------------------------------------------------- |
@@ -1476,7 +1476,16 @@ Plans:
 | P1a-5 | 122-05 | Empty states — welcome surface for zero-delegation users (onboarding + marketplace + learn)          |
 | P1a-6 | 122-06 | Workspace scope panel — first-class workspace object (scope, delegator, permissions, expiry)         |
 
-**Out of scope:** Principal backend model (Phase 1d), AGENT role removal (Phase 1e), property workspace `/properties/[id]` (Phase 2), MechanicalAgent workspace (Phase 113+).
+Plans checklist (execution order; wave in parens):
+
+- [ ] 122-01-PLAN.md — WorkspaceRegistry + phase worktree bootstrap (wave 1)
+- [ ] 122-02-PLAN.md — WorkspaceContext provider + pure resolver + providers.tsx mount (wave 2, depends 122-01)
+- [ ] 122-03-PLAN.md — switchWorkspace 5-step + NotificationLink + widgets barrel + 3 stubs (wave 3, depends 122-02)
+- [ ] 122-04-PLAN.md — Hierarchical WorkspaceSelector + virtualisation (@tanstack/react-virtual) + prefs stores (wave 4, depends 122-01/03)
+- [ ] 122-05-PLAN.md — EmptyWorkspaceState welcome surface with 3 verb-first CTAs (wave 4, depends 122-02/03)
+- [ ] 122-06-PLAN.md — WorkspaceScopePanel parametrized across PERSONAL/PROVIDER/PROPERTY/OWNER (wave 5, depends 122-02/03)
+
+**Out of scope:** Principal backend model (Phase 1d), AGENT role removal (Phase 1e), property workspace `/properties/[id]` (Phase 2), MechanicalAgent workspace (Phase 113+), external deep-link middleware hint-header (deferred per VALIDATION Test Sequencing item 4 — file BD issue per RESEARCH R-07), Header/SpaceChrome consumer refactor (P2 property workspace).
 
 ---
 
