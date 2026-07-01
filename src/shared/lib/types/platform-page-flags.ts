@@ -1,4 +1,5 @@
 export const HEADER_LINK_IDS = [
+  'agent-gateway',
   'campaign',
   'competitions',
   'conservation',
@@ -16,6 +17,7 @@ export const HEADER_LINK_IDS = [
 export type HeaderLinkId = (typeof HEADER_LINK_IDS)[number];
 
 export interface PlatformPageFlags {
+  'agent-gateway': boolean;
   campaign: boolean;
   conservation: 'default' | 'managed' | 'external';
   conservationExternalUrl: string;

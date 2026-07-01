@@ -170,6 +170,14 @@ export const FEATURE_REGISTRY: Record<string, FeatureDefinition> = {
     description: 'Bursaries, scholarships, and free learning resources',
     icon: 'graduation-cap',
   },
+  'page.agent-gateway': {
+    key: 'page.agent-gateway',
+    tier: 'core',
+    category: 'page',
+    label: 'Agent Gateway',
+    description: 'Manage property delegations, tokens, and agent access',
+    icon: 'users',
+  },
   'page.admin': {
     key: 'page.admin',
     tier: 'foundation',
