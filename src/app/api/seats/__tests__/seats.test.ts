@@ -126,7 +126,8 @@ vi.mock('@api/server', () => ({
   AddressService: class {
     constructor() {}
     async reserve(...args: unknown[]) {
-      return mocks.mockAddressReserve(...args);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return mocks.mockAddressReserve(...(args as any));
     }
   },
   AddressConflictError: class extends Error {

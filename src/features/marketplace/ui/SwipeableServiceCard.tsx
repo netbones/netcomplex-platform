@@ -7,9 +7,15 @@ interface SwipeableServiceCardProps {
   service: ServiceListing;
   onInquire: (serviceId: string) => void;
   onBook: (serviceId: string) => void;
+  onCardClick?: (serviceId: string) => void;
 }
 
-export function SwipeableServiceCard({ service, onInquire, onBook }: SwipeableServiceCardProps) {
+export function SwipeableServiceCard({
+  service,
+  onInquire,
+  onBook,
+  onCardClick,
+}: SwipeableServiceCardProps) {
   const [translateX, setTranslateX] = useState(0);
   const translateXRef = useRef(0);
   const startX = useRef(0);
@@ -103,6 +109,7 @@ export function SwipeableServiceCard({ service, onInquire, onBook }: SwipeableSe
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onClick={() => onCardClick?.(service.id)}
         className="relative z-10 bg-white transition-transform duration-200"
         style={{ transform: `translateX(${translateX}px)` }}
       >

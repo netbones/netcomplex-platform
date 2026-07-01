@@ -395,3 +395,39 @@ Client-side `console.*` calls in `DWalletAdminWidget.tsx` and `useAutoSave.ts` �
 | 5   | Fix users-id AddressService mock (4 tests)                                    | 20 min | ✅ Done |
 
 **Progress**: 0 test failures remaining (47 tests in fixed files, previously 6 failing).
+
+---
+
+## Sprint 5 — TypeScript Cleanup & Quality Gates
+
+| #   | Action                                                                                                           | Effort | Status  |
+| --- | ---------------------------------------------------------------------------------------------------------------- | ------ | ------- |
+| 1   | Fix ~18 TypeScript errors (13 files, 4 in production code — `csos-export`, `maintenance`, `marketplace/webhook`) | 2 hrs  | Pending |
+| 2   | Add missing DB indexes: `Content(tenantId)`, `Event(date)`                                                       | 15 min | Pending |
+| 3   | Populate `constants.ts` with HTTP status codes, cache TTLs, cookie names, file size limits                       | 30 min | Pending |
+| 4   | Add E2E tests for critical auth flow (login → protected route → session expiry)                                  | 2 hrs  | Pending |
+| 5   | Document soft-delete policy: which models are soft/hard-deleted and why                                          | 30 min | Pending |
+
+**Theme**: Close all remaining TypeScript errors, resolve the most impactful database gaps, and establish the patterns that will govern Sprint 6's larger architecture work (API consolidation, E2E expansion).
+
+### Details
+
+**Item 1 — TypeScript errors**
+
+- `src/test/__snapshots__/csos-export.test.ts` — 15 errors (mock arrays typed as `never[]`)
+- `src/server/routers/maintenance/maintenance-requests.ts` — 3 errors (missing `import { sql }`)
+- `src/app/api/marketplace/webhook/route.ts` — 1 error (`'FAILED'` literal not in enum)
+- ~others in test files from stale mocks
+
+**Item 5 — Soft-delete policy**
+
+- 38 models have `deletedAt` (soft-delete), 70 do not (hard-delete)
+- `MaintenanceRequest` has no `deletedAt` but its child `RequestNote` does — orphans possible
+- Policy document should live in `docs/STEERING/` and specify: which models are soft-deleted, why, and how cascading deletes work
+
+### Future (Sprint 6+)
+
+- **API Consolidation** (Phase 2) — needs 2-4 weeks of dedicated focus
+- **E2E coverage expansion** — disputes, billing, booking
+- **Legacy `src/components/` migration** to FSD (Phase 5)
+- **Denormalized field reconciliation jobs** (Phase 3)
