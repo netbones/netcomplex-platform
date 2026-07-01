@@ -6,7 +6,7 @@
 
 ## Scope
 
-Senior Engineer code-quality audit of the Netcomplex Platform (Soralia Village anchor tenant). Covers gaps identified in Sprint 1–5 implementation work.
+Senior Engineer code-quality audit of the Netcomplex Platform (Soralia Village anchor tenant). Covers gaps identified in Sprint 1–6 implementation work.
 
 ---
 
@@ -84,6 +84,19 @@ Senior Engineer code-quality audit of the Netcomplex Platform (Soralia Village a
 | S5-10 | Soft-delete policy undocumented                           | ✅ Done | Created `docs/STEERING/SOFT_DELETE.md`                                |
 | S5-11 | Full `tsc --noEmit` hangs                                 | ⚠️ Open | `.next` incremental cache issue; requires investigation               |
 | S5-12 | `next build` hangs                                        | ⚠️ Open | Likely related to tsc hang — further debugging needed                 |
+
+---
+
+## Sprint 6 — Build & CI Pipeline Reliability
+
+### Findings
+
+| #    | Issue                                        | Status  | Fix                                                                  |
+| ---- | -------------------------------------------- | ------- | -------------------------------------------------------------------- |
+| S6-1 | `tsc --noEmit` hangs/timeout on full project | ⚠️ Open | Investigate `.next/types/validator.ts` cache corruption              |
+| S6-2 | `next build` hangs/timeout                   | ⚠️ Open | Likely related to tsc hang — diagnose parallelism or memory pressure |
+| S6-3 | Pre-commit hook flakiness on large commits   | 🔲 TBD  |                                                                      |
+| S6-4 | CI pipeline missing type-check stage         | 🔲 TBD  | Add `tsc --noEmit` step after lint passes                            |
 
 ---
 
