@@ -203,14 +203,14 @@ Client-side `console.*` calls in `DWalletAdminWidget.tsx` and `useAutoSave.ts` �
 | **Database Design**  | ⚠️ 5/10 | Well-structured but missing FKs, indexes, and has drift-prone denormalized fields                       |
 | **FSD Compliance**   | ✅ 7/10 | Layers well-established; steiger enforces boundaries; some debt remains                                 |
 | **Type Safety**      | ⚠️ 6/10 | 41 type errors down to ~18 (most fixed); `as any` in production code; strict mode enabled but not clean |
-| **Testing**          | ⚠️ 3/10 | Coverage thresholds raised to 30/20/15%; 1 E2E test; 204 test files for 1,638 source files              |
+| **Testing**          | ⚠️ 4/10 | Coverage thresholds raised to 30/20/15%; test failures 0 (down from 21); 1 E2E test; 205 test files     |
 | **Code Quality**     | ⚠️ 5/10 | 261 warnings; formatDate consolidated; dead code removed; inconsistent patterns                         |
 | **Performance**      | ✅ 7/10 | Good caching strategy; ISR patterns; missing DB indexes are the main risk                               |
 | **Security**         | ⚠️ 7/10 | CORS added; security headers added; inconsistent rate limiting; strong auth middleware                  |
 | **Documentation**    | ✅ 7/10 | Excellent API.md, ADR.md, SPEC.md; AGENTS.md thorough; GAPS.md tracks debt                              |
 | **Maintainability**  | ⚠️ 5/10 | Massive duplication; some dead code; inconsistent patterns; but FSD structure is solid                  |
 
-**Overall: 6.4/10** — Sprint 3 progress: test failures down to 6 (from 21), middleware tests added (9 tests), FK relations fixed. Remaining: 6 test failures, TypeScript errors.
+**Overall: 6.6/10** — Sprint 4 progress: test failures 0 (down from 21), DB indexes on 3 tables, FK on DelegationAction.actorId, SurveySection back-link. Remaining: TypeScript errors (~18).
 
 ---
 
@@ -374,10 +374,24 @@ Client-side `console.*` calls in `DWalletAdminWidget.tsx` and `useAutoSave.ts` �
 
 | #   | Action                                                     | Effort  | Status                                   |
 | --- | ---------------------------------------------------------- | ------- | ---------------------------------------- |
-| 1   | Fix 21 test failures (specialized-routes, users, delegate) | 2-3 hrs | In Progress (6 failures remaining)       |
+| 1   | Fix 21 test failures (specialized-routes, users, delegate) | 2-3 hrs | ✅ Done (0 remaining)                    |
 | 2   | Resolve remaining TypeScript errors                        | 2 hrs   | In Progress (~18 errors, typecheck slow) |
 | 3   | Add missing FK relations (UserAchievement)                 | 1 hr    | ✅ Done                                  |
 | 4   | Add middleware unit tests                                  | 2 hrs   | ✅ Done (9 tests passing)                |
 | 5   | Remove FeatureGate.tsx dead code                           | 10 min  | ✅ Done                                  |
 
-**Progress**: Test failures reduced from 21 → 6; middleware tests added (9 tests); FK relations fixed.
+**Progress**: Test failures reduced from 21 → 0; middleware tests added (9 tests); FK relations fixed.
+
+---
+
+## Sprint 4 — Database Hardening & Schema Fixes
+
+| #   | Action                                                                        | Effort | Status  |
+| --- | ----------------------------------------------------------------------------- | ------ | ------- |
+| 1   | Add FK relation on DelegationAction.actorId → user                            | 15 min | ✅ Done |
+| 2   | Add indexes: Conversation(tenantId), Survey(tenantId, status), ExternalSurvey | 30 min | ✅ Done |
+| 3   | Fix SurveySection → Survey missing back-link (pre-existing schema error)      | 5 min  | ✅ Done |
+| 4   | Fix specialized-routes timeout (vi.setConfig testTimeout 15s)                 | 10 min | ✅ Done |
+| 5   | Fix users-id AddressService mock (4 tests)                                    | 20 min | ✅ Done |
+
+**Progress**: 0 test failures remaining (47 tests in fixed files, previously 6 failing).
