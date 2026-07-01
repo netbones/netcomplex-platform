@@ -201,6 +201,49 @@ We need guidance on:
 3. **How should mechanical-agent billing differ?** Per-operation tokens (e.g., 0.01 ZAR per listing post)? AI tier quotas (already in `PlatformAiTierQuota`)? Flat subscription like human providers? Should the billing layer be shared or separate?
 4. **What is the "robot personnel" horizon?** If physical robots performing inspections are >12 months out, we can defer mechanical-agent schema decisions to Phase 113+ and use Option A as a tactical bridge. If robots are on the M6 roadmap, we should build the schema correctly now.
 
+### 4.3 — Agent Gateway Page Design
+
+The `/agent-gateway` page currently exists as a minimal shell: a `DelegationWidget` (showing active delegations with block toggles) plus sidebar quick-links to maintenance, services, and profile. There is no token management UI, no agent profile view, and no distinction between human and mechanical agent contexts. We need design input on what this page should become.
+
+**Current page structure:**
+
+| Section             | Content                                                                     |
+| ------------------- | --------------------------------------------------------------------------- |
+| Header              | Breadcrumbs, title, subtitle                                                |
+| Main (left 2/3)     | `DelegationWidget` — active/pending delegation cards                        |
+| Sidebar (right 1/3) | "Access Tokens" card (links to `/agent-gateway/tokens`), "Quick Links" card |
+
+**Open design questions:**
+
+1. **Token management UI** — Currently a placeholder link. Should the gateway page have an inline token list (issue, view, revoke) or should `/agent-gateway/tokens` remain a separate sub-page? For mechanical agents, API tokens are the primary interface — does this warrant a more prominent placement than for human agents who primarily use the delegation widget?
+
+2. **Agent profile section** — Should the gateway show a profile summary (name, provider type, verification status, active properties)? The `ServiceProvider` record has `companyName`, `trade`, `isVerified`. For mechanical agents, this might show capability set, model version, rate-limit status.
+
+3. **Role-based view switching** — The gateway serves three different audiences. Should we handle this with tab navigation, role-conditional sections, or separate page variants?
+
+   | Audience                      | Primary need                                                                |
+   | ----------------------------- | --------------------------------------------------------------------------- |
+   | **Property owner**            | View my delegated agents, manage permissions, revoke access                 |
+   | **Human agent (provider)**    | Accept/reject delegations, view managed properties, manage service listings |
+   | **Mechanical agent operator** | View issued API tokens, monitor usage, configure capabilities               |
+
+4. **Dual-agent onboarding flow** — When a property owner navigates to "delegate to an agent," how do they choose between "find a human agent" (marketplace/browse providers) and "connect a mechanical agent" (register an AI service, paste an API key)? Are these the same flow or separate entry points?
+
+5. **Activity feed vs. static cards** — The `DelegationAuditLog` exists as a component. Should the gateway surface recent delegation activity (accepted, rejected, scope-changed) as a timeline or activity feed?
+
+6. **Mechanical agent status indicators** — For AI agents, what status should the UI display? "Last active: 2 min ago"? "Rate limit: 85%"? "Model: claude-sonnet-4-20250514"? The `AgentToken` model has `lastUsedAt` — is this sufficient?
+
+7. **Mobile/tablet layout** — The current three-column layout may not scale. What priority do we assign to delegation cards vs. token management on smaller screens?
+
+**Relevant existing components:**
+
+- `DelegationWidget` — active/pending delegation cards with block toggle, optimistic update
+- `DelegationAuditLog` — color-coded timeline of delegation lifecycle events
+- `useDelegations` / `useDelegationAudit` — TanStack Query hooks
+- Agent entity exports: `AGENT_SCOPES`, `SCOPE_BUNDLES`, `SCOPE_LABELS`
+
+We request design guidance on the page structure, audience-specific views, and how to differentiate the human-agent vs. mechanical-agent user experience within the same gateway surface.
+
 ---
 
 ## 5. Recommendation (for discussion)
