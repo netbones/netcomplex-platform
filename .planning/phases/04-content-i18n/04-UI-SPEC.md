@@ -54,9 +54,9 @@ Exceptions: none for this phase.
 | Role          | Size | Weight         | Line Height | Tailwind Class                                        |
 | ------------- | ---- | -------------- | ----------- | ----------------------------------------------------- |
 | Body          | 16px | 400 (normal)   | 1.6         | `text-base` (default content body from `globals.css`) |
-| Label / Small | 14px | 500 (medium)   | 1.4         | `text-sm font-medium`                                 |
+| Label / Small | 14px | 400 (normal)   | 1.4         | `text-sm`                                             |
 | Heading H3    | 20px | 600 (semibold) | 1.4         | `text-xl font-semibold`                               |
-| Heading H1    | 32px | 700 (bold)     | 1.2         | `text-3xl font-bold`                                  |
+| Heading H1    | 32px | 600 (semibold) | 1.2         | `text-3xl font-semibold`                              |
 
 **Font family:** `var(--font-family, Inter), system-ui, sans-serif` (from `tailwind.config.cjs`).
 
