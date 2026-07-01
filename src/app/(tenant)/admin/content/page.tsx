@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Breadcrumbs } from '@shared/ui';
+import { useLanguage } from '@shared/lib/hooks/useSafeTranslation';
 
 interface Content {
   id: string;
@@ -46,15 +47,16 @@ export default function ContentListPage() {
   const [content, setContent] = useState<Content[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { language } = useLanguage();
 
   useEffect(() => {
-    fetch('/api/content')
+    fetch(`/api/content?locale=${language}`)
       .then(res => res.json())
       .then(data => {
         setContent(data.data ?? []);
         setLoading(false);
       });
-  }, []);
+  }, [language]);
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);

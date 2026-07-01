@@ -44,14 +44,6 @@ export default function ConservationPage() {
   const [managedUrl, setManagedUrl] = useState<string>('');
   const [managedContent, setManagedContent] = useState<ContentItem[]>([]);
 
-  const getLocalizedContent = (
-    field: Record<string, string> | string | null | undefined
-  ): string => {
-    if (!field) return '';
-    if (typeof field === 'string') return field;
-    return field[i18n.language] || field.en || '';
-  };
-
   const { isReady, LoadingComponent } = usePageLoading(
     [
       { label: 'Home', href: '/' },
@@ -264,12 +256,8 @@ export default function ConservationPage() {
                     key={article.id ?? Math.random()}
                     className="rounded-lg p-6 border border-gray-200"
                   >
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">
-                      {getLocalizedContent(article.title) || article.title}
-                    </h3>
-                    <p className="text-gray-700 mb-4">
-                      {getLocalizedContent(article.content) || article.content}
-                    </p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">{article.title}</h3>
+                    <p className="text-gray-700 mb-4">{article.content}</p>
                     {article.author?.name && (
                       <div className="flex items-center text-green-600 font-medium">
                         <i className="fas fa-user mr-2"></i>
@@ -321,10 +309,8 @@ export default function ConservationPage() {
                         : ''}
                     </span>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
-                    {getLocalizedContent(article.title)}
-                  </h3>
-                  <p className="text-gray-700 mb-4">{getLocalizedContent(article.content)}</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{article.title}</h3>
+                  <p className="text-gray-700 mb-4">{article.content}</p>
                   <div className="flex items-center text-green-600 font-medium">
                     <i className="fas fa-user mr-2"></i>
                     <span>{article.author?.name}</span>
