@@ -30,7 +30,7 @@ interface ContentItem {
 }
 
 export function UserContentWidget() {
-  const { t } = useTranslation('dashboard');
+  const { t, i18n } = useTranslation('dashboard');
   const { data: session } = authClient.useSession();
   const { fetch: apiFetch } = useApiToast({ component: 'UserContentWidget' });
   const [content, setContent] = useState<ContentItem[]>([]);
@@ -41,7 +41,7 @@ export function UserContentWidget() {
 
     apiFetch(
       globalThis
-        .fetch(`/api/content?authorId=${session.user.id}`)
+        .fetch(`/api/content?authorId=${session.user.id}&locale=${i18n.language}`)
         .then(res => res.json())
         .then(body => (body?.data ?? []) as ContentItem[]),
       {
@@ -50,7 +50,7 @@ export function UserContentWidget() {
         onError: () => setLoading(false),
       }
     );
-  }, [session?.user?.id]);
+  }, [session?.user?.id, i18n.language]);
 
   if (loading) {
     return (

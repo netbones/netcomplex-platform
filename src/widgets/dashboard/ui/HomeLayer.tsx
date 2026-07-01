@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { authClient } from '@api/client';
 import { AlertTriangle, Calendar, Bell, Wrench, Activity, Megaphone, Clock } from 'lucide-react';
 import { getLocalizedValue } from '@shared/lib/i18n/config';
+import { useLanguage } from '@shared/lib/hooks/useSafeTranslation';
 
 async function fetchJson<T>(url: string): Promise<T[]> {
   try {
@@ -48,9 +49,9 @@ interface Announcement {
   createdAt: string;
 }
 
-function resolveTitle(title: Announcement['title']): string {
+function resolveTitle(title: Announcement['title'], locale: string): string {
   if (typeof title === 'string') return title;
-  return getLocalizedValue(title, 'en') || '';
+  return getLocalizedValue(title, locale) || '';
 }
 
 interface MaintenanceItem {
@@ -111,10 +112,12 @@ function UrgencyZone({
   urgentAnnouncements,
   overdueMaintenance,
   unreadMessageCount,
+  language,
 }: {
   urgentAnnouncements: Announcement[];
   overdueMaintenance: MaintenanceItem[];
   unreadMessageCount: number;
+  language: string;
 }) {
   const hasUrgentItems =
     urgentAnnouncements.length > 0 || overdueMaintenance.length > 0 || unreadMessageCount > 0;
@@ -133,7 +136,7 @@ function UrgencyZone({
             key={a.id}
             href={`/news#announcement-${a.id}`}
             icon={<Megaphone className="w-4 h-4 text-red-500" />}
-            label={resolveTitle(a.title)}
+            label={resolveTitle(a.title, language)}
             priority={a.priority}
           />
         ))}
@@ -299,9 +302,11 @@ function TodayCard({
 function ActivityZone({
   recentActivity,
   communityAnnouncements,
+  language,
 }: {
   recentActivity: ActivityItem[];
   communityAnnouncements: Announcement[];
+  language: string;
 }) {
   const hasItems = recentActivity.length > 0 || communityAnnouncements.length > 0;
 
@@ -318,7 +323,7 @@ function ActivityZone({
               key={a.id}
               href={`/news#announcement-${a.id}`}
               icon={<Megaphone className="w-4 h-4 text-purple-500" />}
-              title={resolveTitle(a.title)}
+              title={resolveTitle(a.title, language)}
               date={a.createdAt}
               type="Announcement"
             />
@@ -482,6 +487,7 @@ export function HomeLayer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const { data: session } = authClient.useSession();
+  const { language } = useLanguage();
 
   const role = session?.user?.role || 'RESIDENT';
   const userId = session?.user?.id;
@@ -553,7 +559,7 @@ export function HomeLayer() {
             .filter(a => a.priority !== 'urgent')
             .map(a => ({
               id: a.id,
-              title: resolveTitle(a.title),
+              title: resolveTitle(a.title, language),
               type: 'Announcement' as const,
               createdAt: a.createdAt,
               summary: undefined,
@@ -605,11 +611,13 @@ export function HomeLayer() {
         urgentAnnouncements={data.urgentAnnouncements}
         overdueMaintenance={data.overdueMaintenance}
         unreadMessageCount={data.unreadMessageCount}
+        language={language}
       />
       <TodayZone todayEvents={data.todayEvents} todayBookings={data.todayBookings} />
       <ActivityZone
         recentActivity={data.recentActivity}
         communityAnnouncements={data.communityAnnouncements}
+        language={language}
       />
     </div>
   );

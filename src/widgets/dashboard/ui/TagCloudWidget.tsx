@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useApiToast } from '@shared/lib/hooks';
+import { useLanguage } from '@shared/lib/hooks/useSafeTranslation';
 
 /*
  * TAG CLOUD WIDGET
@@ -21,18 +22,19 @@ interface TagCloudWidgetProps {
 
 export function TagCloudWidget({ widgetId: _widgetId, authorId }: TagCloudWidgetProps) {
   const { fetch: apiFetch } = useApiToast({ component: 'TagCloudWidget' });
+  const { language } = useLanguage();
   const [tags, setTags] = useState<{ name: string; size: string; count: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchUserTags();
-  }, [authorId]);
+  }, [authorId, language]);
 
   const buildApiUrl = () => {
     if (authorId) {
-      return `/api/content?authorId=${authorId}`;
+      return `/api/content?authorId=${authorId}&locale=${language}`;
     }
-    return '/api/content';
+    return `/api/content?locale=${language}`;
   };
 
   const getTagSize = (count: number): string => {
