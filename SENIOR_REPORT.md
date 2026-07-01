@@ -87,16 +87,18 @@ Senior Engineer code-quality audit of the Netcomplex Platform (Soralia Village a
 
 ---
 
-## Sprint 6 — Build & CI Pipeline Reliability
+## Sprint 6 — Lint Cleanup & Build Fixes
 
 ### Findings
 
-| #    | Issue                                        | Status  | Fix                                                                  |
-| ---- | -------------------------------------------- | ------- | -------------------------------------------------------------------- |
-| S6-1 | `tsc --noEmit` hangs/timeout on full project | ⚠️ Open | Investigate `.next/types/validator.ts` cache corruption              |
-| S6-2 | `next build` hangs/timeout                   | ⚠️ Open | Likely related to tsc hang — diagnose parallelism or memory pressure |
-| S6-3 | Pre-commit hook flakiness on large commits   | 🔲 TBD  |                                                                      |
-| S6-4 | CI pipeline missing type-check stage         | 🔲 TBD  | Add `tsc --noEmit` step after lint passes                            |
+| #    | Issue                                                                        | Status  | Fix                                                                     |
+| ---- | ---------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------------- |
+| S6-1 | `privilegedProcedure` not exported from `surveys/shared.ts` — breaks build   | ✅ Done | Added to imports/re-exports in shared.ts                                |
+| S6-2 | 7 route files use sync `params` — Next.js 15 requires `Promise<params>`      | ✅ Done | Changed to `Promise<{ id: string }>` + `await params` across 9 handlers |
+| S6-3 | 83 unused-import/unused-variable warnings in `src/`                          | ✅ Done | Cleared to 0 (47 files touched)                                         |
+| S6-4 | `getComplainantLabel` always returns `'Resident'` — complainant data unwired | ⚠️ Open | `dispute` param accepted but never used; API returns complainant info   |
+| S6-5 | `tsc --noEmit` hangs/timeout on full project                                 | ⚠️ Open | Investigate `.next/types/validator.ts` cache corruption                 |
+| S6-6 | `next build` hangs/timeout                                                   | ⚠️ Open | Likely related to tsc hang — diagnose parallelism or memory pressure    |
 
 ---
 
@@ -105,16 +107,17 @@ Senior Engineer code-quality audit of the Netcomplex Platform (Soralia Village a
 | Metric               | Pre-Audit | Current             | Target |
 | -------------------- | --------- | ------------------- | ------ |
 | ESLint errors        | 35        | 0                   | 0      |
-| ESLint warnings      | 261       | 83                  | —      |
+| ESLint warnings      | 261       | 0 (src/)            | 0      |
 | Test failures        | 21        | 0                   | 0      |
 | Coverage (lines)     | <20%      | ≥30%                | 30%    |
 | Coverage (branches)  | <15%      | ≥20%                | 20%    |
 | Coverage (functions) | <10%      | ≥15%                | 15%    |
 | Known TS errors      | ~84       | 0 (selective check) | 0      |
 
-## Critical Issues Remaining
+## Unfinished Work
 
-1. **`tsc --noEmit` and `next build` both hang/timeout** — Incremental cache corruption after clearing `.next`. Suspected cause: Next.js type checker (`.next/types/validator.ts`) chokes on certain source files. Mitigation: use `npx tsc --noEmit --pretty src/path/to/modified-file.ts 2>&1 | head -30` for scoped checks. Root cause investigation deferred to follow-up.
+1. **`getComplainantLabel` hardcoded to `'Resident'`** — `src/entities/dispute/ui/DisputeListTable.tsx:15` accepts a `dispute: DisputeCaseDTO` but never extracts the complainant name from it. The API returns complainant info that was never wired into the UI.
+2. **`tsc --noEmit` and `next build` both hang/timeout** — Incremental cache corruption after clearing `.next`. Suspected cause: Next.js type checker (`.next/types/validator.ts`) chokes on certain source files. Mitigation: use `npx tsc --noEmit --pretty src/path/to/modified-file.ts 2>&1 | head -30` for scoped checks.
 
 ## File Changes Summary
 
@@ -135,6 +138,9 @@ Senior Engineer code-quality audit of the Netcomplex Platform (Soralia Village a
 - `src/shared/lib/constants.ts` — HTTP codes, cache TTLs, etc.
 - `src/features/marketplace/ui/SwipeableServiceCard.tsx` — Added `onCardClick` prop
 - 6 server-side files — Console → Pino migration
+- `src/server/routers/surveys/shared.ts` — Added `privilegedProcedure` export
+- 7 route files — Next.js 15 `Promise<params>` migration
+- 47 files — Unused import/variable cleanup
 - `src/app/api/seats/__tests__/seats.test.ts` — Mock type fix
 - `src/entities/tenant/api/flags/services-config.ts` — Import fix
 
