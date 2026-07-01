@@ -11,6 +11,30 @@
 - COMMUNIQUE-06 — advisor Principal response + workspace design review
 - COMMUNIQUE-07 — WorkspaceContext refinement + revised roadmap
 
+---
+
+## ⚠️ MANDATORY: Feature Branch Required
+
+**This phase MUST be executed within a dedicated feature branch branched from `dev`.**
+
+The `dev` branch has active GSD workflow gating (pre-commit hooks, state checks, Steiger enforcement) that will block or interfere with this phase's exploratory architectural work. Do not commit directly to `dev`.
+
+### Feature Branch Protocol
+
+1. Create branch: `git checkout -b phase-122-workspace-context` from `dev`
+2. Execute all P1a-1 through P1a-6 steps on the feature branch
+3. Run quality gates on the feature branch before merging back
+4. Merge to `dev` via standard PR/rebase workflow when complete
+
+### Rationale
+
+- Current GSD pre-commit hooks on `dev` enforce constraints that are incompatible with exploratory architecture work
+- Steiger FSD checks on `dev` may fail during intermediate WIP states
+- Separate branch prevents blocking other contributors' work on `dev`
+- Enables squashing intermediate commits into clean history on merge
+
+---
+
 <domain>
 
 ## Phase Boundary
