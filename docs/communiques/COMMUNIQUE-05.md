@@ -324,7 +324,9 @@ The key insight: the question is **not** about authorization (both human and mec
 
 ---
 
-**Decision required:** Approve Option B (discriminator), Option C (separate models), or propose an alternative approach.
+**Decision required:** Superseded by advisor response in §6 below.
+
+> **SUPERSEDED — see §6 for new direction.** The advisor rejected all three options (A/B/C) and recommended a `Principal` abstraction. Section 5's bridge-phase recommendation (Option B) is no longer the proposed path.
 
 **Related:**
 
@@ -332,3 +334,161 @@ The key insight: the question is **not** about authorization (both human and mec
 - `.planning/phases/111-agent-gateway/111-CONTEXT.md` — Agent type union (D-01), blockchain/ZKP/commission deferrals (D-19–D-23)
 - `docs/STEERING/UBIQUITOUS_LANGUAGE.md` — C1 shape conflation precedent
 - BD `soralia-village-sm23` — current ADDENDUM gap tracking
+
+---
+
+## 6. Advisor Response — `Principal` Abstraction (RECOMMENDED)
+
+The advisor ([`docs/discussions/AGENT_DISCUSSION.md`](../discussions/AGENT_DISCUSSION.md) and [`docs/advisories/ADVISORY-022.md`](../advisories/ADVISORY-022.md)) **rejects all three options** in §3 and recommends a fourth architecture centered on a `Principal` abstraction.
+
+### 6.1 — Core principle: authorize principals, not implementations
+
+```
+Principal
+├── User
+├── ServiceProvider
+├── MechanicalAgent
+├── ExternalIntegration
+└── FutureRobot
+```
+
+A `Principal` is "something that can authenticate and perform work." The authorization layer evaluates only:
+
+- authenticated principal
+- granted scopes
+- delegation status
+
+Whether the principal is human, AI, integration, or future robot is irrelevant to the authorization pipeline. `AgentToken` already encodes this correctly.
+
+### 6.2 — ServiceProvider and MechanicalAgent are NOT siblings
+
+The advisor pushes back on framing them as equivalent — they are different **bounded contexts**:
+
+| Concept           | Bounded Context | Responsibilities                                                                 |
+| ----------------- | --------------- | -------------------------------------------------------------------------------- |
+| `ServiceProvider` | Commerce        | marketplace, billing, reputation, service catalogue, verification, bookings      |
+| `MechanicalAgent` | Automation      | capability declaration, API credentials, execution, orchestration, usage metrics |
+
+A cleaning company (sells services) and a cleaning robot (executes tasks) live in different conceptual domains. They share authentication but not business model.
+
+### 6.3 — Drop the polymorphic FK entirely
+
+The advisor's proposed schema:
+
+```prisma
+model Principal {
+  id           String   @id @default(cuid())
+  kind         PrincipalKind  // USER | SERVICE_PROVIDER | MECHANICAL_AGENT | INTEGRATION | ROBOT
+  displayName  String
+  status       PrincipalStatus
+  ...
+}
+
+model User             { id String @id  principal Principal @relation(...) }
+model ServiceProvider  { id String @id  principal Principal @relation(...) }
+model MechanicalAgent  { id String @id  principal Principal @relation(...) }
+
+model AgentAccess {
+  grantorId    String
+  principalId  String       // single, normal FK — no polymorphism
+  principal    Principal    @relation(...)
+  ...
+}
+```
+
+`AgentAccess.principalId` becomes a **normal FK** with full referential integrity. No nullable FKs. No application-layer enforcement hacks. Every join goes through `Principal`.
+
+### 6.4 — Remove AGENT from the `Role` enum
+
+The advisor argues that **AGENT is a context, not an identity**:
+
+```
+Role (organizational permissions):
+  USER, RESIDENT, BOARD, ADMIN, PROVIDER, MANAGER, ...
+
+Agent Context (derived, ephemeral):
+  Active Delegation → scoped Agent Context
+```
+
+When a delegation is active, the UI changes, navigation changes, permissions narrow. The role itself does not change. A resident who accepts a maintenance delegation remains a RESIDENT — they are now operating within an agent context.
+
+This eliminates the multi-role problem entirely and prevents role inflation.
+
+### 6.5 — Gateway becomes a Workspace (not an admin page)
+
+Instead of a static `/agent-gateway` admin page, the advisor recommends a **workspace** model that scales across user types:
+
+```
+Workspace context switcher (like GitHub orgs):
+  Personal Account
+  Soralia Property Management Ltd
+  Delegated: 14 Palm Avenue
+  Delegated: 22 Sunset Close
+  Automation
+```
+
+Each workspace has different widgets and tools but uses the same authenticated identity. See [`AGENT_DISCUSSION.md`](../discussions/AGENT_DISCUSSION.md) for full ASCII mockups.
+
+### 6.6 — Pluggable verification framework
+
+Replace the `isVerified` boolean with a verification policy engine:
+
+```
+Verification
+  principalId
+  type        // BUSINESS_REGISTRATION | API_OWNERSHIP | CAPABILITY_DECLARATION | CALIBRATION_CERT
+  status      // PENDING | VERIFIED | EXPIRED
+  evidence    Json
+  ...
+```
+
+Human providers verify via business registration, VAT, insurance, trade licence. AI agents verify via API ownership, model provider, capability declaration, security review. Robots verify via maintenance certificate, calibration, operator registration. All use the same verification engine with different policies.
+
+### 6.7 — Capability-driven billing
+
+Billing should be capability-driven, not identity-driven:
+
+- Human provider: monthly subscription, marketplace commission
+- Mechanical agent: API calls, tokens, usage, execution minutes
+- Robot: inspection hours, distance, maintenance jobs
+
+One billing engine. Many billing strategies.
+
+### 6.8 — Revised recommendation
+
+**P0** — Ship the existing Phase 111 correctness fixes (ES256, unblock ceiling, DelegationAction indexes, propertyName type fix). Do not delay for refactoring.
+
+**P1** — Introduce `Principal` abstraction. Decouple `AgentAccess` from `ServiceProvider`. This is a refactor that touches:
+
+- New `Principal` model
+- `AgentAccess.principalId` (replace `providerId` + `granteeUserId` polymorphic pair)
+- `MechanicalAgent` model (new, linked through `Principal`)
+- Migration path: add `Principal` rows for existing `ServiceProvider` records, backfill `AgentAccess.principalId` from `providerId`
+
+**P2** — Remove `AGENT` from `Role` enum. Make agent context derive from active delegations.
+
+**P3** — Pluggable verification framework. Different verification policies per principal kind.
+
+**P4** — Workspace page design. Replace `/agent-gateway` admin shell with workspace pattern.
+
+**P5** — Capability-driven billing strategies.
+
+### 6.9 — Strategic assessment
+
+The advisor agrees that **authorization is already unified** through `AgentToken` and `AgentAccess` — that is the strength to preserve. The architectural friction in this communique comes from trying to make identity, commerce, delegation, verification, and automation all live inside `ServiceProvider`.
+
+The Principal abstraction allows:
+
+- Existing Phase 111 implementation to remain stable
+- Each domain (User, ServiceProvider, MechanicalAgent) to evolve independently
+- Future principals (Integrations, Robots) to plug in without schema changes
+- Authorization to remain stable while business capabilities continue to evolve
+
+---
+
+**Decision required:** Approve Principal abstraction (P1) as the M6+ direction, or defer it to Phase 113+.
+
+**Related:**
+
+- `docs/advisories/ADVISORY-022.md` — principal-based architecture guidance
+- `docs/discussions/AGENT_DISCUSSION.md` — full advisor response with workspace mockups
