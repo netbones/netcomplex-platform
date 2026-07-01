@@ -89,4 +89,11 @@ export const SERVICES_DOMAIN_DEFINITIONS: ServicesDomainDef[] = [
     icon: '/platform/marketplace.svg',
     description: 'Browse and book community service providers',
   },
+  {
+    id: 'education',
+    labelKey: 'domains.education',
+    descriptionKey: 'domains.descriptions.education',
+    icon: '/platform/education-red.svg',
+    description: 'Bursaries, scholarships, and free learning resources',
+  },
 ];

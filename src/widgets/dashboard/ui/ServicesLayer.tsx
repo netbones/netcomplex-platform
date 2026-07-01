@@ -26,6 +26,8 @@ const DOMAIN_FALLBACKS: Record<string, string> = {
   'domains.descriptions.communication': 'Messages and announcements',
   'domains.marketplace': 'Marketplace',
   'domains.descriptions.marketplace': 'Browse and book community service providers',
+  'domains.education': 'Education Portal',
+  'domains.descriptions.education': 'Bursaries, scholarships, and free learning resources',
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -100,6 +102,13 @@ function ServicesLayerSkeleton() {
           ))}
         </div>
       </div>
+      {/* My Learning skeleton */}
+      <div>
+        <div className="h-6 bg-gray-200 rounded w-28 mb-3" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          <div className="bg-gray-100 rounded-lg h-20" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -162,7 +171,11 @@ export function ServicesLayer() {
   }
 
   const serviceDomains = SERVICES_DOMAIN_DEFINITIONS.filter(
-    d => d.id !== 'surveys' && d.id !== 'competitions' && d.id !== 'marketplace'
+    d =>
+      d.id !== 'surveys' &&
+      d.id !== 'competitions' &&
+      d.id !== 'marketplace' &&
+      d.id !== 'education'
   );
   const engagementDomains = SERVICES_DOMAIN_DEFINITIONS.filter(
     d => d.id === 'surveys' || d.id === 'competitions'
@@ -224,6 +237,22 @@ export function ServicesLayer() {
               </p>
             </div>
           </Link>
+        </div>
+      </section>
+
+      {/* Section: My Learning */}
+      <section aria-label="My Learning">
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          {tx('sections.myLearning', 'My Learning')}
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          {SERVICES_DOMAIN_DEFINITIONS.filter(d => d.id === 'education').map(domain => (
+            <DomainCard
+              key={domain.id}
+              domain={domain}
+              badge={urgency.domainBadges[domain.id] ?? 0}
+            />
+          ))}
         </div>
       </section>
 
