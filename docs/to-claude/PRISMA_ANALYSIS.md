@@ -425,4 +425,4 @@ This analysis was snapshotted before the Senior Engineer Audit (2026-06-25). The
 | S4-3 (Sprint 4)   | Missing `SurveySection` back-link on Survey                                                                 | Added `sections SurveySection[]` relation |
 | S5-7 (Sprint 5)   | Missing indexes: `Content(tenantId)`, `Event(date)`                                                         | Added `@@index` declarations              |
 
-Remaining open: model duplication (seat polymorphism, invoice/payment overlap), denormalized aggregates drift risk, soft-delete inconsistency policy.
+Remaining open (tracked as BD issues): model duplication [soralia-village-sioz], denormalized aggregates drift risk [soralia-village-g8c3], soft-delete inconsistency policy [soralia-village-2pxb]. tsc --noEmit hang tracked as [soralia-village-8rve].
