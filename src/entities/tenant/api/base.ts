@@ -67,7 +67,19 @@ const getCurrentTenantImpl = async (): Promise<Tenant | undefined> => {
   if (tenantId) return getTenantById(tenantId);
 
   const slug = headersList.get('x-tenant-slug');
-  if (slug) return getTenantBySlug(slug);
+  if (slug) {
+    const bySlug = await getTenantBySlug(slug);
+    if (bySlug) return bySlug;
+  }
+
+  // Fallback: resolve by custom domain (e.g. solaris.co.za → solaris-heights).
+  // New tenants only need their customDomain set in the DB — no code changes required.
+  const host = headersList.get('host') || '';
+  if (host) {
+    const hostWithoutPort = host.split(':')[0] || '';
+    const byDomain = await getTenantByDomain(hostWithoutPort);
+    if (byDomain) return byDomain;
+  }
 
   // Fallback for development: use LOCAL_TENANT_SLUG env or default to 'soralia'
   // This allows Soralia development to work with the multi-tenant system
