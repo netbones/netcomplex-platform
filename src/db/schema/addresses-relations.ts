@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { addresses } from './addresses';
+import { tenants } from './tenants';
 import { addressEndpoints } from './address-endpoints';
 import { handles } from './handles';
 import { premiumSeats } from './premium-seats';
@@ -10,6 +11,11 @@ import { soloSeats } from './solo-seats';
 import { standardSeats } from './standard-seats';
 
 export const addressesRelations = relations(addresses, helpers => ({
+  Tenant: helpers.one(tenants, {
+    relationName: 'AddressToTenant',
+    fields: [addresses.tenantId],
+    references: [tenants.id],
+  }),
   canonicalAddress: helpers.one(addresses, {
     relationName: 'AddressCanonical',
     fields: [addresses.canonicalAddressId],

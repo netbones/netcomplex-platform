@@ -127,6 +127,7 @@ import * as userKeysRelations from './user-keys-relations';
 import * as userDevicesRelations from './user-devices-relations';
 import * as platformModulesRelations from './platform-modules-relations';
 import * as tenantModulesRelations from './tenant-modules-relations';
+import * as settingsRelations from './settings-relations';
 import * as propertiesRelations from './properties-relations';
 import * as householdsRelations from './households-relations';
 import * as propertyListingsRelations from './property-listings-relations';
@@ -182,6 +183,7 @@ import * as surveysRelations from './surveys-relations';
 import * as questionsRelations from './questions-relations';
 import * as responsesRelations from './responses-relations';
 import * as surveySectionsRelations from './survey-sections-relations';
+import * as externalSurveysRelations from './external-surveys-relations';
 import * as communityMeritsRelations from './community-merits-relations';
 import * as competitionsRelations from './competitions-relations';
 import * as competitionEntriesRelations from './competition-entries-relations';
@@ -200,6 +202,8 @@ import * as dWalletsRelations from './d-wallets-relations';
 import * as walletTransactionsRelations from './wallet-transactions-relations';
 import * as dataConsentsRelations from './data-consents-relations';
 import * as payoutRequestsRelations from './payout-requests-relations';
+import * as dataRevenueStreamsRelations from './data-revenue-streams-relations';
+import * as dataShareBatchesRelations from './data-share-batches-relations';
 import * as addressesRelations from './addresses-relations';
 import * as handlesRelations from './handles-relations';
 import * as addressEndpointsRelations from './address-endpoints-relations';
@@ -344,6 +348,7 @@ export const schema = {
   ...userDevicesRelations,
   ...platformModulesRelations,
   ...tenantModulesRelations,
+  ...settingsRelations,
   ...propertiesRelations,
   ...householdsRelations,
   ...propertyListingsRelations,
@@ -399,6 +404,7 @@ export const schema = {
   ...questionsRelations,
   ...responsesRelations,
   ...surveySectionsRelations,
+  ...externalSurveysRelations,
   ...communityMeritsRelations,
   ...competitionsRelations,
   ...competitionEntriesRelations,
@@ -417,6 +423,8 @@ export const schema = {
   ...walletTransactionsRelations,
   ...dataConsentsRelations,
   ...payoutRequestsRelations,
+  ...dataRevenueStreamsRelations,
+  ...dataShareBatchesRelations,
   ...addressesRelations,
   ...handlesRelations,
   ...addressEndpointsRelations,

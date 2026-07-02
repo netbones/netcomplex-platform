@@ -1,9 +1,15 @@
 import { relations } from 'drizzle-orm';
 import { agentTokens } from './agent-tokens';
+import { tenants } from './tenants';
 import { agentAccesses } from './agent-accesses';
 import { users } from './users';
 
 export const agentTokensRelations = relations(agentTokens, helpers => ({
+  Tenant: helpers.one(tenants, {
+    relationName: 'AgentTokenToTenant',
+    fields: [agentTokens.tenantId],
+    references: [tenants.id],
+  }),
   access: helpers.one(agentAccesses, {
     relationName: 'AgentAccessToAgentToken',
     fields: [agentTokens.accessId],
