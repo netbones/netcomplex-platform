@@ -28,6 +28,39 @@ import { resources } from './resources';
 import { serviceBookings } from './service-bookings';
 import { soloSeats } from './solo-seats';
 import { standardSeats } from './standard-seats';
+import { addresses } from './addresses';
+import { agentAccesses } from './agent-accesses';
+import { agentTokens } from './agent-tokens';
+import { aiUsageEvents } from './ai-usage-events';
+import { bursaries } from './bursaries';
+import { delegationActions } from './delegation-actions';
+import { disputeCases } from './dispute-cases';
+import { disputeEvidences } from './dispute-evidences';
+import { disputeEvents } from './dispute-events';
+import { disputeMessages } from './dispute-messages';
+import { disputeNotifications } from './dispute-notifications';
+import { handles } from './handles';
+import { platformSuspensions } from './platform-suspensions';
+import { residentDelegations } from './resident-delegations';
+import { settings } from './settings';
+import { subscriptionTiers } from './subscription-tiers';
+import { tenantAiUsages } from './tenant-ai-usages';
+import { userAchievements } from './user-achievements';
+import { userAchievementProgresses } from './user-achievement-progresses';
+import { agentProfiles } from './agent-profiles';
+import { communityMerits } from './community-merits';
+import { competitions } from './competitions';
+import { dataConsents } from './data-consents';
+import { dataRevenueStreams } from './data-revenue-streams';
+import { dataShareBatches } from './data-share-batches';
+import { dWallets } from './d-wallets';
+import { externalSurveys } from './external-surveys';
+import { payoutRequests } from './payout-requests';
+import { questions } from './questions';
+import { responses } from './responses';
+import { surveys } from './surveys';
+import { surveySections } from './survey-sections';
+import { walletTransactions } from './wallet-transactions';
 import { billingAdjustments } from './billing-adjustments';
 import { billingEvents } from './billing-events';
 import { billingPlans } from './billing-plans';
@@ -97,6 +130,51 @@ export const tenantsRelations = relations(tenants, helpers => ({
   ServiceBooking: helpers.many(serviceBookings, { relationName: 'ServiceBookingToTenant' }),
   SoloSeat: helpers.many(soloSeats, { relationName: 'SoloSeatToTenant' }),
   StandardSeat: helpers.many(standardSeats, { relationName: 'StandardSeatToTenant' }),
+  Address: helpers.many(addresses, { relationName: 'AddressToTenant' }),
+  AgentAccess: helpers.many(agentAccesses, { relationName: 'AgentAccessToTenant' }),
+  AgentToken: helpers.many(agentTokens, { relationName: 'AgentTokenToTenant' }),
+  AiUsageEvent: helpers.many(aiUsageEvents, { relationName: 'AiUsageEventToTenant' }),
+  Bursary: helpers.many(bursaries, { relationName: 'BursaryToTenant' }),
+  DelegationAction: helpers.many(delegationActions, { relationName: 'DelegationActionToTenant' }),
+  DisputeCase: helpers.many(disputeCases, { relationName: 'DisputeCaseToTenant' }),
+  DisputeEvidence: helpers.many(disputeEvidences, { relationName: 'DisputeEvidenceToTenant' }),
+  DisputeEvent: helpers.many(disputeEvents, { relationName: 'DisputeEventToTenant' }),
+  DisputeMessage: helpers.many(disputeMessages, { relationName: 'DisputeMessageToTenant' }),
+  DisputeNotification: helpers.many(disputeNotifications, {
+    relationName: 'DisputeNotificationToTenant',
+  }),
+  Handle: helpers.many(handles, { relationName: 'HandleToTenant' }),
+  PlatformSuspension: helpers.many(platformSuspensions, {
+    relationName: 'PlatformSuspensionToTenant',
+  }),
+  ResidentDelegation: helpers.many(residentDelegations, {
+    relationName: 'ResidentDelegationToTenant',
+  }),
+  Setting: helpers.many(settings, { relationName: 'SettingToTenant' }),
+  SubscriptionTier: helpers.many(subscriptionTiers, { relationName: 'SubscriptionTierToTenant' }),
+  TenantAiUsage: helpers.many(tenantAiUsages, { relationName: 'TenantToTenantAiUsage' }),
+  UserAchievement: helpers.many(userAchievements, { relationName: 'TenantToUserAchievement' }),
+  UserAchievementProgress: helpers.many(userAchievementProgresses, {
+    relationName: 'TenantToUserAchievementProgress',
+  }),
+  AgentProfile: helpers.many(agentProfiles, { relationName: 'AgentProfileToTenant' }),
+  CommunityMerit: helpers.many(communityMerits, { relationName: 'CommunityMeritToTenant' }),
+  Competition: helpers.many(competitions, { relationName: 'CompetitionToTenant' }),
+  DataConsent: helpers.many(dataConsents, { relationName: 'DataConsentToTenant' }),
+  DataRevenueStream: helpers.many(dataRevenueStreams, {
+    relationName: 'DataRevenueStreamToTenant',
+  }),
+  DataShareBatch: helpers.many(dataShareBatches, { relationName: 'DataShareBatchToTenant' }),
+  DWallet: helpers.many(dWallets, { relationName: 'DWalletToTenant' }),
+  ExternalSurvey: helpers.many(externalSurveys, { relationName: 'ExternalSurveyToTenant' }),
+  PayoutRequest: helpers.many(payoutRequests, { relationName: 'PayoutRequestToTenant' }),
+  Question: helpers.many(questions, { relationName: 'QuestionToTenant' }),
+  Response: helpers.many(responses, { relationName: 'ResponseToTenant' }),
+  Survey: helpers.many(surveys, { relationName: 'SurveyToTenant' }),
+  SurveySection: helpers.many(surveySections, { relationName: 'SurveySectionToTenant' }),
+  WalletTransaction: helpers.many(walletTransactions, {
+    relationName: 'TenantToWalletTransaction',
+  }),
   BillingAdjustment: helpers.many(billingAdjustments, {
     relationName: 'BillingAdjustmentToTenant',
   }),

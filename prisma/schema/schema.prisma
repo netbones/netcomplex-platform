@@ -311,6 +311,7 @@ model ServiceBooking {
 model AgentProfile {
   id               String    @id
   tenantId         String
+  Tenant           Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   agentId          String    @unique
   agencyName       String?
   licenseNumber    String?
@@ -337,6 +338,7 @@ model AgentProfile {
   @@index([isVerified])
   @@index([organizationId])
   @@index([rating])
+  @@index([tenantId])
 }
 
 model PremiumSeat {
@@ -471,6 +473,7 @@ model TenantModule {
 model Setting {
   id            String    @id
   tenantId      String
+  Tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   key           String
   value         String
   createdAt     DateTime  @default(now())
@@ -479,6 +482,7 @@ model Setting {
   deletedAt     DateTime?
 
   @@unique([tenantId, key])
+  @@index([tenantId])
 }
 
 model Property {
@@ -1627,6 +1631,7 @@ model TaxJurisdiction {
 model Survey {
   id            String          @id
   tenantId      String
+  Tenant        Tenant          @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   title         String
   description   String?
   type          SurveyType      @default(INTERNAL)
@@ -1648,6 +1653,7 @@ model Survey {
 model Question {
   id        String         @id
   tenantId  String
+  Tenant    Tenant         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   surveyId  String
   sectionId String?
   text      String
@@ -1662,11 +1668,13 @@ model Question {
 
   @@index([surveyId])
   @@index([sectionId])
+  @@index([tenantId])
 }
 
 model Response {
   id        String    @id
   tenantId  String
+  Tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   surveyId  String
   userId    String?
   answers   Json
@@ -1675,11 +1683,13 @@ model Response {
   Survey    Survey    @relation(fields: [surveyId], references: [id], onDelete: Cascade)
 
   @@index([surveyId])
+  @@index([tenantId])
 }
 
 model SurveySection {
   id          String     @id
   tenantId    String
+  Tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   surveyId    String
   title       String?
   description String?
@@ -1692,11 +1702,13 @@ model SurveySection {
   Survey      Survey     @relation(fields: [surveyId], references: [id], onDelete: Cascade)
 
   @@index([surveyId])
+  @@index([tenantId])
 }
 
 model ExternalSurvey {
   id         String    @id
   tenantId   String
+  Tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   name       String
   provider   String
   externalId String
@@ -1713,6 +1725,7 @@ model ExternalSurvey {
 model CommunityMerit {
   id                 String               @id
   tenantId           String
+  Tenant             Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   userId             String
   behaviorType       BehaviorType
   category           BehaviorCategory     @default(OTHER)
@@ -1746,6 +1759,7 @@ model CommunityMerit {
 model Competition {
   id              String             @id @default(cuid())
   tenantId        String
+  Tenant          Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   title           String
   description     String?
   rules           String?
@@ -1812,6 +1826,7 @@ model AssistSession {
 model AgentAccess {
   id                                 String             @id
   tenantId                           String
+  Tenant                             Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   agentId                            String
   propertyId                         String
   grantedById                        String
@@ -1841,11 +1856,13 @@ model AgentAccess {
   @@index([propertyId])
   @@index([organizationId])
   @@index([grantedById])
+  @@index([tenantId])
 }
 
 model AgentToken {
   id             String       @id @default(cuid())
   tenantId       String
+  Tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   agentId        String
   issuedById     String
   accessId       String?
@@ -1865,11 +1882,13 @@ model AgentToken {
   @@index([agentId])
   @@index([tokenHash])
   @@index([expiresAt])
+  @@index([tenantId])
 }
 
 model DelegationAction {
   id           String      @id @default(cuid())
   tenantId     String
+  Tenant       Tenant      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   delegationId String
   action       String
   actorId      String
@@ -1886,6 +1905,7 @@ model DelegationAction {
 model ResidentDelegation {
   id         String    @id @default(cuid())
   tenantId   String
+  Tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   propertyId String
   ownerId    String
   profileId  String
@@ -1902,11 +1922,13 @@ model ResidentDelegation {
   @@index([propertyId])
   @@index([profileId])
   @@index([ownerId])
+  @@index([tenantId])
 }
 
 model PlatformSuspension {
   id             String         @id
   tenantId       String
+  Tenant         Tenant         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   userId         String
   suspensionType SuspensionType
   reason         String
@@ -1923,11 +1945,13 @@ model PlatformSuspension {
 
   @@index([isActive])
   @@index([userId])
+  @@index([tenantId])
 }
 
 model SubscriptionTier {
   id                   String                 @id @default(cuid())
   tenantId             String
+  Tenant               Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   name                 String
   description          String?
   price                Decimal                @db.Decimal(10, 2)
@@ -1975,6 +1999,7 @@ model TenantAchievement {
 model UserAchievementProgress {
   id           String                @id @default(cuid())
   tenantId     String
+  Tenant       Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   userId       String
   definitionId String
   count        Int                   @default(0)
@@ -1989,6 +2014,7 @@ model UserAchievementProgress {
 model UserAchievement {
   id           String                @id @default(cuid())
   tenantId     String
+  Tenant       Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   userId       String
   definitionId String
   unlockedAt   DateTime              @default(now())
@@ -2003,6 +2029,7 @@ model UserAchievement {
 model DWallet {
   id             String              @id @default(cuid())
   tenantId       String
+  Tenant         Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   userId         String              @unique
   balance        Decimal             @default(0) @db.Decimal(12, 2)
   currency       String              @default("ZAR")
@@ -2025,6 +2052,7 @@ model DWallet {
 model WalletTransaction {
   id            String            @id @default(cuid())
   tenantId      String
+  Tenant        Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   walletId      String
   type          TransactionType
   amount        Decimal           @db.Decimal(12, 2)
@@ -2047,6 +2075,7 @@ model WalletTransaction {
 model DataConsent {
   id        String    @id @default(cuid())
   tenantId  String
+  Tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   walletId  String
   userId    String
   streamKey String
@@ -2066,6 +2095,7 @@ model DataConsent {
 model PayoutRequest {
   id            String       @id @default(cuid())
   tenantId      String
+  Tenant        Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   walletId      String
   userId        String
   amount        Decimal      @db.Decimal(12, 2)
@@ -2088,6 +2118,7 @@ model PayoutRequest {
 model DataRevenueStream {
   id               String   @id @default(cuid())
   tenantId         String
+  Tenant           Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   key              String
   label            String
   description      String?
@@ -2103,6 +2134,7 @@ model DataRevenueStream {
 model DataShareBatch {
   id               String      @id @default(cuid())
   tenantId         String
+  Tenant           Tenant      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   periodStart      DateTime
   periodEnd        DateTime
   streamKey        String
@@ -2121,6 +2153,7 @@ model DataShareBatch {
 model Address {
   id                 String            @id @default(cuid())
   tenantId           String
+  Tenant             Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   address            String
   localPart          String
   domain             String
@@ -2157,6 +2190,7 @@ model Address {
 model Handle {
   id        String       @id @default(cuid())
   tenantId  String
+  Tenant    Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   handle    String
   addressId String
   status    HandleStatus @default(ACTIVE)
@@ -2165,6 +2199,7 @@ model Handle {
 
   @@unique([tenantId, handle])
   @@index([addressId])
+  @@index([tenantId])
 }
 
 model AddressEndpoint {
@@ -2202,6 +2237,7 @@ model AiCapabilityCost {
 model TenantAiUsage {
   id             String         @id @default(cuid())
   tenantId       String
+  Tenant         Tenant         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   billingMonth   String
   tokensAllotted Int
   tokensUsed     Int            @default(0)
@@ -2220,6 +2256,7 @@ model TenantAiUsage {
 model AiUsageEvent {
   id               String        @id @default(cuid())
   tenantId         String
+  Tenant           Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   usageId          String
   capability       String
   provider         String
@@ -2244,6 +2281,7 @@ model AiUsageEvent {
 model DisputeCase {
   id                  String                @id @default(cuid())
   tenantId            String
+  Tenant              Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   referenceNumber     String                @unique
   complainantId       String
   respondentId        String?
@@ -2293,6 +2331,7 @@ model DisputeCase {
 model DisputeEvidence {
   id          String      @id @default(cuid())
   tenantId    String
+  Tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   disputeId   String
   uploadedBy  String
   fileUrl     String
@@ -2306,11 +2345,13 @@ model DisputeEvidence {
 
   @@index([disputeId])
   @@index([uploadedBy])
+  @@index([tenantId])
 }
 
 model DisputeEvent {
   id         String           @id @default(cuid())
   tenantId   String
+  Tenant     Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   disputeId  String
   actorId    String?
   eventType  DisputeEventType
@@ -2324,11 +2365,13 @@ model DisputeEvent {
 
   @@index([disputeId])
   @@index([eventType])
+  @@index([tenantId])
 }
 
 model DisputeMessage {
   id         String                  @id @default(cuid())
   tenantId   String
+  Tenant     Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   disputeId  String
   senderId   String
   content    String
@@ -2342,6 +2385,7 @@ model DisputeMessage {
 
   @@index([disputeId])
   @@index([senderId])
+  @@index([tenantId])
 }
 
 model DisputeMessageVersion {
@@ -2358,6 +2402,7 @@ model DisputeMessageVersion {
 model DisputeNotification {
   id        String      @id @default(cuid())
   tenantId  String
+  Tenant    Tenant      @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   disputeId String
   userId    String
   type      String
@@ -2368,11 +2413,13 @@ model DisputeNotification {
 
   @@index([disputeId])
   @@index([userId])
+  @@index([tenantId])
 }
 
 model Bursary {
   id          String        @id @default(cuid())
   tenantId    String
+  Tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   title       String
   funder      String
   fieldId     String
